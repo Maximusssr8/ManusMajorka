@@ -48,3 +48,5 @@
 - [x] Integrated 21st Dev geometric hero component into home page
 
 - [x] Remove absolute positioned CTA button overlay from hero section
+
+- [x] Patch Majorka Menu HTML: add null checks for T.text in buildWebsiteRunner

@@ -9,7 +9,8 @@ import {
   ChevronRight, CheckCircle, Star, ArrowRight, Lock
 } from "lucide-react";
 
-const MAJORKA_CDN = "https://private-us-east-1.manuscdn.com/user_upload_by_module/session_file/310519663410730336/BApNLVTQJIkjfTKY.html?Expires=1804386341&Signature=VMk5i6QImmjlDYzAeo1ueLBFHRfcckgvTWeyI4ISHQQc-Xss~Dbzto6yNsOGZfdaNnRVnQ0VtqbVJQ4Xwx~f7eQykCAE3BFq4O6M9cHjDclq5pBee0faV71819fXJTuqaliONfahipmy~f9Jy6awmsiZrUZTee~ppw5ypYObfYZOWU~qcrDBbVYOS0OHTpsasgjn~JbOozyMmDkGBN5L5sIf4Q9pdwU5bLME7xUFGTtZ4IL60TMjwVky7DOukS~d6UXMF-3hQhod65Lb2~m2XMq3AISdhMnV9XJeGKSssX8gvYMwGDJatEDM0rvFm1Zg6euNj~fV0t0ztz6EgSRFEQ__&Key-Pair-Id=K2HSFNDJXOU9YS";
+const MAJORKA_CDN = "https://private-us-east-1.manuscdn.com/user_upload_by_module/session_file/310519663410730336/rRJeDcRfMGUztBDG.html?Expires=1804388139&Signature=johyutTbmyawv7LhddwYfbQ8QdBXiuFeCmBhqGx61epQssm3YAGQE~0qsQKTFMlxZt62bk7iQmas9KVqOPPz4CSuaUmdLcE6~jdaK3xMGeOjeRjCD0TFISQjY9ABNpRyvepm3jTb7XLWlhBGBY8GORktwGgR2Zi2YiupKhefY1vEw~3Wp20Mteff37sOT5iMB3EyKWJy5zrWaO1aO5JSCBkcqeZCAYhRLB9tDGOBEFrcXk7ftWeUhAxXhn9ExFlIJb425YxSy9U~tFuxCNxKHvLn8YIKJfTHqBe-ZmK5a4MjWY4hq59JP6ox9czPAsBDzbI~deqlWmYsXF809LopNw__&Key-Pair-Id=K2HSFNDJXOU9YS";
+// Patched version with null checks for T.text undefined error
 
 const features = [
   {
