@@ -41,3 +41,8 @@
 - [x] Fix pre-existing scaffold TS errors (Markdown, AIChatBox, ComponentShowcase)
 - [x] Dark gold theme (CSS variables, Syne + DM Mono fonts via Google Fonts)
 - [x] Responsive nav bar on all pages
+
+
+## Bug Fixes & Enhancements
+- [x] Diagnosed website generator error in Majorka Menu (T.text undefined issue)
+- [x] Integrated 21st Dev geometric hero component into home page

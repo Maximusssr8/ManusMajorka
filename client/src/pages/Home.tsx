@@ -3,6 +3,7 @@ import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { HeroGeometric } from "@/components/ui/shape-landing-hero";
 import {
   Zap, Globe, BarChart2, MessageSquare, Layers, TrendingUp,
   ChevronRight, CheckCircle, Star, ArrowRight, Lock
@@ -149,42 +150,16 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* ── HERO ── */}
-      <section className="relative z-10 pt-24 pb-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="animate-fade-up">
-            <Badge
-              className="mb-6 px-4 py-1.5 text-xs font-bold uppercase tracking-wider border"
-              style={{ background: "rgba(212,175,55,0.1)", borderColor: "rgba(212,175,55,0.3)", color: "#d4af37", fontFamily: "Syne, sans-serif" }}
-            >
-              AI Ecommerce Operating System
-            </Badge>
-          </div>
-
-          <h1
-            className="animate-fade-up-2 text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight mb-6"
-            style={{ fontFamily: "Syne, sans-serif" }}
-          >
-            Your AI{" "}
-            <span
-              style={{
-                background: "linear-gradient(135deg, #d4af37, #f0c040)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              ecommerce
-            </span>
-            <br />
-            co-founder
-          </h1>
-
-          <p className="animate-fade-up-3 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10">
-            Research. Validate. Build. Launch. Optimise. Scale. Majorka gives you every AI tool you need to run a profitable ecommerce business — in one operating system.
-          </p>
-
-          <div className="animate-fade-up-3 flex flex-col sm:flex-row gap-4 justify-center items-center">
+      {/* ── HERO (21st Dev Geometric) ── */}
+      <section className="relative z-10">
+        <HeroGeometric
+          badge="AI Ecommerce Operating System"
+          title1="Your AI"
+          title2="Ecommerce Co-founder"
+        />
+        {/* CTA overlay positioned over hero */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pointer-events-auto">
             <Button
               size="lg"
               onClick={handleCTA}
@@ -200,13 +175,12 @@ export default function Home() {
               {isAuthenticated ? "Open Majorka" : "Get Access — $99 / month"}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-            <p className="text-sm text-muted-foreground">30-day money-back guarantee · Cancel anytime</p>
           </div>
         </div>
       </section>
 
       {/* ── APP PREVIEW ── */}
-      <section className="relative z-10 px-4 pb-20">
+      <section className="relative z-10 px-4 py-20">
         <div className="max-w-5xl mx-auto">
           <div
             className="rounded-2xl overflow-hidden border"
@@ -267,7 +241,7 @@ export default function Home() {
       </section>
 
       {/* ── FEATURES ── */}
-      <section className="relative z-10 py-20 px-4">
+      <section className="relative z-10 py-24 px-4 bg-background/50 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
@@ -313,7 +287,7 @@ export default function Home() {
       </section>
 
       {/* ── TESTIMONIALS ── */}
-      <section className="relative z-10 py-20 px-4">
+      <section className="relative z-10 py-24 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
@@ -346,7 +320,7 @@ export default function Home() {
       </section>
 
       {/* ── PRICING ── */}
-      <section className="relative z-10 py-20 px-4" id="pricing">
+      <section className="relative z-10 py-24 px-4 bg-background/50 backdrop-blur-sm" id="pricing">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-12">
             <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
