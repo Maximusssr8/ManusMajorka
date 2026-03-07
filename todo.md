@@ -46,3 +46,5 @@
 ## Bug Fixes & Enhancements
 - [x] Diagnosed website generator error in Majorka Menu (T.text undefined issue)
 - [x] Integrated 21st Dev geometric hero component into home page
+
+- [x] Remove absolute positioned CTA button overlay from hero section

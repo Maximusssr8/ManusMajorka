@@ -157,25 +157,27 @@ export default function Home() {
           title1="Your AI"
           title2="Ecommerce Co-founder"
         />
-        {/* CTA overlay positioned over hero */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pointer-events-auto">
-            <Button
-              size="lg"
-              onClick={handleCTA}
-              className="px-8 py-6 text-base font-bold rounded-xl"
-              style={{
-                background: "linear-gradient(135deg, #d4af37, #c09a28)",
-                color: "#080a0e",
-                fontFamily: "Syne, sans-serif",
-                fontWeight: 800,
-                boxShadow: "0 4px 24px rgba(212,175,55,0.35)",
-              }}
-            >
-              {isAuthenticated ? "Open Majorka" : "Get Access — $99 / month"}
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-          </div>
+      </section>
+
+      {/* ── HERO CTA ── */}
+      <section className="relative z-10 -mt-24 pb-20 px-4">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <Button
+            size="lg"
+            onClick={handleCTA}
+            className="px-8 py-6 text-base font-bold rounded-xl"
+            style={{
+              background: "linear-gradient(135deg, #d4af37, #c09a28)",
+              color: "#080a0e",
+              fontFamily: "Syne, sans-serif",
+              fontWeight: 800,
+              boxShadow: "0 4px 24px rgba(212,175,55,0.35)",
+            }}
+          >
+            {isAuthenticated ? "Open Majorka" : "Get Access — $99 / month"}
+            <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
+          <p className="text-sm text-muted-foreground">30-day money-back guarantee · Cancel anytime</p>
         </div>
       </section>
 
