@@ -65,7 +65,8 @@ import { DefaultChatTransport } from "ai";
 // import them directly from "ai" package in your consuming code.
 // ============================================================================
 
-import type { UIMessage, UIMessagePart, UIToolInvocation } from "ai";
+import type { UIMessage, UIToolInvocation } from "ai";
+type UIMessagePart = { type: string; text?: string; [key: string]: unknown };
 
 /**
  * Tool invocation state derived from AI SDK's UIToolInvocation type.
@@ -104,7 +105,7 @@ export function isToolComplete(state: ToolInvocationState): boolean {
  */
 export interface ToolPartRendererProps {
   /** The tool part from the message - type is `tool-${toolName}` */
-  part: UIMessagePart & { type: `tool-${string}` };
+  part: { type: `tool-${string}`; [key: string]: unknown };
   /** Extracted tool name for convenience */
   toolName: string;
   /** Current state of the tool invocation */
@@ -245,7 +246,7 @@ function MessageBubble({
             }
             return (
               <div key={i} className="prose prose-sm dark:prose-invert max-w-none">
-                <Markdown mode={isStreaming ? "typewriter" : "static"} typewriterSpeed={50}>
+                <Markdown mode={isStreaming ? "streaming" : "static"}>
                   {part.text}
                 </Markdown>
               </div>
