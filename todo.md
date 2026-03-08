@@ -179,3 +179,13 @@
 - [x] Pass examplePrompts from tool definition to AIToolChat in ToolPage.tsx
 - [x] Fix landing page stage pills: replaced static pills with interactive StageTabsSection (click to see tool grid per stage)
 - [x] TypeScript: 0 errors | Tests: 1 passing
+
+## Phase 11: 21Dev Colour Theme
+
+- [x] Apply 21Dev :root light theme (white background, zinc borders, #0a0a0a foreground)
+- [x] Apply 21Dev .dark theme (#0a0a0a background, #fafafa foreground, zinc-800 borders)
+- [x] Apply 21Dev chart colours (orange, teal, amber, purple, rose)
+- [x] Apply 21Dev sidebar variables (sidebar, sidebar-primary #1d4ed8 in dark)
+- [x] Preserve Syne + DM Sans fonts in @layer base
+- [x] Preserve existing @theme inline block and container/flex utilities
+- [x] TypeScript: 0 errors | HMR: hot updated /src/index.css confirmed
