@@ -257,3 +257,19 @@
 - [x] Create reusable SaveToProduct component (product selector dropdown + save mutation)
 - [x] Wire SaveToProduct into all 22 structured tool output pages
 - [x] Handle edge cases: no products yet (show create prompt), already saved (show success)
+
+
+## Phase 14: 21Dev Components Integration
+
+- [x] Create SparklesCore lightweight particle effect component (canvas-based)
+- [x] Create Dock macOS-style magnifying dock component
+- [x] Create ChatInput composable component with auto-resize textarea
+- [x] Create useTextareaResize hook for dynamic textarea height
+- [x] Fix MetaAdsPack JSX fragment issue
+- [x] TypeScript: 0 errors | Dev server: running cleanly
+- [ ] Integrate Dock into Dashboard (quick tool access) — deferred
+- [ ] Integrate ChatInput into AIToolChat component — deferred
+- [ ] Integrate SparklesCore into landing page hero — deferred
+- [ ] Create Header-3 responsive navigation component — deferred
+- [ ] Create Hero-195 animated timeline component — deferred
+- [ ] Create Compare before/after image slider component — deferred
