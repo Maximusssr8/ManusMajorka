@@ -157,3 +157,14 @@
 - [x] All tool pages use consistent Syne font for headings
 - [x] All generation features have loading states (spinner + animated icon)
 - [x] All tools have empty state guides with emoji + description
+
+## Phase 9: Landing Page Review Fixes
+- [x] Confirmed hero subheadline is already correct (not the template placeholder)
+- [x] Confirmed pricing is already free beta ($0, no credit card)
+- [x] Confirmed no fake testimonials exist
+- [x] Added "How It Works" section (3 steps: Paste product → Pick tools → Launch)
+- [x] Added "Value Comparison" table (Majorka vs hiring individually — $4,800–$15,000/mo vs free)
+- [x] Added FAQ accordion section (6 questions: Shopify, beginners, AI model, free beta, export, vs ChatGPT)
+- [x] Added nav anchor links: Features · How It Works · Pricing · FAQ · Sign In · Get Access
+- [x] Added footer anchor links: Features · How It Works · Pricing · FAQ · Launch App
+- [x] Final CTA button added below FAQ section

@@ -8,8 +8,9 @@ import {
   ChevronRight, ArrowRight,
   Zap, Globe, BarChart2, MessageSquare, Layers, TrendingUp,
   Search, BarChart, CheckCircle2, Rocket as RocketIcon,
+  ChevronDown,
 } from "lucide-react";
-import { createElement } from "react";
+import { createElement, useState } from "react";
 
 const orbitalStages = [
   {
@@ -83,6 +84,63 @@ const features = [
   },
 ];
 
+const howItWorks = [
+  {
+    step: "01",
+    title: "Paste your product",
+    desc: "Drop in a product URL, AliExpress link, or just describe your idea. Majorka extracts the product details automatically.",
+    accent: "#d4af37",
+  },
+  {
+    step: "02",
+    title: "Pick your tools",
+    desc: "Choose from 50+ purpose-built AI tools — research competitors, generate ad copy, build a landing page, or run a full launch pack.",
+    accent: "#9c5fff",
+  },
+  {
+    step: "03",
+    title: "Launch and scale",
+    desc: "Export your website, download your ad pack, and go live. Then use the Optimize and Scale tools to grow from first sale to 7 figures.",
+    accent: "#2dca72",
+  },
+];
+
+const valueComparison = [
+  { role: "Copywriter", cost: "$800–$2,000/mo", majorka: "Copywriter tool — unlimited" },
+  { role: "Ads Manager", cost: "$1,500–$4,000/mo", majorka: "Meta Ads Pack + Ads Studio" },
+  { role: "Web Developer", cost: "$500–$3,000/project", majorka: "Website Generator — instant" },
+  { role: "Market Researcher", cost: "$500–$1,500/mo", majorka: "Trend Radar + Competitor Breakdown" },
+  { role: "Brand Strategist", cost: "$1,000–$3,000/project", majorka: "Brand DNA Analyzer" },
+  { role: "Email Marketer", cost: "$500–$1,500/mo", majorka: "Email Sequences tool" },
+];
+
+const faqs = [
+  {
+    q: "Do I need a Shopify store already?",
+    a: "No. Majorka works at every stage — from zero to scaling. You can use the Website Generator to build your landing page, then export it directly to Shopify Liquid when you're ready.",
+  },
+  {
+    q: "Is this for beginners or experienced sellers?",
+    a: "Both. Beginners use the Research and Validate tools to find winning products without guesswork. Experienced operators use the Launch and Optimize tools to move faster and cut agency costs.",
+  },
+  {
+    q: "What AI model powers it?",
+    a: "Majorka uses frontier AI models (GPT-4 class) with ecommerce-specific system prompts trained on real store data, ad performance patterns, and conversion principles.",
+  },
+  {
+    q: "Is it really free during beta?",
+    a: "Yes — all 50+ tools, unlimited runs, no credit card required. Beta access is free while we're building. The price will increase when we launch publicly.",
+  },
+  {
+    q: "Can I export the generated content?",
+    a: "Yes. The Website Generator exports HTML and Shopify Liquid. Ad copy, email sequences, and all text outputs have one-click copy buttons. Nothing is locked inside the platform.",
+  },
+  {
+    q: "How is this different from ChatGPT?",
+    a: "ChatGPT is a general-purpose chat interface. Majorka is purpose-built for ecommerce — every tool has a structured form, real-time web data via Tavily, and output formatted for immediate use (ad copy, landing pages, email flows, etc.).",
+  },
+];
+
 const betaIncludes = [
   "All 50+ AI tools — unlimited runs",
   "Website Generator — unlimited generations",
@@ -98,8 +156,12 @@ const betaIncludes = [
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const handleLaunchApp = () => {
     setLocation("/app");
+  };
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -142,18 +204,45 @@ export default function Home() {
             </span>
           </div>
 
+          {/* Anchor nav links — desktop only */}
+          <div className="hidden md:flex items-center gap-6">
+            {[
+              { label: "Features", id: "features" },
+              { label: "How It Works", id: "how-it-works" },
+              { label: "Pricing", id: "pricing" },
+              { label: "FAQ", id: "faq" },
+            ].map(({ label, id }) => (
+              <button
+                key={id}
+                onClick={() => scrollTo(id)}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                style={{ fontFamily: "Syne, sans-serif", fontWeight: 600 }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
           <div className="flex items-center gap-3">
-            {isAuthenticated && (
+            {isAuthenticated ? (
               <span className="text-sm text-muted-foreground hidden sm:block">
                 Welcome, {user?.name?.split(" ")[0]}
               </span>
+            ) : (
+              <button
+                onClick={handleLaunchApp}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block"
+                style={{ fontFamily: "Syne, sans-serif", fontWeight: 600 }}
+              >
+                Sign In
+              </button>
             )}
             <Button
               size="sm"
               onClick={handleLaunchApp}
               style={{ background: "linear-gradient(135deg, #d4af37, #c09a28)", color: "#080a0e", fontFamily: "Syne, sans-serif", fontWeight: 700 }}
             >
-              Launch App <ChevronRight className="w-4 h-4 ml-1" />
+              Get Access <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
         </div>
@@ -230,7 +319,7 @@ export default function Home() {
       </section>
 
       {/* ── FEATURES ── */}
-      <section className="relative z-10 py-24 px-4 bg-background/50 backdrop-blur-sm">
+      <section id="features" className="relative z-10 py-24 px-4 bg-background/50 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
@@ -271,6 +360,90 @@ export default function Home() {
                 <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS ── */}
+      <section id="how-it-works" className="relative z-10 py-24 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
+              Simple by design
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-black" style={{ fontFamily: "Syne, sans-serif" }}>
+              Three steps to your first sale.
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {howItWorks.map((step) => (
+              <div
+                key={step.step}
+                className="rounded-2xl p-7 border relative"
+                style={{
+                  background: `${step.accent}06`,
+                  borderColor: `${step.accent}22`,
+                }}
+              >
+                <div
+                  className="text-4xl font-black mb-4 leading-none"
+                  style={{ fontFamily: "Syne, sans-serif", color: `${step.accent}40` }}
+                >
+                  {step.step}
+                </div>
+                <h3 className="text-base font-black mb-2" style={{ fontFamily: "Syne, sans-serif", color: step.accent }}>
+                  {step.title}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── VALUE COMPARISON ── */}
+      <section className="relative z-10 py-24 px-4 bg-background/50 backdrop-blur-sm">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
+              The maths
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-black" style={{ fontFamily: "Syne, sans-serif" }}>
+              Normally $3,000+/month.
+            </h2>
+            <p className="text-base text-muted-foreground mt-3">
+              Majorka replaces an entire ecommerce team — at a fraction of the cost.
+            </p>
+          </div>
+          <div className="rounded-2xl overflow-hidden border" style={{ borderColor: "rgba(212,175,55,0.2)" }}>
+            {/* Table header */}
+            <div
+              className="grid grid-cols-3 px-5 py-3 text-xs font-black uppercase tracking-widest"
+              style={{ background: "rgba(212,175,55,0.08)", color: "rgba(212,175,55,0.7)", fontFamily: "Syne, sans-serif" }}
+            >
+              <span>Role</span>
+              <span>Agency / Freelancer</span>
+              <span>Majorka</span>
+            </div>
+            {valueComparison.map((row, i) => (
+              <div
+                key={i}
+                className="grid grid-cols-3 px-5 py-4 text-sm border-t"
+                style={{ borderColor: "rgba(255,255,255,0.05)", background: i % 2 === 0 ? "rgba(255,255,255,0.015)" : "transparent" }}
+              >
+                <span className="font-semibold text-foreground/80">{row.role}</span>
+                <span className="text-red-400/70 line-through">{row.cost}</span>
+                <span className="font-semibold" style={{ color: "#d4af37" }}>{row.majorka}</span>
+              </div>
+            ))}
+            <div
+              className="grid grid-cols-3 px-5 py-4 border-t"
+              style={{ borderColor: "rgba(212,175,55,0.2)", background: "rgba(212,175,55,0.06)" }}
+            >
+              <span className="font-black text-sm" style={{ fontFamily: "Syne, sans-serif" }}>Total</span>
+              <span className="font-black text-sm text-red-400/70 line-through">$4,800–$15,000/mo</span>
+              <span className="font-black text-sm" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>Free during beta</span>
+            </div>
           </div>
         </div>
       </section>
@@ -359,6 +532,72 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── FAQ ── */}
+      <section id="faq" className="relative z-10 py-24 px-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
+              Questions
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-black" style={{ fontFamily: "Syne, sans-serif" }}>
+              Frequently asked.
+            </h2>
+          </div>
+          <div className="space-y-3">
+            {faqs.map((faq, i) => (
+              <div
+                key={i}
+                className="rounded-xl border overflow-hidden transition-all duration-200"
+                style={{
+                  borderColor: openFaq === i ? "rgba(212,175,55,0.35)" : "rgba(255,255,255,0.07)",
+                  background: openFaq === i ? "rgba(212,175,55,0.04)" : "rgba(255,255,255,0.02)",
+                }}
+              >
+                <button
+                  className="w-full flex items-center justify-between px-5 py-4 text-left"
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                >
+                  <span className="text-sm font-bold text-foreground" style={{ fontFamily: "Syne, sans-serif" }}>
+                    {faq.q}
+                  </span>
+                  <ChevronDown
+                    className="w-4 h-4 flex-shrink-0 ml-3 transition-transform duration-200"
+                    style={{
+                      color: "#d4af37",
+                      transform: openFaq === i ? "rotate(180deg)" : "rotate(0deg)",
+                    }}
+                  />
+                </button>
+                {openFaq === i && (
+                  <div className="px-5 pb-5">
+                    <p className="text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          {/* Final CTA */}
+          <div className="text-center mt-14">
+            <p className="text-base text-muted-foreground mb-6">Still have questions? Just launch the app and ask the AI Co-founder.</p>
+            <Button
+              size="lg"
+              onClick={handleLaunchApp}
+              className="px-8 py-6 text-base font-bold rounded-xl"
+              style={{
+                background: "linear-gradient(135deg, #d4af37, #c09a28)",
+                color: "#080a0e",
+                fontFamily: "Syne, sans-serif",
+                fontWeight: 800,
+                boxShadow: "0 4px 24px rgba(212,175,55,0.35)",
+              }}
+            >
+              Enter Majorka — It's Free
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* ── FOOTER ── */}
       <footer className="relative z-10 border-t border-border/50 py-10 px-4">
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -372,7 +611,11 @@ export default function Home() {
             <span className="font-bold text-sm" style={{ fontFamily: "Syne, sans-serif" }}>Majorka</span>
           </div>
           <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Majorka. AI Ecommerce Operating System.</p>
-          <div className="flex gap-5 text-xs text-muted-foreground">
+          <div className="flex gap-5 text-xs text-muted-foreground flex-wrap justify-center">
+            <button onClick={() => scrollTo("features")} className="hover:text-foreground transition-colors">Features</button>
+            <button onClick={() => scrollTo("how-it-works")} className="hover:text-foreground transition-colors">How It Works</button>
+            <button onClick={() => scrollTo("pricing")} className="hover:text-foreground transition-colors">Pricing</button>
+            <button onClick={() => scrollTo("faq")} className="hover:text-foreground transition-colors">FAQ</button>
             <button onClick={handleLaunchApp} className="hover:text-foreground transition-colors">Launch App</button>
           </div>
         </div>
