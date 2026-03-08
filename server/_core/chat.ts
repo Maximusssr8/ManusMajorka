@@ -94,12 +94,30 @@ export function registerChatRoutes(app: Express) {
 
   app.post("/api/chat", async (req, res) => {
     try {
-      const { messages, systemPrompt } = req.body;
+      const { messages: rawMessages, message, systemPrompt } = req.body;
 
-      if (!messages || !Array.isArray(messages)) {
+      // Accept both formats: messages array (AI SDK v6) or singular message (legacy)
+      let messages = rawMessages;
+      if (!messages && message) {
+        // Legacy format: { message: { role, parts: [{type:'text', text:'...'}] } }
+        const text = Array.isArray(message.parts)
+          ? message.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('')
+          : (typeof message.content === 'string' ? message.content : '');
+        messages = [{ role: message.role || 'user', content: text }];
+      }
+
+      if (!messages || !Array.isArray(messages) || messages.length === 0) {
         res.status(400).json({ error: "messages array is required" });
         return;
       }
+
+      // Normalise messages: convert parts-based UIMessage to plain {role, content}
+      messages = messages.map((m: any) => ({
+        role: m.role,
+        content: Array.isArray(m.parts)
+          ? m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('')
+          : (typeof m.content === 'string' ? m.content : JSON.stringify(m.content)),
+      }));
 
       const defaultSystem =
         "You are a helpful assistant. You have access to tools for getting weather and doing calculations. Use them when appropriate.";

@@ -42,8 +42,7 @@ export default function AIToolChat({
       prepareSendMessagesRequest({ messages }) {
         return {
           body: {
-            message: messages[messages.length - 1],
-            chatId: toolId,
+            messages,
             systemPrompt,
           },
         };
@@ -79,7 +78,7 @@ export default function AIToolChat({
     if (!input.trim()) return;
     const msg = input;
     setInput("");
-    await sendMessage({ role: "user", parts: [{ type: "text", text: msg }] } as any);
+    await sendMessage({ text: msg });
   };
 
   const copyToClipboard = (text: string) => {

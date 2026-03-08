@@ -88,3 +88,10 @@
 - [x] Add RadialOrbitalTimeline (21st Dev) to landing page
 - [x] Rebuild Website Generator: URL import, theme/layout/colour pickers, live preview, export HTML
 - [x] Rebuild Meta Ads Pack: product context, 5 angle cards, 48-hr plan, copy-all buttons
+
+## Phase 5: Fix AI Chat & Restore Original UI
+- [x] Diagnose and fix /api/chat endpoint (messages format mismatch — 400 error)
+- [x] Restore original Majorka top-nav UI (Dashboard, Research, Validate, Build, Website, Launch, Optimize, Scale, Insights, AI Chat)
+- [x] Rebuild Website Generator with original clean left-panel / right-preview layout
+- [x] Fix MetaAdsPack AI generation (useEffect timing bug — waitingForResponse guard)
+- [x] Verify Meta Ads Pack works end-to-end (5 angles, 48-hr plan, copy buttons)

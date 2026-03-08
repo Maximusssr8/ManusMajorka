@@ -8,9 +8,8 @@ import RadialOrbitalTimeline from "@/components/ui/radial-orbital-timeline";
 import {
   ChevronRight, CheckCircle, ArrowRight,
   Zap, Globe, BarChart2, MessageSquare, Layers, TrendingUp,
-  Search, BarChart, CheckCircle2,
+  Search, BarChart, CheckCircle2, Rocket as RocketIcon,
 } from "lucide-react";
-import { Rocket } from "lucide-react";
 import { useState, createElement } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
@@ -37,7 +36,7 @@ const orbitalStages = [
   {
     id: 4, title: "Launch", date: "Stage 4",
     content: "Meta Ads Pack, Ads Studio, TikTok Ads, Google Ads, Launch Checklist, Influencer Brief — 6 tools to go live and get sales.",
-    category: "Go-to-Market", icon: Rocket,
+    category: "Go-to-Market", icon: RocketIcon,
     relatedIds: [3, 5], status: "in-progress" as const, energy: 95,
   },
   {
@@ -313,7 +312,7 @@ export default function Home() {
             className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-6"
             style={{ background: "rgba(212,175,55,0.1)" }}
           >
-            <Rocket className="w-7 h-7" style={{ color: "#d4af37" }} />
+            <RocketIcon className="w-7 h-7" style={{ color: "#d4af37" }} />
           </div>
           <h2 className="text-3xl sm:text-4xl font-black mb-4" style={{ fontFamily: "Syne, sans-serif" }}>
             Early Access
