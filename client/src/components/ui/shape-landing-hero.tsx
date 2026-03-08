@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TextShimmer } from "@/components/ui/text-shimmer";
 
 function ElegantShape({
   className,
@@ -154,10 +155,10 @@ function HeroGeometric({
             animate="visible"
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] mb-8 md:mb-12"
           >
-            <Circle className="h-2 w-2 fill-rose-500/80" />
-            <span className="text-sm text-white/60 tracking-wide">
+            <Circle className="h-2 w-2 fill-amber-400/80" />
+            <TextShimmer className="text-sm tracking-wide" duration={2.5}>
               {badge}
-            </span>
+            </TextShimmer>
           </motion.div>
 
           <motion.div
@@ -171,13 +172,13 @@ function HeroGeometric({
                 {title1}
               </span>
               <br />
-              <span
-                className={cn(
-                  "bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-white/90 to-rose-300 "
-                )}
+              <TextShimmer
+                className={cn("bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400")}
+                duration={3}
+                spread={3}
               >
                 {title2}
-              </span>
+              </TextShimmer>
             </h1>
           </motion.div>
 

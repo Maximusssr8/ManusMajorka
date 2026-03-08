@@ -95,3 +95,17 @@
 - [x] Rebuild Website Generator with original clean left-panel / right-preview layout
 - [x] Fix MetaAdsPack AI generation (useEffect timing bug — waitingForResponse guard)
 - [x] Verify Meta Ads Pack works end-to-end (5 angles, 48-hr plan, copy buttons)
+
+## Phase 6: 21st Dev Components
+- [x] Create TextShimmer component (text-shimmer.tsx)
+- [x] Create AgentPlan component (agent-plan.tsx)
+- [x] Create SignInFlow with CanvasRevealEffect (sign-in-flow.tsx) — Three.js/React Three Fiber WebGL shader
+- [x] Integrate TextShimmer into hero headline and dashboard welcome header
+- [x] Integrate AgentPlan into the dashboard as "Your Launch Workflow" section
+- [x] Wire SignInFlow to the /login route
+
+## Phase 7: Specialized Tool UIs
+- [x] Build Brand DNA Analyzer: structured JSON output with personality, audience, visual identity, taglines
+- [x] Build Market Intelligence: competitor analysis, opportunity gaps, pricing intel, entry strategy
+- [x] Wire Brand DNA to /app/brand-dna in ToolPage.tsx
+- [x] Wire Market Intelligence to /app/market-intel in ToolPage.tsx

@@ -3,6 +3,8 @@ import { getToolByPath } from "@/lib/tools";
 import AIToolChat from "@/components/AIToolChat";
 import WebsiteGenerator from "./WebsiteGenerator";
 import MetaAdsPack from "./MetaAdsPack";
+import BrandDNA from "./BrandDNA";
+import MarketIntelligence from "./MarketIntelligence";
 import { createElement } from "react";
 
 export default function ToolPage() {
@@ -12,6 +14,8 @@ export default function ToolPage() {
   // Route dedicated tool pages
   if (location === "/app/website-generator") return <WebsiteGenerator />;
   if (location === "/app/meta-ads-pack") return <MetaAdsPack />;
+  if (location === "/app/brand-dna") return <BrandDNA />;
+  if (location === "/app/market-intel") return <MarketIntelligence />;
 
   if (!tool) {
     return (

@@ -7,11 +7,13 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Account from "./pages/Account";
+import SignIn from "./pages/SignIn";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/login" component={SignIn} />
       <Route path="/account" component={Account} />
       {/* All /app routes go through Dashboard which handles DashboardLayout + ToolPage */}
       <Route path="/app" component={Dashboard} />

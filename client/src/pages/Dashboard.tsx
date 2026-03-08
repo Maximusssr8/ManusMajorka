@@ -3,6 +3,8 @@ import { useLocation } from "wouter";
 import MajorkaAppShell from "@/components/MajorkaAppShell";
 import ToolPage from "./ToolPage";
 import { stages } from "@/lib/tools";
+import { AgentPlan } from "@/components/ui/agent-plan";
+import { TextShimmer } from "@/components/ui/text-shimmer";
 
 export default function Dashboard() {
   const [location] = useLocation();
@@ -40,7 +42,9 @@ function DashboardHome() {
             className="text-2xl font-black mb-2"
             style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8", letterSpacing: "-0.02em" }}
           >
-            Welcome to Majorka
+            <TextShimmer duration={4} spread={2} className="text-2xl font-black" as="span">
+              Welcome to Majorka
+            </TextShimmer>
           </h1>
           <p className="text-sm" style={{ color: "rgba(240,237,232,0.45)" }}>
             Select a tool from the nav above, or launch one from the grid below.
@@ -103,6 +107,73 @@ function DashboardHome() {
               </div>
             </button>
           ))}
+        </div>
+
+        {/* Agent Plan — ecommerce launch workflow */}
+        <div className="mb-8">
+          <div className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "rgba(212,175,55,0.6)", fontFamily: "Syne, sans-serif" }}>
+            Your Launch Workflow
+          </div>
+          <AgentPlan
+            tasks={[
+              {
+                id: "1",
+                title: "Research & Validate",
+                description: "Find winning products and validate demand before investing",
+                status: "completed",
+                priority: "high",
+                level: 1,
+                dependencies: [],
+                subtasks: [
+                  { id: "1-1", title: "Product Discovery", status: "completed", description: "Find trending products with high demand", priority: "high" },
+                  { id: "1-2", title: "Market Intelligence", status: "completed", description: "Analyse market size and trends", priority: "high" },
+                  { id: "1-3", title: "Competitor Analysis", status: "completed", description: "Map competitor pricing and positioning", priority: "medium" },
+                ],
+              },
+              {
+                id: "2",
+                title: "Build Your Store",
+                description: "Create your brand identity and product landing page",
+                status: "in-progress",
+                priority: "high",
+                level: 2,
+                dependencies: ["1"],
+                subtasks: [
+                  { id: "2-1", title: "Brand DNA Analyzer", status: "completed", description: "Define brand voice, colours, and identity", priority: "high" },
+                  { id: "2-2", title: "Website Generator", status: "in-progress", description: "Build a conversion-optimised landing page", priority: "high" },
+                  { id: "2-3", title: "Product Photography Brief", status: "pending", description: "Create visual direction for product shots", priority: "medium" },
+                ],
+              },
+              {
+                id: "3",
+                title: "Launch Campaigns",
+                description: "Create and deploy your Meta & TikTok ad campaigns",
+                status: "pending",
+                priority: "high",
+                level: 3,
+                dependencies: ["2"],
+                subtasks: [
+                  { id: "3-1", title: "Meta Ads Pack", status: "pending", description: "Generate 5 creative angles and ad copy", priority: "high" },
+                  { id: "3-2", title: "TikTok Content Plan", status: "pending", description: "Create viral content hooks and scripts", priority: "medium" },
+                  { id: "3-3", title: "Email Sequence", status: "pending", description: "Build automated post-purchase flows", priority: "medium" },
+                ],
+              },
+              {
+                id: "4",
+                title: "Optimise & Scale",
+                description: "Analyse performance and scale winning campaigns",
+                status: "pending",
+                priority: "medium",
+                level: 4,
+                dependencies: ["3"],
+                subtasks: [
+                  { id: "4-1", title: "Analytics Dashboard", status: "pending", description: "Track ROAS, CVR, and key metrics", priority: "high" },
+                  { id: "4-2", title: "A/B Test Generator", status: "pending", description: "Design split tests for ads and landing pages", priority: "medium" },
+                  { id: "4-3", title: "Scale Playbook", status: "pending", description: "Build a systematic scaling framework", priority: "low" },
+                ],
+              },
+            ]}
+          />
         </div>
 
         {/* All stages grid */}
