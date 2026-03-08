@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { Copy, Zap, Loader2, ArrowRight, Settings, Clock } from "lucide-react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface AutomationStep { trigger: string; action: string; tool: string; details: string; }
 interface Automation { name: string; description: string; steps: AutomationStep[]; timeSaved: string; difficulty: "easy" | "medium" | "hard"; tools: string[]; }
@@ -107,6 +108,7 @@ export default function AutomationBuilder() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-black" style={{ fontFamily: "Syne, sans-serif" }}>Automation Plan</h2>
+              <SaveToProduct toolId="automation-builder" toolName="Automation Builder" outputData={result} />
                 <div className="flex items-center gap-2 mt-1">
                   <Clock size={12} style={{ color: "#2dca72" }} />
                   <span className="text-xs font-bold" style={{ color: "#2dca72" }}>Save {result.totalTimeSaved}</span>

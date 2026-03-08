@@ -251,3 +251,9 @@
 - [x] Added "Next Steps" section requirement, specificity rules, response length guidance
 - [x] All 40+ tools now produce scannable, actionable output
 - [ ] Ensure all outputs return structured JSON rendered as cards/tables
+
+## Phase 13: Save to Product Buttons
+
+- [x] Create reusable SaveToProduct component (product selector dropdown + save mutation)
+- [x] Wire SaveToProduct into all 22 structured tool output pages
+- [x] Handle edge cases: no products yet (show create prompt), already saved (show success)

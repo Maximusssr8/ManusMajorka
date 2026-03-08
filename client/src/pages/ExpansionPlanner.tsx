@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { Copy, Globe, Loader2, MapPin, TrendingUp, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface Market { name: string; score: number; population: string; ecomPenetration: string; opportunity: string; challenges: string[]; entryStrategy: string; timeline: string; }
 interface ExpansionResult { summary: string; markets: Market[]; readinessChecklist: { item: string; ready: boolean; }[]; }
@@ -97,6 +98,7 @@ export default function ExpansionPlanner() {
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-black" style={{ fontFamily: "Syne, sans-serif" }}>Expansion Strategy</h2>
+              <SaveToProduct toolId="expansion-planner" toolName="Expansion Planner" outputData={result} />
               <button onClick={copyAll} className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(240,237,232,0.6)", cursor: "pointer" }}>
                 <Copy size={11} /> Copy All
               </button>

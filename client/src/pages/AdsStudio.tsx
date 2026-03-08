@@ -4,6 +4,7 @@ import { DefaultChatTransport } from "ai";
 import type { UIMessage } from "ai";
 import { toast } from "sonner";
 import { Megaphone, Copy, Check, Loader2, RefreshCw } from "lucide-react";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface AdVariant {
   variant: string;

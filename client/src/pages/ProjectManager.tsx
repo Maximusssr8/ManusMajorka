@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { Copy, ClipboardList, Loader2, CheckCircle2, Circle, Clock, AlertTriangle } from "lucide-react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface Task { title: string; status: "todo" | "in-progress" | "done"; priority: "high" | "medium" | "low"; estimate: string; }
 interface Phase { name: string; tasks: Task[]; deadline: string; }
@@ -121,6 +122,7 @@ export default function ProjectManager() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-black" style={{ fontFamily: "Syne, sans-serif" }}>{result.name}</h2>
+              <SaveToProduct toolId="project-manager" toolName="Project Manager" outputData={result} />
                 <div className="text-xs mt-0.5" style={{ color: "rgba(240,237,232,0.4)" }}>{result.estimatedWeeks} weeks · {totalTasks} tasks</div>
               </div>
               <button onClick={copyAll} className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(240,237,232,0.6)", cursor: "pointer" }}>

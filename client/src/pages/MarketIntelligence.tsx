@@ -4,6 +4,7 @@ import { DefaultChatTransport } from "ai";
 import type { UIMessage } from "ai";
 import { Copy, Check, Sparkles, RefreshCw, ChevronDown, ChevronUp, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { toast } from "sonner";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Competitor {

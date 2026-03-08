@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Loader2, Plus, X, Map, RefreshCw, Copy } from "lucide-react";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface Competitor {
   name: string;

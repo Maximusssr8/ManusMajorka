@@ -5,6 +5,7 @@ import type { UIMessage } from "ai";
 import { toast } from "sonner";
 import { Search, Copy, Check, Loader2, TrendingUp, DollarSign, Package, Star, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface ProductIdea {
   name: string;

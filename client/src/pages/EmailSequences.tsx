@@ -4,6 +4,7 @@ import { DefaultChatTransport } from "ai";
 import type { UIMessage } from "ai";
 import { toast } from "sonner";
 import { Mail, Copy, Check, Loader2, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface Email {
   emailNumber: number;

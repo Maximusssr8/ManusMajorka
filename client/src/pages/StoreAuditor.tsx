@@ -4,6 +4,7 @@ import { Copy, ShieldCheck, Loader2, CheckCircle2, XCircle, AlertTriangle, Exter
 import { useChat, type UIMessage } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { trpc } from "@/lib/trpc";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface AuditItem { category: string; item: string; status: "pass" | "fail" | "warning"; note: string; priority: "high" | "medium" | "low"; }
 interface AuditResult { score: number; items: AuditItem[]; summary: string; topFixes: string[]; }
@@ -126,6 +127,7 @@ export default function StoreAuditor() {
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-black" style={{ fontFamily: "Syne, sans-serif" }}>Store Audit Report</h2>
+              <SaveToProduct toolId="store-auditor" toolName="Store Auditor" outputData={result} />
               <button onClick={copyAll} className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(240,237,232,0.6)", cursor: "pointer" }}>
                 <Copy size={11} /> Copy All
               </button>

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Copy, Download, X, Loader2, Globe, RefreshCw, MessageSquare, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 // ── Theme definitions ─────────────────────────────────────────────────────────
 const THEMES = [
@@ -626,6 +627,7 @@ ${generatedHTML.replace(/<\/?html[^>]*>/gi, "").replace(/<\/?head[^>]*>[\s\S]*?<
               >
                 <Package size={11} /> Export Shopify .liquid
               </button>
+              <SaveToProduct toolId="website-generator" toolName="Website Generator" outputData={generatedHTML} />
             </div>
           )}
 

@@ -5,6 +5,7 @@ import type { UIMessage } from "ai";
 import { toast } from "sonner";
 import { Radio, Copy, Check, Loader2, TrendingUp, TrendingDown, Minus, RefreshCw } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface Trend {
   name: string;

@@ -5,6 +5,7 @@ import type { UIMessage } from "ai";
 import { toast } from "sonner";
 import { Users, Copy, Check, Loader2, RefreshCw } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface Persona {
   name: string;

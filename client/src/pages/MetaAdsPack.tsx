@@ -5,6 +5,7 @@ import type { UIMessage } from "ai";
 import { toast } from "sonner";
 import { Copy, RefreshCw, Loader2, Zap, ChevronDown, ChevronUp, Check, Link2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface AdAngle {
   angle: string; hook: string;
@@ -256,10 +257,13 @@ export default function MetaAdsPack() {
           <div className="text-xs" style={{ color: "rgba(240,237,232,0.35)" }}>5 creative angles · Primary texts · Headlines · 48-hr launch plan</div>
         </div>
         {pack && (
-          <button onClick={copyAllPack} className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
-            style={{ background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.25)", color: "rgba(212,175,55,0.9)", fontFamily: "Syne, sans-serif", cursor: "pointer" }}>
-            <Copy size={11} /> Copy Full Pack
-          </button>
+          <>
+            <button onClick={copyAllPack} className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
+              style={{ background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.25)", color: "rgba(212,175,55,0.9)", fontFamily: "Syne, sans-serif", cursor: "pointer" }}>
+              <Copy size={11} /> Copy Full Pack
+            </button>
+            <SaveToProduct toolId="meta-ads" toolName="Meta Ads Pack" outputData={pack} />
+          </>
         )}
       </div>
 

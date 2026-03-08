@@ -5,6 +5,7 @@ import type { UIMessage } from "ai";
 import { toast } from "sonner";
 import { Target, Copy, Check, Loader2, ChevronDown, ChevronUp, RefreshCw, Link2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface Competitor {
   name: string;

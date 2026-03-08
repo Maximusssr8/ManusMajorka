@@ -4,6 +4,7 @@ import { Copy, Rocket, Loader2, ChevronRight, Target, TrendingUp, DollarSign, Us
 import { trpc } from "@/lib/trpc";
 import { useChat, type UIMessage } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface Milestone { phase: string; title: string; actions: string[]; kpi: string; timeline: string; }
 

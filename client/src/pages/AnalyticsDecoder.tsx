@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { Copy, BarChart3, Loader2, TrendingUp, TrendingDown, ArrowRight } from "lucide-react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface KPI { name: string; value: string; change: string; trend: "up" | "down" | "flat"; insight: string; }
 interface AnalyticsResult { kpis: KPI[]; insights: string[]; actions: string[]; summary: string; }
@@ -125,6 +126,7 @@ export default function AnalyticsDecoder() {
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-black" style={{ fontFamily: "Syne, sans-serif" }}>Analytics Report</h2>
+              <SaveToProduct toolId="analytics-decoder" toolName="Analytics Decoder" outputData={result} />
               <button onClick={copyAll} className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(240,237,232,0.6)", cursor: "pointer" }}>
                 <Copy size={11} /> Copy All
               </button>

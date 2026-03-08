@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { Copy, DollarSign, TrendingUp, BarChart3, Loader2, Target } from "lucide-react";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface PLRow { label: string; value: number; pct?: number; }
 interface ForecastMonth { month: string; revenue: number; costs: number; profit: number; cumulative: number; }
@@ -167,6 +168,7 @@ export default function FinancialModeler() {
             {/* Header */}
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-black" style={{ fontFamily: "Syne, sans-serif" }}>Financial Model</h2>
+              <SaveToProduct toolId="financial-modeler" toolName="Financial Modeler" outputData={result} />
               <button onClick={copyTable} className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(240,237,232,0.6)", cursor: "pointer" }}>
                 <Copy size={11} /> Copy All
               </button>
