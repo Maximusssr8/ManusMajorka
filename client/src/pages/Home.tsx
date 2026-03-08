@@ -4,13 +4,55 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { HeroGeometric } from "@/components/ui/shape-landing-hero";
 import { stages } from "@/lib/tools";
+import RadialOrbitalTimeline from "@/components/ui/radial-orbital-timeline";
 import {
-  ChevronRight, CheckCircle, ArrowRight, Rocket,
+  ChevronRight, CheckCircle, ArrowRight,
   Zap, Globe, BarChart2, MessageSquare, Layers, TrendingUp,
+  Search, BarChart, CheckCircle2,
 } from "lucide-react";
+import { Rocket } from "lucide-react";
 import { useState, createElement } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+
+const orbitalStages = [
+  {
+    id: 1, title: "Research", date: "Stage 1",
+    content: "Product Discovery, Competitor Breakdown, Trend Radar, Market Map, Niche Scorer, Supplier Finder, Keyword Miner — 7 tools to find your winning product.",
+    category: "Discovery", icon: Search,
+    relatedIds: [2], status: "completed" as const, energy: 90,
+  },
+  {
+    id: 2, title: "Validate", date: "Stage 2",
+    content: "Unit Economics Calculator, Supplier Risk Check, 48-Hour Validation Plan, Demand Tester, Pricing Optimizer, Audience Profiler — 6 tools to de-risk your bet.",
+    category: "Validation", icon: CheckCircle2,
+    relatedIds: [1, 3], status: "completed" as const, energy: 80,
+  },
+  {
+    id: 3, title: "Build", date: "Stage 3",
+    content: "Website Generator, Creative Studio, Brand DNA Analyzer, Copywriter, Email Sequences, Store Auditor, SEO Optimizer — 8 tools to build your brand.",
+    category: "Creation", icon: Layers,
+    relatedIds: [2, 4], status: "in-progress" as const, energy: 85,
+  },
+  {
+    id: 4, title: "Launch", date: "Stage 4",
+    content: "Meta Ads Pack, Ads Studio, TikTok Ads, Google Ads, Launch Checklist, Influencer Brief — 6 tools to go live and get sales.",
+    category: "Go-to-Market", icon: Rocket,
+    relatedIds: [3, 5], status: "in-progress" as const, energy: 95,
+  },
+  {
+    id: 5, title: "Optimize", date: "Stage 5",
+    content: "Market Intelligence, Analytics Decoder, CRO Advisor, Retention Engine, Ad Optimizer, Profit Maximizer — 6 tools to squeeze every dollar.",
+    category: "Growth", icon: BarChart,
+    relatedIds: [4, 6], status: "pending" as const, energy: 70,
+  },
+  {
+    id: 6, title: "Scale", date: "Stage 6",
+    content: "AI Chat Co-founder, Project Manager, Scaling Playbook, Automation Builder, Expansion Planner, Financial Modeler — 6 tools to grow beyond.",
+    category: "Scaling", icon: TrendingUp,
+    relatedIds: [5, 1], status: "pending" as const, energy: 75,
+  },
+];
 
 const features = [
   {
@@ -245,6 +287,22 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── ORBITAL TIMELINE ── */}
+      <section className="relative z-10 py-16 px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-6">
+            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
+              The workflow
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-black" style={{ fontFamily: "Syne, sans-serif" }}>
+              From zero to scaling — in one OS.
+            </h2>
+            <p className="text-sm text-muted-foreground mt-3">Click any stage to explore the tools inside it.</p>
+          </div>
+          <RadialOrbitalTimeline timelineData={orbitalStages} />
         </div>
       </section>
 

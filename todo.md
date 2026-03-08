@@ -83,3 +83,8 @@
 - [x] Launch stage (6): Meta Ads Pack, Ads Studio, TikTok Ads, Google Ads, Launch Checklist, Influencer Brief
 - [x] Optimize stage (6): Market Intelligence, Analytics Decoder, CRO Advisor, Retention Engine, Ad Optimizer, Profit Maximizer
 - [x] Scale stage (6): AI Chat Co-founder, Project Manager, Scaling Playbook, Automation Builder, Expansion Planner, Financial Modeler
+
+## Phase 4: UI Overhaul & Tool Rebuilds
+- [x] Add RadialOrbitalTimeline (21st Dev) to landing page
+- [x] Rebuild Website Generator: URL import, theme/layout/colour pickers, live preview, export HTML
+- [x] Rebuild Meta Ads Pack: product context, 5 angle cards, 48-hr plan, copy-all buttons

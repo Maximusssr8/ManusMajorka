@@ -94,20 +94,22 @@ export function registerChatRoutes(app: Express) {
 
   app.post("/api/chat", async (req, res) => {
     try {
-      const { messages } = req.body;
+      const { messages, systemPrompt } = req.body;
 
       if (!messages || !Array.isArray(messages)) {
         res.status(400).json({ error: "messages array is required" });
         return;
       }
 
+      const defaultSystem =
+        "You are a helpful assistant. You have access to tools for getting weather and doing calculations. Use them when appropriate.";
+
       const result = streamText({
         model: openai.chat("gpt-4o"),
-        system:
-          "You are a helpful assistant. You have access to tools for getting weather and doing calculations. Use them when appropriate.",
+        system: systemPrompt || defaultSystem,
         messages,
-        tools,
-        stopWhen: stepCountIs(5),
+        // Only attach tools when using the default system (not custom tool pages)
+        ...(systemPrompt ? {} : { tools, stopWhen: stepCountIs(5) }),
       });
 
       result.pipeUIMessageStreamToResponse(res);
