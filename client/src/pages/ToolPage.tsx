@@ -5,6 +5,16 @@ import WebsiteGenerator from "./WebsiteGenerator";
 import MetaAdsPack from "./MetaAdsPack";
 import BrandDNA from "./BrandDNA";
 import MarketIntelligence from "./MarketIntelligence";
+import ProductDiscovery from "./ProductDiscovery";
+import CompetitorBreakdown from "./CompetitorBreakdown";
+import TrendRadar from "./TrendRadar";
+import NicheScorer from "./NicheScorer";
+import KeywordMiner from "./KeywordMiner";
+import AudienceProfiler from "./AudienceProfiler";
+import CopywriterTool from "./CopywriterTool";
+import EmailSequences from "./EmailSequences";
+import AdsStudio from "./AdsStudio";
+import SupplierFinder from "./SupplierFinder";
 import { createElement } from "react";
 
 export default function ToolPage() {
@@ -13,9 +23,19 @@ export default function ToolPage() {
 
   // Route dedicated tool pages
   if (location === "/app/website-generator") return <WebsiteGenerator />;
-  if (location === "/app/meta-ads-pack") return <MetaAdsPack />;
+  if (location === "/app/meta-ads") return <MetaAdsPack />;
   if (location === "/app/brand-dna") return <BrandDNA />;
   if (location === "/app/market-intel") return <MarketIntelligence />;
+  if (location === "/app/product-discovery") return <ProductDiscovery />;
+  if (location === "/app/competitor-breakdown") return <CompetitorBreakdown />;
+  if (location === "/app/trend-radar") return <TrendRadar />;
+  if (location === "/app/niche-scorer") return <NicheScorer />;
+  if (location === "/app/keyword-miner") return <KeywordMiner />;
+  if (location === "/app/audience-profiler") return <AudienceProfiler />;
+  if (location === "/app/copywriter") return <CopywriterTool />;
+  if (location === "/app/email-sequences") return <EmailSequences />;
+  if (location === "/app/ads-studio") return <AdsStudio />;
+  if (location === "/app/supplier-finder") return <SupplierFinder />;
 
   if (!tool) {
     return (

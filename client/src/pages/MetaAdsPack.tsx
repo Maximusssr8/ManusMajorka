@@ -3,7 +3,8 @@ import { DefaultChatTransport } from "ai";
 import { useChat } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
 import { toast } from "sonner";
-import { Copy, RefreshCw, Loader2, Zap, ChevronDown, ChevronUp, Check } from "lucide-react";
+import { Copy, RefreshCw, Loader2, Zap, ChevronDown, ChevronUp, Check, Link2 } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 
 interface AdAngle {
   angle: string; hook: string;
@@ -138,6 +139,32 @@ export default function MetaAdsPack() {
   const [genError, setGenError] = useState("");
 
   const [waitingForResponse, setWaitingForResponse] = useState(false);
+  // URL import
+  const [importUrl, setImportUrl] = useState("");
+  const [importing, setImporting] = useState(false);
+  // 48-hr checklist state
+  const [checkedSteps, setCheckedSteps] = useState<Set<number>>(new Set());
+  const extractMutation = trpc.research.extract.useMutation();
+
+  const handleUrlImport = useCallback(async () => {
+    if (!importUrl.trim()) return;
+    setImporting(true);
+    try {
+      const extracted = await extractMutation.mutateAsync({ url: importUrl });
+      const raw = extracted.rawContent || "";
+      const titleStr = extracted.title || "";
+      const priceMatch = raw.match(/\$([\d,]+(?:\.\d{2})?)/)?.[0] || "";
+      const descMatch = raw.split("\n").find((l: string) => l.trim().length > 80 && l.trim().length < 400) || "";
+      if (titleStr) setProductName(titleStr);
+      if (descMatch) setProductDesc(descMatch);
+      if (priceMatch) setTargetPrice(priceMatch.replace("$", ""));
+      toast.success("Product details imported!");
+    } catch (err: any) {
+      toast.error(err?.message || "Could not import URL");
+    } finally {
+      setImporting(false);
+    }
+  }, [importUrl, extractMutation]);
 
   const { sendMessage, status, messages } = useChat({
     transport: new DefaultChatTransport({
@@ -239,6 +266,30 @@ export default function MetaAdsPack() {
       <div className="flex-1 overflow-hidden flex">
         {/* LEFT: Input panel */}
         <div className="w-72 flex-shrink-0 overflow-y-auto border-r p-4 space-y-4" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+          {/* URL Import */}
+          <div className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
+            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Import from URL</div>
+            <div className="flex gap-2">
+              <input
+                value={importUrl}
+                onChange={e => setImportUrl(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleUrlImport()}
+                placeholder="Paste AliExpress / Amazon URL…"
+                className="flex-1 text-xs px-2.5 py-2 rounded-lg outline-none"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)", color: "#f0ede8" }}
+              />
+              <button
+                onClick={handleUrlImport}
+                disabled={importing || !importUrl.trim()}
+                className="px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1 flex-shrink-0 disabled:opacity-50"
+                style={{ background: "rgba(212,175,55,0.15)", border: "1px solid rgba(212,175,55,0.3)", color: "#d4af37", cursor: "pointer" }}
+              >
+                {importing ? <Loader2 size={10} className="animate-spin" /> : <Link2 size={10} />}
+                {importing ? "…" : "Import"}
+              </button>
+            </div>
+          </div>
+
           <div>
             <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Product Details</div>
             <div className="space-y-3">
@@ -364,18 +415,28 @@ export default function MetaAdsPack() {
                 </div>
               </div>
 
-              {/* 48-hr plan */}
+              {/* 48-hr plan — interactive checklist */}
               <div className="p-4 rounded-2xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
                 <div className="flex items-center justify-between mb-3">
                   <div className="text-xs font-bold uppercase tracking-widest" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>⏱ 48-Hour Launch Plan</div>
-                  <CopyBtn text={pack.plan48h.join("\n")} label="Copy Plan" />
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs" style={{ color: "rgba(240,237,232,0.3)" }}>{checkedSteps.size}/{pack.plan48h.length} done</span>
+                    <CopyBtn text={pack.plan48h.join("\n")} label="Copy Plan" />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   {pack.plan48h.map((step, i) => (
-                    <div key={i} className="flex gap-3 text-xs p-2.5 rounded-xl" style={{ background: "rgba(0,0,0,0.2)" }}>
-                      <span className="w-5 h-5 rounded-lg flex items-center justify-center font-black flex-shrink-0" style={{ background: "rgba(212,175,55,0.15)", color: "#d4af37", fontFamily: "Syne, sans-serif", fontSize: "10px" }}>{i + 1}</span>
-                      <span style={{ color: "rgba(240,237,232,0.7)" }}>{step}</span>
-                    </div>
+                    <button
+                      key={i}
+                      onClick={() => setCheckedSteps(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; })}
+                      className="w-full flex gap-3 text-xs p-2.5 rounded-xl text-left transition-all"
+                      style={{ background: checkedSteps.has(i) ? "rgba(45,202,114,0.06)" : "rgba(0,0,0,0.2)", border: `1px solid ${checkedSteps.has(i) ? "rgba(45,202,114,0.2)" : "transparent"}`, cursor: "pointer" }}
+                    >
+                      <span className="w-5 h-5 rounded-lg flex items-center justify-center flex-shrink-0 transition-all" style={{ background: checkedSteps.has(i) ? "rgba(45,202,114,0.2)" : "rgba(212,175,55,0.15)", border: `1px solid ${checkedSteps.has(i) ? "rgba(45,202,114,0.4)" : "transparent"}` }}>
+                        {checkedSteps.has(i) ? <Check size={10} style={{ color: "#2dca72" }} /> : <span style={{ color: "#d4af37", fontFamily: "Syne, sans-serif", fontSize: "10px", fontWeight: 900 }}>{i + 1}</span>}
+                      </span>
+                      <span style={{ color: checkedSteps.has(i) ? "rgba(240,237,232,0.35)" : "rgba(240,237,232,0.7)", textDecoration: checkedSteps.has(i) ? "line-through" : "none" }}>{step}</span>
+                    </button>
                   ))}
                 </div>
               </div>

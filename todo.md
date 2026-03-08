@@ -109,3 +109,51 @@
 - [x] Build Market Intelligence: competitor analysis, opportunity gaps, pricing intel, entry strategy
 - [x] Wire Brand DNA to /app/brand-dna in ToolPage.tsx
 - [x] Wire Market Intelligence to /app/market-intel in ToolPage.tsx
+
+## Phase 8: Full Rebuild — Structured UIs, Tavily Integration, Landing Page Fixes
+
+### FIX 1: Website Generator (Critical)
+- [x] Add Tavily API key secret and create server-side scrape endpoint
+- [x] Replace fake URL import with real Tavily extract scraping (title, description, features, images, price)
+- [x] Upgrade landing page HTML: Hero, Benefits/Features, Social Proof, Guarantee badge, CTA
+- [x] Add "Export as Shopify Liquid" button outputting usable Shopify section code
+- [x] AI Refine mode already exists (chat panel)
+
+### FIX 2: Meta Ads Pack (Critical)
+- [x] Add product URL import field with Tavily scraping
+- [x] Add interactive 48-hr checklist with progress counter
+- [x] All copy buttons verified working
+
+### FIX 3: Structured UIs for Chat-Only Tools
+- [x] Product Discovery: filters form + card output (name, margin, competition, trend, supplier)
+- [x] Competitor Breakdown: URL/brand input + Tavily scrape + structured analysis output
+- [x] Trend Radar: Tavily web search for real trends + structured cards
+- [x] Niche Scorer: niche input → scorecard with ratings (Competition, Margin, Trend, Barrier, Overall)
+- [x] Keyword Miner: product/niche input → formatted keyword table with intent tags
+- [x] Audience Profiler: structured form → visual customer avatar card
+- [x] Copywriter: structured form (product, tone, audience, type) → formatted output with copy buttons
+- [x] Email Sequences: output as visual flow (Email 1-5) with subject lines, body, CTAs
+- [x] Ads Studio: form input → 3 platforms × 3 variants with hooks, copy, visual briefs
+- [x] Supplier Finder: structured supplier cards with MOQ, lead times, search terms
+
+### FIX 4: Tavily Integration for Research Tools
+- [x] Create server-side Tavily helper (server/tavily.ts)
+- [x] Add research.search tRPC procedure
+- [x] Add research.extract tRPC procedure for URL scraping
+- [x] Wire Trend Radar to Tavily search
+- [x] Wire Competitor Breakdown to Tavily extract
+- [x] Wire Product Discovery to Tavily search
+- [x] Wire Supplier Finder to Tavily search
+
+### FIX 5: Navigation & UX
+- [x] Fix nav dropdowns: hover-open behavior (onMouseEnter/onMouseLeave on wrapper div)
+- [x] Fix MetaAdsPack route path (/app/meta-ads not /app/meta-ads-pack)
+
+### FIX 6: Landing Page Bugs
+- [x] Fix waitlist/pricing contradiction — removed waitlist section, kept pricing card only
+- [x] Removed unused imports (toast, trpc, useState, Input, CheckCircle)
+
+### FIX 7: Design Polish
+- [x] All tool pages use consistent Syne font for headings
+- [x] All generation features have loading states (spinner + animated icon)
+- [x] All tools have empty state guides with emoji + description

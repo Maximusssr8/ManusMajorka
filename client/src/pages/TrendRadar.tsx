@@ -1,0 +1,333 @@
+import { useState, useCallback, useEffect } from "react";
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
+import type { UIMessage } from "ai";
+import { toast } from "sonner";
+import { Radio, Copy, Check, Loader2, TrendingUp, TrendingDown, Minus, RefreshCw } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+
+interface Trend {
+  name: string;
+  category: string;
+  momentum: "Exploding" | "Rising" | "Stable" | "Declining";
+  timeframe: string;
+  searchVolumeTrend: string;
+  targetDemographic: string;
+  monetisationPotential: "High" | "Medium" | "Low";
+  productOpportunities: string[];
+  keyDrivers: string;
+  riskFactors: string;
+  score: number;
+}
+
+interface TrendResult {
+  overview: string;
+  trends: Trend[];
+  hottest: string;
+  actionableInsight: string;
+}
+
+const SYSTEM_PROMPT = `You are an expert ecommerce trend analyst with deep knowledge of consumer behaviour, social media trends, and market movements.
+When given a category/market and current data, return a JSON object with this EXACT structure (no markdown, just raw JSON):
+{"overview":"Brief trend landscape overview","trends":[{"name":"Trend name","category":"Sub-category","momentum":"Exploding|Rising|Stable|Declining","timeframe":"e.g. Last 3 months","searchVolumeTrend":"e.g. +340% YoY","targetDemographic":"Who is driving this trend","monetisationPotential":"High|Medium|Low","productOpportunities":["Product idea 1","Product idea 2","Product idea 3"],"keyDrivers":"What is driving this trend","riskFactors":"Potential risks or saturation signals","score":88}],"hottest":"Name of the hottest trend and why","actionableInsight":"Most important action to take right now"}
+Return exactly 5 trends sorted by score descending. Return ONLY raw JSON.`;
+
+function parseResult(text: string): TrendResult | null {
+  try {
+    const stripped = text.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
+    const start = stripped.indexOf("{");
+    const end = stripped.lastIndexOf("}");
+    if (start === -1 || end === -1) return null;
+    const parsed = JSON.parse(stripped.slice(start, end + 1));
+    if (!parsed.trends || !Array.isArray(parsed.trends)) return null;
+    return parsed as TrendResult;
+  } catch { return null; }
+}
+
+function CopyBtn({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button onClick={() => { navigator.clipboard.writeText(text); setCopied(true); toast.success("Copied!"); setTimeout(() => setCopied(false), 2000); }}
+      className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
+      style={{ background: copied ? "rgba(45,202,114,0.1)" : "rgba(255,255,255,0.05)", border: `1px solid ${copied ? "rgba(45,202,114,0.3)" : "rgba(255,255,255,0.08)"}`, color: copied ? "rgba(45,202,114,0.8)" : "rgba(240,237,232,0.4)", cursor: "pointer" }}>
+      {copied ? <Check size={9} /> : <Copy size={9} />}
+    </button>
+  );
+}
+
+const MOMENTUM_CONFIG: Record<string, { color: string; icon: React.ReactNode; bg: string }> = {
+  Exploding: { color: "#e05c7a", icon: <TrendingUp size={11} />, bg: "rgba(224,92,122,0.1)" },
+  Rising: { color: "#2dca72", icon: <TrendingUp size={11} />, bg: "rgba(45,202,114,0.1)" },
+  Stable: { color: "#d4af37", icon: <Minus size={11} />, bg: "rgba(212,175,55,0.1)" },
+  Declining: { color: "rgba(240,237,232,0.3)", icon: <TrendingDown size={11} />, bg: "rgba(255,255,255,0.04)" },
+};
+
+const POTENTIAL_COLORS: Record<string, string> = { High: "#2dca72", Medium: "#d4af37", Low: "#e05c7a" };
+
+function TrendCard({ trend, index }: { trend: Trend; index: number }) {
+  const [expanded, setExpanded] = useState(index === 0);
+  const mc = MOMENTUM_CONFIG[trend.momentum] || MOMENTUM_CONFIG.Stable!;
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
+      <button onClick={() => setExpanded(!expanded)} className="w-full flex items-center gap-3 p-4 text-left" style={{ cursor: "pointer" }}>
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0" style={{ background: "rgba(74,184,245,0.12)", color: "#4ab8f5", fontFamily: "Syne, sans-serif" }}>
+          {trend.score}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-black leading-tight" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>{trend.name}</div>
+          <div className="text-xs mt-0.5" style={{ color: "rgba(240,237,232,0.4)" }}>{trend.category} · {trend.searchVolumeTrend}</div>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-semibold" style={{ background: mc.bg, color: mc.color, border: `1px solid ${mc.color}33` }}>
+            {mc.icon}{trend.momentum}
+          </span>
+          <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: `${POTENTIAL_COLORS[trend.monetisationPotential]}18`, color: POTENTIAL_COLORS[trend.monetisationPotential], border: `1px solid ${POTENTIAL_COLORS[trend.monetisationPotential]}33` }}>
+            {trend.monetisationPotential}
+          </span>
+        </div>
+      </button>
+      {expanded && (
+        <div className="px-4 pb-4 space-y-3">
+          <div style={{ height: 1, background: "rgba(255,255,255,0.06)" }} />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-3 rounded-xl" style={{ background: "rgba(0,0,0,0.2)" }}>
+              <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: "rgba(240,237,232,0.35)", fontFamily: "Syne, sans-serif" }}>Key Drivers</div>
+              <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.7)" }}>{trend.keyDrivers}</div>
+            </div>
+            <div className="p-3 rounded-xl" style={{ background: "rgba(0,0,0,0.2)" }}>
+              <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: "rgba(240,237,232,0.35)", fontFamily: "Syne, sans-serif" }}>Target Demographic</div>
+              <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.7)" }}>{trend.targetDemographic}</div>
+            </div>
+          </div>
+          <div className="p-3 rounded-xl" style={{ background: "rgba(74,184,245,0.04)", border: "1px solid rgba(74,184,245,0.1)" }}>
+            <div className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "#4ab8f5", fontFamily: "Syne, sans-serif" }}>Product Opportunities</div>
+            <div className="space-y-1">
+              {trend.productOpportunities.map((opp, i) => (
+                <div key={i} className="text-xs flex items-center gap-2" style={{ color: "rgba(240,237,232,0.75)" }}>
+                  <span style={{ color: "#4ab8f5" }}>→</span>{opp}
+                </div>
+              ))}
+            </div>
+          </div>
+          {trend.riskFactors && (
+            <div className="p-3 rounded-xl" style={{ background: "rgba(224,92,122,0.04)", border: "1px solid rgba(224,92,122,0.1)" }}>
+              <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: "#e05c7a", fontFamily: "Syne, sans-serif" }}>Risk Factors</div>
+              <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.65)" }}>{trend.riskFactors}</div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const CATEGORIES = ["Health & Wellness", "Home & Living", "Beauty & Skincare", "Fitness & Sports", "Tech Accessories", "Pet Products", "Sustainable/Eco"];
+
+export default function TrendRadar() {
+  const [category, setCategory] = useState("");
+  const [region, setRegion] = useState("Australia");
+  const [timeframe, setTimeframe] = useState("Last 3 months");
+  const [generating, setGenerating] = useState(false);
+  const [result, setResult] = useState<TrendResult | null>(null);
+  const [genError, setGenError] = useState("");
+  const [waitingForResponse, setWaitingForResponse] = useState(false);
+  const searchMutation = trpc.research.search.useMutation();
+
+  const { sendMessage, status, messages } = useChat({
+    transport: new DefaultChatTransport({
+      api: "/api/chat",
+      prepareSendMessagesRequest({ messages }) {
+        return {
+          body: {
+            messages: messages.map((m: UIMessage) => ({
+              role: m.role,
+              content: m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join(""),
+            })),
+            systemPrompt: SYSTEM_PROMPT,
+          },
+        };
+      },
+    }),
+  });
+
+  useEffect(() => {
+    if (status === "streaming" || status === "submitted") setWaitingForResponse(true);
+  }, [status]);
+
+  useEffect(() => {
+    if (status !== "ready" || !generating || !waitingForResponse) return;
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg?.role === "assistant") {
+      const text = lastMsg.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join("");
+      const parsed = parseResult(text);
+      if (parsed) setResult(parsed);
+      else setGenError("Could not parse results. Please try again.");
+    } else {
+      setGenError("No response received. Please try again.");
+    }
+    setGenerating(false);
+    setWaitingForResponse(false);
+  }, [status, generating, waitingForResponse, messages]);
+
+  const handleGenerate = useCallback(async () => {
+    if (!category.trim()) { toast.error("Please enter a category"); return; }
+    setGenerating(true); setGenError(""); setResult(null);
+    let context = "";
+    try {
+      const searchData = await searchMutation.mutateAsync({
+        query: `${category} trending products ${region} ${timeframe} 2025`,
+        maxResults: 5,
+        searchDepth: "advanced",
+        topic: "news",
+      });
+      context = searchData.results.map(r => `${r.title}: ${r.content}`).join("\n\n");
+    } catch { /* ignore */ }
+
+    const prompt = [
+      `Category: ${category}`,
+      `Region: ${region}`,
+      `Timeframe: ${timeframe}`,
+      context && `\nCurrent news and trend data:\n${context.slice(0, 2500)}`,
+    ].filter(Boolean).join("\n");
+    sendMessage({ text: prompt });
+    setWaitingForResponse(true);
+  }, [category, region, timeframe, sendMessage, searchMutation]);
+
+  const isLoading = generating || status === "streaming" || status === "submitted";
+
+  return (
+    <div className="h-full flex flex-col" style={{ background: "#080a0e", color: "#f0ede8", fontFamily: "DM Sans, sans-serif" }}>
+      <div className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0" style={{ borderColor: "rgba(255,255,255,0.07)", background: "#0c0e12" }}>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(74,184,245,0.15)", border: "1px solid rgba(74,184,245,0.3)" }}>
+          <Radio size={15} style={{ color: "#4ab8f5" }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-black leading-tight" style={{ fontFamily: "Syne, sans-serif" }}>Trend Radar</div>
+          <div className="text-xs" style={{ color: "rgba(240,237,232,0.35)" }}>Real-time trend analysis · Momentum scoring · Product opportunities</div>
+        </div>
+        {result && (
+          <button onClick={() => { setResult(null); setGenError(""); }} className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(240,237,232,0.5)", cursor: "pointer" }}>
+            <RefreshCw size={11} /> New Scan
+          </button>
+        )}
+      </div>
+
+      <div className="flex-1 overflow-hidden flex">
+        <div className="w-72 flex-shrink-0 overflow-y-auto border-r p-4 space-y-4" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(240,237,232,0.6)", fontFamily: "Syne, sans-serif" }}>Category *</label>
+              <input value={category} onChange={e => setCategory(e.target.value)}
+                placeholder="e.g. Health & Wellness, Beauty…"
+                className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#f0ede8" }} />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(240,237,232,0.6)", fontFamily: "Syne, sans-serif" }}>Region</label>
+              <select value={region} onChange={e => setRegion(e.target.value)}
+                className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#f0ede8" }}>
+                {["Australia", "United States", "United Kingdom", "Global"].map(r => (
+                  <option key={r} value={r} style={{ background: "#0c0e12" }}>{r}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(240,237,232,0.6)", fontFamily: "Syne, sans-serif" }}>Timeframe</label>
+              <select value={timeframe} onChange={e => setTimeframe(e.target.value)}
+                className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#f0ede8" }}>
+                {["Last month", "Last 3 months", "Last 6 months", "Last year"].map(t => (
+                  <option key={t} value={t} style={{ background: "#0c0e12" }}>{t}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(240,237,232,0.3)", fontFamily: "Syne, sans-serif" }}>Quick Categories</div>
+            <div className="flex flex-wrap gap-1.5">
+              {CATEGORIES.map(c => (
+                <button key={c} onClick={() => setCategory(c)}
+                  className="text-xs px-2.5 py-1 rounded-lg transition-all"
+                  style={{ background: category === c ? "rgba(74,184,245,0.1)" : "rgba(255,255,255,0.04)", border: `1px solid ${category === c ? "rgba(74,184,245,0.3)" : "rgba(255,255,255,0.07)"}`, color: category === c ? "#4ab8f5" : "rgba(240,237,232,0.45)", cursor: "pointer" }}>
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button onClick={handleGenerate} disabled={isLoading}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all"
+            style={{ background: isLoading ? "rgba(74,184,245,0.25)" : "#4ab8f5", color: "#080a0e", fontFamily: "Syne, sans-serif", cursor: isLoading ? "not-allowed" : "pointer" }}>
+            {isLoading ? <><Loader2 size={14} className="animate-spin" /> Scanning…</> : <><Radio size={14} /> Scan Trends</>}
+          </button>
+
+          {genError && (
+            <div className="text-xs p-3 rounded-xl" style={{ background: "rgba(224,92,122,0.1)", border: "1px solid rgba(224,92,122,0.25)", color: "rgba(224,92,122,0.9)" }}>
+              {genError}
+            </div>
+          )}
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-5">
+          {isLoading && !result && (
+            <div className="h-full flex flex-col items-center justify-center gap-4">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: "rgba(74,184,245,0.1)", border: "1px solid rgba(74,184,245,0.2)" }}>
+                <Radio size={24} style={{ color: "#4ab8f5" }} className="animate-pulse" />
+              </div>
+              <div className="text-center">
+                <div className="text-sm font-black mb-1" style={{ fontFamily: "Syne, sans-serif" }}>Scanning {category}…</div>
+                <div className="text-xs" style={{ color: "rgba(240,237,232,0.35)" }}>Analysing real-time news and trend signals</div>
+              </div>
+            </div>
+          )}
+
+          {result && (
+            <div className="space-y-4 max-w-3xl">
+              <div className="p-4 rounded-2xl" style={{ background: "rgba(74,184,245,0.05)", border: "1px solid rgba(74,184,245,0.15)" }}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-xs font-bold uppercase tracking-widest" style={{ color: "#4ab8f5", fontFamily: "Syne, sans-serif" }}>Trend Overview</div>
+                  <CopyBtn text={result.overview} />
+                </div>
+                <div className="text-sm leading-relaxed" style={{ color: "rgba(240,237,232,0.8)" }}>{result.overview}</div>
+              </div>
+
+              <div className="p-4 rounded-2xl" style={{ background: "rgba(224,92,122,0.05)", border: "1px solid rgba(224,92,122,0.2)" }}>
+                <div className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "#e05c7a", fontFamily: "Syne, sans-serif" }}>🔥 Hottest Right Now</div>
+                <div className="text-sm leading-relaxed" style={{ color: "rgba(240,237,232,0.8)" }}>{result.hottest}</div>
+              </div>
+
+              <div>
+                <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>
+                  {result.trends.length} Trends Detected
+                </div>
+                <div className="space-y-3">
+                  {result.trends.map((t, i) => <TrendCard key={i} trend={t} index={i} />)}
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl" style={{ background: "rgba(212,175,55,0.05)", border: "1px solid rgba(212,175,55,0.15)" }}>
+                <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>Actionable Insight</div>
+                <div className="text-sm leading-relaxed" style={{ color: "rgba(240,237,232,0.8)" }}>{result.actionableInsight}</div>
+              </div>
+            </div>
+          )}
+
+          {!isLoading && !result && (
+            <div className="h-full flex flex-col items-center justify-center gap-4 p-8">
+              <div className="text-5xl">📡</div>
+              <div className="text-center">
+                <div className="text-base font-black mb-2" style={{ fontFamily: "Syne, sans-serif" }}>Spot trends before they peak</div>
+                <div className="text-xs max-w-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.35)" }}>
+                  Select a category to get 5 scored trends with momentum analysis, product opportunities, and real-time market signals.
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

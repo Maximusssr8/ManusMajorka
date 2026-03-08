@@ -62,10 +62,7 @@ export default function MajorkaAppShell({ children }: Props) {
 
   const handleNavClick = (item: typeof NAV_SECTIONS[0]) => {
     const stageId = SECTION_STAGE_MAP[item.label];
-    if (stageId) {
-      // Toggle dropdown for stage sections
-      setOpenDropdown(openDropdown === item.label ? null : item.label);
-    } else {
+    if (!stageId) {
       setLocation(item.path);
       setOpenDropdown(null);
     }
@@ -123,7 +120,10 @@ export default function MajorkaAppShell({ children }: Props) {
             const isOpen = openDropdown === item.label;
 
             return (
-              <div key={item.label} className="relative flex-shrink-0">
+              <div key={item.label} className="relative flex-shrink-0"
+                onMouseEnter={() => { if (stageId) setOpenDropdown(item.label); }}
+                onMouseLeave={() => { if (stageId) setOpenDropdown(null); }}
+              >
                 <button
                   onClick={() => handleNavClick(item)}
                   className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap"

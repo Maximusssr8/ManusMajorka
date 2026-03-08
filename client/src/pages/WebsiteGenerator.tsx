@@ -3,8 +3,9 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import type { UIMessage } from "ai";
 import { toast } from "sonner";
-import { Copy, Download, X, Loader2, Globe, RefreshCw, MessageSquare } from "lucide-react";
+import { Copy, Download, X, Loader2, Globe, RefreshCw, MessageSquare, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { trpc } from "@/lib/trpc";
 
 // ── Theme definitions ─────────────────────────────────────────────────────────
 const THEMES = [
@@ -236,6 +237,8 @@ export default function WebsiteGenerator() {
   });
 
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const extractMutation = trpc.research.extract.useMutation();
+  const imageSearchMutation = trpc.research.imageSearch.useMutation();
 
   // ── Handlers ──────────────────────────────────────────────────────────────────
   const handleImport = useCallback(async () => {
@@ -243,23 +246,40 @@ export default function WebsiteGenerator() {
     setImporting(true);
     setImportError("");
     try {
-      await new Promise(r => setTimeout(r, 1400));
+      const extracted = await extractMutation.mutateAsync({ url: importUrl });
+      const raw = extracted.rawContent || "";
+      const titleStr = extracted.title || raw.match(/(?:Product:|Title:)\s*(.+)/i)?.[1] || "";
+      const priceMatch = raw.match(/\$([\d,]+(?:\.\d{2})?)/)?.[0] || "";
+      const featureLines = raw
+        .split("\n")
+        .map((l: string) => l.replace(/^[-•*✓✔]\s*/, "").trim())
+        .filter((l: string) => l.length > 10 && l.length < 120 && !l.startsWith("http"))
+        .slice(0, 8);
+      const descMatch = raw.split("\n").find((l: string) => l.trim().length > 80 && l.trim().length < 400) || "";
+      let images: string[] = extracted.images || [];
+      if (images.length === 0 && titleStr) {
+        try {
+          const imgResult = await imageSearchMutation.mutateAsync({ query: `${titleStr} product`, maxImages: 4 });
+          images = imgResult.images;
+        } catch { /* ignore */ }
+      }
       const hostname = (() => { try { return new URL(importUrl).hostname.replace("www.", ""); } catch { return "supplier"; } })();
       setProduct({
-        title: `Product from ${hostname}`,
-        description: "High-quality product imported from your supplier. Customise the details below.",
-        features: ["Premium quality materials", "Fast worldwide shipping", "30-day money-back guarantee", "Secure checkout"],
-        images: [],
+        title: (titleStr as string) || `Product from ${hostname}`,
+        description: descMatch || "High-quality product. Customise the details below.",
+        features: featureLines.length > 0 ? featureLines : ["Premium quality materials", "Fast worldwide shipping", "30-day money-back guarantee", "Secure checkout"],
+        price: priceMatch,
+        images,
         sourceUrl: importUrl,
         _manual: false,
       });
-      toast.success("Product imported — ready to generate");
-    } catch {
-      setImportError("Could not import this URL. Fill in the details manually below.");
+      toast.success("Product scraped — ready to generate!");
+    } catch (err: any) {
+      setImportError(err?.message || "Could not import this URL. Fill in the details manually below.");
     } finally {
       setImporting(false);
     }
-  }, [importUrl]);
+  }, [importUrl, extractMutation, imageSearchMutation]);
 
   const handleGenerate = useCallback(async () => {
     setGenerating(true);
@@ -308,6 +328,35 @@ export default function WebsiteGenerator() {
     navigator.clipboard.writeText(generatedHTML);
     toast.success("HTML copied to clipboard!");
   }, [generatedHTML]);
+
+  const handleExportShopify = useCallback(() => {
+    if (!generatedHTML) return;
+    const name = (brandName || "product").replace(/\s+/g, "-").toLowerCase();
+    // Wrap HTML in a Shopify section schema
+    const liquid = `{% comment %}
+  Majorka-generated landing page section
+  Section: ${name}
+{% endcomment %}
+<div class="majorka-lp" id="majorka-${name}">
+${generatedHTML.replace(/<\/?html[^>]*>/gi, "").replace(/<\/?head[^>]*>[\s\S]*?<\/head>/gi, "").replace(/<\/?body[^>]*>/gi, "").trim()}
+</div>
+
+{% schema %}
+{
+  "name": "${brandName || "Product Landing Page"}",
+  "settings": [],
+  "presets": [{"name": "${brandName || "Product Landing Page"}"}]
+}
+{% endschema %}`;
+    const blob = new Blob([liquid], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${name}.liquid`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Shopify .liquid file downloaded!");
+  }, [generatedHTML, brandName]);
 
   const onThemeSelect = (t: typeof THEMES[0]) => {
     setThemeId(t.id);
@@ -504,20 +553,29 @@ export default function WebsiteGenerator() {
 
           {/* Export buttons */}
           {generatedHTML && !generating && (
-            <div className="flex gap-1.5">
+            <div className="space-y-1.5">
+              <div className="flex gap-1.5">
+                <button
+                  onClick={handleExport}
+                  className="flex-1 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+                  style={{ background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.25)", color: "rgba(212,175,55,0.9)", fontFamily: "Syne, sans-serif", cursor: "pointer" }}
+                >
+                  <Download size={11} /> Export HTML
+                </button>
+                <button
+                  onClick={handleCopy}
+                  className="flex-1 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)", color: "rgba(240,237,232,0.55)", fontFamily: "Syne, sans-serif", cursor: "pointer" }}
+                >
+                  <Copy size={11} /> Copy HTML
+                </button>
+              </div>
               <button
-                onClick={handleExport}
-                className="flex-1 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
-                style={{ background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.25)", color: "rgba(212,175,55,0.9)", fontFamily: "Syne, sans-serif", cursor: "pointer" }}
+                onClick={handleExportShopify}
+                className="w-full py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+                style={{ background: "rgba(150,220,100,0.08)", border: "1px solid rgba(150,220,100,0.25)", color: "rgba(150,220,100,0.9)", fontFamily: "Syne, sans-serif", cursor: "pointer" }}
               >
-                <Download size={11} /> Export HTML
-              </button>
-              <button
-                onClick={handleCopy}
-                className="flex-1 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)", color: "rgba(240,237,232,0.55)", fontFamily: "Syne, sans-serif", cursor: "pointer" }}
-              >
-                <Copy size={11} /> Copy HTML
+                <Package size={11} /> Export Shopify .liquid
               </button>
             </div>
           )}

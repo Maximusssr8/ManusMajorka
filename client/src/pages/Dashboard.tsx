@@ -62,7 +62,7 @@ function DashboardHome() {
               accent: "#9c5fff",
             },
             {
-              path: "/app/meta-ads-pack",
+              path: "/app/meta-ads",
               icon: "📣",
               label: "Meta Ads Pack",
               desc: "Generate 5 creative angles, ad copy, and a 48-hr launch plan",

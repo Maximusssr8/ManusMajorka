@@ -9,6 +9,7 @@ import {
   createSubscription,
   updateSubscriptionStatus,
 } from "./db";
+import { tavilySearch, tavilyExtract, tavilyImageSearch } from "./tavily";
 
 export const appRouter = router({
   system: systemRouter,
@@ -77,6 +78,49 @@ export const appRouter = router({
       await updateSubscriptionStatus(ctx.user.id, "cancelled");
       return { success: true };
     }),
+  }),
+
+  /** Tavily web search & extract procedures */
+  research: router({
+    /** General web search — used by Trend Radar, Product Discovery, Supplier Finder */
+    search: publicProcedure
+      .input(
+        z.object({
+          query: z.string().min(1).max(500),
+          maxResults: z.number().min(1).max(10).default(5),
+          searchDepth: z.enum(["basic", "advanced"]).default("basic"),
+          includeImages: z.boolean().default(false),
+          topic: z.enum(["general", "news"]).default("general"),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await tavilySearch(input.query, {
+          maxResults: input.maxResults,
+          searchDepth: input.searchDepth,
+          includeImages: input.includeImages,
+          topic: input.topic,
+        });
+      }),
+
+    /** Extract content from a URL — used by Website Generator, Competitor Breakdown */
+    extract: publicProcedure
+      .input(z.object({ url: z.string().url() }))
+      .mutation(async ({ input }) => {
+        return await tavilyExtract(input.url);
+      }),
+
+    /** Image search — used by Website Generator, Meta Ads Pack */
+    imageSearch: publicProcedure
+      .input(
+        z.object({
+          query: z.string().min(1).max(300),
+          maxImages: z.number().min(1).max(12).default(6),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const images = await tavilyImageSearch(input.query, input.maxImages);
+        return { images };
+      }),
   }),
 });
 

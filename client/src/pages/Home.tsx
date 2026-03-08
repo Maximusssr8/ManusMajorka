@@ -1,18 +1,15 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { HeroGeometric } from "@/components/ui/shape-landing-hero";
 import { stages } from "@/lib/tools";
 import RadialOrbitalTimeline from "@/components/ui/radial-orbital-timeline";
 import {
-  ChevronRight, CheckCircle, ArrowRight,
+  ChevronRight, ArrowRight,
   Zap, Globe, BarChart2, MessageSquare, Layers, TrendingUp,
   Search, BarChart, CheckCircle2, Rocket as RocketIcon,
 } from "lucide-react";
-import { useState, createElement } from "react";
-import { toast } from "sonner";
-import { trpc } from "@/lib/trpc";
+import { createElement } from "react";
 
 const orbitalStages = [
   {
@@ -101,19 +98,8 @@ const betaIncludes = [
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
-  const [waitlistEmail, setWaitlistEmail] = useState("");
-  const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
-
   const handleLaunchApp = () => {
     setLocation("/app");
-  };
-
-  const handleWaitlistSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!waitlistEmail.trim()) return;
-    // Store email (could be wired to a tRPC mutation later)
-    setWaitlistSubmitted(true);
-    toast.success("You're on the list! We'll notify you of updates.");
   };
 
   return (
@@ -305,54 +291,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── EARLY ACCESS / WAITLIST ── */}
-      <section className="relative z-10 py-24 px-4">
-        <div className="max-w-lg mx-auto text-center">
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-6"
-            style={{ background: "rgba(212,175,55,0.1)" }}
-          >
-            <RocketIcon className="w-7 h-7" style={{ color: "#d4af37" }} />
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-black mb-4" style={{ fontFamily: "Syne, sans-serif" }}>
-            Early Access
-          </h2>
-          <p className="text-muted-foreground mb-8 leading-relaxed">
-            Majorka is currently in beta. Get free access to all 50+ AI tools while we build.
-            Join the waitlist to get notified of new features and updates.
-          </p>
-
-          {waitlistSubmitted ? (
-            <div
-              className="rounded-2xl p-6 border"
-              style={{ background: "rgba(212,175,55,0.05)", borderColor: "rgba(212,175,55,0.2)" }}
-            >
-              <CheckCircle className="w-8 h-8 mx-auto mb-3" style={{ color: "#d4af37" }} />
-              <p className="font-bold" style={{ fontFamily: "Syne, sans-serif" }}>You're on the list!</p>
-              <p className="text-sm text-muted-foreground mt-1">We'll notify you of updates and new tools.</p>
-            </div>
-          ) : (
-            <form onSubmit={handleWaitlistSubmit} className="flex gap-3 max-w-sm mx-auto">
-              <Input
-                type="email"
-                placeholder="you@email.com"
-                value={waitlistEmail}
-                onChange={(e) => setWaitlistEmail(e.target.value)}
-                required
-                className="flex-1"
-                style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.1)" }}
-              />
-              <Button
-                type="submit"
-                style={{ background: "linear-gradient(135deg, #d4af37, #c09a28)", color: "#080a0e", fontFamily: "Syne, sans-serif", fontWeight: 700 }}
-              >
-                Join
-              </Button>
-            </form>
-          )}
-        </div>
-      </section>
-
       {/* ── PRICING (Free Beta) ── */}
       <section className="relative z-10 py-24 px-4 bg-background/50 backdrop-blur-sm" id="pricing">
         <div className="max-w-md mx-auto">
@@ -397,7 +335,7 @@ export default function Home() {
             <ul className="space-y-3 mb-8">
               {betaIncludes.map((item, i) => (
                 <li key={i} className="flex items-center gap-3 text-sm text-foreground/80">
-                  <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: "#d4af37" }} />
+                  <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: "#d4af37" }} />
                   {item}
                 </li>
               ))}
