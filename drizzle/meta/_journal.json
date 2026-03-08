@@ -15,6 +15,13 @@
       "when": 1772850289756,
       "tag": "0001_cute_lady_mastermind",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1772979622140,
+      "tag": "0002_hesitant_mystique",
+      "breakpoints": true
     }
   ]
 }

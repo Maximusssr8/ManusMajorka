@@ -241,31 +241,68 @@ export default function WebsiteGenerator() {
   const imageSearchMutation = trpc.research.imageSearch.useMutation();
 
   // ── Handlers ──────────────────────────────────────────────────────────────────
+  const searchMutation = trpc.research.search.useMutation();
+
   const handleImport = useCallback(async () => {
     if (!importUrl.trim()) return;
     setImporting(true);
     setImportError("");
     try {
-      const extracted = await extractMutation.mutateAsync({ url: importUrl });
-      const raw = extracted.rawContent || "";
-      const titleStr = extracted.title || raw.match(/(?:Product:|Title:)\s*(.+)/i)?.[1] || "";
-      const priceMatch = raw.match(/\$([\d,]+(?:\.\d{2})?)/)?.[0] || "";
-      const featureLines = raw
-        .split("\n")
-        .map((l: string) => l.replace(/^[-•*✓✔]\s*/, "").trim())
-        .filter((l: string) => l.length > 10 && l.length < 120 && !l.startsWith("http"))
-        .slice(0, 8);
-      const descMatch = raw.split("\n").find((l: string) => l.trim().length > 80 && l.trim().length < 400) || "";
-      let images: string[] = extracted.images || [];
+      let titleStr = "";
+      let priceMatch = "";
+      let featureLines: string[] = [];
+      let descMatch = "";
+      let images: string[] = [];
+
+      // Try Tavily extract first
+      try {
+        const extracted = await extractMutation.mutateAsync({ url: importUrl });
+        const raw = extracted.rawContent || "";
+        titleStr = extracted.title || raw.match(/(?:Product:|Title:)\s*(.+)/i)?.[1] || "";
+        priceMatch = raw.match(/\$([\d,]+(?:\.\d{2})?)/)?.[0] || raw.match(/US\s*\$([\d,]+(?:\.\d{2})?)/)?.[0] || raw.match(/A\$([\d,]+(?:\.\d{2})?)/)?.[0] || "";
+        featureLines = raw
+          .split("\n")
+          .map((l: string) => l.replace(/^[-•*✓✔]\s*/, "").trim())
+          .filter((l: string) => l.length > 10 && l.length < 120 && !l.startsWith("http") && !l.includes("cookie") && !l.includes("javascript"))
+          .slice(0, 8);
+        descMatch = raw.split("\n").find((l: string) => l.trim().length > 60 && l.trim().length < 500 && !l.includes("cookie") && !l.includes("javascript")) || "";
+        images = extracted.images || [];
+      } catch {
+        // Extract failed (blocked site) — fall back to Tavily search
+        const hostname = (() => { try { return new URL(importUrl).hostname.replace("www.", ""); } catch { return ""; } })();
+        const searchQuery = importUrl.includes("aliexpress") || importUrl.includes("amazon")
+          ? `site:${hostname} ${importUrl.split("/").pop()?.replace(/[^a-zA-Z0-9]/g, " ").trim() || "product"}`
+          : importUrl;
+        try {
+          const searchResult = await searchMutation.mutateAsync({ query: searchQuery, maxResults: 3, includeImages: true });
+          const topResult = searchResult.results[0];
+          if (topResult) {
+            titleStr = topResult.title || "";
+            descMatch = topResult.content || "";
+            priceMatch = topResult.content.match(/\$([\d,]+(?:\.\d{2})?)/)?.[0] || "";
+            featureLines = topResult.content
+              .split(/[.!]\s/)
+              .map((s: string) => s.trim())
+              .filter((s: string) => s.length > 15 && s.length < 120)
+              .slice(0, 6);
+          }
+          images = searchResult.images || [];
+        } catch { /* both methods failed */ }
+      }
+
+      // Fallback image search if no images found
       if (images.length === 0 && titleStr) {
         try {
-          const imgResult = await imageSearchMutation.mutateAsync({ query: `${titleStr} product`, maxImages: 4 });
+          const imgResult = await imageSearchMutation.mutateAsync({ query: `${titleStr} product photo`, maxImages: 4 });
           images = imgResult.images;
         } catch { /* ignore */ }
       }
+
       const hostname = (() => { try { return new URL(importUrl).hostname.replace("www.", ""); } catch { return "supplier"; } })();
+      const finalTitle = titleStr || `Product from ${hostname}`;
+
       setProduct({
-        title: (titleStr as string) || `Product from ${hostname}`,
+        title: finalTitle,
         description: descMatch || "High-quality product. Customise the details below.",
         features: featureLines.length > 0 ? featureLines : ["Premium quality materials", "Fast worldwide shipping", "30-day money-back guarantee", "Secure checkout"],
         price: priceMatch,
@@ -273,13 +310,25 @@ export default function WebsiteGenerator() {
         sourceUrl: importUrl,
         _manual: false,
       });
+
+      // Auto-fill brand name if empty
+      if (!brandName.trim()) {
+        const autoName = finalTitle.split(/[-–|:]/)[0].trim().slice(0, 40);
+        setBrandName(autoName);
+      }
+      // Auto-fill sell price if scraped
+      if (!sellPrice.trim() && priceMatch) {
+        const numericPrice = priceMatch.replace(/[^\d.]/g, "");
+        setSellPrice(numericPrice);
+      }
+
       toast.success("Product scraped — ready to generate!");
     } catch (err: any) {
-      setImportError(err?.message || "Could not import this URL. Fill in the details manually below.");
+      setImportError(err?.message || "Could not import this URL. Try a different URL or fill in the details manually below.");
     } finally {
       setImporting(false);
     }
-  }, [importUrl, extractMutation, imageSearchMutation]);
+  }, [importUrl, extractMutation, imageSearchMutation, searchMutation, brandName, sellPrice]);
 
   const handleGenerate = useCallback(async () => {
     setGenerating(true);

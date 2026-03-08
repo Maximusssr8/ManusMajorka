@@ -8,6 +8,14 @@ import {
   hasActiveSubscription,
   createSubscription,
   updateSubscriptionStatus,
+  getProductsByUserId,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getSavedOutputsByProductId,
+  createSavedOutput,
+  deleteSavedOutput,
 } from "./db";
 import { tavilySearch, tavilyExtract, tavilyImageSearch } from "./tavily";
 
@@ -78,6 +86,80 @@ export const appRouter = router({
       await updateSubscriptionStatus(ctx.user.id, "cancelled");
       return { success: true };
     }),
+  }),
+
+  /** Product management */
+  products: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return await getProductsByUserId(ctx.user.id);
+    }),
+
+    get: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ ctx, input }) => {
+        return await getProductById(input.id, ctx.user.id) ?? null;
+      }),
+
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1).max(255),
+        url: z.string().optional(),
+        niche: z.string().optional(),
+        description: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await createProduct({ ...input, userId: ctx.user.id });
+      }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().min(1).max(255).optional(),
+        url: z.string().optional(),
+        niche: z.string().optional(),
+        description: z.string().optional(),
+        status: z.enum(["research", "validate", "build", "launch", "optimize", "scale"]).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { id, ...data } = input;
+        return await updateProduct(id, ctx.user.id, data);
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await deleteProduct(input.id, ctx.user.id);
+        return { success: true };
+      }),
+  }),
+
+  /** Saved outputs per product */
+  savedOutputs: router({
+    list: protectedProcedure
+      .input(z.object({ productId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        return await getSavedOutputsByProductId(input.productId, ctx.user.id);
+      }),
+
+    save: protectedProcedure
+      .input(z.object({
+        productId: z.number(),
+        toolId: z.string(),
+        toolName: z.string(),
+        stage: z.string(),
+        outputJson: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await createSavedOutput({ ...input, userId: ctx.user.id });
+        return { success: true };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await deleteSavedOutput(input.id, ctx.user.id);
+        return { success: true };
+      }),
   }),
 
   /** Tavily web search & extract procedures */

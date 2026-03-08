@@ -42,3 +42,38 @@ export const subscriptions = mysqlTable("subscriptions", {
 
 export type Subscription = typeof subscriptions.$inferSelect;
 export type InsertSubscription = typeof subscriptions.$inferInsert;
+
+/**
+ * Products table — each user can track multiple products/projects.
+ */
+export const products = mysqlTable("products", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  url: text("url"),
+  niche: varchar("niche", { length: 255 }),
+  description: text("description"),
+  status: mysqlEnum("status", ["research", "validate", "build", "launch", "optimize", "scale"]).default("research").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Product = typeof products.$inferSelect;
+export type InsertProduct = typeof products.$inferInsert;
+
+/**
+ * Saved outputs — tool results saved to a product for future reference.
+ */
+export const savedOutputs = mysqlTable("saved_outputs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  productId: int("productId").notNull(),
+  toolId: varchar("toolId", { length: 128 }).notNull(),
+  toolName: varchar("toolName", { length: 255 }).notNull(),
+  stage: varchar("stage", { length: 64 }).notNull(),
+  outputJson: text("outputJson").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SavedOutput = typeof savedOutputs.$inferSelect;
+export type InsertSavedOutput = typeof savedOutputs.$inferInsert;

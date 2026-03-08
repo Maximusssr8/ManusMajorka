@@ -16,6 +16,15 @@ import EmailSequences from "./EmailSequences";
 import AdsStudio from "./AdsStudio";
 import SupplierFinder from "./SupplierFinder";
 import MarketMap from "./MarketMap";
+import FinancialModeler from "./FinancialModeler";
+import ScalingPlaybook from "./ScalingPlaybook";
+import StoreAuditor from "./StoreAuditor";
+import AnalyticsDecoder from "./AnalyticsDecoder";
+import ExpansionPlanner from "./ExpansionPlanner";
+import ProjectManager from "./ProjectManager";
+import AutomationBuilder from "./AutomationBuilder";
+import MyProducts from "./MyProducts";
+import ProductHub from "./ProductHub";
 import { createElement } from "react";
 
 export default function ToolPage() {
@@ -38,6 +47,15 @@ export default function ToolPage() {
   if (location === "/app/ads-studio") return <AdsStudio />;
   if (location === "/app/supplier-finder") return <SupplierFinder />;
   if (location === "/app/market-map") return <MarketMap />;
+  if (location === "/app/financial-modeler") return <FinancialModeler />;
+  if (location === "/app/scaling-playbook") return <ScalingPlaybook />;
+  if (location === "/app/store-auditor") return <StoreAuditor />;
+  if (location === "/app/analytics-decoder") return <AnalyticsDecoder />;
+  if (location === "/app/expansion-planner") return <ExpansionPlanner />;
+  if (location === "/app/project-manager") return <ProjectManager />;
+  if (location === "/app/automation-builder") return <AutomationBuilder />;
+  if (location === "/app/my-products") return <MyProducts />;
+  if (location.startsWith("/app/product-hub/")) return <ProductHub />;
 
   if (!tool) {
     return (

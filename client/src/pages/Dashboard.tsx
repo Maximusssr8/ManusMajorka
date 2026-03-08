@@ -5,14 +5,18 @@ import ToolPage from "./ToolPage";
 import { stages } from "@/lib/tools";
 import { AgentPlan } from "@/components/ui/agent-plan";
 import { TextShimmer } from "@/components/ui/text-shimmer";
+import OnboardingModal from "@/components/OnboardingModal";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function Dashboard() {
   const [location] = useLocation();
+  const { user } = useAuth();
   const isToolPage = location.startsWith("/app/") && location !== "/app";
 
   return (
     <MajorkaAppShell>
       {isToolPage ? <ToolPage /> : <DashboardHome />}
+      {user && <OnboardingModal userName={user.name ?? undefined} />}
     </MajorkaAppShell>
   );
 }

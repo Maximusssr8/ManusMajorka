@@ -18,6 +18,7 @@ function Router() {
       {/* All /app routes go through Dashboard which handles DashboardLayout + ToolPage */}
       <Route path="/app" component={Dashboard} />
       <Route path="/app/:tool" component={Dashboard} />
+      <Route path="/app/product-hub/:id" component={Dashboard} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
@@ -27,7 +28,7 @@ function Router() {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="dark">
+      <ThemeProvider defaultTheme="dark" switchable>
         <TooltipProvider>
           <Toaster />
           <Router />

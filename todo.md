@@ -189,3 +189,65 @@
 - [x] Preserve Syne + DM Sans fonts in @layer base
 - [x] Preserve existing @theme inline block and container/flex utilities
 - [x] TypeScript: 0 errors | HMR: hot updated /src/index.css confirmed
+
+## Phase 12: Premium Rebuild V2
+
+### BUG 1: Nav Overflow (Critical)
+- [x] Convert top nav to collapsible sidebar with hamburger toggle on mobile
+- [x] Ensure all 9 nav sections + AI Chat are always reachable
+
+### BUG 2: Website Generator Scraping
+- [x] Fix Tavily extract to pull real product title, description, features, price, images
+- [x] Auto-fill brand name and sell price from scraped data
+- [x] Add Tavily search fallback when extract fails (AliExpress/Amazon block direct extraction)
+- [x] Add fallback image search when no product images found
+- [x] Ensure generated HTML has proper sections (Hero, Features, Social Proof, Guarantee, CTA)
+- [x] Fix Shopify Liquid export to output real working section code
+
+### BUG 3: Remaining Blank Chat Tools
+- [x] Financial Modeler: structured form → P&L table, break-even, 6-month forecast
+- [x] Scaling Playbook: structured form → milestone roadmap with KPIs and timeline
+- [x] Store Auditor: URL input + Tavily scrape → scored audit report (SEO, Speed, Trust, UX, CRO, Mobile)
+- [x] Analytics Decoder: metric inputs → KPI cards with benchmarks, insights, and actions
+- [x] Expansion Planner: structured form → market cards with scores, entry strategy, readiness checklist
+- [x] Project Manager: phased task board with interactive checkboxes and progress tracking
+- [x] Automation Builder: workflow cards with triggers, actions, tools, and time saved
+
+### UPGRADE 5: Tavily for Research Tools
+- [x] Wire Tavily search into Trend Radar before AI generation (done in Phase 8)
+- [x] Wire Tavily search into Competitor Breakdown (done in Phase 8)
+- [x] Wire Tavily search into Market Intelligence (done in Phase 8)
+- [x] Wire Tavily search into Product Discovery (done in Phase 8)
+- [x] Wire Tavily search into Keyword Miner (done in Phase 8)
+
+### UPGRADE 6: Multi-Product Project Management
+- [x] Add products table to database schema
+- [x] Add saved_outputs table to database schema
+- [x] Build My Products page with create/edit/delete
+- [x] Build Product Hub page showing saved outputs by stage
+- [x] Add My Products link to sidebar nav
+- [x] Wire routes in App.tsx and ToolPage.tsx
+- [ ] Add "Save to Product" button on all tool output pages (deferr### UPGRADE 7: Beginner Onboarding
+- [x] Welcome modal on first login (experience level + goal selection)
+- [x] Personalised "Start Here" workflow — routes user to right tool based on goal
+- [ ] Progress badges ("First Product Researched", "First Store### UPGRADE 8: Premium UX Polish
+- [x] Dark/light mode toggle (in user dropdown menu)
+- [x] Keyboard shortcuts (Cmd+B sidebar toggle, Cmd+Shift+L theme toggle)
+- [x] Theme switchable enabled in App.tsx ThemeProvider
+- [ ] Skeleton loading states on all tool outputs (most tools already have loading spinners)
+- [ ] Copy buttons on every output block (already on structured tools)
+- [ ] Export as PDF/TXT on major output pages (deferred)
+- [ ] "Related tools" suggestions at bottom of each tool (deferred)
+- [ ] Tooltips on all icon-only buttons (deferred)
+
+### UPGRADE 9: Landing Page
+- [x] Stage tab content already interactive (done in Phase 10)
+- [x] Landing page already has How It Works, Value Comparison, FAQ, anchor nav (done in Phase 9)
+- [ ] Update FAQ with new questions
+- [ ] Add comparison table (Majorka vs VA vs ChatGPT vs individual tools)
+
+### UPGRADE 10: Better Output Formatting
+- [x] Upgraded mkPrompt with structured output rules (headings, tables, bold, numbered lists)
+- [x] Added "Next Steps" section requirement, specificity rules, response length guidance
+- [x] All 40+ tools now produce scannable, actionable output
+- [ ] Ensure all outputs return structured JSON rendered as cards/tables

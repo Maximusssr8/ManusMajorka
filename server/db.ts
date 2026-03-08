@@ -100,3 +100,62 @@ export async function updateSubscriptionStatus(
     .set(updateData)
     .where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, "active")));
 }
+
+// ─── Product helpers ────────────────────────────────────────────────────────
+
+import { products, savedOutputs, type InsertProduct, type InsertSavedOutput } from "../drizzle/schema";
+import { desc } from "drizzle-orm";
+
+export async function getProductsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(products).where(eq(products.userId, userId)).orderBy(desc(products.updatedAt));
+}
+
+export async function getProductById(productId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(products).where(and(eq(products.id, productId), eq(products.userId, userId))).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createProduct(data: InsertProduct) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(products).values(data);
+  return getProductById(result[0].insertId, data.userId);
+}
+
+export async function updateProduct(productId: number, userId: number, data: Partial<Pick<InsertProduct, "name" | "url" | "niche" | "description" | "status">>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(products).set(data).where(and(eq(products.id, productId), eq(products.userId, userId)));
+  return getProductById(productId, userId);
+}
+
+export async function deleteProduct(productId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(savedOutputs).where(and(eq(savedOutputs.productId, productId), eq(savedOutputs.userId, userId)));
+  await db.delete(products).where(and(eq(products.id, productId), eq(products.userId, userId)));
+}
+
+// ─── Saved Output helpers ───────────────────────────────────────────────────
+
+export async function getSavedOutputsByProductId(productId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(savedOutputs).where(and(eq(savedOutputs.productId, productId), eq(savedOutputs.userId, userId))).orderBy(desc(savedOutputs.createdAt));
+}
+
+export async function createSavedOutput(data: InsertSavedOutput) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.insert(savedOutputs).values(data);
+}
+
+export async function deleteSavedOutput(outputId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(savedOutputs).where(and(eq(savedOutputs.id, outputId), eq(savedOutputs.userId, userId)));
+}
