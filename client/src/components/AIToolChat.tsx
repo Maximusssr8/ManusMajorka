@@ -18,6 +18,7 @@ interface AIToolChatProps {
   placeholder?: string;
   /** If true, extract HTML code blocks and show preview panel */
   showHTMLPreview?: boolean;
+  examplePrompts?: string[];
 }
 
 export default function AIToolChat({
@@ -28,6 +29,7 @@ export default function AIToolChat({
   systemPrompt,
   placeholder = "Type your message...",
   showHTMLPreview = false,
+  examplePrompts,
 }: AIToolChatProps) {
   const [generatedHTML, setGeneratedHTML] = useState<string>("");
   const [showPreview, setShowPreview] = useState(false);
@@ -141,9 +143,30 @@ export default function AIToolChat({
                   >
                     <Sparkles className="w-7 h-7" style={{ color: "#d4af37", opacity: 0.4 }} />
                   </div>
-                  <p className="text-sm text-muted-foreground max-w-sm">
+                  <p className="text-sm text-muted-foreground max-w-sm mb-6">
                     {toolDescription}. Start by describing what you need.
                   </p>
+                  {examplePrompts && examplePrompts.length > 0 && (
+                    <div className="flex flex-col gap-2 w-full max-w-md">
+                      <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "rgba(240,237,232,0.3)", fontFamily: "Syne, sans-serif" }}>Try an example</p>
+                      {examplePrompts.map((prompt, i) => (
+                        <button
+                          key={i}
+                          onClick={() => {
+                            setInput(prompt);
+                          }}
+                          className="text-left text-xs px-4 py-2.5 rounded-xl border transition-all hover:border-yellow-500/40 hover:bg-yellow-500/5"
+                          style={{
+                            borderColor: "rgba(212,175,55,0.2)",
+                            color: "rgba(212,175,55,0.75)",
+                            background: "rgba(212,175,55,0.03)",
+                          }}
+                        >
+                          {prompt}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 

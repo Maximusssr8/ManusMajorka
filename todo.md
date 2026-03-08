@@ -168,3 +168,14 @@
 - [x] Added nav anchor links: Features · How It Works · Pricing · FAQ · Sign In · Get Access
 - [x] Added footer anchor links: Features · How It Works · Pricing · FAQ · Launch App
 - [x] Final CTA button added below FAQ section
+
+## Phase 10: Full Rebuild — Remaining Gaps (COMPLETED)
+
+- [x] Build Market Map tool: interactive 2×2 Price vs Quality grid with competitor dots, opportunity zone, insights panel
+- [x] Wire Market Map to /app/market-map in ToolPage.tsx
+- [x] Add examplePrompts field to ToolDef interface in tools.ts
+- [x] Add 3 example prompts to all 24 AIToolChat tools
+- [x] Add examplePrompts prop to AIToolChat component and render as clickable chips in empty state
+- [x] Pass examplePrompts from tool definition to AIToolChat in ToolPage.tsx
+- [x] Fix landing page stage pills: replaced static pills with interactive StageTabsSection (click to see tool grid per stage)
+- [x] TypeScript: 0 errors | Tests: 1 passing

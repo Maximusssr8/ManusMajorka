@@ -15,6 +15,7 @@ import CopywriterTool from "./CopywriterTool";
 import EmailSequences from "./EmailSequences";
 import AdsStudio from "./AdsStudio";
 import SupplierFinder from "./SupplierFinder";
+import MarketMap from "./MarketMap";
 import { createElement } from "react";
 
 export default function ToolPage() {
@@ -36,6 +37,7 @@ export default function ToolPage() {
   if (location === "/app/email-sequences") return <EmailSequences />;
   if (location === "/app/ads-studio") return <AdsStudio />;
   if (location === "/app/supplier-finder") return <SupplierFinder />;
+  if (location === "/app/market-map") return <MarketMap />;
 
   if (!tool) {
     return (
@@ -61,6 +63,7 @@ export default function ToolPage() {
       systemPrompt={tool.systemPrompt}
       placeholder={`Ask ${tool.label.toLowerCase()}...`}
       showHTMLPreview={false}
+      examplePrompts={tool.examplePrompts}
     />
   );
 }

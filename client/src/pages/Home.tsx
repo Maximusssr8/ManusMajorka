@@ -153,6 +153,65 @@ const betaIncludes = [
   "All future tools added during beta",
 ];
 
+function StageTabsSection() {
+  const [activeStage, setActiveStage] = useState(0);
+  const active = stages[activeStage];
+  return (
+    <div>
+      {/* Stage tab buttons */}
+      <div className="flex flex-wrap justify-center gap-2 mb-8">
+        {stages.map((s, i) => (
+          <button
+            key={s.stage}
+            onClick={() => setActiveStage(i)}
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all"
+            style={{
+              background: activeStage === i ? `${s.color}22` : `${s.color}08`,
+              border: `1px solid ${activeStage === i ? s.color + "60" : s.color + "20"}`,
+              color: activeStage === i ? s.color : `${s.color}80`,
+              fontFamily: "Syne, sans-serif",
+              transform: activeStage === i ? "scale(1.04)" : "scale(1)",
+            }}
+          >
+            <div className="w-2 h-2 rounded-full" style={{ background: activeStage === i ? s.color : `${s.color}50` }} />
+            {s.stage}
+            <span className="text-xs opacity-60">{s.tools.length}</span>
+          </button>
+        ))}
+      </div>
+      {/* Tool grid for active stage */}
+      <div
+        className="rounded-2xl border p-6"
+        style={{ borderColor: `${active.color}20`, background: `${active.color}04` }}
+      >
+        <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: active.color, fontFamily: "Syne, sans-serif" }}>
+          Stage {activeStage + 1} — {active.stage}
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          {active.tools.map((tool) => (
+            <div
+              key={tool.id}
+              className="flex items-start gap-2.5 p-3 rounded-xl border transition-colors"
+              style={{ borderColor: `${active.color}15`, background: "rgba(255,255,255,0.02)" }}
+            >
+              <div
+                className="w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center mt-0.5"
+                style={{ background: `${active.color}15`, color: active.color }}
+              >
+                {createElement(tool.icon, { className: "w-3.5 h-3.5" })}
+              </div>
+              <div>
+                <p className="text-xs font-bold leading-tight" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>{tool.label}</p>
+                <p className="text-xs mt-0.5 leading-tight" style={{ color: "rgba(240,237,232,0.4)" }}>{tool.description.split(" ").slice(0, 5).join(" ")}…</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
@@ -285,7 +344,7 @@ export default function Home() {
       </section>
 
       {/* ── TOOL STAGES OVERVIEW ── */}
-      <section className="relative z-10 px-4 py-20">
+      <section id="features-stages" className="relative z-10 px-4 py-20">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
@@ -296,25 +355,8 @@ export default function Home() {
             </h2>
           </div>
 
-          {/* Stage pills */}
-          <div className="flex flex-wrap justify-center gap-3 mb-12">
-            {stages.map((s) => (
-              <div
-                key={s.stage}
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold"
-                style={{
-                  background: `${s.color}12`,
-                  border: `1px solid ${s.color}30`,
-                  color: s.color,
-                  fontFamily: "Syne, sans-serif",
-                }}
-              >
-                <div className="w-2 h-2 rounded-full" style={{ background: s.color }} />
-                {s.stage}
-                <span className="text-xs opacity-60">{s.tools.length}</span>
-              </div>
-            ))}
-          </div>
+          {/* Interactive stage tabs */}
+          <StageTabsSection />
         </div>
       </section>
 
