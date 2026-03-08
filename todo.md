@@ -50,3 +50,17 @@
 - [x] Remove absolute positioned CTA button overlay from hero section
 
 - [x] Patch Majorka Menu HTML: add null checks for T.text in buildWebsiteRunner
+
+## Phase 2: Replace Broken Website Generator & Build Native Tools
+
+- [x] Build native Website Generator component with AI SDK v6 + Shopify prompt
+- [x] Integrate DashboardLayout into Dashboard.tsx
+- [x] Update DashboardLayout sidebar menuItems for Majorka tools
+- [x] Build Meta Ads Pack tool page with AIChatBox
+- [x] Build Brand DNA Analyzer tool page with AIChatBox
+- [x] Build Market Intelligence tool page with AIChatBox
+- [x] Build AI Chat tool page with AIChatBox
+- [x] Wire up routing for all tool pages in App.tsx
+- [x] Integrate DashboardLayout into Dashboard with subscription gate
+- [x] All tests passing (1 test, 0 errors)
+- [x] TypeScript clean (0 errors)

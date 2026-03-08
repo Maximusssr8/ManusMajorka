@@ -7,12 +7,22 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Account from "./pages/Account";
+import WebsiteGenerator from "./pages/WebsiteGenerator";
+import MetaAdsPack from "./pages/MetaAdsPack";
+import BrandDNA from "./pages/BrandDNA";
+import MarketIntel from "./pages/MarketIntel";
+import AIChat from "./pages/AIChat";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/dashboard/website-generator" component={WebsiteGenerator} />
+      <Route path="/dashboard/meta-ads" component={MetaAdsPack} />
+      <Route path="/dashboard/brand-dna" component={BrandDNA} />
+      <Route path="/dashboard/market-intel" component={MarketIntel} />
+      <Route path="/dashboard/chat" component={AIChat} />
       <Route path="/account" component={Account} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
