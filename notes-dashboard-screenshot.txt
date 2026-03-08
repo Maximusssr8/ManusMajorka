@@ -1,0 +1,10 @@
+Dashboard /app screenshot review:
+- Full sidebar with Majorka logo, BETA badge, and collapsible navigation
+- Home button at top
+- Stage groupings: RESEARCH (expanded, showing 7 tools), VALIDATE, BUILD, LAUNCH, OPTIMIZE, SCALE
+- Main content shows "Welcome to Majorka" with all tools organized by stage in card grid
+- Research: 7 tools visible, Validate: 6 tools, Build: 8 tools visible
+- User avatar at bottom left showing "Maximusssr" with email
+- Dark gold aesthetic is consistent
+- All tool cards have icons, names, and descriptions
+- Everything looks correct and functional

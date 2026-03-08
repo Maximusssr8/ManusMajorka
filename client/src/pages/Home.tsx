@@ -1,80 +1,78 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { HeroGeometric } from "@/components/ui/shape-landing-hero";
+import { stages } from "@/lib/tools";
 import {
+  ChevronRight, CheckCircle, ArrowRight, Rocket,
   Zap, Globe, BarChart2, MessageSquare, Layers, TrendingUp,
-  ChevronRight, CheckCircle, Star, ArrowRight, Lock
 } from "lucide-react";
-
-const MAJORKA_CDN = "https://private-us-east-1.manuscdn.com/user_upload_by_module/session_file/310519663410730336/rRJeDcRfMGUztBDG.html?Expires=1804388139&Signature=johyutTbmyawv7LhddwYfbQ8QdBXiuFeCmBhqGx61epQssm3YAGQE~0qsQKTFMlxZt62bk7iQmas9KVqOPPz4CSuaUmdLcE6~jdaK3xMGeOjeRjCD0TFISQjY9ABNpRyvepm3jTb7XLWlhBGBY8GORktwGgR2Zi2YiupKhefY1vEw~3Wp20Mteff37sOT5iMB3EyKWJy5zrWaO1aO5JSCBkcqeZCAYhRLB9tDGOBEFrcXk7ftWeUhAxXhn9ExFlIJb425YxSy9U~tFuxCNxKHvLn8YIKJfTHqBe-ZmK5a4MjWY4hq59JP6ox9czPAsBDzbI~deqlWmYsXF809LopNw__&Key-Pair-Id=K2HSFNDJXOU9YS";
-// Patched version with null checks for T.text undefined error
+import { useState, createElement } from "react";
+import { toast } from "sonner";
+import { trpc } from "@/lib/trpc";
 
 const features = [
   {
-    icon: <Zap className="w-5 h-5" />,
-    title: "AI Tool Suite",
-    desc: "50+ specialised AI tools for every stage of your ecommerce journey — research, validate, build, launch, optimise, and scale.",
+    icon: Zap,
+    title: "50+ AI Tools",
+    desc: "Specialised AI tools for every stage of your ecommerce journey — research, validate, build, launch, optimise, and scale.",
   },
   {
-    icon: <Globe className="w-5 h-5" />,
+    icon: Globe,
     title: "Website Generator",
     desc: "Generate high-converting Shopify-ready landing pages in seconds. Export as HTML or Liquid with one click.",
   },
   {
-    icon: <BarChart2 className="w-5 h-5" />,
+    icon: BarChart2,
     title: "Meta Ads Launch Pack",
     desc: "Unlimited ad hooks, scripts, shot lists, and full Meta campaign launch packs tailored to your product.",
   },
   {
-    icon: <MessageSquare className="w-5 h-5" />,
+    icon: MessageSquare,
     title: "AI Chat Co-founder",
     desc: "A persistent AI co-founder trained on ecommerce operations — always ready to strategise, review, and advise.",
   },
   {
-    icon: <Layers className="w-5 h-5" />,
+    icon: Layers,
     title: "Brand DNA Analyzer",
     desc: "Extract your brand's unique positioning, tone of voice, and creative angles from any product or store.",
   },
   {
-    icon: <TrendingUp className="w-5 h-5" />,
+    icon: TrendingUp,
     title: "Market Intelligence",
     desc: "Real-time trend radar, competitor breakdowns, and product discovery scans powered by live web data.",
   },
 ];
 
-const testimonials = [
-  { quote: "Launched my first store in 24 hours using Majorka.", author: "Jake M.", location: "Sydney" },
-  { quote: "Made $4,200 in week 1 using the Meta Ads Pack.", author: "Priya K.", location: "Melbourne" },
-  { quote: "Website Generator saved me $3k in dev costs.", author: "Tom R.", location: "Brisbane" },
-  { quote: "Found a winning product on my very first try.", author: "Sarah L.", location: "Perth" },
-];
-
-const planIncludes = [
-  "Unlimited AI tool runs",
-  "Unlimited website generations",
-  "Unlimited Meta Ads Launch Packs",
+const betaIncludes = [
+  "All 50+ AI tools — unlimited runs",
+  "Website Generator — unlimited generations",
+  "Meta Ads Launch Pack — unlimited packs",
   "Ads Studio — hooks, scripts & copy",
-  "UGC Video Studio",
   "Brand DNA Analyzer",
   "Full Research → Scale workflow",
   "AI Chat Co-founder",
   "Market Intelligence & Trend Radar",
-  "Priority support",
+  "All future tools added during beta",
 ];
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
+  const [waitlistEmail, setWaitlistEmail] = useState("");
+  const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
 
-  const handleCTA = () => {
-    if (isAuthenticated) {
-      setLocation("/dashboard");
-    } else {
-      window.location.href = getLoginUrl();
-    }
+  const handleLaunchApp = () => {
+    setLocation("/app");
+  };
+
+  const handleWaitlistSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!waitlistEmail.trim()) return;
+    // Store email (could be wired to a tRPC mutation later)
+    setWaitlistSubmitted(true);
+    toast.success("You're on the list! We'll notify you of updates.");
   };
 
   return (
@@ -100,7 +98,6 @@ export default function Home() {
       {/* ── NAV ── */}
       <nav className="relative z-10 border-b border-border/50 bg-background/80 backdrop-blur-md sticky top-0">
         <div className="container flex items-center justify-between h-16">
-          {/* Logo */}
           <div className="flex items-center gap-3">
             <div
               className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-lg"
@@ -118,35 +115,19 @@ export default function Home() {
             </span>
           </div>
 
-          {/* Nav actions */}
           <div className="flex items-center gap-3">
-            {isAuthenticated ? (
-              <>
-                <span className="text-sm text-muted-foreground hidden sm:block">
-                  Welcome, {user?.name?.split(" ")[0]}
-                </span>
-                <Button
-                  size="sm"
-                  onClick={() => setLocation("/dashboard")}
-                  style={{ background: "linear-gradient(135deg, #d4af37, #c09a28)", color: "#080a0e", fontFamily: "Syne, sans-serif", fontWeight: 700 }}
-                >
-                  Open App <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" onClick={() => window.location.href = getLoginUrl()}>
-                  Sign in
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handleCTA}
-                  style={{ background: "linear-gradient(135deg, #d4af37, #c09a28)", color: "#080a0e", fontFamily: "Syne, sans-serif", fontWeight: 700 }}
-                >
-                  Get Access
-                </Button>
-              </>
+            {isAuthenticated && (
+              <span className="text-sm text-muted-foreground hidden sm:block">
+                Welcome, {user?.name?.split(" ")[0]}
+              </span>
             )}
+            <Button
+              size="sm"
+              onClick={handleLaunchApp}
+              style={{ background: "linear-gradient(135deg, #d4af37, #c09a28)", color: "#080a0e", fontFamily: "Syne, sans-serif", fontWeight: 700 }}
+            >
+              Launch App <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
           </div>
         </div>
       </nav>
@@ -162,83 +143,61 @@ export default function Home() {
 
       {/* ── HERO CTA ── */}
       <section className="relative z-10 -mt-24 pb-20 px-4">
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Button
-            size="lg"
-            onClick={handleCTA}
-            className="px-8 py-6 text-base font-bold rounded-xl"
-            style={{
-              background: "linear-gradient(135deg, #d4af37, #c09a28)",
-              color: "#080a0e",
-              fontFamily: "Syne, sans-serif",
-              fontWeight: 800,
-              boxShadow: "0 4px 24px rgba(212,175,55,0.35)",
-            }}
-          >
-            {isAuthenticated ? "Open Majorka" : "Get Access — $99 / month"}
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </Button>
-          <p className="text-sm text-muted-foreground">30-day money-back guarantee · Cancel anytime</p>
+        <div className="max-w-2xl mx-auto text-center">
+          <p className="text-base sm:text-lg text-muted-foreground mb-8 leading-relaxed">
+            The AI operating system built for ecommerce operators. Research, validate, build, launch, and scale — all in one place.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button
+              size="lg"
+              onClick={handleLaunchApp}
+              className="px-8 py-6 text-base font-bold rounded-xl"
+              style={{
+                background: "linear-gradient(135deg, #d4af37, #c09a28)",
+                color: "#080a0e",
+                fontFamily: "Syne, sans-serif",
+                fontWeight: 800,
+                boxShadow: "0 4px 24px rgba(212,175,55,0.35)",
+              }}
+            >
+              Enter Majorka
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+            <p className="text-sm text-muted-foreground">Free during beta · No credit card required</p>
+          </div>
         </div>
       </section>
 
-      {/* ── APP PREVIEW ── */}
+      {/* ── TOOL STAGES OVERVIEW ── */}
       <section className="relative z-10 px-4 py-20">
         <div className="max-w-5xl mx-auto">
-          <div
-            className="rounded-2xl overflow-hidden border"
-            style={{
-              borderColor: "rgba(212,175,55,0.2)",
-              boxShadow: "0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,175,55,0.1)",
-            }}
-          >
-            {/* Browser chrome */}
-            <div
-              className="flex items-center gap-2 px-4 py-3 border-b"
-              style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.06)" }}
-            >
-              <div className="w-3 h-3 rounded-full bg-red-500/60" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
-              <div className="w-3 h-3 rounded-full bg-green-500/60" />
+          <div className="text-center mb-14">
+            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
+              6 stages · 50+ tools
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-black" style={{ fontFamily: "Syne, sans-serif" }}>
+              One OS. Every tool you need.
+            </h2>
+          </div>
+
+          {/* Stage pills */}
+          <div className="flex flex-wrap justify-center gap-3 mb-12">
+            {stages.map((s) => (
               <div
-                className="ml-3 flex-1 max-w-xs rounded-md px-3 py-1 text-xs text-muted-foreground"
-                style={{ background: "rgba(255,255,255,0.04)", fontFamily: "DM Mono, monospace" }}
-              >
-                app.majorka.com/dashboard
-              </div>
-            </div>
-            {/* Preview iframe */}
-            <div className="relative" style={{ height: "520px" }}>
-              <iframe
-                src={`${MAJORKA_CDN}`}
-                className="w-full h-full border-0"
-                title="Majorka App Preview"
-                sandbox="allow-scripts allow-same-origin"
-                style={{ pointerEvents: "none" }}
-              />
-              {/* Overlay gradient to blur bottom */}
-              <div
-                className="absolute inset-x-0 bottom-0 h-32 pointer-events-none"
+                key={s.stage}
+                className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold"
                 style={{
-                  background: "linear-gradient(to top, rgba(8,10,14,0.95) 0%, transparent 100%)",
+                  background: `${s.color}12`,
+                  border: `1px solid ${s.color}30`,
+                  color: s.color,
+                  fontFamily: "Syne, sans-serif",
                 }}
-              />
-              {/* Lock overlay */}
-              <div className="absolute inset-0 flex items-end justify-center pb-8 pointer-events-none">
-                <div
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold"
-                  style={{
-                    background: "rgba(212,175,55,0.12)",
-                    border: "1px solid rgba(212,175,55,0.3)",
-                    color: "#d4af37",
-                    fontFamily: "Syne, sans-serif",
-                  }}
-                >
-                  <Lock className="w-4 h-4" />
-                  Subscribe to unlock full access
-                </div>
+              >
+                <div className="w-2 h-2 rounded-full" style={{ background: s.color }} />
+                {s.stage}
+                <span className="text-xs opacity-60">{s.tools.length}</span>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -251,7 +210,7 @@ export default function Home() {
               Everything you need
             </p>
             <h2 className="text-3xl sm:text-4xl font-black" style={{ fontFamily: "Syne, sans-serif" }}>
-              One OS. Every tool.
+              Built for operators, by operators.
             </h2>
           </div>
 
@@ -277,7 +236,7 @@ export default function Home() {
                   className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
                   style={{ background: "rgba(212,175,55,0.12)", color: "#d4af37" }}
                 >
-                  {f.icon}
+                  {createElement(f.icon, { className: "w-5 h-5" })}
                 </div>
                 <h3 className="font-bold text-base mb-2 text-foreground" style={{ fontFamily: "Syne, sans-serif" }}>
                   {f.title}
@@ -289,48 +248,63 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── TESTIMONIALS ── */}
+      {/* ── EARLY ACCESS / WAITLIST ── */}
       <section className="relative z-10 py-24 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
-              Real results
-            </p>
-            <h2 className="text-3xl sm:text-4xl font-black" style={{ fontFamily: "Syne, sans-serif" }}>
-              Operators love Majorka
-            </h2>
+        <div className="max-w-lg mx-auto text-center">
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-6"
+            style={{ background: "rgba(212,175,55,0.1)" }}
+          >
+            <Rocket className="w-7 h-7" style={{ color: "#d4af37" }} />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {testimonials.map((t, i) => (
-              <div
-                key={i}
-                className="rounded-2xl p-6 border"
-                style={{ background: "rgba(255,255,255,0.025)", borderColor: "rgba(255,255,255,0.07)" }}
+          <h2 className="text-3xl sm:text-4xl font-black mb-4" style={{ fontFamily: "Syne, sans-serif" }}>
+            Early Access
+          </h2>
+          <p className="text-muted-foreground mb-8 leading-relaxed">
+            Majorka is currently in beta. Get free access to all 50+ AI tools while we build.
+            Join the waitlist to get notified of new features and updates.
+          </p>
+
+          {waitlistSubmitted ? (
+            <div
+              className="rounded-2xl p-6 border"
+              style={{ background: "rgba(212,175,55,0.05)", borderColor: "rgba(212,175,55,0.2)" }}
+            >
+              <CheckCircle className="w-8 h-8 mx-auto mb-3" style={{ color: "#d4af37" }} />
+              <p className="font-bold" style={{ fontFamily: "Syne, sans-serif" }}>You're on the list!</p>
+              <p className="text-sm text-muted-foreground mt-1">We'll notify you of updates and new tools.</p>
+            </div>
+          ) : (
+            <form onSubmit={handleWaitlistSubmit} className="flex gap-3 max-w-sm mx-auto">
+              <Input
+                type="email"
+                placeholder="you@email.com"
+                value={waitlistEmail}
+                onChange={(e) => setWaitlistEmail(e.target.value)}
+                required
+                className="flex-1"
+                style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.1)" }}
+              />
+              <Button
+                type="submit"
+                style={{ background: "linear-gradient(135deg, #d4af37, #c09a28)", color: "#080a0e", fontFamily: "Syne, sans-serif", fontWeight: 700 }}
               >
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, s) => (
-                    <Star key={s} className="w-4 h-4 fill-current" style={{ color: "#d4af37" }} />
-                  ))}
-                </div>
-                <p className="text-sm text-foreground/85 leading-relaxed mb-4">"{t.quote}"</p>
-                <p className="text-xs font-bold" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
-                  {t.author} · {t.location}
-                </p>
-              </div>
-            ))}
-          </div>
+                Join
+              </Button>
+            </form>
+          )}
         </div>
       </section>
 
-      {/* ── PRICING ── */}
+      {/* ── PRICING (Free Beta) ── */}
       <section className="relative z-10 py-24 px-4 bg-background/50 backdrop-blur-sm" id="pricing">
         <div className="max-w-md mx-auto">
           <div className="text-center mb-12">
             <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
-              Simple pricing
+              Beta pricing
             </p>
             <h2 className="text-3xl sm:text-4xl font-black" style={{ fontFamily: "Syne, sans-serif" }}>
-              One plan. Full access.
+              Free during beta.
             </h2>
           </div>
 
@@ -342,22 +316,29 @@ export default function Home() {
               boxShadow: "0 0 60px rgba(212,175,55,0.08)",
             }}
           >
-            {/* Shimmer top border */}
             <div
               className="absolute top-0 left-0 right-0 h-px"
               style={{ background: "linear-gradient(90deg, transparent, #d4af37, transparent)" }}
             />
 
             <div className="text-center mb-8">
-              <div className="text-5xl font-black mb-1" style={{ fontFamily: "Syne, sans-serif" }}>
-                $99
-                <span className="text-xl font-semibold text-muted-foreground"> / month</span>
+              <div className="flex items-baseline justify-center gap-2">
+                <span className="text-5xl font-black" style={{ fontFamily: "Syne, sans-serif" }}>
+                  $0
+                </span>
+                <span className="text-lg text-muted-foreground line-through">$99/mo</span>
               </div>
-              <p className="text-sm text-muted-foreground">Everything included. No hidden fees.</p>
+              <p className="text-sm text-muted-foreground mt-2">Free while in beta. No credit card required.</p>
+              <div
+                className="inline-block mt-3 px-3 py-1 rounded-full text-xs font-bold"
+                style={{ background: "rgba(212,175,55,0.12)", color: "#d4af37", fontFamily: "Syne, sans-serif" }}
+              >
+                BETA ACCESS
+              </div>
             </div>
 
             <ul className="space-y-3 mb-8">
-              {planIncludes.map((item, i) => (
+              {betaIncludes.map((item, i) => (
                 <li key={i} className="flex items-center gap-3 text-sm text-foreground/80">
                   <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: "#d4af37" }} />
                   {item}
@@ -367,7 +348,7 @@ export default function Home() {
 
             <Button
               className="w-full py-6 text-base font-black rounded-xl"
-              onClick={handleCTA}
+              onClick={handleLaunchApp}
               style={{
                 background: "linear-gradient(135deg, #d4af37, #c09a28)",
                 color: "#080a0e",
@@ -376,13 +357,9 @@ export default function Home() {
                 boxShadow: "0 4px 22px rgba(212,175,55,0.35)",
               }}
             >
-              {isAuthenticated ? "Go to Dashboard" : "Get Access Now"}
+              Enter Majorka — It's Free
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-
-            <p className="text-center text-xs text-muted-foreground mt-4">
-              30-day money-back guarantee · Cancel anytime
-            </p>
           </div>
         </div>
       </section>
@@ -401,8 +378,7 @@ export default function Home() {
           </div>
           <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Majorka. AI Ecommerce Operating System.</p>
           <div className="flex gap-5 text-xs text-muted-foreground">
-            <button onClick={() => setLocation("/account")} className="hover:text-foreground transition-colors">Account</button>
-            <button onClick={handleCTA} className="hover:text-foreground transition-colors">Dashboard</button>
+            <button onClick={handleLaunchApp} className="hover:text-foreground transition-colors">Launch App</button>
           </div>
         </div>
       </footer>

@@ -6,262 +6,260 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-  useSidebar,
-} from "@/components/ui/sidebar";
-import { getLoginUrl } from "@/const";
-import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users, Zap, Megaphone, Sparkles, TrendingUp, MessageSquare } from "lucide-react";
-import { CSSProperties, useEffect, useRef, useState } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { stages } from "@/lib/tools";
+import { LogOut, PanelLeft, ChevronDown, Home } from "lucide-react";
+import { CSSProperties, useState, createElement } from "react";
 import { useLocation } from "wouter";
-import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
-import { Button } from "./ui/button";
 
-const menuItems = [
-  { icon: Zap, label: "Website Generator", path: "/dashboard/website-generator" },
-  { icon: Megaphone, label: "Meta Ads Pack", path: "/dashboard/meta-ads" },
-  { icon: Sparkles, label: "Brand DNA Analyzer", path: "/dashboard/brand-dna" },
-  { icon: TrendingUp, label: "Market Intelligence", path: "/dashboard/market-intel" },
-  { icon: MessageSquare, label: "AI Chat", path: "/dashboard/chat" },
-];
-
-const SIDEBAR_WIDTH_KEY = "sidebar-width";
-const DEFAULT_WIDTH = 280;
-const MIN_WIDTH = 200;
-const MAX_WIDTH = 480;
+const SIDEBAR_W = 260;
+const SIDEBAR_COLLAPSED_W = 56;
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarWidth, setSidebarWidth] = useState(() => {
-    const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
-    return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
-  });
-  const { loading, user } = useAuth();
-
-  useEffect(() => {
-    localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
-  }, [sidebarWidth]);
-
-  if (loading) {
-    return <DashboardLayoutSkeleton />
-  }
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
-          <div className="flex flex-col items-center gap-6">
-            <h1 className="text-2xl font-semibold tracking-tight text-center">
-              Sign in to continue
-            </h1>
-            <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Access to this dashboard requires authentication. Continue to launch the login flow.
-            </p>
-          </div>
-          <Button
-            onClick={() => {
-              window.location.href = getLoginUrl();
-            }}
-            size="lg"
-            className="w-full shadow-lg hover:shadow-xl transition-all"
-          >
-            Sign in
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": `${sidebarWidth}px`,
-        } as CSSProperties
-      }
-    >
-      <DashboardLayoutContent setSidebarWidth={setSidebarWidth}>
-        {children}
-      </DashboardLayoutContent>
-    </SidebarProvider>
-  );
-}
-
-type DashboardLayoutContentProps = {
-  children: React.ReactNode;
-  setSidebarWidth: (width: number) => void;
-};
-
-function DashboardLayoutContent({
-  children,
-  setSidebarWidth,
-}: DashboardLayoutContentProps) {
   const { user, logout } = useAuth();
   const [location, setLocation] = useLocation();
-  const { state, toggleSidebar } = useSidebar();
-  const isCollapsed = state === "collapsed";
-  const [isResizing, setIsResizing] = useState(false);
-  const sidebarRef = useRef<HTMLDivElement>(null);
-  const activeMenuItem = menuItems.find(item => item.path === location);
-  const isMobile = useIsMobile();
-
-  useEffect(() => {
-    if (isCollapsed) {
-      setIsResizing(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(() => {
+    // Auto-expand the stage that contains the active tool
+    const result: Record<string, boolean> = {};
+    for (const s of stages) {
+      const hasActive = s.tools.some((t) => t.path === location);
+      result[s.stage] = hasActive;
     }
-  }, [isCollapsed]);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing) return;
-
-      const sidebarLeft = sidebarRef.current?.getBoundingClientRect().left ?? 0;
-      const newWidth = e.clientX - sidebarLeft;
-      if (newWidth >= MIN_WIDTH && newWidth <= MAX_WIDTH) {
-        setSidebarWidth(newWidth);
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsResizing(false);
-    };
-
-    if (isResizing) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "col-resize";
-      document.body.style.userSelect = "none";
+    // If none active, expand Research by default
+    if (!Object.values(result).some(Boolean)) {
+      result["Research"] = true;
     }
+    return result;
+  });
 
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    };
-  }, [isResizing, setSidebarWidth]);
+  const toggleStage = (stage: string) => {
+    setExpandedStages((prev) => ({ ...prev, [stage]: !prev[stage] }));
+  };
+
+  const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_W;
 
   return (
-    <>
-      <div className="relative" ref={sidebarRef}>
-        <Sidebar
-          collapsible="icon"
-          className="border-r-0"
-          disableTransition={isResizing}
+    <div className="flex h-screen bg-background text-foreground overflow-hidden">
+      {/* Sidebar */}
+      <aside
+        className="flex-shrink-0 flex flex-col border-r transition-all duration-200"
+        style={{
+          width: sidebarWidth,
+          minWidth: sidebarWidth,
+          borderColor: "rgba(255,255,255,0.07)",
+          background: "rgba(8,10,14,0.97)",
+        }}
+      >
+        {/* Logo Header */}
+        <div
+          className="flex items-center gap-2.5 px-3 h-14 flex-shrink-0 border-b"
+          style={{ borderColor: "rgba(255,255,255,0.07)" }}
         >
-          <SidebarHeader className="h-16 justify-center">
-            <div className="flex items-center gap-3 px-2 transition-all w-full">
-              <button
-                onClick={toggleSidebar}
-                className="h-8 w-8 flex items-center justify-center hover:bg-accent rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
-                aria-label="Toggle navigation"
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-colors flex-shrink-0"
+          >
+            {collapsed ? (
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs"
+                style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", fontFamily: "Syne, sans-serif" }}
               >
-                <PanelLeft className="h-4 w-4 text-muted-foreground" />
-              </button>
-              {!isCollapsed ? (
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-semibold tracking-tight truncate">
-                    Navigation
-                  </span>
-                </div>
-              ) : null}
+                M
+              </div>
+            ) : (
+              <PanelLeft className="w-4 h-4 text-muted-foreground" />
+            )}
+          </button>
+          {!collapsed && (
+            <div className="flex items-center gap-2 min-w-0">
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs flex-shrink-0"
+                style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", fontFamily: "Syne, sans-serif" }}
+              >
+                M
+              </div>
+              <span className="font-black text-sm truncate" style={{ fontFamily: "Syne, sans-serif", letterSpacing: "-0.3px" }}>
+                Majorka
+              </span>
+              <span
+                className="text-[10px] font-bold px-1.5 py-0.5 rounded-full ml-auto flex-shrink-0"
+                style={{ background: "rgba(212,175,55,0.15)", color: "#d4af37", fontFamily: "Syne, sans-serif" }}
+              >
+                BETA
+              </span>
             </div>
-          </SidebarHeader>
+          )}
+        </div>
 
-          <SidebarContent className="gap-0">
-            <SidebarMenu className="px-2 py-1">
-              {menuItems.map(item => {
-                const isActive = location === item.path;
-                return (
-                  <SidebarMenuItem key={item.path}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      onClick={() => setLocation(item.path)}
-                      tooltip={item.label}
-                      className={`h-10 transition-all font-normal`}
-                    >
-                      <item.icon
-                        className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
+        {/* Nav */}
+        <ScrollArea className="flex-1">
+          <div className="py-2">
+            {/* Home button */}
+            <div className="px-2 mb-1">
+              <button
+                onClick={() => setLocation("/app")}
+                className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition-colors ${
+                  location === "/app"
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                }`}
+                style={location === "/app" ? { background: "rgba(212,175,55,0.1)", color: "#d4af37" } : {}}
+              >
+                <Home className="w-4 h-4 flex-shrink-0" />
+                {!collapsed && <span>Home</span>}
+              </button>
+            </div>
+
+            {/* Stage groups */}
+            {stages.map((stage) => {
+              const isExpanded = expandedStages[stage.stage] ?? false;
+              const hasActiveTool = stage.tools.some((t) => t.path === location);
+
+              return (
+                <div key={stage.stage} className="px-2 mb-0.5">
+                  {/* Stage header */}
+                  <button
+                    onClick={() => !collapsed && toggleStage(stage.stage)}
+                    className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors ${
+                      collapsed ? "justify-center" : ""
+                    }`}
+                    style={{
+                      color: hasActiveTool ? stage.color : "rgba(255,255,255,0.35)",
+                      fontFamily: "Syne, sans-serif",
+                    }}
+                    title={collapsed ? stage.stage : undefined}
+                  >
+                    {!collapsed && (
+                      <>
+                        <div
+                          className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                          style={{ background: stage.color, opacity: hasActiveTool ? 1 : 0.5 }}
+                        />
+                        <span className="flex-1 text-left">{stage.stage}</span>
+                        <ChevronDown
+                          className={`w-3 h-3 transition-transform ${isExpanded ? "" : "-rotate-90"}`}
+                          style={{ opacity: 0.5 }}
+                        />
+                      </>
+                    )}
+                    {collapsed && (
+                      <div
+                        className="w-2 h-2 rounded-full"
+                        style={{ background: stage.color, opacity: hasActiveTool ? 1 : 0.4 }}
                       />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarContent>
+                    )}
+                  </button>
 
-          <SidebarFooter className="p-3">
+                  {/* Tool buttons */}
+                  {(isExpanded || collapsed) && (
+                    <div className={collapsed ? "space-y-0.5" : "space-y-0.5 ml-1 mb-1"}>
+                      {stage.tools.map((tool) => {
+                        const isActive = location === tool.path;
+                        return (
+                          <button
+                            key={tool.id}
+                            onClick={() => setLocation(tool.path)}
+                            className={`w-full flex items-center gap-2.5 rounded-lg text-sm transition-all ${
+                              collapsed ? "justify-center px-0 py-2" : "px-2.5 py-1.5"
+                            } ${
+                              isActive
+                                ? "text-foreground"
+                                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                            }`}
+                            style={isActive ? {
+                              background: `${stage.color}15`,
+                              color: stage.color,
+                            } : {}}
+                            title={collapsed ? tool.label : undefined}
+                          >
+                            {createElement(tool.icon, {
+                              className: `w-4 h-4 flex-shrink-0`,
+                              style: isActive ? { color: stage.color } : {},
+                            })}
+                            {!collapsed && (
+                              <span className="truncate text-[13px]">{tool.label}</span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </ScrollArea>
+
+        {/* User Footer */}
+        <div
+          className="flex-shrink-0 border-t p-2"
+          style={{ borderColor: "rgba(255,255,255,0.07)" }}
+        >
+          {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <Avatar className="h-9 w-9 border shrink-0">
-                    <AvatarFallback className="text-xs font-medium">
-                      {user?.name?.charAt(0).toUpperCase()}
+                <button
+                  className={`w-full flex items-center gap-2.5 rounded-lg px-2 py-2 hover:bg-white/5 transition-colors ${
+                    collapsed ? "justify-center" : ""
+                  }`}
+                >
+                  <Avatar className="h-7 w-7 flex-shrink-0">
+                    <AvatarFallback
+                      className="text-xs font-bold"
+                      style={{ background: "rgba(212,175,55,0.15)", color: "#d4af37" }}
+                    >
+                      {user.name?.charAt(0).toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-                    <p className="text-sm font-medium truncate leading-none">
-                      {user?.name || "-"}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate mt-1.5">
-                      {user?.email || "-"}
-                    </p>
-                  </div>
+                  {!collapsed && (
+                    <div className="flex-1 min-w-0 text-left">
+                      <p className="text-xs font-medium truncate">{user.name || "User"}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{user.email || ""}</p>
+                    </div>
+                  )}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => setLocation("/")} className="cursor-pointer">
+                  <Home className="mr-2 h-4 w-4" />
+                  Back to Home
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={logout}
                   className="cursor-pointer text-destructive focus:text-destructive"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sign out</span>
+                  Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </SidebarFooter>
-        </Sidebar>
-        <div
-          className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/20 transition-colors ${isCollapsed ? "hidden" : ""}`}
-          onMouseDown={() => {
-            if (isCollapsed) return;
-            setIsResizing(true);
-          }}
-          style={{ zIndex: 50 }}
-        />
-      </div>
-
-      <SidebarInset>
-        {isMobile && (
-          <div className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="tracking-tight text-foreground">
-                    {activeMenuItem?.label ?? "Menu"}
-                  </span>
-                </div>
-              </div>
+          ) : (
+            <div className={`flex items-center gap-2.5 px-2 py-2 ${collapsed ? "justify-center" : ""}`}>
+              <Avatar className="h-7 w-7 flex-shrink-0">
+                <AvatarFallback
+                  className="text-xs font-bold"
+                  style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.5)" }}
+                >
+                  G
+                </AvatarFallback>
+              </Avatar>
+              {!collapsed && (
+                <span className="text-xs text-muted-foreground">Guest</span>
+              )}
             </div>
-          </div>
-        )}
-        <main className="flex-1 p-4">{children}</main>
-      </SidebarInset>
-    </>
+          )}
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-hidden">
+        {children}
+      </main>
+    </div>
   );
 }

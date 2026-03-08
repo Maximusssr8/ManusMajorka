@@ -1,0 +1,9 @@
+Tool page /app/product-discovery screenshot review:
+- Header shows tool icon, name "Product Discovery", and description
+- Sidebar shows Product Discovery highlighted/active in the RESEARCH section
+- Main content area has empty state with sparkle icon and description text
+- Chat input at bottom with placeholder "Ask about product discovery..."
+- Send button visible on the right
+- Dark gold aesthetic is consistent throughout
+- Layout looks clean and functional
+- Everything working as expected
