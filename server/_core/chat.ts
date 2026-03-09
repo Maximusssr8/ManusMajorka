@@ -7,6 +7,7 @@
 
 import type { Express } from "express";
 import { getAnthropicClient, CLAUDE_MODEL, BASE_SYSTEM_PROMPT } from "../lib/anthropic";
+import { sdk } from "./sdk";
 
 /**
  * Registers the /api/chat endpoint for streaming AI responses via Anthropic Claude.
@@ -14,6 +15,14 @@ import { getAnthropicClient, CLAUDE_MODEL, BASE_SYSTEM_PROMPT } from "../lib/ant
 export function registerChatRoutes(app: Express) {
   app.post("/api/chat", async (req, res) => {
     try {
+      // Require authentication to prevent unauthorized API usage
+      try {
+        await sdk.authenticateRequest(req);
+      } catch {
+        res.status(401).json({ error: "Authentication required" });
+        return;
+      }
+
       const { messages: rawMessages, message, systemPrompt } = req.body;
 
       // Accept both formats: messages array or singular message (legacy)

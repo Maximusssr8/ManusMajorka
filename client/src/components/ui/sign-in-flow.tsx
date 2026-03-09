@@ -165,7 +165,7 @@ export function CanvasRevealEffect({
   }, [colors]);
 
   return (
-    <div className={cn("h-full relative bg-white w-full", containerClassName)}>
+    <div className={cn("h-full relative bg-[#080a0e] w-full", containerClassName)}>
       <Shader
         source={dotMatrixShader}
         uniforms={{

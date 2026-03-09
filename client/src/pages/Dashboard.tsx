@@ -65,7 +65,7 @@ function RecommendedPath({ onNavigate }: { onNavigate: (path: string) => void })
           {level === "beginner" ? "🌱" : level === "intermediate" ? "🌿" : "🌳"} {level}
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         {path.tools.map(tool => {
           const Icon = tool.icon;
           return (
@@ -135,7 +135,7 @@ function MilestoneBadges() {
           Milestones — {count}/{MILESTONES.length}
         </span>
       </div>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         {MILESTONES.map(m => {
           const done = completed[m.key];
           return (

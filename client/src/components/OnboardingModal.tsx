@@ -65,7 +65,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
   const progress = (step / totalSteps) * 100;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}>
       <div className="relative w-full max-w-md mx-4 rounded-2xl overflow-hidden" style={{ background: "#0f1115", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 24px 64px rgba(0,0,0,0.6)" }}>
         {/* Close button */}
         <button onClick={handleDismiss} className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-white/5 transition-all" style={{ cursor: "pointer", color: "rgba(240,237,232,0.4)", background: "none", border: "none", zIndex: 10 }}>

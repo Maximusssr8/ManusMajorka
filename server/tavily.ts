@@ -36,41 +36,50 @@ export async function tavilySearch(
     topic?: "general" | "news";
   } = {}
 ): Promise<{ results: SearchResult[]; images: string[] }> {
-  const client = getClient();
-  const response = await client.search(query, {
-    maxResults: options.maxResults ?? 5,
-    searchDepth: options.searchDepth ?? "basic",
-    includeImages: options.includeImages ?? false,
-    topic: options.topic ?? "general",
-  });
-  return {
-    results: (response.results ?? []).map((r) => ({
-      title: r.title ?? "",
-      url: r.url ?? "",
-      content: r.content ?? "",
-      score: r.score,
-    })),
-    // TavilyImage has { url, description? } — extract just the url string
-    images: (response.images ?? []).map((img) =>
-      typeof img === "string" ? img : (img as { url: string }).url
-    ),
-  };
+  try {
+    const client = getClient();
+    const response = await client.search(query, {
+      maxResults: options.maxResults ?? 5,
+      searchDepth: options.searchDepth ?? "basic",
+      includeImages: options.includeImages ?? false,
+      topic: options.topic ?? "general",
+    });
+    return {
+      results: (response.results ?? []).map((r) => ({
+        title: r.title ?? "",
+        url: r.url ?? "",
+        content: r.content ?? "",
+        score: r.score,
+      })),
+      images: (response.images ?? []).map((img) =>
+        typeof img === "string" ? img : (img as { url: string }).url
+      ),
+    };
+  } catch (error) {
+    console.error("[Tavily] Search failed:", error);
+    throw new Error("Web search failed. Please try again.");
+  }
 }
 
 /**
  * Extract structured content from a URL (product page scraping).
  */
 export async function tavilyExtract(url: string): Promise<ExtractResult> {
-  const client = getClient();
-  const response = await client.extract([url], { includeImages: true });
-  const result = (response.results ?? [])[0];
-  if (!result) throw new Error(`Could not extract content from: ${url}`);
-  return {
-    url: result.url ?? url,
-    title: result.title ?? null,
-    rawContent: result.rawContent ?? "",
-    images: result.images ?? [],
-  };
+  try {
+    const client = getClient();
+    const response = await client.extract([url], { includeImages: true });
+    const result = (response.results ?? [])[0];
+    if (!result) throw new Error(`Could not extract content from: ${url}`);
+    return {
+      url: result.url ?? url,
+      title: result.title ?? null,
+      rawContent: result.rawContent ?? "",
+      images: result.images ?? [],
+    };
+  } catch (error) {
+    console.error("[Tavily] Extract failed:", error);
+    throw new Error("Content extraction failed. Please try again.");
+  }
 }
 
 /**

@@ -1,0 +1,16 @@
+{
+  "name": "Majorka — AI Ecommerce OS",
+  "short_name": "Majorka",
+  "description": "AI-powered tools for ecommerce business owners",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080a0e",
+  "theme_color": "#d4af37",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

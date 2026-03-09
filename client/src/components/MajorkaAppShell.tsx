@@ -12,7 +12,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import {
   MessageSquare, ChevronDown, ChevronRight, LogOut, User, Settings,
   Menu, X, LayoutDashboard, Search, CheckCircle2, Hammer, Globe,
-  Rocket, TrendingUp, BarChart3, Lightbulb, PanelLeftClose, PanelLeftOpen, Package, Sun, Moon,
+  Rocket, TrendingUp, BarChart3, PanelLeftClose, PanelLeftOpen, Package, Sun, Moon,
 } from "lucide-react";
 
 // ── Nav sections with icons ──
@@ -25,7 +25,6 @@ const NAV_SECTIONS = [
   { label: "Launch",    path: "/app/launch",    icon: Rocket,       stageId: "Launch" },
   { label: "Optimize",  path: "/app/optimize",  icon: TrendingUp,   stageId: "Optimize" },
   { label: "Scale",     path: "/app/scale",     icon: BarChart3,    stageId: "Scale" },
-  { label: "Insights",  path: "/app/insights",  icon: Lightbulb },
 ];
 
 interface Props {
@@ -238,9 +237,9 @@ export default function MajorkaAppShell({ children }: Props) {
             onClick={() => handleToolClick("/app/ai-chat")}
             className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-bold transition-all"
             style={{
-              background: location === "/app/ai-chat" ? "rgba(156,95,255,0.15)" : "rgba(156,95,255,0.06)",
-              border: `1px solid ${location === "/app/ai-chat" ? "rgba(156,95,255,0.4)" : "rgba(156,95,255,0.15)"}`,
-              color: "#9c5fff",
+              background: location === "/app/ai-chat" ? "rgba(212,175,55,0.15)" : "rgba(212,175,55,0.06)",
+              border: `1px solid ${location === "/app/ai-chat" ? "rgba(212,175,55,0.4)" : "rgba(212,175,55,0.15)"}`,
+              color: "#d4af37",
               fontFamily: "Syne, sans-serif",
               cursor: "pointer",
               justifyContent: collapsed ? "center" : "flex-start",
@@ -302,7 +301,7 @@ export default function MajorkaAppShell({ children }: Props) {
               <div
                 className="absolute bottom-full left-0 mb-1 rounded-xl overflow-hidden w-full"
                 style={{
-                  background: "#13151a",
+                  background: "#0d0f12",
                   border: "1px solid rgba(255,255,255,0.1)",
                   boxShadow: "0 -8px 32px rgba(0,0,0,0.5)",
                   minWidth: 160,

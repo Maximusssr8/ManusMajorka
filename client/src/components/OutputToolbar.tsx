@@ -28,6 +28,8 @@ function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) 
   return (
     <button
       onClick={handleCopy}
+      aria-label={label}
+      title={label}
       className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all"
       style={{
         background: copied ? "rgba(45,202,114,0.12)" : "rgba(255,255,255,0.05)",
@@ -65,6 +67,7 @@ export default function OutputToolbar({ allContent, toolName, className = "" }: 
       <CopyButton text={allContent} label="Copy All" />
       <button
         onClick={handleExportPDF}
+        aria-label="Export as PDF"
         className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all"
         style={{
           background: "rgba(255,255,255,0.05)",
@@ -79,6 +82,7 @@ export default function OutputToolbar({ allContent, toolName, className = "" }: 
       </button>
       <button
         onClick={handleSave}
+        aria-label="Save output"
         className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all"
         style={{
           background: "rgba(255,255,255,0.05)",

@@ -103,7 +103,8 @@ export function SaveToProduct({
         <Button
           variant={saved ? "default" : "outline"}
           size="sm"
-          className={`gap-2 ${saved ? "bg-green-600 hover:bg-green-700 text-white" : ""} ${className}`}
+          className={`gap-2 ${saved ? "text-white" : ""} ${className}`}
+          style={saved ? { background: "#d4af37", color: "#080a0e" } : undefined}
           disabled={saveMutation.isPending}
         >
           {saved ? (

@@ -51,7 +51,7 @@ export const appRouter = router({
     activate: protectedProcedure
       .input(
         z.object({
-          plan: z.string().default("pro"),
+          plan: z.enum(["free", "pro", "enterprise"]).default("pro"),
           externalRef: z.string().optional(),
         })
       )
@@ -103,9 +103,9 @@ export const appRouter = router({
     create: protectedProcedure
       .input(z.object({
         name: z.string().min(1).max(255),
-        url: z.string().optional(),
-        niche: z.string().optional(),
-        description: z.string().optional(),
+        url: z.string().url().max(2048).optional().or(z.literal("")),
+        niche: z.string().max(255).optional(),
+        description: z.string().max(2000).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         return await createProduct({ ...input, userId: ctx.user.id });
@@ -144,10 +144,10 @@ export const appRouter = router({
     save: protectedProcedure
       .input(z.object({
         productId: z.number(),
-        toolId: z.string(),
-        toolName: z.string(),
-        stage: z.string(),
-        outputJson: z.string(),
+        toolId: z.string().max(100),
+        toolName: z.string().max(255),
+        stage: z.string().max(100),
+        outputJson: z.string().max(1_000_000), // 1MB limit
       }))
       .mutation(async ({ ctx, input }) => {
         await createSavedOutput({ ...input, userId: ctx.user.id });
@@ -165,7 +165,7 @@ export const appRouter = router({
   /** Tavily web search & extract procedures */
   research: router({
     /** General web search — used by Trend Radar, Product Discovery, Supplier Finder */
-    search: publicProcedure
+    search: protectedProcedure
       .input(
         z.object({
           query: z.string().min(1).max(500),
@@ -185,14 +185,14 @@ export const appRouter = router({
       }),
 
     /** Extract content from a URL — used by Website Generator, Competitor Breakdown */
-    extract: publicProcedure
+    extract: protectedProcedure
       .input(z.object({ url: z.string().url() }))
       .mutation(async ({ input }) => {
         return await tavilyExtract(input.url);
       }),
 
     /** Image search — used by Website Generator, Meta Ads Pack */
-    imageSearch: publicProcedure
+    imageSearch: protectedProcedure
       .input(
         z.object({
           query: z.string().min(1).max(300),
