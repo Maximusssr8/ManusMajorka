@@ -6,7 +6,7 @@
  */
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
+
 import { stages } from "@/lib/tools";
 import { useState, useRef, useEffect, createElement, useCallback } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -209,7 +209,19 @@ export default function MajorkaAppShell({ children }: Props) {
             )}
           </div>
         ) : (
-          <button onClick={() => window.location.href = getLoginUrl()} className="w-full text-xs font-bold px-3 py-2 rounded-lg transition-all" style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#0a0b0d", fontFamily: "Syne, sans-serif", cursor: "pointer", border: "none" }}>{collapsed ? "\u2192" : "Sign In"}</button>
+          <button
+            onClick={() => setLocation("/login")}
+            className="w-full text-xs font-bold px-3 py-2 rounded-lg transition-all"
+            style={{
+              background: "linear-gradient(135deg, #d4af37, #f0c040)",
+              color: "#0a0b0d",
+              fontFamily: "Syne, sans-serif",
+              cursor: "pointer",
+              border: "none",
+            }}
+          >
+            {collapsed ? "→" : "Sign In"}
+          </button>
         )}
       </div>
     </div>

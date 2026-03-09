@@ -1,6 +1,4 @@
 import { z } from "zod";
-import { COOKIE_NAME } from "@shared/const";
-import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import {
@@ -28,9 +26,8 @@ export const appRouter = router({
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
-    logout: publicProcedure.mutation(({ ctx }) => {
-      const cookieOptions = getSessionCookieOptions(ctx.req);
-      ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
+    logout: publicProcedure.mutation(() => {
+      // Client-side handles signOut via Supabase; server is a no-op
       return { success: true } as const;
     }),
   }),
@@ -47,11 +44,6 @@ export const appRouter = router({
       return { hasAccess: active };
     }),
 
-    /**
-     * Activate a subscription for the current user.
-     * In production this would be triggered by a payment webhook.
-     * For now it can be called directly (e.g. after Stripe checkout success).
-     */
     activate: protectedProcedure
       .input(
         z.object({
@@ -64,7 +56,6 @@ export const appRouter = router({
         if (existing?.status === "active") {
           return { success: true, subscription: existing };
         }
-        // Set period end to 30 days from now
         const periodEnd = new Date();
         periodEnd.setDate(periodEnd.getDate() + 30);
 
@@ -81,7 +72,6 @@ export const appRouter = router({
         return { success: true, subscription: sub };
       }),
 
-    /** Cancel the current user's subscription (access until period end). */
     cancel: protectedProcedure.mutation(async ({ ctx }) => {
       const sub = await getSubscriptionByUserId(ctx.user.id);
       if (!sub || sub.status !== "active") {
@@ -99,7 +89,7 @@ export const appRouter = router({
     }),
 
     get: protectedProcedure
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
         return await getProductById(input.id, ctx.user.id) ?? null;
       }),
@@ -117,7 +107,7 @@ export const appRouter = router({
 
     update: protectedProcedure
       .input(z.object({
-        id: z.number(),
+        id: z.string().uuid(),
         name: z.string().min(1).max(255).optional(),
         url: z.string().optional(),
         niche: z.string().optional(),
@@ -130,7 +120,7 @@ export const appRouter = router({
       }),
 
     delete: protectedProcedure
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.string().uuid() }))
       .mutation(async ({ ctx, input }) => {
         await deleteProduct(input.id, ctx.user.id);
         return { success: true };
@@ -140,14 +130,14 @@ export const appRouter = router({
   /** Saved outputs per product */
   savedOutputs: router({
     list: protectedProcedure
-      .input(z.object({ productId: z.number() }))
+      .input(z.object({ productId: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
         return await getSavedOutputsByProductId(input.productId, ctx.user.id);
       }),
 
     save: protectedProcedure
       .input(z.object({
-        productId: z.number(),
+        productId: z.string().uuid(),
         toolId: z.string(),
         toolName: z.string(),
         stage: z.string(),
@@ -159,7 +149,7 @@ export const appRouter = router({
       }),
 
     delete: protectedProcedure
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.string().uuid() }))
       .mutation(async ({ ctx, input }) => {
         await deleteSavedOutput(input.id, ctx.user.id);
         return { success: true };
@@ -210,7 +200,6 @@ export const appRouter = router({
 
   /** Tavily web search & extract procedures */
   research: router({
-    /** General web search — used by Trend Radar, Product Discovery, Supplier Finder */
     search: publicProcedure
       .input(
         z.object({
@@ -230,14 +219,12 @@ export const appRouter = router({
         });
       }),
 
-    /** Extract content from a URL — used by Website Generator, Competitor Breakdown */
     extract: publicProcedure
       .input(z.object({ url: z.string().url() }))
       .mutation(async ({ input }) => {
         return await tavilyExtract(input.url);
       }),
 
-    /** Image search — used by Website Generator, Meta Ads Pack */
     imageSearch: publicProcedure
       .input(
         z.object({
