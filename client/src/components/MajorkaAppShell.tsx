@@ -55,7 +55,10 @@ export default function MajorkaAppShell({ children }: Props) {
     return stored !== null ? stored === "true" : true;
   });
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [expandedStage, setExpandedStage] = useState<string | null>(null);
+  const [expandedStage, setExpandedStage] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("majorka_expanded_stage") || null;
+  });
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { theme, toggleTheme } = useTheme();
@@ -63,6 +66,10 @@ export default function MajorkaAppShell({ children }: Props) {
   const productCount = productsQuery.data?.length ?? 0;
 
   useEffect(() => { localStorage.setItem("majorka_sidebar_open", String(sidebarOpen)); }, [sidebarOpen]);
+  useEffect(() => {
+    if (expandedStage) localStorage.setItem("majorka_expanded_stage", expandedStage);
+    else localStorage.removeItem("majorka_expanded_stage");
+  }, [expandedStage]);
 
   const handleKeyboard = useCallback((e: KeyboardEvent) => {
     const mod = e.metaKey || e.ctrlKey;
@@ -153,20 +160,22 @@ export default function MajorkaAppShell({ children }: Props) {
 
         <div className="mt-2 pt-2 border-t space-y-1" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
           <button onClick={() => handleToolClick("/app/my-products")}
-            className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-semibold transition-all"
+            className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-semibold transition-all relative"
             style={{ background: location.startsWith("/app/my-products") || location.startsWith("/app/product-hub") ? "rgba(212,175,55,0.12)" : "transparent", border: `1px solid ${location.startsWith("/app/my-products") || location.startsWith("/app/product-hub") ? "rgba(212,175,55,0.25)" : "transparent"}`, color: location.startsWith("/app/my-products") || location.startsWith("/app/product-hub") ? "#d4af37" : "rgba(240,237,232,0.65)", fontFamily: "Syne, sans-serif", cursor: "pointer", justifyContent: collapsed ? "center" : "flex-start" }}
             onMouseEnter={e => { if (!location.startsWith("/app/my-products") && !location.startsWith("/app/product-hub")) (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.05)"; }}
             onMouseLeave={e => { if (!location.startsWith("/app/my-products") && !location.startsWith("/app/product-hub")) (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
             title={collapsed ? "My Products" : undefined}
           >
+            {(location.startsWith("/app/my-products") || location.startsWith("/app/product-hub")) && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r" style={{ background: "#d4af37" }} />}
             <Package size={14} style={{ flexShrink: 0 }} />
             {!collapsed && <><span>My Products</span>{productCount > 0 && <span className="ml-auto text-xs px-1.5 py-0.5 rounded-full" style={{ background: "rgba(212,175,55,0.15)", color: "#d4af37", fontSize: 9, fontWeight: 700 }}>{productCount}</span>}</>}
           </button>
           <button onClick={() => handleToolClick("/app/ai-chat")}
-            className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-bold transition-all"
+            className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-bold transition-all relative"
             style={{ background: location === "/app/ai-chat" ? "rgba(156,95,255,0.15)" : "rgba(156,95,255,0.06)", border: `1px solid ${location === "/app/ai-chat" ? "rgba(156,95,255,0.4)" : "rgba(156,95,255,0.15)"}`, color: "#9c5fff", fontFamily: "Syne, sans-serif", cursor: "pointer", justifyContent: collapsed ? "center" : "flex-start" }}
             title={collapsed ? "AI Chat" : undefined}
           >
+            {location === "/app/ai-chat" && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r" style={{ background: "#9c5fff" }} />}
             <MessageSquare size={14} style={{ flexShrink: 0 }} />
             {!collapsed && <span>AI Chat</span>}
           </button>
