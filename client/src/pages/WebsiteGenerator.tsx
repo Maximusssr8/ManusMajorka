@@ -432,7 +432,7 @@ ${generatedHTML.replace(/<\/?html[^>]*>/gi, "").replace(/<\/?head[^>]*>[\s\S]*?<
                   <input
                     value={importUrl}
                     onChange={e => setImportUrl(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && importUrl && handleImport()}
+                    onKeyDown={e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); handleImport(); } }}
                     placeholder="Paste AliExpress / Amazon / Shopify URL…"
                     className="flex-1 text-xs px-2.5 py-2 rounded-lg outline-none"
                     style={{ background: "rgba(255,255,255,0.05)", border: "1.5px solid rgba(255,255,255,0.1)", color: "#f0ede8" }}

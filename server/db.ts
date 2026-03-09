@@ -1,5 +1,5 @@
 import { and, eq, asc } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/postgres-js";
 import { InsertUser, InsertSubscription, subscriptions, users, userProfiles, conversationMemory } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -40,7 +40,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     else if (user.openId === ENV.ownerOpenId) { values.role = 'admin'; updateSet.role = 'admin'; }
     if (!values.lastSignedIn) values.lastSignedIn = new Date();
     if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
-    await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
+    await db.insert(users).values(values).onConflictDoUpdate({ target: users.openId, set: updateSet });
   } catch (error) {
     console.error("[Database] Failed to upsert user:", error);
     throw error;
@@ -122,8 +122,8 @@ export async function getProductById(productId: number, userId: number) {
 export async function createProduct(data: InsertProduct) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(products).values(data);
-  return getProductById(result[0].insertId, data.userId);
+  const result = await db.insert(products).values(data).returning({ id: products.id });
+  return getProductById(result[0].id, data.userId);
 }
 
 export async function updateProduct(productId: number, userId: number, data: Partial<Pick<InsertProduct, "name" | "url" | "niche" | "description" | "status">>) {

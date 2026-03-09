@@ -12,6 +12,7 @@ import { sdk } from "./sdk";
 import { getUserContextString, getConversationHistory, saveConversationMessage } from "../db";
 import { COOKIE_NAME } from "@shared/const";
 import { parse as parseCookieHeader } from "cookie";
+import { tavilySearch } from "../tavily";
 
 /**
  * Registers the /api/chat endpoint for streaming AI responses via Anthropic Claude.
@@ -19,7 +20,7 @@ import { parse as parseCookieHeader } from "cookie";
 export function registerChatRoutes(app: Express) {
   app.post("/api/chat", async (req, res) => {
     try {
-      const { messages: rawMessages, message, systemPrompt, toolName } = req.body;
+      const { messages: rawMessages, message, systemPrompt, toolName, searchQuery } = req.body;
 
       // Accept both formats: messages array or singular message (legacy)
       let messages = rawMessages;
@@ -101,10 +102,29 @@ export function registerChatRoutes(app: Express) {
       }
       messages = cleaned.length > 0 ? cleaned : messages;
 
-      // Build the system prompt with user context
+      // Run Tavily web search if searchQuery is provided (for research tools)
+      let webResearchContext = "";
+      if (searchQuery && typeof searchQuery === "string" && searchQuery.trim()) {
+        try {
+          const searchData = await tavilySearch(searchQuery, { maxResults: 5, searchDepth: "advanced" });
+          if (searchData.results.length > 0) {
+            webResearchContext = searchData.results
+              .map((r, i) => `[${i + 1}] ${r.title}\nSource: ${r.url}\n${r.content}`)
+              .join("\n\n");
+          }
+        } catch (err) {
+          console.warn("[/api/chat] Tavily search failed:", err);
+        }
+      }
+
+      // Build the system prompt with user context and web research
       let system = systemPrompt
         ? `${BASE_SYSTEM_PROMPT}\n\n${systemPrompt}`
         : BASE_SYSTEM_PROMPT;
+
+      if (webResearchContext) {
+        system = `${system}\n\n--- LIVE WEB RESEARCH DATA ---\nThe following is real-time data from the web. Use this to ground your response in current facts, statistics, and trends. Cite sources when relevant.\n\n${webResearchContext}\n--- END WEB RESEARCH DATA ---`;
+      }
 
       if (userContext) {
         system = `${system}\n\n${userContext}`;
@@ -122,7 +142,7 @@ export function registerChatRoutes(app: Express) {
       // Create streaming response from Anthropic
       const stream = client.messages.stream({
         model: CLAUDE_MODEL,
-        max_tokens: 4096,
+        max_tokens: 8192,
         system,
         messages,
       });
