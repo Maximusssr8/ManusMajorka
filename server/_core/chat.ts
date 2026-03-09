@@ -1,105 +1,24 @@
 /**
  * Chat API Handler
  *
- * Express endpoint for AI SDK streaming chat with tool calling support.
- * Uses patched fetch to fix OpenAI-compatible proxy issues.
+ * Express endpoint for Anthropic Claude streaming chat.
+ * Uses simple line-delimited JSON format: 0:"text"\n for text, d:{} for done, e:{} for error.
  */
 
-import { streamText, stepCountIs } from "ai";
-import { tool } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
 import type { Express } from "express";
-import { z } from "zod/v4";
-import { ENV } from "./env";
-import { createPatchedFetch } from "./patchedFetch";
+import { getAnthropicClient, CLAUDE_MODEL, BASE_SYSTEM_PROMPT } from "../lib/anthropic";
 
 /**
- * Creates an OpenAI-compatible provider with patched fetch.
- */
-function createLLMProvider() {
-  const baseURL = ENV.forgeApiUrl.endsWith("/v1")
-    ? ENV.forgeApiUrl
-    : `${ENV.forgeApiUrl}/v1`;
-
-  return createOpenAI({
-    baseURL,
-    apiKey: ENV.forgeApiKey,
-    fetch: createPatchedFetch(fetch),
-  });
-}
-
-/**
- * Example tool registry - customize these for your app.
- */
-const tools = {
-  getWeather: tool({
-    description: "Get the current weather for a location",
-    inputSchema: z.object({
-      location: z
-        .string()
-        .describe("The city and country, e.g. 'Tokyo, Japan'"),
-      unit: z.enum(["celsius", "fahrenheit"]).optional().default("celsius"),
-    }),
-    execute: async ({ location, unit }) => {
-      // Simulate weather API call
-      const temp = Math.floor(Math.random() * 30) + 5;
-      const conditions = ["sunny", "cloudy", "rainy", "partly cloudy"][
-        Math.floor(Math.random() * 4)
-      ] as string;
-      return {
-        location,
-        temperature: unit === "fahrenheit" ? Math.round(temp * 1.8 + 32) : temp,
-        unit,
-        conditions,
-        humidity: Math.floor(Math.random() * 50) + 30,
-      };
-    },
-  }),
-
-  calculate: tool({
-    description: "Perform a mathematical calculation",
-    inputSchema: z.object({
-      expression: z
-        .string()
-        .describe("The math expression to evaluate, e.g. '2 + 2'"),
-    }),
-    execute: async ({ expression }) => {
-      try {
-        // Simple safe eval for basic math
-        const sanitized = expression.replace(/[^0-9+\-*/().%\s]/g, "");
-        const result = Function(
-          `"use strict"; return (${sanitized})`
-        )() as number;
-        return { expression, result };
-      } catch {
-        return { expression, error: "Invalid expression" };
-      }
-    },
-  }),
-};
-
-/**
- * Registers the /api/chat endpoint for streaming AI responses.
- *
- * @example
- * ```ts
- * // In server/_core/index.ts
- * import { registerChatRoutes } from "./chat";
- *
- * registerChatRoutes(app);
- * ```
+ * Registers the /api/chat endpoint for streaming AI responses via Anthropic Claude.
  */
 export function registerChatRoutes(app: Express) {
-  const openai = createLLMProvider();
-
   app.post("/api/chat", async (req, res) => {
     try {
       const { messages: rawMessages, message, systemPrompt } = req.body;
 
-      // Accept both formats: messages array (AI SDK v6) or singular message (legacy)
+      // Accept both formats: messages array or singular message (legacy)
       let messages = rawMessages;
       if (!messages && message) {
-        // Legacy format: { message: { role, parts: [{type:'text', text:'...'}] } }
         const text = Array.isArray(message.parts)
           ? message.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('')
           : (typeof message.content === 'string' ? message.content : '');
@@ -113,31 +32,103 @@ export function registerChatRoutes(app: Express) {
 
       // Normalise messages: convert parts-based UIMessage to plain {role, content}
       messages = messages.map((m: any) => ({
-        role: m.role,
+        role: m.role === "user" ? "user" as const : "assistant" as const,
         content: Array.isArray(m.parts)
           ? m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('')
           : (typeof m.content === 'string' ? m.content : JSON.stringify(m.content)),
       }));
 
-      const defaultSystem =
-        "You are a helpful assistant. You have access to tools for getting weather and doing calculations. Use them when appropriate.";
+      // Filter out system messages and ensure alternating user/assistant
+      messages = messages.filter((m: any) => m.role === "user" || m.role === "assistant");
 
-      const result = streamText({
-        model: openai.chat("gpt-4o"),
-        system: systemPrompt || defaultSystem,
+      // Ensure messages start with a user message
+      if (messages.length > 0 && messages[0].role !== "user") {
+        messages = messages.slice(1);
+      }
+
+      if (messages.length === 0) {
+        res.status(400).json({ error: "At least one user message is required" });
+        return;
+      }
+
+      // Build the system prompt
+      const system = systemPrompt
+        ? `${BASE_SYSTEM_PROMPT}\n\n${systemPrompt}`
+        : BASE_SYSTEM_PROMPT;
+
+      const client = getAnthropicClient();
+
+      // Set up streaming response headers
+      res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Connection", "keep-alive");
+      res.setHeader("X-Vercel-AI-Data-Stream", "v1");
+      res.flushHeaders();
+
+      // Create streaming response from Anthropic
+      const stream = client.messages.stream({
+        model: CLAUDE_MODEL,
+        max_tokens: 4096,
+        system,
         messages,
-        // Only attach tools when using the default system (not custom tool pages)
-        ...(systemPrompt ? {} : { tools, stopWhen: stepCountIs(5) }),
       });
 
-      result.pipeUIMessageStreamToResponse(res);
-    } catch (error) {
+      // Handle client disconnect
+      let aborted = false;
+      req.on("close", () => {
+        aborted = true;
+        try { stream.abort(); } catch { /* ignore */ }
+      });
+
+      // Stream text deltas using the line-delimited format
+      stream.on("text", (text) => {
+        if (!aborted) {
+          try {
+            res.write(`0:${JSON.stringify(text)}\n`);
+          } catch { /* response closed */ }
+        }
+      });
+
+      stream.on("error", (error) => {
+        if (error?.name === "APIUserAbortError" || error?.message?.includes("aborted")) return;
+        console.error("[/api/chat] Stream error:", error);
+        if (!aborted) {
+          try {
+            res.write(`e:${JSON.stringify({ error: error.message || "Stream error" })}\n`);
+          } catch { /* response closed */ }
+        }
+      });
+
+      // Wait for stream to complete
+      try {
+        await stream.finalMessage();
+      } catch (err: any) {
+        if (err?.name !== "APIUserAbortError" && !err?.message?.includes("aborted")) {
+          console.error("[/api/chat] Stream completion error:", err);
+        }
+      }
+
+      // Send finish signal
+      if (!aborted) {
+        try {
+          res.write(`d:{"finishReason":"stop","usage":{"promptTokens":0,"completionTokens":0}}\n`);
+          res.end();
+        } catch { /* response closed */ }
+      }
+
+    } catch (error: any) {
+      if (error?.name === "APIUserAbortError" || error?.message?.includes("aborted")) {
+        return;
+      }
       console.error("[/api/chat] Error:", error);
       if (!res.headersSent) {
-        res.status(500).json({ error: "Internal server error" });
+        res.status(500).json({ error: error.message || "Internal server error" });
+      } else {
+        try {
+          res.write(`e:${JSON.stringify({ error: "Internal server error" })}\n`);
+          res.end();
+        } catch { /* ignore */ }
       }
     }
   });
 }
-
-export { tools };

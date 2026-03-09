@@ -1,0 +1,42 @@
+/* Print-specific styles — hides app chrome, shows only tool output */
+@media print {
+  /* Hide sidebar, header, and nav */
+  nav,
+  aside,
+  header,
+  [data-sidebar],
+  [data-header],
+  .flex-shrink-0,
+  button,
+  input,
+  textarea,
+  select {
+    display: none !important;
+  }
+
+  /* Ensure output takes full width */
+  main,
+  [data-main-content],
+  .flex-1 {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 16px !important;
+  }
+
+  /* Force light background for printing */
+  body,
+  html,
+  * {
+    background: #fff !important;
+    color: #111 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Keep borders subtle */
+  [class*="border"],
+  [class*="rounded"] {
+    border-color: #ddd !important;
+  }
+}

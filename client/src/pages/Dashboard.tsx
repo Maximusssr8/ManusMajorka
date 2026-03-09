@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import MajorkaAppShell from "@/components/MajorkaAppShell";
 import ToolPage from "./ToolPage";
@@ -7,6 +7,93 @@ import { AgentPlan } from "@/components/ui/agent-plan";
 import { TextShimmer } from "@/components/ui/text-shimmer";
 import OnboardingModal from "@/components/OnboardingModal";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { Search, Rocket, TrendingUp, Zap, Award, ChevronRight } from "lucide-react";
+
+const RECOMMENDED_PATHS: Record<string, { title: string; desc: string; tools: { path: string; label: string; icon: any; color: string }[] }> = {
+  beginner: {
+    title: "Beginner's Path",
+    desc: "Start by finding a product, then build your first store",
+    tools: [
+      { path: "/app/product-discovery", label: "1. Find Products", icon: Search, color: "#2dca72" },
+      { path: "/app/niche-scorer", label: "2. Score Your Niche", icon: TrendingUp, color: "#4ab8f5" },
+      { path: "/app/website-generator", label: "3. Build Landing Page", icon: Rocket, color: "#9c5fff" },
+      { path: "/app/meta-ads", label: "4. Launch First Ad", icon: Zap, color: "#ff6b6b" },
+    ],
+  },
+  intermediate: {
+    title: "Growth Path",
+    desc: "Research trends, analyse competitors, and optimise your funnel",
+    tools: [
+      { path: "/app/trend-radar", label: "1. Scan Trends", icon: TrendingUp, color: "#4ab8f5" },
+      { path: "/app/competitor-breakdown", label: "2. Analyse Competitors", icon: Search, color: "#e05c7a" },
+      { path: "/app/website-generator", label: "3. Build or Improve Site", icon: Rocket, color: "#9c5fff" },
+      { path: "/app/cro-advisor", label: "4. Optimise Conversions", icon: Award, color: "#d4af37" },
+    ],
+  },
+  advanced: {
+    title: "Scale Path",
+    desc: "Dive into analytics, scale campaigns, and maximise profits",
+    tools: [
+      { path: "/app/analytics-decoder", label: "1. Decode Analytics", icon: TrendingUp, color: "#7c6af5" },
+      { path: "/app/ad-optimizer", label: "2. Optimise Ads", icon: Zap, color: "#ff6b6b" },
+      { path: "/app/scaling-playbook", label: "3. Scale Playbook", icon: Rocket, color: "#2dca72" },
+      { path: "/app/financial-modeler", label: "4. Financial Model", icon: Award, color: "#d4af37" },
+    ],
+  },
+};
+
+function RecommendedPath({ onNavigate }: { onNavigate: (path: string) => void }) {
+  const [level, setLevel] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLevel(localStorage.getItem("majorka_level"));
+  }, []);
+
+  const path = level ? RECOMMENDED_PATHS[level] : null;
+  if (!path) return null;
+
+  return (
+    <div className="mb-6 rounded-2xl p-4" style={{ background: "rgba(212,175,55,0.04)", border: "1px solid rgba(212,175,55,0.12)" }}>
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <div className="text-xs font-black uppercase tracking-widest" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
+            {path.title}
+          </div>
+          <div className="text-xs mt-0.5" style={{ color: "rgba(240,237,232,0.4)" }}>{path.desc}</div>
+        </div>
+        <div className="text-xs px-2 py-1 rounded-lg" style={{ background: "rgba(212,175,55,0.1)", color: "rgba(212,175,55,0.7)", fontFamily: "Syne, sans-serif", fontWeight: 700 }}>
+          {level === "beginner" ? "🌱" : level === "intermediate" ? "🌿" : "🌳"} {level}
+        </div>
+      </div>
+      <div className="grid grid-cols-4 gap-2">
+        {path.tools.map(tool => {
+          const Icon = tool.icon;
+          return (
+            <button
+              key={tool.path}
+              onClick={() => onNavigate(tool.path)}
+              className="text-left rounded-xl p-3 transition-all"
+              style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer" }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = `${tool.color}40`;
+                (e.currentTarget as HTMLButtonElement).style.background = `${tool.color}08`;
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.06)";
+                (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.025)";
+              }}
+            >
+              <div className="w-6 h-6 rounded-md flex items-center justify-center mb-1.5" style={{ background: `${tool.color}15`, color: tool.color }}>
+                <Icon size={12} />
+              </div>
+              <div className="text-xs font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8", fontSize: 10 }}>{tool.label}</div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const [location] = useLocation();
@@ -32,7 +119,7 @@ function DashboardHome() {
       <div className="max-w-5xl mx-auto px-6 py-8">
 
         {/* Welcome header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <div className="flex items-center gap-2 mb-1">
             <div
               className="w-2 h-2 rounded-full animate-pulse"
@@ -51,9 +138,44 @@ function DashboardHome() {
             </TextShimmer>
           </h1>
           <p className="text-sm" style={{ color: "rgba(240,237,232,0.45)" }}>
-            Select a tool from the nav above, or launch one from the grid below.
+            Select a tool from the sidebar, or launch one from the grid below.
           </p>
         </div>
+
+        {/* Start New Product CTA */}
+        <button
+          onClick={() => setLocation("/app/product-discovery")}
+          className="w-full mb-6 px-5 py-4 rounded-2xl text-left transition-all group"
+          style={{
+            background: "linear-gradient(135deg, rgba(212,175,55,0.08), rgba(212,175,55,0.04))",
+            border: "1.5px solid rgba(212,175,55,0.2)",
+            cursor: "pointer",
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(212,175,55,0.4)";
+            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
+            (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 12px 32px rgba(0,0,0,0.3)";
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(212,175,55,0.2)";
+            (e.currentTarget as HTMLButtonElement).style.transform = "none";
+            (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="text-2xl">🚀</div>
+            <div className="flex-1">
+              <div className="text-sm font-black" style={{ fontFamily: "Syne, sans-serif", color: "#d4af37" }}>Start New Product</div>
+              <div className="text-xs" style={{ color: "rgba(240,237,232,0.45)" }}>Begin your ecommerce journey — from product research to launch</div>
+            </div>
+            <div className="text-xs font-bold px-3 py-1.5 rounded-lg" style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", fontFamily: "Syne, sans-serif" }}>
+              Launch →
+            </div>
+          </div>
+        </button>
+
+        {/* Recommended Starting Path (based on onboarding level) */}
+        <RecommendedPath onNavigate={setLocation} />
 
         {/* Quick launch: Website Generator + Meta Ads Pack */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">

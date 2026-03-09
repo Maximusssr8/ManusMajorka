@@ -4,7 +4,10 @@ import { DefaultChatTransport } from "ai";
 import type { UIMessage } from "ai";
 import { Copy, Check, Sparkles, RefreshCw, ChevronDown, ChevronUp, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { toast } from "sonner";
+import { trpc } from "@/lib/trpc";
 import { SaveToProduct } from "@/components/SaveToProduct";
+import OutputToolbar from "@/components/OutputToolbar";
+import RelatedTools from "@/components/RelatedTools";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Competitor {
@@ -139,6 +142,7 @@ export default function MarketIntelligence() {
   const [knownCompetitors, setKnownCompetitors] = useState("");
   const [result, setResult] = useState<MarketIntelResult | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const searchMutation = trpc.research.search.useMutation();
 
   const SYSTEM_PROMPT = `You are a market intelligence analyst specialising in ecommerce competitive research. When given a niche/market, you MUST respond with ONLY a valid JSON object (no markdown, no code blocks, no explanation) in this exact format:
 
@@ -227,13 +231,24 @@ Include 3-5 real or realistic competitors. Make all data specific and actionable
     }
   }, [status, isGenerating, messages]);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!niche.trim()) {
       toast.error("Please enter a niche or market to analyse.");
       return;
     }
     setResult(null);
     setIsGenerating(true);
+
+    // Fetch real-time market data via Tavily web search
+    let context = "";
+    try {
+      const searchData = await searchMutation.mutateAsync({
+        query: `${niche} ${productCategory || ""} ecommerce market analysis ${targetRegion || ""} 2025`,
+        maxResults: 5,
+        searchDepth: "advanced",
+      });
+      context = searchData.results.map(r => `${r.title}: ${r.content}`).join("\n\n");
+    } catch { /* ignore search errors */ }
 
     const prompt = `Conduct a comprehensive market intelligence analysis for:
 
@@ -242,6 +257,7 @@ Product Category: ${productCategory || "Not specified"}
 Target Region: ${targetRegion || "Global / English-speaking markets"}
 Price Point: ${pricePoint || "Not specified"}
 Known Competitors: ${knownCompetitors || "Not specified"}
+${context ? `\nRecent market research data:\n${context.slice(0, 2500)}` : ""}
 
 Generate a full competitive intelligence report as JSON.`;
 

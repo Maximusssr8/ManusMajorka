@@ -5,9 +5,12 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Markdown } from "@/components/Markdown";
-import { Download, Copy, Send, Loader2, Sparkles } from "lucide-react";
+import { Download, Copy, Send, Loader2, Sparkles, Check } from "lucide-react";
 import { toast } from "sonner";
 import { DefaultChatTransport } from "ai";
+import OutputToolbar from "@/components/OutputToolbar";
+import RelatedTools from "@/components/RelatedTools";
+import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface AIToolChatProps {
   toolId: string;
@@ -88,6 +91,13 @@ export default function AIToolChat({
     toast.success("Copied to clipboard!");
   };
 
+  const getAllAssistantText = () => {
+    return messages
+      .filter(m => m.role === "assistant")
+      .map(m => m.parts.filter((p) => p.type === "text").map((p) => (p as any).text).join(""))
+      .join("\n\n");
+  };
+
   const copyLastMessage = () => {
     const last = messages[messages.length - 1];
     if (last?.role === "assistant") {
@@ -110,6 +120,8 @@ export default function AIToolChat({
     toast.success("Downloaded!");
   };
 
+  const hasOutput = messages.some(m => m.role === "assistant");
+
   return (
     <div className="flex flex-col h-[calc(100vh-64px)] bg-background">
       {/* Tool Header */}
@@ -121,12 +133,18 @@ export default function AIToolChat({
           >
             {toolIcon}
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="font-black text-sm" style={{ fontFamily: "Syne, sans-serif" }}>
               {toolName}
             </h1>
             <p className="text-xs text-muted-foreground">{toolDescription}</p>
           </div>
+          {hasOutput && (
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <OutputToolbar allContent={getAllAssistantText()} toolName={toolName} />
+              <SaveToProduct toolId={toolId} toolName={toolName} outputData={getAllAssistantText()} />
+            </div>
+          )}
         </div>
       </div>
 
@@ -195,13 +213,26 @@ export default function AIToolChat({
                     {msg.parts.map((part, j) => {
                       if (part.type === "text") {
                         return (
-                          <div key={j} className="prose prose-sm dark:prose-invert max-w-none">
+                          <div
+                            key={j}
+                            className="prose prose-sm dark:prose-invert max-w-none"
+                            contentEditable
+                            suppressContentEditableWarning
+                            onBlur={() => {/* Allow inline text editing */}}
+                            style={{ outline: "none" }}
+                          >
                             <Markdown mode="static">{(part as any).text}</Markdown>
                           </div>
                         );
                       }
                       return null;
                     })}
+                    {/* Per-message copy button */}
+                    {msg.role === "assistant" && (
+                      <div className="mt-2 flex justify-end">
+                        <CopyMsgBtn text={msg.parts.filter((p) => p.type === "text").map((p) => (p as any).text).join("")} />
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -229,7 +260,12 @@ export default function AIToolChat({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
+                  // Enter to send, Shift+Enter for newline, Cmd/Ctrl+Enter also sends
                   if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
                     e.preventDefault();
                     handleSend();
                   }
@@ -261,7 +297,13 @@ export default function AIToolChat({
                 )}
               </div>
             </div>
+            <div className="text-xs mt-1.5" style={{ color: "rgba(240,237,232,0.2)" }}>
+              Press Enter to send · Shift+Enter for new line
+            </div>
           </div>
+
+          {/* Related Tools */}
+          <RelatedTools currentToolId={toolId} />
         </div>
 
         {/* HTML Preview Panel (Website Generator only) */}
@@ -315,5 +357,30 @@ export default function AIToolChat({
         )}
       </div>
     </div>
+  );
+}
+
+/** Small per-message copy button */
+function CopyMsgBtn({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      onClick={() => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        toast.success("Copied!");
+        setTimeout(() => setCopied(false), 2000);
+      }}
+      className="text-xs flex items-center gap-1 px-2 py-1 rounded-md transition-all"
+      style={{
+        background: copied ? "rgba(45,202,114,0.1)" : "transparent",
+        color: copied ? "#2dca72" : "rgba(240,237,232,0.25)",
+        cursor: "pointer",
+        border: "none",
+      }}
+    >
+      {copied ? <Check size={10} /> : <Copy size={10} />}
+      {copied ? "Copied ✓" : "Copy"}
+    </button>
   );
 }

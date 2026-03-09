@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import type { UIMessage } from "ai";
@@ -124,50 +124,13 @@ export default function ProductDiscovery() {
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState<DiscoveryResult | null>(null);
   const [genError, setGenError] = useState("");
-  const [waitingForResponse, setWaitingForResponse] = useState(false);
   const [searchResults, setSearchResults] = useState<string>("");
   const searchMutation = trpc.research.search.useMutation();
 
-  const { sendMessage, status, messages } = useChat({
-    transport: new DefaultChatTransport({
-      api: "/api/chat",
-      prepareSendMessagesRequest({ messages }) {
-        return {
-          body: {
-            messages: messages.map((m: UIMessage) => ({
-              role: m.role,
-              content: m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join(""),
-            })),
-            systemPrompt: SYSTEM_PROMPT,
-          },
-        };
-      },
-    }),
-  });
-
-  // Watch for streaming to finish
-  useState(() => {
-    if (status === "streaming" || status === "submitted") setWaitingForResponse(true);
-  });
-
-  const [effectRan, setEffectRan] = useState(false);
-  if (status !== "ready" && !effectRan) setEffectRan(false);
-  if (status === "ready" && generating && waitingForResponse && !effectRan) {
-    setEffectRan(true);
-    const lastMsg = messages[messages.length - 1];
-    if (lastMsg?.role === "assistant") {
-      const text = lastMsg.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join("");
-      const parsed = parseResult(text);
-      if (parsed) setResult(parsed);
-      else setGenError("Could not parse results. Please try again.");
-    }
-    setGenerating(false);
-    setWaitingForResponse(false);
-  }
-
   const handleGenerate = useCallback(async () => {
     if (!niche.trim()) { toast.error("Please enter a niche or category"); return; }
-    setGenerating(true); setGenError(""); setResult(null); setEffectRan(false);
+    setGenerating(true); setGenError(""); setResult(null);
+    
     // First do a real Tavily search for context
     let context = "";
     try {
@@ -186,11 +149,70 @@ export default function ProductDiscovery() {
       `Target Market: ${targetMarket}`,
       context && `\nRecent market data:\n${context.slice(0, 1500)}`,
     ].filter(Boolean).join("\n");
-    sendMessage({ text: prompt });
-    setWaitingForResponse(true);
-  }, [niche, priceRange, targetMarket, sendMessage, searchMutation]);
 
-  const isLoading = generating || status === "streaming" || status === "submitted";
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: prompt }],
+          systemPrompt: SYSTEM_PROMPT,
+        }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Server error: ${response.status}`);
+      }
+
+      // Read the streaming response line by line
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No response body");
+
+      const decoder = new TextDecoder();
+      let fullText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        // Parse line-delimited format: 0:"text"\n
+        for (const line of chunk.split("\n")) {
+          if (line.startsWith("0:")) {
+            try {
+              const text = JSON.parse(line.slice(2));
+              fullText += text;
+            } catch { /* skip malformed lines */ }
+          } else if (line.startsWith("e:")) {
+            try {
+              const err = JSON.parse(line.slice(2));
+              throw new Error(err.error || "Stream error");
+            } catch (e: any) {
+              if (e.message !== "Stream error") throw e;
+            }
+          }
+        }
+      }
+
+      if (!fullText.trim()) {
+        setGenError("No response received. Please try again.");
+      } else {
+        const parsed = parseResult(fullText);
+        if (parsed) {
+          setResult(parsed);
+        } else {
+          setGenError("Could not parse results. Please try again.");
+        }
+      }
+    } catch (err: any) {
+      console.error("ProductDiscovery error:", err);
+      setGenError(err.message || "Failed to generate. Please try again.");
+    } finally {
+      setGenerating(false);
+    }
+  }, [niche, priceRange, targetMarket, searchMutation]);
+
+  const isLoading = generating;
 
   return (
     <div className="h-full flex flex-col" style={{ background: "#080a0e", color: "#f0ede8", fontFamily: "DM Sans, sans-serif" }}>
