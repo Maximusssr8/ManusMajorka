@@ -9,7 +9,7 @@ const GOALS = ["Launch first store", "Scale existing store", "Optimise conversio
 const REVENUE_RANGES = ["Pre-revenue", "$0-1k/mo", "$1k-5k/mo", "$5k-20k/mo", "$20k-100k/mo", "$100k+/mo"];
 
 export default function SettingsProfile() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth({ redirectOnUnauthenticated: true });
   const [form, setForm] = useState({
     businessName: "",
     targetNiche: "",
@@ -52,6 +52,15 @@ export default function SettingsProfile() {
   const inputClass =
     "w-full rounded-xl px-4 py-3 text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#d4af37]/50 transition-colors";
   const labelClass = "block text-xs font-bold uppercase tracking-wider mb-1.5";
+
+  // Show nothing while auth is resolving or redirecting
+  if (loading || !user) {
+    return (
+      <div className="flex h-screen items-center justify-center" style={{ background: "#0a0b0d" }}>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm animate-pulse" style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#0a0b0d", fontFamily: "Syne, sans-serif" }}>M</div>
+      </div>
+    );
+  }
 
   return (
     <MajorkaAppShell>

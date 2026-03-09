@@ -6,6 +6,7 @@ import { stages } from "@/lib/tools";
 import OnboardingModal from "@/components/OnboardingModal";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
+import TaskPlanTracker from "@/components/TaskPlanTracker";
 import {
   Search, Rocket, TrendingUp, Zap, ChevronRight, ChevronDown,
   Globe, Megaphone, Clock, BarChart2, Plus, MessageSquare, CheckCircle2,
@@ -133,8 +134,17 @@ const AI_PROMPTS = [
 // ── Main Dashboard ──────────────────────────────────────────────────────────
 export default function Dashboard() {
   const [location] = useLocation();
-  const { user } = useAuth();
+  const { user, loading } = useAuth({ redirectOnUnauthenticated: true });
   const isToolPage = location.startsWith("/app/") && location !== "/app";
+
+  // Show nothing while auth is resolving or redirecting
+  if (loading || !user) {
+    return (
+      <div className="flex h-screen items-center justify-center" style={{ background: "#0a0b0d" }}>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm animate-pulse" style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#0a0b0d", fontFamily: "Syne, sans-serif" }}>M</div>
+      </div>
+    );
+  }
 
   return (
     <MajorkaAppShell>
@@ -183,6 +193,9 @@ function DashboardHome() {
           </div>
 
           <TestimonialTicker />
+
+          {/* Task Plan Tracker */}
+          <TaskPlanTracker />
 
           {/* Workflow pills */}
           <div className="flex gap-2 mb-8 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>

@@ -108,3 +108,21 @@ export const conversationMemory = pgTable("conversation_memory", {
 
 export type ConversationMessage = typeof conversationMemory.$inferSelect;
 export type InsertConversationMessage = typeof conversationMemory.$inferInsert;
+
+/**
+ * Task plan progress — tracks each user's progress through the 4-step workflow.
+ * stepKey: "research" | "build" | "launch" | "optimize"
+ * status: "pending" | "in_progress" | "completed"
+ */
+export const taskPlanProgress = pgTable("task_plan_progress", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  stepKey: varchar("step_key", { length: 64 }).notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("pending"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type TaskPlanProgress = typeof taskPlanProgress.$inferSelect;
+export type InsertTaskPlanProgress = typeof taskPlanProgress.$inferInsert;
