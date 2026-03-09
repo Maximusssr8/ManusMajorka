@@ -1,6 +1,6 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { Profile } from "../../drizzle/schema";
-import { supabaseAdmin } from "./supabase";
+import { getSupabaseAdmin } from "./supabase";
 import { upsertProfile, getProfileById } from "../db";
 
 export type TrpcContext = {
@@ -18,7 +18,7 @@ export async function createContext(
     const authHeader = opts.req.headers.authorization;
     if (authHeader?.startsWith("Bearer ")) {
       const token = authHeader.slice(7);
-      const { data: { user: supabaseUser }, error } = await supabaseAdmin.auth.getUser(token);
+      const { data: { user: supabaseUser }, error } = await getSupabaseAdmin().auth.getUser(token);
 
       if (!error && supabaseUser) {
         // Ensure profile exists in our database
