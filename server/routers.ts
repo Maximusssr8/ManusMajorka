@@ -20,6 +20,8 @@ import {
   upsertUserProfile,
   getConversationHistory,
   saveConversationMessage,
+  getTaskPlanProgress,
+  upsertTaskPlanStep,
 } from "./db";
 import { tavilySearch, tavilyExtract, tavilyImageSearch } from "./tavily";
 
@@ -205,6 +207,25 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         await saveConversationMessage({ userId: ctx.user.id, ...input });
         return { success: true };
+      }),
+  }),
+
+  /** Task plan progress tracking */
+  taskPlan: router({
+    get: protectedProcedure.query(async ({ ctx }) => {
+      return await getTaskPlanProgress(ctx.user.id);
+    }),
+
+    update: protectedProcedure
+      .input(
+        z.object({
+          stepKey: z.string().min(1).max(64),
+          status: z.enum(["pending", "in_progress", "completed"]),
+        })
+      )
+      .mutation(async ({ ctx, input }) => {
+        const result = await upsertTaskPlanStep(ctx.user.id, input.stepKey, input.status);
+        return { success: true, step: result };
       }),
   }),
 
