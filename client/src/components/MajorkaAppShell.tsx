@@ -229,7 +229,7 @@ export default function MajorkaAppShell({ children }: Props) {
               border: "none",
             }}
           >
-            {collapsed ? "→" : "Sign In"}
+            {collapsed ? "\u2192" : "Sign In"}
           </button>
         )}
       </div>

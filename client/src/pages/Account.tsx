@@ -95,7 +95,7 @@ export default function Account() {
         <div className="container flex items-center justify-between h-14">
           <button
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            onClick={() => setLocation(isActive ? "/dashboard" : "/")}
+            onClick={() => setLocation(isActive ? "/app" : "/")}
           >
             <ArrowLeft className="w-4 h-4" />
             {isActive ? "Back to Dashboard" : "Back to Home"}
@@ -263,7 +263,7 @@ export default function Account() {
                 <Button
                   variant="outline"
                   className="flex-1 text-sm border-border hover:bg-secondary"
-                  onClick={() => setLocation("/dashboard")}
+                  onClick={() => setLocation("/app")}
                 >
                   Open Dashboard
                 </Button>

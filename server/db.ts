@@ -1,7 +1,20 @@
 import { and, eq, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { InsertUser, InsertSubscription, subscriptions, users, userProfiles, conversationMemory, taskPlanProgress } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import postgres from "postgres";
+import {
+  type InsertProfile,
+  type InsertSubscription,
+  type InsertProduct,
+  type InsertSavedOutput,
+  type InsertUserProfile,
+  type InsertConversationMessage,
+  profiles,
+  subscriptions,
+  products,
+  savedOutputs,
+  userProfiles,
+  conversationMemory,
+} from "../drizzle/schema";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -158,15 +171,15 @@ export async function deleteSavedOutput(outputId: string, userId: string) {
 
 // ─── User Profile helpers ──────────────────────────────────────────────────
 
-export async function getUserProfile(userId: number) {
-  const db = await getDb();
+export async function getUserProfile(userId: string) {
+  const db = getDb();
   if (!db) return null;
   const result = await db.select().from(userProfiles).where(eq(userProfiles.userId, userId)).limit(1);
   return result.length > 0 ? result[0] : null;
 }
 
-export async function upsertUserProfile(userId: number, data: Partial<Omit<InsertUserProfile, "id" | "userId" | "createdAt" | "updatedAt">>) {
-  const db = await getDb();
+export async function upsertUserProfile(userId: string, data: Partial<Omit<InsertUserProfile, "id" | "userId" | "createdAt" | "updatedAt">>) {
+  const db = getDb();
   if (!db) throw new Error("Database not available");
   const existing = await getUserProfile(userId);
   if (existing) {
@@ -179,8 +192,8 @@ export async function upsertUserProfile(userId: number, data: Partial<Omit<Inser
 
 // ─── Conversation Memory helpers ───────────────────────────────────────────
 
-export async function getConversationHistory(userId: number, toolName: string, limit = 10) {
-  const db = await getDb();
+export async function getConversationHistory(userId: string, toolName: string, limit = 10) {
+  const db = getDb();
   if (!db) return [];
   return db
     .select()
@@ -188,19 +201,18 @@ export async function getConversationHistory(userId: number, toolName: string, l
     .where(and(eq(conversationMemory.userId, userId), eq(conversationMemory.toolName, toolName)))
     .orderBy(desc(conversationMemory.createdAt))
     .limit(limit)
-    .then(rows => rows.reverse()); // Return in chronological order
+    .then(rows => rows.reverse());
 }
 
 export async function saveConversationMessage(data: InsertConversationMessage) {
-  const db = await getDb();
+  const db = getDb();
   if (!db) return;
   await db.insert(conversationMemory).values(data);
-  // Trim to keep only latest 20 messages per user+tool
   await trimConversationHistory(data.userId, data.toolName, 20);
 }
 
-async function trimConversationHistory(userId: number, toolName: string, maxMessages: number) {
-  const db = await getDb();
+async function trimConversationHistory(userId: string, toolName: string, maxMessages: number) {
+  const db = getDb();
   if (!db) return;
   const all = await db
     .select({ id: conversationMemory.id })
@@ -216,7 +228,7 @@ async function trimConversationHistory(userId: number, toolName: string, maxMess
 }
 
 /** Build user context string for AI system prompts */
-export async function getUserContextString(userId: number, userName?: string | null): Promise<string> {
+export async function getUserContextString(userId: string, userName?: string | null): Promise<string> {
   const profile = await getUserProfile(userId);
   if (!profile) return "";
   const parts: string[] = [];

@@ -1,4 +1,4 @@
-import { pgTable, pgEnum, uuid, text, varchar, timestamp, serial, integer } from "drizzle-orm/pg-core";
+import { boolean, integer, pgEnum, pgTable, serial, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["user", "admin"]);
 export const subscriptionStatusEnum = pgEnum("subscription_status", ["active", "cancelled", "expired"]);
@@ -78,7 +78,7 @@ export type InsertSavedOutput = typeof savedOutputs.$inferInsert;
  */
 export const userProfiles = pgTable("user_profiles", {
   id: serial("id").primaryKey(),
-  userId: integer("userId").notNull().unique(),
+  userId: uuid("user_id").notNull().unique().references(() => profiles.id),
   experienceLevel: varchar("experience_level", { length: 20 }),
   mainGoal: varchar("main_goal", { length: 100 }),
   budget: varchar("budget", { length: 50 }),
@@ -99,7 +99,7 @@ export type InsertUserProfile = typeof userProfiles.$inferInsert;
  */
 export const conversationMemory = pgTable("conversation_memory", {
   id: serial("id").primaryKey(),
-  userId: integer("userId").notNull(),
+  userId: uuid("user_id").notNull().references(() => profiles.id),
   toolName: varchar("tool_name", { length: 100 }).notNull(),
   role: varchar("role", { length: 20 }).notNull(),
   content: text("content").notNull(),

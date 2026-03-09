@@ -8,10 +8,8 @@
 
 import type { Express } from "express";
 import { getAnthropicClient, CLAUDE_MODEL, BASE_SYSTEM_PROMPT } from "../lib/anthropic";
-import { sdk } from "./sdk";
-import { getUserContextString, getConversationHistory, saveConversationMessage } from "../db";
-import { COOKIE_NAME } from "@shared/const";
-import { parse as parseCookieHeader } from "cookie";
+import { getSupabaseAdmin } from "./supabase";
+import { getUserContextString, getConversationHistory, saveConversationMessage, getProfileById, upsertProfile } from "../db";
 import { tavilySearch } from "../tavily";
 
 /**
@@ -59,14 +57,18 @@ export function registerChatRoutes(app: Express) {
 
       // Try to get authenticated user for profile context and memory
       let userContext = "";
-      let userId: number | null = null;
+      let userId: string | null = null;
       let userName: string | null = null;
       try {
-        const user = await sdk.authenticateRequest(req);
-        if (user) {
-          userId = user.id;
-          userName = user.name as string | null;
-          userContext = await getUserContextString(user.id, user.name as string | null);
+        const authHeader = req.headers.authorization;
+        if (authHeader?.startsWith("Bearer ")) {
+          const token = authHeader.slice(7);
+          const { data: { user: supabaseUser }, error } = await getSupabaseAdmin().auth.getUser(token);
+          if (!error && supabaseUser) {
+            userId = supabaseUser.id;
+            userName = supabaseUser.user_metadata?.full_name ?? supabaseUser.user_metadata?.name ?? null;
+            userContext = await getUserContextString(supabaseUser.id, userName);
+          }
         }
       } catch {
         // Not authenticated — proceed without user context
