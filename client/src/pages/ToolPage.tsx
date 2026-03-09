@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { getToolByPath } from "@/lib/tools";
+import { getToolByPath, stages } from "@/lib/tools";
 import AIToolChat from "@/components/AIToolChat";
 import WebsiteGenerator from "./WebsiteGenerator";
 import MetaAdsPack from "./MetaAdsPack";
@@ -25,7 +25,19 @@ import ProjectManager from "./ProjectManager";
 import AutomationBuilder from "./AutomationBuilder";
 import MyProducts from "./MyProducts";
 import ProductHub from "./ProductHub";
+import StageLanding from "./StageLanding";
+import InsightsPage from "./InsightsPage";
 import { createElement } from "react";
+
+// Map stage landing paths to their stage names
+const STAGE_PATHS: Record<string, string> = {
+  "/app/research": "Research",
+  "/app/validate": "Validate",
+  "/app/build": "Build",
+  "/app/launch": "Launch",
+  "/app/optimize": "Optimize",
+  "/app/scale": "Scale",
+};
 
 export default function ToolPage() {
   const [location] = useLocation();
@@ -59,6 +71,16 @@ export default function ToolPage() {
   if (location === "/app/automation-builder") return page(<AutomationBuilder />);
   if (location === "/app/my-products") return page(<MyProducts />);
   if (location.startsWith("/app/product-hub/")) return page(<ProductHub />);
+
+  // Stage landing pages (/app/research, /app/validate, etc.)
+  const stageName = STAGE_PATHS[location];
+  if (stageName) {
+    const stageData = stages.find((s) => s.stage === stageName);
+    if (stageData) return page(<StageLanding stage={stageData} />);
+  }
+
+  // Insights page
+  if (location === "/app/insights") return page(<InsightsPage />);
 
   if (!tool) {
     return (
