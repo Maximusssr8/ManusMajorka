@@ -7,40 +7,28 @@
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 
-import { stages } from "@/lib/tools";
 import { useState, useRef, useEffect, createElement, useCallback } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { trpc } from "@/lib/trpc";
 import {
-  MessageSquare, ChevronDown, LogOut, User, Settings,
-  Menu, X, LayoutDashboard, Search, CheckCircle2, Hammer, Globe,
-  Rocket, TrendingUp, BarChart3, PanelLeftClose, PanelLeftOpen, Package, Sun, Moon,
-  Megaphone, Video, Fingerprint, Home,
+  MessageSquare, LogOut, User, Settings,
+  Menu, X, LayoutDashboard, Search, CheckCircle2, Globe,
+  Rocket, PanelLeftClose, PanelLeftOpen, Package, Sun, Moon, Home,
 } from "lucide-react";
 
-const WORKFLOW_SECTIONS = [
+const CORE_TOOLS = [
   { label: "Dashboard", path: "/app", exact: true, icon: LayoutDashboard },
-  { label: "Research", path: "/app/research", icon: Search, stageId: "Research" },
-  { label: "Validate", path: "/app/validate", icon: CheckCircle2, stageId: "Validate" },
-  { label: "Build", path: "/app/build", icon: Hammer, stageId: "Build" },
-  { label: "Launch", path: "/app/launch", icon: Rocket, stageId: "Launch" },
-  { label: "Optimize", path: "/app/optimize", icon: TrendingUp, stageId: "Optimize" },
-  { label: "Scale", path: "/app/scale", icon: BarChart3, stageId: "Scale" },
-];
-
-const POWER_TOOLS_SECTIONS = [
-  { label: "Website Generator", path: "/app/website-generator", icon: Globe },
-  { label: "Meta Ads Pack", path: "/app/meta-ads", icon: Megaphone },
-  { label: "Ads Studio", path: "/app/ads-studio", icon: Video },
-  { label: "UGC Studio", path: "/app/ugc-studio", icon: Video },
-  { label: "Brand DNA", path: "/app/brand-dna", icon: Fingerprint },
+  { label: "Research", path: "/app/product-discovery", icon: Search },
+  { label: "Validate", path: "/app/validate", icon: CheckCircle2 },
+  { label: "Website", path: "/app/website-generator", icon: Globe },
+  { label: "Launch Planner", path: "/app/launch-planner", icon: Rocket },
 ];
 
 const MOBILE_TABS = [
   { label: "Home", path: "/app", icon: Home, exact: true },
   { label: "Research", path: "/app/product-discovery", icon: Search },
-  { label: "Build", path: "/app/website-generator", icon: Globe },
-  { label: "Launch", path: "/app/meta-ads", icon: Rocket },
+  { label: "Website", path: "/app/website-generator", icon: Globe },
+  { label: "Planner", path: "/app/launch-planner", icon: Rocket },
   { label: "AI Chat", path: "/app/ai-chat", icon: MessageSquare },
 ];
 
@@ -55,7 +43,6 @@ export default function MajorkaAppShell({ children }: Props) {
     return stored !== null ? stored === "true" : true;
   });
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [expandedStage, setExpandedStage] = useState<string | null>(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { theme, toggleTheme } = useTheme();
@@ -79,23 +66,13 @@ export default function MajorkaAppShell({ children }: Props) {
 
   const isActive = (path: string, exact?: boolean) => exact ? location === path : location.startsWith(path);
 
-  const handleNavClick = (item: { label: string; path: string; exact?: boolean; icon: any; stageId?: string }) => {
-    if (item.stageId) { setExpandedStage(expandedStage === item.stageId ? null : item.stageId); }
-    else { setLocation(item.path); }
-  };
-
   const handleToolClick = (path: string) => { setLocation(path); setMobileOpen(false); };
 
-  const navButton = (item: { label: string; path: string; exact?: boolean; icon: any; stageId?: string }, collapsed: boolean) => {
-    const active = item.stageId
-      ? stages.find(s => s.stage === item.stageId)?.tools.some(t => location === t.path) || false
-      : isActive(item.path, item.exact);
-    const stageData = item.stageId ? stages.find(s => s.stage === item.stageId) : null;
-    const isExpanded = expandedStage === item.stageId;
-
+  const navButton = (item: { label: string; path: string; exact?: boolean; icon: any }, collapsed: boolean) => {
+    const active = isActive(item.path, item.exact);
     return (
       <div key={item.label} className="mb-0.5">
-        <button onClick={() => handleNavClick(item)}
+        <button onClick={() => handleToolClick(item.path)}
           className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-semibold transition-all relative"
           style={{ background: active ? "rgba(212,175,55,0.12)" : "transparent", color: active ? "#d4af37" : "rgba(240,237,232,0.65)", fontFamily: "Syne, sans-serif", border: `1px solid ${active ? "rgba(212,175,55,0.25)" : "transparent"}`, cursor: "pointer", justifyContent: collapsed ? "center" : "flex-start" }}
           onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.05)"; }}
@@ -104,30 +81,8 @@ export default function MajorkaAppShell({ children }: Props) {
         >
           {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-r" style={{ background: "#d4af37" }} />}
           {createElement(item.icon, { size: 15, style: { flexShrink: 0 } })}
-          {!collapsed && (
-            <>
-              <span className="flex-1 text-left">{item.label}</span>
-              {item.stageId && <ChevronDown size={11} style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.15s", opacity: 0.4, flexShrink: 0 }} />}
-            </>
-          )}
+          {!collapsed && <span className="flex-1 text-left">{item.label}</span>}
         </button>
-        {item.stageId && isExpanded && stageData && !collapsed && (
-          <div className="ml-3 mt-0.5 mb-1 pl-3 border-l" style={{ borderColor: `${stageData.color}30` }}>
-            {stageData.tools.map((tool) => {
-              const toolActive = location === tool.path;
-              return (
-                <button key={tool.id} onClick={() => handleToolClick(tool.path)} className="w-full text-left flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all"
-                  style={{ background: toolActive ? `${stageData.color}15` : "transparent", color: toolActive ? stageData.color : "rgba(240,237,232,0.55)", cursor: "pointer", border: "none" }}
-                  onMouseEnter={e => { if (!toolActive) (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.04)"; }}
-                  onMouseLeave={e => { if (!toolActive) (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
-                >
-                  {createElement(tool.icon, { size: 11, style: { flexShrink: 0, opacity: 0.7 } })}
-                  <span style={{ fontFamily: "Syne, sans-serif" }}>{tool.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        )}
       </div>
     );
   };
@@ -144,12 +99,7 @@ export default function MajorkaAppShell({ children }: Props) {
       </div>
 
       <div className="flex-1 overflow-y-auto py-2 px-2" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.1) transparent" }}>
-        {!collapsed && <div className="px-2.5 pt-1 pb-1.5 text-xs font-black uppercase tracking-widest" style={{ color: "rgba(240,237,232,0.2)", fontFamily: "Syne, sans-serif", fontSize: 9 }}>Workflow</div>}
-        {WORKFLOW_SECTIONS.map(item => navButton(item, collapsed))}
-
-        {!collapsed && <div className="px-2.5 pt-3 pb-1.5 text-xs font-black uppercase tracking-widest" style={{ color: "rgba(240,237,232,0.2)", fontFamily: "Syne, sans-serif", fontSize: 9 }}>Power Tools</div>}
-        {collapsed && <div className="my-2 mx-2" style={{ height: 1, background: "rgba(255,255,255,0.06)" }} />}
-        {POWER_TOOLS_SECTIONS.map(item => navButton({ ...item, exact: false }, collapsed))}
+        {CORE_TOOLS.map(item => navButton(item, collapsed))}
 
         <div className="mt-2 pt-2 border-t space-y-1" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
           <button onClick={() => handleToolClick("/app/my-products")}
