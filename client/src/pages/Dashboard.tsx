@@ -108,6 +108,59 @@ export default function Dashboard() {
   );
 }
 
+const MILESTONES = [
+  { key: "majorka_milestone_research", label: "First Product Researched", icon: "🔍", desc: "Ran Product Discovery" },
+  { key: "majorka_milestone_site", label: "First Landing Page", icon: "🌐", desc: "Generated a website" },
+  { key: "majorka_milestone_ads", label: "First Ad Pack", icon: "📣", desc: "Created Meta Ads Pack" },
+  { key: "majorka_milestone_model", label: "Financial Model Built", icon: "📊", desc: "Ran Financial Modeler" },
+];
+
+function MilestoneBadges() {
+  const [completed, setCompleted] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const c: Record<string, boolean> = {};
+    MILESTONES.forEach(m => { c[m.key] = !!localStorage.getItem(m.key); });
+    setCompleted(c);
+  }, []);
+
+  const count = Object.values(completed).filter(Boolean).length;
+  if (count === 0) return null;
+
+  return (
+    <div className="mb-6">
+      <div className="flex items-center gap-2 mb-3">
+        <Award size={12} style={{ color: "#d4af37" }} />
+        <span className="text-xs font-black uppercase tracking-widest" style={{ color: "rgba(212,175,55,0.6)", fontFamily: "Syne, sans-serif" }}>
+          Milestones — {count}/{MILESTONES.length}
+        </span>
+      </div>
+      <div className="grid grid-cols-4 gap-2">
+        {MILESTONES.map(m => {
+          const done = completed[m.key];
+          return (
+            <div
+              key={m.key}
+              className="rounded-xl p-3 text-center transition-all"
+              style={{
+                background: done ? "rgba(212,175,55,0.06)" : "rgba(255,255,255,0.02)",
+                border: `1px solid ${done ? "rgba(212,175,55,0.2)" : "rgba(255,255,255,0.06)"}`,
+                opacity: done ? 1 : 0.5,
+              }}
+            >
+              <div className="text-lg mb-1">{done ? "✅" : m.icon}</div>
+              <div className="text-xs font-bold" style={{ fontFamily: "Syne, sans-serif", color: done ? "#d4af37" : "rgba(240,237,232,0.4)", fontSize: 10 }}>
+                {m.label}
+              </div>
+              <div className="text-xs mt-0.5" style={{ color: "rgba(240,237,232,0.25)", fontSize: 9 }}>{m.desc}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function DashboardHome() {
   const [, setLocation] = useLocation();
 
@@ -176,6 +229,9 @@ function DashboardHome() {
 
         {/* Recommended Starting Path (based on onboarding level) */}
         <RecommendedPath onNavigate={setLocation} />
+
+        {/* Milestone Badges */}
+        <MilestoneBadges />
 
         {/* Quick launch: Website Generator + Meta Ads Pack */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">

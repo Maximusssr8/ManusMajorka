@@ -200,6 +200,7 @@ export default function ProductDiscovery() {
         const parsed = parseResult(fullText);
         if (parsed) {
           setResult(parsed);
+          localStorage.setItem("majorka_milestone_research", "true");
         } else {
           setGenError("Could not parse results. Please try again.");
         }

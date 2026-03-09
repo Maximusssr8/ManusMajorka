@@ -208,6 +208,7 @@ export default function MetaAdsPack() {
     const parsed = parseAdsPack(text);
     if (parsed) {
       setPack(parsed);
+      localStorage.setItem("majorka_milestone_ads", "true");
     } else {
       setGenError("Could not parse the generated ads pack. Please try again.");
     }
