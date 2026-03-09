@@ -90,6 +90,7 @@ export default function FinancialModeler() {
     setResult({ plRows, breakEvenUnits, breakEvenDays, margin, roas, forecast });
     setGenerating(false);
     toast.success("Financial model generated!");
+    localStorage.setItem("majorka_milestone_model", "true");
   }, [productPrice, cogs, adSpend, conversionRate, monthlyUnits, shippingCost, otherCosts, growthRate]);
 
   const copyTable = () => {

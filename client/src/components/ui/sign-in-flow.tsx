@@ -297,7 +297,7 @@ export function SignInPage({ className, onSuccess, loginUrl }: SignInPageProps) 
                     className="w-full flex items-center justify-center gap-2 rounded-full py-3 px-4 text-white font-medium transition-colors"
                     style={{ background: "#d4af37", color: "#000" }}
                   >
-                    Continue with Manus
+                    Continue with Majorka
                   </a>
                 )}
 

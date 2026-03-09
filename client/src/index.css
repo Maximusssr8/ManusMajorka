@@ -174,3 +174,112 @@
     }
   }
 }
+
+/* ── Animations ── */
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out both;
+}
+
+.animate-slide-in {
+  animation: slide-in-left 0.25s ease-out both;
+}
+
+/* Page transition wrapper — apply to tool page containers */
+.page-enter {
+  animation: fade-in 0.25s ease-out both;
+}
+
+/* ── Standardised Button Colours ── */
+
+.btn-gold {
+  background: linear-gradient(135deg, #d4af37, #f0c040);
+  color: #080a0e;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  border: none;
+  box-shadow: 0 4px 20px rgba(212,175,55,0.3);
+  transition: all 0.2s;
+}
+.btn-gold:hover:not(:disabled) {
+  box-shadow: 0 6px 28px rgba(212,175,55,0.4);
+  transform: translateY(-1px);
+}
+.btn-gold:disabled {
+  opacity: 0.5;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.btn-grey {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(240,237,232,0.5);
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-grey:hover:not(:disabled) {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.15);
+  color: rgba(240,237,232,0.7);
+}
+
+.btn-red {
+  background: rgba(224,92,122,0.12);
+  border: 1px solid rgba(224,92,122,0.3);
+  color: rgba(224,92,122,0.9);
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-red:hover:not(:disabled) {
+  background: rgba(224,92,122,0.2);
+  border-color: rgba(224,92,122,0.45);
+}
+
+.btn-green {
+  background: linear-gradient(135deg, #2dca72, #1fa85c);
+  color: #fff;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  border: none;
+  box-shadow: 0 4px 20px rgba(45,202,114,0.3);
+  transition: all 0.2s;
+}
+.btn-green:hover:not(:disabled) {
+  box-shadow: 0 6px 28px rgba(45,202,114,0.4);
+  transform: translateY(-1px);
+}
+
+/* ── Scrollbar styling ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.15);
+}
+

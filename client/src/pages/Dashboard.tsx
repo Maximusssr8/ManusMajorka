@@ -1,100 +1,136 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import MajorkaAppShell from "@/components/MajorkaAppShell";
 import ToolPage from "./ToolPage";
 import { stages } from "@/lib/tools";
-import { AgentPlan } from "@/components/ui/agent-plan";
-import { TextShimmer } from "@/components/ui/text-shimmer";
 import OnboardingModal from "@/components/OnboardingModal";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Search, Rocket, TrendingUp, Zap, Award, ChevronRight } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import {
+  Search, Rocket, TrendingUp, Zap, ChevronRight, ChevronDown,
+  Globe, Megaphone, Clock, BarChart2, Plus, MessageSquare, CheckCircle2,
+} from "lucide-react";
 
-const RECOMMENDED_PATHS: Record<string, { title: string; desc: string; tools: { path: string; label: string; icon: any; color: string }[] }> = {
-  beginner: {
-    title: "Beginner's Path",
-    desc: "Start by finding a product, then build your first store",
-    tools: [
-      { path: "/app/product-discovery", label: "1. Find Products", icon: Search, color: "#2dca72" },
-      { path: "/app/niche-scorer", label: "2. Score Your Niche", icon: TrendingUp, color: "#4ab8f5" },
-      { path: "/app/website-generator", label: "3. Build Landing Page", icon: Rocket, color: "#9c5fff" },
-      { path: "/app/meta-ads", label: "4. Launch First Ad", icon: Zap, color: "#ff6b6b" },
-    ],
-  },
-  intermediate: {
-    title: "Growth Path",
-    desc: "Research trends, analyse competitors, and optimise your funnel",
-    tools: [
-      { path: "/app/trend-radar", label: "1. Scan Trends", icon: TrendingUp, color: "#4ab8f5" },
-      { path: "/app/competitor-breakdown", label: "2. Analyse Competitors", icon: Search, color: "#e05c7a" },
-      { path: "/app/website-generator", label: "3. Build or Improve Site", icon: Rocket, color: "#9c5fff" },
-      { path: "/app/cro-advisor", label: "4. Optimise Conversions", icon: Award, color: "#d4af37" },
-    ],
-  },
-  advanced: {
-    title: "Scale Path",
-    desc: "Dive into analytics, scale campaigns, and maximise profits",
-    tools: [
-      { path: "/app/analytics-decoder", label: "1. Decode Analytics", icon: TrendingUp, color: "#7c6af5" },
-      { path: "/app/ad-optimizer", label: "2. Optimise Ads", icon: Zap, color: "#ff6b6b" },
-      { path: "/app/scaling-playbook", label: "3. Scale Playbook", icon: Rocket, color: "#2dca72" },
-      { path: "/app/financial-modeler", label: "4. Financial Model", icon: Award, color: "#d4af37" },
-    ],
-  },
-};
+// ── Social proof testimonials ────────────────────────────────────────────────
+const TESTIMONIALS = [
+  { text: "Launched my first store in 24 hours", name: "Jake M.", city: "Sydney" },
+  { text: "Made $4,200 in week 1 using the Meta Ads Pack", name: "Priya K.", city: "Melbourne" },
+  { text: "Website Generator saved me $3k in dev costs", name: "Tom R.", city: "Brisbane" },
+  { text: "Found a winning product on my first try", name: "Sarah L.", city: "Perth" },
+];
 
-function RecommendedPath({ onNavigate }: { onNavigate: (path: string) => void }) {
-  const [level, setLevel] = useState<string | null>(null);
+function TestimonialTicker() {
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setLevel(localStorage.getItem("majorka_level"));
+    const el = scrollRef.current;
+    if (!el) return;
+    let frame: number;
+    let offset = 0;
+    const scroll = () => {
+      offset += 0.5;
+      if (offset >= el.scrollWidth / 2) offset = 0;
+      el.scrollLeft = offset;
+      frame = requestAnimationFrame(scroll);
+    };
+    frame = requestAnimationFrame(scroll);
+    return () => cancelAnimationFrame(frame);
   }, []);
 
-  const path = level ? RECOMMENDED_PATHS[level] : null;
-  if (!path) return null;
+  const cards = [...TESTIMONIALS, ...TESTIMONIALS];
 
   return (
-    <div className="mb-6 rounded-2xl p-4" style={{ background: "rgba(212,175,55,0.04)", border: "1px solid rgba(212,175,55,0.12)" }}>
-      <div className="flex items-center justify-between mb-3">
-        <div>
-          <div className="text-xs font-black uppercase tracking-widest" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
-            {path.title}
+    <div className="mb-8 overflow-hidden" ref={scrollRef} style={{ scrollbarWidth: "none" }}>
+      <div className="flex gap-3 w-max">
+        {cards.map((t, i) => (
+          <div
+            key={i}
+            className="flex-shrink-0 rounded-xl px-4 py-3 text-xs"
+            style={{ background: "rgba(212,175,55,0.04)", border: "1px solid rgba(212,175,55,0.1)", color: "rgba(240,237,232,0.6)", minWidth: 260 }}
+          >
+            <span style={{ color: "rgba(240,237,232,0.85)" }}>"{t.text}"</span>
+            <span className="ml-2" style={{ color: "rgba(212,175,55,0.7)" }}>— {t.name}, {t.city}</span>
           </div>
-          <div className="text-xs mt-0.5" style={{ color: "rgba(240,237,232,0.4)" }}>{path.desc}</div>
-        </div>
-        <div className="text-xs px-2 py-1 rounded-lg" style={{ background: "rgba(212,175,55,0.1)", color: "rgba(212,175,55,0.7)", fontFamily: "Syne, sans-serif", fontWeight: 700 }}>
-          {level === "beginner" ? "🌱" : level === "intermediate" ? "🌿" : "🌳"} {level}
-        </div>
-      </div>
-      <div className="grid grid-cols-4 gap-2">
-        {path.tools.map(tool => {
-          const Icon = tool.icon;
-          return (
-            <button
-              key={tool.path}
-              onClick={() => onNavigate(tool.path)}
-              className="text-left rounded-xl p-3 transition-all"
-              style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer" }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = `${tool.color}40`;
-                (e.currentTarget as HTMLButtonElement).style.background = `${tool.color}08`;
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.06)";
-                (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.025)";
-              }}
-            >
-              <div className="w-6 h-6 rounded-md flex items-center justify-center mb-1.5" style={{ background: `${tool.color}15`, color: tool.color }}>
-                <Icon size={12} />
-              </div>
-              <div className="text-xs font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8", fontSize: 10 }}>{tool.label}</div>
-            </button>
-          );
-        })}
+        ))}
       </div>
     </div>
   );
 }
 
+// ── Quick launch workflow stages ─────────────────────────────────────────────
+const WORKFLOW_STAGES = [
+  { label: "Research", icon: Search, color: "#3b82f6" },
+  { label: "Validate", icon: CheckCircle2, color: "#10b981" },
+  { label: "Build", icon: Globe, color: "#9c5fff" },
+  { label: "Launch", icon: Rocket, color: "#f59e0b" },
+  { label: "Optimize", icon: TrendingUp, color: "#ef4444" },
+  { label: "Scale", icon: BarChart2, color: "#d4af37" },
+];
+
+// ── Featured tools ──────────────────────────────────────────────────────────
+const FEATURED_TOOLS = [
+  { path: "/app/product-discovery", icon: Search, label: "Find Winning Products", desc: "AI-powered product research with real-time data", color: "#3b82f6" },
+  { path: "/app/unit-economics", icon: BarChart2, label: "Validate Unit Economics", desc: "Calculate margins, breakeven and profitability", color: "#10b981" },
+  { path: "/app/website-generator", icon: Globe, label: "Generate Product Website", desc: "Full Shopify-ready landing page in seconds", color: "#9c5fff" },
+  { path: "/app/meta-ads", icon: Megaphone, label: "Generate Ad Creatives", desc: "5 creative angles and complete ad copy", color: "#ef4444" },
+  { path: "/app/validation-plan", icon: Clock, label: "48-Hour Validation Plan", desc: "Step-by-step plan to validate in 2 days", color: "#f59e0b" },
+  { path: "/app/scaling-playbook", icon: Zap, label: "Scale Strategy", desc: "Systematic framework for scaling winners", color: "#d4af37" },
+];
+
+// ── Getting started checklist ───────────────────────────────────────────────
+const CHECKLIST = [
+  { key: "majorka_check_project", label: "Create your first project", path: "/app/product-discovery" },
+  { key: "majorka_check_research", label: "Analyse product opportunity", path: "/app/product-discovery" },
+  { key: "majorka_check_website", label: "Generate product website", path: "/app/website-generator" },
+  { key: "majorka_check_ads", label: "Generate ad creatives", path: "/app/meta-ads" },
+  { key: "majorka_check_validate", label: "Launch validation test", path: "/app/validation-plan" },
+];
+
+function GettingStartedChecklist({ onNavigate }: { onNavigate: (path: string) => void }) {
+  const [completed, setCompleted] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    const c: Record<string, boolean> = {};
+    CHECKLIST.forEach((item) => { c[item.key] = !!localStorage.getItem(item.key); });
+    setCompleted(c);
+  }, []);
+  const count = Object.values(completed).filter(Boolean).length;
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(212,175,55,0.7)", fontFamily: "Syne, sans-serif" }}>Getting Started</span>
+        <span className="text-xs" style={{ color: "rgba(240,237,232,0.3)" }}>{count}/{CHECKLIST.length}</span>
+      </div>
+      {CHECKLIST.map((item) => {
+        const done = completed[item.key];
+        return (
+          <button
+            key={item.key}
+            onClick={() => onNavigate(item.path)}
+            className="w-full flex items-center gap-2 text-left text-xs py-1.5 transition-colors hover:opacity-80"
+            style={{ color: done ? "rgba(212,175,55,0.5)" : "rgba(240,237,232,0.6)" }}
+          >
+            <div
+              className="w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0"
+              style={{ borderColor: done ? "#d4af37" : "rgba(255,255,255,0.15)", background: done ? "rgba(212,175,55,0.2)" : "transparent" }}
+            >
+              {done && <CheckCircle2 size={10} style={{ color: "#d4af37" }} />}
+            </div>
+            <span style={{ textDecoration: done ? "line-through" : "none" }}>{item.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+const AI_PROMPTS = [
+  "What niche should I start with based on current trends?",
+  "Analyse my top competitor and find opportunities",
+  "Help me plan a 48-hour product validation test",
+];
+
+// ── Main Dashboard ──────────────────────────────────────────────────────────
 export default function Dashboard() {
   const [location] = useLocation();
   const { user } = useAuth();
@@ -110,261 +146,169 @@ export default function Dashboard() {
 
 function DashboardHome() {
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
+  const [collapsedStages, setCollapsedStages] = useState<Record<string, boolean>>({});
+  const productsQuery = trpc.products.list.useQuery(undefined, { enabled: !!user });
+  const products = productsQuery.data ?? [];
+
+  const firstName = user?.name ? (user.name as string).split(" ")[0] : "there";
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
+
+  const toggleStage = (stage: string) => {
+    setCollapsedStages((prev) => ({ ...prev, [stage]: !prev[stage] }));
+  };
+
+  const scrollToStage = (label: string) => {
+    const el = document.getElementById(`stage-${label.toLowerCase()}`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
-    <div
-      className="h-full overflow-auto"
-      style={{ background: "#0a0b0d", scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.1) transparent" }}
-    >
-      <div className="max-w-5xl mx-auto px-6 py-8">
-
-        {/* Welcome header */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-1">
-            <div
-              className="w-2 h-2 rounded-full animate-pulse"
-              style={{ background: "#d4af37" }}
-            />
-            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "rgba(212,175,55,0.6)", fontFamily: "Syne, sans-serif" }}>
-              AI Ecommerce OS
-            </span>
+    <div className="h-full overflow-auto" style={{ background: "#0a0b0d", scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.1) transparent" }}>
+      <div className="flex gap-6 max-w-7xl mx-auto px-6 py-8">
+        {/* Main content */}
+        <div className="flex-1 min-w-0">
+          {/* Greeting */}
+          <div className="mb-6">
+            <h1 className="text-2xl font-black" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8", letterSpacing: "-0.02em" }}>
+              {getGreeting()}, {firstName}.
+            </h1>
+            <p className="text-sm mt-1" style={{ color: "rgba(240,237,232,0.45)" }}>Your AI ecommerce co-founder</p>
           </div>
-          <h1
-            className="text-2xl font-black mb-2"
-            style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8", letterSpacing: "-0.02em" }}
-          >
-            <TextShimmer duration={4} spread={2} className="text-2xl font-black" as="span">
-              Welcome to Majorka
-            </TextShimmer>
-          </h1>
-          <p className="text-sm" style={{ color: "rgba(240,237,232,0.45)" }}>
-            Select a tool from the sidebar, or launch one from the grid below.
-          </p>
-        </div>
 
-        {/* Start New Product CTA */}
-        <button
-          onClick={() => setLocation("/app/product-discovery")}
-          className="w-full mb-6 px-5 py-4 rounded-2xl text-left transition-all group"
-          style={{
-            background: "linear-gradient(135deg, rgba(212,175,55,0.08), rgba(212,175,55,0.04))",
-            border: "1.5px solid rgba(212,175,55,0.2)",
-            cursor: "pointer",
-          }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(212,175,55,0.4)";
-            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
-            (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 12px 32px rgba(0,0,0,0.3)";
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(212,175,55,0.2)";
-            (e.currentTarget as HTMLButtonElement).style.transform = "none";
-            (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <div className="text-2xl">🚀</div>
-            <div className="flex-1">
-              <div className="text-sm font-black" style={{ fontFamily: "Syne, sans-serif", color: "#d4af37" }}>Start New Product</div>
-              <div className="text-xs" style={{ color: "rgba(240,237,232,0.45)" }}>Begin your ecommerce journey — from product research to launch</div>
-            </div>
-            <div className="text-xs font-bold px-3 py-1.5 rounded-lg" style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", fontFamily: "Syne, sans-serif" }}>
-              Launch →
-            </div>
+          <TestimonialTicker />
+
+          {/* Workflow pills */}
+          <div className="flex gap-2 mb-8 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+            {WORKFLOW_STAGES.map((s) => {
+              const Icon = s.icon;
+              return (
+                <button key={s.label} onClick={() => scrollToStage(s.label)} className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold border transition-all flex-shrink-0 hover:scale-105" style={{ background: `${s.color}10`, borderColor: `${s.color}30`, color: s.color, fontFamily: "Syne, sans-serif" }}>
+                  <Icon size={12} /> {s.label}
+                </button>
+              );
+            })}
           </div>
-        </button>
 
-        {/* Recommended Starting Path (based on onboarding level) */}
-        <RecommendedPath onNavigate={setLocation} />
-
-        {/* Quick launch: Website Generator + Meta Ads Pack */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-          {[
-            {
-              path: "/app/website-generator",
-              icon: "🌐",
-              label: "Website Generator",
-              desc: "Paste a product link → get a full Shopify-ready landing page in seconds",
-              accent: "#9c5fff",
-            },
-            {
-              path: "/app/meta-ads",
-              icon: "📣",
-              label: "Meta Ads Pack",
-              desc: "Generate 5 creative angles, ad copy, and a 48-hr launch plan",
-              accent: "#2dca72",
-            },
-          ].map(({ path, icon, label, desc, accent }) => (
-            <button
-              key={path}
-              onClick={() => setLocation(path)}
-              className="text-left rounded-2xl p-5 transition-all duration-150 group"
-              style={{
-                background: `${accent}08`,
-                border: `1.5px solid ${accent}25`,
-                cursor: "pointer",
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = `${accent}50`;
-                (e.currentTarget as HTMLButtonElement).style.background = `${accent}12`;
-                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 12px 32px rgba(0,0,0,0.4)`;
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = `${accent}25`;
-                (e.currentTarget as HTMLButtonElement).style.background = `${accent}08`;
-                (e.currentTarget as HTMLButtonElement).style.transform = "none";
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
-              }}
-            >
-              <div className="flex items-start gap-3">
-                <div className="text-2xl flex-shrink-0">{icon}</div>
-                <div>
-                  <div
-                    className="text-sm font-black mb-1"
-                    style={{ fontFamily: "Syne, sans-serif", color: accent }}
+          {/* Featured tools */}
+          <div className="mb-8">
+            <div className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "rgba(212,175,55,0.6)", fontFamily: "Syne, sans-serif" }}>Featured Tools</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {FEATURED_TOOLS.map((tool) => {
+                const Icon = tool.icon;
+                return (
+                  <button key={tool.path} onClick={() => setLocation(tool.path)} className="text-left rounded-xl p-4 transition-all duration-150 group" style={{ background: `${tool.color}08`, border: `1.5px solid ${tool.color}20` }}
+                    onMouseEnter={(e) => { const t = e.currentTarget as HTMLButtonElement; t.style.borderColor = `${tool.color}50`; t.style.transform = "translateY(-2px)"; t.style.boxShadow = "0 8px 24px rgba(0,0,0,0.3)"; }}
+                    onMouseLeave={(e) => { const t = e.currentTarget as HTMLButtonElement; t.style.borderColor = `${tool.color}20`; t.style.transform = "none"; t.style.boxShadow = "none"; }}
                   >
-                    {label}
-                  </div>
-                  <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.5)" }}>
-                    {desc}
-                  </div>
-                </div>
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-3" style={{ background: `${tool.color}18`, color: tool.color }}><Icon size={16} /></div>
+                    <div className="text-sm font-bold mb-1" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>{tool.label}</div>
+                    <div className="text-xs mb-3" style={{ color: "rgba(240,237,232,0.45)" }}>{tool.desc}</div>
+                    <div className="flex items-center gap-1 text-xs font-semibold" style={{ color: tool.color }}>Launch <ChevronRight size={12} /></div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Active Projects */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(212,175,55,0.6)", fontFamily: "Syne, sans-serif" }}>Active Projects</div>
+              <button onClick={() => setLocation("/app/my-products")} className="text-xs font-semibold flex items-center gap-1 transition-colors hover:opacity-80" style={{ color: "#d4af37" }}>
+                View All <ChevronRight size={12} />
+              </button>
+            </div>
+            {products.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {products.slice(0, 4).map((p) => (
+                  <button key={p.id} onClick={() => setLocation(`/app/product-hub/${p.id}`)} className="text-left rounded-xl p-4 transition-all" style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)" }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(212,175,55,0.3)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.07)"; }}
+                  >
+                    <div className="text-sm font-bold mb-1" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>{p.name}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs capitalize px-2 py-0.5 rounded-full" style={{ background: "rgba(212,175,55,0.1)", color: "rgba(212,175,55,0.7)" }}>{p.status}</span>
+                      {p.niche && <span className="text-xs" style={{ color: "rgba(240,237,232,0.3)" }}>{p.niche}</span>}
+                    </div>
+                  </button>
+                ))}
               </div>
-            </button>
+            ) : (
+              <button onClick={() => setLocation("/app/product-discovery")} className="w-full rounded-xl p-5 text-center transition-all" style={{ background: "rgba(212,175,55,0.04)", border: "1.5px dashed rgba(212,175,55,0.2)" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(212,175,55,0.4)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(212,175,55,0.2)"; }}
+              >
+                <div className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2" style={{ background: "rgba(212,175,55,0.1)" }}><Plus size={18} style={{ color: "#d4af37" }} /></div>
+                <div className="text-sm font-bold mb-1" style={{ fontFamily: "Syne, sans-serif", color: "#d4af37" }}>Start Your First Real Project</div>
+                <div className="text-xs" style={{ color: "rgba(240,237,232,0.4)" }}>Research, validate, and launch your first product</div>
+              </button>
+            )}
+          </div>
+
+          {/* Collapsible tools grid */}
+          {stages.map((stage) => (
+            <div key={stage.stage} id={`stage-${stage.stage.toLowerCase()}`} className="mb-6">
+              <button onClick={() => toggleStage(stage.stage)} className="flex items-center gap-2 mb-3 w-full text-left">
+                <div className="w-1.5 h-1.5 rounded-full" style={{ background: stage.color }} />
+                <h2 className="text-xs font-black uppercase tracking-widest" style={{ fontFamily: "Syne, sans-serif", color: stage.color }}>{stage.stage}</h2>
+                <span className="text-xs" style={{ color: "rgba(240,237,232,0.25)" }}>{stage.tools.length} tools</span>
+                <ChevronDown size={12} className="ml-auto transition-transform" style={{ color: "rgba(240,237,232,0.3)", transform: collapsedStages[stage.stage] ? "rotate(-90deg)" : "rotate(0deg)" }} />
+              </button>
+              {!collapsedStages[stage.stage] && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                  {stage.tools.map((tool) => (
+                    <button key={tool.id} onClick={() => setLocation(tool.path)} className="text-left rounded-xl p-3 transition-all duration-150" style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)" }}
+                      onMouseEnter={(e) => { const t = e.currentTarget as HTMLButtonElement; t.style.borderColor = `${stage.color}40`; t.style.background = `${stage.color}08`; t.style.transform = "translateY(-1px)"; }}
+                      onMouseLeave={(e) => { const t = e.currentTarget as HTMLButtonElement; t.style.borderColor = "rgba(255,255,255,0.07)"; t.style.background = "rgba(255,255,255,0.025)"; t.style.transform = "none"; }}
+                    >
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0" style={{ background: `${stage.color}18`, color: stage.color }}>{React.createElement(tool.icon, { size: 12 })}</div>
+                      </div>
+                      <div className="text-xs font-bold leading-tight mb-0.5" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>{tool.label}</div>
+                      <div className="text-xs leading-snug line-clamp-2" style={{ color: "rgba(240,237,232,0.38)", fontSize: "10px" }}>{tool.description}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </div>
 
-        {/* Agent Plan — ecommerce launch workflow */}
-        <div className="mb-8">
-          <div className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "rgba(212,175,55,0.6)", fontFamily: "Syne, sans-serif" }}>
-            Your Launch Workflow
+        {/* Operator AI sidebar (desktop only) */}
+        <div className="hidden xl:block w-72 flex-shrink-0">
+          <div className="sticky top-8 space-y-6">
+            <div className="rounded-2xl p-4" style={{ background: "rgba(156,95,255,0.04)", border: "1px solid rgba(156,95,255,0.15)" }}>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(156,95,255,0.15)" }}><MessageSquare size={14} style={{ color: "#9c5fff" }} /></div>
+                <div>
+                  <div className="text-xs font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>AI Co-Founder</div>
+                  <div className="text-xs" style={{ color: "rgba(240,237,232,0.35)" }}>Ask me anything</div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {AI_PROMPTS.map((prompt, i) => (
+                  <button key={i} onClick={() => setLocation("/app/ai-chat")} className="w-full text-left text-xs px-3 py-2 rounded-lg transition-all" style={{ background: "rgba(156,95,255,0.06)", color: "rgba(240,237,232,0.6)", border: "1px solid rgba(156,95,255,0.1)" }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(156,95,255,0.12)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(156,95,255,0.06)"; }}
+                  >
+                    "{prompt}"
+                  </button>
+                ))}
+              </div>
+              <button onClick={() => setLocation("/app/ai-chat")} className="w-full mt-3 text-xs font-bold py-2 rounded-lg transition-all" style={{ background: "rgba(156,95,255,0.15)", color: "#9c5fff", border: "1px solid rgba(156,95,255,0.3)" }}>Open Chat</button>
+            </div>
+            <div className="rounded-2xl p-4" style={{ background: "rgba(212,175,55,0.03)", border: "1px solid rgba(212,175,55,0.1)" }}>
+              <GettingStartedChecklist onNavigate={setLocation} />
+            </div>
           </div>
-          <AgentPlan
-            tasks={[
-              {
-                id: "1",
-                title: "Research & Validate",
-                description: "Find winning products and validate demand before investing",
-                status: "completed",
-                priority: "high",
-                level: 1,
-                dependencies: [],
-                subtasks: [
-                  { id: "1-1", title: "Product Discovery", status: "completed", description: "Find trending products with high demand", priority: "high" },
-                  { id: "1-2", title: "Market Intelligence", status: "completed", description: "Analyse market size and trends", priority: "high" },
-                  { id: "1-3", title: "Competitor Analysis", status: "completed", description: "Map competitor pricing and positioning", priority: "medium" },
-                ],
-              },
-              {
-                id: "2",
-                title: "Build Your Store",
-                description: "Create your brand identity and product landing page",
-                status: "in-progress",
-                priority: "high",
-                level: 2,
-                dependencies: ["1"],
-                subtasks: [
-                  { id: "2-1", title: "Brand DNA Analyzer", status: "completed", description: "Define brand voice, colours, and identity", priority: "high" },
-                  { id: "2-2", title: "Website Generator", status: "in-progress", description: "Build a conversion-optimised landing page", priority: "high" },
-                  { id: "2-3", title: "Product Photography Brief", status: "pending", description: "Create visual direction for product shots", priority: "medium" },
-                ],
-              },
-              {
-                id: "3",
-                title: "Launch Campaigns",
-                description: "Create and deploy your Meta & TikTok ad campaigns",
-                status: "pending",
-                priority: "high",
-                level: 3,
-                dependencies: ["2"],
-                subtasks: [
-                  { id: "3-1", title: "Meta Ads Pack", status: "pending", description: "Generate 5 creative angles and ad copy", priority: "high" },
-                  { id: "3-2", title: "TikTok Content Plan", status: "pending", description: "Create viral content hooks and scripts", priority: "medium" },
-                  { id: "3-3", title: "Email Sequence", status: "pending", description: "Build automated post-purchase flows", priority: "medium" },
-                ],
-              },
-              {
-                id: "4",
-                title: "Optimise & Scale",
-                description: "Analyse performance and scale winning campaigns",
-                status: "pending",
-                priority: "medium",
-                level: 4,
-                dependencies: ["3"],
-                subtasks: [
-                  { id: "4-1", title: "Analytics Dashboard", status: "pending", description: "Track ROAS, CVR, and key metrics", priority: "high" },
-                  { id: "4-2", title: "A/B Test Generator", status: "pending", description: "Design split tests for ads and landing pages", priority: "medium" },
-                  { id: "4-3", title: "Scale Playbook", status: "pending", description: "Build a systematic scaling framework", priority: "low" },
-                ],
-              },
-            ]}
-          />
         </div>
-
-        {/* All stages grid */}
-        {stages.map((stage) => (
-          <div key={stage.stage} className="mb-8">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-1.5 h-1.5 rounded-full" style={{ background: stage.color }} />
-              <h2
-                className="text-xs font-black uppercase tracking-widest"
-                style={{ fontFamily: "Syne, sans-serif", color: stage.color }}
-              >
-                {stage.stage}
-              </h2>
-              <span className="text-xs" style={{ color: "rgba(240,237,232,0.25)" }}>
-                {stage.tools.length} tools
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-              {stage.tools.map((tool) => (
-                <button
-                  key={tool.id}
-                  onClick={() => setLocation(tool.path)}
-                  className="text-left rounded-xl p-3 transition-all duration-150"
-                  style={{
-                    background: "rgba(255,255,255,0.025)",
-                    border: "1px solid rgba(255,255,255,0.07)",
-                    cursor: "pointer",
-                  }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = `${stage.color}40`;
-                    (e.currentTarget as HTMLButtonElement).style.background = `${stage.color}08`;
-                    (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.07)";
-                    (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.025)";
-                    (e.currentTarget as HTMLButtonElement).style.transform = "none";
-                  }}
-                >
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <div
-                      className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
-                      style={{ background: `${stage.color}18`, color: stage.color }}
-                    >
-                      {React.createElement(tool.icon, { size: 12 })}
-                    </div>
-                  </div>
-                  <div
-                    className="text-xs font-bold leading-tight mb-0.5"
-                    style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}
-                  >
-                    {tool.label}
-                  </div>
-                  <div
-                    className="text-xs leading-snug line-clamp-2"
-                    style={{ color: "rgba(240,237,232,0.38)", fontSize: "10px" }}
-                  >
-                    {tool.description}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );

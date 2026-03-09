@@ -5,7 +5,6 @@ import type { UIMessage } from "ai";
 import { toast } from "sonner";
 import { Copy, Download, X, Loader2, Globe, RefreshCw, MessageSquare, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { trpc } from "@/lib/trpc";
 import { SaveToProduct } from "@/components/SaveToProduct";
 
 // ── Theme definitions ─────────────────────────────────────────────────────────
@@ -238,76 +237,40 @@ export default function WebsiteGenerator() {
   });
 
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const extractMutation = trpc.research.extract.useMutation();
-  const imageSearchMutation = trpc.research.imageSearch.useMutation();
 
   // ── Handlers ──────────────────────────────────────────────────────────────────
-  const searchMutation = trpc.research.search.useMutation();
 
   const handleImport = useCallback(async () => {
     if (!importUrl.trim()) return;
     setImporting(true);
     setImportError("");
     try {
-      let titleStr = "";
-      let priceMatch = "";
-      let featureLines: string[] = [];
-      let descMatch = "";
-      let images: string[] = [];
-
-      // Try Tavily extract first
-      try {
-        const extracted = await extractMutation.mutateAsync({ url: importUrl });
-        const raw = extracted.rawContent || "";
-        titleStr = extracted.title || raw.match(/(?:Product:|Title:)\s*(.+)/i)?.[1] || "";
-        priceMatch = raw.match(/\$([\d,]+(?:\.\d{2})?)/)?.[0] || raw.match(/US\s*\$([\d,]+(?:\.\d{2})?)/)?.[0] || raw.match(/A\$([\d,]+(?:\.\d{2})?)/)?.[0] || "";
-        featureLines = raw
-          .split("\n")
-          .map((l: string) => l.replace(/^[-•*✓✔]\s*/, "").trim())
-          .filter((l: string) => l.length > 10 && l.length < 120 && !l.startsWith("http") && !l.includes("cookie") && !l.includes("javascript"))
-          .slice(0, 8);
-        descMatch = raw.split("\n").find((l: string) => l.trim().length > 60 && l.trim().length < 500 && !l.includes("cookie") && !l.includes("javascript")) || "";
-        images = extracted.images || [];
-      } catch {
-        // Extract failed (blocked site) — fall back to Tavily search
-        const hostname = (() => { try { return new URL(importUrl).hostname.replace("www.", ""); } catch { return ""; } })();
-        const searchQuery = importUrl.includes("aliexpress") || importUrl.includes("amazon")
-          ? `site:${hostname} ${importUrl.split("/").pop()?.replace(/[^a-zA-Z0-9]/g, " ").trim() || "product"}`
-          : importUrl;
-        try {
-          const searchResult = await searchMutation.mutateAsync({ query: searchQuery, maxResults: 3, includeImages: true });
-          const topResult = searchResult.results[0];
-          if (topResult) {
-            titleStr = topResult.title || "";
-            descMatch = topResult.content || "";
-            priceMatch = topResult.content.match(/\$([\d,]+(?:\.\d{2})?)/)?.[0] || "";
-            featureLines = topResult.content
-              .split(/[.!]\s/)
-              .map((s: string) => s.trim())
-              .filter((s: string) => s.length > 15 && s.length < 120)
-              .slice(0, 6);
-          }
-          images = searchResult.images || [];
-        } catch { /* both methods failed */ }
+      // Use server-side /api/scrape-product which has the full Firecrawl → Tavily → Pexels fallback chain
+      const response = await fetch("/api/scrape-product", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: importUrl }),
+      });
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Scrape failed: ${response.status}`);
       }
+      const data = await response.json() as {
+        productTitle: string;
+        description: string;
+        bulletPoints: string[];
+        price: string;
+        imageUrls: string[];
+      };
 
-      // Fallback image search if no images found
-      if (images.length === 0 && titleStr) {
-        try {
-          const imgResult = await imageSearchMutation.mutateAsync({ query: `${titleStr} product photo`, maxImages: 4 });
-          images = imgResult.images;
-        } catch { /* ignore */ }
-      }
-
-      const hostname = (() => { try { return new URL(importUrl).hostname.replace("www.", ""); } catch { return "supplier"; } })();
-      const finalTitle = titleStr || `Product from ${hostname}`;
+      const finalTitle = data.productTitle || "Imported Product";
 
       setProduct({
         title: finalTitle,
-        description: descMatch || "High-quality product. Customise the details below.",
-        features: featureLines.length > 0 ? featureLines : ["Premium quality materials", "Fast worldwide shipping", "30-day money-back guarantee", "Secure checkout"],
-        price: priceMatch,
-        images,
+        description: data.description || "High-quality product. Customise the details below.",
+        features: data.bulletPoints.length > 0 ? data.bulletPoints : ["Premium quality materials", "Fast worldwide shipping", "30-day money-back guarantee", "Secure checkout"],
+        price: data.price,
+        images: data.imageUrls,
         sourceUrl: importUrl,
         _manual: false,
       });
@@ -318,8 +281,8 @@ export default function WebsiteGenerator() {
         setBrandName(autoName);
       }
       // Auto-fill sell price if scraped
-      if (!sellPrice.trim() && priceMatch) {
-        const numericPrice = priceMatch.replace(/[^\d.]/g, "");
+      if (!sellPrice.trim() && data.price) {
+        const numericPrice = data.price.replace(/[^\d.]/g, "");
         setSellPrice(numericPrice);
       }
 
@@ -329,7 +292,7 @@ export default function WebsiteGenerator() {
     } finally {
       setImporting(false);
     }
-  }, [importUrl, extractMutation, imageSearchMutation, searchMutation, brandName, sellPrice]);
+  }, [importUrl, brandName, sellPrice]);
 
   const handleGenerate = useCallback(async () => {
     setGenerating(true);
@@ -353,6 +316,7 @@ export default function WebsiteGenerator() {
       setGeneratedHTML(html);
       setActiveTab("preview");
       toast.success("Landing page generated!");
+      localStorage.setItem("majorka_milestone_site", "true");
     } catch {
       setGenError("Generation failed. Please try again.");
     } finally {

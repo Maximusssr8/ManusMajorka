@@ -31,35 +31,38 @@ export default function ToolPage() {
   const [location] = useLocation();
   const tool = getToolByPath(location);
 
+  // Wrap in page transition animation
+  const page = (el: React.ReactElement) => <div key={location} className="page-enter h-full">{el}</div>;
+
   // Route dedicated tool pages
-  if (location === "/app/website-generator") return <WebsiteGenerator />;
-  if (location === "/app/meta-ads") return <MetaAdsPack />;
-  if (location === "/app/brand-dna") return <BrandDNA />;
-  if (location === "/app/market-intel") return <MarketIntelligence />;
-  if (location === "/app/product-discovery") return <ProductDiscovery />;
-  if (location === "/app/competitor-breakdown") return <CompetitorBreakdown />;
-  if (location === "/app/trend-radar") return <TrendRadar />;
-  if (location === "/app/niche-scorer") return <NicheScorer />;
-  if (location === "/app/keyword-miner") return <KeywordMiner />;
-  if (location === "/app/audience-profiler") return <AudienceProfiler />;
-  if (location === "/app/copywriter") return <CopywriterTool />;
-  if (location === "/app/email-sequences") return <EmailSequences />;
-  if (location === "/app/ads-studio") return <AdsStudio />;
-  if (location === "/app/supplier-finder") return <SupplierFinder />;
-  if (location === "/app/market-map") return <MarketMap />;
-  if (location === "/app/financial-modeler") return <FinancialModeler />;
-  if (location === "/app/scaling-playbook") return <ScalingPlaybook />;
-  if (location === "/app/store-auditor") return <StoreAuditor />;
-  if (location === "/app/analytics-decoder") return <AnalyticsDecoder />;
-  if (location === "/app/expansion-planner") return <ExpansionPlanner />;
-  if (location === "/app/project-manager") return <ProjectManager />;
-  if (location === "/app/automation-builder") return <AutomationBuilder />;
-  if (location === "/app/my-products") return <MyProducts />;
-  if (location.startsWith("/app/product-hub/")) return <ProductHub />;
+  if (location === "/app/website-generator") return page(<WebsiteGenerator />);
+  if (location === "/app/meta-ads") return page(<MetaAdsPack />);
+  if (location === "/app/brand-dna") return page(<BrandDNA />);
+  if (location === "/app/market-intel") return page(<MarketIntelligence />);
+  if (location === "/app/product-discovery") return page(<ProductDiscovery />);
+  if (location === "/app/competitor-breakdown") return page(<CompetitorBreakdown />);
+  if (location === "/app/trend-radar") return page(<TrendRadar />);
+  if (location === "/app/niche-scorer") return page(<NicheScorer />);
+  if (location === "/app/keyword-miner") return page(<KeywordMiner />);
+  if (location === "/app/audience-profiler") return page(<AudienceProfiler />);
+  if (location === "/app/copywriter") return page(<CopywriterTool />);
+  if (location === "/app/email-sequences") return page(<EmailSequences />);
+  if (location === "/app/ads-studio") return page(<AdsStudio />);
+  if (location === "/app/supplier-finder") return page(<SupplierFinder />);
+  if (location === "/app/market-map") return page(<MarketMap />);
+  if (location === "/app/financial-modeler") return page(<FinancialModeler />);
+  if (location === "/app/scaling-playbook") return page(<ScalingPlaybook />);
+  if (location === "/app/store-auditor") return page(<StoreAuditor />);
+  if (location === "/app/analytics-decoder") return page(<AnalyticsDecoder />);
+  if (location === "/app/expansion-planner") return page(<ExpansionPlanner />);
+  if (location === "/app/project-manager") return page(<ProjectManager />);
+  if (location === "/app/automation-builder") return page(<AutomationBuilder />);
+  if (location === "/app/my-products") return page(<MyProducts />);
+  if (location.startsWith("/app/product-hub/")) return page(<ProductHub />);
 
   if (!tool) {
     return (
-      <div className="flex items-center justify-center h-full" style={{ background: "#0a0b0d" }}>
+      <div className="flex items-center justify-center h-full page-enter" style={{ background: "#0a0b0d" }}>
         <div className="text-center">
           <div className="text-4xl mb-4">🔧</div>
           <h2 className="text-lg font-bold mb-2" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>
@@ -71,7 +74,7 @@ export default function ToolPage() {
     );
   }
 
-  return (
+  return page(
     <AIToolChat
       key={tool.id}
       toolId={tool.id}
@@ -85,3 +88,4 @@ export default function ToolPage() {
     />
   );
 }
+
