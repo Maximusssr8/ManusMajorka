@@ -289,7 +289,7 @@ export default function Home() {
               </span>
             ) : (
               <button
-                onClick={handleLaunchApp}
+                onClick={() => setLocation("/login")}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block"
                 style={{ fontFamily: "Syne, sans-serif", fontWeight: 600 }}
               >
