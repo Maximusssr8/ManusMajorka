@@ -242,3 +242,50 @@ export async function getUserContextString(userId: string, userName?: string | n
   if (parts.length === 0) return "";
   return `User context: ${parts.join(", ")}. Tailor all advice specifically to this user.`;
 }
+
+// ─── Task Plan Progress helpers ─────────────────────────────────────────────
+
+/** Returns all task plan steps for a user, ordered by creation time. */
+export async function getTaskPlanProgress(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(taskPlanProgress)
+    .where(eq(taskPlanProgress.userId, userId))
+    .orderBy(asc(taskPlanProgress.createdAt));
+}
+
+/** Creates or updates a task plan step for a user. */
+export async function upsertTaskPlanStep(userId: number, stepKey: string, status: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const existing = await db
+    .select()
+    .from(taskPlanProgress)
+    .where(and(eq(taskPlanProgress.userId, userId), eq(taskPlanProgress.stepKey, stepKey)))
+    .limit(1);
+
+  const now = new Date();
+  const completedAt = status === "completed" ? now : null;
+
+  if (existing.length > 0) {
+    await db
+      .update(taskPlanProgress)
+      .set({ status, completedAt, updatedAt: now })
+      .where(and(eq(taskPlanProgress.userId, userId), eq(taskPlanProgress.stepKey, stepKey)));
+  } else {
+    await db
+      .insert(taskPlanProgress)
+      .values({ userId, stepKey, status, completedAt, createdAt: now, updatedAt: now });
+  }
+
+  // Return the updated row
+  const result = await db
+    .select()
+    .from(taskPlanProgress)
+    .where(and(eq(taskPlanProgress.userId, userId), eq(taskPlanProgress.stepKey, stepKey)))
+    .limit(1);
+  return result[0] ?? null;
+}

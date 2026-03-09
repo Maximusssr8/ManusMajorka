@@ -45,6 +45,15 @@ export default function Dashboard() {
     );
   }
 
+  // Show nothing while auth is resolving or redirecting
+  if (loading || !user) {
+    return (
+      <div className="flex h-screen items-center justify-center" style={{ background: "#0a0b0d" }}>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm animate-pulse" style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#0a0b0d", fontFamily: "Syne, sans-serif" }}>M</div>
+      </div>
+    );
+  }
+
   return (
     <MajorkaAppShell>
       {isToolPage ? <ToolPage /> : <DashboardHome />}
