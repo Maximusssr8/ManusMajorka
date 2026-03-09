@@ -19,9 +19,9 @@ export default function ProductHub() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const params = useParams<{ id: string }>();
-  const productId = parseInt(params.id || "0");
+  const productId = params.id || "";
   const [expandedStage, setExpandedStage] = useState<string | null>(null);
-  const [expandedOutput, setExpandedOutput] = useState<number | null>(null);
+  const [expandedOutput, setExpandedOutput] = useState<string | null>(null);
 
   const { data: product, isLoading: loadingProduct } = trpc.products.get.useQuery({ id: productId }, { enabled: !!productId });
   const { data: outputs, isLoading: loadingOutputs } = trpc.savedOutputs.list.useQuery({ productId }, { enabled: !!productId });

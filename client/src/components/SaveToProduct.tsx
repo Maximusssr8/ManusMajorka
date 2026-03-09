@@ -74,7 +74,7 @@ export function SaveToProduct({
     },
   });
 
-  const handleSave = (productId: number) => {
+  const handleSave = (productId: string) => {
     const stage = getStageForTool(toolId);
     const outputJson =
       typeof outputData === "string"

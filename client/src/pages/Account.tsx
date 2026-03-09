@@ -1,5 +1,4 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
@@ -60,9 +59,9 @@ export default function Account() {
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      window.location.href = getLoginUrl();
+      setLocation("/login");
     }
-  }, [authLoading, isAuthenticated]);
+  }, [authLoading, isAuthenticated, setLocation]);
 
   if (authLoading || subLoading) {
     return (
