@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,29 +31,16 @@ export default function MarketMap() {
   const [loading, setLoading] = useState(false);
   const [mapData, setMapData] = useState<MapData | null>(null);
 
-  const searchMutation = trpc.research.search.useMutation();
-
   const handleGenerate = async () => {
     if (!niche.trim()) return;
     setLoading(true);
     setMapData(null);
     try {
-      // Use Tavily to get real competitor data
-      let context = "";
-      try {
-        const results = await searchMutation.mutateAsync({
-          query: `${niche} competitors pricing positioning market analysis`,
-          maxResults: 5,
-        });
-        context = results.results?.map((r: any) => `${r.title}: ${r.content}`).join("\n\n") || "";
-      } catch {
-        // continue without live data
-      }
+      const searchQuery = `${niche} competitors pricing positioning market analysis`;
 
       const competitorList = competitors.trim() ? competitors.split("\n").filter(Boolean) : [];
       const prompt = `You are a market positioning expert. Analyze the ${niche} market and create a competitive positioning map.
 
-${context ? `Live market data:\n${context}\n\n` : ""}
 ${competitorList.length > 0 ? `Known competitors: ${competitorList.join(", ")}\n` : ""}
 ${yourBrand ? `My brand/product: ${yourBrand}\n` : ""}
 
@@ -90,6 +76,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
         body: JSON.stringify({
           messages: [{ role: "user", content: prompt }],
           systemPrompt: "You are a market positioning expert. Always respond with valid JSON only, no markdown.",
+          searchQuery,
         }),
       });
 

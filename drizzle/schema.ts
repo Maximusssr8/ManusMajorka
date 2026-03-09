@@ -1,4 +1,4 @@
-import { pgTable, pgEnum, uuid, text, varchar, timestamp, serial, integer } from "drizzle-orm/pg-core";
+import { boolean, integer, pgEnum, pgTable, serial, text, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["user", "admin"]);
 export const subscriptionStatusEnum = pgEnum("subscription_status", ["active", "cancelled", "expired"]);
@@ -72,3 +72,39 @@ export const savedOutputs = pgTable("saved_outputs", {
 
 export type SavedOutput = typeof savedOutputs.$inferSelect;
 export type InsertSavedOutput = typeof savedOutputs.$inferInsert;
+
+/**
+ * User profiles — stores user context for AI personalisation.
+ */
+export const userProfiles = pgTable("user_profiles", {
+  id: serial("id").primaryKey(),
+  userId: uuid("user_id").notNull().unique().references(() => profiles.id),
+  experienceLevel: varchar("experience_level", { length: 20 }),
+  mainGoal: varchar("main_goal", { length: 100 }),
+  budget: varchar("budget", { length: 50 }),
+  businessName: varchar("business_name", { length: 255 }),
+  targetNiche: varchar("target_niche", { length: 255 }),
+  monthlyRevenue: varchar("monthly_revenue", { length: 50 }),
+  country: varchar("country", { length: 100 }),
+  onboardingCompleted: boolean("onboarding_completed").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type UserProfile = typeof userProfiles.$inferSelect;
+export type InsertUserProfile = typeof userProfiles.$inferInsert;
+
+/**
+ * Conversation memory — stores last messages per user per tool for AI continuity.
+ */
+export const conversationMemory = pgTable("conversation_memory", {
+  id: serial("id").primaryKey(),
+  userId: uuid("user_id").notNull().references(() => profiles.id),
+  toolName: varchar("tool_name", { length: 100 }).notNull(),
+  role: varchar("role", { length: 20 }).notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type ConversationMessage = typeof conversationMemory.$inferSelect;
+export type InsertConversationMessage = typeof conversationMemory.$inferInsert;

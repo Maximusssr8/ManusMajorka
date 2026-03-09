@@ -14,6 +14,10 @@ import {
   getSavedOutputsByProductId,
   createSavedOutput,
   deleteSavedOutput,
+  getUserProfile,
+  upsertUserProfile,
+  getConversationHistory,
+  saveConversationMessage,
 } from "./db";
 import { tavilySearch, tavilyExtract, tavilyImageSearch } from "./tavily";
 
@@ -148,6 +152,48 @@ export const appRouter = router({
       .input(z.object({ id: z.string().uuid() }))
       .mutation(async ({ ctx, input }) => {
         await deleteSavedOutput(input.id, ctx.user.id);
+        return { success: true };
+      }),
+  }),
+
+  /** User profile management */
+  profile: router({
+    get: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserProfile(ctx.user.id);
+    }),
+
+    update: protectedProcedure
+      .input(z.object({
+        businessName: z.string().optional(),
+        targetNiche: z.string().optional(),
+        monthlyRevenue: z.string().optional(),
+        country: z.string().optional(),
+        experienceLevel: z.string().optional(),
+        mainGoal: z.string().optional(),
+        budget: z.string().optional(),
+        onboardingCompleted: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await upsertUserProfile(ctx.user.id, input);
+      }),
+  }),
+
+  /** Conversation memory per tool */
+  memory: router({
+    get: protectedProcedure
+      .input(z.object({ toolName: z.string(), limit: z.number().min(1).max(20).default(10) }))
+      .query(async ({ ctx, input }) => {
+        return await getConversationHistory(ctx.user.id, input.toolName, input.limit);
+      }),
+
+    save: protectedProcedure
+      .input(z.object({
+        toolName: z.string(),
+        role: z.string(),
+        content: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await saveConversationMessage({ userId: ctx.user.id, ...input });
         return { success: true };
       }),
   }),
