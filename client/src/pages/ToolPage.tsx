@@ -23,6 +23,9 @@ import AnalyticsDecoder from "./AnalyticsDecoder";
 import ExpansionPlanner from "./ExpansionPlanner";
 import ProjectManager from "./ProjectManager";
 import AutomationBuilder from "./AutomationBuilder";
+import ValidateTool from "./ValidateTool";
+import LaunchPlanner from "./LaunchPlanner";
+import AIChat from "./AIChat";
 import MyProducts from "./MyProducts";
 import ProductHub from "./ProductHub";
 import StageLanding from "./StageLanding";
@@ -69,6 +72,9 @@ export default function ToolPage() {
   if (location === "/app/expansion-planner") return page(<ExpansionPlanner />);
   if (location === "/app/project-manager") return page(<ProjectManager />);
   if (location === "/app/automation-builder") return page(<AutomationBuilder />);
+  if (location === "/app/validate") return page(<ValidateTool />);
+  if (location === "/app/launch-planner") return page(<LaunchPlanner />);
+  if (location === "/app/ai-chat") return page(<AIChat />);
   if (location === "/app/my-products") return page(<MyProducts />);
   if (location.startsWith("/app/product-hub/")) return page(<ProductHub />);
 
