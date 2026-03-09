@@ -1,6 +1,6 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, asc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, InsertSubscription, subscriptions, users } from "../drizzle/schema";
+import { InsertUser, InsertSubscription, subscriptions, users, userProfiles, conversationMemory } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -103,7 +103,7 @@ export async function updateSubscriptionStatus(
 
 // ─── Product helpers ────────────────────────────────────────────────────────
 
-import { products, savedOutputs, type InsertProduct, type InsertSavedOutput } from "../drizzle/schema";
+import { products, savedOutputs, type InsertProduct, type InsertSavedOutput, type InsertUserProfile, type InsertConversationMessage } from "../drizzle/schema";
 import { desc } from "drizzle-orm";
 
 export async function getProductsByUserId(userId: number) {
@@ -158,4 +158,79 @@ export async function deleteSavedOutput(outputId: number, userId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(savedOutputs).where(and(eq(savedOutputs.id, outputId), eq(savedOutputs.userId, userId)));
+}
+
+// ─── User Profile helpers ──────────────────────────────────────────────────
+
+export async function getUserProfile(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(userProfiles).where(eq(userProfiles.userId, userId)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function upsertUserProfile(userId: number, data: Partial<Omit<InsertUserProfile, "id" | "userId" | "createdAt" | "updatedAt">>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const existing = await getUserProfile(userId);
+  if (existing) {
+    await db.update(userProfiles).set(data).where(eq(userProfiles.userId, userId));
+  } else {
+    await db.insert(userProfiles).values({ userId, ...data });
+  }
+  return getUserProfile(userId);
+}
+
+// ─── Conversation Memory helpers ───────────────────────────────────────────
+
+export async function getConversationHistory(userId: number, toolName: string, limit = 10) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(conversationMemory)
+    .where(and(eq(conversationMemory.userId, userId), eq(conversationMemory.toolName, toolName)))
+    .orderBy(desc(conversationMemory.createdAt))
+    .limit(limit)
+    .then(rows => rows.reverse()); // Return in chronological order
+}
+
+export async function saveConversationMessage(data: InsertConversationMessage) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(conversationMemory).values(data);
+  // Trim to keep only latest 20 messages per user+tool
+  await trimConversationHistory(data.userId, data.toolName, 20);
+}
+
+async function trimConversationHistory(userId: number, toolName: string, maxMessages: number) {
+  const db = await getDb();
+  if (!db) return;
+  const all = await db
+    .select({ id: conversationMemory.id })
+    .from(conversationMemory)
+    .where(and(eq(conversationMemory.userId, userId), eq(conversationMemory.toolName, toolName)))
+    .orderBy(desc(conversationMemory.createdAt));
+  if (all.length > maxMessages) {
+    const idsToDelete = all.slice(maxMessages).map(r => r.id);
+    for (const id of idsToDelete) {
+      await db.delete(conversationMemory).where(eq(conversationMemory.id, id));
+    }
+  }
+}
+
+/** Build user context string for AI system prompts */
+export async function getUserContextString(userId: number, userName?: string | null): Promise<string> {
+  const profile = await getUserProfile(userId);
+  if (!profile) return "";
+  const parts: string[] = [];
+  if (userName) parts.push(`Name: ${userName}`);
+  if (profile.businessName) parts.push(`Business: ${profile.businessName}`);
+  if (profile.targetNiche) parts.push(`Niche: ${profile.targetNiche}`);
+  if (profile.monthlyRevenue) parts.push(`Revenue: ${profile.monthlyRevenue}`);
+  if (profile.experienceLevel) parts.push(`Experience: ${profile.experienceLevel}`);
+  if (profile.mainGoal) parts.push(`Goal: ${profile.mainGoal}`);
+  if (profile.country) parts.push(`Country: ${profile.country}`);
+  if (parts.length === 0) return "";
+  return `User context: ${parts.join(", ")}. Tailor all advice specifically to this user.`;
 }

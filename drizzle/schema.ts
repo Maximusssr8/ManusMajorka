@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -77,3 +77,39 @@ export const savedOutputs = mysqlTable("saved_outputs", {
 
 export type SavedOutput = typeof savedOutputs.$inferSelect;
 export type InsertSavedOutput = typeof savedOutputs.$inferInsert;
+
+/**
+ * User profiles — stores user context for AI personalisation.
+ */
+export const userProfiles = mysqlTable("user_profiles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  experienceLevel: varchar("experience_level", { length: 20 }),
+  mainGoal: varchar("main_goal", { length: 100 }),
+  budget: varchar("budget", { length: 50 }),
+  businessName: varchar("business_name", { length: 255 }),
+  targetNiche: varchar("target_niche", { length: 255 }),
+  monthlyRevenue: varchar("monthly_revenue", { length: 50 }),
+  country: varchar("country", { length: 100 }),
+  onboardingCompleted: boolean("onboarding_completed").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export type UserProfile = typeof userProfiles.$inferSelect;
+export type InsertUserProfile = typeof userProfiles.$inferInsert;
+
+/**
+ * Conversation memory — stores last messages per user per tool for AI continuity.
+ */
+export const conversationMemory = mysqlTable("conversation_memory", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  toolName: varchar("tool_name", { length: 100 }).notNull(),
+  role: varchar("role", { length: 20 }).notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type ConversationMessage = typeof conversationMemory.$inferSelect;
+export type InsertConversationMessage = typeof conversationMemory.$inferInsert;
