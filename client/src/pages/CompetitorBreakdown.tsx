@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import type { UIMessage } from "ai";
@@ -132,8 +132,8 @@ export default function CompetitorBreakdown() {
   const [result, setResult] = useState<BreakdownResult | null>(null);
   const [genError, setGenError] = useState("");
   const [waitingForResponse, setWaitingForResponse] = useState(false);
-  const searchMutation = trpc.research.search.useMutation();
   const extractMutation = trpc.research.extract.useMutation();
+  const searchQueryRef = useRef("");
 
   const { sendMessage, status, messages } = useChat({
     transport: new DefaultChatTransport({
@@ -146,6 +146,7 @@ export default function CompetitorBreakdown() {
               content: m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join(""),
             })),
             systemPrompt: SYSTEM_PROMPT,
+            searchQuery: searchQueryRef.current || undefined,
           },
         };
       },
@@ -174,15 +175,9 @@ export default function CompetitorBreakdown() {
   const handleGenerate = useCallback(async () => {
     if (!product.trim()) { toast.error("Please enter a product or niche"); return; }
     setGenerating(true); setGenError(""); setResult(null);
-    let context = "";
-    try {
-      const searchData = await searchMutation.mutateAsync({
-        query: `${product} competitors brands ecommerce Australia 2025`,
-        maxResults: 5,
-        searchDepth: "advanced",
-      });
-      context = searchData.results.map(r => `${r.title} (${r.url}): ${r.content}`).join("\n\n");
-    } catch { /* ignore */ }
+
+    const searchQuery = `${product} competitors brands ecommerce Australia 2025`;
+    searchQueryRef.current = searchQuery;
 
     // Try to extract competitor URLs if provided
     let extractedData = "";
@@ -199,12 +194,11 @@ export default function CompetitorBreakdown() {
     const prompt = [
       `Product/Niche: ${product}`,
       competitorUrls && `Competitor URLs to analyse: ${competitorUrls}`,
-      context && `\nSearch data:\n${context.slice(0, 2000)}`,
       extractedData && `\nExtracted competitor data:${extractedData}`,
     ].filter(Boolean).join("\n");
     sendMessage({ text: prompt });
     setWaitingForResponse(true);
-  }, [product, competitorUrls, sendMessage, searchMutation, extractMutation]);
+  }, [product, competitorUrls, sendMessage, extractMutation]);
 
   const isLoading = generating || status === "streaming" || status === "submitted";
 
@@ -232,6 +226,7 @@ export default function CompetitorBreakdown() {
             <div>
               <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(240,237,232,0.6)", fontFamily: "Syne, sans-serif" }}>Product / Niche *</label>
               <input value={product} onChange={e => setProduct(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); handleGenerate(); } }}
                 placeholder="e.g. Posture corrector, Yoga mats…"
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#f0ede8" }} />

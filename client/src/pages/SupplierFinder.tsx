@@ -1,10 +1,9 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import type { UIMessage } from "ai";
 import { toast } from "sonner";
 import { Truck, Copy, Check, Loader2, RefreshCw, ExternalLink } from "lucide-react";
-import { trpc } from "@/lib/trpc";
 import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface Supplier {
@@ -169,7 +168,7 @@ export default function SupplierFinder() {
   const [result, setResult] = useState<SupplierResult | null>(null);
   const [genError, setGenError] = useState("");
   const [waitingForResponse, setWaitingForResponse] = useState(false);
-  const searchMutation = trpc.research.search.useMutation();
+  const searchQueryRef = useRef("");
 
   const { sendMessage, status, messages } = useChat({
     transport: new DefaultChatTransport({
@@ -182,6 +181,7 @@ export default function SupplierFinder() {
               content: m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join(""),
             })),
             systemPrompt: SYSTEM_PROMPT,
+            searchQuery: searchQueryRef.current || undefined,
           },
         };
       },
@@ -210,25 +210,18 @@ export default function SupplierFinder() {
   const handleGenerate = useCallback(async () => {
     if (!product.trim()) { toast.error("Please enter a product"); return; }
     setGenerating(true); setGenError(""); setResult(null);
-    let context = "";
-    try {
-      const searchData = await searchMutation.mutateAsync({
-        query: `${product} supplier manufacturer wholesale China Alibaba`,
-        maxResults: 3,
-        searchDepth: "basic",
-      });
-      context = searchData.results.map(r => `${r.title}: ${r.content}`).join("\n\n");
-    } catch { /* ignore */ }
+
+    const searchQuery = `${product} supplier manufacturer wholesale China Alibaba`;
+    searchQueryRef.current = searchQuery;
 
     const prompt = [
       `Product to source: ${product}`,
       targetPrice && `Target retail price: $${targetPrice} AUD`,
       orderQty && `Initial order quantity: ${orderQty} units`,
-      context && `\nMarket context:\n${context.slice(0, 1000)}`,
     ].filter(Boolean).join("\n");
     sendMessage({ text: prompt });
     setWaitingForResponse(true);
-  }, [product, targetPrice, orderQty, sendMessage, searchMutation]);
+  }, [product, targetPrice, orderQty, sendMessage]);
 
   const isLoading = generating || status === "streaming" || status === "submitted";
 
