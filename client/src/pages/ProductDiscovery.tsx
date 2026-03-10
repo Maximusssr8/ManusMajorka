@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Search, Copy, Check, Loader2, TrendingUp, DollarSign, Package, Star, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { SaveToProduct } from "@/components/SaveToProduct";
+import { useActiveProduct } from "@/hooks/useActiveProduct";
 
 interface ProductIdea {
   name: string;
@@ -65,6 +66,7 @@ const TREND_ICONS: Record<string, string> = {
 
 function ProductCard({ product, index }: { product: ProductIdea; index: number }) {
   const [expanded, setExpanded] = useState(index === 0);
+  const { setProduct } = useActiveProduct();
   const cc = COMPETITION_COLORS[product.competitionLevel] || "#d4af37";
   return (
     <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
@@ -108,6 +110,37 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
           <div className="p-3 rounded-xl" style={{ background: "rgba(212,175,55,0.04)", border: "1px solid rgba(212,175,55,0.12)" }}>
             <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>Why Now</div>
             <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.75)" }}>{product.whyNow}</div>
+          </div>
+          <div className="flex gap-2 pt-2 mt-1" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+            <button
+              onClick={() => {
+                setProduct({
+                  name: product.name,
+                  niche: product.niche,
+                  summary: `Product: ${product.name}\nNiche: ${product.niche}\nProblem: ${product.problemSolved}\nTarget: ${product.targetAudience}\nMargin: ${product.estimatedMargin}\nPrice: ${product.avgPrice}\nCompetition: ${product.competitionLevel}\nTrend: ${product.trendDirection}\nWhy Now: ${product.whyNow}\nSuppliers: ${product.suppliers}\nScore: ${product.score}/100`,
+                  source: "research",
+                  savedAt: Date.now(),
+                });
+                toast.success(`${product.name} set as active product`);
+              }}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-bold"
+              style={{ background: "rgba(45,202,114,0.1)", border: "1px solid rgba(45,202,114,0.25)", color: "#2dca72", cursor: "pointer" }}
+            >
+              ★ Set Active
+            </button>
+            <button
+              onClick={() => {
+                localStorage.setItem(
+                  "majorka_validate_prefill",
+                  `${product.name} — ${product.niche}. Target: ${product.targetAudience}. Price: ${product.avgPrice}. ${product.problemSolved}`
+                );
+                window.location.href = "/app/validation-plan";
+              }}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-bold"
+              style={{ background: "rgba(124,106,245,0.1)", border: "1px solid rgba(124,106,245,0.25)", color: "#7c6af5", cursor: "pointer" }}
+            >
+              → Validate This
+            </button>
           </div>
         </div>
       )}
