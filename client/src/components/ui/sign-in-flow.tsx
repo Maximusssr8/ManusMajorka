@@ -34,11 +34,19 @@ export function SignInPage({ className, onSuccess }: SignInPageProps) {
     e.stopPropagation();
     setLoading(true);
     setError(null);
-    const { error: err } = await supabase.auth.signInWithOAuth({
+    const { data, error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: "http://localhost:3000/app" },
+      options: {
+        redirectTo: "http://localhost:3000/app",
+        skipBrowserRedirect: true,
+        queryParams: { prompt: "select_account" },
+      },
     });
-    if (err) setError(err.message);
+    if (err) {
+      setError(err.message);
+    } else if (data?.url) {
+      window.open(data.url, "_self");
+    }
     setLoading(false);
   };
 

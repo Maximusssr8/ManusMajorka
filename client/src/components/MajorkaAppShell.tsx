@@ -166,10 +166,15 @@ export default function MajorkaAppShell({ children }: Props) {
             onClick={async (e) => {
               e.preventDefault();
               e.stopPropagation();
-              await supabase.auth.signInWithOAuth({
+              const { data } = await supabase.auth.signInWithOAuth({
                 provider: "google",
-                options: { redirectTo: "http://localhost:3000/app" },
+                options: {
+                  redirectTo: "http://localhost:3000/app",
+                  skipBrowserRedirect: true,
+                  queryParams: { prompt: "select_account" },
+                },
               });
+              if (data?.url) window.open(data.url, "_self");
             }}
             className="w-full text-xs font-bold px-3 py-2 rounded-lg transition-all"
             style={{
