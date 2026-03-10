@@ -1,14 +1,17 @@
 /**
  * ProductImporter — reusable product URL import flow.
- * Calls POST /api/scrape-product, shows shimmer loading, previews result,
- * and sets the active product via useActiveProduct.
+ * Calls POST /api/import-product, shows shimmer loading with step indicators,
+ * previews result with AI insights, and sets the active product via useActiveProduct
+ * and ProductContext.
  */
 import { useState } from "react";
 import { Package, Check, X, ExternalLink, ArrowRight, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
+import { useProduct } from "@/contexts/ProductContext";
 import { useLocation } from "wouter";
 import { proxyImage } from "@/lib/imageProxy";
+import type { ProductIntelligence } from "@/lib/buildToolPrompt";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -21,6 +24,7 @@ export interface ImportedProduct {
   imageUrls: string[];
   sourceUrl?: string;
   sourcePlatform?: string;
+  intelligence?: ProductIntelligence;
 }
 
 interface ProductImporterProps {
@@ -90,20 +94,28 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
   const [url, setUrl] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error" | "result" | "saved">("idle");
   const [result, setResult] = useState<ImportedProduct | null>(null);
+  const [importStep, setImportStep] = useState<'idle' | 'scraping' | 'analyzing' | 'done'>('idle');
   const { setProduct } = useActiveProduct();
+  const { setActiveProduct: setContextProduct } = useProduct();
   const [, setLocation] = useLocation();
 
   const handleImport = async () => {
     if (!url.trim()) return;
     setStatus("loading");
+    setImportStep('scraping');
     setResult(null);
 
+    // Switch to "analyzing" state after 4 seconds (scraping usually done by then)
+    const analyzeTimer = setTimeout(() => setImportStep('analyzing'), 4000);
+
     try {
-      const res = await fetch("/api/scrape-product", {
+      const res = await fetch("/api/import-product", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: url.trim() }),
       });
+
+      clearTimeout(analyzeTimer);
 
       if (!res.ok) {
         throw new Error(`Server returned ${res.status}`);
@@ -111,24 +123,30 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
 
       const data = await res.json();
 
-      if (data.error) {
-        throw new Error(data.error);
+      if (!data.success || data.error) {
+        throw new Error(data.error || 'Import failed');
       }
 
+      const p = data.product;
+
       const importedProduct: ImportedProduct = {
-        productTitle: data.productTitle || "Imported Product",
-        cleanTitle: cleanProductTitle(data.productTitle || "Imported Product"),
-        description: data.description || "",
-        bulletPoints: data.bulletPoints || [],
-        price: data.price || "",
-        imageUrls: data.imageUrls || [],
+        productTitle: p.productTitle || "Imported Product",
+        cleanTitle: p.cleanTitle || cleanProductTitle(p.productTitle || "Imported Product"),
+        description: p.description || "",
+        bulletPoints: p.bulletPoints || [],
+        price: p.price || "",
+        imageUrls: p.imageUrls || [],
         sourceUrl: url.trim(),
-        sourcePlatform: detectPlatform(url.trim()),
+        sourcePlatform: p.sourcePlatform || detectPlatform(url.trim()),
+        intelligence: p.intelligence,
       };
 
       setResult(importedProduct);
+      setImportStep('done');
       setStatus("result");
     } catch {
+      clearTimeout(analyzeTimer);
+      setImportStep('idle');
       setStatus("error");
     }
   };
@@ -150,6 +168,20 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
       source: "research",
       savedAt: Date.now(),
     });
+    if (result) {
+      setContextProduct({
+        id: crypto.randomUUID(),
+        name: result.cleanTitle || result.productTitle,
+        niche: result.sourcePlatform || "imported",
+        summary: [result.description, result.price ? `Price: ${result.price}` : ""].filter(Boolean).join(" — ").slice(0, 500),
+        images: result.imageUrls || [],
+        price: result.price,
+        sourceUrl: result.sourceUrl || "",
+        intelligence: result.intelligence,
+        savedAt: Date.now(),
+        source: "research",
+      });
+    }
     toast.success(`${name} is now your active product`);
     setStatus("saved");
     if (onSuccess) onSuccess(result);
@@ -205,6 +237,20 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
 
   const loadingBlock = (
     <div className="space-y-3">
+      {/* Step indicators */}
+      <div className="flex items-center gap-2 text-sm">
+        <div className={`w-2 h-2 rounded-full ${importStep === 'scraping' ? 'bg-yellow-400 animate-pulse' : importStep === 'analyzing' || importStep === 'done' ? 'bg-green-500' : 'bg-zinc-600'}`} />
+        <span className={importStep === 'scraping' ? 'text-zinc-200' : importStep === 'analyzing' || importStep === 'done' ? 'text-zinc-500' : 'text-zinc-600'}>
+          {importStep === 'scraping' ? 'Scraping product page...' : 'Product scraped ✓'}
+        </span>
+      </div>
+      <div className="flex items-center gap-2 text-sm">
+        <div className={`w-2 h-2 rounded-full ${importStep === 'analyzing' ? 'bg-yellow-400 animate-pulse' : importStep === 'done' ? 'bg-green-500' : 'bg-zinc-600'}`} />
+        <span className={importStep === 'analyzing' ? 'text-yellow-400' : importStep === 'done' ? 'text-zinc-500' : 'text-zinc-600'}>
+          {importStep === 'analyzing' ? 'AI is analyzing your product...' : importStep === 'done' ? 'Analysis complete ✓' : 'AI analysis'}
+        </span>
+      </div>
+      {/* Shimmer skeleton */}
       <p
         className="text-xs font-semibold mb-3"
         style={{ color: "rgba(245,158,11,0.7)", fontFamily: "Syne, sans-serif" }}
@@ -363,6 +409,27 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
                 />
               </div>
             ))}
+          </div>
+        )}
+
+        {/* AI Insights panel */}
+        {result.intelligence && (
+          <div className="mt-3 p-3 rounded-lg border" style={{ background: "rgba(212,175,55,0.05)", borderColor: "rgba(212,175,55,0.2)" }}>
+            <div className="text-xs font-medium mb-2" style={{ color: "#d4af37" }}>🧠 AI Product Intelligence</div>
+            <div className="space-y-1">
+              <div className="text-xs" style={{ color: "rgba(240,237,232,0.7)" }}>
+                <span style={{ color: "rgba(240,237,232,0.4)" }}>Audience: </span>
+                {result.intelligence.primaryAudience}
+              </div>
+              <div className="text-xs" style={{ color: "rgba(240,237,232,0.7)" }}>
+                <span style={{ color: "rgba(240,237,232,0.4)" }}>Hero angle: </span>
+                {result.intelligence.heroAngle}
+              </div>
+              <div className="text-xs" style={{ color: "rgba(240,237,232,0.7)" }}>
+                <span style={{ color: "rgba(240,237,232,0.4)" }}>Best season: </span>
+                {result.intelligence.seasonality}
+              </div>
+            </div>
           </div>
         )}
 
