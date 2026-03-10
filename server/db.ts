@@ -15,7 +15,6 @@ import {
   userProfiles,
   conversationMemory,
   taskPlanProgress,
-  type InsertTaskPlanProgress,
 } from "../drizzle/schema";
 
 let _db: ReturnType<typeof drizzle> | null = null;
