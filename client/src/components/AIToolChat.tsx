@@ -10,6 +10,7 @@ import OutputToolbar from "@/components/OutputToolbar";
 import RelatedTools from "@/components/RelatedTools";
 import { SaveToProduct } from "@/components/SaveToProduct";
 import { ActiveProductBanner } from "@/components/ActiveProductBanner";
+import { useActiveProduct } from "@/hooks/useActiveProduct";
 
 interface AIToolChatProps {
   toolId: string;
@@ -44,6 +45,14 @@ export default function AIToolChat({
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [status, setStatus] = useState<"idle" | "streaming">("idle");
+  const { activeProduct } = useActiveProduct();
+
+  // Build system prompt with active product context injected
+  const buildSystemPrompt = useCallback(() => {
+    if (!activeProduct) return systemPrompt;
+    const productCtx = `\n\nACTIVE PRODUCT CONTEXT:\n- Product: ${activeProduct.name}${activeProduct.niche ? `\n- Niche: ${activeProduct.niche}` : ""}${activeProduct.summary ? `\n- Details: ${activeProduct.summary}` : ""}\n\nAlways tailor your advice specifically to this product and niche. Reference it directly in your response.`;
+    return systemPrompt + productCtx;
+  }, [systemPrompt, activeProduct]);
   // Extract HTML from assistant messages (for Website Generator)
   useEffect(() => {
     if (!showHTMLPreview) return;
@@ -85,7 +94,7 @@ export default function AIToolChat({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
-          systemPrompt,
+          systemPrompt: buildSystemPrompt(),
         }),
       });
       if (!response.ok) throw new Error(`Server error: ${response.status}`);

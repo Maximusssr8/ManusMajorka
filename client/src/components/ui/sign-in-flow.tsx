@@ -37,7 +37,7 @@ export function SignInPage({ className, onSuccess }: SignInPageProps) {
     const { data, error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: "http://localhost:3000/app",
+        redirectTo: `${window.location.origin}/app`,
         skipBrowserRedirect: true,
         queryParams: { prompt: "select_account" },
       },
