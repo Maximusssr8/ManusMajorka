@@ -1,3 +1,4 @@
+// @ts-nocheck — Passport auth is not in use; app uses Supabase auth.
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import * as db from "../db";

@@ -1,4 +1,4 @@
-import { and, eq, desc } from "drizzle-orm";
+import { and, eq, desc, asc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import {
@@ -14,6 +14,8 @@ import {
   savedOutputs,
   userProfiles,
   conversationMemory,
+  taskPlanProgress,
+  type InsertTaskPlanProgress,
 } from "../drizzle/schema";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -246,7 +248,7 @@ export async function getUserContextString(userId: string, userName?: string | n
 // ─── Task Plan Progress helpers ─────────────────────────────────────────────
 
 /** Returns all task plan steps for a user, ordered by creation time. */
-export async function getTaskPlanProgress(userId: number) {
+export async function getTaskPlanProgress(userId: string) {
   const db = await getDb();
   if (!db) return [];
   return db
@@ -257,7 +259,7 @@ export async function getTaskPlanProgress(userId: number) {
 }
 
 /** Creates or updates a task plan step for a user. */
-export async function upsertTaskPlanStep(userId: number, stepKey: string, status: string) {
+export async function upsertTaskPlanStep(userId: string, stepKey: string, status: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 

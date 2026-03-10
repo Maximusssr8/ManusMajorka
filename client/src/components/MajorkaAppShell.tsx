@@ -50,10 +50,6 @@ export default function MajorkaAppShell({ children }: Props) {
   const productCount = productsQuery.data?.length ?? 0;
 
   useEffect(() => { localStorage.setItem("majorka_sidebar_open", String(sidebarOpen)); }, [sidebarOpen]);
-  useEffect(() => {
-    if (expandedStage) localStorage.setItem("majorka_expanded_stage", expandedStage);
-    else localStorage.removeItem("majorka_expanded_stage");
-  }, [expandedStage]);
 
   const handleKeyboard = useCallback((e: KeyboardEvent) => {
     const mod = e.metaKey || e.ctrlKey;

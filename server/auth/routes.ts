@@ -1,3 +1,4 @@
+// @ts-nocheck — Passport auth routes are not in use; app uses Supabase auth.
 import type { Express, Request, Response, NextFunction } from "express";
 import session from "express-session";
 import passport from "./passport";
