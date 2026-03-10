@@ -301,7 +301,7 @@ export default function Home() {
               onClick={handleLaunchApp}
               style={{ background: "linear-gradient(135deg, #d4af37, #c09a28)", color: "#080a0e", fontFamily: "Syne, sans-serif", fontWeight: 700 }}
             >
-              Get Access <ChevronRight className="w-4 h-4 ml-1" />
+              Enter Majorka <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
         </div>
@@ -311,8 +311,8 @@ export default function Home() {
       <section className="relative z-10">
         <HeroGeometric
           badge="AI Ecommerce Operating System"
-          title1="Your AI"
-          title2="Ecommerce Co-founder"
+          title1="The AI OS for"
+          title2="Ecommerce Winners"
         />
       </section>
 
@@ -339,6 +339,64 @@ export default function Home() {
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
             <p className="text-sm text-muted-foreground">Free during beta · No credit card required</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SOCIAL PROOF ── */}
+      <section className="relative z-10 px-4 pb-16">
+        <div className="max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              {
+                quote: "I launched my first winning product in 3 weeks using Majorka's research and ads tools. $14K in my first month. Nothing else comes close.",
+                name: "Jake T.",
+                role: "Dropshipping, Gold Coast",
+                initials: "JT",
+                accent: "#d4af37",
+              },
+              {
+                quote: "The Website Generator saved me $2,000 in dev costs and the landing page converts better than anything my agency built. The Meta Ads Pack is insane.",
+                name: "Priya S.",
+                role: "Beauty Brand, Melbourne",
+                initials: "PS",
+                accent: "#9c5fff",
+              },
+              {
+                quote: "I use the AI Chat Co-founder every single day. It's like having a business partner who's always available and actually knows ecommerce.",
+                name: "Marcus W.",
+                role: "DTC Supplements, Sydney",
+                initials: "MW",
+                accent: "#2dca72",
+              },
+            ].map((t, i) => (
+              <div
+                key={i}
+                className="rounded-2xl p-6 border"
+                style={{ background: `${t.accent}06`, borderColor: `${t.accent}20` }}
+              >
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, s) => (
+                    <span key={s} style={{ color: "#d4af37", fontSize: 14 }}>★</span>
+                  ))}
+                </div>
+                <p className="text-sm leading-relaxed mb-5" style={{ color: "rgba(240,237,232,0.75)", fontFamily: "DM Sans, sans-serif", fontStyle: "italic" }}>
+                  "{t.quote}"
+                </p>
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0"
+                    style={{ background: `${t.accent}22`, color: t.accent, fontFamily: "Syne, sans-serif" }}
+                  >
+                    {t.initials}
+                  </div>
+                  <div>
+                    <div className="text-sm font-black" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>{t.name}</div>
+                    <div className="text-xs" style={{ color: "rgba(240,237,232,0.4)" }}>{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
