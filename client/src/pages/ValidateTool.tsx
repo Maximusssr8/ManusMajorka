@@ -60,6 +60,7 @@ const EXAMPLE_PROMPTS = [
   "LED skincare mask for women 25-45",
 ];
 
+// Scores rendered in AI markdown — colour applied by Markdown component
 export default function ValidateTool() {
   return (
     <AIToolChat

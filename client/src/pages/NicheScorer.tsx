@@ -86,13 +86,20 @@ const SCORE_LABELS: Record<keyof ScoreBreakdown, string> = {
   scalabilityScore: "Scalability",
 };
 
+function getScoreColor(score: number): string {
+  if (score >= 80) return "text-green-400";
+  if (score >= 60) return "text-yellow-400";
+  if (score >= 40) return "text-orange-400";
+  return "text-red-400";
+}
+
 function ScoreBar({ label, score }: { label: string; score: number }) {
   const color = score >= 70 ? "#2dca72" : score >= 50 ? "#d4af37" : "#e05c7a";
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
         <span className="text-xs" style={{ color: "rgba(240,237,232,0.55)", fontFamily: "Syne, sans-serif" }}>{label}</span>
-        <span className="text-xs font-black" style={{ color, fontFamily: "Syne, sans-serif" }}>{score}</span>
+        <span className={`text-xs font-black ${getScoreColor(score)}`} style={{ fontFamily: "Syne, sans-serif" }}>{score}</span>
       </div>
       <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
         <div className="h-full rounded-full transition-all duration-700" style={{ width: `${score}%`, background: color }} />
@@ -249,7 +256,7 @@ export default function NicheScorer() {
             <div className="space-y-4 max-w-2xl">
               {/* Verdict hero */}
               <div className="p-5 rounded-2xl text-center" style={{ background: vc.bg, border: `1.5px solid ${vc.border}` }}>
-                <div className="text-4xl font-black mb-1" style={{ fontFamily: "Syne, sans-serif", color: vc.color }}>{result.overallScore}</div>
+                <div className={`text-4xl font-black mb-1 ${getScoreColor(result.overallScore)}`} style={{ fontFamily: "Syne, sans-serif" }}>{result.overallScore}</div>
                 <div className="text-xs mb-2" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Overall Score</div>
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-black" style={{ background: vc.bg, border: `1px solid ${vc.border}`, color: vc.color, fontFamily: "Syne, sans-serif" }}>
                   {vc.emoji} {result.verdict}

@@ -5,7 +5,7 @@ import ToolPage from "./ToolPage";
 import OnboardingModal from "@/components/OnboardingModal";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { TextShimmer } from "@/components/ui/text-shimmer";
-import { getToolByPath } from "@/lib/tools";
+import { getToolByPath, recordRecentTool, allTools } from "@/lib/tools";
 import { Search, Rocket, Globe, CheckCircle2, MessageSquare, Package, ChevronRight } from "lucide-react";
 
 // ── 6 core tool cards for the dashboard ──
@@ -30,12 +30,13 @@ export default function Dashboard() {
     }
   }, [loading, isAuthenticated, setLocation]);
 
-  // Save last visited tool to localStorage
+  // Save last visited tool and recent tools to localStorage
   useEffect(() => {
     if (isToolPage) {
       const tool = getToolByPath(location);
       if (tool) {
         localStorage.setItem("majorka_last_tool", JSON.stringify({ path: tool.path, label: tool.label }));
+        recordRecentTool(tool.id);
       }
     }
   }, [location, isToolPage]);
@@ -114,6 +115,69 @@ function ContinueLastTool({ onNavigate }: { onNavigate: (path: string) => void }
   );
 }
 
+function RecentTools({ onNavigate }: { onNavigate: (path: string) => void }) {
+  const [recentTools, setRecentTools] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("majorka_recent_tools");
+      if (raw) setRecentTools(JSON.parse(raw));
+    } catch { /* ignore */ }
+  }, []);
+
+  if (recentTools.length === 0) return null;
+
+  const toolDefs = recentTools
+    .map((id) => allTools.find((t) => t.id === id))
+    .filter(Boolean) as (typeof allTools)[number][];
+
+  return (
+    <section className="mb-6">
+      <h3 className="font-syne text-xs font-black uppercase tracking-widest mb-3" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>
+        Continue Where You Left Off
+      </h3>
+      <div className="flex gap-3 flex-wrap">
+        {toolDefs.map((tool) => {
+          const Icon = tool.icon;
+          return (
+            <button
+              key={tool.id}
+              onClick={() => onNavigate(tool.path)}
+              className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-left transition-all"
+              style={{
+                background: "rgba(255,255,255,0.025)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                cursor: "pointer",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = "rgba(212,175,55,0.35)";
+                e.currentTarget.style.background = "rgba(212,175,55,0.05)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+                e.currentTarget.style.background = "rgba(255,255,255,0.025)";
+              }}
+            >
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: "rgba(212,175,55,0.12)", color: "#d4af37" }}
+              >
+                <Icon size={13} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-black whitespace-nowrap" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>
+                  {tool.label}
+                </div>
+              </div>
+              <span className="text-xs ml-1 flex-shrink-0" style={{ color: "rgba(212,175,55,0.55)" }}>Open →</span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function DashboardHome() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
@@ -143,7 +207,10 @@ function DashboardHome() {
           </p>
         </div>
 
-        {/* Continue where you left off */}
+        {/* Continue where you left off — recent tools (multi-tool) */}
+        <RecentTools onNavigate={setLocation} />
+
+        {/* Continue where you left off — last single tool */}
         <ContinueLastTool onNavigate={setLocation} />
 
         {/* Quick start CTA */}

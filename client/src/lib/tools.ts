@@ -512,3 +512,13 @@ export const allTools: ToolDef[] = stages.flatMap((s) => s.tools);
 export function getToolByPath(path: string): ToolDef | undefined {
   return allTools.find((t) => t.path === path);
 }
+
+// Record a tool visit in the recent tools list (max 5, deduplicated)
+export function recordRecentTool(toolId: string): void {
+  try {
+    const raw = localStorage.getItem("majorka_recent_tools");
+    const existing: string[] = raw ? JSON.parse(raw) : [];
+    const deduped = [toolId, ...existing.filter((id) => id !== toolId)].slice(0, 5);
+    localStorage.setItem("majorka_recent_tools", JSON.stringify(deduped));
+  } catch { /* ignore */ }
+}
