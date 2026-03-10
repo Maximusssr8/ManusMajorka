@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import OutputToolbar from "@/components/OutputToolbar";
 import RelatedTools from "@/components/RelatedTools";
 import { SaveToProduct } from "@/components/SaveToProduct";
+import { ActiveProductBanner } from "@/components/ActiveProductBanner";
 
 interface AIToolChatProps {
   toolId: string;
@@ -22,7 +23,7 @@ interface AIToolChatProps {
   examplePrompts?: string[];
 }
 
-type Message = { role: "user" | "assistant"; content: string };
+type Message = { role: "user" | "assistant"; content: string; isError?: boolean };
 
 export default function AIToolChat({
   toolId,
@@ -36,11 +37,10 @@ export default function AIToolChat({
 }: AIToolChatProps) {
   const [generatedHTML, setGeneratedHTML] = useState<string>("");
   const [showPreview, setShowPreview] = useState(false);
+  const [previewError, setPreviewError] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [status, setStatus] = useState<"idle" | "streaming">("idle");
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-
   // Extract HTML from assistant messages (for Website Generator)
   useEffect(() => {
     if (!showHTMLPreview) return;
@@ -48,17 +48,23 @@ export default function AIToolChat({
     if (lastMessage?.role === "assistant") {
       const htmlMatch = lastMessage.content.match(/```html\n([\s\S]*?)\n```/);
       if (htmlMatch && htmlMatch[1]) {
-        setGeneratedHTML(htmlMatch[1]);
+        try {
+          setGeneratedHTML(htmlMatch[1]);
+          setPreviewError(false);
+        } catch (err) {
+          console.warn("Failed to set generated HTML:", err);
+          setPreviewError(true);
+        }
       }
     }
   }, [messages, showHTMLPreview]);
 
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   // Auto-scroll
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      const el = scrollAreaRef.current.querySelector("[data-radix-scroll-area-viewport]");
-      if (el) el.scrollTop = el.scrollHeight;
-    }
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSend = useCallback(async () => {
@@ -67,6 +73,7 @@ export default function AIToolChat({
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
     setInput("");
+    if (textareaRef.current) textareaRef.current.style.height = 'auto';
     setStatus("streaming");
     setMessages(prev => [...prev, { role: "assistant", content: "" }]);
 
@@ -88,10 +95,16 @@ export default function AIToolChat({
         const { done, value } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split("\n")) {
-          if (line.startsWith("0:")) {
-            try { fullText += JSON.parse(line.slice(2)); } catch { }
+        try {
+          for (const line of chunk.split("\n")) {
+            if (line.startsWith("0:")) {
+              try { fullText += JSON.parse(line.slice(2)); } catch (parseErr) {
+                console.warn("Malformed chunk line, skipping:", parseErr);
+              }
+            }
           }
+        } catch (chunkErr) {
+          console.warn("Error processing chunk, continuing stream:", chunkErr);
         }
         setMessages(prev => {
           const updated = [...prev];
@@ -99,10 +112,11 @@ export default function AIToolChat({
           return updated;
         });
       }
-    } catch {
+    } catch (err) {
+      console.error("Stream error:", err);
       setMessages(prev => {
         const updated = [...prev];
-        updated[updated.length - 1] = { role: "assistant", content: "Something went wrong. Please try again." };
+        updated[updated.length - 1] = { role: "assistant", content: "Something went wrong. Please try again.", isError: true };
         return updated;
       });
     } finally {
@@ -168,10 +182,12 @@ export default function AIToolChat({
         </div>
       </div>
 
+      <ActiveProductBanner />
+
       {/* Chat Area */}
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 flex flex-col min-w-0">
-          <ScrollArea ref={scrollAreaRef} className="flex-1">
+          <ScrollArea className="flex-1">
             <div className="space-y-4 p-5">
               {messages.length === 0 && (
                 <div className="flex flex-col items-center justify-center text-center py-16">
@@ -227,16 +243,12 @@ export default function AIToolChat({
                     style={
                       msg.role === "user"
                         ? { background: "rgba(212,175,55,0.15)", color: "#f5f0e0" }
+                        : msg.isError
+                        ? { background: "rgba(255,100,100,0.12)", border: "1px solid rgba(255,100,100,0.2)" }
                         : { background: "rgba(255,255,255,0.03)" }
                     }
                   >
-                    <div
-                      className="prose prose-sm dark:prose-invert max-w-none"
-                      contentEditable
-                      suppressContentEditableWarning
-                      onBlur={() => {/* Allow inline text editing */}}
-                      style={{ outline: "none" }}
-                    >
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
                       <Markdown mode="static">{msg.content}</Markdown>
                     </div>
                     {/* Per-message copy button */}
@@ -262,6 +274,7 @@ export default function AIToolChat({
                   </div>
                 </div>
               )}
+              <div ref={bottomRef} />
             </div>
           </ScrollArea>
 
@@ -269,8 +282,13 @@ export default function AIToolChat({
           <div className="flex-shrink-0 border-t p-4" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
             <div className="flex gap-2 items-end">
               <Textarea
+                ref={textareaRef}
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(e) => {
+                  setInput(e.target.value);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = e.target.scrollHeight + 'px';
+                }}
                 onKeyDown={(e) => {
                   // Enter to send, Shift+Enter for newline, Cmd/Ctrl+Enter also sends
                   if (e.key === "Enter" && !e.shiftKey) {
@@ -284,8 +302,8 @@ export default function AIToolChat({
                 }}
                 placeholder={placeholder}
                 className="resize-none text-sm"
-                rows={2}
-                style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.1)" }}
+                rows={1}
+                style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.1)", overflowY: 'auto', maxHeight: '200px', resize: 'none' }}
               />
               <div className="flex flex-col gap-1.5">
                 <Button
@@ -334,11 +352,18 @@ export default function AIToolChat({
               </div>
               <div className="flex-1 overflow-auto p-3">
                 {showPreview ? (
-                  <iframe
-                    srcDoc={generatedHTML}
-                    className="w-full h-full border-0 rounded"
-                    title="Preview"
-                  />
+                  previewError ? (
+                    <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+                      Preview unavailable
+                    </div>
+                  ) : (
+                    <iframe
+                      srcDoc={generatedHTML}
+                      className="w-full h-full border-0 rounded"
+                      title="Preview"
+                      onError={() => setPreviewError(true)}
+                    />
+                  )
                 ) : (
                   <pre className="text-xs overflow-auto text-muted-foreground font-mono whitespace-pre-wrap">
                     <code>{generatedHTML.substring(0, 800)}...</code>

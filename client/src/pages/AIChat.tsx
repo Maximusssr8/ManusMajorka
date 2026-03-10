@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Markdown } from "@/components/Markdown";
 import { Copy, Send, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { ActiveProductBanner } from "@/components/ActiveProductBanner";
 
 const AI_CHAT_SYSTEM_PROMPT = `You are Majorka AI — a straight-talking ecommerce co-founder who's been in the trenches.
 
@@ -25,22 +26,17 @@ How you communicate:
 - Skip the preamble. Lead with the answer.
 - End with the 2-3 most important next actions — concrete, not generic.`;
 
-type Message = { role: "user" | "assistant"; content: string };
+type Message = { role: "user" | "assistant"; content: string; isError?: boolean };
 
 export default function AIChat() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [status, setStatus] = useState<"idle" | "streaming">("idle");
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollElement = scrollAreaRef.current.querySelector("[data-radix-scroll-area-viewport]");
-      if (scrollElement) {
-        scrollElement.scrollTop = scrollElement.scrollHeight;
-      }
-    }
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSend = useCallback(async () => {
@@ -49,6 +45,7 @@ export default function AIChat() {
     const newMessages = [...messages, userMsg];
     setMessages(newMessages);
     setInput("");
+    if (textareaRef.current) textareaRef.current.style.height = 'auto';
     setStatus("streaming");
     setMessages(prev => [...prev, { role: "assistant", content: "" }]);
 
@@ -70,10 +67,16 @@ export default function AIChat() {
         const { done, value } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split("\n")) {
-          if (line.startsWith("0:")) {
-            try { fullText += JSON.parse(line.slice(2)); } catch { }
+        try {
+          for (const line of chunk.split("\n")) {
+            if (line.startsWith("0:")) {
+              try { fullText += JSON.parse(line.slice(2)); } catch (parseErr) {
+                console.warn("Malformed chunk line, skipping:", parseErr);
+              }
+            }
           }
+        } catch (chunkErr) {
+          console.warn("Error processing chunk, continuing stream:", chunkErr);
         }
         setMessages(prev => {
           const updated = [...prev];
@@ -81,10 +84,11 @@ export default function AIChat() {
           return updated;
         });
       }
-    } catch {
+    } catch (err) {
+      console.error("Stream error:", err);
       setMessages(prev => {
         const updated = [...prev];
-        updated[updated.length - 1] = { role: "assistant", content: "Something went wrong. Please try again." };
+        updated[updated.length - 1] = { role: "assistant", content: "Something went wrong. Please try again.", isError: true };
         return updated;
       });
     } finally {
@@ -120,9 +124,11 @@ export default function AIChat() {
         </div>
       </div>
 
+      <ActiveProductBanner />
+
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <ScrollArea ref={scrollAreaRef} className="flex-1 mb-4">
+        <ScrollArea className="flex-1 mb-4">
           <div className="space-y-4 p-4">
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full text-center py-12">
@@ -148,8 +154,11 @@ export default function AIChat() {
                   className={`max-w-[70%] rounded-lg px-4 py-2.5 ${
                     msg.role === "user"
                       ? "bg-primary text-primary-foreground"
+                      : msg.isError
+                      ? "text-foreground"
                       : "bg-muted text-foreground"
                   }`}
+                  style={msg.isError ? { background: "rgba(255,100,100,0.12)", border: "1px solid rgba(255,100,100,0.2)" } : undefined}
                 >
                   <div className="prose prose-sm dark:prose-invert max-w-none">
                     <Markdown mode="static">{msg.content}</Markdown>
@@ -171,6 +180,7 @@ export default function AIChat() {
                 </div>
               </div>
             )}
+            <div ref={bottomRef} />
           </div>
         </ScrollArea>
 
@@ -180,7 +190,11 @@ export default function AIChat() {
             <Textarea
               ref={textareaRef}
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => {
+                setInput(e.target.value);
+                e.target.style.height = 'auto';
+                e.target.style.height = e.target.scrollHeight + 'px';
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -189,7 +203,8 @@ export default function AIChat() {
               }}
               placeholder="Ask me anything about your business..."
               className="resize-none"
-              rows={3}
+              rows={1}
+              style={{ overflowY: 'auto', maxHeight: '200px', resize: 'none' }}
             />
             <div className="flex flex-col gap-2">
               <Button

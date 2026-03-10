@@ -1,9 +1,20 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, ExternalLink, Package, Loader2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, ExternalLink, Package, Loader2, X, Star } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
+import { useActiveProduct } from "@/hooks/useActiveProduct";
+
+interface Product {
+  id: string | number;
+  name: string;
+  url?: string;
+  niche?: string;
+  description?: string;
+  stage?: string;
+  status?: string;
+}
 
 const statusColors: Record<string, { bg: string; text: string; label: string }> = {
   research: { bg: "rgba(0,180,216,0.12)", text: "#00b4d8", label: "Research" },
@@ -17,8 +28,11 @@ const statusColors: Record<string, { bg: string; text: string; label: string }> 
 export default function MyProducts() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
+  const { activeProduct, setActiveProduct } = useActiveProduct();
   const [showCreate, setShowCreate] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [niche, setNiche] = useState("");
@@ -27,28 +41,32 @@ export default function MyProducts() {
   const utils = trpc.useUtils();
   const { data: products, isLoading, error } = trpc.products.list.useQuery();
   const createMut = trpc.products.create.useMutation({
-    onSuccess: () => { utils.products.list.invalidate(); setShowCreate(false); resetForm(); toast.success("Product created!"); },
+    onSuccess: () => { utils.products.list.invalidate(); setShowCreate(false); resetForm(); setIsSubmitting(false); toast.success("Product created!"); },
+    onError: () => { setIsSubmitting(false); toast.error("Failed to create product."); },
   });
   const updateMut = trpc.products.update.useMutation({
-    onSuccess: () => { utils.products.list.invalidate(); setEditId(null); resetForm(); toast.success("Product updated!"); },
+    onSuccess: () => { utils.products.list.invalidate(); setEditId(null); resetForm(); setIsSubmitting(false); toast.success("Product updated!"); },
+    onError: () => { setIsSubmitting(false); toast.error("Failed to update product."); },
   });
   const deleteMut = trpc.products.delete.useMutation({
-    onSuccess: () => { utils.products.list.invalidate(); toast.success("Product deleted."); },
+    onSuccess: () => { utils.products.list.invalidate(); setPendingDeleteId(null); toast.success("Product deleted."); },
   });
 
   const resetForm = () => { setName(""); setUrl(""); setNiche(""); setDescription(""); };
 
   const handleCreate = () => {
     if (!name.trim()) { toast.error("Product name is required."); return; }
+    setIsSubmitting(true);
     createMut.mutate({ name, url: url || undefined, niche: niche || undefined, description: description || undefined });
   };
 
   const handleUpdate = () => {
     if (!editId || !name.trim()) return;
+    setIsSubmitting(true);
     updateMut.mutate({ id: editId, name, url: url || undefined, niche: niche || undefined, description: description || undefined });
   };
 
-  const startEdit = (p: any) => {
+  const startEdit = (p: Product) => {
     setEditId(p.id);
     setName(p.name);
     setUrl(p.url || "");
@@ -111,11 +129,13 @@ export default function MyProducts() {
             </div>
             <button
               onClick={editId ? handleUpdate : handleCreate}
-              disabled={createMut.isPending || updateMut.isPending}
+              disabled={isSubmitting}
               className="px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-60"
-              style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", fontFamily: "Syne, sans-serif", cursor: createMut.isPending || updateMut.isPending ? "not-allowed" : "pointer" }}
+              style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", fontFamily: "Syne, sans-serif", cursor: isSubmitting ? "not-allowed" : "pointer" }}
             >
-              {(createMut.isPending || updateMut.isPending) ? <Loader2 size={12} className="animate-spin" /> : null}
+              {isSubmitting ? (
+                <div className="w-4 h-4 rounded-full border-2 border-[#080a0e]/30 border-t-[#080a0e] animate-spin" />
+              ) : null}
               {editId ? "Save Changes" : "Create Product"}
             </button>
           </div>
@@ -171,13 +191,49 @@ export default function MyProducts() {
                       </a>
                     ) : <span />}
                     <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
+                      {activeProduct?.id === String(p.id) ? (
+                        <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg font-bold" style={{ color: "#d4af37" }}>
+                          <Star size={10} fill="#d4af37" />
+                          Active
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => setActiveProduct({ id: String(p.id), name: p.name, niche: p.niche ?? undefined, stage: (p as any).stage ?? p.status ?? undefined })}
+                          className="text-xs px-2 py-1 rounded-lg transition-all hover:bg-white/5"
+                          style={{ cursor: "pointer", color: "rgba(240,237,232,0.4)", border: "1px solid rgba(255,255,255,0.08)" }}
+                        >
+                          Set Active
+                        </button>
+                      )}
                       <button onClick={() => startEdit(p)} className="p-1.5 rounded-lg transition-all hover:bg-white/5" style={{ cursor: "pointer", color: "rgba(240,237,232,0.4)" }}>
                         <Pencil size={12} />
                       </button>
-                      <button onClick={() => { if (confirm("Delete this product?")) deleteMut.mutate({ id: p.id }); }}
-                        className="p-1.5 rounded-lg transition-all hover:bg-white/5" style={{ cursor: "pointer", color: "rgba(255,100,100,0.6)" }}>
-                        <Trash2 size={12} />
-                      </button>
+                      {pendingDeleteId === String(p.id) ? (
+                        <>
+                          <button
+                            onClick={() => { deleteMut.mutate({ id: p.id }); }}
+                            className="text-xs px-2 py-1 rounded-lg font-bold transition-all"
+                            style={{ background: "rgba(255,100,100,0.15)", color: "#ff6b6b", border: "1px solid rgba(255,100,100,0.3)", cursor: "pointer" }}
+                          >
+                            Confirm delete
+                          </button>
+                          <button
+                            onClick={() => setPendingDeleteId(null)}
+                            className="text-xs px-2 py-1 rounded-lg transition-all hover:bg-white/5"
+                            style={{ color: "rgba(240,237,232,0.4)", cursor: "pointer" }}
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => setPendingDeleteId(String(p.id))}
+                          className="p-1.5 rounded-lg transition-all hover:bg-white/5"
+                          style={{ cursor: "pointer", color: "rgba(255,100,100,0.6)" }}
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
