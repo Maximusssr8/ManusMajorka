@@ -250,6 +250,49 @@ export default function AIToolChat({
                   </div>
                 </div>
               )}
+
+              {/* GO/NO-GO verdict action buttons */}
+              {(() => {
+                const lastAssistantMsg = [...messages].reverse().find(m => m.role === "assistant");
+                const lastContent = lastAssistantMsg?.parts
+                  .filter((p) => p.type === "text")
+                  .map((p) => (p as any).text)
+                  .join("") || "";
+                const verdict = lastContent.match(/Verdict:\s*\*?\*?\s*(GO|NO-GO|PIVOT)/i)?.[1]?.toUpperCase();
+                if (!verdict || status !== "ready") return null;
+                return (
+                  <div className="flex gap-3 mt-2 p-4 rounded-2xl" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                    <div className="flex-1">
+                      <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(240,237,232,0.35)", fontFamily: "Syne, sans-serif" }}>What's next?</div>
+                      <div className="flex gap-2 flex-wrap">
+                        {(verdict === "GO" || verdict === "PIVOT") && (
+                          <button onClick={() => window.location.href = "/app/website-generator"}
+                            className="text-xs font-bold px-4 py-2 rounded-xl"
+                            style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", cursor: "pointer" }}>
+                            Build landing page →
+                          </button>
+                        )}
+                        {verdict === "NO-GO" && (
+                          <button onClick={() => { setInput(""); }}
+                            className="text-xs font-bold px-4 py-2 rounded-xl"
+                            style={{ background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.25)", color: "#d4af37", cursor: "pointer" }}>
+                            Try different idea →
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="w-16 h-16 rounded-xl flex items-center justify-center font-black text-sm"
+                      style={{
+                        background: verdict === "GO" ? "rgba(45,202,114,0.12)" : verdict === "NO-GO" ? "rgba(224,92,122,0.12)" : "rgba(212,175,55,0.12)",
+                        color: verdict === "GO" ? "#2dca72" : verdict === "NO-GO" ? "#e05c7a" : "#d4af37",
+                        fontFamily: "Syne, sans-serif",
+                        border: `1px solid ${verdict === "GO" ? "rgba(45,202,114,0.25)" : verdict === "NO-GO" ? "rgba(224,92,122,0.25)" : "rgba(212,175,55,0.25)"}`,
+                      }}>
+                      {verdict}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </ScrollArea>
 

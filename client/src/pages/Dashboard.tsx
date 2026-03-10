@@ -161,6 +161,28 @@ function MilestoneBadges() {
   );
 }
 
+function ContinueSection({ onNavigate }: { onNavigate: (path: string) => void }) {
+  const [hasResearch, setHasResearch] = useState(false);
+
+  useEffect(() => {
+    setHasResearch(!!localStorage.getItem("majorka_milestone_research"));
+  }, []);
+
+  if (!hasResearch) return null;
+
+  return (
+    <div className="mb-6 p-4 rounded-2xl" style={{ background: "rgba(212,175,55,0.06)", border: "1px solid rgba(212,175,55,0.18)" }}>
+      <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>Continue where you left off</div>
+      <div className="text-sm font-black mb-3" style={{ fontFamily: "Syne, sans-serif" }}>Your product journey</div>
+      <div className="flex gap-2">
+        <button onClick={() => onNavigate("/app/niche-scorer")} className="text-xs px-3 py-1.5 rounded-lg font-bold" style={{ background: "rgba(124,106,245,0.1)", border: "1px solid rgba(124,106,245,0.25)", color: "#7c6af5", cursor: "pointer" }}>→ Validate</button>
+        <button onClick={() => onNavigate("/app/website-generator")} className="text-xs px-3 py-1.5 rounded-lg font-bold" style={{ background: "rgba(45,202,114,0.08)", border: "1px solid rgba(45,202,114,0.2)", color: "#2dca72", cursor: "pointer" }}>→ Build Page</button>
+        <button onClick={() => onNavigate("/app/validation-plan")} className="text-xs px-3 py-1.5 rounded-lg font-bold" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#ef4444", cursor: "pointer" }}>→ Plan Launch</button>
+      </div>
+    </div>
+  );
+}
+
 function DashboardHome() {
   const [, setLocation] = useLocation();
 
@@ -226,6 +248,9 @@ function DashboardHome() {
             </div>
           </div>
         </button>
+
+        {/* Continue where you left off */}
+        <ContinueSection onNavigate={setLocation} />
 
         {/* Recommended Starting Path (based on onboarding level) */}
         <RecommendedPath onNavigate={setLocation} />
