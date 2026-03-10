@@ -1,7 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
-import { DefaultChatTransport } from "ai";
-import { useChat } from "@ai-sdk/react";
-import type { UIMessage } from "ai";
+import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { Copy, RefreshCw, Loader2, Zap, ChevronDown, ChevronUp, Check, Link2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
@@ -139,7 +136,6 @@ export default function MetaAdsPack() {
   const [pack, setPack] = useState<AdsPack | null>(null);
   const [genError, setGenError] = useState("");
 
-  const [waitingForResponse, setWaitingForResponse] = useState(false);
   // URL import
   const [importUrl, setImportUrl] = useState("");
   const [importing, setImporting] = useState(false);
@@ -167,58 +163,10 @@ export default function MetaAdsPack() {
     }
   }, [importUrl, extractMutation]);
 
-  const { sendMessage, status, messages } = useChat({
-    transport: new DefaultChatTransport({
-      api: "/api/chat",
-      prepareSendMessagesRequest({ messages }) {
-        return {
-          body: {
-            messages: messages.map((m: UIMessage) => ({
-              role: m.role,
-              content: m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join(""),
-            })),
-            systemPrompt: META_SYSTEM_PROMPT,
-          },
-        };
-      },
-    }),
-  });
-
-  // Track when streaming starts
-  useEffect(() => {
-    if (status === "streaming" || status === "submitted") {
-      setWaitingForResponse(true);
-    }
-  }, [status]);
-
-  // Watch for streaming to finish, then parse the result
-  useEffect(() => {
-    if (status !== "ready" || !generating || !waitingForResponse) return;
-    const lastMsg = messages[messages.length - 1];
-    if (!lastMsg || lastMsg.role !== "assistant") {
-      setGenError("No response received. Please try again.");
-      setGenerating(false);
-      setWaitingForResponse(false);
-      return;
-    }
-    const text = lastMsg.parts
-      .filter((p: any) => p.type === "text")
-      .map((p: any) => p.text)
-      .join("");
-    const parsed = parseAdsPack(text);
-    if (parsed) {
-      setPack(parsed);
-      localStorage.setItem("majorka_milestone_ads", "true");
-    } else {
-      setGenError("Could not parse the generated ads pack. Please try again.");
-    }
-    setGenerating(false);
-    setWaitingForResponse(false);
-  }, [status, generating, waitingForResponse, messages]);
-
-  const handleGenerate = useCallback(() => {
+  const handleGenerate = useCallback(async () => {
     if (!productName.trim()) { toast.error("Please enter a product name"); return; }
     setGenerating(true); setGenError(""); setPack(null);
+
     const prompt = [
       `Product: ${productName}`,
       productDesc && `Description: ${productDesc}`,
@@ -226,8 +174,59 @@ export default function MetaAdsPack() {
       targetAudience && `Target Audience: ${targetAudience}`,
       budget && `Ad Budget: $${budget}/day`,
     ].filter(Boolean).join("\n");
-    sendMessage({ text: prompt });
-  }, [productName, productDesc, targetPrice, targetAudience, budget, sendMessage]);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: prompt }],
+          systemPrompt: META_SYSTEM_PROMPT,
+        }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Server error: ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No response body");
+
+      const decoder = new TextDecoder();
+      let fullText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        for (const line of chunk.split("\n")) {
+          if (line.startsWith("0:")) {
+            try { fullText += JSON.parse(line.slice(2)); } catch { /* skip */ }
+          } else if (line.startsWith("e:")) {
+            try { const err = JSON.parse(line.slice(2)); throw new Error(err.error || "Stream error"); } catch (e: any) { if (e.message !== "Stream error") throw e; }
+          }
+        }
+      }
+
+      if (!fullText.trim()) {
+        setGenError("No response received. Please try again.");
+      } else {
+        const parsed = parseAdsPack(fullText);
+        if (parsed) {
+          setPack(parsed);
+          localStorage.setItem("majorka_milestone_ads", "true");
+        } else {
+          setGenError("Could not parse the generated ads pack. Please try again.");
+        }
+      }
+    } catch (err: any) {
+      console.error("MetaAdsPack error:", err);
+      setGenError(err.message || "Failed to generate. Please try again.");
+    } finally {
+      setGenerating(false);
+    }
+  }, [productName, productDesc, targetPrice, targetAudience, budget]);
 
   const copyAllPack = useCallback(() => {
     if (!pack) return;
@@ -244,7 +243,7 @@ export default function MetaAdsPack() {
     toast.success("Full ads pack copied!");
   }, [pack]);
 
-  const isLoading = generating || status === "streaming" || status === "submitted";
+  const isLoading = generating;
 
   return (
     <div className="h-full flex flex-col" style={{ background: "#080a0e", color: "#f0ede8", fontFamily: "DM Sans, sans-serif" }}>
@@ -301,6 +300,7 @@ export default function MetaAdsPack() {
               <div>
                 <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(240,237,232,0.6)", fontFamily: "Syne, sans-serif" }}>Product Name *</label>
                 <input value={productName} onChange={e => setProductName(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); handleGenerate(); } }}
                   placeholder="e.g. Posture Corrector Belt"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#f0ede8" }} />
@@ -415,7 +415,7 @@ export default function MetaAdsPack() {
                     <RefreshCw size={10} /> Regenerate
                   </button>
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-3 stagger-children">
                   {pack.angles.map((angle, i) => <AngleCard key={i} angle={angle} index={i} />)}
                 </div>
               </div>

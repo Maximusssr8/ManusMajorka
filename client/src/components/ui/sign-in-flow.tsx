@@ -182,53 +182,64 @@ export function CanvasRevealEffect({
 
 // ─── SignInPage ──────────────────────────────────────────────────────────────
 
+import { supabase } from "@/lib/supabase";
+
 interface SignInPageProps {
   className?: string;
   onSuccess?: () => void;
-  loginUrl?: string;
 }
 
-export function SignInPage({ className, onSuccess, loginUrl }: SignInPageProps) {
+export function SignInPage({ className, onSuccess }: SignInPageProps) {
   const [email, setEmail] = useState("");
-  const [step, setStep] = useState<"email" | "code" | "success">("email");
-  const [code, setCode] = useState(["", "", "", "", "", ""]);
-  const codeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [step, setStep] = useState<"email" | "magic-link-sent" | "success">("email");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [initialCanvasVisible, setInitialCanvasVisible] = useState(true);
   const [reverseCanvasVisible, setReverseCanvasVisible] = useState(false);
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) setStep("code");
-  };
-
+  // Listen for auth state changes (handles OAuth redirect and magic link return)
   useEffect(() => {
-    if (step === "code") {
-      setTimeout(() => codeInputRefs.current[0]?.focus(), 500);
-    }
-  }, [step]);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN") {
+        setReverseCanvasVisible(true);
+        setTimeout(() => setInitialCanvasVisible(false), 50);
+        setStep("success");
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
-  const handleCodeChange = (index: number, value: string) => {
-    if (value.length > 1) return;
-    const newCode = [...code];
-    newCode[index] = value;
-    setCode(newCode);
-    if (value && index < 5) codeInputRefs.current[index + 1]?.focus();
-    if (index === 5 && value && newCode.every((d) => d.length === 1)) {
-      setReverseCanvasVisible(true);
-      setTimeout(() => setInitialCanvasVisible(false), 50);
-      setTimeout(() => setStep("success"), 2000);
-    }
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError(null);
+    const { error: err } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/login` },
+    });
+    if (err) setError(err.message);
+    setLoading(false);
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !code[index] && index > 0) {
-      codeInputRefs.current[index - 1]?.focus();
+  const handleMagicLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setLoading(true);
+    setError(null);
+    const { error: err } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/login` },
+    });
+    if (err) {
+      setError(err.message);
+    } else {
+      setStep("magic-link-sent");
     }
+    setLoading(false);
   };
 
   const handleBackClick = () => {
     setStep("email");
-    setCode(["", "", "", "", "", ""]);
+    setError(null);
     setReverseCanvasVisible(false);
     setInitialCanvasVisible(true);
   };
@@ -291,15 +302,15 @@ export function SignInPage({ className, onSuccess, loginUrl }: SignInPageProps) 
                   <p className="text-lg text-white/60 font-light">Sign in to your Majorka account</p>
                 </div>
 
-                {loginUrl && (
-                  <a
-                    href={loginUrl}
-                    className="w-full flex items-center justify-center gap-2 rounded-full py-3 px-4 text-white font-medium transition-colors"
-                    style={{ background: "#d4af37", color: "#000" }}
-                  >
-                    Continue with Majorka
-                  </a>
-                )}
+                <button
+                  onClick={handleGoogleSignIn}
+                  disabled={loading}
+                  className="w-full flex items-center justify-center gap-2 rounded-full py-3 px-4 font-medium transition-colors disabled:opacity-50"
+                  style={{ background: "#d4af37", color: "#000", cursor: loading ? "wait" : "pointer", border: "none" }}
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                  Continue with Google
+                </button>
 
                 <div className="flex items-center gap-4">
                   <div className="h-px bg-white/10 flex-1" />
@@ -307,7 +318,7 @@ export function SignInPage({ className, onSuccess, loginUrl }: SignInPageProps) 
                   <div className="h-px bg-white/10 flex-1" />
                 </div>
 
-                <form onSubmit={handleEmailSubmit}>
+                <form onSubmit={handleMagicLink}>
                   <div className="relative">
                     <input
                       type="email"
@@ -319,12 +330,17 @@ export function SignInPage({ className, onSuccess, loginUrl }: SignInPageProps) 
                     />
                     <button
                       type="submit"
-                      className="absolute right-1.5 top-1.5 w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white"
+                      disabled={loading}
+                      className="absolute right-1.5 top-1.5 w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white disabled:opacity-50"
                     >
-                      →
+                      {loading ? "..." : "\u2192"}
                     </button>
                   </div>
                 </form>
+
+                {error && (
+                  <p className="text-sm text-red-400">{error}</p>
+                )}
 
                 <p className="text-xs text-white/30 pt-4">
                   By continuing, you agree to Majorka's{" "}
@@ -332,9 +348,9 @@ export function SignInPage({ className, onSuccess, loginUrl }: SignInPageProps) 
                   <Link href="#" className="underline hover:text-white/50 transition-colors">Privacy Policy</Link>.
                 </p>
               </motion.div>
-            ) : step === "code" ? (
+            ) : step === "magic-link-sent" ? (
               <motion.div
-                key="code-step"
+                key="magic-link-step"
                 initial={{ opacity: 0, x: 60 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 60 }}
@@ -345,63 +361,31 @@ export function SignInPage({ className, onSuccess, loginUrl }: SignInPageProps) 
                   <h1 className="text-4xl font-bold leading-tight tracking-tight text-white" style={{ fontFamily: "Syne, sans-serif" }}>
                     Check your email
                   </h1>
-                  <p className="text-lg text-white/50 font-light">We sent a 6-digit code to {email}</p>
+                  <p className="text-lg text-white/50 font-light">We sent a magic link to {email}</p>
                 </div>
 
-                <div className="rounded-full py-4 px-5 border border-white/10 bg-transparent">
-                  <div className="flex items-center justify-center">
-                    {code.map((digit, i) => (
-                      <div key={i} className="flex items-center">
-                        <div className="relative">
-                          <input
-                            ref={(el) => { codeInputRefs.current[i] = el; }}
-                            type="text"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            maxLength={1}
-                            value={digit}
-                            onChange={(e) => handleCodeChange(i, e.target.value)}
-                            onKeyDown={(e) => handleKeyDown(i, e)}
-                            className="w-8 text-center text-xl bg-transparent text-white border-none focus:outline-none focus:ring-0"
-                            style={{ caretColor: "transparent" }}
-                          />
-                          {!digit && (
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                              <span className="text-xl text-white/20">0</span>
-                            </div>
-                          )}
-                        </div>
-                        {i < 5 && <span className="text-white/20 text-xl mx-0.5">|</span>}
-                      </div>
-                    ))}
+                <div className="py-6">
+                  <div
+                    className="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
+                    style={{ background: "rgba(212,175,55,0.15)", border: "1px solid rgba(212,175,55,0.3)" }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect width="20" height="16" x="2" y="4" rx="2" />
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                    </svg>
                   </div>
                 </div>
 
-                <p className="text-white/40 text-sm cursor-pointer hover:text-white/60 transition-colors">
-                  Resend code
-                </p>
+                <p className="text-white/40 text-sm">Click the link in your email to sign in. You can close this tab.</p>
 
-                <div className="flex gap-3">
-                  <motion.button
-                    onClick={handleBackClick}
-                    className="rounded-full bg-white text-black font-medium px-6 py-3 hover:bg-white/90 transition-colors w-[30%]"
-                    whileTap={{ scale: 0.97 }}
-                  >
-                    Back
-                  </motion.button>
-                  <motion.button
-                    className={`flex-1 rounded-full font-medium py-3 border transition-all duration-300 ${
-                      code.every((d) => d !== "")
-                        ? "text-black border-transparent cursor-pointer"
-                        : "bg-white/5 text-white/40 border-white/10 cursor-not-allowed"
-                    }`}
-                    style={code.every((d) => d !== "") ? { background: "#d4af37" } : {}}
-                    disabled={!code.every((d) => d !== "")}
-                    whileTap={{ scale: 0.97 }}
-                  >
-                    Continue
-                  </motion.button>
-                </div>
+                <motion.button
+                  onClick={handleBackClick}
+                  className="rounded-full bg-white/10 text-white font-medium px-6 py-3 hover:bg-white/20 transition-colors"
+                  style={{ border: "none", cursor: "pointer" }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  Back to sign in
+                </motion.button>
               </motion.div>
             ) : (
               <motion.div
@@ -440,7 +424,7 @@ export function SignInPage({ className, onSuccess, loginUrl }: SignInPageProps) 
                   transition={{ delay: 1 }}
                   onClick={onSuccess}
                   className="w-full rounded-full font-medium py-3 text-black transition-colors"
-                  style={{ background: "#d4af37" }}
+                  style={{ background: "#d4af37", border: "none", cursor: "pointer" }}
                 >
                   Continue to Dashboard
                 </motion.button>

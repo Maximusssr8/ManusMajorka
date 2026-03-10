@@ -1,10 +1,9 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import type { UIMessage } from "ai";
 import { toast } from "sonner";
 import { BarChart2, Copy, Check, Loader2, RefreshCw } from "lucide-react";
-import { trpc } from "@/lib/trpc";
 import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface ScoreBreakdown {
@@ -111,7 +110,7 @@ export default function NicheScorer() {
   const [result, setResult] = useState<NicheResult | null>(null);
   const [genError, setGenError] = useState("");
   const [waitingForResponse, setWaitingForResponse] = useState(false);
-  const searchMutation = trpc.research.search.useMutation();
+  const searchQueryRef = useRef("");
 
   const { sendMessage, status, messages } = useChat({
     transport: new DefaultChatTransport({
@@ -124,6 +123,7 @@ export default function NicheScorer() {
               content: m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join(""),
             })),
             systemPrompt: SYSTEM_PROMPT,
+            searchQuery: searchQueryRef.current || undefined,
           },
         };
       },
@@ -152,24 +152,17 @@ export default function NicheScorer() {
   const handleGenerate = useCallback(async () => {
     if (!niche.trim()) { toast.error("Please enter a niche"); return; }
     setGenerating(true); setGenError(""); setResult(null);
-    let searchContext = "";
-    try {
-      const searchData = await searchMutation.mutateAsync({
-        query: `${niche} ecommerce market size competition Australia 2025`,
-        maxResults: 3,
-        searchDepth: "basic",
-      });
-      searchContext = searchData.results.map(r => `${r.title}: ${r.content}`).join("\n\n");
-    } catch { /* ignore */ }
+
+    const searchQuery = `${niche} ecommerce market size competition Australia 2025`;
+    searchQueryRef.current = searchQuery;
 
     const prompt = [
       `Niche to evaluate: ${niche}`,
       context && `Additional context: ${context}`,
-      searchContext && `\nMarket data:\n${searchContext.slice(0, 1500)}`,
     ].filter(Boolean).join("\n");
     sendMessage({ text: prompt });
     setWaitingForResponse(true);
-  }, [niche, context, sendMessage, searchMutation]);
+  }, [niche, context, sendMessage]);
 
   const isLoading = generating || status === "streaming" || status === "submitted";
   const vc = result ? (VERDICT_CONFIG[result.verdict] || VERDICT_CONFIG["Proceed with Caution"]) : null;
@@ -198,7 +191,7 @@ export default function NicheScorer() {
             <div>
               <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(240,237,232,0.6)", fontFamily: "Syne, sans-serif" }}>Niche to Score *</label>
               <input value={niche} onChange={e => setNiche(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && !isLoading && handleGenerate()}
+                onKeyDown={e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); handleGenerate(); } }}
                 placeholder="e.g. Posture correctors, Yoga mats…"
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#f0ede8" }} />
