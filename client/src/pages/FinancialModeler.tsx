@@ -176,7 +176,7 @@ export default function FinancialModeler() {
             </div>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
                 { label: "Net Margin", value: `${result.margin.toFixed(1)}%`, color: result.margin > 0 ? "#2dca72" : "#ff6b6b", icon: TrendingUp },
                 { label: "ROAS", value: `${result.roas.toFixed(1)}x`, color: result.roas >= 2 ? "#2dca72" : result.roas >= 1 ? "#f0c040" : "#ff6b6b", icon: Target },

@@ -110,7 +110,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
               ))}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: c.accent, fontFamily: "Syne, sans-serif" }}>🎬 Creative Brief</div>
               <div className="text-xs p-3 rounded-xl leading-relaxed" style={{ background: "rgba(0,0,0,0.15)", color: "rgba(240,237,232,0.65)", border: "1px solid rgba(255,255,255,0.05)" }}>{angle.creativeBrief}</div>
@@ -267,9 +267,9 @@ export default function MetaAdsPack() {
         )}
       </div>
 
-      <div className="flex-1 overflow-hidden flex">
+      <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
         {/* LEFT: Input panel */}
-        <div className="w-72 flex-shrink-0 overflow-y-auto border-r p-4 space-y-4" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+        <div className="w-full lg:w-72 flex-shrink-0 overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 space-y-4" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
           {/* URL Import */}
           <div className="rounded-xl p-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
             <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Import from URL</div>
@@ -447,7 +447,7 @@ export default function MetaAdsPack() {
               </div>
 
               {/* Budget + KPIs */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="p-4 rounded-2xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
                   <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>💰 Budget Split</div>
                   <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.65)" }}>{pack.budgetSplit}</div>

@@ -168,7 +168,7 @@ export default function AIToolChat({
   const hasOutput = messages.some(m => m.role === "assistant");
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] bg-background">
+    <div className="flex flex-col h-full bg-background">
       {/* Tool Header */}
       <div className="flex-shrink-0 border-b px-5 py-3" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
         <div className="flex items-center gap-3">
@@ -182,7 +182,7 @@ export default function AIToolChat({
             <h1 className="font-black text-sm" style={{ fontFamily: "Syne, sans-serif" }}>
               {toolName}
             </h1>
-            <p className="text-xs text-muted-foreground">{toolDescription}</p>
+            <p className="text-xs text-muted-foreground hidden sm:block">{toolDescription}</p>
           </div>
           {hasOutput && (
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -394,7 +394,7 @@ export default function AIToolChat({
 
         {/* HTML Preview Panel (Website Generator only) */}
         {showHTMLPreview && generatedHTML && (
-          <div className="w-[380px] flex-shrink-0 flex flex-col border-l" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+          <div className="hidden md:flex w-[380px] flex-shrink-0 flex-col border-l" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
             <Card className="flex-1 flex flex-col overflow-hidden rounded-none border-0" style={{ background: "transparent" }}>
               <div className="p-3 border-b flex items-center justify-between" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
                 <span className="text-xs font-bold" style={{ fontFamily: "Syne, sans-serif" }}>Generated HTML</span>

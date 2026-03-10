@@ -10,7 +10,7 @@ import {
   Search, BarChart, CheckCircle2, Rocket as RocketIcon,
   ChevronDown,
 } from "lucide-react";
-import { createElement, useState } from "react";
+import { createElement, useState, useEffect } from "react";
 
 const orbitalStages = [
   {
@@ -219,6 +219,15 @@ export default function Home() {
   const handleLaunchApp = () => {
     setLocation("/app");
   };
+
+  // SEO — dynamic title and meta description
+  useEffect(() => {
+    document.title = "Majorka — The AI Operating System for Ecommerce Winners";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) {
+      meta.setAttribute("content", "Majorka is the AI operating system for ecommerce operators. 50+ AI tools to research products, validate ideas, generate Shopify landing pages, launch campaigns, and scale your store — all in one place.");
+    }
+  }, []);
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
@@ -515,10 +524,10 @@ export default function Home() {
               Majorka replaces an entire ecommerce team — at a fraction of the cost.
             </p>
           </div>
-          <div className="rounded-2xl overflow-hidden border" style={{ borderColor: "rgba(212,175,55,0.2)" }}>
+          <div className="rounded-2xl overflow-x-auto border" style={{ borderColor: "rgba(212,175,55,0.2)" }}>
             {/* Table header */}
             <div
-              className="grid grid-cols-3 px-5 py-3 text-xs font-black uppercase tracking-widest"
+              className="grid grid-cols-3 min-w-[480px] px-5 py-3 text-xs font-black uppercase tracking-widest"
               style={{ background: "rgba(212,175,55,0.08)", color: "rgba(212,175,55,0.7)", fontFamily: "Syne, sans-serif" }}
             >
               <span>Role</span>
@@ -528,7 +537,7 @@ export default function Home() {
             {valueComparison.map((row, i) => (
               <div
                 key={i}
-                className="grid grid-cols-3 px-5 py-4 text-sm border-t"
+                className="grid grid-cols-3 min-w-[480px] px-5 py-4 text-sm border-t"
                 style={{ borderColor: "rgba(255,255,255,0.05)", background: i % 2 === 0 ? "rgba(255,255,255,0.015)" : "transparent" }}
               >
                 <span className="font-semibold text-foreground/80">{row.role}</span>
@@ -537,7 +546,7 @@ export default function Home() {
               </div>
             ))}
             <div
-              className="grid grid-cols-3 px-5 py-4 border-t"
+              className="grid grid-cols-3 min-w-[480px] px-5 py-4 border-t"
               style={{ borderColor: "rgba(212,175,55,0.2)", background: "rgba(212,175,55,0.06)" }}
             >
               <span className="font-black text-sm" style={{ fontFamily: "Syne, sans-serif" }}>Total</span>

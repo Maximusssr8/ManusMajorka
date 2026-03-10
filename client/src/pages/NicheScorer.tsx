@@ -192,8 +192,8 @@ export default function NicheScorer() {
         )}
       </div>
 
-      <div className="flex-1 overflow-hidden flex">
-        <div className="w-72 flex-shrink-0 overflow-y-auto border-r p-4 space-y-4" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+      <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
+        <div className="w-full lg:w-72 flex-shrink-0 overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 space-y-4" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
           <div className="space-y-3">
             <div>
               <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(240,237,232,0.6)", fontFamily: "Syne, sans-serif" }}>Niche to Score *</label>
@@ -299,7 +299,7 @@ export default function NicheScorer() {
               </div>
 
               {/* Key metrics */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="p-3 rounded-xl text-center" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
                   <div className="text-xs font-bold mb-1" style={{ color: "rgba(240,237,232,0.35)", fontFamily: "Syne, sans-serif" }}>Est. Revenue</div>
                   <div className="text-xs font-black" style={{ color: "#2dca72", fontFamily: "Syne, sans-serif" }}>{result.estimatedMonthlyRevenue}</div>

@@ -511,7 +511,7 @@ Generate a full competitive intelligence report as JSON.`;
                   </span>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
                   { label: "Market Size", value: result.marketOverview.marketSize },
                   { label: "Growth Rate", value: result.marketOverview.growthRate },
@@ -622,7 +622,7 @@ Generate a full competitive intelligence report as JSON.`;
 
             {/* Pricing Intelligence */}
             <SectionCard title="Pricing Intelligence" accent="#f59e0b">
-              <div className="grid grid-cols-4 gap-2 mb-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
                 {[
                   { label: "Market Low", value: result.pricingIntelligence.marketLow, color: "#2dca72" },
                   { label: "Average", value: result.pricingIntelligence.marketAverage, color: "#f59e0b" },

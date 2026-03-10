@@ -84,7 +84,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
           </span>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 mb-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
           {[
             { label: "MOQ", value: supplier.moq },
             { label: "Lead Time", value: supplier.leadTime },
@@ -243,8 +243,8 @@ export default function SupplierFinder() {
         )}
       </div>
 
-      <div className="flex-1 overflow-hidden flex">
-        <div className="w-72 flex-shrink-0 overflow-y-auto border-r p-4 space-y-4" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+      <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
+        <div className="w-full lg:w-72 flex-shrink-0 overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 space-y-4" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
           <div className="space-y-3">
             <div>
               <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(240,237,232,0.6)", fontFamily: "Syne, sans-serif" }}>Product to Source *</label>
