@@ -2,7 +2,7 @@
  * Product URL Scraping API
  * Uses Firecrawl to scrape product pages, with Tavily + Pexels fallbacks.
  */
-import type { Express } from "express";
+import type { Application } from "express";
 import Firecrawl from "@mendable/firecrawl-js";
 import { tavilyExtract, tavilySearch } from "../tavily";
 
@@ -30,7 +30,7 @@ async function searchPexelsImages(query: string): Promise<string[]> {
   }
 }
 
-export function registerScrapeRoutes(app: Express) {
+export function registerScrapeRoutes(app: Application) {
   app.post("/api/scrape-product", async (req, res) => {
     try {
       const { url } = req.body;

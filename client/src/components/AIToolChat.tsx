@@ -70,15 +70,6 @@ export default function AIToolChat({
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Auto-send initialMessage on mount
-  const initialSent = useRef(false);
-  useEffect(() => {
-    if (initialMessage && !initialSent.current && messages.length === 0) {
-      initialSent.current = true;
-      handleSend(initialMessage);
-    }
-  }, [initialMessage, messages.length, handleSend]);
-
   const handleSend = async (overrideText?: string) => {
     const msg = (overrideText ?? input).trim();
     if (!msg) return;
@@ -134,6 +125,15 @@ export default function AIToolChat({
       setStatus("idle");
     }
   };
+
+  // Auto-send initialMessage on mount
+  const initialSent = useRef(false);
+  useEffect(() => {
+    if (initialMessage && !initialSent.current && messages.length === 0) {
+      initialSent.current = true;
+      handleSend(initialMessage);
+    }
+  }, [initialMessage, messages.length, handleSend]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -366,7 +366,7 @@ export default function AIToolChat({
               />
               <div className="flex flex-col gap-1.5">
                 <Button
-                  onClick={handleSend}
+                  onClick={() => handleSend()}
                   disabled={status === "streaming" || !input.trim()}
                   size="icon"
                   className="h-9 w-9 rounded-lg"

@@ -6,7 +6,7 @@
  * Includes user profile context and conversation memory for personalised responses.
  */
 
-import type { Express } from "express";
+import type { Application } from "express";
 import { getAnthropicClient, CLAUDE_MODEL, BASE_SYSTEM_PROMPT } from "../lib/anthropic";
 import { getSupabaseAdmin } from "./supabase";
 import { getUserContextString, getConversationHistory, saveConversationMessage, getProfileById, upsertProfile } from "../db";
@@ -15,7 +15,7 @@ import { tavilySearch } from "../tavily";
 /**
  * Registers the /api/chat endpoint for streaming AI responses via Anthropic Claude.
  */
-export function registerChatRoutes(app: Express) {
+export function registerChatRoutes(app: Application) {
   app.post("/api/chat", async (req, res) => {
     try {
       const { messages: rawMessages, message, systemPrompt, toolName, searchQuery } = req.body;
