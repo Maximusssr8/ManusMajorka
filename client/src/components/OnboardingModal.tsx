@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { Rocket, ShoppingBag, TrendingUp, Zap, ChevronRight, ChevronLeft, X, DollarSign } from "lucide-react";
+import { Rocket, ShoppingBag, TrendingUp, Zap, ChevronRight, ChevronLeft, X } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 
 const ONBOARDING_KEY = "majorka_onboarded";
 
@@ -35,24 +36,58 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
   const [selectedBudget, setSelectedBudget] = useState<string | null>(null);
 
-  useEffect(() => {
-    const done = localStorage.getItem(ONBOARDING_KEY);
-    if (!done) setVisible(true);
-  }, []);
+  const profileQuery = trpc.profile.get.useQuery(undefined, {
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  const updateProfile = trpc.profile.update.useMutation();
 
-  const handleDismiss = () => {
+  useEffect(() => {
+    // Fast path: check localStorage cache first
+    const localDone = localStorage.getItem(ONBOARDING_KEY);
+    if (localDone) return; // already onboarded per cache
+
+    // If profile loaded from server, check onboardingCompleted
+    if (profileQuery.data !== undefined) {
+      if (profileQuery.data?.onboardingCompleted) {
+        // Server says done — sync localStorage cache
+        localStorage.setItem(ONBOARDING_KEY, "true");
+        return;
+      }
+      // Not completed on server either — show modal
+      setVisible(true);
+    }
+
+    // If profile query errored (e.g. not logged in), fall back to showing modal
+    if (profileQuery.error) {
+      setVisible(true);
+    }
+  }, [profileQuery.data, profileQuery.error]);
+
+  /** Persist onboarding data to Supabase via tRPC and cache in localStorage */
+  const persistOnboarding = () => {
+    // Write to localStorage as fast cache/fallback
     localStorage.setItem(ONBOARDING_KEY, "true");
     if (selectedLevel) localStorage.setItem("majorka_level", selectedLevel);
     if (selectedGoal) localStorage.setItem("majorka_goal", selectedGoal);
     if (selectedBudget) localStorage.setItem("majorka_budget", selectedBudget);
+
+    // Persist to Supabase via tRPC (fire-and-forget; localStorage is already set)
+    updateProfile.mutate({
+      onboardingCompleted: true,
+      ...(selectedLevel ? { experienceLevel: selectedLevel } : {}),
+      ...(selectedGoal ? { mainGoal: selectedGoal } : {}),
+      ...(selectedBudget ? { budget: selectedBudget } : {}),
+    });
+  };
+
+  const handleDismiss = () => {
+    persistOnboarding();
     setVisible(false);
   };
 
   const handleFinish = () => {
-    localStorage.setItem(ONBOARDING_KEY, "true");
-    if (selectedLevel) localStorage.setItem("majorka_level", selectedLevel);
-    if (selectedGoal) localStorage.setItem("majorka_goal", selectedGoal);
-    if (selectedBudget) localStorage.setItem("majorka_budget", selectedBudget);
+    persistOnboarding();
     setVisible(false);
     // Navigate to chosen goal
     const goal = goals.find(g => g.id === selectedGoal);

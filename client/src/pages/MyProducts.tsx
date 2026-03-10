@@ -18,14 +18,14 @@ export default function MyProducts() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const [showCreate, setShowCreate] = useState(false);
-  const [editId, setEditId] = useState<number | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [niche, setNiche] = useState("");
   const [description, setDescription] = useState("");
 
   const utils = trpc.useUtils();
-  const { data: products, isLoading } = trpc.products.list.useQuery();
+  const { data: products, isLoading, error } = trpc.products.list.useQuery();
   const createMut = trpc.products.create.useMutation({
     onSuccess: () => { utils.products.list.invalidate(); setShowCreate(false); resetForm(); toast.success("Product created!"); },
   });
@@ -122,7 +122,15 @@ export default function MyProducts() {
         )}
 
         {/* Product List */}
-        {isLoading ? (
+        {error ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <div className="text-4xl">⚠️</div>
+            <div className="text-sm font-black" style={{ fontFamily: "Syne, sans-serif" }}>Database not connected</div>
+            <div className="text-xs max-w-xs text-center" style={{ color: "rgba(240,237,232,0.35)" }}>
+              Run your database migrations and check DATABASE_URL in .env
+            </div>
+          </div>
+        ) : isLoading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 size={24} className="animate-spin" style={{ color: "#d4af37" }} />
           </div>

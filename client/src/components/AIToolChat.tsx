@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect } from "react";
-import { useChat } from "@ai-sdk/react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,7 +6,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Markdown } from "@/components/Markdown";
 import { Download, Copy, Send, Loader2, Sparkles, Check } from "lucide-react";
 import { toast } from "sonner";
-import { DefaultChatTransport } from "ai";
 import OutputToolbar from "@/components/OutputToolbar";
 import RelatedTools from "@/components/RelatedTools";
 import { SaveToProduct } from "@/components/SaveToProduct";
@@ -27,6 +25,8 @@ interface AIToolChatProps {
   initialMessage?: string;
 }
 
+type Message = { role: "user" | "assistant"; content: string };
+
 export default function AIToolChat({
   toolId,
   toolName,
@@ -41,34 +41,16 @@ export default function AIToolChat({
   const [generatedHTML, setGeneratedHTML] = useState<string>("");
   const [showPreview, setShowPreview] = useState(false);
   const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [status, setStatus] = useState<"idle" | "streaming">("idle");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  const { messages, sendMessage, status } = useChat({
-    id: toolId,
-    messages: [],
-    transport: new DefaultChatTransport({
-      api: "/api/chat",
-      prepareSendMessagesRequest({ messages }) {
-        return {
-          body: {
-            messages,
-            systemPrompt,
-          },
-        };
-      },
-    }),
-  });
 
   // Extract HTML from assistant messages (for Website Generator)
   useEffect(() => {
     if (!showHTMLPreview) return;
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === "assistant") {
-      const textContent = lastMessage.parts
-        .filter((p) => p.type === "text")
-        .map((p) => (p as any).text)
-        .join("");
-      const htmlMatch = textContent.match(/```html\n([\s\S]*?)\n```/);
+      const htmlMatch = lastMessage.content.match(/```html\n([\s\S]*?)\n```/);
       if (htmlMatch && htmlMatch[1]) {
         setGeneratedHTML(htmlMatch[1]);
       }
@@ -96,8 +78,48 @@ export default function AIToolChat({
     if (!input.trim()) return;
     const msg = input;
     setInput("");
-    await sendMessage({ text: msg });
-  };
+    setStatus("streaming");
+    setMessages(prev => [...prev, { role: "assistant", content: "" }]);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+          systemPrompt,
+        }),
+      });
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No response body");
+      const decoder = new TextDecoder();
+      let fullText = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        for (const line of chunk.split("\n")) {
+          if (line.startsWith("0:")) {
+            try { fullText += JSON.parse(line.slice(2)); } catch { }
+          }
+        }
+        setMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: "assistant", content: fullText };
+          return updated;
+        });
+      }
+    } catch {
+      setMessages(prev => {
+        const updated = [...prev];
+        updated[updated.length - 1] = { role: "assistant", content: "Something went wrong. Please try again." };
+        return updated;
+      });
+    } finally {
+      setStatus("idle");
+    }
+  }, [input, messages, status, systemPrompt]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -107,18 +129,14 @@ export default function AIToolChat({
   const getAllAssistantText = () => {
     return messages
       .filter(m => m.role === "assistant")
-      .map(m => m.parts.filter((p) => p.type === "text").map((p) => (p as any).text).join(""))
+      .map(m => m.content)
       .join("\n\n");
   };
 
   const copyLastMessage = () => {
     const last = messages[messages.length - 1];
     if (last?.role === "assistant") {
-      const text = last.parts
-        .filter((p) => p.type === "text")
-        .map((p) => (p as any).text)
-        .join("");
-      copyToClipboard(text);
+      copyToClipboard(last.content);
     }
   };
 
@@ -231,34 +249,26 @@ export default function AIToolChat({
                         : { background: "rgba(255,255,255,0.03)" }
                     }
                   >
-                    {msg.parts.map((part, j) => {
-                      if (part.type === "text") {
-                        return (
-                          <div
-                            key={j}
-                            className="prose prose-sm dark:prose-invert max-w-none"
-                            contentEditable
-                            suppressContentEditableWarning
-                            onBlur={() => {/* Allow inline text editing */}}
-                            style={{ outline: "none" }}
-                          >
-                            <Markdown mode="static">{(part as any).text}</Markdown>
-                          </div>
-                        );
-                      }
-                      return null;
-                    })}
+                    <div
+                      className="prose prose-sm dark:prose-invert max-w-none"
+                      contentEditable
+                      suppressContentEditableWarning
+                      onBlur={() => {/* Allow inline text editing */}}
+                      style={{ outline: "none" }}
+                    >
+                      <Markdown mode="static">{msg.content}</Markdown>
+                    </div>
                     {/* Per-message copy button */}
                     {msg.role === "assistant" && (
                       <div className="mt-2 flex justify-end">
-                        <CopyMsgBtn text={msg.parts.filter((p) => p.type === "text").map((p) => (p as any).text).join("")} />
+                        <CopyMsgBtn text={msg.content} />
                       </div>
                     )}
                   </div>
                 </div>
               ))}
 
-              {status === "streaming" && messages[messages.length - 1]?.role !== "assistant" && (
+              {status === "streaming" && messages[messages.length - 1]?.content === "" && (
                 <div className="flex gap-3 justify-start">
                   <div className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center" style={{ background: "rgba(212,175,55,0.1)" }}>
                     <Sparkles className="w-3.5 h-3.5" style={{ color: "#d4af37" }} />
