@@ -2,7 +2,6 @@
  * Vercel Serverless Function — wraps the Express app for serverless deployment.
  * All /api/* requests are routed here via vercel.json rewrites.
  */
-import "dotenv/config";
 import express from "express";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerChatRoutes } from "../server/_core/chat";
