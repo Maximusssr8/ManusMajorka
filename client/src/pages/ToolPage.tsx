@@ -28,6 +28,8 @@ import LaunchPlanner from "./LaunchPlanner";
 import AIChat from "./AIChat";
 import MyProducts from "./MyProducts";
 import ProductHub from "./ProductHub";
+import StageLanding from "./StageLanding";
+import InsightsPage from "./InsightsPage";
 import { createElement, useState } from "react";
 
 // Map stage landing paths to their stage names

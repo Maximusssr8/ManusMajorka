@@ -1,9 +1,8 @@
-import { useState, useRef, useEffect } from "react";
-import { useChat } from "@ai-sdk/react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Markdown } from "@/components/Markdown";
 import { Send, Loader2, Sparkles } from "lucide-react";
-import { DefaultChatTransport } from "ai";
+import { ActiveProductBanner } from "@/components/ActiveProductBanner";
 
 const AI_CHAT_SYSTEM_PROMPT = `You are Majorka AI — a straight-talking ecommerce co-founder who's been in the trenches.
 

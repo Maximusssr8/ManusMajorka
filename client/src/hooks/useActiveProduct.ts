@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 export interface ActiveProduct {
+  id?: string;
   name: string;
   niche: string;
   summary: string;

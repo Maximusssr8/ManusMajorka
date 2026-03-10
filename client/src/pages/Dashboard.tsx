@@ -142,9 +142,6 @@ function DashboardHome() {
           </p>
         </div>
 
-        {/* Continue where you left off — recent tools (multi-tool) */}
-        <RecentTools onNavigate={setLocation} />
-
         {/* Continue where you left off — last single tool */}
         <ContinueLastTool onNavigate={setLocation} />
 
@@ -182,12 +179,6 @@ function DashboardHome() {
 
         {/* Continue where you left off */}
         <ContinueSection onNavigate={setLocation} />
-
-        {/* Recommended Starting Path (based on onboarding level) */}
-        <RecommendedPath onNavigate={setLocation} />
-
-        {/* Milestone Badges */}
-        <MilestoneBadges />
 
         {/* Quick launch: Website Generator + Meta Ads Pack */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">

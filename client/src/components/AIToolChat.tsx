@@ -295,12 +295,9 @@ export default function AIToolChat({
               {/* GO/NO-GO verdict action buttons */}
               {(() => {
                 const lastAssistantMsg = [...messages].reverse().find(m => m.role === "assistant");
-                const lastContent = lastAssistantMsg?.parts
-                  .filter((p) => p.type === "text")
-                  .map((p) => (p as any).text)
-                  .join("") || "";
+                const lastContent = lastAssistantMsg?.content || "";
                 const verdict = lastContent.match(/Verdict:\s*\*?\*?\s*(GO|NO-GO|PIVOT)/i)?.[1]?.toUpperCase();
-                if (!verdict || status !== "ready") return null;
+                if (!verdict || status !== "idle") return null;
                 return (
                   <div className="flex gap-3 mt-2 p-4 rounded-2xl" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
                     <div className="flex-1">

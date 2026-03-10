@@ -7,11 +7,11 @@ import { useLocation } from "wouter";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
 
 interface Product {
-  id: string | number;
+  id: string;
   name: string;
-  url?: string;
-  niche?: string;
-  description?: string;
+  url?: string | null;
+  niche?: string | null;
+  description?: string | null;
   stage?: string;
   status?: string;
 }
@@ -28,7 +28,7 @@ const statusColors: Record<string, { bg: string; text: string; label: string }> 
 export default function MyProducts() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
-  const { activeProduct, setActiveProduct } = useActiveProduct();
+  const { activeProduct, setProduct } = useActiveProduct();
   const [showCreate, setShowCreate] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
@@ -191,14 +191,14 @@ export default function MyProducts() {
                       </a>
                     ) : <span />}
                     <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
-                      {activeProduct?.id === String(p.id) ? (
+                      {activeProduct?.id === p.id ? (
                         <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg font-bold" style={{ color: "#d4af37" }}>
                           <Star size={10} fill="#d4af37" />
                           Active
                         </span>
                       ) : (
                         <button
-                          onClick={() => setActiveProduct({ id: String(p.id), name: p.name, niche: p.niche ?? undefined, stage: p.status ?? undefined })}
+                          onClick={() => setProduct({ id: p.id, name: p.name, niche: p.niche ?? "", summary: p.description ?? p.name, source: "manual", savedAt: Date.now() })}
                           className="text-xs px-2 py-1 rounded-lg transition-all hover:bg-white/5"
                           style={{ cursor: "pointer", color: "rgba(240,237,232,0.4)", border: "1px solid rgba(255,255,255,0.08)" }}
                         >
