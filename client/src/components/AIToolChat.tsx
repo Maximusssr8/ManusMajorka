@@ -75,17 +75,18 @@ export default function AIToolChat({
   useEffect(() => {
     if (initialMessage && !initialSent.current && messages.length === 0) {
       initialSent.current = true;
-      sendMessage({ text: initialMessage });
+      handleSend(initialMessage);
     }
-  }, [initialMessage, messages.length, sendMessage]);
+  }, [initialMessage, messages.length, handleSend]);
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
-    const msg = input;
-    setInput("");
+  const handleSend = async (overrideText?: string) => {
+    const msg = (overrideText ?? input).trim();
+    if (!msg) return;
+    if (!overrideText) setInput("");
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
+    const newMessages = [...messages, { role: "user" as const, content: msg }];
+    setMessages([...newMessages, { role: "assistant" as const, content: "" }]);
     setStatus("streaming");
-    setMessages(prev => [...prev, { role: "assistant", content: "" }]);
 
     try {
       const response = await fetch("/api/chat", {
@@ -132,7 +133,7 @@ export default function AIToolChat({
     } finally {
       setStatus("idle");
     }
-  }, [input, messages, status, systemPrompt]);
+  };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
