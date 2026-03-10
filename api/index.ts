@@ -5,7 +5,8 @@
 import express, { type Request, type Response } from "express";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerChatRoutes } from "../server/_core/chat";
-import { registerScrapeRoutes } from "../server/lib/scrape-product";
+import { registerScrapeRoutes, scrapeProductData } from "../server/lib/scrape-product";
+import { analyzeProduct } from "../server/lib/product-intelligence";
 import { appRouter } from "../server/routers";
 import { createContext } from "../server/_core/context";
 import { createCheckoutSession, constructWebhookEvent, handleWebhook } from "../server/lib/stripe";
@@ -65,6 +66,35 @@ app.get("/api/health", (_req: Request, res: Response) => {
 
 registerChatRoutes(app);
 registerScrapeRoutes(app);
+
+// ── Product import with AI Brain ─────────────────────────────────────────────
+app.post("/api/import-product", async (req: Request, res: Response) => {
+  const { url } = req.body as { url?: string };
+  if (!url || typeof url !== "string") {
+    res.status(400).json({ error: "url is required" });
+    return;
+  }
+  try {
+    // Step 1: Scrape the product
+    const scraped = await scrapeProductData(url);
+
+    // Step 2: Run AI Brain analysis
+    const intelligence = await analyzeProduct(scraped);
+
+    res.json({
+      success: true,
+      product: {
+        ...scraped,
+        intelligence,
+        importedAt: new Date().toISOString(),
+        id: crypto.randomUUID(),
+      },
+    });
+  } catch (err: any) {
+    console.error("[import-product]", err.message);
+    res.status(500).json({ success: false, error: err.message || "Import failed" });
+  }
+});
 
 // ── Stripe checkout session ─────────────────────────────────────────────────
 app.post("/api/stripe/checkout-session", async (req, res) => {

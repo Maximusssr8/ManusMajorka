@@ -1,5 +1,8 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import type { ReactNode } from "react";
+import type { ProductIntelligence } from "@/lib/buildToolPrompt";
+
+export type { ProductIntelligence };
 
 export interface ActiveProduct {
   id?: string;
@@ -9,6 +12,7 @@ export interface ActiveProduct {
   source: "research" | "validate" | "manual";
   savedAt: number;
   price?: string;
+  currency?: string;
   images?: string[];
   description?: string;
   variants?: {
@@ -17,6 +21,7 @@ export interface ActiveProduct {
   };
   category?: string;
   sourceUrl?: string;
+  intelligence?: ProductIntelligence;
 }
 
 interface ProductContextValue {

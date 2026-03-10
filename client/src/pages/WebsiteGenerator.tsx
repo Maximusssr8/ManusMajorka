@@ -9,6 +9,7 @@ import { SaveToProduct } from "@/components/SaveToProduct";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
 import { useProduct } from "@/contexts/ProductContext";
 import { proxyImage } from "@/lib/imageProxy";
+import { injectProductIntelligence } from "@/lib/buildToolPrompt";
 
 // ── Title cleaning ────────────────────────────────────────────────────────────
 function cleanProductTitle(raw: string): string {
@@ -373,6 +374,9 @@ export default function WebsiteGenerator() {
   const [activeTab, setActiveTab] = useState<"preview" | "chat">("preview");
 
   // AI chat for refinement
+  const contextProductRef = useRef(contextProduct);
+  contextProductRef.current = contextProduct;
+
   const [chatInput, setChatInput] = useState("");
   const { messages: chatMessages, sendMessage, status: chatStatus } = useChat({
     transport: new DefaultChatTransport({
@@ -390,10 +394,7 @@ export default function WebsiteGenerator() {
           ? `\nAVAILABLE VARIANTS:\n${variantInfo}\n`
           : "";
 
-        return {
-          body: {
-            messages: messages.map(m => ({ role: m.role, content: m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join("") })),
-            systemPrompt: `You are a senior conversion rate optimisation expert and Shopify landing page specialist. You have deep knowledge of direct response copywriting, buyer psychology, and what makes ecommerce pages convert at 3-8%.
+        const baseSystemPrompt = `You are a senior conversion rate optimisation expert and Shopify landing page specialist. You have deep knowledge of direct response copywriting, buyer psychology, and what makes ecommerce pages convert at 3-8%.
 ${imageSection}${variantSection}
 When given a product, deliver a COMPLETE HTML landing page with these exact sections:
 
@@ -426,7 +427,14 @@ Questions that address the top buyer objections for this product niche.
 
 OUTPUT FORMAT: Return complete HTML with inline CSS. Use the product's color scheme. Make it Shopify-ready. Wrap in \`\`\`html ... \`\`\` code blocks.
 
-RULES: Be specific to this product, not generic. Write actual copy. Give real HTML. Never describe what to write — just write it. If variant data is provided, include colour/size selector UI in the HTML.`,
+RULES: Be specific to this product, not generic. Write actual copy. Give real HTML. Never describe what to write — just write it. If variant data is provided, include colour/size selector UI in the HTML.`;
+
+        const enrichedSystemPrompt = injectProductIntelligence(baseSystemPrompt, contextProductRef.current);
+
+        return {
+          body: {
+            messages: messages.map(m => ({ role: m.role, content: m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join("") })),
+            systemPrompt: enrichedSystemPrompt,
           },
         };
       },
