@@ -350,19 +350,7 @@ export default function MajorkaAppShell({ children }: Props) {
         ) : (
           <button
             type="button"
-            onClick={async (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              const { data } = await supabase.auth.signInWithOAuth({
-                provider: "google",
-                options: {
-                  redirectTo: `${window.location.origin}/app`,
-                  skipBrowserRedirect: true,
-                  queryParams: { prompt: "select_account" },
-                },
-              });
-              if (data?.url) window.open(data.url, "_self");
-            }}
+            onClick={() => setLocation("/sign-in")}
             className="w-full text-xs font-bold px-3 py-2 transition-all"
             style={{
               borderRadius: 8,

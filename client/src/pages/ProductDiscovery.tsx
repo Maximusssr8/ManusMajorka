@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Search, Copy, Check, Loader2, TrendingUp, DollarSign, Package, Star, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 import { SaveToProduct } from "@/components/SaveToProduct";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
+import { ActiveProductBanner } from "@/components/ActiveProductBanner";
 
 interface ProductIdea {
   name: string;
@@ -155,6 +156,11 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
 
 const EXAMPLE_NICHES = ["Pet accessories", "Home gym equipment", "Eco-friendly kitchen", "Baby & toddler", "Outdoor & camping"];
 
+const getSystemPrompt = (basePrompt: string, activeProduct: ReturnType<typeof useActiveProduct>["activeProduct"]) => {
+  if (!activeProduct) return basePrompt;
+  return basePrompt + `\n\nACTIVE PRODUCT CONTEXT:\n- Product: ${activeProduct.name}${activeProduct.niche ? '\n- Niche: ' + activeProduct.niche : ''}${activeProduct.summary ? '\n- Summary: ' + activeProduct.summary : ''}\n\nAll advice and output must be specifically tailored to this product. Reference it by name.`;
+};
+
 export default function ProductDiscovery() {
   const [niche, setNiche] = useState("");
   const [priceRange, setPriceRange] = useState("");
@@ -162,6 +168,7 @@ export default function ProductDiscovery() {
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState<DiscoveryResult | null>(null);
   const [genError, setGenError] = useState("");
+  const { activeProduct } = useActiveProduct();
   const handleGenerate = useCallback(async () => {
     if (!niche.trim()) { toast.error("Please enter a niche or category"); return; }
     setGenerating(true); setGenError(""); setResult(null);
@@ -180,7 +187,7 @@ export default function ProductDiscovery() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: [{ role: "user", content: prompt }],
-          systemPrompt: SYSTEM_PROMPT,
+          systemPrompt: getSystemPrompt(SYSTEM_PROMPT, activeProduct),
           searchQuery,
         }),
       });
@@ -258,6 +265,8 @@ export default function ProductDiscovery() {
           </button>
         )}
       </div>
+
+      <ActiveProductBanner ctaLabel="Load into tool" onUseProduct={(summary) => setNiche(summary)} />
 
       <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
         {/* LEFT: Input panel */}

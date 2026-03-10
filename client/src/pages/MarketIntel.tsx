@@ -7,6 +7,8 @@ import { Markdown } from "@/components/Markdown";
 import { Copy, Send, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { DefaultChatTransport } from "ai";
+import { useActiveProduct } from "@/hooks/useActiveProduct";
+import { ActiveProductBanner } from "@/components/ActiveProductBanner";
 
 const MARKET_INTEL_SYSTEM_PROMPT = `You are a market research and competitive intelligence expert.
 
@@ -35,6 +37,12 @@ export default function MarketIntel() {
   const [input, setInput] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { activeProduct } = useActiveProduct();
+
+  const getSystemPrompt = () => {
+    if (!activeProduct) return MARKET_INTEL_SYSTEM_PROMPT;
+    return MARKET_INTEL_SYSTEM_PROMPT + `\n\nACTIVE PRODUCT CONTEXT:\n- Product: ${activeProduct.name}${activeProduct.niche ? '\n- Niche: ' + activeProduct.niche : ''}${activeProduct.summary ? '\n- Summary: ' + activeProduct.summary : ''}\n\nAll advice and output must be specifically tailored to this product. Reference it by name.`;
+  };
 
   const { messages, sendMessage, status } = useChat({
     id: "market-intel",
@@ -46,7 +54,7 @@ export default function MarketIntel() {
           body: {
             message: messages[messages.length - 1],
             chatId: "market-intel",
-            systemPrompt: MARKET_INTEL_SYSTEM_PROMPT,
+            systemPrompt: getSystemPrompt(),
           },
         };
       },
@@ -82,6 +90,7 @@ export default function MarketIntel() {
 
   return (
     <div className="flex flex-col h-full bg-background">
+      <ActiveProductBanner ctaLabel="Load into tool" onUseProduct={(summary) => setInput(summary)} />
       {/* Header */}
       <div className="flex-shrink-0 border-b p-4" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
         <div className="flex items-center gap-3">

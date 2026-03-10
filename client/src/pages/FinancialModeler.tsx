@@ -1,7 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { Copy, DollarSign, TrendingUp, BarChart3, Loader2, Target } from "lucide-react";
 import { SaveToProduct } from "@/components/SaveToProduct";
+import { useActiveProduct } from "@/hooks/useActiveProduct";
+import { ActiveProductBanner } from "@/components/ActiveProductBanner";
 
 interface PLRow { label: string; value: number; pct?: number; }
 interface ForecastMonth { month: string; revenue: number; costs: number; profit: number; cumulative: number; }
@@ -16,6 +18,20 @@ export default function FinancialModeler() {
   const [shippingCost, setShippingCost] = useState("");
   const [otherCosts, setOtherCosts] = useState("");
   const [growthRate, setGrowthRate] = useState("10");
+  const { activeProduct } = useActiveProduct();
+
+  useEffect(() => {
+    if (activeProduct && activeProduct.summary) {
+      const priceMatch = activeProduct.summary.match(/\$(\d+(?:\.\d{1,2})?)/);
+      if (priceMatch && !productPrice) {
+        const detectedPrice = parseFloat(priceMatch[1]);
+        setProductPrice(String(detectedPrice));
+        if (!cogs) {
+          setCogs(String(Math.round(detectedPrice * 0.3 * 100) / 100));
+        }
+      }
+    }
+  }, [activeProduct]);
 
   // Output
   const [generating, setGenerating] = useState(false);
@@ -106,7 +122,16 @@ export default function FinancialModeler() {
   const maxRevenue = result ? Math.max(...result.forecast.map(f => f.revenue)) : 0;
 
   return (
-    <div className="h-full flex" style={{ background: "#080a0e", color: "#f0ede8", fontFamily: "DM Sans, sans-serif" }}>
+    <div className="h-full flex flex-col" style={{ background: "#080a0e", color: "#f0ede8", fontFamily: "DM Sans, sans-serif" }}>
+      <ActiveProductBanner ctaLabel="Load into tool" onUseProduct={(summary) => {
+        const priceMatch = summary.match(/\$(\d+(?:\.\d{1,2})?)/);
+        if (priceMatch) {
+          const detectedPrice = parseFloat(priceMatch[1]);
+          setProductPrice(String(detectedPrice));
+          setCogs(String(Math.round(detectedPrice * 0.3 * 100) / 100));
+        }
+      }} />
+      <div className="flex flex-1 overflow-hidden">
       {/* LEFT PANEL — Inputs */}
       <div className="w-80 flex-shrink-0 overflow-y-auto border-r p-5 space-y-4" style={{ borderColor: "rgba(255,255,255,0.07)", scrollbarWidth: "thin" }}>
         <div className="flex items-center gap-2.5 mb-1">
@@ -256,6 +281,7 @@ export default function FinancialModeler() {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

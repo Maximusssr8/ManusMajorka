@@ -5,6 +5,8 @@ import type { UIMessage } from "ai";
 import { Copy, Check, Sparkles, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { SaveToProduct } from "@/components/SaveToProduct";
+import { useActiveProduct } from "@/hooks/useActiveProduct";
+import { ActiveProductBanner } from "@/components/ActiveProductBanner";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface BrandDNAResult {
@@ -125,6 +127,13 @@ export default function BrandDNA() {
   const [competitors, setCompetitors] = useState("");
   const [result, setResult] = useState<BrandDNAResult | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const { activeProduct } = useActiveProduct();
+
+  useEffect(() => {
+    if (activeProduct && !productType) {
+      setProductType(activeProduct.name + (activeProduct.niche ? " — " + activeProduct.niche : ""));
+    }
+  }, [activeProduct]);
 
   const SYSTEM_PROMPT = `You are an expert brand strategist specialising in ecommerce brand building. When given brand details, you MUST respond with ONLY a valid JSON object (no markdown, no code blocks, no explanation) in this exact format:
 
@@ -155,6 +164,11 @@ export default function BrandDNA() {
   "keyMessages": ["message1", "message2", "message3", "message4"]
 }`;
 
+  const getContextualSystemPrompt = () => {
+    if (!activeProduct) return SYSTEM_PROMPT;
+    return SYSTEM_PROMPT + `\n\nACTIVE PRODUCT CONTEXT:\n- Product: ${activeProduct.name}${activeProduct.niche ? '\n- Niche: ' + activeProduct.niche : ''}${activeProduct.summary ? '\n- Summary: ' + activeProduct.summary : ''}\n\nAll advice and output must be specifically tailored to this product. Reference it by name.`;
+  };
+
   const { sendMessage, status, messages } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
@@ -165,7 +179,7 @@ export default function BrandDNA() {
               role: m.role,
               content: m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join(""),
             })),
-            systemPrompt: SYSTEM_PROMPT,
+            systemPrompt: getContextualSystemPrompt(),
           },
         };
       },
@@ -227,7 +241,9 @@ Generate a comprehensive brand identity document as JSON.`;
   };
 
   return (
-    <div className="flex h-full" style={{ background: "#0a0b0d" }}>
+    <div className="flex flex-col h-full" style={{ background: "#0a0b0d" }}>
+      <ActiveProductBanner ctaLabel="Load into tool" onUseProduct={(summary) => setProductType(summary)} />
+      <div className="flex flex-1 overflow-hidden">
       {/* ── Left Panel ── */}
       <div
         className="flex flex-col flex-shrink-0 overflow-y-auto"
@@ -597,6 +613,7 @@ Generate a comprehensive brand identity document as JSON.`;
             </SectionCard>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

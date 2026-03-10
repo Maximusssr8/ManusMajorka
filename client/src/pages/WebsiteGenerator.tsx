@@ -6,6 +6,131 @@ import { toast } from "sonner";
 import { Copy, Download, X, Loader2, Globe, RefreshCw, MessageSquare, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SaveToProduct } from "@/components/SaveToProduct";
+import { useActiveProduct } from "@/hooks/useActiveProduct";
+
+// ── Title cleaning ────────────────────────────────────────────────────────────
+function cleanProductTitle(raw: string): string {
+  const platforms = ["AliExpress", "Amazon", "Shopify", "eBay", "Etsy", "Walmart", "Temu", "DHgate", "Alibaba"];
+  let title = raw;
+  // Strip everything after " - PlatformName" or "| PlatformName"
+  for (const platform of platforms) {
+    title = title.replace(new RegExp(`\\s*[-|]\\s*${platform}.*$`, "i"), "");
+  }
+  // Strip pure SKU/model codes: standalone alphanumeric tokens (no spaces within) of 6+ chars that are purely alphanumeric
+  title = title.replace(/\b[A-Z0-9]{6,}\b/g, "").replace(/\bSKU[-\s]?[A-Z0-9]+\b/gi, "");
+  // Truncate to 60 chars
+  title = title.slice(0, 60);
+  // Trim trailing dashes, pipes, commas, spaces
+  title = title.replace(/[-|,\s]+$/, "").trim();
+  return title || raw.slice(0, 60).trim();
+}
+
+// ── Category detection ────────────────────────────────────────────────────────
+type ProductCategory = "clothing" | "skincare" | "supplements" | "electronics" | "jewellery" | "home" | "generic";
+
+function detectCategory(title: string, description: string): ProductCategory {
+  const text = (title + " " + (description || "")).toLowerCase();
+  const matches = (keywords: string[]) => keywords.some(k => text.includes(k));
+
+  if (matches(["shirt", "pants", "shorts", "dress", "jacket", "leggings", "top", "hoodie", "jeans", "yoga", "swimwear", "bra", "bikini", "tshirt", "t-shirt"])) return "clothing";
+  if (matches(["cream", "serum", "moisturiser", "moisturizer", "spf", "toner", "cleanser", "mask", "retinol", "vitamin c", "face"])) return "skincare";
+  // "oil" is checked separately after skincare to avoid false positives
+  if (text.includes("oil") && matches(["serum", "moisturiser", "moisturizer", "spf", "toner", "cleanser", "mask", "retinol", "vitamin c", "face"])) return "skincare";
+  if (matches(["protein", "vitamin", "capsule", "powder", "collagen", "omega", "probiotic", "whey"])) return "supplements";
+  if (matches(["phone", "cable", "charger", "earbuds", "speaker", "led", "usb", "bluetooth", "wireless", "earphones"])) return "electronics";
+  if (matches(["necklace", "ring", "earring", "bracelet", "watch", "pendant", "chain", "jewel"])) return "jewellery";
+  if (matches(["pot", "pan", "organiser", "organizer", "storage", "pillow", "lamp", "candle", "vase", "curtain"])) return "home";
+  return "generic";
+}
+
+// ── Variant HTML builder ──────────────────────────────────────────────────────
+function buildVariantSelectors(category: ProductCategory, title: string, description: string, accent: string): string {
+  if (category === "generic" || category === "home") return "";
+
+  const text = (title + " " + (description || "")).toLowerCase();
+  const colorNames = ["Black", "White", "Pink", "Blue", "Red", "Green", "Purple", "Grey", "Navy", "Beige"];
+  const foundColors = colorNames.filter(c => text.includes(c.toLowerCase()));
+
+  const varBtnCSS = `
+<style>
+.var-group{margin-bottom:16px}
+.var-group-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;opacity:.55;margin-bottom:8px}
+.var-btns{display:flex;flex-wrap:wrap;gap:8px}
+.var-btn{padding:7px 16px;border-radius:9px;border:1.5px solid rgba(255,255,255,0.18);background:transparent;color:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.var-btn.selected{border-color:${accent};background:${accent}22;color:${accent}}
+.color-dot{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);cursor:pointer;transition:all .15s;display:inline-block}
+.color-dot.selected{border-color:${accent};box-shadow:0 0 0 2px ${accent}}
+</style>`;
+
+  const varJS = `
+<script>
+function selectVar(el, group) {
+  document.querySelectorAll('.var-btn[data-group="'+group+'"]').forEach(function(b){b.classList.remove('selected')});
+  el.classList.add('selected');
+}
+function selectColor(el, group) {
+  document.querySelectorAll('.color-dot[data-group="'+group+'"]').forEach(function(b){b.classList.remove('selected')});
+  el.classList.add('selected');
+}
+</script>`;
+
+  const colorMap: Record<string, string> = {
+    Black: "#1a1a1a", White: "#f5f5f5", Pink: "#e91e8c", Blue: "#1a73e8",
+    Red: "#e53935", Green: "#2dca72", Purple: "#9c5fff", Grey: "#9e9e9e",
+    Navy: "#1a237e", Beige: "#c9b99a",
+  };
+
+  let html = varBtnCSS;
+
+  if (category === "clothing") {
+    const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
+    html += `<div class="var-group"><div class="var-group-label">Size</div><div class="var-btns">`;
+    sizes.forEach((s, i) => {
+      html += `<button class="var-btn${i === 2 ? " selected" : ""}" data-group="size" onclick="selectVar(this,'size')">${s}</button>`;
+    });
+    html += `</div></div>`;
+
+    if (foundColors.length > 0) {
+      html += `<div class="var-group"><div class="var-group-label">Colour</div><div class="var-btns">`;
+      foundColors.forEach((c, i) => {
+        html += `<div class="color-dot${i === 0 ? " selected" : ""}" data-group="color" title="${c}" onclick="selectColor(this,'color')" style="background:${colorMap[c] || "#888"}"></div>`;
+      });
+      html += `</div></div>`;
+    }
+  } else if (category === "skincare") {
+    const volumes = ["30ml", "50ml", "100ml"];
+    html += `<div class="var-group"><div class="var-group-label">Size</div><div class="var-btns">`;
+    volumes.forEach((v, i) => {
+      html += `<button class="var-btn${i === 1 ? " selected" : ""}" data-group="volume" onclick="selectVar(this,'volume')">${v}</button>`;
+    });
+    html += `</div></div>`;
+  } else if (category === "supplements") {
+    const sizes = ["250g", "500g", "1kg"];
+    html += `<div class="var-group"><div class="var-group-label">Size</div><div class="var-btns">`;
+    sizes.forEach((s, i) => {
+      html += `<button class="var-btn${i === 1 ? " selected" : ""}" data-group="size" onclick="selectVar(this,'size')">${s}</button>`;
+    });
+    html += `</div></div>`;
+  } else if (category === "electronics") {
+    const colors = ["Black", "White", "Silver", "Rose Gold", "Blue"];
+    const elColorMap: Record<string, string> = { Black: "#1a1a1a", White: "#f5f5f5", Silver: "#b0b0b0", "Rose Gold": "#e8b4a0", Blue: "#1a73e8" };
+    html += `<div class="var-group"><div class="var-group-label">Colour</div><div class="var-btns">`;
+    colors.forEach((c, i) => {
+      html += `<div class="color-dot${i === 0 ? " selected" : ""}" data-group="color" title="${c}" onclick="selectColor(this,'color')" style="background:${elColorMap[c]}"></div>`;
+    });
+    html += `</div></div>`;
+  } else if (category === "jewellery") {
+    const materials = ["Gold", "Silver", "Rose Gold"];
+    html += `<div class="var-group"><div class="var-group-label">Material</div><div class="var-btns">`;
+    materials.forEach((m, i) => {
+      html += `<button class="var-btn${i === 0 ? " selected" : ""}" data-group="material" onclick="selectVar(this,'material')">${m}</button>`;
+    });
+    html += `</div></div>`;
+  }
+
+  html += varJS;
+  return html;
+}
 
 // ── Theme definitions ─────────────────────────────────────────────────────────
 const THEMES = [
@@ -41,11 +166,15 @@ function genSiteHTML(product: ProductData, opts: {
   themeId: string; layout: string;
   accentColor: string; bgColor: string;
   ctaText: string; brandName: string; sellPrice: string;
+  category?: ProductCategory;
 }): string {
   const theme = THEMES.find(t => t.id === opts.themeId) || THEMES[0];
   const isDark = theme.dark;
   const bg = opts.bgColor || theme.bg;
   const accent = opts.accentColor || theme.accent;
+  const cleanTitle = cleanProductTitle(product.title || "");
+  const category = opts.category ?? detectCategory(product.title || "", product.description || "");
+  const variantSelectors = buildVariantSelectors(category, product.title || "", product.description || "", accent);
   const text = isDark ? "#f2efe9" : "#111111";
   const surf = isDark ? "#111114" : "#f8f8f8";
   const nav = isDark ? "#08080a" : "#ffffff";
@@ -67,7 +196,7 @@ function genSiteHTML(product: ProductData, opts: {
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${product.title || opts.brandName || "Product"}</title>
+<title>${cleanTitle || opts.brandName || "Product"}</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -120,7 +249,7 @@ a{color:inherit;text-decoration:none}
 </head>
 <body>
 <nav class="nav">
-  <div class="nav-brand">${opts.brandName || product.title || "Store"}</div>
+  <div class="nav-brand">${opts.brandName || cleanTitle || "Store"}</div>
   <button class="nav-cta">${opts.ctaText || "Buy Now"}</button>
 </nav>
 
@@ -128,9 +257,10 @@ a{color:inherit;text-decoration:none}
   <div class="hero">
     <div>
       <div class="hero-tag">New Arrival</div>
-      <h1 class="hero-title">${product.title || "Premium Product"}<br><span>That Delivers Results</span></h1>
+      <h1 class="hero-title">${cleanTitle || "Premium Product"}<br><span>That Delivers Results</span></h1>
       <p class="hero-sub">${product.description || "High-quality product designed for performance and style. Built to last, designed to impress."}</p>
       ${opts.sellPrice ? `<span class="price-main">$${opts.sellPrice} AUD</span>` : ""}
+      ${variantSelectors}
       <button class="btn-primary">${opts.ctaText || "Buy Now"} →</button>
     </div>
     <div class="hero-imgs">${imgGrid}</div>
@@ -183,7 +313,7 @@ ${featuresList ? `
 </section>
 
 <footer class="footer">
-  <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;margin-bottom:6px">${opts.brandName || "Store"}</div>
+  <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;margin-bottom:6px">${opts.brandName || cleanTitle || "Store"}</div>
   <div style="font-size:13px;opacity:.4">© ${new Date().getFullYear()} All rights reserved.</div>
   <div class="footer-links">
     <a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="#">Contact Us</a><a href="#">Shipping Info</a>
@@ -195,10 +325,24 @@ ${featuresList ? `
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 export default function WebsiteGenerator() {
+  const { activeProduct } = useActiveProduct();
+
   // Product import
   const [importUrl, setImportUrl] = useState("");
   const [importing, setImporting] = useState(false);
-  const [product, setProduct] = useState<ProductData | null>(null);
+  const [product, setProduct] = useState<ProductData | null>(() => {
+    // Pre-fill from activeProduct if available
+    if (activeProduct) {
+      return {
+        title: activeProduct.name,
+        description: activeProduct.summary || undefined,
+        features: [],
+        images: [],
+        _manual: true,
+      };
+    }
+    return null;
+  });
   const [importError, setImportError] = useState("");
 
   // Manual fields
@@ -299,7 +443,8 @@ RULES: Be specific to this product, not generic. Write actual copy. Give real HT
         imageUrls: string[];
       };
 
-      const finalTitle = data.productTitle || "Imported Product";
+      const rawTitle = data.productTitle || "Imported Product";
+      const finalTitle = cleanProductTitle(rawTitle);
 
       setProduct({
         title: finalTitle,
@@ -313,8 +458,7 @@ RULES: Be specific to this product, not generic. Write actual copy. Give real HT
 
       // Auto-fill brand name if empty
       if (!brandName.trim()) {
-        const autoName = finalTitle.split(/[-–|:]/)[0].trim().slice(0, 40);
-        setBrandName(autoName);
+        setBrandName(finalTitle.slice(0, 40));
       }
       // Auto-fill sell price if scraped
       if (!sellPrice.trim() && data.price) {
@@ -348,7 +492,8 @@ RULES: Be specific to this product, not generic. Write actual copy. Give real HT
         _manual: true,
       };
 
-      const html = genSiteHTML(pd, { themeId, layout, accentColor, bgColor, ctaText, brandName: brandName || pd.title, sellPrice });
+      const category = detectCategory(pd.title || "", pd.description || "");
+      const html = genSiteHTML(pd, { themeId, layout, accentColor, bgColor, ctaText, brandName: brandName || cleanProductTitle(pd.title || ""), sellPrice, category });
       setGeneratedHTML(html);
       setActiveTab("preview");
       toast.success("Landing page generated!");
@@ -453,7 +598,7 @@ ${generatedHTML.replace(/<\/?html[^>]*>/gi, "").replace(/<\/?head[^>]*>[\s\S]*?<
                 <div className="flex gap-2.5 items-start mb-2">
                   <div className="w-11 h-11 rounded-lg flex-shrink-0 flex items-center justify-center text-xl" style={{ background: "rgba(255,255,255,0.06)" }}>📦</div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-bold truncate" style={{ fontFamily: "Syne, sans-serif" }}>{product.title}</div>
+                    <div className="text-xs font-bold truncate" style={{ fontFamily: "Syne, sans-serif" }}>{cleanProductTitle(product.title)}</div>
                     {product.sourceUrl && <div className="text-xs mt-0.5" style={{ color: "rgba(240,237,232,0.35)" }}>{(() => { try { return new URL(product.sourceUrl).hostname.replace("www.", ""); } catch { return ""; } })()}</div>}
                   </div>
                   <button onClick={() => { setProduct(null); setImportUrl(""); }} style={{ color: "rgba(240,237,232,0.3)", background: "none", border: "none", cursor: "pointer", padding: "2px" }}>

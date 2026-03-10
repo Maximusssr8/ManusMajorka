@@ -5,6 +5,8 @@ import type { UIMessage } from "ai";
 import { toast } from "sonner";
 import { Truck, Copy, Check, Loader2, RefreshCw, ExternalLink } from "lucide-react";
 import { SaveToProduct } from "@/components/SaveToProduct";
+import { useActiveProduct } from "@/hooks/useActiveProduct";
+import { ActiveProductBanner } from "@/components/ActiveProductBanner";
 
 interface Supplier {
   name: string;
@@ -169,6 +171,18 @@ export default function SupplierFinder() {
   const [genError, setGenError] = useState("");
   const [waitingForResponse, setWaitingForResponse] = useState(false);
   const searchQueryRef = useRef("");
+  const { activeProduct } = useActiveProduct();
+
+  useEffect(() => {
+    if (activeProduct && !product) {
+      setProduct(activeProduct.name);
+    }
+  }, [activeProduct]);
+
+  const getSystemPrompt = () => {
+    if (!activeProduct) return SYSTEM_PROMPT;
+    return SYSTEM_PROMPT + `\n\nACTIVE PRODUCT CONTEXT:\n- Product: ${activeProduct.name}${activeProduct.niche ? '\n- Niche: ' + activeProduct.niche : ''}${activeProduct.summary ? '\n- Summary: ' + activeProduct.summary : ''}\n\nAll advice and output must be specifically tailored to this product. Reference it by name.`;
+  };
 
   const { sendMessage, status, messages } = useChat({
     transport: new DefaultChatTransport({
@@ -180,7 +194,7 @@ export default function SupplierFinder() {
               role: m.role,
               content: m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join(""),
             })),
-            systemPrompt: SYSTEM_PROMPT,
+            systemPrompt: getSystemPrompt(),
             searchQuery: searchQueryRef.current || undefined,
           },
         };
@@ -242,6 +256,8 @@ export default function SupplierFinder() {
           </button>
         )}
       </div>
+
+      <ActiveProductBanner ctaLabel="Load into tool" onUseProduct={(summary) => setProduct(summary)} />
 
       <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
         <div className="w-full lg:w-72 flex-shrink-0 overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 space-y-4" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
