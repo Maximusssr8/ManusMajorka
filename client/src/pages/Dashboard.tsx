@@ -91,66 +91,25 @@ function ContinueLastTool({ onNavigate }: { onNavigate: (path: string) => void }
   );
 }
 
-function RecentTools({ onNavigate }: { onNavigate: (path: string) => void }) {
-  const [recentTools, setRecentTools] = useState<string[]>([]);
+function ContinueSection({ onNavigate }: { onNavigate: (path: string) => void }) {
+  const [hasResearch, setHasResearch] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("majorka_recent_tools");
-      if (raw) setRecentTools(JSON.parse(raw));
-    } catch { /* ignore */ }
+    setHasResearch(!!localStorage.getItem("majorka_milestone_research"));
   }, []);
 
-  if (recentTools.length === 0) return null;
-
-  const toolDefs = recentTools
-    .map((id) => allTools.find((t) => t.id === id))
-    .filter(Boolean) as (typeof allTools)[number][];
+  if (!hasResearch) return null;
 
   return (
-    <section className="mb-6">
-      <h3 className="font-syne text-xs font-black uppercase tracking-widest mb-3" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>
-        Continue Where You Left Off
-      </h3>
-      <div className="flex gap-3 flex-wrap">
-        {toolDefs.map((tool) => {
-          const Icon = tool.icon;
-          return (
-            <button
-              key={tool.id}
-              onClick={() => onNavigate(tool.path)}
-              className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-left transition-all"
-              style={{
-                background: "rgba(255,255,255,0.025)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                cursor: "pointer",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "rgba(212,175,55,0.35)";
-                e.currentTarget.style.background = "rgba(212,175,55,0.05)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
-                e.currentTarget.style.background = "rgba(255,255,255,0.025)";
-              }}
-            >
-              <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ background: "rgba(212,175,55,0.12)", color: "#d4af37" }}
-              >
-                <Icon size={13} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-black whitespace-nowrap" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>
-                  {tool.label}
-                </div>
-              </div>
-              <span className="text-xs ml-1 flex-shrink-0" style={{ color: "rgba(212,175,55,0.55)" }}>Open →</span>
-            </button>
-          );
-        })}
+    <div className="mb-6 p-4 rounded-2xl" style={{ background: "rgba(212,175,55,0.06)", border: "1px solid rgba(212,175,55,0.18)" }}>
+      <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>Continue where you left off</div>
+      <div className="text-sm font-black mb-3" style={{ fontFamily: "Syne, sans-serif" }}>Your product journey</div>
+      <div className="flex gap-2">
+        <button onClick={() => onNavigate("/app/niche-scorer")} className="text-xs px-3 py-1.5 rounded-lg font-bold" style={{ background: "rgba(124,106,245,0.1)", border: "1px solid rgba(124,106,245,0.25)", color: "#7c6af5", cursor: "pointer" }}>→ Validate</button>
+        <button onClick={() => onNavigate("/app/website-generator")} className="text-xs px-3 py-1.5 rounded-lg font-bold" style={{ background: "rgba(45,202,114,0.08)", border: "1px solid rgba(45,202,114,0.2)", color: "#2dca72", cursor: "pointer" }}>→ Build Page</button>
+        <button onClick={() => onNavigate("/app/validation-plan")} className="text-xs px-3 py-1.5 rounded-lg font-bold" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#ef4444", cursor: "pointer" }}>→ Plan Launch</button>
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -221,7 +180,16 @@ function DashboardHome() {
           </div>
         </button>
 
-        {/* 6 Core Tool Cards */}
+        {/* Continue where you left off */}
+        <ContinueSection onNavigate={setLocation} />
+
+        {/* Recommended Starting Path (based on onboarding level) */}
+        <RecommendedPath onNavigate={setLocation} />
+
+        {/* Milestone Badges */}
+        <MilestoneBadges />
+
+        {/* Quick launch: Website Generator + Meta Ads Pack */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
           {CORE_TOOL_CARDS.map(({ path, label, desc, icon: Icon, color }) => (
             <button

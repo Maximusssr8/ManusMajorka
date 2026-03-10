@@ -51,6 +51,7 @@ export default function MajorkaAppShell({ children }: Props) {
   const productCount = productsQuery.data?.length ?? 0;
 
   useEffect(() => { localStorage.setItem("majorka_sidebar_open", String(sidebarOpen)); }, [sidebarOpen]);
+
   const handleKeyboard = useCallback((e: KeyboardEvent) => {
     const mod = e.metaKey || e.ctrlKey;
     if (mod && e.key === "b") { e.preventDefault(); setSidebarOpen(p => !p); }

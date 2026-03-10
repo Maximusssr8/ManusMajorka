@@ -1,35 +1,33 @@
-import { useState, useCallback } from 'react';
-
-const STORAGE_KEY = 'majorka_active_product';
+import { useState } from "react";
 
 export interface ActiveProduct {
-  id: string;
   name: string;
-  niche?: string;
-  stage?: string;
+  niche: string;
+  summary: string;
+  source: "research" | "validate" | "manual";
+  savedAt: number;
 }
 
+const STORAGE_KEY = "majorka_active_product";
+
 export function useActiveProduct() {
-  const [activeProduct, setActiveProductState] = useState<ActiveProduct | null>(() => {
+  const [activeProduct, setActiveProduct] = useState<ActiveProduct | null>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? (JSON.parse(stored) as ActiveProduct) : null;
+      return stored ? JSON.parse(stored) : null;
     } catch {
       return null;
     }
   });
 
-  const setActiveProduct = useCallback((product: ActiveProduct) => {
-    setActiveProductState(product);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(product));
-  }, []);
+  const setProduct = (product: ActiveProduct | null) => {
+    setActiveProduct(product);
+    if (product) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(product));
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  };
 
-  const clearActiveProduct = useCallback(() => {
-    setActiveProductState(null);
-    localStorage.removeItem(STORAGE_KEY);
-  }, []);
-
-  return { activeProduct, setActiveProduct, clearActiveProduct };
+  return { activeProduct, setProduct };
 }
-
-export default useActiveProduct;

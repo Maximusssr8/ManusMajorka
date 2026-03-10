@@ -9,7 +9,7 @@ const GOALS = ["Launch first store", "Scale existing store", "Optimise conversio
 const REVENUE_RANGES = ["Pre-revenue", "$0-1k/mo", "$1k-5k/mo", "$5k-20k/mo", "$20k-100k/mo", "$100k+/mo"];
 
 export default function SettingsProfile() {
-  const { user, loading } = useAuth({ redirectOnUnauthenticated: true });
+  const { user, loading } = useAuth();
   const [form, setForm] = useState({
     businessName: "",
     targetNiche: "",

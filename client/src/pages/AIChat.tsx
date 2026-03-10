@@ -1,11 +1,9 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { useState, useRef, useEffect } from "react";
+import { useChat } from "@ai-sdk/react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Markdown } from "@/components/Markdown";
-import { Copy, Send, Loader2, Sparkles } from "lucide-react";
-import { toast } from "sonner";
-import { ActiveProductBanner } from "@/components/ActiveProductBanner";
+import { Send, Loader2, Sparkles } from "lucide-react";
+import { DefaultChatTransport } from "ai";
 
 const AI_CHAT_SYSTEM_PROMPT = `You are Majorka AI — a straight-talking ecommerce co-founder who's been in the trenches.
 
@@ -96,14 +94,6 @@ export default function AIChat() {
     }
   }, [input, messages, status]);
 
-  const copyLastMessage = () => {
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage?.role === "assistant") {
-      navigator.clipboard.writeText(lastMessage.content);
-      toast.success("Message copied to clipboard!");
-    }
-  };
-
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
@@ -119,7 +109,7 @@ export default function AIChat() {
             <h1 className="font-black text-sm" style={{ fontFamily: "Syne, sans-serif" }}>
               AI Chat
             </h1>
-            <p className="text-xs text-muted-foreground">Get strategic advice on your ecommerce business</p>
+            <p className="text-xs text-muted-foreground">Ask Majorka anything — I know your products and market</p>
           </div>
         </div>
       </div>
@@ -185,48 +175,35 @@ export default function AIChat() {
         </ScrollArea>
 
         {/* Input */}
-        <div className="flex-shrink-0 border-t p-4" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-          <div className="flex gap-2">
-            <Textarea
+        <div className="flex-shrink-0 px-4 pb-4 pt-2">
+          <div className="flex items-end gap-2 rounded-2xl px-4 py-3"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }}>
+            <textarea
               ref={textareaRef}
               value={input}
               onChange={(e) => {
                 setInput(e.target.value);
-                e.target.style.height = 'auto';
-                e.target.style.height = e.target.scrollHeight + 'px';
+                e.target.style.height = "auto";
+                e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
               }}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend();
-                }
+                if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
               }}
-              placeholder="Ask me anything about your business..."
-              className="resize-none"
+              placeholder="Ask Majorka anything..."
               rows={1}
-              style={{ overflowY: 'auto', maxHeight: '200px', resize: 'none' }}
+              className="flex-1 bg-transparent text-sm outline-none resize-none"
+              style={{ color: "#f0ede8", fontFamily: "DM Sans, sans-serif", lineHeight: "1.5", maxHeight: "120px" }}
             />
-            <div className="flex flex-col gap-2">
-              <Button
-                onClick={handleSend}
-                disabled={status === "streaming" || !input.trim()}
-                size="sm"
-                style={{ background: "linear-gradient(135deg, #d4af37, #c09a28)", color: "#080a0e" }}
-              >
-                <Send className="w-4 h-4" />
-              </Button>
-              {messages.length > 0 && (
-                <Button
-                  onClick={copyLastMessage}
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                >
-                  <Copy className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
+            <button onClick={handleSend}
+              disabled={status === "streaming" || !input.trim()}
+              className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 disabled:opacity-30 transition-all"
+              style={{ background: input.trim() ? "linear-gradient(135deg, #d4af37, #c09a28)" : "rgba(255,255,255,0.06)", color: input.trim() ? "#080a0e" : "rgba(240,237,232,0.3)", cursor: "pointer" }}>
+              <Send className="w-3.5 h-3.5" />
+            </button>
           </div>
+          <p className="text-xs mt-1.5 text-center" style={{ color: "rgba(240,237,232,0.15)" }}>
+            Enter to send · Shift+Enter for new line
+          </p>
         </div>
       </div>
     </div>

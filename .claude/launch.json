@@ -3,9 +3,12 @@
   "configurations": [
     {
       "name": "majorka-dev",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 3000
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["tsx", "watch", "server/_core/index.ts"],
+      "port": 3000,
+      "env": {
+        "NODE_ENV": "development"
+      }
     }
   ]
 }

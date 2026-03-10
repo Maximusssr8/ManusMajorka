@@ -116,7 +116,7 @@ export type InsertConversationMessage = typeof conversationMemory.$inferInsert;
  */
 export const taskPlanProgress = pgTable("task_plan_progress", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: uuid("user_id").notNull().references(() => profiles.id),
   stepKey: varchar("step_key", { length: 64 }).notNull(),
   status: varchar("status", { length: 20 }).notNull().default("pending"),
   completedAt: timestamp("completed_at"),

@@ -18,7 +18,6 @@ function Router() {
       <Route path="/sign-in" component={SignIn} />
       <Route path="/account" component={Account} />
       <Route path="/app/settings/profile" component={SettingsProfile} />
-      {/* All /app routes go through Dashboard which handles DashboardLayout + ToolPage */}
       <Route path="/app" component={Dashboard} />
       <Route path="/app/settings" component={Dashboard} />
       <Route path="/app/:tool" component={Dashboard} />
