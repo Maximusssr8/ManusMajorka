@@ -1,0 +1,119 @@
+{
+  "name": "Majorka Daily Research Agent",
+  "nodes": [
+    {
+      "id": "b2c3d4e5-0002-0002-0002-000000000001",
+      "name": "Daily 9am Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "b2c3d4e5-0002-0002-0002-000000000002",
+      "name": "Generate Research Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.ANTHROPIC_API_KEY }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({\n  model: 'claude-sonnet-4-20250514',\n  max_tokens: 4096,\n  system: 'You are Majorka AI, an expert ecommerce market analyst focused on the Australian market. You generate sharp, data-driven product research reports for entrepreneurs. Format all reports in clean Markdown with headers, bullet points, and a summary table.',\n  messages: [{\n    role: 'user',\n    content: `Generate a daily Australian ecommerce product research report for ${new Date().toLocaleDateString('en-AU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.\n\nInclude the following sections:\n\n## 1. Top 5 Trending Product Opportunities\nFor each product:\n- Product name and category\n- Why it's trending in Australia right now\n- Estimated profit margin range\n- Key suppliers (Alibaba, local AU, etc.)\n- Target audience\n- Risk level (Low / Medium / High)\n\n## 2. Market Intelligence\n- 3 niches gaining momentum in AU ecommerce this week\n- Any seasonal or calendar-driven opportunities (AU-specific)\n- Platforms to watch (Shopify AU, TikTok Shop, Amazon AU, Catch, etc.)\n\n## 3. Competitor Moves\n- Notable AU DTC brand launches or pivots\n- Trending ad angles on Meta/TikTok in AU\n\n## 4. Quick Win Product Pick\n- Single best product to test this week with reasoning\n- Suggested selling price, COGS estimate, and target ROAS\n\n## 5. Summary Table\n| Product | Category | Margin | Risk | Priority |\n|---------|----------|--------|------|----------|\n\nBe specific, practical, and focused on what actually moves product in Australia.`\n  }]\n}) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "b2c3d4e5-0002-0002-0002-000000000003",
+      "name": "Extract Report Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 300],
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst reportText = response.content?.[0]?.text || 'Error: No content in Claude response';\nconst date = new Date().toISOString().split('T')[0];\nconst timestamp = new Date().toLocaleString('en-AU', { timeZone: 'Australia/Brisbane' });\n\nconst fullReport = `# Majorka Daily Research Report\\n**Generated:** ${timestamp} (AEST)\\n**Model:** ${response.model}\\n---\\n\\n${reportText}`;\n\nreturn [{\n  json: {\n    reportText: fullReport,\n    date,\n    filename: `majorka-research-${date}.md`,\n    model: response.model,\n    tokens: response.usage\n  }\n}];"
+      }
+    },
+    {
+      "id": "b2c3d4e5-0002-0002-0002-000000000004",
+      "name": "Save Report to File",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 300],
+      "parameters": {
+        "jsCode": "// Requires NODE_FUNCTION_ALLOW_BUILTIN=fs,path in n8n environment\nconst fs = require('fs');\nconst path = require('path');\n\nconst { reportText, date, filename } = $input.first().json;\n\n// Save inside n8n's data directory (persisted via Docker volume)\nconst outputDir = path.join('/home/node/.n8n', 'reports');\nif (!fs.existsSync(outputDir)) {\n  fs.mkdirSync(outputDir, { recursive: true });\n}\n\nconst filepath = path.join(outputDir, filename);\nfs.writeFileSync(filepath, reportText, 'utf8');\n\n// Also overwrite a 'latest' symlink for easy access\nconst latestPath = path.join(outputDir, 'majorka-research-latest.md');\nif (fs.existsSync(latestPath)) fs.unlinkSync(latestPath);\nfs.writeFileSync(latestPath, reportText, 'utf8');\n\nreturn [{\n  json: {\n    success: true,\n    filepath,\n    latestPath,\n    date,\n    preview: reportText.substring(0, 300) + '...'\n  }\n}];"
+      }
+    }
+  ],
+  "connections": {
+    "Daily 9am Trigger": {
+      "main": [
+        [
+          {
+            "node": "Generate Research Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Research Report": {
+      "main": [
+        [
+          {
+            "node": "Extract Report Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Report Text": {
+      "main": [
+        [
+          {
+            "node": "Save Report to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Australia/Brisbane"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "notes": "Runs daily at 9am AEST. Saves reports to /home/node/.n8n/reports/ inside the Docker container (persisted via n8n_data volume). Requires ANTHROPIC_API_KEY and NODE_FUNCTION_ALLOW_BUILTIN=fs,path in .env.n8n. Access latest report at /home/node/.n8n/reports/majorka-research-latest.md"
+  }
+}
