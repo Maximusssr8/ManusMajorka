@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, ExternalLink, Package, Loader2, X, Star } from "lucide-react";
+import { Plus, Pencil, Trash2, ExternalLink, Package, Loader2, X, Star, Link2, RefreshCw, Check } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
@@ -25,6 +25,14 @@ const statusColors: Record<string, { bg: string; text: string; label: string }> 
   scale: { bg: "rgba(244,114,182,0.12)", text: "#f472b6", label: "Scale" },
 };
 
+interface ImportedProduct {
+  productTitle: string;
+  description: string;
+  bulletPoints: string[];
+  price: string;
+  imageUrls: string[];
+}
+
 export default function MyProducts() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
@@ -37,6 +45,13 @@ export default function MyProducts() {
   const [url, setUrl] = useState("");
   const [niche, setNiche] = useState("");
   const [description, setDescription] = useState("");
+
+  // URL importer state
+  const [showImporter, setShowImporter] = useState(false);
+  const [importUrl, setImportUrl] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState("");
+  const [importedProduct, setImportedProduct] = useState<ImportedProduct | null>(null);
 
   const utils = trpc.useUtils();
   const { data: products, isLoading, error } = trpc.products.list.useQuery();
@@ -53,6 +68,46 @@ export default function MyProducts() {
   });
 
   const resetForm = () => { setName(""); setUrl(""); setNiche(""); setDescription(""); };
+
+  const handleImport = useCallback(async () => {
+    if (!importUrl.trim()) { toast.error("Enter a product URL first."); return; }
+    setImporting(true);
+    setImportError("");
+    setImportedProduct(null);
+    try {
+      const response = await fetch("/api/scrape-product", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: importUrl }),
+      });
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Failed: ${response.status}`);
+      }
+      const data = await response.json() as ImportedProduct;
+      setImportedProduct(data);
+    } catch (err: any) {
+      setImportError(err?.message || "Could not import this URL. Try again or create manually.");
+    } finally {
+      setImporting(false);
+    }
+  }, [importUrl]);
+
+  const handleSaveImported = () => {
+    if (!importedProduct) return;
+    setIsSubmitting(true);
+    const productName = importedProduct.productTitle || "Imported Product";
+    const productDesc = importedProduct.description || (importedProduct.bulletPoints.length > 0 ? importedProduct.bulletPoints.join(". ") : "");
+    createMut.mutate({
+      name: productName,
+      url: importUrl || undefined,
+      niche: undefined,
+      description: productDesc || undefined,
+    });
+    setShowImporter(false);
+    setImportUrl("");
+    setImportedProduct(null);
+  };
 
   const handleCreate = () => {
     if (!name.trim()) { toast.error("Product name is required."); return; }
@@ -101,6 +156,93 @@ export default function MyProducts() {
           >
             <Plus size={14} /> New Product
           </button>
+        </div>
+
+        {/* URL Importer */}
+        <div className="mb-4">
+          {!showImporter ? (
+            <button
+              onClick={() => { setShowImporter(true); setShowCreate(false); setEditId(null); setImportedProduct(null); setImportError(""); }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all"
+              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(240,237,232,0.55)", cursor: "pointer" }}
+            >
+              <Link2 size={13} /> Import from URL
+            </button>
+          ) : (
+            <div className="rounded-xl p-5 mb-2" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-sm font-black" style={{ fontFamily: "Syne, sans-serif" }}>Import Product from URL</div>
+                <button onClick={() => { setShowImporter(false); setImportedProduct(null); setImportError(""); }} style={{ cursor: "pointer", color: "rgba(240,237,232,0.4)", background: "none", border: "none" }}><X size={16} /></button>
+              </div>
+              <div className="flex gap-2 mb-4">
+                <input
+                  value={importUrl}
+                  onChange={e => setImportUrl(e.target.value)}
+                  placeholder="https://aliexpress.com/item/... or any product URL"
+                  className="flex-1 text-xs px-3 py-2.5 rounded-lg outline-none"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(255,255,255,0.08)", color: "#f0ede8" }}
+                  onKeyDown={e => e.key === "Enter" && handleImport()}
+                  onFocus={e => (e.target.style.borderColor = "rgba(212,175,55,0.45)")}
+                  onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
+                />
+                <button
+                  onClick={handleImport}
+                  disabled={importing || !importUrl.trim()}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
+                  style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", fontFamily: "Syne, sans-serif", cursor: importing ? "not-allowed" : "pointer" }}
+                >
+                  {importing ? <Loader2 size={13} className="animate-spin" /> : <Link2 size={13} />}
+                  {importing ? "Importing..." : "Import"}
+                </button>
+              </div>
+
+              {importError && (
+                <div className="text-xs p-3 rounded-lg mb-3" style={{ background: "rgba(224,92,122,0.1)", border: "1px solid rgba(224,92,122,0.25)", color: "#e05c7a" }}>
+                  {importError}
+                  <button onClick={handleImport} className="ml-2 underline" style={{ cursor: "pointer", background: "none", border: "none", color: "#e05c7a" }}>Retry</button>
+                </div>
+              )}
+
+              {importedProduct && (
+                <div className="rounded-xl p-4" style={{ background: "rgba(45,202,114,0.05)", border: "1px solid rgba(45,202,114,0.2)" }}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Check size={14} style={{ color: "#2dca72" }} />
+                    <div className="text-xs font-bold uppercase tracking-wider" style={{ color: "#2dca72", fontFamily: "Syne, sans-serif" }}>Product Extracted</div>
+                  </div>
+                  <div className="mb-2">
+                    <div className="text-sm font-black mb-1" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>{importedProduct.productTitle || "Product"}</div>
+                    {importedProduct.price && <div className="text-xs font-bold" style={{ color: "#d4af37" }}>{importedProduct.price}</div>}
+                  </div>
+                  {importedProduct.description && (
+                    <div className="text-xs mb-3 line-clamp-3" style={{ color: "rgba(240,237,232,0.6)" }}>{importedProduct.description}</div>
+                  )}
+                  {importedProduct.bulletPoints.length > 0 && (
+                    <ul className="text-xs mb-3 space-y-1" style={{ color: "rgba(240,237,232,0.55)" }}>
+                      {importedProduct.bulletPoints.slice(0, 4).map((bp, i) => (
+                        <li key={i} className="flex items-start gap-1.5"><span style={{ color: "#2dca72", flexShrink: 0 }}>•</span>{bp}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {importedProduct.imageUrls.length > 0 && (
+                    <div className="flex gap-2 mb-3 overflow-x-auto">
+                      {importedProduct.imageUrls.slice(0, 4).map((img, i) => (
+                        <img key={i} src={img} alt="" className="w-16 h-16 rounded-lg object-cover flex-shrink-0" onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                      ))}
+                    </div>
+                  )}
+                  <button
+                    onClick={handleSaveImported}
+                    disabled={isSubmitting}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all disabled:opacity-60"
+                    style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", fontFamily: "Syne, sans-serif", cursor: isSubmitting ? "not-allowed" : "pointer" }}
+                  >
+                    {isSubmitting ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
+                    Add to My Products
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Create / Edit Form */}
