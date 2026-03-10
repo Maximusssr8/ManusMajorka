@@ -1,12 +1,10 @@
-import { useState, useRef, useEffect } from "react";
-import { useChat } from "@ai-sdk/react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Markdown } from "@/components/Markdown";
 import { Copy, Send, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { DefaultChatTransport } from "ai";
 
 const AI_CHAT_SYSTEM_PROMPT = `You are Majorka AI — a world-class business strategist specialising in DTC ecommerce, dropshipping, and online product launches.
 
@@ -30,27 +28,14 @@ RESPONSE RULES:
 - End every answer with a concrete next step or action item.
 - If the user's question is vague, ask ONE clarifying question before answering.`;
 
+type Message = { role: "user" | "assistant"; content: string };
+
 export default function AIChat() {
   const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [status, setStatus] = useState<"idle" | "streaming">("idle");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const { messages, sendMessage, status } = useChat({
-    id: "ai-chat",
-    messages: [],
-    transport: new DefaultChatTransport({
-      api: "/api/chat",
-      prepareSendMessagesRequest({ messages }) {
-        return {
-          body: {
-            message: messages[messages.length - 1],
-            chatId: "ai-chat",
-            systemPrompt: AI_CHAT_SYSTEM_PROMPT,
-          },
-        };
-      },
-    }),
-  });
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -61,20 +46,59 @@ export default function AIChat() {
     }
   }, [messages]);
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
+  const handleSend = useCallback(async () => {
+    if (!input.trim() || status === "streaming") return;
+    const userMsg: Message = { role: "user", content: input };
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
     setInput("");
-    await sendMessage({ role: "user", parts: [{ type: "text", text: input }] } as any);
-  };
+    setStatus("streaming");
+    setMessages(prev => [...prev, { role: "assistant", content: "" }]);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+          systemPrompt: AI_CHAT_SYSTEM_PROMPT,
+        }),
+      });
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No response body");
+      const decoder = new TextDecoder();
+      let fullText = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        for (const line of chunk.split("\n")) {
+          if (line.startsWith("0:")) {
+            try { fullText += JSON.parse(line.slice(2)); } catch { }
+          }
+        }
+        setMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: "assistant", content: fullText };
+          return updated;
+        });
+      }
+    } catch {
+      setMessages(prev => {
+        const updated = [...prev];
+        updated[updated.length - 1] = { role: "assistant", content: "Something went wrong. Please try again." };
+        return updated;
+      });
+    } finally {
+      setStatus("idle");
+    }
+  }, [input, messages, status]);
 
   const copyLastMessage = () => {
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role === "assistant") {
-      const text = lastMessage.parts
-        .filter((p) => p.type === "text")
-        .map((p) => (p as any).text)
-        .join("");
-      navigator.clipboard.writeText(text);
+      navigator.clipboard.writeText(lastMessage.content);
       toast.success("Message copied to clipboard!");
     }
   };
@@ -130,21 +154,14 @@ export default function AIChat() {
                       : "bg-muted text-foreground"
                   }`}
                 >
-                  {msg.parts.map((part, j) => {
-                    if (part.type === "text") {
-                      return (
-                        <div key={j} className="prose prose-sm dark:prose-invert max-w-none">
-                          <Markdown mode="static">{(part as any).text}</Markdown>
-                        </div>
-                      );
-                    }
-                    return null;
-                  })}
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <Markdown mode="static">{msg.content}</Markdown>
+                  </div>
                 </div>
               </div>
             ))}
 
-            {status === "streaming" && (
+            {status === "streaming" && messages[messages.length - 1]?.content === "" && (
               <div className="flex gap-3 justify-start">
                 <div className="w-8 h-8 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
                   <Sparkles className="w-4 h-4" style={{ color: "#d4af37" }} />
@@ -168,7 +185,8 @@ export default function AIChat() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && e.ctrlKey) {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
                   handleSend();
                 }
               }}
