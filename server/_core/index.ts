@@ -5,6 +5,7 @@ import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerChatRoutes } from "./chat";
 import { registerScrapeRoutes } from "../lib/scrape-product";
+import { registerAgentRoutes } from "../agents/routes";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
@@ -38,6 +39,8 @@ async function startServer() {
   registerChatRoutes(app);
   // Product scraping API
   registerScrapeRoutes(app);
+  // Agent orchestration API (for N8N integration)
+  registerAgentRoutes(app);
   // tRPC API
   app.use(
     "/api/trpc",
