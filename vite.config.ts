@@ -168,6 +168,29 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("shiki") || id.includes("@shikijs") || id.includes("streamdown") || id.includes("@streamdown")) {
+              return "vendor-markdown";
+            }
+            if (id.includes("mermaid") || id.includes("cytoscape") || id.includes("elkjs") || id.includes("dagre")) {
+              return "vendor-diagrams";
+            }
+            if (id.includes("@ai-sdk") || id.includes("/ai/")) {
+              return "vendor-ai";
+            }
+            if (id.includes("@radix-ui") || id.includes("@tanstack")) {
+              return "vendor-ui";
+            }
+            if (id.includes("katex")) {
+              return "vendor-katex";
+            }
+          }
+        },
+      },
+    },
   },
   server: {
     host: true,

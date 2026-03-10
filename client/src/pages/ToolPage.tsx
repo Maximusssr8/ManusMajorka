@@ -3,8 +3,8 @@ import { useLocation } from "wouter";
 import { getToolByPath, stages } from "@/lib/tools";
 import { Loader2 } from "lucide-react";
 
-// Eagerly loaded (lightweight, used as fallback for generic tools)
-import AIToolChat from "@/components/AIToolChat";
+// Lazy-loaded — only needed for tools without a dedicated page
+const AIToolChat = lazy(() => import("@/components/AIToolChat"));
 
 // Lazy-loaded tool pages — each becomes its own chunk
 const WebsiteGenerator = lazy(() => import("./WebsiteGenerator"));
