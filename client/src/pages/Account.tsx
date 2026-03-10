@@ -1,9 +1,10 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import {
   Loader2, LogOut, ArrowLeft, CheckCircle, XCircle,
   CreditCard, Calendar, User, Shield
@@ -43,6 +44,7 @@ function StatusBadge({ status }: { status: string | undefined }) {
 export default function Account() {
   const { user, isAuthenticated, loading: authLoading, logout } = useAuth();
   const [, setLocation] = useLocation();
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const { data: subscription, isLoading: subLoading, refetch } = trpc.subscription.get.useQuery(
     undefined,
@@ -56,6 +58,37 @@ export default function Account() {
   const cancelMutation = trpc.subscription.cancel.useMutation({
     onSuccess: () => refetch(),
   });
+
+  // Handle ?success=1 after Stripe redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("success") === "1") {
+      toast.success("Subscription activated!", { description: "Welcome to Majorka Pro." });
+      refetch();
+      // Clean the URL
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, [refetch]);
+
+  const handleStripeCheckout = async () => {
+    setCheckoutLoading(true);
+    try {
+      const response = await fetch("/api/stripe/checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to create checkout session");
+      }
+      const { url } = await response.json();
+      if (url) window.location.href = url;
+    } catch (err: any) {
+      toast.error("Checkout failed", { description: err.message });
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -242,8 +275,8 @@ export default function Account() {
             {!isActive ? (
               <Button
                 className="flex-1 font-black"
-                disabled={activateMutation.isPending}
-                onClick={() => activateMutation.mutate({ plan: "pro" })}
+                disabled={checkoutLoading}
+                onClick={handleStripeCheckout}
                 style={{
                   background: "linear-gradient(135deg, #d4af37, #c09a28)",
                   color: "#080a0e",
@@ -252,8 +285,8 @@ export default function Account() {
                   boxShadow: "0 4px 18px rgba(212,175,55,0.3)",
                 }}
               >
-                {activateMutation.isPending ? (
-                  <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Activating…</>
+                {checkoutLoading ? (
+                  <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Redirecting…</>
                 ) : (
                   <><CreditCard className="w-4 h-4 mr-2" /> Subscribe — $99 / month</>
                 )}
