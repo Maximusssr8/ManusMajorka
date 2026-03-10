@@ -13,6 +13,7 @@ const Account = lazy(() => import("./pages/Account"));
 const SignIn = lazy(() => import("./pages/SignIn"));
 const SettingsProfile = lazy(() => import("./pages/SettingsProfile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Pricing = lazy(() => import("./pages/Pricing"));
 
 function LoadingFallback() {
   return (
@@ -54,6 +55,7 @@ function Router() {
     <Suspense fallback={<LoadingFallback />}>
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/pricing" component={Pricing} />
         <Route path="/login" component={SignIn} />
         <Route path="/sign-in" component={SignIn} />
         <Route path="/account" component={Account} />

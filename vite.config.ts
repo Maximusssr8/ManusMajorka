@@ -26,6 +26,16 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-react": ["react", "react-dom"],
+          "vendor-ui": ["framer-motion", "lucide-react"],
+          "vendor-supabase": ["@supabase/supabase-js"],
+        },
+      },
+    },
   },
   server: {
     headers: {

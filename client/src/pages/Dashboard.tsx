@@ -4,22 +4,96 @@ import MajorkaAppShell from "@/components/MajorkaAppShell";
 import ToolPage from "./ToolPage";
 import OnboardingModal from "@/components/OnboardingModal";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { TextShimmer } from "@/components/ui/text-shimmer";
 import { getToolByPath, recordRecentTool, allTools } from "@/lib/tools";
 import { useDocumentTitle } from "@/_core/hooks/useDocumentTitle";
-import { Search, Rocket, Globe, CheckCircle2, MessageSquare, Package, ChevronRight, Clock } from "lucide-react";
+import {
+  Search, Rocket, Globe, MessageSquare, Package, ChevronRight,
+  Link2, PenTool, TrendingUp, BarChart2, Star, Zap, ArrowRight,
+} from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { createElement } from "react";
+import { useActiveProduct } from "@/hooks/useActiveProduct";
 
-// ── 6 core tool cards for the dashboard ──
-const CORE_TOOL_CARDS = [
-  { path: "/app/product-discovery", label: "Research",          desc: "Get real market intelligence — competitors, trends, and opportunities", icon: Search,       color: "#3b82f6" },
-  { path: "/app/validate",         label: "Validate",          desc: "Score your idea's viability with demand signals and honest risk analysis", icon: CheckCircle2, color: "#f59e0b" },
-  { path: "/app/website-generator", label: "Website Generator", desc: "Generate a conversion-ready landing page from a product link",          icon: Globe,        color: "#9c5fff" },
-  { path: "/app/launch-planner",   label: "Launch Planner",    desc: "Get a week-by-week go-to-market plan with budget and channel strategy",  icon: Rocket,       color: "#ef4444" },
-  { path: "/app/ai-chat",          label: "AI Chat",           desc: "Talk to a smart business advisor about strategy, pricing, or anything",   icon: MessageSquare,color: "#9c5fff" },
-  { path: "/app/my-products",      label: "My Products",       desc: "View all saved products and their generated content in one place",        icon: Package,      color: "#d4af37" },
+// ── Tool category cards ─────────────────────────────────────────────────────
+const TOOL_CATEGORY_CARDS = [
+  {
+    label: "Research",
+    icon: Search,
+    color: "#3b82f6",
+    tools: ["Product Discovery", "Competitor Breakdown", "Ad Spy"],
+    path: "/app/product-discovery",
+  },
+  {
+    label: "Build",
+    icon: Globe,
+    color: "#9c5fff",
+    tools: ["Website Generator", "Brand DNA", "Copywriter"],
+    path: "/app/website-generator",
+  },
+  {
+    label: "Copy",
+    icon: PenTool,
+    color: "#f59e0b",
+    tools: ["Copywriter", "Email Sequences", "Ad Copy"],
+    path: "/app/copywriter",
+  },
+  {
+    label: "Launch",
+    icon: Rocket,
+    color: "#ef4444",
+    tools: ["Launch Kit", "Meta Ads Pack", "Launch Planner"],
+    path: "/app/launch-kit",
+  },
+  {
+    label: "Grow",
+    icon: TrendingUp,
+    color: "#10b981",
+    tools: ["Market Intelligence", "Analytics Decoder", "AI Chat"],
+    path: "/app/market-intel",
+  },
+  {
+    label: "Manage",
+    icon: Package,
+    color: "#71717a",
+    tools: ["My Products", "Project Manager", "Supplier Finder"],
+    path: "/app/my-products",
+  },
 ];
+
+// ── Quick actions ───────────────────────────────────────────────────────────
+const QUICK_ACTIONS = [
+  { label: "Import Product URL", desc: "Scrape & import a product", icon: Link2, path: "/app/my-products" },
+  { label: "Open AI Chat", desc: "Ask anything", icon: MessageSquare, path: "/app/ai-chat" },
+  { label: "Generate Website", desc: "Build a landing page", icon: Globe, path: "/app/website-generator" },
+  { label: "Write Copy", desc: "AI copywriter", icon: PenTool, path: "/app/copywriter" },
+];
+
+// ── Mock relative times for recent tools ───────────────────────────────────
+const MOCK_TIMES = ["Just now", "5 min ago", "12 min ago", "1 hr ago", "3 hrs ago"];
+
+// ── Helper: format currency ─────────────────────────────────────────────────
+function formatCurrency(n: number) {
+  if (n >= 1000) return `$${(n / 1000).toFixed(0)}k`;
+  return `$${n}`;
+}
+
+// ── Helper: greeting ────────────────────────────────────────────────────────
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return "Good morning";
+  if (h < 18) return "Good afternoon";
+  return "Good evening";
+}
+
+// ── Helper: format date ─────────────────────────────────────────────────────
+function formatDate() {
+  return new Date().toLocaleDateString("en-AU", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
 
 export default function Dashboard() {
   const [location, setLocation] = useLocation();
@@ -54,302 +128,453 @@ export default function Dashboard() {
   );
 }
 
-function ContinueLastTool({ onNavigate }: { onNavigate: (path: string) => void }) {
-  const [lastTool, setLastTool] = useState<{ path: string; label: string } | null>(null);
+// ── DashboardHome ────────────────────────────────────────────────────────────
+function DashboardHome() {
+  const [, setLocation] = useLocation();
+  const { user } = useAuth();
+  const { activeProduct } = useActiveProduct();
+  const productsQuery = trpc.products.list.useQuery(undefined, { enabled: !!user });
 
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("majorka_last_tool");
-      if (saved) setLastTool(JSON.parse(saved));
-    } catch { /* ignore */ }
-  }, []);
-
-  if (!lastTool) return null;
-
-  return (
-    <div className="mb-6">
-      <div className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: "rgba(240,237,232,0.3)", fontFamily: "Syne, sans-serif" }}>
-        Continue where you left off
-      </div>
-      <button
-        onClick={() => onNavigate(lastTool.path)}
-        className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-left transition-all"
-        style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)", cursor: "pointer" }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = "rgba(212,175,55,0.3)";
-          e.currentTarget.style.background = "rgba(212,175,55,0.04)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
-          e.currentTarget.style.background = "rgba(255,255,255,0.025)";
-        }}
-      >
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(212,175,55,0.12)", color: "#d4af37" }}>
-          <ChevronRight size={14} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-black" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>{lastTool.label}</div>
-          <div className="text-xs" style={{ color: "rgba(240,237,232,0.35)" }}>Jump back in →</div>
-        </div>
-      </button>
-    </div>
-  );
-}
-
-function ContinueSection({ onNavigate }: { onNavigate: (path: string) => void }) {
-  const [hasResearch, setHasResearch] = useState(false);
-
-  useEffect(() => {
-    setHasResearch(!!localStorage.getItem("majorka_milestone_research"));
-  }, []);
-
-  if (!hasResearch) return null;
-
-  return (
-    <div className="mb-6 p-4 rounded-2xl" style={{ background: "rgba(212,175,55,0.06)", border: "1px solid rgba(212,175,55,0.18)" }}>
-      <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>Continue where you left off</div>
-      <div className="text-sm font-black mb-3" style={{ fontFamily: "Syne, sans-serif" }}>Your product journey</div>
-      <div className="flex gap-2">
-        <button onClick={() => onNavigate("/app/niche-scorer")} className="text-xs px-3 py-1.5 rounded-lg font-bold" style={{ background: "rgba(124,106,245,0.1)", border: "1px solid rgba(124,106,245,0.25)", color: "#7c6af5", cursor: "pointer" }}>→ Validate</button>
-        <button onClick={() => onNavigate("/app/website-generator")} className="text-xs px-3 py-1.5 rounded-lg font-bold" style={{ background: "rgba(45,202,114,0.08)", border: "1px solid rgba(45,202,114,0.2)", color: "#2dca72", cursor: "pointer" }}>→ Build Page</button>
-        <button onClick={() => onNavigate("/app/validation-plan")} className="text-xs px-3 py-1.5 rounded-lg font-bold" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", color: "#ef4444", cursor: "pointer" }}>→ Plan Launch</button>
-      </div>
-    </div>
-  );
-}
-
-function RecentToolsList({ onNavigate }: { onNavigate: (path: string) => void }) {
+  // KPI data from localStorage
+  const [toolsToday, setToolsToday] = useState(0);
+  const [aiCount, setAiCount] = useState(0);
   const [recentToolIds, setRecentToolIds] = useState<string[]>([]);
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem("majorka_recent_tools");
-      if (raw) setRecentToolIds(JSON.parse(raw));
+      const todayRaw = localStorage.getItem("majorka_tools_today");
+      if (todayRaw) {
+        const parsed = JSON.parse(todayRaw);
+        setToolsToday(Array.isArray(parsed) ? parsed.length : 0);
+      }
+    } catch { /* ignore */ }
+
+    try {
+      const countRaw = localStorage.getItem("majorka_ai_count");
+      if (countRaw) setAiCount(Number(countRaw) || 0);
+    } catch { /* ignore */ }
+
+    try {
+      const recentRaw = localStorage.getItem("majorka_recent_tools");
+      if (recentRaw) setRecentToolIds(JSON.parse(recentRaw));
     } catch { /* ignore */ }
   }, []);
 
-  if (recentToolIds.length === 0) return null;
+  const productCount = productsQuery.data?.length ?? 0;
+  const revenuePotential = productCount * 49;
+
+  const firstName = user?.name ? (user.name as string).split(" ")[0] : null;
 
   const recentTools = recentToolIds
     .map(id => allTools.find(t => t.id === id))
     .filter((t): t is NonNullable<typeof t> => !!t)
     .slice(0, 5);
 
-  if (recentTools.length === 0) return null;
-
-  return (
-    <div className="mb-6">
-      <div className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: "rgba(240,237,232,0.3)", fontFamily: "Syne, sans-serif" }}>
-        Recent Tools
-      </div>
-      <div className="space-y-1.5">
-        {recentTools.map(tool => (
-          <button
-            key={tool.id}
-            onClick={() => onNavigate(tool.path)}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all"
-            style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)", cursor: "pointer" }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = "rgba(212,175,55,0.3)";
-              e.currentTarget.style.background = "rgba(212,175,55,0.04)";
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
-              e.currentTarget.style.background = "rgba(255,255,255,0.025)";
-            }}
-          >
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(212,175,55,0.12)", color: "#d4af37" }}>
-              {createElement(tool.icon, { size: 13 })}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-bold truncate" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>{tool.label}</div>
-              <div className="text-xs truncate" style={{ color: "rgba(240,237,232,0.3)" }}>{tool.description}</div>
-            </div>
-            <ChevronRight size={12} style={{ color: "rgba(212,175,55,0.4)", flexShrink: 0 }} />
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ProductsCount() {
-  const { user } = useAuth();
-  const productsQuery = trpc.products.list.useQuery(undefined, { enabled: !!user });
-
-  if (productsQuery.isLoading) {
-    return (
-      <div className="mb-6 px-4 py-3 rounded-xl flex items-center gap-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(212,175,55,0.08)" }}>
-          <Package size={14} style={{ color: "#d4af37" }} />
-        </div>
-        <div className="flex-1">
-          <div className="h-3 w-24 rounded" style={{ background: "rgba(255,255,255,0.08)", animation: "pulse 1.5s infinite" }} />
-          <div className="h-2.5 w-16 rounded mt-1.5" style={{ background: "rgba(255,255,255,0.05)", animation: "pulse 1.5s infinite" }} />
-        </div>
-      </div>
-    );
-  }
-
-  const count = productsQuery.data?.length ?? 0;
-
-  return (
-    <button
-      onClick={() => {}}
-      className="mb-6 w-full px-4 py-3 rounded-xl flex items-center gap-3 text-left transition-all"
-      style={{ background: "rgba(212,175,55,0.04)", border: "1px solid rgba(212,175,55,0.15)", cursor: "default" }}
-    >
-      <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(212,175,55,0.12)" }}>
-        <Package size={14} style={{ color: "#d4af37" }} />
-      </div>
-      <div className="flex-1">
-        <div className="text-sm font-black" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>
-          {count === 0 ? "No products yet" : `${count} active product${count === 1 ? "" : "s"}`}
-        </div>
-        <div className="text-xs" style={{ color: "rgba(240,237,232,0.35)" }}>
-          {count === 0 ? "Start researching to build your first product" : "Track research and outputs per product"}
-        </div>
-      </div>
-    </button>
-  );
-}
-
-function DashboardHome() {
-  const [, setLocation] = useLocation();
-  const { user } = useAuth();
-
   return (
     <div
       className="h-full overflow-auto"
-      style={{ background: "#0a0b0d", scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.1) transparent" }}
+      style={{ background: "#0a0a0a", scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.1) transparent" }}
     >
-      <div className="max-w-3xl mx-auto px-6 py-8">
+      <div className="max-w-5xl mx-auto px-6 py-8">
 
-        {/* Welcome header */}
+        {/* ── A. Header row ─────────────────────────────────────────────── */}
         <div className="mb-8">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#d4af37" }} />
-            <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "rgba(212,175,55,0.6)", fontFamily: "Syne, sans-serif" }}>
-              AI Ecommerce OS
-            </span>
-          </div>
-          <h1 className="text-2xl font-black mb-2" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8", letterSpacing: "-0.02em" }}>
-            <TextShimmer duration={4} spread={2} className="text-2xl font-black" as="span">
-              {user?.name ? `Welcome back, ${(user.name as string).split(" ")[0]}` : "Welcome to Majorka"}
-            </TextShimmer>
+          <h1
+            className="text-2xl font-bold mb-1"
+            style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5", letterSpacing: "-0.02em" }}
+          >
+            {getGreeting()}{firstName ? `, ${firstName}` : ""}
           </h1>
-          <p className="text-sm" style={{ color: "rgba(240,237,232,0.45)" }}>
-            Pick a tool to get started, or ask the AI Chat anything about your business.
+          <p className="text-sm mb-0.5" style={{ color: "#a1a1aa" }}>
+            Your AI Ecommerce OS is ready.
+          </p>
+          <p className="text-xs" style={{ color: "#52525b" }}>
+            {formatDate()}
           </p>
         </div>
 
-        {/* Active products count */}
-        <ProductsCount />
-
-        {/* Continue where you left off — last single tool */}
-        <ContinueLastTool onNavigate={setLocation} />
-
-        {/* Recent tools */}
-        <RecentToolsList onNavigate={setLocation} />
-
-        {/* Quick start CTA */}
-        <button
-          onClick={() => setLocation("/app/product-discovery")}
-          className="w-full mb-8 px-5 py-4 rounded-2xl text-left transition-all"
-          style={{
-            background: "linear-gradient(135deg, rgba(212,175,55,0.08), rgba(212,175,55,0.03))",
-            border: "1.5px solid rgba(212,175,55,0.2)",
-            cursor: "pointer",
-          }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(212,175,55,0.4)";
-            (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
-            (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 12px 32px rgba(0,0,0,0.3)";
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(212,175,55,0.2)";
-            (e.currentTarget as HTMLButtonElement).style.transform = "none";
-            (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)" }}>
-              <Search size={18} color="#0a0b0d" />
+        {/* ── B. KPI Metric cards ──────────────────────────────────────── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+          {/* Active Products */}
+          <div
+            className="rounded-xl p-4"
+            style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            <div className="flex items-center gap-1.5 mb-3">
+              <Package size={12} style={{ color: "#a1a1aa" }} />
+              <span className="text-xs" style={{ color: "#a1a1aa" }}>Active Products</span>
             </div>
-            <div className="flex-1">
-              <div className="text-sm font-black" style={{ fontFamily: "Syne, sans-serif", color: "#d4af37" }}>Start New Product Research</div>
-              <div className="text-xs" style={{ color: "rgba(240,237,232,0.45)" }}>Enter a product idea or paste a URL to get market intelligence</div>
+            <div
+              className="text-2xl font-bold mb-1"
+              style={{ fontFamily: "'DM Mono', 'JetBrains Mono', monospace", color: "#f5f5f5" }}
+            >
+              {productsQuery.isLoading ? "—" : productCount}
             </div>
-            <ChevronRight size={16} style={{ color: "rgba(212,175,55,0.5)" }} />
+            <div className="text-xs" style={{ color: "#10b981" }}>+1 this week</div>
           </div>
-        </button>
 
-        {/* Continue where you left off */}
-        <ContinueSection onNavigate={setLocation} />
+          {/* Tools Used Today */}
+          <div
+            className="rounded-xl p-4"
+            style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            <div className="flex items-center gap-1.5 mb-3">
+              <Zap size={12} style={{ color: "#a1a1aa" }} />
+              <span className="text-xs" style={{ color: "#a1a1aa" }}>Tools Today</span>
+            </div>
+            <div
+              className="text-2xl font-bold mb-1"
+              style={{ fontFamily: "'DM Mono', 'JetBrains Mono', monospace", color: "#f5f5f5" }}
+            >
+              {toolsToday}
+            </div>
+            <div className="text-xs" style={{ color: toolsToday > 0 ? "#10b981" : "#52525b" }}>
+              {toolsToday > 0 ? "+12%" : "0 today"}
+            </div>
+          </div>
 
-        {/* Quick launch: Website Generator + Meta Ads Pack */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-          {CORE_TOOL_CARDS.map(({ path, label, desc, icon: Icon, color }) => (
+          {/* AI Requests */}
+          <div
+            className="rounded-xl p-4"
+            style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            <div className="flex items-center gap-1.5 mb-3">
+              <MessageSquare size={12} style={{ color: "#a1a1aa" }} />
+              <span className="text-xs" style={{ color: "#a1a1aa" }}>AI Requests</span>
+            </div>
+            <div
+              className="text-2xl font-bold mb-1"
+              style={{ fontFamily: "'DM Mono', 'JetBrains Mono', monospace", color: "#f5f5f5" }}
+            >
+              {aiCount}
+            </div>
+            <div className="text-xs" style={{ color: aiCount > 0 ? "#10b981" : "#52525b" }}>
+              {aiCount > 0 ? "+12%" : "0 today"}
+            </div>
+          </div>
+
+          {/* Est. Revenue Potential */}
+          <div
+            className="rounded-xl p-4"
+            style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            <div className="flex items-center gap-1.5 mb-3">
+              <BarChart2 size={12} style={{ color: "#a1a1aa" }} />
+              <span className="text-xs" style={{ color: "#a1a1aa" }}>Est. Revenue Pot.</span>
+            </div>
+            <div
+              className="text-2xl font-bold mb-1"
+              style={{ fontFamily: "'DM Mono', 'JetBrains Mono', monospace", color: "#f5f5f5" }}
+            >
+              {formatCurrency(revenuePotential)}
+            </div>
+            <div className="text-xs" style={{ color: "#52525b" }}>×$49/product</div>
+          </div>
+        </div>
+
+        {/* ── C. Quick Actions ─────────────────────────────────────────── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+          {QUICK_ACTIONS.map(({ label, desc, icon: Icon, path }) => (
             <button
               key={path}
               onClick={() => setLocation(path)}
-              className="text-left rounded-2xl p-5 transition-all duration-150"
+              className="text-left rounded-xl p-4 transition-all"
               style={{
-                background: `${color}08`,
-                border: `1.5px solid ${color}20`,
+                background: "#111111",
+                border: "1px solid rgba(255,255,255,0.08)",
                 cursor: "pointer",
+                minHeight: 80,
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = `${color}45`;
-                (e.currentTarget as HTMLButtonElement).style.background = `${color}12`;
-                (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 12px 32px rgba(0,0,0,0.4)`;
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(245,158,11,0.4)";
+                (e.currentTarget as HTMLButtonElement).style.background = "rgba(245,158,11,0.04)";
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = `${color}20`;
-                (e.currentTarget as HTMLButtonElement).style.background = `${color}08`;
-                (e.currentTarget as HTMLButtonElement).style.transform = "none";
-                (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.08)";
+                (e.currentTarget as HTMLButtonElement).style.background = "#111111";
               }}
             >
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${color}18`, color }}>
-                  <Icon size={16} />
-                </div>
-                <div>
-                  <div className="text-sm font-black mb-0.5" style={{ fontFamily: "Syne, sans-serif", color }}>
-                    {label}
-                  </div>
-                  <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.5)" }}>
-                    {desc}
-                  </div>
-                </div>
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center mb-2"
+                style={{ background: "rgba(245,158,11,0.12)" }}
+              >
+                <Icon size={15} style={{ color: "#f59e0b" }} />
               </div>
+              <div className="text-sm font-bold mb-0.5" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
+                {label}
+              </div>
+              <div className="text-xs" style={{ color: "#52525b" }}>{desc}</div>
             </button>
           ))}
         </div>
 
-        {/* Workflow steps */}
-        <div className="rounded-2xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
-          <div className="text-xs font-black uppercase tracking-widest mb-4" style={{ color: "rgba(212,175,55,0.6)", fontFamily: "Syne, sans-serif" }}>
-            How it works
-          </div>
-          <div className="space-y-3">
-            {[
-              { step: "01", title: "Research your idea", desc: "Paste a product URL or describe your idea. Get market size, competitors, and opportunities.", color: "#3b82f6" },
-              { step: "02", title: "Validate before you invest", desc: "Get an honest viability score with demand signals, risks, and a go/no-go recommendation.", color: "#f59e0b" },
-              { step: "03", title: "Build your landing page", desc: "Generate a full multi-section website with professional copy. Export to Shopify.", color: "#9c5fff" },
-              { step: "04", title: "Plan your launch", desc: "Get a week-by-week plan with channel strategy, budget breakdown, and launch checklist.", color: "#ef4444" },
-            ].map(({ step, title, desc, color }) => (
-              <div key={step} className="flex items-start gap-3">
-                <div className="text-xs font-black w-6 text-right flex-shrink-0 pt-0.5" style={{ color, fontFamily: "Syne, sans-serif" }}>{step}</div>
-                <div>
-                  <div className="text-xs font-bold" style={{ color: "#f0ede8", fontFamily: "Syne, sans-serif" }}>{title}</div>
-                  <div className="text-xs" style={{ color: "rgba(240,237,232,0.4)" }}>{desc}</div>
-                </div>
+        {/* ── D. Two-column layout ─────────────────────────────────────── */}
+        <div className="flex gap-6 mb-8" style={{ alignItems: "flex-start" }}>
+          {/* Left column */}
+          <div className="flex-1 min-w-0 space-y-4">
+            {/* Active Product card */}
+            <div
+              className="rounded-xl p-4"
+              style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+            >
+              <div
+                className="text-xs font-bold uppercase tracking-widest mb-3"
+                style={{ color: "#52525b", fontFamily: "Syne, sans-serif" }}
+              >
+                Active Product
               </div>
-            ))}
+              {activeProduct ? (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
+                      {activeProduct.name}
+                    </span>
+                    <span
+                      className="text-xs px-2 py-0.5 rounded-full"
+                      style={{ background: "rgba(245,158,11,0.12)", color: "#f59e0b" }}
+                    >
+                      {activeProduct.niche}
+                    </span>
+                    <span
+                      className="text-xs px-2 py-0.5 rounded-full"
+                      style={{ background: "rgba(255,255,255,0.06)", color: "#a1a1aa" }}
+                    >
+                      {activeProduct.source}
+                    </span>
+                  </div>
+                  <p className="text-xs mb-3" style={{ color: "#a1a1aa", lineHeight: 1.6 }}>
+                    {activeProduct.summary.slice(0, 120)}
+                    {activeProduct.summary.length > 120 ? "…" : ""}
+                  </p>
+                  <button
+                    onClick={() => setLocation("/app/product-discovery")}
+                    className="flex items-center gap-1.5 text-xs font-bold transition-all"
+                    style={{ color: "#f59e0b", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                    onMouseEnter={e => (e.currentTarget.style.opacity = "0.8")}
+                    onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+                  >
+                    Open in Tools <ArrowRight size={12} />
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-xs mb-3" style={{ color: "#52525b" }}>
+                    No active product yet. Paste a URL to get started.
+                  </p>
+                  <form
+                    onSubmit={e => {
+                      e.preventDefault();
+                      const input = (e.currentTarget.elements.namedItem("url") as HTMLInputElement)?.value;
+                      if (input) setLocation("/app/my-products");
+                    }}
+                    className="flex gap-2"
+                  >
+                    <input
+                      name="url"
+                      type="url"
+                      placeholder="Paste a product URL to get started →"
+                      className="flex-1 text-xs px-3 py-2 rounded-lg outline-none"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        color: "#f5f5f5",
+                        fontFamily: "DM Sans, sans-serif",
+                      }}
+                    />
+                    <button
+                      type="submit"
+                      className="text-xs px-3 py-2 rounded-lg font-bold"
+                      style={{
+                        background: "rgba(245,158,11,0.15)",
+                        color: "#f59e0b",
+                        border: "1px solid rgba(245,158,11,0.25)",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Go
+                    </button>
+                  </form>
+                </div>
+              )}
+            </div>
+
+            {/* Recent Activity */}
+            <div
+              className="rounded-xl p-4"
+              style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+            >
+              <div
+                className="text-xs font-bold uppercase tracking-widest mb-3"
+                style={{ color: "#52525b", fontFamily: "Syne, sans-serif" }}
+              >
+                Recent Activity
+              </div>
+              {recentTools.length === 0 ? (
+                <p className="text-xs" style={{ color: "#52525b" }}>No recent tools yet.</p>
+              ) : (
+                <div className="space-y-1">
+                  {recentTools.map((tool, idx) => (
+                    <button
+                      key={tool.id}
+                      onClick={() => setLocation(tool.path)}
+                      className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-left transition-all"
+                      style={{ background: "transparent", border: "none", cursor: "pointer" }}
+                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+                      onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <div
+                        className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
+                        style={{ background: "rgba(245,158,11,0.1)" }}
+                      >
+                        {createElement(tool.icon, { size: 11, style: { color: "#f59e0b" } })}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs font-medium truncate" style={{ color: "#f5f5f5", fontFamily: "DM Sans, sans-serif" }}>
+                          {tool.label}
+                        </div>
+                      </div>
+                      <div className="text-xs flex-shrink-0" style={{ color: "#52525b" }}>
+                        {MOCK_TIMES[idx] ?? "Earlier"}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
+
+          {/* Right column */}
+          <div style={{ width: 280, flexShrink: 0 }} className="space-y-4">
+            {/* Launch Kit promo */}
+            <div
+              className="rounded-xl p-4"
+              style={{
+                background: "#111111",
+                border: "1px solid",
+                borderImage: "linear-gradient(135deg, rgba(245,158,11,0.5), rgba(245,158,11,0.1)) 1",
+                outline: "1px solid rgba(245,158,11,0.15)",
+                outlineOffset: -1,
+              }}
+            >
+              <div className="flex items-center gap-1.5 mb-2">
+                <Star size={12} style={{ color: "#f59e0b" }} />
+                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#f59e0b", fontFamily: "Syne, sans-serif" }}>
+                  Launch Kit
+                </span>
+              </div>
+              <h3 className="text-sm font-bold mb-1" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
+                Generate Full Launch Kit
+              </h3>
+              <p className="text-xs mb-4" style={{ color: "#a1a1aa", lineHeight: 1.6 }}>
+                Brand → Copy → Website → Ads → Emails in one click.
+              </p>
+              <button
+                onClick={() => setLocation("/app/launch-kit")}
+                className="w-full flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-lg transition-all"
+                style={{
+                  background: "linear-gradient(135deg, #f59e0b, #d97706)",
+                  color: "#0a0a0a",
+                  border: "none",
+                  cursor: "pointer",
+                  fontFamily: "Syne, sans-serif",
+                }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = "0.9")}
+                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+              >
+                Try Launch Kit <ArrowRight size={11} />
+              </button>
+            </div>
+
+            {/* Workflow stepper */}
+            <div
+              className="rounded-xl p-4"
+              style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+            >
+              <div
+                className="text-xs font-bold uppercase tracking-widest mb-3"
+                style={{ color: "#52525b", fontFamily: "Syne, sans-serif" }}
+              >
+                Your Progress
+              </div>
+              <div className="flex items-center gap-1">
+                {["Research", "Brand", "Copy", "Launch"].map((step, idx) => (
+                  <React.Fragment key={step}>
+                    <div className="flex flex-col items-center gap-1">
+                      <div
+                        className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
+                        style={{
+                          background: idx === 0 ? "#10b981" : "rgba(255,255,255,0.06)",
+                          color: idx === 0 ? "#0a0a0a" : "#52525b",
+                          fontSize: 9,
+                          fontFamily: "'DM Mono', monospace",
+                        }}
+                      >
+                        {idx === 0 ? "✓" : idx + 1}
+                      </div>
+                      <span style={{ fontSize: 9, color: idx === 0 ? "#10b981" : "#52525b", fontFamily: "DM Sans, sans-serif" }}>
+                        {step}
+                      </span>
+                    </div>
+                    {idx < 3 && (
+                      <div
+                        className="flex-1 h-px mb-3"
+                        style={{ background: idx === 0 ? "#10b981" : "rgba(255,255,255,0.06)" }}
+                      />
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── E. Tool grid ─────────────────────────────────────────────── */}
+        <div
+          className="text-xs font-bold uppercase tracking-widest mb-3"
+          style={{ color: "#52525b", fontFamily: "Syne, sans-serif" }}
+        >
+          All Tools
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {TOOL_CATEGORY_CARDS.map(({ label, icon: Icon, color, tools, path }) => (
+            <button
+              key={label}
+              onClick={() => setLocation(path)}
+              className="text-left rounded-xl p-4 transition-all"
+              style={{
+                background: "#111111",
+                border: "1px solid rgba(255,255,255,0.08)",
+                cursor: "pointer",
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = `${color}40`;
+                (e.currentTarget as HTMLButtonElement).style.background = `${color}08`;
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.08)";
+                (e.currentTarget as HTMLButtonElement).style.background = "#111111";
+              }}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <div
+                  className="w-7 h-7 rounded-lg flex items-center justify-center"
+                  style={{ background: `${color}18` }}
+                >
+                  <Icon size={13} style={{ color }} />
+                </div>
+                <span className="text-sm font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
+                  {label}
+                </span>
+              </div>
+              <div className="space-y-0.5">
+                {tools.map(t => (
+                  <div key={t} className="text-xs" style={{ color: "#52525b" }}>
+                    {t}
+                  </div>
+                ))}
+              </div>
+            </button>
+          ))}
         </div>
       </div>
     </div>

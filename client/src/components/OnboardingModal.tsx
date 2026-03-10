@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
-import { Rocket, ShoppingBag, TrendingUp, Zap, ChevronRight, ChevronLeft, X } from "lucide-react";
+import { Rocket, ShoppingBag, TrendingUp, Zap, ChevronRight, ChevronLeft, X, Loader2, Check, Link2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 const ONBOARDING_KEY = "majorka_onboarded";
@@ -31,10 +31,16 @@ const budgetRanges = [
 export default function OnboardingModal({ userName }: OnboardingModalProps) {
   const [, navigate] = useLocation();
   const [visible, setVisible] = useState(false);
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
   const [selectedBudget, setSelectedBudget] = useState<string | null>(null);
+
+  // Step 4 — import product
+  const [importUrl, setImportUrl] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState("");
+  const [importedTitle, setImportedTitle] = useState<string | null>(null);
 
   const profileQuery = trpc.profile.get.useQuery(undefined, {
     retry: false,
@@ -94,9 +100,37 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
     if (goal) navigate(goal.path);
   };
 
+  const handleStep3Next = () => {
+    if (selectedBudget) setStep(4);
+  };
+
+  const handleImportProduct = useCallback(async () => {
+    if (!importUrl.trim()) return;
+    setImporting(true);
+    setImportError("");
+    setImportedTitle(null);
+    try {
+      const response = await fetch("/api/scrape-product", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: importUrl }),
+      });
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error((errData as any).error || `Failed: ${response.status}`);
+      }
+      const data = await response.json() as { productTitle?: string };
+      setImportedTitle(data.productTitle || "Product imported");
+    } catch (err: any) {
+      setImportError(err?.message || "Could not import this URL. Try another or skip.");
+    } finally {
+      setImporting(false);
+    }
+  }, [importUrl]);
+
   if (!visible) return null;
 
-  const totalSteps = 3;
+  const totalSteps = 4;
   const progress = (step / totalSteps) * 100;
 
   return (
@@ -269,7 +303,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   <ChevronLeft size={14} />
                 </button>
                 <button
-                  onClick={handleFinish}
+                  onClick={handleStep3Next}
                   disabled={!selectedBudget}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
                   style={{
@@ -281,15 +315,110 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     boxShadow: selectedBudget ? "0 4px 20px rgba(45,202,114,0.3)" : "none",
                   }}
                 >
-                  🚀 Let's Go!
+                  Continue <ChevronRight size={14} />
                 </button>
               </div>
             </>
           )}
 
+          {step === 4 && (
+            <>
+              <div className="text-center mb-6">
+                <div className="text-3xl mb-3">📦</div>
+                <h2 className="text-lg font-black mb-1" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>
+                  Import your first product to get started
+                </h2>
+                <p className="text-xs" style={{ color: "rgba(240,237,232,0.45)" }}>
+                  Paste any AliExpress, Amazon, or store URL and Majorka will analyse it instantly.
+                </p>
+              </div>
+
+              <div className="space-y-3 mb-5">
+                <div className="flex gap-2">
+                  <input
+                    value={importUrl}
+                    onChange={e => { setImportUrl(e.target.value); setImportError(""); setImportedTitle(null); }}
+                    onKeyDown={e => e.key === "Enter" && handleImportProduct()}
+                    placeholder="https://aliexpress.com/item/... or any product URL"
+                    className="flex-1 text-xs px-3 py-2.5 rounded-xl outline-none"
+                    style={{
+                      background: "rgba(255,255,255,0.04)",
+                      border: `1.5px solid ${importError ? "rgba(224,92,122,0.5)" : "rgba(255,255,255,0.08)"}`,
+                      color: "#f0ede8",
+                    }}
+                    onFocus={e => (e.target.style.borderColor = "rgba(212,175,55,0.45)")}
+                    onBlur={e => (e.target.style.borderColor = importError ? "rgba(224,92,122,0.5)" : "rgba(255,255,255,0.08)")}
+                  />
+                  <button
+                    onClick={handleImportProduct}
+                    disabled={importing || !importUrl.trim()}
+                    className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-50"
+                    style={{
+                      background: "linear-gradient(135deg, #d4af37, #f0c040)",
+                      color: "#080a0e",
+                      fontFamily: "Syne, sans-serif",
+                      cursor: importing || !importUrl.trim() ? "not-allowed" : "pointer",
+                      border: "none",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {importing ? <Loader2 size={12} className="animate-spin" /> : <Link2 size={12} />}
+                    {importing ? "Importing..." : "Import"}
+                  </button>
+                </div>
+
+                {importError && (
+                  <div className="text-xs p-2.5 rounded-lg" style={{ background: "rgba(224,92,122,0.1)", border: "1px solid rgba(224,92,122,0.25)", color: "#e05c7a" }}>
+                    {importError}
+                  </div>
+                )}
+
+                {importedTitle && (
+                  <div className="flex items-center gap-2 p-2.5 rounded-lg" style={{ background: "rgba(45,202,114,0.08)", border: "1px solid rgba(45,202,114,0.2)" }}>
+                    <Check size={13} style={{ color: "#2dca72", flexShrink: 0 }} />
+                    <span className="text-xs font-semibold" style={{ color: "#2dca72" }}>Product imported!</span>
+                    <span className="text-xs truncate" style={{ color: "rgba(240,237,232,0.6)" }}>{importedTitle}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setStep(3)}
+                  className="px-4 py-3 rounded-xl text-xs font-bold transition-all"
+                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(240,237,232,0.5)", cursor: "pointer", fontFamily: "Syne, sans-serif" }}
+                >
+                  <ChevronLeft size={14} />
+                </button>
+                <button
+                  onClick={handleFinish}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all"
+                  style={{
+                    background: "linear-gradient(135deg, #2dca72, #1fa85c)",
+                    color: "#fff",
+                    fontFamily: "Syne, sans-serif",
+                    cursor: "pointer",
+                    border: "none",
+                    boxShadow: "0 4px 20px rgba(45,202,114,0.3)",
+                  }}
+                >
+                  🚀 Let's Go!
+                </button>
+              </div>
+
+              <button
+                onClick={handleFinish}
+                className="w-full mt-3 text-xs transition-all"
+                style={{ background: "none", border: "none", color: "rgba(240,237,232,0.3)", cursor: "pointer" }}
+              >
+                Skip for now
+              </button>
+            </>
+          )}
+
           {/* Step indicator dots */}
           <div className="flex items-center justify-center gap-2 mt-4">
-            {[1, 2, 3].map(s => (
+            {[1, 2, 3, 4].map(s => (
               <div
                 key={s}
                 className="w-1.5 h-1.5 rounded-full transition-all"

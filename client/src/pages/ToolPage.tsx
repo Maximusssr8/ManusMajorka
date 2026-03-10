@@ -33,6 +33,8 @@ const MyProducts = lazy(() => import("./MyProducts"));
 const ProductHub = lazy(() => import("./ProductHub"));
 const StageLanding = lazy(() => import("./StageLanding"));
 const InsightsPage = lazy(() => import("./InsightsPage"));
+const LaunchKit = lazy(() => import("./LaunchKit"));
+const AdSpy = lazy(() => import("./AdSpy"));
 
 // Map stage landing paths to their stage names
 const STAGE_PATHS: Record<string, string> = {
@@ -138,6 +140,8 @@ export default function ToolPage() {
 
   // Insights page
   if (location === "/app/insights") return page(<InsightsPage />);
+  if (location === "/app/launch-kit") return page(<LaunchKit />);
+  if (location === "/app/ad-spy") return page(<AdSpy />);
 
   if (!tool) {
     return (
