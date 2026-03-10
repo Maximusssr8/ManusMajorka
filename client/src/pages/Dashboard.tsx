@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import MajorkaAppShell from "@/components/MajorkaAppShell";
 import ToolPage from "./ToolPage";
@@ -20,10 +20,10 @@ const CORE_TOOL_CARDS = [
 
 export default function Dashboard() {
   const [location, setLocation] = useLocation();
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const isToolPage = location.startsWith("/app/") && location !== "/app";
 
-  // Redirect to login if not authenticated after loading completes
+  // Redirect to login once we know user is not authenticated
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       setLocation("/login");
@@ -40,30 +40,6 @@ export default function Dashboard() {
       }
     }
   }, [location, isToolPage]);
-
-  if (loading) {
-    return (
-      <MajorkaAppShell>
-        <div className="h-full flex items-center justify-center" style={{ background: "#0a0b0d" }}>
-          <div className="text-center">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-3 animate-pulse"
-              style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)" }}>
-              <span className="text-black font-black text-sm" style={{ fontFamily: "Syne, sans-serif" }}>M</span>
-            </div>
-            <div className="text-xs" style={{ color: "rgba(240,237,232,0.4)" }}>Loading...</div>
-          </div>
-        </div>
-      </MajorkaAppShell>
-    );
-  }
-
-  if (loading || !user) {
-    return (
-      <div className="flex h-screen items-center justify-center" style={{ background: "#0a0b0d" }}>
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm animate-pulse" style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#0a0b0d", fontFamily: "Syne, sans-serif" }}>M</div>
-      </div>
-    );
-  }
 
   return (
     <MajorkaAppShell>

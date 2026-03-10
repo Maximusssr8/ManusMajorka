@@ -10,19 +10,44 @@ export function useAuth() {
 
   // Listen for Supabase auth state changes
   useEffect(() => {
+    let resolved = false;
+
+    // Hard 2s deadline — fires no matter what
+    const deadline = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        console.warn("[useAuth] deadline hit — forcing sessionLoading=false");
+        setSessionLoading(false);
+      }
+    }, 2000);
+
     supabase.auth.getSession().then(({ data: { session: s } }) => {
-      setSession(s);
-      setSessionLoading(false);
+      if (!resolved) {
+        resolved = true;
+        clearTimeout(deadline);
+        setSession(s);
+        setSessionLoading(false);
+      }
+    }).catch(() => {
+      if (!resolved) {
+        resolved = true;
+        clearTimeout(deadline);
+        setSessionLoading(false);
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+      resolved = true;
+      clearTimeout(deadline);
       setSession(s);
       setSessionLoading(false);
-      // Invalidate profile query when auth state changes
       utils.auth.me.invalidate();
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(deadline);
+      subscription.unsubscribe();
+    };
   }, [utils]);
 
   // Fetch profile from our database via tRPC (only when we have a session)
@@ -30,6 +55,7 @@ export function useAuth() {
     retry: false,
     refetchOnWindowFocus: false,
     enabled: !!session,
+    staleTime: 0,
   });
 
   const logout = useCallback(async () => {
@@ -40,7 +66,7 @@ export function useAuth() {
 
   const state = useMemo(() => ({
     user: session ? (meQuery.data ?? null) : null,
-    loading: sessionLoading || (!!session && meQuery.isLoading),
+    loading: sessionLoading || (!!session && meQuery.isPending && !meQuery.isFetched),
     error: meQuery.error ?? null,
     isAuthenticated: !!session,
     session,

@@ -1,3 +1,5 @@
+console.log("[main] mounting React app");
+
 import { trpc } from "@/lib/trpc";
 import { supabase } from "@/lib/supabase";
 import { UNAUTHED_ERR_MSG } from '@shared/const';
@@ -52,10 +54,16 @@ const trpcClient = trpc.createClient({
   ],
 });
 
-createRoot(document.getElementById("root")!).render(
+const rootEl = document.getElementById("root");
+console.log("[main] root element:", rootEl);
+try {
+  createRoot(rootEl!).render(
   <trpc.Provider client={trpcClient} queryClient={queryClient}>
     <QueryClientProvider client={queryClient}>
       <App />
     </QueryClientProvider>
   </trpc.Provider>
-);
+  );
+} catch (err) {
+  console.error("[main] RENDER CRASH:", err);
+}

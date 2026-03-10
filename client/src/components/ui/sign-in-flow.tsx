@@ -106,6 +106,7 @@ export function SignInPage({ className, onSuccess }: SignInPageProps) {
                 </div>
 
                 <button
+                  type="button"
                   onClick={handleGoogleSignIn}
                   disabled={loading}
                   className="w-full flex items-center justify-center gap-2 rounded-full py-3 px-4 font-medium transition-colors disabled:opacity-50"
@@ -124,6 +125,8 @@ export function SignInPage({ className, onSuccess }: SignInPageProps) {
                 <form onSubmit={handleMagicLink}>
                   <div className="relative">
                     <input
+                      id="email"
+                      name="email"
                       type="email"
                       placeholder="your@email.com"
                       value={email}
