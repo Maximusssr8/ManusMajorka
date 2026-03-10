@@ -6,6 +6,7 @@ import OnboardingModal from "@/components/OnboardingModal";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { TextShimmer } from "@/components/ui/text-shimmer";
 import { getToolByPath, recordRecentTool, allTools } from "@/lib/tools";
+import { useDocumentTitle } from "@/_core/hooks/useDocumentTitle";
 import { Search, Rocket, Globe, CheckCircle2, MessageSquare, Package, ChevronRight, Clock } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { createElement } from "react";
@@ -24,6 +25,8 @@ export default function Dashboard() {
   const [location, setLocation] = useLocation();
   const { user, isAuthenticated, loading } = useAuth();
   const isToolPage = location.startsWith("/app/") && location !== "/app";
+  const currentTool = isToolPage ? getToolByPath(location) : null;
+  useDocumentTitle(currentTool?.label ?? "Dashboard");
 
   // Redirect to login once we know user is not authenticated
   useEffect(() => {
