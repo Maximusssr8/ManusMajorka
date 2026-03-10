@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { useLocation } from "wouter";
 import { Markdown } from "@/components/Markdown";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
+import { injectProductIntelligence } from "@/lib/buildToolPrompt";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -308,11 +309,11 @@ function LaunchKitContent() {
     const userMessage = `${productName} — ${niche} — ${summary}`.slice(0, 800);
 
     const aiSteps: Array<{ id: string; systemPrompt: string }> = [
-      { id: "brand-dna", systemPrompt: PROMPTS["brand-dna"] },
-      { id: "product-copy", systemPrompt: PROMPTS["product-copy"] },
-      { id: "website-html", systemPrompt: PROMPTS["website-html"] },
-      { id: "ad-copy", systemPrompt: PROMPTS["ad-copy"] + productName },
-      { id: "email-sequence", systemPrompt: PROMPTS["email-sequence"] },
+      { id: "brand-dna", systemPrompt: injectProductIntelligence(PROMPTS["brand-dna"], activeProduct as any) },
+      { id: "product-copy", systemPrompt: injectProductIntelligence(PROMPTS["product-copy"], activeProduct as any) },
+      { id: "website-html", systemPrompt: injectProductIntelligence(PROMPTS["website-html"], activeProduct as any) },
+      { id: "ad-copy", systemPrompt: injectProductIntelligence(PROMPTS["ad-copy"] + productName, activeProduct as any) },
+      { id: "email-sequence", systemPrompt: injectProductIntelligence(PROMPTS["email-sequence"], activeProduct as any) },
     ];
 
     try {

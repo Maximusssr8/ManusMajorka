@@ -7,6 +7,7 @@ import { Mail, Copy, Check, Loader2, RefreshCw, ChevronDown, ChevronUp } from "l
 import { SaveToProduct } from "@/components/SaveToProduct";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
 import { ActiveProductBanner } from "@/components/ActiveProductBanner";
+import { injectProductIntelligence } from "@/lib/buildToolPrompt";
 
 interface Email {
   emailNumber: number;
@@ -117,8 +118,7 @@ export default function EmailSequences() {
   }, [activeProduct]);
 
   const getSystemPrompt = () => {
-    if (!activeProduct) return SYSTEM_PROMPT;
-    return SYSTEM_PROMPT + `\n\nACTIVE PRODUCT CONTEXT:\n- Product: ${activeProduct.name}${activeProduct.niche ? '\n- Niche: ' + activeProduct.niche : ''}${activeProduct.summary ? '\n- Summary: ' + activeProduct.summary : ''}\n\nAll advice and output must be specifically tailored to this product. Reference it by name.`;
+    return injectProductIntelligence(SYSTEM_PROMPT, activeProduct as any);
   };
 
   const { sendMessage, status, messages } = useChat({

@@ -3,6 +3,8 @@ import { getToolByPath, stages } from "@/lib/tools";
 import AIToolChat from "@/components/AIToolChat";
 import { createElement, useState, lazy, Suspense, useEffect } from "react";
 import { logActivity } from "@/lib/activity";
+import { injectProductIntelligence } from "@/lib/buildToolPrompt";
+import { useProduct } from "@/contexts/ProductContext";
 
 // Lazy-load all tool page components for code splitting
 const WebsiteGenerator = lazy(() => import("./WebsiteGenerator"));
@@ -85,6 +87,7 @@ function ToolLoadingFallback() {
 export default function ToolPage() {
   const [location] = useLocation();
   const tool = getToolByPath(location);
+  const { activeProduct } = useProduct();
 
   useEffect(() => {
     logActivity({ type: "tool_opened", label: tool?.label ?? location });
@@ -169,7 +172,7 @@ export default function ToolPage() {
       toolName={tool.label}
       toolDescription={tool.description}
       toolIcon={createElement(tool.icon, { className: "w-4 h-4" })}
-      systemPrompt={tool.systemPrompt}
+      systemPrompt={injectProductIntelligence(tool.systemPrompt, activeProduct)}
       placeholder={`Ask ${tool.label.toLowerCase()}...`}
       showHTMLPreview={false}
       examplePrompts={tool.examplePrompts}
