@@ -32,26 +32,6 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
 
-  // Allow eval() in development — required by Vite HMR and source-map tooling.
-  // Never set in production (handled by hosting platform / Vercel headers).
-  if (process.env.NODE_ENV === "development") {
-    app.use((_req, res, next) => {
-      res.setHeader(
-        "Content-Security-Policy",
-        [
-          "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:",
-          "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-          "connect-src 'self' ws: wss: https:",
-          "img-src 'self' data: blob: https:",
-          "font-src 'self' https://fonts.gstatic.com",
-          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-          "frame-src 'self' blob:",
-        ].join("; ")
-      );
-      next();
-    });
-  }
-
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
