@@ -1,5 +1,4 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { useEffect } from "react";
@@ -60,9 +59,9 @@ export default function Account() {
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      window.location.href = getLoginUrl();
+      setLocation("/login");
     }
-  }, [authLoading, isAuthenticated]);
+  }, [authLoading, isAuthenticated, setLocation]);
 
   if (authLoading || subLoading) {
     return (
@@ -96,7 +95,7 @@ export default function Account() {
         <div className="container flex items-center justify-between h-14">
           <button
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            onClick={() => setLocation(isActive ? "/dashboard" : "/")}
+            onClick={() => setLocation(isActive ? "/app" : "/")}
           >
             <ArrowLeft className="w-4 h-4" />
             {isActive ? "Back to Dashboard" : "Back to Home"}
@@ -264,7 +263,7 @@ export default function Account() {
                 <Button
                   variant="outline"
                   className="flex-1 text-sm border-border hover:bg-secondary"
-                  onClick={() => setLocation("/dashboard")}
+                  onClick={() => setLocation("/app")}
                 >
                   Open Dashboard
                 </Button>

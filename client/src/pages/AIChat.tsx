@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -25,93 +25,80 @@ How you communicate:
 - Skip the preamble. Lead with the answer.
 - End with the 2-3 most important next actions — concrete, not generic.`;
 
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-}
+type Message = { role: "user" | "assistant"; content: string };
 
 export default function AIChat() {
-  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [streaming, setStreaming] = useState(false);
-  const [streamingContent, setStreamingContent] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [status, setStatus] = useState<"idle" | "streaming">("idle");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
-      const el = scrollAreaRef.current.querySelector("[data-radix-scroll-area-viewport]");
-      if (el) el.scrollTop = el.scrollHeight;
+      const scrollElement = scrollAreaRef.current.querySelector("[data-radix-scroll-area-viewport]");
+      if (scrollElement) {
+        scrollElement.scrollTop = scrollElement.scrollHeight;
+      }
     }
-  }, [messages, streamingContent]);
+  }, [messages]);
 
-  const handleSend = async () => {
-    if (!input.trim() || streaming) return;
-    const userText = input.trim();
-    setInput("");
-
-    const newMessages: Message[] = [...messages, { role: "user", content: userText }];
+  const handleSend = useCallback(async () => {
+    if (!input.trim() || status === "streaming") return;
+    const userMsg: Message = { role: "user", content: input };
+    const newMessages = [...messages, userMsg];
     setMessages(newMessages);
-    setStreaming(true);
-    setStreamingContent("");
+    setInput("");
+    setStatus("streaming");
+    setMessages(prev => [...prev, { role: "assistant", content: "" }]);
 
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: newMessages,
+          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
           systemPrompt: AI_CHAT_SYSTEM_PROMPT,
         }),
       });
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.error || `Server error: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
       const reader = response.body?.getReader();
       if (!reader) throw new Error("No response body");
-
       const decoder = new TextDecoder();
       let fullText = "";
-
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
         for (const line of chunk.split("\n")) {
           if (line.startsWith("0:")) {
-            try {
-              fullText += JSON.parse(line.slice(2));
-              setStreamingContent(fullText);
-            } catch { /* skip malformed lines */ }
+            try { fullText += JSON.parse(line.slice(2)); } catch { }
           }
         }
+        setMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: "assistant", content: fullText };
+          return updated;
+        });
       }
-
-      if (fullText) {
-        setMessages(prev => [...prev, { role: "assistant", content: fullText }]);
-      }
-    } catch (err: any) {
-      toast.error(err.message || "Failed to get a response. Try again.");
+    } catch {
+      setMessages(prev => {
+        const updated = [...prev];
+        updated[updated.length - 1] = { role: "assistant", content: "Something went wrong. Please try again." };
+        return updated;
+      });
     } finally {
-      setStreaming(false);
-      setStreamingContent("");
+      setStatus("idle");
     }
-  };
+  }, [input, messages, status]);
 
   const copyLastMessage = () => {
-    const last = messages[messages.length - 1];
-    if (last?.role === "assistant") {
-      navigator.clipboard.writeText(last.content);
-      toast.success("Copied to clipboard!");
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role === "assistant") {
+      navigator.clipboard.writeText(lastMessage.content);
+      toast.success("Message copied to clipboard!");
     }
   };
-
-  const displayMessages = streaming
-    ? [...messages, { role: "assistant" as const, content: streamingContent }]
-    : messages;
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -128,7 +115,7 @@ export default function AIChat() {
             <h1 className="font-black text-sm" style={{ fontFamily: "Syne, sans-serif" }}>
               AI Chat
             </h1>
-            <p className="text-xs text-muted-foreground">Your straight-talking ecommerce co-founder</p>
+            <p className="text-xs text-muted-foreground">Get strategic advice on your ecommerce business</p>
           </div>
         </div>
       </div>
@@ -137,16 +124,16 @@ export default function AIChat() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <ScrollArea ref={scrollAreaRef} className="flex-1 mb-4">
           <div className="space-y-4 p-4">
-            {displayMessages.length === 0 && (
+            {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full text-center py-12">
                 <Sparkles className="w-12 h-12 mb-4" style={{ color: "#d4af37", opacity: 0.3 }} />
                 <p className="text-sm text-muted-foreground max-w-xs">
-                  Ask me anything about your ecommerce business. I'll give you a straight answer.
+                  Ask me anything about growing your ecommerce business. I'm here to help!
                 </p>
               </div>
             )}
 
-            {displayMessages.map((msg, i) => (
+            {messages.map((msg, i) => (
               <div
                 key={i}
                 className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
@@ -171,7 +158,7 @@ export default function AIChat() {
               </div>
             ))}
 
-            {streaming && !streamingContent && (
+            {status === "streaming" && messages[messages.length - 1]?.content === "" && (
               <div className="flex gap-3 justify-start">
                 <div className="w-8 h-8 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
                   <Sparkles className="w-4 h-4" style={{ color: "#d4af37" }} />
@@ -207,7 +194,7 @@ export default function AIChat() {
             <div className="flex flex-col gap-2">
               <Button
                 onClick={handleSend}
-                disabled={streaming || !input.trim()}
+                disabled={status === "streaming" || !input.trim()}
                 size="sm"
                 style={{ background: "linear-gradient(135deg, #d4af37, #c09a28)", color: "#080a0e" }}
               >
@@ -224,9 +211,6 @@ export default function AIChat() {
                 </Button>
               )}
             </div>
-          </div>
-          <div className="text-xs mt-1.5" style={{ color: "rgba(240,237,232,0.2)" }}>
-            Press Enter to send · Shift+Enter for new line
           </div>
         </div>
       </div>

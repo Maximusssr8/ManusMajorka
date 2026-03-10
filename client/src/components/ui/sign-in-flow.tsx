@@ -1,196 +1,125 @@
 "use client";
-import React, { useState, useMemo, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "wouter";
-import { cn } from "@/lib/utils";
+
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { Link } from "wouter";
 
-type Uniforms = {
-  [key: string]: { value: number[] | number[][] | number; type: string };
-};
+// ─── CanvasRevealEffect ──────────────────────────────────────────────────────
+
+interface CanvasRevealEffectProps {
+  animationSpeed?: number;
+  containerClassName?: string;
+  colors?: number[][];
+  dotSize?: number;
+  reverse?: boolean;
+}
 
 interface ShaderProps {
   source: string;
-  uniforms: { [key: string]: { value: number[] | number[][] | number; type: string } };
+  uniforms?: Record<string, { value: unknown; type?: string }>;
   maxFps?: number;
 }
 
-interface SignInPageProps {
-  className?: string;
-  loginUrl?: string;
-  onSuccess?: () => void;
+const dotMatrixShader = `
+precision mediump float;
+in vec2 fragCoord;
+uniform float u_time;
+uniform float u_opacities[10];
+uniform vec3 u_colors[6];
+uniform float u_total_size;
+uniform float u_dot_size;
+uniform vec2 u_resolution;
+out vec4 fragColor;
+
+float PHI = 1.61803398874989484820459;
+float random(vec2 xy) {
+  return fract(tan(distance(xy * PHI, xy) * 0.5) * xy.x);
+}
+float map(float value, float min1, float max1, float min2, float max2) {
+  return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
 }
 
-// ─── CanvasRevealEffect ────────────────────────────────────────────────────────
-
-export const CanvasRevealEffect = ({
-  animationSpeed = 10,
-  opacities = [0.3, 0.3, 0.3, 0.5, 0.5, 0.5, 0.8, 0.8, 0.8, 1],
-  colors = [[0, 255, 255]],
-  containerClassName,
-  dotSize,
-  showGradient = true,
-  reverse = false,
-}: {
-  animationSpeed?: number;
-  opacities?: number[];
-  colors?: number[][];
-  containerClassName?: string;
-  dotSize?: number;
-  showGradient?: boolean;
-  reverse?: boolean;
-}) => (
-  <div className={cn("h-full relative w-full", containerClassName)}>
-    <div className="h-full w-full">
-      <DotMatrix
-        colors={colors ?? [[0, 255, 255]]}
-        dotSize={dotSize ?? 3}
-        opacities={opacities ?? [0.3, 0.3, 0.3, 0.5, 0.5, 0.5, 0.8, 0.8, 0.8, 1]}
-        shader={`${reverse ? "u_reverse_active" : "false"}_; animation_speed_factor_${animationSpeed.toFixed(1)}_;`}
-        center={["x", "y"]}
-      />
-    </div>
-    {showGradient && <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />}
-  </div>
-);
-
-// ─── DotMatrix ─────────────────────────────────────────────────────────────────
-
-interface DotMatrixProps {
-  colors?: number[][];
-  opacities?: number[];
-  totalSize?: number;
-  dotSize?: number;
-  shader?: string;
-  center?: ("x" | "y")[];
+void main() {
+  vec2 st = fragCoord.xy;
+  float opacity = step(0.0, st.y);
+  opacity *= step(0.0, st.x);
+  vec2 st2 = vec2(int(st.x / u_total_size), int(st.y / u_total_size));
+  float rand = random(st2);
+  opacity *= u_opacities[int(rand * 10.0)];
+  opacity *= pow(random(st2 * 2.0 + 100.0), (u_time * 0.05));
+  float opacityStep = 1.0 / 6.0;
+  vec3 color = u_colors[0];
+  if (rand > opacityStep * 1.0) color = u_colors[1];
+  if (rand > opacityStep * 2.0) color = u_colors[2];
+  if (rand > opacityStep * 3.0) color = u_colors[3];
+  if (rand > opacityStep * 4.0) color = u_colors[4];
+  if (rand > opacityStep * 5.0) color = u_colors[5];
+  vec2 st3 = st2 * u_total_size;
+  vec2 stCenter = st3 + vec2(u_total_size / 2.0);
+  float dist = distance(st, stCenter);
+  opacity *= step(dist, u_dot_size / 2.0);
+  fragColor = vec4(color, opacity);
 }
+`;
 
-const DotMatrix: React.FC<DotMatrixProps> = ({
-  colors = [[0, 0, 0]],
-  opacities = [0.04, 0.04, 0.04, 0.04, 0.04, 0.08, 0.08, 0.08, 0.08, 0.14],
-  totalSize = 20,
-  dotSize = 2,
-  shader = "",
-  center = ["x", "y"],
-}) => {
-  const uniforms = React.useMemo(() => {
-    let colorsArray = [colors[0], colors[0], colors[0], colors[0], colors[0], colors[0]];
-    if (colors.length === 2) colorsArray = [colors[0], colors[0], colors[0], colors[1], colors[1], colors[1]];
-    else if (colors.length === 3) colorsArray = [colors[0], colors[0], colors[1], colors[1], colors[2], colors[2]];
-    return {
-      u_colors: { value: colorsArray.map((c) => [c[0] / 255, c[1] / 255, c[2] / 255]), type: "uniform3fv" },
-      u_opacities: { value: opacities, type: "uniform1fv" },
-      u_total_size: { value: totalSize, type: "uniform1f" },
-      u_dot_size: { value: dotSize, type: "uniform1f" },
-      u_reverse: { value: shader.includes("u_reverse_active") ? 1 : 0, type: "uniform1i" },
-    };
-  }, [colors, opacities, totalSize, dotSize, shader]);
-
-  return (
-    <Shader
-      source={`
-      precision mediump float;
-      in vec2 fragCoord;
-      uniform float u_time; uniform float u_opacities[10]; uniform vec3 u_colors[6];
-      uniform float u_total_size; uniform float u_dot_size; uniform vec2 u_resolution; uniform int u_reverse;
-      out vec4 fragColor;
-      float PHI=1.61803398874989484820459;
-      float random(vec2 xy){return fract(tan(distance(xy*PHI,xy)*0.5)*xy.x);}
-      float map(float value,float min1,float max1,float min2,float max2){return min2+(value-min1)*(max2-min2)/(max1-min1);}
-      void main(){
-        vec2 st=fragCoord.xy;
-        ${center.includes("x") ? "st.x-=abs(floor((mod(u_resolution.x,u_total_size)-u_dot_size)*0.5));" : ""}
-        ${center.includes("y") ? "st.y-=abs(floor((mod(u_resolution.y,u_total_size)-u_dot_size)*0.5));" : ""}
-        float opacity=step(0.0,st.x); opacity*=step(0.0,st.y);
-        vec2 st2=vec2(int(st.x/u_total_size),int(st.y/u_total_size));
-        float frequency=5.0; float show_offset=random(st2);
-        float rand=random(st2*floor((u_time/frequency)+show_offset+frequency));
-        opacity*=u_opacities[int(rand*10.0)];
-        opacity*=1.0-step(u_dot_size/u_total_size,fract(st.x/u_total_size));
-        opacity*=1.0-step(u_dot_size/u_total_size,fract(st.y/u_total_size));
-        vec3 color=u_colors[int(show_offset*6.0)];
-        float animation_speed_factor=0.5;
-        vec2 center_grid=u_resolution/2.0/u_total_size;
-        float dist_from_center=distance(center_grid,st2);
-        float timing_offset_intro=dist_from_center*0.01+(random(st2)*0.15);
-        float max_grid_dist=distance(center_grid,vec2(0.0,0.0));
-        float timing_offset_outro=(max_grid_dist-dist_from_center)*0.02+(random(st2+42.0)*0.2);
-        if(u_reverse==1){
-          opacity*=1.0-step(timing_offset_outro,u_time*animation_speed_factor);
-          opacity*=clamp((step(timing_offset_outro+0.1,u_time*animation_speed_factor))*1.25,1.0,1.25);
-        } else {
-          opacity*=step(timing_offset_intro,u_time*animation_speed_factor);
-          opacity*=clamp((1.0-step(timing_offset_intro+0.1,u_time*animation_speed_factor))*1.25,1.0,1.25);
-        }
-        fragColor=vec4(color,opacity); fragColor.rgb*=fragColor.a;
-      }`}
-      uniforms={uniforms}
-      maxFps={60}
-    />
-  );
-};
-
-// ─── Shader Material ───────────────────────────────────────────────────────────
-
-const ShaderMaterial = ({
-  source,
-  uniforms,
-  maxFps = 60,
-}: {
-  source: string;
-  hovered?: boolean;
-  maxFps?: number;
-  uniforms: Uniforms;
-}) => {
-  const { size } = useThree();
+const ShaderMaterial: React.FC<ShaderProps> = ({ source, uniforms = {}, maxFps = 60 }) => {
   const ref = useRef<THREE.Mesh>(null);
+  const { size } = useThree();
+  let lastFrameTime = useRef(0);
 
   useFrame(({ clock }) => {
     if (!ref.current) return;
-    const material: any = ref.current.material;
-    material.uniforms.u_time.value = clock.getElapsedTime();
+    const timestamp = clock.getElapsedTime();
+    if (timestamp - lastFrameTime.current < 1 / maxFps) return;
+    lastFrameTime.current = timestamp;
+    const mat = ref.current.material as THREE.ShaderMaterial;
+    const timeUniform = mat.uniforms["u_time"];
+    if (timeUniform) timeUniform.value = timestamp;
   });
 
   const getUniforms = () => {
-    const preparedUniforms: any = {};
+    const preparedUniforms: Record<string, { value: unknown }> = {};
     for (const uniformName in uniforms) {
-      const uniform: any = uniforms[uniformName];
+      const uniform = uniforms[uniformName]!;
       switch (uniform.type) {
         case "uniform1f":
-          preparedUniforms[uniformName] = { value: uniform.value, type: "1f" };
-          break;
-        case "uniform1i":
-          preparedUniforms[uniformName] = { value: uniform.value, type: "1i" };
-          break;
-        case "uniform3f":
-          preparedUniforms[uniformName] = { value: new THREE.Vector3().fromArray(uniform.value), type: "3f" };
-          break;
-        case "uniform1fv":
-          preparedUniforms[uniformName] = { value: uniform.value, type: "1fv" };
+          preparedUniforms[uniformName] = { value: uniform.value as number };
           break;
         case "uniform3fv":
-          preparedUniforms[uniformName] = {
-            value: uniform.value.map((v: number[]) => new THREE.Vector3().fromArray(v)),
-            type: "3fv",
-          };
+          preparedUniforms[uniformName] = { value: uniform.value as THREE.Vector3[] };
           break;
-        case "uniform2f":
-          preparedUniforms[uniformName] = { value: new THREE.Vector2().fromArray(uniform.value), type: "2f" };
+        case "uniform1fv":
+          preparedUniforms[uniformName] = { value: uniform.value as number[] };
           break;
+        default:
+          preparedUniforms[uniformName] = { value: uniform.value };
       }
     }
-    preparedUniforms["u_time"] = { value: 0, type: "1f" };
-    preparedUniforms["u_resolution"] = { value: new THREE.Vector2(size.width * 2, size.height * 2) };
+    preparedUniforms["u_time"] = { value: 0 };
+    preparedUniforms["u_resolution"] = {
+      value: new THREE.Vector2(size.width * 2, size.height * 2),
+    };
     return preparedUniforms;
   };
 
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
-        vertexShader: `precision mediump float; in vec2 coordinates; uniform vec2 u_resolution; out vec2 fragCoord;
-      void main(){ float x=position.x; float y=position.y; gl_Position=vec4(x,y,0.0,1.0);
-      fragCoord=(position.xy+vec2(1.0))*0.5*u_resolution; fragCoord.y=u_resolution.y-fragCoord.y; }`,
+        vertexShader: `
+          precision mediump float;
+          uniform vec2 u_resolution;
+          out vec2 fragCoord;
+          void main(){
+            float x = position.x;
+            float y = position.y;
+            gl_Position = vec4(x, y, 0.0, 1.0);
+            fragCoord = (position.xy + vec2(1.0)) * 0.5 * u_resolution;
+            fragCoord.y = u_resolution.y - fragCoord.y;
+          }
+        `,
         fragmentShader: source,
         uniforms: getUniforms(),
         glslVersion: THREE.GLSL3,
@@ -203,7 +132,7 @@ const ShaderMaterial = ({
   );
 
   return (
-    <mesh ref={ref as any}>
+    <mesh ref={ref}>
       <planeGeometry args={[2, 2]} />
       <primitive object={material} attach="material" />
     </mesh>
@@ -216,60 +145,115 @@ const Shader: React.FC<ShaderProps> = ({ source, uniforms, maxFps = 60 }) => (
   </Canvas>
 );
 
-// ─── SignInPage ────────────────────────────────────────────────────────────────
+export function CanvasRevealEffect({
+  animationSpeed = 0.4,
+  containerClassName,
+  colors = [[255, 255, 255]],
+  dotSize = 3,
+  reverse = false,
+}: CanvasRevealEffectProps) {
+  const opacities = [0.3, 0.3, 0.3, 0.5, 0.5, 0.5, 0.8, 0.8, 0.8, 1];
+  const totalSize = 4;
 
-export function SignInPage({ className, loginUrl, onSuccess }: SignInPageProps) {
+  const colorVectors = useMemo(() => {
+    const vecs: THREE.Vector3[] = [];
+    for (let i = 0; i < 6; i++) {
+      const c = colors[i % colors.length] ?? [255, 255, 255];
+      vecs.push(new THREE.Vector3(c[0]! / 255, c[1]! / 255, c[2]! / 255));
+    }
+    return vecs;
+  }, [colors]);
+
+  return (
+    <div className={cn("h-full relative bg-white w-full", containerClassName)}>
+      <Shader
+        source={dotMatrixShader}
+        uniforms={{
+          u_opacities: { value: opacities, type: "uniform1fv" },
+          u_colors: { value: colorVectors, type: "uniform3fv" },
+          u_total_size: { value: totalSize, type: "uniform1f" },
+          u_dot_size: { value: dotSize, type: "uniform1f" },
+        }}
+        maxFps={60}
+      />
+    </div>
+  );
+}
+
+// ─── SignInPage ──────────────────────────────────────────────────────────────
+
+import { supabase } from "@/lib/supabase";
+
+interface SignInPageProps {
+  className?: string;
+  onSuccess?: () => void;
+}
+
+export function SignInPage({ className, onSuccess }: SignInPageProps) {
   const [email, setEmail] = useState("");
-  const [step, setStep] = useState<"email" | "code" | "success">("email");
-  const [code, setCode] = useState(["", "", "", "", "", ""]);
-  const codeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [step, setStep] = useState<"email" | "magic-link-sent" | "success">("email");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [initialCanvasVisible, setInitialCanvasVisible] = useState(true);
   const [reverseCanvasVisible, setReverseCanvasVisible] = useState(false);
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) setStep("code");
-  };
-
+  // Listen for auth state changes (handles OAuth redirect and magic link return)
   useEffect(() => {
-    if (step === "code") setTimeout(() => codeInputRefs.current[0]?.focus(), 500);
-  }, [step]);
-
-  const handleCodeChange = (index: number, value: string) => {
-    if (value.length <= 1) {
-      const newCode = [...code];
-      newCode[index] = value;
-      setCode(newCode);
-      if (value && index < 5) codeInputRefs.current[index + 1]?.focus();
-      if (index === 5 && value && newCode.every((d) => d.length === 1)) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN") {
         setReverseCanvasVisible(true);
         setTimeout(() => setInitialCanvasVisible(false), 50);
-        setTimeout(() => setStep("success"), 2000);
+        setStep("success");
       }
-    }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError(null);
+    const { error: err } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/login` },
+    });
+    if (err) setError(err.message);
+    setLoading(false);
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !code[index] && index > 0) codeInputRefs.current[index - 1]?.focus();
+  const handleMagicLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setLoading(true);
+    setError(null);
+    const { error: err } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/login` },
+    });
+    if (err) {
+      setError(err.message);
+    } else {
+      setStep("magic-link-sent");
+    }
+    setLoading(false);
   };
 
   const handleBackClick = () => {
     setStep("email");
-    setCode(["", "", "", "", "", ""]);
+    setError(null);
     setReverseCanvasVisible(false);
     setInitialCanvasVisible(true);
   };
 
   return (
     <div className={cn("flex w-full flex-col min-h-screen bg-black relative", className)}>
-      {/* Animated dot-matrix background */}
+      {/* Background canvas */}
       <div className="absolute inset-0 z-0">
         {initialCanvasVisible && (
           <div className="absolute inset-0">
             <CanvasRevealEffect
               animationSpeed={3}
               containerClassName="bg-black"
-              colors={[[212, 175, 55], [212, 175, 55]]}
+              colors={[[212, 175, 55], [180, 140, 30]]}
               dotSize={6}
               reverse={false}
             />
@@ -280,7 +264,7 @@ export function SignInPage({ className, loginUrl, onSuccess }: SignInPageProps) 
             <CanvasRevealEffect
               animationSpeed={4}
               containerClassName="bg-black"
-              colors={[[212, 175, 55], [212, 175, 55]]}
+              colors={[[212, 175, 55], [255, 215, 80]]}
               dotSize={6}
               reverse={true}
             />
@@ -291,215 +275,162 @@ export function SignInPage({ className, loginUrl, onSuccess }: SignInPageProps) 
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col flex-1">
-        {/* Floating header */}
-        <header className="fixed top-6 left-1/2 transform -translate-x-1/2 z-20 flex items-center gap-8 pl-6 pr-4 py-3 rounded-full border border-white/10 bg-black/60 backdrop-blur-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-[#d4af37] rounded-md flex items-center justify-center font-black text-black text-sm" style={{ fontFamily: "Syne, sans-serif" }}>
-              M
-            </div>
-            <span className="text-white font-bold text-sm" style={{ fontFamily: "Syne, sans-serif" }}>Majorka</span>
+      <div className="relative z-10 flex flex-col flex-1 justify-center items-center px-4">
+        {/* Majorka logo */}
+        <div className="mb-8 flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "#d4af37" }}>
+            <span className="text-black font-bold text-sm" style={{ fontFamily: "Syne, sans-serif" }}>M</span>
           </div>
-          <nav className="hidden sm:flex items-center gap-6 text-sm text-white/50">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <a href="#features" className="hover:text-white transition-colors">Features</a>
-            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-          </nav>
-        </header>
+          <span className="text-white font-bold text-xl" style={{ fontFamily: "Syne, sans-serif" }}>Majorka</span>
+        </div>
 
-        {/* Sign-in form */}
-        <div className="flex flex-1 flex-col justify-center items-center px-4">
-          <div className="w-full mt-24 max-w-sm">
-            <AnimatePresence mode="wait">
-              {/* ── Step 1: Email ── */}
-              {step === "email" && (
-                <motion.div
-                  key="email"
-                  initial={{ opacity: 0, x: -60 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -60 }}
-                  transition={{ duration: 0.4 }}
-                  className="space-y-6 text-center"
+        <div className="w-full max-w-sm">
+          <AnimatePresence mode="wait">
+            {step === "email" ? (
+              <motion.div
+                key="email-step"
+                initial={{ opacity: 0, x: -60 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -60 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+                className="space-y-6 text-center"
+              >
+                <div className="space-y-1">
+                  <h1 className="text-4xl font-bold leading-tight tracking-tight text-white" style={{ fontFamily: "Syne, sans-serif" }}>
+                    Welcome back
+                  </h1>
+                  <p className="text-lg text-white/60 font-light">Sign in to your Majorka account</p>
+                </div>
+
+                <button
+                  onClick={handleGoogleSignIn}
+                  disabled={loading}
+                  className="w-full flex items-center justify-center gap-2 rounded-full py-3 px-4 font-medium transition-colors disabled:opacity-50"
+                  style={{ background: "#d4af37", color: "#000", cursor: loading ? "wait" : "pointer", border: "none" }}
                 >
-                  <div>
-                    <div
-                      className="w-12 h-12 bg-[#d4af37] rounded-xl flex items-center justify-center font-black text-black text-xl mx-auto mb-4"
-                      style={{ fontFamily: "Syne, sans-serif" }}
-                    >
-                      M
-                    </div>
-                    <h1 className="text-4xl font-bold text-white tracking-tight" style={{ fontFamily: "Syne, sans-serif" }}>
-                      Welcome back
-                    </h1>
-                    <p className="text-white/50 mt-2">Sign in to your Majorka account</p>
-                  </div>
+                  <svg className="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                  Continue with Google
+                </button>
 
-                  <div className="space-y-3">
-                    {/* Google OAuth */}
+                <div className="flex items-center gap-4">
+                  <div className="h-px bg-white/10 flex-1" />
+                  <span className="text-white/40 text-sm">or use email</span>
+                  <div className="h-px bg-white/10 flex-1" />
+                </div>
+
+                <form onSubmit={handleMagicLink}>
+                  <div className="relative">
+                    <input
+                      type="email"
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full bg-white/5 backdrop-blur text-white border border-white/10 rounded-full py-3 px-4 focus:outline-none focus:border-[#d4af37]/50 text-center"
+                      required
+                    />
                     <button
-                      onClick={() => (window.location.href = "/api/auth/google")}
-                      className="w-full flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-full py-3 px-4 transition-colors"
+                      type="submit"
+                      disabled={loading}
+                      className="absolute right-1.5 top-1.5 w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white disabled:opacity-50"
                     >
-                      <svg className="w-5 h-5" viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                      </svg>
-                      Continue with Google
-                    </button>
-
-                    {/* Apple OAuth */}
-                    <button
-                      onClick={() => (window.location.href = "/api/auth/apple")}
-                      className="w-full flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-full py-3 px-4 transition-colors"
-                    >
-                      <svg className="w-5 h-5 fill-white" viewBox="0 0 24 24">
-                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-                      </svg>
-                      Continue with Apple
-                    </button>
-
-                    {/* Divider */}
-                    <div className="flex items-center gap-4">
-                      <div className="h-px bg-white/10 flex-1" />
-                      <span className="text-white/40 text-sm">or</span>
-                      <div className="h-px bg-white/10 flex-1" />
-                    </div>
-
-                    {/* Email form */}
-                    <form onSubmit={handleEmailSubmit}>
-                      <div className="relative">
-                        <input
-                          type="email"
-                          placeholder="your@email.com"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="w-full bg-white/5 text-white border border-white/10 rounded-full py-3 px-5 focus:outline-none focus:border-[#d4af37]/50 text-center placeholder:text-white/30"
-                          required
-                        />
-                        <button
-                          type="submit"
-                          className="absolute right-1.5 top-1.5 w-9 h-9 flex items-center justify-center rounded-full bg-[#d4af37] hover:bg-[#c9a227] text-black transition-colors font-bold"
-                        >
-                          →
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-
-                  {/* Legal */}
-                  <p className="text-xs text-white/30">
-                    By signing in you agree to our{" "}
-                    <Link href="/terms" className="underline hover:text-white/50">Terms</Link> and{" "}
-                    <Link href="/privacy" className="underline hover:text-white/50">Privacy Policy</Link>
-                  </p>
-                </motion.div>
-              )}
-
-              {/* ── Step 2: Verification Code ── */}
-              {step === "code" && (
-                <motion.div
-                  key="code"
-                  initial={{ opacity: 0, x: 60 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 60 }}
-                  transition={{ duration: 0.4 }}
-                  className="space-y-6 text-center"
-                >
-                  <div>
-                    <h1 className="text-4xl font-bold text-white" style={{ fontFamily: "Syne, sans-serif" }}>Check your email</h1>
-                    <p className="text-white/50 mt-2">We sent a 6-digit code to {email}</p>
-                  </div>
-
-                  <div className="rounded-2xl py-5 px-5 border border-white/10 bg-white/5">
-                    <div className="flex items-center justify-center gap-2">
-                      {code.map((digit, i) => (
-                        <div key={i} className="relative">
-                          <input
-                            ref={(el) => {
-                              codeInputRefs.current[i] = el;
-                            }}
-                            type="text"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            maxLength={1}
-                            value={digit}
-                            onChange={(e) => handleCodeChange(i, e.target.value)}
-                            onKeyDown={(e) => handleKeyDown(i, e)}
-                            className="w-10 h-12 text-center text-xl bg-transparent text-white border-b-2 border-white/20 focus:border-[#d4af37] focus:outline-none transition-colors"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <p className="text-white/40 text-sm cursor-pointer hover:text-white/60 transition-colors">
-                    Resend code
-                  </p>
-
-                  <div className="flex gap-3">
-                    <button
-                      onClick={handleBackClick}
-                      className="w-[35%] rounded-full border border-white/10 text-white py-3 hover:bg-white/5 transition-colors"
-                    >
-                      Back
-                    </button>
-                    <button
-                      className={`flex-1 rounded-full font-semibold py-3 transition-all ${
-                        code.every((d) => d !== "")
-                          ? "bg-[#d4af37] text-black hover:bg-[#c9a227]"
-                          : "bg-white/5 text-white/30 cursor-not-allowed"
-                      }`}
-                      disabled={!code.every((d) => d !== "")}
-                    >
-                      Continue
+                      {loading ? "..." : "\u2192"}
                     </button>
                   </div>
-                </motion.div>
-              )}
+                </form>
 
-              {/* ── Step 3: Success ── */}
-              {step === "success" && (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.2 }}
-                  className="space-y-6 text-center"
-                >
-                  <motion.div
-                    initial={{ scale: 0.5, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.4 }}
-                    className="w-20 h-20 rounded-full bg-[#d4af37] flex items-center justify-center mx-auto"
+                {error && (
+                  <p className="text-sm text-red-400">{error}</p>
+                )}
+
+                <p className="text-xs text-white/30 pt-4">
+                  By continuing, you agree to Majorka's{" "}
+                  <Link href="#" className="underline hover:text-white/50 transition-colors">Terms</Link> and{" "}
+                  <Link href="#" className="underline hover:text-white/50 transition-colors">Privacy Policy</Link>.
+                </p>
+              </motion.div>
+            ) : step === "magic-link-sent" ? (
+              <motion.div
+                key="magic-link-step"
+                initial={{ opacity: 0, x: 60 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 60 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+                className="space-y-6 text-center"
+              >
+                <div className="space-y-1">
+                  <h1 className="text-4xl font-bold leading-tight tracking-tight text-white" style={{ fontFamily: "Syne, sans-serif" }}>
+                    Check your email
+                  </h1>
+                  <p className="text-lg text-white/50 font-light">We sent a magic link to {email}</p>
+                </div>
+
+                <div className="py-6">
+                  <div
+                    className="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
+                    style={{ background: "rgba(212,175,55,0.15)", border: "1px solid rgba(212,175,55,0.3)" }}
                   >
-                    <svg className="w-10 h-10 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect width="20" height="16" x="2" y="4" rx="2" />
+                      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                     </svg>
-                  </motion.div>
-
-                  <div>
-                    <h1 className="text-4xl font-bold text-white" style={{ fontFamily: "Syne, sans-serif" }}>You're in!</h1>
-                    <p className="text-white/50 mt-2">Redirecting to your dashboard…</p>
                   </div>
+                </div>
 
-                  <motion.button
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.8 }}
-                    onClick={() => {
-                      if (onSuccess) onSuccess();
-                      else window.location.href = "/app";
-                    }}
-                    className="w-full rounded-full bg-[#d4af37] text-black font-semibold py-3 hover:bg-[#c9a227] transition-colors"
+                <p className="text-white/40 text-sm">Click the link in your email to sign in. You can close this tab.</p>
+
+                <motion.button
+                  onClick={handleBackClick}
+                  className="rounded-full bg-white/10 text-white font-medium px-6 py-3 hover:bg-white/20 transition-colors"
+                  style={{ border: "none", cursor: "pointer" }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  Back to sign in
+                </motion.button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="success-step"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut", delay: 0.3 }}
+                className="space-y-6 text-center"
+              >
+                <div className="space-y-1">
+                  <h1 className="text-4xl font-bold leading-tight tracking-tight text-white" style={{ fontFamily: "Syne, sans-serif" }}>
+                    You're in!
+                  </h1>
+                  <p className="text-lg text-white/50 font-light">Welcome to Majorka</p>
+                </div>
+
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.5 }}
+                  className="py-10"
+                >
+                  <div
+                    className="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
+                    style={{ background: "#d4af37" }}
                   >
-                    Go to Dashboard →
-                  </motion.button>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-black" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
                 </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1 }}
+                  onClick={onSuccess}
+                  className="w-full rounded-full font-medium py-3 text-black transition-colors"
+                  style={{ background: "#d4af37", border: "none", cursor: "pointer" }}
+                >
+                  Continue to Dashboard
+                </motion.button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

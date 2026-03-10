@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,10 +22,7 @@ interface AIToolChatProps {
   examplePrompts?: string[];
 }
 
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-}
+type Message = { role: "user" | "assistant"; content: string };
 
 export default function AIToolChat({
   toolId,
@@ -37,13 +34,24 @@ export default function AIToolChat({
   showHTMLPreview = false,
   examplePrompts,
 }: AIToolChatProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
-  const [streaming, setStreaming] = useState(false);
-  const [streamingContent, setStreamingContent] = useState("");
   const [generatedHTML, setGeneratedHTML] = useState<string>("");
   const [showPreview, setShowPreview] = useState(false);
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [status, setStatus] = useState<"idle" | "streaming">("idle");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  // Extract HTML from assistant messages (for Website Generator)
+  useEffect(() => {
+    if (!showHTMLPreview) return;
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role === "assistant") {
+      const htmlMatch = lastMessage.content.match(/```html\n([\s\S]*?)\n```/);
+      if (htmlMatch && htmlMatch[1]) {
+        setGeneratedHTML(htmlMatch[1]);
+      }
+    }
+  }, [messages, showHTMLPreview]);
 
   // Auto-scroll
   useEffect(() => {
@@ -51,82 +59,74 @@ export default function AIToolChat({
       const el = scrollAreaRef.current.querySelector("[data-radix-scroll-area-viewport]");
       if (el) el.scrollTop = el.scrollHeight;
     }
-  }, [messages, streamingContent]);
+  }, [messages]);
 
-  // Extract HTML from last assistant message (for Website Generator)
-  useEffect(() => {
-    if (!showHTMLPreview) return;
-    const lastAssistant = [...messages].reverse().find(m => m.role === "assistant");
-    if (lastAssistant) {
-      const htmlMatch = lastAssistant.content.match(/```html\n([\s\S]*?)\n```/);
-      if (htmlMatch?.[1]) setGeneratedHTML(htmlMatch[1]);
-    }
-  }, [messages, showHTMLPreview]);
-
-  const handleSend = async () => {
-    if (!input.trim() || streaming) return;
-    const userText = input.trim();
-    setInput("");
-
-    const newMessages: Message[] = [...messages, { role: "user", content: userText }];
+  const handleSend = useCallback(async () => {
+    if (!input.trim() || status === "streaming") return;
+    const userMsg: Message = { role: "user", content: input };
+    const newMessages = [...messages, userMsg];
     setMessages(newMessages);
-    setStreaming(true);
-    setStreamingContent("");
+    setInput("");
+    setStatus("streaming");
+    setMessages(prev => [...prev, { role: "assistant", content: "" }]);
 
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: newMessages, systemPrompt }),
+        body: JSON.stringify({
+          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+          systemPrompt,
+        }),
       });
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.error || `Server error: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
       const reader = response.body?.getReader();
       if (!reader) throw new Error("No response body");
-
       const decoder = new TextDecoder();
       let fullText = "";
-
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value, { stream: true });
         for (const line of chunk.split("\n")) {
           if (line.startsWith("0:")) {
-            try {
-              fullText += JSON.parse(line.slice(2));
-              setStreamingContent(fullText);
-            } catch { /* skip malformed */ }
+            try { fullText += JSON.parse(line.slice(2)); } catch { }
           }
         }
+        setMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: "assistant", content: fullText };
+          return updated;
+        });
       }
-
-      if (fullText) {
-        setMessages(prev => [...prev, { role: "assistant", content: fullText }]);
-      }
-    } catch (err: any) {
-      toast.error(err.message || "Failed to get a response. Try again.");
+    } catch {
+      setMessages(prev => {
+        const updated = [...prev];
+        updated[updated.length - 1] = { role: "assistant", content: "Something went wrong. Please try again." };
+        return updated;
+      });
     } finally {
-      setStreaming(false);
-      setStreamingContent("");
+      setStatus("idle");
     }
-  };
+  }, [input, messages, status, systemPrompt]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard!");
   };
 
-  const getAllAssistantText = () =>
-    messages.filter(m => m.role === "assistant").map(m => m.content).join("\n\n");
+  const getAllAssistantText = () => {
+    return messages
+      .filter(m => m.role === "assistant")
+      .map(m => m.content)
+      .join("\n\n");
+  };
 
   const copyLastMessage = () => {
     const last = messages[messages.length - 1];
-    if (last?.role === "assistant") copyToClipboard(last.content);
+    if (last?.role === "assistant") {
+      copyToClipboard(last.content);
+    }
   };
 
   const downloadHTML = () => {
@@ -141,10 +141,6 @@ export default function AIToolChat({
   };
 
   const hasOutput = messages.some(m => m.role === "assistant");
-
-  const displayMessages = streaming
-    ? [...messages, { role: "assistant" as const, content: streamingContent }]
-    : messages;
 
   return (
     <div className="flex flex-col h-[calc(100vh-64px)] bg-background">
@@ -177,7 +173,7 @@ export default function AIToolChat({
         <div className="flex-1 flex flex-col min-w-0">
           <ScrollArea ref={scrollAreaRef} className="flex-1">
             <div className="space-y-4 p-5">
-              {displayMessages.length === 0 && (
+              {messages.length === 0 && (
                 <div className="flex flex-col items-center justify-center text-center py-16">
                   <div
                     className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
@@ -194,7 +190,9 @@ export default function AIToolChat({
                       {examplePrompts.map((prompt, i) => (
                         <button
                           key={i}
-                          onClick={() => setInput(prompt)}
+                          onClick={() => {
+                            setInput(prompt);
+                          }}
                           className="text-left text-xs px-4 py-2.5 rounded-xl border transition-all hover:border-yellow-500/40 hover:bg-yellow-500/5"
                           style={{
                             borderColor: "rgba(212,175,55,0.2)",
@@ -210,7 +208,7 @@ export default function AIToolChat({
                 </div>
               )}
 
-              {displayMessages.map((msg, i) => (
+              {messages.map((msg, i) => (
                 <div
                   key={i}
                   className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
@@ -221,7 +219,11 @@ export default function AIToolChat({
                     </div>
                   )}
                   <div
-                    className={`max-w-[75%] rounded-xl px-4 py-3 ${msg.role === "user" ? "text-sm" : "text-foreground"}`}
+                    className={`max-w-[75%] rounded-xl px-4 py-3 ${
+                      msg.role === "user"
+                        ? "text-sm"
+                        : "text-foreground"
+                    }`}
                     style={
                       msg.role === "user"
                         ? { background: "rgba(212,175,55,0.15)", color: "#f5f0e0" }
@@ -237,7 +239,8 @@ export default function AIToolChat({
                     >
                       <Markdown mode="static">{msg.content}</Markdown>
                     </div>
-                    {msg.role === "assistant" && !streaming && (
+                    {/* Per-message copy button */}
+                    {msg.role === "assistant" && (
                       <div className="mt-2 flex justify-end">
                         <CopyMsgBtn text={msg.content} />
                       </div>
@@ -246,7 +249,7 @@ export default function AIToolChat({
                 </div>
               ))}
 
-              {streaming && !streamingContent && (
+              {status === "streaming" && messages[messages.length - 1]?.content === "" && (
                 <div className="flex gap-3 justify-start">
                   <div className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center" style={{ background: "rgba(212,175,55,0.1)" }}>
                     <Sparkles className="w-3.5 h-3.5" style={{ color: "#d4af37" }} />
@@ -269,7 +272,12 @@ export default function AIToolChat({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
+                  // Enter to send, Shift+Enter for newline, Cmd/Ctrl+Enter also sends
                   if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
                     e.preventDefault();
                     handleSend();
                   }
@@ -282,7 +290,7 @@ export default function AIToolChat({
               <div className="flex flex-col gap-1.5">
                 <Button
                   onClick={handleSend}
-                  disabled={streaming || !input.trim()}
+                  disabled={status === "streaming" || !input.trim()}
                   size="icon"
                   className="h-9 w-9 rounded-lg"
                   style={{ background: "linear-gradient(135deg, #d4af37, #c09a28)", color: "#080a0e" }}
