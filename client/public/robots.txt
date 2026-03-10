@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /app/
+Disallow: /api/
+Disallow: /account
+
+Sitemap: https://majorka.ai/sitemap.xml
