@@ -6,6 +6,7 @@
  */
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { supabase } from "@/lib/supabase";
 
 import { useState, useRef, useEffect, createElement, useCallback } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -161,7 +162,15 @@ export default function MajorkaAppShell({ children }: Props) {
           </div>
         ) : (
           <button
-            onClick={() => setLocation("/login")}
+            type="button"
+            onClick={async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              await supabase.auth.signInWithOAuth({
+                provider: "google",
+                options: { redirectTo: "http://localhost:3000/app" },
+              });
+            }}
             className="w-full text-xs font-bold px-3 py-2 rounded-lg transition-all"
             style={{
               background: "linear-gradient(135deg, #d4af37, #f0c040)",
