@@ -29,12 +29,14 @@ export function SignInPage({ className, onSuccess }: SignInPageProps) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
     setLoading(true);
     setError(null);
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/login` },
+      options: { redirectTo: "http://localhost:3000/app" },
     });
     if (err) setError(err.message);
     setLoading(false);
