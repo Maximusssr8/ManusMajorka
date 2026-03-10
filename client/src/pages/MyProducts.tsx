@@ -198,7 +198,7 @@ export default function MyProducts() {
                         </span>
                       ) : (
                         <button
-                          onClick={() => setActiveProduct({ id: String(p.id), name: p.name, niche: p.niche ?? undefined, stage: (p as any).stage ?? p.status ?? undefined })}
+                          onClick={() => setActiveProduct({ id: String(p.id), name: p.name, niche: p.niche ?? undefined, stage: p.status ?? undefined })}
                           className="text-xs px-2 py-1 rounded-lg transition-all hover:bg-white/5"
                           style={{ cursor: "pointer", color: "rgba(240,237,232,0.4)", border: "1px solid rgba(255,255,255,0.08)" }}
                         >

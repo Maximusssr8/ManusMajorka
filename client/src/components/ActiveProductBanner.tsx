@@ -84,7 +84,7 @@ export function ActiveProductBanner() {
                         id: String(p.id),
                         name: p.name,
                         niche: p.niche ?? undefined,
-                        stage: (p as any).stage ?? p.status ?? undefined,
+                        stage: p.status ?? undefined,
                       });
                       setOpen(false);
                     }}
