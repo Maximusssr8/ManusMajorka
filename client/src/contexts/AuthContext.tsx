@@ -30,50 +30,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const refetchMe = useRef<() => void>(() => {});
-  refetchMe.current = () => {
-    console.log("[useAuth] refetchMe called, session:", !!session);
-    meQuery.refetch();
-  };
+  refetchMe.current = () => { meQuery.refetch(); };
 
   useEffect(() => {
     let resolved = false;
 
+    // Hard deadline — never spin more than 3 seconds
     const deadline = setTimeout(() => {
       if (!resolved) {
         resolved = true;
-        console.warn("[useAuth] 2s deadline hit — forcing sessionLoading=false");
         setSessionLoading(false);
       }
-    }, 2000);
+    }, 3000);
 
+    // 1. Subscribe to future auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
-      console.log(`[useAuth] onAuthStateChange: ${event} | session: ${!!s} | user: ${s?.user?.email ?? "none"}`);
       resolved = true;
       clearTimeout(deadline);
       setSession(s);
       setSessionLoading(false);
       if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
-        utils.auth.me.invalidate().then(() => {
-          refetchMe.current();
-        });
+        utils.auth.me.invalidate().then(() => refetchMe.current());
       }
       if (event === "SIGNED_OUT") {
         utils.auth.me.setData(undefined, null);
       }
     });
 
+    // 2. Handle implicit OAuth tokens in URL hash
     const hash = window.location.hash;
     if (hash.includes("access_token")) {
       const params = new URLSearchParams(hash.replace(/^#/, ""));
       const access_token = params.get("access_token");
       const refresh_token = params.get("refresh_token");
-      console.log("[useAuth] implicit OAuth tokens in hash — calling setSession");
       if (access_token && refresh_token) {
         supabase.auth.setSession({ access_token, refresh_token }).then(({ data, error }) => {
-          if (error) {
-            console.error("[useAuth] setSession error:", error.message);
-          } else {
-            console.log("[useAuth] setSession OK, user:", data.session?.user?.email);
+          if (!error && data.session) {
             setSession(data.session);
             setSessionLoading(false);
             window.history.replaceState(null, "", window.location.pathname);
@@ -84,22 +76,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    const searchParams = new URLSearchParams(window.location.search);
-    const code = searchParams.get("code");
-    if (code) {
-      console.log("[useAuth] PKCE code in URL — Supabase will exchange it; waiting for onAuthStateChange");
-    }
-
-    supabase.auth.getSession().then(({ data: { session: s }, error }) => {
-      console.log(`[useAuth] getSession: ${!!s} | user: ${s?.user?.email ?? "none"} | err: ${error?.message ?? "none"}`);
+    // 3. Recover existing session from localStorage on mount
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
       if (!resolved) {
         resolved = true;
         clearTimeout(deadline);
         setSession(s);
         setSessionLoading(false);
       }
-    }).catch((err) => {
-      console.error("[useAuth] getSession threw:", err);
+    }).catch(() => {
       if (!resolved) {
         resolved = true;
         clearTimeout(deadline);
@@ -113,11 +98,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [utils]);
 
+  // Trigger meQuery when session becomes available
   useEffect(() => {
-    if (session) {
-      console.log("[useAuth] session became truthy, triggering meQuery refetch");
-      meQuery.refetch();
-    }
+    if (session) meQuery.refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!session]);
 
@@ -144,8 +127,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     meQuery.isFetched,
     logout,
   ]);
-
-  console.log(`[useAuth] render | isAuthenticated: ${value.isAuthenticated} | loading: ${value.loading} | user: ${value.user?.email ?? "none"} | meStatus: ${meQuery.status}`);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

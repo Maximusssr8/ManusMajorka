@@ -4,6 +4,8 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ProductProvider } from "./contexts/ProductContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { lazy, Suspense } from "react";
 
 // Lazy-loaded page components for code splitting
@@ -60,10 +62,10 @@ function Router() {
         <Route path="/sign-in" component={SignIn} />
         <Route path="/account" component={Account} />
         <Route path="/app/settings/profile" component={SettingsProfile} />
-        <Route path="/app" component={Dashboard} />
-        <Route path="/app/settings" component={Dashboard} />
-        <Route path="/app/:tool" component={Dashboard} />
-        <Route path="/app/product-hub/:id" component={Dashboard} />
+        <Route path="/app">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+        <Route path="/app/settings">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+        <Route path="/app/:tool">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+        <Route path="/app/product-hub/:id">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>
@@ -76,10 +78,12 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark" switchable>
         <AuthProvider>
+          <ProductProvider>
           <TooltipProvider>
             <Toaster />
             <Router />
           </TooltipProvider>
+          </ProductProvider>
         </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>

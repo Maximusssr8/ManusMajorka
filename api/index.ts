@@ -2,7 +2,7 @@
  * Vercel Serverless Function — wraps the Express app for serverless deployment.
  * All /api/* requests are routed here via vercel.json rewrites.
  */
-import express from "express";
+import express, { type Request, type Response } from "express";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerChatRoutes } from "../server/_core/chat";
 import { registerScrapeRoutes } from "../server/lib/scrape-product";
@@ -30,6 +30,38 @@ app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+// ── Image proxy — serves CDN images that block cross-origin requests ──────────
+app.get("/api/proxy-image", async (req: Request, res: Response) => {
+  const url = req.query.url as string;
+  if (!url) { res.status(400).json({ error: "No URL provided" }); return; }
+  try {
+    const upstream = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Referer": "https://www.aliexpress.com/",
+      },
+    });
+    const buffer = await upstream.arrayBuffer();
+    res.setHeader("Content-Type", upstream.headers.get("content-type") || "image/jpeg");
+    res.setHeader("Cache-Control", "public, max-age=86400");
+    res.send(Buffer.from(buffer));
+  } catch {
+    res.status(500).json({ error: "Failed to proxy image" });
+  }
+});
+
+// ── API health check ──────────────────────────────────────────────────────────
+app.get("/api/health", (_req: Request, res: Response) => {
+  res.json({
+    anthropic: !!process.env.ANTHROPIC_API_KEY,
+    tavily: !!process.env.TAVILY_API_KEY,
+    firecrawl: !!process.env.FIRECRAWL_API_KEY,
+    supabase: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    stripe: !!process.env.STRIPE_SECRET_KEY,
+    database: !!process.env.DATABASE_URL,
+  });
+});
 
 registerChatRoutes(app);
 registerScrapeRoutes(app);
