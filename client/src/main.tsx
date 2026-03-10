@@ -45,6 +45,7 @@ const trpcClient = trpc.createClient({
       transformer: superjson,
       async headers() {
         const { data: { session } } = await supabase.auth.getSession();
+        console.log(`[trpc] headers() | has session: ${!!session} | user: ${session?.user?.email ?? "none"}`);
         if (session?.access_token) {
           return { Authorization: `Bearer ${session.access_token}` };
         }
