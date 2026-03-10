@@ -37,7 +37,7 @@ interface Props { children: React.ReactNode }
 
 export default function MajorkaAppShell({ children }: Props) {
   const [location, setLocation] = useLocation();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, loading, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     if (typeof window === "undefined") return true;
     const stored = localStorage.getItem("majorka_sidebar_open");
@@ -128,7 +128,18 @@ export default function MajorkaAppShell({ children }: Props) {
 
       {/* User section */}
       <div className="flex-shrink-0 border-t px-2 py-2" style={{ borderColor: "rgba(255,255,255,0.07)" }} ref={userMenuRef}>
-        {isAuthenticated && user != null ? (
+        {loading ? (
+          /* Loading skeleton */
+          <div className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg" style={{ justifyContent: collapsed ? "center" : "flex-start" }}>
+            <div className="w-7 h-7 rounded-full flex-shrink-0 animate-pulse" style={{ background: "rgba(255,255,255,0.1)" }} />
+            {!collapsed && (
+              <div className="flex-1 space-y-1.5">
+                <div className="h-2.5 rounded animate-pulse" style={{ background: "rgba(255,255,255,0.1)", width: "60%" }} />
+                <div className="h-2 rounded animate-pulse" style={{ background: "rgba(255,255,255,0.06)", width: "80%" }} />
+              </div>
+            )}
+          </div>
+        ) : isAuthenticated && user != null ? (
           <div className="relative">
             <button onClick={() => setUserMenuOpen(!userMenuOpen)}
               className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs transition-all"
@@ -136,14 +147,22 @@ export default function MajorkaAppShell({ children }: Props) {
               onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}
               onMouseLeave={e => { if (!userMenuOpen) e.currentTarget.style.background = "transparent"; }}
             >
-              <div className="w-7 h-7 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0" style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#0a0b0d", fontFamily: "Syne, sans-serif" }}>
-                {((user?.name ?? user?.email ?? "M") as string).charAt(0).toUpperCase()}
-              </div>
+              {user.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt={user.name ?? "User"}
+                  className="w-7 h-7 rounded-full flex-shrink-0 object-cover"
+                />
+              ) : (
+                <div className="w-7 h-7 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0" style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#0a0b0d", fontFamily: "Syne, sans-serif" }}>
+                  {(user.name ?? user.email ?? "M").charAt(0).toUpperCase()}
+                </div>
+              )}
               {!collapsed && (
                 <>
                   <div className="flex-1 text-left overflow-hidden">
-                    <div className="text-xs font-bold truncate" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>{user?.name ?? "User"}</div>
-                    {user?.email && <div className="text-xs truncate" style={{ color: "rgba(240,237,232,0.35)", fontSize: 10 }}>{user.email}</div>}
+                    <div className="text-xs font-bold truncate" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>{user.name ?? "User"}</div>
+                    {user.email && <div className="text-xs truncate" style={{ color: "rgba(240,237,232,0.35)", fontSize: 10 }}>{user.email}</div>}
                   </div>
                   <Settings size={12} style={{ color: "rgba(240,237,232,0.3)", flexShrink: 0 }} />
                 </>
