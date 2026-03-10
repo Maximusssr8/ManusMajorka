@@ -5,6 +5,7 @@ import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { registerChatRoutes } from "./chat";
+import { registerAuthRoutes } from "../auth/routes";
 import { registerScrapeRoutes } from "../lib/scrape-product";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
@@ -35,7 +36,9 @@ async function startServer() {
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
-  // OAuth callback under /api/oauth/callback
+  // Auth: session + passport + Google/Apple/Email routes
+  registerAuthRoutes(app);
+  // OAuth callback under /api/oauth/callback (legacy)
   registerOAuthRoutes(app);
   // Chat API with streaming and tool calling
   registerChatRoutes(app);

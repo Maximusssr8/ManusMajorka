@@ -69,7 +69,11 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
   return (
     <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
       <button onClick={() => setExpanded(!expanded)} className="w-full flex items-center gap-3 p-4 text-left" style={{ cursor: "pointer" }}>
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0" style={{ background: "rgba(212,175,55,0.12)", color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0" style={{
+          background: product.score >= 75 ? "rgba(45,202,114,0.15)" : product.score >= 50 ? "rgba(212,175,55,0.12)" : "rgba(224,92,122,0.15)",
+          color: product.score >= 75 ? "#2dca72" : product.score >= 50 ? "#d4af37" : "#e05c7a",
+          fontFamily: "Syne, sans-serif",
+        }}>
           {product.score}
         </div>
         <div className="flex-1 min-w-0">

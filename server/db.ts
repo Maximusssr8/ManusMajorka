@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, InsertSubscription, subscriptions, users } from "../drizzle/schema";
+import { InsertUser, InsertSubscription, subscriptions, users, userProfiles, InsertUserProfile, conversationMemory, InsertConversationMessage } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -158,4 +158,58 @@ export async function deleteSavedOutput(outputId: number, userId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(savedOutputs).where(and(eq(savedOutputs.id, outputId), eq(savedOutputs.userId, userId)));
+}
+
+// ── User Profile ──────────────────────────────────────────────────────────────
+
+export async function getUserProfile(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(userProfiles).where(eq(userProfiles.userId, userId)).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function upsertUserProfile(userId: number, data: Partial<Omit<InsertUserProfile, "id" | "userId" | "createdAt" | "updatedAt">>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const existing = await getUserProfile(userId);
+  if (existing) {
+    await db.update(userProfiles).set(data).where(eq(userProfiles.userId, userId));
+  } else {
+    await db.insert(userProfiles).values({ userId, ...data });
+  }
+  return getUserProfile(userId);
+}
+
+// ── Conversation Memory ───────────────────────────────────────────────────────
+
+export async function getConversationHistory(userId: number, toolName: string, limit = 10) {
+  const db = await getDb();
+  if (!db) return [];
+  const rows = await db.select().from(conversationMemory)
+    .where(and(eq(conversationMemory.userId, userId), eq(conversationMemory.toolName, toolName)))
+    .orderBy(conversationMemory.createdAt)
+    .limit(limit);
+  return rows;
+}
+
+export async function saveConversationMessage(data: InsertConversationMessage) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(conversationMemory).values(data);
+}
+
+export async function trimConversationHistory(userId: number, toolName: string, keepCount = 20) {
+  const db = await getDb();
+  if (!db) return;
+  // Get count
+  const rows = await db.select().from(conversationMemory)
+    .where(and(eq(conversationMemory.userId, userId), eq(conversationMemory.toolName, toolName)))
+    .orderBy(conversationMemory.createdAt);
+  if (rows.length > keepCount) {
+    const idsToDelete = rows.slice(0, rows.length - keepCount).map(r => r.id);
+    for (const id of idsToDelete) {
+      await db.delete(conversationMemory).where(eq(conversationMemory.id, id));
+    }
+  }
 }

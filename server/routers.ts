@@ -16,6 +16,11 @@ import {
   getSavedOutputsByProductId,
   createSavedOutput,
   deleteSavedOutput,
+  getUserProfile,
+  upsertUserProfile,
+  getConversationHistory,
+  saveConversationMessage,
+  trimConversationHistory,
 } from "./db";
 import { tavilySearch, tavilyExtract, tavilyImageSearch } from "./tavily";
 
@@ -202,6 +207,55 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const images = await tavilyImageSearch(input.query, input.maxImages);
         return { images };
+      }),
+  }),
+
+  /** User profile */
+  profile: router({
+    get: protectedProcedure.query(async ({ ctx }) => {
+      return await getUserProfile(ctx.user.id) ?? null;
+    }),
+
+    update: protectedProcedure
+      .input(z.object({
+        experienceLevel: z.string().optional(),
+        mainGoal: z.string().optional(),
+        budget: z.string().optional(),
+        businessName: z.string().optional(),
+        targetNiche: z.string().optional(),
+        monthlyRevenue: z.string().optional(),
+        country: z.string().optional(),
+        onboardingCompleted: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await upsertUserProfile(ctx.user.id, input);
+      }),
+  }),
+
+  /** Conversation memory */
+  memory: router({
+    getHistory: protectedProcedure
+      .input(z.object({ toolName: z.string(), limit: z.number().optional() }))
+      .query(async ({ ctx, input }) => {
+        return await getConversationHistory(ctx.user.id, input.toolName, input.limit ?? 10);
+      }),
+
+    saveMessage: protectedProcedure
+      .input(z.object({
+        toolName: z.string(),
+        role: z.string(),
+        content: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await saveConversationMessage({
+          userId: ctx.user.id,
+          toolName: input.toolName,
+          role: input.role,
+          content: input.content,
+        });
+        // Keep only last 20 messages per user+tool
+        await trimConversationHistory(ctx.user.id, input.toolName, 20);
+        return { success: true };
       }),
   }),
 });

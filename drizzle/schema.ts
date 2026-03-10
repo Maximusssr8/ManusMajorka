@@ -77,3 +77,40 @@ export const savedOutputs = mysqlTable("saved_outputs", {
 
 export type SavedOutput = typeof savedOutputs.$inferSelect;
 export type InsertSavedOutput = typeof savedOutputs.$inferInsert;
+
+/**
+ * User profiles — persistent context the AI uses to personalise responses.
+ */
+export const userProfiles = mysqlTable("user_profiles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  experienceLevel: varchar("experience_level", { length: 20 }),
+  mainGoal: varchar("main_goal", { length: 100 }),
+  budget: varchar("budget", { length: 50 }),
+  businessName: varchar("business_name", { length: 255 }),
+  targetNiche: varchar("target_niche", { length: 255 }),
+  monthlyRevenue: varchar("monthly_revenue", { length: 50 }),
+  country: varchar("country", { length: 100 }),
+  onboardingCompleted: int("onboarding_completed").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserProfile = typeof userProfiles.$inferSelect;
+export type InsertUserProfile = typeof userProfiles.$inferInsert;
+
+/**
+ * Conversation memory — stores last N messages per user per tool for AI context.
+ */
+export const conversationMemory = mysqlTable("conversation_memory", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  toolName: varchar("tool_name", { length: 100 }).notNull(),
+  role: varchar("role", { length: 20 }).notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ConversationMessage = typeof conversationMemory.$inferSelect;
+export type InsertConversationMessage = typeof conversationMemory.$inferInsert;
+

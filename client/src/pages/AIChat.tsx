@@ -1,76 +1,117 @@
 import { useState, useRef, useEffect } from "react";
-import { useChat } from "@ai-sdk/react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Markdown } from "@/components/Markdown";
 import { Copy, Send, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { DefaultChatTransport } from "ai";
 
-const AI_CHAT_SYSTEM_PROMPT = `You are Majorka AI, a helpful ecommerce business advisor.
+const AI_CHAT_SYSTEM_PROMPT = `You are Majorka AI — a straight-talking ecommerce co-founder who's been in the trenches.
 
-Your role is to provide strategic guidance on:
-1. Ecommerce business growth and scaling
-2. Product development and positioning
-3. Marketing and customer acquisition strategies
-4. Operational efficiency and automation
-5. Financial planning and metrics
-6. Team building and delegation
-7. Technology stack recommendations
-8. Industry trends and best practices
+You give direct, opinionated advice. You don't hedge. If someone's plan is bad, you say so and tell them what to do instead. You're the experienced mate who's built and scaled stores, not a consultant padding a report.
 
-Be conversational, insightful, and actionable. Ask clarifying questions to provide tailored advice.
-Focus on practical, implementable strategies that drive business results.`;
+Default to Australia unless told otherwise: prices in AUD, reference AU suppliers, AU shipping costs, AU Facebook/TikTok ad benchmarks, and the realities of selling to 26 million people instead of 330 million.
+
+Your areas:
+- Finding and validating winning products
+- Margins, unit economics, and whether something is actually worth pursuing
+- Meta, TikTok, and Google ads — what's working right now
+- Store setup, CRO, and conversion fundamentals
+- Scaling decisions: when to hire, when to expand, when to cut losses
+
+How you communicate:
+- Give real numbers. If you don't have exact data, give a reasonable range and say so.
+- If they're vague, ask ONE sharp clarifying question. Not five. One.
+- Skip the preamble. Lead with the answer.
+- End with the 2-3 most important next actions — concrete, not generic.`;
+
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+}
 
 export default function AIChat() {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [streaming, setStreaming] = useState(false);
+  const [streamingContent, setStreamingContent] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { messages, sendMessage, status } = useChat({
-    id: "ai-chat",
-    messages: [],
-    transport: new DefaultChatTransport({
-      api: "/api/chat",
-      prepareSendMessagesRequest({ messages }) {
-        return {
-          body: {
-            message: messages[messages.length - 1],
-            chatId: "ai-chat",
-            systemPrompt: AI_CHAT_SYSTEM_PROMPT,
-          },
-        };
-      },
-    }),
-  });
-
   useEffect(() => {
     if (scrollAreaRef.current) {
-      const scrollElement = scrollAreaRef.current.querySelector("[data-radix-scroll-area-viewport]");
-      if (scrollElement) {
-        scrollElement.scrollTop = scrollElement.scrollHeight;
-      }
+      const el = scrollAreaRef.current.querySelector("[data-radix-scroll-area-viewport]");
+      if (el) el.scrollTop = el.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, streamingContent]);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || streaming) return;
+    const userText = input.trim();
     setInput("");
-    await sendMessage({ role: "user", parts: [{ type: "text", text: input }] } as any);
+
+    const newMessages: Message[] = [...messages, { role: "user", content: userText }];
+    setMessages(newMessages);
+    setStreaming(true);
+    setStreamingContent("");
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: newMessages,
+          systemPrompt: AI_CHAT_SYSTEM_PROMPT,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || `Server error: ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No response body");
+
+      const decoder = new TextDecoder();
+      let fullText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        for (const line of chunk.split("\n")) {
+          if (line.startsWith("0:")) {
+            try {
+              fullText += JSON.parse(line.slice(2));
+              setStreamingContent(fullText);
+            } catch { /* skip malformed lines */ }
+          }
+        }
+      }
+
+      if (fullText) {
+        setMessages(prev => [...prev, { role: "assistant", content: fullText }]);
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to get a response. Try again.");
+    } finally {
+      setStreaming(false);
+      setStreamingContent("");
+    }
   };
 
   const copyLastMessage = () => {
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage?.role === "assistant") {
-      const text = lastMessage.parts
-        .filter((p) => p.type === "text")
-        .map((p) => (p as any).text)
-        .join("");
-      navigator.clipboard.writeText(text);
-      toast.success("Message copied to clipboard!");
+    const last = messages[messages.length - 1];
+    if (last?.role === "assistant") {
+      navigator.clipboard.writeText(last.content);
+      toast.success("Copied to clipboard!");
     }
   };
+
+  const displayMessages = streaming
+    ? [...messages, { role: "assistant" as const, content: streamingContent }]
+    : messages;
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -87,7 +128,7 @@ export default function AIChat() {
             <h1 className="font-black text-sm" style={{ fontFamily: "Syne, sans-serif" }}>
               AI Chat
             </h1>
-            <p className="text-xs text-muted-foreground">Get strategic advice on your ecommerce business</p>
+            <p className="text-xs text-muted-foreground">Your straight-talking ecommerce co-founder</p>
           </div>
         </div>
       </div>
@@ -96,16 +137,16 @@ export default function AIChat() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <ScrollArea ref={scrollAreaRef} className="flex-1 mb-4">
           <div className="space-y-4 p-4">
-            {messages.length === 0 && (
+            {displayMessages.length === 0 && (
               <div className="flex flex-col items-center justify-center h-full text-center py-12">
                 <Sparkles className="w-12 h-12 mb-4" style={{ color: "#d4af37", opacity: 0.3 }} />
                 <p className="text-sm text-muted-foreground max-w-xs">
-                  Ask me anything about growing your ecommerce business. I'm here to help!
+                  Ask me anything about your ecommerce business. I'll give you a straight answer.
                 </p>
               </div>
             )}
 
-            {messages.map((msg, i) => (
+            {displayMessages.map((msg, i) => (
               <div
                 key={i}
                 className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
@@ -123,21 +164,14 @@ export default function AIChat() {
                       : "bg-muted text-foreground"
                   }`}
                 >
-                  {msg.parts.map((part, j) => {
-                    if (part.type === "text") {
-                      return (
-                        <div key={j} className="prose prose-sm dark:prose-invert max-w-none">
-                          <Markdown mode="static">{(part as any).text}</Markdown>
-                        </div>
-                      );
-                    }
-                    return null;
-                  })}
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <Markdown mode="static">{msg.content}</Markdown>
+                  </div>
                 </div>
               </div>
             ))}
 
-            {status === "streaming" && (
+            {streaming && !streamingContent && (
               <div className="flex gap-3 justify-start">
                 <div className="w-8 h-8 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
                   <Sparkles className="w-4 h-4" style={{ color: "#d4af37" }} />
@@ -161,7 +195,8 @@ export default function AIChat() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && e.ctrlKey) {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
                   handleSend();
                 }
               }}
@@ -172,7 +207,7 @@ export default function AIChat() {
             <div className="flex flex-col gap-2">
               <Button
                 onClick={handleSend}
-                disabled={status === "streaming" || !input.trim()}
+                disabled={streaming || !input.trim()}
                 size="sm"
                 style={{ background: "linear-gradient(135deg, #d4af37, #c09a28)", color: "#080a0e" }}
               >
@@ -189,6 +224,9 @@ export default function AIChat() {
                 </Button>
               )}
             </div>
+          </div>
+          <div className="text-xs mt-1.5" style={{ color: "rgba(240,237,232,0.2)" }}>
+            Press Enter to send · Shift+Enter for new line
           </div>
         </div>
       </div>

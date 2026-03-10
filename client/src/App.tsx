@@ -17,6 +17,7 @@ function Router() {
       <Route path="/account" component={Account} />
       {/* All /app routes go through Dashboard which handles DashboardLayout + ToolPage */}
       <Route path="/app" component={Dashboard} />
+      <Route path="/app/settings" component={Dashboard} />
       <Route path="/app/:tool" component={Dashboard} />
       <Route path="/app/product-hub/:id" component={Dashboard} />
       <Route path="/404" component={NotFound} />

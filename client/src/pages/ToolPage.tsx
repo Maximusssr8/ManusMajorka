@@ -25,6 +25,7 @@ import ProjectManager from "./ProjectManager";
 import AutomationBuilder from "./AutomationBuilder";
 import MyProducts from "./MyProducts";
 import ProductHub from "./ProductHub";
+import SettingsProfile from "./SettingsProfile";
 import { createElement } from "react";
 
 export default function ToolPage() {
@@ -59,6 +60,7 @@ export default function ToolPage() {
   if (location === "/app/automation-builder") return page(<AutomationBuilder />);
   if (location === "/app/my-products") return page(<MyProducts />);
   if (location.startsWith("/app/product-hub/")) return page(<ProductHub />);
+  if (location === "/app/settings") return page(<SettingsProfile />);
 
   if (!tool) {
     return (
