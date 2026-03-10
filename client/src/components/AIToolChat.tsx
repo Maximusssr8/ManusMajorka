@@ -252,17 +252,17 @@ export default function AIToolChat({
                     </div>
                   )}
                   <div
-                    className={`max-w-[75%] rounded-xl px-4 py-3 ${
+                    className={`max-w-[75%] rounded-lg px-4 py-3 ${
                       msg.role === "user"
                         ? "text-sm"
                         : "text-foreground"
                     }`}
                     style={
                       msg.role === "user"
-                        ? { background: "rgba(212,175,55,0.15)", color: "#f5f0e0" }
+                        ? { background: "#1a1600", border: "1px solid rgba(212,175,55,0.3)", color: "#f0ede8" }
                         : msg.isError
                         ? { background: "rgba(255,100,100,0.12)", border: "1px solid rgba(255,100,100,0.2)" }
-                        : { background: "rgba(255,255,255,0.03)" }
+                        : { background: "#0d0f12", border: "1px solid rgba(255,255,255,0.06)" }
                     }
                   >
                     <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -283,7 +283,7 @@ export default function AIToolChat({
                   <div className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center" style={{ background: "rgba(212,175,55,0.1)" }}>
                     <Sparkles className="w-3.5 h-3.5" style={{ color: "#d4af37" }} />
                   </div>
-                  <div className="rounded-xl px-4 py-3" style={{ background: "rgba(255,255,255,0.03)" }}>
+                  <div className="rounded-lg px-4 py-3" style={{ background: "#0d0f12", border: "1px solid rgba(255,255,255,0.06)" }}>
                     <div className="flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#d4af37" }} />
                       <span className="text-sm text-muted-foreground">Thinking...</span>
@@ -359,7 +359,7 @@ export default function AIToolChat({
                 placeholder={placeholder}
                 className="resize-none text-sm"
                 rows={1}
-                style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.1)", overflowY: 'auto', maxHeight: '200px', resize: 'none' }}
+                style={{ background: "#0d0f12", borderColor: "rgba(255,255,255,0.1)", overflowY: 'auto', maxHeight: '200px', resize: 'none' }}
               />
               <div className="flex flex-col gap-1.5">
                 <Button
@@ -367,7 +367,7 @@ export default function AIToolChat({
                   disabled={status === "streaming" || !input.trim()}
                   size="icon"
                   className="h-9 w-9 rounded-lg"
-                  style={{ background: "linear-gradient(135deg, #d4af37, #c09a28)", color: "#080a0e" }}
+                  style={{ background: "linear-gradient(135deg, #d4af37, #c09a28)", color: "#080a0e", border: "none" }}
                 >
                   <Send className="w-4 h-4" />
                 </Button>
