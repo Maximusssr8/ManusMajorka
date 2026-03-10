@@ -9,6 +9,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     detectSessionInUrl: true,
     storageKey: "majorka-auth",
+    storage: typeof window !== "undefined" ? window.localStorage : undefined,
   },
 });
 

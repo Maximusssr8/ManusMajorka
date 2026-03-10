@@ -251,7 +251,7 @@ export default function MajorkaAppShell({ children }: Props) {
         style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
         ref={userMenuRef}
       >
-        {loading ? (
+        {loading || (isAuthenticated && !user) ? (
           <div className="flex items-center gap-2.5 px-2.5 py-2">
             <div className="w-7 h-7 rounded-full flex-shrink-0 animate-pulse" style={{ background: "rgba(255,255,255,0.08)" }} />
             <div className="flex-1 space-y-1.5">
