@@ -272,12 +272,8 @@ export default function AIToolChat({
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
-                  // Enter to send, Shift+Enter for newline, Cmd/Ctrl+Enter also sends
+                  // Enter to send (with or without Cmd/Ctrl), Shift+Enter for newline
                   if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
                     e.preventDefault();
                     handleSend();
                   }
