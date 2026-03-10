@@ -3,7 +3,7 @@
  * Runs all tools in sequence for the active product and produces
  * a complete launch package (Brand DNA, Copy, Website, Ads, Email, Financials).
  */
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Rocket,
   Check,
@@ -15,6 +15,7 @@ import {
   ClipboardCopy,
   Package,
   ArrowRight,
+  Printer,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
@@ -271,6 +272,19 @@ function LaunchKitContent() {
   const [steps, setSteps] = useState<LaunchKitStep[]>(INITIAL_STEPS);
   const [isRunning, setIsRunning] = useState(false);
   const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    const style = document.createElement("style");
+    style.id = "launchkit-print";
+    style.textContent = `@media print {
+      body > * { display: none !important; }
+      #launchkit-printable { display: block !important; }
+      #launchkit-printable { background: white; color: black; padding: 24px; }
+      button, .no-print { display: none !important; }
+    }`;
+    document.head.appendChild(style);
+    return () => { document.getElementById("launchkit-print")?.remove(); };
+  }, []);
 
   const updateStep = useCallback(
     (id: string, patch: Partial<LaunchKitStep>) => {
@@ -549,32 +563,55 @@ function LaunchKitContent() {
               </p>
             )}
           </div>
-          {hasAnyDone && (
+          <div className="flex items-center gap-2">
+            {hasAnyDone && (
+              <button
+                onClick={handleCopyAll}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+                style={{
+                  background: "rgba(245,158,11,0.1)",
+                  border: "1px solid rgba(245,158,11,0.2)",
+                  color: "#f59e0b",
+                  cursor: "pointer",
+                  fontFamily: "Syne, sans-serif",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = "rgba(245,158,11,0.18)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "rgba(245,158,11,0.1)")
+                }
+              >
+                <ClipboardCopy size={12} />
+                Copy All
+              </button>
+            )}
             <button
-              onClick={handleCopyAll}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+              onClick={() => window.print()}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all no-print"
               style={{
-                background: "rgba(245,158,11,0.1)",
-                border: "1px solid rgba(245,158,11,0.2)",
-                color: "#f59e0b",
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                color: "#a1a1aa",
                 cursor: "pointer",
                 fontFamily: "Syne, sans-serif",
               }}
               onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "rgba(245,158,11,0.18)")
+                (e.currentTarget.style.background = "rgba(255,255,255,0.1)")
               }
               onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "rgba(245,158,11,0.1)")
+                (e.currentTarget.style.background = "rgba(255,255,255,0.05)")
               }
             >
-              <ClipboardCopy size={12} />
-              Copy All
+              <Printer size={12} />
+              Export PDF
             </button>
-          )}
+          </div>
         </div>
 
         {/* Scrollable content */}
         <div
+          id="launchkit-printable"
           className="flex-1 overflow-y-auto px-6 py-6 space-y-4"
           style={{
             scrollbarWidth: "thin",

@@ -1,7 +1,8 @@
 import { useLocation } from "wouter";
 import { getToolByPath, stages } from "@/lib/tools";
 import AIToolChat from "@/components/AIToolChat";
-import { createElement, useState, lazy, Suspense } from "react";
+import { createElement, useState, lazy, Suspense, useEffect } from "react";
+import { logActivity } from "@/lib/activity";
 
 // Lazy-load all tool page components for code splitting
 const WebsiteGenerator = lazy(() => import("./WebsiteGenerator"));
@@ -84,6 +85,10 @@ function ToolLoadingFallback() {
 export default function ToolPage() {
   const [location] = useLocation();
   const tool = getToolByPath(location);
+
+  useEffect(() => {
+    logActivity({ type: "tool_opened", label: tool?.label ?? location });
+  }, [location]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check for prefill from cross-tool navigation (e.g. Product Discovery → Validate)
   const [prefill] = useState<string | null>(() => {

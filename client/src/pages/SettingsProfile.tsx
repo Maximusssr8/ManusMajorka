@@ -8,6 +8,24 @@ const EXPERIENCE_LEVELS = ["beginner", "intermediate", "advanced", "expert"];
 const GOALS = ["Launch first store", "Scale existing store", "Optimise conversions", "Expand to new markets", "Automate operations"];
 const REVENUE_RANGES = ["Pre-revenue", "$0-1k/mo", "$1k-5k/mo", "$5k-20k/mo", "$20k-100k/mo", "$100k+/mo"];
 
+interface HealthStatus {
+  anthropic: boolean;
+  tavily: boolean;
+  firecrawl: boolean;
+  supabase: boolean;
+  stripe: boolean;
+  database: boolean;
+}
+
+const INTEGRATION_LABELS: Record<keyof HealthStatus, string> = {
+  anthropic: "Anthropic AI",
+  tavily: "Tavily Search",
+  firecrawl: "Firecrawl Scraper",
+  supabase: "Supabase Auth",
+  stripe: "Stripe Payments",
+  database: "Database",
+};
+
 export default function SettingsProfile() {
   const { user, loading } = useAuth();
   const [form, setForm] = useState({
@@ -19,6 +37,18 @@ export default function SettingsProfile() {
     mainGoal: "",
   });
   const [saving, setSaving] = useState(false);
+  const [healthStatus, setHealthStatus] = useState<HealthStatus | null>(null);
+  const [healthLoading, setHealthLoading] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    setHealthLoading(true);
+    fetch("/api/health")
+      .then((res) => res.json())
+      .then((data: HealthStatus) => setHealthStatus(data))
+      .catch(() => setHealthStatus(null))
+      .finally(() => setHealthLoading(false));
+  }, [user]);
 
   // Load existing profile
   const profileQuery = trpc.profile.get.useQuery(undefined, { enabled: !!user });
@@ -181,6 +211,48 @@ export default function SettingsProfile() {
               </div>
             </div>
           </div>
+
+          {/* Integration Status */}
+          {user && (
+            <div className="mt-8">
+              <h2
+                className="text-base font-black mb-1"
+                style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}
+              >
+                Integration Status
+              </h2>
+              <p className="text-xs mb-4" style={{ color: "rgba(240,237,232,0.45)" }}>
+                Live status of connected services.
+              </p>
+              <div className="space-y-2">
+                {healthLoading || !healthStatus
+                  ? (Object.keys(INTEGRATION_LABELS) as (keyof HealthStatus)[]).map((key) => (
+                      <div
+                        key={key}
+                        className="flex items-center justify-between px-4 py-3 rounded-xl"
+                        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+                      >
+                        <div className="h-3 w-32 rounded animate-pulse" style={{ background: "rgba(255,255,255,0.08)" }} />
+                        <div className="h-5 w-5 rounded animate-pulse" style={{ background: "rgba(255,255,255,0.08)" }} />
+                      </div>
+                    ))
+                  : (Object.keys(INTEGRATION_LABELS) as (keyof HealthStatus)[]).map((key) => (
+                      <div
+                        key={key}
+                        className="flex items-center justify-between px-4 py-3 rounded-xl"
+                        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+                      >
+                        <span className="text-sm" style={{ color: "rgba(240,237,232,0.8)", fontFamily: "DM Sans, sans-serif" }}>
+                          {INTEGRATION_LABELS[key]}
+                        </span>
+                        <span className="text-base leading-none">
+                          {healthStatus[key] ? "✅" : "❌"}
+                        </span>
+                      </div>
+                    ))}
+              </div>
+            </div>
+          )}
 
           {/* Save */}
           <button

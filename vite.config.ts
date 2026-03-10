@@ -33,6 +33,7 @@ export default defineConfig({
           "vendor-react": ["react", "react-dom"],
           "vendor-ui": ["framer-motion", "lucide-react"],
           "vendor-supabase": ["@supabase/supabase-js"],
+          "vendor-query": ["@tanstack/react-query", "@trpc/react-query"],
         },
       },
     },

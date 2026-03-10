@@ -4,15 +4,16 @@ import MajorkaAppShell from "@/components/MajorkaAppShell";
 import ToolPage from "./ToolPage";
 import OnboardingModal from "@/components/OnboardingModal";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getToolByPath, recordRecentTool, allTools } from "@/lib/tools";
+import { getToolByPath, recordRecentTool } from "@/lib/tools";
 import { useDocumentTitle } from "@/_core/hooks/useDocumentTitle";
 import {
-  Search, Rocket, Globe, MessageSquare, Package, ChevronRight,
+  Search, Rocket, Globe, MessageSquare, Package,
   Link2, PenTool, TrendingUp, BarChart2, Star, Zap, ArrowRight,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
-import { createElement } from "react";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
+import { ProductImporter } from "@/components/ProductImporter";
+import { getActivityLog, getRelativeTime, type ActivityEntry } from "@/lib/activity";
 
 // ── Tool category cards ─────────────────────────────────────────────────────
 const TOOL_CATEGORY_CARDS = [
@@ -68,8 +69,6 @@ const QUICK_ACTIONS = [
   { label: "Write Copy", desc: "AI copywriter", icon: PenTool, path: "/app/copywriter" },
 ];
 
-// ── Mock relative times for recent tools ───────────────────────────────────
-const MOCK_TIMES = ["Just now", "5 min ago", "12 min ago", "1 hr ago", "3 hrs ago"];
 
 // ── Helper: format currency ─────────────────────────────────────────────────
 function formatCurrency(n: number) {
@@ -138,7 +137,7 @@ function DashboardHome() {
   // KPI data from localStorage
   const [toolsToday, setToolsToday] = useState(0);
   const [aiCount, setAiCount] = useState(0);
-  const [recentToolIds, setRecentToolIds] = useState<string[]>([]);
+  const [activityLog, setActivityLog] = useState<ActivityEntry[]>([]);
 
   useEffect(() => {
     try {
@@ -154,21 +153,13 @@ function DashboardHome() {
       if (countRaw) setAiCount(Number(countRaw) || 0);
     } catch { /* ignore */ }
 
-    try {
-      const recentRaw = localStorage.getItem("majorka_recent_tools");
-      if (recentRaw) setRecentToolIds(JSON.parse(recentRaw));
-    } catch { /* ignore */ }
+    setActivityLog(getActivityLog().slice(0, 8));
   }, []);
 
   const productCount = productsQuery.data?.length ?? 0;
   const revenuePotential = productCount * 49;
 
   const firstName = user?.name ? (user.name as string).split(" ")[0] : null;
-
-  const recentTools = recentToolIds
-    .map(id => allTools.find(t => t.id === id))
-    .filter((t): t is NonNullable<typeof t> => !!t)
-    .slice(0, 5);
 
   return (
     <div
@@ -357,44 +348,7 @@ function DashboardHome() {
                   </button>
                 </div>
               ) : (
-                <div>
-                  <p className="text-xs mb-3" style={{ color: "#52525b" }}>
-                    No active product yet. Paste a URL to get started.
-                  </p>
-                  <form
-                    onSubmit={e => {
-                      e.preventDefault();
-                      const input = (e.currentTarget.elements.namedItem("url") as HTMLInputElement)?.value;
-                      if (input) setLocation("/app/my-products");
-                    }}
-                    className="flex gap-2"
-                  >
-                    <input
-                      name="url"
-                      type="url"
-                      placeholder="Paste a product URL to get started →"
-                      className="flex-1 text-xs px-3 py-2 rounded-lg outline-none"
-                      style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        color: "#f5f5f5",
-                        fontFamily: "DM Sans, sans-serif",
-                      }}
-                    />
-                    <button
-                      type="submit"
-                      className="text-xs px-3 py-2 rounded-lg font-bold"
-                      style={{
-                        background: "rgba(245,158,11,0.15)",
-                        color: "#f59e0b",
-                        border: "1px solid rgba(245,158,11,0.25)",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Go
-                    </button>
-                  </form>
-                </div>
+                <ProductImporter compact={false} onSuccess={(_p) => { /* product is set inside ProductImporter */ }} />
               )}
             </div>
 
@@ -409,34 +363,39 @@ function DashboardHome() {
               >
                 Recent Activity
               </div>
-              {recentTools.length === 0 ? (
-                <p className="text-xs" style={{ color: "#52525b" }}>No recent tools yet.</p>
+              {activityLog.length === 0 ? (
+                <p className="text-xs" style={{ color: "#52525b" }}>
+                  No recent activity. Start exploring tools{" "}
+                  <button
+                    onClick={() => setLocation("/app/product-discovery")}
+                    className="underline"
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "#f59e0b", padding: 0, fontSize: "inherit" }}
+                  >
+                    →
+                  </button>
+                </p>
               ) : (
                 <div className="space-y-1">
-                  {recentTools.map((tool, idx) => (
-                    <button
-                      key={tool.id}
-                      onClick={() => setLocation(tool.path)}
-                      className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-left transition-all"
-                      style={{ background: "transparent", border: "none", cursor: "pointer" }}
-                      onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
-                      onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                  {activityLog.map((entry, idx) => (
+                    <div
+                      key={idx}
+                      className="w-full flex items-center gap-3 px-2 py-2 rounded-lg"
                     >
                       <div
                         className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
                         style={{ background: "rgba(245,158,11,0.1)" }}
                       >
-                        {createElement(tool.icon, { size: 11, style: { color: "#f59e0b" } })}
+                        <span style={{ fontSize: 9, color: "#f59e0b" }}>●</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-xs font-medium truncate" style={{ color: "#f5f5f5", fontFamily: "DM Sans, sans-serif" }}>
-                          {tool.label}
+                          {entry.label}
                         </div>
                       </div>
                       <div className="text-xs flex-shrink-0" style={{ color: "#52525b" }}>
-                        {MOCK_TIMES[idx] ?? "Earlier"}
+                        {getRelativeTime(entry.timestamp)}
                       </div>
-                    </button>
+                    </div>
                   ))}
                 </div>
               )}

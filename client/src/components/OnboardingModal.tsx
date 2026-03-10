@@ -41,6 +41,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
   const [importing, setImporting] = useState(false);
   const [importError, setImportError] = useState("");
   const [importedTitle, setImportedTitle] = useState<string | null>(null);
+  const [importSuccess, setImportSuccess] = useState(false);
 
   const profileQuery = trpc.profile.get.useQuery(undefined, {
     retry: false,
@@ -121,12 +122,18 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
       }
       const data = await response.json() as { productTitle?: string };
       setImportedTitle(data.productTitle || "Product imported");
+      setImportSuccess(true);
+      localStorage.setItem("majorka_onboarded", "true");
+      setTimeout(() => {
+        setVisible(false);
+        navigate("/app");
+      }, 1500);
     } catch (err: any) {
       setImportError(err?.message || "Could not import this URL. Try another or skip.");
     } finally {
       setImporting(false);
     }
-  }, [importUrl]);
+  }, [importUrl, navigate]);
 
   if (!visible) return null;
 
@@ -373,11 +380,12 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   </div>
                 )}
 
-                {importedTitle && (
+                {importSuccess && importedTitle && (
                   <div className="flex items-center gap-2 p-2.5 rounded-lg" style={{ background: "rgba(45,202,114,0.08)", border: "1px solid rgba(45,202,114,0.2)" }}>
                     <Check size={13} style={{ color: "#2dca72", flexShrink: 0 }} />
-                    <span className="text-xs font-semibold" style={{ color: "#2dca72" }}>Product imported!</span>
-                    <span className="text-xs truncate" style={{ color: "rgba(240,237,232,0.6)" }}>{importedTitle}</span>
+                    <span className="text-xs font-semibold" style={{ color: "#2dca72" }}>
+                      ✓ Product imported! Taking you to your dashboard...
+                    </span>
                   </div>
                 )}
               </div>
@@ -407,7 +415,12 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
               </div>
 
               <button
-                onClick={handleFinish}
+                onClick={() => {
+                  localStorage.setItem("majorka_onboarded", "true");
+                  persistOnboarding();
+                  setVisible(false);
+                  navigate("/app");
+                }}
                 className="w-full mt-3 text-xs transition-all"
                 style={{ background: "none", border: "none", color: "rgba(240,237,232,0.3)", cursor: "pointer" }}
               >

@@ -1,10 +1,12 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, ExternalLink, Package, Loader2, X, Star, Link2, RefreshCw, Check } from "lucide-react";
+import { Plus, Pencil, Trash2, ExternalLink, Package, Loader2, X, Star, Link2, RefreshCw, Check, ArrowUpDown } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
+import { ScoreBadge } from "@/components/ScoreBadge";
+import { scoreProduct } from "@/lib/scoreProduct";
 
 interface Product {
   id: string;
@@ -37,6 +39,7 @@ export default function MyProducts() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
   const { activeProduct, setProduct } = useActiveProduct();
+  const [sortByScore, setSortByScore] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
@@ -149,13 +152,27 @@ export default function MyProducts() {
             <h1 className="text-xl font-black" style={{ fontFamily: "Syne, sans-serif" }}>My Products</h1>
             <p className="text-xs mt-1" style={{ color: "rgba(240,237,232,0.4)" }}>Track your products through every stage — from research to scale.</p>
           </div>
-          <button
-            onClick={() => { setShowCreate(true); setEditId(null); resetForm(); }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all"
-            style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", fontFamily: "Syne, sans-serif", cursor: "pointer" }}
-          >
-            <Plus size={14} /> New Product
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSortByScore(s => !s)}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all"
+              style={{
+                background: sortByScore ? "rgba(212,175,55,0.12)" : "rgba(255,255,255,0.04)",
+                border: `1px solid ${sortByScore ? "rgba(212,175,55,0.4)" : "rgba(255,255,255,0.08)"}`,
+                color: sortByScore ? "#d4af37" : "rgba(240,237,232,0.55)",
+                cursor: "pointer",
+              }}
+            >
+              <ArrowUpDown size={12} /> Sort by Score
+            </button>
+            <button
+              onClick={() => { setShowCreate(true); setEditId(null); resetForm(); }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all"
+              style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", fontFamily: "Syne, sans-serif", cursor: "pointer" }}
+            >
+              <Plus size={14} /> New Product
+            </button>
+          </div>
         </div>
 
         {/* URL Importer */}
@@ -306,7 +323,13 @@ export default function MyProducts() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {products.map(p => {
+            {(sortByScore
+              ? [...products].sort((a, b) =>
+                  scoreProduct({ name: b.name, niche: b.niche ?? undefined, description: b.description ?? undefined }).total -
+                  scoreProduct({ name: a.name, niche: a.niche ?? undefined, description: a.description ?? undefined }).total
+                )
+              : products
+            ).map(p => {
               const sc = statusColors[p.status] || statusColors.research;
               return (
                 <div key={p.id} className="rounded-xl p-4 transition-all hover:border-white/10 cursor-pointer"
@@ -322,7 +345,10 @@ export default function MyProducts() {
                         {p.niche && <div className="text-xs mt-0.5" style={{ color: "rgba(240,237,232,0.4)" }}>{p.niche}</div>}
                       </div>
                     </div>
-                    <span className="text-xs px-2 py-0.5 rounded-full font-bold" style={{ background: sc.bg, color: sc.text }}>{sc.label}</span>
+                    <div className="flex items-center gap-1.5">
+                      <ScoreBadge product={{ name: p.name, niche: p.niche ?? undefined, description: p.description ?? undefined }} showLabel={false} />
+                      <span className="text-xs px-2 py-0.5 rounded-full font-bold" style={{ background: sc.bg, color: sc.text }}>{sc.label}</span>
+                    </div>
                   </div>
                   {p.description && <div className="text-xs mb-3 line-clamp-2" style={{ color: "rgba(240,237,232,0.5)" }}>{p.description}</div>}
                   <div className="flex items-center justify-between">

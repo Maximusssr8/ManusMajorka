@@ -7,6 +7,8 @@ import { Copy, Download, X, Loader2, Globe, RefreshCw, MessageSquare, Package } 
 import { cn } from "@/lib/utils";
 import { SaveToProduct } from "@/components/SaveToProduct";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
+import { useProduct } from "@/contexts/ProductContext";
+import { proxyImage } from "@/lib/imageProxy";
 
 // ── Title cleaning ────────────────────────────────────────────────────────────
 function cleanProductTitle(raw: string): string {
@@ -189,7 +191,7 @@ function genSiteHTML(product: ProductData, opts: {
   ).join("");
 
   const imgGrid = (product.images || []).slice(0, 4).map(img =>
-    `<img src="${img}" style="border-radius:12px;object-fit:cover;width:100%;aspect-ratio:1;background:${pill}" onerror="this.style.display='none'" />`
+    `<img src="${proxyImage(img)}" style="border-radius:12px;object-fit:cover;width:100%;aspect-ratio:1;background:${pill}" onerror="this.style.display='none'" />`
   ).join("") || `<div style="grid-column:1/-1;height:280px;border-radius:18px;background:${pill};display:flex;align-items:center;justify-content:center;font-size:56px;opacity:0.25">📦</div>`;
 
   return `<!DOCTYPE html>
@@ -325,7 +327,12 @@ ${featuresList ? `
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 export default function WebsiteGenerator() {
-  const { activeProduct } = useActiveProduct();
+  // useProduct gives the richer ActiveProduct with images, variants, category
+  const { activeProduct: contextProduct } = useProduct();
+  // Fallback to legacy hook (simpler shape, no images/variants)
+  const { activeProduct: legacyProduct } = useActiveProduct();
+  // Prefer context product (richer), fall back to legacy
+  const activeProduct = contextProduct ?? legacyProduct;
 
   // Product import
   const [importUrl, setImportUrl] = useState("");
@@ -335,9 +342,10 @@ export default function WebsiteGenerator() {
     if (activeProduct) {
       return {
         title: activeProduct.name,
-        description: activeProduct.summary || undefined,
+        description: (activeProduct as any).description || activeProduct.summary || undefined,
         features: [],
-        images: [],
+        images: (activeProduct as any).images || [],
+        sourceUrl: (activeProduct as any).sourceUrl,
         _manual: true,
       };
     }
@@ -370,18 +378,30 @@ export default function WebsiteGenerator() {
     transport: new DefaultChatTransport({
       api: "/api/chat",
       prepareSendMessagesRequest({ messages }) {
+        // Pull real image URLs and variant info injected during generation
+        const realImages: string[] = (window as any).__majorkaImages || [];
+        const variantInfo: string | null = (window as any).__majorkaVariantInfo || null;
+
+        const imageSection = realImages.length > 0
+          ? `\nPRODUCT IMAGES (use these exact URLs in the HTML, do not use placeholders):\nHero image: ${proxyImage(realImages[0])}${realImages.length > 1 ? `\nGallery: ${realImages.slice(1).map(proxyImage).join(", ")}` : ""}\n`
+          : "";
+
+        const variantSection = variantInfo
+          ? `\nAVAILABLE VARIANTS:\n${variantInfo}\n`
+          : "";
+
         return {
           body: {
             messages: messages.map(m => ({ role: m.role, content: m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join("") })),
             systemPrompt: `You are a senior conversion rate optimisation expert and Shopify landing page specialist. You have deep knowledge of direct response copywriting, buyer psychology, and what makes ecommerce pages convert at 3-8%.
-
+${imageSection}${variantSection}
 When given a product, deliver a COMPLETE HTML landing page with these exact sections:
 
 ## HERO SECTION
 - Punchy headline (max 8 words) that speaks to the core desire
 - Subheadline that addresses the main objection (1-2 sentences)
 - Primary CTA button with high-intent text
-- Hero image suggestion: https://source.unsplash.com/featured/?[relevant-keyword]
+- Hero image: use the real product image URL above if provided, otherwise https://source.unsplash.com/featured/?[relevant-keyword]
 
 ## BENEFITS SECTION (3 benefits)
 For each benefit:
@@ -404,12 +424,9 @@ Questions that address the top buyer objections for this product niche.
 - Benefit summary bullet points (3)
 - Final CTA button
 
-## IMAGE SUGGESTIONS
-Provide 5 Unsplash URLs: https://source.unsplash.com/featured/?[keyword]
-
 OUTPUT FORMAT: Return complete HTML with inline CSS. Use the product's color scheme. Make it Shopify-ready. Wrap in \`\`\`html ... \`\`\` code blocks.
 
-RULES: Be specific to this product, not generic. Write actual copy. Give real HTML. Never describe what to write — just write it.`,
+RULES: Be specific to this product, not generic. Write actual copy. Give real HTML. Never describe what to write — just write it. If variant data is provided, include colour/size selector UI in the HTML.`,
           },
         };
       },
@@ -484,15 +501,37 @@ RULES: Be specific to this product, not generic. Write actual copy. Give real HT
       clearInterval(interval);
       setGenProgress(100);
 
+      // Merge real images/variants from context product into product data
+      const contextImages = (contextProduct as any)?.images as string[] | undefined;
+      const contextVariants = (contextProduct as any)?.variants as { colors?: string[]; sizes?: string[] } | undefined;
+
       const pd: ProductData = product || {
         title: brandName || "Premium Product",
         description: extraDetails || "High-quality product designed for performance and style.",
         features: extraDetails ? extraDetails.split(",").map(s => s.trim()).filter(Boolean) : [],
-        images: [],
+        images: contextImages || [],
         _manual: true,
       };
 
+      // If pd has no images but context has images, inject them
+      if ((!pd.images || pd.images.length === 0) && contextImages && contextImages.length > 0) {
+        pd.images = contextImages;
+      }
+
       const category = detectCategory(pd.title || "", pd.description || "");
+
+      // Build variant data string for prompt enrichment (used by AI refine tab)
+      const variantInfo = contextVariants
+        ? [
+            contextVariants.colors?.length ? `Colors: ${contextVariants.colors.join(", ")}` : "Colors: none",
+            contextVariants.sizes?.length ? `Sizes: ${contextVariants.sizes.join(", ")}` : "Sizes: none",
+          ].join("\n")
+        : null;
+
+      // Store variant info for the AI chat prompt (used in sendMessage calls)
+      (window as any).__majorkaVariantInfo = variantInfo;
+      (window as any).__majorkaImages = pd.images;
+
       const html = genSiteHTML(pd, { themeId, layout, accentColor, bgColor, ctaText, brandName: brandName || cleanProductTitle(pd.title || ""), sellPrice, category });
       setGeneratedHTML(html);
       setActiveTab("preview");
@@ -596,7 +635,16 @@ ${generatedHTML.replace(/<\/?html[^>]*>/gi, "").replace(/<\/?head[^>]*>[\s\S]*?<
             {product && !product._manual ? (
               <div>
                 <div className="flex gap-2.5 items-start mb-2">
-                  <div className="w-11 h-11 rounded-lg flex-shrink-0 flex items-center justify-center text-xl" style={{ background: "rgba(255,255,255,0.06)" }}>📦</div>
+                  <div className="w-11 h-11 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center text-xl" style={{ background: "rgba(255,255,255,0.06)" }}>
+                    {product.images && product.images.length > 0 ? (
+                      <img
+                        src={proxyImage(product.images[0])}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                      />
+                    ) : "📦"}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-xs font-bold truncate" style={{ fontFamily: "Syne, sans-serif" }}>{cleanProductTitle(product.title)}</div>
                     {product.sourceUrl && <div className="text-xs mt-0.5" style={{ color: "rgba(240,237,232,0.35)" }}>{(() => { try { return new URL(product.sourceUrl).hostname.replace("www.", ""); } catch { return ""; } })()}</div>}

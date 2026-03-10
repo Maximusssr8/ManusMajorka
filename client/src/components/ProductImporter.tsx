@@ -8,6 +8,7 @@ import { Package, Check, X, ExternalLink, ArrowRight, RefreshCw } from "lucide-r
 import { toast } from "sonner";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
 import { useLocation } from "wouter";
+import { proxyImage } from "@/lib/imageProxy";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -262,7 +263,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
           style={{ height: 160, background: "#1a1a1a" }}
         >
           <img
-            src={result.imageUrls[0]}
+            src={proxyImage(result.imageUrls[0])}
             alt={result.cleanTitle || result.productTitle}
             className="w-full h-full object-cover"
             onError={(e) => {
@@ -353,7 +354,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
                 }}
               >
                 <img
-                  src={imgUrl}
+                  src={proxyImage(imgUrl)}
                   alt=""
                   className="w-full h-full object-cover"
                   onError={(e) => {
