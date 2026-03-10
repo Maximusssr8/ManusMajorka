@@ -32,16 +32,15 @@
 --   The policies below include FORCE ROW LEVEL SECURITY for each table.
 --
 --   ALTERNATIVE: If you migrate to Supabase Auth in the future, replace
---   `current_setting('app.current_user_id')::int` with `auth.uid()` and
---   change the userId columns to reference auth.users(id) as uuid type.
+--   `current_setting('app.current_user_id')::uuid` with `auth.uid()`.
 -- =============================================================================
 
 
 -- Helper: This function extracts the current user ID from the GUC variable.
 -- Returns NULL if not set, which will cause all policies to deny access.
-CREATE OR REPLACE FUNCTION app_current_user_id() RETURNS integer AS $$
+CREATE OR REPLACE FUNCTION app_current_user_id() RETURNS uuid AS $$
 BEGIN
-  RETURN NULLIF(current_setting('app.current_user_id', true), '')::integer;
+  RETURN NULLIF(current_setting('app.current_user_id', true), '')::uuid;
 EXCEPTION
   WHEN OTHERS THEN RETURN NULL;
 END;
@@ -228,17 +227,8 @@ CREATE POLICY conversation_memory_delete_own ON "conversation_memory"
 --
 --   import { sql } from "drizzle-orm";
 --
---   export async function withUserId<T>(userId: number, fn: (db: ...) => Promise<T>): Promise<T> {
---     const db = await getDb();
---     if (!db) throw new Error("Database not available");
---     await db.execute(sql`SET LOCAL app.current_user_id = ${userId}`);
---     return fn(db);
---   }
---
--- Or wrap it in a transaction:
---
---   export async function withUserContext<T>(userId: number, fn: (db: ...) => Promise<T>): Promise<T> {
---     const db = await getDb();
+--   export async function withUserContext<T>(userId: string, fn: (tx: ...) => Promise<T>): Promise<T> {
+--     const db = getDb();
 --     if (!db) throw new Error("Database not available");
 --     return db.transaction(async (tx) => {
 --       await tx.execute(sql`SET LOCAL app.current_user_id = ${userId}`);

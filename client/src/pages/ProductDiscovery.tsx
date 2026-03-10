@@ -196,7 +196,7 @@ export default function ProductDiscovery() {
         }
       }
     } catch (err: any) {
-      console.error("ProductDiscovery error:", err);
+      toast.error(err.message || "Failed to generate. Please try again.");
       setGenError(err.message || "Failed to generate. Please try again.");
     } finally {
       setGenerating(false);

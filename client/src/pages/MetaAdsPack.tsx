@@ -221,7 +221,7 @@ export default function MetaAdsPack() {
         }
       }
     } catch (err: any) {
-      console.error("MetaAdsPack error:", err);
+      toast.error(err.message || "Failed to generate. Please try again.");
       setGenError(err.message || "Failed to generate. Please try again.");
     } finally {
       setGenerating(false);

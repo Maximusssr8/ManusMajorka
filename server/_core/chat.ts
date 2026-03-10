@@ -7,10 +7,34 @@
  */
 
 import type { Express } from "express";
+import { z } from "zod";
 import { getAnthropicClient, CLAUDE_MODEL, BASE_SYSTEM_PROMPT } from "../lib/anthropic";
 import { getSupabaseAdmin } from "./supabase";
 import { getUserContextString, getConversationHistory, saveConversationMessage, getProfileById, upsertProfile } from "../db";
 import { tavilySearch } from "../tavily";
+
+const messagePart = z.object({
+  type: z.string(),
+  text: z.string().optional(),
+});
+
+const chatMessage = z.object({
+  role: z.enum(["user", "assistant", "system"]),
+  content: z.string().optional(),
+  parts: z.array(messagePart).optional(),
+});
+
+const chatRequestBody = z.object({
+  messages: z.array(chatMessage).optional(),
+  message: z.object({
+    role: z.string().optional(),
+    content: z.string().optional(),
+    parts: z.array(messagePart).optional(),
+  }).optional(),
+  systemPrompt: z.string().max(10000).optional(),
+  toolName: z.string().max(100).optional(),
+  searchQuery: z.string().max(500).optional(),
+});
 
 /**
  * Registers the /api/chat endpoint for streaming AI responses via Anthropic Claude.
@@ -18,15 +42,20 @@ import { tavilySearch } from "../tavily";
 export function registerChatRoutes(app: Express) {
   app.post("/api/chat", async (req, res) => {
     try {
-      const { messages: rawMessages, message, systemPrompt, toolName, searchQuery } = req.body;
+      const parsed = chatRequestBody.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json({ error: "Invalid request body", details: parsed.error.flatten().fieldErrors });
+        return;
+      }
+      const { messages: rawMessages, message, systemPrompt, toolName, searchQuery } = parsed.data;
 
       // Accept both formats: messages array or singular message (legacy)
       let messages = rawMessages;
       if (!messages && message) {
         const text = Array.isArray(message.parts)
-          ? message.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('')
-          : (typeof message.content === 'string' ? message.content : '');
-        messages = [{ role: message.role || 'user', content: text }];
+          ? message.parts.filter(p => p.type === 'text').map(p => p.text ?? '').join('')
+          : (message.content ?? '');
+        messages = [{ role: (message.role as "user" | "assistant") || 'user', content: text }];
       }
 
       if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -35,22 +64,22 @@ export function registerChatRoutes(app: Express) {
       }
 
       // Normalise messages: convert parts-based UIMessage to plain {role, content}
-      messages = messages.map((m: any) => ({
+      let normalized: Array<{ role: "user" | "assistant"; content: string }> = messages.map(m => ({
         role: m.role === "user" ? "user" as const : "assistant" as const,
         content: Array.isArray(m.parts)
-          ? m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('')
-          : (typeof m.content === 'string' ? m.content : JSON.stringify(m.content)),
+          ? m.parts.filter(p => p.type === 'text').map(p => p.text ?? '').join('')
+          : (m.content ?? ''),
       }));
 
       // Filter out system messages and ensure alternating user/assistant
-      messages = messages.filter((m: any) => m.role === "user" || m.role === "assistant");
+      normalized = normalized.filter(m => m.role === "user" || m.role === "assistant");
 
       // Ensure messages start with a user message
-      if (messages.length > 0 && messages[0].role !== "user") {
-        messages = messages.slice(1);
+      if (normalized.length > 0 && normalized[0].role !== "user") {
+        normalized = normalized.slice(1);
       }
 
-      if (messages.length === 0) {
+      if (normalized.length === 0) {
         res.status(400).json({ error: "At least one user message is required" });
         return;
       }
@@ -84,7 +113,7 @@ export function registerChatRoutes(app: Express) {
               content: m.content,
             }));
             // Prepend memory to current messages
-            messages = [...memoryMessages, ...messages];
+            normalized = [...memoryMessages, ...normalized];
           }
         } catch {
           // Memory unavailable — continue without
@@ -92,8 +121,8 @@ export function registerChatRoutes(app: Express) {
       }
 
       // Ensure messages alternate properly after memory merge
-      const cleaned: typeof messages = [];
-      for (const m of messages) {
+      const cleaned: typeof normalized = [];
+      for (const m of normalized) {
         if (cleaned.length === 0) {
           if (m.role === "user") cleaned.push(m);
           continue;
@@ -102,7 +131,7 @@ export function registerChatRoutes(app: Express) {
           cleaned.push(m);
         }
       }
-      messages = cleaned.length > 0 ? cleaned : messages;
+      const finalMessages = cleaned.length > 0 ? cleaned : normalized;
 
       // Run Tavily web search if searchQuery is provided (for research tools)
       let webResearchContext = "";
@@ -146,7 +175,7 @@ export function registerChatRoutes(app: Express) {
         model: CLAUDE_MODEL,
         max_tokens: 8192,
         system,
-        messages,
+        messages: finalMessages,
       });
 
       // Handle client disconnect
@@ -190,7 +219,7 @@ export function registerChatRoutes(app: Express) {
 
       // Save conversation to memory (fire-and-forget)
       if (userId && toolName && fullResponse) {
-        const lastUserMsg = messages.filter((m: any) => m.role === "user").pop();
+        const lastUserMsg = finalMessages.filter(m => m.role === "user").pop();
         if (lastUserMsg) {
           saveConversationMessage({ userId, toolName, role: "user", content: lastUserMsg.content }).catch(() => {});
           saveConversationMessage({ userId, toolName, role: "assistant", content: fullResponse }).catch(() => {});

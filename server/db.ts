@@ -1,4 +1,4 @@
-import { and, eq, desc, asc } from "drizzle-orm";
+import { and, eq, desc, asc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import {
@@ -30,6 +30,33 @@ export function getDb() {
     }
   }
   return _db;
+}
+
+/**
+ * Set the RLS user context for the current connection.
+ * Called by the tRPC requireUser middleware so all subsequent
+ * queries on this connection are scoped by RLS policies.
+ */
+export async function setRlsUserId(userId: string): Promise<void> {
+  const db = getDb();
+  if (!db) return;
+  await db.execute(sql`SET app.current_user_id = ${userId}`);
+}
+
+/**
+ * Run a callback inside a transaction with RLS user context set via SET LOCAL.
+ * SET LOCAL scopes the variable to the transaction, preventing cross-request leakage.
+ */
+export async function withUserContext<T>(
+  userId: string,
+  fn: (tx: Parameters<Parameters<ReturnType<typeof drizzle>["transaction"]>[0]>[0]) => Promise<T>,
+): Promise<T> {
+  const db = getDb();
+  if (!db) throw new Error("Database not available");
+  return db.transaction(async (tx) => {
+    await tx.execute(sql`SET LOCAL app.current_user_id = ${userId}`);
+    return fn(tx);
+  });
 }
 
 // ─── Profile helpers ──────────────────────────────────────────────────────
