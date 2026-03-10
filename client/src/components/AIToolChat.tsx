@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import OutputToolbar from "@/components/OutputToolbar";
 import RelatedTools from "@/components/RelatedTools";
 import { SaveToProduct } from "@/components/SaveToProduct";
+import { ActiveProductBanner } from "@/components/ActiveProductBanner";
 
 interface AIToolChatProps {
   toolId: string;
@@ -20,6 +21,8 @@ interface AIToolChatProps {
   /** If true, extract HTML code blocks and show preview panel */
   showHTMLPreview?: boolean;
   examplePrompts?: string[];
+  /** If set, auto-sends this message on mount */
+  initialMessage?: string;
 }
 
 type Message = { role: "user" | "assistant"; content: string };
@@ -33,6 +36,7 @@ export default function AIToolChat({
   placeholder = "Type your message...",
   showHTMLPreview = false,
   examplePrompts,
+  initialMessage,
 }: AIToolChatProps) {
   const [generatedHTML, setGeneratedHTML] = useState<string>("");
   const [showPreview, setShowPreview] = useState(false);
@@ -61,11 +65,18 @@ export default function AIToolChat({
     }
   }, [messages]);
 
-  const handleSend = useCallback(async () => {
-    if (!input.trim() || status === "streaming") return;
-    const userMsg: Message = { role: "user", content: input };
-    const newMessages = [...messages, userMsg];
-    setMessages(newMessages);
+  // Auto-send initialMessage on mount
+  const initialSent = useRef(false);
+  useEffect(() => {
+    if (initialMessage && !initialSent.current && messages.length === 0) {
+      initialSent.current = true;
+      sendMessage({ text: initialMessage });
+    }
+  }, [initialMessage, messages.length, sendMessage]);
+
+  const handleSend = async () => {
+    if (!input.trim()) return;
+    const msg = input;
     setInput("");
     setStatus("streaming");
     setMessages(prev => [...prev, { role: "assistant", content: "" }]);
@@ -167,6 +178,14 @@ export default function AIToolChat({
           )}
         </div>
       </div>
+
+      {/* Active Product Banner */}
+      <ActiveProductBanner
+        ctaLabel="Load into chat"
+        onUseProduct={(summary) => {
+          setInput(`I want to work on this product:\n\n${summary}`);
+        }}
+      />
 
       {/* Chat Area */}
       <div className="flex-1 flex overflow-hidden">

@@ -28,9 +28,7 @@ import LaunchPlanner from "./LaunchPlanner";
 import AIChat from "./AIChat";
 import MyProducts from "./MyProducts";
 import ProductHub from "./ProductHub";
-import StageLanding from "./StageLanding";
-import InsightsPage from "./InsightsPage";
-import { createElement } from "react";
+import { createElement, useState } from "react";
 
 // Map stage landing paths to their stage names
 const STAGE_PATHS: Record<string, string> = {
@@ -45,6 +43,16 @@ const STAGE_PATHS: Record<string, string> = {
 export default function ToolPage() {
   const [location] = useLocation();
   const tool = getToolByPath(location);
+
+  // Check for prefill from cross-tool navigation (e.g. Product Discovery → Validate)
+  const [prefill] = useState<string | null>(() => {
+    const stored = localStorage.getItem("majorka_validate_prefill");
+    if (stored) {
+      localStorage.removeItem("majorka_validate_prefill");
+      return stored;
+    }
+    return null;
+  });
 
   // Wrap in page transition animation
   const page = (el: React.ReactElement) => <div key={location} className="page-enter h-full">{el}</div>;
@@ -113,6 +121,7 @@ export default function ToolPage() {
       placeholder={`Ask ${tool.label.toLowerCase()}...`}
       showHTMLPreview={false}
       examplePrompts={tool.examplePrompts}
+      initialMessage={prefill ?? undefined}
     />
   );
 }
