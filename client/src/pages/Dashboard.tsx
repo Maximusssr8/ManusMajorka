@@ -6,7 +6,9 @@ import OnboardingModal from "@/components/OnboardingModal";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { TextShimmer } from "@/components/ui/text-shimmer";
 import { getToolByPath, recordRecentTool, allTools } from "@/lib/tools";
-import { Search, Rocket, Globe, CheckCircle2, MessageSquare, Package, ChevronRight } from "lucide-react";
+import { Search, Rocket, Globe, CheckCircle2, MessageSquare, Package, ChevronRight, Clock } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { createElement } from "react";
 
 // ── 6 core tool cards for the dashboard ──
 const CORE_TOOL_CARDS = [
@@ -113,6 +115,102 @@ function ContinueSection({ onNavigate }: { onNavigate: (path: string) => void })
   );
 }
 
+function RecentToolsList({ onNavigate }: { onNavigate: (path: string) => void }) {
+  const [recentToolIds, setRecentToolIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("majorka_recent_tools");
+      if (raw) setRecentToolIds(JSON.parse(raw));
+    } catch { /* ignore */ }
+  }, []);
+
+  if (recentToolIds.length === 0) return null;
+
+  const recentTools = recentToolIds
+    .map(id => allTools.find(t => t.id === id))
+    .filter((t): t is NonNullable<typeof t> => !!t)
+    .slice(0, 5);
+
+  if (recentTools.length === 0) return null;
+
+  return (
+    <div className="mb-6">
+      <div className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: "rgba(240,237,232,0.3)", fontFamily: "Syne, sans-serif" }}>
+        Recent Tools
+      </div>
+      <div className="space-y-1.5">
+        {recentTools.map(tool => (
+          <button
+            key={tool.id}
+            onClick={() => onNavigate(tool.path)}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all"
+            style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.07)", cursor: "pointer" }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = "rgba(212,175,55,0.3)";
+              e.currentTarget.style.background = "rgba(212,175,55,0.04)";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)";
+              e.currentTarget.style.background = "rgba(255,255,255,0.025)";
+            }}
+          >
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(212,175,55,0.12)", color: "#d4af37" }}>
+              {createElement(tool.icon, { size: 13 })}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-bold truncate" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>{tool.label}</div>
+              <div className="text-xs truncate" style={{ color: "rgba(240,237,232,0.3)" }}>{tool.description}</div>
+            </div>
+            <ChevronRight size={12} style={{ color: "rgba(212,175,55,0.4)", flexShrink: 0 }} />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ProductsCount() {
+  const { user } = useAuth();
+  const productsQuery = trpc.products.list.useQuery(undefined, { enabled: !!user });
+
+  if (productsQuery.isLoading) {
+    return (
+      <div className="mb-6 px-4 py-3 rounded-xl flex items-center gap-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(212,175,55,0.08)" }}>
+          <Package size={14} style={{ color: "#d4af37" }} />
+        </div>
+        <div className="flex-1">
+          <div className="h-3 w-24 rounded" style={{ background: "rgba(255,255,255,0.08)", animation: "pulse 1.5s infinite" }} />
+          <div className="h-2.5 w-16 rounded mt-1.5" style={{ background: "rgba(255,255,255,0.05)", animation: "pulse 1.5s infinite" }} />
+        </div>
+      </div>
+    );
+  }
+
+  const count = productsQuery.data?.length ?? 0;
+
+  return (
+    <button
+      onClick={() => {}}
+      className="mb-6 w-full px-4 py-3 rounded-xl flex items-center gap-3 text-left transition-all"
+      style={{ background: "rgba(212,175,55,0.04)", border: "1px solid rgba(212,175,55,0.15)", cursor: "default" }}
+    >
+      <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "rgba(212,175,55,0.12)" }}>
+        <Package size={14} style={{ color: "#d4af37" }} />
+      </div>
+      <div className="flex-1">
+        <div className="text-sm font-black" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>
+          {count === 0 ? "No products yet" : `${count} active product${count === 1 ? "" : "s"}`}
+        </div>
+        <div className="text-xs" style={{ color: "rgba(240,237,232,0.35)" }}>
+          {count === 0 ? "Start researching to build your first product" : "Track research and outputs per product"}
+        </div>
+      </div>
+    </button>
+  );
+}
+
 function DashboardHome() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
@@ -142,8 +240,14 @@ function DashboardHome() {
           </p>
         </div>
 
+        {/* Active products count */}
+        <ProductsCount />
+
         {/* Continue where you left off — last single tool */}
         <ContinueLastTool onNavigate={setLocation} />
+
+        {/* Recent tools */}
+        <RecentToolsList onNavigate={setLocation} />
 
         {/* Quick start CTA */}
         <button
