@@ -21,6 +21,39 @@ export function useAuth() {
       }
     }, 2000);
 
+    // Subscribe first so we don't miss any events that fire during init
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
+      console.log("[useAuth] onAuthStateChange", event, !!s);
+      resolved = true;
+      clearTimeout(deadline);
+      setSession(s);
+      setSessionLoading(false);
+      if (event === "SIGNED_IN") {
+        utils.auth.me.invalidate();
+      }
+    });
+
+    // Check URL hash for OAuth tokens (Supabase puts them there after redirect)
+    const hash = window.location.hash;
+    if (hash && hash.includes("access_token")) {
+      const params = new URLSearchParams(hash.replace(/^#/, ""));
+      const access_token = params.get("access_token");
+      const refresh_token = params.get("refresh_token");
+      if (access_token && refresh_token) {
+        console.log("[useAuth] found OAuth tokens in hash, setting session");
+        supabase.auth.setSession({ access_token, refresh_token }).then(({ data, error }) => {
+          if (error) console.error("[useAuth] setSession error", error);
+          else {
+            setSession(data.session);
+            // Clean up hash from URL without triggering a page reload
+            window.history.replaceState(null, "", window.location.pathname);
+          }
+        });
+        return () => { clearTimeout(deadline); subscription.unsubscribe(); };
+      }
+    }
+
+    // Normal mount: pull existing session from storage
     supabase.auth.getSession().then(({ data: { session: s } }) => {
       if (!resolved) {
         resolved = true;
@@ -34,14 +67,6 @@ export function useAuth() {
         clearTimeout(deadline);
         setSessionLoading(false);
       }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
-      resolved = true;
-      clearTimeout(deadline);
-      setSession(s);
-      setSessionLoading(false);
-      utils.auth.me.invalidate();
     });
 
     return () => {
