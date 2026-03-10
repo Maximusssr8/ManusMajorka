@@ -1,36 +1,38 @@
 import { useLocation } from "wouter";
 import { getToolByPath, stages } from "@/lib/tools";
 import AIToolChat from "@/components/AIToolChat";
-import WebsiteGenerator from "./WebsiteGenerator";
-import MetaAdsPack from "./MetaAdsPack";
-import BrandDNA from "./BrandDNA";
-import MarketIntelligence from "./MarketIntelligence";
-import ProductDiscovery from "./ProductDiscovery";
-import CompetitorBreakdown from "./CompetitorBreakdown";
-import TrendRadar from "./TrendRadar";
-import NicheScorer from "./NicheScorer";
-import KeywordMiner from "./KeywordMiner";
-import AudienceProfiler from "./AudienceProfiler";
-import CopywriterTool from "./CopywriterTool";
-import EmailSequences from "./EmailSequences";
-import AdsStudio from "./AdsStudio";
-import SupplierFinder from "./SupplierFinder";
-import MarketMap from "./MarketMap";
-import FinancialModeler from "./FinancialModeler";
-import ScalingPlaybook from "./ScalingPlaybook";
-import StoreAuditor from "./StoreAuditor";
-import AnalyticsDecoder from "./AnalyticsDecoder";
-import ExpansionPlanner from "./ExpansionPlanner";
-import ProjectManager from "./ProjectManager";
-import AutomationBuilder from "./AutomationBuilder";
-import ValidateTool from "./ValidateTool";
-import LaunchPlanner from "./LaunchPlanner";
-import AIChat from "./AIChat";
-import MyProducts from "./MyProducts";
-import ProductHub from "./ProductHub";
-import StageLanding from "./StageLanding";
-import InsightsPage from "./InsightsPage";
-import { createElement, useState } from "react";
+import { createElement, useState, lazy, Suspense } from "react";
+
+// Lazy-load all tool page components for code splitting
+const WebsiteGenerator = lazy(() => import("./WebsiteGenerator"));
+const MetaAdsPack = lazy(() => import("./MetaAdsPack"));
+const BrandDNA = lazy(() => import("./BrandDNA"));
+const MarketIntelligence = lazy(() => import("./MarketIntelligence"));
+const ProductDiscovery = lazy(() => import("./ProductDiscovery"));
+const CompetitorBreakdown = lazy(() => import("./CompetitorBreakdown"));
+const TrendRadar = lazy(() => import("./TrendRadar"));
+const NicheScorer = lazy(() => import("./NicheScorer"));
+const KeywordMiner = lazy(() => import("./KeywordMiner"));
+const AudienceProfiler = lazy(() => import("./AudienceProfiler"));
+const CopywriterTool = lazy(() => import("./CopywriterTool"));
+const EmailSequences = lazy(() => import("./EmailSequences"));
+const AdsStudio = lazy(() => import("./AdsStudio"));
+const SupplierFinder = lazy(() => import("./SupplierFinder"));
+const MarketMap = lazy(() => import("./MarketMap"));
+const FinancialModeler = lazy(() => import("./FinancialModeler"));
+const ScalingPlaybook = lazy(() => import("./ScalingPlaybook"));
+const StoreAuditor = lazy(() => import("./StoreAuditor"));
+const AnalyticsDecoder = lazy(() => import("./AnalyticsDecoder"));
+const ExpansionPlanner = lazy(() => import("./ExpansionPlanner"));
+const ProjectManager = lazy(() => import("./ProjectManager"));
+const AutomationBuilder = lazy(() => import("./AutomationBuilder"));
+const ValidateTool = lazy(() => import("./ValidateTool"));
+const LaunchPlanner = lazy(() => import("./LaunchPlanner"));
+const AIChat = lazy(() => import("./AIChat"));
+const MyProducts = lazy(() => import("./MyProducts"));
+const ProductHub = lazy(() => import("./ProductHub"));
+const StageLanding = lazy(() => import("./StageLanding"));
+const InsightsPage = lazy(() => import("./InsightsPage"));
 
 // Map stage landing paths to their stage names
 const STAGE_PATHS: Record<string, string> = {
@@ -41,6 +43,41 @@ const STAGE_PATHS: Record<string, string> = {
   "/app/optimize": "Optimize",
   "/app/scale": "Scale",
 };
+
+function ToolLoadingFallback() {
+  return (
+    <div
+      className="h-full flex items-center justify-center"
+      style={{ background: "#0a0b0d" }}
+    >
+      <div className="flex flex-col items-center gap-3">
+        <div
+          className="w-8 h-8 rounded-xl flex items-center justify-center font-black animate-pulse"
+          style={{
+            background: "rgba(212,175,55,0.15)",
+            color: "#d4af37",
+            fontFamily: "Syne, sans-serif",
+          }}
+        >
+          M
+        </div>
+        <div className="flex gap-1">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="w-1.5 h-1.5 rounded-full animate-bounce"
+              style={{
+                background: "#d4af37",
+                opacity: 0.5,
+                animationDelay: `${i * 0.15}s`,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ToolPage() {
   const [location] = useLocation();
@@ -56,8 +93,12 @@ export default function ToolPage() {
     return null;
   });
 
-  // Wrap in page transition animation
-  const page = (el: React.ReactElement) => <div key={location} className="page-enter h-full">{el}</div>;
+  // Wrap in page transition animation + Suspense
+  const page = (el: React.ReactElement) => (
+    <Suspense fallback={<ToolLoadingFallback />}>
+      <div key={location} className="page-enter h-full">{el}</div>
+    </Suspense>
+  );
 
   // Route dedicated tool pages
   if (location === "/app/website-generator") return page(<WebsiteGenerator />);
@@ -127,4 +168,3 @@ export default function ToolPage() {
     />
   );
 }
-

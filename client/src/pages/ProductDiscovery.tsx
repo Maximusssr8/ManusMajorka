@@ -259,9 +259,9 @@ export default function ProductDiscovery() {
         )}
       </div>
 
-      <div className="flex-1 overflow-hidden flex">
+      <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
         {/* LEFT: Input panel */}
-        <div className="w-72 flex-shrink-0 overflow-y-auto border-r p-4 space-y-4" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+        <div className="w-full lg:w-72 flex-shrink-0 overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 space-y-4" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
           <div>
             <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Research Parameters</div>
             <div className="space-y-3">
