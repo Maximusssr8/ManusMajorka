@@ -161,6 +161,9 @@ export default defineConfig({
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
     },
+    // Force a single instance of React — prevents "two copies of React" crash
+    // when Claude worktrees share the pnpm store and Vite picks up the wrong copy.
+    dedupe: ["react", "react-dom", "react-dom/client"],
   },
   envDir: path.resolve(import.meta.dirname),
   root: path.resolve(import.meta.dirname, "client"),
@@ -182,7 +185,8 @@ export default defineConfig({
     ],
     fs: {
       strict: true,
-      deny: ["**/.*"],
+      // Deny dotfiles AND everything inside .claude worktrees
+      deny: ["**/.*", "**/.claude/**"],
     },
   },
 });
