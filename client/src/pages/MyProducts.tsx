@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, ExternalLink, Package, Loader2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, ExternalLink, Package, Loader2, X, RefreshCw, AlertTriangle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
@@ -124,11 +124,28 @@ export default function MyProducts() {
         {/* Product List */}
         {error ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <div className="text-4xl">⚠️</div>
-            <div className="text-sm font-black" style={{ fontFamily: "Syne, sans-serif" }}>Database not connected</div>
-            <div className="text-xs max-w-xs text-center" style={{ color: "rgba(240,237,232,0.35)" }}>
-              Run your database migrations and check DATABASE_URL in .env
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: "rgba(255,100,100,0.08)" }}>
+              <AlertTriangle size={28} style={{ color: "#ff6b6b" }} />
             </div>
+            <div className="text-sm font-black" style={{ fontFamily: "Syne, sans-serif" }}>
+              Failed to load products
+            </div>
+            <div className="text-xs max-w-sm text-center" style={{ color: "rgba(240,237,232,0.35)" }}>
+              {error.message || "Something went wrong. Check your database connection and try again."}
+            </div>
+            <button
+              onClick={() => utils.products.list.invalidate()}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all mt-2"
+              style={{
+                background: "rgba(212,175,55,0.1)",
+                border: "1px solid rgba(212,175,55,0.25)",
+                color: "#d4af37",
+                fontFamily: "Syne, sans-serif",
+                cursor: "pointer",
+              }}
+            >
+              <RefreshCw size={12} /> Try Again
+            </button>
           </div>
         ) : isLoading ? (
           <div className="flex items-center justify-center py-20">
