@@ -4,7 +4,6 @@ import { DefaultChatTransport } from "ai";
 import type { UIMessage } from "ai";
 import { toast } from "sonner";
 import { Search, Copy, Check, Loader2, TrendingUp, DollarSign, Package, Star, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
-import { trpc } from "@/lib/trpc";
 import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface ProductIdea {
@@ -69,7 +68,13 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
   return (
     <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
       <button onClick={() => setExpanded(!expanded)} className="w-full flex items-center gap-3 p-4 text-left" style={{ cursor: "pointer" }}>
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0" style={{ background: "rgba(212,175,55,0.12)", color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
+        <div className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-base flex-shrink-0"
+          style={{
+            background: product.score >= 75 ? "rgba(45,202,114,0.15)" : product.score >= 50 ? "rgba(212,175,55,0.15)" : "rgba(224,92,122,0.15)",
+            color: product.score >= 75 ? "#2dca72" : product.score >= 50 ? "#d4af37" : "#e05c7a",
+            border: `1px solid ${product.score >= 75 ? "rgba(45,202,114,0.3)" : product.score >= 50 ? "rgba(212,175,55,0.3)" : "rgba(224,92,122,0.3)"}`,
+            fontFamily: "Syne, sans-serif",
+          }}>
           {product.score}
         </div>
         <div className="flex-1 min-w-0">
@@ -124,31 +129,17 @@ export default function ProductDiscovery() {
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState<DiscoveryResult | null>(null);
   const [genError, setGenError] = useState("");
-  const [searchResults, setSearchResults] = useState<string>("");
-  const searchMutation = trpc.research.search.useMutation();
-
   const handleGenerate = useCallback(async () => {
     if (!niche.trim()) { toast.error("Please enter a niche or category"); return; }
     setGenerating(true); setGenError(""); setResult(null);
-    
-    // First do a real Tavily search for context
-    let context = "";
-    try {
-      const searchData = await searchMutation.mutateAsync({
-        query: `${niche} trending products ${targetMarket} 2025 dropshipping`,
-        maxResults: 3,
-        searchDepth: "basic",
-      });
-      context = searchData.results.map(r => `${r.title}: ${r.content}`).join("\n\n");
-      setSearchResults(context);
-    } catch { /* ignore search errors */ }
 
     const prompt = [
       `Niche/Category: ${niche}`,
       priceRange && `Price Range: $${priceRange}`,
       `Target Market: ${targetMarket}`,
-      context && `\nRecent market data:\n${context.slice(0, 1500)}`,
     ].filter(Boolean).join("\n");
+
+    const searchQuery = `${niche} trending products ${targetMarket} 2025 ecommerce dropshipping opportunity`;
 
     try {
       const response = await fetch("/api/chat", {
@@ -157,6 +148,7 @@ export default function ProductDiscovery() {
         body: JSON.stringify({
           messages: [{ role: "user", content: prompt }],
           systemPrompt: SYSTEM_PROMPT,
+          searchQuery,
         }),
       });
 
@@ -211,7 +203,7 @@ export default function ProductDiscovery() {
     } finally {
       setGenerating(false);
     }
-  }, [niche, priceRange, targetMarket, searchMutation]);
+  }, [niche, priceRange, targetMarket]);
 
   const isLoading = generating;
 
@@ -243,7 +235,7 @@ export default function ProductDiscovery() {
               <div>
                 <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(240,237,232,0.6)", fontFamily: "Syne, sans-serif" }}>Niche / Category *</label>
                 <input value={niche} onChange={e => setNiche(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && !isLoading && handleGenerate()}
+                  onKeyDown={e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); handleGenerate(); } }}
                   placeholder="e.g. Pet accessories, Home gym…"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#f0ede8" }} />
@@ -298,14 +290,13 @@ export default function ProductDiscovery() {
         {/* RIGHT: Output panel */}
         <div className="flex-1 overflow-y-auto p-5">
           {isLoading && !result && (
-            <div className="h-full flex flex-col items-center justify-center gap-4">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: "rgba(45,202,114,0.1)", border: "1px solid rgba(45,202,114,0.2)" }}>
-                <TrendingUp size={24} style={{ color: "#2dca72" }} className="animate-pulse" />
-              </div>
-              <div className="text-center">
-                <div className="text-sm font-black mb-1" style={{ fontFamily: "Syne, sans-serif" }}>Researching {niche}…</div>
-                <div className="text-xs" style={{ color: "rgba(240,237,232,0.35)" }}>Scanning market trends and opportunity data</div>
-              </div>
+            <div className="space-y-4 animate-fade-in p-4 max-w-3xl">
+              <div className="text-sm font-black mb-2" style={{ fontFamily: "Syne, sans-serif" }}>Researching {niche}…</div>
+              <div className="skeleton-shimmer h-16 w-full rounded-2xl" />
+              <div className="skeleton-shimmer h-20 w-full rounded-2xl" />
+              <div className="skeleton-shimmer h-40 w-full rounded-2xl" />
+              <div className="skeleton-shimmer h-40 w-full rounded-2xl" />
+              <div className="skeleton-shimmer h-40 w-full rounded-2xl" />
             </div>
           )}
 

@@ -1,10 +1,9 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import type { UIMessage } from "ai";
 import { toast } from "sonner";
 import { BarChart2, Copy, Check, Loader2, RefreshCw } from "lucide-react";
-import { trpc } from "@/lib/trpc";
 import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface ScoreBreakdown {
@@ -31,9 +30,22 @@ interface NicheResult {
   nextSteps: string[];
 }
 
-const SYSTEM_PROMPT = `You are an expert ecommerce niche evaluator. Score niches across 6 dimensions.
+const SYSTEM_PROMPT = `You are Majorka — a blunt, opinionated niche evaluator for Australian ecommerce founders. You don't hedge. You give a clear GO or NO-GO and defend it with specifics.
+
+VOICE:
+- If a niche is trash, say it's trash and explain exactly why.
+- If it's a goldmine, get excited and explain the upside in AUD.
+- Reference Australian market realities: Australia Post shipping costs, Afterpay adoption, Shopify AU ecosystem, local competition from Catch/Kogan/eBay AU.
+- Use AUD for all revenue estimates. Factor in AU shipping costs and import duties where relevant.
+- Never sit on the fence. "Proceed with Caution" should still lean towards a recommendation.
+
+SCORING RULES:
+- Score harshly. A 70+ means you'd personally put money into this niche. Below 40 means walk away.
+- Weight competition and margins heavier than trend — trends fade, margins don't.
+- Factor in the Australian market specifically: smaller population (26M), higher shipping costs, Afterpay/BNPL culture, preference for local brands.
+
 When given a niche, return a JSON object with this EXACT structure (no markdown, just raw JSON):
-{"nicheName":"Exact niche name","overallScore":75,"verdict":"Strong Go|Proceed with Caution|Avoid","scores":{"demandScore":80,"competitionScore":65,"marginScore":70,"trendScore":85,"entryBarrierScore":60,"scalabilityScore":75},"summary":"2-3 sentence overall assessment","strengths":["Strength 1","Strength 2","Strength 3"],"weaknesses":["Weakness 1","Weakness 2","Weakness 3"],"idealCustomer":"Detailed ideal customer profile","estimatedMonthlyRevenue":"e.g. $5K-20K at scale","timeToFirstSale":"e.g. 2-4 weeks","topProducts":["Product 1","Product 2","Product 3","Product 4","Product 5"],"nextSteps":["Step 1","Step 2","Step 3"]}
+{"nicheName":"Exact niche name","overallScore":75,"verdict":"Strong Go|Proceed with Caution|Avoid","scores":{"demandScore":80,"competitionScore":65,"marginScore":70,"trendScore":85,"entryBarrierScore":60,"scalabilityScore":75},"summary":"2-3 sentence blunt assessment — give your real opinion, not a balanced overview","strengths":["Strength 1","Strength 2","Strength 3"],"weaknesses":["Weakness 1","Weakness 2","Weakness 3"],"idealCustomer":"Specific Australian customer profile with demographics","estimatedMonthlyRevenue":"e.g. $5K-20K AUD at scale","timeToFirstSale":"e.g. 2-4 weeks","topProducts":["Product 1","Product 2","Product 3","Product 4","Product 5"],"nextSteps":["Concrete action 1 they can do today","Action 2","Action 3"]}
 Scores are 0-100. Overall score is weighted average. Return ONLY raw JSON.`;
 
 function parseResult(text: string): NicheResult | null {
@@ -98,7 +110,7 @@ export default function NicheScorer() {
   const [result, setResult] = useState<NicheResult | null>(null);
   const [genError, setGenError] = useState("");
   const [waitingForResponse, setWaitingForResponse] = useState(false);
-  const searchMutation = trpc.research.search.useMutation();
+  const searchQueryRef = useRef("");
 
   const { sendMessage, status, messages } = useChat({
     transport: new DefaultChatTransport({
@@ -111,6 +123,7 @@ export default function NicheScorer() {
               content: m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join(""),
             })),
             systemPrompt: SYSTEM_PROMPT,
+            searchQuery: searchQueryRef.current || undefined,
           },
         };
       },
@@ -139,24 +152,17 @@ export default function NicheScorer() {
   const handleGenerate = useCallback(async () => {
     if (!niche.trim()) { toast.error("Please enter a niche"); return; }
     setGenerating(true); setGenError(""); setResult(null);
-    let searchContext = "";
-    try {
-      const searchData = await searchMutation.mutateAsync({
-        query: `${niche} ecommerce market size competition Australia 2025`,
-        maxResults: 3,
-        searchDepth: "basic",
-      });
-      searchContext = searchData.results.map(r => `${r.title}: ${r.content}`).join("\n\n");
-    } catch { /* ignore */ }
+
+    const searchQuery = `${niche} ecommerce market size competition Australia 2025`;
+    searchQueryRef.current = searchQuery;
 
     const prompt = [
       `Niche to evaluate: ${niche}`,
       context && `Additional context: ${context}`,
-      searchContext && `\nMarket data:\n${searchContext.slice(0, 1500)}`,
     ].filter(Boolean).join("\n");
     sendMessage({ text: prompt });
     setWaitingForResponse(true);
-  }, [niche, context, sendMessage, searchMutation]);
+  }, [niche, context, sendMessage]);
 
   const isLoading = generating || status === "streaming" || status === "submitted";
   const vc = result ? (VERDICT_CONFIG[result.verdict] || VERDICT_CONFIG["Proceed with Caution"]) : null;
@@ -185,7 +191,7 @@ export default function NicheScorer() {
             <div>
               <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(240,237,232,0.6)", fontFamily: "Syne, sans-serif" }}>Niche to Score *</label>
               <input value={niche} onChange={e => setNiche(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && !isLoading && handleGenerate()}
+                onKeyDown={e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); handleGenerate(); } }}
                 placeholder="e.g. Posture correctors, Yoga mats…"
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#f0ede8" }} />

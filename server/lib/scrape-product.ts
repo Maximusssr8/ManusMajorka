@@ -3,7 +3,7 @@
  * Uses Firecrawl to scrape product pages, with Tavily + Pexels fallbacks.
  */
 import type { Express } from "express";
-import FirecrawlApp from "@mendable/firecrawl-js";
+import Firecrawl from "@mendable/firecrawl-js";
 import { tavilyExtract, tavilySearch } from "../tavily";
 
 interface ScrapeResult {
@@ -51,14 +51,14 @@ export function registerScrapeRoutes(app: Express) {
       const firecrawlKey = process.env.FIRECRAWL_API_KEY;
       if (firecrawlKey) {
         try {
-          const fc = new FirecrawlApp({ apiKey: firecrawlKey });
-          const scrapeResult = await (fc as any).scrapeUrl(url, {
+          const fc = new Firecrawl({ apiKey: firecrawlKey });
+          const scrapeResult = await fc.scrape(url, {
             formats: ["markdown", "html"],
           }) as any;
 
-          if (scrapeResult.success && scrapeResult.markdown) {
-            const md = scrapeResult.markdown;
-            const meta = (scrapeResult as any).metadata || {};
+          if (scrapeResult.success !== false && (scrapeResult.markdown || scrapeResult.content)) {
+            const md = scrapeResult.markdown || scrapeResult.content || "";
+            const meta = scrapeResult.metadata || {};
 
             // Extract title
             result.productTitle =

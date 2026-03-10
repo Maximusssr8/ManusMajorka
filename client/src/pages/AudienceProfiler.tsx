@@ -1,10 +1,9 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import type { UIMessage } from "ai";
 import { toast } from "sonner";
 import { Users, Copy, Check, Loader2, RefreshCw } from "lucide-react";
-import { trpc } from "@/lib/trpc";
 import { SaveToProduct } from "@/components/SaveToProduct";
 
 interface Persona {
@@ -193,7 +192,7 @@ export default function AudienceProfiler() {
   const [result, setResult] = useState<AudienceResult | null>(null);
   const [genError, setGenError] = useState("");
   const [waitingForResponse, setWaitingForResponse] = useState(false);
-  const searchMutation = trpc.research.search.useMutation();
+  const searchQueryRef = useRef("");
 
   const { sendMessage, status, messages } = useChat({
     transport: new DefaultChatTransport({
@@ -206,6 +205,7 @@ export default function AudienceProfiler() {
               content: m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join(""),
             })),
             systemPrompt: SYSTEM_PROMPT,
+            searchQuery: searchQueryRef.current || undefined,
           },
         };
       },
@@ -234,24 +234,17 @@ export default function AudienceProfiler() {
   const handleGenerate = useCallback(async () => {
     if (!product.trim()) { toast.error("Please enter a product"); return; }
     setGenerating(true); setGenError(""); setResult(null);
-    let context = "";
-    try {
-      const searchData = await searchMutation.mutateAsync({
-        query: `${product} target audience customer demographics Australia`,
-        maxResults: 3,
-        searchDepth: "basic",
-      });
-      context = searchData.results.map(r => `${r.title}: ${r.content}`).join("\n\n");
-    } catch { /* ignore */ }
+
+    const searchQuery = `${product} target audience customer demographics Australia`;
+    searchQueryRef.current = searchQuery;
 
     const prompt = [
       `Product: ${product}`,
       pricePoint && `Price point: $${pricePoint}`,
-      context && `\nMarket research:\n${context.slice(0, 1500)}`,
     ].filter(Boolean).join("\n");
     sendMessage({ text: prompt });
     setWaitingForResponse(true);
-  }, [product, pricePoint, sendMessage, searchMutation]);
+  }, [product, pricePoint, sendMessage]);
 
   const isLoading = generating || status === "streaming" || status === "submitted";
 
@@ -279,7 +272,7 @@ export default function AudienceProfiler() {
             <div>
               <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(240,237,232,0.6)", fontFamily: "Syne, sans-serif" }}>Product / Niche *</label>
               <input value={product} onChange={e => setProduct(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && !isLoading && handleGenerate()}
+                onKeyDown={e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); handleGenerate(); } }}
                 placeholder="e.g. Posture corrector belt…"
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "#f0ede8" }} />

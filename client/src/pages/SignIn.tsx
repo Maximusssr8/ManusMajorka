@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { SignInPage } from "@/components/ui/sign-in-flow";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 
 export default function SignIn() {
   const { isAuthenticated, loading } = useAuth();
@@ -15,11 +14,8 @@ export default function SignIn() {
     }
   }, [isAuthenticated, loading, navigate]);
 
-  const loginUrl = getLoginUrl();
-
   return (
     <SignInPage
-      loginUrl={loginUrl}
       onSuccess={() => navigate("/app")}
     />
   );

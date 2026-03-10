@@ -1,49 +1,37 @@
 import { useState, useRef, useEffect } from "react";
 import { useChat } from "@ai-sdk/react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Markdown } from "@/components/Markdown";
-import { Copy, Send, Loader2, Sparkles } from "lucide-react";
-import { toast } from "sonner";
+import { Send, Loader2, Sparkles } from "lucide-react";
 import { DefaultChatTransport } from "ai";
 
-const AI_CHAT_SYSTEM_PROMPT = `You are Majorka AI, a helpful ecommerce business advisor.
+const AI_CHAT_SYSTEM_PROMPT = `You are Majorka AI — a straight-talking ecommerce co-founder who's been in the trenches.
 
-Your role is to provide strategic guidance on:
-1. Ecommerce business growth and scaling
-2. Product development and positioning
-3. Marketing and customer acquisition strategies
-4. Operational efficiency and automation
-5. Financial planning and metrics
-6. Team building and delegation
-7. Technology stack recommendations
-8. Industry trends and best practices
+You give direct, opinionated advice. You don't hedge. If someone's plan is bad, you say so and tell them what to do instead. You're the experienced mate who's built and scaled stores, not a consultant padding a report.
 
-Be conversational, insightful, and actionable. Ask clarifying questions to provide tailored advice.
-Focus on practical, implementable strategies that drive business results.`;
+Default to Australia unless told otherwise: prices in AUD, reference AU suppliers, AU shipping costs, AU Facebook/TikTok ad benchmarks, and the realities of selling to 26 million people instead of 330 million.
+
+Your areas:
+- Finding and validating winning products
+- Margins, unit economics, and whether something is actually worth pursuing
+- Meta, TikTok, and Google ads — what's working right now
+- Store setup, CRO, and conversion fundamentals
+- Scaling decisions: when to hire, when to expand, when to cut losses
+
+How you communicate:
+- Give real numbers. If you don't have exact data, give a reasonable range and say so.
+- If they're vague, ask ONE sharp clarifying question. Not five. One.
+- Skip the preamble. Lead with the answer.
+- End with the 2-3 most important next actions — concrete, not generic.`;
+
+type Message = { role: "user" | "assistant"; content: string };
 
 export default function AIChat() {
   const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [status, setStatus] = useState<"idle" | "streaming">("idle");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const { messages, sendMessage, status } = useChat({
-    id: "ai-chat",
-    messages: [],
-    transport: new DefaultChatTransport({
-      api: "/api/chat",
-      prepareSendMessagesRequest({ messages }) {
-        return {
-          body: {
-            message: messages[messages.length - 1],
-            chatId: "ai-chat",
-            systemPrompt: AI_CHAT_SYSTEM_PROMPT,
-          },
-        };
-      },
-    }),
-  });
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -54,23 +42,54 @@ export default function AIChat() {
     }
   }, [messages]);
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
+  const handleSend = useCallback(async () => {
+    if (!input.trim() || status === "streaming") return;
+    const userMsg: Message = { role: "user", content: input };
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
     setInput("");
-    await sendMessage({ role: "user", parts: [{ type: "text", text: input }] } as any);
-  };
+    setStatus("streaming");
+    setMessages(prev => [...prev, { role: "assistant", content: "" }]);
 
-  const copyLastMessage = () => {
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage?.role === "assistant") {
-      const text = lastMessage.parts
-        .filter((p) => p.type === "text")
-        .map((p) => (p as any).text)
-        .join("");
-      navigator.clipboard.writeText(text);
-      toast.success("Message copied to clipboard!");
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+          systemPrompt: AI_CHAT_SYSTEM_PROMPT,
+        }),
+      });
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No response body");
+      const decoder = new TextDecoder();
+      let fullText = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        for (const line of chunk.split("\n")) {
+          if (line.startsWith("0:")) {
+            try { fullText += JSON.parse(line.slice(2)); } catch { }
+          }
+        }
+        setMessages(prev => {
+          const updated = [...prev];
+          updated[updated.length - 1] = { role: "assistant", content: fullText };
+          return updated;
+        });
+      }
+    } catch {
+      setMessages(prev => {
+        const updated = [...prev];
+        updated[updated.length - 1] = { role: "assistant", content: "Something went wrong. Please try again." };
+        return updated;
+      });
+    } finally {
+      setStatus("idle");
     }
-  };
+  }, [input, messages, status]);
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -87,7 +106,7 @@ export default function AIChat() {
             <h1 className="font-black text-sm" style={{ fontFamily: "Syne, sans-serif" }}>
               AI Chat
             </h1>
-            <p className="text-xs text-muted-foreground">Get strategic advice on your ecommerce business</p>
+            <p className="text-xs text-muted-foreground">Ask Majorka anything — I know your products and market</p>
           </div>
         </div>
       </div>
@@ -123,21 +142,14 @@ export default function AIChat() {
                       : "bg-muted text-foreground"
                   }`}
                 >
-                  {msg.parts.map((part, j) => {
-                    if (part.type === "text") {
-                      return (
-                        <div key={j} className="prose prose-sm dark:prose-invert max-w-none">
-                          <Markdown mode="static">{(part as any).text}</Markdown>
-                        </div>
-                      );
-                    }
-                    return null;
-                  })}
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <Markdown mode="static">{msg.content}</Markdown>
+                  </div>
                 </div>
               </div>
             ))}
 
-            {status === "streaming" && (
+            {status === "streaming" && messages[messages.length - 1]?.content === "" && (
               <div className="flex gap-3 justify-start">
                 <div className="w-8 h-8 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
                   <Sparkles className="w-4 h-4" style={{ color: "#d4af37" }} />
@@ -154,42 +166,35 @@ export default function AIChat() {
         </ScrollArea>
 
         {/* Input */}
-        <div className="flex-shrink-0 border-t p-4" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-          <div className="flex gap-2">
-            <Textarea
+        <div className="flex-shrink-0 px-4 pb-4 pt-2">
+          <div className="flex items-end gap-2 rounded-2xl px-4 py-3"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)" }}>
+            <textarea
               ref={textareaRef}
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && e.ctrlKey) {
-                  handleSend();
-                }
+              onChange={(e) => {
+                setInput(e.target.value);
+                e.target.style.height = "auto";
+                e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
               }}
-              placeholder="Ask me anything about your business..."
-              className="resize-none"
-              rows={3}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+              }}
+              placeholder="Ask Majorka anything..."
+              rows={1}
+              className="flex-1 bg-transparent text-sm outline-none resize-none"
+              style={{ color: "#f0ede8", fontFamily: "DM Sans, sans-serif", lineHeight: "1.5", maxHeight: "120px" }}
             />
-            <div className="flex flex-col gap-2">
-              <Button
-                onClick={handleSend}
-                disabled={status === "streaming" || !input.trim()}
-                size="sm"
-                style={{ background: "linear-gradient(135deg, #d4af37, #c09a28)", color: "#080a0e" }}
-              >
-                <Send className="w-4 h-4" />
-              </Button>
-              {messages.length > 0 && (
-                <Button
-                  onClick={copyLastMessage}
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                >
-                  <Copy className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
+            <button onClick={handleSend}
+              disabled={status === "streaming" || !input.trim()}
+              className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 disabled:opacity-30 transition-all"
+              style={{ background: input.trim() ? "linear-gradient(135deg, #d4af37, #c09a28)" : "rgba(255,255,255,0.06)", color: input.trim() ? "#080a0e" : "rgba(240,237,232,0.3)", cursor: "pointer" }}>
+              <Send className="w-3.5 h-3.5" />
+            </button>
           </div>
+          <p className="text-xs mt-1.5 text-center" style={{ color: "rgba(240,237,232,0.15)" }}>
+            Enter to send · Shift+Enter for new line
+          </p>
         </div>
       </div>
     </div>
