@@ -67,11 +67,17 @@ async function fetchUserProfile(userId: string) {
 }
 
 /** Build personalised system prompt */
-function buildSystemPrompt(customPrompt: string | undefined, profile: Record<string, string> | null): string {
+function buildSystemPrompt(customPrompt: string | undefined, profile: Record<string, string> | null, toolName: string): string {
+  const isAIChat = !customPrompt || toolName === "ai-chat";
+
   const base = customPrompt || `You are Majorka AI — a sharp, direct ecommerce co-founder.`;
 
+  // Only inject profile + personality for the main AI Chat, not structured tool pages
+  // Tool pages send their own precise system prompts (JSON schemas etc) that must not be overridden
+  if (!isAIChat) return base;
+
   const profileCtx = profile
-    ? `\n\nUSER PROFILE:\n- Name: ${profile.display_name || profile.full_name || "there"}\n- Niche: ${profile.target_niche || profile.business_niche || "not set"}\n- Experience: ${profile.experience_level || "unknown"}\n- Goal: ${profile.main_goal || "grow ecommerce business"}\n- Country: ${profile.country || "Australia"}\n- Monthly Revenue: ${profile.monthly_revenue || "not disclosed"}`
+    ? `\n\nUSER PROFILE:\n- Name: ${profile.display_name || profile.full_name || "there"}\n- Niche: ${profile.target_niche || profile.business_niche || "not set"}\n- Experience: ${profile.experience_level || "unknown"}\n- Goal: ${profile.main_goal || "grow ecommerce business"}\n- Country: ${profile.country || "Australia"}`
     : "";
 
   const personality = `\n\nBEHAVIOUR RULES:
@@ -79,13 +85,12 @@ function buildSystemPrompt(customPrompt: string | undefined, profile: Record<str
 - Never repeat advice you've already given. Reference past context naturally.
 - Be direct and specific. No fluff, no generic advice.
 - If you know their niche, always relate answers to it.
-- If they ask a question you've answered before, acknowledge it and go deeper.
-- Use Australian context (AUD, local platforms, AU shipping) by default unless told otherwise.
+- Use Australian context (AUD, local platforms, AU shipping) by default.
 - Occasionally reference things they've mentioned before to show you remember.
-- Format responses cleanly with bullet points and **bold headers** where useful.
-- Max 400 words per response unless they ask for something detailed.
+- Format responses with bullet points and **bold headers** where useful.
+- Max 400 words per response unless asked for something detailed.
 - When the user mentions a product idea or budget, reference it in future replies.
-- If the user seems frustrated, acknowledge it directly before giving advice.`;
+- If the user seems frustrated, acknowledge it directly.`;
 
   return base + profileCtx + personality;
 }
@@ -151,8 +156,8 @@ export function registerChatRoutes(app: Application) {
             userId = user.id;
             profile = await fetchUserProfile(userId);
 
-            // Load persistent history and prepend to current messages
-            const history = await loadHistory(userId, toolName);
+            // Load persistent history only for AI Chat (not structured tool pages)
+            const history = toolName === "ai-chat" ? await loadHistory(userId, toolName) : [];
             if (history.length > 0) {
               messages = [...history, ...messages];
               // Deduplicate consecutive same-role messages
@@ -186,7 +191,7 @@ export function registerChatRoutes(app: Application) {
       }
 
       // ── Build system prompt ─────────────────────────────────────────────
-      const system = buildSystemPrompt(systemPrompt, profile) + webContext;
+      const system = buildSystemPrompt(systemPrompt, profile, toolName) + webContext;
 
       // ── Claude call ─────────────────────────────────────────────────────
       const client = getAnthropicClient();
