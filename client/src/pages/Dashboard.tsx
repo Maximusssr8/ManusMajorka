@@ -159,7 +159,12 @@ function DashboardHome() {
   const productCount = productsQuery.data?.length ?? 0;
   const revenuePotential = productCount * 49;
 
-  const rawDisplayName = user?.name ?? session?.user?.user_metadata?.full_name ?? session?.user?.email?.split("@")[0] ?? null;
+  const rawDisplayName =
+    user?.name?.trim() ||
+    session?.user?.user_metadata?.full_name ||
+    session?.user?.user_metadata?.name ||
+    session?.user?.email?.split("@")[0] ||
+    null;
   const firstName = rawDisplayName ? (rawDisplayName as string).split(" ")[0] : "there";
 
   return (
