@@ -103,11 +103,11 @@ interface Props { children: React.ReactNode }
 
 export default function MajorkaAppShell({ children }: Props) {
   const [location, setLocation] = useLocation();
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading, session } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const productsQuery = trpc.products.list.useQuery(undefined, { enabled: !!user });
+  const productsQuery = trpc.products.list.useQuery(undefined, { enabled: isAuthenticated });
   const productCount = productsQuery.data?.length ?? 0;
 
   useEffect(() => {
@@ -251,7 +251,7 @@ export default function MajorkaAppShell({ children }: Props) {
         style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
         ref={userMenuRef}
       >
-        {loading || (isAuthenticated && !user) ? (
+        {loading ? (
           <div className="flex items-center gap-2.5 px-2.5 py-2">
             <div className="w-7 h-7 rounded-full flex-shrink-0 animate-pulse" style={{ background: "rgba(255,255,255,0.08)" }} />
             <div className="flex-1 space-y-1.5">
@@ -259,7 +259,7 @@ export default function MajorkaAppShell({ children }: Props) {
               <div className="h-2 rounded animate-pulse" style={{ background: "rgba(255,255,255,0.05)", width: "80%" }} />
             </div>
           </div>
-        ) : isAuthenticated && user != null ? (
+        ) : isAuthenticated ? (
           <div className="relative">
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
@@ -277,7 +277,7 @@ export default function MajorkaAppShell({ children }: Props) {
                 if (!userMenuOpen) (e.currentTarget as HTMLButtonElement).style.background = "transparent";
               }}
             >
-              {user.avatarUrl ? (
+              {user?.avatarUrl ? (
                 <img
                   src={user.avatarUrl}
                   alt={user.name ?? "User"}
@@ -288,16 +288,16 @@ export default function MajorkaAppShell({ children }: Props) {
                   className="w-7 h-7 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0"
                   style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", color: "#0a0a0a", fontFamily: "Syne, sans-serif" }}
                 >
-                  {(user.name ?? user.email ?? "M").charAt(0).toUpperCase()}
+                  {(user?.name ?? user?.email ?? session?.user?.email ?? "M").charAt(0).toUpperCase()}
                 </div>
               )}
               <div className="flex-1 text-left overflow-hidden">
                 <div className="text-xs font-bold truncate" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
-                  {user.name ?? "User"}
+                  {user?.name ?? session?.user?.user_metadata?.full_name ?? "User"}
                 </div>
-                {user.email && (
+                {(user?.email ?? session?.user?.email) && (
                   <div className="truncate" style={{ color: "#52525b", fontSize: 10, fontFamily: "DM Sans, sans-serif" }}>
-                    {user.email}
+                    {user?.email ?? session?.user?.email}
                   </div>
                 )}
               </div>

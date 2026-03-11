@@ -14,31 +14,44 @@ export async function createContext(
 ): Promise<TrpcContext> {
   let user: Profile | null = null;
 
-  try {
-    const authHeader = opts.req.headers.authorization;
-    if (authHeader?.startsWith("Bearer ")) {
-      const token = authHeader.slice(7);
+  const authHeader = opts.req.headers.authorization;
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice(7);
+    try {
       const { data: { user: supabaseUser }, error } = await getSupabaseAdmin().auth.getUser(token);
 
       if (!error && supabaseUser) {
-        // Ensure profile exists in our database
-        let profile = await getProfileById(supabaseUser.id);
-        if (!profile) {
-          await upsertProfile({
+        try {
+          // Ensure profile exists in our database
+          let profile = await getProfileById(supabaseUser.id);
+          if (!profile) {
+            await upsertProfile({
+              id: supabaseUser.id,
+              email: supabaseUser.email ?? null,
+              name: supabaseUser.user_metadata?.full_name ?? supabaseUser.user_metadata?.name ?? null,
+              avatarUrl: supabaseUser.user_metadata?.avatar_url ?? null,
+              lastSignedIn: new Date(),
+            });
+            profile = await getProfileById(supabaseUser.id);
+          }
+          user = profile ?? null;
+        } catch {
+          // DB unavailable — return a synthetic profile so the UI can show user info
+          user = {
             id: supabaseUser.id,
             email: supabaseUser.email ?? null,
             name: supabaseUser.user_metadata?.full_name ?? supabaseUser.user_metadata?.name ?? null,
             avatarUrl: supabaseUser.user_metadata?.avatar_url ?? null,
+            role: "user",
+            createdAt: new Date(),
+            updatedAt: new Date(),
             lastSignedIn: new Date(),
-          });
-          profile = await getProfileById(supabaseUser.id);
+          } as Profile;
         }
-        user = profile ?? null;
       }
+    } catch {
+      // Token verification failed — leave user as null
     }
-  } catch {
-    // Authentication is optional for public procedures.
-    user = null;
   }
 
   return {

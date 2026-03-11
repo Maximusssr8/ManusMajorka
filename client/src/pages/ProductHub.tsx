@@ -16,7 +16,7 @@ const stageColors: Record<string, string> = {
 };
 
 export default function ProductHub() {
-  const { user } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const [, navigate] = useLocation();
   const params = useParams<{ id: string }>();
   const productId = params.id || "";
@@ -30,7 +30,15 @@ export default function ProductHub() {
     onSuccess: () => { utils.savedOutputs.list.invalidate({ productId }); toast.success("Output deleted."); },
   });
 
-  if (!user) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full" style={{ background: "#080a0e" }}>
+        <Loader2 size={24} className="animate-spin" style={{ color: "#d4af37" }} />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center h-full" style={{ background: "#080a0e", color: "#f0ede8" }}>
         <div className="text-center">

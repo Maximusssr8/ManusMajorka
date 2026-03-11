@@ -36,7 +36,7 @@ interface ImportedProduct {
 }
 
 export default function MyProducts() {
-  const { user } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const [, navigate] = useLocation();
   const { activeProduct, setProduct } = useActiveProduct();
   const [sortByScore, setSortByScore] = useState(false);
@@ -133,7 +133,15 @@ export default function MyProducts() {
     setShowCreate(false);
   };
 
-  if (!user) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full" style={{ background: "#080a0e", color: "#f0ede8" }}>
+        <Loader2 className="animate-spin" size={24} style={{ color: "rgba(240,237,232,0.4)" }} />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center h-full" style={{ background: "#080a0e", color: "#f0ede8" }}>
         <div className="text-center">

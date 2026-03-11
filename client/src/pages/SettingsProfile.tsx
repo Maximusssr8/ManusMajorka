@@ -27,7 +27,7 @@ const INTEGRATION_LABELS: Record<keyof HealthStatus, string> = {
 };
 
 export default function SettingsProfile() {
-  const { user, loading } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
   const [form, setForm] = useState({
     businessName: "",
     targetNiche: "",
@@ -41,17 +41,17 @@ export default function SettingsProfile() {
   const [healthLoading, setHealthLoading] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
+    if (!isAuthenticated) return;
     setHealthLoading(true);
     fetch("/api/health")
       .then((res) => res.json())
       .then((data: HealthStatus) => setHealthStatus(data))
       .catch(() => setHealthStatus(null))
       .finally(() => setHealthLoading(false));
-  }, [user]);
+  }, [isAuthenticated]);
 
   // Load existing profile
-  const profileQuery = trpc.profile.get.useQuery(undefined, { enabled: !!user });
+  const profileQuery = trpc.profile.get.useQuery(undefined, { enabled: isAuthenticated });
   const updateMutation = trpc.profile.update.useMutation();
 
   useEffect(() => {

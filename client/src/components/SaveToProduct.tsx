@@ -37,14 +37,14 @@ export function SaveToProduct({
   outputData,
   className = "",
 }: SaveToProductProps) {
-  const { user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [open, setOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
   const [saved, setSaved] = useState(false);
 
   const productsQuery = trpc.products.list.useQuery(undefined, {
-    enabled: !!user && open,
+    enabled: isAuthenticated && open,
   });
 
   const saveMutation = trpc.savedOutputs.save.useMutation({
@@ -95,7 +95,7 @@ export function SaveToProduct({
     createProductMutation.mutate({ name: newName.trim() });
   };
 
-  if (!user) return null;
+  if (!isAuthenticated) return null;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

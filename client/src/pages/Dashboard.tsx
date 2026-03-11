@@ -130,9 +130,9 @@ export default function Dashboard() {
 // ── DashboardHome ────────────────────────────────────────────────────────────
 function DashboardHome() {
   const [, setLocation] = useLocation();
-  const { user } = useAuth();
+  const { user, session, isAuthenticated } = useAuth();
   const { activeProduct } = useActiveProduct();
-  const productsQuery = trpc.products.list.useQuery(undefined, { enabled: !!user });
+  const productsQuery = trpc.products.list.useQuery(undefined, { enabled: isAuthenticated });
 
   // KPI data from localStorage
   const [toolsToday, setToolsToday] = useState(0);
@@ -159,7 +159,8 @@ function DashboardHome() {
   const productCount = productsQuery.data?.length ?? 0;
   const revenuePotential = productCount * 49;
 
-  const firstName = user?.name ? (user.name as string).split(" ")[0] : null;
+  const displayName = user?.name ?? session?.user?.user_metadata?.full_name ?? session?.user?.email ?? null;
+  const firstName = displayName ? (displayName as string).split(" ")[0] : null;
 
   return (
     <div
