@@ -1,7 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
-import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
-import type { UIMessage } from "ai";
+import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { Search, Copy, Check, Loader2, TrendingUp, DollarSign, Package, Star, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 import { SaveToProduct } from "@/components/SaveToProduct";
@@ -197,34 +194,8 @@ export default function ProductDiscovery() {
         throw new Error(errData.error || `Server error: ${response.status}`);
       }
 
-      // Read the streaming response line by line
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("No response body");
-
-      const decoder = new TextDecoder();
-      let fullText = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        // Parse line-delimited format: 0:"text"\n
-        for (const line of chunk.split("\n")) {
-          if (line.startsWith("0:")) {
-            try {
-              const text = JSON.parse(line.slice(2));
-              fullText += text;
-            } catch { /* skip malformed lines */ }
-          } else if (line.startsWith("e:")) {
-            try {
-              const err = JSON.parse(line.slice(2));
-              throw new Error(err.error || "Stream error");
-            } catch (e: any) {
-              if (e.message !== "Stream error") throw e;
-            }
-          }
-        }
-      }
+      const resData = await response.json();
+      const fullText = resData.reply ?? "";
 
       if (!fullText.trim()) {
         setGenError("No response received. Please try again.");

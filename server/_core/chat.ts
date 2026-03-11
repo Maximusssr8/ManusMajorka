@@ -1,32 +1,123 @@
 /**
  * Chat API Handler
  *
- * Express endpoint for Anthropic Claude streaming chat.
- * Uses simple line-delimited JSON format: 0:"text"\n for text, d:{} for done, e:{} for error.
- * Includes user profile context and conversation memory for personalised responses.
+ * Express endpoint for AI chat with persistent memory via chat_messages table.
+ * Returns plain JSON { reply } — streaming not used (Vercel serverless limitation).
  */
 
 import type { Application } from "express";
-import { getAnthropicClient, CLAUDE_MODEL, BASE_SYSTEM_PROMPT } from "../lib/anthropic";
+import { getAnthropicClient, CLAUDE_MODEL } from "../lib/anthropic";
 import { getSupabaseAdmin } from "./supabase";
-import { getUserContextString, getConversationHistory, saveConversationMessage } from "../db";
-import { tavilySearch } from "../tavily";
 
-/**
- * Registers the /api/chat endpoint for streaming AI responses via Anthropic Claude.
- */
+const MAX_HISTORY = 20;
+
+/** Load last N messages for this user+tool from chat_messages */
+async function loadHistory(userId: string, toolName: string): Promise<Array<{ role: "user" | "assistant"; content: string }>> {
+  try {
+    const sb = getSupabaseAdmin();
+    const { data } = await sb
+      .from("chat_messages")
+      .select("role, content")
+      .eq("user_id", userId)
+      .eq("tool_name", toolName)
+      .order("created_at", { ascending: false })
+      .limit(MAX_HISTORY);
+    if (!data || data.length === 0) return [];
+    return (data as Array<{ role: string; content: string }>)
+      .reverse()
+      .map(m => ({ role: m.role as "user" | "assistant", content: m.content }));
+  } catch {
+    return [];
+  }
+}
+
+/** Save a single message to chat_messages */
+async function saveMessage(userId: string, toolName: string, role: "user" | "assistant", content: string): Promise<void> {
+  try {
+    const sb = getSupabaseAdmin();
+    await sb.from("chat_messages").insert({ user_id: userId, tool_name: toolName, role, content });
+    // Trim to MAX_HISTORY — delete oldest beyond limit
+    const { data: all } = await sb
+      .from("chat_messages")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("tool_name", toolName)
+      .order("created_at", { ascending: false });
+    if (all && all.length > MAX_HISTORY) {
+      const toDelete = all.slice(MAX_HISTORY).map((r: { id: string }) => r.id);
+      await sb.from("chat_messages").delete().in("id", toDelete);
+    }
+  } catch { /* non-fatal */ }
+}
+
+/** Fetch user profile from profiles or userProfiles table */
+async function fetchUserProfile(userId: string) {
+  try {
+    const sb = getSupabaseAdmin();
+    const { data } = await sb
+      .from("user_profiles")
+      .select("*")
+      .eq("user_id", userId)
+      .limit(1)
+      .maybeSingle();
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+/** Build personalised system prompt */
+function buildSystemPrompt(customPrompt: string | undefined, profile: Record<string, string> | null): string {
+  const base = customPrompt || `You are Majorka AI — a sharp, direct ecommerce co-founder.`;
+
+  const profileCtx = profile
+    ? `\n\nUSER PROFILE:\n- Name: ${profile.display_name || profile.full_name || "there"}\n- Niche: ${profile.target_niche || profile.business_niche || "not set"}\n- Experience: ${profile.experience_level || "unknown"}\n- Goal: ${profile.main_goal || "grow ecommerce business"}\n- Country: ${profile.country || "Australia"}\n- Monthly Revenue: ${profile.monthly_revenue || "not disclosed"}`
+    : "";
+
+  const personality = `\n\nBEHAVIOUR RULES:
+- You remember everything this user has told you and build on it over time.
+- Never repeat advice you've already given. Reference past context naturally.
+- Be direct and specific. No fluff, no generic advice.
+- If you know their niche, always relate answers to it.
+- If they ask a question you've answered before, acknowledge it and go deeper.
+- Use Australian context (AUD, local platforms, AU shipping) by default unless told otherwise.
+- Occasionally reference things they've mentioned before to show you remember.
+- Format responses cleanly with bullet points and **bold headers** where useful.
+- Max 400 words per response unless they ask for something detailed.
+- When the user mentions a product idea or budget, reference it in future replies.
+- If the user seems frustrated, acknowledge it directly before giving advice.`;
+
+  return base + profileCtx + personality;
+}
+
 export function registerChatRoutes(app: Application) {
+  // ── Clear chat history ──────────────────────────────────────────────────
+  app.delete("/api/chat/history", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace(/^Bearer\s+/i, "");
+      const toolName = (req.query.tool as string) || "ai-chat";
+      if (!token) { res.status(401).json({ error: "Unauthorized" }); return; }
+      const { data: { user } } = await getSupabaseAdmin().auth.getUser(token);
+      if (!user) { res.status(401).json({ error: "Unauthorized" }); return; }
+      await getSupabaseAdmin().from("chat_messages").delete().eq("user_id", user.id).eq("tool_name", toolName);
+      res.json({ ok: true });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // ── Main chat endpoint ──────────────────────────────────────────────────
   app.post("/api/chat", async (req, res) => {
     try {
-      const { messages: rawMessages, message, systemPrompt, toolName, searchQuery } = req.body;
+      const { messages: rawMessages, message, systemPrompt, toolName = "ai-chat", searchQuery } = req.body;
 
-      // Accept both formats: messages array or singular message (legacy)
+      // Accept both formats: messages array or singular message
       let messages = rawMessages;
       if (!messages && message) {
         const text = Array.isArray(message.parts)
-          ? message.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('')
-          : (typeof message.content === 'string' ? message.content : '');
-        messages = [{ role: message.role || 'user', content: text }];
+          ? message.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join("")
+          : (typeof message.content === "string" ? message.content : "");
+        messages = [{ role: message.role || "user", content: text }];
       }
 
       if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -34,139 +125,95 @@ export function registerChatRoutes(app: Application) {
         return;
       }
 
-      // Normalise messages: convert parts-based UIMessage to plain {role, content}
-      messages = messages.map((m: any) => ({
-        role: m.role === "user" ? "user" as const : "assistant" as const,
-        content: Array.isArray(m.parts)
-          ? m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('')
-          : (typeof m.content === 'string' ? m.content : JSON.stringify(m.content)),
-      }));
+      // Normalise messages
+      messages = messages
+        .map((m: any) => ({
+          role: m.role === "user" ? "user" as const : "assistant" as const,
+          content: Array.isArray(m.parts)
+            ? m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join("")
+            : (typeof m.content === "string" ? m.content : JSON.stringify(m.content)),
+        }))
+        .filter((m: any) => m.role === "user" || m.role === "assistant");
 
-      // Filter out system messages and ensure alternating user/assistant
-      messages = messages.filter((m: any) => m.role === "user" || m.role === "assistant");
+      if (messages.length > 0 && messages[0].role !== "user") messages = messages.slice(1);
+      if (messages.length === 0) { res.status(400).json({ error: "At least one user message is required" }); return; }
 
-      // Ensure messages start with a user message
-      if (messages.length > 0 && messages[0].role !== "user") {
-        messages = messages.slice(1);
-      }
-
-      if (messages.length === 0) {
-        res.status(400).json({ error: "At least one user message is required" });
-        return;
-      }
-
-      // Try to get authenticated user for profile context and memory
-      let userContext = "";
+      // ── Auth + memory ───────────────────────────────────────────────────
       let userId: string | null = null;
-      let userName: string | null = null;
-      try {
-        const authHeader = req.headers.authorization;
-        if (authHeader?.startsWith("Bearer ")) {
-          const token = authHeader.slice(7);
-          const { data: { user: supabaseUser }, error } = await getSupabaseAdmin().auth.getUser(token);
-          if (!error && supabaseUser) {
-            userId = supabaseUser.id;
-            userName = supabaseUser.user_metadata?.full_name ?? supabaseUser.user_metadata?.name ?? null;
-            userContext = await getUserContextString(supabaseUser.id, userName);
-          }
-        }
-      } catch {
-        // Not authenticated — proceed without user context
-      }
+      let profile: Record<string, string> | null = null;
 
-      // Load conversation memory if user is authenticated and toolName is provided
-      if (userId && toolName) {
+      const authHeader = req.headers.authorization;
+      if (authHeader?.startsWith("Bearer ")) {
         try {
-          const history = await getConversationHistory(userId, toolName, 10);
-          if (history.length > 0) {
-            const memoryMessages = history.map(m => ({
-              role: m.role as "user" | "assistant",
-              content: m.content,
-            }));
-            // Prepend memory to current messages
-            messages = [...memoryMessages, ...messages];
+          const token = authHeader.slice(7);
+          const { data: { user }, error } = await getSupabaseAdmin().auth.getUser(token);
+          if (!error && user) {
+            userId = user.id;
+            profile = await fetchUserProfile(userId);
+
+            // Load persistent history and prepend to current messages
+            const history = await loadHistory(userId, toolName);
+            if (history.length > 0) {
+              messages = [...history, ...messages];
+              // Deduplicate consecutive same-role messages
+              const cleaned: typeof messages = [];
+              for (const m of messages) {
+                if (cleaned.length === 0) { if (m.role === "user") cleaned.push(m); continue; }
+                if (m.role !== cleaned[cleaned.length - 1]!.role) cleaned.push(m);
+              }
+              messages = cleaned.length > 0 ? cleaned : messages;
+            }
           }
-        } catch {
-          // Memory unavailable — continue without
-        }
+        } catch { /* not authenticated */ }
       }
 
-      // Ensure messages alternate properly after memory merge
-      const cleaned: typeof messages = [];
-      for (const m of messages) {
-        if (cleaned.length === 0) {
-          if (m.role === "user") cleaned.push(m);
-          continue;
-        }
-        if (m.role !== cleaned[cleaned.length - 1]!.role) {
-          cleaned.push(m);
-        }
-      }
-      messages = cleaned.length > 0 ? cleaned : messages;
-
-      // Run Tavily web search if searchQuery is provided (for research tools)
-      let webResearchContext = "";
+      // ── Web search context ──────────────────────────────────────────────
+      let webContext = "";
       if (searchQuery && typeof searchQuery === "string" && searchQuery.trim()) {
         try {
-          const searchData = await tavilySearch(searchQuery, { maxResults: 5, searchDepth: "advanced" });
-          if (searchData.results.length > 0) {
-            webResearchContext = searchData.results
-              .map((r, i) => `[${i + 1}] ${r.title}\nSource: ${r.url}\n${r.content}`)
-              .join("\n\n");
+          const tavilyKey = process.env.TAVILY_API_KEY;
+          if (tavilyKey) {
+            const sr = await fetch("https://api.tavily.com/search", {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ api_key: tavilyKey, query: searchQuery, search_depth: "basic", max_results: 4 }),
+            }).then(r => r.json()).catch(() => null);
+            if (sr?.results?.length > 0) {
+              webContext = `\n\nLIVE WEB DATA:\n${sr.results.map((r: any, i: number) => `[${i+1}] ${r.title}: ${r.content}`).join("\n")}`;
+            }
           }
-        } catch (err) {
-          console.warn("[/api/chat] Tavily search failed:", err);
-        }
+        } catch { /* non-fatal */ }
       }
 
-      // Build the system prompt with user context and web research
-      let system = systemPrompt
-        ? `${BASE_SYSTEM_PROMPT}\n\n${systemPrompt}`
-        : BASE_SYSTEM_PROMPT;
+      // ── Build system prompt ─────────────────────────────────────────────
+      const system = buildSystemPrompt(systemPrompt, profile) + webContext;
 
-      if (webResearchContext) {
-        system = `${system}\n\n--- LIVE WEB RESEARCH DATA ---\nThe following is real-time data from the web. Use this to ground your response in current facts, statistics, and trends. Cite sources when relevant.\n\n${webResearchContext}\n--- END WEB RESEARCH DATA ---`;
-      }
-
-      if (userContext) {
-        system = `${system}\n\n${userContext}`;
-      }
-
+      // ── Claude call ─────────────────────────────────────────────────────
       const client = getAnthropicClient();
-
-      // Use non-streaming create() — Vercel serverless doesn't support SSE flushing
       const aiResponse = await client.messages.create({
         model: CLAUDE_MODEL,
-        max_tokens: 2048,
+        max_tokens: 1500,
         system,
         messages,
       });
 
       const reply = aiResponse.content[0]?.type === "text" ? aiResponse.content[0].text : "";
 
-      // Save conversation to memory (fire-and-forget)
-      if (userId && toolName && reply) {
-        const lastUserMsg = messages.filter((m: any) => m.role === "user").pop();
+      // ── Save to memory (fire-and-forget) ────────────────────────────────
+      if (userId && reply) {
+        const lastUserMsg = [...messages].reverse().find((m: any) => m.role === "user");
         if (lastUserMsg) {
-          saveConversationMessage({ userId, toolName, role: "user", content: lastUserMsg.content }).catch(() => {});
-          saveConversationMessage({ userId, toolName, role: "assistant", content: reply }).catch(() => {});
+          saveMessage(userId, toolName, "user", lastUserMsg.content).catch(() => {});
+          saveMessage(userId, toolName, "assistant", reply).catch(() => {});
         }
       }
 
       res.json({ reply });
 
     } catch (error: any) {
-      if (error?.name === "APIUserAbortError" || error?.message?.includes("aborted")) {
-        return;
-      }
       console.error("[/api/chat] Error:", error);
       if (!res.headersSent) {
         res.status(500).json({ error: error.message || "Internal server error" });
-      } else {
-        try {
-          res.write(`e:${JSON.stringify({ error: "Internal server error" })}\n`);
-          res.end();
-        } catch { /* ignore */ }
       }
     }
   });

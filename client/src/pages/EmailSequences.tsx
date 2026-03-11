@@ -1,7 +1,4 @@
 import { useState, useCallback, useEffect } from "react";
-import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
-import type { UIMessage } from "ai";
 import { toast } from "sonner";
 import { Mail, Copy, Check, Loader2, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
 import { SaveToProduct } from "@/components/SaveToProduct";
@@ -107,7 +104,6 @@ export default function EmailSequences() {
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState<SequenceResult | null>(null);
   const [genError, setGenError] = useState("");
-  const [waitingForResponse, setWaitingForResponse] = useState(false);
   const { activeProduct } = useActiveProduct();
 
   useEffect(() => {
@@ -117,47 +113,9 @@ export default function EmailSequences() {
     }
   }, [activeProduct]);
 
-  const getSystemPrompt = () => {
-    return injectProductIntelligence(SYSTEM_PROMPT, activeProduct as any);
-  };
+  const getSystemPrompt = () => injectProductIntelligence(SYSTEM_PROMPT, activeProduct as any);
 
-  const { sendMessage, status, messages } = useChat({
-    transport: new DefaultChatTransport({
-      api: "/api/chat",
-      prepareSendMessagesRequest({ messages }) {
-        return {
-          body: {
-            messages: messages.map((m: UIMessage) => ({
-              role: m.role,
-              content: m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join(""),
-            })),
-            systemPrompt: getSystemPrompt(),
-          },
-        };
-      },
-    }),
-  });
-
-  useEffect(() => {
-    if (status === "streaming" || status === "submitted") setWaitingForResponse(true);
-  }, [status]);
-
-  useEffect(() => {
-    if (status !== "ready" || !generating || !waitingForResponse) return;
-    const lastMsg = messages[messages.length - 1];
-    if (lastMsg?.role === "assistant") {
-      const text = lastMsg.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join("");
-      const parsed = parseResult(text);
-      if (parsed) setResult(parsed);
-      else setGenError("Could not parse results. Please try again.");
-    } else {
-      setGenError("No response received. Please try again.");
-    }
-    setGenerating(false);
-    setWaitingForResponse(false);
-  }, [status, generating, waitingForResponse, messages]);
-
-  const handleGenerate = useCallback(() => {
+  const handleGenerate = useCallback(async () => {
     if (!product.trim()) { toast.error("Please enter a product"); return; }
     setGenerating(true); setGenError(""); setResult(null);
     const prompt = [
@@ -165,11 +123,29 @@ export default function EmailSequences() {
       `Sequence type: ${sequenceType}`,
       brandVoice && `Brand voice: ${brandVoice}`,
     ].filter(Boolean).join("\n");
-    sendMessage({ text: prompt });
-    setWaitingForResponse(true);
-  }, [product, sequenceType, brandVoice, sendMessage]);
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: prompt }],
+          systemPrompt: getSystemPrompt(),
+        }),
+      });
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+      const data = await response.json();
+      const text = data.reply ?? "";
+      const parsed = parseResult(text);
+      if (parsed) setResult(parsed);
+      else setGenError("Could not parse results. Please try again.");
+    } catch (err: any) {
+      setGenError(err.message || "Failed to generate. Please try again.");
+    } finally {
+      setGenerating(false);
+    }
+  }, [product, sequenceType, brandVoice, activeProduct]);
 
-  const isLoading = generating || status === "streaming" || status === "submitted";
+  const isLoading = generating;
 
   return (
     <div className="h-full flex flex-col" style={{ background: "#080a0e", color: "#f0ede8", fontFamily: "DM Sans, sans-serif" }}>

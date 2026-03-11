@@ -1,7 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
-import type { UIMessage } from "ai";
+import React, { useState } from "react";
 import { Copy, Check, Sparkles, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { SaveToProduct } from "@/components/SaveToProduct";
@@ -169,46 +166,6 @@ export default function BrandDNA() {
     return SYSTEM_PROMPT + `\n\nACTIVE PRODUCT CONTEXT:\n- Product: ${activeProduct.name}${activeProduct.niche ? '\n- Niche: ' + activeProduct.niche : ''}${activeProduct.summary ? '\n- Summary: ' + activeProduct.summary : ''}\n\nAll advice and output must be specifically tailored to this product. Reference it by name.`;
   };
 
-  const { sendMessage, status, messages } = useChat({
-    transport: new DefaultChatTransport({
-      api: "/api/chat",
-      prepareSendMessagesRequest({ messages }) {
-        return {
-          body: {
-            messages: messages.map((m: UIMessage) => ({
-              role: m.role,
-              content: m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join(""),
-            })),
-            systemPrompt: getContextualSystemPrompt(),
-          },
-        };
-      },
-    }),
-  });
-
-  // Parse result when generation completes
-  useEffect(() => {
-    if (status === "ready" && isGenerating) {
-      const lastMsg = messages[messages.length - 1];
-      if (lastMsg?.role === "assistant") {
-        const text = lastMsg.parts
-          .filter((p: any) => p.type === "text")
-          .map((p: any) => p.text)
-          .join("");
-        try {
-          let content = text.trim();
-          content = content.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/, "");
-          const parsed = JSON.parse(content) as BrandDNAResult;
-          setResult(parsed);
-          setIsGenerating(false);
-        } catch {
-          toast.error("Failed to parse brand analysis. Please try again.");
-          setIsGenerating(false);
-        }
-      }
-    }
-  }, [status, isGenerating, messages]);
-
   const handleGenerate = async () => {
     if (!brandName.trim() || !productType.trim()) {
       toast.error("Please enter a brand name and product type.");
@@ -227,7 +184,26 @@ Competitors / Inspiration: ${competitors || "Not specified"}
 
 Generate a comprehensive brand identity document as JSON.`;
 
-    sendMessage({ text: prompt });
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: prompt }],
+          systemPrompt: getContextualSystemPrompt(),
+        }),
+      });
+      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+      const data = await response.json();
+      const text = (data.reply ?? "").trim()
+        .replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/, "");
+      const parsed = JSON.parse(text) as BrandDNAResult;
+      setResult(parsed);
+    } catch (e: any) {
+      toast.error(e.message?.includes("JSON") ? "Failed to parse brand analysis. Please try again." : (e.message || "Failed to generate."));
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleReset = () => {

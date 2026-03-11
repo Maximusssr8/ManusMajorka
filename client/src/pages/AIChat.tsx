@@ -3,6 +3,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Markdown } from "@/components/Markdown";
 import { Send, Loader2, Sparkles, Trash2, Package } from "lucide-react";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const BASE_SYSTEM_PROMPT = `You are an elite ecommerce advisor with 15 years experience scaling 7-figure Shopify stores. You give specific, actionable advice tailored to the user's exact situation. Never give generic answers.
 
@@ -23,6 +25,7 @@ export default function AIChat() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const { activeProduct } = useActiveProduct();
+  const { session } = useAuth();
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -63,12 +66,15 @@ export default function AIChat() {
     setStatus("streaming");
 
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (session?.access_token) headers["Authorization"] = `Bearer ${session.access_token}`;
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
           systemPrompt: buildSystemPrompt(),
+          toolName: "ai-chat",
         }),
       });
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
@@ -89,7 +95,20 @@ export default function AIChat() {
     } finally {
       setStatus("idle");
     }
-  }, [input, messages, status, buildSystemPrompt]);
+  }, [input, messages, status, buildSystemPrompt, session]);
+
+  const handleClearHistory = useCallback(async () => {
+    setMessages([]);
+    if (session?.access_token) {
+      try {
+        await fetch("/api/chat/history?tool=ai-chat", {
+          method: "DELETE",
+          headers: { "Authorization": `Bearer ${session.access_token}` },
+        });
+        toast.success("Chat history cleared");
+      } catch { /* non-fatal */ }
+    }
+  }, [session]);
 
   return (
     <div className="flex flex-col h-full" style={{ background: "#080a0e" }}>
@@ -129,7 +148,7 @@ export default function AIChat() {
           {/* Clear chat */}
           {messages.length > 0 && (
             <button
-              onClick={() => setMessages([])}
+              onClick={handleClearHistory}
               className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all"
               style={{ color: "rgba(240,237,232,0.35)", background: "transparent", border: "none", cursor: "pointer" }}
               onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
