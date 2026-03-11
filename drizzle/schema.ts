@@ -126,3 +126,62 @@ export const taskPlanProgress = pgTable("task_plan_progress", {
 
 export type TaskPlanProgress = typeof taskPlanProgress.$inferSelect;
 export type InsertTaskPlanProgress = typeof taskPlanProgress.$inferInsert;
+
+/**
+ * Stores — each user can have one storefront.
+ */
+export const stores = pgTable("stores", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  storeName: varchar("store_name", { length: 255 }).notNull(),
+  storeSlug: varchar("store_slug", { length: 128 }).unique().notNull(),
+  stripeAccountId: text("stripe_account_id"),
+  metaAdAccountId: text("meta_ad_account_id"),
+  metaPixelId: text("meta_pixel_id"),
+  brandColorPrimary: varchar("brand_color_primary", { length: 16 }).default("#000000"),
+  brandColorSecondary: varchar("brand_color_secondary", { length: 16 }).default("#ffffff"),
+  logoUrl: text("logo_url"),
+  active: boolean("active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Store = typeof stores.$inferSelect;
+export type InsertStore = typeof stores.$inferInsert;
+
+/**
+ * Storefront products — products published to a storefront.
+ */
+export const storefrontProducts = pgTable("storefront_products", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  storeId: uuid("store_id").notNull().references(() => stores.id, { onDelete: "cascade" }),
+  productId: uuid("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
+  price: text("price"),
+  comparePrice: text("compare_price"),
+  published: boolean("published").default(false),
+  seoTitle: text("seo_title"),
+  seoDescription: text("seo_description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type StorefrontProduct = typeof storefrontProducts.$inferSelect;
+export type InsertStorefrontProduct = typeof storefrontProducts.$inferInsert;
+
+/**
+ * Orders — customer purchases through the storefront.
+ */
+export const orders = pgTable("orders", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  storeId: uuid("store_id").references(() => stores.id),
+  storefrontProductId: uuid("storefront_product_id").references(() => storefrontProducts.id),
+  customerEmail: varchar("customer_email", { length: 320 }).notNull(),
+  customerName: text("customer_name").notNull(),
+  customerAddress: text("customer_address"),
+  stripePaymentIntent: text("stripe_payment_intent"),
+  amount: text("amount"),
+  status: varchar("status", { length: 32 }).default("pending"),
+  fulfillmentStatus: varchar("fulfillment_status", { length: 32 }).default("unfulfilled"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Order = typeof orders.$inferSelect;
+export type InsertOrder = typeof orders.$inferInsert;

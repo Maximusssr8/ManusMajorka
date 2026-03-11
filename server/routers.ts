@@ -20,6 +20,14 @@ import {
   saveConversationMessage,
   getTaskPlanProgress,
   upsertTaskPlanStep,
+  getStoreByUserId,
+  getStoreBySlug,
+  createStore,
+  updateStore,
+  getStorefrontProducts,
+  upsertStorefrontProduct,
+  getOrdersByStoreId,
+  updateOrderFulfillment,
 } from "./db";
 import { tavilySearch, tavilyExtract, tavilyImageSearch } from "./tavily";
 
@@ -256,6 +264,78 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const images = await tavilyImageSearch(input.query, input.maxImages);
         return { images };
+      }),
+  }),
+  /** Storefront management */
+  storefront: router({
+    getMyStore: protectedProcedure.query(async ({ ctx }) => {
+      return await getStoreByUserId(ctx.user.id);
+    }),
+
+    getStoreBySlug: publicProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ input }) => {
+        return await getStoreBySlug(input.slug);
+      }),
+
+    createStore: protectedProcedure
+      .input(z.object({
+        storeName: z.string().min(1).max(255),
+        storeSlug: z.string().min(1).max(128).regex(/^[a-z0-9-]+$/),
+        metaAdAccountId: z.string().optional(),
+        metaPixelId: z.string().optional(),
+        brandColorPrimary: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await createStore({ ...input, userId: ctx.user.id });
+      }),
+
+    updateStore: protectedProcedure
+      .input(z.object({
+        storeName: z.string().optional(),
+        storeSlug: z.string().optional(),
+        metaAdAccountId: z.string().optional(),
+        metaPixelId: z.string().optional(),
+        brandColorPrimary: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const store = await getStoreByUserId(ctx.user.id);
+        if (!store) throw new Error("Store not found");
+        return await updateStore(store.id, input);
+      }),
+
+    getStorefrontProducts: protectedProcedure.query(async ({ ctx }) => {
+      const store = await getStoreByUserId(ctx.user.id);
+      if (!store) return [];
+      return await getStorefrontProducts(store.id);
+    }),
+
+    upsertStorefrontProduct: protectedProcedure
+      .input(z.object({
+        productId: z.string().uuid(),
+        price: z.string().optional(),
+        comparePrice: z.string().optional(),
+        published: z.boolean().optional(),
+        seoTitle: z.string().optional(),
+        seoDescription: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        let store = await getStoreByUserId(ctx.user.id);
+        if (!store) throw new Error("Create a store first");
+        const { productId, ...data } = input;
+        return await upsertStorefrontProduct(store.id, productId, data);
+      }),
+
+    getOrders: protectedProcedure.query(async ({ ctx }) => {
+      const store = await getStoreByUserId(ctx.user.id);
+      if (!store) return [];
+      return await getOrdersByStoreId(store.id);
+    }),
+
+    markFulfilled: protectedProcedure
+      .input(z.object({ orderId: z.string().uuid() }))
+      .mutation(async ({ ctx, input }) => {
+        return await updateOrderFulfillment(input.orderId, "fulfilled");
       }),
   }),
 });

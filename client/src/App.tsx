@@ -16,6 +16,7 @@ const SignIn = lazy(() => import("./pages/SignIn"));
 const SettingsProfile = lazy(() => import("./pages/SettingsProfile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Pricing = lazy(() => import("./pages/Pricing"));
+const Storefront = lazy(() => import("./pages/Storefront"));
 
 function LoadingFallback() {
   return (
@@ -62,8 +63,10 @@ function Router() {
         <Route path="/sign-in" component={SignIn} />
         <Route path="/account" component={Account} />
         <Route path="/app/settings/profile" component={SettingsProfile} />
+        <Route path="/store/:slug" component={Storefront} />
         <Route path="/app">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
         <Route path="/app/settings">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+        <Route path="/app/store/:subpage">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
         <Route path="/app/:tool">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
         <Route path="/app/product-hub/:id">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
         <Route path="/404" component={NotFound} />

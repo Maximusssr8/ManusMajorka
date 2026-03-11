@@ -290,3 +290,87 @@ export async function upsertTaskPlanStep(userId: string, stepKey: string, status
     .limit(1);
   return result[0] ?? null;
 }
+
+// ─── Storefront helpers ──────────────────────────────────────────────────────
+
+import type { InsertStore, InsertStorefrontProduct, InsertOrder } from "../drizzle/schema";
+import { stores, storefrontProducts, orders } from "../drizzle/schema";
+
+export async function getStoreByUserId(userId: string) {
+  const db = getDb();
+  if (!db) return null;
+  const result = await db.select().from(stores).where(eq(stores.userId, userId)).limit(1);
+  return result[0] ?? null;
+}
+
+export async function getStoreBySlug(slug: string) {
+  const db = getDb();
+  if (!db) return null;
+  const result = await db.select().from(stores).where(eq(stores.storeSlug, slug)).limit(1);
+  return result[0] ?? null;
+}
+
+export async function createStore(store: InsertStore) {
+  const db = getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(stores).values(store).returning();
+  return result[0];
+}
+
+export async function updateStore(id: string, data: Partial<InsertStore>) {
+  const db = getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.update(stores).set(data).where(eq(stores.id, id)).returning();
+  return result[0];
+}
+
+export async function getStorefrontProducts(storeId: string) {
+  const db = getDb();
+  if (!db) return [];
+  return await db.select().from(storefrontProducts)
+    .where(eq(storefrontProducts.storeId, storeId))
+    .orderBy(desc(storefrontProducts.createdAt));
+}
+
+export async function getPublishedStorefrontProducts(storeId: string) {
+  const db = getDb();
+  if (!db) return [];
+  return await db.select().from(storefrontProducts)
+    .where(and(eq(storefrontProducts.storeId, storeId), eq(storefrontProducts.published, true)))
+    .orderBy(desc(storefrontProducts.createdAt));
+}
+
+export async function upsertStorefrontProduct(storeId: string, productId: string, data: { price?: string; comparePrice?: string; published?: boolean; seoTitle?: string; seoDescription?: string }) {
+  const db = getDb();
+  if (!db) throw new Error("Database not available");
+  const existing = await db.select().from(storefrontProducts)
+    .where(and(eq(storefrontProducts.storeId, storeId), eq(storefrontProducts.productId, productId)))
+    .limit(1);
+  if (existing.length > 0) {
+    const result = await db.update(storefrontProducts).set(data).where(eq(storefrontProducts.id, existing[0].id)).returning();
+    return result[0];
+  } else {
+    const result = await db.insert(storefrontProducts).values({ storeId, productId, ...data }).returning();
+    return result[0];
+  }
+}
+
+export async function getOrdersByStoreId(storeId: string) {
+  const db = getDb();
+  if (!db) return [];
+  return await db.select().from(orders).where(eq(orders.storeId, storeId)).orderBy(desc(orders.createdAt));
+}
+
+export async function createOrder(order: InsertOrder) {
+  const db = getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(orders).values(order).returning();
+  return result[0];
+}
+
+export async function updateOrderFulfillment(id: string, fulfillmentStatus: string) {
+  const db = getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.update(orders).set({ fulfillmentStatus }).where(eq(orders.id, id)).returning();
+  return result[0];
+}

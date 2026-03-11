@@ -6,17 +6,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
 
 await build({
-  entryPoints: [resolve(root, "api/index.ts")],
+  entryPoints: [resolve(root, "api/_server.ts")],
   bundle: true,
   platform: "node",
   target: "node20",
-  format: "esm",
+  format: "cjs",
   outfile: resolve(root, "api/index.serverless.js"),
   logLevel: "warning",
-  // Provide require() shim so bundled CJS packages work in ESM context
-  banner: {
-    js: `import { createRequire } from 'module'; const require = createRequire(import.meta.url);`,
-  },
 });
 
 console.log("API bundle built successfully.");

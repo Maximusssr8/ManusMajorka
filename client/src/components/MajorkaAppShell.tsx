@@ -15,6 +15,7 @@ import {
   Rocket, Package, Home,
   Target, BarChart2, Megaphone, Video, LineChart, PieChart,
   FolderKanban, Brain, PenTool, Mail, Eye, Sparkles, Truck,
+  Store, ShoppingBag, ClipboardList,
 } from "lucide-react";
 
 // ── Navigation structure ──────────────────────────────────────────────────────
@@ -43,7 +44,7 @@ const NAV_SECTIONS: NavSection[] = [
     label: "RESEARCH",
     items: [
       { label: "Product Discovery", path: "/app/product-discovery", icon: Search },
-      { label: "Validate", path: "/app/validation-plan", icon: CheckCircle2 },
+      { label: "Validate", path: "/app/validate", icon: CheckCircle2 },
       { label: "Competitor Breakdown", path: "/app/competitor-breakdown", icon: Target },
       { label: "Ad Spy", path: "/app/ad-spy", icon: Eye },
     ],
@@ -80,6 +81,14 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "My Products", path: "/app/my-products", icon: Package },
       { label: "Project Manager", path: "/app/project-manager", icon: FolderKanban },
       { label: "Supplier Finder", path: "/app/supplier-finder", icon: Truck },
+    ],
+  },
+  {
+    label: "MY STORE",
+    items: [
+      { label: "Store Setup", path: "/app/store/setup", icon: Store },
+      { label: "Storefront", path: "/app/store/products", icon: ShoppingBag },
+      { label: "Orders", path: "/app/store/orders", icon: ClipboardList },
     ],
   },
 ];
@@ -126,7 +135,7 @@ export default function MajorkaAppShell({ children }: Props) {
     if (path === "/app/my-products") {
       return location.startsWith("/app/my-products") || location.startsWith("/app/product-hub");
     }
-    return exact ? location === path : location.startsWith(path);
+    return exact ? location === path : location === path || location.startsWith(path + "/");
   };
 
   const handleNavClick = (path: string) => {
