@@ -133,6 +133,7 @@ function DashboardHome() {
   const { user, session, isAuthenticated } = useAuth();
   const { activeProduct } = useActiveProduct();
   const productsQuery = trpc.products.list.useQuery(undefined, { enabled: isAuthenticated });
+  const ordersQuery = trpc.storefront.getOrders.useQuery(undefined, { enabled: isAuthenticated });
 
   // KPI data from localStorage
   const [toolsToday, setToolsToday] = useState(0);
@@ -157,7 +158,10 @@ function DashboardHome() {
   }, []);
 
   const productCount = productsQuery.data?.length ?? 0;
-  const revenuePotential = productCount * 49;
+  const orders = ordersQuery.data ?? [];
+  const orderCount = orders.length;
+  const totalRevenue = orders.reduce((sum, o) => sum + parseFloat((o as any).amount ?? "0"), 0);
+  const revenuePotential = totalRevenue > 0 ? totalRevenue : productCount * 49;
 
   const rawDisplayName =
     user?.name?.trim() ||
@@ -257,15 +261,17 @@ function DashboardHome() {
           >
             <div className="flex items-center gap-1.5 mb-3">
               <BarChart2 size={12} style={{ color: "#a1a1aa" }} />
-              <span className="text-xs" style={{ color: "#a1a1aa" }}>Est. Revenue Pot.</span>
+              <span className="text-xs" style={{ color: "#a1a1aa" }}>{orderCount > 0 ? "Total Revenue" : "Est. Revenue Pot."}</span>
             </div>
             <div
               className="text-2xl font-bold mb-1"
               style={{ fontFamily: "'DM Mono', 'JetBrains Mono', monospace", color: "#f5f5f5" }}
             >
-              {formatCurrency(revenuePotential)}
+              {ordersQuery.isLoading ? "—" : formatCurrency(revenuePotential)}
             </div>
-            <div className="text-xs" style={{ color: "#52525b" }}>×$49/product</div>
+            <div className="text-xs" style={{ color: orderCount > 0 ? "#10b981" : "#52525b" }}>
+              {orderCount > 0 ? `${orderCount} order${orderCount !== 1 ? "s" : ""}` : "×$49/product"}
+            </div>
           </div>
         </div>
 
