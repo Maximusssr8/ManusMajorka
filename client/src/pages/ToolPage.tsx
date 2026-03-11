@@ -88,11 +88,13 @@ function ToolLoadingFallback() {
 }
 
 export default function ToolPage() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const tool = getToolByPath(location);
   const { activeProduct } = useProduct();
 
   useEffect(() => {
+    // Redirect /app/dashboard → /app (the real dashboard home)
+    if (location === "/app/dashboard") { setLocation("/app"); return; }
     logActivity({ type: "tool_opened", label: tool?.label ?? location });
   }, [location]); // eslint-disable-line react-hooks/exhaustive-deps
 

@@ -466,7 +466,13 @@ RULES: Be specific to this product, not generic. Write actual copy. Give real HT
         bulletPoints: string[];
         price: string;
         imageUrls: string[];
+        brand?: string;
+        confidence?: "high" | "medium" | "low";
+        extractionError?: string;
       };
+
+      // If Claude detected garbage/unreadable page, surface error immediately
+      if (data.extractionError) throw new Error(data.extractionError);
 
       const rawTitle = data.productTitle || "Imported Product";
       const finalTitle = cleanProductTitle(rawTitle);
@@ -481,17 +487,21 @@ RULES: Be specific to this product, not generic. Write actual copy. Give real HT
         _manual: false,
       });
 
-      // Auto-fill brand name if empty
+      // Auto-fill brand: prefer scraped brand name over title
       if (!brandName.trim()) {
-        setBrandName(finalTitle.slice(0, 40));
+        setBrandName((data.brand && data.brand.length < 40 ? data.brand : finalTitle).slice(0, 40));
       }
       // Auto-fill sell price if scraped
       if (!sellPrice.trim() && data.price) {
         const numericPrice = data.price.replace(/[^\d.]/g, "");
         setSellPrice(numericPrice);
       }
+      // Auto-fill extra details from bullet points if field is empty
+      if (!extraDetails.trim() && data.bulletPoints.length > 0) {
+        setExtraDetails(data.bulletPoints.slice(0, 5).join(", "));
+      }
 
-      toast.success("Product scraped — ready to generate!");
+      toast.success(data.confidence === "high" ? "✓ Product extracted successfully" : "Product imported — review the details below");
     } catch (err: any) {
       setImportError(err?.message || "Could not import this URL. Try a different URL or fill in the details manually below.");
     } finally {

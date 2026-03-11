@@ -1,11 +1,12 @@
 /**
  * Product URL Scraping API
- * Uses Firecrawl AI extraction to pull structured product data.
- * Falls back to Tavily extract + Pexels images if Firecrawl is unavailable.
+ * Uses Firecrawl AI extraction → Tavily fallback → Claude AI cleaning step.
+ * Claude validates, translates, and cleans ALL scraped data before returning.
  */
 import type { Application } from "express";
 import Firecrawl from "@mendable/firecrawl-js";
 import { tavilyExtract, tavilySearch } from "../tavily";
+import { getAnthropicClient, CLAUDE_MODEL } from "./anthropic";
 
 export interface ScrapeResult {
   productTitle: string;
@@ -25,6 +26,8 @@ export interface ScrapeResult {
   brand: string;
   sourcePlatform: string;
   sourceUrl: string;
+  confidence: "high" | "medium" | "low";
+  extractionError?: string;
 }
 
 function cleanProductTitle(raw: string): string {
@@ -73,21 +76,100 @@ async function searchPexelsImages(query: string): Promise<string[]> {
   }
 }
 
+/**
+ * Uses Claude to clean, validate, and translate raw scraped product data into
+ * structured English product information. This is the critical quality gate that
+ * prevents garbage data (wrong language, junk titles, raw HTML) from reaching users.
+ */
+async function cleanProductDataWithAI(rawData: {
+  title: string;
+  description: string;
+  bulletPoints: string[];
+  brand: string;
+  price: string;
+  imageUrls: string[];
+  rawText: string;
+  url: string;
+}): Promise<{
+  product_title: string;
+  brand: string;
+  description: string;
+  price_supplier: number | null;
+  images: string[];
+  key_features: string[];
+  variants: { colors: string[]; sizes: string[] };
+  category: string;
+  confidence: "high" | "medium" | "low";
+  error?: string;
+}> {
+  try {
+    const client = getAnthropicClient();
+    const prompt = `Extract product data from this scraped ecommerce page content. Return ONLY valid JSON, no markdown, no explanation.
+
+URL: ${rawData.url}
+Raw title: ${rawData.title}
+Raw description: ${rawData.description}
+Raw bullet points: ${rawData.bulletPoints.join(" | ")}
+Raw brand: ${rawData.brand}
+Raw price: ${rawData.price}
+Available image URLs: ${rawData.imageUrls.slice(0, 10).join(", ")}
+Additional page text snippet: ${rawData.rawText.slice(0, 800)}
+
+Return this exact JSON structure:
+{
+  "product_title": "Clean product name in English, max 70 chars. Must be a real product name NOT a page title, URL slug, sentence, question, or navigation text",
+  "brand": "Brand/manufacturer name if clearly visible, else empty string",
+  "description": "Clear product description in English, 40-120 words. Benefits-focused. If original is non-English, translate it.",
+  "price_supplier": null or numeric price if found,
+  "images": ["only include image URLs that look like actual product photos — URLs containing /product/, /item/, cdn, or image hosting. Exclude icon.png, logo, banner, sprite, pixel, 1x1, svg. Max 6 URLs from the provided list"],
+  "key_features": ["3-5 specific product features in English. Real features, not generic marketing fluff"],
+  "variants": { "colors": ["color options if found"], "sizes": ["size options if found"] },
+  "category": "one of: fitness/beauty/home/tech/fashion/pets/other",
+  "confidence": "high if you found a clear product with title+description, medium if partial data, low if page seems irrelevant or no product found"
+}
+
+Critical rules:
+- If the title looks like a question, sentence, menu item, or non-product text → set confidence to low
+- If the page appears to be in Portuguese, Spanish, Chinese, etc. → translate everything to English
+- If product_title would be something like "Quanto custa" or "How much does" → it's wrong, confidence low
+- If you cannot determine a real product, set confidence to "low" and add "error": "Could not extract valid product data from this URL"`;
+
+    const response = await client.messages.create({
+      model: CLAUDE_MODEL,
+      max_tokens: 800,
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const text = response.content[0]?.type === "text" ? response.content[0].text : "";
+    const cleaned = text.replace(/^```json\n?/, "").replace(/\n?```$/, "").trim();
+    return JSON.parse(cleaned);
+  } catch (err) {
+    console.error("[scrape] Claude cleaning failed:", err);
+    // Return passthrough — don't block if AI cleaning fails
+    return {
+      product_title: rawData.title,
+      brand: rawData.brand,
+      description: rawData.description,
+      price_supplier: rawData.price ? parseFloat(rawData.price.replace(/[^\d.]/g, "")) || null : null,
+      images: rawData.imageUrls.slice(0, 5),
+      key_features: rawData.bulletPoints.slice(0, 5),
+      variants: { colors: [], sizes: [] },
+      category: detectCategory(rawData.title + " " + rawData.description),
+      confidence: "medium",
+    };
+  }
+}
+
 export async function scrapeProductData(url: string): Promise<ScrapeResult> {
-  let result: ScrapeResult = {
-    productTitle: "",
-    cleanTitle: "",
-    description: "",
-    bulletPoints: [],
-    price: "",
-    currency: "AUD",
-    imageUrls: [],
-    variants: { colors: [], sizes: [], flavors: [], volumes: [] },
-    category: "general",
-    brand: "",
-    sourcePlatform: detectPlatform(url),
-    sourceUrl: url,
-  };
+  let rawTitle = "";
+  let rawDescription = "";
+  let rawBulletPoints: string[] = [];
+  let rawPrice = "";
+  let rawBrand = "";
+  let rawImageUrls: string[] = [];
+  let rawColors: string[] = [];
+  let rawSizes: string[] = [];
+  let rawText = "";
 
   // ── Firecrawl AI extraction (primary) ───────────────────────────────────
   const firecrawlKey = process.env.FIRECRAWL_API_KEY;
@@ -137,20 +219,17 @@ bulletPoints: array of 3-6 key product features or selling points (array of stri
       }
 
       if (extracted?.title) {
-        result.productTitle = extracted.title;
-        result.description = extracted.description || "";
-        result.price = extracted.price ? String(extracted.price) : "";
-        result.currency = extracted.currency || "AUD";
-        result.brand = extracted.brand || "";
-        result.bulletPoints = extracted.bulletPoints || [];
-        result.variants.colors = extracted.colors || [];
-        result.variants.sizes = extracted.sizes || [];
-
-        // Fix image URLs
-        result.imageUrls = (extracted.images || [])
+        rawTitle = extracted.title;
+        rawDescription = extracted.description || "";
+        rawPrice = extracted.price ? String(extracted.price) : "";
+        rawBrand = extracted.brand || "";
+        rawBulletPoints = extracted.bulletPoints || [];
+        rawColors = extracted.colors || [];
+        rawSizes = extracted.sizes || [];
+        rawImageUrls = (extracted.images || [])
           .map((img: string) => img.startsWith("//") ? `https:${img}` : img)
           .filter((img: string) => /^https?:\/\//.test(img) && img.length > 20)
-          .slice(0, 8);
+          .slice(0, 10);
       } else {
         // Fallback: markdown/html scrape
         const scrapeResult = await (fc as any).scrapeUrl(url, {
@@ -160,50 +239,51 @@ bulletPoints: array of 3-6 key product features or selling points (array of stri
         if (scrapeResult?.markdown || scrapeResult?.content) {
           const md = scrapeResult.markdown || scrapeResult.content || "";
           const meta = scrapeResult.metadata || {};
+          rawText = md.slice(0, 2000);
 
-          result.productTitle = meta.title || meta.ogTitle || md.match(/^#\s+(.+)/m)?.[1] || "";
-          result.description = meta.ogDescription || meta.description ||
+          rawTitle = meta.title || meta.ogTitle || md.match(/^#\s+(.+)/m)?.[1] || "";
+          rawDescription = meta.ogDescription || meta.description ||
             md.split("\n").find((l: string) => l.trim().length > 60 && l.trim().length < 500 && !l.startsWith("#") && !l.includes("cookie")) || "";
 
           const priceMatch = md.match(/(?:price|sale|now|usd|aud|\$)\s*[:\s]*\$?([\d,]+(?:\.\d{2})?)/i);
-          if (priceMatch) result.price = priceMatch[1].replace(",", "");
+          if (priceMatch) rawPrice = priceMatch[1].replace(",", "");
 
-          result.bulletPoints = md.split("\n")
+          rawBulletPoints = md.split("\n")
             .filter((l: string) => /^[-•*✓✔]\s/.test(l.trim()))
             .map((l: string) => l.replace(/^[-•*✓✔\d.]+\s*/, "").trim())
             .filter((l: string) => l.length > 10 && l.length < 150 && !l.toLowerCase().includes("cookie"))
             .slice(0, 6);
 
-          // Extract images from HTML
           const html = scrapeResult.html || "";
           const imgMatches = html.match(/<img[^>]+src=["']([^"']+)["']/gi);
           if (imgMatches) {
-            result.imageUrls = imgMatches
+            rawImageUrls = imgMatches
               .map((m: string) => m.match(/src=["']([^"']+)["']/)?.[1])
               .filter((u?: string) => u && (u.startsWith("http") || u.startsWith("//")) && !u.includes("icon") && !u.includes("logo") && !u.includes("svg") && !u.includes("pixel") && !u.includes("1x1"))
               .map((u: string) => u.startsWith("//") ? `https:${u}` : u)
-              .slice(0, 8) as string[];
+              .slice(0, 10) as string[];
           }
         }
       }
-    } catch (err) {
+    } catch {
       // Firecrawl failed — continue to Tavily fallback
     }
   }
 
   // ── Tavily fallback ─────────────────────────────────────────────────────
-  if (!result.productTitle) {
+  if (!rawTitle) {
     try {
       const extracted = await tavilyExtract(url);
       const raw = extracted.rawContent || "";
-      result.productTitle = extracted.title || raw.match(/(?:Product:|Title:)\s*(.+)/i)?.[1] || "";
-      result.price = raw.match(/\$([\d,]+(?:\.\d{2})?)/)?.[1] || "";
-      result.description = raw.split("\n").find((l: string) => l.trim().length > 60 && l.trim().length < 500 && !l.includes("cookie")) || "";
-      result.bulletPoints = raw.split("\n")
+      rawText = raw.slice(0, 2000);
+      rawTitle = extracted.title || raw.match(/(?:Product:|Title:)\s*(.+)/i)?.[1] || "";
+      rawPrice = raw.match(/\$([\d,]+(?:\.\d{2})?)/)?.[1] || "";
+      rawDescription = raw.split("\n").find((l: string) => l.trim().length > 60 && l.trim().length < 500 && !l.includes("cookie")) || "";
+      rawBulletPoints = raw.split("\n")
         .map((l: string) => l.replace(/^[-•*✓✔]\s*/, "").trim())
         .filter((l: string) => l.length > 10 && l.length < 120 && !l.startsWith("http") && !l.includes("cookie"))
         .slice(0, 6);
-      result.imageUrls = extracted.images || [];
+      rawImageUrls = extracted.images || [];
     } catch {
       try {
         const hostname = new URL(url).hostname.replace("www.", "");
@@ -213,33 +293,98 @@ bulletPoints: array of 3-6 key product features or selling points (array of stri
         );
         const top = sr.results[0];
         if (top) {
-          result.productTitle = top.title || "";
-          result.description = top.content || "";
-          result.price = top.content.match(/\$([\d,]+(?:\.\d{2})?)/)?.[1] || "";
+          rawTitle = top.title || "";
+          rawDescription = top.content || "";
+          rawPrice = top.content.match(/\$([\d,]+(?:\.\d{2})?)/)?.[1] || "";
+          rawText = top.content.slice(0, 2000);
         }
-        result.imageUrls = sr.images || [];
+        rawImageUrls = sr.images || [];
       } catch { /* all methods failed */ }
     }
   }
 
-  // ── Pexels image fallback ───────────────────────────────────────────────
-  if (result.imageUrls.length === 0 && result.productTitle) {
-    result.imageUrls = await searchPexelsImages(`${result.productTitle} product`);
+  // ── Claude AI cleaning step — ALWAYS run to validate and translate ───────
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  let cleaned: Awaited<ReturnType<typeof cleanProductDataWithAI>> | null = null;
+
+  if (anthropicKey && (rawTitle || rawDescription || rawText)) {
+    cleaned = await cleanProductDataWithAI({
+      title: rawTitle,
+      description: rawDescription,
+      bulletPoints: rawBulletPoints,
+      brand: rawBrand,
+      price: rawPrice,
+      imageUrls: rawImageUrls,
+      rawText,
+      url,
+    });
+    console.log(`[Scrape] Claude cleaning done | confidence=${cleaned.confidence} | title="${cleaned.product_title.slice(0, 50)}"`);
   }
 
-  // ── Final fallbacks ─────────────────────────────────────────────────────
-  if (!result.productTitle) {
-    try {
-      result.productTitle = `Product from ${new URL(url).hostname.replace("www.", "")}`;
-    } catch {
-      result.productTitle = "Imported Product";
-    }
+  // ── Pexels image fallback if no product images found ────────────────────
+  const finalImages = cleaned?.images?.length
+    ? cleaned.images
+    : rawImageUrls.length
+    ? rawImageUrls.slice(0, 5)
+    : [];
+
+  const finalTitle = cleaned?.product_title || rawTitle;
+
+  if (finalImages.length === 0 && finalTitle) {
+    const pexels = await searchPexelsImages(`${finalTitle} product`);
+    if (pexels.length > 0) finalImages.push(...pexels.slice(0, 4));
   }
 
-  result.cleanTitle = cleanProductTitle(result.productTitle);
-  result.category = detectCategory(result.productTitle + " " + result.description);
+  // ── Build final result ──────────────────────────────────────────────────
+  const confidence = cleaned?.confidence || (rawTitle ? "medium" : "low");
 
-  return result;
+  // If confidence is low and Claude says there's an error — return extraction error
+  if (confidence === "low" && cleaned?.error) {
+    return {
+      productTitle: "",
+      cleanTitle: "",
+      description: "",
+      bulletPoints: [],
+      price: "",
+      currency: "AUD",
+      imageUrls: [],
+      variants: { colors: [], sizes: [], flavors: [], volumes: [] },
+      category: "general",
+      brand: "",
+      sourcePlatform: detectPlatform(url),
+      sourceUrl: url,
+      confidence: "low",
+      extractionError: cleaned.error || "We couldn't extract product info from this URL. Try a different link or enter details manually.",
+    };
+  }
+
+  const productTitle = cleaned?.product_title || rawTitle || `Product from ${new URL(url).hostname.replace("www.", "")}`;
+  const description = cleaned?.description || rawDescription || "";
+  const bulletPoints = cleaned?.key_features?.length ? cleaned.key_features : rawBulletPoints;
+  const brand = cleaned?.brand || rawBrand || "";
+  const priceNum = cleaned?.price_supplier;
+  const price = priceNum ? String(priceNum) : rawPrice;
+  const colors = cleaned?.variants?.colors?.length ? cleaned.variants.colors : rawColors;
+  const sizes = cleaned?.variants?.sizes?.length ? cleaned.variants.sizes : rawSizes;
+  const category = cleaned?.category
+    ? cleaned.category
+    : detectCategory(productTitle + " " + description);
+
+  return {
+    productTitle,
+    cleanTitle: cleanProductTitle(productTitle),
+    description,
+    bulletPoints,
+    price,
+    currency: "AUD",
+    imageUrls: finalImages,
+    variants: { colors, sizes, flavors: [], volumes: [] },
+    category,
+    brand,
+    sourcePlatform: detectPlatform(url),
+    sourceUrl: url,
+    confidence,
+  };
 }
 
 export function registerScrapeRoutes(app: Application) {
@@ -251,6 +396,16 @@ export function registerScrapeRoutes(app: Application) {
         return;
       }
       const result = await scrapeProductData(url);
+
+      // If extraction failed completely, return a user-friendly error
+      if (result.extractionError) {
+        res.status(422).json({
+          error: result.extractionError,
+          confidence: "low",
+        });
+        return;
+      }
+
       res.json(result);
     } catch (error: any) {
       res.status(500).json({ error: error.message || "Scraping failed" });
