@@ -57,7 +57,7 @@ export default function MyProducts() {
   const [importedProduct, setImportedProduct] = useState<ImportedProduct | null>(null);
 
   const utils = trpc.useUtils();
-  const { data: products, isLoading, error } = trpc.products.list.useQuery();
+  const { data: products, isLoading, error } = trpc.products.list.useQuery(undefined, { enabled: isAuthenticated });
   const createMut = trpc.products.create.useMutation({
     onSuccess: () => { utils.products.list.invalidate(); setShowCreate(false); resetForm(); setIsSubmitting(false); toast.success("Product created!"); },
     onError: () => { setIsSubmitting(false); toast.error("Failed to create product."); },
