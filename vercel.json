@@ -1,14 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "vite build && node_modules/.bin/esbuild api/index.ts --bundle --platform=node --target=node20 --format=cjs --outfile=api/index.serverless.cjs --log-level=warning",
+  "buildCommand": "vite build && node scripts/build-api.mjs",
   "outputDirectory": "dist/public",
   "framework": null,
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/index.serverless.cjs" },
+    { "source": "/api/:path*", "destination": "/api/index.serverless.js" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "functions": {
-    "api/index.serverless.cjs": {
+    "api/index.serverless.js": {
       "maxDuration": 60
     }
   }
