@@ -72,27 +72,13 @@ export default function AIChat() {
         }),
       });
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("No response body");
-      const decoder = new TextDecoder();
-      let fullText = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        try {
-          for (const line of chunk.split("\n")) {
-            if (line.startsWith("0:")) {
-              try { fullText += JSON.parse(line.slice(2)); } catch { /* skip */ }
-            }
-          }
-        } catch { /* skip */ }
-        setMessages(prev => {
-          const updated = [...prev];
-          updated[updated.length - 1] = { role: "assistant", content: fullText };
-          return updated;
-        });
-      }
+      const data = await response.json();
+      const reply = data.reply ?? "";
+      setMessages(prev => {
+        const updated = [...prev];
+        updated[updated.length - 1] = { role: "assistant", content: reply };
+        return updated;
+      });
     } catch (err) {
       console.error("Stream error:", err);
       setMessages(prev => {

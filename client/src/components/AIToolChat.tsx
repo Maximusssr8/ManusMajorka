@@ -81,7 +81,7 @@ export default function AIToolChat({
 
   const handleSend = async (overrideText?: string) => {
     const msg = (overrideText ?? input).trim();
-    if (!msg) return;
+    if (!msg || status === "streaming") return;
     if (!overrideText) setInput("");
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
     const newMessages = [...messages, { role: "user" as const, content: msg }];
@@ -98,31 +98,13 @@ export default function AIToolChat({
         }),
       });
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("No response body");
-      const decoder = new TextDecoder();
-      let fullText = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        try {
-          for (const line of chunk.split("\n")) {
-            if (line.startsWith("0:")) {
-              try { fullText += JSON.parse(line.slice(2)); } catch (parseErr) {
-                console.warn("Malformed chunk line, skipping:", parseErr);
-              }
-            }
-          }
-        } catch (chunkErr) {
-          console.warn("Error processing chunk, continuing stream:", chunkErr);
-        }
-        setMessages(prev => {
-          const updated = [...prev];
-          updated[updated.length - 1] = { role: "assistant", content: fullText };
-          return updated;
-        });
-      }
+      const data = await response.json();
+      const reply = data.reply ?? "";
+      setMessages(prev => {
+        const updated = [...prev];
+        updated[updated.length - 1] = { role: "assistant", content: reply };
+        return updated;
+      });
     } catch (err) {
       console.error("Stream error:", err);
       setMessages(prev => {
@@ -355,12 +337,7 @@ export default function AIToolChat({
                   e.target.style.height = e.target.scrollHeight + 'px';
                 }}
                 onKeyDown={(e) => {
-                  // Enter to send, Shift+Enter for newline, Cmd/Ctrl+Enter also sends
                   if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
                     e.preventDefault();
                     handleSend();
                   }

@@ -9,7 +9,7 @@
 import type { Application } from "express";
 import { getAnthropicClient, CLAUDE_MODEL, BASE_SYSTEM_PROMPT } from "../lib/anthropic";
 import { getSupabaseAdmin } from "./supabase";
-import { getUserContextString, getConversationHistory, saveConversationMessage, getProfileById, upsertProfile } from "../db";
+import { getUserContextString, getConversationHistory, saveConversationMessage } from "../db";
 import { tavilySearch } from "../tavily";
 
 /**
@@ -134,76 +134,26 @@ export function registerChatRoutes(app: Application) {
 
       const client = getAnthropicClient();
 
-      // Set up streaming response headers
-      res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
-      res.setHeader("Cache-Control", "no-cache");
-      res.setHeader("Connection", "keep-alive");
-      res.setHeader("X-Vercel-AI-Data-Stream", "v1");
-      res.flushHeaders();
-
-      // Create streaming response from Anthropic
-      const stream = client.messages.stream({
+      // Use non-streaming create() — Vercel serverless doesn't support SSE flushing
+      const aiResponse = await client.messages.create({
         model: CLAUDE_MODEL,
-        max_tokens: 8192,
+        max_tokens: 2048,
         system,
         messages,
       });
 
-      // Handle client disconnect
-      let aborted = false;
-      req.on("close", () => {
-        aborted = true;
-        try { stream.abort(); } catch { /* ignore */ }
-      });
-
-      // Collect the full response for memory saving
-      let fullResponse = "";
-
-      // Stream text deltas using the line-delimited format
-      stream.on("text", (text) => {
-        fullResponse += text;
-        if (!aborted) {
-          try {
-            res.write(`0:${JSON.stringify(text)}\n`);
-          } catch { /* response closed */ }
-        }
-      });
-
-      stream.on("error", (error) => {
-        if (error?.name === "APIUserAbortError" || error?.message?.includes("aborted")) return;
-        console.error("[/api/chat] Stream error:", error);
-        if (!aborted) {
-          try {
-            res.write(`e:${JSON.stringify({ error: error.message || "Stream error" })}\n`);
-          } catch { /* response closed */ }
-        }
-      });
-
-      // Wait for stream to complete
-      try {
-        await stream.finalMessage();
-      } catch (err: any) {
-        if (err?.name !== "APIUserAbortError" && !err?.message?.includes("aborted")) {
-          console.error("[/api/chat] Stream completion error:", err);
-        }
-      }
+      const reply = aiResponse.content[0]?.type === "text" ? aiResponse.content[0].text : "";
 
       // Save conversation to memory (fire-and-forget)
-      if (userId && toolName && fullResponse) {
+      if (userId && toolName && reply) {
         const lastUserMsg = messages.filter((m: any) => m.role === "user").pop();
         if (lastUserMsg) {
           saveConversationMessage({ userId, toolName, role: "user", content: lastUserMsg.content }).catch(() => {});
-          saveConversationMessage({ userId, toolName, role: "assistant", content: fullResponse }).catch(() => {});
+          saveConversationMessage({ userId, toolName, role: "assistant", content: reply }).catch(() => {});
         }
       }
 
-      // Send finish signal
-      if (!aborted) {
-        try {
-          res.write(`d:{"finishReason":"stop","usage":{"promptTokens":0,"completionTokens":0}}\n`);
-          res.end();
-        } catch { /* response closed */ }
-      }
+      res.json({ reply });
 
     } catch (error: any) {
       if (error?.name === "APIUserAbortError" || error?.message?.includes("aborted")) {
