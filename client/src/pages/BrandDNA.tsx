@@ -14,12 +14,21 @@ interface BrandDNAResult {
     archetype: string;
     traits: string[];
     toneOfVoice: string;
+    weAre?: string[];
+    weAreNot?: string[];
   };
   targetAudience: {
     primarySegment: string;
+    personaName?: string;
+    personaAge?: string;
+    personaCity?: string;
+    personaJob?: string;
+    shopsAt?: string[];
+    followsOn?: string[];
     psychographics: string[];
     painPoints: string[];
     desires: string[];
+    buyingTriggers?: string[];
   };
   uniqueValueProposition: string;
   brandStory: string;
@@ -27,10 +36,18 @@ interface BrandDNAResult {
     colorPalette: string[];
     typography: string;
     aestheticDirection: string;
+    logoDirection?: string;
   };
   competitiveDifferentiation: string;
   taglines: string[];
   keyMessages: string[];
+  contentPillars?: Array<{
+    pillar: string;
+    description: string;
+    exampleTopics: string[];
+  }>;
+  domainSuggestions?: string[];
+  trademarkNotes?: string;
 }
 
 // ─── Copy Button ──────────────────────────────────────────────────────────────
@@ -132,34 +149,62 @@ export default function BrandDNA() {
     }
   }, [activeProduct]);
 
-  const SYSTEM_PROMPT = `You are an expert brand strategist specialising in ecommerce brand building. When given brand details, you MUST respond with ONLY a valid JSON object (no markdown, no code blocks, no explanation) in this exact format:
+  const SYSTEM_PROMPT = `You are an elite brand strategist who has built 100+ Australian ecommerce brands from zero to recognisable names. You know what resonates with AU consumers: authenticity over hype, confidence without arrogance, Australian vernacular, and understated quality. You reference AU brand benchmarks like Frank Body, Go-To Skincare, Aesop, Grown Alchemist, Culture Kings, and The Daily Edited.
+
+When given brand details, you MUST respond with ONLY a valid JSON object (no markdown, no code blocks, no explanation) in this exact format:
 
 {
-  "brandName": "string",
-  "missionStatement": "string - one powerful sentence",
+  "brandName": "string — the provided brand name, or suggest a memorable AU-appropriate name if none given. Avoid American slang. Consider .com.au availability.",
+  "missionStatement": "string — one powerful sentence. Written in Australian English. Confident but not arrogant (tall poppy awareness).",
   "coreValues": ["value1", "value2", "value3", "value4"],
   "brandPersonality": {
-    "archetype": "string - e.g. The Hero, The Creator, The Sage",
+    "archetype": "string — e.g. The Hero, The Creator, The Sage. Include reasoning for why this archetype suits the AU market.",
     "traits": ["trait1", "trait2", "trait3", "trait4", "trait5"],
-    "toneOfVoice": "string - describe the voice and tone"
+    "toneOfVoice": "string — describe the voice. Reference AU brand tone benchmarks (e.g. 'Frank Body casual meets Aesop sophistication'). Include 3 'We say / We don't say' examples.",
+    "weAre": ["what the brand IS — 3 statements"],
+    "weAreNot": ["what the brand is NOT — 3 statements"]
   },
   "targetAudience": {
-    "primarySegment": "string - demographic description",
+    "primarySegment": "string — demographics + AU cities (Sydney, Melbourne, Brisbane, Gold Coast, Perth). Include age, income bracket in AUD, lifestyle.",
+    "personaName": "string — give the persona an Australian name (e.g. 'Sarah from Bondi', 'Josh from Fitzroy')",
+    "personaAge": "string — age range",
+    "personaCity": "string — AU city",
+    "personaJob": "string — occupation",
+    "shopsAt": ["where they shop — AU-specific: THE ICONIC, Adore Beauty, Culture Kings, Catch, etc."],
+    "followsOn": ["AU influencers/accounts they follow on Instagram/TikTok"],
     "psychographics": ["insight1", "insight2", "insight3"],
-    "painPoints": ["pain1", "pain2", "pain3"],
-    "desires": ["desire1", "desire2", "desire3"]
+    "painPoints": ["pain1 — AU-specific where possible", "pain2", "pain3"],
+    "desires": ["desire1", "desire2", "desire3"],
+    "buyingTriggers": ["what makes them buy — e.g. 'Afterpay available', 'Australian owned', 'free shipping over $79', 'reviews from AU customers'"]
   },
-  "uniqueValueProposition": "string - one compelling sentence",
-  "brandStory": "string - 2-3 sentence brand origin/purpose story",
+  "uniqueValueProposition": "string — one compelling sentence. If you removed the brand name, it should still be unique vs AU competitors.",
+  "brandStory": "string — 3-4 sentence brand origin story with Australian context. Reference what AU problem sparked it.",
   "visualIdentity": {
-    "colorPalette": ["#hex1 - Primary: name", "#hex2 - Secondary: name", "#hex3 - Accent: name"],
-    "typography": "string - font pairing recommendation",
-    "aestheticDirection": "string - visual style description"
+    "colorPalette": ["#hex1 - Primary: name — emotional reasoning", "#hex2 - Secondary: name — emotional reasoning", "#hex3 - Accent: name — emotional reasoning", "#hex4 - Neutral: name"],
+    "typography": "string — heading font + body font (Google Fonts). Include reasoning. e.g. 'Syne (bold, modern headings) + DM Sans (clean, readable body)'",
+    "aestheticDirection": "string — visual style. Reference AU brand aesthetics: clean, minimal, nature-inspired, confident but not flashy. Include photography style direction (lifestyle vs studio, AU settings).",
+    "logoDirection": "string — brief for a logo designer. Style, iconography, AU design aesthetic."
   },
-  "competitiveDifferentiation": "string - what makes this brand unique vs competitors",
-  "taglines": ["tagline1", "tagline2", "tagline3"],
-  "keyMessages": ["message1", "message2", "message3", "message4"]
-}`;
+  "competitiveDifferentiation": "string — what makes this brand unique vs 3-4 specific AU competitors. Name the competitors.",
+  "taglines": ["tagline1 — AU English, conversational", "tagline2 — benefit-driven", "tagline3 — emotional/aspirational"],
+  "keyMessages": ["message1 — for product pages", "message2 — for social media", "message3 — for advertising", "message4 — for email marketing"],
+  "contentPillars": [
+    {"pillar": "pillar name", "description": "what this content pillar covers", "exampleTopics": ["topic1", "topic2", "topic3"]},
+    {"pillar": "pillar name", "description": "what this content pillar covers", "exampleTopics": ["topic1", "topic2", "topic3"]},
+    {"pillar": "pillar name", "description": "what this content pillar covers", "exampleTopics": ["topic1", "topic2", "topic3"]},
+    {"pillar": "pillar name", "description": "what this content pillar covers", "exampleTopics": ["topic1", "topic2", "topic3"]},
+    {"pillar": "pillar name", "description": "what this content pillar covers", "exampleTopics": ["topic1", "topic2", "topic3"]}
+  ],
+  "domainSuggestions": ["brandname.com.au", "alt1.com.au", "alt2.com.au"],
+  "trademarkNotes": "string — brief note on AU trademark risk. Check IP Australia for potential conflicts."
+}
+
+RULES:
+- Use Australian English throughout: colour, organise, analyse, favourite, centre.
+- All references must be AU-native: AU platforms, AU competitors, AU cities, AU consumer psychology.
+- Australians are turned off by overclaiming (tall poppy syndrome). The brand voice should be confident but never arrogant.
+- Reference specific AU brand benchmarks for visual and tone direction.
+- Content pillars should include AU-relevant topics and cultural moments.`;
 
   const getContextualSystemPrompt = () => {
     if (!activeProduct) return SYSTEM_PROMPT;
@@ -481,16 +526,67 @@ Generate a comprehensive brand identity document as JSON.`;
                   {result.coreValues.map(v => <TagPill key={v} text={v} accent="#b8941f" />)}
                 </div>
               </div>
+              {result.brandPersonality.weAre && result.brandPersonality.weAreNot && (
+                <div className="pt-3 grid grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-xs font-semibold uppercase tracking-wider block mb-2" style={{ color: "#2dca72" }}>
+                      We Are
+                    </span>
+                    <ul className="space-y-1.5">
+                      {result.brandPersonality.weAre.map(item => (
+                        <li key={item} className="flex items-start gap-2">
+                          <div className="w-1 h-1 rounded-full mt-2 flex-shrink-0" style={{ background: "#2dca72" }} />
+                          <span className="text-sm" style={{ color: "#f0ede8" }}>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <span className="text-xs font-semibold uppercase tracking-wider block mb-2" style={{ color: "#ef4444" }}>
+                      We Are Not
+                    </span>
+                    <ul className="space-y-1.5">
+                      {result.brandPersonality.weAreNot.map(item => (
+                        <li key={item} className="flex items-start gap-2">
+                          <div className="w-1 h-1 rounded-full mt-2 flex-shrink-0" style={{ background: "#ef4444" }} />
+                          <span className="text-sm" style={{ color: "#f0ede8" }}>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
             </SectionCard>
 
             {/* Target Audience */}
             <SectionCard title="Target Audience" accent="#9c5fff">
               <TextRow label="Primary Segment" value={result.targetAudience.primarySegment} />
+              {result.targetAudience.personaName && (
+                <div className="mt-3 p-3 rounded-xl" style={{ background: "rgba(156,95,255,0.06)", border: "1px solid rgba(156,95,255,0.15)" }}>
+                  <span className="text-xs font-semibold uppercase tracking-wider block mb-2" style={{ color: "#9c5fff" }}>
+                    Customer Persona
+                  </span>
+                  <div className="text-sm font-semibold mb-1" style={{ color: "#f0ede8" }}>
+                    {result.targetAudience.personaName}
+                    {result.targetAudience.personaAge ? ` · ${result.targetAudience.personaAge}` : ""}
+                    {result.targetAudience.personaCity ? ` · ${result.targetAudience.personaCity}` : ""}
+                  </div>
+                  {result.targetAudience.personaJob && (
+                    <div className="text-xs mb-2" style={{ color: "rgba(240,237,232,0.5)" }}>{result.targetAudience.personaJob}</div>
+                  )}
+                  {result.targetAudience.shopsAt && result.targetAudience.shopsAt.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {result.targetAudience.shopsAt.map(s => <TagPill key={s} text={s} accent="#9c5fff" />)}
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="pt-3 space-y-3">
                 {[
                   { label: "Psychographics", items: result.targetAudience.psychographics, accent: "#9c5fff" },
                   { label: "Pain Points", items: result.targetAudience.painPoints, accent: "#ef4444" },
                   { label: "Desires", items: result.targetAudience.desires, accent: "#2dca72" },
+                  ...(result.targetAudience.buyingTriggers?.length ? [{ label: "Buying Triggers", items: result.targetAudience.buyingTriggers, accent: "#f59e0b" }] : []),
                 ].map(({ label, items, accent }) => (
                   <div key={label}>
                     <span className="text-xs font-semibold uppercase tracking-wider block mb-2" style={{ color: "rgba(240,237,232,0.35)" }}>
@@ -587,6 +683,47 @@ Generate a comprehensive brand identity document as JSON.`;
                 </div>
               </div>
             </SectionCard>
+
+            {/* Content Pillars */}
+            {result.contentPillars && result.contentPillars.length > 0 && (
+              <SectionCard title="Content Strategy" accent="#ec4899" defaultOpen={false}>
+                <div className="space-y-4">
+                  {result.contentPillars.map((pillar, i) => (
+                    <div key={i}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-black" style={{ color: "rgba(236,72,153,0.5)", minWidth: "20px" }}>
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <span className="text-sm font-semibold" style={{ color: "#f0ede8" }}>{pillar.pillar}</span>
+                      </div>
+                      <p className="text-xs mb-2 ml-7" style={{ color: "rgba(240,237,232,0.5)" }}>{pillar.description}</p>
+                      <div className="flex flex-wrap gap-1.5 ml-7">
+                        {pillar.exampleTopics.map(t => <TagPill key={t} text={t} accent="#ec4899" />)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </SectionCard>
+            )}
+
+            {/* Domain & Trademark */}
+            {(result.domainSuggestions?.length || result.trademarkNotes) && (
+              <SectionCard title="Domain & Trademark" accent="#6366f1" defaultOpen={false}>
+                {result.domainSuggestions && result.domainSuggestions.length > 0 && (
+                  <div className="mb-3">
+                    <span className="text-xs font-semibold uppercase tracking-wider block mb-2" style={{ color: "rgba(240,237,232,0.35)" }}>
+                      Domain Suggestions
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {result.domainSuggestions.map(d => <TagPill key={d} text={d} accent="#6366f1" />)}
+                    </div>
+                  </div>
+                )}
+                {result.trademarkNotes && (
+                  <TextRow label="Trademark" value={result.trademarkNotes} />
+                )}
+              </SectionCard>
+            )}
           </div>
         )}
       </div>
