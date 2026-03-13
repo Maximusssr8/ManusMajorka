@@ -74,6 +74,22 @@ app.get("/api/health", (_req: Request, res: Response) => {
   });
 });
 
+// One-time intelligence tables migration endpoint
+app.post("/api/internal/run-intel-migration", async (req: Request, res: Response) => {
+  const secret = req.headers["x-migration-secret"];
+  if (secret !== "majorka-intel-2026") {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+  try {
+    const { createIntelligenceTables } = await import("../server/lib/migrate-winning-products");
+    const result = await createIntelligenceTables();
+    res.json(result);
+  } catch (e: any) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 registerChatRoutes(app);
 registerScrapeRoutes(app);
 registerToolsApi(app);
