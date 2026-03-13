@@ -161,7 +161,7 @@ function useAnimatedNumber(target: number, duration = 600): number {
 export default function PromoDashboard() {
   // URL params
   const params = new URLSearchParams(window.location.search);
-  const nameParam = params.get('name') || 'Alex';
+  const nameParam = params.get('name') || 'Maximus';
   const revenueParam = params.get('revenue') ? parseFloat(params.get('revenue')!) : 18420.60;
   const ordersParam = params.get('orders') ? parseInt(params.get('orders')!) : 347;
 
