@@ -536,9 +536,11 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
       if (parsed) {
         setGeneratedData(parsed);
         setActiveTab("copy");
-        // Set active file to first file
-        const firstFile = Object.keys(parsed.files)[0];
-        if (firstFile) setActiveFile(firstFile);
+        // Set active file to first file (legacy - when files present)
+        if (parsed.files) {
+          const firstFile = Object.keys(parsed.files)[0];
+          if (firstFile) setActiveFile(firstFile);
+        }
         toast.success("Website generated!");
         trackWebsiteGenerated({ niche, platform, vibe, market: getStoredMarket() });
         localStorage.setItem("majorka_milestone_site", "true");
@@ -920,10 +922,10 @@ ${generatedData.features.map(f => `- ${f}`).join("\n")}
 - **Secondary:** ${generatedData.cta_secondary}
 
 ### Trust Badges
-${generatedData.trust_badges.map(b => `- ${b}`).join("\n")}
+${(generatedData.trust_badges ?? []).map(b => `- ${b}`).join("\n")}
 
 ### About
-${generatedData.about_section}
+${generatedData.about_section ?? generatedData.brandStory ?? ""}
 
 ### Meta Description
 ${generatedData.meta_description}
@@ -1449,60 +1451,85 @@ ${generatedData.email_subject}`;
                         </div>
 
                         {/* CTAs */}
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Primary CTA</span>
-                              <button onClick={() => copy(generatedData.cta_primary, "cta1")} className="text-xs flex items-center gap-1" style={{ color: copiedKey === "cta1" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "none", border: "none", cursor: "pointer" }}>
-                                {copiedKey === "cta1" ? <Check size={10} /> : <Copy size={10} />}
-                              </button>
+                        {(generatedData.cta_primary || generatedData.ctaText) && (
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>CTA Text</span>
+                                <button onClick={() => copy(generatedData.ctaText ?? generatedData.cta_primary ?? "", "cta1")} className="text-xs flex items-center gap-1" style={{ color: copiedKey === "cta1" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "none", border: "none", cursor: "pointer" }}>
+                                  {copiedKey === "cta1" ? <Check size={10} /> : <Copy size={10} />}
+                                </button>
+                              </div>
+                              <div className="text-sm font-bold" style={{ color: "#d4af37" }}>{generatedData.ctaText ?? generatedData.cta_primary}</div>
                             </div>
-                            <div className="text-sm font-bold" style={{ color: "#d4af37" }}>{generatedData.cta_primary}</div>
+                            {generatedData.cta_secondary && (
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Secondary CTA</span>
+                                  <button onClick={() => copy(generatedData.cta_secondary ?? "", "cta2")} className="text-xs flex items-center gap-1" style={{ color: copiedKey === "cta2" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "none", border: "none", cursor: "pointer" }}>
+                                    {copiedKey === "cta2" ? <Check size={10} /> : <Copy size={10} />}
+                                  </button>
+                                </div>
+                                <div className="text-sm font-bold" style={{ color: "rgba(240,237,232,0.7)" }}>{generatedData.cta_secondary}</div>
+                              </div>
+                            )}
                           </div>
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Secondary CTA</span>
-                              <button onClick={() => copy(generatedData.cta_secondary, "cta2")} className="text-xs flex items-center gap-1" style={{ color: copiedKey === "cta2" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "none", border: "none", cursor: "pointer" }}>
-                                {copiedKey === "cta2" ? <Check size={10} /> : <Copy size={10} />}
-                              </button>
-                            </div>
-                            <div className="text-sm font-bold" style={{ color: "rgba(240,237,232,0.7)" }}>{generatedData.cta_secondary}</div>
-                          </div>
-                        </div>
+                        )}
 
                         {/* Trust Badges */}
-                        <div>
-                          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Trust Badges 🇦🇺</span>
-                          <div className="flex flex-wrap gap-2 mt-2">
-                            {generatedData.trust_badges.map((b, i) => (
-                              <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: "rgba(45,202,114,0.08)", border: "1px solid rgba(45,202,114,0.2)", color: "rgba(45,202,114,0.85)" }}>
-                                <Check size={10} /> {b}
-                              </div>
-                            ))}
+                        {generatedData.trust_badges && generatedData.trust_badges.length > 0 && (
+                          <div>
+                            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Trust Badges 🇦🇺</span>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {generatedData.trust_badges.map((b, i) => (
+                                <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: "rgba(45,202,114,0.08)", border: "1px solid rgba(45,202,114,0.2)", color: "rgba(45,202,114,0.85)" }}>
+                                  <Check size={10} /> {b}
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                        </div>
+                        )}
 
-                        {/* Meta + Email */}
-                        <div className="grid grid-cols-2 gap-4">
+                        {/* Brand Story */}
+                        {(generatedData.brandStory || generatedData.about_section) && (
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Meta Description 🇦🇺</span>
-                              <button onClick={() => copy(generatedData.meta_description, "meta")} className="text-xs flex items-center gap-1" style={{ color: copiedKey === "meta" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "none", border: "none", cursor: "pointer" }}>
-                                {copiedKey === "meta" ? <Check size={10} /> : <Copy size={10} />}
+                              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Brand Story</span>
+                              <button onClick={() => copy(generatedData.brandStory ?? generatedData.about_section ?? "", "story")} className="text-xs flex items-center gap-1" style={{ color: copiedKey === "story" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "none", border: "none", cursor: "pointer" }}>
+                                {copiedKey === "story" ? <Check size={10} /> : <Copy size={10} />}
                               </button>
                             </div>
-                            <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.55)" }}>{generatedData.meta_description}</div>
+                            <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.55)" }}>{generatedData.brandStory ?? generatedData.about_section}</div>
                           </div>
-                          <div>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Email Subject 🇦🇺</span>
-                              <button onClick={() => copy(generatedData.email_subject, "email")} className="text-xs flex items-center gap-1" style={{ color: copiedKey === "email" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "none", border: "none", cursor: "pointer" }}>
-                                {copiedKey === "email" ? <Check size={10} /> : <Copy size={10} />}
-                              </button>
-                            </div>
-                            <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.55)" }}>{generatedData.email_subject}</div>
+                        )}
+
+                        {/* Meta + Email (legacy) */}
+                        {(generatedData.meta_description || generatedData.email_subject) && (
+                          <div className="grid grid-cols-2 gap-4">
+                            {generatedData.meta_description && (
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Meta Description</span>
+                                  <button onClick={() => copy(generatedData.meta_description ?? "", "meta")} className="text-xs flex items-center gap-1" style={{ color: copiedKey === "meta" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "none", border: "none", cursor: "pointer" }}>
+                                    {copiedKey === "meta" ? <Check size={10} /> : <Copy size={10} />}
+                                  </button>
+                                </div>
+                                <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.55)" }}>{generatedData.meta_description}</div>
+                              </div>
+                            )}
+                            {generatedData.email_subject && (
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Email Subject</span>
+                                  <button onClick={() => copy(generatedData.email_subject ?? "", "email")} className="text-xs flex items-center gap-1" style={{ color: copiedKey === "email" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "none", border: "none", cursor: "pointer" }}>
+                                    {copiedKey === "email" ? <Check size={10} /> : <Copy size={10} />}
+                                  </button>
+                                </div>
+                                <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.55)" }}>{generatedData.email_subject}</div>
+                              </div>
+                            )}
                           </div>
-                        </div>
+                        )}
                       </>
                     ) : rawResponse ? (
                       <div>
@@ -1526,12 +1553,12 @@ ${generatedData.email_subject}`;
 
                     {/* Code viewer */}
                     <div className="flex-1 flex flex-col overflow-hidden">
-                      {activeFile && generatedData.files[activeFile] ? (
+                      {activeFile && generatedData.files?.[activeFile] ? (
                         <>
                           <div className="flex items-center justify-between px-4 py-2 border-b flex-shrink-0" style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}>
                             <span className="text-xs font-mono" style={{ color: "rgba(240,237,232,0.6)" }}>{activeFile}</span>
                             <button
-                              onClick={() => { copy(generatedData.files[activeFile], `file-${activeFile}`); toast.success(`Copied ${activeFile}`); }}
+                              onClick={() => { copy(generatedData.files?.[activeFile] ?? "", `file-${activeFile}`); toast.success(`Copied ${activeFile}`); }}
                               className="text-xs flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all"
                               style={{ color: copiedKey === `file-${activeFile}` ? "#2dca72" : "rgba(240,237,232,0.4)", background: "rgba(255,255,255,0.04)", cursor: "pointer", border: "none" }}
                             >
