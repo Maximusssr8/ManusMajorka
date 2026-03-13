@@ -1,0 +1,166 @@
+{
+  "name": "Majorka — Live Product Intelligence",
+
+  "settings": { "executionOrder": "v1" },
+  "nodes": [
+    {
+      "id": "schedule",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0],
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "hours", "triggerAtHour": 0 },
+            { "field": "hours", "triggerAtHour": 6 },
+            { "field": "hours", "triggerAtHour": 12 },
+            { "field": "hours", "triggerAtHour": 18 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "apify_start",
+      "name": "Start Apify TikTok Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/apify~tiktok-scraper/runs?token=${APIFY_API_TOKEN}",
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "searchTerms": [
+            "trending Australia buy",
+            "viral product 2025",
+            "best seller home AU",
+            "fitness gadget Australia",
+            "kitchen tool Australia",
+            "pet accessories Australia",
+            "beauty tool viral",
+            "posture corrector Australia"
+          ],
+          "maxItems": 100,
+          "scrapeType": "hashtag"
+        }
+      }
+    },
+    {
+      "id": "wait_node",
+      "name": "Wait 90 seconds",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [440, 0],
+      "parameters": { "amount": 90, "unit": "seconds" }
+    },
+    {
+      "id": "fetch_results",
+      "name": "Fetch Apify Results",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [660, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.apify.com/v2/acts/apify~tiktok-scraper/runs/last/dataset/items",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "token", "value": "${APIFY_API_TOKEN}" },
+            { "name": "limit", "value": "100" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "score_claude",
+      "name": "Score with Claude Haiku",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "${ANTHROPIC_API_KEY}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "model": "claude-haiku-4-5",
+          "max_tokens": 4000,
+          "messages": [{
+            "role": "user",
+            "content": "={{ 'You are a dropshipping analyst for the AUSTRALIAN market. Score these TikTok products for AU dropshippers. Return ONLY a JSON array — no markdown, no code fences.\\n\\nProducts (first 20): ' + JSON.stringify(($json.slice ? $json.slice(0,20) : [$json])) + '\\n\\nFor each product return:\\n[{\\n  \"product_title\": \"Product name\",\\n  \"winning_score\": 0-100,\\n  \"trend\": \"exploding|growing|stable|declining\",\\n  \"competition_level\": \"low|medium|high\",\\n  \"au_relevance\": 0-100,\\n  \"est_daily_revenue_aud\": number,\\n  \"units_per_day\": number,\\n  \"category\": \"Health & Beauty|Home & Kitchen|Fitness|Pet|Fashion|Tech|Kids|Other\",\\n  \"why_winning\": \"one sentence\",\\n  \"ad_angle\": \"best hook in 10 words\",\\n  \"image_url\": \"from input or empty string\",\\n  \"tiktok_product_url\": \"from input or empty string\",\\n  \"price_aud\": number,\\n  \"sold_count\": number,\\n  \"platform\": \"tiktok_shop\"\\n}]\\n\\nReturn ONLY the JSON array.' }}"
+          }]
+        }
+      }
+    },
+    {
+      "id": "parse_code",
+      "name": "Parse Claude Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 0],
+      "parameters": {
+        "jsCode": "const raw = $json.content[0].text;\nlet products = [];\ntry {\n  const match = raw.match(/\\[([\\s\\S]*)\\]/);\n  products = match ? JSON.parse('[' + match[1] + ']') : JSON.parse(raw);\n} catch(e) {\n  console.log('Parse error:', e.message);\n  return [];\n}\nreturn products\n  .filter(p => p && p.product_title)\n  .map(p => ({\n  json: {\n    product_title: String(p.product_title || 'Unknown').slice(0, 255),\n    image_url: p.image_url || null,\n    tiktok_product_url: p.tiktok_product_url || null,\n    category: p.category || 'Other',\n    platform: p.platform || 'tiktok_shop',\n    price_aud: Number(p.price_aud) || null,\n    sold_count: Number(p.sold_count) || null,\n    winning_score: Math.min(100, Math.max(0, Number(p.winning_score) || 0)),\n    trend: ['exploding','growing','stable','declining'].includes(p.trend) ? p.trend : 'stable',\n    competition_level: ['low','medium','high'].includes(p.competition_level) ? p.competition_level : 'medium',\n    au_relevance: Math.min(100, Math.max(0, Number(p.au_relevance) || 0)),\n    est_daily_revenue_aud: Number(p.est_daily_revenue_aud) || null,\n    units_per_day: Number(p.units_per_day) || null,\n    why_winning: p.why_winning || null,\n    ad_angle: p.ad_angle || null,\n    source: 'tiktok_shop',\n    scraped_at: new Date().toISOString(),\n    scored_at: new Date().toISOString()\n  }\n}));"
+      }
+    },
+    {
+      "id": "upsert_supabase",
+      "name": "Upsert to Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://ievekuazsjbdrltsdksn.supabase.co/rest/v1/winning_products",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlldmVrdWF6c2piZHJsdHNka3NuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjAyMTQ0MCwiZXhwIjoyMDg3NTk3NDQwfQ.VTbTM5BCyAq843T1z1DRpkPI-0X7ZkAoD6K2q3sVX9Q" },
+            { "name": "Authorization", "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlldmVrdWF6c2piZHJsdHNka3NuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjAyMTQ0MCwiZXhwIjoyMDg3NTk3NDQwfQ.VTbTM5BCyAq843T1z1DRpkPI-0X7ZkAoD6K2q3sVX9Q" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "resolution=merge-duplicates,return=minimal" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ $json }}"
+      }
+    },
+    {
+      "id": "telegram_notify",
+      "name": "Notify Max on Telegram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.telegram.org/bot8702140512:AAFIsnDlmOOmAx9xNLRZGY2IlUgursueI_o/sendMessage",
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "chat_id": "5185376886",
+          "parse_mode": "Markdown",
+          "text": "🔥 *Majorka Live Products Updated*\n\nFresh TikTok Shop data scored by Claude AI. Check your Trending Now feed.\n\n⏰ Next refresh in 6h."
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger":         { "main": [[{ "node": "Start Apify TikTok Scraper", "type": "main", "index": 0 }]] },
+    "Start Apify TikTok Scraper": { "main": [[{ "node": "Wait 90 seconds",         "type": "main", "index": 0 }]] },
+    "Wait 90 seconds":          { "main": [[{ "node": "Fetch Apify Results",       "type": "main", "index": 0 }]] },
+    "Fetch Apify Results":      { "main": [[{ "node": "Score with Claude Haiku",   "type": "main", "index": 0 }]] },
+    "Score with Claude Haiku":  { "main": [[{ "node": "Parse Claude Response",     "type": "main", "index": 0 }]] },
+    "Parse Claude Response":    { "main": [[{ "node": "Upsert to Supabase",        "type": "main", "index": 0 }]] },
+    "Upsert to Supabase":       { "main": [[{ "node": "Notify Max on Telegram",    "type": "main", "index": 0 }]] }
+  }
+}
