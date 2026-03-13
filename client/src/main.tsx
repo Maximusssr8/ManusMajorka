@@ -1,5 +1,37 @@
 console.log('[main] mounting React app');
 
+// ── Stale chunk reload fix ───────────────────────────────────────────────────
+// After a new deploy, old lazily-loaded JS chunks no longer exist (hash mismatch).
+// Catch the failed dynamic import and force a hard reload once so the browser
+// picks up the new chunk manifest. A session flag prevents infinite reload loops.
+window.addEventListener('error', (e) => {
+  const msg = e.message || '';
+  if (
+    msg.includes('Failed to fetch dynamically imported module') ||
+    msg.includes('Importing a module script failed') ||
+    msg.includes('error loading dynamically imported module')
+  ) {
+    if (!sessionStorage.getItem('chunk_reload_attempted')) {
+      sessionStorage.setItem('chunk_reload_attempted', '1');
+      window.location.reload();
+    }
+  }
+});
+// Also handle unhandled promise rejections (Chrome/Vite path)
+window.addEventListener('unhandledrejection', (e) => {
+  const msg = String(e.reason?.message || e.reason || '');
+  if (
+    msg.includes('Failed to fetch dynamically imported module') ||
+    msg.includes('Loading chunk') ||
+    msg.includes('Loading CSS chunk')
+  ) {
+    if (!sessionStorage.getItem('chunk_reload_attempted')) {
+      sessionStorage.setItem('chunk_reload_attempted', '1');
+      window.location.reload();
+    }
+  }
+});
+
 // ── Cross-domain OAuth redirect fix ──────────────────────────────────────────
 // Supabase Site URL is still manus-majorka.vercel.app. After Google OAuth it
 // sends the access_token hash there. This snippet detects that and immediately
