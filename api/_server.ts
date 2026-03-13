@@ -6,6 +6,9 @@ import express, { type Request, type Response } from "express";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerChatRoutes } from "../server/_core/chat";
 import { registerScrapeRoutes, scrapeProductData } from "../server/lib/scrape-product";
+import { registerToolsApi } from "../server/lib/tools-api";
+import { registerAutomationRoutes } from "../server/lib/automation-api";
+import { registerAffiliateRoutes } from "../server/lib/affiliate";
 import { analyzeProduct } from "../server/lib/product-intelligence";
 import { appRouter } from "../server/routers";
 import { createContext } from "../server/_core/context";
@@ -68,6 +71,9 @@ app.get("/api/health", (_req: Request, res: Response) => {
 
 registerChatRoutes(app);
 registerScrapeRoutes(app);
+registerToolsApi(app);
+registerAutomationRoutes(app);
+registerAffiliateRoutes(app);
 
 // ── Product import with AI Brain ─────────────────────────────────────────────
 app.post("/api/import-product", async (req: Request, res: Response) => {

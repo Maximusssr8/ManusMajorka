@@ -1,11 +1,9 @@
-import { useChat } from '@ai-sdk/react';
-import type { UIMessage } from 'ai';
-import { DefaultChatTransport } from 'ai';
 import { Check, ChevronDown, ChevronUp, Copy, Loader2, PenTool, RefreshCw } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { ActiveProductBanner } from '@/components/ActiveProductBanner';
 import { SaveToProduct } from '@/components/SaveToProduct';
+import { useAuth } from '@/contexts/AuthContext';
 import { useActiveProduct } from '@/hooks/useActiveProduct';
 import { injectProductIntelligence } from '@/lib/buildToolPrompt';
 
@@ -26,10 +24,12 @@ interface CopyOutput {
   usp: string;
 }
 
-const SYSTEM_PROMPT = `You are an elite ecommerce copywriter who has generated $100M+ in sales. Write high-converting copy using proven frameworks (PAS, AIDA, FAB).
-When given a product, return a JSON object with this EXACT structure (no markdown, just raw JSON):
-{"headline":"Main product headline (benefit-driven, max 10 words)","subheadline":"Supporting subheadline (max 20 words)","productDescription":"2-3 sentence product description for website","bulletPoints":["Benefit bullet 1","Benefit bullet 2","Benefit bullet 3","Benefit bullet 4","Benefit bullet 5"],"heroHook":"Scroll-stopping opening line for ads/landing page","socialProof":"Social proof statement (e.g. 'Join 12,000+ Australians who...')","cta":"Call-to-action button text","emailSubjectLines":["Subject line 1","Subject line 2","Subject line 3","Subject line 4","Subject line 5"],"adHeadlines":["Ad headline 1","Ad headline 2","Ad headline 3","Ad headline 4","Ad headline 5"],"adPrimaryTexts":["Short ad primary text 1 (2-3 sentences)","Short ad primary text 2 (2-3 sentences)","Short ad primary text 3 (2-3 sentences)"],"seoTitle":"SEO page title (max 60 chars)","seoMetaDescription":"SEO meta description (max 155 chars)","tiktokHook":"TikTok video hook (first 3 seconds, max 15 words)","usp":"Unique selling proposition (one sentence)"}
-Return ONLY raw JSON.`;
+const SYSTEM_PROMPT = `You are an elite AU ecommerce copywriter who has generated $50M+ in Australian DTC sales. Write high-converting copy using the specified framework.
+
+Return ONLY a raw JSON object (no markdown, no code fences, just {}) with this exact structure:
+{"headline":"Main headline (benefit-driven, 8-10 words, AU English)","subheadline":"Supporting line (max 20 words, mentions Afterpay or AusPost if relevant)","productDescription":"2-3 sentence product description for Shopify, AU English, mention AUD price if given","bulletPoints":["Concrete benefit 1","Concrete benefit 2","Concrete benefit 3","Concrete benefit 4","Concrete benefit 5"],"heroHook":"Scroll-stopping first line for ads/TikTok, creates curiosity","socialProof":"Social proof statement mentioning Australians or AU sales numbers","cta":"Call-to-action button (max 4 words)","emailSubjectLines":["Subject 1 (curiosity)","Subject 2 (urgency)","Subject 3 (benefit)","Subject 4 (FOMO)","Subject 5 (question)"],"adHeadlines":["Facebook headline 1","Facebook headline 2","Facebook headline 3","Google headline 1 (max 30 chars)","Google headline 2 (max 30 chars)"],"adPrimaryTexts":["Complete ad body text 1 (PAS framework, 2-3 sentences)","Complete ad body text 2 (AIDA framework, 2-3 sentences)","Complete ad body text 3 (social proof led, 2-3 sentences)"],"seoTitle":"Shopify page title (max 60 chars, includes product + AU keyword)","seoMetaDescription":"Google meta description (120-155 chars, AU focused)","tiktokHook":"TikTok video first 3 seconds voiceover (max 15 words, creates instant curiosity)","usp":"One-line unique selling proposition that differentiates from competitors"}
+
+Rules: AU English (colour, flavour). AUD pricing. Reference Afterpay/Zip, AusPost, Australian shoppers where natural. Output ONLY the JSON object.`;
 
 function parseResult(text: string): CopyOutput | null {
   try {
@@ -149,8 +149,8 @@ export default function CopywriterTool() {
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState<CopyOutput | null>(null);
   const [genError, setGenError] = useState('');
-  const [waitingForResponse, setWaitingForResponse] = useState(false);
   const { activeProduct } = useActiveProduct();
+  const { session } = useAuth();
 
   useEffect(() => {
     if (activeProduct && !product) {
@@ -160,75 +160,64 @@ export default function CopywriterTool() {
     }
   }, [activeProduct]);
 
-  const getSystemPrompt = () => {
-    return injectProductIntelligence(SYSTEM_PROMPT, activeProduct as any);
-  };
-
-  const { sendMessage, status, messages } = useChat({
-    transport: new DefaultChatTransport({
-      api: '/api/chat',
-      prepareSendMessagesRequest({ messages }) {
-        return {
-          body: {
-            messages: messages.map((m: UIMessage) => ({
-              role: m.role,
-              content: m.parts
-                .filter((p: any) => p.type === 'text')
-                .map((p: any) => p.text)
-                .join(''),
-            })),
-            systemPrompt: getSystemPrompt(),
-            aiSdk: true,
-          },
-        };
-      },
-    }),
-  });
-
-  useEffect(() => {
-    if (status === 'streaming' || status === 'submitted') setWaitingForResponse(true);
-  }, [status]);
-
-  useEffect(() => {
-    if (status !== 'ready' || !generating || !waitingForResponse) return;
-    const lastMsg = messages[messages.length - 1];
-    if (lastMsg?.role === 'assistant') {
-      const text = lastMsg.parts
-        .filter((p: any) => p.type === 'text')
-        .map((p: any) => p.text)
-        .join('');
-      const parsed = parseResult(text);
-      if (parsed) setResult(parsed);
-      else setGenError('Could not parse results. Please try again.');
-    } else {
-      setGenError('No response received. Please try again.');
-    }
-    setGenerating(false);
-    setWaitingForResponse(false);
-  }, [status, generating, waitingForResponse, messages]);
-
-  const handleGenerate = useCallback(() => {
+  const handleGenerate = useCallback(async () => {
     if (!product.trim()) {
-      toast.error('Please enter a product');
+      toast.error('Please describe your product first');
       return;
     }
     setGenerating(true);
     setGenError('');
     setResult(null);
+
     const prompt = [
       `Product: ${product}`,
       audience && `Target audience: ${audience}`,
       `Tone: ${tone}`,
       `Framework: ${framework}`,
-      pricePoint && `Price: $${pricePoint}`,
-    ]
-      .filter(Boolean)
-      .join('\n');
-    sendMessage({ text: prompt });
-    setWaitingForResponse(true);
-  }, [product, audience, tone, framework, pricePoint, sendMessage]);
+      pricePoint && `Price point: $${pricePoint} AUD`,
+    ].filter(Boolean).join('\n');
 
-  const isLoading = generating || status === 'streaming' || status === 'submitted';
+    const systemPrompt = injectProductIntelligence(SYSTEM_PROMPT, activeProduct as any);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: prompt }],
+          toolName: 'copywriter',
+          systemPrompt,
+          market: 'AU',
+          stream: false,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        if (res.status === 429) throw new Error('Rate limit reached. Please sign in or wait an hour.');
+        throw new Error((err as any).error || `Request failed: ${res.status}`);
+      }
+
+      const data = await res.json();
+      const fullText: string = data.reply || data.response || data.content || '';
+      const parsed = parseResult(fullText);
+
+      if (parsed) {
+        setResult(parsed);
+      } else {
+        setGenError('Could not parse the response. Try again.');
+      }
+    } catch (err: any) {
+      setGenError(err.message || 'Generation failed. Please try again.');
+    } finally {
+      setGenerating(false);
+    }
+  }, [product, audience, tone, framework, pricePoint, activeProduct, session]);
+
+  const isLoading = generating;
 
   return (
     <div
@@ -538,6 +527,14 @@ export default function CopywriterTool() {
                 <CopyItem label="Page Title" text={result.seoTitle} />
                 <CopyItem label="Meta Description" text={result.seoMetaDescription} />
               </CopySection>
+
+              <div className="pt-2">
+                <SaveToProduct
+                  toolId="copywriter"
+                  toolName="Copywriter"
+                  outputData={result}
+                />
+              </div>
             </div>
           )}
 

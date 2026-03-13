@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
 import { TrendingUp, Users, DollarSign, Clock, BarChart2, RefreshCw } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface ProductScore {
   demand: number;       // 0-100
@@ -170,6 +171,7 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
   const [loading, setLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const prevResponseRef = useRef('');
+  const { session } = useAuth();
 
   useEffect(() => {
     if (!response || response === prevResponseRef.current) return;
@@ -190,7 +192,10 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
     setLoading(true);
     fetch('/api/chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+      },
       body: JSON.stringify({
         messages: [
           {

@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { Bot, RefreshCw, ArrowRight, Zap, TrendingUp, BarChart2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UserProfile {
   niche?: string;
@@ -123,6 +124,7 @@ export function DashboardAISuggestion({ userProfile }: Props) {
   const [cards, setCards] = useState<ActionCard[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [, setLocation] = useLocation();
+  const { session } = useAuth();
 
   const cacheKey = `majorka_suggestions_v2_${new Date().toDateString()}`;
 
@@ -135,7 +137,10 @@ export function DashboardAISuggestion({ userProfile }: Props) {
 
     fetch('/api/chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+      },
       body: JSON.stringify({
         messages: [
           {
