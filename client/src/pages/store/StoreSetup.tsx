@@ -139,7 +139,7 @@ export default function StoreSetup() {
             </div>
             <div className="bg-neutral-800 rounded-lg p-6 border border-neutral-700">
               <div className="flex items-center gap-3 mb-4">
-                <CreditCard className="w-6 h-6 text-violet-400" />
+                <CreditCard className="w-6 h-6 text-[#d4af37]" />
                 <span className="text-white font-medium">Stripe Payments</span>
               </div>
               <p className="text-neutral-400 text-sm mb-4">
@@ -181,7 +181,7 @@ export default function StoreSetup() {
                 />
                 <p className="text-neutral-500 text-xs mt-1">Tracks ViewContent, AddToCart, Purchase events automatically</p>
               </div>
-              <a href="https://business.facebook.com" target="_blank" rel="noopener noreferrer" className="text-violet-400 text-sm hover:underline">
+              <a href="https://business.facebook.com" target="_blank" rel="noopener noreferrer" className="text-[#d4af37] text-sm hover:underline">
                 How to find your Meta IDs →
               </a>
             </div>
@@ -202,7 +202,7 @@ export default function StoreSetup() {
               </div>
               <div className="flex justify-between">
                 <span className="text-neutral-400">Store URL</span>
-                <span className="text-violet-400 text-sm">/store/{form.storeSlug}</span>
+                <span className="text-[#d4af37] text-sm">/store/{form.storeSlug}</span>
               </div>
               {form.metaPixelId && (
                 <div className="flex justify-between">
@@ -214,7 +214,7 @@ export default function StoreSetup() {
             <Button
               onClick={handleLaunch}
               disabled={createStore.isPending}
-              className="w-full bg-violet-600 hover:bg-violet-700 text-white py-3 text-lg font-semibold"
+              className="w-full py-3 text-lg font-semibold text-black" style={{ background: "#d4af37" }}
             >
               {createStore.isPending ? "Launching..." : "🚀 Launch My Store"}
             </Button>
@@ -235,7 +235,7 @@ export default function StoreSetup() {
             <Button
               onClick={() => setStep(s => s + 1)}
               disabled={!canProceed()}
-              className="bg-violet-600 hover:bg-violet-700 text-white"
+              className="text-black font-semibold" style={{ background: "#d4af37" }}
             >
               Continue<ArrowRight className="w-4 h-4 ml-2" />
             </Button>

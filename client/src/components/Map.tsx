@@ -138,7 +138,7 @@ export function MapView({
       fullscreenControl: true,
       zoomControl: true,
       streetViewControl: true,
-      mapId: "DEMO_MAP_ID",
+      mapId: (import.meta as any).env?.VITE_GOOGLE_MAPS_ID || "",
     });
     if (onMapReady) {
       onMapReady(map.current);

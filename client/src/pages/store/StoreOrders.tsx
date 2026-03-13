@@ -2,7 +2,7 @@ import { trpc } from "../../lib/trpc";
 import { useAuth } from "../../contexts/AuthContext";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
-import { Package, Check } from "lucide-react";
+import { Package, Check, Loader2 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -30,8 +30,8 @@ export default function StoreOrders() {
   if (!store.data && !store.isLoading) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <p className="text-neutral-400 mb-4">No store found.</p>
-        <Button onClick={() => navigate("/app/store/setup")} className="bg-violet-600 text-white">Set Up Store</Button>
+        <p className="mb-4" style={{ color: "rgba(240,237,232,0.5)" }}>No store found.</p>
+        <Button onClick={() => navigate("/app/store/setup")} className="text-black font-semibold" style={{ background: "#d4af37" }}>Set Up Store</Button>
       </div>
     );
   }
@@ -42,40 +42,45 @@ export default function StoreOrders() {
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">Orders</h1>
-          <p className="text-neutral-400 text-sm mt-1">{orderList.length} total orders</p>
+          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "Syne, sans-serif" }}>Orders</h1>
+          <p className="text-sm mt-1" style={{ color: "rgba(240,237,232,0.5)" }}>{orderList.length} total orders</p>
         </div>
       </div>
 
       {orders.isLoading ? (
-        <div className="text-neutral-400">Loading orders...</div>
+        <div className="space-y-3">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-16 rounded-xl animate-pulse" style={{ background: "rgba(255,255,255,0.04)" }} />
+          ))}
+        </div>
       ) : orderList.length === 0 ? (
         <div className="text-center py-20">
-          <Package className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
-          <p className="text-neutral-400">No orders yet. Share your store link to start getting sales.</p>
+          <Package className="w-12 h-12 mx-auto mb-4" style={{ color: "rgba(240,237,232,0.2)" }} />
+          <p className="font-semibold text-white mb-1" style={{ fontFamily: "Syne, sans-serif" }}>No orders yet</p>
+          <p className="text-sm" style={{ color: "rgba(240,237,232,0.5)" }}>Share your store link to start getting sales.</p>
         </div>
       ) : (
-        <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
+        <div className="rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
           <table className="w-full">
             <thead>
-              <tr className="border-b border-neutral-800">
-                <th className="text-left px-5 py-3 text-neutral-400 text-xs font-medium uppercase">Date</th>
-                <th className="text-left px-5 py-3 text-neutral-400 text-xs font-medium uppercase">Customer</th>
-                <th className="text-left px-5 py-3 text-neutral-400 text-xs font-medium uppercase">Amount</th>
-                <th className="text-left px-5 py-3 text-neutral-400 text-xs font-medium uppercase">Payment</th>
-                <th className="text-left px-5 py-3 text-neutral-400 text-xs font-medium uppercase">Fulfillment</th>
+              <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                <th className="text-left px-5 py-3 text-xs font-medium uppercase" style={{ color: "rgba(240,237,232,0.4)" }}>Date</th>
+                <th className="text-left px-5 py-3 text-xs font-medium uppercase" style={{ color: "rgba(240,237,232,0.4)" }}>Customer</th>
+                <th className="text-left px-5 py-3 text-xs font-medium uppercase" style={{ color: "rgba(240,237,232,0.4)" }}>Amount</th>
+                <th className="text-left px-5 py-3 text-xs font-medium uppercase" style={{ color: "rgba(240,237,232,0.4)" }}>Payment</th>
+                <th className="text-left px-5 py-3 text-xs font-medium uppercase" style={{ color: "rgba(240,237,232,0.4)" }}>Fulfillment</th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>
             <tbody>
               {orderList.map(order => (
-                <tr key={order.id} className="border-b border-neutral-800/50 hover:bg-neutral-800/30 transition-colors">
-                  <td className="px-5 py-4 text-neutral-400 text-sm">
+                <tr key={order.id} className="transition-colors hover:bg-white/[0.02]" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                  <td className="px-5 py-4 text-sm" style={{ color: "rgba(240,237,232,0.5)" }}>
                     {new Date(order.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}
                   </td>
                   <td className="px-5 py-4">
-                    <p className="text-white text-sm">{order.customerName}</p>
-                    <p className="text-neutral-500 text-xs">{order.customerEmail}</p>
+                    <p className="text-white text-sm" style={{ fontFamily: "Syne, sans-serif" }}>{order.customerName}</p>
+                    <p className="text-xs" style={{ color: "rgba(240,237,232,0.4)" }}>{order.customerEmail}</p>
                   </td>
                   <td className="px-5 py-4 text-white font-medium">${order.amount || "—"}</td>
                   <td className="px-5 py-4">

@@ -7,10 +7,12 @@
  */
 
 import type { Application } from "express";
+import type Anthropic from "@anthropic-ai/sdk";
 import { getAnthropicClient, CLAUDE_MODEL } from "../lib/anthropic";
 import { getSupabaseAdmin } from "./supabase";
 import { rateLimit } from "../lib/rate-limit";
 import { type MarketCode, MARKETS, buildMarketContext, DEFAULT_MARKET } from "../../shared/markets";
+import { ANTHROPIC_AI_TOOLS, TOOL_STATUS_MESSAGES, executeTool } from "../lib/ai-tools";
 
 const MAX_HISTORY = 20;
 
@@ -88,6 +90,39 @@ Keep files compact but functional. Total JSON must be under 3000 tokens. Output 
   "copywriter": `You are a direct response copywriter for AU consumers. Write in Australian English (colour, favourite, organise). Avoid American hype words. Output: headline, subheadline, hero copy, bullet benefits, social proof section, CTA. Reference AUD prices, Afterpay, AusPost shipping, ACCC returns rights.`,
 };
 
+/** Maya system prompt for AI Chat — date-aware, tool-using, AU-first */
+function buildMayaPrompt(profileCtx: string, marketCtx: string): string {
+  const today = new Date().toLocaleDateString("en-AU", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  return `You are Maya, Majorka's AI ecommerce coach. You have 10+ years helping Australian dropshippers go from zero to $10K/month.
+
+Today's date: ${today}
+
+${profileCtx}
+
+You have access to live web search and research tools. ALWAYS use web_search when:
+- Asked about current trends, prices, or market conditions
+- Asked to analyse a specific store or competitor
+- Asked about recent news or events affecting ecommerce
+- Asked for product recommendations (search before answering)
+
+Your personality:
+- Direct and specific — give real numbers, real strategies, real AU platforms
+- Australian-first — AUD, AusPost, Afterpay, eBay AU, Catch, Kogan, Dropshipzone
+- Tool-using — actively use your search and research tools for every relevant question
+- Never say "I don't have access to real-time data" — you do, use web_search
+- Give 3-5 concrete action steps, not vague advice
+- Format with **bold headers** and bullet points for scannability
+
+When using tools, narrate briefly what you're doing: "Let me search for current AU trends..."
+
+${marketCtx}`;
+}
+
 function buildSystemPrompt(customPrompt: string | undefined, profile: Record<string, string> | null, toolName: string, marketCode?: MarketCode): string {
   const isAIChat = !customPrompt || toolName === "ai-chat";
 
@@ -109,32 +144,21 @@ function buildSystemPrompt(customPrompt: string | undefined, profile: Record<str
   const marketCtx = buildMarketContext(marketCode || DEFAULT_MARKET);
 
   const profileCtx = profile
-    ? `\n\nUSER PROFILE (tailor ALL responses to this context):\n- Name: ${profile.display_name || profile.full_name || "there"}\n- Country: ${profile.country || mc.name}\n- Niche: ${profile.target_niche || profile.business_niche || "not set"}\n- Experience: ${experienceMap[profile.experience_level] || profile.experience_level || "unknown"}\n- Primary goals: ${goals || "grow ecommerce business"}\n- Budget: ${profile.budget || "not set"}\n- Store URL: ${profile.business_name || "not provided"}\n${marketCtx}\nIMPORTANT: You are speaking to a ${mc.name} ecommerce operator. Use ${mc.currency} for all currency, reference ${mc.name}-specific shipping (${mc.shipping.slice(0, 2).join(", ")}), BNPL (${mc.bnpl.slice(0, 2).join(", ")}), and ${mc.compliance.slice(0, 2).join(", ")} compliance where relevant. Tailor product suggestions, pricing, and strategies to the ${mc.name} market. Reference their specific niche and experience level in every response.`
-    : `\n${marketCtx}`;
+    ? `USER PROFILE (tailor ALL responses to this context):\n- Name: ${profile.display_name || profile.full_name || "there"}\n- Country: ${profile.country || mc.name}\n- Niche: ${profile.target_niche || profile.business_niche || "not set"}\n- Experience: ${experienceMap[profile.experience_level] || profile.experience_level || "unknown"}\n- Primary goals: ${goals || "grow ecommerce business"}\n- Budget: ${profile.budget || "not set"}\n- Store URL: ${profile.business_name || "not provided"}\nIMPORTANT: You are speaking to a ${mc.name} ecommerce operator. Use ${mc.currency} for all currency, reference ${mc.name}-specific shipping (${mc.shipping.slice(0, 2).join(", ")}), BNPL (${mc.bnpl.slice(0, 2).join(", ")}), and ${mc.compliance.slice(0, 2).join(", ")} compliance where relevant.`
+    : ``;
 
-  // AI Chat gets full personality rules; tool pages get profile context + lighter memory rules
-  if (!isAIChat) {
-    const toolMemoryRules = `\n\nSESSION MEMORY RULES:
+  // AI Chat gets Maya personality with tool-using rules
+  if (isAIChat) {
+    return buildMayaPrompt(profileCtx, marketCtx);
+  }
+
+  // Tool pages get profile context + lighter memory rules
+  const toolMemoryRules = `\n\nSESSION MEMORY RULES:
 - Remember what the user has told you in this conversation — their product, niche, budget, store URL.
 - Build on previous answers. If they asked about a posture corrector earlier, reference it.
 - Never repeat the same advice. If you already covered something, reference it and move forward.
 - Relate all answers to their specific product/niche when known.`;
-    return base + profileCtx + toolMemoryRules;
-  }
-
-  const personality = `\n\nBEHAVIOUR RULES:
-- You remember everything this user has told you and build on it over time.
-- Never repeat advice you've already given. Reference past context naturally.
-- Be direct and specific. No fluff, no generic advice.
-- If you know their niche, always relate answers to it.
-- Use ${mc.name} context (${mc.currency}, local platforms, ${mc.name} shipping) by default.
-- Occasionally reference things they've mentioned before to show you remember.
-- Format responses with bullet points and **bold headers** where useful.
-- Max 400 words per response unless asked for something detailed.
-- When the user mentions a product idea or budget, reference it in future replies.
-- If the user seems frustrated, acknowledge it directly.`;
-
-  return base + profileCtx + personality;
+  return base + (profileCtx ? `\n\n${profileCtx}\n${marketCtx}` : `\n${marketCtx}`) + toolMemoryRules;
 }
 
 export function registerChatRoutes(app: Application) {
@@ -305,23 +329,125 @@ export function registerChatRoutes(app: Application) {
           res.setHeader("X-Accel-Buffering", "no");
           res.flushHeaders();
 
-          const stream = await client.messages.stream({
-            model: CLAUDE_MODEL,
-            max_tokens: maxTokens,
-            system,
-            messages,
-          });
+          // ── Agentic tool loop for ai-chat (Maya) ────────────────────
+          const useTools = toolName === "ai-chat" && process.env.TAVILY_API_KEY;
 
-          for await (const event of stream) {
-            if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-              const text = event.delta.text;
-              fullReply += text;
-              res.write(`data: ${JSON.stringify({ text })}\n\n`);
+          if (useTools) {
+            // Agentic loop: up to 5 steps with tool calling
+            type AnthropicMessage = Anthropic.MessageParam;
+            let agentMessages: AnthropicMessage[] = messages.map((m: { role: string; content: string }) => ({
+              role: m.role as "user" | "assistant",
+              content: m.content,
+            }));
+
+            let steps = 0;
+            const MAX_STEPS = 5;
+
+            while (steps < MAX_STEPS) {
+              steps++;
+              // Non-streaming call to check for tool use
+              const response = await client.messages.create({
+                model: CLAUDE_MODEL,
+                max_tokens: maxTokens,
+                system,
+                messages: agentMessages,
+                tools: ANTHROPIC_AI_TOOLS,
+                tool_choice: { type: "auto" },
+              });
+
+              // Check if we have tool calls
+              const toolUseBlocks = response.content.filter(
+                (b): b is Anthropic.ToolUseBlock => b.type === "tool_use"
+              );
+              const textBlocks = response.content.filter(
+                (b): b is Anthropic.TextBlock => b.type === "text"
+              );
+
+              // If any text was returned alongside tool calls, stream it out
+              for (const tb of textBlocks) {
+                if (tb.text) {
+                  fullReply += tb.text;
+                  res.write(`data: ${JSON.stringify({ text: tb.text })}\n\n`);
+                }
+              }
+
+              if (toolUseBlocks.length === 0 || response.stop_reason === "end_turn") {
+                // No tool calls — done
+                break;
+              }
+
+              // Add assistant message with tool use to context
+              agentMessages.push({ role: "assistant", content: response.content });
+
+              // Execute each tool and collect results
+              const toolResults: Anthropic.ToolResultBlockParam[] = [];
+              for (const toolBlock of toolUseBlocks) {
+                // Emit tool status event to frontend
+                const statusMsg = TOOL_STATUS_MESSAGES[toolBlock.name] || `🔧 Using ${toolBlock.name}...`;
+                res.write(`data: ${JSON.stringify({ toolStatus: toolBlock.name, statusMessage: statusMsg })}\n\n`);
+
+                try {
+                  const result = await executeTool(toolBlock.name, toolBlock.input as Record<string, unknown>);
+                  toolResults.push({
+                    type: "tool_result",
+                    tool_use_id: toolBlock.id,
+                    content: result,
+                  });
+                } catch (toolErr: any) {
+                  toolResults.push({
+                    type: "tool_result",
+                    tool_use_id: toolBlock.id,
+                    content: JSON.stringify({ error: toolErr.message || "Tool execution failed" }),
+                  });
+                }
+              }
+
+              // Add tool results to messages and continue loop
+              agentMessages.push({ role: "user", content: toolResults });
             }
-          }
 
-          res.write(`data: [DONE]\n\n`);
-          res.end();
+            // If no text was generated yet (tools ran but no inline text), stream final answer
+            if (!fullReply) {
+              // Final streaming call after tool results are all in
+              const finalStream = await client.messages.stream({
+                model: CLAUDE_MODEL,
+                max_tokens: maxTokens,
+                system,
+                messages: agentMessages,
+              });
+
+              for await (const event of finalStream) {
+                if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+                  const text = event.delta.text;
+                  fullReply += text;
+                  res.write(`data: ${JSON.stringify({ text })}\n\n`);
+                }
+              }
+            }
+
+            res.write(`data: [DONE]\n\n`);
+            res.end();
+
+          } else {
+            // ── Standard streaming (no tools) ───────────────────────────
+            const stream = await client.messages.stream({
+              model: CLAUDE_MODEL,
+              max_tokens: maxTokens,
+              system,
+              messages,
+            });
+
+            for await (const event of stream) {
+              if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+                const text = event.delta.text;
+                fullReply += text;
+                res.write(`data: ${JSON.stringify({ text })}\n\n`);
+              }
+            }
+
+            res.write(`data: [DONE]\n\n`);
+            res.end();
+          }
         }
 
         // Save to memory (fire-and-forget)

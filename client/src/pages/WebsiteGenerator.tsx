@@ -11,6 +11,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { cn } from "@/lib/utils";
 import { getStoredMarket } from "@/contexts/MarketContext";
+import { WEBSITE_TEMPLATES, buildTemplatePreview } from "@/lib/website-templates";
 import { SaveToProduct } from "@/components/SaveToProduct";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
 import { useProduct } from "@/contexts/ProductContext";
@@ -229,16 +230,16 @@ h1,h2,h3{font-family:'Syne',sans-serif;font-weight:800}
 </style>
 </head>
 <body>
-<section class="hero">
+<section id="hero" class="hero">
   <h1 class="hero-hl">${data.headline.replace(/\b(\w+)$/, '<span>$1</span>')}</h1>
   <p class="hero-sub">${data.subheadline}</p>
   <div>
-    <a class="btn-primary" href="#">${data.cta_primary}</a>
-    <a class="btn-secondary" href="#">${data.cta_secondary}</a>
+    <a class="btn-primary" href="#features" onclick="event.preventDefault();document.getElementById('features').scrollIntoView({behavior:'smooth'})">${data.cta_primary}</a>
+    <a class="btn-secondary" href="#cta-sec" onclick="event.preventDefault();document.getElementById('cta-sec').scrollIntoView({behavior:'smooth'})">${data.cta_secondary}</a>
   </div>
 </section>
 
-<section class="features">
+<section id="features" class="features">
   <div class="features-inner">
     <h2>Why Choose Us</h2>
     <div class="features-grid">
@@ -252,13 +253,13 @@ h1,h2,h3{font-family:'Syne',sans-serif;font-weight:800}
   </div>
 </section>
 
-<section class="trust">
+<section id="trust" class="trust">
   <div class="trust-inner">
     ${(data.trust_badges || []).map(b => `<div class="trust-badge">${b}</div>`).join("")}
   </div>
 </section>
 
-<section class="cta-sec">
+<section id="cta-sec" class="cta-sec">
   <h2>Ready to Get Started?</h2>
   <p>${data.about_section ? data.about_section.slice(0, 200) : "Join thousands of happy Australian customers."}</p>
   <div class="cta-input">
@@ -431,6 +432,9 @@ export default function WebsiteGenerator() {
   const [templatePreview, setTemplatePreview] = useState<StoreTemplate | null>(null);
   const [showTemplates, setShowTemplates] = useState(true);
 
+  // Premium template selection
+  const [premiumTemplateId, setPremiumTemplateId] = useState<string>(WEBSITE_TEMPLATES[0].id);
+
   // Preview device toggle
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
 
@@ -490,13 +494,18 @@ export default function WebsiteGenerator() {
         ? `Product: ${importedProduct.title}\nDescription: ${importedProduct.description || "N/A"}\nFeatures: ${(importedProduct.features || []).join(", ")}\nPrice: ${importedProduct.price || "N/A"}`
         : "";
 
+      const selectedTemplate = WEBSITE_TEMPLATES.find(t => t.id === premiumTemplateId);
+      const templateNote = selectedTemplate
+        ? `\nDesign Template: ${selectedTemplate.name} (${selectedTemplate.category}) — ${selectedTemplate.description}`
+        : "";
+
       const userMessage = `Generate a complete website for:
 Store name: ${storeName || "My Store"}
 Niche: ${niche || "general ecommerce"}
 Target audience: ${targetAudience || "Australian online shoppers"}
 Vibe: ${vibe}
 Brand colour: ${accentColor}
-Platform: ${platform}
+Platform: ${platform}${templateNote}
 ${productContext}
 
 Return ONLY valid JSON with the exact structure specified in your system prompt. No markdown, no code blocks, just the JSON object.`;
@@ -938,8 +947,27 @@ ${generatedData.email_subject}`;
   // ── Preview HTML ──────────────────────────────────────────────────────────
   const previewHTML = useMemo(() => {
     if (!generatedData) return "";
+    const selectedPremiumTemplate = WEBSITE_TEMPLATES.find(t => t.id === premiumTemplateId);
+    if (selectedPremiumTemplate) {
+      return buildTemplatePreview(
+        selectedPremiumTemplate,
+        {
+          headline: generatedData.headline,
+          subheadline: generatedData.subheadline,
+          ctaPrimary: generatedData.cta_primary,
+          ctaSecondary: generatedData.cta_secondary,
+          features: generatedData.features,
+          about: generatedData.about_section,
+          trustBadges: generatedData.trust_badges,
+        },
+        storeName,
+        accentColor,
+        importedProduct?.title || niche,
+        niche
+      );
+    }
     return buildPreviewHTML(generatedData, accentColor);
-  }, [generatedData, accentColor]);
+  }, [generatedData, accentColor, premiumTemplateId, storeName, niche, importedProduct]);
 
   const handleOpenPreviewNewTab = useCallback(() => {
     const win = window.open("", "_blank");
@@ -979,6 +1007,41 @@ ${generatedData.email_subject}`;
             scrollbarColor: "rgba(255,255,255,0.1) transparent",
           }}
         >
+
+          {/* Premium Template Selector */}
+          <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1.5px solid rgba(212,175,55,0.2)" }}>
+            <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
+              Choose Design Template
+            </div>
+            <div className="flex flex-col gap-2">
+              {WEBSITE_TEMPLATES.map(t => {
+                const isSelected = premiumTemplateId === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setPremiumTemplateId(t.id)}
+                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left transition-all"
+                    style={{
+                      background: isSelected ? "rgba(212,175,55,0.12)" : "rgba(255,255,255,0.03)",
+                      border: `1.5px solid ${isSelected ? "rgba(212,175,55,0.5)" : "rgba(255,255,255,0.07)"}`,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <span style={{ fontSize: 20, lineHeight: 1, flexShrink: 0 }}>{t.thumbnail}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-bold truncate" style={{ fontFamily: "Syne, sans-serif", color: isSelected ? "#d4af37" : "#f0ede8" }}>{t.name}</div>
+                      <div className="text-xs truncate" style={{ color: "rgba(240,237,232,0.4)", fontSize: 10 }}>{t.description.slice(0, 52)}…</div>
+                    </div>
+                    {isSelected && (
+                      <div className="flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "#d4af37" }}>
+                        <Check size={10} style={{ color: "#080a0e" }} />
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Template Gallery */}
           <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1.5px solid rgba(255,255,255,0.08)" }}>
@@ -1694,9 +1757,9 @@ footer{text-align:center;padding:32px;font-size:12px;opacity:.4;border-top:1px s
 <div class="hero">
 <h1>${templatePreview.storeName.split(' ').map((w, i, a) => i === a.length - 1 ? '<span class="accent">' + w + '</span>' : w).join(' ')}</h1>
 <p>${templatePreview.tagline}</p>
-<a class="btn" href="#">Shop Now</a>
+<a class="btn" href="#features-section" onclick="event.preventDefault();document.getElementById('features-section').scrollIntoView({behavior:'smooth'})">Shop Now</a>
 </div>
-<div class="features">
+<div id="features-section" class="features">
 <div class="feat"><h3>Australian Made</h3><p>Quality products from local suppliers.</p></div>
 <div class="feat"><h3>Free AU Shipping</h3><p>Free delivery on orders over $99 AUD.</p></div>
 <div class="feat"><h3>Afterpay Available</h3><p>Buy now, pay later with Afterpay.</p></div>

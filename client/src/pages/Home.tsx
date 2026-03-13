@@ -1750,9 +1750,9 @@ export default function Home() {
               <div>
                 <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 11, color: C.secondary, marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.1em" }}>Legal</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  <a href="#" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Privacy Policy</a>
-                  <a href="#" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Terms of Service</a>
-                  <a href="#" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Refund Policy</a>
+                  <a href="/privacy" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Privacy Policy</a>
+                  <a href="/terms" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Terms of Service</a>
+                  <a href="/refund-policy" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Refund Policy</a>
                 </div>
               </div>
             </div>

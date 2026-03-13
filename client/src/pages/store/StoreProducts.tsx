@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { trpc } from "../../lib/trpc";
 import { useAuth } from "../../contexts/AuthContext";
 import { toast } from "sonner";
-import { ExternalLink, Copy, Eye, EyeOff, Package, Store } from "lucide-react";
+import { ExternalLink, Copy, Eye, EyeOff, Package, Store, Loader2 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Switch } from "../../components/ui/switch";
@@ -28,10 +28,10 @@ export default function StoreProducts() {
   if (!store.data && !store.isLoading) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <Store className="w-12 h-12 text-neutral-500 mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-white mb-2">No store yet</h2>
-        <p className="text-neutral-400 mb-6">Set up your store first to start selling.</p>
-        <Button onClick={() => navigate("/app/store/setup")} className="bg-violet-600 hover:bg-violet-700 text-white">
+        <Store className="w-12 h-12 mx-auto mb-4" style={{ color: "rgba(240,237,232,0.3)" }} />
+        <h2 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "Syne, sans-serif" }}>No store yet</h2>
+        <p className="mb-6" style={{ color: "rgba(240,237,232,0.5)" }}>Set up your store first to start selling.</p>
+        <Button onClick={() => navigate("/app/store/setup")} className="text-black font-semibold" style={{ background: "#d4af37" }}>
           Set Up My Store
         </Button>
       </div>
@@ -54,16 +54,16 @@ export default function StoreProducts() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">Storefront</h1>
-          {store.data && <p className="text-neutral-400 text-sm mt-1">{store.data.storeName}</p>}
+          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "Syne, sans-serif" }}>Storefront</h1>
+          {store.data && <p className="text-sm mt-1" style={{ color: "rgba(240,237,232,0.5)" }}>{store.data.storeName}</p>}
         </div>
         {store.data && (
           <div className="flex gap-3">
-            <Button variant="outline" size="sm" className="border-neutral-700 text-neutral-300"
-              onClick={() => { navigator.clipboard.writeText(storeUrl); toast.success("Link copied!"); }}>
+            <Button variant="outline" size="sm" className="border-white/10 text-white/70 hover:text-white"
+              onClick={() => { navigator.clipboard.writeText(storeUrl); toast.success("Store link copied!"); }}>
               <Copy className="w-4 h-4 mr-2" />Copy Link
             </Button>
-            <Button variant="outline" size="sm" className="border-neutral-700 text-neutral-300"
+            <Button variant="outline" size="sm" className="border-white/10 text-white/70 hover:text-white"
               onClick={() => window.open(storeUrl, "_blank")}>
               <ExternalLink className="w-4 h-4 mr-2" />View Store
             </Button>
@@ -72,11 +72,22 @@ export default function StoreProducts() {
       </div>
 
       {myProducts.isLoading ? (
-        <div className="text-neutral-400">Loading products...</div>
+        <div className="space-y-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-20 rounded-xl animate-pulse" style={{ background: "rgba(255,255,255,0.04)" }} />
+          ))}
+        </div>
       ) : !myProducts.data?.length ? (
         <div className="text-center py-16">
-          <Package className="w-12 h-12 text-neutral-600 mx-auto mb-4" />
-          <p className="text-neutral-400">No products yet. Import products in <button onClick={() => navigate("/app/my-products")} className="text-violet-400 hover:underline">My Products</button>.</p>
+          <Package className="w-12 h-12 mx-auto mb-4" style={{ color: "rgba(240,237,232,0.2)" }} />
+          <p className="font-semibold text-white mb-1" style={{ fontFamily: "Syne, sans-serif" }}>No products yet</p>
+          <p className="text-sm mb-4" style={{ color: "rgba(240,237,232,0.5)" }}>
+            Add products in{" "}
+            <button onClick={() => navigate("/app/my-products")} className="underline" style={{ color: "#d4af37" }}>
+              My Products
+            </button>{" "}
+            to start selling.
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -86,17 +97,24 @@ export default function StoreProducts() {
             const p = priceFor(product.id);
 
             return (
-              <div key={product.id} className={`bg-neutral-900 border rounded-xl p-5 transition-colors ${published ? "border-violet-800/50" : "border-neutral-800"}`}>
+              <div key={product.id} className="rounded-xl p-5 transition-colors"
+                style={{
+                  background: "rgba(255,255,255,0.02)",
+                  border: published ? "1px solid rgba(212,175,55,0.3)" : "1px solid rgba(255,255,255,0.07)",
+                }}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 rounded-full ${published ? "bg-emerald-400" : "bg-neutral-600"}`} />
+                    <div className="w-2 h-2 rounded-full" style={{ background: published ? "#4ade80" : "rgba(255,255,255,0.2)" }} />
                     <div>
-                      <p className="text-white font-medium">{product.name}</p>
-                      <p className="text-neutral-500 text-xs">{product.niche || "No niche"}</p>
+                      <p className="text-white font-medium" style={{ fontFamily: "Syne, sans-serif" }}>{product.name}</p>
+                      <p className="text-xs" style={{ color: "rgba(240,237,232,0.4)" }}>{product.niche || "No niche"}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    {published ? <Eye className="w-4 h-4 text-emerald-400" /> : <EyeOff className="w-4 h-4 text-neutral-500" />}
+                    {published
+                      ? <Eye className="w-4 h-4" style={{ color: "#4ade80" }} />
+                      : <EyeOff className="w-4 h-4" style={{ color: "rgba(255,255,255,0.3)" }} />
+                    }
                     <Switch
                       checked={published}
                       onCheckedChange={checked => handleToggle(product.id, checked)}
@@ -105,25 +123,25 @@ export default function StoreProducts() {
                 </div>
 
                 {(published || prices[product.id]) && (
-                  <div className="mt-4 pt-4 border-t border-neutral-800 flex gap-4">
+                  <div className="mt-4 pt-4 flex gap-4" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
                     <div>
-                      <Label className="text-neutral-400 text-xs mb-1 block">Price (AUD)</Label>
+                      <Label className="text-xs mb-1 block" style={{ color: "rgba(240,237,232,0.5)" }}>Price (AUD)</Label>
                       <Input
                         value={p.price}
                         onChange={e => setPrices(prev => ({ ...prev, [product.id]: { ...priceFor(product.id), price: e.target.value } }))}
                         onBlur={() => upsert.mutate({ productId: product.id, price: p.price, comparePrice: p.comparePrice, published })}
                         placeholder="49.00"
-                        className="bg-neutral-800 border-neutral-700 text-white w-32 h-8 text-sm"
+                        className="border-white/10 text-white w-32 h-8 text-sm" style={{ background: "rgba(255,255,255,0.05)" }}
                       />
                     </div>
                     <div>
-                      <Label className="text-neutral-400 text-xs mb-1 block">Compare at (crossed out)</Label>
+                      <Label className="text-xs mb-1 block" style={{ color: "rgba(240,237,232,0.5)" }}>Compare at (crossed out)</Label>
                       <Input
                         value={p.comparePrice}
                         onChange={e => setPrices(prev => ({ ...prev, [product.id]: { ...priceFor(product.id), comparePrice: e.target.value } }))}
                         onBlur={() => upsert.mutate({ productId: product.id, price: p.price, comparePrice: p.comparePrice, published })}
                         placeholder="99.00"
-                        className="bg-neutral-800 border-neutral-700 text-white w-32 h-8 text-sm"
+                        className="border-white/10 text-white w-32 h-8 text-sm" style={{ background: "rgba(255,255,255,0.05)" }}
                       />
                     </div>
                   </div>

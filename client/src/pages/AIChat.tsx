@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Markdown } from "@/components/Markdown";
 import { Send, Loader2, Sparkles, Trash2, Package, RefreshCw } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
 import { useAuth } from "@/contexts/AuthContext";
 import { getStoredMarket } from "@/contexts/MarketContext";
@@ -19,10 +20,20 @@ How you communicate:
 
 type Message = { role: "user" | "assistant"; content: string; isError?: boolean };
 
+const TOOL_STATUS_LABELS: Record<string, string> = {
+  web_search: "🔍 Searching the web...",
+  product_research: "📊 Researching products...",
+  competitor_analysis: "🕵️ Analysing competitor...",
+  supplier_finder: "🏭 Finding suppliers...",
+  trend_scout: "🔥 Scouting trends...",
+  ad_angle_generator: "🎯 Generating ad angles...",
+};
+
 export default function AIChat() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [status, setStatus] = useState<"idle" | "streaming">("idle");
+  const [toolStatus, setToolStatus] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const { activeProduct } = useActiveProduct();
@@ -100,9 +111,17 @@ export default function AIChat() {
 
           for (const line of lines) {
             if (!line.startsWith("data: ")) continue;
+            const rawPayload = line.slice(6);
+            if (rawPayload === "[DONE]") continue;
             try {
-              const payload = JSON.parse(line.slice(6));
-              if (payload.text !== undefined) {
+              const payload = JSON.parse(rawPayload);
+              if (payload.toolStatus) {
+                // Show tool status pill
+                const label = TOOL_STATUS_LABELS[payload.toolStatus] || payload.statusMessage || `🔧 Working...`;
+                setToolStatus(label);
+              } else if (payload.text !== undefined) {
+                // Text is streaming — clear tool status
+                setToolStatus(null);
                 accumulated += payload.text;
                 setMessages(prev => {
                   const updated = [...prev];
@@ -138,6 +157,7 @@ export default function AIChat() {
       });
     } finally {
       setStatus("idle");
+      setToolStatus(null);
     }
   }, [input, messages, status, buildSystemPrompt, session]);
 
@@ -317,8 +337,27 @@ export default function AIChat() {
               </div>
             ))}
 
+            {/* Tool status pill */}
+            <AnimatePresence>
+              {toolStatus && (
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex justify-start"
+                >
+                  <div className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-full w-fit ml-10"
+                    style={{ color: "#d4af37", background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.2)" }}>
+                    <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#d4af37" }} />
+                    <span style={{ fontFamily: "DM Sans, sans-serif", fontSize: 13 }}>{toolStatus}</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Bouncing dots typing indicator */}
-            {status === "streaming" && messages[messages.length - 1]?.content === "" && (
+            {status === "streaming" && messages[messages.length - 1]?.content === "" && !toolStatus && (
               <div className="flex gap-3 justify-start">
                 <div className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center" style={{ background: "rgba(212,175,55,0.12)" }}>
                   <Sparkles className="w-3.5 h-3.5" style={{ color: "#d4af37" }} />

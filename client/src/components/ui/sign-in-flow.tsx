@@ -384,9 +384,9 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                       />
                       <span className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
                         I agree to the{" "}
-                        <Link href="#" className="underline" style={{ color: "rgba(255,255,255,0.6)" }}>Terms of Service</Link>
+                        <Link href="/terms" className="underline" style={{ color: "rgba(255,255,255,0.6)" }}>Terms of Service</Link>
                         {" "}and{" "}
-                        <Link href="#" className="underline" style={{ color: "rgba(255,255,255,0.6)" }}>Privacy Policy</Link>
+                        <Link href="/privacy" className="underline" style={{ color: "rgba(255,255,255,0.6)" }}>Privacy Policy</Link>
                       </span>
                     </label>
                   )}

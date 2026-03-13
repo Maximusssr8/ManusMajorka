@@ -25,8 +25,8 @@ const ANGLE_COLORS: Record<string, string> = {
   "Pain Point": "border-red-800/50 bg-red-900/10",
   "Social Proof": "border-emerald-800/50 bg-emerald-900/10",
   "FOMO/Urgency": "border-orange-800/50 bg-orange-900/10",
-  "Curiosity": "border-blue-800/50 bg-blue-900/10",
-  "Transformation": "border-violet-800/50 bg-violet-900/10",
+  "Curiosity": "border-[#d4af37]/30 bg-[#d4af37]/5",
+  "Transformation": "border-[#d4af37]/20 bg-[#d4af37]/5",
 };
 
 function AdCard({ ad }: { ad: AdSet }) {
@@ -113,17 +113,17 @@ export default function AdsStudio() {
         <div className="space-y-5">
           <div>
             <Label className="text-neutral-300 mb-2 block text-sm">Product</Label>
-            {activeProduct && <div className="mb-2 text-xs text-violet-400 bg-violet-900/20 border border-violet-800/30 px-3 py-2 rounded-lg">Active: {activeProduct.name}</div>}
+            {activeProduct && <div className="mb-2 text-xs text-[#d4af37] bg-[#d4af37]/10 border border-[#d4af37]/20 px-3 py-2 rounded-lg">Active: {activeProduct.name}</div>}
             <textarea value={productDesc} onChange={e=>setProductDesc(e.target.value)}
               placeholder="Describe your product..." rows={4}
-              className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm resize-none focus:outline-none focus:border-violet-500" />
+              className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm resize-none focus:outline-none focus:border-[#d4af37]" />
           </div>
           <div>
             <Label className="text-neutral-300 mb-2 block text-sm">Objective</Label>
             <div className="grid grid-cols-3 gap-2">
               {[["PURCHASE","Purchase"],["TRAFFIC","Traffic"],["AWARENESS","Awareness"]].map(([val,label])=>(
                 <button key={val} onClick={()=>setObjective(val)}
-                  className={`py-2 rounded-lg text-xs font-medium transition-colors ${objective===val?"bg-violet-600 text-white":"bg-neutral-800 text-neutral-400 hover:bg-neutral-700"}`}>{label}</button>
+                  className={`py-2 rounded-lg text-xs font-medium transition-colors ${objective===val?"bg-[#d4af37] text-black":"bg-white/5 text-white/50 hover:bg-white/10"}`}>{label}</button>
               ))}
             </div>
           </div>
@@ -132,7 +132,7 @@ export default function AdsStudio() {
             <div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">$</span>
               <Input value={budget} onChange={e=>setBudget(e.target.value)} type="number" className="pl-7 bg-neutral-900 border-neutral-700 text-white"/></div>
           </div>
-          <Button onClick={generate} disabled={loading} className="w-full bg-violet-600 hover:bg-violet-700 text-white py-2.5">
+          <Button onClick={generate} disabled={loading} className="w-full text-black font-semibold py-2.5" style={{ background: "#d4af37" }}>
             {loading?<><Loader2 className="w-4 h-4 mr-2 animate-spin"/>Generating...</>:<><Wand2 className="w-4 h-4 mr-2"/>Generate Campaign</>}
           </Button>
         </div>
@@ -141,7 +141,7 @@ export default function AdsStudio() {
       <div className="flex-1 overflow-y-auto p-6">
         {loading && (
           <div className="flex flex-col items-center justify-center h-64 text-center">
-            <div className="w-12 h-12 border-2 border-violet-500/30 border-t-violet-500 rounded-full animate-spin mb-4"/>
+            <div className="w-12 h-12 border-2 border-[#d4af37]/30 border-t-[#d4af37] rounded-full animate-spin mb-4"/>
             <p className="text-white font-medium">Generating your ad campaign...</p>
             <p className="text-neutral-400 text-sm mt-1">Creating 3 unique creative variations</p>
           </div>
