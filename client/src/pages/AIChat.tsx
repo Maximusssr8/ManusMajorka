@@ -4,6 +4,7 @@ import { Markdown } from "@/components/Markdown";
 import { Send, Loader2, Sparkles, Trash2, Package, RefreshCw } from "lucide-react";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
 import { useAuth } from "@/contexts/AuthContext";
+import { getStoredMarket } from "@/contexts/MarketContext";
 import { toast } from "sonner";
 
 const BASE_SYSTEM_PROMPT = `You are an elite ecommerce advisor with 15 years experience scaling 7-figure Shopify stores. You give specific, actionable advice tailored to the user's exact situation. Never give generic answers.
@@ -77,6 +78,7 @@ export default function AIChat() {
           systemPrompt: buildSystemPrompt(),
           toolName: "ai-chat",
           stream: true,
+          market: getStoredMarket(),
         }),
       });
       if (!response.ok) throw new Error(`Server error: ${response.status}`);

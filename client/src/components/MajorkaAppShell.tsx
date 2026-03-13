@@ -17,9 +17,11 @@ import {
   Store, ShoppingBag, ClipboardList,
   Clock, Bell, HelpCircle, ChevronUp, Zap, Crown, ArrowUpRight,
   TrendingUp, Calculator, Activity,
-  Flame, Award, RefreshCw, Workflow, Compass,
+  Flame, Award, RefreshCw, Workflow, Compass, GraduationCap,
 } from "lucide-react";
 import { allTools } from "@/lib/tools";
+import MarketSelector from "@/components/MarketSelector";
+import { useBeginnerMode, BEGINNER_LABELS, BEGINNER_TOOLTIPS } from "@/hooks/useBeginnerMode";
 
 // ── Navigation structure ──────────────────────────────────────────────────────
 
@@ -109,6 +111,7 @@ const NAV_SECTIONS: NavSection[] = [
 ];
 
 const BOTTOM_ITEMS: NavItem[] = [
+  { label: "Knowledge Base", path: "/app/knowledge-base", icon: GraduationCap },
   { label: "Earn with Majorka", path: "/app/affiliate", icon: Award },
   { label: "Settings", path: "/app/settings", icon: Settings },
   { label: "Account", path: "/account", icon: User },
@@ -146,6 +149,10 @@ export default function MajorkaAppShell({ children }: Props) {
   const productsQuery = trpc.products.list.useQuery(undefined, { enabled: isAuthenticated });
   const productCount = productsQuery.data?.length ?? 0;
   const [usageCount, setUsageCount] = useState(0);
+  const createdAtStr = user?.createdAt instanceof Date
+    ? user.createdAt.toISOString()
+    : (user?.createdAt as string | null | undefined);
+  const { isBeginnerMode, toggleBeginnerMode } = useBeginnerMode(createdAtStr);
 
   // Update usage count periodically
   useEffect(() => {
@@ -214,10 +221,15 @@ export default function MajorkaAppShell({ children }: Props) {
 
   const navItem = (item: NavItem) => {
     const active = isActive(item.path, item.exact);
+    // Extract tool ID from path for beginner mode lookup
+    const toolId = item.path.replace("/app/", "").replace(/\//g, "-");
+    const beginnerLabel = isBeginnerMode ? BEGINNER_LABELS[toolId] : undefined;
+    const beginnerTooltip = isBeginnerMode ? BEGINNER_TOOLTIPS[toolId] : undefined;
+    const displayLabel = beginnerLabel ?? item.label;
     // Extract tour ID from path for product tour targeting
-    const tourId = item.path.replace("/app/", "").replace(/\//g, "-");
+    const tourId = toolId;
     return (
-      <div key={item.path} className="mb-0.5" data-tour={`nav-${tourId}`}>
+      <div key={item.path} className="mb-0.5" data-tour={`nav-${tourId}`} title={beginnerTooltip ?? undefined}>
         <button
           onClick={() => handleNavClick(item.path)}
           className="w-full flex items-center gap-2 px-3 py-1.5 text-sm transition-all relative"
@@ -246,7 +258,7 @@ export default function MajorkaAppShell({ children }: Props) {
         >
           {createElement(item.icon, { size: 14, style: { flexShrink: 0, opacity: active ? 1 : 0.8 } })}
           <span className="flex-1 text-left truncate text-sm">
-            {item.label}
+            {displayLabel}
             {item.badge && (
               <span
                 className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs"
@@ -359,6 +371,55 @@ export default function MajorkaAppShell({ children }: Props) {
         <div className="mt-4 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           {BOTTOM_ITEMS.map(item => navItem(item))}
         </div>
+      </div>
+
+      {/* Market selector */}
+      <div className="flex-shrink-0 px-2.5 py-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <MarketSelector />
+      </div>
+
+      {/* Beginner Mode toggle */}
+      <div
+        className="flex-shrink-0 px-3 py-2 flex items-center justify-between"
+        style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
+      >
+        <span
+          className="text-xs"
+          style={{ color: "#52525b", fontFamily: "DM Sans, sans-serif" }}
+          title="Simplifies tool names and adds helpful tooltips for new users"
+        >
+          Beginner Mode
+        </span>
+        <button
+          onClick={toggleBeginnerMode}
+          aria-label="Toggle Beginner Mode"
+          className="relative flex-shrink-0"
+          style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+        >
+          <div
+            style={{
+              width: 32,
+              height: 18,
+              borderRadius: 9,
+              background: isBeginnerMode ? "rgba(212,175,55,0.6)" : "rgba(255,255,255,0.1)",
+              transition: "background 0.2s",
+              position: "relative",
+            }}
+          >
+            <div
+              style={{
+                width: 12,
+                height: 12,
+                borderRadius: "50%",
+                background: isBeginnerMode ? "#d4af37" : "#52525b",
+                position: "absolute",
+                top: 3,
+                left: isBeginnerMode ? 17 : 3,
+                transition: "left 0.2s, background 0.2s",
+              }}
+            />
+          </div>
+        </button>
       </div>
 
       {/* Usage meter */}

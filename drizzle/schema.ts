@@ -86,6 +86,7 @@ export const userProfiles = pgTable("user_profiles", {
   targetNiche: varchar("target_niche", { length: 255 }),
   monthlyRevenue: varchar("monthly_revenue", { length: 50 }),
   country: varchar("country", { length: 100 }),
+  market: varchar("market", { length: 10 }).default("AU"),
   onboardingCompleted: boolean("onboarding_completed").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

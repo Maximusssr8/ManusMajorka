@@ -46,6 +46,15 @@
 /* ── 21Dev Light Theme ── */
 :root {
   --radius: 0.625rem;
+  /* Surface elevation scale */
+  --surface-0: #080a0e;
+  --surface-1: #0d1117;
+  --surface-2: #141922;
+  --surface-3: #1e2530;
+  --surface-border: rgba(212, 175, 55, 0.12);
+  --surface-border-hover: rgba(212, 175, 55, 0.35);
+  --gold: #d4af37;
+  --gold-dim: rgba(212, 175, 55, 0.6);
   --background: #ffffff;
   --foreground: #0a0a0a;
   --card: #ffffff;

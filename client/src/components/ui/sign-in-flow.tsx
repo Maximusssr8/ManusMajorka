@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
 import { supabase } from "@/lib/supabase";
+import { trackSignup, trackLogin, identify } from "@/lib/analytics";
 import { Shield, Zap, TrendingUp, Users } from "lucide-react";
 
 // ─── Social proof stats ────────────────────────────────────────────────────────
@@ -55,6 +56,20 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
       if (event === "SIGNED_IN") {
+        // Identify user and track login/signup
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            identify(user.id, { email: user.email, plan: "free", market: "AU" });
+            const isNewUser = !localStorage.getItem("majorka_onboarded");
+            if (isNewUser) {
+              trackSignup("email");
+            } else {
+              trackLogin("email");
+            }
+          }
+        } catch { /* best-effort */ }
+
         // Credit referral on signup
         const refCode = localStorage.getItem("majorka_ref");
         if (refCode) {

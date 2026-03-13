@@ -9,6 +9,7 @@
 import type { Application } from "express";
 import { getAnthropicClient, CLAUDE_MODEL } from "../lib/anthropic";
 import { getSupabaseAdmin } from "./supabase";
+import { type MarketCode, MARKETS, buildMarketContext, DEFAULT_MARKET } from "../../shared/markets";
 
 const MAX_HISTORY = 20;
 
@@ -68,7 +69,7 @@ async function fetchUserProfile(userId: string) {
 }
 
 /** Build personalised system prompt */
-function buildSystemPrompt(customPrompt: string | undefined, profile: Record<string, string> | null, toolName: string): string {
+function buildSystemPrompt(customPrompt: string | undefined, profile: Record<string, string> | null, toolName: string, marketCode?: MarketCode): string {
   const isAIChat = !customPrompt || toolName === "ai-chat";
 
   const base = customPrompt || `You are Majorka AI — a sharp, direct ecommerce co-founder.`;
@@ -84,9 +85,12 @@ function buildSystemPrompt(customPrompt: string | undefined, profile: Record<str
     advanced: "experienced seller, looking to scale",
   };
 
+  const mc = marketCode ? MARKETS[marketCode] : MARKETS[DEFAULT_MARKET];
+  const marketCtx = buildMarketContext(marketCode || DEFAULT_MARKET);
+
   const profileCtx = profile
-    ? `\n\nUSER PROFILE (tailor ALL responses to this context):\n- Name: ${profile.display_name || profile.full_name || "there"}\n- Country: ${profile.country || "Australia"}\n- Niche: ${profile.target_niche || profile.business_niche || "not set"}\n- Experience: ${experienceMap[profile.experience_level] || profile.experience_level || "unknown"}\n- Primary goals: ${goals || "grow ecommerce business"}\n- Budget: ${profile.budget || "not set"}\n- Store URL: ${profile.business_name || "not provided"}\n\nIMPORTANT: You are speaking to an Australian ecommerce operator. Use AUD for all currency, reference AU shipping times, AU-specific platforms (Afterpay, Zip, Australia Post), and AU consumer law where relevant. Tailor product suggestions, pricing, and strategies to the Australian market. Reference their specific niche and experience level in every response.`
-    : "";
+    ? `\n\nUSER PROFILE (tailor ALL responses to this context):\n- Name: ${profile.display_name || profile.full_name || "there"}\n- Country: ${profile.country || mc.name}\n- Niche: ${profile.target_niche || profile.business_niche || "not set"}\n- Experience: ${experienceMap[profile.experience_level] || profile.experience_level || "unknown"}\n- Primary goals: ${goals || "grow ecommerce business"}\n- Budget: ${profile.budget || "not set"}\n- Store URL: ${profile.business_name || "not provided"}\n${marketCtx}\nIMPORTANT: You are speaking to a ${mc.name} ecommerce operator. Use ${mc.currency} for all currency, reference ${mc.name}-specific shipping (${mc.shipping.slice(0, 2).join(", ")}), BNPL (${mc.bnpl.slice(0, 2).join(", ")}), and ${mc.compliance.slice(0, 2).join(", ")} compliance where relevant. Tailor product suggestions, pricing, and strategies to the ${mc.name} market. Reference their specific niche and experience level in every response.`
+    : `\n${marketCtx}`;
 
   // AI Chat gets full personality rules; tool pages get profile context + lighter memory rules
   if (!isAIChat) {
@@ -103,7 +107,7 @@ function buildSystemPrompt(customPrompt: string | undefined, profile: Record<str
 - Never repeat advice you've already given. Reference past context naturally.
 - Be direct and specific. No fluff, no generic advice.
 - If you know their niche, always relate answers to it.
-- Use Australian context (AUD, local platforms, AU shipping) by default.
+- Use ${mc.name} context (${mc.currency}, local platforms, ${mc.name} shipping) by default.
 - Occasionally reference things they've mentioned before to show you remember.
 - Format responses with bullet points and **bold headers** where useful.
 - Max 400 words per response unless asked for something detailed.
@@ -132,7 +136,8 @@ export function registerChatRoutes(app: Application) {
   // ── Main chat endpoint ──────────────────────────────────────────────────
   app.post("/api/chat", async (req, res) => {
     try {
-      const { messages: rawMessages, message, systemPrompt, toolName = "ai-chat", searchQuery } = req.body;
+      const { messages: rawMessages, message, systemPrompt, toolName = "ai-chat", searchQuery, market: rawMarket } = req.body;
+      const market = (rawMarket && rawMarket in MARKETS ? rawMarket : DEFAULT_MARKET) as MarketCode;
 
       // Accept both formats: messages array or singular message
       let messages = rawMessages;
@@ -209,10 +214,10 @@ export function registerChatRoutes(app: Application) {
       }
 
       // ── Build system prompt ─────────────────────────────────────────────
-      const system = buildSystemPrompt(systemPrompt, profile, toolName) + webContext;
+      const system = buildSystemPrompt(systemPrompt, profile, toolName, market) + webContext;
 
-      // ── Determine if client wants streaming ────────────────────────────
-      const wantStream = req.query.stream === "1" || req.body.stream === true;
+      // ── Determine if client wants streaming (default: true) ──────────
+      const wantStream = req.body.stream !== false && req.query.stream !== "0";
 
       if (wantStream) {
         // ── SSE streaming response ──────────────────────────────────────
@@ -236,11 +241,11 @@ export function registerChatRoutes(app: Application) {
           if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
             const text = event.delta.text;
             fullReply += text;
-            res.write(`data: ${JSON.stringify({ type: "delta", text })}\n\n`);
+            res.write(`data: ${JSON.stringify({ text })}\n\n`);
           }
         }
 
-        res.write(`data: ${JSON.stringify({ type: "done", text: fullReply })}\n\n`);
+        res.write(`data: [DONE]\n\n`);
         res.end();
 
         // Save to memory (fire-and-forget)

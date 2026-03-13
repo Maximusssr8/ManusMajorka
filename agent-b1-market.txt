@@ -1,0 +1,36 @@
+Read ~/ManusMajorka/CLAUDE.md fully before writing any code. You are working in ~/ManusMajorka.
+
+TASK: Build the complete multi-market system for Majorka.
+
+1. Create shared/markets.ts with:
+- MarketCode type: 'AU' | 'US' | 'EU' | 'UK' | 'ASIA' | 'GLOBAL'
+- MARKETS record with full config per market: currency, symbol, shipping[], bnpl[], compliance[], taxLabel, taxRate, english variant, seasonalPeaks[], platforms[]
+- getMarketPromptContext(code) function returning a string to inject into AI prompts
+- DEFAULT_MARKET = 'AU'
+
+2. Update client/src/contexts/MarketContext.tsx to:
+- Import from shared/markets.ts
+- Store market in localStorage + sync to Supabase via PATCH /api/user/market
+- Expose: market, setMarket, marketConfig, getPromptContext
+
+3. Create client/src/components/MarketSelector.tsx:
+- Compact dropdown with flag + currency in sidebar
+- 6 markets as options, gold border on selected
+- Add to MajorkaAppShell.tsx sidebar bottom (above plan badge)
+
+4. Update server/_core/chat.ts:
+- Accept market?: string in POST /api/chat body
+- Import getMarketPromptContext from shared/markets.ts
+- Append market context to system prompt when market is provided
+- Keep backward compat: if no market, default to 'AU'
+
+5. Add PATCH /api/user/market route to save market preference to profiles table
+
+6. Update OnboardingModal.tsx: make step 1 = market selection (6 cards with flag + name, default AU selected, calls setMarket on pick)
+
+7. TEST: curl -X POST http://localhost:3000/api/chat -H "Content-Type: application/json" -d '{"messages":[{"role":"user","content":"find me winning products"}],"market":"US"}' | grep -i "USD\|USPS\|klarna" and confirm market context is present
+
+8. pnpm run check && pnpm run build (fix ALL TypeScript errors)
+9. git add -A && git commit -m "feat: multi-market system AU/US/EU/UK/ASIA/GLOBAL with market selector and AI context injection" && git push origin main
+
+When completely finished, run: openclaw system event --text "Done: Market System built — AU/US/EU/UK/ASIA/GLOBAL, selector in sidebar, AI context injection working" --mode now

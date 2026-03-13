@@ -1,0 +1,34 @@
+Read ~/ManusMajorka/CLAUDE.md before starting. Working in ~/ManusMajorka.
+
+TASK: Create all marketing assets for Majorka. Save everything to ~/ManusMajorka/marketing/ directory.
+
+mkdir -p ~/ManusMajorka/marketing
+
+Use Tavily for research (POST https://api.tavily.com/search, api_key: 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, search_depth: advanced).
+
+1. marketing/tiktok-30-day-plan.md
+30 TikTok videos, one per day. Global appeal. For each: Hook (first 3s), Format, Script outline, Caption, 5 hashtags, CTA.
+Angles: screen recordings of Majorka tools, "I found $X/day product with AI", POV seller content, tool deep-dives, market-specific tips (AU/US/UK).
+
+2. marketing/reddit-strategy.md
+Top 8 subreddits with rules. 3 complete ready-to-post Reddit posts (genuine value, soft Majorka mention). Comment strategy. Post schedule.
+
+3. marketing/launch-email-sequence.md
+5 emails for waitlist: Day 0 welcome, Day 2 unfair advantage, Day 5 case study, Day 10 feature reveal, Day 14 urgency+FOUNDING30 discount code.
+
+4. marketing/meta-ads-copy.md
+3 angles × 3 formats = 9 ad creatives. Primary text (125 chars), Headline (27 chars), CTA. Plus 3 retargeting ads.
+
+5. marketing/product-hunt-launch.md
+Full launch kit: tagline, short/long descriptions, 5 gallery screenshot descriptions, first comment, upvote request messages, best launch time.
+
+6. marketing/domain-research.md
+Check availability of: majorka.com/io/ai/co/app, getmajorka.com/io, usemajorka.com, trymajorka.com, majorkaos.com
+Use: dig +short [domain] (empty = likely available, has IP = taken)
+Rank top 5 by brandability, extension, SEO potential, length.
+Note: .com.au requires Australian ABN.
+
+After creating all files:
+git add -A && git commit -m "feat: marketing assets — 30-day TikTok plan, Reddit strategy, email sequence, Meta ads, Product Hunt kit, domain research" && git push origin main
+
+When completely finished, run: openclaw system event --text "Done: Marketing assets complete — TikTok 30-day plan, Reddit strategy, email sequence, Meta ads, Product Hunt kit, domain research" --mode now

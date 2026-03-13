@@ -13,6 +13,7 @@ import { useActiveProduct } from "@/hooks/useActiveProduct";
 import { ActiveProductBanner } from "@/components/ActiveProductBanner";
 import { SaveToProduct } from "@/components/SaveToProduct";
 import { supabase } from "@/lib/supabase";
+import { getStoredMarket } from "@/contexts/MarketContext";
 import { searchPortraitPhotos, type PexelsPhoto } from "@/lib/pexels";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -105,6 +106,7 @@ Requirements:
 - Be specific to the product. No generic filler.` }],
           toolId: "tiktok-slideshow",
           skipMemory: true,
+          market: getStoredMarket(),
         }),
       });
 
@@ -148,6 +150,7 @@ ${JSON.stringify(result, null, 2)}
 Return ONLY the updated JSON. Same structure, better content.` }],
           toolId: "tiktok-slideshow",
           skipMemory: true,
+          market: getStoredMarket(),
         }),
       });
 

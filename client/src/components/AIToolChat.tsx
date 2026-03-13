@@ -11,6 +11,8 @@ import RelatedTools from "@/components/RelatedTools";
 import { SaveToProduct } from "@/components/SaveToProduct";
 import { ActiveProductBanner } from "@/components/ActiveProductBanner";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
+import { useMarket } from "@/contexts/MarketContext";
+import { trackToolUsed } from "@/lib/analytics";
 
 interface AIToolChatProps {
   toolId: string;
@@ -46,6 +48,7 @@ export default function AIToolChat({
   const [messages, setMessages] = useState<Message[]>([]);
   const [status, setStatus] = useState<"idle" | "streaming">("idle");
   const { activeProduct } = useActiveProduct();
+  const { market } = useMarket();
 
   // Build system prompt with active product context injected
   const buildSystemPrompt = useCallback(() => {
@@ -87,6 +90,7 @@ export default function AIToolChat({
     const newMessages = [...messages, { role: "user" as const, content: msg }];
     setMessages([...newMessages, { role: "assistant" as const, content: "" }]);
     setStatus("streaming");
+    trackToolUsed(toolId, market);
 
     try {
       const response = await fetch("/api/chat?stream=1", {
@@ -96,6 +100,7 @@ export default function AIToolChat({
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
           systemPrompt: buildSystemPrompt(),
           stream: true,
+          market,
         }),
       });
       if (!response.ok) throw new Error(`Server error: ${response.status}`);

@@ -5,6 +5,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProductProvider } from "./contexts/ProductContext";
+import { MarketProvider } from "./contexts/MarketContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { lazy, Suspense, useEffect } from "react";
 import { capture } from "@/lib/posthog";
@@ -23,6 +24,7 @@ const Onboarding = lazy(() => import("./pages/Onboarding"));
 const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 const PublicProfitCalculator = lazy(() => import("./pages/PublicProfitCalculator"));
 const Affiliate = lazy(() => import("./pages/Affiliate"));
+const KnowledgeBase = lazy(() => import("./pages/KnowledgeBase"));
 
 function LoadingFallback() {
   return (
@@ -76,6 +78,7 @@ function Router() {
         <Route path="/tools/profit-calculator" component={PublicProfitCalculator} />
         <Route path="/app/affiliate">{() => <ProtectedRoute><Affiliate /></ProtectedRoute>}</Route>
         <Route path="/admin/leads">{() => <ProtectedRoute><AdminLeads /></ProtectedRoute>}</Route>
+        <Route path="/app/knowledge-base">{() => <ProtectedRoute><KnowledgeBase /></ProtectedRoute>}</Route>
         <Route path="/app">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
         <Route path="/app/settings">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
         <Route path="/app/store/:subpage">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
@@ -100,12 +103,14 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark" switchable>
         <AuthProvider>
+          <MarketProvider>
           <ProductProvider>
           <TooltipProvider>
             <Toaster />
             <Router />
           </TooltipProvider>
           </ProductProvider>
+          </MarketProvider>
         </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>

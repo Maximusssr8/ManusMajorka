@@ -1,0 +1,60 @@
+Read ~/ManusMajorka/CLAUDE.md fully before writing any code. You are working in ~/ManusMajorka.
+
+TASK: UI system upgrades — Magic UI components, dashboard polish, Cmd+K, Beginner Mode.
+
+First install: cd ~/ManusMajorka && pnpm add @floating-ui/react react-intersection-observer
+
+1. Magic UI components (create manually):
+- client/src/components/ui/shimmer-button.tsx: button with CSS shimmer animation (before: pseudo-element gradient slide). Gold bg for primary, dark bg for secondary.
+- client/src/components/ui/border-beam.tsx: rotating gradient border wrapper using CSS animation. Params: colorA (#d4af37), colorB (#8b5cf6), duration (4s default).
+- client/src/components/ui/blur-fade.tsx: Framer Motion wrapper that fades+unblurs on mount. Props: delay, direction (up/down/left/right).
+- client/src/components/ui/number-ticker.tsx: react-countup wrapper with useInView trigger.
+Add shimmer keyframe to CSS: @keyframes shimmer { from { transform: translateX(-100%) } to { transform: translateX(100%) } }
+
+2. Surface elevation CSS variables in client/src/index.css:
+--surface-0: #080a0e --surface-1: #0d1117 --surface-2: #141922 --surface-3: #1e2530
+--surface-border: rgba(212,175,55,0.15) --surface-border-hover: rgba(212,175,55,0.4)
+--gold: #d4af37
+
+3. Cmd+K command palette (cmdk already installed):
+Create client/src/components/CommandPalette.tsx:
+- Opens on Cmd+K / Ctrl+K
+- Shows all tools from tools.ts as navigable items
+- Quick actions: "Start product research", "Generate website", "Open settings"
+- On select: navigate to tool path using wouter
+- Design: dark overlay, search input, gold highlighted selection
+Add to MajorkaAppShell.tsx with useEffect Cmd+K listener.
+
+4. Beginner Mode toggle:
+Create client/src/hooks/useBeginnerMode.ts (localStorage based).
+In MajorkaAppShell.tsx sidebar: add toggle switch labelled "Beginner Mode".
+When ON: simplify tool labels (Product Discovery → "Find Products to Sell", Meta Ads Pack → "Create Facebook Ads", Website Generator → "Build Your Store", Brand DNA → "Design Your Brand").
+Show friendly description tooltips on each tool.
+
+5. Market indicator in app header/topbar:
+Read market from MarketContext (may need fallback if not yet built).
+Show: "[flag] [currency]" e.g. "🇦🇺 AUD" in the header bar.
+Clicking opens MarketSelector dropdown.
+
+6. Contextual tooltips (@floating-ui/react):
+Create client/src/components/MetricTooltip.tsx: dotted underline + ? icon, tooltip on hover.
+Add to tool outputs for: ROAS, COGS, AOV, CTR, LTV, ROAS definitions.
+
+7. Copy button animation:
+Find OutputToolbar.tsx or any copy button. On click: icon switches Copy → Check, scale pulse, revert after 2s. Use useState+setTimeout.
+
+8. Dashboard metric cards (Dashboard.tsx):
+Add 3 small stat cards at top using localStorage usage tracking:
+- "Tools Used Today" (count from majorka_usage localStorage)
+- "This Week" (usage last 7 days)
+- "Saved Outputs" (count from Supabase or localStorage)
+Use simple recharts AreaChart sparklines (width:80, height:30).
+
+9. user-select: none on all dashboard metric/number elements (add via CSS class).
+
+10. Framer Motion page transitions: wrap route content in AnimatePresence with fade+slide transition.
+
+11. pnpm run check && pnpm run build (fix ALL TypeScript errors)
+12. git add -A && git commit -m "feat: UI system — Magic UI components, surface elevation, Cmd+K palette, Beginner Mode, market indicator, metric tooltips, page transitions" && git push origin main
+
+When completely finished, run: openclaw system event --text "Done: UI system — shimmer buttons, border beam, Cmd+K palette, Beginner Mode toggle, market flag indicator, page transitions" --mode now

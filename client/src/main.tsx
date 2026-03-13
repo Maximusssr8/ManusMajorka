@@ -1,5 +1,6 @@
 console.log("[main] mounting React app");
 
+import * as Sentry from "@sentry/react";
 import { initPostHog } from "@/lib/posthog";
 import { captureUTM } from "@/lib/attribution";
 import { trpc } from "@/lib/trpc";
@@ -13,6 +14,14 @@ import superjson from "superjson";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App";
 import "./index.css";
+
+// Initialise Sentry error tracking
+if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
+  Sentry.init({
+    dsn: import.meta.env.VITE_SENTRY_DSN as string,
+    tracesSampleRate: 0.1,
+  });
+}
 
 // Initialise analytics and capture UTM params on first load
 initPostHog();
@@ -28,6 +37,9 @@ class ErrorBoundary extends React.Component<
   }
   static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
+  }
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    Sentry.captureException(error, { extra: { componentStack: info.componentStack } });
   }
   render() {
     if (this.state.hasError) {

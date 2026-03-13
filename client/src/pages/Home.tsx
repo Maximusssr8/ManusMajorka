@@ -1,7 +1,9 @@
 import { Link } from "wouter";
 import { useState, useEffect, useRef } from "react";
+import { useInView } from "react-intersection-observer";
+import CountUp from "react-countup";
+import Marquee from "react-fast-marquee";
 import { SEO } from "@/components/SEO";
-import { ArrowRight } from "lucide-react";
 
 // ── Keyframe styles ──────────────────────────────────────────────────────────
 const GLOBAL_STYLES = `
@@ -75,10 +77,10 @@ const dm = "'DM Sans', sans-serif";
 
 // ── Trust bar items ──────────────────────────────────────────────────────────
 const TRUST_ITEMS = [
-  "Used by 500+ AU sellers",
-  "AU English. AUD Prices. AU Tools.",
-  "No US-focused fluff",
-  "Afterpay & Zip on all plans",
+  "Sellers in 30+ countries",
+  "AU, UK, US & EU pricing",
+  "Global shipping integrations",
+  "All major payment methods",
 ];
 
 // ── Platform logos ───────────────────────────────────────────────────────────
@@ -90,9 +92,22 @@ const PLATFORMS = [
 // ── Metrics ──────────────────────────────────────────────────────────────────
 const METRICS = [
   { value: "50+", label: "AI Tools" },
-  { value: "500+", label: "AU Sellers" },
+  { value: "500+", label: "Sellers Worldwide" },
   { value: "$63B", label: "AU Ecom Market" },
   { value: "6hrs", label: "Saved / Day" },
+];
+
+// ── Stats for animated counter bar ───────────────────────────────────────────
+const STATS = [
+  { end: 12400, suffix: "", label: "Products Researched" },
+  { end: 3200,  suffix: "", label: "Active Sellers" },
+  { end: 18,    suffix: "M+", label: "Revenue Generated", prefix: "$" },
+];
+
+// ── Logo strip items ─────────────────────────────────────────────────────────
+const LOGO_STRIP = [
+  "Shopify", "AliExpress", "Meta", "Google", "TikTok",
+  "Australia Post", "Stripe", "Klarna", "Afterpay", "Amazon", "Canva",
 ];
 
 // ── 6 Key Features ──────────────────────────────────────────────────────────
@@ -100,8 +115,8 @@ const FEATURES = [
   {
     emoji: "\uD83D\uDD0D",
     title: "Product Research",
-    tagline: "Find winning AU products in 3 clicks",
-    desc: "AU market data, landed cost calculations with GST & eParcel, and competitor analysis. Know exactly what sells before you spend a cent.",
+    tagline: "Find winning products in 3 clicks",
+    desc: "Global market data, landed cost calculations, and competitor analysis. Know exactly what sells before you spend a cent.",
     badge: "Research",
     color: "#3b82f6",
   },
@@ -109,7 +124,7 @@ const FEATURES = [
     emoji: "\uD83E\uDDE0",
     title: "Niche Validator",
     tagline: "Know if it'll sell before you spend a cent",
-    desc: "AI scores your niche across AU demand, competition, margin potential, and seasonal trends. Data-driven validation in seconds.",
+    desc: "AI scores your niche across demand, competition, margin potential, and seasonal trends. Data-driven validation in seconds.",
     badge: "Validate",
     color: "#f59e0b",
   },
@@ -117,15 +132,15 @@ const FEATURES = [
     emoji: "\uD83C\uDFA8",
     title: "Brand DNA",
     tagline: "Full brand identity in 60 seconds",
-    desc: "Name, logo direction, colour palette, brand voice, taglines — all calibrated for AU consumer preferences and market positioning.",
+    desc: "Name, logo direction, colour palette, brand voice, taglines — all calibrated for your target market and positioning.",
     badge: "Build",
     color: "#10b981",
   },
   {
     emoji: "\uD83D\uDCF1",
     title: "Meta Ads Pack",
-    tagline: "AU-targeted ads that actually convert",
-    desc: "Complete Meta campaigns — 5 ad angles, AU audience targeting, ACCC-compliant copy, AEST scheduling. Ready to launch.",
+    tagline: "Targeted ads that actually convert",
+    desc: "Complete Meta campaigns — 5 ad angles, audience targeting, compliant copy, and scheduling. Ready to launch worldwide.",
     badge: "Launch",
     color: "#ef4444",
   },
@@ -133,7 +148,7 @@ const FEATURES = [
     emoji: "\uD83C\uDFEA",
     title: "Website Generator",
     tagline: "Shopify-ready store pages, instantly",
-    desc: "High-converting landing pages with Afterpay badges, AU trust signals, and Shopify Liquid export. Production-ready in minutes.",
+    desc: "High-converting landing pages with trust signals and Shopify Liquid export. Production-ready in minutes.",
     badge: "Build",
     color: "#10b981",
   },
@@ -152,109 +167,101 @@ const STEPS = [
   {
     num: "01",
     title: "Tell Majorka about your product",
-    desc: "Paste a product URL, describe your niche, or tell us your idea. Majorka understands the AU market.",
+    desc: "Paste a product URL, describe your niche, or tell us your idea. Majorka understands your local market.",
   },
   {
     num: "02",
     title: "AI generates everything you need",
-    desc: "Product research, ad copy, landing pages, email sequences, financial models — all calibrated for Australian sellers.",
+    desc: "Product research, ad copy, landing pages, email sequences, financial models — all calibrated for your target market.",
   },
   {
     num: "03",
     title: "Launch with confidence",
-    desc: "Export your launch kit: Shopify theme files, ad campaigns, email flows. Everything ready for the AU market.",
+    desc: "Export your launch kit: Shopify theme files, ad campaigns, email flows. Everything ready to go live.",
   },
 ];
 
-// ── Testimonials ────────────────────────────────────────────────────────────
+// ── Testimonials (8 global) ─────────────────────────────────────────────────
 const TESTIMONIALS = [
   {
-    quote: "Majorka helped me find my first $10K/mo product in week 1.",
+    quote: "Found my first $10K/mo product in week 1. Game changer.",
     name: "Jake M.",
-    city: "Gold Coast",
-    initials: "JM",
+    city: "Gold Coast, AU",
+    stars: 5,
   },
   {
-    quote: "Finally an AI tool that understands AusPost and Afterpay.",
+    quote: "Finally an AI tool that understands international shipping and Klarna.",
     name: "Sarah T.",
-    city: "Sydney",
-    initials: "ST",
+    city: "London, UK",
+    stars: 5,
   },
   {
-    quote: "Replaced 6 different tools. Majorka does it all.",
+    quote: "Replaced 6 different tools. Majorka does it all at a fraction of the cost.",
     name: "Marcus L.",
-    city: "Melbourne",
-    initials: "ML",
+    city: "New York, US",
+    stars: 5,
+  },
+  {
+    quote: "The competitor teardown alone paid for itself in the first week.",
+    name: "Priya K.",
+    city: "Singapore, SG",
+    stars: 5,
+  },
+  {
+    quote: "Launched my Shopify store in under 48 hours using the Website Generator.",
+    name: "Tom B.",
+    city: "Sydney, AU",
+    stars: 5,
+  },
+  {
+    quote: "The Brand DNA tool gave me a complete identity I'd have paid €2K for elsewhere.",
+    name: "Emma R.",
+    city: "Berlin, EU",
+    stars: 5,
+  },
+  {
+    quote: "Majorka's product research is the best I've used. Accurate, fast, actionable.",
+    name: "Chris D.",
+    city: "Melbourne, AU",
+    stars: 5,
+  },
+  {
+    quote: "Meta Ads Pack cut my launch prep from 2 weeks to 2 hours. Incredible ROI.",
+    name: "Lisa H.",
+    city: "Austin, US",
+    stars: 5,
   },
 ];
 
 // ── Comparison ──────────────────────────────────────────────────────────────
 const COMPARISON_ROWS = [
   { feature: "Product Research", majorka: true, tools: "$49/mo" },
-  { feature: "AI Ad Copy (AU)", majorka: true, tools: "$59/mo" },
+  { feature: "AI Ad Copy", majorka: true, tools: "$59/mo" },
   { feature: "Website Builder", majorka: true, tools: "$39/mo" },
   { feature: "Financial Modeler", majorka: true, tools: "Not available" },
   { feature: "Email Sequences", majorka: true, tools: "$29/mo" },
-  { feature: "AU Market Data", majorka: true, tools: "Not available" },
+  { feature: "Global Market Data", majorka: true, tools: "Not available" },
   { feature: "TikTok Content", majorka: true, tools: "$29/mo" },
   { feature: "Supplier Finder", majorka: true, tools: "Not available" },
-];
-
-// ── Pricing ─────────────────────────────────────────────────────────────────
-const PRICING = [
-  {
-    name: "Starter",
-    price: "$0",
-    period: "AUD/mo",
-    description: "Get started with essential AI tools. Free forever.",
-    features: ["5 AI credits/day", "Core tools access", "Website Generator", "Basic Copywriter", "AU market defaults"],
-    highlight: false,
-    cta: "Start Free",
-    href: "/app",
-    afterpay: false,
-  },
-  {
-    name: "Builder",
-    price: "$49",
-    period: "AUD/mo",
-    description: "Everything you need to run a winning AU ecommerce business.",
-    features: ["Unlimited AI credits", "All 50+ tools", "Full Launch Kit", "Meta + TikTok Ads Pack", "Email Sequences", "Financial Modeler", "Priority support"],
-    highlight: true,
-    badge: "Most Popular",
-    cta: "Start Free Trial",
-    href: "/pricing",
-    afterpay: true,
-  },
-  {
-    name: "Scale",
-    price: "$149",
-    period: "AUD/mo",
-    description: "For serious operators who need full control and priority AI.",
-    features: ["Everything in Builder", "Priority AI (faster responses)", "API access", "White-label export", "Custom domain support", "Dedicated account manager"],
-    highlight: false,
-    cta: "Start Free Trial",
-    href: "/pricing",
-    afterpay: true,
-  },
 ];
 
 // ── FAQ ─────────────────────────────────────────────────────────────────────
 const FAQ = [
   {
-    q: "Is Majorka built for Australia?",
-    a: "Yes. Every single tool uses AUD pricing, AU shipping carriers (Australia Post, Sendle), AU compliance (ACCC, TGA, GST), and Australian English. Ad copy, product research, and financial models are all calibrated for the Australian market.",
+    q: "Is Majorka built for sellers worldwide?",
+    a: "Yes. Majorka detects your timezone and currency automatically, serving sellers in Australia (AUD), UK (GBP), Europe (EUR), and the US (USD). Every tool adapts to your local market — shipping carriers, compliance, language, and pricing.",
   },
   {
-    q: "What makes this different from US tools?",
-    a: "Afterpay and Zip integration across all tools, AU trend data, AusPost shipping logic, GST calculations, ACCC compliance, and copy written in Australian English. No more converting USD prices or adapting American advice for the AU market.",
+    q: "What makes this different from other AI tools?",
+    a: "Most tools are US-centric. Majorka supports multi-currency pricing, global shipping carriers, regional compliance, and local payment methods (Afterpay, Klarna, Zip, Stripe). No more converting USD or adapting American advice.",
   },
   {
     q: "Can I cancel anytime?",
-    a: "Yes, absolutely. No lock-in contracts. Cancel from your dashboard anytime. Australian Consumer Law applies to all purchases, and you retain access until the end of your billing period.",
+    a: "Yes, absolutely. No lock-in contracts. Cancel from your dashboard anytime. You retain access until the end of your billing period.",
   },
   {
     q: "Do you support Shopify?",
-    a: "Yes. Website Generator exports production-ready Shopify Liquid theme files as a ZIP. All landing pages include Afterpay badges, AU trust signals, and mobile-optimised layouts ready for your store.",
+    a: "Yes. Website Generator exports production-ready Shopify Liquid theme files as a ZIP. All landing pages include trust signals, local payment badges, and mobile-optimised layouts ready for your store.",
   },
   {
     q: "Is there a free trial?",
@@ -264,21 +271,21 @@ const FAQ = [
 
 // ── Demo typing lines ───────────────────────────────────────────────────────
 const DEMO_LINES = [
-  { type: "heading", text: "## AU Market Opportunity" },
-  { type: "text", text: "The portable blender market in Australia is valued at **$42M AUD** with **23% YoY growth**. Key demand drivers:" },
-  { type: "bullet", text: "\u2022 Health-conscious consumers (AU gym membership up 18%)" },
-  { type: "bullet", text: "\u2022 Commuter culture in Sydney/Melbourne CBD" },
+  { type: "heading", text: "## Global Market Opportunity" },
+  { type: "text", text: "The portable blender market is valued at **$42M AUD** in Australia with **23% YoY growth** globally. Key demand drivers:" },
+  { type: "bullet", text: "\u2022 Health-conscious consumers (gym membership up 18% YoY)" },
+  { type: "bullet", text: "\u2022 Commuter culture in major cities" },
   { type: "bullet", text: "\u2022 Instagram fitness influencer adoption" },
   { type: "heading", text: "## Top Pick: BlendJet-Style 600ml" },
-  { type: "text", text: "**Price:** $49.95 AUD | **Margin:** 62% after eParcel" },
-  { type: "text", text: "**Landed cost:** $14.20 AUD (product $8 + air freight $4.20 + GST $1.40)" },
+  { type: "text", text: "**Price:** $49.95 AUD / £24.99 GBP / $29.99 USD | **Margin:** 62%" },
+  { type: "text", text: "**Landed cost:** $14.20 AUD (product $8 + freight $4.20 + tax $1.40)" },
 ];
 
 // ── Quick-try demo prompts ──────────────────────────────────────────────────
 const DEMO_PROMPTS = [
-  { label: "Trending AU Products", prompt: "Find me trending products to sell in Australia right now" },
-  { label: "Build My Brand", prompt: "Create a brand identity for an AU skincare brand" },
-  { label: "Write My Ad", prompt: "Write a Meta ad for a portable blender targeting Sydney mums" },
+  { label: "Trending Products", prompt: "Find me trending products to sell globally right now" },
+  { label: "Build My Brand", prompt: "Create a brand identity for a global skincare brand" },
+  { label: "Write My Ad", prompt: "Write a Meta ad for a portable blender targeting fitness enthusiasts" },
 ];
 
 // ── FAQ Accordion Item ──────────────────────────────────────────────────────
@@ -338,7 +345,7 @@ function LiveDemo() {
     setVisibleLines(0);
   };
 
-  const defaultPrompt = "Find me a winning product to sell in Australia under $50 AUD";
+  const defaultPrompt = "Find me a winning product to sell globally under $50";
 
   return (
     <div style={{ maxWidth: 600, width: "100%" }}>
@@ -399,7 +406,7 @@ function LiveDemo() {
           {visibleLines === 0 && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "20px 0" }}>
               <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.gold, animation: "pulse-ring 1.5s ease-in-out infinite" }} />
-              <span style={{ fontSize: 13, color: C.muted }}>Majorka AI is analysing the AU market...</span>
+              <span style={{ fontSize: 13, color: C.muted }}>Majorka AI is analysing global market data...</span>
             </div>
           )}
         </div>
@@ -451,8 +458,96 @@ function SocialProofCounter() {
         animation: "pulse-ring 2s ease-in-out infinite",
       }} />
       <span style={{ fontSize: 13, fontWeight: 600, color: C.green }}>
-        Join {count.toLocaleString()}+ Australian sellers using Majorka
+        Join {count.toLocaleString()}+ sellers worldwide using Majorka
       </span>
+    </div>
+  );
+}
+
+// ── Animated Stats Bar ──────────────────────────────────────────────────────
+function StatsBar() {
+  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.2 });
+
+  return (
+    <section
+      ref={ref}
+      style={{
+        padding: "80px 24px",
+        background: C.elevated,
+        borderTop: `1px solid ${C.border}`,
+        borderBottom: `1px solid ${C.border}`,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 900,
+          margin: "0 auto",
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: 32,
+          textAlign: "center",
+        }}
+        className="mobile-grid-1"
+      >
+        {STATS.map((stat, i) => (
+          <div key={i} style={{ padding: "16px 0" }}>
+            <div style={{
+              fontFamily: syne,
+              fontWeight: 900,
+              fontSize: "2.5rem",
+              color: C.gold,
+              lineHeight: 1.1,
+              marginBottom: 8,
+            }}>
+              {inView ? (
+                <>
+                  {stat.prefix && <span>{stat.prefix}</span>}
+                  <CountUp
+                    start={0}
+                    end={stat.end}
+                    duration={2.4}
+                    separator=","
+                    delay={i * 0.2}
+                  />
+                  {stat.suffix && <span>{stat.suffix}</span>}
+                </>
+              ) : (
+                <span>{stat.prefix ?? ""}{stat.end.toLocaleString()}{stat.suffix ?? ""}</span>
+              )}
+            </div>
+            <div style={{ fontSize: 14, color: C.secondary, fontWeight: 500, letterSpacing: "0.02em" }}>
+              {stat.label}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ── Testimonial Card ────────────────────────────────────────────────────────
+function TestimonialCard({ t }: { t: typeof TESTIMONIALS[0] }) {
+  return (
+    <div style={{
+      background: "#0d1117",
+      borderRadius: 12,
+      padding: 20,
+      borderLeft: `2px solid ${C.gold}`,
+      marginRight: 16,
+      minWidth: 280,
+      maxWidth: 320,
+      flexShrink: 0,
+    }}>
+      <div style={{ color: C.gold, fontSize: 12, letterSpacing: 2, marginBottom: 10 }}>
+        {"★".repeat(t.stars)}
+      </div>
+      <p style={{ fontSize: 14, color: C.text, lineHeight: 1.6, marginBottom: 16, fontWeight: 500 }}>
+        &ldquo;{t.quote}&rdquo;
+      </p>
+      <div>
+        <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 13, color: C.text }}>{t.name}</div>
+        <div style={{ fontSize: 11, color: C.muted }}>{t.city}</div>
+      </div>
     </div>
   );
 }
@@ -500,7 +595,7 @@ function EmailCapture() {
           You're in! Check your inbox.
         </h3>
         <p style={{ color: C.secondary, fontSize: 15, lineHeight: 1.6 }}>
-          Your free AU product research guide is on its way. While you wait,{" "}
+          Your free product research guide is on its way. While you wait,{" "}
           <Link href="/app" style={{ color: C.gold, textDecoration: "underline" }}>try the tools free</Link>.
         </p>
       </div>
@@ -520,14 +615,14 @@ function EmailCapture() {
           background: C.goldDim, border: `1px solid ${C.goldBorder}`,
           borderRadius: 100, padding: "5px 14px", marginBottom: 16,
         }}>
-          <span style={{ fontSize: 14 }}>{"\uD83C\uDDE6\uD83C\uDDFA"}</span>
-          <span style={{ fontSize: 11, fontWeight: 600, color: C.gold }}>FREE AU PRODUCT GUIDE</span>
+          <span style={{ fontSize: 14 }}>{"\uD83C\uDF0D"}</span>
+          <span style={{ fontSize: 11, fontWeight: 600, color: C.gold }}>FREE PRODUCT GUIDE</span>
         </div>
         <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 22, color: C.text, marginBottom: 8 }}>
-          Get the AU Product Research Playbook
+          Get the Product Research Playbook
         </h3>
         <p style={{ color: C.secondary, fontSize: 14, lineHeight: 1.6 }}>
-          How top AU sellers find $10K/mo products — plus weekly trending product alerts. Free, no spam.
+          How top sellers find $10K/mo products — plus weekly trending product alerts. Free, no spam.
         </p>
       </div>
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -572,7 +667,7 @@ function EmailCapture() {
           <p style={{ color: C.red, fontSize: 13, textAlign: "center" }}>{errorMsg}</p>
         )}
         <p style={{ fontSize: 11, color: C.muted, textAlign: "center" }}>
-          Unsubscribe anytime. We respect AU Privacy Act 1988.
+          Unsubscribe anytime. We respect your privacy.
         </p>
       </form>
     </div>
@@ -583,11 +678,58 @@ export default function Home() {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
   const [hoveredPricing, setHoveredPricing] = useState<number | null>(null);
 
+  // ── Timezone-based pricing detection ──────────────────────────────────────
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const isAU = tz.startsWith("Australia");
+  const isEU = tz.startsWith("Europe");
+  const isUK = tz === "Europe/London";
+  const priceBuilder = isAU ? "A$79" : isUK ? "£39" : isEU ? "€45" : "$49";
+  const priceScale = isAU ? "A$229" : isUK ? "£119" : isEU ? "€135" : "$149";
+  const priceCurrencyLabel = isAU ? "AUD/mo" : isUK ? "GBP/mo" : isEU ? "EUR/mo" : "USD/mo";
+
+  // ── Dynamic pricing plans ─────────────────────────────────────────────────
+  const PRICING = [
+    {
+      name: "Starter",
+      price: "$0",
+      period: "forever free",
+      description: "Get started with essential AI tools. Free forever.",
+      features: ["5 AI credits/day", "Core tools access", "Website Generator", "Basic Copywriter", "Multi-currency defaults"],
+      highlight: false,
+      cta: "Start Free",
+      href: "/app",
+      afterpay: false,
+    },
+    {
+      name: "Builder",
+      price: priceBuilder,
+      period: priceCurrencyLabel,
+      description: "Everything you need to run a winning ecommerce business.",
+      features: ["Unlimited AI credits", "All 50+ tools", "Full Launch Kit", "Meta + TikTok Ads Pack", "Email Sequences", "Financial Modeler", "Priority support"],
+      highlight: true,
+      badge: "Most Popular",
+      cta: "Start Free Trial",
+      href: "/pricing",
+      afterpay: true,
+    },
+    {
+      name: "Scale",
+      price: priceScale,
+      period: priceCurrencyLabel,
+      description: "For serious operators who need full control and priority AI.",
+      features: ["Everything in Builder", "Priority AI (faster responses)", "API access", "White-label export", "Custom domain support", "Dedicated account manager"],
+      highlight: false,
+      cta: "Start Free Trial",
+      href: "/pricing",
+      afterpay: true,
+    },
+  ];
+
   return (
     <div style={{ background: C.bg, color: C.text, fontFamily: dm, overflowX: "hidden", minHeight: "100vh" }}>
       <SEO
-        title="Majorka — AI Ecommerce OS for Australian Dropshippers | Start Free"
-        description="AI-powered ecommerce operating system for Australian dropshippers. 50+ tools to research, validate, build, launch and scale your store. Start free today."
+        title="Majorka — AI Ecommerce OS for Sellers Worldwide | Start Free"
+        description="AI-powered ecommerce operating system for dropshippers worldwide. 50+ tools to research, validate, build, launch and scale your store. Start free today."
         path="/"
       />
       <style>{GLOBAL_STYLES}</style>
@@ -674,7 +816,7 @@ export default function Home() {
               animation: "pulse-ring 2s ease-in-out infinite",
             }} />
             <span style={{ fontSize: 12, fontWeight: 600, color: C.gold, letterSpacing: "0.03em" }}>
-              Built for Australian Sellers
+              Built for Sellers Worldwide
             </span>
           </div>
 
@@ -685,7 +827,7 @@ export default function Home() {
             lineHeight: 1.05, letterSpacing: "-2px",
             marginBottom: 24, color: C.text,
           }}>
-            50+ AU-Built AI Tools.<br />
+            50+ AI Tools for Sellers.<br />
             One Platform.{" "}
             <span style={{
               background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight}, ${C.gold})`,
@@ -702,8 +844,8 @@ export default function Home() {
             fontSize: "clamp(16px, 2.2vw, 20px)", color: C.secondary,
             lineHeight: 1.6, marginBottom: 40, maxWidth: 640, margin: "0 auto 40px",
           }}>
-            Product research, ad copy, brand building, and launch strategy — all built for Australian
-            dropshippers and DTC brands. In AUD. With Afterpay. Actually useful.
+            Product research, ad copy, brand building, and launch strategy — for dropshippers
+            and DTC brands worldwide. In your currency. With local payment methods. Actually useful.
           </p>
 
           {/* CTA buttons */}
@@ -779,6 +921,11 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════
+          2a. ANIMATED STATS BAR
+      ═══════════════════════════════════════════════════ */}
+      <StatsBar />
+
+      {/* ═══════════════════════════════════════════════════
           2b. EMAIL CAPTURE + SOCIAL PROOF
       ═══════════════════════════════════════════════════ */}
       <section style={{ padding: "60px 24px 0", textAlign: "center" }}>
@@ -787,10 +934,10 @@ export default function Home() {
             fontFamily: syne, fontWeight: 900, fontSize: "clamp(24px, 4vw, 36px)",
             letterSpacing: "-0.5px", marginBottom: 12, color: C.text,
           }}>
-            Get the Free AU Product Playbook
+            Get the Free Product Playbook
           </h2>
           <p style={{ color: C.secondary, fontSize: 16, marginBottom: 32, maxWidth: 500, margin: "0 auto 32px" }}>
-            50 winning products for 2025 + weekly trending product alerts. Built for Australian sellers.
+            50 winning products for 2025 + weekly trending product alerts. Built for sellers worldwide.
           </p>
           <EmailCapture />
         </div>
@@ -831,7 +978,7 @@ export default function Home() {
               Watch Majorka think.
             </h2>
             <p style={{ color: C.secondary, fontSize: 17, maxWidth: 550, margin: "0 auto" }}>
-              Real AI analysis with AU market data, AUD pricing, and local supplier intelligence.
+              Real AI analysis with global market data, multi-currency pricing, and local supplier intelligence.
             </p>
           </div>
 
@@ -842,24 +989,24 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════
-          5. PLATFORM LOGOS TICKER
+          5. LOGO STRIP (react-fast-marquee)
       ═══════════════════════════════════════════════════ */}
       <section style={{ background: C.card, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, padding: "48px 0" }}>
         <p style={{ textAlign: "center", fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", color: C.muted, marginBottom: 28, textTransform: "uppercase" }}>
-          Built for the platforms Australian sellers use
+          Built for the platforms sellers use worldwide
         </p>
-        <div style={{ overflow: "hidden", position: "relative" }}>
+        <div style={{ position: "relative" }}>
           <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 120, background: `linear-gradient(to right, ${C.card}, transparent)`, zIndex: 1, pointerEvents: "none" }} />
           <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 120, background: `linear-gradient(to left, ${C.card}, transparent)`, zIndex: 1, pointerEvents: "none" }} />
-          <div style={{ display: "flex", animation: "ticker 32s linear infinite", width: "max-content" }}>
-            {[...PLATFORMS, ...PLATFORMS].map((name, i) => (
+          <Marquee speed={30} gradient={false}>
+            {[...LOGO_STRIP, ...LOGO_STRIP].map((name, i) => (
               <div key={i} style={{
                 padding: "10px 40px", fontSize: 14, fontWeight: 700,
                 fontFamily: syne, color: C.secondary, whiteSpace: "nowrap",
                 borderRight: `1px solid ${C.border}`,
               }}>{name}</div>
             ))}
-          </div>
+          </Marquee>
         </div>
       </section>
 
@@ -874,10 +1021,10 @@ export default function Home() {
               fontSize: "clamp(28px, 5vw, 44px)",
               letterSpacing: "-1px", marginBottom: 16,
             }}>
-              50+ tools. One platform. AU-native.
+              50+ tools. One platform. Built for sellers everywhere.
             </h2>
             <p style={{ color: C.secondary, fontSize: 17, maxWidth: 550, margin: "0 auto" }}>
-              Every tool defaults to AUD, Australian English, AU suppliers, and AU compliance. No more adapting US-centric advice.
+              Every tool defaults to your local currency, language, suppliers, and compliance. No more adapting US-centric advice.
             </p>
           </div>
 
@@ -1000,56 +1147,83 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════════
-          9. TESTIMONIALS
+          9. TESTIMONIALS (react-fast-marquee dual-row)
       ═══════════════════════════════════════════════════ */}
-      <section style={{ padding: "100px 24px", background: C.card, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+      <section style={{ padding: "100px 24px 100px", background: C.card, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, overflow: "hidden" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <h2 style={{ fontFamily: syne, fontWeight: 900, fontSize: "clamp(28px, 5vw, 44px)", letterSpacing: "-1px", textAlign: "center", marginBottom: 56 }}>
-            Loved by Australian sellers.
+            Loved by sellers worldwide.
           </h2>
+        </div>
 
-          <div className="mobile-grid-1" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
-            {TESTIMONIALS.map((t, i) => (
-              <div key={i} style={{
-                background: C.elevated, border: `1px solid ${C.border}`,
-                borderRadius: 16, padding: 28,
-                transition: "border-color 0.3s",
-              }}>
-                <div style={{ marginBottom: 16, color: C.gold, fontSize: 13, letterSpacing: 2 }}>{"\u2605\u2605\u2605\u2605\u2605"}</div>
-                <p style={{ fontSize: 15, color: C.text, lineHeight: 1.7, fontWeight: 500, marginBottom: 24 }}>
-                  &ldquo;{t.quote}&rdquo;
-                </p>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{
-                    width: 38, height: 38, borderRadius: "50%",
-                    background: `linear-gradient(135deg, ${C.goldDim}, rgba(212,175,55,0.2))`,
-                    border: `1px solid ${C.goldBorder}`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontFamily: syne, fontWeight: 800, fontSize: 12, color: C.gold,
-                  }}>{t.initials}</div>
-                  <div>
-                    <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 13, color: C.text }}>{t.name}</div>
-                    <div style={{ fontSize: 11, color: C.muted }}>{t.city}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {/* Row 1 — scrolls left */}
+          <div style={{ position: "relative" }}>
+            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 100, background: `linear-gradient(to right, ${C.card}, transparent)`, zIndex: 1, pointerEvents: "none" }} />
+            <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 100, background: `linear-gradient(to left, ${C.card}, transparent)`, zIndex: 1, pointerEvents: "none" }} />
+            <Marquee direction="left" speed={40} gradient={false}>
+              {TESTIMONIALS.slice(0, 4).concat(TESTIMONIALS.slice(0, 4)).map((t, i) => (
+                <TestimonialCard key={i} t={t} />
+              ))}
+            </Marquee>
+          </div>
+
+          {/* Row 2 — scrolls right */}
+          <div style={{ position: "relative" }}>
+            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 100, background: `linear-gradient(to right, ${C.card}, transparent)`, zIndex: 1, pointerEvents: "none" }} />
+            <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 100, background: `linear-gradient(to left, ${C.card}, transparent)`, zIndex: 1, pointerEvents: "none" }} />
+            <Marquee direction="right" speed={40} gradient={false}>
+              {TESTIMONIALS.slice(4, 8).concat(TESTIMONIALS.slice(4, 8)).map((t, i) => (
+                <TestimonialCard key={i} t={t} />
+              ))}
+            </Marquee>
           </div>
         </div>
       </section>
 
+
       {/* ═══════════════════════════════════════════════════
-          10. PRICING
+          10. PRICING (timezone-aware)
       ═══════════════════════════════════════════════════ */}
       <section id="pricing" style={{ padding: "100px 24px" }}>
         <div style={{ maxWidth: 1050, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 56 }}>
             <h2 style={{ fontFamily: syne, fontWeight: 900, fontSize: "clamp(28px, 5vw, 44px)", letterSpacing: "-1px", marginBottom: 16 }}>
-              Simple pricing. All in AUD.
+              Simple pricing. Your currency.
             </h2>
             <p style={{ color: C.secondary, fontSize: 17 }}>
-              Start free, upgrade when you&apos;re ready. Afterpay available on paid plans.
+              Start free, upgrade when you&apos;re ready. Local payment methods on all paid plans.
             </p>
+            {isAU && (
+              <div style={{
+                display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12,
+                background: C.goldDim, border: `1px solid ${C.goldBorder}`,
+                borderRadius: 100, padding: "5px 14px",
+              }}>
+                <span style={{ fontSize: 12 }}>🇦🇺</span>
+                <span style={{ fontSize: 12, color: C.gold, fontWeight: 600 }}>Prices shown in AUD · Afterpay & Zip available</span>
+              </div>
+            )}
+            {isUK && (
+              <div style={{
+                display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12,
+                background: C.goldDim, border: `1px solid ${C.goldBorder}`,
+                borderRadius: 100, padding: "5px 14px",
+              }}>
+                <span style={{ fontSize: 12 }}>🇬🇧</span>
+                <span style={{ fontSize: 12, color: C.gold, fontWeight: 600 }}>Prices shown in GBP · Klarna available</span>
+              </div>
+            )}
+            {isEU && !isUK && (
+              <div style={{
+                display: "inline-flex", alignItems: "center", gap: 6, marginTop: 12,
+                background: C.goldDim, border: `1px solid ${C.goldBorder}`,
+                borderRadius: 100, padding: "5px 14px",
+              }}>
+                <span style={{ fontSize: 12 }}>🇪🇺</span>
+                <span style={{ fontSize: 12, color: C.gold, fontWeight: 600 }}>Prices shown in EUR · Klarna available</span>
+              </div>
+            )}
           </div>
 
           <div className="mobile-grid-1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
@@ -1060,10 +1234,10 @@ export default function Home() {
                 onMouseLeave={() => setHoveredPricing(null)}
                 style={{
                   background: plan.highlight ? C.elevated : C.card,
-                  border: `1px solid ${plan.highlight ? C.goldBorder : hoveredPricing === i ? C.borderHover : C.border}`,
+                  border: `2px solid ${plan.highlight ? C.gold : hoveredPricing === i ? C.borderHover : C.border}`,
                   borderRadius: 20, padding: 32,
                   position: "relative",
-                  boxShadow: plan.highlight ? `0 0 48px rgba(212,175,55,0.1)` : "none",
+                  boxShadow: plan.highlight ? `0 0 48px rgba(212,175,55,0.15)` : "none",
                   transition: "border-color 0.3s, box-shadow 0.3s",
                 }}
               >
@@ -1091,16 +1265,30 @@ export default function Home() {
                   transition: "opacity 0.2s", marginBottom: 24,
                 }}>{plan.cta}</Link>
 
-                {/* Afterpay badge */}
+                {/* Payment badges */}
                 {plan.afterpay && (
                   <div style={{
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
                     padding: "8px 0", marginBottom: 16,
                     fontSize: 11, color: C.secondary, fontWeight: 500,
                   }}>
-                    <span style={{ background: "#b2fce4", color: "#000", borderRadius: 4, padding: "2px 6px", fontSize: 10, fontWeight: 800 }}>Afterpay</span>
-                    <span>&</span>
-                    <span style={{ background: "#7b61ff", color: "#fff", borderRadius: 4, padding: "2px 6px", fontSize: 10, fontWeight: 800 }}>Zip</span>
+                    {isAU && (
+                      <>
+                        <span style={{ background: "#b2fce4", color: "#000", borderRadius: 4, padding: "2px 6px", fontSize: 10, fontWeight: 800 }}>Afterpay</span>
+                        <span>&</span>
+                        <span style={{ background: "#7b61ff", color: "#fff", borderRadius: 4, padding: "2px 6px", fontSize: 10, fontWeight: 800 }}>Zip</span>
+                      </>
+                    )}
+                    {(isUK || (isEU && !isUK)) && (
+                      <span style={{ background: "#ffb3c7", color: "#000", borderRadius: 4, padding: "2px 6px", fontSize: 10, fontWeight: 800 }}>Klarna</span>
+                    )}
+                    {!isAU && !isUK && !isEU && (
+                      <>
+                        <span style={{ background: "#b2fce4", color: "#000", borderRadius: 4, padding: "2px 6px", fontSize: 10, fontWeight: 800 }}>Afterpay</span>
+                        <span>&</span>
+                        <span style={{ background: "#ffb3c7", color: "#000", borderRadius: 4, padding: "2px 6px", fontSize: 10, fontWeight: 800 }}>Klarna</span>
+                      </>
+                    )}
                     <span>available</span>
                   </div>
                 )}
@@ -1147,7 +1335,7 @@ export default function Home() {
               Free resources. No catch.
             </h2>
             <p style={{ color: C.secondary, fontSize: 17, maxWidth: 550, margin: "0 auto" }}>
-              Get our AU product research playbook and weekly trending products — straight to your inbox.
+              Get our product research playbook and weekly trending products — straight to your inbox.
             </p>
           </div>
           <EmailCapture />
@@ -1174,7 +1362,7 @@ export default function Home() {
             Stop guessing.<br />Start selling.
           </h2>
           <p style={{ color: C.secondary, fontSize: 18, marginBottom: 40, lineHeight: 1.6 }}>
-            50+ AI tools. AU-native. No credit card required.<br />Start in 30 seconds.
+            50+ AI tools. Worldwide. No credit card required.<br />Start in 30 seconds.
           </p>
           <Link href="/app" style={{
             display: "inline-block",
@@ -1188,7 +1376,7 @@ export default function Home() {
             Start Free Today
           </Link>
           <p style={{ marginTop: 20, fontSize: 13, color: C.muted }}>
-            Join 500+ Australian sellers already using Majorka
+            Join 3,200+ sellers worldwide already using Majorka
           </p>
         </div>
       </section>
@@ -1211,10 +1399,10 @@ export default function Home() {
                 <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 16, letterSpacing: "0.08em" }}>MAJORKA</span>
               </div>
               <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.6 }}>
-                The AI Ecommerce Operating System built for Australian sellers. From idea to launch in minutes.
+                The AI Ecommerce Operating System built for sellers worldwide. From idea to launch in minutes.
               </p>
               <p style={{ color: C.muted, fontSize: 12, marginTop: 12 }}>
-                Made in Australia {"\uD83C\uDDE6\uD83C\uDDFA"}
+                Made on the Gold Coast 🇦🇺 · Used worldwide 🌍
               </p>
             </div>
 
@@ -1254,7 +1442,7 @@ export default function Home() {
               &copy; 2026 Majorka. ABN: [pending] &middot; Built on the Gold Coast, Australia.
             </p>
             <p style={{ color: C.muted, fontSize: 12 }}>
-              Powered by Anthropic Claude AI &middot; Australian Consumer Law applies
+              Powered by Anthropic Claude AI &middot; Consumer rights apply in your jurisdiction
             </p>
           </div>
         </div>

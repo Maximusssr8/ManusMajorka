@@ -2,6 +2,11 @@ import { config } from "dotenv";
 config(); // loads .env
 config({ path: ".env.local", override: false }); // loads .env.local, doesn't override existing
 
+import * as Sentry from "@sentry/node";
+if (process.env.SENTRY_DSN) {
+  Sentry.init({ dsn: process.env.SENTRY_DSN, tracesSampleRate: 0.1 });
+}
+
 import express from "express";
 import { createServer } from "http";
 import net from "net";
@@ -12,6 +17,7 @@ import { registerStripeRoutes } from "../lib/stripe";
 import { registerToolsApi } from "../lib/tools-api";
 import { registerAutomationRoutes } from "../lib/automation-api";
 import { registerAffiliateRoutes } from "../lib/affiliate";
+import { registerDemoRoutes } from "../lib/demo-api";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
@@ -104,6 +110,8 @@ async function startServer() {
   registerAutomationRoutes(app);
   // Affiliate program, email subscribe, social proof
   registerAffiliateRoutes(app);
+  // Demo research endpoint (unauthenticated, rate-limited)
+  registerDemoRoutes(app);
   // tRPC API
   app.use(
     "/api/trpc",
@@ -112,6 +120,11 @@ async function startServer() {
       createContext,
     })
   );
+  // Sentry error handler (must be after routes)
+  if (process.env.SENTRY_DSN) {
+    app.use(Sentry.expressErrorHandler());
+  }
+
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);

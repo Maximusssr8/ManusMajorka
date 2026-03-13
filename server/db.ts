@@ -476,3 +476,28 @@ export async function getUserCount() {
   const result = await db.select({ count: sql<number>`count(*)` }).from(profiles);
   return Number(result[0]?.count ?? 0);
 }
+
+/** Admin: get all user leads with subscription and profile data */
+export async function getAllLeads() {
+  const db = getDb();
+  if (!db) return [];
+  const rows = await db
+    .select({
+      id: profiles.id,
+      email: profiles.email,
+      name: profiles.name,
+      createdAt: profiles.createdAt,
+      role: profiles.role,
+      plan: subscriptions.plan,
+      subscriptionStatus: subscriptions.status,
+      market: userProfiles.market,
+      businessName: userProfiles.businessName,
+      targetNiche: userProfiles.targetNiche,
+    })
+    .from(profiles)
+    .leftJoin(subscriptions, eq(subscriptions.userId, profiles.id))
+    .leftJoin(userProfiles, eq(userProfiles.userId, profiles.id))
+    .orderBy(desc(profiles.createdAt))
+    .limit(500);
+  return rows;
+}

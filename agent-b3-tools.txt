@@ -1,0 +1,42 @@
+Read ~/ManusMajorka/CLAUDE.md fully before writing any code. You are working in ~/ManusMajorka.
+
+TASK: Upgrade all AI tools to production quality — streaming, market-aware, Knowledge Base.
+
+1. Streaming: Update server/_core/chat.ts to support SSE streaming using Vercel AI SDK:
+- If request body has stream:true (default), use streamText from 'ai' with @ai-sdk/anthropic
+- Write SSE: headers Content-Type:text/event-stream, each chunk as: data: {"text":"chunk"}\n\n, finish with data: [DONE]\n\n
+- If stream:false, return JSON {reply:"..."} as before
+- max_tokens: 4096 always
+- Keep existing /api/chat route, just upgrade the response format
+
+2. Add MAJORKA_KNOWLEDGE_BASE constant to server/lib/anthropic.ts (200 words max, injected into BASE_SYSTEM_PROMPT):
+Majorka is an AI ecommerce OS for sellers worldwide. 20+ tools across Research/Validate/Build/Launch/Optimise stages. Starter free (5 AI/day), Builder $49/mo (unlimited), Scale $149/mo (API+teams). Key tools: Product Discovery, Brand DNA, Meta Ads Pack, Website Generator, Profit Calculator, Supplier Finder, Keyword Miner, Copywriter, Email Sequences, TikTok Builder, Validate, Scaling Playbook, Store Spy, Saturation Checker, AU Trending. Market support: AU/US/EU/UK/Asia/Global.
+
+3. Create client/src/pages/KnowledgeBase.tsx at /app/knowledge-base:
+- Left sidebar: 9 sections (Getting Started, Product Research, Market Selection, Building Your Store, Running Ads, Supplier Sourcing, Pricing & Margins, Compliance & Legal, Scaling)
+- Right: article content with H2/H3 headings, ~300 words per section
+- "Ask AI about this" button on each section → opens AI chat pre-filled with context
+- All articles cover multiple markets, not just AU
+- Add route in App.tsx
+
+4. Fix TikTokSlideshow.tsx — check it exists and works:
+- Must have: product/niche input, market selector, 5-slide output, GPT remix button, copy-all button
+- Fix any broken API calls or missing imports
+
+5. Update Validate tool system prompt (find in tools.ts) to always output:
+- COGS breakdown (product + shipping + fees)
+- Break-even ROAS formula
+- Net margin %
+- Monthly units needed for $10K target
+- All in user's market currency
+
+6. Update Supplier Finder prompt: mention market-specific suppliers (AU: Dropshipzone/Wiio, US: Spocket/SaleHoo, EU: BigBuy, Global: AliExpress/CJdropshipping). Filter by ship-from region for selected market.
+
+7. Update Copywriter prompt: reference Gary Bencivenga (reason-why copy), David Ogilvy (headline formulas), Dan Kennedy (direct response). Apply correct English variant per market.
+
+8. Create server/lib/loading-messages.ts with staged messages per tool (5 stages each). Export LOADING_STAGES record.
+
+9. pnpm run check && pnpm run build (fix ALL TypeScript errors)
+10. git add -A && git commit -m "feat: AI tools — SSE streaming, MAJORKA_KNOWLEDGE_BASE, Knowledge Base page, TikTok fix, Validate maths, market-aware prompts" && git push origin main
+
+When completely finished, run: openclaw system event --text "Done: AI tools upgraded — streaming SSE, Knowledge Base 9 sections, Validate tool maths, TikTok Builder, market-aware prompts" --mode now

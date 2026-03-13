@@ -1,0 +1,45 @@
+Read ~/ManusMajorka/CLAUDE.md fully before writing any code. You are working in ~/ManusMajorka.
+
+TASK: Complete the Majorka landing page (client/src/pages/Home.tsx) to production standard.
+
+First install: cd ~/ManusMajorka && pnpm add react-countup react-fast-marquee gsap @gsap/react react-intersection-observer
+
+1. Update hero messaging to "Built for sellers worldwide" (not AU-only). Headline: "The AI Ecommerce OS for Sellers Worldwide". Keep existing animated gradient ray SVG background. Add animated H1 stagger (Framer Motion, 0.1s delay per word).
+
+2. Stats bar (CSS Grid, 3 cols, no overlap):
+- Use react-countup + react-intersection-observer (trigger on scroll)
+- "12,400+ Products Researched" | "3,200+ Sellers" | "$18M+ Revenue Generated"
+- Gold numbers (#d4af37), gray labels
+
+3. Live demo widget (rate-limited, no login):
+- Add POST /api/demo/research to server with in-memory rate limit (3/IP/hour using Map<ip,{count,resetAt}>)
+- Widget: input field + market dropdown (6 options) + "Analyse" button
+- Real Anthropic call using product-discovery prompt
+- Shows 3 product cards with results
+- Below: "Get 50+ tools → Sign up free" CTA
+
+4. Testimonials marquee (react-fast-marquee):
+- 8 testimonials from AU/US/UK/EU/SG sellers
+- Dual row: row 1 scrolls right, row 2 scrolls left
+- Cards: dark #111 bg, 2px gold left border, star rating, name + city
+
+5. Pricing table updates:
+- Detect market from timezone: Australia/* → A$, Europe/* → €, GB → £, default → $
+- Annual toggle with 20% discount + strikethrough
+- Builder tier: gold border (#d4af37), "Most Popular" badge
+- Feature checklist per tier
+
+6. react-fast-marquee logo strip: Shopify, AliExpress, Meta, Google, TikTok, AusPost, Stripe, Klarna, Afterpay, Amazon
+
+7. GSAP scroll animations (@gsap/react useGSAP): fade-up on features cards, stats bar, How It Works. Respect prefers-reduced-motion.
+
+8. Footer: ensure all links work (Privacy → /privacy, Terms → /terms — create minimal pages if missing). Add diagonal gold particle/meteor CSS effect to footer background.
+
+9. FAQ section: 6 questions, global scope (not AU-only).
+
+10. Final CTA: email capture form → POST /api/subscribe.
+
+11. pnpm run check && pnpm run build (fix ALL errors)
+12. git add -A && git commit -m "feat: landing page — global messaging, stats counters, live demo widget, marquee testimonials, GSAP animations, currency detection" && git push origin main
+
+When completely finished, run: openclaw system event --text "Done: Landing page rebuilt — global messaging, demo widget, stats counters, marquee testimonials, GSAP animations live" --mode now

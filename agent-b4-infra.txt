@@ -1,0 +1,45 @@
+Read ~/ManusMajorka/CLAUDE.md fully before writing any code. You are working in ~/ManusMajorka.
+
+TASK: Analytics, error tracking, rate limiting, and infrastructure hardening.
+
+First install: cd ~/ManusMajorka && pnpm add @sentry/react @sentry/node react-countup react-intersection-observer
+
+1. PostHog (already installed): Wire up properly in client/src/main.tsx.
+Create client/src/lib/analytics.ts with track(event, props) and identify(userId, traits).
+Track these events where they happen in the codebase:
+tool_used (on /api/chat call, with toolName+market), signup, login, upgrade_clicked, market_changed, website_generated, demo_used, onboarding_completed, email_captured
+Add identify() call after auth with {email, plan, market}.
+
+2. Sentry: Init in client/src/main.tsx (VITE_SENTRY_DSN env var, enabled only in prod).
+Init in server/_core/index.ts (SENTRY_DSN env var).
+Wrap Express error handler: app.use(Sentry.Handlers.errorHandler()).
+Update ErrorBoundary.tsx to report to Sentry and show clean fallback UI.
+
+3. Rate limiting (in-memory, no Upstash needed):
+Create server/lib/rate-limit.ts: Map<key, {count, resetAt}> with rateLimit(key, limit, windowMs) → boolean.
+Apply to: /api/chat (100/hour per auth user, 5/hour for anonymous), /api/demo/research (3/IP/hour).
+Return 429 with {error: "Rate limit exceeded", retryAfter: seconds} when blocked.
+
+4. Zod validation: Create server/lib/validate.ts with validateBody(schema) middleware.
+Add schemas to: /api/chat, /api/subscribe, /api/demo/research, /api/import-product.
+
+5. UTM attribution: Create client/src/lib/attribution.ts with captureUTM().
+Call on app init in main.tsx. Store first-touch + last-touch in localStorage.
+On signup: send utm data to PostHog as event properties.
+
+6. Vite code splitting in vite.config.ts:
+manualChunks: vendor-react, vendor-ui (framer-motion+radix), vendor-charts (recharts), vendor-gsap (gsap)
+Lazy load in App.tsx: WebsiteGenerator, KnowledgeBase, TikTokSlideshow, AdminLeads
+
+7. Add /api/demo/research endpoint to server if not exists:
+- Rate limit 3/IP/hour
+- Accepts {query, market}
+- Validates with Zod
+- Returns 3 product suggestions using Anthropic
+
+8. Create/update .env.example at repo root with all required env var keys (no values).
+
+9. pnpm run check && pnpm run build (fix ALL TypeScript errors)
+10. git add -A && git commit -m "feat: analytics+infra — PostHog events, Sentry tracking, rate limiting, Zod validation, Vite code splitting, UTM attribution" && git push origin main
+
+When completely finished, run: openclaw system event --text "Done: Analytics+Infra — PostHog wired, Sentry added, rate limiting on AI endpoints, Zod validation, code splitting" --mode now

@@ -7,6 +7,7 @@ import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import { Search, Loader2, Copy, Download, Users, Mail, MessageSquare, Globe, RefreshCw } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { getStoredMarket } from "@/contexts/MarketContext";
 import { supabase } from "@/lib/supabase";
 
 interface LeadIntelResult {
@@ -68,6 +69,7 @@ Generate a lead intelligence report in STRICT JSON format:
 Be extremely specific. Real subreddit names, real Facebook group names, real hashtags. Not generic.` }],
           toolId: "admin-leads",
           skipMemory: true,
+          market: getStoredMarket(),
         }),
       });
 

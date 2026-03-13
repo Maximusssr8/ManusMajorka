@@ -7,6 +7,7 @@ import OnboardingChecklist from "@/components/OnboardingChecklist";
 import ProductTour from "@/components/ProductTour";
 import WelcomeModal from "@/components/WelcomeModal";
 import { useAuth } from "@/_core/hooks/useAuth";
+import TrialBanner from "@/components/TrialBanner";
 import { getToolByPath, recordRecentTool, allTools, stages } from "@/lib/tools";
 import { useDocumentTitle } from "@/_core/hooks/useDocumentTitle";
 import {
@@ -85,6 +86,7 @@ function DashboardHome() {
   const { activeProduct } = useActiveProduct();
   const productsQuery = trpc.products.list.useQuery(undefined, { enabled: isAuthenticated });
   const ordersQuery = trpc.storefront.getOrders.useQuery(undefined, { enabled: isAuthenticated });
+  const subscriptionQuery = trpc.subscription.get.useQuery(undefined, { enabled: isAuthenticated });
 
   const [toolsToday, setToolsToday] = useState(0);
   const [aiCount, setAiCount] = useState(0);
@@ -115,8 +117,11 @@ function DashboardHome() {
     ? stages.map(s => ({ ...s, tools: s.tools.filter(t => t.label.toLowerCase().includes(searchQuery.toLowerCase()) || t.description.toLowerCase().includes(searchQuery.toLowerCase())) })).filter(s => s.tools.length > 0)
     : stages;
 
+  const isFreePlan = !subscriptionQuery.data || subscriptionQuery.data.plan === "free";
+
   return (
     <div className="h-full overflow-auto" style={{ background: "#060608", scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}>
+      {isFreePlan && <TrialBanner />}
       <div className="max-w-5xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">

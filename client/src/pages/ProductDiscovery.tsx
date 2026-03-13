@@ -4,6 +4,7 @@ import { Search, Copy, Check, Loader2, TrendingUp, DollarSign, Package, Star, Ch
 import { SaveToProduct } from "@/components/SaveToProduct";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
 import { ActiveProductBanner } from "@/components/ActiveProductBanner";
+import { searchPhotos } from "@/lib/pexels";
 
 interface ProductIdea {
   name: string;
@@ -63,8 +64,15 @@ const TREND_ICONS: Record<string, string> = {
 
 function ProductCard({ product, index }: { product: ProductIdea; index: number }) {
   const [expanded, setExpanded] = useState(index === 0);
+  const [photos, setPhotos] = useState<string[]>([]);
   const { setProduct } = useActiveProduct();
   const cc = COMPETITION_COLORS[product.competitionLevel] || "#d4af37";
+
+  useEffect(() => {
+    searchPhotos(product.name, 3).then(results => {
+      setPhotos(results.map(p => p.src.medium));
+    }).catch(() => {});
+  }, [product.name]);
   return (
     <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
       <button onClick={() => setExpanded(!expanded)} className="w-full flex items-center gap-3 p-4 text-left" style={{ cursor: "pointer" }}>
@@ -114,6 +122,20 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
             <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>Why Now</div>
             <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.75)" }}>{product.whyNow}</div>
           </div>
+          {photos.length > 0 && (
+            <div className="flex gap-2">
+              {photos.map((url, i) => (
+                <img
+                  key={i}
+                  src={url}
+                  alt={product.name}
+                  className="w-24 h-16 object-cover rounded-lg flex-shrink-0"
+                  style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+                  onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                />
+              ))}
+            </div>
+          )}
           <div className="flex gap-2 pt-2 mt-1" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
             <button
               onClick={() => {

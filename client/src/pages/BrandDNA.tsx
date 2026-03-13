@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { SaveToProduct } from "@/components/SaveToProduct";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
 import { ActiveProductBanner } from "@/components/ActiveProductBanner";
+import { getStoredMarket } from "@/contexts/MarketContext";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface BrandDNAResult {
@@ -236,6 +237,7 @@ Generate a comprehensive brand identity document as JSON.`;
         body: JSON.stringify({
           messages: [{ role: "user", content: prompt }],
           systemPrompt: getContextualSystemPrompt(),
+          market: getStoredMarket(),
         }),
       });
       if (!response.ok) throw new Error(`Server error: ${response.status}`);

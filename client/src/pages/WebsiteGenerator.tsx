@@ -10,10 +10,12 @@ import JSZip from "jszip";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { cn } from "@/lib/utils";
+import { getStoredMarket } from "@/contexts/MarketContext";
 import { SaveToProduct } from "@/components/SaveToProduct";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
 import { useProduct } from "@/contexts/ProductContext";
 import { proxyImage } from "@/lib/imageProxy";
+import { trackWebsiteGenerated } from "@/lib/analytics";
 
 // ── Template Definitions ─────────────────────────────────────────────────────
 interface StoreTemplate {
@@ -506,6 +508,7 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
           messages: [{ role: "user", content: userMessage }],
           toolName: "website-generator",
           systemPrompt: buildSystemPrompt(vibe, platform, accentColor),
+          market: getStoredMarket(),
         }),
       });
 
@@ -526,6 +529,7 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
         const firstFile = Object.keys(parsed.files)[0];
         if (firstFile) setActiveFile(firstFile);
         toast.success("Website generated!");
+        trackWebsiteGenerated({ niche, platform, vibe, market: getStoredMarket() });
         localStorage.setItem("majorka_milestone_site", "true");
       } else {
         setParseWarning(true);

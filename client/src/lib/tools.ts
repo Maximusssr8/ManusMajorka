@@ -6,7 +6,7 @@ import {
   PenTool, Image, Layout, Sparkles, Rocket, Mail,
   PieChart, Activity, Settings, Brain, BookOpen, Mic,
   Wand2, Store, ShoppingCart, Tag, Percent, Award,
-  Crosshair, Compass, Flame, BarChart, Boxes, Workflow
+  Crosshair, Compass, Flame, BarChart, Boxes, Workflow, GraduationCap
 } from "lucide-react";
 
 export interface ToolDef {
@@ -1537,6 +1537,15 @@ Where this brand sits vs 3–4 AU competitors on Price (affordable↔premium) an
         path: "/app/financial-modeler",
         description: "Build financial projections and business models",
         systemPrompt: FINANCIAL_MODELER_PROMPT,
+      },
+      {
+        id: "knowledge-base",
+        label: "Knowledge Base",
+        icon: GraduationCap,
+        path: "/app/knowledge-base",
+        description: "Guides and documentation for every stage of your ecommerce journey",
+        systemPrompt: "",
+        examplePrompts: [],
       },
     ],
   },
