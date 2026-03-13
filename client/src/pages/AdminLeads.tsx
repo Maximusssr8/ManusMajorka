@@ -1,14 +1,27 @@
 /**
  * Admin Leads Intelligence — /admin/leads
- * Only visible to maximusmajorka@gmail.com
- * Generates outreach templates and shows signup analytics.
+ * Only visible to maximusmajorka@gmail.com or admin role.
+ * Shows user leads table, market breakdown chart, and outreach strategy.
  */
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { Search, Loader2, Copy, Download, Users, Mail, MessageSquare, Globe, RefreshCw } from "lucide-react";
+import { Search, Loader2, Copy, Users, Mail, MessageSquare, Globe, BarChart2 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getStoredMarket } from "@/contexts/MarketContext";
 import { supabase } from "@/lib/supabase";
+import { trpc } from "@/lib/trpc";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
+
+const ADMIN_EMAIL = "maximusmajorka@gmail.com";
+
+const MARKET_COLORS: Record<string, string> = {
+  AU: "#d4af37",
+  US: "#7c6af5",
+  UK: "#2dca72",
+  CA: "#e05c7a",
+  NZ: "#4ecdc4",
+  OTHER: "rgba(255,255,255,0.3)",
+};
 
 interface LeadIntelResult {
   places: string[];
@@ -18,12 +31,17 @@ interface LeadIntelResult {
 
 export default function AdminLeads() {
   const { user } = useAuth();
+  const [tab, setTab] = useState<"leads" | "outreach">("leads");
   const [keywords, setKeywords] = useState("looking for dropshipping supplier australia");
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState<LeadIntelResult | null>(null);
 
+  const leadsQuery = trpc.admin.getLeads.useQuery(undefined, {
+    enabled: user?.email === ADMIN_EMAIL || user?.role === "admin",
+  });
+
   // Gate access
-  if (user?.email !== "maximusmajorka@gmail.com") {
+  if (user?.email !== ADMIN_EMAIL && user?.role !== "admin") {
     return (
       <div className="h-full flex items-center justify-center" style={{ background: "#080a0e" }}>
         <div className="text-center">
@@ -35,11 +53,27 @@ export default function AdminLeads() {
     );
   }
 
+  const leads = leadsQuery.data ?? [];
+
+  // Market breakdown data
+  const marketCounts: Record<string, number> = {};
+  for (const lead of leads) {
+    const mkt = lead.market ?? "OTHER";
+    marketCounts[mkt] = (marketCounts[mkt] ?? 0) + 1;
+  }
+  const marketChartData = Object.entries(marketCounts).map(([name, value]) => ({ name, value }));
+
   const handleGenerate = async () => {
     if (!keywords.trim()) return;
     setGenerating(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
+
+      // Build lead summary for outreach strategy
+      const leadSummary = leads.slice(0, 50).map(l =>
+        `${l.email ?? "unknown"} | plan: ${l.plan ?? "free"} | market: ${l.market ?? "AU"} | niche: ${l.targetNiche ?? "?"}`
+      ).join("\n");
+
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: {
@@ -47,14 +81,17 @@ export default function AdminLeads() {
           ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
         },
         body: JSON.stringify({
-          messages: [{ role: "user", content: `You are a growth hacker specialising in finding early customers for SaaS products. Majorka is an AI ecommerce OS for Australian dropshippers and DTC brands. Price: $49/mo Builder, $149/mo Scale.
+          messages: [{ role: "user", content: `You are a growth hacker for Majorka, an AI ecommerce OS for Australian dropshippers. Price: $49/mo Builder, $149/mo Scale.
+
+Lead database (${leads.length} total users):
+${leadSummary || "No leads yet — generate outreach based on target audience"}
 
 Keywords our ideal customers use: "${keywords}"
 
 Generate a lead intelligence report in STRICT JSON format:
 {
   "places": [
-    "20 specific places where our ideal customers are posting right now, each as a string with platform name and specifics. Include: specific subreddits (r/AusEntrepreneur, r/dropship, r/shopify, r/AusBusiness), Facebook groups (names + typical post patterns), TikTok hashtags where buyers congregate, LinkedIn search strings that find DTC founders, Twitter/X search operators to find people asking about ecom tools"
+    "20 specific places where our ideal customers are posting right now. Include specific subreddits, Facebook groups, TikTok hashtags, LinkedIn search strings, Twitter/X operators"
   ],
   "outreachTemplates": {
     "reddit_comment": "Reddit comment template — adds value, mentions Majorka naturally. 3-4 sentences.",
@@ -63,10 +100,10 @@ Generate a lead intelligence report in STRICT JSON format:
     "dm_template": "DM template — personal, not salesy, offers genuine help.",
     "linkedin_message": "LinkedIn connection message — professional, mentions AU ecom."
   },
-  "weeklySchedule": "A weekly lead generation schedule as formatted text. Mon/Wed/Fri: Reddit engagement plan. Tue/Thu: TikTok comment strategy. Weekend: Facebook group participation. Be specific about what to post where."
+  "weeklySchedule": "A weekly lead generation schedule. Mon/Wed/Fri: Reddit engagement. Tue/Thu: TikTok comment strategy. Weekend: Facebook group participation. Be specific."
 }
 
-Be extremely specific. Real subreddit names, real Facebook group names, real hashtags. Not generic.` }],
+Be extremely specific. Real subreddit names, real Facebook group names, real hashtags.` }],
           toolId: "admin-leads",
           skipMemory: true,
           market: getStoredMarket(),
@@ -79,7 +116,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
       if (!jsonMatch) throw new Error("Could not parse response");
       const parsed = JSON.parse(jsonMatch[0]) as LeadIntelResult;
       setResult(parsed);
-      toast.success("Lead intelligence generated!");
+      toast.success("Outreach strategy generated!");
     } catch (err: any) {
       toast.error(err?.message || "Generation failed");
     } finally {
@@ -94,88 +131,223 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
 
   return (
     <div className="h-full overflow-y-auto p-6" style={{ background: "#080a0e", scrollbarWidth: "thin" }}>
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-xl font-black flex items-center gap-2" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>
-            <Users size={20} style={{ color: "#d4af37" }} />
-            Lead Intelligence
-          </h1>
-          <p className="text-sm mt-1" style={{ color: "rgba(240,237,232,0.4)" }}>
-            Find where your ideal customers are and how to reach them.
-          </p>
+      <div className="max-w-5xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h1 className="text-xl font-black flex items-center gap-2" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>
+              <Users size={20} style={{ color: "#d4af37" }} />
+              Lead Intelligence
+            </h1>
+            <p className="text-sm mt-1" style={{ color: "rgba(240,237,232,0.4)" }}>
+              {leads.length} registered users · Admin view
+            </p>
+          </div>
+          {/* Tabs */}
+          <div className="flex gap-2">
+            {(["leads", "outreach"] as const).map(t => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className="px-4 py-2 rounded-xl text-xs font-bold capitalize transition-all"
+                style={{
+                  background: tab === t ? "rgba(212,175,55,0.12)" : "rgba(255,255,255,0.04)",
+                  border: `1px solid ${tab === t ? "rgba(212,175,55,0.3)" : "rgba(255,255,255,0.08)"}`,
+                  color: tab === t ? "#d4af37" : "rgba(240,237,232,0.5)",
+                  cursor: "pointer",
+                  fontFamily: "Syne, sans-serif",
+                }}
+              >
+                {t === "leads" ? <><BarChart2 size={12} style={{ display: "inline", marginRight: 4 }} />Leads</> : <><MessageSquare size={12} style={{ display: "inline", marginRight: 4 }} />Outreach</>}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Input */}
-        <div className="flex gap-2">
-          <input
-            value={keywords}
-            onChange={e => setKeywords(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && handleGenerate()}
-            placeholder="Keywords your ideal customers use..."
-            className="flex-1 px-4 py-3 rounded-xl text-sm outline-none"
-            style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(255,255,255,0.08)", color: "#f0ede8" }}
-          />
-          <button
-            onClick={handleGenerate}
-            disabled={generating}
-            className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold transition-all disabled:opacity-40"
-            style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", fontFamily: "Syne, sans-serif", cursor: "pointer", border: "none" }}
-          >
-            {generating ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
-            {generating ? "Finding..." : "Find Leads"}
-          </button>
-        </div>
-
-        {result && (
-          <div className="space-y-6">
-            {/* Places */}
-            <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <h2 className="text-sm font-bold mb-3 flex items-center gap-2" style={{ fontFamily: "Syne, sans-serif", color: "#d4af37" }}>
-                <Globe size={14} /> Where Your Customers Are (Top 20)
-              </h2>
-              <div className="grid grid-cols-2 gap-2">
-                {result.places.map((place, i) => (
-                  <div key={i} className="text-xs p-2 rounded-lg" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", color: "rgba(240,237,232,0.6)" }}>
-                    {i + 1}. {place}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Outreach templates */}
-            <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <h2 className="text-sm font-bold mb-3 flex items-center gap-2" style={{ fontFamily: "Syne, sans-serif", color: "#d4af37" }}>
-                <Mail size={14} /> Outreach Templates
-              </h2>
-              <div className="space-y-3">
-                {Object.entries(result.outreachTemplates).map(([key, template]) => (
-                  <div key={key} className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold uppercase" style={{ color: "rgba(240,237,232,0.5)", fontFamily: "Syne, sans-serif", letterSpacing: "0.05em" }}>
-                        {key.replace(/_/g, " ")}
-                      </span>
-                      <button onClick={() => copyText(template, key)} className="text-xs flex items-center gap-1 px-2 py-0.5 rounded transition-all" style={{ background: "rgba(212,175,55,0.08)", color: "#d4af37", cursor: "pointer", border: "none" }}>
-                        <Copy size={9} /> Copy
-                      </button>
-                    </div>
-                    <p className="text-xs leading-relaxed whitespace-pre-wrap" style={{ color: "rgba(240,237,232,0.6)" }}>{template}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Weekly schedule */}
-            <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-sm font-bold flex items-center gap-2" style={{ fontFamily: "Syne, sans-serif", color: "#d4af37" }}>
-                  <MessageSquare size={14} /> Weekly Schedule
+        {tab === "leads" && (
+          <>
+            {/* Market Breakdown Chart */}
+            {marketChartData.length > 0 && (
+              <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                <h2 className="text-sm font-bold mb-4 flex items-center gap-2" style={{ fontFamily: "Syne, sans-serif", color: "#d4af37" }}>
+                  <Globe size={14} /> Market Breakdown
                 </h2>
-                <button onClick={() => copyText(result.weeklySchedule, "Schedule")} className="text-xs flex items-center gap-1 px-2 py-0.5 rounded transition-all" style={{ background: "rgba(212,175,55,0.08)", color: "#d4af37", cursor: "pointer", border: "none" }}>
-                  <Copy size={9} /> Copy
-                </button>
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={marketChartData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      dataKey="value"
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      labelLine={false}
+                    >
+                      {marketChartData.map((entry, index) => (
+                        <Cell key={index} fill={MARKET_COLORS[entry.name] ?? MARKET_COLORS.OTHER} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, fontSize: 12 }}
+                      labelStyle={{ color: "#f0ede8" }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 12, color: "rgba(240,237,232,0.6)" }} />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
-              <pre className="text-xs leading-relaxed whitespace-pre-wrap" style={{ color: "rgba(240,237,232,0.6)" }}>{result.weeklySchedule}</pre>
+            )}
+
+            {/* Leads Table */}
+            <div className="rounded-xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <div className="px-4 py-3 border-b flex items-center gap-2" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                <Mail size={14} style={{ color: "#d4af37" }} />
+                <span className="text-sm font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#d4af37" }}>
+                  All Users ({leads.length})
+                </span>
+              </div>
+              {leadsQuery.isLoading ? (
+                <div className="flex items-center justify-center p-8">
+                  <Loader2 size={20} className="animate-spin" style={{ color: "#d4af37" }} />
+                </div>
+              ) : leads.length === 0 ? (
+                <div className="p-6 text-center text-sm" style={{ color: "rgba(240,237,232,0.3)" }}>No users yet</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs" style={{ borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                        {["Email", "Signup Date", "Plan", "Market", "Niche"].map(h => (
+                          <th key={h} className="px-4 py-2.5 text-left font-bold uppercase tracking-wider"
+                            style={{ color: "rgba(240,237,232,0.35)", fontFamily: "Syne, sans-serif", fontSize: 10 }}>
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {leads.map((lead, i) => (
+                        <tr key={lead.id} style={{ borderBottom: i < leads.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>
+                          <td className="px-4 py-2.5" style={{ color: "#f0ede8" }}>{lead.email ?? "—"}</td>
+                          <td className="px-4 py-2.5" style={{ color: "rgba(240,237,232,0.5)" }}>
+                            {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString("en-AU") : "—"}
+                          </td>
+                          <td className="px-4 py-2.5">
+                            <span className="px-2 py-0.5 rounded-full text-xs font-semibold"
+                              style={{
+                                background: lead.plan === "free" || !lead.plan ? "rgba(255,255,255,0.06)" : "rgba(212,175,55,0.1)",
+                                color: lead.plan === "free" || !lead.plan ? "rgba(240,237,232,0.4)" : "#d4af37",
+                              }}>
+                              {lead.plan ?? "free"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2.5">
+                            <span className="px-2 py-0.5 rounded-full text-xs"
+                              style={{ background: `${MARKET_COLORS[lead.market ?? "OTHER"] ?? MARKET_COLORS.OTHER}20`, color: MARKET_COLORS[lead.market ?? "OTHER"] ?? "rgba(240,237,232,0.4)" }}>
+                              {lead.market ?? "AU"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2.5" style={{ color: "rgba(240,237,232,0.5)" }}>{lead.targetNiche ?? "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
+
+            {/* Generate Outreach Strategy CTA */}
+            <button
+              onClick={() => setTab("outreach")}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all"
+              style={{
+                background: "linear-gradient(135deg, #d4af37, #f0c040)",
+                color: "#080a0e",
+                fontFamily: "Syne, sans-serif",
+                cursor: "pointer",
+                border: "none",
+              }}
+            >
+              <MessageSquare size={15} />
+              Generate Outreach Strategy →
+            </button>
+          </>
+        )}
+
+        {tab === "outreach" && (
+          <div className="space-y-4">
+            {/* Input */}
+            <div className="flex gap-2">
+              <input
+                value={keywords}
+                onChange={e => setKeywords(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleGenerate()}
+                placeholder="Keywords your ideal customers use..."
+                className="flex-1 px-4 py-3 rounded-xl text-sm outline-none"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(255,255,255,0.08)", color: "#f0ede8" }}
+              />
+              <button
+                onClick={handleGenerate}
+                disabled={generating}
+                className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold transition-all disabled:opacity-40"
+                style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", fontFamily: "Syne, sans-serif", cursor: "pointer", border: "none" }}
+              >
+                {generating ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+                {generating ? "Finding..." : "Generate Strategy"}
+              </button>
+            </div>
+
+            {result && (
+              <div className="space-y-6">
+                {/* Places */}
+                <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <h2 className="text-sm font-bold mb-3 flex items-center gap-2" style={{ fontFamily: "Syne, sans-serif", color: "#d4af37" }}>
+                    <Globe size={14} /> Where Your Customers Are (Top 20)
+                  </h2>
+                  <div className="grid grid-cols-2 gap-2">
+                    {result.places.map((place, i) => (
+                      <div key={i} className="text-xs p-2 rounded-lg" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", color: "rgba(240,237,232,0.6)" }}>
+                        {i + 1}. {place}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Outreach templates */}
+                <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <h2 className="text-sm font-bold mb-3 flex items-center gap-2" style={{ fontFamily: "Syne, sans-serif", color: "#d4af37" }}>
+                    <Mail size={14} /> Outreach Templates
+                  </h2>
+                  <div className="space-y-3">
+                    {Object.entries(result.outreachTemplates).map(([key, template]) => (
+                      <div key={key} className="rounded-lg p-3" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-bold uppercase" style={{ color: "rgba(240,237,232,0.5)", fontFamily: "Syne, sans-serif", letterSpacing: "0.05em" }}>
+                            {key.replace(/_/g, " ")}
+                          </span>
+                          <button onClick={() => copyText(template, key)} className="text-xs flex items-center gap-1 px-2 py-0.5 rounded transition-all" style={{ background: "rgba(212,175,55,0.08)", color: "#d4af37", cursor: "pointer", border: "none" }}>
+                            <Copy size={9} /> Copy
+                          </button>
+                        </div>
+                        <p className="text-xs leading-relaxed whitespace-pre-wrap" style={{ color: "rgba(240,237,232,0.6)" }}>{template}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Weekly schedule */}
+                <div className="rounded-xl p-5" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-sm font-bold flex items-center gap-2" style={{ fontFamily: "Syne, sans-serif", color: "#d4af37" }}>
+                      <MessageSquare size={14} /> Weekly Schedule
+                    </h2>
+                    <button onClick={() => copyText(result.weeklySchedule, "Schedule")} className="text-xs flex items-center gap-1 px-2 py-0.5 rounded transition-all" style={{ background: "rgba(212,175,55,0.08)", color: "#d4af37", cursor: "pointer", border: "none" }}>
+                      <Copy size={9} /> Copy
+                    </button>
+                  </div>
+                  <pre className="text-xs leading-relaxed whitespace-pre-wrap" style={{ color: "rgba(240,237,232,0.6)" }}>{result.weeklySchedule}</pre>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -30,7 +30,9 @@ import {
   updateOrderFulfillment,
   saveAttribution,
   getAttributionByUserId,
+  getAllLeads,
 } from "./db";
+import { adminProcedure } from "./_core/trpc";
 import { tavilySearch, tavilyExtract, tavilyImageSearch } from "./tavily";
 
 export const appRouter = router({
@@ -339,6 +341,13 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         return await updateOrderFulfillment(input.orderId, "fulfilled");
       }),
+  }),
+
+  /** Admin-only endpoints */
+  admin: router({
+    getLeads: adminProcedure.query(async () => {
+      return await getAllLeads();
+    }),
   }),
 
   /** UTM attribution tracking */
