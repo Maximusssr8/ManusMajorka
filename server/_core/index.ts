@@ -13,9 +13,11 @@ import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import express from 'express';
 import { createServer } from 'http';
 import net from 'net';
+import cron from 'node-cron';
 import { registerAffiliateRoutes } from '../lib/affiliate';
 import { registerAutomationRoutes } from '../lib/automation-api';
 import { registerDemoRoutes } from '../lib/demo-api';
+import { refreshWinningProducts } from '../lib/refresh-winning-products';
 import { registerScrapeRoutes } from '../lib/scrape-product';
 import { registerStripeRoutes } from '../lib/stripe';
 import { registerToolsApi } from '../lib/tools-api';
@@ -149,6 +151,18 @@ async function startServer() {
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
   });
+
+  // ── Scheduled product refresh (every 6h at 0:00, 6:00, 12:00, 18:00 AEST) ──
+  cron.schedule('0 0,6,12,18 * * *', async () => {
+    console.log('[Products] Starting scheduled refresh...');
+    try {
+      const result = await refreshWinningProducts();
+      console.log(`[Products] Scheduled refresh complete — ${result.count} products updated`);
+    } catch (err: any) {
+      console.error('[Products] Scheduled refresh failed:', err.message);
+    }
+  }, { timezone: 'Australia/Brisbane' });
+  console.log('[Products] Auto-refresh scheduled: 0:00, 6:00, 12:00, 18:00 AEST');
 }
 
 startServer().catch(console.error);
