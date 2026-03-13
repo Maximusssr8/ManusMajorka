@@ -19,6 +19,8 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const Storefront = lazy(() => import("./pages/Storefront"));
 const AdminLeads = lazy(() => import("./pages/AdminLeads"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 
 function LoadingFallback() {
   return (
@@ -63,6 +65,9 @@ function Router() {
         <Route path="/pricing" component={Pricing} />
         <Route path="/login" component={SignIn} />
         <Route path="/sign-in" component={SignIn} />
+        <Route path="/signup">{() => <SignIn />}</Route>
+        <Route path="/onboarding">{() => <ProtectedRoute><Onboarding /></ProtectedRoute>}</Route>
+        <Route path="/verify-email" component={VerifyEmail} />
         <Route path="/account" component={Account} />
         <Route path="/app/settings/profile" component={SettingsProfile} />
         <Route path="/store/:slug" component={Storefront} />

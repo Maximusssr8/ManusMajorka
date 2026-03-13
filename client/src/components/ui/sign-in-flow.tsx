@@ -5,21 +5,40 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
 import { supabase } from "@/lib/supabase";
+import { Shield, Zap, TrendingUp, Users } from "lucide-react";
+
+// ─── Social proof stats ────────────────────────────────────────────────────────
+const SOCIAL_PROOF = [
+  { icon: Users, stat: "500+", label: "AU sellers onboard" },
+  { icon: Zap, stat: "50+", label: "AI-powered tools" },
+  { icon: TrendingUp, stat: "$63B", label: "AU ecommerce market" },
+  { icon: Shield, stat: "100%", label: "AU-native, no US fluff" },
+];
+
+const FEATURES = [
+  "AI product research tailored to the Australian market",
+  "Generate ad copy, websites, and brand identity in minutes",
+  "Built for Shopify, Amazon AU, and local marketplaces",
+];
 
 // ─── SignInPage ──────────────────────────────────────────────────────────────
 
 interface SignInPageProps {
   className?: string;
   onSuccess?: () => void;
+  mode?: "signin" | "signup";
 }
 
-export function SignInPage({ className, onSuccess }: SignInPageProps) {
+export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPageProps) {
   const [email, setEmail] = useState("");
-  const [step, setStep] = useState<"email" | "magic-link-sent" | "success">("email");
+  const [password, setPassword] = useState("");
+  const [step, setStep] = useState<"form" | "magic-link-sent" | "success">("form");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<"signin" | "signup">(initialMode || "signin");
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(0);
 
-  // Listen for auth state changes (handles OAuth redirect and magic link return)
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN") {
@@ -28,6 +47,20 @@ export function SignInPage({ className, onSuccess }: SignInPageProps) {
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  const getPasswordStrength = (pw: string): number => {
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    return score;
+  };
+
+  const handlePasswordChange = (val: string) => {
+    setPassword(val);
+    setPasswordStrength(getPasswordStrength(val));
+  };
 
   const handleGoogleSignIn = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -50,140 +83,348 @@ export function SignInPage({ className, onSuccess }: SignInPageProps) {
     setLoading(false);
   };
 
-  const handleMagicLink = async (e: React.FormEvent) => {
+  const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
     setError(null);
-    const { error: err } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${window.location.origin}/login` },
-    });
-    if (err) {
-      setError(err.message);
+
+    if (mode === "signup" && password) {
+      // Sign up with email + password
+      if (!agreedToTerms) {
+        setError("Please agree to the Terms and Privacy Policy.");
+        setLoading(false);
+        return;
+      }
+      const { error: err } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: `${window.location.origin}/onboarding` },
+      });
+      if (err) {
+        setError(err.message);
+      } else {
+        setStep("magic-link-sent");
+      }
     } else {
-      setStep("magic-link-sent");
+      // Magic link sign in
+      const { error: err } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: `${window.location.origin}/login` },
+      });
+      if (err) {
+        setError(err.message);
+      } else {
+        setStep("magic-link-sent");
+      }
     }
     setLoading(false);
   };
 
-  const handleBackClick = () => {
-    setStep("email");
-    setError(null);
-  };
+  const strengthColors = ["#ef4444", "#f59e0b", "#eab308", "#22c55e"];
+  const strengthLabels = ["Weak", "Fair", "Good", "Strong"];
 
   return (
-    <div className={cn("flex w-full flex-col min-h-screen bg-black relative", className)}>
-      {/* Background — CSS gradient replacing WebGL CanvasRevealEffect */}
-      <div className="absolute inset-0 z-0">
+    <div className={cn("flex w-full min-h-screen", className)} style={{ background: "#080a0e" }}>
+      {/* ── Left panel: Brand + Social Proof (desktop only) ──────────── */}
+      <div className="hidden lg:flex flex-col justify-between w-[480px] xl:w-[520px] flex-shrink-0 p-10 relative overflow-hidden">
+        {/* Background glow */}
         <div
           className="absolute inset-0"
           style={{
-            background:
-              "radial-gradient(ellipse at 50% 60%, rgba(212,175,55,0.13) 0%, rgba(212,175,55,0.05) 40%, transparent 70%)",
+            background: "radial-gradient(ellipse at 30% 50%, rgba(212,175,55,0.08) 0%, transparent 70%)",
           }}
         />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(0,0,0,0.8)_0%,_transparent_100%)]" />
-        <div className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-black to-transparent" />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.03) 0%, transparent 60%)" }} />
+
+        {/* Top: Logo */}
+        <div className="relative z-10">
+          <div className="flex items-center gap-2.5 mb-16">
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "#d4af37" }}>
+              <span className="text-black font-bold text-sm" style={{ fontFamily: "Syne, sans-serif" }}>M</span>
+            </div>
+            <span className="text-white font-bold text-xl" style={{ fontFamily: "Syne, sans-serif" }}>Majorka</span>
+          </div>
+
+          {/* Brand statement */}
+          <h2
+            className="text-3xl font-bold leading-tight mb-4"
+            style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5", letterSpacing: "-0.02em" }}
+          >
+            Your AI ecommerce
+            <br />
+            <span style={{ color: "#d4af37" }}>operating system.</span>
+          </h2>
+          <p className="text-base mb-8" style={{ color: "rgba(255,255,255,0.5)", lineHeight: 1.7 }}>
+            50+ AI tools built specifically for Australian sellers.
+            Research, build, launch, and scale — all from one platform.
+          </p>
+
+          {/* Feature list */}
+          <div className="space-y-3 mb-10">
+            {FEATURES.map((feat, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "rgba(212,175,55,0.15)" }}>
+                  <svg width="10" height="10" viewBox="0 0 20 20" fill="#d4af37"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                </div>
+                <span className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>{feat}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom: Social proof grid */}
+        <div className="relative z-10">
+          <div className="grid grid-cols-2 gap-3">
+            {SOCIAL_PROOF.map(({ icon: Icon, stat, label }) => (
+              <div
+                key={label}
+                className="rounded-xl p-3"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Icon size={13} style={{ color: "#d4af37" }} />
+                  <span className="text-lg font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>{stat}</span>
+                </div>
+                <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col flex-1 justify-center items-center px-4">
-        {/* Majorka logo */}
-        <div className="mb-8 flex items-center gap-2">
+      {/* ── Right panel: Auth form ───────────────────────────────────── */}
+      <div className="flex-1 flex flex-col justify-center items-center px-6 py-10 relative">
+        {/* Background glow */}
+        <div className="absolute inset-0 z-0">
+          <div
+            className="absolute inset-0"
+            style={{
+              background: "radial-gradient(ellipse at 50% 60%, rgba(212,175,55,0.08) 0%, transparent 60%)",
+            }}
+          />
+        </div>
+
+        {/* Mobile logo (hidden on desktop) */}
+        <div className="lg:hidden mb-8 flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "#d4af37" }}>
             <span className="text-black font-bold text-sm" style={{ fontFamily: "Syne, sans-serif" }}>M</span>
           </div>
           <span className="text-white font-bold text-xl" style={{ fontFamily: "Syne, sans-serif" }}>Majorka</span>
         </div>
 
-        <div className="w-full max-w-sm">
+        <div className="w-full max-w-sm relative z-10">
           <AnimatePresence mode="wait">
-            {step === "email" ? (
+            {step === "form" ? (
               <motion.div
-                key="email-step"
-                initial={{ opacity: 0, x: -60 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -60 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="space-y-6 text-center"
+                key="form-step"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="space-y-5"
               >
-                <div className="space-y-1">
-                  <h1 className="text-4xl font-bold leading-tight tracking-tight text-white" style={{ fontFamily: "Syne, sans-serif" }}>
-                    Welcome back
+                {/* Header */}
+                <div className="text-center lg:text-left space-y-1">
+                  <h1 className="text-3xl font-bold tracking-tight text-white" style={{ fontFamily: "Syne, sans-serif" }}>
+                    {mode === "signup" ? "Create your account" : "Welcome back"}
                   </h1>
-                  <p className="text-lg text-white/60 font-light">Sign in to your Majorka account</p>
+                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
+                    {mode === "signup"
+                      ? "Start free — no credit card needed"
+                      : "Sign in to your Majorka account"}
+                  </p>
                 </div>
 
+                {/* Google OAuth */}
                 <button
                   type="button"
                   onClick={handleGoogleSignIn}
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 rounded-full py-3 px-4 font-medium transition-colors disabled:opacity-50"
-                  style={{ background: "#d4af37", color: "#000", cursor: loading ? "wait" : "pointer", border: "none" }}
+                  className="w-full flex items-center justify-center gap-2.5 rounded-xl py-3.5 px-4 font-medium transition-all disabled:opacity-50"
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    color: "#f5f5f5",
+                    cursor: loading ? "wait" : "pointer",
+                  }}
+                  onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.1)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.06)"; }}
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
                   Continue with Google
                 </button>
 
+                {/* Divider */}
                 <div className="flex items-center gap-4">
-                  <div className="h-px bg-white/10 flex-1" />
-                  <span className="text-white/40 text-sm">or use email</span>
-                  <div className="h-px bg-white/10 flex-1" />
+                  <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.08)" }} />
+                  <span className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>or use email</span>
+                  <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.08)" }} />
                 </div>
 
-                <form onSubmit={handleMagicLink}>
-                  <div className="relative">
+                {/* Email/Password form */}
+                <form onSubmit={handleEmailAuth} className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(255,255,255,0.5)" }}>
+                      Email
+                    </label>
                     <input
-                      id="email"
-                      name="email"
                       type="email"
-                      placeholder="your@email.com"
+                      placeholder="you@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-white/5 backdrop-blur text-white border border-white/10 rounded-full py-3 px-4 focus:outline-none focus:border-[#d4af37]/50 text-center"
+                      className="w-full rounded-xl py-3 px-4 text-sm outline-none transition-all"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        color: "#f5f5f5",
+                      }}
+                      onFocus={e => (e.target.style.borderColor = "rgba(212,175,55,0.4)")}
+                      onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
                       required
                     />
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="absolute right-1.5 top-1.5 w-9 h-9 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white disabled:opacity-50"
-                    >
-                      {loading ? "..." : "→"}
-                    </button>
                   </div>
+
+                  {mode === "signup" && (
+                    <div>
+                      <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(255,255,255,0.5)" }}>
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        placeholder="Create a strong password"
+                        value={password}
+                        onChange={(e) => handlePasswordChange(e.target.value)}
+                        className="w-full rounded-xl py-3 px-4 text-sm outline-none transition-all"
+                        style={{
+                          background: "rgba(255,255,255,0.04)",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          color: "#f5f5f5",
+                        }}
+                        onFocus={e => (e.target.style.borderColor = "rgba(212,175,55,0.4)")}
+                        onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
+                        required
+                        minLength={8}
+                      />
+                      {/* Password strength indicator */}
+                      {password.length > 0 && (
+                        <div className="mt-2">
+                          <div className="flex gap-1 mb-1">
+                            {[0, 1, 2, 3].map(i => (
+                              <div
+                                key={i}
+                                className="h-1 flex-1 rounded-full transition-all"
+                                style={{
+                                  background: i < passwordStrength
+                                    ? strengthColors[passwordStrength - 1]
+                                    : "rgba(255,255,255,0.08)",
+                                }}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xs" style={{ color: strengthColors[passwordStrength - 1] || "rgba(255,255,255,0.3)" }}>
+                            {passwordStrength > 0 ? strengthLabels[passwordStrength - 1] : "Too short"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {mode === "signup" && (
+                    <label className="flex items-start gap-2.5 cursor-pointer py-1">
+                      <input
+                        type="checkbox"
+                        checked={agreedToTerms}
+                        onChange={(e) => setAgreedToTerms(e.target.checked)}
+                        className="mt-0.5 rounded"
+                        style={{ accentColor: "#d4af37" }}
+                      />
+                      <span className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
+                        I agree to the{" "}
+                        <Link href="#" className="underline" style={{ color: "rgba(255,255,255,0.6)" }}>Terms of Service</Link>
+                        {" "}and{" "}
+                        <Link href="#" className="underline" style={{ color: "rgba(255,255,255,0.6)" }}>Privacy Policy</Link>
+                      </span>
+                    </label>
+                  )}
+
+                  {error && (
+                    <div className="text-sm px-3 py-2 rounded-lg" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#ef4444" }}>
+                      {error}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={loading || (mode === "signup" && !agreedToTerms)}
+                    className="w-full rounded-xl py-3.5 font-semibold text-sm transition-all disabled:opacity-50"
+                    style={{
+                      background: "linear-gradient(135deg, #d4af37, #b8941f)",
+                      color: "#080a0e",
+                      border: "none",
+                      cursor: loading ? "wait" : "pointer",
+                      fontFamily: "Syne, sans-serif",
+                    }}
+                  >
+                    {loading
+                      ? "Please wait..."
+                      : mode === "signup"
+                        ? "Start Free — No Credit Card Needed"
+                        : "Send Magic Link"}
+                  </button>
                 </form>
 
-                {error && (
-                  <p className="text-sm text-red-400">{error}</p>
-                )}
-
-                <p className="text-xs text-white/30 pt-4">
-                  By continuing, you agree to Majorka's{" "}
-                  <Link href="#" className="underline hover:text-white/50 transition-colors">Terms</Link> and{" "}
-                  <Link href="#" className="underline hover:text-white/50 transition-colors">Privacy Policy</Link>.
+                {/* Toggle mode */}
+                <p className="text-center text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  {mode === "signup" ? (
+                    <>
+                      Already have an account?{" "}
+                      <button
+                        onClick={() => { setMode("signin"); setError(null); }}
+                        className="font-medium underline"
+                        style={{ background: "none", border: "none", cursor: "pointer", color: "#d4af37" }}
+                      >
+                        Sign in
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      New to Majorka?{" "}
+                      <button
+                        onClick={() => { setMode("signup"); setError(null); }}
+                        className="font-medium underline"
+                        style={{ background: "none", border: "none", cursor: "pointer", color: "#d4af37" }}
+                      >
+                        Create an account
+                      </button>
+                    </>
+                  )}
                 </p>
               </motion.div>
             ) : step === "magic-link-sent" ? (
               <motion.div
-                key="magic-link-step"
-                initial={{ opacity: 0, x: 60 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 60 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
+                key="sent-step"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
                 className="space-y-6 text-center"
               >
-                <div className="space-y-1">
-                  <h1 className="text-4xl font-bold leading-tight tracking-tight text-white" style={{ fontFamily: "Syne, sans-serif" }}>
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-bold tracking-tight text-white" style={{ fontFamily: "Syne, sans-serif" }}>
                     Check your email
                   </h1>
-                  <p className="text-lg text-white/50 font-light">We sent a magic link to {email}</p>
+                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
+                    {mode === "signup"
+                      ? `We sent a confirmation link to ${email}`
+                      : `We sent a magic link to ${email}`}
+                  </p>
                 </div>
 
                 <div className="py-6">
                   <div
                     className="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
-                    style={{ background: "rgba(212,175,55,0.15)", border: "1px solid rgba(212,175,55,0.3)" }}
+                    style={{ background: "rgba(212,175,55,0.12)", border: "1px solid rgba(212,175,55,0.25)" }}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect width="20" height="16" x="2" y="4" rx="2" />
@@ -192,11 +433,13 @@ export function SignInPage({ className, onSuccess }: SignInPageProps) {
                   </div>
                 </div>
 
-                <p className="text-white/40 text-sm">Click the link in your email to sign in. You can close this tab.</p>
+                <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+                  Click the link in your email to {mode === "signup" ? "verify your account" : "sign in"}. You can close this tab.
+                </p>
 
                 <motion.button
-                  onClick={handleBackClick}
-                  className="rounded-full bg-white/10 text-white font-medium px-6 py-3 hover:bg-white/20 transition-colors"
+                  onClick={() => { setStep("form"); setError(null); }}
+                  className="rounded-xl bg-white/10 text-white font-medium px-6 py-3 text-sm hover:bg-white/15 transition-colors"
                   style={{ border: "none", cursor: "pointer" }}
                   whileTap={{ scale: 0.97 }}
                 >
@@ -206,23 +449,23 @@ export function SignInPage({ className, onSuccess }: SignInPageProps) {
             ) : (
               <motion.div
                 key="success-step"
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: "easeOut", delay: 0.3 }}
+                transition={{ duration: 0.4, ease: "easeOut", delay: 0.2 }}
                 className="space-y-6 text-center"
               >
-                <div className="space-y-1">
-                  <h1 className="text-4xl font-bold leading-tight tracking-tight text-white" style={{ fontFamily: "Syne, sans-serif" }}>
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-bold tracking-tight text-white" style={{ fontFamily: "Syne, sans-serif" }}>
                     You're in!
                   </h1>
-                  <p className="text-lg text-white/50 font-light">Welcome to Majorka</p>
+                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>Welcome to Majorka</p>
                 </div>
 
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
-                  className="py-10"
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                  className="py-8"
                 >
                   <div
                     className="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
@@ -237,10 +480,10 @@ export function SignInPage({ className, onSuccess }: SignInPageProps) {
                 <motion.button
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 1 }}
+                  transition={{ delay: 0.8 }}
                   onClick={onSuccess}
-                  className="w-full rounded-full font-medium py-3 text-black transition-colors"
-                  style={{ background: "#d4af37", border: "none", cursor: "pointer" }}
+                  className="w-full rounded-xl font-semibold py-3.5 text-sm text-black transition-colors"
+                  style={{ background: "linear-gradient(135deg, #d4af37, #b8941f)", border: "none", cursor: "pointer", fontFamily: "Syne, sans-serif" }}
                 >
                   Continue to Dashboard
                 </motion.button>

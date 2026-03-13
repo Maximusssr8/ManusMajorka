@@ -245,7 +245,7 @@ function DashboardHome() {
                 {getGreeting()}{firstName ? `, ${firstName}` : ""}
               </h1>
               <p className="text-sm" style={{ color: "#a1a1aa" }}>
-                Your AI Ecommerce OS &middot; <span style={{ color: "#52525b" }}>{formatDate()}</span>
+                {getPersonalisedSubtitle(savedNiche, savedLevel)} &middot; <span style={{ color: "#52525b" }}>{formatDate()}</span>
               </p>
             </div>
             <button
@@ -405,6 +405,49 @@ function DashboardHome() {
             </button>
           ))}
         </div>
+
+        {/* ── C2. Recommended for You ──────────────────────────────────── */}
+        {savedGoal && (
+          <div className="mb-8">
+            <div
+              className="text-xs font-bold uppercase tracking-widest mb-3"
+              style={{ color: "#52525b", fontFamily: "Syne, sans-serif" }}
+            >
+              Recommended for You
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {getRecommendedTools().map(({ label, path, desc, color }) => (
+                <button
+                  key={path}
+                  onClick={() => setLocation(path)}
+                  className="text-left rounded-xl p-4 transition-all"
+                  style={{
+                    background: `${color}06`,
+                    border: `1px solid ${color}20`,
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = `${color}40`;
+                    (e.currentTarget as HTMLButtonElement).style.background = `${color}10`;
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = `${color}20`;
+                    (e.currentTarget as HTMLButtonElement).style.background = `${color}06`;
+                  }}
+                >
+                  <div className="text-sm font-bold mb-1" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
+                    {label}
+                  </div>
+                  <div className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{desc}</div>
+                  <div className="flex items-center gap-1 mt-2">
+                    <span className="text-xs font-medium" style={{ color }}>Open tool</span>
+                    <ArrowRight size={10} style={{ color }} />
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* ── D. Two-column layout ─────────────────────────────────────── */}
         <div className="flex flex-col lg:flex-row gap-6 mb-8" style={{ alignItems: "flex-start" }}>

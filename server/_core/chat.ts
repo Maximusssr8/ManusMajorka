@@ -2,7 +2,8 @@
  * Chat API Handler
  *
  * Express endpoint for AI chat with persistent memory via chat_messages table.
- * Returns plain JSON { reply } — streaming not used (Vercel serverless limitation).
+ * Supports SSE streaming (pass ?stream=1 or stream:true in body) for real-time
+ * token display, with plain JSON { reply } fallback for non-streaming clients.
  */
 
 import type { Application } from "express";
@@ -73,8 +74,18 @@ function buildSystemPrompt(customPrompt: string | undefined, profile: Record<str
   const base = customPrompt || `You are Majorka AI — a sharp, direct ecommerce co-founder.`;
 
   // Inject user profile context for ALL tools so responses are personalised
+  const goals = profile?.main_goal?.includes(",")
+    ? profile.main_goal.split(",").map((g: string) => g.trim()).join(", ")
+    : profile?.main_goal;
+
+  const experienceMap: Record<string, string> = {
+    beginner: "just starting out, never sold online",
+    intermediate: "has a store, some experience",
+    advanced: "experienced seller, looking to scale",
+  };
+
   const profileCtx = profile
-    ? `\n\nUSER PROFILE:\n- Name: ${profile.display_name || profile.full_name || "there"}\n- Niche: ${profile.target_niche || profile.business_niche || "not set"}\n- Experience: ${profile.experience_level || "unknown"}\n- Goal: ${profile.main_goal || "grow ecommerce business"}\n- Budget: ${profile.budget || "not set"}\n- Country: ${profile.country || "Australia"}`
+    ? `\n\nUSER PROFILE (tailor ALL responses to this context):\n- Name: ${profile.display_name || profile.full_name || "there"}\n- Country: ${profile.country || "Australia"}\n- Niche: ${profile.target_niche || profile.business_niche || "not set"}\n- Experience: ${experienceMap[profile.experience_level] || profile.experience_level || "unknown"}\n- Primary goals: ${goals || "grow ecommerce business"}\n- Budget: ${profile.budget || "not set"}\n- Store URL: ${profile.business_name || "not provided"}\n\nIMPORTANT: You are speaking to an Australian ecommerce operator. Use AUD for all currency, reference AU shipping times, AU-specific platforms (Afterpay, Zip, Australia Post), and AU consumer law where relevant. Tailor product suggestions, pricing, and strategies to the Australian market. Reference their specific niche and experience level in every response.`
     : "";
 
   // AI Chat gets full personality rules; tool pages get profile context + lighter memory rules
@@ -200,27 +211,69 @@ export function registerChatRoutes(app: Application) {
       // ── Build system prompt ─────────────────────────────────────────────
       const system = buildSystemPrompt(systemPrompt, profile, toolName) + webContext;
 
-      // ── Claude call ─────────────────────────────────────────────────────
-      const client = getAnthropicClient();
-      const aiResponse = await client.messages.create({
-        model: CLAUDE_MODEL,
-        max_tokens: 4096,
-        system,
-        messages,
-      });
+      // ── Determine if client wants streaming ────────────────────────────
+      const wantStream = req.query.stream === "1" || req.body.stream === true;
 
-      const reply = aiResponse.content[0]?.type === "text" ? aiResponse.content[0].text : "";
+      if (wantStream) {
+        // ── SSE streaming response ──────────────────────────────────────
+        res.setHeader("Content-Type", "text/event-stream");
+        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader("Connection", "keep-alive");
+        res.setHeader("X-Accel-Buffering", "no");
+        res.flushHeaders();
 
-      // ── Save to memory (fire-and-forget) ────────────────────────────────
-      if (userId && reply) {
-        const lastUserMsg = [...messages].reverse().find((m: any) => m.role === "user");
-        if (lastUserMsg) {
-          saveMessage(userId, toolName, "user", lastUserMsg.content).catch(() => {});
-          saveMessage(userId, toolName, "assistant", reply).catch(() => {});
+        const client = getAnthropicClient();
+        let fullReply = "";
+
+        const stream = await client.messages.stream({
+          model: CLAUDE_MODEL,
+          max_tokens: 4096,
+          system,
+          messages,
+        });
+
+        for await (const event of stream) {
+          if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+            const text = event.delta.text;
+            fullReply += text;
+            res.write(`data: ${JSON.stringify({ type: "delta", text })}\n\n`);
+          }
         }
-      }
 
-      res.json({ reply });
+        res.write(`data: ${JSON.stringify({ type: "done", text: fullReply })}\n\n`);
+        res.end();
+
+        // Save to memory (fire-and-forget)
+        if (userId && fullReply) {
+          const lastUserMsg = [...messages].reverse().find((m: any) => m.role === "user");
+          if (lastUserMsg) {
+            saveMessage(userId, toolName, "user", lastUserMsg.content).catch(() => {});
+            saveMessage(userId, toolName, "assistant", fullReply).catch(() => {});
+          }
+        }
+      } else {
+        // ── Non-streaming response (legacy) ─────────────────────────────
+        const client = getAnthropicClient();
+        const aiResponse = await client.messages.create({
+          model: CLAUDE_MODEL,
+          max_tokens: 4096,
+          system,
+          messages,
+        });
+
+        const reply = aiResponse.content[0]?.type === "text" ? aiResponse.content[0].text : "";
+
+        // Save to memory (fire-and-forget)
+        if (userId && reply) {
+          const lastUserMsg = [...messages].reverse().find((m: any) => m.role === "user");
+          if (lastUserMsg) {
+            saveMessage(userId, toolName, "user", lastUserMsg.content).catch(() => {});
+            saveMessage(userId, toolName, "assistant", reply).catch(() => {});
+          }
+        }
+
+        res.json({ reply });
+      }
 
     } catch (error: any) {
       console.error("[/api/chat] Error:", error);
