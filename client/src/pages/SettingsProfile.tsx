@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import MajorkaAppShell from "@/components/MajorkaAppShell";
+import { useProductTour } from "@/components/ProductTour";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { useDocumentTitle } from "@/_core/hooks/useDocumentTitle";
@@ -39,6 +40,7 @@ export default function SettingsProfile() {
   useDocumentTitle("Settings");
   const [, setLocation] = useLocation();
   const { user, loading, isAuthenticated, logout } = useAuth();
+  const { startTour, resetTour } = useProductTour();
   const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
   const [form, setForm] = useState({
     businessName: "", targetNiche: "", monthlyRevenue: "",
@@ -248,6 +250,22 @@ export default function SettingsProfile() {
                       ))}
                     </div>
                   </div>
+                </div>
+              </div>
+
+              <div className={sectionCard} style={sectionCardStyle}>
+                <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#52525b", fontFamily: "Syne, sans-serif" }}>Onboarding</div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-medium" style={{ color: "#f5f5f5" }}>Product Tour</div>
+                    <div className="text-xs" style={{ color: "#52525b" }}>Replay the guided tour of Majorka's features</div>
+                  </div>
+                  <button
+                    onClick={() => { resetTour(); setLocation("/app"); setTimeout(() => startTour(), 500); }}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all"
+                    style={{ background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.2)", color: "#d4af37", cursor: "pointer" }}>
+                    Restart Tour
+                  </button>
                 </div>
               </div>
 
