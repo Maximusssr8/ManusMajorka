@@ -307,117 +307,192 @@ export default function PromoDashboard() {
         .sidebar {
           width: 256px;
           min-width: 256px;
-          background: #0c0e14;
-          border-right: 1px solid rgba(212,175,55,0.1);
-          box-shadow: inset -1px 0 0 rgba(212,175,55,0.07);
+          background: linear-gradient(180deg, #0d0f17 0%, #090b12 100%);
+          border-right: 1px solid rgba(212,175,55,0.12);
           display: flex;
           flex-direction: column;
           padding: 0;
+          overflow: hidden;
         }
 
+        /* Logo / brand area */
         .sidebar-logo {
-          padding: 22px 18px 16px;
-          border-bottom: 1px solid rgba(212,175,55,0.07);
+          padding: 20px 18px 16px;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
+          position: relative;
+        }
+
+        .sidebar-logo::after {
+          content: '';
+          position: absolute;
+          bottom: 0; left: 18px; right: 18px;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(212,175,55,0.3), transparent);
         }
 
         .sidebar-logo-mark {
           display: flex;
           align-items: center;
-          gap: 10px;
-          margin-bottom: 4px;
+          gap: 11px;
         }
 
         .logo-icon {
-          width: 36px;
-          height: 36px;
-          border-radius: 8px;
-          background: linear-gradient(135deg, #d4af37, #0099cc);
+          width: 38px;
+          height: 38px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, #d4af37, #c9a227);
           color: #080a0e;
           display: flex;
           align-items: center;
           justify-content: center;
           font-family: 'Syne', sans-serif;
-          font-weight: 800;
-          font-size: 16px;
-          box-shadow: 0 0 20px rgba(212,175,55,0.25);
+          font-weight: 900;
+          font-size: 18px;
+          box-shadow: 0 4px 20px rgba(212,175,55,0.35), 0 0 0 1px rgba(212,175,55,0.2);
           flex-shrink: 0;
+          position: relative;
         }
 
         .logo-name {
           font-family: 'Syne', sans-serif;
           font-weight: 800;
-          font-size: 17px;
+          font-size: 18px;
           color: #fff;
-          letter-spacing: -0.3px;
+          letter-spacing: -0.4px;
         }
 
-        .sidebar-sublabel {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 9px;
-          color: rgba(212,175,55,0.45);
-          letter-spacing: 2px;
-          text-transform: uppercase;
-          padding-left: 46px;
+        .logo-tagline {
+          font-size: 10px;
+          color: rgba(255,255,255,0.35);
+          margin-top: 1px;
+          letter-spacing: 0.3px;
+        }
+
+        /* User profile card */
+        .sidebar-profile {
+          margin: 14px 14px 0;
+          background: rgba(212,175,55,0.04);
+          border: 1px solid rgba(212,175,55,0.1);
+          border-radius: 10px;
+          padding: 12px 13px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .profile-avatar {
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #d4af37 0%, #9d7e20 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-family: 'Syne', sans-serif;
+          font-weight: 700;
+          font-size: 13px;
+          color: #080a0e;
+          flex-shrink: 0;
+          box-shadow: 0 0 0 2px rgba(212,175,55,0.3);
+        }
+
+        .profile-info { flex: 1; min-width: 0; }
+
+        .profile-name {
+          font-size: 13px;
+          font-weight: 600;
+          color: #fff;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .profile-plan {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 10px;
+          color: #d4af37;
+          font-weight: 500;
           margin-top: 1px;
         }
 
-        .sidebar-status {
-          padding: 10px 18px;
-          border-bottom: 1px solid rgba(212,175,55,0.04);
+        .profile-plan::before {
+          content: '✦';
+          font-size: 8px;
         }
 
-        .status-operational {
+        /* Live revenue mini-card */
+        .sidebar-live-revenue {
+          margin: 12px 14px 0;
+          background: rgba(212,175,55,0.06);
+          border: 1px solid rgba(212,175,55,0.15);
+          border-radius: 10px;
+          padding: 11px 13px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .sidebar-live-revenue::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 2px;
+          background: linear-gradient(90deg, #d4af37, #f0c84a, #d4af37);
+          background-size: 200% 100%;
+          animation: shimmer-bar 2.5s linear infinite;
+        }
+
+        @keyframes shimmer-bar {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+
+        .slr-label {
+          font-size: 10px;
+          color: rgba(255,255,255,0.4);
+          margin-bottom: 4px;
           display: flex;
           align-items: center;
-          gap: 7px;
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 10px;
-          color: #4ade80;
+          gap: 5px;
+        }
+
+        .slr-amount {
+          font-family: 'Syne', sans-serif;
+          font-weight: 800;
+          font-size: 22px;
+          color: #d4af37;
+          letter-spacing: -0.8px;
+          line-height: 1;
           margin-bottom: 4px;
         }
 
-        .status-streams {
+        .slr-sub {
+          font-size: 10px;
+          color: #4ade80;
           display: flex;
           align-items: center;
-          gap: 7px;
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 10px;
-          color: rgba(212,175,55,0.35);
+          gap: 4px;
         }
 
-        .pulse-dot-green {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: #4ade80;
-          animation: pulse-green 2s ease-in-out infinite;
-          flex-shrink: 0;
-        }
-
-        @keyframes pulse-green {
-          0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(74,222,128,0.5); }
-          50% { opacity: 0.8; transform: scale(1.2); box-shadow: 0 0 0 4px rgba(74,222,128,0); }
-        }
-
+        /* Nav */
         .sidebar-nav {
           flex: 1;
-          padding: 12px 0;
+          padding: 14px 0 8px;
           overflow-y: auto;
-          scrollbar-width: thin;
-          scrollbar-color: rgba(212,175,55,0.07) transparent;
+          scrollbar-width: none;
         }
 
-        .nav-section {
-          margin-bottom: 6px;
-        }
+        .sidebar-nav::-webkit-scrollbar { display: none; }
+
+        .nav-section { margin-bottom: 4px; }
 
         .nav-section-label {
-          padding: 10px 18px 5px;
-          font-family: 'JetBrains Mono', monospace;
+          padding: 8px 18px 4px;
           font-size: 9px;
           font-weight: 600;
-          letter-spacing: 2px;
-          color: rgba(212,175,55,0.25);
+          letter-spacing: 1.8px;
+          color: rgba(255,255,255,0.2);
           text-transform: uppercase;
           user-select: none;
         }
@@ -425,51 +500,68 @@ export default function PromoDashboard() {
         .nav-item {
           display: flex;
           align-items: center;
-          gap: 10px;
-          padding: 9px 18px;
+          gap: 11px;
+          padding: 10px 16px;
           cursor: default;
-          font-size: 13px;
+          font-size: 13.5px;
           font-weight: 400;
-          color: rgba(255,255,255,0.65);
-          transition: all 0.15s;
-          border-left: 2px solid transparent;
+          color: rgba(255,255,255,0.5);
+          transition: all 0.18s;
           user-select: none;
           position: relative;
-          margin: 1px 8px 1px 0;
+          margin: 1px 10px;
+          border-radius: 8px;
         }
 
         .nav-item.active {
-          color: #d4af37;
-          background: rgba(212,175,55,0.07);
-          border-left: 2px solid #d4af37;
+          color: #fff;
+          background: rgba(212,175,55,0.1);
           font-weight: 500;
+          box-shadow: inset 0 0 0 1px rgba(212,175,55,0.15);
+        }
+
+        .nav-item.active::before {
+          content: '';
+          position: absolute;
+          left: 0; top: 25%; bottom: 25%;
+          width: 3px;
+          background: #d4af37;
+          border-radius: 0 2px 2px 0;
+          box-shadow: 0 0 8px rgba(212,175,55,0.6);
         }
 
         .nav-item:not(.active):hover {
-          color: rgba(255,255,255,0.6);
-          background: rgba(255,255,255,0.03);
+          color: rgba(255,255,255,0.75);
+          background: rgba(255,255,255,0.04);
         }
 
-        .nav-icon {
-          font-size: 12px;
-          width: 18px;
-          text-align: center;
-          opacity: 0.7;
+        .nav-icon-wrap {
+          width: 30px;
+          height: 30px;
+          border-radius: 7px;
+          background: rgba(255,255,255,0.05);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 14px;
           flex-shrink: 0;
+          transition: background 0.18s;
         }
 
-        .nav-item.active .nav-icon { opacity: 1; }
+        .nav-item.active .nav-icon-wrap {
+          background: rgba(212,175,55,0.15);
+        }
+
+        .nav-label { flex: 1; }
 
         .nav-badge {
-          margin-left: auto;
-          font-family: 'JetBrains Mono', monospace;
           font-size: 10px;
           font-weight: 600;
-          padding: 1px 6px;
-          border-radius: 10px;
-          background: rgba(212,175,55,0.1);
+          padding: 2px 7px;
+          border-radius: 20px;
+          background: rgba(212,175,55,0.12);
           color: #d4af37;
-          border: 1px solid rgba(212,175,55,0.18);
+          border: 1px solid rgba(212,175,55,0.2);
         }
 
         .nav-badge.new-badge {
@@ -478,119 +570,92 @@ export default function PromoDashboard() {
           border-color: rgba(74,222,128,0.2);
         }
 
+        /* Bottom area */
         .sidebar-bottom {
-          padding: 14px 16px;
-          border-top: 1px solid rgba(212,175,55,0.07);
+          padding: 12px 14px 16px;
+          border-top: 1px solid rgba(255,255,255,0.05);
         }
 
-        .store-health {
-          background: rgba(212,175,55,0.03);
-          border: 1px solid rgba(212,175,55,0.1);
-          border-radius: 8px;
-          padding: 11px 13px;
+        .sidebar-bottom::before {
+          content: '';
+          display: block;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent);
+          margin-bottom: 12px;
+          margin-top: -1px;
+        }
+
+        /* Quick stats row */
+        .sidebar-quick-stats {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
           margin-bottom: 10px;
-          position: relative;
         }
 
-        .store-health::before {
-          content: '';
-          position: absolute;
-          top: -1px; left: -1px;
-          width: 10px; height: 10px;
-          border-top: 1px solid #d4af37;
-          border-left: 1px solid #d4af37;
+        .qs-card {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 8px;
+          padding: 9px 10px;
         }
 
-        .store-health::after {
-          content: '';
-          position: absolute;
-          bottom: -1px; right: -1px;
-          width: 10px; height: 10px;
-          border-bottom: 1px solid #d4af37;
-          border-right: 1px solid #d4af37;
+        .qs-label {
+          font-size: 9px;
+          color: rgba(255,255,255,0.3);
+          margin-bottom: 3px;
+          text-transform: uppercase;
+          letter-spacing: 0.4px;
         }
 
-        .store-health-row {
+        .qs-value {
+          font-family: 'Syne', sans-serif;
+          font-size: 15px;
+          font-weight: 700;
+          color: #fff;
+        }
+
+        .qs-value.gold { color: #d4af37; }
+        .qs-value.green { color: #4ade80; }
+
+        .store-live-row {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 8px;
+          padding: 8px 10px;
+          background: rgba(74,222,128,0.05);
+          border: 1px solid rgba(74,222,128,0.1);
+          border-radius: 8px;
         }
 
-        .store-health-title {
-          font-size: 11px;
-          font-weight: 600;
-          color: rgba(255,255,255,0.5);
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .store-health-score {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 11px;
-          font-weight: 700;
-          color: #d4af37;
-        }
-
-        .health-bar-bg {
-          height: 3px;
-          background: rgba(212,175,55,0.07);
-          border-radius: 2px;
-          overflow: hidden;
-          margin-bottom: 7px;
-        }
-
-        .health-bar-fill {
-          height: 100%;
-          width: 92%;
-          background: linear-gradient(90deg, #d4af37, #b8962e);
-          border-radius: 2px;
-        }
-
-        .health-stats {
-          display: flex;
-          gap: 10px;
-        }
-
-        .health-stat {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 9px;
-          color: rgba(255,255,255,0.55);
-        }
-
-        .health-stat span {
-          color: rgba(212,175,55,0.7);
-          font-weight: 600;
-        }
-
-        .pro-badge {
+        .store-live-label {
           display: flex;
           align-items: center;
           gap: 7px;
-          background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(124,58,237,0.1));
-          border: 1px solid rgba(212,175,55,0.18);
-          border-radius: 7px;
-          padding: 8px 12px;
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 11px;
-          font-weight: 600;
-          color: #d4af37;
+          font-size: 12px;
+          font-weight: 500;
+          color: rgba(255,255,255,0.7);
         }
 
-        .pro-dot {
-          width: 5px;
-          height: 5px;
+        .pulse-dot-green {
+          width: 7px;
+          height: 7px;
           border-radius: 50%;
           background: #4ade80;
-          box-shadow: 0 0 6px rgba(74,222,128,0.8);
+          animation: pulse-green 2s ease-in-out infinite;
           flex-shrink: 0;
         }
 
-        .pro-badge-right {
-          margin-left: auto;
-          font-size: 9px;
-          color: rgba(212,175,55,0.45);
-          letter-spacing: 1px;
+        @keyframes pulse-green {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.5); }
+          50% { box-shadow: 0 0 0 5px rgba(74,222,128,0); }
+        }
+
+        .store-live-uptime {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          color: #4ade80;
+          font-weight: 500;
         }
 
         /* ── Main Content ── */
@@ -1397,35 +1462,46 @@ export default function PromoDashboard() {
 
           {/* ── Sidebar ── */}
           <aside className={`sidebar${sidebarOpen ? ' open' : ''}`}>
+
+            {/* Logo */}
             <div className="sidebar-logo">
               <div className="sidebar-logo-mark">
                 <div className="logo-icon">M</div>
-                <span className="logo-name">majorka</span>
+                <div>
+                  <div className="logo-name">majorka</div>
+                  <div className="logo-tagline">AI Ecommerce OS</div>
+                </div>
               </div>
-              <div className="sidebar-sublabel">Command Center</div>
             </div>
 
-            <div className="sidebar-status">
-              <div className="status-operational">
+            {/* User profile */}
+            <div className="sidebar-profile">
+              <div className="profile-avatar">MX</div>
+              <div className="profile-info">
+                <div className="profile-name">{nameParam}</div>
+                <div className="profile-plan">Pro Member</div>
+              </div>
+            </div>
+
+            {/* Live revenue card */}
+            <div className="sidebar-live-revenue">
+              <div className="slr-label">
                 <div className="pulse-dot-green" />
-                All systems running
+                Today's Revenue
               </div>
-              <div className="status-streams">
-                ◈ Live · Auto-refreshing
-              </div>
+              <div className="slr-amount">${fmt(displayRevenue)}</div>
+              <div className="slr-sub">↑ +34.2% vs yesterday</div>
             </div>
 
+            {/* Nav */}
             <nav className="sidebar-nav">
               {NAV_SECTIONS.map((section) => (
                 <div key={section.label} className="nav-section">
                   <div className="nav-section-label">{section.label}</div>
                   {section.items.map((item) => (
-                    <div
-                      key={item.label}
-                      className={`nav-item${item.active ? ' active' : ''}`}
-                    >
-                      <span className="nav-icon">{item.icon}</span>
-                      <span>{item.label}</span>
+                    <div key={item.label} className={`nav-item${item.active ? ' active' : ''}`}>
+                      <div className="nav-icon-wrap">{item.icon}</div>
+                      <span className="nav-label">{item.label}</span>
                       {item.badge && (
                         <span className={`nav-badge${item.badge === 'NEW' ? ' new-badge' : ''}`}>
                           {item.badge}
@@ -1437,23 +1513,32 @@ export default function PromoDashboard() {
               ))}
             </nav>
 
+            {/* Bottom stats + status */}
             <div className="sidebar-bottom">
-              <div className="store-health">
-                <div className="store-health-row">
-                  <span className="store-health-title">Store Health</span>
-                  <span className="store-health-score">92/100</span>
+              <div className="sidebar-quick-stats">
+                <div className="qs-card">
+                  <div className="qs-label">Orders</div>
+                  <div className="qs-value gold">{fmtInt(displayOrders)}</div>
                 </div>
-                <div className="health-bar-bg"><div className="health-bar-fill" /></div>
-                <div className="health-stats">
-                  <span className="health-stat">Listings <span>23</span></span>
-                  <span className="health-stat">Returns <span>1.2%</span></span>
-                  <span className="health-stat">Rating <span>4.9★</span></span>
+                <div className="qs-card">
+                  <div className="qs-label">Margin</div>
+                  <div className="qs-value green">36%</div>
+                </div>
+                <div className="qs-card">
+                  <div className="qs-label">Rating</div>
+                  <div className="qs-value">4.9★</div>
+                </div>
+                <div className="qs-card">
+                  <div className="qs-label">Returns</div>
+                  <div className="qs-value">1.2%</div>
                 </div>
               </div>
-              <div className="pro-badge">
-                <div className="pro-dot" />
-                PRO ACTIVE
-                <span className="pro-badge-right">majorka.io</span>
+              <div className="store-live-row">
+                <div className="store-live-label">
+                  <div className="pulse-dot-green" />
+                  Store Online
+                </div>
+                <div className="store-live-uptime">99.9% uptime</div>
               </div>
             </div>
           </aside>
