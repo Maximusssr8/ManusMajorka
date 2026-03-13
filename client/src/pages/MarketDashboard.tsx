@@ -17,6 +17,43 @@ import {
 import { useEffect, useState } from 'react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import { useLocation } from 'wouter';
+
+// ── Quick Action flywheel ─────────────────────────────────────────────────────
+function QuickActions({
+  productTitle,
+  priceAud,
+  category,
+}: {
+  productTitle: string;
+  priceAud: number;
+  category: string;
+}) {
+  const [, nav] = useLocation();
+  const pt = encodeURIComponent(productTitle);
+  const cat = encodeURIComponent(category);
+  const actions = [
+    { label: 'Generate Ads', path: `/app/meta-ads?product=${pt}&price=${priceAud}&category=${cat}`, color: '#a78bfa' },
+    { label: 'Build Store', path: `/app/website-generator?niche=${cat}&product=${pt}`, color: '#34d399' },
+    { label: 'Check Profit', path: `/app/profit-calculator?price=${priceAud}`, color: '#d4af37' },
+    { label: 'Find Creators', path: `/app/creators?category=${cat}`, color: '#38bdf8' },
+  ];
+  return (
+    <div className="flex flex-wrap gap-1.5 mt-2">
+      {actions.map((a) => (
+        <button
+          key={a.label}
+          onClick={(e) => { e.stopPropagation(); nav(a.path); }}
+          className="text-xs px-2.5 py-1 rounded-lg font-medium transition-colors"
+          style={{ background: `${a.color}14`, color: a.color, border: `1px solid ${a.color}30` }}
+          onMouseEnter={(ev) => (ev.currentTarget.style.background = `${a.color}28`)}
+          onMouseLeave={(ev) => (ev.currentTarget.style.background = `${a.color}14`)}
+        >
+          {a.label} →
+        </button>
+      ))}
+    </div>
+  );
+}
 import { supabase } from '@/lib/supabase';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -282,6 +319,7 @@ export default function MarketDashboard() {
                       <td className="px-4 py-3">
                         <p className="text-sm font-medium" style={{ color: '#e2e8f0', fontFamily: 'DM Sans, sans-serif' }}>{p.product_title}</p>
                         <p className="text-xs" style={{ color: '#475569' }}>${p.price_aud?.toFixed(2)} AUD</p>
+                        <QuickActions productTitle={p.product_title} priceAud={p.price_aud ?? 0} category={p.category ?? ''} />
                       </td>
                       <td className="px-4 py-3 text-xs" style={{ color: '#94a3b8' }}>{p.category}</td>
                       <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#d4af37' }}>

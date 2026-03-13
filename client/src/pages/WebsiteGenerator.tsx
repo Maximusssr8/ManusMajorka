@@ -703,6 +703,15 @@ export default function WebsiteGenerator() {
   // Copy
   const { copiedKey, copy } = useCopyBtn();
 
+  // Auto-fill from URL params (e.g. from Winning Products quick actions)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const nicheParam = params.get('niche');
+    const productParam = params.get('product');
+    if (nicheParam) setNiche(nicheParam);
+    if (productParam) setStoreName(productParam);
+  }, []);
+
   // Progress message cycling
   useEffect(() => {
     if (!generating) { setProgressMsgIdx(0); return; }

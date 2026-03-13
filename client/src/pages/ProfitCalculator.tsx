@@ -138,6 +138,16 @@ export default function ProfitCalculator() {
   const [adSpend, setAdSpend] = useState(10);
   const [sellingPrice, setSellingPrice] = useState(49);
 
+  // Auto-fill from URL params (e.g. from Winning Products quick actions)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const price = params.get('price');
+    if (price) {
+      const parsed = parseFloat(price);
+      if (!isNaN(parsed)) setSellingPrice(parsed);
+    }
+  }, []);
+
   const platformFeeRate = useMemo(() => {
     const opt = PLATFORM_OPTIONS.find((o) => o.label === platformKey);
     if (!opt || opt.value === -1) return customPlatformFee;

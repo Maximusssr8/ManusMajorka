@@ -7,7 +7,46 @@
 import { Copy, Play, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
+
+// ── Quick Action flywheel ─────────────────────────────────────────────────────
+function QuickActions({
+  productTitle,
+  category,
+  compact = false,
+}: {
+  productTitle: string | null;
+  category: string | null;
+  compact?: boolean;
+}) {
+  const [, nav] = useLocation();
+  if (!productTitle && !category) return null;
+  const pt = encodeURIComponent(productTitle ?? category ?? '');
+  const cat = encodeURIComponent(category ?? 'General');
+  const actions = [
+    { label: 'Generate Ads', path: `/app/meta-ads?product=${pt}&category=${cat}`, color: '#a78bfa' },
+    { label: 'Build Store', path: `/app/website-generator?niche=${cat}&product=${pt}`, color: '#34d399' },
+    { label: 'Check Profit', path: `/app/profit-calculator`, color: '#d4af37' },
+    { label: 'Find Creators', path: `/app/creators?category=${cat}`, color: '#38bdf8' },
+  ];
+  return (
+    <div className={`flex flex-wrap gap-1.5 ${compact ? '' : 'mt-1'}`}>
+      {actions.map((a) => (
+        <button
+          key={a.label}
+          onClick={(e) => { e.stopPropagation(); nav(a.path); }}
+          className="text-xs px-2 py-0.5 rounded font-medium transition-colors"
+          style={{ background: `${a.color}14`, color: a.color, border: `1px solid ${a.color}25` }}
+          onMouseEnter={(ev) => (ev.currentTarget.style.background = `${a.color}28`)}
+          onMouseLeave={(ev) => (ev.currentTarget.style.background = `${a.color}14`)}
+        >
+          {a.label} →
+        </button>
+      ))}
+    </div>
+  );
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -179,8 +218,11 @@ function VideoModal({
             </p>
           </div>
 
-          {/* Actions */}
-          <div className="flex gap-2">
+          {/* Quick Actions flywheel */}
+          <QuickActions productTitle={video.product_name} category={video.category} />
+
+          {/* Script actions */}
+          <div className="flex gap-2 mt-1">
             <button
               onClick={copyHook}
               className="flex-1 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors"
@@ -197,7 +239,7 @@ function VideoModal({
               onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.25)')}
               onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.15)')}
             >
-              Generate Similar Script →
+              Generate Script →
             </button>
           </div>
         </div>
@@ -437,7 +479,7 @@ Write a 30-second script with: hook (0-3s), problem/tension (3-10s), solution/pr
                       @{v.creator_username} · {v.category} · {timeAgo(v.published_at)}
                     </p>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-2">
                       {/* GMV — primary metric */}
                       <div>
                         <p className="text-xs" style={{ color: '#64748b' }}>GMV driven</p>
@@ -450,6 +492,7 @@ Write a 30-second script with: hook (0-3s), problem/tension (3-10s), solution/pr
                         <p className="text-sm font-medium" style={{ color: '#94a3b8' }}>{v.engagement_rate?.toFixed(1)}%</p>
                       </div>
                     </div>
+                    <QuickActions productTitle={v.product_name} category={v.category} compact />
                   </div>
                 </div>
               ))}

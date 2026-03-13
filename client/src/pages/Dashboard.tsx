@@ -33,6 +33,7 @@ import { useActiveProduct } from '@/hooks/useActiveProduct';
 import { type ActivityEntry, getActivityLog, getRelativeTime } from '@/lib/activity';
 import { allTools, getToolByPath, recordRecentTool, stages } from '@/lib/tools';
 import { trpc } from '@/lib/trpc';
+import { supabase } from '@/lib/supabase';
 import { ONBOARDING_KEY } from '@/pages/Onboarding';
 import ToolPage from './ToolPage';
 
@@ -203,6 +204,75 @@ function SellersJoinedBadge() {
       <span style={{ fontSize: 12, color: '#d4af37', fontWeight: 600 }}>
         Growing community of sellers worldwide
       </span>
+    </div>
+  );
+}
+
+// PersonalisedFeed component — shows products based on user niche
+function PersonalisedFeed() {
+  const { session, isAuthenticated } = useAuth();
+  const [products, setProducts] = useState<Record<string, unknown>[]>([]);
+  const [userNiche, setUserNiche] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Fetch user's profile niche
+    supabase.from('user_profiles')
+      .select('target_niche')
+      .eq('user_id', session?.user?.id)
+      .single()
+      .then(({ data }) => {
+        setUserNiche((data as { target_niche?: string } | null)?.target_niche || null);
+      });
+
+    // Fetch relevant products
+    supabase
+      .from('winning_products')
+      .select('*')
+      .order('est_daily_revenue_aud', { ascending: false })
+      .limit(5)
+      .then(({ data }) => {
+        setProducts((data || []) as Record<string, unknown>[]);
+      });
+  }, [isAuthenticated, session]);
+
+  if (!isAuthenticated || !products.length) return null;
+
+  return (
+    <div style={{
+      background: 'rgba(255,255,255,0.03)',
+      border: '1px solid rgba(255,255,255,0.07)',
+      borderRadius: 16, padding: 20, marginBottom: 24
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 15, fontWeight: 700, color: '#f0ede8', margin: 0 }}>
+          {userNiche ? `🔥 Top Products in ${userNiche}` : '🔥 Today\'s Top Revenue Products'}
+        </h3>
+        <a href="/app/winning-products" style={{ fontSize: 12, color: '#d4af37', textDecoration: 'none' }}>View all →</a>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {products.map((p, i) => (
+          <div key={String(p.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: 'rgba(255,255,255,0.02)', borderRadius: 8 }}>
+            <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)', width: 20 }}>#{i+1}</span>
+            {p.image_url ? <img src={String(p.image_url)} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: 'cover' }} /> : null}
+            <span style={{ flex: 1, fontSize: 13, color: '#f0ede8', fontWeight: 500 }}>{String(p.product_title ?? '')}</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#d4af37' }}>
+              ${Math.round((Number(p.est_daily_revenue_aud) || 0) * 30 / 1000)}k/mo
+            </span>
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 12, background: p.trend === 'exploding' ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.15)', color: p.trend === 'exploding' ? '#ef4444' : '#22c55e' }}>
+              {p.trend === 'exploding' ? '🔥' : '📈'} {String(p.trend ?? '')}
+            </span>
+          </div>
+        ))}
+      </div>
+      {!userNiche && (
+        <div style={{ marginTop: 12, padding: '10px 14px', background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 10 }}>
+          <span style={{ fontSize: 12, color: 'rgba(240,237,232,0.6)' }}>
+            💡 Set your niche in <a href="/app/settings" style={{ color: '#d4af37' }}>Settings</a> to see personalised product recommendations
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -501,6 +571,9 @@ function DashboardHome() {
             experience: profileQuery.data?.experienceLevel ?? undefined,
           }}
         />
+
+        {/* Personalised Product Feed */}
+        <PersonalisedFeed />
 
         {/* Quick Actions */}
         <div className="mb-8">

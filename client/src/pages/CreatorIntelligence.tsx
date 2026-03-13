@@ -8,6 +8,33 @@ import { ChevronDown, ChevronUp, Search, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import { useLocation } from 'wouter';
+
+// ── Quick Action flywheel ─────────────────────────────────────────────────────
+function QuickActions({ category, compact = false }: { category: string; compact?: boolean }) {
+  const [, nav] = useLocation();
+  const cat = encodeURIComponent(category);
+  const actions = [
+    { label: 'Find Products', path: `/app/winning-products?category=${cat}`, color: '#ef4444' },
+    { label: 'Generate Ads', path: `/app/meta-ads?category=${cat}`, color: '#a78bfa' },
+    { label: 'Build Store', path: `/app/website-generator?niche=${cat}`, color: '#34d399' },
+  ];
+  return (
+    <div className={`flex flex-wrap gap-1.5 ${compact ? '' : 'mt-2'}`}>
+      {actions.map((a) => (
+        <button
+          key={a.label}
+          onClick={(e) => { e.stopPropagation(); nav(a.path); }}
+          className="text-xs px-2.5 py-1 rounded-lg font-medium transition-colors"
+          style={{ background: `${a.color}14`, color: a.color, border: `1px solid ${a.color}30` }}
+          onMouseEnter={(ev) => (ev.currentTarget.style.background = `${a.color}28`)}
+          onMouseLeave={(ev) => (ev.currentTarget.style.background = `${a.color}14`)}
+        >
+          {a.label} →
+        </button>
+      ))}
+    </div>
+  );
+}
 import { useAuth } from '@/_core/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 
@@ -180,7 +207,13 @@ function CreatorDrawer({
             </div>
           </div>
 
-          {/* Actions */}
+          {/* Quick Actions */}
+          <div>
+            <p className="text-xs mb-2" style={{ color: '#64748b' }}>Jump to tool</p>
+            <QuickActions category={(creator.top_categories ?? [])[0] ?? 'General'} />
+          </div>
+
+          {/* Outreach */}
           <button
             onClick={() => onOutreach(creator)}
             className="w-full py-3 rounded-xl text-sm font-semibold transition-colors"
@@ -212,6 +245,13 @@ export default function CreatorIntelligence() {
   const [outreachText, setOutreachText] = useState('');
 
   useEffect(() => { void fetchCreators(); }, []);
+
+  // Auto-fill from URL params (e.g. from Winning Products quick actions)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const category = params.get('category');
+    if (category) setSearch(category);
+  }, []);
 
   async function fetchCreators() {
     try {

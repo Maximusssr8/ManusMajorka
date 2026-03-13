@@ -1,5 +1,5 @@
 import { Check, ChevronDown, ChevronUp, Copy, Link2, Loader2, RefreshCw, Zap } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { SaveToProduct } from '@/components/SaveToProduct';
@@ -289,6 +289,17 @@ export default function MetaAdsPack() {
   // 48-hr checklist state
   const [checkedSteps, setCheckedSteps] = useState<Set<number>>(new Set());
   const extractMutation = trpc.research.extract.useMutation();
+
+  // Auto-fill from URL params (e.g. from Winning Products quick actions)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const product = params.get('product');
+    const price = params.get('price');
+    const category = params.get('category');
+    if (product) setProductName(product);
+    if (price) setTargetPrice(price);
+    if (category) setTargetAudience(`${category} buyers in Australia`);
+  }, []);
 
   const handleUrlImport = useCallback(async () => {
     if (!importUrl.trim()) return;

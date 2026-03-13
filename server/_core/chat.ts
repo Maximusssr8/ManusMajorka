@@ -811,7 +811,7 @@ export function registerChatRoutes(app: Application) {
       }
 
       // ── Build system prompt ─────────────────────────────────────────────
-      const mayaMarketCtx = (toolName === 'ai-chat' || !toolName) ? await fetchMayaMarketContext() : '';
+      const mayaMarketCtx = await fetchMayaMarketContext();
       const baseSystem = buildSystemPrompt(systemPrompt, profile, toolName, market) + webContext + mayaMarketCtx;
 
       // ── Inject mem0 persistent memories ────────────────────────────────

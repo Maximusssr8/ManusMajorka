@@ -7,6 +7,7 @@
 import { Eye, Loader2, Search, Trash2, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { useLocation } from 'wouter';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 
@@ -36,6 +37,44 @@ const PROGRESS_STEPS = [
 ];
 
 // ── Main component ────────────────────────────────────────────────────────────
+
+// ── Competitor Quick Actions ──────────────────────────────────────────────────
+function CompetitorQuickActions({ query }: { query: string }) {
+  const [, nav] = useLocation();
+  // Extract likely niche from query (first significant word)
+  const niche = encodeURIComponent(query.split(/\s+/).slice(0, 3).join(' '));
+  const actions = [
+    { label: 'Find Winning Products', path: `/app/winning-products`, color: '#ef4444' },
+    { label: 'Generate Ads', path: `/app/meta-ads?category=${niche}`, color: '#a78bfa' },
+    { label: 'Build Competing Store', path: `/app/website-generator?niche=${niche}`, color: '#34d399' },
+    { label: 'Find Creators', path: `/app/creators`, color: '#38bdf8' },
+    { label: 'Check Market Saturation', path: `/app/saturation-checker`, color: '#f59e0b' },
+  ];
+  return (
+    <div
+      className="rounded-xl p-4 mb-4"
+      style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}
+    >
+      <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#64748b' }}>
+        Attack Plan — Jump to Tool
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {actions.map((a) => (
+          <button
+            key={a.label}
+            onClick={() => nav(a.path)}
+            className="text-xs px-3 py-1.5 rounded-lg font-medium transition-colors"
+            style={{ background: `${a.color}14`, color: a.color, border: `1px solid ${a.color}30` }}
+            onMouseEnter={(ev) => (ev.currentTarget.style.background = `${a.color}28`)}
+            onMouseLeave={(ev) => (ev.currentTarget.style.background = `${a.color}14`)}
+          >
+            {a.label} →
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function CompetitorSpy() {
   const { user } = useAuth();
@@ -400,6 +439,9 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                   </button>
                 </div>
               </div>
+
+              {/* Quick Actions flywheel */}
+              <CompetitorQuickActions query={result.query} />
 
               {/* Analysis content */}
               <div

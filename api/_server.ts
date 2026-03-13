@@ -90,6 +90,18 @@ app.post("/api/internal/run-intel-migration", async (req: Request, res: Response
   }
 });
 
+// Debug: show DB URL prefix (sanitized)
+app.get("/api/internal/db-debug", (req: Request, res: Response) => {
+  const secret = req.headers["x-migration-secret"];
+  if (secret !== "majorka-intel-2026") { res.status(403).json({ error: "Forbidden" }); return; }
+  const dbUrl = process.env.DATABASE_URL ?? "";
+  res.json({
+    prefix: dbUrl.slice(0, 60),
+    length: dbUrl.length,
+    supaUrl: (process.env.VITE_SUPABASE_URL ?? "").slice(0, 40),
+  });
+});
+
 registerChatRoutes(app);
 registerScrapeRoutes(app);
 registerToolsApi(app);
