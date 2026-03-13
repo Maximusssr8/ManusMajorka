@@ -1,5 +1,6 @@
-import { Calculator } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { Calculator, Share2 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 // ── Platform fee presets ────────────────────────────────────────────────────
 const PLATFORM_OPTIONS = [
@@ -23,6 +24,109 @@ const fmt = (n: number) =>
   });
 
 const pct = (n: number) => `${n.toFixed(1)}%`;
+
+// ── Animated SVG Gauge ───────────────────────────────────────────────────────
+
+function ProfitGauge({ value, color }: { value: number; color: string }) {
+  // Arc from 215° to -35° (230° sweep) for gauge appearance
+  const R = 60;
+  const cx = 80;
+  const cy = 80;
+  const startAngle = 215;
+  const totalSweep = 230;
+
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const polar = (deg: number) => ({
+    x: cx + R * Math.cos(toRad(deg)),
+    y: cy + R * Math.sin(toRad(deg)),
+  });
+
+  const bgStart = polar(startAngle);
+  const bgEnd = polar(startAngle + totalSweep);
+  const bgPath = `M ${bgStart.x} ${bgStart.y} A ${R} ${R} 0 1 1 ${bgEnd.x} ${bgEnd.y}`;
+
+  const valueSweep = (value / 100) * totalSweep;
+  const valueEnd = polar(startAngle + valueSweep);
+  const largeArc = valueSweep > 180 ? 1 : 0;
+  const valuePath =
+    valueSweep > 0
+      ? `M ${bgStart.x} ${bgStart.y} A ${R} ${R} 0 ${largeArc} 1 ${valueEnd.x} ${valueEnd.y}`
+      : '';
+
+  const [animatedValue, setAnimatedValue] = useState(0);
+
+  useEffect(() => {
+    const start = performance.now();
+    const duration = 900;
+    const target = value;
+    const raf = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setAnimatedValue(Math.round(eased * target));
+      if (t < 1) requestAnimationFrame(raf);
+    };
+    requestAnimationFrame(raf);
+  }, [value]);
+
+  const animSweep = (animatedValue / 100) * totalSweep;
+  const animEnd = polar(startAngle + animSweep);
+  const animLargeArc = animSweep > 180 ? 1 : 0;
+  const animPath =
+    animSweep > 0
+      ? `M ${bgStart.x} ${bgStart.y} A ${R} ${R} 0 ${animLargeArc} 1 ${animEnd.x} ${animEnd.y}`
+      : '';
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+      <svg width={160} height={120} viewBox="0 0 160 120">
+        {/* Background arc */}
+        <path
+          d={bgPath}
+          fill="none"
+          stroke="rgba(255,255,255,0.06)"
+          strokeWidth={10}
+          strokeLinecap="round"
+        />
+        {/* Value arc (animated) */}
+        {animPath && (
+          <path
+            d={animPath}
+            fill="none"
+            stroke={color}
+            strokeWidth={10}
+            strokeLinecap="round"
+            style={{ filter: `drop-shadow(0 0 6px ${color}66)` }}
+          />
+        )}
+        {/* Center value */}
+        <text
+          x={cx}
+          y={cy + 8}
+          textAnchor="middle"
+          fill={color}
+          fontSize={26}
+          fontWeight={800}
+          fontFamily="Syne, sans-serif"
+        >
+          {animatedValue}%
+        </text>
+        <text
+          x={cx}
+          y={cy + 26}
+          textAnchor="middle"
+          fill="rgba(255,255,255,0.3)"
+          fontSize={10}
+          fontFamily="DM Sans, sans-serif"
+        >
+          net margin
+        </text>
+        {/* Min/Max labels */}
+        <text x={22} y={106} fill="rgba(255,255,255,0.25)" fontSize={9} fontFamily="DM Sans, sans-serif">0%</text>
+        <text x={126} y={106} fill="rgba(255,255,255,0.25)" fontSize={9} fontFamily="DM Sans, sans-serif">100%</text>
+      </svg>
+    </div>
+  );
+}
 
 // ── Component ───────────────────────────────────────────────────────────────
 export default function ProfitCalculator() {
@@ -461,53 +565,48 @@ export default function ProfitCalculator() {
 
         {/* ── RIGHT: Results ───────────────────────────────────────────── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Viability Verdict */}
+          {/* Animated SVG Gauge + Verdict */}
           <div
             style={{
               ...cardStyle,
               borderColor: calc.verdictColor,
               borderWidth: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 16,
             }}
           >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                marginBottom: 8,
-              }}
-            >
-              <div
-                style={{
-                  width: 12,
-                  height: 12,
-                  borderRadius: '50%',
-                  background: calc.verdictColor,
-                  boxShadow: `0 0 12px ${calc.verdictColor}55`,
-                }}
-              />
+            {/* SVG Arc Gauge */}
+            <ProfitGauge value={Math.max(0, Math.min(100, calc.netMarginPct))} color={calc.verdictColor} />
+
+            {/* Verdict label */}
+            <div style={{ textAlign: 'center' }}>
               <span
                 style={{
                   fontFamily: 'Syne, sans-serif',
                   fontSize: 22,
-                  fontWeight: 700,
+                  fontWeight: 800,
                   color: calc.verdictColor,
+                  display: 'block',
                 }}
               >
                 {calc.verdictLabel}
               </span>
+              <p
+                style={{
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 13,
+                  color: '#a1a1aa',
+                  margin: '8px 0 0',
+                  lineHeight: 1.6,
+                  maxWidth: 340,
+                  textAlign: 'center',
+                }}
+              >
+                {calc.verdictReason}
+              </p>
             </div>
-            <p
-              style={{
-                fontFamily: 'DM Sans, sans-serif',
-                fontSize: 14,
-                color: '#a1a1aa',
-                margin: 0,
-                lineHeight: 1.6,
-              }}
-            >
-              {calc.verdictReason}
-            </p>
           </div>
 
           {/* Metric cards grid */}
@@ -546,7 +645,7 @@ export default function ProfitCalculator() {
           </div>
 
           {/* Monthly Projections */}
-          <div style={cardStyle}>
+          <div style={cardStyle} id="profit-results-card">
             <h3
               style={{
                 fontFamily: 'Syne, sans-serif',
@@ -633,6 +732,87 @@ export default function ProfitCalculator() {
                 </tbody>
               </table>
             </div>
+          </div>
+
+          {/* AI Interpretation Card */}
+          <div
+            style={{
+              ...cardStyle,
+              background: 'rgba(212,175,55,0.04)',
+              borderColor: 'rgba(212,175,55,0.18)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+              <h3
+                style={{
+                  fontFamily: 'Syne, sans-serif',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: '#d4af37',
+                  margin: 0,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                What This Means
+              </h3>
+              <button
+                onClick={() => {
+                  const summary = [
+                    `Profit Calculator Results`,
+                    `────────────────────────`,
+                    `Selling Price: ${fmt(calc.revenue)}`,
+                    `Total Costs: ${fmt(calc.totalCosts)}`,
+                    `Gross Margin: ${fmt(calc.grossMarginAmt)} (${pct(calc.grossMarginPct)})`,
+                    `Net Margin: ${fmt(calc.netMarginAmt)} (${pct(calc.netMarginPct)})`,
+                    `Break-even ROAS: ${calc.breakEvenRoas === Infinity ? '∞' : calc.breakEvenRoas.toFixed(2)}x`,
+                    `Verdict: ${calc.verdictLabel}`,
+                    `────────────────────────`,
+                    `100 orders → ${fmt(calc.projections[0].profit)} profit`,
+                    `500 orders → ${fmt(calc.projections[1].profit)} profit`,
+                    `1,000 orders → ${fmt(calc.projections[2].profit)} profit`,
+                  ].join('\n');
+                  navigator.clipboard.writeText(summary);
+                  toast.success('Results copied to clipboard!');
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: '#d4af37',
+                  background: 'rgba(212,175,55,0.08)',
+                  border: '1px solid rgba(212,175,55,0.2)',
+                  borderRadius: 8,
+                  padding: '6px 12px',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s',
+                  flexShrink: 0,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.15)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.08)')}
+              >
+                <Share2 size={12} />
+                Share Results
+              </button>
+            </div>
+            <p
+              style={{
+                fontFamily: 'DM Sans, sans-serif',
+                fontSize: 13,
+                color: 'rgba(245,245,245,0.75)',
+                margin: 0,
+                lineHeight: 1.7,
+              }}
+            >
+              {calc.netMarginPct > 30
+                ? `You're looking at a ${pct(calc.netMarginPct)} net margin — that's genuinely strong for AU ecommerce. At ${fmt(calc.netMarginAmt)} profit per unit, this product can absorb returns (typically 3–5%), platform fee changes, and ad CPM spikes while remaining profitable. The break-even ROAS of ${calc.breakEvenRoas.toFixed(2)}x means your ads don't need to be exceptional to make money. Next step: run a $50/day validation campaign targeting AU buyers and aim for 3+ ROAS before scaling.`
+                : calc.netMarginPct >= 15
+                  ? `A ${pct(calc.netMarginPct)} net margin is workable but tight. At ${fmt(calc.netMarginAmt)} per unit, one bad batch of returns or a spike in ad CPMs could push you to break-even. To improve: negotiate your COGS down by 10–15% with your supplier, test a price point $5–10 higher, or reduce ad spend per order by improving your creative CTR. Don't scale until you hit 3+ ROAS consistently over 7 days.`
+                  : `At ${pct(calc.netMarginPct)} net margin, this product is high-risk at scale. You have less than ${fmt(Math.abs(calc.netMarginAmt) + 5)} cushion per unit — not enough to cover returns, refunds, or underperforming ad days. Consider increasing the selling price, finding a cheaper supplier, or cutting ad spend. If you can't hit 20%+ net margin on paper, don't launch.`}
+            </p>
           </div>
         </div>
       </div>

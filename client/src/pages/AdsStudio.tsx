@@ -321,7 +321,7 @@ export default function AdsStudio() {
                   className="w-12 h-12 rounded-xl flex items-center justify-center"
                   style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)' }}
                 >
-                  <Image className="w-6 h-6 text-[#d4af37] opacity-60" />
+                  <ImageIcon className="w-6 h-6 text-[#d4af37] opacity-60" />
                 </div>
                 <span className="text-xs text-neutral-500">AI-generated product image</span>
               </div>
