@@ -70,6 +70,9 @@ interface WinningProduct {
   scored_at?: string | null;
   created_at?: string;
   updated_at: string;
+  est_monthly_revenue_aud?: number | null;
+  revenue_growth_pct?: number | null;
+  platforms?: string[] | null;
 }
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
@@ -1227,57 +1230,73 @@ Be specific, opinionated, use AUD figures.`;
             )}
           </div>
 
+          {/* Platform Breakdown */}
+          <div>
+            <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+              Platform Signals
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {(product.platforms ?? [product.platform]).map((pl) => {
+                const isTT = pl.includes('TikTok');
+                const isAmz = pl.includes('Amazon');
+                const isAli = pl.includes('AliExpress') || pl.includes('Ali');
+                const isBaba = pl.includes('Alibaba');
+                const icon = isTT ? '🔥' : isAmz ? '📦' : isAli ? '⭐' : isBaba ? '🏭' : '🛒';
+                const color = isTT ? '#ff0050' : isAmz ? '#ff9900' : '#ff6a00';
+                const bg = isTT ? 'rgba(255,0,80,0.08)' : isAmz ? 'rgba(255,153,0,0.08)' : 'rgba(255,106,0,0.08)';
+                const border = isTT ? 'rgba(255,0,80,0.3)' : isAmz ? 'rgba(255,153,0,0.3)' : 'rgba(255,106,0,0.3)';
+                return (
+                  <span key={pl} style={{ fontSize: 12, fontWeight: 700, padding: '6px 12px', borderRadius: 10, background: bg, color, border: `1px solid ${border}` }}>
+                    {icon} {pl}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Supplier links */}
           <div>
-            <div
-              style={{
-                fontSize: 10,
-                color: C.muted,
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                marginBottom: 10,
-              }}
-            >
+            <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
               Find Suppliers
             </div>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {[
-                {
-                  label: 'AliExpress',
-                  url: `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(product.product_title)}`,
-                  color: '#ff6a00',
-                },
-                {
-                  label: 'CJ Dropshipping',
-                  url: `https://cjdropshipping.com/search?q=${encodeURIComponent(product.product_title)}`,
-                  color: '#0ea5e9',
-                },
+                { label: 'AliExpress →', url: `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(product.product_title)}`, color: '#ff6a00' },
+                { label: 'Alibaba →', url: `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(product.product_title)}`, color: '#ff9900' },
+                { label: 'CJ Dropshipping →', url: `https://cjdropshipping.com/search.html?q=${encodeURIComponent(product.product_title)}`, color: '#0ea5e9' },
               ].map(({ label, url, color }) => (
-                <a
-                  key={label}
-                  href={url}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 6,
-                    padding: '10px 12px',
-                    borderRadius: 10,
-                    background: `${color}14`,
-                    border: `1px solid ${color}40`,
-                    color,
-                    fontSize: 12,
-                    fontWeight: 700,
-                    textDecoration: 'none',
-                  }}
-                >
-                  <ExternalLink size={11} />
+                <a key={label} href={url} target="_blank" rel="noreferrer" style={{ flex: '1 1 120px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '9px 10px', borderRadius: 10, background: `${color}14`, border: `1px solid ${color}40`, color, fontSize: 11, fontWeight: 700, textDecoration: 'none' }}>
+                  <ExternalLink size={10} />
                   {label}
                 </a>
               ))}
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div>
+            <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+              Quick Actions
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button
+                onClick={() => { window.location.href = `/app/meta-ads?product=${encodeURIComponent(product.product_title)}&price=${product.price_aud ?? ''}`; }}
+                style={{ flex: '1 1 120px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 12px', borderRadius: 10, background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+              >
+                🎯 Generate Meta Ads
+              </button>
+              <button
+                onClick={() => { window.location.href = `/app/website-generator?niche=${encodeURIComponent(product.category ?? '')}`; }}
+                style={{ flex: '1 1 100px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 12px', borderRadius: 10, background: C.goldBg, border: `1px solid ${C.goldBorder}`, color: C.gold, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+              >
+                🏪 Build Store
+              </button>
+              <button
+                onClick={() => { window.location.href = `/app/profit-calculator?price=${product.price_aud ?? ''}`; }}
+                style={{ flex: '1 1 100px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 12px', borderRadius: 10, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', color: C.green, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+              >
+                💰 Check Profit
+              </button>
             </div>
           </div>
 
@@ -1331,7 +1350,7 @@ Be specific, opinionated, use AUD figures.`;
               {inWatchlist ? '♥ Saved' : 'Watchlist'}
             </button>
             <a
-              href="/app/meta-ads"
+              href={`/app/meta-ads?product=${encodeURIComponent(product.product_title)}&price=${product.price_aud ?? ''}`}
               style={{
                 flex: 1,
                 display: 'flex',
@@ -1353,8 +1372,7 @@ Be specific, opinionated, use AUD figures.`;
             </a>
             <button
               onClick={() => {
-                localStorage.setItem('majorka_website_prefill', product.product_title);
-                window.location.href = `/app/website-generator?product=${encodeURIComponent(product.product_title)}`;
+                window.location.href = `/app/website-generator?niche=${encodeURIComponent(product.category ?? '')}`;
               }}
               style={{
                 flex: 1,
@@ -1729,216 +1747,113 @@ function TableView({
             <tr style={{ background: C.glass }}>
               <th style={{ ...th, width: 40 }}>#</th>
               <th style={th}>Product</th>
-              <th style={th}>Score</th>
-              <th style={th}>Rev/Day</th>
-              <th style={th}>Units/Day</th>
+              <th style={th}>Est. Revenue/mo</th>
               <th style={th}>Trend</th>
-              <th style={th}>Competition</th>
-              <th style={th}>AU Fit</th>
-              <th style={{ ...th, textAlign: 'right' }}>Actions</th>
+              <th style={th}>Growth %</th>
+              <th style={th}>Items Sold</th>
+              <th style={th}>Avg Price</th>
+              <th style={th}>Platforms</th>
+              <th style={{ ...th, textAlign: 'center' }}>→</th>
             </tr>
           </thead>
           <tbody>
             {loading
               ? Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i}>
-                    {[40, 200, 80, 80, 80, 80, 80, 60, 100].map((w, j) => (
+                    {[40, 220, 100, 90, 80, 80, 80, 80, 50].map((w, j) => (
                       <td key={j} style={{ padding: '14px 12px' }}>
-                        <div
-                          style={{
-                            height: 14,
-                            width: w,
-                            maxWidth: '100%',
-                            background: 'rgba(255,255,255,0.05)',
-                            borderRadius: 6,
-                            animation: 'shimmer 1.8s ease-in-out infinite',
-                          }}
-                        />
+                        <div style={{ height: 14, width: w, maxWidth: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: 6, animation: 'shimmer 1.8s ease-in-out infinite' }} />
                       </td>
                     ))}
                   </tr>
                 ))
-              : products.map((p, idx) => (
-                  <tr
-                    key={p.id}
-                    onClick={() => onSelect(p)}
-                    style={{
-                      cursor: 'pointer',
-                      borderBottom: `1px solid ${C.border}`,
-                      transition: 'background 0.15s',
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLTableRowElement).style.background = C.cardHover;
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLTableRowElement).style.background = 'transparent';
-                    }}
-                  >
-                    <td
-                      style={{
-                        padding: '12px',
-                        fontSize: 12,
-                        color: C.muted,
-                        fontWeight: 700,
-                        width: 40,
-                      }}
+              : products.map((p, idx) => {
+                  const monthly = p.est_monthly_revenue_aud ?? (p.est_daily_revenue_aud ? p.est_daily_revenue_aud * 30 : null);
+                  const growth = p.revenue_growth_pct;
+                  const plats = p.platforms ?? [p.platform];
+                  const sparkData = generateWeekData(p.est_daily_revenue_aud ?? 500, p.id);
+                  return (
+                    <tr
+                      key={p.id}
+                      onClick={() => onSelect(p)}
+                      style={{ cursor: 'pointer', borderBottom: `1px solid ${C.border}`, transition: 'background 0.15s' }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = C.cardHover; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'; }}
                     >
-                      {(page - 1) * PAGE_SIZE + idx + 1}
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 10,
-                          minWidth: 180,
-                          maxWidth: 280,
-                        }}
-                      >
-                        {p.image_url ? (
-                          <img
-                            src={p.image_url}
-                            alt=""
-                            style={{
-                              width: 40,
-                              height: 40,
-                              borderRadius: 8,
-                              objectFit: 'cover',
-                              flexShrink: 0,
-                            }}
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                            }}
-                          />
-                        ) : (
-                          <div
-                            style={{
-                              width: 40,
-                              height: 40,
-                              borderRadius: 8,
-                              background: C.glass,
-                              border: `1px solid ${C.border}`,
-                              flexShrink: 0,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
-                          >
-                            <BarChart2 size={16} style={{ color: C.muted }} />
-                          </div>
-                        )}
-                        <div>
-                          <div
-                            style={{
-                              fontFamily: 'Syne, sans-serif',
-                              fontSize: 13,
-                              fontWeight: 700,
-                              color: C.text,
-                              lineHeight: 1.3,
-                            }}
-                          >
-                            {p.product_title}
-                          </div>
-                          {p.price_aud != null && (
-                            <div style={{ fontSize: 11, color: C.sub, fontWeight: 600 }}>
-                              {fmtAUD(p.price_aud)}
+                      <td style={{ padding: '12px', fontSize: 12, color: C.muted, fontWeight: 700, width: 40 }}>
+                        {(page - 1) * PAGE_SIZE + idx + 1}
+                      </td>
+                      {/* Product (image + name) */}
+                      <td style={{ padding: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 180, maxWidth: 280 }}>
+                          {p.image_url ? (
+                            <img src={p.image_url} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                          ) : (
+                            <div style={{ width: 40, height: 40, borderRadius: 8, background: C.glass, border: `1px solid ${C.border}`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <BarChart2 size={16} style={{ color: C.muted }} />
                             </div>
                           )}
+                          <div>
+                            <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.3 }}>{p.product_title}</div>
+                            <div style={{ fontSize: 11, color: C.sub }}>{p.category}</div>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <ScoreBadge score={p.winning_score} />
-                    </td>
-                    <td
-                      style={{
-                        padding: '12px',
-                        fontFamily: 'Syne, sans-serif',
-                        fontSize: 13,
-                        fontWeight: 700,
-                        color: C.gold,
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {fmtAUD(p.est_daily_revenue_aud)}/day
-                    </td>
-                    <td
-                      style={{
-                        padding: '12px',
-                        fontSize: 12,
-                        color: C.sub,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {p.units_per_day?.toFixed(0) ?? '—'}
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <TrendBadge trend={p.trend} />
-                    </td>
-                    <td style={{ padding: '12px' }}>
-                      <CompetitionDot level={p.competition_level} />
-                    </td>
-                    <td
-                      style={{
-                        padding: '12px',
-                        fontSize: 12,
-                        fontWeight: 600,
-                        color:
-                          p.au_relevance >= 90
-                            ? C.green
-                            : p.au_relevance >= 70
-                              ? C.amber
-                              : C.sub,
-                      }}
-                    >
-                      {p.au_relevance}%
-                    </td>
-                    <td style={{ padding: '12px' }} onClick={(e) => e.stopPropagation()}>
-                      <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                      </td>
+                      {/* Est. Revenue/month — gold, large */}
+                      <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
+                        <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 15, fontWeight: 800, color: C.gold }}>
+                          {monthly != null ? `$${(monthly / 1000).toFixed(0)}k/mo` : '—'}
+                        </div>
+                        {p.est_daily_revenue_aud != null && (
+                          <div style={{ fontSize: 10, color: C.sub }}>${p.est_daily_revenue_aud.toFixed(0)}/day</div>
+                        )}
+                      </td>
+                      {/* Trend sparkline (80x28) */}
+                      <td style={{ padding: '12px' }}>
+                        <div style={{ width: 80, height: 28 }}>
+                          <LineChart width={80} height={28} data={sparkData} margin={{ top: 2, right: 0, bottom: 2, left: 0 }}>
+                            <Line type="monotone" dataKey="rev" stroke={C.gold} strokeWidth={1.5} dot={false} />
+                          </LineChart>
+                        </div>
+                      </td>
+                      {/* Growth % */}
+                      <td style={{ padding: '12px' }}>
+                        {growth != null ? (
+                          <span style={{ fontSize: 12, fontWeight: 700, color: growth >= 0 ? C.green : C.red, background: growth >= 0 ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)', border: `1px solid ${growth >= 0 ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`, padding: '2px 8px', borderRadius: 20, whiteSpace: 'nowrap' }}>
+                            {growth >= 0 ? '+' : ''}{growth}% {growth >= 0 ? '↑' : '↓'}
+                          </span>
+                        ) : <TrendBadge trend={p.trend} />}
+                      </td>
+                      {/* Items Sold */}
+                      <td style={{ padding: '12px', fontSize: 12, color: C.sub, fontWeight: 600 }}>
+                        {p.sold_count != null ? p.sold_count.toLocaleString() : '—'}
+                      </td>
+                      {/* Avg Price */}
+                      <td style={{ padding: '12px', fontSize: 12, color: C.text, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                        {p.price_aud != null ? `$${p.price_aud}` : '—'}
+                      </td>
+                      {/* Platforms */}
+                      <td style={{ padding: '12px' }}>
+                        <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                          {plats.map((pl) => (
+                            <span key={pl} style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 8, background: pl.includes('TikTok') ? 'rgba(255,0,80,0.12)' : pl.includes('Amazon') ? 'rgba(255,153,0,0.12)' : pl.includes('Alibaba') ? 'rgba(255,150,0,0.12)' : 'rgba(255,106,0,0.12)', color: pl.includes('TikTok') ? '#ff0050' : pl.includes('Amazon') ? '#ff9900' : '#ff6a00', border: `1px solid ${pl.includes('TikTok') ? 'rgba(255,0,80,0.3)' : pl.includes('Amazon') ? 'rgba(255,153,0,0.3)' : 'rgba(255,106,0,0.3)'}` }}>
+                              {pl.includes('TikTok') ? 'TT' : pl.includes('Amazon') ? 'Amz' : pl.includes('Alibaba') ? 'Baba' : 'Ali'}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      {/* Actions */}
+                      <td style={{ padding: '12px', textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => onSelect(p)}
-                          title="Analyse"
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 4,
-                            padding: '5px 8px',
-                            borderRadius: 7,
-                            background: C.glass,
-                            border: `1px solid ${C.border}`,
-                            color: C.sub,
-                            fontSize: 11,
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                          }}
+                          style={{ width: 28, height: 28, borderRadius: 8, background: C.goldBg, border: `1px solid ${C.goldBorder}`, color: C.gold, cursor: 'pointer', fontSize: 14, fontWeight: 700 }}
                         >
-                          <Sparkles size={11} /> Analyse
+                          →
                         </button>
-                        <button
-                          onClick={() => onToggleWatchlist(p)}
-                          title={watchlistIds.has(p.id) ? 'Remove' : 'Save'}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 4,
-                            padding: '5px 8px',
-                            borderRadius: 7,
-                            background: watchlistIds.has(p.id)
-                              ? 'rgba(239,68,68,0.1)'
-                              : C.glass,
-                            border: `1px solid ${watchlistIds.has(p.id) ? 'rgba(239,68,68,0.3)' : C.border}`,
-                            color: watchlistIds.has(p.id) ? C.red : C.sub,
-                            fontSize: 11,
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          <Heart size={11} fill={watchlistIds.has(p.id) ? C.red : 'none'} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  );
+                })}
           </tbody>
         </table>
       </div>
@@ -2179,6 +2094,17 @@ export default function WinningProducts() {
   const [sort, setSort] = useState('Revenue');
   const [page, setPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [competition, setCompetition] = useState('All');
+  const [minMonthlyRevenue, setMinMonthlyRevenue] = useState(0);
+  const [platformFilter, setPlatformFilter] = useState<string[]>(['TikTok Shop', 'AliExpress', 'Alibaba', 'Amazon AU']);
+  const [hideSaturated, setHideSaturated] = useState(true);
+
+  // ── Niche Search (AI) ─────────────────────────────────────────────────
+  const [nicheQuery, setNicheQuery] = useState('');
+  const [nicheSearching, setNicheSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<WinningProduct[] | null>(null);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [popularSearches, setPopularSearches] = useState<string[]>([]);
 
   // ── Detail drawer ─────────────────────────────────────────────────────
   const [selectedProduct, setSelectedProduct] = useState<WinningProduct | null>(null);
@@ -2194,6 +2120,39 @@ export default function WinningProducts() {
     }, 300);
     return () => clearTimeout(t);
   }, [search]);
+
+  // ── Load recent searches (user_search_history) ───────────────────────
+  useEffect(() => {
+    if (!userId) { setRecentSearches([]); return; }
+    void supabase
+      .from('user_search_history')
+      .select('query')
+      .eq('user_id', userId)
+      .order('searched_at', { ascending: false })
+      .limit(5)
+      .then(({ data }) => {
+        if (data) {
+          const unique = [...new Set((data as { query: string }[]).map((r) => r.query))];
+          setRecentSearches(unique.slice(0, 5));
+        }
+      });
+  }, [userId]);
+
+  // ── Load popular searches (search_cache last 24h) ─────────────────────
+  useEffect(() => {
+    const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    void supabase
+      .from('search_cache')
+      .select('query')
+      .gte('searched_at', dayAgo)
+      .order('searched_at', { ascending: false })
+      .limit(5)
+      .then(({ data }) => {
+        if (data) {
+          setPopularSearches((data as { query: string }[]).map((r) => r.query));
+        }
+      });
+  }, []);
 
   // ── Load categories from DB ───────────────────────────────────────────
   useEffect(() => {
@@ -2275,10 +2234,14 @@ export default function WinningProducts() {
         case 'Revenue':
           query = query.order('est_daily_revenue_aud', { ascending: false });
           break;
+        case 'Growth %':
+          query = query.order('revenue_growth_pct', { ascending: false });
+          break;
         case 'Newest':
           query = query.order('scraped_at', { ascending: false });
           break;
         case 'Most Sold':
+        case 'Items Sold':
           query = query.order('sold_count', { ascending: false });
           break;
         default:
@@ -2358,6 +2321,39 @@ export default function WinningProducts() {
     }
   };
 
+  // ── Niche / AI product search ─────────────────────────────────────────
+  const handleNicheSearch = async (q?: string) => {
+    const query = (q ?? nicheQuery).trim();
+    if (!query) return;
+    if (!token) { toast.error('Sign in to use product search'); return; }
+    setNicheSearching(true);
+    setSearchResults(null);
+    try {
+      const res = await fetch('/api/products/search', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query }),
+      });
+      if (res.status === 429) { toast.error('Rate limited — max 10 searches/hour'); return; }
+      if (!res.ok) { const j = (await res.json()) as { error?: string }; toast.error(j.error ?? 'Search failed'); return; }
+      const data = (await res.json()) as { products: WinningProduct[]; cached: boolean; sources: string[] };
+      setSearchResults(data.products);
+      if (data.cached) toast('⚡ From cache — instant results!');
+      else toast.success(`Found ${data.products.length} products across ${data.sources.join(', ')}`);
+      // refresh recent searches
+      if (userId) {
+        void supabase.from('user_search_history').select('query').eq('user_id', userId).order('searched_at', { ascending: false }).limit(5).then(({ data: d }) => {
+          if (d) setRecentSearches([...new Set((d as { query: string }[]).map((r) => r.query))].slice(0, 5));
+        });
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      toast.error(msg);
+    } finally {
+      setNicheSearching(false);
+    }
+  };
+
   // ── Manual refresh ────────────────────────────────────────────────────
   const handleRefresh = async () => {
     if (!token) {
@@ -2390,9 +2386,7 @@ export default function WinningProducts() {
     }
   };
 
-  const activeFilters = [debouncedSearch !== '', category !== 'All', trend !== 'All'].filter(
-    Boolean,
-  ).length;
+  const activeFilters = [debouncedSearch !== '', category !== 'All', trend !== 'All', competition !== 'All', minMonthlyRevenue > 0, platformFilter.length < 4].filter(Boolean).length;
 
   return (
     <div
@@ -2569,6 +2563,174 @@ export default function WinningProducts() {
           ))}
         </div>
 
+        {/* ── Niche Search Engine ─────────────────────────────────────────── */}
+        {activeTab === 'all' && (
+          <div style={{ marginBottom: 24 }}>
+            {/* Search input */}
+            <form
+              onSubmit={(e) => { e.preventDefault(); void handleNicheSearch(); }}
+              style={{ display: 'flex', gap: 10, marginBottom: 10 }}
+            >
+              <div style={{ position: 'relative', flex: 1 }}>
+                <Search size={14} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: C.muted, pointerEvents: 'none' }} />
+                <input
+                  value={nicheQuery}
+                  onChange={(e) => setNicheQuery(e.target.value)}
+                  placeholder='Search any product or niche... e.g. "posture corrector"'
+                  disabled={nicheSearching}
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '12px 16px 12px 40px', borderRadius: 12, background: C.glass, border: `1px solid ${nicheQuery ? C.goldBorder : C.glassBorder}`, color: C.text, fontSize: 14, outline: 'none', transition: 'border-color 0.2s' }}
+                  onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = C.gold; }}
+                  onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = nicheQuery ? C.goldBorder : C.border; }}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={nicheSearching || !nicheQuery.trim()}
+                style={{ padding: '12px 22px', borderRadius: 12, background: C.gold, border: 'none', color: '#000', fontSize: 13, fontWeight: 700, cursor: nicheSearching || !nicheQuery.trim() ? 'not-allowed' : 'pointer', opacity: nicheSearching || !nicheQuery.trim() ? 0.6 : 1, display: 'flex', alignItems: 'center', gap: 7, flexShrink: 0, whiteSpace: 'nowrap' }}
+              >
+                {nicheSearching ? <><Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} /> Searching…</> : <><Search size={13} /> Find Products</>}
+              </button>
+            </form>
+
+            {/* Searching state */}
+            {nicheSearching && (
+              <div style={{ fontSize: 12, color: C.sub, marginBottom: 8 }}>
+                🔍 Searching TikTok Shop, AliExpress, Alibaba, Amazon AU…
+              </div>
+            )}
+
+            {/* Recent searches */}
+            {userId && recentSearches.length > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+                <span style={{ fontSize: 11, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>Recent:</span>
+                {recentSearches.map((q) => (
+                  <button
+                    key={q}
+                    onClick={() => { setNicheQuery(q); void handleNicheSearch(q); }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 20, background: C.glass, border: `1px solid ${C.border}`, color: C.sub, fontSize: 12, cursor: 'pointer', fontWeight: 500 }}
+                  >
+                    {q}
+                    <span
+                      onClick={(e) => { e.stopPropagation(); setRecentSearches((prev) => prev.filter((r) => r !== q)); }}
+                      style={{ color: C.muted, fontWeight: 700, lineHeight: 1 }}
+                    >×</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Popular searches */}
+            {popularSearches.length > 0 && (
+              <div style={{ fontSize: 12, color: C.muted }}>
+                <span style={{ fontWeight: 700, color: C.sub }}>Trending searches:</span>{' '}
+                {popularSearches.map((q, i) => (
+                  <span key={q}>
+                    <button
+                      onClick={() => { setNicheQuery(q); void handleNicheSearch(q); }}
+                      style={{ background: 'none', border: 'none', color: C.gold, fontSize: 12, cursor: 'pointer', padding: 0, fontWeight: 500 }}
+                    >
+                      {q}
+                    </button>
+                    {i < popularSearches.length - 1 && <span style={{ color: C.muted }}> · </span>}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Search Results */}
+            {searchResults !== null && !nicheSearching && (
+              <div style={{ marginTop: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                  <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 14, fontWeight: 700, color: C.text }}>
+                    Search Results
+                  </span>
+                  <span style={{ fontSize: 11, color: C.sub, background: C.glass, border: `1px solid ${C.border}`, padding: '2px 8px', borderRadius: 20 }}>
+                    {searchResults.length} products
+                  </span>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    {['TikTok Shop', 'AliExpress', 'Alibaba', 'Amazon AU'].map((src) => (
+                      <span key={src} style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: 'rgba(212,175,55,0.12)', color: C.gold, border: `1px solid ${C.goldBorder}` }}>
+                        {src === 'TikTok Shop' ? 'TT' : src === 'AliExpress' ? 'Ali' : src === 'Alibaba' ? 'Baba' : 'Amz'}
+                      </span>
+                    ))}
+                  </div>
+                  <button onClick={() => setSearchResults(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: C.muted, cursor: 'pointer', fontSize: 12 }}>
+                    <X size={14} />
+                  </button>
+                </div>
+                {searchResults.length === 0 ? (
+                  <div style={{ padding: '24px', background: C.glass, border: `1px solid ${C.border}`, borderRadius: 14, textAlign: 'center', color: C.sub, fontSize: 13 }}>
+                    No products found — try a different query
+                  </div>
+                ) : (
+                  <>
+                    <div style={{ overflowX: 'auto', borderRadius: 14, border: `1px solid ${C.border}`, marginBottom: 8 }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr style={{ background: C.glass }}>
+                            {['#', 'Product', 'Est. Revenue/mo', 'Growth %', 'Platforms', 'Competition', '→'].map((h) => (
+                              <th key={h} style={{ padding: '10px 12px', fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'left', borderBottom: `1px solid ${C.border}`, whiteSpace: 'nowrap' }}>{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {searchResults.map((p, idx) => {
+                            const monthly = p.est_monthly_revenue_aud ?? (p.est_daily_revenue_aud ? p.est_daily_revenue_aud * 30 : null);
+                            const growth = p.revenue_growth_pct;
+                            const plats = p.platforms ?? [p.platform];
+                            return (
+                              <tr key={p.id ?? idx} onClick={() => setSelectedProduct(p)} style={{ cursor: 'pointer', borderBottom: `1px solid ${C.border}` }} onMouseEnter={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = C.cardHover; }} onMouseLeave={(e) => { (e.currentTarget as HTMLTableRowElement).style.background = 'transparent'; }}>
+                                <td style={{ padding: '12px', fontSize: 12, color: C.muted, fontWeight: 700 }}>{idx + 1}</td>
+                                <td style={{ padding: '12px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 180 }}>
+                                    {p.image_url ? <img src={p.image_url} alt="" style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} /> : <div style={{ width: 36, height: 36, borderRadius: 8, background: C.glass, border: `1px solid ${C.border}`, flexShrink: 0 }} />}
+                                    <div>
+                                      <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 700, color: C.text }}>{p.product_title}</div>
+                                      <div style={{ fontSize: 11, color: C.sub }}>{p.category}</div>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td style={{ padding: '12px', fontFamily: 'Syne, sans-serif', fontSize: 14, fontWeight: 800, color: C.gold, whiteSpace: 'nowrap' }}>
+                                  {monthly != null ? `$${(monthly / 1000).toFixed(0)}k/mo` : '—'}
+                                </td>
+                                <td style={{ padding: '12px' }}>
+                                  {growth != null ? (
+                                    <span style={{ fontSize: 12, fontWeight: 700, color: growth >= 0 ? C.green : C.red, background: growth >= 0 ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)', border: `1px solid ${growth >= 0 ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`, padding: '2px 8px', borderRadius: 20 }}>
+                                      {growth >= 0 ? '+' : ''}{growth}% {growth >= 0 ? '↑' : '↓'}
+                                    </span>
+                                  ) : <span style={{ color: C.muted, fontSize: 12 }}>—</span>}
+                                </td>
+                                <td style={{ padding: '12px' }}>
+                                  <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                                    {plats.map((pl) => (
+                                      <span key={pl} style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 8, background: pl.includes('TikTok') ? 'rgba(255,0,80,0.12)' : pl.includes('Amazon') ? 'rgba(255,153,0,0.12)' : 'rgba(255,106,0,0.12)', color: pl.includes('TikTok') ? '#ff0050' : pl.includes('Amazon') ? '#ff9900' : '#ff6a00', border: `1px solid ${pl.includes('TikTok') ? 'rgba(255,0,80,0.3)' : pl.includes('Amazon') ? 'rgba(255,153,0,0.3)' : 'rgba(255,106,0,0.3)'}` }}>
+                                        {pl.includes('TikTok') ? 'TT' : pl.includes('Amazon') ? 'Amz' : pl.includes('Alibaba') ? 'Baba' : 'Ali'}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </td>
+                                <td style={{ padding: '12px' }}>
+                                  <CompetitionDot level={p.competition_level} />
+                                </td>
+                                <td style={{ padding: '12px' }}>
+                                  <button onClick={() => setSelectedProduct(p)} style={{ width: 28, height: 28, borderRadius: 8, background: C.goldBg, border: `1px solid ${C.goldBorder}`, color: C.gold, cursor: 'pointer', fontSize: 14, fontWeight: 700 }}>→</button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div style={{ fontSize: 11, color: C.muted, textAlign: 'center' }}>
+                      Revenue estimates based on platform search signals. Actual results vary.
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ── Top 5 Rankings (all tab) ───────────────────────────────────── */}
         {activeTab === 'all' && topProducts.length > 0 && (
           <Top5Rankings products={topProducts} onSelect={setSelectedProduct} />
@@ -2701,12 +2863,51 @@ export default function WinningProducts() {
                   gap: 20,
                 }}
               >
-                {/* Category */}
+                {/* Min Monthly Revenue */}
                 <div style={{ flex: '1 1 200px' }}>
-                  <div style={filterLabelStyle}>Category</div>
+                  <div style={filterLabelStyle}>Min Monthly Revenue: ${minMonthlyRevenue === 0 ? 'Any' : `${(minMonthlyRevenue / 1000).toFixed(0)}k`}</div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={500000}
+                    step={10000}
+                    value={minMonthlyRevenue}
+                    onChange={(e) => setMinMonthlyRevenue(Number(e.target.value))}
+                    style={{ width: '100%', accentColor: C.gold }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: C.muted, marginTop: 2 }}>
+                    <span>$0</span><span>$250k</span><span>$500k</span>
+                  </div>
+                </div>
+
+                {/* Platform */}
+                <div style={{ flex: '1 1 180px' }}>
+                  <div style={filterLabelStyle}>Platform</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {(['TikTok Shop', 'AliExpress', 'Alibaba', 'Amazon AU'] as const).map((pl) => (
+                      <label key={pl} style={{ display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer', fontSize: 12, color: C.text }}>
+                        <input
+                          type="checkbox"
+                          checked={platformFilter.includes(pl)}
+                          onChange={() => {
+                            setPlatformFilter((prev) =>
+                              prev.includes(pl) ? prev.filter((p) => p !== pl) : [...prev, pl],
+                            );
+                          }}
+                          style={{ accentColor: C.gold, width: 13, height: 13 }}
+                        />
+                        {pl}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Competition */}
+                <div style={{ flex: '1 1 160px' }}>
+                  <div style={filterLabelStyle}>Competition</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {categories.map((c) => (
-                      <Chip key={c} active={category === c} onClick={() => setCategory(c)}>
+                    {['All', 'Low', 'Medium', 'High'].map((c) => (
+                      <Chip key={c} active={competition === c} onClick={() => setCompetition(c)}>
                         {c}
                       </Chip>
                     ))}
@@ -2729,16 +2930,42 @@ export default function WinningProducts() {
                   </div>
                 </div>
 
+                {/* Category */}
+                <div style={{ flex: '1 1 200px' }}>
+                  <div style={filterLabelStyle}>Category</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {categories.map((c) => (
+                      <Chip key={c} active={category === c} onClick={() => setCategory(c)}>
+                        {c}
+                      </Chip>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Sort */}
                 <div style={{ flex: '1 1 140px' }}>
                   <div style={filterLabelStyle}>Sort by</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {['Revenue', 'Score', 'Newest', 'Most Sold'].map((s) => (
+                    {['Revenue', 'Growth %', 'Most Sold', 'Score', 'Newest'].map((s) => (
                       <Chip key={s} active={sort === s} onClick={() => setSort(s)}>
                         {s}
                       </Chip>
                     ))}
                   </div>
+                </div>
+
+                {/* Hide Saturated */}
+                <div style={{ flex: '1 1 180px', display: 'flex', alignItems: 'flex-start', gap: 8, paddingTop: 18 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: C.text }}>
+                    <div
+                      onClick={() => setHideSaturated((v) => !v)}
+                      style={{ width: 36, height: 20, borderRadius: 10, background: hideSaturated ? C.gold : C.glass, border: `1px solid ${hideSaturated ? C.gold : C.border}`, position: 'relative', cursor: 'pointer', transition: 'background 0.2s', flexShrink: 0 }}
+                    >
+                      <div style={{ position: 'absolute', top: 2, left: hideSaturated ? 18 : 2, width: 14, height: 14, borderRadius: '50%', background: hideSaturated ? '#000' : C.muted, transition: 'left 0.2s' }} />
+                    </div>
+                    <span>Hide Saturated</span>
+                  </label>
+                  <span style={{ fontSize: 10, color: C.muted, lineHeight: 1.4 }}>Hides high competition + &lt;5% growth</span>
                 </div>
 
                 {/* Clear */}
@@ -2747,8 +2974,11 @@ export default function WinningProducts() {
                     onClick={() => {
                       setCategory('All');
                       setTrend('All');
+                      setCompetition('All');
                       setSearch('');
                       setSort('Revenue');
+                      setMinMonthlyRevenue(0);
+                      setPlatformFilter(['TikTok Shop', 'AliExpress', 'Alibaba', 'Amazon AU']);
                     }}
                     style={{
                       alignSelf: 'flex-end',

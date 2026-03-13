@@ -414,4 +414,49 @@ All analysis should be AU-focused. Reference AUD pricing, AU platforms, AU consu
       res.status(500).json({ error: err.message ?? 'Internal server error' });
     }
   });
+
+  // -----------------------------------------------------------------------
+  // 5. POST /api/products/search  — 4-platform Tavily product search
+  // -----------------------------------------------------------------------
+  const searchLimiter = new Map<string, number[]>(); // userId → timestamps
+  const SEARCH_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+  const SEARCH_MAX_PER_HOUR = 10;
+
+  app.post('/api/products/search', async (req, res) => {
+    const authUser = await authenticateRequest(req);
+    if (!authUser) {
+      res.status(401).json({ error: 'Unauthorized — Bearer token required' });
+      return;
+    }
+
+    // Rate limit: 10 searches per hour per user
+    const now = Date.now();
+    const userTimestamps = (searchLimiter.get(authUser.userId) ?? []).filter(
+      (t) => now - t < SEARCH_WINDOW_MS,
+    );
+    if (userTimestamps.length >= SEARCH_MAX_PER_HOUR) {
+      res.status(429).json({
+        error: `Rate limited — max ${SEARCH_MAX_PER_HOUR} searches per hour`,
+        resetAt: new Date(userTimestamps[0] + SEARCH_WINDOW_MS).toISOString(),
+      });
+      return;
+    }
+    userTimestamps.push(now);
+    searchLimiter.set(authUser.userId, userTimestamps);
+
+    const { query } = (req.body ?? {}) as { query?: string };
+    if (!query || typeof query !== 'string' || query.trim().length < 2) {
+      res.status(400).json({ error: 'query must be at least 2 characters' });
+      return;
+    }
+
+    try {
+      const { productSearch } = await import('./product-search.js');
+      const result = await productSearch(query.trim(), authUser.userId);
+      res.json(result);
+    } catch (err: any) {
+      console.error('[products/search] Error:', err.message);
+      res.status(500).json({ error: err.message ?? 'Search failed' });
+    }
+  });
 }

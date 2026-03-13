@@ -174,7 +174,35 @@ export async function runWinningProductsMigration(): Promise<void> {
     try { await sql`CREATE POLICY "cr_public_read" ON public.category_rankings FOR SELECT USING (true)`; } catch {}
     try { await sql`CREATE POLICY "cr_service_write" ON public.category_rankings FOR ALL TO service_role USING (true) WITH CHECK (true)`; } catch {}
 
-    console.log('[migrate] ✅ au_creators + trending_videos + category_rankings tables ready');
+    // ── search_cache table ───────────────────────────────────────────────────
+    await sql`
+      CREATE TABLE IF NOT EXISTS public.search_cache (
+        id         uuid        DEFAULT gen_random_uuid() PRIMARY KEY,
+        query      text        NOT NULL,
+        results    jsonb       NOT NULL,
+        searched_at timestamptz DEFAULT now()
+      )
+    `;
+    await sql`CREATE UNIQUE INDEX IF NOT EXISTS search_cache_query_idx ON public.search_cache(query)`;
+    await sql`ALTER TABLE public.search_cache ENABLE ROW LEVEL SECURITY`;
+    try { await sql`CREATE POLICY "sc_public_read"   ON public.search_cache FOR SELECT USING (true)`; } catch {}
+    try { await sql`CREATE POLICY "sc_service_write" ON public.search_cache FOR ALL TO service_role USING (true) WITH CHECK (true)`; } catch {}
+
+    // ── user_search_history table ────────────────────────────────────────────
+    await sql`
+      CREATE TABLE IF NOT EXISTS public.user_search_history (
+        id          uuid        DEFAULT gen_random_uuid() PRIMARY KEY,
+        user_id     text        NOT NULL,
+        query       text        NOT NULL,
+        searched_at timestamptz DEFAULT now()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS user_search_history_user_idx ON public.user_search_history(user_id)`;
+    await sql`ALTER TABLE public.user_search_history ENABLE ROW LEVEL SECURITY`;
+    try { await sql`CREATE POLICY "ush_public_read"   ON public.user_search_history FOR SELECT USING (true)`; } catch {}
+    try { await sql`CREATE POLICY "ush_service_write" ON public.user_search_history FOR ALL TO service_role USING (true) WITH CHECK (true)`; } catch {}
+
+    console.log('[migrate] ✅ au_creators + trending_videos + category_rankings + search_cache + user_search_history tables ready');
     _migrationDone = true;
 
     // ── Seed if empty ────────────────────────────────────────────────────────
