@@ -1359,11 +1359,53 @@ export default function WinningProducts() {
       query = query.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
       const { data, error, count } = await query;
-      if (error) throw error;
-      setProducts((data as WinningProduct[] | null) ?? []);
-      setTotal(count ?? 0);
+
+      // If table doesn't exist yet, fall back to Tavily API
+      if (error) {
+        if (error.message?.includes('relation') || error.message?.includes('does not exist') || error.code === '42P01') {
+          // Table not yet created — fall back to server-side Tavily fetch
+          const res = await fetch('/api/tools/winning-products', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ category: category !== 'All' ? category : undefined }),
+          });
+          if (res.ok) {
+            const fallback = await res.json();
+            const mapped: WinningProduct[] = (fallback.products ?? []).map((p: any, i: number) => ({
+              id: `fallback-${i}`,
+              product_title: p.name || p.productTitle || 'Trending Product',
+              image_url: p.imageUrl || '',
+              tiktok_product_url: '',
+              category: p.category || 'Other',
+              platform: 'TikTok Shop',
+              price_aud: parseFloat(String(p.estimatedPriceAUD || '29').replace(/[^0-9.]/g, '')) || 29,
+              sold_count: p.soldCount || 0,
+              rating: 4.5,
+              review_count: 0,
+              shop_name: '',
+              winning_score: p.trendScore || 75,
+              trend: (p.trend || 'growing').toLowerCase(),
+              competition_level: (p.competitionLevel || 'medium').toLowerCase(),
+              au_relevance: p.auRelevance || 80,
+              est_daily_revenue_aud: p.estDailyRevenueAud || 500,
+              units_per_day: p.unitsPerDay || 8,
+              why_winning: p.trendReason || p.whyWinning || '',
+              ad_angle: p.adAngle || '',
+              scraped_at: new Date().toISOString(),
+            }));
+            setProducts(mapped);
+            setTotal(mapped.length);
+          }
+        } else {
+          throw error;
+        }
+      } else {
+        setProducts((data as WinningProduct[] | null) ?? []);
+        setTotal(count ?? 0);
+      }
     } catch (err: any) {
-      toast.error(err.message ?? 'Failed to load products');
+      console.error('[WinningProducts] fetch error:', err);
+      toast.error('Could not load products — try refreshing');
     } finally {
       setLoading(false);
     }
