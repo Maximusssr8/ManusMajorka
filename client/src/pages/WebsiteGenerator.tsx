@@ -609,7 +609,7 @@ ${productContext}
 
 Return ONLY valid JSON with the exact structure specified in your system prompt. No markdown, no code blocks, just the JSON object.`;
 
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/api/chat?stream=1', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -620,14 +620,42 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
           toolName: 'website-generator',
           systemPrompt: buildSystemPrompt(vibe, platform, accentColor),
           market: getStoredMarket(),
-          stream: false,
+          stream: true,
         }),
       });
 
       if (!response.ok) throw new Error(`Generation failed: ${response.status}`);
 
-      const data = await response.json();
-      const fullText: string = data.reply || data.response || data.content || '';
+      // Collect SSE stream — avoids 504 timeout on Vercel
+      let fullText = '';
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      if (reader) {
+        let buffer = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            try {
+              const payload = JSON.parse(line.slice(6));
+              if (payload.text !== undefined) {
+                fullText += payload.text;
+                // Update progress bar as tokens arrive
+                setGenProgress(Math.min(90, Math.floor((fullText.length / 800) * 90)));
+              }
+            } catch { /* skip malformed */ }
+          }
+        }
+      }
+      // Fallback: plain JSON response
+      if (!fullText) {
+        const text = await response.text().catch(() => '');
+        try { const d = JSON.parse(text); fullText = d.reply || d.content || ''; } catch { fullText = text; }
+      }
 
       clearInterval(progressInterval);
       setGenProgress(100);

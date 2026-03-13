@@ -11,7 +11,8 @@ import {
   Star,
   TrendingUp,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { ActiveProductBanner } from '@/components/ActiveProductBanner';
 import { SaveToProduct } from '@/components/SaveToProduct';
@@ -337,24 +338,36 @@ export default function ProductDiscovery() {
   const [genError, setGenError] = useState('');
   const { activeProduct } = useActiveProduct();
   const { session } = useAuth();
-  const handleGenerate = useCallback(async () => {
-    if (!niche.trim()) {
+
+  // Load any prefill from WinningProducts "Find Suppliers →" CTA
+  useEffect(() => {
+    const prefill = localStorage.getItem('majorka_discover_prefill');
+    if (prefill) {
+      setNiche(prefill);
+      localStorage.removeItem('majorka_discover_prefill');
+    }
+  }, []);
+
+  const handleGenerate = useCallback(async (nicheOverride?: string) => {
+    const activeNiche = nicheOverride ?? niche;
+    if (!activeNiche.trim()) {
       toast.error('Please enter a niche or category');
       return;
     }
+    if (nicheOverride) setNiche(nicheOverride);
     setGenerating(true);
     setGenError('');
     setResult(null);
 
     const prompt = [
-      `Niche/Category: ${niche}`,
+      `Niche/Category: ${activeNiche}`,
       priceRange && `Price Range: $${priceRange}`,
       `Target Market: ${targetMarket}`,
     ]
       .filter(Boolean)
       .join('\n');
 
-    const searchQuery = `${niche} trending products ${targetMarket} 2025 ecommerce dropshipping opportunity`;
+    const searchQuery = `${activeNiche} trending products ${targetMarket} 2025 ecommerce dropshipping opportunity`;
 
     try {
       const response = await fetch('/api/chat', {
@@ -547,7 +560,7 @@ export default function ProductDiscovery() {
               {EXAMPLE_NICHES.map((n) => (
                 <button
                   key={n}
-                  onClick={() => setNiche(n)}
+                  onClick={() => handleGenerate(n)}
                   className="text-xs px-2.5 py-1 rounded-lg transition-all"
                   style={{
                     background: niche === n ? 'rgba(45,202,114,0.1)' : 'rgba(255,255,255,0.04)',
@@ -563,7 +576,7 @@ export default function ProductDiscovery() {
           </div>
 
           <button
-            onClick={handleGenerate}
+            onClick={() => handleGenerate()}
             disabled={isLoading}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all"
             style={{
@@ -705,8 +718,29 @@ export default function ProductDiscovery() {
 
           {!isLoading && !result && (
             <div className="h-full flex flex-col items-center justify-center gap-5 p-8">
-              <div className="text-5xl">🔍</div>
-              <div className="text-center">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4 }}
+                style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: 16,
+                  background: 'rgba(45,202,114,0.1)',
+                  border: '1px solid rgba(45,202,114,0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Search size={24} style={{ color: '#2dca72' }} />
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.4 }}
+                className="text-center"
+              >
                 <div
                   className="text-base font-black mb-2"
                   style={{ fontFamily: 'Syne, sans-serif' }}
@@ -717,19 +751,22 @@ export default function ProductDiscovery() {
                   className="text-xs max-w-xs leading-relaxed"
                   style={{ color: 'rgba(240,237,232,0.35)' }}
                 >
-                  Enter a niche or category and get 5 scored product opportunities with margin
-                  estimates, competition analysis, and supplier leads.
+                  Click a quick-start chip or enter a niche to get 5 scored product opportunities
+                  with margin estimates, competition analysis, and supplier leads.
                 </div>
-              </div>
+              </motion.div>
               <div className="grid grid-cols-2 gap-3 max-w-sm w-full">
                 {[
-                  { icon: <TrendingUp size={14} />, label: 'Trend analysis' },
+                  { icon: <TrendingUp size={14} />, label: 'AU trend analysis' },
                   { icon: <DollarSign size={14} />, label: 'Margin estimates' },
                   { icon: <Package size={14} />, label: 'Supplier leads' },
                   { icon: <Star size={14} />, label: 'Opportunity score' },
-                ].map(({ icon, label }) => (
-                  <div
+                ].map(({ icon, label }, i) => (
+                  <motion.div
                     key={label}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 + i * 0.1, duration: 0.35 }}
                     className="flex items-center gap-2 p-3 rounded-xl"
                     style={{
                       background: 'rgba(255,255,255,0.03)',
@@ -740,7 +777,7 @@ export default function ProductDiscovery() {
                     <span className="text-xs" style={{ color: 'rgba(240,237,232,0.5)' }}>
                       {label}
                     </span>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>

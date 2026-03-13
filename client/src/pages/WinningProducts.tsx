@@ -1,18 +1,6 @@
-import {
-  ArrowRight,
-  BarChart3,
-  ChevronDown,
-  Flame,
-  Loader2,
-  Mail,
-  PackageSearch,
-  Plus,
-  Search,
-  ShoppingBag,
-  Star,
-  TrendingUp,
-} from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Award, DollarSign, ExternalLink, Flame, Loader2, Package, Search, Shield, TrendingUp, Zap } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/_core/hooks/useAuth';
 
@@ -33,240 +21,102 @@ interface WinningProduct {
 
 // ── Design Tokens ────────────────────────────────────────────────────────────
 
-const colors = {
-  pageBg: '#060608',
-  cardBg: '#0c0c10',
+const C = {
+  pageBg: '#080a0e',
+  cardBg: 'rgba(255,255,255,0.03)',
   gold: '#d4af37',
   goldHover: '#e5c24a',
   textPrimary: '#f5f5f5',
   textSecondary: '#a1a1aa',
   textMuted: '#52525b',
-  border: 'rgba(255,255,255,0.06)',
+  border: 'rgba(255,255,255,0.07)',
   borderHover: '#d4af37',
   green: '#22c55e',
   yellow: '#eab308',
   red: '#ef4444',
 };
 
-const fonts = {
-  heading: 'Syne, sans-serif',
-  body: 'DM Sans, sans-serif',
-};
-
-// ── Filter Options ───────────────────────────────────────────────────────────
-
-const CATEGORIES = [
+const CATEGORY_CHIPS = [
   'All',
-  'Fashion',
-  'Beauty',
-  'Home',
-  'Tech',
-  'Pets',
+  'Health & Wellness',
   'Fitness',
-  'Health',
-  'Electronics',
-  'Jewellery',
+  'Home',
+  'Beauty',
+  'Pets',
+  'Tech',
+  'Kitchen',
+  'Outdoor',
 ];
-
-const PRICE_RANGES = ['All', 'Under $30', '$30-$60', '$60-$100', '$100+'];
-
-const PLATFORMS = ['All', 'TikTok', 'Facebook', 'Instagram', 'Google Shopping'];
 
 const SORT_OPTIONS = ['Trend Score', 'Margin', 'Competition'];
-
-const NICHES = [
-  'General',
-  'Fashion & Apparel',
-  'Beauty & Skincare',
-  'Health & Wellness',
-  'Pet Products',
-  'Home & Garden',
-  'Tech & Gadgets',
-  'Fitness & Sports',
-  'Kids & Baby',
-  'Jewellery & Accessories',
-];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function competitionColor(level: string) {
-  if (level === 'Low') return colors.green;
-  if (level === 'Medium') return colors.yellow;
-  return colors.red;
+  if (level === 'Low') return C.green;
+  if (level === 'Medium') return C.yellow;
+  return C.red;
 }
 
-function platformColor(platform: string) {
-  switch (platform) {
-    case 'TikTok':
-      return '#00f2ea';
-    case 'Facebook':
-      return '#1877f2';
-    case 'Instagram':
-      return '#e1306c';
-    case 'Google Shopping':
-      return '#4285f4';
-    default:
-      return colors.gold;
-  }
+/** Parse "40-60%" or "~55%" → 55 (midpoint) */
+function parseMidMargin(s: string): number {
+  const nums = s.replace(/[^0-9–-]/g, ' ').trim().split(/[\s–-]+/).map(Number).filter((n) => !isNaN(n) && n > 0);
+  if (nums.length === 0) return 50;
+  if (nums.length === 1) return nums[0];
+  return Math.round((nums[0] + nums[1]) / 2);
 }
 
-// ── Select Component ─────────────────────────────────────────────────────────
+/** Parse "$20-$40" → midpoint 30 */
+function parseMidPrice(s: string): number {
+  const nums = s.replace(/[^0-9–-]/g, ' ').trim().split(/[\s–-]+/).map(Number).filter((n) => !isNaN(n) && n > 0);
+  if (nums.length === 0) return 0;
+  if (nums.length === 1) return nums[0];
+  return Math.round((nums[0] + nums[1]) / 2);
+}
 
-function FilterSelect({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: string[];
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <label
-        style={{
-          fontFamily: fonts.body,
-          fontSize: 11,
-          fontWeight: 500,
-          color: colors.textMuted,
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-        }}
-      >
-        {label}
-      </label>
-      <div style={{ position: 'relative' }}>
-        <select
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          style={{
-            fontFamily: fonts.body,
-            fontSize: 13,
-            color: colors.textPrimary,
-            backgroundColor: colors.cardBg,
-            border: `1px solid ${colors.border}`,
-            borderRadius: 8,
-            padding: '8px 32px 8px 12px',
-            appearance: 'none',
-            outline: 'none',
-            cursor: 'pointer',
-            minWidth: 140,
-            transition: 'border-color 0.2s',
-          }}
-          onFocus={(e) => (e.currentTarget.style.borderColor = colors.gold)}
-          onBlur={(e) => (e.currentTarget.style.borderColor = colors.border)}
-        >
-          {options.map((opt) => (
-            <option key={opt} value={opt} style={{ backgroundColor: '#111', color: '#fff' }}>
-              {opt}
-            </option>
-          ))}
-        </select>
-        <ChevronDown
-          size={14}
-          style={{
-            position: 'absolute',
-            right: 10,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            color: colors.textMuted,
-            pointerEvents: 'none',
-          }}
-        />
-      </div>
-    </div>
-  );
+function estimatedCOGS(product: WinningProduct): string {
+  const price = parseMidPrice(product.priceRange);
+  const margin = parseMidMargin(product.marginEstimate) / 100;
+  const cogs = Math.round(price * (1 - margin));
+  return cogs > 0 ? `$${cogs} AUD` : '—';
 }
 
 // ── Skeleton Card ────────────────────────────────────────────────────────────
 
-function SkeletonCard() {
+function SkeletonCard({ index }: { index: number }) {
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.12, duration: 0.4 }}
       style={{
-        backgroundColor: colors.cardBg,
-        border: `1px solid ${colors.border}`,
-        borderRadius: 16,
+        background: C.cardBg,
+        backdropFilter: 'blur(12px)',
+        border: `1px solid ${C.border}`,
+        borderRadius: 20,
         padding: 24,
         display: 'flex',
         flexDirection: 'column',
         gap: 14,
       }}
     >
-      <div
-        style={{
-          height: 20,
-          width: '60%',
-          backgroundColor: 'rgba(255,255,255,0.04)',
-          borderRadius: 6,
-          animation: 'pulse 1.5s ease-in-out infinite',
-        }}
-      />
-      <div
-        style={{
-          height: 14,
-          width: '90%',
-          backgroundColor: 'rgba(255,255,255,0.03)',
-          borderRadius: 6,
-          animation: 'pulse 1.5s ease-in-out infinite',
-          animationDelay: '0.15s',
-        }}
-      />
-      <div
-        style={{
-          height: 14,
-          width: '75%',
-          backgroundColor: 'rgba(255,255,255,0.03)',
-          borderRadius: 6,
-          animation: 'pulse 1.5s ease-in-out infinite',
-          animationDelay: '0.3s',
-        }}
-      />
-      <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
-        <div
-          style={{
-            height: 26,
-            width: 70,
-            backgroundColor: 'rgba(255,255,255,0.04)',
-            borderRadius: 20,
-            animation: 'pulse 1.5s ease-in-out infinite',
-            animationDelay: '0.45s',
-          }}
-        />
-        <div
-          style={{
-            height: 26,
-            width: 90,
-            backgroundColor: 'rgba(255,255,255,0.04)',
-            borderRadius: 20,
-            animation: 'pulse 1.5s ease-in-out infinite',
-            animationDelay: '0.6s',
-          }}
-        />
-      </div>
-      <div
-        style={{
-          height: 8,
-          width: '100%',
-          backgroundColor: 'rgba(255,255,255,0.03)',
-          borderRadius: 4,
-          animation: 'pulse 1.5s ease-in-out infinite',
-          animationDelay: '0.75s',
-        }}
-      />
-      <div
-        style={{
-          height: 36,
-          width: '100%',
-          backgroundColor: 'rgba(255,255,255,0.03)',
-          borderRadius: 8,
-          animation: 'pulse 1.5s ease-in-out infinite',
-          animationDelay: '0.9s',
-        }}
-      />
-    </div>
+      <style>{`@keyframes shimmer{0%,100%{opacity:.5}50%{opacity:.2}}`}</style>
+      {[['60%', 20], ['90%', 14], ['75%', 14], ['40%', 26], ['100%', 8], ['100%', 38]].map(
+        ([w, h], i) => (
+          <div
+            key={i}
+            style={{
+              height: h,
+              width: w,
+              background: 'rgba(255,255,255,0.05)',
+              borderRadius: 8,
+              animation: `shimmer 1.8s ease-in-out infinite`,
+              animationDelay: `${i * 0.15}s`,
+            }}
+          />
+        )
+      )}
+    </motion.div>
   );
 }
 
@@ -274,39 +124,55 @@ function SkeletonCard() {
 
 function ProductCard({
   product,
-  onAddToResearch,
+  index,
 }: {
   product: WinningProduct;
-  onAddToResearch: (p: WinningProduct) => void;
+  index: number;
 }) {
   const [hovered, setHovered] = useState(false);
+  const compColor = competitionColor(product.competition);
+  const cogs = estimatedCOGS(product);
+  const marginNum = parseMidMargin(product.marginEstimate);
+
+  const prefillAndNavigate = (dest: string, param: string) => {
+    localStorage.setItem(param, product.name);
+    window.location.href = dest;
+  };
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.08, duration: 0.45, ease: 'easeOut' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        backgroundColor: colors.cardBg,
-        border: `1px solid ${hovered ? colors.borderHover : colors.border}`,
-        borderRadius: 16,
+        background: 'rgba(255,255,255,0.03)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        border: `1px solid ${hovered ? C.gold : C.border}`,
+        borderRadius: 20,
         padding: 24,
         display: 'flex',
         flexDirection: 'column',
-        gap: 14,
+        gap: 16,
         transition: 'border-color 0.25s ease, box-shadow 0.25s ease',
-        boxShadow: hovered ? `0 0 20px rgba(212,175,55,0.06)` : 'none',
+        boxShadow: hovered
+          ? `0 0 32px rgba(212,175,55,0.1), 0 8px 32px rgba(0,0,0,0.4)`
+          : '0 4px 16px rgba(0,0,0,0.2)',
+        cursor: 'default',
       }}
     >
-      {/* Title + Price */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      {/* Title + price */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
         <h3
           style={{
-            fontFamily: fonts.heading,
-            fontSize: 17,
-            fontWeight: 700,
-            color: colors.textPrimary,
+            fontFamily: 'Syne, sans-serif',
+            fontSize: 18,
+            fontWeight: 800,
+            color: C.textPrimary,
             margin: 0,
-            lineHeight: 1.3,
+            lineHeight: 1.25,
             flex: 1,
           }}
         >
@@ -314,217 +180,280 @@ function ProductCard({
         </h3>
         <span
           style={{
-            fontFamily: fonts.body,
-            fontSize: 13,
-            fontWeight: 600,
-            color: colors.gold,
+            fontFamily: 'Syne, sans-serif',
+            fontSize: 14,
+            fontWeight: 700,
+            color: C.gold,
             whiteSpace: 'nowrap',
-            marginLeft: 12,
           }}
         >
           {product.priceRange}
         </span>
       </div>
 
-      {/* Description */}
-      <p
-        style={{
-          fontFamily: fonts.body,
-          fontSize: 13,
-          color: colors.textSecondary,
-          margin: 0,
-          lineHeight: 1.55,
-        }}
-      >
-        {product.description}
-      </p>
-
-      {/* Trend Reason */}
+      {/* Why it's winning */}
       <div
         style={{
           display: 'flex',
-          alignItems: 'flex-start',
           gap: 8,
           padding: '10px 12px',
-          backgroundColor: 'rgba(212,175,55,0.04)',
-          borderRadius: 10,
-          border: `1px solid rgba(212,175,55,0.08)`,
+          background: 'rgba(212,175,55,0.05)',
+          borderRadius: 12,
+          border: '1px solid rgba(212,175,55,0.1)',
         }}
       >
-        <TrendingUp size={14} style={{ color: colors.gold, marginTop: 2, flexShrink: 0 }} />
+        <Zap size={13} style={{ color: C.gold, marginTop: 1, flexShrink: 0 }} />
         <span
           style={{
-            fontFamily: fonts.body,
+            fontFamily: 'DM Sans, sans-serif',
             fontSize: 12,
-            color: colors.textSecondary,
-            lineHeight: 1.5,
+            color: 'rgba(245,245,245,0.75)',
+            lineHeight: 1.55,
           }}
         >
           {product.trendReason}
         </span>
       </div>
 
-      {/* Badges Row */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
-        {/* Platform Badge */}
+      {/* 4 Metric Pills */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        {/* Trend Score */}
         <span
           style={{
-            fontFamily: fonts.body,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 5,
+            fontFamily: 'Syne, sans-serif',
             fontSize: 11,
-            fontWeight: 600,
-            color: platformColor(product.platform),
-            backgroundColor: `${platformColor(product.platform)}14`,
-            padding: '4px 10px',
+            fontWeight: 700,
+            color: C.gold,
+            background: 'rgba(212,175,55,0.1)',
+            border: '1px solid rgba(212,175,55,0.2)',
+            padding: '5px 10px',
             borderRadius: 20,
-            border: `1px solid ${platformColor(product.platform)}30`,
           }}
         >
-          {product.platform}
+          <Flame size={11} />
+          Trend Score: {product.trendScore}
         </span>
 
-        {/* Margin Badge */}
+        {/* Margin */}
         <span
           style={{
-            fontFamily: fonts.body,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 5,
+            fontFamily: 'Syne, sans-serif',
             fontSize: 11,
-            fontWeight: 600,
-            color: colors.green,
-            backgroundColor: `${colors.green}14`,
-            padding: '4px 10px',
+            fontWeight: 700,
+            color: C.green,
+            background: `${C.green}14`,
+            border: `1px solid ${C.green}30`,
+            padding: '5px 10px',
             borderRadius: 20,
-            border: `1px solid ${colors.green}30`,
           }}
         >
-          {product.marginEstimate} margin
+          <DollarSign size={11} />
+          Margin: {marginNum}%
         </span>
 
-        {/* Competition Badge */}
+        {/* Competition */}
         <span
           style={{
-            fontFamily: fonts.body,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 5,
+            fontFamily: 'Syne, sans-serif',
             fontSize: 11,
-            fontWeight: 600,
-            color: competitionColor(product.competition),
-            backgroundColor: `${competitionColor(product.competition)}14`,
-            padding: '4px 10px',
+            fontWeight: 700,
+            color: compColor,
+            background: `${compColor}14`,
+            border: `1px solid ${compColor}30`,
+            padding: '5px 10px',
             borderRadius: 20,
-            border: `1px solid ${competitionColor(product.competition)}30`,
           }}
         >
-          {product.competition} competition
+          <Award size={11} />
+          Competition: {product.competition}
+        </span>
+
+        {/* Avg COGS */}
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 5,
+            fontFamily: 'Syne, sans-serif',
+            fontSize: 11,
+            fontWeight: 700,
+            color: C.textSecondary,
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            padding: '5px 10px',
+            borderRadius: 20,
+          }}
+        >
+          <Package size={11} />
+          Avg COGS: {cogs}
         </span>
       </div>
 
-      {/* Trend Score Bar */}
+      {/* Trend Score Progress Bar */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <span
             style={{
-              fontFamily: fonts.body,
+              fontFamily: 'DM Sans, sans-serif',
               fontSize: 11,
-              fontWeight: 500,
-              color: colors.textMuted,
+              color: C.textMuted,
               textTransform: 'uppercase',
               letterSpacing: '0.05em',
             }}
           >
             Trend Score
           </span>
-          <span
-            style={{
-              fontFamily: fonts.heading,
-              fontSize: 13,
-              fontWeight: 700,
-              color: colors.gold,
-            }}
-          >
+          <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 700, color: C.gold }}>
             {product.trendScore}/100
           </span>
         </div>
         <div
           style={{
             height: 6,
-            width: '100%',
-            backgroundColor: 'rgba(255,255,255,0.04)',
+            background: 'rgba(255,255,255,0.05)',
             borderRadius: 3,
             overflow: 'hidden',
           }}
         >
-          <div
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${product.trendScore}%` }}
+            transition={{ delay: index * 0.08 + 0.3, duration: 0.8, ease: 'easeOut' }}
             style={{
               height: '100%',
-              width: `${product.trendScore}%`,
-              background: `linear-gradient(90deg, ${colors.gold}, ${colors.goldHover})`,
+              background: `linear-gradient(90deg, ${C.gold}, ${C.goldHover})`,
               borderRadius: 3,
-              transition: 'width 0.6s ease',
             }}
           />
         </div>
       </div>
 
-      {/* Add to Research Button */}
-      <button
-        onClick={() => onAddToResearch(product)}
+      {/* AU Badge */}
+      <div
         style={{
-          fontFamily: fonts.body,
-          fontSize: 13,
-          fontWeight: 600,
-          color: colors.gold,
-          backgroundColor: 'transparent',
-          border: `1px solid ${colors.gold}`,
-          borderRadius: 10,
-          padding: '10px 16px',
-          cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
           gap: 8,
-          transition: 'background-color 0.2s, color 0.2s',
-          marginTop: 2,
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = colors.gold;
-          e.currentTarget.style.color = '#000';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'transparent';
-          e.currentTarget.style.color = colors.gold;
+          padding: '8px 12px',
+          background: 'rgba(34,197,94,0.04)',
+          border: '1px solid rgba(34,197,94,0.15)',
+          borderRadius: 10,
         }}
       >
-        <Plus size={14} />
-        Add to Research
-      </button>
-    </div>
+        <Shield size={12} style={{ color: C.green, flexShrink: 0 }} />
+        <span
+          style={{
+            fontFamily: 'DM Sans, sans-serif',
+            fontSize: 11,
+            color: 'rgba(34,197,94,0.85)',
+            fontWeight: 500,
+          }}
+        >
+          🇦🇺 AU-specific · Low saturation · Afterpay eligible
+        </span>
+      </div>
+
+      {/* CTA Buttons */}
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button
+          onClick={() => prefillAndNavigate('/app/profit-calculator', 'majorka_profit_prefill')}
+          style={{
+            flex: 1,
+            fontFamily: 'DM Sans, sans-serif',
+            fontSize: 12,
+            fontWeight: 700,
+            color: '#000',
+            background: C.gold,
+            border: 'none',
+            borderRadius: 10,
+            padding: '10px 14px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            transition: 'background 0.2s',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = C.goldHover)}
+          onMouseLeave={(e) => (e.currentTarget.style.background = C.gold)}
+        >
+          Validate This
+          <ExternalLink size={11} />
+        </button>
+        <button
+          onClick={() => prefillAndNavigate('/app/product-discovery', 'majorka_discover_prefill')}
+          style={{
+            flex: 1,
+            fontFamily: 'DM Sans, sans-serif',
+            fontSize: 12,
+            fontWeight: 700,
+            color: C.gold,
+            background: 'transparent',
+            border: `1px solid ${C.gold}`,
+            borderRadius: 10,
+            padding: '10px 14px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 6,
+            transition: 'background 0.2s, color 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(212,175,55,0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'transparent';
+          }}
+        >
+          Find Suppliers
+          <ExternalLink size={11} />
+        </button>
+      </div>
+    </motion.div>
   );
 }
 
-// ── Main Page Component ──────────────────────────────────────────────────────
+// ── Main Component ───────────────────────────────────────────────────────────
 
 export default function WinningProducts() {
   const { session } = useAuth();
   const token = session?.access_token;
 
-  // Filters
   const [category, setCategory] = useState('All');
-  const [priceRange, setPriceRange] = useState('All');
-  const [platform, setPlatform] = useState('All');
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(200);
   const [sortBy, setSortBy] = useState('Trend Score');
 
-  // Product data
   const [products, setProducts] = useState<WinningProduct[]>([]);
   const [loading, setLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
-  // Daily subscription
-  const [subEmail, setSubEmail] = useState('');
-  const [subNiche, setSubNiche] = useState('General');
-  const [subscribing, setSubscribing] = useState(false);
+  const didMount = useRef(false);
 
-  // ── Fetch Products ───────────────────────────────────────────────────────
+  // ── Derived price range label ─────────────────────────────────────────
+  const priceRangeLabel =
+    maxPrice <= 30
+      ? 'Under $30'
+      : maxPrice <= 60
+        ? '$30-$60'
+        : maxPrice <= 100
+          ? '$60-$100'
+          : '$100+';
 
-  const fetchProducts = async () => {
+  // ── Fetch ─────────────────────────────────────────────────────────────
+  const fetchProducts = async (overrideCategory?: string) => {
+    const cat = overrideCategory ?? category;
     setLoading(true);
-    setHasSearched(true);
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -533,15 +462,13 @@ export default function WinningProducts() {
         method: 'POST',
         headers,
         body: JSON.stringify({
-          category: category === 'All' ? undefined : category,
-          priceRange: priceRange === 'All' ? undefined : priceRange,
-          platform: platform === 'All' ? undefined : platform,
+          category: cat === 'All' ? undefined : cat,
+          priceRange: priceRangeLabel === '$100+' ? undefined : priceRangeLabel,
           sortBy,
         }),
       });
 
       if (!res.ok) throw new Error('Failed to fetch winning products');
-
       const data = await res.json();
       setProducts(data.products ?? []);
     } catch (err: any) {
@@ -549,73 +476,65 @@ export default function WinningProducts() {
       setProducts([]);
     } finally {
       setLoading(false);
+      setHasLoaded(true);
     }
   };
 
-  // ── Subscribe to Daily Products ──────────────────────────────────────────
-
-  const handleSubscribe = async () => {
-    if (!subEmail.trim()) {
-      toast.error('Please enter your email');
-      return;
+  // Auto-load on mount
+  useEffect(() => {
+    if (!didMount.current) {
+      didMount.current = true;
+      fetchProducts();
     }
-    setSubscribing(true);
-    try {
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = `Bearer ${token}`;
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-      const res = await fetch('/api/tools/daily-products-subscribe', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ email: subEmail.trim(), niche: subNiche }),
-      });
-
-      if (!res.ok) throw new Error('Subscription failed');
-
-      toast.success('Subscribed! Check your inbox for daily winning products.');
-      setSubEmail('');
-    } catch (err: any) {
-      toast.error(err.message || 'Subscription failed');
-    } finally {
-      setSubscribing(false);
-    }
-  };
-
-  // ── Add to Research ──────────────────────────────────────────────────────
-
-  const handleAddToResearch = (product: WinningProduct) => {
-    toast.success(`"${product.name}" added to your research list`);
-  };
-
-  // ── Render ───────────────────────────────────────────────────────────────
-
+  // ── Render ─────────────────────────────────────────────────────────────
   return (
     <div
       style={{
         minHeight: '100vh',
-        backgroundColor: colors.pageBg,
-        fontFamily: fonts.body,
-        color: colors.textPrimary,
+        background: C.pageBg,
+        fontFamily: 'DM Sans, sans-serif',
+        color: C.textPrimary,
       }}
     >
-      {/* Pulse animation keyframes */}
       <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
+        @keyframes scanPulse {
+          0%,100% { opacity:.6 }
+          50% { opacity:1 }
+        }
+        @keyframes shimmer {
+          0%,100% { opacity:.5 }
+          50% { opacity:.2 }
+        }
+        .range-slider::-webkit-slider-thumb {
+          -webkit-appearance:none; width:18px; height:18px;
+          border-radius:50%; background:#d4af37; cursor:pointer;
+          border:2px solid #080a0e; box-shadow:0 0 8px rgba(212,175,55,.4);
+        }
+        .range-slider::-moz-range-thumb {
+          width:18px; height:18px; border-radius:50%;
+          background:#d4af37; cursor:pointer;
+          border:2px solid #080a0e; box-shadow:0 0 8px rgba(212,175,55,.4);
+        }
+        .range-slider {
+          -webkit-appearance:none; appearance:none;
+          background:#1e1e24; border-radius:4px; height:6px;
+          outline:none; width:100%; accent-color:#d4af37;
         }
       `}</style>
 
-      <div style={{ maxWidth: 960, margin: '0 auto', padding: '40px 20px 80px' }}>
-        {/* ── Header ──────────────────────────────────────────────────────── */}
-        <div style={{ marginBottom: 36 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10 }}>
+      <div style={{ maxWidth: 980, margin: '0 auto', padding: '40px 20px 80px' }}>
+
+        {/* ── Header ─────────────────────────────────────────────────── */}
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
             <h1
               style={{
-                fontFamily: fonts.heading,
-                fontSize: 28,
+                fontFamily: 'Syne, sans-serif',
+                fontSize: 30,
                 fontWeight: 800,
-                color: colors.textPrimary,
+                color: C.textPrimary,
                 margin: 0,
                 letterSpacing: '-0.02em',
               }}
@@ -624,11 +543,11 @@ export default function WinningProducts() {
             </h1>
             <span
               style={{
-                fontFamily: fonts.body,
-                fontSize: 11,
-                fontWeight: 700,
+                fontFamily: 'DM Sans, sans-serif',
+                fontSize: 10,
+                fontWeight: 800,
                 color: '#fff',
-                backgroundColor: colors.red,
+                background: C.red,
                 padding: '3px 10px',
                 borderRadius: 20,
                 textTransform: 'uppercase',
@@ -638,145 +557,364 @@ export default function WinningProducts() {
                 gap: 4,
               }}
             >
-              <Flame size={12} />
-              HOT
+              <Flame size={10} />
+              LIVE
             </span>
           </div>
           <p
             style={{
-              fontFamily: fonts.body,
-              fontSize: 15,
-              color: colors.textSecondary,
+              fontFamily: 'DM Sans, sans-serif',
+              fontSize: 14,
+              color: C.textSecondary,
               margin: 0,
               lineHeight: 1.5,
             }}
           >
-            AI-powered product discovery for the Australian market
+            AU-specific opportunities with low competition and margins above 40% — not Amazon
+            bestsellers.
           </p>
+
+          {/* AI scanning subtext */}
+          <AnimatePresence>
+            {loading && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  marginTop: 12,
+                  padding: '7px 14px',
+                  background: 'rgba(212,175,55,0.06)',
+                  border: '1px solid rgba(212,175,55,0.15)',
+                  borderRadius: 20,
+                }}
+              >
+                <div
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                    background: C.gold,
+                    animation: 'scanPulse 1.2s ease-in-out infinite',
+                  }}
+                />
+                <span
+                  style={{
+                    fontFamily: 'DM Sans, sans-serif',
+                    fontSize: 12,
+                    color: C.gold,
+                    animation: 'scanPulse 1.2s ease-in-out infinite',
+                  }}
+                >
+                  AI is scanning 50+ AU data sources…
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* ── Filter Bar ──────────────────────────────────────────────────── */}
+        {/* ── Filter Panel ───────────────────────────────────────────── */}
         <div
           style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 14,
-            alignItems: 'flex-end',
-            padding: 20,
-            backgroundColor: colors.cardBg,
-            border: `1px solid ${colors.border}`,
-            borderRadius: 14,
+            background: 'rgba(255,255,255,0.02)',
+            backdropFilter: 'blur(12px)',
+            border: `1px solid ${C.border}`,
+            borderRadius: 20,
+            padding: '20px 24px',
             marginBottom: 28,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 20,
           }}
         >
-          <FilterSelect
-            label="Category"
-            value={category}
-            options={CATEGORIES}
-            onChange={setCategory}
-          />
-          <FilterSelect
-            label="Price Range"
-            value={priceRange}
-            options={PRICE_RANGES}
-            onChange={setPriceRange}
-          />
-          <FilterSelect
-            label="Platform"
-            value={platform}
-            options={PLATFORMS}
-            onChange={setPlatform}
-          />
-          <FilterSelect
-            label="Sort By"
-            value={sortBy}
-            options={SORT_OPTIONS}
-            onChange={setSortBy}
-          />
+          {/* Category Chips */}
+          <div>
+            <div
+              style={{
+                fontFamily: 'DM Sans, sans-serif',
+                fontSize: 11,
+                fontWeight: 600,
+                color: C.textMuted,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                marginBottom: 12,
+              }}
+            >
+              Category
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {CATEGORY_CHIPS.map((cat) => {
+                const active = category === cat;
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setCategory(cat);
+                      fetchProducts(cat);
+                    }}
+                    style={{
+                      fontFamily: 'DM Sans, sans-serif',
+                      fontSize: 13,
+                      fontWeight: active ? 700 : 500,
+                      color: active ? '#000' : C.textSecondary,
+                      background: active ? C.gold : 'rgba(255,255,255,0.04)',
+                      border: `1px solid ${active ? C.gold : C.border}`,
+                      borderRadius: 20,
+                      padding: '8px 16px',
+                      cursor: 'pointer',
+                      transition: 'all 0.18s ease',
+                      whiteSpace: 'nowrap',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!active) {
+                        e.currentTarget.style.borderColor = C.gold;
+                        e.currentTarget.style.color = C.gold;
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!active) {
+                        e.currentTarget.style.borderColor = C.border;
+                        e.currentTarget.style.color = C.textSecondary;
+                      }
+                    }}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-          <button
-            onClick={fetchProducts}
-            disabled={loading}
-            style={{
-              fontFamily: fonts.body,
-              fontSize: 13,
-              fontWeight: 700,
-              color: '#000',
-              backgroundColor: colors.gold,
-              border: 'none',
-              borderRadius: 10,
-              padding: '10px 22px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              transition: 'background-color 0.2s, transform 0.1s',
-              opacity: loading ? 0.7 : 1,
-              marginLeft: 'auto',
-            }}
-            onMouseEnter={(e) => {
-              if (!loading) e.currentTarget.style.backgroundColor = colors.goldHover;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = colors.gold;
-            }}
-          >
-            {loading ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
-            Find Products
-          </button>
+          {/* Price Range Slider + Sort */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, alignItems: 'flex-end' }}>
+            {/* Price Range */}
+            <div style={{ flex: '1 1 240px', minWidth: 200 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: 10,
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: 'DM Sans, sans-serif',
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: C.textMuted,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                  }}
+                >
+                  Max Price (AUD)
+                </span>
+                <span
+                  style={{
+                    fontFamily: 'Syne, sans-serif',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: C.gold,
+                  }}
+                >
+                  ${maxPrice === 200 ? '200+' : maxPrice}
+                </span>
+              </div>
+              <input
+                type="range"
+                min={10}
+                max={200}
+                step={5}
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(parseInt(e.target.value))}
+                className="range-slider"
+              />
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginTop: 6,
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 11,
+                  color: C.textMuted,
+                }}
+              >
+                <span>$10</span>
+                <span>$50</span>
+                <span>$100</span>
+                <span>$200+</span>
+              </div>
+            </div>
+
+            {/* Sort + Find */}
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div>
+                <div
+                  style={{
+                    fontFamily: 'DM Sans, sans-serif',
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: C.textMuted,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    marginBottom: 8,
+                  }}
+                >
+                  Sort by
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {SORT_OPTIONS.map((opt) => (
+                    <button
+                      key={opt}
+                      onClick={() => setSortBy(opt)}
+                      style={{
+                        fontFamily: 'DM Sans, sans-serif',
+                        fontSize: 12,
+                        fontWeight: sortBy === opt ? 700 : 500,
+                        color: sortBy === opt ? '#000' : C.textSecondary,
+                        background: sortBy === opt ? C.gold : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${sortBy === opt ? C.gold : C.border}`,
+                        borderRadius: 8,
+                        padding: '7px 12px',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                onClick={() => fetchProducts()}
+                disabled={loading}
+                style={{
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: '#000',
+                  background: loading ? 'rgba(212,175,55,0.5)' : C.gold,
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: '12px 24px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  transition: 'background 0.2s',
+                  whiteSpace: 'nowrap',
+                  marginTop: 22,
+                }}
+                onMouseEnter={(e) => {
+                  if (!loading) e.currentTarget.style.background = C.goldHover;
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading) e.currentTarget.style.background = C.gold;
+                }}
+              >
+                {loading ? (
+                  <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} />
+                ) : (
+                  <Search size={14} />
+                )}
+                Refresh
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* ── Product Grid ────────────────────────────────────────────────── */}
+        {/* ── Positioning Banner (shows when results are loaded) ─────── */}
+        <AnimatePresence>
+          {hasLoaded && !loading && products.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '14px 20px',
+                background: 'rgba(212,175,55,0.05)',
+                border: '1px solid rgba(212,175,55,0.18)',
+                borderRadius: 14,
+                marginBottom: 24,
+              }}
+            >
+              <TrendingUp size={16} style={{ color: C.gold, flexShrink: 0 }} />
+              <span
+                style={{
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontSize: 13,
+                  color: 'rgba(245,245,245,0.85)',
+                  lineHeight: 1.5,
+                }}
+              >
+                <strong style={{ color: C.gold, fontFamily: 'Syne, sans-serif' }}>
+                  Not Amazon bestsellers.
+                </strong>{' '}
+                These are AU-specific opportunities with low competition and margins above 40%.
+                Most aren't on Shopify yet.
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Product Grid ────────────────────────────────────────────── */}
         {loading ? (
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))',
               gap: 20,
             }}
+            className="product-grid"
           >
-            {Array.from({ length: 4 }).map((_, i) => (
-              <SkeletonCard key={i} />
+            {Array.from({ length: 3 }).map((_, i) => (
+              <SkeletonCard key={i} index={i} />
             ))}
           </div>
         ) : products.length > 0 ? (
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))',
               gap: 20,
             }}
+            className="product-grid"
           >
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToResearch={handleAddToResearch}
-              />
+            {products.map((product, i) => (
+              <ProductCard key={product.id} product={product} index={i} />
             ))}
           </div>
-        ) : hasSearched ? (
-          /* ── Empty State ──────────────────────────────────────────────── */
-          <div
+        ) : hasLoaded ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '64px 24px',
-              backgroundColor: colors.cardBg,
-              border: `1px solid ${colors.border}`,
-              borderRadius: 16,
+              padding: '72px 24px',
+              background: 'rgba(255,255,255,0.02)',
+              border: `1px solid ${C.border}`,
+              borderRadius: 20,
               textAlign: 'center',
             }}
           >
-            <PackageSearch size={48} style={{ color: colors.textMuted, marginBottom: 16 }} />
+            <Search size={40} style={{ color: C.textMuted, marginBottom: 16, opacity: 0.5 }} />
             <h3
               style={{
-                fontFamily: fonts.heading,
+                fontFamily: 'Syne, sans-serif',
                 fontSize: 18,
                 fontWeight: 700,
-                color: colors.textPrimary,
+                color: C.textPrimary,
                 margin: '0 0 8px',
               }}
             >
@@ -784,280 +922,49 @@ export default function WinningProducts() {
             </h3>
             <p
               style={{
-                fontFamily: fonts.body,
+                fontFamily: 'DM Sans, sans-serif',
                 fontSize: 14,
-                color: colors.textSecondary,
+                color: C.textSecondary,
                 margin: '0 0 24px',
-                maxWidth: 400,
+                maxWidth: 360,
                 lineHeight: 1.5,
               }}
             >
-              Try adjusting your filters or broadening your search criteria to discover trending
-              products.
+              Try a different category or adjust your price range to discover more opportunities.
             </p>
             <button
               onClick={() => {
                 setCategory('All');
-                setPriceRange('All');
-                setPlatform('All');
-                setSortBy('Trend Score');
-                fetchProducts();
+                setMaxPrice(200);
+                fetchProducts('All');
               }}
               style={{
-                fontFamily: fonts.body,
+                fontFamily: 'DM Sans, sans-serif',
                 fontSize: 13,
-                fontWeight: 600,
+                fontWeight: 700,
                 color: '#000',
-                backgroundColor: colors.gold,
+                background: C.gold,
                 border: 'none',
                 borderRadius: 10,
                 padding: '10px 24px',
                 cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                transition: 'background-color 0.2s',
+                transition: 'background 0.2s',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.goldHover)}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = colors.gold)}
+              onMouseEnter={(e) => (e.currentTarget.style.background = C.goldHover)}
+              onMouseLeave={(e) => (e.currentTarget.style.background = C.gold)}
             >
-              <Search size={14} />
-              Search All Products
+              Show All Products
             </button>
-          </div>
-        ) : (
-          /* ── Initial State (before any search) ────────────────────────── */
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '64px 24px',
-              backgroundColor: colors.cardBg,
-              border: `1px solid ${colors.border}`,
-              borderRadius: 16,
-              textAlign: 'center',
-            }}
-          >
-            <ShoppingBag size={48} style={{ color: colors.gold, marginBottom: 16, opacity: 0.6 }} />
-            <h3
-              style={{
-                fontFamily: fonts.heading,
-                fontSize: 18,
-                fontWeight: 700,
-                color: colors.textPrimary,
-                margin: '0 0 8px',
-              }}
-            >
-              Discover Winning Products
-            </h3>
-            <p
-              style={{
-                fontFamily: fonts.body,
-                fontSize: 14,
-                color: colors.textSecondary,
-                margin: '0 0 24px',
-                maxWidth: 420,
-                lineHeight: 1.5,
-              }}
-            >
-              Set your filters and hit "Find Products" to surface AI-curated trending products for
-              the Australian ecommerce market.
-            </p>
-            <button
-              onClick={fetchProducts}
-              style={{
-                fontFamily: fonts.body,
-                fontSize: 13,
-                fontWeight: 700,
-                color: '#000',
-                backgroundColor: colors.gold,
-                border: 'none',
-                borderRadius: 10,
-                padding: '12px 28px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                transition: 'background-color 0.2s',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.goldHover)}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = colors.gold)}
-            >
-              <Search size={14} />
-              Find Products
-            </button>
-          </div>
-        )}
-
-        {/* ── Daily Subscription CTA ──────────────────────────────────────── */}
-        <div
-          style={{
-            marginTop: 48,
-            padding: 32,
-            backgroundColor: colors.cardBg,
-            border: `1px solid ${colors.border}`,
-            borderRadius: 16,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-            gap: 20,
-          }}
-        >
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 12,
-              backgroundColor: 'rgba(212,175,55,0.08)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Mail size={22} style={{ color: colors.gold }} />
-          </div>
-
-          <div>
-            <h3
-              style={{
-                fontFamily: fonts.heading,
-                fontSize: 20,
-                fontWeight: 700,
-                color: colors.textPrimary,
-                margin: '0 0 6px',
-              }}
-            >
-              Get Daily Winning Products by Email
-            </h3>
-            <p
-              style={{
-                fontFamily: fonts.body,
-                fontSize: 14,
-                color: colors.textSecondary,
-                margin: 0,
-                maxWidth: 480,
-                lineHeight: 1.5,
-              }}
-            >
-              Receive curated product picks tailored to your niche every morning. Stay ahead of
-              trends without lifting a finger.
-            </p>
-          </div>
-
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 10,
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '100%',
-              maxWidth: 560,
-            }}
-          >
-            <input
-              type="email"
-              placeholder="your@email.com"
-              value={subEmail}
-              onChange={(e) => setSubEmail(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSubscribe()}
-              style={{
-                fontFamily: fonts.body,
-                fontSize: 13,
-                color: colors.textPrimary,
-                backgroundColor: colors.pageBg,
-                border: `1px solid ${colors.border}`,
-                borderRadius: 10,
-                padding: '10px 14px',
-                outline: 'none',
-                flex: '1 1 200px',
-                minWidth: 180,
-                transition: 'border-color 0.2s',
-              }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = colors.gold)}
-              onBlur={(e) => (e.currentTarget.style.borderColor = colors.border)}
-            />
-
-            <div style={{ position: 'relative', flex: '0 1 180px' }}>
-              <select
-                value={subNiche}
-                onChange={(e) => setSubNiche(e.target.value)}
-                style={{
-                  fontFamily: fonts.body,
-                  fontSize: 13,
-                  color: colors.textPrimary,
-                  backgroundColor: colors.pageBg,
-                  border: `1px solid ${colors.border}`,
-                  borderRadius: 10,
-                  padding: '10px 32px 10px 14px',
-                  appearance: 'none',
-                  outline: 'none',
-                  cursor: 'pointer',
-                  width: '100%',
-                  transition: 'border-color 0.2s',
-                }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = colors.gold)}
-                onBlur={(e) => (e.currentTarget.style.borderColor = colors.border)}
-              >
-                {NICHES.map((n) => (
-                  <option key={n} value={n} style={{ backgroundColor: '#111', color: '#fff' }}>
-                    {n}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown
-                size={14}
-                style={{
-                  position: 'absolute',
-                  right: 10,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: colors.textMuted,
-                  pointerEvents: 'none',
-                }}
-              />
-            </div>
-
-            <button
-              onClick={handleSubscribe}
-              disabled={subscribing}
-              style={{
-                fontFamily: fonts.body,
-                fontSize: 13,
-                fontWeight: 700,
-                color: '#000',
-                backgroundColor: colors.gold,
-                border: 'none',
-                borderRadius: 10,
-                padding: '10px 22px',
-                cursor: subscribing ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                opacity: subscribing ? 0.7 : 1,
-                transition: 'background-color 0.2s',
-                whiteSpace: 'nowrap',
-              }}
-              onMouseEnter={(e) => {
-                if (!subscribing) e.currentTarget.style.backgroundColor = colors.goldHover;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = colors.gold;
-              }}
-            >
-              {subscribing ? (
-                <Loader2 size={14} className="animate-spin" />
-              ) : (
-                <ArrowRight size={14} />
-              )}
-              Subscribe
-            </button>
-          </div>
-        </div>
+          </motion.div>
+        ) : null}
       </div>
+
+      <style>{`
+        @keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+        @media (max-width: 520px) {
+          .product-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

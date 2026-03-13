@@ -258,10 +258,120 @@ export default function AdsStudio() {
           </div>
         )}
         {!loading && !campaign && (
-          <div className="flex flex-col items-center justify-center h-64 text-center text-neutral-500">
-            <Wand2 className="w-12 h-12 mb-4 opacity-30" />
-            <p className="font-medium">Your campaign will appear here</p>
-            <p className="text-sm mt-1">Fill in the details and click Generate</p>
+          <div className="flex flex-col items-center gap-8 py-8 px-4 max-w-md mx-auto">
+            {/* Explanation text */}
+            <div className="text-center">
+              <p className="font-semibold text-white mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>
+                Preview: What your ad pack looks like
+              </p>
+              <p className="text-sm text-neutral-400">
+                Fill in your product details to generate 5 variations like this.
+              </p>
+            </div>
+
+            {/* Realistic Facebook Ad Preview Card */}
+            <div
+              className="w-full rounded-2xl overflow-hidden"
+              style={{
+                background: '#1c1e21',
+                border: '1px solid #d4af37',
+                boxShadow: '0 0 24px rgba(212,175,55,0.12)',
+                maxWidth: 360,
+              }}
+            >
+              {/* FB Post Header */}
+              <div className="flex items-center gap-3 p-4">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0"
+                  style={{ background: '#d4af37', color: '#000', fontFamily: 'Syne, sans-serif' }}
+                >
+                  M
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-bold text-white leading-tight">Your Brand</div>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="text-xs text-neutral-400">Sponsored</span>
+                    <span className="text-neutral-600">·</span>
+                    <svg width="10" height="10" viewBox="0 0 16 16" fill="#1877f2">
+                      <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm.93 9.412l-1 4.246a.999.999 0 0 1-1.916-.162l-.9-4.083H4a1 1 0 0 1 0-2h2c.435 0 .82.279.943.696l.468 1.686.916-3.893A1 1 0 0 1 9.29 5.5h2.2a1 1 0 0 1 0 2H9.93z"/>
+                    </svg>
+                  </div>
+                </div>
+                <div className="text-neutral-500 text-xl leading-none">···</div>
+              </div>
+
+              {/* Primary text */}
+              <div className="px-4 pb-3">
+                <p className="text-sm text-neutral-200 leading-relaxed">
+                  Tired of paying too much? This{' '}
+                  <span className="text-[#d4af37] font-semibold">limited-time deal</span> ships
+                  free to Australia. Join 10,000+ happy customers. 🇦🇺
+                </p>
+              </div>
+
+              {/* Product image placeholder */}
+              <div
+                className="w-full flex flex-col items-center justify-center gap-2"
+                style={{
+                  height: 180,
+                  background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+                }}
+              >
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)' }}
+                >
+                  <Image className="w-6 h-6 text-[#d4af37] opacity-60" />
+                </div>
+                <span className="text-xs text-neutral-500">AI-generated product image</span>
+              </div>
+
+              {/* Headline + CTA row */}
+              <div
+                className="flex items-center justify-between px-4 py-3"
+                style={{ background: '#2d2f33', borderTop: '1px solid rgba(255,255,255,0.06)' }}
+              >
+                <div className="flex-1 min-w-0 pr-3">
+                  <div className="text-xs text-neutral-400 uppercase tracking-wide truncate">
+                    majorka.com.au
+                  </div>
+                  <div
+                    className="text-sm font-bold text-white leading-tight mt-0.5 truncate"
+                    style={{ fontFamily: 'Syne, sans-serif' }}
+                  >
+                    🔥 Buy 2 Get 1 Free — Today Only
+                  </div>
+                  <div className="text-xs text-neutral-400 mt-0.5 truncate">
+                    Free AU shipping · Afterpay available
+                  </div>
+                </div>
+                <button
+                  className="flex-shrink-0 text-xs font-bold px-4 py-2 rounded-lg"
+                  style={{
+                    background: '#d4af37',
+                    color: '#000',
+                    cursor: 'default',
+                    fontFamily: 'Syne, sans-serif',
+                  }}
+                >
+                  Shop Now
+                </button>
+              </div>
+
+              {/* FB reactions bar */}
+              <div
+                className="flex items-center justify-between px-4 py-2 text-xs text-neutral-500"
+                style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
+              >
+                <span>👍 ❤️ 😮 &nbsp; 2.4k</span>
+                <span>148 comments · 312 shares</span>
+              </div>
+            </div>
+
+            <p className="text-xs text-neutral-600 text-center">
+              This is a sample preview. Your actual ad copy and image will be AI-generated from
+              your product details.
+            </p>
           </div>
         )}
         {campaign && (
