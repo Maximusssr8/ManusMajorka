@@ -620,6 +620,7 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
           toolName: 'website-generator',
           systemPrompt: buildSystemPrompt(vibe, platform, accentColor),
           market: getStoredMarket(),
+          stream: false,
         }),
       });
 

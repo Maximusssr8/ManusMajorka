@@ -2,9 +2,6 @@
  * Stripe integration — checkout sessions and webhook handling.
  * Uses STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET from process.env.
  */
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error stripe will be available after pnpm install
-
 import type { Express } from 'express';
 import express from 'express';
 import Stripe from 'stripe';

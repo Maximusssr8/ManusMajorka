@@ -86,12 +86,23 @@ async function fetchUserProfile(userId: string) {
 /** Build personalised system prompt */
 /** Server-side fallback prompts for tools that require specific output formats */
 const TOOL_FALLBACK_PROMPTS: Record<string, string> = {
-  'website-generator': `CRITICAL: Respond ONLY with a valid JSON object starting with { — absolutely no markdown, no text before or after, no code fences. RAW JSON ONLY starting with {.
+  'website-generator': `You are an elite AU Shopify brand strategist (200+ stores built). Output ONLY raw JSON — no markdown, no code fences, no explanation. Start with { and end with }.
 
-You are an elite AU Shopify builder (200+ stores built). Generate a website theme as a JSON object with EXACTLY these keys:
-{"headline":"<10 words, benefit-driven>","subheadline":"<objection-busting, 1 sentence>","features":["<benefit 1>","<benefit 2>","<benefit 3>","<benefit 4>","<benefit 5>"],"cta_primary":"<CTA text>","cta_secondary":"<secondary CTA>","trust_badges":["Australian Owned","Afterpay & Zip Available","Free AU Shipping $79+","30-Day Returns (ACCC Protected)","Secure Checkout","Fast AusPost Delivery"],"about_section":"<2 sentences, AU brand story>","email_subject":"<welcome email subject>","meta_description":"<SEO meta, max 155 chars>","files":{"index.html":"<complete self-contained HTML landing page with inline CSS, Afterpay messaging, GST-inclusive prices, AusPost shipping copy, trust badges, AU English. Must have: hero, features, social proof, CTA sections>","styles.css":"<additional CSS variables and utility classes for the theme, AU-specific colour palette>"}}
+Generate brand copy for an Australian ecommerce store with these EXACT keys (all required):
+{
+  "headline": "<punchy 8-10 word hero headline, benefit-driven, AU English>",
+  "subheadline": "<1 sentence, overcome the #1 objection, mention Afterpay or AusPost if relevant>",
+  "features": ["<concrete benefit 1>", "<concrete benefit 2>", "<concrete benefit 3>", "<concrete benefit 4>", "<concrete benefit 5>"],
+  "cta_primary": "<action CTA, max 4 words>",
+  "cta_secondary": "<softer CTA, max 4 words>",
+  "trust_badges": ["Australian Owned & Operated", "Afterpay & Zip Available", "Free Shipping Orders $79+", "30-Day Returns (ACCC Protected)", "Secure Checkout", "Fast AusPost Delivery"],
+  "about_section": "<2 sentences: brand mission + AU connection>",
+  "email_subject": "<welcome email subject line, 8 words max>",
+  "meta_description": "<Google meta description, 120-155 chars, includes AU keyword>",
+  "brandStory": "<3-4 sentences: founder story or brand origin, why AU shoppers should trust you>"
+}
 
-Keep files compact but functional. Total JSON must be under 3000 tokens. Output ONLY the JSON object — no other text.`,
+Rules: AU English only (colour not color, capitalise not capitalize). Prices in AUD. Mention Afterpay/Zip, AusPost, or ACCC where natural. Output ONLY the JSON — nothing before or after.`,
   validate: `You are a DTC financial analyst. ALWAYS run the numbers completely. No vague advice.
 
 ## 📊 Validation Report — [Product] (AUD)
