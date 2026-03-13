@@ -69,8 +69,8 @@ const DEMO_PROMPTS = [
   "What's the profit margin if I buy for $12 and sell for $59 with $15 Meta spend?",
 ];
 
-const DEMO_USES_KEY = 'majorka_demo_uses';
-const MAX_DEMO_USES = 3;
+const DEMO_USES_KEY = `majorka_demo_uses_${new Date().toDateString()}`;
+const MAX_DEMO_USES = 5;
 
 function getDemoUses(): number {
   try {
@@ -220,7 +220,7 @@ export default function LiveDemoWidget() {
 
       setStreaming(false);
       if (!fullText) {
-        setResponse('Maya analysed your request. Sign up to see the full results with detailed market data, supplier contacts, and ad angles.');
+        setResponse("You've used your free queries. Sign up free to keep going — unlimited access, all 20+ tools, no credit card needed.");
       }
 
       // If used all, show signup after response
@@ -559,7 +559,7 @@ export default function LiveDemoWidget() {
           <div style={{ width: 14, height: 14, borderRadius: 3, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ fontSize: 8, color: '#d4af37', fontWeight: 900 }}>A</span>
           </div>
-          <span style={{ fontSize: 11, color: '#3f3f46', fontFamily: dm }}>Powered by Claude</span>
+          <span style={{ fontSize: 11, color: '#3f3f46', fontFamily: dm }}>Powered by Majorka AI</span>
         </div>
       </div>
     </div>
