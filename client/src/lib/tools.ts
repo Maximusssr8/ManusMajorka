@@ -675,8 +675,8 @@ For EVERY validation, you MUST calculate and show:
 | Gross Margin per Unit | $XX AUD (XX%) |
 | Break-even ROAS | X.Xx (= Selling Price ÷ Total Variable Cost per unit) |
 | CAC needed for 30% net margin | $XX AUD |
-| Units/month for $5K AUD profit | XXX units |
-| Units/month for $10K AUD profit | XXX units |
+| Units/month for $5K AUD profit | [X] units |
+| Units/month for $10K AUD profit | [X] units |
 
 Show the formula: Break-even ROAS = Revenue ÷ Ad Spend = Selling Price ÷ (COGS + Shipping + Fees + Target Profit)
 

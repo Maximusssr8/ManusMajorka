@@ -353,9 +353,6 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const { sendPlaybook } = await import("./lib/email");
         const result = await sendPlaybook(input.to, input.content);
-        if (result && "noKey" in result && result.noKey) {
-          return { success: false, noKey: true };
-        }
         if (result && "error" in result && result.error) {
           throw new Error(String(result.error));
         }

@@ -22,7 +22,6 @@ import { getActivityLog, getRelativeTime, type ActivityEntry } from "@/lib/activ
 import LaunchReadiness from "@/components/LaunchReadiness";
 import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
-import { AreaChart, Area, ResponsiveContainer } from "recharts";
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -83,22 +82,16 @@ export default function Dashboard() {
   );
 }
 
-// Sparkline data (static mock shape, different per card)
-const SPARKLINES = [
-  [{ v: 2 }, { v: 3 }, { v: 2 }, { v: 4 }, { v: 3 }, { v: 5 }, { v: 4 }],
-  [{ v: 1 }, { v: 3 }, { v: 2 }, { v: 5 }, { v: 3 }, { v: 6 }, { v: 5 }],
-  [{ v: 3 }, { v: 2 }, { v: 4 }, { v: 3 }, { v: 5 }, { v: 4 }, { v: 6 }],
-  [{ v: 2 }, { v: 4 }, { v: 3 }, { v: 5 }, { v: 4 }, { v: 6 }, { v: 7 }],
-];
+
 
 function StatCard({
   label, numericValue, displayValue, sub, subColor,
-  icon: Icon, iconColor, iconBg, change, sparkIdx,
+  icon: Icon, iconColor, iconBg, sparkIdx,
 }: {
   label: string; numericValue: number | null; displayValue?: string;
   sub: string; subColor: string;
   icon: React.ElementType; iconColor: string; iconBg: string;
-  change?: string; sparkIdx: number;
+  sparkIdx: number;
 }) {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
 
@@ -115,11 +108,7 @@ function StatCard({
           </div>
           <span className="text-xs font-medium" style={{ color: "#71717a" }}>{label}</span>
         </div>
-        {change && (
-          <span className="text-xs px-2 py-0.5 rounded-full" style={{ color: "#22c55e", background: "rgba(34,197,94,0.1)" }}>
-            {change}
-          </span>
-        )}
+        {/* change badges removed — would need real analytics data */}
       </div>
 
       <div className="text-2xl font-bold mb-1" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5", letterSpacing: "-0.02em" }}>
@@ -131,41 +120,22 @@ function StatCard({
       </div>
       <div className="text-xs mb-2" style={{ color: subColor }}>{sub}</div>
 
-      {/* Sparkline */}
-      <div style={{ height: 32, marginTop: 4 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={SPARKLINES[sparkIdx]} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id={`spark-grad-${sparkIdx}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#d4af37" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="#d4af37" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <Area
-              type="monotone" dataKey="v"
-              stroke="#d4af37" strokeWidth={1.5}
-              fill={`url(#spark-grad-${sparkIdx})`}
-              dot={false} isAnimationActive={inView}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
+      {/* Sparklines hidden — real chart data not yet wired */}
     </div>
   );
 }
 
-// "X sellers joined this week" counter
+// Community badge — static, honest copy
 function SellersJoinedBadge() {
-  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
   return (
-    <div ref={ref} style={{
+    <div style={{
       display: "inline-flex", alignItems: "center", gap: 6,
       background: "rgba(212,175,55,0.07)", border: "1px solid rgba(212,175,55,0.18)",
       borderRadius: 100, padding: "4px 12px",
     }}>
       <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 6px #22c55e" }} />
       <span style={{ fontSize: 12, color: "#d4af37", fontWeight: 600 }}>
-        {inView ? <CountUp start={0} end={47} duration={1.2} /> : "47"} sellers joined this week
+        Growing community of sellers worldwide
       </span>
     </div>
   );
@@ -259,7 +229,7 @@ function DashboardHome() {
             sub={productCount > 0 ? "Active" : "Add your first product"}
             subColor={productCount > 0 ? "#10b981" : "#52525b"}
             icon={Package} iconColor="#3b82f6" iconBg="rgba(59,130,246,0.1)"
-            change="+12%" sparkIdx={0}
+            sparkIdx={0}
           />
           <StatCard
             label="Tools Today"
@@ -267,7 +237,7 @@ function DashboardHome() {
             sub={toolsToday > 0 ? `${toolsToday} tool${toolsToday !== 1 ? "s" : ""} used` : "Start exploring"}
             subColor={toolsToday > 0 ? "#10b981" : "#52525b"}
             icon={Zap} iconColor="#d4af37" iconBg="rgba(212,175,55,0.1)"
-            change="+8%" sparkIdx={1}
+            sparkIdx={1}
           />
           <StatCard
             label="AI Requests"
@@ -275,17 +245,18 @@ function DashboardHome() {
             sub={aiCount > 0 ? "Requests today" : "Ask anything"}
             subColor={aiCount > 0 ? "#10b981" : "#52525b"}
             icon={MessageSquare} iconColor="#8b5cf6" iconBg="rgba(139,92,246,0.1)"
-            change="+24%" sparkIdx={2}
+            sparkIdx={2}
           />
+          {/* Revenue: shows real order data when available, else "—" (productCount×49 estimate removed) */}
           <StatCard
-            label={timeSavedHours > 0 ? "Time Saved" : orderCount > 0 ? "Revenue (AUD)" : "Est. Potential"}
-            numericValue={timeSavedHours > 0 ? null : ordersQuery.isLoading ? null : revenuePotential}
-            displayValue={timeSavedHours > 0 ? `${timeSavedHours}h` : undefined}
-            sub={timeSavedHours > 0 ? "Hours saved with AI" : orderCount > 0 ? `${orderCount} order${orderCount !== 1 ? "s" : ""}` : "AUD estimate"}
+            label={timeSavedHours > 0 ? "Time Saved" : orderCount > 0 ? "Revenue (AUD)" : "Revenue (AUD)"}
+            numericValue={timeSavedHours > 0 ? null : ordersQuery.isLoading ? null : orderCount > 0 ? revenuePotential : null}
+            displayValue={timeSavedHours > 0 ? `${timeSavedHours}h` : orderCount === 0 && !ordersQuery.isLoading ? "—" : undefined}
+            sub={timeSavedHours > 0 ? "Hours saved with AI" : orderCount > 0 ? `${orderCount} order${orderCount !== 1 ? "s" : ""}` : "Connect your store"}
             subColor={timeSavedHours > 0 || orderCount > 0 ? "#10b981" : "#52525b"}
             icon={timeSavedHours > 0 ? Timer : BarChart2}
             iconColor="#10b981" iconBg="rgba(16,185,129,0.1)"
-            change="+5%" sparkIdx={3}
+            sparkIdx={3}
           />
         </div>
 

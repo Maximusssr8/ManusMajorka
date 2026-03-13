@@ -9,6 +9,7 @@
 import type { Application } from "express";
 import { getAnthropicClient, CLAUDE_MODEL } from "../lib/anthropic";
 import { getSupabaseAdmin } from "./supabase";
+import { rateLimit } from "../lib/rate-limit";
 import { type MarketCode, MARKETS, buildMarketContext, DEFAULT_MARKET } from "../../shared/markets";
 
 const MAX_HISTORY = 20;
@@ -157,6 +158,31 @@ export function registerChatRoutes(app: Application) {
     try {
       const { messages: rawMessages, message, systemPrompt, toolName = "ai-chat", searchQuery, market: rawMarket } = req.body;
       const market = (rawMarket && rawMarket in MARKETS ? rawMarket : DEFAULT_MARKET) as MarketCode;
+
+      // ── Auth check + rate limiting for unauthenticated users ───────────
+      // Check for valid Bearer token first
+      const earlyAuthHeader = req.headers.authorization;
+      let isAuthenticatedRequest = false;
+      if (earlyAuthHeader?.startsWith("Bearer ")) {
+        try {
+          const token = earlyAuthHeader.slice(7);
+          const { data: { user }, error } = await getSupabaseAdmin().auth.getUser(token);
+          if (!error && user) isAuthenticatedRequest = true;
+        } catch { /* token invalid */ }
+      }
+
+      if (!isAuthenticatedRequest) {
+        // Apply rate limit: 3 requests per hour per IP for unauthenticated users
+        const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket.remoteAddress || "unknown";
+        const { allowed, retryAfter } = rateLimit(`chat:${ip}`, 3, 60 * 60 * 1000);
+        if (!allowed) {
+          res.status(429).json({
+            error: "Sign up free to continue using Majorka AI",
+            retryAfter,
+          });
+          return;
+        }
+      }
 
       // Accept both formats: messages array or singular message
       let messages = rawMessages;

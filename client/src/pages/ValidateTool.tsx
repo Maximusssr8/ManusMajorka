@@ -21,8 +21,8 @@ For EVERY validation, calculate and show this table:
 | Contribution Margin | $XX AUD (XX%) |
 | Break-even ROAS | X.Xx |
 | CAC for 30% net margin | $XX AUD |
-| Units/month for $5K AUD profit | XXX units |
-| Units/month for $10K AUD profit | XXX units |
+| Units/month for $5K AUD profit | [X] units |
+| Units/month for $10K AUD profit | [X] units |
 
 Formula shown explicitly:
 **Break-even ROAS = Selling Price ÷ Ad Spend per unit = Selling Price ÷ (Selling Price − Contribution Margin)**

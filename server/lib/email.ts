@@ -3,11 +3,6 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendPlaybook(to: string, playbookContent: string) {
-  // If no API key, return a signal to show fallback modal
-  if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === "re_placeholder") {
-    return { noKey: true };
-  }
-
   return resend.emails.send({
     from: "Majorka AI <hello@majorka.ai>",
     to,

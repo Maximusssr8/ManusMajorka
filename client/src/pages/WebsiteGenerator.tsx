@@ -753,7 +753,7 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
     </div>
   </div>
   <div class="footer-bottom">
-    <p>© {{ 'now' | date: '%Y' }} ${name}. All rights reserved. ABN: XX XXX XXX XXX</p>
+    <p>© {{ 'now' | date: '%Y' }} ${name}. All rights reserved. ABN: [Enter your ABN]</p>
     <p>Australian Consumer Law applies. All prices in AUD and include GST.</p>
   </div>
 </footer>
@@ -761,7 +761,7 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
 {
   "name": "Footer",
   "settings": [
-    { "type": "text", "id": "abn", "label": "ABN", "default": "XX XXX XXX XXX" }
+    { "type": "text", "id": "abn", "label": "ABN", "default": "" }
   ]
 }
 {% endschema %}`);
@@ -1707,7 +1707,7 @@ footer{text-align:center;padding:32px;font-size:12px;opacity:.4;border-top:1px s
 <span class="badge">✓ Easy Returns</span>
 <span class="badge">✓ Secure Payments</span>
 </div>
-<footer>© 2026 ${templatePreview.storeName}. All rights reserved. ABN: XX XXX XXX XXX</footer>
+<footer>© 2026 ${templatePreview.storeName}. All rights reserved. ABN: [Enter your ABN]</footer>
 </body>
 </html>`}
               className="w-full border-none"
