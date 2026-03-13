@@ -48,8 +48,9 @@ async function authenticateRequest(req: any): Promise<{ userId: string; email: s
 // Route registration
 // ---------------------------------------------------------------------------
 
-// ── In-memory rate limiter for /api/products/refresh (1/hr per user) ────────
+// ── In-memory rate limiters ──────────────────────────────────────────────────
 const refreshLimiter = new Map<string, number>(); // userId → last triggered ms
+const trendsRefreshLimiter = new Map<string, number>(); // userId → last triggered ms
 const REFRESH_COOLDOWN_MS = 60 * 60 * 1000; // 1 hour
 
 export function registerToolsApi(app: Application): void {
@@ -92,6 +93,43 @@ export function registerToolsApi(app: Application): void {
       res.json({ triggered: false, message: `Refresh error: ${err.message}`, nextAllowedAt: nextAt });
     }
   });
+  // -----------------------------------------------------------------------
+  // POST /api/trends/refresh — manual trigger for trend detection (auth, 1/hr)
+  // -----------------------------------------------------------------------
+  app.post('/api/trends/refresh', async (req, res) => {
+    const authUser = await authenticateRequest(req);
+    if (!authUser) {
+      res.status(401).json({ error: 'Unauthorized — Bearer token required' });
+      return;
+    }
+
+    const now = Date.now();
+    const lastRun = trendsRefreshLimiter.get(authUser.userId) ?? 0;
+    const nextAllowedAt = new Date(lastRun + REFRESH_COOLDOWN_MS).toISOString();
+
+    if (now - lastRun < REFRESH_COOLDOWN_MS) {
+      res.status(429).json({ error: 'Rate limited — 1 refresh per hour', nextAllowedAt });
+      return;
+    }
+
+    trendsRefreshLimiter.set(authUser.userId, now);
+
+    const nextAt = new Date(now + REFRESH_COOLDOWN_MS).toISOString();
+    try {
+      const { detectTrends } = await import('./trend-detection.js');
+      detectTrends()
+        .then((trends) => {
+          console.log(`[trends/refresh] ✅ ${trends.length} trend signals refreshed`);
+        })
+        .catch((err: Error) => {
+          console.error('[trends/refresh] ❌ error:', err.message);
+        });
+      res.json({ triggered: true, message: 'Trend detection started — new trends will appear shortly', nextAllowedAt: nextAt });
+    } catch (err: any) {
+      res.json({ triggered: false, message: `Trend refresh error: ${err.message}`, nextAllowedAt: nextAt });
+    }
+  });
+
   // -----------------------------------------------------------------------
   // 1. POST /api/tools/winning-products
   // -----------------------------------------------------------------------
@@ -416,7 +454,106 @@ All analysis should be AU-focused. Reference AUD pricing, AU platforms, AU consu
   });
 
   // -----------------------------------------------------------------------
-  // 5. POST /api/products/search  — 4-platform Tavily product search
+  // 5. POST /api/suppliers/search  — Supplier Intelligence Engine
+  // -----------------------------------------------------------------------
+  const supplierLimiter = new Map<string, number[]>(); // userId → timestamps
+  const SUPPLIER_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+  const SUPPLIER_MAX_PER_HOUR = 5;
+
+  app.post('/api/suppliers/search', async (req, res) => {
+    const authUser = await authenticateRequest(req);
+    if (!authUser) {
+      res.status(401).json({ error: 'Unauthorized — Bearer token required' });
+      return;
+    }
+
+    // Rate limit: 5 searches per hour per user
+    const nowS = Date.now();
+    const supTimestamps = (supplierLimiter.get(authUser.userId) ?? []).filter(
+      (t) => nowS - t < SUPPLIER_WINDOW_MS,
+    );
+    if (supTimestamps.length >= SUPPLIER_MAX_PER_HOUR) {
+      res.status(429).json({
+        error: `Rate limited — max ${SUPPLIER_MAX_PER_HOUR} supplier searches per hour`,
+        resetAt: new Date(supTimestamps[0] + SUPPLIER_WINDOW_MS).toISOString(),
+      });
+      return;
+    }
+    supTimestamps.push(nowS);
+    supplierLimiter.set(authUser.userId, supTimestamps);
+
+    const { query } = (req.body ?? {}) as { query?: string };
+    if (!query || typeof query !== 'string' || query.trim().length < 2) {
+      res.status(400).json({ error: 'query must be at least 2 characters' });
+      return;
+    }
+
+    try {
+      const { searchSuppliers } = await import('./supplier-search.js');
+      const suppliers = await searchSuppliers(query.trim());
+      res.json({ suppliers, query: query.trim() });
+    } catch (err: any) {
+      console.error('[suppliers/search] Error:', err.message);
+      res.status(500).json({ error: err.message ?? 'Search failed' });
+    }
+  });
+
+  // POST /api/suppliers/save  — Save supplier to au_suppliers table
+  app.post('/api/suppliers/save', async (req, res) => {
+    const authUser = await authenticateRequest(req);
+    if (!authUser) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const { supplier, product_query } = (req.body ?? {}) as {
+      supplier?: any;
+      product_query?: string;
+    };
+    if (!supplier || !product_query) {
+      res.status(400).json({ error: 'supplier and product_query are required' });
+      return;
+    }
+
+    try {
+      const sb = getSupabaseAdmin();
+      // Upsert into au_suppliers
+      const { data, error } = await sb
+        .from('au_suppliers')
+        .upsert(
+          {
+            product_query,
+            supplier_name: supplier.supplier_name,
+            platform: supplier.platform,
+            unit_cost_aud: supplier.unit_cost_aud,
+            moq: supplier.moq,
+            shipping_days_to_au: supplier.shipping_days_to_au,
+            shipping_cost_aud: supplier.shipping_cost_aud,
+            rating: supplier.rating,
+            url: supplier.url,
+            why_recommended: supplier.why_recommended,
+            profit_margin_pct: supplier.profit_margin_pct,
+          },
+          { onConflict: 'supplier_name,product_query' }
+        )
+        .select('id')
+        .single();
+
+      if (error) {
+        // If the supplier was already saved, just return ok
+        res.json({ ok: true, message: 'Supplier saved' });
+        return;
+      }
+
+      res.json({ ok: true, id: data.id });
+    } catch (err: any) {
+      console.error('[suppliers/save] Error:', err.message);
+      res.status(500).json({ error: err.message ?? 'Save failed' });
+    }
+  });
+
+  // -----------------------------------------------------------------------
+  // 6. POST /api/products/search  — 4-platform Tavily product search
   // -----------------------------------------------------------------------
   const searchLimiter = new Map<string, number[]>(); // userId → timestamps
   const SEARCH_WINDOW_MS = 60 * 60 * 1000; // 1 hour

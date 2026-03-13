@@ -21,6 +21,7 @@ import {
   Megaphone,
   Menu,
   MessageSquare,
+  Package,
   PenTool,
   Play,
   Search,
@@ -117,6 +118,12 @@ const PHASE_SECTIONS: PhaseSection[] = [
         path: '/app/videos',
         icon: Play,
         tooltip: 'Top-performing AU product videos driving real sales.',
+      },
+      {
+        label: 'Suppliers',
+        path: '/app/suppliers',
+        icon: Package,
+        tooltip: 'Find AU-ready suppliers for any product — AliExpress, Alibaba, CJ Dropshipping.',
       },
       {
         label: 'Profit Check',

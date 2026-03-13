@@ -99,6 +99,34 @@ export async function runWinningProductsMigration(): Promise<void> {
     await sql`ALTER TABLE public.user_watchlist ENABLE ROW LEVEL SECURITY`;
     try { await sql`CREATE POLICY "wl_user_own" ON public.user_watchlist USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id)`; } catch {}
 
+    // ── trend_signals table ──────────────────────────────────────────────────
+    await sql`
+      CREATE TABLE IF NOT EXISTS public.trend_signals (
+        id                      uuid             DEFAULT gen_random_uuid() PRIMARY KEY,
+        trend_name              text             NOT NULL,
+        category                text,
+        signal_strength         integer          DEFAULT 5,
+        stage                   text             DEFAULT 'emerging',
+        why_now                 text,
+        opportunity_window      text,
+        est_monthly_revenue_aud numeric,
+        sample_products         jsonb            DEFAULT '[]',
+        target_audience         text,
+        entry_difficulty        text             DEFAULT 'Medium',
+        au_seasonal_relevance   text,
+        action                  text,
+        detected_at             timestamptz      DEFAULT now(),
+        updated_at              timestamptz      DEFAULT now(),
+        UNIQUE(trend_name)
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS ts_stage_idx    ON public.trend_signals(stage)`;
+    await sql`CREATE INDEX IF NOT EXISTS ts_strength_idx ON public.trend_signals(signal_strength DESC)`;
+    await sql`ALTER TABLE public.trend_signals ENABLE ROW LEVEL SECURITY`;
+    try { await sql`CREATE POLICY "ts_public_read"   ON public.trend_signals FOR SELECT USING (true)`; } catch {}
+    try { await sql`CREATE POLICY "ts_service_write" ON public.trend_signals FOR ALL TO service_role USING (true) WITH CHECK (true)`; } catch {}
+    console.log('[migrate] ✅ trend_signals table ready');
+
     console.log('[migrate] ✅ winning_products + user_watchlist tables ready');
 
     // ── au_creators table ────────────────────────────────────────────────────
@@ -187,6 +215,30 @@ export async function runWinningProductsMigration(): Promise<void> {
     await sql`ALTER TABLE public.search_cache ENABLE ROW LEVEL SECURITY`;
     try { await sql`CREATE POLICY "sc_public_read"   ON public.search_cache FOR SELECT USING (true)`; } catch {}
     try { await sql`CREATE POLICY "sc_service_write" ON public.search_cache FOR ALL TO service_role USING (true) WITH CHECK (true)`; } catch {}
+
+    // ── au_suppliers table ───────────────────────────────────────────────────
+    await sql`
+      CREATE TABLE IF NOT EXISTS public.au_suppliers (
+        id                uuid             DEFAULT gen_random_uuid() PRIMARY KEY,
+        product_query     text             NOT NULL,
+        supplier_name     text             NOT NULL,
+        platform          text,
+        unit_cost_aud     numeric,
+        moq               integer          DEFAULT 1,
+        shipping_days_to_au integer,
+        shipping_cost_aud numeric,
+        rating            numeric,
+        url               text,
+        why_recommended   text,
+        profit_margin_pct numeric,
+        saved_by_users    text[]           DEFAULT '{}',
+        created_at        timestamptz      DEFAULT now(),
+        UNIQUE(supplier_name, product_query)
+      )
+    `;
+    await sql`ALTER TABLE public.au_suppliers ENABLE ROW LEVEL SECURITY`;
+    try { await sql`CREATE POLICY "as_public_read"   ON public.au_suppliers FOR SELECT USING (true)`; } catch {}
+    try { await sql`CREATE POLICY "as_service_write" ON public.au_suppliers FOR ALL TO service_role USING (true) WITH CHECK (true)`; } catch {}
 
     // ── user_search_history table ────────────────────────────────────────────
     await sql`

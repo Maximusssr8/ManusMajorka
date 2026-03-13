@@ -18,6 +18,7 @@ import { registerAffiliateRoutes } from '../lib/affiliate';
 import { registerAutomationRoutes } from '../lib/automation-api';
 import { registerDemoRoutes } from '../lib/demo-api';
 import { refreshWinningProducts } from '../lib/refresh-winning-products';
+import { detectTrends } from '../lib/trend-detection';
 import { registerScrapeRoutes } from '../lib/scrape-product';
 import { registerStripeRoutes } from '../lib/stripe';
 import { registerToolsApi } from '../lib/tools-api';
@@ -179,6 +180,17 @@ async function startServer() {
     }
   }, { timezone: 'Australia/Brisbane' });
   console.log('[Products] Auto-refresh scheduled: 0:00, 6:00, 12:00, 18:00 AEST');
+
+  // ── Scheduled trend detection (every 6h at 3:00, 9:00, 15:00, 21:00 AEST) ──
+  cron.schedule('0 3,9,15,21 * * *', async () => {
+    console.log('[Trends] Starting scheduled trend detection...');
+    const trends = await detectTrends().catch((err: Error) => {
+      console.error('[Trends] Detection failed:', err.message);
+      return null;
+    });
+    if (trends) console.log(`[Trends] Refreshed ${trends.length} trend signals`);
+  }, { timezone: 'Australia/Brisbane' });
+  console.log('[Trends] Detection scheduled: 3:00, 9:00, 15:00, 21:00 AEST');
 }
 
 startServer().catch(console.error);
