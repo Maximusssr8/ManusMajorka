@@ -66,6 +66,7 @@ export const adminRouter = router({
     .mutation(async ({ ctx, input }) => {
       requireAdmin(ctx.user?.email);
       const db = getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       await db
         .update(subscriptions)
         .set({ plan: input.plan })
