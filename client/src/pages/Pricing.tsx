@@ -1,5 +1,7 @@
 import { Link } from "wouter";
 import { useState } from "react";
+import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 // ── Design tokens ───────────────────────────────────────────────────────────
 const C = {
@@ -109,10 +111,10 @@ const FAQS = [
 
 export default function Pricing() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const { session } = useAuth();
 
   const handleProCheckout = async () => {
-    // TODO: Replace with actual auth token from useAuth hook once wired up
-    const token = localStorage.getItem("supabase_token") ?? "";
+    const token = session?.access_token ?? "";
     try {
       const res = await fetch("/api/stripe/checkout-session", {
         method: "POST",
@@ -121,12 +123,15 @@ export default function Pricing() {
           Authorization: "Bearer " + token,
         },
       });
-      const data = await res.json() as { url?: string };
+      const data = await res.json() as { url?: string; error?: string };
       if (data.url) {
         window.location.href = data.url;
+      } else if (data.error) {
+        toast.error(data.error);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Stripe checkout error:", err);
+      toast.error(err.message || "Payment error — please try again.");
     }
   };
 

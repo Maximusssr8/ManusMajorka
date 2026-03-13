@@ -197,7 +197,7 @@ export function registerChatRoutes(app: Application) {
       const client = getAnthropicClient();
       const aiResponse = await client.messages.create({
         model: CLAUDE_MODEL,
-        max_tokens: 1500,
+        max_tokens: 4096,
         system,
         messages,
       });

@@ -185,3 +185,22 @@ export const orders = pgTable("orders", {
 
 export type Order = typeof orders.$inferSelect;
 export type InsertOrder = typeof orders.$inferInsert;
+
+/**
+ * Attribution — UTM tracking for first-touch and last-touch attribution.
+ */
+export const attribution = pgTable("attribution", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  firstTouchSource: text("first_touch_source"),
+  firstTouchMedium: text("first_touch_medium"),
+  firstTouchCampaign: text("first_touch_campaign"),
+  lastTouchSource: text("last_touch_source"),
+  lastTouchMedium: text("last_touch_medium"),
+  lastTouchCampaign: text("last_touch_campaign"),
+  referrer: text("referrer"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Attribution = typeof attribution.$inferSelect;
+export type InsertAttribution = typeof attribution.$inferInsert;

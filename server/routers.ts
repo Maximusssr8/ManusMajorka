@@ -28,6 +28,8 @@ import {
   upsertStorefrontProduct,
   getOrdersByStoreId,
   updateOrderFulfillment,
+  saveAttribution,
+  getAttributionByUserId,
 } from "./db";
 import { tavilySearch, tavilyExtract, tavilyImageSearch } from "./tavily";
 
@@ -337,6 +339,30 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         return await updateOrderFulfillment(input.orderId, "fulfilled");
       }),
+  }),
+
+  /** UTM attribution tracking */
+  attribution: router({
+    save: protectedProcedure
+      .input(z.object({
+        firstTouchSource: z.string().nullable().optional(),
+        firstTouchMedium: z.string().nullable().optional(),
+        firstTouchCampaign: z.string().nullable().optional(),
+        lastTouchSource: z.string().nullable().optional(),
+        lastTouchMedium: z.string().nullable().optional(),
+        lastTouchCampaign: z.string().nullable().optional(),
+        referrer: z.string().nullable().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const existing = await getAttributionByUserId(ctx.user.id);
+        if (existing) return { success: true, attribution: existing };
+        const result = await saveAttribution({ userId: ctx.user.id, ...input });
+        return { success: true, attribution: result };
+      }),
+
+    get: protectedProcedure.query(async ({ ctx }) => {
+      return await getAttributionByUserId(ctx.user.id);
+    }),
   }),
 });
 

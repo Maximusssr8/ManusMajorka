@@ -1,0 +1,130 @@
+/**
+ * Upgrade Modal — Variant A: Feature-focused
+ * "Unlock unlimited research + all 20 AI tools"
+ */
+import { X, Zap, Infinity, Download, Code2, Check } from "lucide-react";
+import { capture } from "@/lib/posthog";
+
+interface UpgradeModalAProps {
+  placement: string;
+  currentTier: string;
+  onClose: () => void;
+  onUpgrade: (tier: string) => void;
+}
+
+const PLANS = [
+  {
+    id: "builder",
+    name: "Builder",
+    price: "$49",
+    period: "/mo AUD",
+    features: [
+      "Unlimited AI tool usage",
+      "All 20+ tools unlocked",
+      "PDF & CSV exports",
+      "Conversation memory",
+      "Priority AI responses",
+    ],
+    cta: "Start Building",
+    popular: true,
+  },
+  {
+    id: "scale",
+    name: "Scale",
+    price: "$149",
+    period: "/mo AUD",
+    features: [
+      "Everything in Builder",
+      "Bulk export (CSV, ZIP)",
+      "API access",
+      "White-label exports",
+      "Dedicated support",
+      "Custom AI prompts",
+    ],
+    cta: "Scale Up",
+    popular: false,
+  },
+];
+
+export default function UpgradeModalA({ placement, currentTier, onClose, onUpgrade }: UpgradeModalAProps) {
+  const handleUpgrade = (planId: string) => {
+    capture("upgrade_clicked", { from_tier: currentTier, to_tier: planId, trigger_feature: placement, variant: "A" });
+    onUpgrade(planId);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[300] flex items-center justify-center" style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(12px)" }}>
+      <div className="relative w-full max-w-lg mx-4 rounded-2xl overflow-hidden" style={{ background: "#0f1115", border: "1px solid rgba(212,175,55,0.15)", boxShadow: "0 24px 80px rgba(0,0,0,0.7)" }}>
+        <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-lg transition-all" style={{ cursor: "pointer", color: "rgba(240,237,232,0.4)", background: "none", border: "none", zIndex: 10 }}>
+          <X size={16} />
+        </button>
+
+        <div className="p-6 pb-2 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-4" style={{ background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.2)" }}>
+            <Zap size={12} style={{ color: "#d4af37" }} />
+            <span className="text-xs font-bold" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>Unlock Full Power</span>
+          </div>
+          <h2 className="text-xl font-black mb-2" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>
+            You've hit a limit
+          </h2>
+          <p className="text-sm mb-1" style={{ color: "rgba(240,237,232,0.5)" }}>
+            Upgrade to unlock unlimited access to all Majorka AI tools.
+          </p>
+        </div>
+
+        <div className="p-6 pt-4 grid grid-cols-2 gap-3">
+          {PLANS.map(plan => (
+            <div
+              key={plan.id}
+              className="relative rounded-xl p-4 flex flex-col"
+              style={{
+                background: plan.popular ? "rgba(212,175,55,0.06)" : "rgba(255,255,255,0.02)",
+                border: `1.5px solid ${plan.popular ? "rgba(212,175,55,0.3)" : "rgba(255,255,255,0.06)"}`,
+              }}
+            >
+              {plan.popular && (
+                <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-xs font-bold" style={{ background: "#d4af37", color: "#080a0e", fontFamily: "Syne, sans-serif", fontSize: 9 }}>
+                  MOST POPULAR
+                </div>
+              )}
+              <div className="mb-3">
+                <div className="text-xs font-bold mb-1" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>{plan.name}</div>
+                <div className="flex items-baseline gap-0.5">
+                  <span className="text-2xl font-black" style={{ fontFamily: "Syne, sans-serif", color: plan.popular ? "#d4af37" : "#f0ede8" }}>{plan.price}</span>
+                  <span className="text-xs" style={{ color: "rgba(240,237,232,0.4)" }}>{plan.period}</span>
+                </div>
+              </div>
+              <div className="space-y-1.5 flex-1 mb-4">
+                {plan.features.map(f => (
+                  <div key={f} className="flex items-start gap-2">
+                    <Check size={11} className="mt-0.5 flex-shrink-0" style={{ color: plan.popular ? "#d4af37" : "#4ade80" }} />
+                    <span className="text-xs" style={{ color: "rgba(240,237,232,0.6)" }}>{f}</span>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => handleUpgrade(plan.id)}
+                className="w-full py-2.5 rounded-lg text-xs font-bold transition-all"
+                style={{
+                  background: plan.popular ? "linear-gradient(135deg, #d4af37, #f0c040)" : "rgba(255,255,255,0.06)",
+                  color: plan.popular ? "#080a0e" : "#f0ede8",
+                  border: plan.popular ? "none" : "1px solid rgba(255,255,255,0.1)",
+                  fontFamily: "Syne, sans-serif",
+                  cursor: "pointer",
+                }}
+              >
+                {plan.cta}
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <div className="px-6 pb-5 text-center">
+          <button onClick={onClose} className="text-xs transition-all" style={{ background: "none", border: "none", color: "rgba(240,237,232,0.3)", cursor: "pointer" }}>
+            Maybe later
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

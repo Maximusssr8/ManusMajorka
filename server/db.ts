@@ -129,6 +129,13 @@ export async function getProductById(productId: string, userId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getProductByIdPublic(productId: string) {
+  const db = getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(products).where(eq(products.id, productId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
 export async function createProduct(data: InsertProduct) {
   const db = getDb();
   if (!db) throw new Error("Database not available");
@@ -248,7 +255,7 @@ export async function getUserContextString(userId: string, userName?: string | n
 
 /** Returns all task plan steps for a user, ordered by creation time. */
 export async function getTaskPlanProgress(userId: string) {
-  const db = await getDb();
+  const db = getDb();
   if (!db) return [];
   return db
     .select()
@@ -259,7 +266,7 @@ export async function getTaskPlanProgress(userId: string) {
 
 /** Creates or updates a task plan step for a user. */
 export async function upsertTaskPlanStep(userId: string, stepKey: string, status: string) {
-  const db = await getDb();
+  const db = getDb();
   if (!db) throw new Error("Database not available");
 
   const existing = await db
@@ -373,4 +380,23 @@ export async function updateOrderFulfillment(id: string, fulfillmentStatus: stri
   if (!db) throw new Error("Database not available");
   const result = await db.update(orders).set({ fulfillmentStatus }).where(eq(orders.id, id)).returning();
   return result[0];
+}
+
+// ─── Attribution helpers ─────────────────────────────────────────────────────
+
+import type { InsertAttribution } from "../drizzle/schema";
+import { attribution } from "../drizzle/schema";
+
+export async function saveAttribution(data: InsertAttribution) {
+  const db = getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(attribution).values(data).returning();
+  return result[0];
+}
+
+export async function getAttributionByUserId(userId: string) {
+  const db = getDb();
+  if (!db) return null;
+  const result = await db.select().from(attribution).where(eq(attribution.userId, userId)).limit(1);
+  return result[0] ?? null;
 }

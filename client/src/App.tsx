@@ -6,7 +6,8 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProductProvider } from "./contexts/ProductContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
+import { capture } from "@/lib/posthog";
 
 // Lazy-loaded page components for code splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -17,6 +18,7 @@ const SettingsProfile = lazy(() => import("./pages/SettingsProfile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const Storefront = lazy(() => import("./pages/Storefront"));
+const AdminLeads = lazy(() => import("./pages/AdminLeads"));
 
 function LoadingFallback() {
   return (
@@ -64,6 +66,7 @@ function Router() {
         <Route path="/account" component={Account} />
         <Route path="/app/settings/profile" component={SettingsProfile} />
         <Route path="/store/:slug" component={Storefront} />
+        <Route path="/admin/leads">{() => <ProtectedRoute><AdminLeads /></ProtectedRoute>}</Route>
         <Route path="/app">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
         <Route path="/app/settings">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
         <Route path="/app/store/:subpage">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
@@ -77,6 +80,7 @@ function Router() {
 }
 
 function App() {
+  useEffect(() => { capture("app_loaded"); }, []);
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark" switchable>

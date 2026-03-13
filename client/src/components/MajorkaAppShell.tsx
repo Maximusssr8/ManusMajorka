@@ -64,6 +64,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Launch Kit", path: "/app/launch-kit", icon: Sparkles, badge: "✨" },
       { label: "Meta Ads Pack", path: "/app/meta-ads", icon: Megaphone },
       { label: "Ads Studio", path: "/app/ads-studio", icon: Video },
+      { label: "TikTok Slides", path: "/app/tiktok", icon: Video, badge: "NEW" },
       { label: "Launch Planner", path: "/app/launch-planner", icon: Rocket },
     ],
   },
@@ -187,7 +188,7 @@ export default function MajorkaAppShell({ children }: Props) {
             {item.path === "/app/my-products" && productCount > 0 && (
               <span
                 className="ml-1 px-1.5 py-0.5 rounded-full"
-                style={{ background: "rgba(212,175,55,0.15)", color: "#f59e0b", fontSize: 9, fontWeight: 700 }}
+                style={{ background: "rgba(212,175,55,0.15)", color: "#d4af37", fontSize: 9, fontWeight: 700 }}
               >
                 {productCount}
               </span>
@@ -212,7 +213,7 @@ export default function MajorkaAppShell({ children }: Props) {
         >
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0"
-            style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", color: "#0a0a0a", fontFamily: "Syne, sans-serif" }}
+            style={{ background: "linear-gradient(135deg, #d4af37, #b8941f)", color: "#0a0a0a", fontFamily: "Syne, sans-serif" }}
           >
             M
           </div>
@@ -295,7 +296,7 @@ export default function MajorkaAppShell({ children }: Props) {
               ) : (
                 <div
                   className="w-7 h-7 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", color: "#0a0a0a", fontFamily: "Syne, sans-serif" }}
+                  style={{ background: "linear-gradient(135deg, #d4af37, #b8941f)", color: "#0a0a0a", fontFamily: "Syne, sans-serif" }}
                 >
                   {(user?.name ?? user?.email ?? session?.user?.email ?? "M").charAt(0).toUpperCase()}
                 </div>
@@ -379,7 +380,7 @@ export default function MajorkaAppShell({ children }: Props) {
             className="w-full text-xs font-bold px-3 py-2 transition-all"
             style={{
               borderRadius: 8,
-              background: "linear-gradient(135deg, #f59e0b, #d97706)",
+              background: "linear-gradient(135deg, #d4af37, #b8941f)",
               color: "#0a0a0a",
               fontFamily: "Syne, sans-serif",
               cursor: "pointer",
@@ -394,7 +395,7 @@ export default function MajorkaAppShell({ children }: Props) {
   );
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: "#0a0a0a", color: "#f5f5f5", fontFamily: "DM Sans, sans-serif" }}>
+    <div className="flex h-screen overflow-hidden" style={{ background: "#060608", color: "#f5f5f5", fontFamily: "DM Sans, sans-serif" }}>
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
@@ -409,7 +410,7 @@ export default function MajorkaAppShell({ children }: Props) {
         className={`flex-shrink-0 flex flex-col relative z-50 ${mobileOpen ? "fixed inset-y-0 left-0" : "hidden lg:flex"}`}
         style={{
           width: 220,
-          background: "#0d0d0d",
+          background: "#0a0a0e",
           borderRight: "1px solid rgba(255,255,255,0.06)",
         }}
       >
@@ -430,7 +431,7 @@ export default function MajorkaAppShell({ children }: Props) {
         {/* Mobile top bar */}
         <div
           className="flex items-center gap-3 px-4 border-b flex-shrink-0 lg:hidden"
-          style={{ background: "#0d0d0d", borderColor: "rgba(255,255,255,0.06)", height: 48 }}
+          style={{ background: "#0a0a0e", borderColor: "rgba(255,255,255,0.06)", height: 48 }}
         >
           <button
             onClick={() => setMobileOpen(true)}
@@ -442,7 +443,7 @@ export default function MajorkaAppShell({ children }: Props) {
           <div className="flex items-center gap-2">
             <div
               className="w-6 h-6 rounded-md flex items-center justify-center font-black text-xs"
-              style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", color: "#0a0a0a", fontFamily: "Syne, sans-serif" }}
+              style={{ background: "linear-gradient(135deg, #d4af37, #b8941f)", color: "#0a0a0a", fontFamily: "Syne, sans-serif" }}
             >
               M
             </div>
@@ -460,7 +461,7 @@ export default function MajorkaAppShell({ children }: Props) {
         {/* Mobile bottom tab bar */}
         <div
           className="fixed bottom-0 left-0 right-0 z-40 lg:hidden"
-          style={{ background: "#0d0d0d", borderTop: "1px solid rgba(255,255,255,0.06)" }}
+          style={{ background: "#0a0a0e", borderTop: "1px solid rgba(255,255,255,0.06)" }}
         >
           <div className="flex items-center justify-around py-2">
             {MOBILE_TABS.map((tab) => {

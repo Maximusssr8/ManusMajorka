@@ -5,6 +5,7 @@ import { createElement, useState, lazy, Suspense, useEffect } from "react";
 import { logActivity } from "@/lib/activity";
 import { injectProductIntelligence } from "@/lib/buildToolPrompt";
 import { useProduct } from "@/contexts/ProductContext";
+import { capture } from "@/lib/posthog";
 
 // Lazy-load all tool page components for code splitting
 const WebsiteGenerator = lazy(() => import("./WebsiteGenerator"));
@@ -38,6 +39,7 @@ const StageLanding = lazy(() => import("./StageLanding"));
 const InsightsPage = lazy(() => import("./InsightsPage"));
 const LaunchKit = lazy(() => import("./LaunchKit"));
 const AdSpy = lazy(() => import("./AdSpy"));
+const TikTokSlideshow = lazy(() => import("./TikTokSlideshow"));
 const StoreSetup = lazy(() => import("./store/StoreSetup"));
 const StoreProducts = lazy(() => import("./store/StoreProducts"));
 const StoreOrders = lazy(() => import("./store/StoreOrders"));
@@ -96,6 +98,7 @@ export default function ToolPage() {
     // Redirect /app/dashboard → /app (the real dashboard home)
     if (location === "/app/dashboard") { setLocation("/app"); return; }
     logActivity({ type: "tool_opened", label: tool?.label ?? location });
+    if (tool) capture("tool_opened", { tool: tool.id });
   }, [location]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Check for prefill from cross-tool navigation (e.g. Product Discovery → Validate)
@@ -155,6 +158,7 @@ export default function ToolPage() {
   if (location === "/app/insights") return page(<InsightsPage />);
   if (location === "/app/launch-kit") return page(<LaunchKit />);
   if (location === "/app/ad-spy") return page(<AdSpy />);
+  if (location === "/app/tiktok") return page(<TikTokSlideshow />);
   if (location === "/app/store/setup") return page(<StoreSetup />);
   if (location === "/app/store/products") return page(<StoreProducts />);
   if (location === "/app/store/orders") return page(<StoreOrders />);

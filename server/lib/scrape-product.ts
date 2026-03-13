@@ -388,6 +388,17 @@ bulletPoints: array of 3-6 key product features or selling points (array of stri
 }
 
 export function registerScrapeRoutes(app: Application) {
+  app.post("/api/import-product", async (req, res) => {
+    const { url } = req.body ?? {};
+    if (!url) return res.status(400).json({ error: "url is required" });
+    try {
+      const result = await scrapeProductData(url);
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message ?? "Scrape failed" });
+    }
+  });
+
   app.post("/api/scrape-product", async (req, res) => {
     try {
       const { url } = req.body;

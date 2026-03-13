@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
 import { Rocket, ShoppingBag, TrendingUp, Zap, ChevronRight, ChevronLeft, X, Loader2, Check, Link2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { capture } from "@/lib/posthog";
 
 const ONBOARDING_KEY = "majorka_onboarded";
 
@@ -95,6 +96,11 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
 
   const handleFinish = () => {
     persistOnboarding();
+    capture("onboarding_completed", {
+      experience_level: selectedLevel,
+      goal: selectedGoal,
+      budget: selectedBudget,
+    });
     setVisible(false);
     // Navigate to chosen goal
     const goal = goals.find(g => g.id === selectedGoal);
@@ -102,7 +108,10 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
   };
 
   const handleStep3Next = () => {
-    if (selectedBudget) setStep(4);
+    if (selectedBudget) {
+      capture("onboarding_step_completed", { step: 3, budget: selectedBudget });
+      setStep(4);
+    }
   };
 
   const handleImportProduct = useCallback(async () => {
@@ -188,7 +197,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
               </div>
 
               <button
-                onClick={() => { if (selectedLevel) setStep(2); }}
+                onClick={() => { if (selectedLevel) { capture("onboarding_step_completed", { step: 1, experience_level: selectedLevel }); setStep(2); } }}
                 disabled={!selectedLevel}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
                 style={{
@@ -251,7 +260,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   <ChevronLeft size={14} />
                 </button>
                 <button
-                  onClick={() => { if (selectedGoal) setStep(3); }}
+                  onClick={() => { if (selectedGoal) { capture("onboarding_step_completed", { step: 2, goal: selectedGoal }); setStep(3); } }}
                   disabled={!selectedGoal}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
                   style={{

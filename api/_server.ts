@@ -11,7 +11,7 @@ import { appRouter } from "../server/routers";
 import { createContext } from "../server/_core/context";
 import { createCheckoutSession, constructWebhookEvent, handleWebhook } from "../server/lib/stripe";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
-import { getProductById } from "../server/db";
+import { getProductByIdPublic } from "../server/db";
 
 const app = express();
 
@@ -125,7 +125,7 @@ app.get("/api/store/:slug", async (req: Request, res: Response) => {
     const sfProducts = await getPublishedStorefrontProducts(store.id);
     // Enrich with product details
     const enriched = await Promise.all(sfProducts.map(async (sfp) => {
-      const product = await getProductById(sfp.productId);
+      const product = await getProductByIdPublic(sfp.productId);
       return { ...sfp, product };
     }));
     res.json({ store, products: enriched });

@@ -21,36 +21,41 @@ const TOOL_CATEGORY_CARDS = [
     label: "Research",
     icon: Search,
     color: "#3b82f6",
-    tools: ["Product Discovery", "Competitor Breakdown", "Ad Spy"],
+    tools: ["Product Discovery", "Competitor Breakdown", "Trend Radar"],
     path: "/app/product-discovery",
+    desc: "Find & validate products",
   },
   {
     label: "Build",
     icon: Globe,
-    color: "#9c5fff",
+    color: "#10b981",
     tools: ["Website Generator", "Brand DNA", "Copywriter"],
     path: "/app/website-generator",
+    desc: "Create your store",
   },
   {
     label: "Copy",
     icon: PenTool,
-    color: "#f59e0b",
+    color: "#d4af37",
     tools: ["Copywriter", "Email Sequences", "Ad Copy"],
     path: "/app/copywriter",
+    desc: "Write AU-native copy",
   },
   {
     label: "Launch",
     icon: Rocket,
     color: "#ef4444",
-    tools: ["Launch Kit", "Meta Ads Pack", "Launch Planner"],
-    path: "/app/launch-kit",
+    tools: ["Meta Ads Pack", "TikTok Slides", "Ads Studio"],
+    path: "/app/meta-ads",
+    desc: "Go live with ads",
   },
   {
     label: "Grow",
     icon: TrendingUp,
-    color: "#10b981",
+    color: "#8b5cf6",
     tools: ["Market Intelligence", "Analytics Decoder", "AI Chat"],
     path: "/app/market-intel",
+    desc: "Scale & optimise",
   },
   {
     label: "Manage",
@@ -58,6 +63,7 @@ const TOOL_CATEGORY_CARDS = [
     color: "#71717a",
     tools: ["My Products", "Project Manager", "Supplier Finder"],
     path: "/app/my-products",
+    desc: "Run operations",
   },
 ];
 
@@ -174,103 +180,142 @@ function DashboardHome() {
   return (
     <div
       className="h-full overflow-auto"
-      style={{ background: "#0a0a0a", scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.1) transparent" }}
+      style={{ background: "#060608", scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}
     >
       <div className="max-w-5xl mx-auto px-6 py-8">
 
         {/* ── A. Header row ─────────────────────────────────────────────── */}
         <div className="mb-8">
-          <h1
-            className="text-2xl font-bold mb-1"
-            style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5", letterSpacing: "-0.02em" }}
-          >
-            {getGreeting()}{firstName ? `, ${firstName}` : ""}
-          </h1>
-          <p className="text-sm mb-0.5" style={{ color: "#a1a1aa" }}>
-            Your AI Ecommerce OS is ready.
-          </p>
-          <p className="text-xs" style={{ color: "#52525b" }}>
-            {formatDate()}
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1
+                className="text-2xl font-bold mb-1"
+                style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5", letterSpacing: "-0.02em" }}
+              >
+                {getGreeting()}{firstName ? `, ${firstName}` : ""}
+              </h1>
+              <p className="text-sm" style={{ color: "#a1a1aa" }}>
+                Your AI Ecommerce OS &middot; <span style={{ color: "#52525b" }}>{formatDate()}</span>
+              </p>
+            </div>
+            <button
+              onClick={() => setLocation("/app/ai-chat")}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold"
+              style={{
+                background: "rgba(212,175,55,0.08)",
+                border: "1px solid rgba(212,175,55,0.2)",
+                color: "#d4af37",
+                cursor: "pointer",
+                fontFamily: "Syne, sans-serif",
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = "rgba(212,175,55,0.15)";
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.background = "rgba(212,175,55,0.08)";
+              }}
+            >
+              <MessageSquare size={14} />
+              Ask AI
+            </button>
+          </div>
         </div>
 
         {/* ── B. KPI Metric cards ──────────────────────────────────────── */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
           {/* Active Products */}
           <div
-            className="rounded-xl p-4"
-            style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+            className="rounded-xl p-4 transition-all"
+            style={{ background: "#0c0c10", border: "1px solid rgba(255,255,255,0.06)" }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(212,175,55,0.2)")}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)")}
           >
             <div className="flex items-center gap-1.5 mb-3">
-              <Package size={12} style={{ color: "#a1a1aa" }} />
-              <span className="text-xs" style={{ color: "#a1a1aa" }}>Active Products</span>
+              <div className="w-5 h-5 rounded flex items-center justify-center" style={{ background: "rgba(59,130,246,0.1)" }}>
+                <Package size={10} style={{ color: "#3b82f6" }} />
+              </div>
+              <span className="text-xs font-medium" style={{ color: "#71717a" }}>Active Products</span>
             </div>
             <div
               className="text-2xl font-bold mb-1"
-              style={{ fontFamily: "'DM Mono', 'JetBrains Mono', monospace", color: "#f5f5f5" }}
+              style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5", letterSpacing: "-0.02em" }}
             >
               {productsQuery.isLoading ? "—" : productCount}
             </div>
-            <div className="text-xs" style={{ color: "#10b981" }}>+1 this week</div>
+            <div className="text-xs" style={{ color: productCount > 0 ? "#10b981" : "#52525b" }}>
+              {productCount > 0 ? "Active" : "Add your first product"}
+            </div>
           </div>
 
           {/* Tools Used Today */}
           <div
-            className="rounded-xl p-4"
-            style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+            className="rounded-xl p-4 transition-all"
+            style={{ background: "#0c0c10", border: "1px solid rgba(255,255,255,0.06)" }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(212,175,55,0.2)")}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)")}
           >
             <div className="flex items-center gap-1.5 mb-3">
-              <Zap size={12} style={{ color: "#a1a1aa" }} />
-              <span className="text-xs" style={{ color: "#a1a1aa" }}>Tools Today</span>
+              <div className="w-5 h-5 rounded flex items-center justify-center" style={{ background: "rgba(212,175,55,0.1)" }}>
+                <Zap size={10} style={{ color: "#d4af37" }} />
+              </div>
+              <span className="text-xs font-medium" style={{ color: "#71717a" }}>Tools Today</span>
             </div>
             <div
               className="text-2xl font-bold mb-1"
-              style={{ fontFamily: "'DM Mono', 'JetBrains Mono', monospace", color: "#f5f5f5" }}
+              style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5", letterSpacing: "-0.02em" }}
             >
               {toolsToday}
             </div>
             <div className="text-xs" style={{ color: toolsToday > 0 ? "#10b981" : "#52525b" }}>
-              {toolsToday > 0 ? "+12%" : "0 today"}
+              {toolsToday > 0 ? `${toolsToday} tool${toolsToday !== 1 ? "s" : ""} used` : "Start exploring"}
             </div>
           </div>
 
           {/* AI Requests */}
           <div
-            className="rounded-xl p-4"
-            style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+            className="rounded-xl p-4 transition-all"
+            style={{ background: "#0c0c10", border: "1px solid rgba(255,255,255,0.06)" }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(212,175,55,0.2)")}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)")}
           >
             <div className="flex items-center gap-1.5 mb-3">
-              <MessageSquare size={12} style={{ color: "#a1a1aa" }} />
-              <span className="text-xs" style={{ color: "#a1a1aa" }}>AI Requests</span>
+              <div className="w-5 h-5 rounded flex items-center justify-center" style={{ background: "rgba(139,92,246,0.1)" }}>
+                <MessageSquare size={10} style={{ color: "#8b5cf6" }} />
+              </div>
+              <span className="text-xs font-medium" style={{ color: "#71717a" }}>AI Requests</span>
             </div>
             <div
               className="text-2xl font-bold mb-1"
-              style={{ fontFamily: "'DM Mono', 'JetBrains Mono', monospace", color: "#f5f5f5" }}
+              style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5", letterSpacing: "-0.02em" }}
             >
               {aiCount}
             </div>
             <div className="text-xs" style={{ color: aiCount > 0 ? "#10b981" : "#52525b" }}>
-              {aiCount > 0 ? "+12%" : "0 today"}
+              {aiCount > 0 ? "Requests today" : "Ask anything"}
             </div>
           </div>
 
-          {/* Est. Revenue Potential */}
+          {/* Revenue */}
           <div
-            className="rounded-xl p-4"
-            style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+            className="rounded-xl p-4 transition-all"
+            style={{ background: "#0c0c10", border: "1px solid rgba(255,255,255,0.06)" }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(212,175,55,0.2)")}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)")}
           >
             <div className="flex items-center gap-1.5 mb-3">
-              <BarChart2 size={12} style={{ color: "#a1a1aa" }} />
-              <span className="text-xs" style={{ color: "#a1a1aa" }}>{orderCount > 0 ? "Total Revenue" : "Est. Revenue Pot."}</span>
+              <div className="w-5 h-5 rounded flex items-center justify-center" style={{ background: "rgba(16,185,129,0.1)" }}>
+                <BarChart2 size={10} style={{ color: "#10b981" }} />
+              </div>
+              <span className="text-xs font-medium" style={{ color: "#71717a" }}>{orderCount > 0 ? "Revenue (AUD)" : "Est. Potential"}</span>
             </div>
             <div
               className="text-2xl font-bold mb-1"
-              style={{ fontFamily: "'DM Mono', 'JetBrains Mono', monospace", color: "#f5f5f5" }}
+              style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5", letterSpacing: "-0.02em" }}
             >
               {ordersQuery.isLoading ? "—" : formatCurrency(revenuePotential)}
             </div>
             <div className="text-xs" style={{ color: orderCount > 0 ? "#10b981" : "#52525b" }}>
-              {orderCount > 0 ? `${orderCount} order${orderCount !== 1 ? "s" : ""}` : "×$49/product"}
+              {orderCount > 0 ? `${orderCount} order${orderCount !== 1 ? "s" : ""}` : "AUD estimate"}
             </div>
           </div>
         </div>
@@ -283,25 +328,25 @@ function DashboardHome() {
               onClick={() => setLocation(path)}
               className="text-left rounded-xl p-4 transition-all"
               style={{
-                background: "#111111",
-                border: "1px solid rgba(255,255,255,0.08)",
+                background: "#0c0c10",
+                border: "1px solid rgba(255,255,255,0.06)",
                 cursor: "pointer",
                 minHeight: 80,
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(245,158,11,0.4)";
-                (e.currentTarget as HTMLButtonElement).style.background = "rgba(245,158,11,0.04)";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(212,175,55,0.25)";
+                (e.currentTarget as HTMLButtonElement).style.background = "rgba(212,175,55,0.04)";
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.08)";
-                (e.currentTarget as HTMLButtonElement).style.background = "#111111";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.06)";
+                (e.currentTarget as HTMLButtonElement).style.background = "#0c0c10";
               }}
             >
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center mb-2"
-                style={{ background: "rgba(245,158,11,0.12)" }}
+                style={{ background: "rgba(212,175,55,0.08)" }}
               >
-                <Icon size={15} style={{ color: "#f59e0b" }} />
+                <Icon size={15} style={{ color: "#d4af37" }} />
               </div>
               <div className="text-sm font-bold mb-0.5" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
                 {label}
@@ -318,7 +363,7 @@ function DashboardHome() {
             {/* Active Product card */}
             <div
               className="rounded-xl p-4"
-              style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+              style={{ background: "#0c0c10", border: "1px solid rgba(255,255,255,0.06)" }}
             >
               <div
                 className="text-xs font-bold uppercase tracking-widest mb-3"
@@ -334,7 +379,7 @@ function DashboardHome() {
                     </span>
                     <span
                       className="text-xs px-2 py-0.5 rounded-full"
-                      style={{ background: "rgba(245,158,11,0.12)", color: "#f59e0b" }}
+                      style={{ background: "rgba(212,175,55,0.1)", color: "#d4af37" }}
                     >
                       {activeProduct.niche}
                     </span>
@@ -352,7 +397,7 @@ function DashboardHome() {
                   <button
                     onClick={() => setLocation("/app/product-discovery")}
                     className="flex items-center gap-1.5 text-xs font-bold transition-all"
-                    style={{ color: "#f59e0b", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                    style={{ color: "#d4af37", background: "none", border: "none", cursor: "pointer", padding: 0 }}
                     onMouseEnter={e => (e.currentTarget.style.opacity = "0.8")}
                     onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
                   >
@@ -367,7 +412,7 @@ function DashboardHome() {
             {/* Recent Activity */}
             <div
               className="rounded-xl p-4"
-              style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+              style={{ background: "#0c0c10", border: "1px solid rgba(255,255,255,0.06)" }}
             >
               <div
                 className="text-xs font-bold uppercase tracking-widest mb-3"
@@ -381,7 +426,7 @@ function DashboardHome() {
                   <button
                     onClick={() => setLocation("/app/product-discovery")}
                     className="underline"
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "#f59e0b", padding: 0, fontSize: "inherit" }}
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "#d4af37", padding: 0, fontSize: "inherit" }}
                   >
                     →
                   </button>
@@ -397,7 +442,7 @@ function DashboardHome() {
                         className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
                         style={{ background: "rgba(245,158,11,0.1)" }}
                       >
-                        <span style={{ fontSize: 9, color: "#f59e0b" }}>●</span>
+                        <span style={{ fontSize: 9, color: "#d4af37" }}>●</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-xs font-medium truncate" style={{ color: "#f5f5f5", fontFamily: "DM Sans, sans-serif" }}>
@@ -420,31 +465,28 @@ function DashboardHome() {
             <div
               className="rounded-xl p-4"
               style={{
-                background: "#111111",
-                border: "1px solid",
-                borderImage: "linear-gradient(135deg, rgba(245,158,11,0.5), rgba(245,158,11,0.1)) 1",
-                outline: "1px solid rgba(245,158,11,0.15)",
-                outlineOffset: -1,
+                background: "rgba(212,175,55,0.03)",
+                border: "1px solid rgba(212,175,55,0.15)",
               }}
             >
               <div className="flex items-center gap-1.5 mb-2">
-                <Star size={12} style={{ color: "#f59e0b" }} />
-                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#f59e0b", fontFamily: "Syne, sans-serif" }}>
+                <Star size={12} style={{ color: "#d4af37" }} />
+                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
                   Launch Kit
                 </span>
               </div>
               <h3 className="text-sm font-bold mb-1" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
-                Generate Full Launch Kit
+                Full AU Launch Kit
               </h3>
               <p className="text-xs mb-4" style={{ color: "#a1a1aa", lineHeight: 1.6 }}>
-                Brand → Copy → Website → Ads → Emails in one click.
+                Brand &rarr; Copy &rarr; Website &rarr; Ads &rarr; Emails — all AU-native.
               </p>
               <button
                 onClick={() => setLocation("/app/launch-kit")}
                 className="w-full flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-lg transition-all"
                 style={{
-                  background: "linear-gradient(135deg, #f59e0b, #d97706)",
-                  color: "#0a0a0a",
+                  background: "linear-gradient(135deg, #d4af37, #b8941f)",
+                  color: "#060608",
                   border: "none",
                   cursor: "pointer",
                   fontFamily: "Syne, sans-serif",
@@ -459,7 +501,7 @@ function DashboardHome() {
             {/* Workflow stepper */}
             <div
               className="rounded-xl p-4"
-              style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+              style={{ background: "#0c0c10", border: "1px solid rgba(255,255,255,0.06)" }}
             >
               <div
                 className="text-xs font-bold uppercase tracking-widest mb-3"
@@ -507,41 +549,46 @@ function DashboardHome() {
           All Tools
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {TOOL_CATEGORY_CARDS.map(({ label, icon: Icon, color, tools, path }) => (
+          {TOOL_CATEGORY_CARDS.map(({ label, icon: Icon, color, tools, path, desc }) => (
             <button
               key={label}
               onClick={() => setLocation(path)}
-              className="text-left rounded-xl p-4 transition-all"
+              className="text-left rounded-xl p-4 transition-all group"
               style={{
-                background: "#111111",
-                border: "1px solid rgba(255,255,255,0.08)",
+                background: "#0c0c10",
+                border: "1px solid rgba(255,255,255,0.06)",
                 cursor: "pointer",
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = `${color}40`;
-                (e.currentTarget as HTMLButtonElement).style.background = `${color}08`;
+                (e.currentTarget as HTMLButtonElement).style.borderColor = `${color}35`;
+                (e.currentTarget as HTMLButtonElement).style.background = `${color}06`;
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 4px 24px ${color}10`;
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.08)";
-                (e.currentTarget as HTMLButtonElement).style.background = "#111111";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.06)";
+                (e.currentTarget as HTMLButtonElement).style.background = "#0c0c10";
+                (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
               }}
             >
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2.5 mb-3">
                 <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center"
-                  style={{ background: `${color}18` }}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center"
+                  style={{ background: `${color}12` }}
                 >
-                  <Icon size={13} style={{ color }} />
+                  <Icon size={14} style={{ color }} />
                 </div>
-                <span className="text-sm font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
-                  {label}
-                </span>
+                <div>
+                  <span className="text-sm font-bold block" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
+                    {label}
+                  </span>
+                  <span className="text-xs" style={{ color: "#52525b" }}>{desc}</span>
+                </div>
               </div>
-              <div className="space-y-0.5">
+              <div className="flex flex-wrap gap-1">
                 {tools.map(t => (
-                  <div key={t} className="text-xs" style={{ color: "#52525b" }}>
+                  <span key={t} className="text-xs px-2 py-0.5 rounded-md" style={{ background: "rgba(255,255,255,0.04)", color: "#71717a" }}>
                     {t}
-                  </div>
+                  </span>
                 ))}
               </div>
             </button>

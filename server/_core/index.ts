@@ -1,10 +1,14 @@
-import "dotenv/config";
+import { config } from "dotenv";
+config(); // loads .env
+config({ path: ".env.local", override: false }); // loads .env.local, doesn't override existing
+
 import express from "express";
 import { createServer } from "http";
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerChatRoutes } from "./chat";
 import { registerScrapeRoutes } from "../lib/scrape-product";
+import { registerStripeRoutes } from "../lib/stripe";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
@@ -28,6 +32,15 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
   throw new Error(`No available port found starting from ${startPort}`);
 }
 
+// ═══ Agent Activity Log (in-memory, max 100 entries) ═══
+interface AgentLogEntry {
+  agent: string;
+  message: string;
+  status: string;
+  timestamp: string;
+}
+const agentLog: AgentLogEntry[] = [];
+
 async function startServer() {
   const app = express();
   const server = createServer(app);
@@ -35,10 +48,45 @@ async function startServer() {
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+  // ═══ Agent Log API (CORS for dashboard at localhost:5173) ═══
+  app.options("/api/agent-log", (_req, res) => {
+    res.set({
+      "Access-Control-Allow-Origin": "http://localhost:5173",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    });
+    res.sendStatus(204);
+  });
+
+  app.post("/api/agent-log", (req, res) => {
+    res.set("Access-Control-Allow-Origin", "http://localhost:5173");
+    const { agent, message, status, timestamp } = req.body;
+    if (!agent || !message) {
+      return res.status(400).json({ error: "agent and message are required" });
+    }
+    const entry: AgentLogEntry = {
+      agent,
+      message,
+      status: status || "info",
+      timestamp: timestamp || new Date().toISOString(),
+    };
+    agentLog.push(entry);
+    if (agentLog.length > 100) agentLog.shift();
+    res.json({ ok: true, count: agentLog.length });
+  });
+
+  app.get("/api/agent-log", (_req, res) => {
+    res.set("Access-Control-Allow-Origin", "http://localhost:5173");
+    res.json(agentLog);
+  });
+
   // Chat API with streaming and tool calling
   registerChatRoutes(app);
   // Product scraping API
   registerScrapeRoutes(app);
+  // Stripe checkout + webhook routes
+  registerStripeRoutes(app);
   // tRPC API
   app.use(
     "/api/trpc",

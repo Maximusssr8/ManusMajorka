@@ -5,7 +5,10 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore stripe will be available after pnpm install
 import Stripe from "stripe";
+import type { Express } from "express";
+import express from "express";
 import { getSubscriptionByUserId, createSubscription, updateSubscriptionStatus } from "../db";
+import { getSupabaseAdmin } from "../_core/supabase";
 
 // ── Stripe client ──────────────────────────────────────────────────────────────
 
@@ -110,6 +113,7 @@ export async function handleWebhook(event: Stripe.Event): Promise<void> {
           status: "active",
           plan: "pro",
           priceInCents: 9900, // $99 AUD
+          currency: "AUD",
           periodStart,
           periodEnd,
         });
@@ -157,4 +161,37 @@ export async function handleWebhook(event: Stripe.Event): Promise<void> {
     default:
       console.log(`[Stripe] Unhandled event type: ${event.type}`);
   }
+}
+
+// ── Express route registration ───────────────────────────────────────────────
+
+export function registerStripeRoutes(app: Express) {
+  // POST /api/stripe/checkout-session
+  app.post("/api/stripe/checkout-session", async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader?.startsWith("Bearer ")) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      const token = authHeader.slice(7);
+      const { data: { user }, error } = await getSupabaseAdmin().auth.getUser(token);
+      if (error || !user) return res.status(401).json({ error: "Unauthorized" });
+
+      const { url } = await createCheckoutSession({
+        userId: user.id,
+        userEmail: user.email,
+        successUrl: `${req.headers.origin ?? "https://manus-majorka.vercel.app"}/app?success=1`,
+        cancelUrl: `${req.headers.origin ?? "https://manus-majorka.vercel.app"}/account`,
+      });
+      res.json({ url });
+    } catch (err: any) {
+      console.error("[stripe] checkout error:", err);
+      res.status(500).json({ error: err.message ?? "Stripe error" });
+    }
+  });
+
+  // POST /api/stripe/webhook (for future use)
+  app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
+    res.json({ received: true });
+  });
 }

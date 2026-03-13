@@ -4,6 +4,8 @@ import type { Session } from "@supabase/supabase-js";
 import type { Profile } from "@shared/types";
 import { supabase } from "@/lib/supabase";
 import { trpc } from "@/lib/trpc";
+import { identifyUser, resetUser, capture } from "@/lib/posthog";
+import { getAttributionFlat } from "@/lib/attribution";
 
 interface AuthContextValue {
   user: Profile | null;
@@ -104,7 +106,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!session]);
 
+  // Identify user in PostHog + send attribution when profile loads
+  const attributionSent = useRef(false);
+  useEffect(() => {
+    const profile = meQuery.data as Profile | null | undefined;
+    if (profile?.id) {
+      identifyUser(profile.id, {
+        email: profile.email,
+        name: profile.name,
+        role: profile.role,
+        created_at: profile.createdAt,
+      });
+      capture("user_logged_in");
+
+      // Send UTM attribution once per session
+      if (!attributionSent.current) {
+        attributionSent.current = true;
+        const attrs = getAttributionFlat();
+        if (attrs.first_touch_source || attrs.last_touch_source) {
+          capture("user_attribution", attrs);
+        }
+      }
+    }
+  }, [meQuery.data]);
+
   const logout = useCallback(async () => {
+    resetUser();
     await supabase.auth.signOut();
     utils.auth.me.setData(undefined, null);
     await utils.auth.me.invalidate();
