@@ -469,6 +469,14 @@ export default function MajorkaAppShell({ children }: Props) {
         {/* Divider */}
         <div className="my-2" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }} />
 
+        {/* Academy */}
+        {navItem({
+          label: "Academy",
+          path: "/app/learn",
+          icon: GraduationCap,
+          tooltip: "20 lessons from zero to $10K/month",
+        })}
+
         {/* Ask Majorka AI — gold gradient full-width button */}
         <div className="px-1 mb-1">
           <button
