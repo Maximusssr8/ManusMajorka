@@ -88,6 +88,9 @@ Keep files compact but functional. Total JSON must be under 3000 tokens. Output 
   "keyword-miner": `You are an AU SEO specialist for ecommerce. Output: (1) Primary keywords with AU monthly search volume estimates, (2) Long-tail AU buyer-intent keywords, (3) Google Shopping titles optimized for AU, (4) Comparison vs US search behaviour. Reference AU-specific suffixes: "Australia", "AU", "buy online Australia", "free shipping Australia", "afterpay".`,
   "audience-profiler": `You are a consumer research specialist for AU DTC brands. Output detailed audience profiles with: AU demographics (age, location, income), AU platform behaviour (TikTok AU, Meta AU, Google AU), AU buying triggers, AU objections, and AU messaging angles. Reference specific AU cities and demographics.`,
   "copywriter": `You are a direct response copywriter for AU consumers. Write in Australian English (colour, favourite, organise). Avoid American hype words. Output: headline, subheadline, hero copy, bullet benefits, social proof section, CTA. Reference AUD prices, Afterpay, AusPost shipping, ACCC returns rights.`,
+  "ads-studio": `You are a creative director who has produced 1,000+ high-converting AU DTC campaign assets. You create scroll-stopping hooks, video scripts, and shot lists for AU audiences on TikTok, Instagram Reels, and Meta. AU consumer psychology: authenticity > polish, tall poppy wariness means subtle proof beats bold claims, Australian humour converts. For every request: (1) 5+ hook options for different angles, (2) full video script (15s, 30s, 60s versions), (3) shot list with AU settings, (4) caption + hashtags for AU, (5) creative brief for UGC creators. All in Australian English.`,
+  "meta-ads": `You are a senior Meta ads specialist with $2M+ AU ad spend experience. You build complete AU ad sets with ACTUAL copy ready for Ads Manager (not descriptions of ads). For every product: (1) 5+ full ad copy variations (Feed, Reels, Stories formats), (2) AU audience targeting (age, interests, behaviours with AU-specific sizes), (3) campaign architecture (CBO/ABO, AU budgets, bid strategy), (4) Afterpay/Zip messaging that converts, (5) A/B test plan. Expected AU CPMs: $12-25 AUD. All copy in Australian English. All currency in AUD.`,
+  "scaling-playbook": `You are a business scaling strategist who has taken 20+ Australian ecommerce brands from $10K to $1M+ AUD/month. You build phase-by-phase scaling playbooks calibrated for AU market dynamics. For every request: (1) Current state diagnosis, (2) Phase-by-phase scaling plan (with AUD revenue milestones), (3) Channel expansion sequence (Meta → Google → TikTok → Marketplace), (4) Hiring plan (VA → media buyer → ops manager with AUD salaries), (5) AU-specific challenges (smaller audience pools, AU logistics, ACCC compliance), (6) International expansion timing (NZ first, then UK/US). All figures in AUD.`,
 };
 
 /** Maya system prompt for AI Chat — date-aware, tool-using, AU-first */
@@ -461,14 +464,72 @@ export function registerChatRoutes(app: Application) {
       } else {
         // ── Non-streaming response (legacy) ─────────────────────────────
         const client = getAnthropicClient();
-        const aiResponse = await client.messages.create({
-          model: CLAUDE_MODEL,
-          max_tokens: maxTokens,
-          system,
-          messages,
-        });
 
-        let reply = aiResponse.content[0]?.type === "text" ? aiResponse.content[0].text : "";
+        // For ai-chat, run agentic tool loop before returning final response
+        let reply = "";
+        if (toolName === "ai-chat" && process.env.TAVILY_API_KEY) {
+          type AnthropicMessage = Anthropic.MessageParam;
+          let agentMessages: AnthropicMessage[] = messages.map((m: { role: string; content: string }) => ({
+            role: m.role as "user" | "assistant",
+            content: m.content,
+          }));
+
+          let steps = 0;
+          const MAX_STEPS = 5;
+
+          while (steps < MAX_STEPS) {
+            steps++;
+            const response = await client.messages.create({
+              model: CLAUDE_MODEL,
+              max_tokens: maxTokens,
+              system,
+              messages: agentMessages,
+              tools: ANTHROPIC_AI_TOOLS,
+              tool_choice: { type: "auto" },
+            });
+
+            const toolUseBlocks = response.content.filter(
+              (b): b is Anthropic.ToolUseBlock => b.type === "tool_use"
+            );
+            const textBlocks = response.content.filter(
+              (b): b is Anthropic.TextBlock => b.type === "text"
+            );
+
+            if (toolUseBlocks.length === 0 || response.stop_reason === "end_turn") {
+              reply = textBlocks.map(b => b.text).join("");
+              break;
+            }
+
+            agentMessages.push({ role: "assistant", content: response.content });
+
+            const toolResults: Anthropic.ToolResultBlockParam[] = [];
+            for (const toolBlock of toolUseBlocks) {
+              try {
+                const result = await executeTool(toolBlock.name, toolBlock.input as Record<string, unknown>);
+                toolResults.push({ type: "tool_result", tool_use_id: toolBlock.id, content: result });
+              } catch (toolErr: any) {
+                toolResults.push({ type: "tool_result", tool_use_id: toolBlock.id, content: JSON.stringify({ error: toolErr.message }) });
+              }
+            }
+            agentMessages.push({ role: "user", content: toolResults });
+          }
+
+          // If loop ended without a reply, do a final call
+          if (!reply) {
+            const finalResp = await client.messages.create({
+              model: CLAUDE_MODEL, max_tokens: maxTokens, system, messages: agentMessages,
+            });
+            reply = finalResp.content.filter((b): b is Anthropic.TextBlock => b.type === "text").map(b => b.text).join("");
+          }
+        } else {
+          const aiResponse = await client.messages.create({
+            model: CLAUDE_MODEL,
+            max_tokens: maxTokens,
+            system,
+            messages,
+          });
+          reply = aiResponse.content[0]?.type === "text" ? aiResponse.content[0].text : "";
+        }
 
         // For JSON-expected tools, extract the JSON object from the response
         // even if the model wraps it in markdown fences or prefixes it with text
