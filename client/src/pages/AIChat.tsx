@@ -1,12 +1,12 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Markdown } from "@/components/Markdown";
-import { Send, Loader2, Sparkles, Trash2, Package, RefreshCw } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
-import { useActiveProduct } from "@/hooks/useActiveProduct";
-import { useAuth } from "@/contexts/AuthContext";
-import { getStoredMarket } from "@/contexts/MarketContext";
-import { toast } from "sonner";
+import { AnimatePresence, motion } from 'framer-motion';
+import { Loader2, Package, RefreshCw, Send, Sparkles, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { Markdown } from '@/components/Markdown';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { useAuth } from '@/contexts/AuthContext';
+import { getStoredMarket } from '@/contexts/MarketContext';
+import { useActiveProduct } from '@/hooks/useActiveProduct';
 
 const BASE_SYSTEM_PROMPT = `You are an elite ecommerce advisor with 15 years experience scaling 7-figure Shopify stores. You give specific, actionable advice tailored to the user's exact situation. Never give generic answers.
 
@@ -18,21 +18,21 @@ How you communicate:
 - Skip the preamble. Lead with the answer.
 - End with the 2-3 most important next actions — concrete, not generic.`;
 
-type Message = { role: "user" | "assistant"; content: string; isError?: boolean };
+type Message = { role: 'user' | 'assistant'; content: string; isError?: boolean };
 
 const TOOL_STATUS_LABELS: Record<string, string> = {
-  web_search: "🔍 Searching the web...",
-  product_research: "📊 Researching products...",
-  competitor_analysis: "🕵️ Analysing competitor...",
-  supplier_finder: "🏭 Finding suppliers...",
-  trend_scout: "🔥 Scouting trends...",
-  ad_angle_generator: "🎯 Generating ad angles...",
+  web_search: '🔍 Searching the web...',
+  product_research: '📊 Researching products...',
+  competitor_analysis: '🕵️ Analysing competitor...',
+  supplier_finder: '🏭 Finding suppliers...',
+  trend_scout: '🔥 Scouting trends...',
+  ad_angle_generator: '🎯 Generating ad angles...',
 };
 
 export default function AIChat() {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [status, setStatus] = useState<"idle" | "streaming">("idle");
+  const [status, setStatus] = useState<'idle' | 'streaming'>('idle');
   const [toolStatus, setToolStatus] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -41,13 +41,13 @@ export default function AIChat() {
   const lastFailedMsg = useRef<string | null>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const buildSystemPrompt = useCallback(() => {
     const productCtx = activeProduct
       ? `\n\nACTIVE PRODUCT: ${activeProduct.name} | Niche: ${activeProduct.niche} | Stage: ${activeProduct.source}\n\nAlways reference this product specifically when answering questions. Give advice tailored to exactly this product and niche.`
-      : "";
+      : '';
     return BASE_SYSTEM_PROMPT + productCtx;
   }, [activeProduct]);
 
@@ -59,112 +59,126 @@ export default function AIChat() {
         `How do I validate demand for ${activeProduct.name} quickly?`,
       ]
     : [
-        "What AU products are trending on TikTok right now?",
-        "Help me validate my niche: eco dog products",
-        "Write me Meta ads for a $45 AUD water bottle",
+        'What AU products are trending on TikTok right now?',
+        'Help me validate my niche: eco dog products',
+        'Write me Meta ads for a $45 AUD water bottle',
         "What's the best way to start dropshipping in Australia?",
       ];
 
-  const handleSend = useCallback(async (overrideText?: string) => {
-    const msg = (overrideText ?? input).trim();
-    if (!msg || status === "streaming") return;
-    if (!overrideText) setInput("");
-    if (textareaRef.current) textareaRef.current.style.height = "auto";
-    lastFailedMsg.current = null;
+  const handleSend = useCallback(
+    async (overrideText?: string) => {
+      const msg = (overrideText ?? input).trim();
+      if (!msg || status === 'streaming') return;
+      if (!overrideText) setInput('');
+      if (textareaRef.current) textareaRef.current.style.height = 'auto';
+      lastFailedMsg.current = null;
 
-    const userMsg: Message = { role: "user", content: msg };
-    const newMessages = [...messages, userMsg];
-    setMessages([...newMessages, { role: "assistant", content: "" }]);
-    setStatus("streaming");
+      const userMsg: Message = { role: 'user', content: msg };
+      const newMessages = [...messages, userMsg];
+      setMessages([...newMessages, { role: 'assistant', content: '' }]);
+      setStatus('streaming');
 
-    try {
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (session?.access_token) headers["Authorization"] = `Bearer ${session.access_token}`;
+      try {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
 
-      const response = await fetch("/api/chat?stream=1", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
-          systemPrompt: buildSystemPrompt(),
-          toolName: "ai-chat",
-          stream: true,
-          market: getStoredMarket(),
-        }),
-      });
-      if (!response.ok) throw new Error(`Server error: ${response.status}`);
+        const response = await fetch('/api/chat?stream=1', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
+            systemPrompt: buildSystemPrompt(),
+            toolName: 'ai-chat',
+            stream: true,
+            market: getStoredMarket(),
+          }),
+        });
+        if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
-      // Parse SSE stream
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let accumulated = "";
+        // Parse SSE stream
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let accumulated = '';
 
-      if (reader) {
-        let buffer = "";
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+        if (reader) {
+          let buffer = '';
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || "";
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
 
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
-            const rawPayload = line.slice(6);
-            if (rawPayload === "[DONE]") continue;
-            try {
-              const payload = JSON.parse(rawPayload);
-              if (payload.toolStatus) {
-                // Show tool status pill
-                const label = TOOL_STATUS_LABELS[payload.toolStatus] || payload.statusMessage || `🔧 Working...`;
-                setToolStatus(label);
-              } else if (payload.text !== undefined) {
-                // Text is streaming — clear tool status
-                setToolStatus(null);
-                accumulated += payload.text;
-                setMessages(prev => {
-                  const updated = [...prev];
-                  updated[updated.length - 1] = { role: "assistant", content: accumulated };
-                  return updated;
-                });
+            for (const line of lines) {
+              if (!line.startsWith('data: ')) continue;
+              const rawPayload = line.slice(6);
+              if (rawPayload === '[DONE]') continue;
+              try {
+                const payload = JSON.parse(rawPayload);
+                if (payload.toolStatus) {
+                  // Show tool status pill
+                  const label =
+                    TOOL_STATUS_LABELS[payload.toolStatus] ||
+                    payload.statusMessage ||
+                    `🔧 Working...`;
+                  setToolStatus(label);
+                } else if (payload.text !== undefined) {
+                  // Text is streaming — clear tool status
+                  setToolStatus(null);
+                  accumulated += payload.text;
+                  setMessages((prev) => {
+                    const updated = [...prev];
+                    updated[updated.length - 1] = { role: 'assistant', content: accumulated };
+                    return updated;
+                  });
+                }
+              } catch {
+                /* skip malformed lines */
               }
-            } catch { /* skip malformed lines */ }
+            }
           }
         }
-      }
 
-      // Fallback: if streaming produced nothing, try plain JSON
-      if (!accumulated) {
-        try {
-          const text = await response.text();
-          const data = JSON.parse(text);
-          accumulated = data.reply ?? "";
-          setMessages(prev => {
-            const updated = [...prev];
-            updated[updated.length - 1] = { role: "assistant", content: accumulated };
-            return updated;
-          });
-        } catch { /* already handled */ }
+        // Fallback: if streaming produced nothing, try plain JSON
+        if (!accumulated) {
+          try {
+            const text = await response.text();
+            const data = JSON.parse(text);
+            accumulated = data.reply ?? '';
+            setMessages((prev) => {
+              const updated = [...prev];
+              updated[updated.length - 1] = { role: 'assistant', content: accumulated };
+              return updated;
+            });
+          } catch {
+            /* already handled */
+          }
+        }
+      } catch (err) {
+        console.error('Stream error:', err);
+        lastFailedMsg.current = msg;
+        setMessages((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            role: 'assistant',
+            content: 'Something went wrong — try again',
+            isError: true,
+          };
+          return updated;
+        });
+      } finally {
+        setStatus('idle');
+        setToolStatus(null);
       }
-    } catch (err) {
-      console.error("Stream error:", err);
-      lastFailedMsg.current = msg;
-      setMessages(prev => {
-        const updated = [...prev];
-        updated[updated.length - 1] = { role: "assistant", content: "Something went wrong — try again", isError: true };
-        return updated;
-      });
-    } finally {
-      setStatus("idle");
-      setToolStatus(null);
-    }
-  }, [input, messages, status, buildSystemPrompt, session]);
+    },
+    [input, messages, status, buildSystemPrompt, session]
+  );
 
   const handleRetry = useCallback(() => {
     if (!lastFailedMsg.current) return;
     // Remove the error message
-    setMessages(prev => prev.slice(0, -2));
+    setMessages((prev) => prev.slice(0, -2));
     const retryMsg = lastFailedMsg.current;
     lastFailedMsg.current = null;
     handleSend(retryMsg);
@@ -174,46 +188,75 @@ export default function AIChat() {
     setMessages([]);
     if (session?.access_token) {
       try {
-        await fetch("/api/chat/history?tool=ai-chat", {
-          method: "DELETE",
-          headers: { "Authorization": `Bearer ${session.access_token}` },
+        await fetch('/api/chat/history?tool=ai-chat', {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${session.access_token}` },
         });
-        toast.success("Chat history cleared");
-      } catch { /* non-fatal */ }
+        toast.success('Chat history cleared');
+      } catch {
+        /* non-fatal */
+      }
     }
   }, [session]);
 
   return (
-    <div className="flex flex-col h-full" style={{ background: "#080a0e" }}>
+    <div className="flex flex-col h-full" style={{ background: '#080a0e' }}>
       {/* Header */}
       <div
         className="flex-shrink-0 px-5 py-3"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", background: "#0d0f12" }}
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#0d0f12' }}
       >
         <div className="flex items-center gap-3">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm"
-            style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", fontFamily: "Syne, sans-serif" }}
+            style={{
+              background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+              color: '#080a0e',
+              fontFamily: 'Syne, sans-serif',
+            }}
           >
             A
           </div>
           <div className="flex-1">
-            <h1 className="font-black text-sm" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>
+            <h1
+              className="font-black text-sm"
+              style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+            >
               AI Chat
             </h1>
-            <p className="text-xs" style={{ color: "rgba(240,237,232,0.35)", fontFamily: "DM Sans, sans-serif" }}>
-              {activeProduct ? `Advising on ${activeProduct.name}` : "Ask Majorka anything"}
+            <p
+              className="text-xs"
+              style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'DM Sans, sans-serif' }}
+            >
+              {activeProduct ? `Advising on ${activeProduct.name}` : 'Ask Majorka anything'}
             </p>
           </div>
           {activeProduct && (
             <div
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg"
-              style={{ background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.25)" }}
+              style={{
+                background: 'rgba(212,175,55,0.1)',
+                border: '1px solid rgba(212,175,55,0.25)',
+              }}
             >
-              <Package size={11} style={{ color: "#d4af37" }} />
-              <span className="text-xs font-bold" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>{activeProduct.name}</span>
+              <Package size={11} style={{ color: '#d4af37' }} />
+              <span
+                className="text-xs font-bold"
+                style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+              >
+                {activeProduct.name}
+              </span>
               {activeProduct.niche && (
-                <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: "rgba(212,175,55,0.15)", color: "rgba(212,175,55,0.7)", fontSize: 9 }}>{activeProduct.niche}</span>
+                <span
+                  className="text-xs px-1.5 py-0.5 rounded"
+                  style={{
+                    background: 'rgba(212,175,55,0.15)',
+                    color: 'rgba(212,175,55,0.7)',
+                    fontSize: 9,
+                  }}
+                >
+                  {activeProduct.niche}
+                </span>
               )}
             </div>
           )}
@@ -221,9 +264,14 @@ export default function AIChat() {
             <button
               onClick={handleClearHistory}
               className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all"
-              style={{ color: "rgba(240,237,232,0.35)", background: "transparent", border: "none", cursor: "pointer" }}
-              onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
-              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+              style={{
+                color: 'rgba(240,237,232,0.35)',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
               title="Clear chat"
             >
               <Trash2 size={12} />
@@ -238,37 +286,62 @@ export default function AIChat() {
           <div className="space-y-4 p-5">
             {/* Memory indicator — shown when user is logged in and has chat history (mem0 active) */}
             {session && messages.length > 0 && (
-              <div className="flex items-center gap-2 text-xs mb-1" style={{ color: "rgba(212,175,55,0.5)" }}>
-                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#d4af37", flexShrink: 0 }} />
-                <span style={{ fontFamily: "DM Sans, sans-serif" }}>Maya is using your conversation history</span>
+              <div
+                className="flex items-center gap-2 text-xs mb-1"
+                style={{ color: 'rgba(212,175,55,0.5)' }}
+              >
+                <span
+                  className="w-1.5 h-1.5 rounded-full animate-pulse"
+                  style={{ background: '#d4af37', flexShrink: 0 }}
+                />
+                <span style={{ fontFamily: 'DM Sans, sans-serif' }}>
+                  Maya is using your conversation history
+                </span>
               </div>
             )}
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center text-center py-12">
-                <Sparkles className="w-10 h-10 mb-4" style={{ color: "#d4af37", opacity: 0.25 }} />
-                <p className="text-sm mb-1 font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>
-                  {activeProduct ? `Let's talk about ${activeProduct.name}` : "What can I help you with?"}
+                <Sparkles className="w-10 h-10 mb-4" style={{ color: '#d4af37', opacity: 0.25 }} />
+                <p
+                  className="text-sm mb-1 font-bold"
+                  style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                >
+                  {activeProduct
+                    ? `Let's talk about ${activeProduct.name}`
+                    : 'What can I help you with?'}
                 </p>
-                <p className="text-xs mb-8 max-w-xs" style={{ color: "rgba(240,237,232,0.35)", fontFamily: "DM Sans, sans-serif" }}>
+                <p
+                  className="text-xs mb-8 max-w-xs"
+                  style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'DM Sans, sans-serif' }}
+                >
                   {activeProduct
                     ? `I have full context on your ${activeProduct.niche} product and can give you specific, targeted advice.`
-                    : "Ask me anything about growing your ecommerce business."}
+                    : 'Ask me anything about growing your ecommerce business.'}
                 </p>
                 <div className="flex flex-col gap-2 w-full max-w-md">
-                  <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "rgba(240,237,232,0.25)", fontFamily: "Syne, sans-serif" }}>Suggested</p>
+                  <p
+                    className="text-xs font-bold uppercase tracking-widest mb-1"
+                    style={{ color: 'rgba(240,237,232,0.25)', fontFamily: 'Syne, sans-serif' }}
+                  >
+                    Suggested
+                  </p>
                   {suggestedPrompts.map((prompt, i) => (
                     <button
                       key={i}
                       onClick={() => handleSend(prompt)}
                       className="text-left text-xs px-4 py-2.5 rounded-lg border transition-all"
                       style={{
-                        borderColor: "rgba(212,175,55,0.18)",
-                        color: "rgba(212,175,55,0.7)",
-                        background: "rgba(212,175,55,0.04)",
-                        cursor: "pointer",
+                        borderColor: 'rgba(212,175,55,0.18)',
+                        color: 'rgba(212,175,55,0.7)',
+                        background: 'rgba(212,175,55,0.04)',
+                        cursor: 'pointer',
                       }}
-                      onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(212,175,55,0.35)")}
-                      onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(212,175,55,0.18)")}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.35)')
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.18)')
+                      }
                     >
                       {prompt}
                     </button>
@@ -280,46 +353,51 @@ export default function AIChat() {
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                {msg.role === "assistant" && (
+                {msg.role === 'assistant' && (
                   <div
                     className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center"
-                    style={{ background: "rgba(212,175,55,0.12)", flexShrink: 0 }}
+                    style={{ background: 'rgba(212,175,55,0.12)', flexShrink: 0 }}
                   >
-                    <Sparkles className="w-3.5 h-3.5" style={{ color: "#d4af37" }} />
+                    <Sparkles className="w-3.5 h-3.5" style={{ color: '#d4af37' }} />
                   </div>
                 )}
 
                 <div
                   className="max-w-[72%] rounded-lg px-4 py-3"
                   style={
-                    msg.role === "user"
+                    msg.role === 'user'
                       ? {
-                          background: "#1a1600",
-                          border: "1px solid rgba(212,175,55,0.3)",
-                          color: "#f0ede8",
+                          background: '#1a1600',
+                          border: '1px solid rgba(212,175,55,0.3)',
+                          color: '#f0ede8',
                         }
                       : msg.isError
-                      ? { background: "rgba(255,100,100,0.12)", border: "1px solid rgba(255,100,100,0.2)" }
-                      : {
-                          background: "#0d0f12",
-                          border: "1px solid rgba(255,255,255,0.06)",
-                        }
+                        ? {
+                            background: 'rgba(255,100,100,0.12)',
+                            border: '1px solid rgba(255,100,100,0.2)',
+                          }
+                        : {
+                            background: '#0d0f12',
+                            border: '1px solid rgba(255,255,255,0.06)',
+                          }
                   }
                 >
                   {msg.isError ? (
                     <div className="flex items-center gap-3">
-                      <span className="text-sm" style={{ color: "rgba(255,150,150,0.9)" }}>{msg.content}</span>
+                      <span className="text-sm" style={{ color: 'rgba(255,150,150,0.9)' }}>
+                        {msg.content}
+                      </span>
                       <button
                         onClick={handleRetry}
                         className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg flex-shrink-0 transition-all"
                         style={{
-                          background: "rgba(212,175,55,0.12)",
-                          border: "1px solid rgba(212,175,55,0.3)",
-                          color: "#d4af37",
-                          cursor: "pointer",
-                          fontFamily: "Syne, sans-serif",
+                          background: 'rgba(212,175,55,0.12)',
+                          border: '1px solid rgba(212,175,55,0.3)',
+                          color: '#d4af37',
+                          cursor: 'pointer',
+                          fontFamily: 'Syne, sans-serif',
                           fontWeight: 700,
                         }}
                       >
@@ -328,15 +406,30 @@ export default function AIChat() {
                     </div>
                   ) : (
                     <div className="prose prose-sm dark:prose-invert max-w-none">
-                      <Markdown mode={status === "streaming" && i === messages.length - 1 && msg.role === "assistant" ? "streaming" : "static"}>{msg.content}</Markdown>
+                      <Markdown
+                        mode={
+                          status === 'streaming' &&
+                          i === messages.length - 1 &&
+                          msg.role === 'assistant'
+                            ? 'streaming'
+                            : 'static'
+                        }
+                      >
+                        {msg.content}
+                      </Markdown>
                     </div>
                   )}
                 </div>
 
-                {msg.role === "user" && (
+                {msg.role === 'user' && (
                   <div
                     className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center font-black text-xs"
-                    style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", fontFamily: "Syne, sans-serif", flexShrink: 0 }}
+                    style={{
+                      background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+                      color: '#080a0e',
+                      fontFamily: 'Syne, sans-serif',
+                      flexShrink: 0,
+                    }}
                   >
                     U
                   </div>
@@ -354,38 +447,57 @@ export default function AIChat() {
                   transition={{ duration: 0.2 }}
                   className="flex justify-start"
                 >
-                  <div className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-full w-fit ml-10"
-                    style={{ color: "#d4af37", background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.2)" }}>
-                    <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#d4af37" }} />
-                    <span style={{ fontFamily: "DM Sans, sans-serif", fontSize: 13 }}>{toolStatus}</span>
+                  <div
+                    className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-full w-fit ml-10"
+                    style={{
+                      color: '#d4af37',
+                      background: 'rgba(212,175,55,0.1)',
+                      border: '1px solid rgba(212,175,55,0.2)',
+                    }}
+                  >
+                    <div
+                      className="w-2 h-2 rounded-full animate-pulse"
+                      style={{ background: '#d4af37' }}
+                    />
+                    <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13 }}>
+                      {toolStatus}
+                    </span>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
             {/* Bouncing dots typing indicator */}
-            {status === "streaming" && messages[messages.length - 1]?.content === "" && !toolStatus && (
-              <div className="flex gap-3 justify-start">
-                <div className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center" style={{ background: "rgba(212,175,55,0.12)" }}>
-                  <Sparkles className="w-3.5 h-3.5" style={{ color: "#d4af37" }} />
-                </div>
-                <div className="rounded-lg px-4 py-3" style={{ background: "#0d0f12", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <div className="flex items-center gap-1.5">
-                    {[0, 1, 2].map(i => (
-                      <div
-                        key={i}
-                        className="w-2 h-2 rounded-full animate-bounce"
-                        style={{
-                          background: "#d4af37",
-                          animationDelay: `${i * 0.15}s`,
-                          animationDuration: "0.6s",
-                        }}
-                      />
-                    ))}
+            {status === 'streaming' &&
+              messages[messages.length - 1]?.content === '' &&
+              !toolStatus && (
+                <div className="flex gap-3 justify-start">
+                  <div
+                    className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center"
+                    style={{ background: 'rgba(212,175,55,0.12)' }}
+                  >
+                    <Sparkles className="w-3.5 h-3.5" style={{ color: '#d4af37' }} />
+                  </div>
+                  <div
+                    className="rounded-lg px-4 py-3"
+                    style={{ background: '#0d0f12', border: '1px solid rgba(255,255,255,0.06)' }}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      {[0, 1, 2].map((i) => (
+                        <div
+                          key={i}
+                          className="w-2 h-2 rounded-full animate-bounce"
+                          style={{
+                            background: '#d4af37',
+                            animationDelay: `${i * 0.15}s`,
+                            animationDuration: '0.6s',
+                          }}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
             <div ref={bottomRef} />
           </div>
         </ScrollArea>
@@ -395,8 +507,8 @@ export default function AIChat() {
           <div
             className="flex items-end gap-2 px-4 py-3 rounded-lg"
             style={{
-              background: "#0d0f12",
-              border: "1px solid rgba(255,255,255,0.1)",
+              background: '#0d0f12',
+              border: '1px solid rgba(255,255,255,0.1)',
             }}
           >
             <textarea
@@ -404,32 +516,48 @@ export default function AIChat() {
               value={input}
               onChange={(e) => {
                 setInput(e.target.value);
-                e.target.style.height = "auto";
-                e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
+                e.target.style.height = 'auto';
+                e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
               }}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
               }}
-              placeholder={activeProduct ? `Ask about ${activeProduct.name}...` : "Ask Majorka anything..."}
+              placeholder={
+                activeProduct ? `Ask about ${activeProduct.name}...` : 'Ask Majorka anything...'
+              }
               rows={1}
               className="flex-1 bg-transparent text-sm outline-none resize-none"
-              style={{ color: "#f0ede8", fontFamily: "DM Sans, sans-serif", lineHeight: "1.5", maxHeight: "120px" }}
+              style={{
+                color: '#f0ede8',
+                fontFamily: 'DM Sans, sans-serif',
+                lineHeight: '1.5',
+                maxHeight: '120px',
+              }}
             />
             <button
               onClick={() => handleSend()}
-              disabled={status === "streaming" || !input.trim()}
+              disabled={status === 'streaming' || !input.trim()}
               className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 disabled:opacity-30 transition-all"
               style={{
-                background: input.trim() ? "linear-gradient(135deg, #d4af37, #c09a28)" : "rgba(255,255,255,0.06)",
-                color: input.trim() ? "#080a0e" : "rgba(240,237,232,0.3)",
-                cursor: "pointer",
-                border: "none",
+                background: input.trim()
+                  ? 'linear-gradient(135deg, #d4af37, #c09a28)'
+                  : 'rgba(255,255,255,0.06)',
+                color: input.trim() ? '#080a0e' : 'rgba(240,237,232,0.3)',
+                cursor: 'pointer',
+                border: 'none',
               }}
             >
-              {status === "streaming" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+              {status === 'streaming' ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Send className="w-3.5 h-3.5" />
+              )}
             </button>
           </div>
-          <p className="text-xs mt-1.5 text-center" style={{ color: "rgba(240,237,232,0.12)" }}>
+          <p className="text-xs mt-1.5 text-center" style={{ color: 'rgba(240,237,232,0.12)' }}>
             Enter to send · Shift+Enter for new line
           </p>
         </div>

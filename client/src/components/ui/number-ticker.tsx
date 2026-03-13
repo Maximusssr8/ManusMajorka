@@ -1,5 +1,5 @@
-import CountUp from "react-countup";
-import { useInView } from "react-intersection-observer";
+import CountUp from 'react-countup';
+import { useInView } from 'react-intersection-observer';
 
 interface NumberTickerProps {
   end: number;
@@ -12,8 +12,8 @@ interface NumberTickerProps {
 
 export function NumberTicker({
   end,
-  prefix = "",
-  suffix = "",
+  prefix = '',
+  suffix = '',
   decimals = 0,
   duration = 1.5,
   className,

@@ -1,9 +1,10 @@
 /**
  * KnowledgeBase — 9-section docs page with sidebar nav and "Ask AI" CTA per section.
  */
-import { useState } from "react";
-import { useLocation } from "wouter";
-import { BookOpen, ChevronRight } from "lucide-react";
+
+import { BookOpen, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
+import { useLocation } from 'wouter';
 
 interface KBSection {
   id: string;
@@ -14,9 +15,9 @@ interface KBSection {
 
 const sections: KBSection[] = [
   {
-    id: "getting-started",
-    title: "Getting Started",
-    aiQuery: "How do I get started with Majorka to find my first winning product?",
+    id: 'getting-started',
+    title: 'Getting Started',
+    aiQuery: 'How do I get started with Majorka to find my first winning product?',
     content: `## What is Majorka?
 
 Majorka is an AI-powered ecommerce operating system built specifically for Australian dropshippers and online store owners. It combines 20+ specialised AI tools across five business stages — Research, Validate, Build, Launch, and Optimise — into a single platform so you can move from product idea to profitable store faster than ever.
@@ -46,9 +47,9 @@ From there, use the **Validate** tool to score the opportunity, then **Supplier 
 - Beginner Mode (toggle in the sidebar) simplifies tool labels and adds helpful tooltips.`,
   },
   {
-    id: "product-research",
-    title: "Product Research",
-    aiQuery: "How do I use Majorka to find high-demand, low-competition products for Australia?",
+    id: 'product-research',
+    title: 'Product Research',
+    aiQuery: 'How do I use Majorka to find high-demand, low-competition products for Australia?',
     content: `## Understanding Demand Signals
 
 Successful product research isn't guesswork — it's reading signals. Majorka's AI analyses multiple live data sources to surface winning products:
@@ -88,9 +89,10 @@ Never order inventory before validating demand. Use the **48-Hour Validation Pla
 Run multiple Product Discovery sessions across different niches and compare opportunity scores. Build a shortlist of 5–10 candidates, then score them with **Niche Scorer** to rank by risk-adjusted profit potential. The best businesses are built on one winning product — take the time to find the right one.`,
   },
   {
-    id: "market-selection",
-    title: "Market Selection",
-    aiQuery: "How do the different markets (AU, US, EU, UK) work in Majorka and which should I choose?",
+    id: 'market-selection',
+    title: 'Market Selection',
+    aiQuery:
+      'How do the different markets (AU, US, EU, UK) work in Majorka and which should I choose?',
     content: `## How Markets Work in Majorka
 
 The Market Selector (sidebar bottom) tells Majorka which geographic market to optimise for. Every AI output adapts to the selected market: currency, shipping costs, compliance rules, consumer psychology, seasonal calendar, and advertising benchmarks all change based on your market selection.
@@ -134,9 +136,9 @@ Use GLOBAL when you're selling internationally and want market-agnostic advice. 
 If you're based in Australia and shipping to Australian customers — use AU. It's the most specific, most refined, and most useful setting. If you're testing international expansion, switch to the relevant market before running research or ad copy tools.`,
   },
   {
-    id: "building-your-store",
-    title: "Building Your Store",
-    aiQuery: "How do I use the Website Generator to build a high-converting Shopify store?",
+    id: 'building-your-store',
+    title: 'Building Your Store',
+    aiQuery: 'How do I use the Website Generator to build a high-converting Shopify store?',
     content: `## The Website Generator
 
 The **Website Generator** tool builds complete, production-ready Shopify theme files for your store. Give it your product, target audience, and brand tone — and it generates:
@@ -178,8 +180,8 @@ Majorka will return a full JSON object with all theme files ready to drop into y
 If you want to use Majorka's generated theme as a base and export it as a proper Shopify theme package, the generated \`config/settings_data.json\` and layout files are compatible with Shopify's standard theme structure. You can also use Shopify CLI to push the theme directly from your local machine.`,
   },
   {
-    id: "running-ads",
-    title: "Running Ads",
+    id: 'running-ads',
+    title: 'Running Ads',
     aiQuery: "How do I create high-converting Meta and TikTok ads using Majorka's tools?",
     content: `## Meta Ads (Facebook & Instagram)
 
@@ -218,9 +220,9 @@ The **Google Ads** tool sets up Shopping and Search campaigns for the AU market.
 Use **Ad Optimizer** when your ROAS drops or you want to scale. Paste in your key metrics and Majorka will diagnose issues (creative fatigue, audience saturation, bidding problems) and give specific fixes — calibrated for AU market dynamics where audience pools fatigue faster than US.`,
   },
   {
-    id: "supplier-sourcing",
-    title: "Supplier Sourcing",
-    aiQuery: "How do I find and vet reliable suppliers for my Australian dropshipping store?",
+    id: 'supplier-sourcing',
+    title: 'Supplier Sourcing',
+    aiQuery: 'How do I find and vet reliable suppliers for my Australian dropshipping store?',
     content: `## Finding Suppliers
 
 Majorka's **Supplier Finder** tool searches across multiple sourcing channels and returns a shortlist of vetted options with AU-specific data: landed cost per unit (product + freight + duty + GST), lead time to AU, reliability rating, and red flags.
@@ -262,9 +264,9 @@ Majorka's Supplier Finder automatically calculates landed cost per unit in AUD s
 Suppliers who: can't provide product samples, don't communicate in English adequately, have no experience shipping to Australia, offer prices too good to be true, or have no certifications for regulated product categories.`,
   },
   {
-    id: "pricing-margins",
-    title: "Pricing & Margins",
-    aiQuery: "How do I calculate healthy profit margins for my Australian dropshipping store?",
+    id: 'pricing-margins',
+    title: 'Pricing & Margins',
+    aiQuery: 'How do I calculate healthy profit margins for my Australian dropshipping store?',
     content: `## Understanding Your Unit Economics
 
 Healthy margins are the foundation of a sustainable business. Use Majorka's **Unit Economics Calculator** or **Financial Modeler** to build your numbers before touching an ad account.
@@ -315,9 +317,10 @@ Track these three metrics religiously:
 - **LTV:CAC ratio:** Target 3:1 or higher for a healthy scaling business.`,
   },
   {
-    id: "compliance-legal",
-    title: "Compliance & Legal",
-    aiQuery: "What legal and compliance requirements do I need to know for selling online in Australia?",
+    id: 'compliance-legal',
+    title: 'Compliance & Legal',
+    aiQuery:
+      'What legal and compliance requirements do I need to know for selling online in Australia?',
     content: `## Australian Consumer Law (ACCC)
 
 The Australian Competition and Consumer Commission (ACCC) enforces the Australian Consumer Law (ACL), which provides mandatory consumer guarantees that cannot be excluded by contract. As an AU seller, you must:
@@ -367,9 +370,10 @@ UK ads must comply with ASA codes — similar to ACCC but with UK-specific nuanc
 If you collect personal information from Australian customers (which any ecommerce store does), you must have a Privacy Policy that complies with the Privacy Act 1988 and the Australian Privacy Principles (APPs). Majorka's Website Generator includes a Privacy Policy page template by default.`,
   },
   {
-    id: "scaling",
-    title: "Scaling to $10K/mo",
-    aiQuery: "What's the roadmap to scale my Majorka dropshipping store from $0 to $10,000 per month?",
+    id: 'scaling',
+    title: 'Scaling to $10K/mo',
+    aiQuery:
+      "What's the roadmap to scale my Majorka dropshipping store from $0 to $10,000 per month?",
     content: `## The $0 to $10K/Month Roadmap
 
 Scaling an Australian dropshipping store to $10K/month is achievable in 3–6 months with the right product, tight unit economics, and a systematic approach. Here's how Majorka supports each phase.
@@ -434,31 +438,31 @@ export default function KnowledgeBase() {
   return (
     <div
       className="flex h-full overflow-hidden"
-      style={{ background: "var(--surface-0, #080a0e)", color: "#f5f5f5" }}
+      style={{ background: 'var(--surface-0, #080a0e)', color: '#f5f5f5' }}
     >
       {/* Left sidebar nav */}
       <aside
         className="flex-shrink-0 overflow-y-auto hidden md:flex flex-col"
         style={{
           width: 240,
-          background: "var(--surface-1, #0d1117)",
-          borderRight: "1px solid var(--surface-border, rgba(212,175,55,0.12))",
+          background: 'var(--surface-1, #0d1117)',
+          borderRight: '1px solid var(--surface-border, rgba(212,175,55,0.12))',
         }}
       >
         {/* Header */}
         <div
           className="flex items-center gap-2.5 px-4 py-4"
-          style={{ borderBottom: "1px solid var(--surface-border, rgba(212,175,55,0.12))" }}
+          style={{ borderBottom: '1px solid var(--surface-border, rgba(212,175,55,0.12))' }}
         >
           <div
             className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: "rgba(212,175,55,0.12)" }}
+            style={{ background: 'rgba(212,175,55,0.12)' }}
           >
-            <BookOpen size={14} style={{ color: "#d4af37" }} />
+            <BookOpen size={14} style={{ color: '#d4af37' }} />
           </div>
           <span
             className="font-bold text-sm uppercase tracking-widest"
-            style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5", letterSpacing: "0.1em" }}
+            style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5', letterSpacing: '0.1em' }}
           >
             Knowledge Base
           </span>
@@ -468,7 +472,12 @@ export default function KnowledgeBase() {
         <nav className="flex-1 py-3 px-2">
           <div
             className="px-2 pb-2 text-xs uppercase font-bold tracking-widest"
-            style={{ color: "#3f3f46", fontFamily: "Syne, sans-serif", fontSize: 9, letterSpacing: "0.12em" }}
+            style={{
+              color: '#3f3f46',
+              fontFamily: 'Syne, sans-serif',
+              fontSize: 9,
+              letterSpacing: '0.12em',
+            }}
           >
             Articles
           </div>
@@ -481,25 +490,26 @@ export default function KnowledgeBase() {
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left mb-0.5 transition-all"
                 style={{
                   borderRadius: 8,
-                  background: active ? "rgba(212,175,55,0.08)" : "transparent",
-                  color: active ? "#f5f5f5" : "#71717a",
-                  border: "none",
-                  cursor: "pointer",
-                  borderLeft: active ? "2px solid #d4af37" : "2px solid transparent",
+                  background: active ? 'rgba(212,175,55,0.08)' : 'transparent',
+                  color: active ? '#f5f5f5' : '#71717a',
+                  border: 'none',
+                  cursor: 'pointer',
+                  borderLeft: active ? '2px solid #d4af37' : '2px solid transparent',
                   paddingLeft: active ? 10 : 12,
-                  fontFamily: "DM Sans, sans-serif",
+                  fontFamily: 'DM Sans, sans-serif',
                   fontWeight: active ? 600 : 400,
                 }}
                 onMouseEnter={(e) => {
                   if (!active) {
-                    (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.04)";
-                    (e.currentTarget as HTMLButtonElement).style.color = "#f5f5f5";
+                    (e.currentTarget as HTMLButtonElement).style.background =
+                      'rgba(255,255,255,0.04)';
+                    (e.currentTarget as HTMLButtonElement).style.color = '#f5f5f5';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!active) {
-                    (e.currentTarget as HTMLButtonElement).style.background = "transparent";
-                    (e.currentTarget as HTMLButtonElement).style.color = "#71717a";
+                    (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+                    (e.currentTarget as HTMLButtonElement).style.color = '#71717a';
                   }
                 }}
               >
@@ -507,8 +517,8 @@ export default function KnowledgeBase() {
                   size={12}
                   style={{
                     flexShrink: 0,
-                    color: active ? "#d4af37" : "transparent",
-                    transition: "color 0.15s",
+                    color: active ? '#d4af37' : 'transparent',
+                    transition: 'color 0.15s',
                   }}
                 />
                 <span className="truncate text-sm">{section.title}</span>
@@ -528,10 +538,10 @@ export default function KnowledgeBase() {
               onChange={(e) => setActiveId(e.target.value)}
               className="w-full px-3 py-2 text-sm rounded-lg"
               style={{
-                background: "var(--surface-1, #0d1117)",
-                border: "1px solid var(--surface-border, rgba(212,175,55,0.12))",
-                color: "#f5f5f5",
-                fontFamily: "DM Sans, sans-serif",
+                background: 'var(--surface-1, #0d1117)',
+                border: '1px solid var(--surface-border, rgba(212,175,55,0.12))',
+                color: '#f5f5f5',
+                fontFamily: 'DM Sans, sans-serif',
               }}
             >
               {sections.map((s) => (
@@ -547,33 +557,33 @@ export default function KnowledgeBase() {
             <div className="flex items-center gap-2 mb-3">
               <div
                 className="w-6 h-6 rounded-md flex items-center justify-center"
-                style={{ background: "rgba(212,175,55,0.12)" }}
+                style={{ background: 'rgba(212,175,55,0.12)' }}
               >
-                <BookOpen size={12} style={{ color: "#d4af37" }} />
+                <BookOpen size={12} style={{ color: '#d4af37' }} />
               </div>
               <span
                 className="text-xs uppercase tracking-widest font-bold"
-                style={{ color: "#d4af37", fontFamily: "Syne, sans-serif", fontSize: 10 }}
+                style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif', fontSize: 10 }}
               >
                 Knowledge Base
               </span>
             </div>
             <h1
               className="text-2xl font-black mb-2"
-              style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5", lineHeight: 1.2 }}
+              style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5', lineHeight: 1.2 }}
             >
               {activeSection.title}
             </h1>
             <div
               className="w-12 h-0.5 rounded-full"
-              style={{ background: "linear-gradient(90deg, #d4af37, transparent)" }}
+              style={{ background: 'linear-gradient(90deg, #d4af37, transparent)' }}
             />
           </div>
 
           {/* Article body */}
           <div
             className="prose prose-invert max-w-none mb-10"
-            style={{ fontFamily: "DM Sans, sans-serif" }}
+            style={{ fontFamily: 'DM Sans, sans-serif' }}
           >
             <ArticleContent content={activeSection.content} />
           </div>
@@ -582,18 +592,18 @@ export default function KnowledgeBase() {
           <div
             className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl"
             style={{
-              background: "rgba(212,175,55,0.06)",
-              border: "1px solid rgba(212,175,55,0.15)",
+              background: 'rgba(212,175,55,0.06)',
+              border: '1px solid rgba(212,175,55,0.15)',
             }}
           >
             <div>
               <p
                 className="text-sm font-bold mb-0.5"
-                style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}
+                style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
               >
                 Have questions about {activeSection.title.toLowerCase()}?
               </p>
-              <p className="text-xs" style={{ color: "#71717a" }}>
+              <p className="text-xs" style={{ color: '#71717a' }}>
                 Ask Majorka AI for personalised guidance on your specific situation.
               </p>
             </div>
@@ -601,20 +611,20 @@ export default function KnowledgeBase() {
               onClick={() => handleAskAI(activeSection.aiQuery)}
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold flex-shrink-0 sm:ml-4 transition-all w-full sm:w-auto justify-center"
               style={{
-                background: "linear-gradient(135deg, #d4af37, #b8941f)",
-                color: "#080a0e",
-                border: "none",
-                cursor: "pointer",
-                fontFamily: "Syne, sans-serif",
-                whiteSpace: "nowrap",
+                background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+                color: '#080a0e',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: 'Syne, sans-serif',
+                whiteSpace: 'nowrap',
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.opacity = "0.9";
-                (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.02)";
+                (e.currentTarget as HTMLButtonElement).style.opacity = '0.9';
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.02)';
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.opacity = "1";
-                (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
+                (e.currentTarget as HTMLButtonElement).style.opacity = '1';
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
               }}
             >
               Ask AI about this →
@@ -622,7 +632,10 @@ export default function KnowledgeBase() {
           </div>
 
           {/* Section navigation */}
-          <div className="flex items-center justify-between mt-8 pt-6" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+          <div
+            className="flex items-center justify-between mt-8 pt-6"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+          >
             {(() => {
               const currentIndex = sections.findIndex((s) => s.id === activeId);
               const prev = sections[currentIndex - 1];
@@ -634,10 +647,15 @@ export default function KnowledgeBase() {
                       <button
                         onClick={() => setActiveId(prev.id)}
                         className="flex flex-col items-start gap-1 text-left"
-                        style={{ background: "none", border: "none", cursor: "pointer" }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer' }}
                       >
-                        <span className="text-xs" style={{ color: "#52525b" }}>← Previous</span>
-                        <span className="text-sm font-bold" style={{ color: "#f5f5f5", fontFamily: "Syne, sans-serif" }}>
+                        <span className="text-xs" style={{ color: '#52525b' }}>
+                          ← Previous
+                        </span>
+                        <span
+                          className="text-sm font-bold"
+                          style={{ color: '#f5f5f5', fontFamily: 'Syne, sans-serif' }}
+                        >
                           {prev.title}
                         </span>
                       </button>
@@ -648,10 +666,15 @@ export default function KnowledgeBase() {
                       <button
                         onClick={() => setActiveId(next.id)}
                         className="flex flex-col items-end gap-1 text-right"
-                        style={{ background: "none", border: "none", cursor: "pointer" }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer' }}
                       >
-                        <span className="text-xs" style={{ color: "#52525b" }}>Next →</span>
-                        <span className="text-sm font-bold" style={{ color: "#f5f5f5", fontFamily: "Syne, sans-serif" }}>
+                        <span className="text-xs" style={{ color: '#52525b' }}>
+                          Next →
+                        </span>
+                        <span
+                          className="text-sm font-bold"
+                          style={{ color: '#f5f5f5', fontFamily: 'Syne, sans-serif' }}
+                        >
                           {next.title}
                         </span>
                       </button>
@@ -672,7 +695,7 @@ export default function KnowledgeBase() {
  * Supports: ## headings, **bold**, tables (| col | col |), bullet lists, numbered lists, code, and paragraphs.
  */
 function ArticleContent({ content }: { content: string }) {
-  const lines = content.split("\n");
+  const lines = content.split('\n');
   const elements: React.ReactNode[] = [];
   let i = 0;
 
@@ -680,12 +703,12 @@ function ArticleContent({ content }: { content: string }) {
     const line = lines[i];
 
     // Heading 2
-    if (line.startsWith("## ")) {
+    if (line.startsWith('## ')) {
       elements.push(
         <h2
           key={i}
           className="text-xl font-black mt-8 mb-3"
-          style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}
+          style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
         >
           {line.slice(3)}
         </h2>
@@ -695,12 +718,12 @@ function ArticleContent({ content }: { content: string }) {
     }
 
     // Heading 3
-    if (line.startsWith("### ")) {
+    if (line.startsWith('### ')) {
       elements.push(
         <h3
           key={i}
           className="text-base font-bold mt-5 mb-2"
-          style={{ fontFamily: "Syne, sans-serif", color: "#e5e5e5" }}
+          style={{ fontFamily: 'Syne, sans-serif', color: '#e5e5e5' }}
         >
           {line.slice(4)}
         </h3>
@@ -710,9 +733,9 @@ function ArticleContent({ content }: { content: string }) {
     }
 
     // Table detection
-    if (line.startsWith("|")) {
+    if (line.startsWith('|')) {
       const tableLines: string[] = [];
-      while (i < lines.length && lines[i].startsWith("|")) {
+      while (i < lines.length && lines[i].startsWith('|')) {
         tableLines.push(lines[i]);
         i++;
       }
@@ -721,16 +744,16 @@ function ArticleContent({ content }: { content: string }) {
     }
 
     // Bullet list
-    if (line.startsWith("- ")) {
+    if (line.startsWith('- ')) {
       const listLines: string[] = [];
-      while (i < lines.length && lines[i].startsWith("- ")) {
+      while (i < lines.length && lines[i].startsWith('- ')) {
         listLines.push(lines[i].slice(2));
         i++;
       }
       elements.push(
         <ul key={`ul-${i}`} className="list-disc pl-5 mb-4 space-y-1">
           {listLines.map((l, li) => (
-            <li key={li} className="text-sm leading-relaxed" style={{ color: "#a1a1aa" }}>
+            <li key={li} className="text-sm leading-relaxed" style={{ color: '#a1a1aa' }}>
               <InlineMarkdown text={l} />
             </li>
           ))}
@@ -743,13 +766,13 @@ function ArticleContent({ content }: { content: string }) {
     if (/^\d+\./.test(line)) {
       const listLines: string[] = [];
       while (i < lines.length && /^\d+\./.test(lines[i])) {
-        listLines.push(lines[i].replace(/^\d+\.\s*/, ""));
+        listLines.push(lines[i].replace(/^\d+\.\s*/, ''));
         i++;
       }
       elements.push(
         <ol key={`ol-${i}`} className="list-decimal pl-5 mb-4 space-y-1">
           {listLines.map((l, li) => (
-            <li key={li} className="text-sm leading-relaxed" style={{ color: "#a1a1aa" }}>
+            <li key={li} className="text-sm leading-relaxed" style={{ color: '#a1a1aa' }}>
               <InlineMarkdown text={l} />
             </li>
           ))}
@@ -759,14 +782,14 @@ function ArticleContent({ content }: { content: string }) {
     }
 
     // Empty line
-    if (line.trim() === "") {
+    if (line.trim() === '') {
       i++;
       continue;
     }
 
     // Regular paragraph
     elements.push(
-      <p key={i} className="text-sm leading-relaxed mb-4" style={{ color: "#a1a1aa" }}>
+      <p key={i} className="text-sm leading-relaxed mb-4" style={{ color: '#a1a1aa' }}>
         <InlineMarkdown text={line} />
       </p>
     );
@@ -781,7 +804,7 @@ function MarkdownTable({ lines }: { lines: string[] }) {
     .filter((l) => !l.match(/^\|\s*[-:]+\s*\|/)) // remove separator row
     .map((l) =>
       l
-        .split("|")
+        .split('|')
         .filter((_, idx, arr) => idx > 0 && idx < arr.length - 1)
         .map((c) => c.trim())
     );
@@ -799,13 +822,13 @@ function MarkdownTable({ lines }: { lines: string[] }) {
                 key={ci}
                 className="text-left px-3 py-2 text-xs font-bold uppercase tracking-wide"
                 style={{
-                  background: "rgba(212,175,55,0.06)",
-                  color: "#d4af37",
-                  borderBottom: "1px solid rgba(212,175,55,0.15)",
-                  fontFamily: "Syne, sans-serif",
+                  background: 'rgba(212,175,55,0.06)',
+                  color: '#d4af37',
+                  borderBottom: '1px solid rgba(212,175,55,0.15)',
+                  fontFamily: 'Syne, sans-serif',
                   fontSize: 10,
-                  letterSpacing: "0.1em",
-                  whiteSpace: "nowrap",
+                  letterSpacing: '0.1em',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {cell}
@@ -817,15 +840,23 @@ function MarkdownTable({ lines }: { lines: string[] }) {
           {body.map((row, ri) => (
             <tr
               key={ri}
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLTableRowElement).style.background = "rgba(255,255,255,0.02)")}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLTableRowElement).style.background = "transparent")}
+              style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+              onMouseEnter={(e) =>
+                ((e.currentTarget as HTMLTableRowElement).style.background =
+                  'rgba(255,255,255,0.02)')
+              }
+              onMouseLeave={(e) =>
+                ((e.currentTarget as HTMLTableRowElement).style.background = 'transparent')
+              }
             >
               {row.map((cell, ci) => (
                 <td
                   key={ci}
                   className="px-3 py-2 text-sm"
-                  style={{ color: ci === 0 ? "#e5e5e5" : "#a1a1aa", fontWeight: ci === 0 ? 500 : 400 }}
+                  style={{
+                    color: ci === 0 ? '#e5e5e5' : '#a1a1aa',
+                    fontWeight: ci === 0 ? 500 : 400,
+                  }}
                 >
                   <InlineMarkdown text={cell} />
                 </td>
@@ -849,14 +880,14 @@ function InlineMarkdown({ text }: { text: string }) {
     const codeMatch = remaining.match(/`(.+?)`/);
 
     let firstMatch: RegExpMatchArray | null = null;
-    let type: "bold" | "code" | null = null;
+    let type: 'bold' | 'code' | null = null;
 
     if (boldMatch && (!codeMatch || boldMatch.index! <= codeMatch.index!)) {
       firstMatch = boldMatch;
-      type = "bold";
+      type = 'bold';
     } else if (codeMatch) {
       firstMatch = codeMatch;
-      type = "code";
+      type = 'code';
     }
 
     if (!firstMatch || firstMatch.index === undefined) {
@@ -869,9 +900,9 @@ function InlineMarkdown({ text }: { text: string }) {
       parts.push(<span key={key++}>{remaining.slice(0, firstMatch.index)}</span>);
     }
 
-    if (type === "bold") {
+    if (type === 'bold') {
       parts.push(
-        <strong key={key++} style={{ color: "#e5e5e5", fontWeight: 600 }}>
+        <strong key={key++} style={{ color: '#e5e5e5', fontWeight: 600 }}>
           {firstMatch[1]}
         </strong>
       );
@@ -880,7 +911,11 @@ function InlineMarkdown({ text }: { text: string }) {
         <code
           key={key++}
           className="px-1.5 py-0.5 rounded text-xs"
-          style={{ background: "rgba(212,175,55,0.1)", color: "#d4af37", fontFamily: "DM Mono, monospace" }}
+          style={{
+            background: 'rgba(212,175,55,0.1)',
+            color: '#d4af37',
+            fontFamily: 'DM Mono, monospace',
+          }}
         >
           {firstMatch[1]}
         </code>

@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, useCallback } from "react";
-import type { ReactNode } from "react";
-import type { ProductIntelligence } from "@/lib/buildToolPrompt";
+import type { ReactNode } from 'react';
+import { createContext, useCallback, useContext, useState } from 'react';
+import type { ProductIntelligence } from '@/lib/buildToolPrompt';
 
 export type { ProductIntelligence };
 
@@ -9,7 +9,7 @@ export interface ActiveProduct {
   name: string;
   niche: string;
   summary: string;
-  source: "research" | "validate" | "manual";
+  source: 'research' | 'validate' | 'manual';
   savedAt: number;
   price?: string;
   currency?: string;
@@ -32,8 +32,8 @@ interface ProductContextValue {
   removeProduct: (id: string) => void;
 }
 
-const STORAGE_KEY = "majorka_active_product";
-const PRODUCTS_KEY = "majorka_saved_products";
+const STORAGE_KEY = 'majorka_active_product';
+const PRODUCTS_KEY = 'majorka_saved_products';
 
 const ProductContext = createContext<ProductContextValue | null>(null);
 
@@ -47,12 +47,12 @@ function readStorage<T>(key: string, fallback: T): T {
 }
 
 export function ProductProvider({ children }: { children: ReactNode }) {
-  const [activeProduct, setActiveProductState] = useState<ActiveProduct | null>(
-    () => readStorage<ActiveProduct | null>(STORAGE_KEY, null)
+  const [activeProduct, setActiveProductState] = useState<ActiveProduct | null>(() =>
+    readStorage<ActiveProduct | null>(STORAGE_KEY, null)
   );
 
-  const [savedProducts, setSavedProducts] = useState<ActiveProduct[]>(
-    () => readStorage<ActiveProduct[]>(PRODUCTS_KEY, [])
+  const [savedProducts, setSavedProducts] = useState<ActiveProduct[]>(() =>
+    readStorage<ActiveProduct[]>(PRODUCTS_KEY, [])
   );
 
   const setActiveProduct = useCallback((product: ActiveProduct | null) => {
@@ -65,23 +65,25 @@ export function ProductProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const saveProduct = useCallback((product: ActiveProduct) => {
-    setSavedProducts(prev => {
-      const updated = [product, ...prev.filter(p => p.id !== product.id)];
+    setSavedProducts((prev) => {
+      const updated = [product, ...prev.filter((p) => p.id !== product.id)];
       localStorage.setItem(PRODUCTS_KEY, JSON.stringify(updated));
       return updated;
     });
   }, []);
 
   const removeProduct = useCallback((id: string) => {
-    setSavedProducts(prev => {
-      const updated = prev.filter(p => p.id !== id);
+    setSavedProducts((prev) => {
+      const updated = prev.filter((p) => p.id !== id);
       localStorage.setItem(PRODUCTS_KEY, JSON.stringify(updated));
       return updated;
     });
   }, []);
 
   return (
-    <ProductContext.Provider value={{ activeProduct, setActiveProduct, savedProducts, saveProduct, removeProduct }}>
+    <ProductContext.Provider
+      value={{ activeProduct, setActiveProduct, savedProducts, saveProduct, removeProduct }}
+    >
       {children}
     </ProductContext.Provider>
   );
@@ -89,6 +91,6 @@ export function ProductProvider({ children }: { children: ReactNode }) {
 
 export function useProduct(): ProductContextValue {
   const ctx = useContext(ProductContext);
-  if (!ctx) throw new Error("useProduct must be used inside ProductProvider");
+  if (!ctx) throw new Error('useProduct must be used inside ProductProvider');
   return ctx;
 }

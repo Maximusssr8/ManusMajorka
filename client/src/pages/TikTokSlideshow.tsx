@@ -2,25 +2,33 @@
  * TikTok Slideshow Builder — generates faceless slide-by-slide content
  * for TikTok / Reels / Shorts from product details.
  */
-import { useState, useCallback } from "react";
-import { toast } from "sonner";
+
 import {
-  Smartphone, Copy, Download, Loader2, ArrowLeft, ArrowRight,
-  Sparkles, RefreshCw, ChevronDown,
-} from "lucide-react";
-import { capture } from "@/lib/posthog";
-import { useActiveProduct } from "@/hooks/useActiveProduct";
-import { ActiveProductBanner } from "@/components/ActiveProductBanner";
-import { SaveToProduct } from "@/components/SaveToProduct";
-import { supabase } from "@/lib/supabase";
-import { getStoredMarket } from "@/contexts/MarketContext";
-import { searchPortraitPhotos, type PexelsPhoto } from "@/lib/pexels";
+  ArrowLeft,
+  ArrowRight,
+  ChevronDown,
+  Copy,
+  Download,
+  Loader2,
+  RefreshCw,
+  Smartphone,
+  Sparkles,
+} from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { toast } from 'sonner';
+import { ActiveProductBanner } from '@/components/ActiveProductBanner';
+import { SaveToProduct } from '@/components/SaveToProduct';
+import { getStoredMarket } from '@/contexts/MarketContext';
+import { useActiveProduct } from '@/hooks/useActiveProduct';
+import { type PexelsPhoto, searchPortraitPhotos } from '@/lib/pexels';
+import { capture } from '@/lib/posthog';
+import { supabase } from '@/lib/supabase';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface SlideData {
   slideNumber: number;
   text: string;
-  type: "hook" | "body" | "cta";
+  type: 'hook' | 'body' | 'cta';
   notes?: string;
 }
 
@@ -33,22 +41,22 @@ interface SlideshowResult {
 }
 
 const HOOK_STYLES = [
-  "Shocking stat",
-  "Question",
-  "Bold claim",
-  "POV:",
+  'Shocking stat',
+  'Question',
+  'Bold claim',
+  'POV:',
   "Things AU sellers won't tell you",
 ];
 
 const SLIDE_COUNTS = [5, 7, 10];
-const PLATFORMS = ["TikTok", "Instagram Reels", "YouTube Shorts"];
+const PLATFORMS = ['TikTok', 'Instagram Reels', 'YouTube Shorts'];
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function TikTokSlideshow() {
   const { activeProduct } = useActiveProduct();
-  const [productName, setProductName] = useState(activeProduct?.name || "");
-  const [price, setPrice] = useState("");
-  const [targetAudience, setTargetAudience] = useState("");
+  const [productName, setProductName] = useState(activeProduct?.name || '');
+  const [price, setPrice] = useState('');
+  const [targetAudience, setTargetAudience] = useState('');
   const [hookStyle, setHookStyle] = useState(HOOK_STYLES[0]);
   const [slideCount, setSlideCount] = useState(7);
   const [platform, setPlatform] = useState(PLATFORMS[0]);
@@ -62,24 +70,32 @@ export default function TikTokSlideshow() {
   const [loadingPhotos, setLoadingPhotos] = useState(false);
 
   const handleGenerate = useCallback(async () => {
-    if (!productName.trim()) { toast.error("Enter a product name"); return; }
+    if (!productName.trim()) {
+      toast.error('Enter a product name');
+      return;
+    }
     setGenerating(true);
-    capture("tool_opened", { tool: "tiktok-slideshow" });
+    capture('tool_opened', { tool: 'tiktok-slideshow' });
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch("/api/chat", {
-        method: "POST",
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const res = await fetch('/api/chat', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
         },
         body: JSON.stringify({
-          messages: [{ role: "user", content: `Generate a ${slideCount}-slide faceless ${platform} slideshow script for:
+          messages: [
+            {
+              role: 'user',
+              content: `Generate a ${slideCount}-slide faceless ${platform} slideshow script for:
 
 Product: ${productName}
-Price: ${price || "not specified"}
-Target audience: ${targetAudience || "AU online shoppers"}
+Price: ${price || 'not specified'}
+Target audience: ${targetAudience || 'AU online shoppers'}
 Hook style: ${hookStyle}
 Platform: ${platform}
 
@@ -103,28 +119,30 @@ Requirements:
 - Final slide: strong CTA ("Link in bio" / "Comment LINK" / "Save this for later")
 - Captions must include AU-specific hashtags: #australianbusiness #dropshippingaustralia #ecommerceaustralia
 - All content must feel native to ${platform}, not like an ad.
-- Be specific to the product. No generic filler.` }],
-          toolId: "tiktok-slideshow",
+- Be specific to the product. No generic filler.`,
+            },
+          ],
+          toolId: 'tiktok-slideshow',
           skipMemory: true,
           market: getStoredMarket(),
         }),
       });
 
       const data = await res.json();
-      const text = data?.response || data?.content || "";
+      const text = data?.response || data?.content || '';
 
       // Parse JSON from response (handle markdown code blocks)
       const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error("Could not parse slideshow data");
+      if (!jsonMatch) throw new Error('Could not parse slideshow data');
       const parsed = JSON.parse(jsonMatch[0]) as SlideshowResult;
 
-      if (!parsed.slides?.length) throw new Error("No slides generated");
+      if (!parsed.slides?.length) throw new Error('No slides generated');
       setResult(parsed);
       setCurrentSlide(0);
-      capture("tool_completed", { tool: "tiktok-slideshow", output_length: parsed.slides.length });
+      capture('tool_completed', { tool: 'tiktok-slideshow', output_length: parsed.slides.length });
       toast.success(`${parsed.slides.length} slides generated!`);
     } catch (err: any) {
-      toast.error(err?.message || "Generation failed");
+      toast.error(err?.message || 'Generation failed');
     } finally {
       setGenerating(false);
     }
@@ -134,36 +152,43 @@ Requirements:
     if (!result) return;
     setRemixing(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch("/api/chat", {
-        method: "POST",
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const res = await fetch('/api/chat', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
         },
         body: JSON.stringify({
-          messages: [{ role: "user", content: `Take this TikTok slideshow script and make it more entertaining and AU-specific. Add relevant Aussie slang where appropriate. Keep it punchy and scroll-stopping. Keep the same JSON structure.
+          messages: [
+            {
+              role: 'user',
+              content: `Take this TikTok slideshow script and make it more entertaining and AU-specific. Add relevant Aussie slang where appropriate. Keep it punchy and scroll-stopping. Keep the same JSON structure.
 
 Current script:
 ${JSON.stringify(result, null, 2)}
 
-Return ONLY the updated JSON. Same structure, better content.` }],
-          toolId: "tiktok-slideshow",
+Return ONLY the updated JSON. Same structure, better content.`,
+            },
+          ],
+          toolId: 'tiktok-slideshow',
           skipMemory: true,
           market: getStoredMarket(),
         }),
       });
 
       const data = await res.json();
-      const text = data?.response || data?.content || "";
+      const text = data?.response || data?.content || '';
       const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error("Could not parse remix");
+      if (!jsonMatch) throw new Error('Could not parse remix');
       const parsed = JSON.parse(jsonMatch[0]) as SlideshowResult;
       setResult(parsed);
       setCurrentSlide(0);
-      toast.success("Remixed with more AU flavour!");
+      toast.success('Remixed with more AU flavour!');
     } catch {
-      toast.error("Remix failed — try again");
+      toast.error('Remix failed — try again');
     } finally {
       setRemixing(false);
     }
@@ -171,71 +196,106 @@ Return ONLY the updated JSON. Same structure, better content.` }],
 
   const handleCopyAll = useCallback(() => {
     if (!result) return;
-    const text = result.slides.map(s => `Slide ${s.slideNumber}: ${s.text}`).join("\n\n");
+    const text = result.slides.map((s) => `Slide ${s.slideNumber}: ${s.text}`).join('\n\n');
     navigator.clipboard.writeText(text).catch(() => {});
-    toast.success("All slides copied!");
-    capture("tool_exported", { tool: "tiktok-slideshow", format: "copy" });
+    toast.success('All slides copied!');
+    capture('tool_exported', { tool: 'tiktok-slideshow', format: 'copy' });
   }, [result]);
 
   const handleCopyCaption = useCallback((caption: string) => {
     navigator.clipboard.writeText(caption).catch(() => {});
-    toast.success("Caption copied!");
+    toast.success('Caption copied!');
   }, []);
 
   // ── Input field style helper ─────────────────────────────────────────────────
   const inputStyle = {
-    background: "rgba(255,255,255,0.04)",
-    border: "1.5px solid rgba(255,255,255,0.08)",
-    color: "#f0ede8",
-    fontFamily: "DM Sans, sans-serif",
+    background: 'rgba(255,255,255,0.04)',
+    border: '1.5px solid rgba(255,255,255,0.08)',
+    color: '#f0ede8',
+    fontFamily: 'DM Sans, sans-serif',
   };
 
   const labelStyle = {
-    color: "rgba(240,237,232,0.5)",
-    fontFamily: "Syne, sans-serif",
+    color: 'rgba(240,237,232,0.5)',
+    fontFamily: 'Syne, sans-serif',
     fontSize: 11,
     fontWeight: 700 as const,
-    textTransform: "uppercase" as const,
-    letterSpacing: "0.05em",
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.05em',
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden" style={{ background: "#080a0e" }}>
+    <div className="h-full flex flex-col overflow-hidden" style={{ background: '#080a0e' }}>
       <ActiveProductBanner />
 
       <div className="flex-1 flex overflow-hidden">
         {/* ── LEFT PANEL: Inputs ── */}
-        <div className="w-80 flex-shrink-0 border-r overflow-y-auto p-4 space-y-4" style={{ borderColor: "rgba(255,255,255,0.06)", scrollbarWidth: "thin" }}>
+        <div
+          className="w-80 flex-shrink-0 border-r overflow-y-auto p-4 space-y-4"
+          style={{ borderColor: 'rgba(255,255,255,0.06)', scrollbarWidth: 'thin' }}
+        >
           <div>
-            <h1 className="text-lg font-black flex items-center gap-2" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>
-              <Smartphone size={18} style={{ color: "#d4af37" }} />
+            <h1
+              className="text-lg font-black flex items-center gap-2"
+              style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+            >
+              <Smartphone size={18} style={{ color: '#d4af37' }} />
               TikTok Slides
             </h1>
-            <p className="text-xs mt-1" style={{ color: "rgba(240,237,232,0.4)" }}>
+            <p className="text-xs mt-1" style={{ color: 'rgba(240,237,232,0.4)' }}>
               Generate faceless slideshow content for TikTok, Reels & Shorts
             </p>
           </div>
 
           <div>
             <label style={labelStyle}>Product Name</label>
-            <input value={productName} onChange={e => setProductName(e.target.value)} placeholder="e.g. Posture Corrector" className="w-full mt-1 px-3 py-2 rounded-lg text-sm outline-none" style={inputStyle} />
+            <input
+              value={productName}
+              onChange={(e) => setProductName(e.target.value)}
+              placeholder="e.g. Posture Corrector"
+              className="w-full mt-1 px-3 py-2 rounded-lg text-sm outline-none"
+              style={inputStyle}
+            />
           </div>
 
           <div>
             <label style={labelStyle}>Price</label>
-            <input value={price} onChange={e => setPrice(e.target.value)} placeholder="e.g. $49 AUD" className="w-full mt-1 px-3 py-2 rounded-lg text-sm outline-none" style={inputStyle} />
+            <input
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="e.g. $49 AUD"
+              className="w-full mt-1 px-3 py-2 rounded-lg text-sm outline-none"
+              style={inputStyle}
+            />
           </div>
 
           <div>
             <label style={labelStyle}>Target Audience</label>
-            <input value={targetAudience} onChange={e => setTargetAudience(e.target.value)} placeholder="e.g. AU office workers 25-40" className="w-full mt-1 px-3 py-2 rounded-lg text-sm outline-none" style={inputStyle} />
+            <input
+              value={targetAudience}
+              onChange={(e) => setTargetAudience(e.target.value)}
+              placeholder="e.g. AU office workers 25-40"
+              className="w-full mt-1 px-3 py-2 rounded-lg text-sm outline-none"
+              style={inputStyle}
+            />
           </div>
 
           <div>
             <label style={labelStyle}>Hook Style</label>
             <div className="flex flex-wrap gap-1.5 mt-1">
-              {HOOK_STYLES.map(h => (
-                <button key={h} onClick={() => setHookStyle(h)} className="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all" style={{ background: hookStyle === h ? "rgba(212,175,55,0.12)" : "rgba(255,255,255,0.03)", border: `1.5px solid ${hookStyle === h ? "rgba(212,175,55,0.4)" : "rgba(255,255,255,0.06)"}`, color: hookStyle === h ? "#d4af37" : "rgba(240,237,232,0.5)", cursor: "pointer" }}>
+              {HOOK_STYLES.map((h) => (
+                <button
+                  key={h}
+                  onClick={() => setHookStyle(h)}
+                  className="px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                  style={{
+                    background:
+                      hookStyle === h ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.03)',
+                    border: `1.5px solid ${hookStyle === h ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.06)'}`,
+                    color: hookStyle === h ? '#d4af37' : 'rgba(240,237,232,0.5)',
+                    cursor: 'pointer',
+                  }}
+                >
                   {h}
                 </button>
               ))}
@@ -246,8 +306,19 @@ Return ONLY the updated JSON. Same structure, better content.` }],
             <div className="flex-1">
               <label style={labelStyle}>Slides</label>
               <div className="flex gap-1 mt-1">
-                {SLIDE_COUNTS.map(c => (
-                  <button key={c} onClick={() => setSlideCount(c)} className="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all" style={{ background: slideCount === c ? "rgba(212,175,55,0.12)" : "rgba(255,255,255,0.03)", border: `1.5px solid ${slideCount === c ? "rgba(212,175,55,0.4)" : "rgba(255,255,255,0.06)"}`, color: slideCount === c ? "#d4af37" : "rgba(240,237,232,0.5)", cursor: "pointer" }}>
+                {SLIDE_COUNTS.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setSlideCount(c)}
+                    className="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all"
+                    style={{
+                      background:
+                        slideCount === c ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.03)',
+                      border: `1.5px solid ${slideCount === c ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.06)'}`,
+                      color: slideCount === c ? '#d4af37' : 'rgba(240,237,232,0.5)',
+                      cursor: 'pointer',
+                    }}
+                  >
                     {c}
                   </button>
                 ))}
@@ -255,55 +326,151 @@ Return ONLY the updated JSON. Same structure, better content.` }],
             </div>
             <div className="flex-1">
               <label style={labelStyle}>Platform</label>
-              <select value={platform} onChange={e => setPlatform(e.target.value)} className="w-full mt-1 px-2 py-1.5 rounded-lg text-xs outline-none appearance-none" style={{ ...inputStyle, cursor: "pointer" }}>
-                {PLATFORMS.map(p => <option key={p} value={p}>{p}</option>)}
+              <select
+                value={platform}
+                onChange={(e) => setPlatform(e.target.value)}
+                className="w-full mt-1 px-2 py-1.5 rounded-lg text-xs outline-none appearance-none"
+                style={{ ...inputStyle, cursor: 'pointer' }}
+              >
+                {PLATFORMS.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
 
-          <button onClick={handleGenerate} disabled={generating || !productName.trim()} className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-40" style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", fontFamily: "Syne, sans-serif", cursor: generating ? "wait" : "pointer", border: "none" }}>
-            {generating ? <><Loader2 size={14} className="animate-spin" /> Generating...</> : <><Sparkles size={14} /> Generate Slideshow</>}
+          <button
+            onClick={handleGenerate}
+            disabled={generating || !productName.trim()}
+            className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-40"
+            style={{
+              background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+              color: '#080a0e',
+              fontFamily: 'Syne, sans-serif',
+              cursor: generating ? 'wait' : 'pointer',
+              border: 'none',
+            }}
+          >
+            {generating ? (
+              <>
+                <Loader2 size={14} className="animate-spin" /> Generating...
+              </>
+            ) : (
+              <>
+                <Sparkles size={14} /> Generate Slideshow
+              </>
+            )}
           </button>
 
           {result && (
-            <div className="space-y-2 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-              <button onClick={handleCopyAll} className="w-full py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all" style={{ background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.2)", color: "#d4af37", cursor: "pointer", fontFamily: "Syne, sans-serif" }}>
+            <div
+              className="space-y-2 pt-2"
+              style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+            >
+              <button
+                onClick={handleCopyAll}
+                className="w-full py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+                style={{
+                  background: 'rgba(212,175,55,0.08)',
+                  border: '1px solid rgba(212,175,55,0.2)',
+                  color: '#d4af37',
+                  cursor: 'pointer',
+                  fontFamily: 'Syne, sans-serif',
+                }}
+              >
                 <Copy size={11} /> Copy All Slides
               </button>
-              <button onClick={handleRemixGPT} disabled={remixing} className="w-full py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all disabled:opacity-40" style={{ background: "rgba(156,95,255,0.08)", border: "1px solid rgba(156,95,255,0.2)", color: "#9c5fff", cursor: "pointer", fontFamily: "Syne, sans-serif" }}>
-                {remixing ? <Loader2 size={11} className="animate-spin" /> : <RefreshCw size={11} />} Remix (More AU Flavour)
+              <button
+                onClick={handleRemixGPT}
+                disabled={remixing}
+                className="w-full py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all disabled:opacity-40"
+                style={{
+                  background: 'rgba(156,95,255,0.08)',
+                  border: '1px solid rgba(156,95,255,0.2)',
+                  color: '#9c5fff',
+                  cursor: 'pointer',
+                  fontFamily: 'Syne, sans-serif',
+                }}
+              >
+                {remixing ? (
+                  <Loader2 size={11} className="animate-spin" />
+                ) : (
+                  <RefreshCw size={11} />
+                )}{' '}
+                Remix (More AU Flavour)
               </button>
               <button
                 onClick={async () => {
                   setLoadingPhotos(true);
-                  const photos = await searchPortraitPhotos(productName + " lifestyle", 6);
+                  const photos = await searchPortraitPhotos(productName + ' lifestyle', 6);
                   setBgPhotos(photos);
                   setLoadingPhotos(false);
                   if (photos.length) toast.success(`${photos.length} background images found`);
-                  else toast.error("No images found — try a different product name");
+                  else toast.error('No images found — try a different product name');
                 }}
                 disabled={loadingPhotos || !productName.trim()}
                 className="w-full py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all disabled:opacity-40"
-                style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)", color: "#3b82f6", cursor: "pointer", fontFamily: "Syne, sans-serif" }}
+                style={{
+                  background: 'rgba(59,130,246,0.08)',
+                  border: '1px solid rgba(59,130,246,0.2)',
+                  color: '#3b82f6',
+                  cursor: 'pointer',
+                  fontFamily: 'Syne, sans-serif',
+                }}
               >
-                {loadingPhotos ? <Loader2 size={11} className="animate-spin" /> : <Download size={11} />} Get Background Images
+                {loadingPhotos ? (
+                  <Loader2 size={11} className="animate-spin" />
+                ) : (
+                  <Download size={11} />
+                )}{' '}
+                Get Background Images
               </button>
-              <SaveToProduct toolId="tiktok-slideshow" toolName="TikTok Slideshow" outputData={JSON.stringify(result)} />
+              <SaveToProduct
+                toolId="tiktok-slideshow"
+                toolName="TikTok Slideshow"
+                outputData={JSON.stringify(result)}
+              />
 
               {bgPhotos.length > 0 && (
                 <div className="space-y-1.5">
-                  <span className="text-xs font-bold" style={{ color: "rgba(240,237,232,0.5)", fontFamily: "Syne, sans-serif" }}>STOCK BACKGROUNDS</span>
+                  <span
+                    className="text-xs font-bold"
+                    style={{ color: 'rgba(240,237,232,0.5)', fontFamily: 'Syne, sans-serif' }}
+                  >
+                    STOCK BACKGROUNDS
+                  </span>
                   <div className="grid grid-cols-3 gap-1.5">
-                    {bgPhotos.map(photo => (
-                      <a key={photo.id} href={photo.src.original} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.06)" }}>
-                        <img src={photo.src.tiny} alt={photo.alt} className="w-full h-16 object-cover" />
-                        <div className="px-1 py-0.5 text-center" style={{ fontSize: 7, color: "rgba(240,237,232,0.3)" }}>
+                    {bgPhotos.map((photo) => (
+                      <a
+                        key={photo.id}
+                        href={photo.src.original}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block rounded-lg overflow-hidden"
+                        style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+                      >
+                        <img
+                          src={photo.src.tiny}
+                          alt={photo.alt}
+                          className="w-full h-16 object-cover"
+                        />
+                        <div
+                          className="px-1 py-0.5 text-center"
+                          style={{ fontSize: 7, color: 'rgba(240,237,232,0.3)' }}
+                        >
                           {photo.photographer}
                         </div>
                       </a>
                     ))}
                   </div>
-                  <div className="text-center" style={{ fontSize: 8, color: "rgba(240,237,232,0.2)" }}>Photos from Pexels — free to use</div>
+                  <div
+                    className="text-center"
+                    style={{ fontSize: 8, color: 'rgba(240,237,232,0.2)' }}
+                  >
+                    Photos from Pexels — free to use
+                  </div>
                 </div>
               )}
             </div>
@@ -315,11 +482,23 @@ Return ONLY the updated JSON. Same structure, better content.` }],
           {result ? (
             <>
               {/* Slide preview */}
-              <div className="flex-1 flex items-center justify-center p-6" style={{ background: "#050507" }}>
+              <div
+                className="flex-1 flex items-center justify-center p-6"
+                style={{ background: '#050507' }}
+              >
                 <div className="relative flex flex-col items-center">
                   {/* Toggle 9:16 preview */}
-                  <button onClick={() => setPreviewMode(!previewMode)} className="mb-3 text-xs px-3 py-1 rounded-full transition-all" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(240,237,232,0.5)", cursor: "pointer" }}>
-                    {previewMode ? "Exit Preview" : `Preview as ${platform}`}
+                  <button
+                    onClick={() => setPreviewMode(!previewMode)}
+                    className="mb-3 text-xs px-3 py-1 rounded-full transition-all"
+                    style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: 'rgba(240,237,232,0.5)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {previewMode ? 'Exit Preview' : `Preview as ${platform}`}
                   </button>
 
                   {/* Slide card */}
@@ -328,56 +507,113 @@ Return ONLY the updated JSON. Same structure, better content.` }],
                     style={{
                       width: previewMode ? 270 : 400,
                       height: previewMode ? 480 : 300,
-                      background: "linear-gradient(135deg, #0f0f15, #1a1a2e)",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+                      background: 'linear-gradient(135deg, #0f0f15, #1a1a2e)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
                     }}
                   >
                     {/* Slide type indicator */}
-                    <div className="absolute top-3 left-3 px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: result.slides[currentSlide]?.type === "hook" ? "rgba(239,68,68,0.2)" : result.slides[currentSlide]?.type === "cta" ? "rgba(212,175,55,0.2)" : "rgba(255,255,255,0.08)", color: result.slides[currentSlide]?.type === "hook" ? "#ef4444" : result.slides[currentSlide]?.type === "cta" ? "#d4af37" : "rgba(240,237,232,0.5)", fontSize: 9, fontFamily: "Syne, sans-serif" }}>
+                    <div
+                      className="absolute top-3 left-3 px-2 py-0.5 rounded-full text-xs font-bold"
+                      style={{
+                        background:
+                          result.slides[currentSlide]?.type === 'hook'
+                            ? 'rgba(239,68,68,0.2)'
+                            : result.slides[currentSlide]?.type === 'cta'
+                              ? 'rgba(212,175,55,0.2)'
+                              : 'rgba(255,255,255,0.08)',
+                        color:
+                          result.slides[currentSlide]?.type === 'hook'
+                            ? '#ef4444'
+                            : result.slides[currentSlide]?.type === 'cta'
+                              ? '#d4af37'
+                              : 'rgba(240,237,232,0.5)',
+                        fontSize: 9,
+                        fontFamily: 'Syne, sans-serif',
+                      }}
+                    >
                       {result.slides[currentSlide]?.type?.toUpperCase()}
                     </div>
 
                     <p
                       className="text-center font-black leading-tight"
                       style={{
-                        fontFamily: "Syne, sans-serif",
-                        color: "#ffffff",
+                        fontFamily: 'Syne, sans-serif',
+                        color: '#ffffff',
                         fontSize: previewMode ? 20 : 24,
-                        maxWidth: "90%",
-                        textShadow: "0 2px 8px rgba(0,0,0,0.5)",
+                        maxWidth: '90%',
+                        textShadow: '0 2px 8px rgba(0,0,0,0.5)',
                       }}
                     >
                       {result.slides[currentSlide]?.text}
                     </p>
 
                     {/* Slide number */}
-                    <div className="absolute bottom-3 right-3 text-xs" style={{ color: "rgba(255,255,255,0.3)", fontFamily: "DM Sans, sans-serif" }}>
+                    <div
+                      className="absolute bottom-3 right-3 text-xs"
+                      style={{ color: 'rgba(255,255,255,0.3)', fontFamily: 'DM Sans, sans-serif' }}
+                    >
                       {currentSlide + 1}/{result.slides.length}
                     </div>
                   </div>
 
                   {/* Navigation arrows */}
                   <div className="flex items-center gap-4 mt-4">
-                    <button onClick={() => setCurrentSlide(Math.max(0, currentSlide - 1))} disabled={currentSlide === 0} className="p-2 rounded-full transition-all disabled:opacity-20" style={{ background: "rgba(255,255,255,0.06)", color: "#f0ede8", cursor: "pointer", border: "none" }}>
+                    <button
+                      onClick={() => setCurrentSlide(Math.max(0, currentSlide - 1))}
+                      disabled={currentSlide === 0}
+                      className="p-2 rounded-full transition-all disabled:opacity-20"
+                      style={{
+                        background: 'rgba(255,255,255,0.06)',
+                        color: '#f0ede8',
+                        cursor: 'pointer',
+                        border: 'none',
+                      }}
+                    >
                       <ArrowLeft size={16} />
                     </button>
 
                     {/* Progress dots */}
                     <div className="flex gap-1.5">
                       {result.slides.map((_, i) => (
-                        <button key={i} onClick={() => setCurrentSlide(i)} className="rounded-full transition-all" style={{ width: i === currentSlide ? 16 : 6, height: 6, background: i === currentSlide ? "#d4af37" : "rgba(255,255,255,0.15)", cursor: "pointer", border: "none" }} />
+                        <button
+                          key={i}
+                          onClick={() => setCurrentSlide(i)}
+                          className="rounded-full transition-all"
+                          style={{
+                            width: i === currentSlide ? 16 : 6,
+                            height: 6,
+                            background: i === currentSlide ? '#d4af37' : 'rgba(255,255,255,0.15)',
+                            cursor: 'pointer',
+                            border: 'none',
+                          }}
+                        />
                       ))}
                     </div>
 
-                    <button onClick={() => setCurrentSlide(Math.min(result.slides.length - 1, currentSlide + 1))} disabled={currentSlide === result.slides.length - 1} className="p-2 rounded-full transition-all disabled:opacity-20" style={{ background: "rgba(255,255,255,0.06)", color: "#f0ede8", cursor: "pointer", border: "none" }}>
+                    <button
+                      onClick={() =>
+                        setCurrentSlide(Math.min(result.slides.length - 1, currentSlide + 1))
+                      }
+                      disabled={currentSlide === result.slides.length - 1}
+                      className="p-2 rounded-full transition-all disabled:opacity-20"
+                      style={{
+                        background: 'rgba(255,255,255,0.06)',
+                        color: '#f0ede8',
+                        cursor: 'pointer',
+                        border: 'none',
+                      }}
+                    >
                       <ArrowRight size={16} />
                     </button>
                   </div>
 
                   {/* Slide notes */}
                   {result.slides[currentSlide]?.notes && (
-                    <div className="mt-3 text-xs text-center max-w-sm" style={{ color: "rgba(240,237,232,0.35)" }}>
+                    <div
+                      className="mt-3 text-xs text-center max-w-sm"
+                      style={{ color: 'rgba(240,237,232,0.35)' }}
+                    >
                       {result.slides[currentSlide].notes}
                     </div>
                   )}
@@ -385,16 +621,45 @@ Return ONLY the updated JSON. Same structure, better content.` }],
               </div>
 
               {/* Bottom panel: Captions + extras */}
-              <div className="flex-shrink-0 border-t p-4 overflow-y-auto" style={{ borderColor: "rgba(255,255,255,0.06)", maxHeight: 220 }}>
+              <div
+                className="flex-shrink-0 border-t p-4 overflow-y-auto"
+                style={{ borderColor: 'rgba(255,255,255,0.06)', maxHeight: 220 }}
+              >
                 <div className="grid grid-cols-2 gap-4">
                   {/* Captions */}
                   <div>
-                    <h3 className="text-xs font-bold mb-2" style={{ fontFamily: "Syne, sans-serif", color: "rgba(240,237,232,0.6)" }}>CAPTIONS</h3>
+                    <h3
+                      className="text-xs font-bold mb-2"
+                      style={{ fontFamily: 'Syne, sans-serif', color: 'rgba(240,237,232,0.6)' }}
+                    >
+                      CAPTIONS
+                    </h3>
                     <div className="space-y-2">
                       {result.captions.map((cap, i) => (
-                        <div key={i} className="flex items-start gap-2 p-2 rounded-lg" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
-                          <span className="flex-1 text-xs" style={{ color: "rgba(240,237,232,0.6)", lineHeight: 1.5 }}>{cap}</span>
-                          <button onClick={() => handleCopyCaption(cap)} className="flex-shrink-0 p-1 rounded transition-all" style={{ background: "rgba(255,255,255,0.05)", color: "rgba(240,237,232,0.4)", cursor: "pointer", border: "none" }}>
+                        <div
+                          key={i}
+                          className="flex items-start gap-2 p-2 rounded-lg"
+                          style={{
+                            background: 'rgba(255,255,255,0.02)',
+                            border: '1px solid rgba(255,255,255,0.05)',
+                          }}
+                        >
+                          <span
+                            className="flex-1 text-xs"
+                            style={{ color: 'rgba(240,237,232,0.6)', lineHeight: 1.5 }}
+                          >
+                            {cap}
+                          </span>
+                          <button
+                            onClick={() => handleCopyCaption(cap)}
+                            className="flex-shrink-0 p-1 rounded transition-all"
+                            style={{
+                              background: 'rgba(255,255,255,0.05)',
+                              color: 'rgba(240,237,232,0.4)',
+                              cursor: 'pointer',
+                              border: 'none',
+                            }}
+                          >
                             <Copy size={10} />
                           </button>
                         </div>
@@ -405,18 +670,43 @@ Return ONLY the updated JSON. Same structure, better content.` }],
                   {/* Extras */}
                   <div className="space-y-3">
                     <div>
-                      <h3 className="text-xs font-bold mb-1" style={{ fontFamily: "Syne, sans-serif", color: "rgba(240,237,232,0.6)" }}>AUDIO STYLE</h3>
-                      <p className="text-xs" style={{ color: "rgba(240,237,232,0.45)" }}>{result.audioStyle}</p>
+                      <h3
+                        className="text-xs font-bold mb-1"
+                        style={{ fontFamily: 'Syne, sans-serif', color: 'rgba(240,237,232,0.6)' }}
+                      >
+                        AUDIO STYLE
+                      </h3>
+                      <p className="text-xs" style={{ color: 'rgba(240,237,232,0.45)' }}>
+                        {result.audioStyle}
+                      </p>
                     </div>
                     <div>
-                      <h3 className="text-xs font-bold mb-1" style={{ fontFamily: "Syne, sans-serif", color: "rgba(240,237,232,0.6)" }}>POSTING TIMES (AEST)</h3>
-                      <p className="text-xs" style={{ color: "rgba(240,237,232,0.45)" }}>{result.postingTimes}</p>
+                      <h3
+                        className="text-xs font-bold mb-1"
+                        style={{ fontFamily: 'Syne, sans-serif', color: 'rgba(240,237,232,0.6)' }}
+                      >
+                        POSTING TIMES (AEST)
+                      </h3>
+                      <p className="text-xs" style={{ color: 'rgba(240,237,232,0.45)' }}>
+                        {result.postingTimes}
+                      </p>
                     </div>
                     <div>
-                      <h3 className="text-xs font-bold mb-1" style={{ fontFamily: "Syne, sans-serif", color: "rgba(240,237,232,0.6)" }}>COLOR SCHEMES</h3>
+                      <h3
+                        className="text-xs font-bold mb-1"
+                        style={{ fontFamily: 'Syne, sans-serif', color: 'rgba(240,237,232,0.6)' }}
+                      >
+                        COLOR SCHEMES
+                      </h3>
                       <div className="space-y-1">
                         {result.colorSchemes?.map((cs, i) => (
-                          <div key={i} className="text-xs" style={{ color: "rgba(240,237,232,0.4)" }}>{i + 1}. {cs}</div>
+                          <div
+                            key={i}
+                            className="text-xs"
+                            style={{ color: 'rgba(240,237,232,0.4)' }}
+                          >
+                            {i + 1}. {cs}
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -428,14 +718,24 @@ Return ONLY the updated JSON. Same structure, better content.` }],
             /* Empty state */
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center max-w-xs">
-                <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.15)" }}>
-                  <Smartphone size={28} style={{ color: "#d4af37" }} />
+                <div
+                  className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center"
+                  style={{
+                    background: 'rgba(212,175,55,0.08)',
+                    border: '1px solid rgba(212,175,55,0.15)',
+                  }}
+                >
+                  <Smartphone size={28} style={{ color: '#d4af37' }} />
                 </div>
-                <h2 className="text-base font-black mb-2" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>
+                <h2
+                  className="text-base font-black mb-2"
+                  style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                >
                   No slideshow yet
                 </h2>
-                <p className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.4)" }}>
-                  Enter your product details and generate a scroll-stopping faceless slideshow for TikTok, Reels, or Shorts.
+                <p className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                  Enter your product details and generate a scroll-stopping faceless slideshow for
+                  TikTok, Reels, or Shorts.
                 </p>
               </div>
             </div>

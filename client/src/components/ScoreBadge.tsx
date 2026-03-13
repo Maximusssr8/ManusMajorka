@@ -1,4 +1,4 @@
-import { scoreProduct } from "@/lib/scoreProduct";
+import { scoreProduct } from '@/lib/scoreProduct';
 
 interface ScoreBadgeProps {
   product: {
@@ -17,7 +17,7 @@ export function ScoreBadge({ product, showLabel = false }: ScoreBadgeProps) {
     <span
       className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full"
       style={{
-        background: score.color + "20",
+        background: score.color + '20',
         color: score.color,
         border: `1px solid ${score.color}40`,
       }}

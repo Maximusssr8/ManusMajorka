@@ -2,9 +2,10 @@
  * OutputToolbar — shared toolbar for all tool output areas.
  * Provides: Copy section, Copy All, Export PDF, Save to localStorage.
  */
-import { useState, useCallback } from "react";
-import { Copy, Check, Download, Save } from "lucide-react";
-import { toast } from "sonner";
+
+import { Check, Copy, Download, Save } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { toast } from 'sonner';
 
 interface OutputToolbarProps {
   /** The full text/data of the entire output area */
@@ -15,13 +16,13 @@ interface OutputToolbarProps {
   className?: string;
 }
 
-function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) {
+function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(() => {
     navigator.clipboard.writeText(text);
     setCopied(true);
-    toast.success("Copied!");
+    toast.success('Copied!');
     setTimeout(() => setCopied(false), 2000);
   }, [text]);
 
@@ -30,39 +31,43 @@ function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) 
       onClick={handleCopy}
       className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all"
       style={{
-        background: copied ? "rgba(45,202,114,0.12)" : "rgba(255,255,255,0.05)",
-        border: `1px solid ${copied ? "rgba(45,202,114,0.35)" : "rgba(255,255,255,0.08)"}`,
-        color: copied ? "#2dca72" : "rgba(240,237,232,0.5)",
-        cursor: "pointer",
-        fontFamily: "Syne, sans-serif",
+        background: copied ? 'rgba(45,202,114,0.12)' : 'rgba(255,255,255,0.05)',
+        border: `1px solid ${copied ? 'rgba(45,202,114,0.35)' : 'rgba(255,255,255,0.08)'}`,
+        color: copied ? '#2dca72' : 'rgba(240,237,232,0.5)',
+        cursor: 'pointer',
+        fontFamily: 'Syne, sans-serif',
         fontWeight: 600,
       }}
     >
       {copied ? <Check size={11} /> : <Copy size={11} />}
-      {copied ? "Copied ✓" : label}
+      {copied ? 'Copied ✓' : label}
     </button>
   );
 }
 
-export default function OutputToolbar({ allContent, toolName, className = "" }: OutputToolbarProps) {
+export default function OutputToolbar({
+  allContent,
+  toolName,
+  className = '',
+}: OutputToolbarProps) {
   const handleExportTxt = useCallback(() => {
-    const blob = new Blob([allContent], { type: "text/plain" });
+    const blob = new Blob([allContent], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = `majorka-${toolName.replace(/\s+/g, "-").toLowerCase()}-${Date.now()}.txt`;
+    a.download = `majorka-${toolName.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.txt`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Exported as .txt!");
+    toast.success('Exported as .txt!');
   }, [allContent, toolName]);
 
   const handleSave = useCallback(() => {
-    const key = `majorka_saved_${toolName.replace(/\s+/g, "_").toLowerCase()}_${Date.now()}`;
+    const key = `majorka_saved_${toolName.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`;
     try {
       localStorage.setItem(key, allContent);
-      toast.success("Output saved!", { description: `Saved as ${key}` });
+      toast.success('Output saved!', { description: `Saved as ${key}` });
     } catch {
-      toast.error("Could not save — storage may be full.");
+      toast.error('Could not save — storage may be full.');
     }
   }, [allContent, toolName]);
 
@@ -73,11 +78,11 @@ export default function OutputToolbar({ allContent, toolName, className = "" }: 
         onClick={handleExportTxt}
         className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all"
         style={{
-          background: "rgba(255,255,255,0.05)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          color: "rgba(240,237,232,0.5)",
-          cursor: "pointer",
-          fontFamily: "Syne, sans-serif",
+          background: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          color: 'rgba(240,237,232,0.5)',
+          cursor: 'pointer',
+          fontFamily: 'Syne, sans-serif',
           fontWeight: 600,
         }}
       >
@@ -87,11 +92,11 @@ export default function OutputToolbar({ allContent, toolName, className = "" }: 
         onClick={handleSave}
         className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all"
         style={{
-          background: "rgba(255,255,255,0.05)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          color: "rgba(240,237,232,0.5)",
-          cursor: "pointer",
-          fontFamily: "Syne, sans-serif",
+          background: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          color: 'rgba(240,237,232,0.5)',
+          cursor: 'pointer',
+          fontFamily: 'Syne, sans-serif',
           fontWeight: 600,
         }}
       >

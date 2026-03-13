@@ -2,8 +2,9 @@
  * ToolEmptyState — shown when a tool page has no results yet.
  * Provides a helpful prompt with an example to get started.
  */
-import { createElement } from "react";
-import { Sparkles } from "lucide-react";
+
+import { Sparkles } from 'lucide-react';
+import { createElement } from 'react';
 
 interface ToolEmptyStateProps {
   toolName: string;
@@ -26,16 +27,16 @@ export default function ToolEmptyState({
       <div className="relative mb-6">
         <div
           className="w-16 h-16 rounded-2xl flex items-center justify-center"
-          style={{ background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.15)" }}
+          style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.15)' }}
         >
-          {createElement(toolIcon, { size: 28, style: { color: "#d4af37" } })}
+          {createElement(toolIcon, { size: 28, style: { color: '#d4af37' } })}
         </div>
         <div
           className="absolute inset-0 rounded-2xl animate-ping"
           style={{
-            background: "rgba(212,175,55,0.06)",
-            animationDuration: "3s",
-            animationIterationCount: "infinite",
+            background: 'rgba(212,175,55,0.06)',
+            animationDuration: '3s',
+            animationIterationCount: 'infinite',
           }}
         />
       </div>
@@ -43,11 +44,11 @@ export default function ToolEmptyState({
       {/* Text */}
       <h3
         className="text-lg font-bold mb-2"
-        style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}
+        style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
       >
         Ready when you are
       </h3>
-      <p className="text-sm mb-6 max-w-sm" style={{ color: "#71717a", lineHeight: 1.6 }}>
+      <p className="text-sm mb-6 max-w-sm" style={{ color: '#71717a', lineHeight: 1.6 }}>
         {toolDescription}
       </p>
 
@@ -56,23 +57,23 @@ export default function ToolEmptyState({
         onClick={onTryExample}
         className="flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all"
         style={{
-          background: "rgba(212,175,55,0.06)",
-          border: "1px solid rgba(212,175,55,0.15)",
-          cursor: "pointer",
-          color: "#f5f5f5",
+          background: 'rgba(212,175,55,0.06)',
+          border: '1px solid rgba(212,175,55,0.15)',
+          cursor: 'pointer',
+          color: '#f5f5f5',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = "rgba(212,175,55,0.35)";
-          e.currentTarget.style.background = "rgba(212,175,55,0.1)";
+          e.currentTarget.style.borderColor = 'rgba(212,175,55,0.35)';
+          e.currentTarget.style.background = 'rgba(212,175,55,0.1)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = "rgba(212,175,55,0.15)";
-          e.currentTarget.style.background = "rgba(212,175,55,0.06)";
+          e.currentTarget.style.borderColor = 'rgba(212,175,55,0.15)';
+          e.currentTarget.style.background = 'rgba(212,175,55,0.06)';
         }}
       >
-        <Sparkles size={13} style={{ color: "#d4af37", flexShrink: 0 }} />
+        <Sparkles size={13} style={{ color: '#d4af37', flexShrink: 0 }} />
         <span className="text-sm">
-          Try this: <span style={{ color: "#d4af37" }}>&ldquo;{examplePrompt}&rdquo;</span>
+          Try this: <span style={{ color: '#d4af37' }}>&ldquo;{examplePrompt}&rdquo;</span>
         </span>
       </button>
     </div>

@@ -2,11 +2,11 @@
  * Tavily Web Search & Extract Helper
  * Provides real-time web search and URL content extraction for Majorka tools.
  */
-import { tavily } from "@tavily/core";
+import { tavily } from '@tavily/core';
 
 function getClient() {
   const apiKey = process.env.TAVILY_API_KEY;
-  if (!apiKey) throw new Error("TAVILY_API_KEY is not configured");
+  if (!apiKey) throw new Error('TAVILY_API_KEY is not configured');
   return tavily({ apiKey });
 }
 
@@ -31,28 +31,28 @@ export async function tavilySearch(
   query: string,
   options: {
     maxResults?: number;
-    searchDepth?: "basic" | "advanced";
+    searchDepth?: 'basic' | 'advanced';
     includeImages?: boolean;
-    topic?: "general" | "news";
+    topic?: 'general' | 'news';
   } = {}
 ): Promise<{ results: SearchResult[]; images: string[] }> {
   const client = getClient();
   const response = await client.search(query, {
     maxResults: options.maxResults ?? 5,
-    searchDepth: options.searchDepth ?? "basic",
+    searchDepth: options.searchDepth ?? 'basic',
     includeImages: options.includeImages ?? false,
-    topic: options.topic ?? "general",
+    topic: options.topic ?? 'general',
   });
   return {
     results: (response.results ?? []).map((r) => ({
-      title: r.title ?? "",
-      url: r.url ?? "",
-      content: r.content ?? "",
+      title: r.title ?? '',
+      url: r.url ?? '',
+      content: r.content ?? '',
       score: r.score,
     })),
     // TavilyImage has { url, description? } — extract just the url string
     images: (response.images ?? []).map((img) =>
-      typeof img === "string" ? img : (img as { url: string }).url
+      typeof img === 'string' ? img : (img as { url: string }).url
     ),
   };
 }
@@ -68,7 +68,7 @@ export async function tavilyExtract(url: string): Promise<ExtractResult> {
   return {
     url: result.url ?? url,
     title: result.title ?? null,
-    rawContent: result.rawContent ?? "",
+    rawContent: result.rawContent ?? '',
     images: result.images ?? [],
   };
 }
@@ -81,9 +81,9 @@ export async function tavilyImageSearch(query: string, maxImages = 6): Promise<s
   const response = await client.search(query, {
     maxResults: 3,
     includeImages: true,
-    searchDepth: "basic",
+    searchDepth: 'basic',
   });
   return (response.images ?? [])
-    .map((img) => (typeof img === "string" ? img : (img as { url: string }).url))
+    .map((img) => (typeof img === 'string' ? img : (img as { url: string }).url))
     .slice(0, maxImages);
 }

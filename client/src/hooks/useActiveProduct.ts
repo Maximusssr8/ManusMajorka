@@ -1,15 +1,15 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 export interface ActiveProduct {
   id?: string;
   name: string;
   niche: string;
   summary: string;
-  source: "research" | "validate" | "manual";
+  source: 'research' | 'validate' | 'manual';
   savedAt: number;
 }
 
-const STORAGE_KEY = "majorka_active_product";
+const STORAGE_KEY = 'majorka_active_product';
 
 export function useActiveProduct() {
   const [activeProduct, setActiveProduct] = useState<ActiveProduct | null>(() => {

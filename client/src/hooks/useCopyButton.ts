@@ -2,7 +2,7 @@
  * useCopyButton — provides "Copied!" feedback state for copy buttons.
  * Returns { copied, handleCopy } — copied flips to true for 2 seconds after copy.
  */
-import { useState, useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from 'react';
 
 export function useCopyButton() {
   const [copied, setCopied] = useState(false);

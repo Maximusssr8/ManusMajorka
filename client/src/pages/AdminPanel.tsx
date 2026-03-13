@@ -3,75 +3,69 @@
  * Access restricted to maximusmajorka@gmail.com only.
  * Design: dark SaaS internal tool, glass morphism cards, Majorka design system.
  */
-import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
-import { toast } from "sonner";
+
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Users,
+  Activity,
+  AlertCircle,
+  ArrowLeft,
   BarChart2,
-  Zap,
+  BookOpen,
+  CheckCircle,
+  ChevronDown,
+  Loader2,
+  LogOut,
+  RefreshCw,
+  Search,
+  Send,
   Settings,
   Shield,
-  LogOut,
-  ArrowLeft,
-  Search,
-  ChevronDown,
+  Users,
   X,
-  Loader2,
-  Activity,
-  CheckCircle,
-  AlertCircle,
-  Send,
-  RefreshCw,
-  BookOpen,
-} from "lucide-react";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { trpc } from "@/lib/trpc";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { motion, AnimatePresence } from "framer-motion";
+  Zap,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { toast } from 'sonner';
+import { useLocation } from 'wouter';
+import { useAuth } from '@/_core/hooks/useAuth';
+import { trpc } from '@/lib/trpc';
 
-const ADMIN_EMAIL = "maximusmajorka@gmail.com";
+const ADMIN_EMAIL = 'maximusmajorka@gmail.com';
 
 // ── Feature Flags ─────────────────────────────────────────────────────────────
 
 const FEATURE_FLAGS = [
   {
-    key: "website_generator",
-    label: "Website Generator",
-    tiers: ["builder", "scale"],
+    key: 'website_generator',
+    label: 'Website Generator',
+    tiers: ['builder', 'scale'],
   },
   {
-    key: "meta_ads",
-    label: "Meta Ads Pack",
-    tiers: ["builder", "scale"],
+    key: 'meta_ads',
+    label: 'Meta Ads Pack',
+    tiers: ['builder', 'scale'],
   },
   {
-    key: "knowledge_base",
-    label: "Knowledge Base",
-    tiers: ["starter", "builder", "scale"],
+    key: 'knowledge_base',
+    label: 'Knowledge Base',
+    tiers: ['starter', 'builder', 'scale'],
   },
   {
-    key: "academy",
-    label: "Majorka Academy",
-    tiers: ["starter", "builder", "scale"],
+    key: 'academy',
+    label: 'Majorka Academy',
+    tiers: ['starter', 'builder', 'scale'],
   },
   {
-    key: "supplier_finder",
-    label: "Supplier Finder",
-    tiers: ["builder", "scale"],
+    key: 'supplier_finder',
+    label: 'Supplier Finder',
+    tiers: ['builder', 'scale'],
   },
 ];
 
 function loadFeatureFlags(): Record<string, boolean> {
   try {
-    const stored = localStorage.getItem("majorka_feature_flags");
+    const stored = localStorage.getItem('majorka_feature_flags');
     return stored ? JSON.parse(stored) : {};
   } catch {
     return {};
@@ -79,14 +73,14 @@ function loadFeatureFlags(): Record<string, boolean> {
 }
 
 function saveFeatureFlags(flags: Record<string, boolean>) {
-  localStorage.setItem("majorka_feature_flags", JSON.stringify(flags));
+  localStorage.setItem('majorka_feature_flags', JSON.stringify(flags));
 }
 
 // ── Glass Card ────────────────────────────────────────────────────────────────
 
 function GlassCard({
   children,
-  className = "",
+  className = '',
 }: {
   children: React.ReactNode;
   className?: string;
@@ -95,10 +89,10 @@ function GlassCard({
     <div
       className={className}
       style={{
-        background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.07)",
+        background: 'rgba(255,255,255,0.03)',
+        border: '1px solid rgba(255,255,255,0.07)',
         borderRadius: 12,
-        backdropFilter: "blur(12px)",
+        backdropFilter: 'blur(12px)',
       }}
     >
       {children}
@@ -110,25 +104,25 @@ function GlassCard({
 
 function PlanBadge({ plan }: { plan: string }) {
   const styles: Record<string, React.CSSProperties> = {
-    starter: { background: "rgba(113,113,122,0.2)", color: "#a1a1aa" },
-    builder: { background: "rgba(212,175,55,0.15)", color: "#d4af37" },
-    scale: { background: "rgba(124,90,245,0.2)", color: "#a78bfa" },
-    pro: { background: "rgba(45,202,114,0.2)", color: "#2dca72" },
+    starter: { background: 'rgba(113,113,122,0.2)', color: '#a1a1aa' },
+    builder: { background: 'rgba(212,175,55,0.15)', color: '#d4af37' },
+    scale: { background: 'rgba(124,90,245,0.2)', color: '#a78bfa' },
+    pro: { background: 'rgba(45,202,114,0.2)', color: '#2dca72' },
   };
   const s = styles[plan] ?? styles.starter;
   return (
     <span
       style={{
         ...s,
-        padding: "2px 8px",
+        padding: '2px 8px',
         borderRadius: 6,
         fontSize: 11,
         fontWeight: 600,
-        fontFamily: "Fira Code, monospace",
-        textTransform: "capitalize",
+        fontFamily: 'Fira Code, monospace',
+        textTransform: 'capitalize',
       }}
     >
-      {plan || "—"}
+      {plan || '—'}
     </span>
   );
 }
@@ -139,7 +133,7 @@ function ConfirmDialog({
   open,
   title,
   message,
-  confirmLabel = "Confirm",
+  confirmLabel = 'Confirm',
   danger = false,
   onConfirm,
   onCancel,
@@ -156,14 +150,14 @@ function ConfirmDialog({
   return (
     <div
       style={{
-        position: "fixed",
+        position: 'fixed',
         inset: 0,
-        background: "rgba(0,0,0,0.7)",
-        backdropFilter: "blur(4px)",
+        background: 'rgba(0,0,0,0.7)',
+        backdropFilter: 'blur(4px)',
         zIndex: 9999,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         padding: 16,
       }}
       onClick={onCancel}
@@ -173,69 +167,59 @@ function ConfirmDialog({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         style={{
-          background: "#0f1117",
-          border: "1px solid rgba(255,255,255,0.1)",
+          background: '#0f1117',
+          border: '1px solid rgba(255,255,255,0.1)',
           borderRadius: 16,
           padding: 32,
           maxWidth: 420,
-          width: "100%",
+          width: '100%',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         <h3
           style={{
-            fontFamily: "Syne, sans-serif",
-            color: "#f0ede8",
+            fontFamily: 'Syne, sans-serif',
+            color: '#f0ede8',
             fontSize: 18,
             marginBottom: 12,
           }}
         >
           {title}
         </h3>
-        <p style={{ color: "rgba(240,237,232,0.6)", fontSize: 14, marginBottom: 24 }}>
-          {message}
-        </p>
-        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+        <p style={{ color: 'rgba(240,237,232,0.6)', fontSize: 14, marginBottom: 24 }}>{message}</p>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
           <button
             onClick={onCancel}
             style={{
-              padding: "8px 16px",
+              padding: '8px 16px',
               borderRadius: 8,
-              background: "rgba(255,255,255,0.06)",
-              color: "rgba(240,237,232,0.7)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              cursor: "pointer",
+              background: 'rgba(255,255,255,0.06)',
+              color: 'rgba(240,237,232,0.7)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              cursor: 'pointer',
               fontSize: 14,
-              transition: "all 200ms ease",
+              transition: 'all 200ms ease',
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "rgba(255,255,255,0.1)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "rgba(255,255,255,0.06)")
-            }
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
             style={{
-              padding: "8px 16px",
+              padding: '8px 16px',
               borderRadius: 8,
-              background: danger ? "rgba(239,68,68,0.8)" : "#d4af37",
-              color: danger ? "#fff" : "#0a0a0a",
-              border: "none",
-              cursor: "pointer",
+              background: danger ? 'rgba(239,68,68,0.8)' : '#d4af37',
+              color: danger ? '#fff' : '#0a0a0a',
+              border: 'none',
+              cursor: 'pointer',
               fontSize: 14,
               fontWeight: 600,
-              transition: "all 200ms ease",
+              transition: 'all 200ms ease',
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.opacity = "0.85")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.opacity = "1")
-            }
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
           >
             {confirmLabel}
           </button>
@@ -248,11 +232,11 @@ function ConfirmDialog({
 // ── Sections ──────────────────────────────────────────────────────────────────
 
 const SECTIONS = [
-  { id: "users", label: "Users", icon: Users },
-  { id: "stats", label: "Platform Stats", icon: BarChart2 },
-  { id: "ai-usage", label: "AI Usage", icon: Activity },
-  { id: "content", label: "Content Manager", icon: BookOpen },
-  { id: "actions", label: "Quick Actions", icon: Zap },
+  { id: 'users', label: 'Users', icon: Users },
+  { id: 'stats', label: 'Platform Stats', icon: BarChart2 },
+  { id: 'ai-usage', label: 'AI Usage', icon: Activity },
+  { id: 'content', label: 'Content Manager', icon: BookOpen },
+  { id: 'actions', label: 'Quick Actions', icon: Zap },
 ];
 
 // ── Main Component ────────────────────────────────────────────────────────────
@@ -260,11 +244,11 @@ const SECTIONS = [
 export default function AdminPanel() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
-  const [activeSection, setActiveSection] = useState("users");
+  const [activeSection, setActiveSection] = useState('users');
 
   // Users section
-  const [userSearch, setUserSearch] = useState("");
-  const [planFilter, setPlanFilter] = useState("all");
+  const [userSearch, setUserSearch] = useState('');
+  const [planFilter, setPlanFilter] = useState('all');
   const [planMenuOpen, setPlanMenuOpen] = useState<string | null>(null);
   const [confirmPlan, setConfirmPlan] = useState<{
     userId: string;
@@ -274,16 +258,14 @@ export default function AdminPanel() {
 
   // Broadcast modal
   const [showBroadcast, setShowBroadcast] = useState(false);
-  const [broadcastSubject, setBroadcastSubject] = useState("");
-  const [broadcastBody, setBroadcastBody] = useState("");
+  const [broadcastSubject, setBroadcastSubject] = useState('');
+  const [broadcastBody, setBroadcastBody] = useState('');
 
   // Redeploy confirm
   const [showRedeploy, setShowRedeploy] = useState(false);
 
   // Feature flags
-  const [featureFlags, setFeatureFlags] = useState<Record<string, boolean>>(
-    loadFeatureFlags
-  );
+  const [featureFlags, setFeatureFlags] = useState<Record<string, boolean>>(loadFeatureFlags);
 
   // Academy editor
   const [lessonEdit, setLessonEdit] = useState<Record<string, string>>({});
@@ -297,7 +279,7 @@ export default function AdminPanel() {
   });
   const updatePlanMut = trpc.admin.updateUserPlan.useMutation({
     onSuccess: () => {
-      toast.success("Plan updated");
+      toast.success('Plan updated');
       usersQuery.refetch();
     },
     onError: (e) => toast.error(e.message),
@@ -306,8 +288,8 @@ export default function AdminPanel() {
     onSuccess: (data) => {
       toast.success(`Broadcast sent to ${data.sent} users`);
       setShowBroadcast(false);
-      setBroadcastSubject("");
-      setBroadcastBody("");
+      setBroadcastSubject('');
+      setBroadcastBody('');
     },
     onError: (e) => toast.error(e.message),
   });
@@ -315,17 +297,14 @@ export default function AdminPanel() {
   // Gate access
   if (!user) {
     return (
-      <div
-        className="h-screen flex items-center justify-center"
-        style={{ background: "#080a0e" }}
-      >
-        <Loader2 className="animate-spin" size={24} style={{ color: "#d4af37" }} />
+      <div className="h-screen flex items-center justify-center" style={{ background: '#080a0e' }}>
+        <Loader2 className="animate-spin" size={24} style={{ color: '#d4af37' }} />
       </div>
     );
   }
 
   if (user.email !== ADMIN_EMAIL) {
-    navigate("/app");
+    navigate('/app');
     return null;
   }
 
@@ -336,8 +315,8 @@ export default function AdminPanel() {
     const q = userSearch.toLowerCase();
     const matchSearch =
       !q ||
-      (u.email || "").toLowerCase().includes(q) ||
-      (u.user_metadata?.full_name || "").toLowerCase().includes(q);
+      (u.email || '').toLowerCase().includes(q) ||
+      (u.user_metadata?.full_name || '').toLowerCase().includes(q);
     return matchSearch;
   });
 
@@ -350,38 +329,41 @@ export default function AdminPanel() {
 
   const confirmPlanChange = () => {
     if (!confirmPlan) return;
-    updatePlanMut.mutate({ userId: confirmPlan.userId, plan: confirmPlan.plan as "starter" | "builder" | "scale" | "pro" });
+    updatePlanMut.mutate({
+      userId: confirmPlan.userId,
+      plan: confirmPlan.plan as 'starter' | 'builder' | 'scale' | 'pro',
+    });
     setConfirmPlan(null);
   };
 
   const triggerN8nWorkflow = async (workflowId: string, label: string) => {
     try {
-      const apiKey = (import.meta as any).env?.VITE_N8N_API_KEY || "";
+      const apiKey = (import.meta as any).env?.VITE_N8N_API_KEY || '';
       await fetch(`http://localhost:5678/api/v1/workflows/${workflowId}/activate`, {
-        method: "POST",
-        headers: { "X-N8N-API-KEY": apiKey },
+        method: 'POST',
+        headers: { 'X-N8N-API-KEY': apiKey },
       });
       toast.success(`${label} triggered`);
     } catch {
-      toast.error("n8n not reachable — is it running?");
+      toast.error('n8n not reachable — is it running?');
     }
   };
 
   const triggerDeploy = async () => {
-    const token = (await (window as any).__supabaseSession?.()) || "";
+    const token = (await (window as any).__supabaseSession?.()) || '';
     try {
-      const res = await fetch("/api/admin/deploy", {
-        method: "POST",
+      const res = await fetch('/api/admin/deploy', {
+        method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (data.ok) {
-        toast.success("Deploy triggered — check Vercel");
+        toast.success('Deploy triggered — check Vercel');
       } else {
-        toast.error(data.message || "Deploy failed");
+        toast.error(data.message || 'Deploy failed');
       }
     } catch {
-      toast.error("Deploy request failed");
+      toast.error('Deploy request failed');
     }
     setShowRedeploy(false);
   };
@@ -397,31 +379,31 @@ export default function AdminPanel() {
 
   const statCards = [
     {
-      label: "Total Users",
-      value: statsQuery.data?.totalUsers ?? "—",
+      label: 'Total Users',
+      value: statsQuery.data?.totalUsers ?? '—',
       icon: Users,
-      color: "#d4af37",
+      color: '#d4af37',
     },
     {
-      label: "Active Today",
-      value: statsQuery.data?.activeToday ?? "—",
+      label: 'Active Today',
+      value: statsQuery.data?.activeToday ?? '—',
       icon: Activity,
-      color: "#2dca72",
+      color: '#2dca72',
     },
     {
-      label: "Active This Week",
-      value: statsQuery.data?.activeThisWeek ?? "—",
+      label: 'Active This Week',
+      value: statsQuery.data?.activeThisWeek ?? '—',
       icon: BarChart2,
-      color: "#7c6af5",
+      color: '#7c6af5',
     },
   ];
 
   const toolUsageData = [
-    { tool: "Market Intel", count: 0 },
-    { tool: "Ad Creator", count: 0 },
-    { tool: "Brand DNA", count: 0 },
-    { tool: "Competitor", count: 0 },
-    { tool: "Profit Calc", count: 0 },
+    { tool: 'Market Intel', count: 0 },
+    { tool: 'Ad Creator', count: 0 },
+    { tool: 'Brand DNA', count: 0 },
+    { tool: 'Competitor', count: 0 },
+    { tool: 'Profit Calc', count: 0 },
   ];
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -429,99 +411,93 @@ export default function AdminPanel() {
   return (
     <div
       style={{
-        minHeight: "100vh",
-        background: "#080a0e",
-        display: "flex",
-        flexDirection: "column",
-        fontFamily: "DM Sans, sans-serif",
-        color: "#f0ede8",
+        minHeight: '100vh',
+        background: '#080a0e',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: 'DM Sans, sans-serif',
+        color: '#f0ede8',
       }}
     >
       {/* Top Nav */}
       <div
         style={{
           height: 56,
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "0 24px",
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 24px',
           flexShrink: 0,
-          background: "rgba(8,10,14,0.95)",
-          backdropFilter: "blur(12px)",
-          position: "sticky",
+          background: 'rgba(8,10,14,0.95)',
+          backdropFilter: 'blur(12px)',
+          position: 'sticky',
           top: 0,
           zIndex: 50,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div
             style={{
               width: 28,
               height: 28,
               borderRadius: 8,
-              background: "linear-gradient(135deg, #d4af37, #f0c040)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontFamily: "Syne, sans-serif",
+              background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontFamily: 'Syne, sans-serif',
               fontWeight: 900,
               fontSize: 13,
-              color: "#080a0e",
+              color: '#080a0e',
             }}
           >
             M
           </div>
           <span
             style={{
-              fontFamily: "Syne, sans-serif",
+              fontFamily: 'Syne, sans-serif',
               fontWeight: 700,
               fontSize: 15,
-              color: "#f0ede8",
+              color: '#f0ede8',
             }}
           >
             Majorka Admin
           </span>
           <span
             style={{
-              padding: "1px 6px",
-              background: "rgba(239,68,68,0.15)",
-              color: "#f87171",
+              padding: '1px 6px',
+              background: 'rgba(239,68,68,0.15)',
+              color: '#f87171',
               borderRadius: 4,
               fontSize: 10,
               fontWeight: 700,
-              letterSpacing: "0.05em",
-              fontFamily: "Fira Code, monospace",
+              letterSpacing: '0.05em',
+              fontFamily: 'Fira Code, monospace',
             }}
           >
             INTERNAL
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <span style={{ fontSize: 12, color: "rgba(240,237,232,0.4)" }}>
-            {user.email}
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <span style={{ fontSize: 12, color: 'rgba(240,237,232,0.4)' }}>{user.email}</span>
           <button
-            onClick={() => navigate("/app")}
+            onClick={() => navigate('/app')}
             style={{
-              display: "flex",
-              alignItems: "center",
+              display: 'flex',
+              alignItems: 'center',
               gap: 6,
-              padding: "6px 12px",
+              padding: '6px 12px',
               borderRadius: 8,
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              color: "rgba(240,237,232,0.7)",
-              cursor: "pointer",
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: 'rgba(240,237,232,0.7)',
+              cursor: 'pointer',
               fontSize: 13,
-              transition: "all 200ms ease",
+              transition: 'all 200ms ease',
             }}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = "rgba(255,255,255,0.1)")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "rgba(255,255,255,0.05)")
-            }
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
           >
             <ArrowLeft size={13} />
             Back to App
@@ -530,16 +506,16 @@ export default function AdminPanel() {
       </div>
 
       {/* Body */}
-      <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
+      <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
         {/* Left sidebar */}
         <div
           style={{
             width: 200,
             flexShrink: 0,
-            borderRight: "1px solid rgba(255,255,255,0.06)",
-            padding: "16px 8px",
-            display: "flex",
-            flexDirection: "column",
+            borderRight: '1px solid rgba(255,255,255,0.06)',
+            padding: '16px 8px',
+            display: 'flex',
+            flexDirection: 'column',
             gap: 2,
           }}
         >
@@ -551,29 +527,26 @@ export default function AdminPanel() {
                 key={s.id}
                 onClick={() => setActiveSection(s.id)}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
+                  display: 'flex',
+                  alignItems: 'center',
                   gap: 10,
-                  padding: "8px 12px",
+                  padding: '8px 12px',
                   borderRadius: 8,
-                  background: active ? "rgba(212,175,55,0.1)" : "transparent",
-                  color: active ? "#d4af37" : "rgba(240,237,232,0.5)",
-                  border: active
-                    ? "1px solid rgba(212,175,55,0.2)"
-                    : "1px solid transparent",
-                  cursor: "pointer",
+                  background: active ? 'rgba(212,175,55,0.1)' : 'transparent',
+                  color: active ? '#d4af37' : 'rgba(240,237,232,0.5)',
+                  border: active ? '1px solid rgba(212,175,55,0.2)' : '1px solid transparent',
+                  cursor: 'pointer',
                   fontSize: 13,
                   fontWeight: active ? 600 : 400,
-                  textAlign: "left",
-                  transition: "all 200ms ease",
-                  width: "100%",
+                  textAlign: 'left',
+                  transition: 'all 200ms ease',
+                  width: '100%',
                 }}
                 onMouseEnter={(e) => {
-                  if (!active)
-                    e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                  if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
                 }}
                 onMouseLeave={(e) => {
-                  if (!active) e.currentTarget.style.background = "transparent";
+                  if (!active) e.currentTarget.style.background = 'transparent';
                 }}
               >
                 <Icon size={14} />
@@ -584,7 +557,7 @@ export default function AdminPanel() {
         </div>
 
         {/* Main content */}
-        <div style={{ flex: 1, overflowY: "auto", padding: 24 }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: 24 }}>
           <AnimatePresence mode="wait">
             <motion.div
               key={activeSection}
@@ -594,11 +567,11 @@ export default function AdminPanel() {
               transition={{ duration: 0.18 }}
             >
               {/* ── USERS ────────────────────────────────────────────────── */}
-              {activeSection === "users" && (
+              {activeSection === 'users' && (
                 <div>
                   <h2
                     style={{
-                      fontFamily: "Syne, sans-serif",
+                      fontFamily: 'Syne, sans-serif',
                       fontSize: 20,
                       fontWeight: 700,
                       marginBottom: 20,
@@ -610,22 +583,22 @@ export default function AdminPanel() {
                   {/* Search + filter */}
                   <div
                     style={{
-                      display: "flex",
+                      display: 'flex',
                       gap: 10,
                       marginBottom: 16,
-                      flexWrap: "wrap",
+                      flexWrap: 'wrap',
                     }}
                   >
-                    <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
+                    <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
                       <Search
                         size={14}
                         style={{
-                          position: "absolute",
+                          position: 'absolute',
                           left: 12,
-                          top: "50%",
-                          transform: "translateY(-50%)",
-                          color: "rgba(240,237,232,0.3)",
-                          pointerEvents: "none",
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          color: 'rgba(240,237,232,0.3)',
+                          pointerEvents: 'none',
                         }}
                       />
                       <input
@@ -633,23 +606,21 @@ export default function AdminPanel() {
                         onChange={(e) => setUserSearch(e.target.value)}
                         placeholder="Search by name or email…"
                         style={{
-                          width: "100%",
-                          padding: "9px 12px 9px 34px",
-                          background: "rgba(255,255,255,0.04)",
-                          border: "1px solid rgba(255,255,255,0.08)",
+                          width: '100%',
+                          padding: '9px 12px 9px 34px',
+                          background: 'rgba(255,255,255,0.04)',
+                          border: '1px solid rgba(255,255,255,0.08)',
                           borderRadius: 8,
-                          color: "#f0ede8",
+                          color: '#f0ede8',
                           fontSize: 13,
-                          outline: "none",
-                          transition: "border-color 200ms ease",
+                          outline: 'none',
+                          transition: 'border-color 200ms ease',
                         }}
                         onFocus={(e) =>
-                          (e.currentTarget.style.borderColor =
-                            "rgba(212,175,55,0.4)")
+                          (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)')
                         }
                         onBlur={(e) =>
-                          (e.currentTarget.style.borderColor =
-                            "rgba(255,255,255,0.08)")
+                          (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)')
                         }
                       />
                     </div>
@@ -657,26 +628,26 @@ export default function AdminPanel() {
                       value={planFilter}
                       onChange={(e) => setPlanFilter(e.target.value)}
                       style={{
-                        padding: "9px 12px",
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.08)",
+                        padding: '9px 12px',
+                        background: 'rgba(255,255,255,0.04)',
+                        border: '1px solid rgba(255,255,255,0.08)',
                         borderRadius: 8,
-                        color: "#f0ede8",
+                        color: '#f0ede8',
                         fontSize: 13,
-                        cursor: "pointer",
-                        outline: "none",
+                        cursor: 'pointer',
+                        outline: 'none',
                       }}
                     >
-                      <option value="all" style={{ background: "#0f1117" }}>
+                      <option value="all" style={{ background: '#0f1117' }}>
                         All Plans
                       </option>
-                      <option value="starter" style={{ background: "#0f1117" }}>
+                      <option value="starter" style={{ background: '#0f1117' }}>
                         Starter
                       </option>
-                      <option value="builder" style={{ background: "#0f1117" }}>
+                      <option value="builder" style={{ background: '#0f1117' }}>
                         Builder
                       </option>
-                      <option value="scale" style={{ background: "#0f1117" }}>
+                      <option value="scale" style={{ background: '#0f1117' }}>
                         Scale
                       </option>
                     </select>
@@ -684,33 +655,31 @@ export default function AdminPanel() {
 
                   {/* Table */}
                   <GlassCard>
-                    <div style={{ overflowX: "auto" }}>
-                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
                           <tr
                             style={{
-                              borderBottom: "1px solid rgba(255,255,255,0.06)",
+                              borderBottom: '1px solid rgba(255,255,255,0.06)',
                             }}
                           >
-                            {["User", "Email", "Plan", "Joined", "Actions"].map(
-                              (h) => (
-                                <th
-                                  key={h}
-                                  style={{
-                                    padding: "12px 16px",
-                                    textAlign: "left",
-                                    fontSize: 11,
-                                    color: "rgba(240,237,232,0.4)",
-                                    fontWeight: 600,
-                                    letterSpacing: "0.05em",
-                                    textTransform: "uppercase",
-                                    whiteSpace: "nowrap",
-                                  }}
-                                >
-                                  {h}
-                                </th>
-                              )
-                            )}
+                            {['User', 'Email', 'Plan', 'Joined', 'Actions'].map((h) => (
+                              <th
+                                key={h}
+                                style={{
+                                  padding: '12px 16px',
+                                  textAlign: 'left',
+                                  fontSize: 11,
+                                  color: 'rgba(240,237,232,0.4)',
+                                  fontWeight: 600,
+                                  letterSpacing: '0.05em',
+                                  textTransform: 'uppercase',
+                                  whiteSpace: 'nowrap',
+                                }}
+                              >
+                                {h}
+                              </th>
+                            ))}
                           </tr>
                         </thead>
                         <tbody>
@@ -720,14 +689,14 @@ export default function AdminPanel() {
                                 colSpan={5}
                                 style={{
                                   padding: 32,
-                                  textAlign: "center",
-                                  color: "rgba(240,237,232,0.3)",
+                                  textAlign: 'center',
+                                  color: 'rgba(240,237,232,0.3)',
                                 }}
                               >
                                 <Loader2
                                   className="animate-spin"
                                   size={20}
-                                  style={{ margin: "0 auto" }}
+                                  style={{ margin: '0 auto' }}
                                 />
                               </td>
                             </tr>
@@ -737,8 +706,8 @@ export default function AdminPanel() {
                                 colSpan={5}
                                 style={{
                                   padding: 32,
-                                  textAlign: "center",
-                                  color: "rgba(240,237,232,0.3)",
+                                  textAlign: 'center',
+                                  color: 'rgba(240,237,232,0.3)',
                                   fontSize: 14,
                                 }}
                               >
@@ -748,46 +717,39 @@ export default function AdminPanel() {
                           ) : (
                             filteredUsers.map((u) => {
                               const name =
-                                u.user_metadata?.full_name ||
-                                u.user_metadata?.name ||
-                                "—";
+                                u.user_metadata?.full_name || u.user_metadata?.name || '—';
                               const initials =
-                                name !== "—"
+                                name !== '—'
                                   ? name
-                                      .split(" ")
+                                      .split(' ')
                                       .map((w: string) => w[0])
-                                      .join("")
+                                      .join('')
                                       .slice(0, 2)
                                       .toUpperCase()
-                                  : (u.email || "?")[0].toUpperCase();
+                                  : (u.email || '?')[0].toUpperCase();
                               const joined = u.created_at
-                                ? new Date(u.created_at).toLocaleDateString(
-                                    "en-AU"
-                                  )
-                                : "—";
+                                ? new Date(u.created_at).toLocaleDateString('en-AU')
+                                : '—';
                               return (
                                 <tr
                                   key={u.id}
                                   style={{
-                                    borderBottom:
-                                      "1px solid rgba(255,255,255,0.04)",
-                                    transition: "background 150ms ease",
+                                    borderBottom: '1px solid rgba(255,255,255,0.04)',
+                                    transition: 'background 150ms ease',
                                   }}
                                   onMouseEnter={(e) =>
-                                    (e.currentTarget.style.background =
-                                      "rgba(255,255,255,0.02)")
+                                    (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')
                                   }
                                   onMouseLeave={(e) =>
-                                    (e.currentTarget.style.background =
-                                      "transparent")
+                                    (e.currentTarget.style.background = 'transparent')
                                   }
                                 >
                                   {/* Avatar + name */}
-                                  <td style={{ padding: "10px 16px" }}>
+                                  <td style={{ padding: '10px 16px' }}>
                                     <div
                                       style={{
-                                        display: "flex",
-                                        alignItems: "center",
+                                        display: 'flex',
+                                        alignItems: 'center',
                                         gap: 10,
                                       }}
                                     >
@@ -795,82 +757,74 @@ export default function AdminPanel() {
                                         style={{
                                           width: 32,
                                           height: 32,
-                                          borderRadius: "50%",
-                                          background:
-                                            "rgba(212,175,55,0.15)",
-                                          display: "flex",
-                                          alignItems: "center",
-                                          justifyContent: "center",
+                                          borderRadius: '50%',
+                                          background: 'rgba(212,175,55,0.15)',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
                                           fontSize: 11,
                                           fontWeight: 700,
-                                          color: "#d4af37",
+                                          color: '#d4af37',
                                           flexShrink: 0,
                                         }}
                                       >
                                         {initials}
                                       </div>
-                                      <span
-                                        style={{ fontSize: 13, color: "#f0ede8" }}
-                                      >
-                                        {name}
-                                      </span>
+                                      <span style={{ fontSize: 13, color: '#f0ede8' }}>{name}</span>
                                     </div>
                                   </td>
                                   {/* Email */}
                                   <td
                                     style={{
-                                      padding: "10px 16px",
+                                      padding: '10px 16px',
                                       fontSize: 12,
-                                      color: "rgba(240,237,232,0.6)",
-                                      fontFamily: "Fira Code, monospace",
+                                      color: 'rgba(240,237,232,0.6)',
+                                      fontFamily: 'Fira Code, monospace',
                                     }}
                                   >
-                                    {u.email || "—"}
+                                    {u.email || '—'}
                                   </td>
                                   {/* Plan */}
-                                  <td style={{ padding: "10px 16px" }}>
+                                  <td style={{ padding: '10px 16px' }}>
                                     <PlanBadge plan="pro" />
                                   </td>
                                   {/* Joined */}
                                   <td
                                     style={{
-                                      padding: "10px 16px",
+                                      padding: '10px 16px',
                                       fontSize: 12,
-                                      color: "rgba(240,237,232,0.4)",
+                                      color: 'rgba(240,237,232,0.4)',
                                     }}
                                   >
                                     {joined}
                                   </td>
                                   {/* Actions */}
-                                  <td style={{ padding: "10px 16px" }}>
-                                    <div style={{ position: "relative" }}>
+                                  <td style={{ padding: '10px 16px' }}>
+                                    <div style={{ position: 'relative' }}>
                                       <button
                                         onClick={() =>
-                                          setPlanMenuOpen(
-                                            planMenuOpen === u.id ? null : u.id
-                                          )
+                                          setPlanMenuOpen(planMenuOpen === u.id ? null : u.id)
                                         }
                                         style={{
-                                          display: "flex",
-                                          alignItems: "center",
+                                          display: 'flex',
+                                          alignItems: 'center',
                                           gap: 4,
-                                          padding: "5px 10px",
-                                          background: "rgba(255,255,255,0.05)",
-                                          border:
-                                            "1px solid rgba(255,255,255,0.08)",
+                                          padding: '5px 10px',
+                                          background: 'rgba(255,255,255,0.05)',
+                                          border: '1px solid rgba(255,255,255,0.08)',
                                           borderRadius: 6,
-                                          color: "rgba(240,237,232,0.7)",
-                                          cursor: "pointer",
+                                          color: 'rgba(240,237,232,0.7)',
+                                          cursor: 'pointer',
                                           fontSize: 12,
-                                          transition: "all 200ms ease",
+                                          transition: 'all 200ms ease',
                                         }}
                                         onMouseEnter={(e) =>
                                           (e.currentTarget.style.background =
-                                            "rgba(255,255,255,0.09)")
+                                            'rgba(255,255,255,0.09)')
                                         }
                                         onMouseLeave={(e) =>
                                           (e.currentTarget.style.background =
-                                            "rgba(255,255,255,0.05)")
+                                            'rgba(255,255,255,0.05)')
                                         }
                                       >
                                         Change Plan
@@ -879,54 +833,42 @@ export default function AdminPanel() {
                                       {planMenuOpen === u.id && (
                                         <div
                                           style={{
-                                            position: "absolute",
-                                            top: "calc(100% + 4px)",
+                                            position: 'absolute',
+                                            top: 'calc(100% + 4px)',
                                             left: 0,
-                                            background: "#0f1117",
-                                            border:
-                                              "1px solid rgba(255,255,255,0.1)",
+                                            background: '#0f1117',
+                                            border: '1px solid rgba(255,255,255,0.1)',
                                             borderRadius: 8,
                                             zIndex: 100,
                                             minWidth: 140,
-                                            boxShadow:
-                                              "0 10px 30px rgba(0,0,0,0.5)",
+                                            boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
                                           }}
                                         >
-                                          {[
-                                            "starter",
-                                            "builder",
-                                            "scale",
-                                            "pro",
-                                          ].map((plan) => (
+                                          {['starter', 'builder', 'scale', 'pro'].map((plan) => (
                                             <button
                                               key={plan}
                                               onClick={() =>
-                                                handlePlanChange(
-                                                  u.id,
-                                                  plan,
-                                                  u.email || ""
-                                                )
+                                                handlePlanChange(u.id, plan, u.email || '')
                                               }
                                               style={{
-                                                display: "block",
-                                                width: "100%",
-                                                padding: "8px 12px",
-                                                background: "transparent",
-                                                border: "none",
-                                                color: "rgba(240,237,232,0.7)",
-                                                cursor: "pointer",
+                                                display: 'block',
+                                                width: '100%',
+                                                padding: '8px 12px',
+                                                background: 'transparent',
+                                                border: 'none',
+                                                color: 'rgba(240,237,232,0.7)',
+                                                cursor: 'pointer',
                                                 fontSize: 13,
-                                                textAlign: "left",
-                                                textTransform: "capitalize",
-                                                transition: "all 150ms ease",
+                                                textAlign: 'left',
+                                                textTransform: 'capitalize',
+                                                transition: 'all 150ms ease',
                                               }}
                                               onMouseEnter={(e) =>
                                                 (e.currentTarget.style.background =
-                                                  "rgba(255,255,255,0.06)")
+                                                  'rgba(255,255,255,0.06)')
                                               }
                                               onMouseLeave={(e) =>
-                                                (e.currentTarget.style.background =
-                                                  "transparent")
+                                                (e.currentTarget.style.background = 'transparent')
                                               }
                                             >
                                               {plan}
@@ -945,25 +887,25 @@ export default function AdminPanel() {
                     </div>
                     <div
                       style={{
-                        padding: "10px 16px",
-                        borderTop: "1px solid rgba(255,255,255,0.04)",
+                        padding: '10px 16px',
+                        borderTop: '1px solid rgba(255,255,255,0.04)',
                         fontSize: 12,
-                        color: "rgba(240,237,232,0.3)",
+                        color: 'rgba(240,237,232,0.3)',
                       }}
                     >
                       {filteredUsers.length} user
-                      {filteredUsers.length !== 1 ? "s" : ""}
+                      {filteredUsers.length !== 1 ? 's' : ''}
                     </div>
                   </GlassCard>
                 </div>
               )}
 
               {/* ── STATS ────────────────────────────────────────────────── */}
-              {activeSection === "stats" && (
+              {activeSection === 'stats' && (
                 <div>
                   <h2
                     style={{
-                      fontFamily: "Syne, sans-serif",
+                      fontFamily: 'Syne, sans-serif',
                       fontSize: 20,
                       fontWeight: 700,
                       marginBottom: 20,
@@ -974,8 +916,8 @@ export default function AdminPanel() {
 
                   <div
                     style={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
                       gap: 16,
                       marginBottom: 24,
                     }}
@@ -987,8 +929,8 @@ export default function AdminPanel() {
                           <div style={{ padding: 20 }}>
                             <div
                               style={{
-                                display: "flex",
-                                alignItems: "center",
+                                display: 'flex',
+                                alignItems: 'center',
                                 gap: 10,
                                 marginBottom: 12,
                               }}
@@ -999,9 +941,9 @@ export default function AdminPanel() {
                                   height: 32,
                                   borderRadius: 8,
                                   background: `${card.color}18`,
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
                                 }}
                               >
                                 <Icon size={15} style={{ color: card.color }} />
@@ -1009,7 +951,7 @@ export default function AdminPanel() {
                               <span
                                 style={{
                                   fontSize: 12,
-                                  color: "rgba(240,237,232,0.5)",
+                                  color: 'rgba(240,237,232,0.5)',
                                 }}
                               >
                                 {card.label}
@@ -1019,7 +961,7 @@ export default function AdminPanel() {
                               style={{
                                 fontSize: 28,
                                 fontWeight: 700,
-                                fontFamily: "Fira Code, monospace",
+                                fontFamily: 'Fira Code, monospace',
                                 color: card.color,
                               }}
                             >
@@ -1046,7 +988,7 @@ export default function AdminPanel() {
                         style={{
                           fontSize: 14,
                           fontWeight: 600,
-                          color: "rgba(240,237,232,0.7)",
+                          color: 'rgba(240,237,232,0.7)',
                           marginBottom: 16,
                         }}
                       >
@@ -1055,33 +997,28 @@ export default function AdminPanel() {
                       <p
                         style={{
                           fontSize: 12,
-                          color: "rgba(240,237,232,0.3)",
+                          color: 'rgba(240,237,232,0.3)',
                           marginBottom: 16,
                         }}
                       >
-                        Usage tracking requires PostHog integration — showing
-                        placeholder data.
+                        Usage tracking requires PostHog integration — showing placeholder data.
                       </p>
                       <ResponsiveContainer width="100%" height={180}>
                         <BarChart data={toolUsageData}>
-                          <Bar
-                            dataKey="count"
-                            fill="#d4af37"
-                            radius={[4, 4, 0, 0]}
-                          />
+                          <Bar dataKey="count" fill="#d4af37" radius={[4, 4, 0, 0]} />
                           <XAxis
                             dataKey="tool"
-                            tick={{ fill: "#9ca3af", fontSize: 11 }}
+                            tick={{ fill: '#9ca3af', fontSize: 11 }}
                             axisLine={false}
                             tickLine={false}
                           />
                           <YAxis hide />
                           <Tooltip
                             contentStyle={{
-                              background: "#0f1117",
-                              border: "1px solid rgba(255,255,255,0.1)",
+                              background: '#0f1117',
+                              border: '1px solid rgba(255,255,255,0.1)',
                               borderRadius: 8,
-                              color: "#f0ede8",
+                              color: '#f0ede8',
                               fontSize: 12,
                             }}
                           />
@@ -1093,11 +1030,11 @@ export default function AdminPanel() {
               )}
 
               {/* ── AI USAGE ─────────────────────────────────────────────── */}
-              {activeSection === "ai-usage" && (
+              {activeSection === 'ai-usage' && (
                 <div>
                   <h2
                     style={{
-                      fontFamily: "Syne, sans-serif",
+                      fontFamily: 'Syne, sans-serif',
                       fontSize: 20,
                       fontWeight: 700,
                       marginBottom: 20,
@@ -1107,29 +1044,29 @@ export default function AdminPanel() {
                   </h2>
                   <div
                     style={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
                       gap: 16,
                     }}
                   >
                     {[
                       {
-                        label: "API Calls This Month",
-                        value: "—",
-                        hint: "Set up PostHog to track this",
-                        color: "#d4af37",
+                        label: 'API Calls This Month',
+                        value: '—',
+                        hint: 'Set up PostHog to track this',
+                        color: '#d4af37',
                       },
                       {
-                        label: "Estimated Cost",
-                        value: "—",
-                        hint: "Requires Anthropic usage API",
-                        color: "#2dca72",
+                        label: 'Estimated Cost',
+                        value: '—',
+                        hint: 'Requires Anthropic usage API',
+                        color: '#2dca72',
                       },
                       {
-                        label: "Rate Limit Hits",
-                        value: "—",
-                        hint: "In-memory — resets on restart",
-                        color: "#f87171",
+                        label: 'Rate Limit Hits',
+                        value: '—',
+                        hint: 'In-memory — resets on restart',
+                        color: '#f87171',
                       },
                     ].map((item) => (
                       <GlassCard key={item.label}>
@@ -1137,7 +1074,7 @@ export default function AdminPanel() {
                           <div
                             style={{
                               fontSize: 12,
-                              color: "rgba(240,237,232,0.5)",
+                              color: 'rgba(240,237,232,0.5)',
                               marginBottom: 10,
                             }}
                           >
@@ -1147,7 +1084,7 @@ export default function AdminPanel() {
                             style={{
                               fontSize: 30,
                               fontWeight: 700,
-                              fontFamily: "Fira Code, monospace",
+                              fontFamily: 'Fira Code, monospace',
                               color: item.color,
                               marginBottom: 8,
                             }}
@@ -1157,7 +1094,7 @@ export default function AdminPanel() {
                           <div
                             style={{
                               fontSize: 11,
-                              color: "rgba(240,237,232,0.3)",
+                              color: 'rgba(240,237,232,0.3)',
                             }}
                             title={item.hint}
                           >
@@ -1171,11 +1108,11 @@ export default function AdminPanel() {
               )}
 
               {/* ── CONTENT MANAGER ──────────────────────────────────────── */}
-              {activeSection === "content" && (
+              {activeSection === 'content' && (
                 <div>
                   <h2
                     style={{
-                      fontFamily: "Syne, sans-serif",
+                      fontFamily: 'Syne, sans-serif',
                       fontSize: 20,
                       fontWeight: 700,
                       marginBottom: 20,
@@ -1191,46 +1128,49 @@ export default function AdminPanel() {
                         style={{
                           fontSize: 14,
                           fontWeight: 600,
-                          color: "rgba(240,237,232,0.7)",
+                          color: 'rgba(240,237,232,0.7)',
                           marginBottom: 16,
                         }}
                       >
                         Feature Flags
                       </h3>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                         {FEATURE_FLAGS.map((flag) => {
                           const enabled = featureFlags[flag.key] !== false;
                           return (
                             <div
                               key={flag.key}
                               style={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                                padding: "12px 0",
-                                borderBottom: "1px solid rgba(255,255,255,0.04)",
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '12px 0',
+                                borderBottom: '1px solid rgba(255,255,255,0.04)',
                               }}
                             >
                               <div>
-                                <div
-                                  style={{ fontSize: 13, color: "#f0ede8", marginBottom: 2 }}
-                                >
+                                <div style={{ fontSize: 13, color: '#f0ede8', marginBottom: 2 }}>
                                   {flag.label}
                                 </div>
                                 <div
                                   style={{
                                     fontSize: 11,
-                                    color: "rgba(240,237,232,0.35)",
-                                    fontFamily: "Fira Code, monospace",
+                                    color: 'rgba(240,237,232,0.35)',
+                                    fontFamily: 'Fira Code, monospace',
                                   }}
                                 >
-                                  {flag.tiers.join(", ")}
+                                  {flag.tiers.join(', ')}
                                 </div>
                               </div>
                               <button
                                 onClick={() => toggleFeatureFlag(flag.key)}
                                 aria-label={`Toggle ${flag.label}`}
-                                style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  padding: 0,
+                                }}
                               >
                                 <div
                                   style={{
@@ -1238,22 +1178,22 @@ export default function AdminPanel() {
                                     height: 20,
                                     borderRadius: 10,
                                     background: enabled
-                                      ? "rgba(212,175,55,0.6)"
-                                      : "rgba(255,255,255,0.1)",
-                                    transition: "background 200ms",
-                                    position: "relative",
+                                      ? 'rgba(212,175,55,0.6)'
+                                      : 'rgba(255,255,255,0.1)',
+                                    transition: 'background 200ms',
+                                    position: 'relative',
                                   }}
                                 >
                                   <div
                                     style={{
                                       width: 14,
                                       height: 14,
-                                      borderRadius: "50%",
-                                      background: enabled ? "#d4af37" : "#52525b",
-                                      position: "absolute",
+                                      borderRadius: '50%',
+                                      background: enabled ? '#d4af37' : '#52525b',
+                                      position: 'absolute',
                                       top: 3,
                                       left: enabled ? 19 : 3,
-                                      transition: "left 200ms, background 200ms",
+                                      transition: 'left 200ms, background 200ms',
                                     }}
                                   />
                                 </div>
@@ -1262,7 +1202,7 @@ export default function AdminPanel() {
                           );
                         })}
                       </div>
-                      <p style={{ fontSize: 11, color: "rgba(240,237,232,0.3)", marginTop: 12 }}>
+                      <p style={{ fontSize: 11, color: 'rgba(240,237,232,0.3)', marginTop: 12 }}>
                         Saved to localStorage — client-side only for MVP.
                       </p>
                     </div>
@@ -1276,7 +1216,7 @@ export default function AdminPanel() {
                           style={{
                             fontSize: 14,
                             fontWeight: 600,
-                            color: "rgba(240,237,232,0.7)",
+                            color: 'rgba(240,237,232,0.7)',
                             marginBottom: 4,
                           }}
                         >
@@ -1285,25 +1225,25 @@ export default function AdminPanel() {
                         <p
                           style={{
                             fontSize: 12,
-                            color: "rgba(240,237,232,0.3)",
+                            color: 'rgba(240,237,232,0.3)',
                             marginBottom: 16,
                           }}
                         >
                           Quick notes per lesson — stored in localStorage. MVP only.
                         </p>
                         {[
-                          "what-is-dropshipping",
-                          "au-market-101",
-                          "legal-setup",
-                          "profit-maths",
+                          'what-is-dropshipping',
+                          'au-market-101',
+                          'legal-setup',
+                          'profit-maths',
                         ].map((lessonId) => (
                           <div key={lessonId} style={{ marginBottom: 16 }}>
                             <div
                               style={{
                                 fontSize: 11,
-                                color: "rgba(240,237,232,0.4)",
+                                color: 'rgba(240,237,232,0.4)',
                                 marginBottom: 4,
-                                fontFamily: "Fira Code, monospace",
+                                fontFamily: 'Fira Code, monospace',
                               }}
                             >
                               {lessonId}
@@ -1311,9 +1251,7 @@ export default function AdminPanel() {
                             <textarea
                               value={
                                 lessonEdit[lessonId] ??
-                                (localStorage.getItem(
-                                  `majorka_lesson_${lessonId}`
-                                ) || "")
+                                (localStorage.getItem(`majorka_lesson_${lessonId}`) || '')
                               }
                               onChange={(e) =>
                                 setLessonEdit((prev) => ({
@@ -1324,55 +1262,48 @@ export default function AdminPanel() {
                               rows={3}
                               placeholder="Add notes for this lesson…"
                               style={{
-                                width: "100%",
-                                padding: "10px 12px",
-                                background: "rgba(255,255,255,0.03)",
-                                border: "1px solid rgba(255,255,255,0.08)",
+                                width: '100%',
+                                padding: '10px 12px',
+                                background: 'rgba(255,255,255,0.03)',
+                                border: '1px solid rgba(255,255,255,0.08)',
                                 borderRadius: 8,
-                                color: "#f0ede8",
+                                color: '#f0ede8',
                                 fontSize: 13,
-                                resize: "vertical",
-                                outline: "none",
-                                fontFamily: "DM Sans, sans-serif",
-                                transition: "border-color 200ms ease",
+                                resize: 'vertical',
+                                outline: 'none',
+                                fontFamily: 'DM Sans, sans-serif',
+                                transition: 'border-color 200ms ease',
                               }}
                               onFocus={(e) =>
-                                (e.currentTarget.style.borderColor =
-                                  "rgba(212,175,55,0.4)")
+                                (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)')
                               }
                               onBlur={(e) =>
-                                (e.currentTarget.style.borderColor =
-                                  "rgba(255,255,255,0.08)")
+                                (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)')
                               }
                             />
                             <button
                               onClick={() => {
-                                const val = lessonEdit[lessonId] ?? "";
-                                localStorage.setItem(
-                                  `majorka_lesson_${lessonId}`,
-                                  val
-                                );
-                                toast.success("Lesson notes saved");
+                                const val = lessonEdit[lessonId] ?? '';
+                                localStorage.setItem(`majorka_lesson_${lessonId}`, val);
+                                toast.success('Lesson notes saved');
                               }}
                               style={{
                                 marginTop: 6,
-                                padding: "5px 12px",
-                                background: "rgba(212,175,55,0.15)",
-                                border: "1px solid rgba(212,175,55,0.3)",
+                                padding: '5px 12px',
+                                background: 'rgba(212,175,55,0.15)',
+                                border: '1px solid rgba(212,175,55,0.3)',
                                 borderRadius: 6,
-                                color: "#d4af37",
-                                cursor: "pointer",
+                                color: '#d4af37',
+                                cursor: 'pointer',
                                 fontSize: 12,
                                 fontWeight: 600,
-                                transition: "all 200ms ease",
+                                transition: 'all 200ms ease',
                               }}
                               onMouseEnter={(e) =>
-                                (e.currentTarget.style.background =
-                                  "rgba(212,175,55,0.25)")
+                                (e.currentTarget.style.background = 'rgba(212,175,55,0.25)')
                               }
                               onMouseLeave={(e) =>
-                                (e.currentTarget.style.background =
-                                  "rgba(212,175,55,0.15)")
+                                (e.currentTarget.style.background = 'rgba(212,175,55,0.15)')
                               }
                             >
                               Save
@@ -1386,11 +1317,11 @@ export default function AdminPanel() {
               )}
 
               {/* ── QUICK ACTIONS ─────────────────────────────────────────── */}
-              {activeSection === "actions" && (
+              {activeSection === 'actions' && (
                 <div>
                   <h2
                     style={{
-                      fontFamily: "Syne, sans-serif",
+                      fontFamily: 'Syne, sans-serif',
                       fontSize: 20,
                       fontWeight: 700,
                       marginBottom: 20,
@@ -1400,56 +1331,45 @@ export default function AdminPanel() {
                   </h2>
                   <div
                     style={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
                       gap: 12,
                     }}
                   >
                     {[
                       {
-                        label: "Send Broadcast Email",
+                        label: 'Send Broadcast Email',
                         icon: Send,
-                        color: "#d4af37",
+                        color: '#d4af37',
                         danger: false,
                         onClick: () => setShowBroadcast(true),
                       },
                       {
-                        label: "Welcome Email Sequence",
+                        label: 'Welcome Email Sequence',
                         icon: Zap,
-                        color: "#d4af37",
+                        color: '#d4af37',
                         danger: false,
                         onClick: () =>
-                          triggerN8nWorkflow(
-                            "s6p2EouVEPIQhGjS",
-                            "Welcome Email Sequence"
-                          ),
+                          triggerN8nWorkflow('s6p2EouVEPIQhGjS', 'Welcome Email Sequence'),
                       },
                       {
-                        label: "Daily Digest",
+                        label: 'Daily Digest',
                         icon: BarChart2,
-                        color: "#d4af37",
+                        color: '#d4af37',
                         danger: false,
-                        onClick: () =>
-                          triggerN8nWorkflow(
-                            "EeHbXLFUl0mt7rGg",
-                            "Daily Digest"
-                          ),
+                        onClick: () => triggerN8nWorkflow('EeHbXLFUl0mt7rGg', 'Daily Digest'),
                       },
                       {
-                        label: "Weekly AU Report",
+                        label: 'Weekly AU Report',
                         icon: Activity,
-                        color: "#d4af37",
+                        color: '#d4af37',
                         danger: false,
-                        onClick: () =>
-                          triggerN8nWorkflow(
-                            "Ih6AKmVQKO7fn8ST",
-                            "Weekly AU Report"
-                          ),
+                        onClick: () => triggerN8nWorkflow('Ih6AKmVQKO7fn8ST', 'Weekly AU Report'),
                       },
                       {
-                        label: "Force Redeploy",
+                        label: 'Force Redeploy',
                         icon: RefreshCw,
-                        color: "#f87171",
+                        color: '#f87171',
                         danger: true,
                         onClick: () => setShowRedeploy(true),
                       },
@@ -1460,31 +1380,29 @@ export default function AdminPanel() {
                           key={action.label}
                           onClick={action.onClick}
                           style={{
-                            display: "flex",
-                            alignItems: "center",
+                            display: 'flex',
+                            alignItems: 'center',
                             gap: 12,
-                            padding: "16px 20px",
-                            background: "rgba(255,255,255,0.03)",
-                            border: `1px solid ${action.danger ? "rgba(239,68,68,0.2)" : "rgba(255,255,255,0.07)"}`,
+                            padding: '16px 20px',
+                            background: 'rgba(255,255,255,0.03)',
+                            border: `1px solid ${action.danger ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.07)'}`,
                             borderRadius: 12,
                             color: action.color,
-                            cursor: "pointer",
+                            cursor: 'pointer',
                             fontSize: 14,
                             fontWeight: 500,
-                            textAlign: "left",
-                            transition: "all 200ms ease",
+                            textAlign: 'left',
+                            transition: 'all 200ms ease',
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = action.danger
-                              ? "rgba(239,68,68,0.08)"
-                              : "rgba(255,255,255,0.06)";
-                            e.currentTarget.style.transform =
-                              "translateY(-1px)";
+                              ? 'rgba(239,68,68,0.08)'
+                              : 'rgba(255,255,255,0.06)';
+                            e.currentTarget.style.transform = 'translateY(-1px)';
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.background =
-                              "rgba(255,255,255,0.03)";
-                            e.currentTarget.style.transform = "translateY(0)";
+                            e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                            e.currentTarget.style.transform = 'translateY(0)';
                           }}
                         >
                           <div
@@ -1493,11 +1411,11 @@ export default function AdminPanel() {
                               height: 36,
                               borderRadius: 8,
                               background: action.danger
-                                ? "rgba(239,68,68,0.1)"
-                                : "rgba(212,175,55,0.1)",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
+                                ? 'rgba(239,68,68,0.1)'
+                                : 'rgba(212,175,55,0.1)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
                               flexShrink: 0,
                             }}
                           >
@@ -1520,14 +1438,14 @@ export default function AdminPanel() {
         {showBroadcast && (
           <div
             style={{
-              position: "fixed",
+              position: 'fixed',
               inset: 0,
-              background: "rgba(0,0,0,0.7)",
-              backdropFilter: "blur(4px)",
+              background: 'rgba(0,0,0,0.7)',
+              backdropFilter: 'blur(4px)',
               zIndex: 9999,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               padding: 16,
             }}
             onClick={() => setShowBroadcast(false)}
@@ -1537,29 +1455,29 @@ export default function AdminPanel() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               style={{
-                background: "#0f1117",
-                border: "1px solid rgba(255,255,255,0.1)",
+                background: '#0f1117',
+                border: '1px solid rgba(255,255,255,0.1)',
                 borderRadius: 16,
                 padding: 32,
                 maxWidth: 500,
-                width: "100%",
+                width: '100%',
               }}
               onClick={(e) => e.stopPropagation()}
             >
               <div
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
                   marginBottom: 20,
                 }}
               >
                 <h3
                   style={{
-                    fontFamily: "Syne, sans-serif",
+                    fontFamily: 'Syne, sans-serif',
                     fontSize: 18,
                     fontWeight: 700,
-                    color: "#f0ede8",
+                    color: '#f0ede8',
                   }}
                 >
                   Broadcast Email
@@ -1567,30 +1485,26 @@ export default function AdminPanel() {
                 <button
                   onClick={() => setShowBroadcast(false)}
                   style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    color: "rgba(240,237,232,0.4)",
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'rgba(240,237,232,0.4)',
                     padding: 4,
-                    transition: "color 150ms ease",
+                    transition: 'color 150ms ease',
                   }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = "#f0ede8")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "rgba(240,237,232,0.4)")
-                  }
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#f0ede8')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(240,237,232,0.4)')}
                 >
                   <X size={18} />
                 </button>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div>
                   <label
                     style={{
-                      display: "block",
+                      display: 'block',
                       fontSize: 12,
-                      color: "rgba(240,237,232,0.5)",
+                      color: 'rgba(240,237,232,0.5)',
                       marginBottom: 6,
                     }}
                   >
@@ -1601,32 +1515,26 @@ export default function AdminPanel() {
                     onChange={(e) => setBroadcastSubject(e.target.value)}
                     placeholder="Email subject…"
                     style={{
-                      width: "100%",
-                      padding: "10px 14px",
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.1)",
+                      width: '100%',
+                      padding: '10px 14px',
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.1)',
                       borderRadius: 8,
-                      color: "#f0ede8",
+                      color: '#f0ede8',
                       fontSize: 14,
-                      outline: "none",
-                      transition: "border-color 200ms ease",
+                      outline: 'none',
+                      transition: 'border-color 200ms ease',
                     }}
-                    onFocus={(e) =>
-                      (e.currentTarget.style.borderColor =
-                        "rgba(212,175,55,0.4)")
-                    }
-                    onBlur={(e) =>
-                      (e.currentTarget.style.borderColor =
-                        "rgba(255,255,255,0.1)")
-                    }
+                    onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)')}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
                   />
                 </div>
                 <div>
                   <label
                     style={{
-                      display: "block",
+                      display: 'block',
                       fontSize: 12,
-                      color: "rgba(240,237,232,0.5)",
+                      color: 'rgba(240,237,232,0.5)',
                       marginBottom: 6,
                     }}
                   >
@@ -1638,32 +1546,26 @@ export default function AdminPanel() {
                     placeholder="Write your message…"
                     rows={6}
                     style={{
-                      width: "100%",
-                      padding: "10px 14px",
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.1)",
+                      width: '100%',
+                      padding: '10px 14px',
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.1)',
                       borderRadius: 8,
-                      color: "#f0ede8",
+                      color: '#f0ede8',
                       fontSize: 14,
-                      resize: "vertical",
-                      outline: "none",
-                      fontFamily: "DM Sans, sans-serif",
-                      transition: "border-color 200ms ease",
+                      resize: 'vertical',
+                      outline: 'none',
+                      fontFamily: 'DM Sans, sans-serif',
+                      transition: 'border-color 200ms ease',
                     }}
-                    onFocus={(e) =>
-                      (e.currentTarget.style.borderColor =
-                        "rgba(212,175,55,0.4)")
-                    }
-                    onBlur={(e) =>
-                      (e.currentTarget.style.borderColor =
-                        "rgba(255,255,255,0.1)")
-                    }
+                    onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)')}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
                   />
                 </div>
                 <button
                   onClick={() => {
                     if (!broadcastSubject.trim() || !broadcastBody.trim()) {
-                      toast.error("Subject and body are required");
+                      toast.error('Subject and body are required');
                       return;
                     }
                     broadcastMut.mutate({
@@ -1673,26 +1575,26 @@ export default function AdminPanel() {
                   }}
                   disabled={broadcastMut.isPending}
                   style={{
-                    padding: "12px 20px",
-                    background: "#d4af37",
-                    border: "none",
+                    padding: '12px 20px',
+                    background: '#d4af37',
+                    border: 'none',
                     borderRadius: 8,
-                    color: "#0a0a0a",
-                    cursor: broadcastMut.isPending ? "not-allowed" : "pointer",
+                    color: '#0a0a0a',
+                    cursor: broadcastMut.isPending ? 'not-allowed' : 'pointer',
                     fontSize: 14,
                     fontWeight: 700,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     gap: 8,
                     opacity: broadcastMut.isPending ? 0.7 : 1,
-                    transition: "all 200ms ease",
+                    transition: 'all 200ms ease',
                   }}
                   onMouseEnter={(e) => {
-                    if (!broadcastMut.isPending) e.currentTarget.style.opacity = "0.85";
+                    if (!broadcastMut.isPending) e.currentTarget.style.opacity = '0.85';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.opacity = broadcastMut.isPending ? "0.7" : "1";
+                    e.currentTarget.style.opacity = broadcastMut.isPending ? '0.7' : '1';
                   }}
                 >
                   {broadcastMut.isPending ? (
@@ -1700,7 +1602,7 @@ export default function AdminPanel() {
                   ) : (
                     <Send size={15} />
                   )}
-                  {broadcastMut.isPending ? "Sending…" : "Send to All Users"}
+                  {broadcastMut.isPending ? 'Sending…' : 'Send to All Users'}
                 </button>
               </div>
             </motion.div>
@@ -1714,7 +1616,7 @@ export default function AdminPanel() {
           <ConfirmDialog
             open={!!confirmPlan}
             title="Change Plan?"
-            message={`Set ${confirmPlan.email || "this user"} to ${confirmPlan.plan}?`}
+            message={`Set ${confirmPlan.email || 'this user'} to ${confirmPlan.plan}?`}
             confirmLabel="Change Plan"
             onConfirm={confirmPlanChange}
             onCancel={() => setConfirmPlan(null)}

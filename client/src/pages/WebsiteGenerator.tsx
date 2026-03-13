@@ -1,22 +1,37 @@
-import { useState, useRef, useCallback, useMemo } from "react";
-import { toast } from "sonner";
+import JSZip from 'jszip';
 import {
-  Copy, Download, X, Loader2, Globe, Package, Code2,
-  FileArchive, FolderOpen, FileText, FileCode, ChevronRight,
-  ChevronDown, ExternalLink, Clipboard, Terminal, ShoppingBag,
-  StickyNote, Check,
-} from "lucide-react";
-import JSZip from "jszip";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { cn } from "@/lib/utils";
-import { getStoredMarket } from "@/contexts/MarketContext";
-import { WEBSITE_TEMPLATES, buildTemplatePreview } from "@/lib/website-templates";
-import { SaveToProduct } from "@/components/SaveToProduct";
-import { useActiveProduct } from "@/hooks/useActiveProduct";
-import { useProduct } from "@/contexts/ProductContext";
-import { proxyImage } from "@/lib/imageProxy";
-import { trackWebsiteGenerated } from "@/lib/analytics";
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Clipboard,
+  Code2,
+  Copy,
+  Download,
+  ExternalLink,
+  FileArchive,
+  FileCode,
+  FileText,
+  FolderOpen,
+  Globe,
+  Loader2,
+  Package,
+  ShoppingBag,
+  StickyNote,
+  Terminal,
+  X,
+} from 'lucide-react';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { toast } from 'sonner';
+import { SaveToProduct } from '@/components/SaveToProduct';
+import { getStoredMarket } from '@/contexts/MarketContext';
+import { useProduct } from '@/contexts/ProductContext';
+import { useActiveProduct } from '@/hooks/useActiveProduct';
+import { trackWebsiteGenerated } from '@/lib/analytics';
+import { proxyImage } from '@/lib/imageProxy';
+import { cn } from '@/lib/utils';
+import { buildTemplatePreview, WEBSITE_TEMPLATES } from '@/lib/website-templates';
 
 // ── Template Definitions ─────────────────────────────────────────────────────
 interface StoreTemplate {
@@ -31,58 +46,58 @@ interface StoreTemplate {
 
 const STORE_TEMPLATES: StoreTemplate[] = [
   {
-    id: "bondi-wellness",
-    name: "Bondi Wellness",
-    niche: "Health supplements & wellness",
-    colors: { bg: "#f0faf0", accent: "#2d6a4f", text: "#1a1a2e" },
-    tone: "clean, credible, science-backed",
-    storeName: "Bondi Wellness Co",
-    tagline: "Clean Supplements for Active Australians",
+    id: 'bondi-wellness',
+    name: 'Bondi Wellness',
+    niche: 'Health supplements & wellness',
+    colors: { bg: '#f0faf0', accent: '#2d6a4f', text: '#1a1a2e' },
+    tone: 'clean, credible, science-backed',
+    storeName: 'Bondi Wellness Co',
+    tagline: 'Clean Supplements for Active Australians',
   },
   {
-    id: "au-pet-collective",
-    name: "AU Pet Collective",
-    niche: "Premium pet products",
-    colors: { bg: "#fff8f0", accent: "#8b4513", text: "#1a1a2e" },
-    tone: "playful, loving, premium",
-    storeName: "The AU Pet Collective",
-    tagline: "Because Your Dog Deserves Better",
+    id: 'au-pet-collective',
+    name: 'AU Pet Collective',
+    niche: 'Premium pet products',
+    colors: { bg: '#fff8f0', accent: '#8b4513', text: '#1a1a2e' },
+    tone: 'playful, loving, premium',
+    storeName: 'The AU Pet Collective',
+    tagline: 'Because Your Dog Deserves Better',
   },
   {
-    id: "gold-coast-fashion",
-    name: "Gold Coast Fashion",
-    niche: "Beachwear & fashion",
-    colors: { bg: "#fff9f0", accent: "#c9a227", text: "#1a1a2e" },
-    tone: "aspirational, beach lifestyle, AU summer",
-    storeName: "Sun & Salt Co",
-    tagline: "Made for the Australian Summer",
+    id: 'gold-coast-fashion',
+    name: 'Gold Coast Fashion',
+    niche: 'Beachwear & fashion',
+    colors: { bg: '#fff9f0', accent: '#c9a227', text: '#1a1a2e' },
+    tone: 'aspirational, beach lifestyle, AU summer',
+    storeName: 'Sun & Salt Co',
+    tagline: 'Made for the Australian Summer',
   },
   {
-    id: "tradie-gear",
-    name: "Tradie Gear AU",
-    niche: "Tools & workwear",
-    colors: { bg: "#1a1a1a", accent: "#f59e0b", text: "#ffffff" },
-    tone: "no-nonsense, tough, reliable",
-    storeName: "Tradie Gear AU",
-    tagline: "Built for the Australian Tradesperson",
+    id: 'tradie-gear',
+    name: 'Tradie Gear AU',
+    niche: 'Tools & workwear',
+    colors: { bg: '#1a1a1a', accent: '#f59e0b', text: '#ffffff' },
+    tone: 'no-nonsense, tough, reliable',
+    storeName: 'Tradie Gear AU',
+    tagline: 'Built for the Australian Tradesperson',
   },
   {
-    id: "eco-edit",
-    name: "The Eco Edit",
-    niche: "Sustainable home products",
-    colors: { bg: "#f7f3ee", accent: "#5c4033", text: "#1a1a2e" },
-    tone: "conscious, minimal, warm",
-    storeName: "The Eco Edit",
-    tagline: "Sustainable Choices for Australian Homes",
+    id: 'eco-edit',
+    name: 'The Eco Edit',
+    niche: 'Sustainable home products',
+    colors: { bg: '#f7f3ee', accent: '#5c4033', text: '#1a1a2e' },
+    tone: 'conscious, minimal, warm',
+    storeName: 'The Eco Edit',
+    tagline: 'Sustainable Choices for Australian Homes',
   },
   {
-    id: "aussie-sports",
-    name: "Aussie Sports Hub",
-    niche: "Sports & outdoor gear",
-    colors: { bg: "#0a0a2e", accent: "#00b4d8", text: "#ffffff" },
-    tone: "energetic, performance, AU outdoor culture",
-    storeName: "Aussie Sports Hub",
-    tagline: "Gear Up. Get Out. Australia.",
+    id: 'aussie-sports',
+    name: 'Aussie Sports Hub',
+    niche: 'Sports & outdoor gear',
+    colors: { bg: '#0a0a2e', accent: '#00b4d8', text: '#ffffff' },
+    tone: 'energetic, performance, AU outdoor culture',
+    storeName: 'Aussie Sports Hub',
+    tagline: 'Gear Up. Get Out. Australia.',
   },
 ];
 
@@ -108,31 +123,44 @@ interface GeneratedData {
   files?: Record<string, string>;
 }
 
-type Vibe = "bold" | "minimal" | "premium";
-type Platform = "shopify" | "nextjs" | "react";
-type ActiveTab = "copy" | "code" | "preview" | "deploy";
+type Vibe = 'bold' | 'minimal' | 'premium';
+type Platform = 'shopify' | 'nextjs' | 'react';
+type ActiveTab = 'copy' | 'code' | 'preview' | 'deploy';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function cleanProductTitle(raw: string): string {
-  const platforms = ["AliExpress", "Amazon", "Shopify", "eBay", "Etsy", "Walmart", "Temu", "DHgate", "Alibaba"];
+  const platforms = [
+    'AliExpress',
+    'Amazon',
+    'Shopify',
+    'eBay',
+    'Etsy',
+    'Walmart',
+    'Temu',
+    'DHgate',
+    'Alibaba',
+  ];
   let title = raw;
   for (const platform of platforms) {
-    title = title.replace(new RegExp(`\\s*[-|]\\s*${platform}.*$`, "i"), "");
+    title = title.replace(new RegExp(`\\s*[-|]\\s*${platform}.*$`, 'i'), '');
   }
-  title = title.replace(/\b[A-Z0-9]{6,}\b/g, "").replace(/\bSKU[-\s]?[A-Z0-9]+\b/gi, "");
-  title = title.slice(0, 60).replace(/[-|,\s]+$/, "").trim();
+  title = title.replace(/\b[A-Z0-9]{6,}\b/g, '').replace(/\bSKU[-\s]?[A-Z0-9]+\b/gi, '');
+  title = title
+    .slice(0, 60)
+    .replace(/[-|,\s]+$/, '')
+    .trim();
   return title || raw.slice(0, 60).trim();
 }
 
 function getLanguage(filePath: string): string {
-  if (filePath.endsWith(".liquid")) return "markup";
-  if (filePath.endsWith(".json")) return "json";
-  if (filePath.endsWith(".html")) return "markup";
-  if (filePath.endsWith(".md")) return "markdown";
-  if (filePath.endsWith(".css")) return "css";
-  if (filePath.endsWith(".tsx") || filePath.endsWith(".ts")) return "typescript";
-  if (filePath.endsWith(".jsx") || filePath.endsWith(".js")) return "javascript";
-  return "markup";
+  if (filePath.endsWith('.liquid')) return 'markup';
+  if (filePath.endsWith('.json')) return 'json';
+  if (filePath.endsWith('.html')) return 'markup';
+  if (filePath.endsWith('.md')) return 'markdown';
+  if (filePath.endsWith('.css')) return 'css';
+  if (filePath.endsWith('.tsx') || filePath.endsWith('.ts')) return 'typescript';
+  if (filePath.endsWith('.jsx') || filePath.endsWith('.js')) return 'javascript';
+  return 'markup';
 }
 
 function parseAIResponse(raw: string): GeneratedData | null {
@@ -146,38 +174,48 @@ function parseAIResponse(raw: string): GeneratedData | null {
   try {
     const parsed = JSON.parse(text);
     if (parsed.headline) return parsed as GeneratedData;
-  } catch { /* continue */ }
+  } catch {
+    /* continue */
+  }
 
   // Extract largest JSON object
-  const firstBrace = text.indexOf("{");
+  const firstBrace = text.indexOf('{');
   if (firstBrace !== -1) {
     let depth = 0;
     let end = -1;
     for (let i = firstBrace; i < text.length; i++) {
-      if (text[i] === "{") depth++;
-      else if (text[i] === "}") {
+      if (text[i] === '{') depth++;
+      else if (text[i] === '}') {
         depth--;
-        if (depth === 0) { end = i; break; }
+        if (depth === 0) {
+          end = i;
+          break;
+        }
       }
     }
     if (end !== -1) {
       try {
         const parsed = JSON.parse(text.slice(firstBrace, end + 1));
         if (parsed.headline) return parsed as GeneratedData;
-      } catch { /* continue */ }
+      } catch {
+        /* continue */
+      }
     }
   }
 
   // Last resort: build from prose
   if (text.length > 200) {
-    const lines = text.split("\n").filter(l => l.trim());
-    const firstLine = lines[0]?.replace(/^#+\s*/, "").slice(0, 80) || "Your AU Ecommerce Store";
+    const lines = text.split('\n').filter((l) => l.trim());
+    const firstLine = lines[0]?.replace(/^#+\s*/, '').slice(0, 80) || 'Your AU Ecommerce Store';
     return {
       headline: firstLine,
-      subheadline: lines[1]?.slice(0, 150) || "Built for Australian shoppers",
-      features: lines.slice(2, 7).map(l => l.replace(/^[-*•]\s*/, "").slice(0, 100)).filter(Boolean),
-      cta_primary: "Shop Now",
-      brandStory: "Quality products for Australian customers.",
+      subheadline: lines[1]?.slice(0, 150) || 'Built for Australian shoppers',
+      features: lines
+        .slice(2, 7)
+        .map((l) => l.replace(/^[-*•]\s*/, '').slice(0, 100))
+        .filter(Boolean),
+      cta_primary: 'Shop Now',
+      brandStory: 'Quality products for Australian customers.',
     } as GeneratedData;
   }
 
@@ -185,9 +223,9 @@ function parseAIResponse(raw: string): GeneratedData | null {
 }
 
 function buildPreviewHTML(data: GeneratedData, accentColor: string): string {
-  const bg = "#080a0e";
-  const text = "#f2efe9";
-  const surf = "#111114";
+  const bg = '#080a0e';
+  const text = '#f2efe9';
+  const surf = '#111114';
   const accent = accentColor;
 
   return `<!DOCTYPE html>
@@ -243,25 +281,30 @@ h1,h2,h3{font-family:'Syne',sans-serif;font-weight:800}
   <div class="features-inner">
     <h2>Why Choose Us</h2>
     <div class="features-grid">
-      ${(data.features || []).slice(0, 6).map((f, i) => `
+      ${(data.features || [])
+        .slice(0, 6)
+        .map(
+          (f, i) => `
       <div class="feat-card">
         <div class="feat-dot">${i + 1}</div>
         <h3>${f}</h3>
         <p>Designed for Australian customers who demand quality and reliability.</p>
-      </div>`).join("")}
+      </div>`
+        )
+        .join('')}
     </div>
   </div>
 </section>
 
 <section id="trust" class="trust">
   <div class="trust-inner">
-    ${(data.trust_badges || []).map(b => `<div class="trust-badge">${b}</div>`).join("")}
+    ${(data.trust_badges || []).map((b) => `<div class="trust-badge">${b}</div>`).join('')}
   </div>
 </section>
 
 <section id="cta-sec" class="cta-sec">
   <h2>Ready to Get Started?</h2>
-  <p>${data.about_section ? data.about_section.slice(0, 200) : "Join thousands of happy Australian customers."}</p>
+  <p>${data.about_section ? data.about_section.slice(0, 200) : 'Join thousands of happy Australian customers.'}</p>
   <div class="cta-input">
     <input type="email" placeholder="Enter your email" />
     <button>${data.cta_primary}</button>
@@ -287,7 +330,11 @@ function useCopyBtn() {
 }
 
 // ── File Tree Component ──────────────────────────────────────────────────────
-function FileTree({ files, activeFile, onSelect }: {
+function FileTree({
+  files,
+  activeFile,
+  onSelect,
+}: {
   files: Record<string, string>;
   activeFile: string | null;
   onSelect: (path: string) => void;
@@ -295,14 +342,14 @@ function FileTree({ files, activeFile, onSelect }: {
   const tree = useMemo(() => {
     const folders: Record<string, string[]> = {};
     for (const path of Object.keys(files)) {
-      const parts = path.split("/");
+      const parts = path.split('/');
       if (parts.length > 1) {
-        const folder = parts.slice(0, -1).join("/");
+        const folder = parts.slice(0, -1).join('/');
         if (!folders[folder]) folders[folder] = [];
         folders[folder].push(path);
       } else {
-        if (!folders["."]) folders["."] = [];
-        folders["."].push(path);
+        if (!folders['.']) folders['.'] = [];
+        folders['.'].push(path);
       }
     }
     return folders;
@@ -318,46 +365,57 @@ function FileTree({ files, activeFile, onSelect }: {
     <div className="py-2" style={{ minWidth: 180 }}>
       {Object.entries(tree).map(([folder, paths]) => (
         <div key={folder}>
-          {folder !== "." && (
+          {folder !== '.' && (
             <button
-              onClick={() => setExpanded(p => ({ ...p, [folder]: !p[folder] }))}
+              onClick={() => setExpanded((p) => ({ ...p, [folder]: !p[folder] }))}
               className="flex items-center gap-1.5 w-full px-3 py-1 text-xs hover:bg-white/5 transition-colors"
-              style={{ color: "rgba(240,237,232,0.55)", cursor: "pointer", border: "none", background: "none", fontFamily: "DM Sans, sans-serif" }}
+              style={{
+                color: 'rgba(240,237,232,0.55)',
+                cursor: 'pointer',
+                border: 'none',
+                background: 'none',
+                fontFamily: 'DM Sans, sans-serif',
+              }}
             >
               {expanded[folder] ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-              <FolderOpen size={12} style={{ color: "#d4af37" }} />
+              <FolderOpen size={12} style={{ color: '#d4af37' }} />
               <span className="font-semibold">{folder}</span>
             </button>
           )}
-          {(folder === "." || expanded[folder]) && paths.map(path => {
-            const fileName = path.split("/").pop()!;
-            const isActive = activeFile === path;
-            return (
-              <button
-                key={path}
-                onClick={() => onSelect(path)}
-                className="flex items-center gap-1.5 w-full py-1 text-xs transition-colors"
-                style={{
-                  paddingLeft: folder === "." ? 12 : 32,
-                  paddingRight: 12,
-                  background: isActive ? "rgba(212,175,55,0.1)" : "transparent",
-                  color: isActive ? "#d4af37" : "rgba(240,237,232,0.5)",
-                  borderLeft: isActive ? "2px solid #d4af37" : "2px solid transparent",
-                  cursor: "pointer",
-                  border: "none",
-                  borderLeftWidth: 2,
-                  borderLeftStyle: "solid",
-                  borderLeftColor: isActive ? "#d4af37" : "transparent",
-                  fontFamily: "monospace",
-                }}
-              >
-                {fileName.endsWith(".json") ? <FileCode size={12} style={{ color: "#f0c040" }} /> :
-                 fileName.endsWith(".md") ? <FileText size={12} style={{ color: "#7c9fff" }} /> :
-                 <FileCode size={12} style={{ color: "#9c5fff" }} />}
-                <span>{fileName}</span>
-              </button>
-            );
-          })}
+          {(folder === '.' || expanded[folder]) &&
+            paths.map((path) => {
+              const fileName = path.split('/').pop()!;
+              const isActive = activeFile === path;
+              return (
+                <button
+                  key={path}
+                  onClick={() => onSelect(path)}
+                  className="flex items-center gap-1.5 w-full py-1 text-xs transition-colors"
+                  style={{
+                    paddingLeft: folder === '.' ? 12 : 32,
+                    paddingRight: 12,
+                    background: isActive ? 'rgba(212,175,55,0.1)' : 'transparent',
+                    color: isActive ? '#d4af37' : 'rgba(240,237,232,0.5)',
+                    borderLeft: isActive ? '2px solid #d4af37' : '2px solid transparent',
+                    cursor: 'pointer',
+                    border: 'none',
+                    borderLeftWidth: 2,
+                    borderLeftStyle: 'solid',
+                    borderLeftColor: isActive ? '#d4af37' : 'transparent',
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  {fileName.endsWith('.json') ? (
+                    <FileCode size={12} style={{ color: '#f0c040' }} />
+                  ) : fileName.endsWith('.md') ? (
+                    <FileText size={12} style={{ color: '#7c9fff' }} />
+                  ) : (
+                    <FileCode size={12} style={{ color: '#9c5fff' }} />
+                  )}
+                  <span>{fileName}</span>
+                </button>
+              );
+            })}
         </div>
       ))}
     </div>
@@ -365,12 +423,37 @@ function FileTree({ files, activeFile, onSelect }: {
 }
 
 // ── Modal Component ──────────────────────────────────────────────────────────
-function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
+function Modal({
+  open,
+  onClose,
+  children,
+}: {
+  open: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }} onClick={onClose}>
-      <div className="relative w-full max-w-lg mx-4 rounded-2xl p-6" style={{ background: "#0f1118", border: "1px solid rgba(255,255,255,0.1)" }} onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} className="absolute top-4 right-4" style={{ color: "rgba(240,237,232,0.4)", background: "none", border: "none", cursor: "pointer" }}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-lg mx-4 rounded-2xl p-6"
+        style={{ background: '#0f1118', border: '1px solid rgba(255,255,255,0.1)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4"
+          style={{
+            color: 'rgba(240,237,232,0.4)',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+        >
           <X size={18} />
         </button>
         {children}
@@ -386,10 +469,15 @@ export default function WebsiteGenerator() {
   const activeProduct = contextProduct ?? legacyProduct;
 
   // Product import
-  const [importUrl, setImportUrl] = useState("");
+  const [importUrl, setImportUrl] = useState('');
   const [importing, setImporting] = useState(false);
   const [importedProduct, setImportedProduct] = useState<{
-    title: string; description?: string; features?: string[]; images?: string[]; price?: string; sourceUrl?: string;
+    title: string;
+    description?: string;
+    features?: string[];
+    images?: string[];
+    price?: string;
+    sourceUrl?: string;
   } | null>(() => {
     if (activeProduct) {
       return {
@@ -402,17 +490,17 @@ export default function WebsiteGenerator() {
     }
     return null;
   });
-  const [importError, setImportError] = useState("");
+  const [importError, setImportError] = useState('');
 
   // Form fields
-  const [storeName, setStoreName] = useState("");
-  const [niche, setNiche] = useState("");
-  const [targetAudience, setTargetAudience] = useState("");
-  const [tagline, setTagline] = useState("");
-  const [priceAUD, setPriceAUD] = useState("");
-  const [vibe, setVibe] = useState<Vibe>("premium");
-  const [accentColor, setAccentColor] = useState("#d4af37");
-  const [platform, setPlatform] = useState<Platform>("shopify");
+  const [storeName, setStoreName] = useState('');
+  const [niche, setNiche] = useState('');
+  const [targetAudience, setTargetAudience] = useState('');
+  const [tagline, setTagline] = useState('');
+  const [priceAUD, setPriceAUD] = useState('');
+  const [vibe, setVibe] = useState<Vibe>('premium');
+  const [accentColor, setAccentColor] = useState('#d4af37');
+  const [platform, setPlatform] = useState<Platform>('shopify');
 
   // Output
   const [generating, setGenerating] = useState(false);
@@ -420,8 +508,8 @@ export default function WebsiteGenerator() {
   const [generatedData, setGeneratedData] = useState<GeneratedData | null>(null);
   const [rawResponse, setRawResponse] = useState<string | null>(null);
   const [parseWarning, setParseWarning] = useState(false);
-  const [genError, setGenError] = useState("");
-  const [activeTab, setActiveTab] = useState<ActiveTab>("copy");
+  const [genError, setGenError] = useState('');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('copy');
 
   // Code tab
   const [activeFile, setActiveFile] = useState<string | null>(null);
@@ -438,7 +526,7 @@ export default function WebsiteGenerator() {
   const [premiumTemplateId, setPremiumTemplateId] = useState<string>(WEBSITE_TEMPLATES[0].id);
 
   // Preview device toggle
-  const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
 
   // Copy
   const { copiedKey, copy } = useCopyBtn();
@@ -448,24 +536,29 @@ export default function WebsiteGenerator() {
   const handleImport = useCallback(async () => {
     if (!importUrl.trim()) return;
     setImporting(true);
-    setImportError("");
+    setImportError('');
     try {
-      const response = await fetch("/api/scrape-product", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/scrape-product', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: importUrl }),
       });
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
         throw new Error(errData.error || `Scrape failed: ${response.status}`);
       }
-      const data = await response.json() as {
-        productTitle: string; description: string; bulletPoints: string[];
-        price: string; imageUrls: string[]; brand?: string; extractionError?: string;
+      const data = (await response.json()) as {
+        productTitle: string;
+        description: string;
+        bulletPoints: string[];
+        price: string;
+        imageUrls: string[];
+        brand?: string;
+        extractionError?: string;
       };
       if (data.extractionError) throw new Error(data.extractionError);
 
-      const finalTitle = cleanProductTitle(data.productTitle || "Imported Product");
+      const finalTitle = cleanProductTitle(data.productTitle || 'Imported Product');
       setImportedProduct({
         title: finalTitle,
         description: data.description,
@@ -475,9 +568,11 @@ export default function WebsiteGenerator() {
         sourceUrl: importUrl,
       });
       if (!storeName.trim() && data.brand) setStoreName(data.brand.slice(0, 40));
-      toast.success("Product imported successfully");
+      toast.success('Product imported successfully');
     } catch (err: any) {
-      setImportError(err?.message || "Could not import. Try a different URL or fill in details manually.");
+      setImportError(
+        err?.message || 'Could not import. Try a different URL or fill in details manually.'
+      );
     } finally {
       setImporting(false);
     }
@@ -485,26 +580,26 @@ export default function WebsiteGenerator() {
 
   const handleGenerate = useCallback(async () => {
     setGenerating(true);
-    setGenError("");
+    setGenError('');
     setGenProgress(0);
     setParseWarning(false);
 
-    const progressInterval = setInterval(() => setGenProgress(p => Math.min(p + 3, 92)), 500);
+    const progressInterval = setInterval(() => setGenProgress((p) => Math.min(p + 3, 92)), 500);
 
     try {
       const productContext = importedProduct
-        ? `Product: ${importedProduct.title}\nDescription: ${importedProduct.description || "N/A"}\nFeatures: ${(importedProduct.features || []).join(", ")}\nPrice: ${importedProduct.price || "N/A"}`
-        : "";
+        ? `Product: ${importedProduct.title}\nDescription: ${importedProduct.description || 'N/A'}\nFeatures: ${(importedProduct.features || []).join(', ')}\nPrice: ${importedProduct.price || 'N/A'}`
+        : '';
 
-      const selectedTemplate = WEBSITE_TEMPLATES.find(t => t.id === premiumTemplateId);
+      const selectedTemplate = WEBSITE_TEMPLATES.find((t) => t.id === premiumTemplateId);
       const templateNote = selectedTemplate
         ? `\nDesign Template: ${selectedTemplate.name} (${selectedTemplate.category}) — ${selectedTemplate.description}`
-        : "";
+        : '';
 
       const userMessage = `Generate a complete website for:
-Store name: ${storeName || "My Store"}
-Niche: ${niche || "general ecommerce"}
-Target audience: ${targetAudience || "Australian online shoppers"}
+Store name: ${storeName || 'My Store'}
+Niche: ${niche || 'general ecommerce'}
+Target audience: ${targetAudience || 'Australian online shoppers'}
 Vibe: ${vibe}
 Brand colour: ${accentColor}
 Platform: ${platform}${templateNote}
@@ -512,12 +607,12 @@ ${productContext}
 
 Return ONLY valid JSON with the exact structure specified in your system prompt. No markdown, no code blocks, just the JSON object.`;
 
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [{ role: "user", content: userMessage }],
-          toolName: "website-generator",
+          messages: [{ role: 'user', content: userMessage }],
+          toolName: 'website-generator',
           systemPrompt: buildSystemPrompt(vibe, platform, accentColor),
           market: getStoredMarket(),
         }),
@@ -526,7 +621,7 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
       if (!response.ok) throw new Error(`Generation failed: ${response.status}`);
 
       const data = await response.json();
-      const fullText: string = data.reply || data.response || data.content || "";
+      const fullText: string = data.reply || data.response || data.content || '';
 
       clearInterval(progressInterval);
       setGenProgress(100);
@@ -535,22 +630,22 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
       const parsed = parseAIResponse(fullText);
       if (parsed) {
         setGeneratedData(parsed);
-        setActiveTab("copy");
+        setActiveTab('copy');
         // Set active file to first file (legacy - when files present)
         if (parsed.files) {
           const firstFile = Object.keys(parsed.files)[0];
           if (firstFile) setActiveFile(firstFile);
         }
-        toast.success("Website generated!");
+        toast.success('Website generated!');
         trackWebsiteGenerated({ niche, platform, vibe, market: getStoredMarket() });
-        localStorage.setItem("majorka_milestone_site", "true");
+        localStorage.setItem('majorka_milestone_site', 'true');
       } else {
         setParseWarning(true);
-        setActiveTab("copy");
-        toast.warning("Generated content could not be parsed as JSON. Showing raw output.");
+        setActiveTab('copy');
+        toast.warning('Generated content could not be parsed as JSON. Showing raw output.');
       }
     } catch (err: any) {
-      setGenError(err?.message || "Generation failed. Please try again.");
+      setGenError(err?.message || 'Generation failed. Please try again.');
     } finally {
       clearInterval(progressInterval);
       setGenerating(false);
@@ -566,28 +661,28 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
     for (const [path, content] of Object.entries(generatedData.files)) {
       zip.file(path, content);
     }
-    const blob = await zip.generateAsync({ type: "blob" });
+    const blob = await zip.generateAsync({ type: 'blob' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = `${(storeName || "store").replace(/\s+/g, "-").toLowerCase()}-theme.zip`;
+    a.download = `${(storeName || 'store').replace(/\s+/g, '-').toLowerCase()}-theme.zip`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("ZIP downloaded!");
+    toast.success('ZIP downloaded!');
   }, [generatedData, storeName]);
 
   const handleShopifyExport = useCallback(async () => {
     if (!generatedData) return;
     const zip = new JSZip();
-    const name = storeName || "My Store";
+    const name = storeName || 'My Store';
     const accent = accentColor;
     const hl = generatedData.headline;
     const sub = generatedData.subheadline;
     const feats = generatedData.features || [];
     const badges = generatedData.trust_badges || [];
-    const ctaPrimary = generatedData.cta_primary || "Shop Now";
-    const ctaSecondary = generatedData.cta_secondary || "Learn More";
-    const about = generatedData.about_section || "";
+    const ctaPrimary = generatedData.cta_primary || 'Shop Now';
+    const ctaSecondary = generatedData.cta_secondary || 'Learn More';
+    const about = generatedData.about_section || '';
 
     // Add any AI-generated files
     for (const [path, content] of Object.entries(generatedData.files || {})) {
@@ -595,7 +690,9 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
     }
 
     // layout/theme.liquid
-    zip.file("layout/theme.liquid", `<!DOCTYPE html>
+    zip.file(
+      'layout/theme.liquid',
+      `<!DOCTYPE html>
 <html lang="en-AU">
 <head>
   <meta charset="UTF-8">
@@ -621,15 +718,21 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
   <!-- Afterpay Widget -->
   <script src="https://portal.afterpay.com/afterpay.js" defer></script>
 </body>
-</html>`);
+</html>`
+    );
 
     // templates/index.liquid
-    zip.file("templates/index.liquid", `{% section 'hero' %}
+    zip.file(
+      'templates/index.liquid',
+      `{% section 'hero' %}
 {% section 'featured-products' %}
-{% section 'footer' %}`);
+{% section 'footer' %}`
+    );
 
     // templates/product.liquid
-    zip.file("templates/product.liquid", `<div class="product-page">
+    zip.file(
+      'templates/product.liquid',
+      `<div class="product-page">
   <div class="product-images">
     {% for image in product.images %}
       <img src="{{ image | img_url: '600x' }}" alt="{{ image.alt | escape }}">
@@ -651,13 +754,16 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
       <afterpay-placement data-locale="en_AU" data-currency="AUD" data-amount="{{ product.price | money_without_currency }}"></afterpay-placement>
     </div>
     <div class="trust-badges">
-      ${badges.map(b => `<span class="badge">✓ ${b}</span>`).join("\n      ")}
+      ${badges.map((b) => `<span class="badge">✓ ${b}</span>`).join('\n      ')}
     </div>
   </div>
-</div>`);
+</div>`
+    );
 
     // templates/collection.liquid
-    zip.file("templates/collection.liquid", `<div class="collection-page">
+    zip.file(
+      'templates/collection.liquid',
+      `<div class="collection-page">
   <h1>{{ collection.title }}</h1>
   <p>{{ collection.description }}</p>
   <div class="product-grid">
@@ -669,10 +775,13 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
       </a>
     {% endfor %}
   </div>
-</div>`);
+</div>`
+    );
 
     // templates/cart.liquid
-    zip.file("templates/cart.liquid", `<div class="cart-page">
+    zip.file(
+      'templates/cart.liquid',
+      `<div class="cart-page">
   <h1>Your Cart</h1>
   {% if cart.item_count > 0 %}
     {% for item in cart.items %}
@@ -696,10 +805,13 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
   {% else %}
     <p>Your cart is empty. <a href="/collections/all">Continue shopping</a></p>
   {% endif %}
-</div>`);
+</div>`
+    );
 
     // sections/hero.liquid
-    zip.file("sections/hero.liquid", `<section class="hero" style="background:${accent}08">
+    zip.file(
+      'sections/hero.liquid',
+      `<section class="hero" style="background:${accent}08">
   <div class="hero-inner">
     <h1 class="hero-hl">${hl}</h1>
     <p class="hero-sub">${sub}</p>
@@ -717,10 +829,13 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
     { "type": "text", "id": "subheading", "label": "Subheading", "default": "${sub}" }
   ]
 }
-{% endschema %}`);
+{% endschema %}`
+    );
 
     // sections/featured-products.liquid
-    zip.file("sections/featured-products.liquid", `<section class="featured-products">
+    zip.file(
+      'sections/featured-products.liquid',
+      `<section class="featured-products">
   <h2>{{ section.settings.title | default: "Our Bestsellers" }}</h2>
   <div class="product-grid">
     {% for product in collections.all.products limit:6 %}
@@ -739,14 +854,17 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
     { "type": "text", "id": "title", "label": "Section Title", "default": "Our Bestsellers" }
   ]
 }
-{% endschema %}`);
+{% endschema %}`
+    );
 
     // sections/footer.liquid
-    zip.file("sections/footer.liquid", `<footer class="site-footer">
+    zip.file(
+      'sections/footer.liquid',
+      `<footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-col">
       <h4>${name}</h4>
-      <p>${about || "Australian-owned and operated."}</p>
+      <p>${about || 'Australian-owned and operated.'}</p>
     </div>
     <div class="footer-col">
       <h4>Shop</h4>
@@ -777,10 +895,13 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
     { "type": "text", "id": "abn", "label": "ABN", "default": "" }
   ]
 }
-{% endschema %}`);
+{% endschema %}`
+    );
 
     // assets/theme.css
-    zip.file("assets/theme.css", `/* ${name} Theme — Generated by Majorka AI */
+    zip.file(
+      'assets/theme.css',
+      `/* ${name} Theme — Generated by Majorka AI */
 :root { --accent: ${accent}; --bg: #080a0e; --text: #f2efe9; --surface: #111114; }
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; line-height:1.6; }
@@ -823,46 +944,68 @@ nav a:hover { color:var(--accent); }
 .footer-bottom { max-width:1200px; margin:24px auto 0; padding-top:24px; border-top:1px solid rgba(255,255,255,.06); font-size:12px; opacity:.4; text-align:center; }
 .payment-icons { font-size:12px; opacity:.6; }
 .afterpay-widget { margin:16px 0; }
-`);
+`
+    );
 
     // config/settings_schema.json
-    zip.file("config/settings_schema.json", JSON.stringify([
-      {
-        name: "theme_info",
-        theme_name: name,
-        theme_version: "1.0.0",
-        theme_author: "Majorka AI",
-        theme_documentation_url: "https://majorka.ai",
-        theme_support_url: "https://majorka.ai/support",
-      },
-      {
-        name: "Colors",
-        settings: [
-          { type: "color", id: "accent_color", label: "Accent Color", default: accent },
-          { type: "color", id: "background_color", label: "Background Color", default: "#080a0e" },
+    zip.file(
+      'config/settings_schema.json',
+      JSON.stringify(
+        [
+          {
+            name: 'theme_info',
+            theme_name: name,
+            theme_version: '1.0.0',
+            theme_author: 'Majorka AI',
+            theme_documentation_url: 'https://majorka.ai',
+            theme_support_url: 'https://majorka.ai/support',
+          },
+          {
+            name: 'Colors',
+            settings: [
+              { type: 'color', id: 'accent_color', label: 'Accent Color', default: accent },
+              {
+                type: 'color',
+                id: 'background_color',
+                label: 'Background Color',
+                default: '#080a0e',
+              },
+            ],
+          },
         ],
-      },
-    ], null, 2));
+        null,
+        2
+      )
+    );
 
     // locales/en.default.json
-    zip.file("locales/en.default.json", JSON.stringify({
-      general: {
-        currency: "AUD",
-        add_to_cart: "Add to Cart",
-        sold_out: "Sold Out",
-        shipping_note: "Free AU shipping over $99",
-        gst_note: "All prices include GST",
-      },
-      cart: {
-        title: "Your Cart",
-        empty: "Your cart is empty",
-        checkout: "Checkout",
-        total: "Total",
-      },
-    }, null, 2));
+    zip.file(
+      'locales/en.default.json',
+      JSON.stringify(
+        {
+          general: {
+            currency: 'AUD',
+            add_to_cart: 'Add to Cart',
+            sold_out: 'Sold Out',
+            shipping_note: 'Free AU shipping over $99',
+            gst_note: 'All prices include GST',
+          },
+          cart: {
+            title: 'Your Cart',
+            empty: 'Your cart is empty',
+            checkout: 'Checkout',
+            total: 'Total',
+          },
+        },
+        null,
+        2
+      )
+    );
 
     // README.md
-    zip.file("README.md", `# ${name} — Shopify Theme
+    zip.file(
+      'README.md',
+      `# ${name} — Shopify Theme
 
 Generated by [Majorka AI](https://majorka.ai)
 
@@ -895,16 +1038,17 @@ Generated by [Majorka AI](https://majorka.ai)
 ## Customisation
 
 Edit the theme in Shopify's theme editor or download and open in [Cursor](https://cursor.com) for AI-assisted customisation.
-`);
+`
+    );
 
-    const blob = await zip.generateAsync({ type: "blob" });
+    const blob = await zip.generateAsync({ type: 'blob' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = `${(name).replace(/\s+/g, "-").toLowerCase()}-shopify-theme.zip`;
+    a.download = `${name.replace(/\s+/g, '-').toLowerCase()}-shopify-theme.zip`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Shopify theme ZIP downloaded!");
+    toast.success('Shopify theme ZIP downloaded!');
     setShopifyModal(true);
   }, [generatedData, storeName, accentColor]);
 
@@ -915,17 +1059,17 @@ Edit the theme in Shopify's theme editor or download and open in [Cursor](https:
 ## ${generatedData.subheadline}
 
 ### Features
-${generatedData.features.map(f => `- ${f}`).join("\n")}
+${generatedData.features.map((f) => `- ${f}`).join('\n')}
 
 ### Call to Action
 - **Primary:** ${generatedData.cta_primary}
 - **Secondary:** ${generatedData.cta_secondary}
 
 ### Trust Badges
-${(generatedData.trust_badges ?? []).map(b => `- ${b}`).join("\n")}
+${(generatedData.trust_badges ?? []).map((b) => `- ${b}`).join('\n')}
 
 ### About
-${generatedData.about_section ?? generatedData.brandStory ?? ""}
+${generatedData.about_section ?? generatedData.brandStory ?? ''}
 
 ### Meta Description
 ${generatedData.meta_description}
@@ -934,7 +1078,7 @@ ${generatedData.meta_description}
 ${generatedData.email_subject}`;
 
     navigator.clipboard.writeText(md).catch(() => {});
-    toast.success("Copied to clipboard in Notion format!");
+    toast.success('Copied to clipboard in Notion format!');
   }, [generatedData]);
 
   const handleOpenCursor = useCallback(async () => {
@@ -945,19 +1089,19 @@ ${generatedData.email_subject}`;
   const cursorInstructions = `1. Unzip the downloaded file
 2. Open Cursor (cursor.com)
 3. File -> Open Folder -> select unzipped folder
-4. In Cursor chat: I have a Shopify theme. Help me customise it for ${storeName || "[store name]"}
+4. In Cursor chat: I have a Shopify theme. Help me customise it for ${storeName || '[store name]'}
 5. Cursor will read all files and help you build`;
 
   // ── Preview HTML ──────────────────────────────────────────────────────────
   const previewHTML = useMemo(() => {
-    if (!generatedData) return "";
+    if (!generatedData) return '';
     return buildTemplatePreview(
       premiumTemplateId,
       {
-        brandName: storeName || "Your Brand",
+        brandName: storeName || 'Your Brand',
         brandColor: accentColor,
-        productName: importedProduct?.title || niche || "Our Product",
-        niche: niche || "products",
+        productName: importedProduct?.title || niche || 'Our Product',
+        niche: niche || 'products',
         tagline: tagline || undefined,
         price: priceAUD || undefined,
       },
@@ -975,22 +1119,31 @@ ${generatedData.email_subject}`;
         about_section: generatedData.about_section,
       }
     );
-  }, [generatedData, accentColor, premiumTemplateId, storeName, niche, importedProduct, tagline, priceAUD]);
+  }, [
+    generatedData,
+    accentColor,
+    premiumTemplateId,
+    storeName,
+    niche,
+    importedProduct,
+    tagline,
+    priceAUD,
+  ]);
 
   const handleDownloadHTML = useCallback(() => {
     if (!previewHTML) return;
-    const blob = new Blob([previewHTML], { type: "text/html;charset=utf-8" });
+    const blob = new Blob([previewHTML], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = `${(storeName || "store").replace(/\s+/g, "-").toLowerCase()}-website.html`;
+    a.download = `${(storeName || 'store').replace(/\s+/g, '-').toLowerCase()}-website.html`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("HTML file downloaded!");
+    toast.success('HTML file downloaded!');
   }, [previewHTML, storeName]);
 
   const handleOpenPreviewNewTab = useCallback(() => {
-    const win = window.open("", "_blank");
+    const win = window.open('', '_blank');
     if (win) {
       win.document.write(previewHTML);
       win.document.close();
@@ -1001,40 +1154,62 @@ ${generatedData.email_subject}`;
   const hasOutput = generatedData || rawResponse;
 
   return (
-    <div className="h-full flex flex-col" style={{ background: "#080a0e", color: "#f0ede8", fontFamily: "DM Sans, sans-serif" }}>
-
+    <div
+      className="h-full flex flex-col"
+      style={{ background: '#080a0e', color: '#f0ede8', fontFamily: 'DM Sans, sans-serif' }}
+    >
       {/* ── Top bar ── */}
-      <div className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0" style={{ borderColor: "rgba(255,255,255,0.07)", background: "#0c0e12" }}>
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(212,175,55,0.15)", border: "1px solid rgba(212,175,55,0.3)" }}>
-          <Globe size={15} style={{ color: "#d4af37" }} />
+      <div
+        className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0"
+        style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#0c0e12' }}
+      >
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center"
+          style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)' }}
+        >
+          <Globe size={15} style={{ color: '#d4af37' }} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-black leading-tight" style={{ fontFamily: "Syne, sans-serif" }}>Website Generator</div>
-          <div className="text-xs" style={{ color: "rgba(240,237,232,0.35)" }}>AI-powered Shopify theme builder for AU market</div>
+          <div
+            className="text-sm font-black leading-tight"
+            style={{ fontFamily: 'Syne, sans-serif' }}
+          >
+            Website Generator
+          </div>
+          <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+            AI-powered Shopify theme builder for AU market
+          </div>
         </div>
       </div>
 
       {/* ── Body: two-panel split ── */}
       <div className="flex-1 overflow-hidden flex">
-
         {/* ── LEFT PANEL (400px fixed) ── */}
         <div
           className="flex-shrink-0 overflow-y-auto p-5 space-y-4"
           style={{
             width: 400,
-            borderRight: "1px solid rgba(255,255,255,0.07)",
-            scrollbarWidth: "thin",
-            scrollbarColor: "rgba(255,255,255,0.1) transparent",
+            borderRight: '1px solid rgba(255,255,255,0.07)',
+            scrollbarWidth: 'thin',
+            scrollbarColor: 'rgba(255,255,255,0.1) transparent',
           }}
         >
-
           {/* Premium Template Selector — 3-col grid */}
-          <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1.5px solid rgba(212,175,55,0.2)" }}>
-            <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
+          <div
+            className="rounded-xl p-4"
+            style={{
+              background: 'rgba(255,255,255,0.02)',
+              border: '1.5px solid rgba(212,175,55,0.2)',
+            }}
+          >
+            <div
+              className="text-xs font-bold uppercase tracking-widest mb-3"
+              style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+            >
               Choose Template
             </div>
-            <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(3,1fr)" }}>
-              {WEBSITE_TEMPLATES.map(t => {
+            <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(3,1fr)' }}>
+              {WEBSITE_TEMPLATES.map((t) => {
                 const isSelected = premiumTemplateId === t.id;
                 const isDark = t.palette.bg.startsWith('#0') || t.palette.bg.startsWith('#1');
                 return (
@@ -1043,54 +1218,95 @@ ${generatedData.email_subject}`;
                     onClick={() => setPremiumTemplateId(t.id)}
                     className="flex flex-col w-full rounded-lg text-left transition-all overflow-hidden"
                     style={{
-                      background: "rgba(255,255,255,0.03)",
-                      border: `2px solid ${isSelected ? "#d4af37" : "rgba(255,255,255,0.08)"}`,
-                      cursor: "pointer",
+                      background: 'rgba(255,255,255,0.03)',
+                      border: `2px solid ${isSelected ? '#d4af37' : 'rgba(255,255,255,0.08)'}`,
+                      cursor: 'pointer',
                       padding: 0,
                     }}
                   >
                     {/* CSS thumbnail */}
-                    <div style={{
-                      height: 68,
-                      background: `linear-gradient(135deg, ${t.palette.bg} 0%, ${t.palette.accent}55 100%)`,
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      position: "relative",
-                      gap: 4,
-                    }}>
-                      <span style={{
-                        fontFamily: "Syne, sans-serif",
-                        fontWeight: 900,
-                        fontSize: 8,
-                        letterSpacing: 1.5,
-                        textTransform: "uppercase",
-                        color: isDark ? t.palette.accent : t.palette.text,
-                        lineHeight: 1,
-                      }}>{t.name}</span>
-                      <div style={{ display: "flex", gap: 3 }}>
+                    <div
+                      style={{
+                        height: 68,
+                        background: `linear-gradient(135deg, ${t.palette.bg} 0%, ${t.palette.accent}55 100%)`,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        position: 'relative',
+                        gap: 4,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontFamily: 'Syne, sans-serif',
+                          fontWeight: 900,
+                          fontSize: 8,
+                          letterSpacing: 1.5,
+                          textTransform: 'uppercase',
+                          color: isDark ? t.palette.accent : t.palette.text,
+                          lineHeight: 1,
+                        }}
+                      >
+                        {t.name}
+                      </span>
+                      <div style={{ display: 'flex', gap: 3 }}>
                         {[t.palette.bg, t.palette.accent, t.palette.text].map((c, i) => (
-                          <div key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: c, border: "1px solid rgba(128,128,128,0.3)" }} />
+                          <div
+                            key={i}
+                            style={{
+                              width: 7,
+                              height: 7,
+                              borderRadius: '50%',
+                              background: c,
+                              border: '1px solid rgba(128,128,128,0.3)',
+                            }}
+                          />
                         ))}
                       </div>
                     </div>
                     {/* Card bottom */}
-                    <div style={{ padding: "8px 8px 10px" }}>
-                      <div style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 10, color: isSelected ? "#d4af37" : "#f0ede8", marginBottom: 3, lineHeight: 1.2 }}>{t.name}</div>
-                      <div style={{ fontSize: 9, color: "rgba(240,237,232,0.4)", lineHeight: 1.4, marginBottom: 5 }}>{t.description.slice(0, 42)}…</div>
-                      <div style={{
-                        display: "inline-flex",
-                        fontSize: 8,
-                        fontWeight: 700,
-                        letterSpacing: 0.5,
-                        textTransform: "capitalize",
-                        padding: "2px 6px",
-                        borderRadius: 3,
-                        background: isSelected ? "rgba(212,175,55,0.15)" : "rgba(255,255,255,0.06)",
-                        color: isSelected ? "#d4af37" : "rgba(240,237,232,0.45)",
-                        border: `1px solid ${isSelected ? "rgba(212,175,55,0.35)" : "rgba(255,255,255,0.08)"}`,
-                      }}>{t.category}</div>
+                    <div style={{ padding: '8px 8px 10px' }}>
+                      <div
+                        style={{
+                          fontFamily: 'Syne, sans-serif',
+                          fontWeight: 700,
+                          fontSize: 10,
+                          color: isSelected ? '#d4af37' : '#f0ede8',
+                          marginBottom: 3,
+                          lineHeight: 1.2,
+                        }}
+                      >
+                        {t.name}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 9,
+                          color: 'rgba(240,237,232,0.4)',
+                          lineHeight: 1.4,
+                          marginBottom: 5,
+                        }}
+                      >
+                        {t.description.slice(0, 42)}…
+                      </div>
+                      <div
+                        style={{
+                          display: 'inline-flex',
+                          fontSize: 8,
+                          fontWeight: 700,
+                          letterSpacing: 0.5,
+                          textTransform: 'capitalize',
+                          padding: '2px 6px',
+                          borderRadius: 3,
+                          background: isSelected
+                            ? 'rgba(212,175,55,0.15)'
+                            : 'rgba(255,255,255,0.06)',
+                          color: isSelected ? '#d4af37' : 'rgba(240,237,232,0.45)',
+                          border: `1px solid ${isSelected ? 'rgba(212,175,55,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                        }}
+                      >
+                        {t.category}
+                      </div>
                     </div>
                   </button>
                 );
@@ -1099,63 +1315,117 @@ ${generatedData.email_subject}`;
           </div>
 
           {/* Template Gallery */}
-          <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1.5px solid rgba(255,255,255,0.08)" }}>
+          <div
+            className="rounded-xl p-4"
+            style={{
+              background: 'rgba(255,255,255,0.02)',
+              border: '1.5px solid rgba(255,255,255,0.08)',
+            }}
+          >
             <button
               onClick={() => setShowTemplates(!showTemplates)}
               className="w-full flex items-center justify-between mb-2"
-              style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
             >
-              <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
+              <span
+                className="text-xs font-bold uppercase tracking-widest"
+                style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+              >
                 Store Templates
               </span>
-              <ChevronDown size={14} style={{ color: "rgba(240,237,232,0.4)", transform: showTemplates ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform 0.2s" }} />
+              <ChevronDown
+                size={14}
+                style={{
+                  color: 'rgba(240,237,232,0.4)',
+                  transform: showTemplates ? 'rotate(0deg)' : 'rotate(-90deg)',
+                  transition: 'transform 0.2s',
+                }}
+              />
             </button>
             {showTemplates && (
               <div className="grid grid-cols-2 gap-2 mt-2">
-                {STORE_TEMPLATES.map(t => (
+                {STORE_TEMPLATES.map((t) => (
                   <div
                     key={t.id}
                     className="rounded-lg overflow-hidden transition-all"
-                    style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+                    style={{ border: '1px solid rgba(255,255,255,0.08)' }}
                   >
                     {/* Mini preview card */}
                     <div className="h-16 relative" style={{ background: t.colors.bg }}>
                       <div className="absolute inset-0 flex flex-col items-center justify-center px-2">
-                        <div className="text-xs font-black truncate w-full text-center" style={{ color: t.colors.accent, fontFamily: "Syne, sans-serif", fontSize: 9 }}>
+                        <div
+                          className="text-xs font-black truncate w-full text-center"
+                          style={{
+                            color: t.colors.accent,
+                            fontFamily: 'Syne, sans-serif',
+                            fontSize: 9,
+                          }}
+                        >
                           {t.storeName}
                         </div>
-                        <div style={{ fontSize: 7, color: t.colors.text, opacity: 0.6 }} className="truncate w-full text-center">
+                        <div
+                          style={{ fontSize: 7, color: t.colors.text, opacity: 0.6 }}
+                          className="truncate w-full text-center"
+                        >
                           {t.tagline}
                         </div>
                         <div className="flex gap-1 mt-1">
                           {[t.colors.bg, t.colors.accent, t.colors.text].map((c, i) => (
-                            <div key={i} className="w-3 h-3 rounded-full" style={{ background: c, border: "1px solid rgba(0,0,0,0.15)" }} />
+                            <div
+                              key={i}
+                              className="w-3 h-3 rounded-full"
+                              style={{ background: c, border: '1px solid rgba(0,0,0,0.15)' }}
+                            />
                           ))}
                         </div>
                       </div>
                     </div>
-                    <div className="px-2 py-2" style={{ background: "#0c0e12" }}>
-                      <div className="text-xs font-bold truncate" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8", fontSize: 10 }}>{t.name}</div>
-                      <div className="text-xs truncate" style={{ color: "rgba(240,237,232,0.35)", fontSize: 9 }}>{t.niche}</div>
+                    <div className="px-2 py-2" style={{ background: '#0c0e12' }}>
+                      <div
+                        className="text-xs font-bold truncate"
+                        style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8', fontSize: 10 }}
+                      >
+                        {t.name}
+                      </div>
+                      <div
+                        className="text-xs truncate"
+                        style={{ color: 'rgba(240,237,232,0.35)', fontSize: 9 }}
+                      >
+                        {t.niche}
+                      </div>
                       <div className="flex gap-1.5 mt-1.5">
                         <button
                           onClick={() => {
                             setStoreName(t.storeName);
                             setNiche(t.niche);
-                            setTargetAudience("Australian online shoppers");
+                            setTargetAudience('Australian online shoppers');
                             setAccentColor(t.colors.accent);
                             setShowTemplates(false);
                             toast.success(`"${t.name}" template loaded`);
                           }}
                           className="flex-1 py-1 rounded text-xs font-bold"
-                          style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", border: "none", cursor: "pointer", fontFamily: "Syne, sans-serif", fontSize: 9 }}
+                          style={{
+                            background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+                            color: '#080a0e',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontFamily: 'Syne, sans-serif',
+                            fontSize: 9,
+                          }}
                         >
                           Use
                         </button>
                         <button
                           onClick={() => setTemplatePreview(t)}
                           className="flex-1 py-1 rounded text-xs font-bold"
-                          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(240,237,232,0.6)", cursor: "pointer", fontFamily: "Syne, sans-serif", fontSize: 9 }}
+                          style={{
+                            background: 'rgba(255,255,255,0.05)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            color: 'rgba(240,237,232,0.6)',
+                            cursor: 'pointer',
+                            fontFamily: 'Syne, sans-serif',
+                            fontSize: 9,
+                          }}
                         >
                           Preview
                         </button>
@@ -1168,139 +1438,263 @@ ${generatedData.email_subject}`;
           </div>
 
           {/* Product URL Import */}
-          <div className="rounded-xl p-4" style={{ background: importedProduct ? "rgba(45,202,114,0.05)" : "rgba(255,255,255,0.03)", border: `1.5px solid ${importedProduct ? "rgba(45,202,114,0.35)" : "rgba(255,255,255,0.09)"}` }}>
-            <div className="text-xs font-bold uppercase tracking-widest mb-2.5" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Import Product</div>
+          <div
+            className="rounded-xl p-4"
+            style={{
+              background: importedProduct ? 'rgba(45,202,114,0.05)' : 'rgba(255,255,255,0.03)',
+              border: `1.5px solid ${importedProduct ? 'rgba(45,202,114,0.35)' : 'rgba(255,255,255,0.09)'}`,
+            }}
+          >
+            <div
+              className="text-xs font-bold uppercase tracking-widest mb-2.5"
+              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+            >
+              Import Product
+            </div>
             {importedProduct ? (
               <div>
                 <div className="flex gap-2.5 items-start mb-2">
-                  <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center text-lg" style={{ background: "rgba(255,255,255,0.06)" }}>
+                  <div
+                    className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center text-lg"
+                    style={{ background: 'rgba(255,255,255,0.06)' }}
+                  >
                     {importedProduct.images && importedProduct.images.length > 0 ? (
-                      <img src={proxyImage(importedProduct.images[0])} alt="" className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
-                    ) : "📦"}
+                      <img
+                        src={proxyImage(importedProduct.images[0])}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      '📦'
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-bold truncate" style={{ fontFamily: "Syne, sans-serif" }}>{importedProduct.title}</div>
-                    {importedProduct.price && <div className="text-xs mt-0.5" style={{ color: "rgba(45,202,114,0.75)" }}>${importedProduct.price} AUD</div>}
+                    <div
+                      className="text-xs font-bold truncate"
+                      style={{ fontFamily: 'Syne, sans-serif' }}
+                    >
+                      {importedProduct.title}
+                    </div>
+                    {importedProduct.price && (
+                      <div className="text-xs mt-0.5" style={{ color: 'rgba(45,202,114,0.75)' }}>
+                        ${importedProduct.price} AUD
+                      </div>
+                    )}
                   </div>
-                  <button onClick={() => { setImportedProduct(null); setImportUrl(""); }} style={{ color: "rgba(240,237,232,0.3)", background: "none", border: "none", cursor: "pointer" }}>
+                  <button
+                    onClick={() => {
+                      setImportedProduct(null);
+                      setImportUrl('');
+                    }}
+                    style={{
+                      color: 'rgba(240,237,232,0.3)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                    }}
+                  >
                     <X size={14} />
                   </button>
                 </div>
-                <div className="text-xs font-semibold" style={{ color: "rgba(45,202,114,0.75)" }}>✓ Product data imported</div>
+                <div className="text-xs font-semibold" style={{ color: 'rgba(45,202,114,0.75)' }}>
+                  ✓ Product data imported
+                </div>
               </div>
             ) : (
               <div>
                 <div className="flex gap-1.5">
                   <input
                     value={importUrl}
-                    onChange={e => setImportUrl(e.target.value)}
-                    onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleImport(); } }}
+                    onChange={(e) => setImportUrl(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleImport();
+                      }
+                    }}
                     placeholder="Paste product URL (AliExpress, Amazon, Shopify…)"
                     className="flex-1 text-xs px-3 py-2 rounded-lg outline-none"
-                    style={{ background: "rgba(255,255,255,0.05)", border: "1.5px solid rgba(255,255,255,0.1)", color: "#f0ede8" }}
+                    style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1.5px solid rgba(255,255,255,0.1)',
+                      color: '#f0ede8',
+                    }}
                   />
                   <button
                     onClick={handleImport}
                     disabled={importing || !importUrl.trim()}
                     className="text-xs font-bold px-3 py-2 rounded-lg flex-shrink-0 flex items-center gap-1 disabled:opacity-50"
-                    style={{ background: "rgba(45,202,114,0.12)", border: "1.5px solid rgba(45,202,114,0.35)", color: "rgba(45,202,114,0.9)", fontFamily: "Syne, sans-serif", cursor: "pointer" }}
+                    style={{
+                      background: 'rgba(45,202,114,0.12)',
+                      border: '1.5px solid rgba(45,202,114,0.35)',
+                      color: 'rgba(45,202,114,0.9)',
+                      fontFamily: 'Syne, sans-serif',
+                      cursor: 'pointer',
+                    }}
                   >
                     {importing ? <Loader2 size={10} className="animate-spin" /> : null}
-                    {importing ? "…" : "Import"}
+                    {importing ? '…' : 'Import'}
                   </button>
                 </div>
-                {importError && <div className="text-xs mt-1.5" style={{ color: "rgba(255,150,100,0.8)" }}>{importError}</div>}
+                {importError && (
+                  <div className="text-xs mt-1.5" style={{ color: 'rgba(255,150,100,0.8)' }}>
+                    {importError}
+                  </div>
+                )}
               </div>
             )}
           </div>
 
-          <div style={{ height: 1, background: "rgba(255,255,255,0.06)" }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
 
           {/* Store Name */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Store Name</label>
+            <label
+              className="block text-xs font-bold uppercase tracking-wider mb-1.5"
+              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+            >
+              Store Name
+            </label>
             <input
               value={storeName}
-              onChange={e => setStoreName(e.target.value)}
+              onChange={(e) => setStoreName(e.target.value)}
               placeholder="e.g. MaxFit Supplements"
               className="w-full text-sm px-3 py-2.5 rounded-lg outline-none"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(255,255,255,0.08)", color: "#f0ede8" }}
-              onFocus={e => (e.target.style.borderColor = "rgba(212,175,55,0.45)")}
-              onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1.5px solid rgba(255,255,255,0.08)',
+                color: '#f0ede8',
+              }}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')}
+              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
             />
           </div>
 
           {/* Niche */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Niche</label>
+            <label
+              className="block text-xs font-bold uppercase tracking-wider mb-1.5"
+              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+            >
+              Niche
+            </label>
             <input
               value={niche}
-              onChange={e => setNiche(e.target.value)}
+              onChange={(e) => setNiche(e.target.value)}
               placeholder="e.g. gym supplements"
               className="w-full text-sm px-3 py-2.5 rounded-lg outline-none"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(255,255,255,0.08)", color: "#f0ede8" }}
-              onFocus={e => (e.target.style.borderColor = "rgba(212,175,55,0.45)")}
-              onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1.5px solid rgba(255,255,255,0.08)',
+                color: '#f0ede8',
+              }}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')}
+              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
             />
           </div>
 
           {/* Target Audience */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Target Audience</label>
+            <label
+              className="block text-xs font-bold uppercase tracking-wider mb-1.5"
+              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+            >
+              Target Audience
+            </label>
             <input
               value={targetAudience}
-              onChange={e => setTargetAudience(e.target.value)}
+              onChange={(e) => setTargetAudience(e.target.value)}
               placeholder="e.g. AU men 18-35"
               className="w-full text-sm px-3 py-2.5 rounded-lg outline-none"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(255,255,255,0.08)", color: "#f0ede8" }}
-              onFocus={e => (e.target.style.borderColor = "rgba(212,175,55,0.45)")}
-              onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1.5px solid rgba(255,255,255,0.08)',
+                color: '#f0ede8',
+              }}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')}
+              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
             />
           </div>
 
           {/* Tagline + Price in one row */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Tagline <span style={{ opacity: 0.4, fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
+              <label
+                className="block text-xs font-bold uppercase tracking-wider mb-1.5"
+                style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+              >
+                Tagline{' '}
+                <span
+                  style={{ opacity: 0.4, fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}
+                >
+                  (optional)
+                </span>
+              </label>
               <input
                 value={tagline}
-                onChange={e => setTagline(e.target.value)}
+                onChange={(e) => setTagline(e.target.value)}
                 placeholder="e.g. Made for Aussies"
                 className="w-full text-sm px-3 py-2.5 rounded-lg outline-none"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(255,255,255,0.08)", color: "#f0ede8" }}
-                onFocus={e => (e.target.style.borderColor = "rgba(212,175,55,0.45)")}
-                onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
+                style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1.5px solid rgba(255,255,255,0.08)',
+                  color: '#f0ede8',
+                }}
+                onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')}
+                onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
               />
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Price AUD <span style={{ opacity: 0.4, fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
+              <label
+                className="block text-xs font-bold uppercase tracking-wider mb-1.5"
+                style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+              >
+                Price AUD{' '}
+                <span
+                  style={{ opacity: 0.4, fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}
+                >
+                  (optional)
+                </span>
+              </label>
               <input
                 value={priceAUD}
-                onChange={e => setPriceAUD(e.target.value)}
+                onChange={(e) => setPriceAUD(e.target.value)}
                 placeholder="e.g. 59.99"
                 className="w-full text-sm px-3 py-2.5 rounded-lg outline-none"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(255,255,255,0.08)", color: "#f0ede8" }}
-                onFocus={e => (e.target.style.borderColor = "rgba(212,175,55,0.45)")}
-                onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
+                style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1.5px solid rgba(255,255,255,0.08)',
+                  color: '#f0ede8',
+                }}
+                onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')}
+                onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
               />
             </div>
           </div>
 
           {/* Vibe Toggle */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Vibe</label>
+            <label
+              className="block text-xs font-bold uppercase tracking-wider mb-2"
+              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+            >
+              Vibe
+            </label>
             <div className="flex gap-2">
-              {(["bold", "minimal", "premium"] as Vibe[]).map(v => (
+              {(['bold', 'minimal', 'premium'] as Vibe[]).map((v) => (
                 <button
                   key={v}
                   onClick={() => setVibe(v)}
                   className="flex-1 py-2 rounded-full text-xs font-bold capitalize transition-all"
                   style={{
-                    background: vibe === v ? "rgba(212,175,55,0.15)" : "rgba(255,255,255,0.03)",
-                    border: `1.5px solid ${vibe === v ? "rgba(212,175,55,0.5)" : "rgba(255,255,255,0.08)"}`,
-                    color: vibe === v ? "#d4af37" : "rgba(240,237,232,0.45)",
-                    fontFamily: "Syne, sans-serif",
-                    cursor: "pointer",
+                    background: vibe === v ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.03)',
+                    border: `1.5px solid ${vibe === v ? 'rgba(212,175,55,0.5)' : 'rgba(255,255,255,0.08)'}`,
+                    color: vibe === v ? '#d4af37' : 'rgba(240,237,232,0.45)',
+                    fontFamily: 'Syne, sans-serif',
+                    cursor: 'pointer',
                   }}
                 >
                   {v}
@@ -1311,32 +1705,67 @@ ${generatedData.email_subject}`;
 
           {/* Colour Picker */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Brand Colour</label>
+            <label
+              className="block text-xs font-bold uppercase tracking-wider mb-2"
+              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+            >
+              Brand Colour
+            </label>
             <div className="flex items-center gap-3">
               <label className="relative cursor-pointer flex-shrink-0">
-                <div className="w-9 h-9 rounded-lg" style={{ background: accentColor, border: "2px solid rgba(255,255,255,0.15)", boxShadow: `0 4px 12px ${accentColor}44` }} />
-                <input type="color" value={accentColor} onChange={e => setAccentColor(e.target.value)} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
+                <div
+                  className="w-9 h-9 rounded-lg"
+                  style={{
+                    background: accentColor,
+                    border: '2px solid rgba(255,255,255,0.15)',
+                    boxShadow: `0 4px 12px ${accentColor}44`,
+                  }}
+                />
+                <input
+                  type="color"
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                />
               </label>
-              <span className="text-sm font-mono" style={{ color: "rgba(240,237,232,0.5)" }}>{accentColor}</span>
+              <span className="text-sm font-mono" style={{ color: 'rgba(240,237,232,0.5)' }}>
+                {accentColor}
+              </span>
             </div>
           </div>
 
           {/* Platform Dropdown */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Platform</label>
+            <label
+              className="block text-xs font-bold uppercase tracking-wider mb-1.5"
+              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+            >
+              Platform
+            </label>
             <select
               value={platform}
-              onChange={e => setPlatform(e.target.value as Platform)}
+              onChange={(e) => setPlatform(e.target.value as Platform)}
               className="w-full text-sm px-3 py-2.5 rounded-lg outline-none appearance-none"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(255,255,255,0.08)", color: "#f0ede8", cursor: "pointer" }}
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1.5px solid rgba(255,255,255,0.08)',
+                color: '#f0ede8',
+                cursor: 'pointer',
+              }}
             >
-              <option value="shopify" style={{ background: "#0c0e12" }}>Shopify</option>
-              <option value="nextjs" style={{ background: "#0c0e12" }}>Next.js</option>
-              <option value="react" style={{ background: "#0c0e12" }}>React</option>
+              <option value="shopify" style={{ background: '#0c0e12' }}>
+                Shopify
+              </option>
+              <option value="nextjs" style={{ background: '#0c0e12' }}>
+                Next.js
+              </option>
+              <option value="react" style={{ background: '#0c0e12' }}>
+                React
+              </option>
             </select>
           </div>
 
-          <div style={{ height: 1, background: "rgba(255,255,255,0.06)" }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
 
           {/* Generate Button */}
           <button
@@ -1344,28 +1773,47 @@ ${generatedData.email_subject}`;
             disabled={generating}
             className="w-full py-3.5 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
             style={{
-              background: generating ? "rgba(212,175,55,0.25)" : "linear-gradient(135deg, #d4af37, #f0c040)",
-              color: "#080a0e",
-              fontFamily: "Syne, sans-serif",
-              boxShadow: generating ? "none" : "0 4px 24px rgba(212,175,55,0.35)",
-              cursor: generating ? "not-allowed" : "pointer",
+              background: generating
+                ? 'rgba(212,175,55,0.25)'
+                : 'linear-gradient(135deg, #d4af37, #f0c040)',
+              color: '#080a0e',
+              fontFamily: 'Syne, sans-serif',
+              boxShadow: generating ? 'none' : '0 4px 24px rgba(212,175,55,0.35)',
+              cursor: generating ? 'not-allowed' : 'pointer',
             }}
           >
             {generating ? (
-              <><Loader2 size={15} className="animate-spin" />Generating… {genProgress > 0 ? `${genProgress}%` : ""}</>
+              <>
+                <Loader2 size={15} className="animate-spin" />
+                Generating… {genProgress > 0 ? `${genProgress}%` : ''}
+              </>
             ) : (
-              <><Globe size={15} />{hasOutput ? "Regenerate" : "Generate"}</>
+              <>
+                <Globe size={15} />
+                {hasOutput ? 'Regenerate' : 'Generate'}
+              </>
             )}
           </button>
 
           {genError && (
-            <div className="text-xs p-3 rounded-lg" style={{ background: "rgba(255,100,100,0.08)", border: "1px solid rgba(255,100,100,0.2)", color: "rgba(255,150,150,0.9)" }}>
+            <div
+              className="text-xs p-3 rounded-lg"
+              style={{
+                background: 'rgba(255,100,100,0.08)',
+                border: '1px solid rgba(255,100,100,0.2)',
+                color: 'rgba(255,150,150,0.9)',
+              }}
+            >
               {genError}
             </div>
           )}
 
           {hasOutput && (
-            <SaveToProduct toolId="website-generator" toolName="Website Generator" outputData={JSON.stringify(generatedData || rawResponse)} />
+            <SaveToProduct
+              toolId="website-generator"
+              toolName="Website Generator"
+              outputData={JSON.stringify(generatedData || rawResponse)}
+            />
           )}
         </div>
 
@@ -1374,36 +1822,48 @@ ${generatedData.email_subject}`;
           {hasOutput ? (
             <>
               {/* Tab bar */}
-              <div className="flex items-center gap-1 px-4 py-2.5 border-b flex-shrink-0" style={{ borderColor: "rgba(255,255,255,0.07)", background: "#0c0e12" }}>
-                {(["copy", "code", "preview", "deploy"] as ActiveTab[]).map(tab => (
+              <div
+                className="flex items-center gap-1 px-4 py-2.5 border-b flex-shrink-0"
+                style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#0c0e12' }}
+              >
+                {(['copy', 'code', 'preview', 'deploy'] as ActiveTab[]).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className="px-4 py-1.5 text-xs font-bold rounded-lg capitalize transition-all flex items-center gap-1.5"
                     style={{
-                      background: activeTab === tab ? "rgba(212,175,55,0.12)" : "transparent",
-                      color: activeTab === tab ? "#d4af37" : "rgba(240,237,232,0.4)",
-                      borderBottom: `2px solid ${activeTab === tab ? "#d4af37" : "transparent"}`,
-                      fontFamily: "Syne, sans-serif",
-                      cursor: "pointer",
+                      background: activeTab === tab ? 'rgba(212,175,55,0.12)' : 'transparent',
+                      color: activeTab === tab ? '#d4af37' : 'rgba(240,237,232,0.4)',
+                      borderBottom: `2px solid ${activeTab === tab ? '#d4af37' : 'transparent'}`,
+                      fontFamily: 'Syne, sans-serif',
+                      cursor: 'pointer',
                     }}
                   >
-                    {tab === "copy" && <FileText size={12} />}
-                    {tab === "code" && <Code2 size={12} />}
-                    {tab === "preview" && <Globe size={12} />}
-                    {tab === "deploy" && <Package size={12} />}
+                    {tab === 'copy' && <FileText size={12} />}
+                    {tab === 'code' && <Code2 size={12} />}
+                    {tab === 'preview' && <Globe size={12} />}
+                    {tab === 'deploy' && <Package size={12} />}
                     {tab.charAt(0).toUpperCase() + tab.slice(1)}
                   </button>
                 ))}
               </div>
 
               <div className="flex-1 overflow-hidden">
-
                 {/* ── COPY TAB ── */}
-                {activeTab === "copy" && (
-                  <div className="h-full overflow-y-auto p-6 space-y-6" style={{ scrollbarWidth: "thin" }}>
+                {activeTab === 'copy' && (
+                  <div
+                    className="h-full overflow-y-auto p-6 space-y-6"
+                    style={{ scrollbarWidth: 'thin' }}
+                  >
                     {parseWarning && (
-                      <div className="p-3 rounded-lg text-xs" style={{ background: "rgba(255,200,50,0.08)", border: "1px solid rgba(255,200,50,0.2)", color: "rgba(255,220,100,0.9)" }}>
+                      <div
+                        className="p-3 rounded-lg text-xs"
+                        style={{
+                          background: 'rgba(255,200,50,0.08)',
+                          border: '1px solid rgba(255,200,50,0.2)',
+                          color: 'rgba(255,220,100,0.9)',
+                        }}
+                      >
                         JSON parsing failed. Showing raw AI output below.
                       </div>
                     )}
@@ -1413,38 +1873,119 @@ ${generatedData.email_subject}`;
                         {/* Headline */}
                         <div>
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Headline</span>
-                            <button onClick={() => copy(generatedData.headline, "hl")} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg transition-all" style={{ color: copiedKey === "hl" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "rgba(255,255,255,0.04)", cursor: "pointer", border: "none" }}>
-                              {copiedKey === "hl" ? <Check size={10} /> : <Copy size={10} />} {copiedKey === "hl" ? "Copied" : "Copy"}
+                            <span
+                              className="text-xs font-bold uppercase tracking-wider"
+                              style={{
+                                color: 'rgba(240,237,232,0.4)',
+                                fontFamily: 'Syne, sans-serif',
+                              }}
+                            >
+                              Headline
+                            </span>
+                            <button
+                              onClick={() => copy(generatedData.headline, 'hl')}
+                              className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg transition-all"
+                              style={{
+                                color: copiedKey === 'hl' ? '#2dca72' : 'rgba(240,237,232,0.4)',
+                                background: 'rgba(255,255,255,0.04)',
+                                cursor: 'pointer',
+                                border: 'none',
+                              }}
+                            >
+                              {copiedKey === 'hl' ? <Check size={10} /> : <Copy size={10} />}{' '}
+                              {copiedKey === 'hl' ? 'Copied' : 'Copy'}
                             </button>
                           </div>
-                          <div className="text-2xl font-black" style={{ fontFamily: "Syne, sans-serif", lineHeight: 1.2 }}>{generatedData.headline}</div>
+                          <div
+                            className="text-2xl font-black"
+                            style={{ fontFamily: 'Syne, sans-serif', lineHeight: 1.2 }}
+                          >
+                            {generatedData.headline}
+                          </div>
                         </div>
 
                         {/* Subheadline */}
                         <div>
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Subheadline</span>
-                            <button onClick={() => copy(generatedData.subheadline, "sub")} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg transition-all" style={{ color: copiedKey === "sub" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "rgba(255,255,255,0.04)", cursor: "pointer", border: "none" }}>
-                              {copiedKey === "sub" ? <Check size={10} /> : <Copy size={10} />} {copiedKey === "sub" ? "Copied" : "Copy"}
+                            <span
+                              className="text-xs font-bold uppercase tracking-wider"
+                              style={{
+                                color: 'rgba(240,237,232,0.4)',
+                                fontFamily: 'Syne, sans-serif',
+                              }}
+                            >
+                              Subheadline
+                            </span>
+                            <button
+                              onClick={() => copy(generatedData.subheadline, 'sub')}
+                              className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg transition-all"
+                              style={{
+                                color: copiedKey === 'sub' ? '#2dca72' : 'rgba(240,237,232,0.4)',
+                                background: 'rgba(255,255,255,0.04)',
+                                cursor: 'pointer',
+                                border: 'none',
+                              }}
+                            >
+                              {copiedKey === 'sub' ? <Check size={10} /> : <Copy size={10} />}{' '}
+                              {copiedKey === 'sub' ? 'Copied' : 'Copy'}
                             </button>
                           </div>
-                          <div className="text-sm leading-relaxed" style={{ color: "rgba(240,237,232,0.7)" }}>{generatedData.subheadline}</div>
+                          <div
+                            className="text-sm leading-relaxed"
+                            style={{ color: 'rgba(240,237,232,0.7)' }}
+                          >
+                            {generatedData.subheadline}
+                          </div>
                         </div>
 
                         {/* Features */}
                         <div>
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Features</span>
-                            <button onClick={() => copy(generatedData.features.join("\n"), "feats")} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg transition-all" style={{ color: copiedKey === "feats" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "rgba(255,255,255,0.04)", cursor: "pointer", border: "none" }}>
-                              {copiedKey === "feats" ? <Check size={10} /> : <Copy size={10} />} {copiedKey === "feats" ? "Copied" : "Copy All"}
+                            <span
+                              className="text-xs font-bold uppercase tracking-wider"
+                              style={{
+                                color: 'rgba(240,237,232,0.4)',
+                                fontFamily: 'Syne, sans-serif',
+                              }}
+                            >
+                              Features
+                            </span>
+                            <button
+                              onClick={() => copy(generatedData.features.join('\n'), 'feats')}
+                              className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg transition-all"
+                              style={{
+                                color: copiedKey === 'feats' ? '#2dca72' : 'rgba(240,237,232,0.4)',
+                                background: 'rgba(255,255,255,0.04)',
+                                cursor: 'pointer',
+                                border: 'none',
+                              }}
+                            >
+                              {copiedKey === 'feats' ? <Check size={10} /> : <Copy size={10} />}{' '}
+                              {copiedKey === 'feats' ? 'Copied' : 'Copy All'}
                             </button>
                           </div>
                           <div className="space-y-2">
                             {generatedData.features.map((f, i) => (
-                              <div key={i} className="flex items-start gap-3 px-3 py-2.5 rounded-lg" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                                <div className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-black" style={{ background: "rgba(212,175,55,0.15)", color: "#d4af37" }}>{i + 1}</div>
-                                <span className="text-sm" style={{ color: "rgba(240,237,232,0.7)" }}>{f}</span>
+                              <div
+                                key={i}
+                                className="flex items-start gap-3 px-3 py-2.5 rounded-lg"
+                                style={{
+                                  background: 'rgba(255,255,255,0.03)',
+                                  border: '1px solid rgba(255,255,255,0.06)',
+                                }}
+                              >
+                                <div
+                                  className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-black"
+                                  style={{ background: 'rgba(212,175,55,0.15)', color: '#d4af37' }}
+                                >
+                                  {i + 1}
+                                </div>
+                                <span
+                                  className="text-sm"
+                                  style={{ color: 'rgba(240,237,232,0.7)' }}
+                                >
+                                  {f}
+                                </span>
                               </div>
                             ))}
                           </div>
@@ -1455,22 +1996,74 @@ ${generatedData.email_subject}`;
                           <div className="grid grid-cols-2 gap-4">
                             <div>
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>CTA Text</span>
-                                <button onClick={() => copy(generatedData.ctaText ?? generatedData.cta_primary ?? "", "cta1")} className="text-xs flex items-center gap-1" style={{ color: copiedKey === "cta1" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "none", border: "none", cursor: "pointer" }}>
-                                  {copiedKey === "cta1" ? <Check size={10} /> : <Copy size={10} />}
+                                <span
+                                  className="text-xs font-bold uppercase tracking-wider"
+                                  style={{
+                                    color: 'rgba(240,237,232,0.4)',
+                                    fontFamily: 'Syne, sans-serif',
+                                  }}
+                                >
+                                  CTA Text
+                                </span>
+                                <button
+                                  onClick={() =>
+                                    copy(
+                                      generatedData.ctaText ?? generatedData.cta_primary ?? '',
+                                      'cta1'
+                                    )
+                                  }
+                                  className="text-xs flex items-center gap-1"
+                                  style={{
+                                    color:
+                                      copiedKey === 'cta1' ? '#2dca72' : 'rgba(240,237,232,0.4)',
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                  }}
+                                >
+                                  {copiedKey === 'cta1' ? <Check size={10} /> : <Copy size={10} />}
                                 </button>
                               </div>
-                              <div className="text-sm font-bold" style={{ color: "#d4af37" }}>{generatedData.ctaText ?? generatedData.cta_primary}</div>
+                              <div className="text-sm font-bold" style={{ color: '#d4af37' }}>
+                                {generatedData.ctaText ?? generatedData.cta_primary}
+                              </div>
                             </div>
                             {generatedData.cta_secondary && (
                               <div>
                                 <div className="flex items-center justify-between mb-2">
-                                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Secondary CTA</span>
-                                  <button onClick={() => copy(generatedData.cta_secondary ?? "", "cta2")} className="text-xs flex items-center gap-1" style={{ color: copiedKey === "cta2" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "none", border: "none", cursor: "pointer" }}>
-                                    {copiedKey === "cta2" ? <Check size={10} /> : <Copy size={10} />}
+                                  <span
+                                    className="text-xs font-bold uppercase tracking-wider"
+                                    style={{
+                                      color: 'rgba(240,237,232,0.4)',
+                                      fontFamily: 'Syne, sans-serif',
+                                    }}
+                                  >
+                                    Secondary CTA
+                                  </span>
+                                  <button
+                                    onClick={() => copy(generatedData.cta_secondary ?? '', 'cta2')}
+                                    className="text-xs flex items-center gap-1"
+                                    style={{
+                                      color:
+                                        copiedKey === 'cta2' ? '#2dca72' : 'rgba(240,237,232,0.4)',
+                                      background: 'none',
+                                      border: 'none',
+                                      cursor: 'pointer',
+                                    }}
+                                  >
+                                    {copiedKey === 'cta2' ? (
+                                      <Check size={10} />
+                                    ) : (
+                                      <Copy size={10} />
+                                    )}
                                   </button>
                                 </div>
-                                <div className="text-sm font-bold" style={{ color: "rgba(240,237,232,0.7)" }}>{generatedData.cta_secondary}</div>
+                                <div
+                                  className="text-sm font-bold"
+                                  style={{ color: 'rgba(240,237,232,0.7)' }}
+                                >
+                                  {generatedData.cta_secondary}
+                                </div>
                               </div>
                             )}
                           </div>
@@ -1479,10 +2072,26 @@ ${generatedData.email_subject}`;
                         {/* Trust Badges */}
                         {generatedData.trust_badges && generatedData.trust_badges.length > 0 && (
                           <div>
-                            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Trust Badges 🇦🇺</span>
+                            <span
+                              className="text-xs font-bold uppercase tracking-wider"
+                              style={{
+                                color: 'rgba(240,237,232,0.4)',
+                                fontFamily: 'Syne, sans-serif',
+                              }}
+                            >
+                              Trust Badges 🇦🇺
+                            </span>
                             <div className="flex flex-wrap gap-2 mt-2">
                               {generatedData.trust_badges.map((b, i) => (
-                                <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: "rgba(45,202,114,0.08)", border: "1px solid rgba(45,202,114,0.2)", color: "rgba(45,202,114,0.85)" }}>
+                                <div
+                                  key={i}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+                                  style={{
+                                    background: 'rgba(45,202,114,0.08)',
+                                    border: '1px solid rgba(45,202,114,0.2)',
+                                    color: 'rgba(45,202,114,0.85)',
+                                  }}
+                                >
                                   <Check size={10} /> {b}
                                 </div>
                               ))}
@@ -1494,12 +2103,40 @@ ${generatedData.email_subject}`;
                         {(generatedData.brandStory || generatedData.about_section) && (
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Brand Story</span>
-                              <button onClick={() => copy(generatedData.brandStory ?? generatedData.about_section ?? "", "story")} className="text-xs flex items-center gap-1" style={{ color: copiedKey === "story" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "none", border: "none", cursor: "pointer" }}>
-                                {copiedKey === "story" ? <Check size={10} /> : <Copy size={10} />}
+                              <span
+                                className="text-xs font-bold uppercase tracking-wider"
+                                style={{
+                                  color: 'rgba(240,237,232,0.4)',
+                                  fontFamily: 'Syne, sans-serif',
+                                }}
+                              >
+                                Brand Story
+                              </span>
+                              <button
+                                onClick={() =>
+                                  copy(
+                                    generatedData.brandStory ?? generatedData.about_section ?? '',
+                                    'story'
+                                  )
+                                }
+                                className="text-xs flex items-center gap-1"
+                                style={{
+                                  color:
+                                    copiedKey === 'story' ? '#2dca72' : 'rgba(240,237,232,0.4)',
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                {copiedKey === 'story' ? <Check size={10} /> : <Copy size={10} />}
                               </button>
                             </div>
-                            <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.55)" }}>{generatedData.brandStory ?? generatedData.about_section}</div>
+                            <div
+                              className="text-xs leading-relaxed"
+                              style={{ color: 'rgba(240,237,232,0.55)' }}
+                            >
+                              {generatedData.brandStory ?? generatedData.about_section}
+                            </div>
                           </div>
                         )}
 
@@ -1509,23 +2146,79 @@ ${generatedData.email_subject}`;
                             {generatedData.meta_description && (
                               <div>
                                 <div className="flex items-center justify-between mb-2">
-                                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Meta Description</span>
-                                  <button onClick={() => copy(generatedData.meta_description ?? "", "meta")} className="text-xs flex items-center gap-1" style={{ color: copiedKey === "meta" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "none", border: "none", cursor: "pointer" }}>
-                                    {copiedKey === "meta" ? <Check size={10} /> : <Copy size={10} />}
+                                  <span
+                                    className="text-xs font-bold uppercase tracking-wider"
+                                    style={{
+                                      color: 'rgba(240,237,232,0.4)',
+                                      fontFamily: 'Syne, sans-serif',
+                                    }}
+                                  >
+                                    Meta Description
+                                  </span>
+                                  <button
+                                    onClick={() =>
+                                      copy(generatedData.meta_description ?? '', 'meta')
+                                    }
+                                    className="text-xs flex items-center gap-1"
+                                    style={{
+                                      color:
+                                        copiedKey === 'meta' ? '#2dca72' : 'rgba(240,237,232,0.4)',
+                                      background: 'none',
+                                      border: 'none',
+                                      cursor: 'pointer',
+                                    }}
+                                  >
+                                    {copiedKey === 'meta' ? (
+                                      <Check size={10} />
+                                    ) : (
+                                      <Copy size={10} />
+                                    )}
                                   </button>
                                 </div>
-                                <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.55)" }}>{generatedData.meta_description}</div>
+                                <div
+                                  className="text-xs leading-relaxed"
+                                  style={{ color: 'rgba(240,237,232,0.55)' }}
+                                >
+                                  {generatedData.meta_description}
+                                </div>
                               </div>
                             )}
                             {generatedData.email_subject && (
                               <div>
                                 <div className="flex items-center justify-between mb-2">
-                                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Email Subject</span>
-                                  <button onClick={() => copy(generatedData.email_subject ?? "", "email")} className="text-xs flex items-center gap-1" style={{ color: copiedKey === "email" ? "#2dca72" : "rgba(240,237,232,0.4)", background: "none", border: "none", cursor: "pointer" }}>
-                                    {copiedKey === "email" ? <Check size={10} /> : <Copy size={10} />}
+                                  <span
+                                    className="text-xs font-bold uppercase tracking-wider"
+                                    style={{
+                                      color: 'rgba(240,237,232,0.4)',
+                                      fontFamily: 'Syne, sans-serif',
+                                    }}
+                                  >
+                                    Email Subject
+                                  </span>
+                                  <button
+                                    onClick={() => copy(generatedData.email_subject ?? '', 'email')}
+                                    className="text-xs flex items-center gap-1"
+                                    style={{
+                                      color:
+                                        copiedKey === 'email' ? '#2dca72' : 'rgba(240,237,232,0.4)',
+                                      background: 'none',
+                                      border: 'none',
+                                      cursor: 'pointer',
+                                    }}
+                                  >
+                                    {copiedKey === 'email' ? (
+                                      <Check size={10} />
+                                    ) : (
+                                      <Copy size={10} />
+                                    )}
                                   </button>
                                 </div>
-                                <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.55)" }}>{generatedData.email_subject}</div>
+                                <div
+                                  className="text-xs leading-relaxed"
+                                  style={{ color: 'rgba(240,237,232,0.55)' }}
+                                >
+                                  {generatedData.email_subject}
+                                </div>
                               </div>
                             )}
                           </div>
@@ -1533,8 +2226,22 @@ ${generatedData.email_subject}`;
                       </>
                     ) : rawResponse ? (
                       <div>
-                        <div className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Raw AI Output</div>
-                        <pre className="text-xs p-4 rounded-xl overflow-x-auto" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "rgba(240,237,232,0.6)", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                        <div
+                          className="text-xs font-bold uppercase tracking-wider mb-2"
+                          style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                        >
+                          Raw AI Output
+                        </div>
+                        <pre
+                          className="text-xs p-4 rounded-xl overflow-x-auto"
+                          style={{
+                            background: 'rgba(255,255,255,0.03)',
+                            border: '1px solid rgba(255,255,255,0.06)',
+                            color: 'rgba(240,237,232,0.6)',
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word',
+                          }}
+                        >
                           {rawResponse}
                         </pre>
                       </div>
@@ -1543,36 +2250,86 @@ ${generatedData.email_subject}`;
                 )}
 
                 {/* ── CODE TAB ── */}
-                {activeTab === "code" && generatedData?.files && (
+                {activeTab === 'code' && generatedData?.files && (
                   <div className="h-full flex overflow-hidden">
                     {/* File tree sidebar */}
-                    <div className="flex-shrink-0 overflow-y-auto border-r" style={{ width: 220, borderColor: "rgba(255,255,255,0.06)", background: "#0a0c10", scrollbarWidth: "thin" }}>
-                      <div className="px-3 py-2 text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.3)", fontFamily: "Syne, sans-serif" }}>Files</div>
-                      <FileTree files={generatedData.files} activeFile={activeFile} onSelect={setActiveFile} />
+                    <div
+                      className="flex-shrink-0 overflow-y-auto border-r"
+                      style={{
+                        width: 220,
+                        borderColor: 'rgba(255,255,255,0.06)',
+                        background: '#0a0c10',
+                        scrollbarWidth: 'thin',
+                      }}
+                    >
+                      <div
+                        className="px-3 py-2 text-xs font-bold uppercase tracking-wider"
+                        style={{ color: 'rgba(240,237,232,0.3)', fontFamily: 'Syne, sans-serif' }}
+                      >
+                        Files
+                      </div>
+                      <FileTree
+                        files={generatedData.files}
+                        activeFile={activeFile}
+                        onSelect={setActiveFile}
+                      />
                     </div>
 
                     {/* Code viewer */}
                     <div className="flex-1 flex flex-col overflow-hidden">
                       {activeFile && generatedData.files?.[activeFile] ? (
                         <>
-                          <div className="flex items-center justify-between px-4 py-2 border-b flex-shrink-0" style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}>
-                            <span className="text-xs font-mono" style={{ color: "rgba(240,237,232,0.6)" }}>{activeFile}</span>
-                            <button
-                              onClick={() => { copy(generatedData.files?.[activeFile] ?? "", `file-${activeFile}`); toast.success(`Copied ${activeFile}`); }}
-                              className="text-xs flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all"
-                              style={{ color: copiedKey === `file-${activeFile}` ? "#2dca72" : "rgba(240,237,232,0.4)", background: "rgba(255,255,255,0.04)", cursor: "pointer", border: "none" }}
+                          <div
+                            className="flex items-center justify-between px-4 py-2 border-b flex-shrink-0"
+                            style={{
+                              borderColor: 'rgba(255,255,255,0.06)',
+                              background: 'rgba(255,255,255,0.02)',
+                            }}
+                          >
+                            <span
+                              className="text-xs font-mono"
+                              style={{ color: 'rgba(240,237,232,0.6)' }}
                             >
-                              {copiedKey === `file-${activeFile}` ? <Check size={10} /> : <Copy size={10} />}
-                              {copiedKey === `file-${activeFile}` ? "Copied" : "Copy"}
+                              {activeFile}
+                            </span>
+                            <button
+                              onClick={() => {
+                                copy(generatedData.files?.[activeFile] ?? '', `file-${activeFile}`);
+                                toast.success(`Copied ${activeFile}`);
+                              }}
+                              className="text-xs flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all"
+                              style={{
+                                color:
+                                  copiedKey === `file-${activeFile}`
+                                    ? '#2dca72'
+                                    : 'rgba(240,237,232,0.4)',
+                                background: 'rgba(255,255,255,0.04)',
+                                cursor: 'pointer',
+                                border: 'none',
+                              }}
+                            >
+                              {copiedKey === `file-${activeFile}` ? (
+                                <Check size={10} />
+                              ) : (
+                                <Copy size={10} />
+                              )}
+                              {copiedKey === `file-${activeFile}` ? 'Copied' : 'Copy'}
                             </button>
                           </div>
-                          <div className="flex-1 overflow-auto" style={{ scrollbarWidth: "thin" }}>
+                          <div className="flex-1 overflow-auto" style={{ scrollbarWidth: 'thin' }}>
                             <SyntaxHighlighter
                               language={getLanguage(activeFile)}
                               style={vscDarkPlus}
-                              customStyle={{ margin: 0, padding: 16, background: "#080a0e", fontSize: 13, lineHeight: 1.6, minHeight: "100%" }}
+                              customStyle={{
+                                margin: 0,
+                                padding: 16,
+                                background: '#080a0e',
+                                fontSize: 13,
+                                lineHeight: 1.6,
+                                minHeight: '100%',
+                              }}
                               showLineNumbers
-                              lineNumberStyle={{ color: "rgba(240,237,232,0.15)", minWidth: 36 }}
+                              lineNumberStyle={{ color: 'rgba(240,237,232,0.15)', minWidth: 36 }}
                             >
                               {generatedData.files[activeFile]}
                             </SyntaxHighlighter>
@@ -1581,43 +2338,63 @@ ${generatedData.email_subject}`;
                       ) : (
                         <div className="flex-1 flex items-center justify-center">
                           <div className="text-center">
-                            <FileCode size={32} style={{ color: "rgba(240,237,232,0.15)", margin: "0 auto 12px" }} />
-                            <div className="text-sm" style={{ color: "rgba(240,237,232,0.3)" }}>Select a file to view</div>
+                            <FileCode
+                              size={32}
+                              style={{ color: 'rgba(240,237,232,0.15)', margin: '0 auto 12px' }}
+                            />
+                            <div className="text-sm" style={{ color: 'rgba(240,237,232,0.3)' }}>
+                              Select a file to view
+                            </div>
                           </div>
                         </div>
                       )}
                     </div>
                   </div>
                 )}
-                {activeTab === "code" && !generatedData?.files && (
+                {activeTab === 'code' && !generatedData?.files && (
                   <div className="flex-1 flex items-center justify-center">
-                    <div className="text-sm" style={{ color: "rgba(240,237,232,0.3)" }}>No files generated. Try regenerating.</div>
+                    <div className="text-sm" style={{ color: 'rgba(240,237,232,0.3)' }}>
+                      No files generated. Try regenerating.
+                    </div>
                   </div>
                 )}
 
                 {/* ── PREVIEW TAB ── */}
-                {activeTab === "preview" && (
+                {activeTab === 'preview' && (
                   <div className="h-full flex flex-col">
-                    <div className="flex items-center gap-2 px-4 py-2 border-b flex-shrink-0" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                    <div
+                      className="flex items-center gap-2 px-4 py-2 border-b flex-shrink-0"
+                      style={{ borderColor: 'rgba(255,255,255,0.06)' }}
+                    >
                       <button
                         onClick={handleOpenPreviewNewTab}
                         className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all"
-                        style={{ background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.25)", color: "#d4af37", fontFamily: "Syne, sans-serif", cursor: "pointer" }}
+                        style={{
+                          background: 'rgba(212,175,55,0.1)',
+                          border: '1px solid rgba(212,175,55,0.25)',
+                          color: '#d4af37',
+                          fontFamily: 'Syne, sans-serif',
+                          cursor: 'pointer',
+                        }}
                       >
                         <ExternalLink size={11} /> Open in new tab
                       </button>
-                      <div className="flex rounded-lg overflow-hidden ml-auto" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
-                        {(["desktop", "mobile"] as const).map(d => (
+                      <div
+                        className="flex rounded-lg overflow-hidden ml-auto"
+                        style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+                      >
+                        {(['desktop', 'mobile'] as const).map((d) => (
                           <button
                             key={d}
                             onClick={() => setPreviewDevice(d)}
                             className="text-xs px-3 py-1.5 capitalize"
                             style={{
-                              background: previewDevice === d ? "rgba(212,175,55,0.12)" : "transparent",
-                              color: previewDevice === d ? "#d4af37" : "rgba(240,237,232,0.4)",
-                              border: "none",
-                              cursor: "pointer",
-                              fontFamily: "Syne, sans-serif",
+                              background:
+                                previewDevice === d ? 'rgba(212,175,55,0.12)' : 'transparent',
+                              color: previewDevice === d ? '#d4af37' : 'rgba(240,237,232,0.4)',
+                              border: 'none',
+                              cursor: 'pointer',
+                              fontFamily: 'Syne, sans-serif',
                               fontWeight: previewDevice === d ? 700 : 400,
                             }}
                           >
@@ -1627,17 +2404,24 @@ ${generatedData.email_subject}`;
                       </div>
                     </div>
                     {generatedData ? (
-                      <div className="flex-1 flex items-start justify-center overflow-auto p-4" style={{ background: "#060608" }}>
+                      <div
+                        className="flex-1 flex items-start justify-center overflow-auto p-4"
+                        style={{ background: '#060608' }}
+                      >
                         <iframe
                           srcDoc={previewHTML}
                           className="border-none transition-all duration-300"
                           style={{
-                            width: previewDevice === "mobile" ? 390 : "100%",
-                            height: previewDevice === "mobile" ? 844 : "100%",
-                            maxHeight: previewDevice === "mobile" ? 844 : undefined,
-                            borderRadius: previewDevice === "mobile" ? 24 : 0,
-                            border: previewDevice === "mobile" ? "3px solid rgba(255,255,255,0.1)" : "none",
-                            boxShadow: previewDevice === "mobile" ? "0 8px 32px rgba(0,0,0,0.4)" : "none",
+                            width: previewDevice === 'mobile' ? 390 : '100%',
+                            height: previewDevice === 'mobile' ? 844 : '100%',
+                            maxHeight: previewDevice === 'mobile' ? 844 : undefined,
+                            borderRadius: previewDevice === 'mobile' ? 24 : 0,
+                            border:
+                              previewDevice === 'mobile'
+                                ? '3px solid rgba(255,255,255,0.1)'
+                                : 'none',
+                            boxShadow:
+                              previewDevice === 'mobile' ? '0 8px 32px rgba(0,0,0,0.4)' : 'none',
                           }}
                           title="Website preview"
                           sandbox="allow-scripts"
@@ -1645,30 +2429,47 @@ ${generatedData.email_subject}`;
                       </div>
                     ) : (
                       <div className="flex-1 flex items-center justify-center">
-                        <div className="text-sm" style={{ color: "rgba(240,237,232,0.3)" }}>No preview available. Raw response could not be parsed.</div>
+                        <div className="text-sm" style={{ color: 'rgba(240,237,232,0.3)' }}>
+                          No preview available. Raw response could not be parsed.
+                        </div>
                       </div>
                     )}
                   </div>
                 )}
 
                 {/* ── DEPLOY TAB ── */}
-                {activeTab === "deploy" && (
-                  <div className="h-full overflow-y-auto p-6" style={{ scrollbarWidth: "thin" }}>
+                {activeTab === 'deploy' && (
+                  <div className="h-full overflow-y-auto p-6" style={{ scrollbarWidth: 'thin' }}>
                     <div className="grid grid-cols-2 gap-4 max-w-2xl">
-
                       {/* Card 1: Download ZIP */}
                       <button
                         onClick={handleDownloadZip}
                         disabled={!generatedData?.files}
                         className="p-5 rounded-xl text-left transition-all group disabled:opacity-40"
-                        style={{ background: "rgba(255,255,255,0.03)", border: "1.5px solid rgba(255,255,255,0.08)", cursor: "pointer" }}
+                        style={{
+                          background: 'rgba(255,255,255,0.03)',
+                          border: '1.5px solid rgba(255,255,255,0.08)',
+                          cursor: 'pointer',
+                        }}
                       >
-                        <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: "rgba(212,175,55,0.12)" }}>
-                          <FileArchive size={20} style={{ color: "#d4af37" }} />
+                        <div
+                          className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center"
+                          style={{ background: 'rgba(212,175,55,0.12)' }}
+                        >
+                          <FileArchive size={20} style={{ color: '#d4af37' }} />
                         </div>
-                        <div className="text-sm font-black mb-1" style={{ fontFamily: "Syne, sans-serif" }}>Download ZIP</div>
-                        <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.4)" }}>
-                          Download all generated theme files as a ZIP archive with folder structure preserved.
+                        <div
+                          className="text-sm font-black mb-1"
+                          style={{ fontFamily: 'Syne, sans-serif' }}
+                        >
+                          Download ZIP
+                        </div>
+                        <div
+                          className="text-xs leading-relaxed"
+                          style={{ color: 'rgba(240,237,232,0.4)' }}
+                        >
+                          Download all generated theme files as a ZIP archive with folder structure
+                          preserved.
                         </div>
                       </button>
 
@@ -1677,13 +2478,28 @@ ${generatedData.email_subject}`;
                         onClick={handleOpenCursor}
                         disabled={!generatedData?.files}
                         className="p-5 rounded-xl text-left transition-all group disabled:opacity-40"
-                        style={{ background: "rgba(255,255,255,0.03)", border: "1.5px solid rgba(255,255,255,0.08)", cursor: "pointer" }}
+                        style={{
+                          background: 'rgba(255,255,255,0.03)',
+                          border: '1.5px solid rgba(255,255,255,0.08)',
+                          cursor: 'pointer',
+                        }}
                       >
-                        <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: "rgba(156,95,255,0.12)" }}>
-                          <Terminal size={20} style={{ color: "#9c5fff" }} />
+                        <div
+                          className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center"
+                          style={{ background: 'rgba(156,95,255,0.12)' }}
+                        >
+                          <Terminal size={20} style={{ color: '#9c5fff' }} />
                         </div>
-                        <div className="text-sm font-black mb-1" style={{ fontFamily: "Syne, sans-serif" }}>Open in Cursor</div>
-                        <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.4)" }}>
+                        <div
+                          className="text-sm font-black mb-1"
+                          style={{ fontFamily: 'Syne, sans-serif' }}
+                        >
+                          Open in Cursor
+                        </div>
+                        <div
+                          className="text-xs leading-relaxed"
+                          style={{ color: 'rgba(240,237,232,0.4)' }}
+                        >
                           Download ZIP + get step-by-step instructions to customise with Cursor AI.
                         </div>
                       </button>
@@ -1693,14 +2509,30 @@ ${generatedData.email_subject}`;
                         onClick={handleShopifyExport}
                         disabled={!generatedData?.files}
                         className="p-5 rounded-xl text-left transition-all group disabled:opacity-40"
-                        style={{ background: "rgba(255,255,255,0.03)", border: "1.5px solid rgba(255,255,255,0.08)", cursor: "pointer" }}
+                        style={{
+                          background: 'rgba(255,255,255,0.03)',
+                          border: '1.5px solid rgba(255,255,255,0.08)',
+                          cursor: 'pointer',
+                        }}
                       >
-                        <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: "rgba(45,202,114,0.12)" }}>
-                          <ShoppingBag size={20} style={{ color: "#2dca72" }} />
+                        <div
+                          className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center"
+                          style={{ background: 'rgba(45,202,114,0.12)' }}
+                        >
+                          <ShoppingBag size={20} style={{ color: '#2dca72' }} />
                         </div>
-                        <div className="text-sm font-black mb-1" style={{ fontFamily: "Syne, sans-serif" }}>Export to Shopify</div>
-                        <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.4)" }}>
-                          Download Shopify-compatible theme ZIP with layout and config files included.
+                        <div
+                          className="text-sm font-black mb-1"
+                          style={{ fontFamily: 'Syne, sans-serif' }}
+                        >
+                          Export to Shopify
+                        </div>
+                        <div
+                          className="text-xs leading-relaxed"
+                          style={{ color: 'rgba(240,237,232,0.4)' }}
+                        >
+                          Download Shopify-compatible theme ZIP with layout and config files
+                          included.
                         </div>
                       </button>
 
@@ -1709,14 +2541,30 @@ ${generatedData.email_subject}`;
                         onClick={handleCopyNotion}
                         disabled={!generatedData}
                         className="p-5 rounded-xl text-left transition-all group disabled:opacity-40"
-                        style={{ background: "rgba(255,255,255,0.03)", border: "1.5px solid rgba(255,255,255,0.08)", cursor: "pointer" }}
+                        style={{
+                          background: 'rgba(255,255,255,0.03)',
+                          border: '1.5px solid rgba(255,255,255,0.08)',
+                          cursor: 'pointer',
+                        }}
                       >
-                        <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: "rgba(255,255,255,0.08)" }}>
-                          <StickyNote size={20} style={{ color: "rgba(240,237,232,0.6)" }} />
+                        <div
+                          className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center"
+                          style={{ background: 'rgba(255,255,255,0.08)' }}
+                        >
+                          <StickyNote size={20} style={{ color: 'rgba(240,237,232,0.6)' }} />
                         </div>
-                        <div className="text-sm font-black mb-1" style={{ fontFamily: "Syne, sans-serif" }}>Copy to Notion</div>
-                        <div className="text-xs leading-relaxed" style={{ color: "rgba(240,237,232,0.4)" }}>
-                          Copy headline, features, CTAs, and trust badges as clean Markdown for Notion.
+                        <div
+                          className="text-sm font-black mb-1"
+                          style={{ fontFamily: 'Syne, sans-serif' }}
+                        >
+                          Copy to Notion
+                        </div>
+                        <div
+                          className="text-xs leading-relaxed"
+                          style={{ color: 'rgba(240,237,232,0.4)' }}
+                        >
+                          Copy headline, features, CTAs, and trust badges as clean Markdown for
+                          Notion.
                         </div>
                       </button>
                     </div>
@@ -1730,35 +2578,89 @@ ${generatedData.email_subject}`;
               {generating ? (
                 <div className="text-center">
                   <div className="relative w-16 h-16 mx-auto mb-5">
-                    <div className="absolute inset-0 rounded-full border-2 animate-spin" style={{ borderColor: "rgba(212,175,55,0.15)", borderTopColor: "#d4af37", borderRightColor: "rgba(212,175,55,0.5)" }} />
-                    <div className="absolute inset-2 rounded-full border" style={{ borderColor: "rgba(212,175,55,0.12)" }} />
-                    <div className="absolute inset-0 flex items-center justify-center text-lg">🌐</div>
+                    <div
+                      className="absolute inset-0 rounded-full border-2 animate-spin"
+                      style={{
+                        borderColor: 'rgba(212,175,55,0.15)',
+                        borderTopColor: '#d4af37',
+                        borderRightColor: 'rgba(212,175,55,0.5)',
+                      }}
+                    />
+                    <div
+                      className="absolute inset-2 rounded-full border"
+                      style={{ borderColor: 'rgba(212,175,55,0.12)' }}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center text-lg">
+                      🌐
+                    </div>
                   </div>
-                  <div className="text-sm font-bold mb-3" style={{ fontFamily: "Syne, sans-serif" }}>Generating your website…</div>
-                  <div className="w-48 h-1.5 rounded-full mx-auto overflow-hidden" style={{ background: "rgba(255,255,255,0.08)" }}>
-                    <div className="h-full rounded-full transition-all duration-300" style={{ width: `${genProgress}%`, background: "linear-gradient(90deg, #d4af37, #f0c040)" }} />
+                  <div
+                    className="text-sm font-bold mb-3"
+                    style={{ fontFamily: 'Syne, sans-serif' }}
+                  >
+                    Generating your website…
                   </div>
-                  <div className="text-xs mt-2" style={{ color: "rgba(240,237,232,0.35)" }}>AI is generating copy, theme files, and emails…</div>
+                  <div
+                    className="w-48 h-1.5 rounded-full mx-auto overflow-hidden"
+                    style={{ background: 'rgba(255,255,255,0.08)' }}
+                  >
+                    <div
+                      className="h-full rounded-full transition-all duration-300"
+                      style={{
+                        width: `${genProgress}%`,
+                        background: 'linear-gradient(90deg, #d4af37, #f0c040)',
+                      }}
+                    />
+                  </div>
+                  <div className="text-xs mt-2" style={{ color: 'rgba(240,237,232,0.35)' }}>
+                    AI is generating copy, theme files, and emails…
+                  </div>
                 </div>
               ) : (
                 <>
                   <div className="text-5xl">🌐</div>
                   <div className="text-center">
-                    <div className="text-base font-black mb-2" style={{ fontFamily: "Syne, sans-serif" }}>Build Your Store in Seconds</div>
-                    <div className="text-xs max-w-sm leading-relaxed" style={{ color: "rgba(240,237,232,0.35)" }}>
-                      Fill in your store details on the left and hit <strong style={{ color: "#d4af37" }}>Generate</strong>. Get copy, Shopify Liquid files, HTML emails, and a live preview — all AU-market optimised.
+                    <div
+                      className="text-base font-black mb-2"
+                      style={{ fontFamily: 'Syne, sans-serif' }}
+                    >
+                      Build Your Store in Seconds
+                    </div>
+                    <div
+                      className="text-xs max-w-sm leading-relaxed"
+                      style={{ color: 'rgba(240,237,232,0.35)' }}
+                    >
+                      Fill in your store details on the left and hit{' '}
+                      <strong style={{ color: '#d4af37' }}>Generate</strong>. Get copy, Shopify
+                      Liquid files, HTML emails, and a live preview — all AU-market optimised.
                     </div>
                   </div>
                   <div className="flex flex-col gap-2 text-xs text-left max-w-sm w-full">
                     {[
-                      { n: "1", t: "Enter your store name, niche, and target audience" },
-                      { n: "2", t: "Choose your vibe, brand colour, and platform" },
-                      { n: "3", t: "Hit Generate — AI creates copy + 8 theme files" },
-                      { n: "4", t: "Download ZIP, export to Shopify, or open in Cursor" },
+                      { n: '1', t: 'Enter your store name, niche, and target audience' },
+                      { n: '2', t: 'Choose your vibe, brand colour, and platform' },
+                      { n: '3', t: 'Hit Generate — AI creates copy + 8 theme files' },
+                      { n: '4', t: 'Download ZIP, export to Shopify, or open in Cursor' },
                     ].map(({ n, t }) => (
-                      <div key={n} className="flex items-center gap-3 px-3 py-2.5 rounded-lg" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                        <div className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-black" style={{ background: "rgba(212,175,55,0.15)", color: "#d4af37", fontFamily: "Syne, sans-serif" }}>{n}</div>
-                        <span style={{ color: "rgba(240,237,232,0.55)" }}>{t}</span>
+                      <div
+                        key={n}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg"
+                        style={{
+                          background: 'rgba(255,255,255,0.03)',
+                          border: '1px solid rgba(255,255,255,0.06)',
+                        }}
+                      >
+                        <div
+                          className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-black"
+                          style={{
+                            background: 'rgba(212,175,55,0.15)',
+                            color: '#d4af37',
+                            fontFamily: 'Syne, sans-serif',
+                          }}
+                        >
+                          {n}
+                        </div>
+                        <span style={{ color: 'rgba(240,237,232,0.55)' }}>{t}</span>
                       </div>
                     ))}
                   </div>
@@ -1772,25 +2674,52 @@ ${generatedData.email_subject}`;
       {/* ── Cursor Modal ── */}
       <Modal open={cursorModal} onClose={() => setCursorModal(false)}>
         <div className="mb-4">
-          <Terminal size={24} style={{ color: "#9c5fff", marginBottom: 12 }} />
-          <div className="text-lg font-black" style={{ fontFamily: "Syne, sans-serif" }}>Open in Cursor</div>
-          <div className="text-xs mt-1" style={{ color: "rgba(240,237,232,0.4)" }}>Your ZIP has been downloaded. Follow these steps:</div>
+          <Terminal size={24} style={{ color: '#9c5fff', marginBottom: 12 }} />
+          <div className="text-lg font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+            Open in Cursor
+          </div>
+          <div className="text-xs mt-1" style={{ color: 'rgba(240,237,232,0.4)' }}>
+            Your ZIP has been downloaded. Follow these steps:
+          </div>
         </div>
-        <pre className="text-sm leading-relaxed p-4 rounded-xl mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "rgba(240,237,232,0.7)", whiteSpace: "pre-wrap" }}>
+        <pre
+          className="text-sm leading-relaxed p-4 rounded-xl mb-4"
+          style={{
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            color: 'rgba(240,237,232,0.7)',
+            whiteSpace: 'pre-wrap',
+          }}
+        >
           {cursorInstructions}
         </pre>
         <div className="flex gap-2">
           <button
-            onClick={() => { copy(cursorInstructions, "cursor-instr"); toast.success("Instructions copied!"); }}
+            onClick={() => {
+              copy(cursorInstructions, 'cursor-instr');
+              toast.success('Instructions copied!');
+            }}
             className="flex-1 py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5"
-            style={{ background: "rgba(156,95,255,0.12)", border: "1px solid rgba(156,95,255,0.3)", color: "#9c5fff", fontFamily: "Syne, sans-serif", cursor: "pointer" }}
+            style={{
+              background: 'rgba(156,95,255,0.12)',
+              border: '1px solid rgba(156,95,255,0.3)',
+              color: '#9c5fff',
+              fontFamily: 'Syne, sans-serif',
+              cursor: 'pointer',
+            }}
           >
             <Clipboard size={12} /> Copy Instructions
           </button>
           <button
             onClick={() => setCursorModal(false)}
             className="flex-1 py-2.5 rounded-lg text-xs font-bold"
-            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(240,237,232,0.5)", fontFamily: "Syne, sans-serif", cursor: "pointer" }}
+            style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              color: 'rgba(240,237,232,0.5)',
+              fontFamily: 'Syne, sans-serif',
+              cursor: 'pointer',
+            }}
           >
             Close
           </button>
@@ -1800,19 +2729,43 @@ ${generatedData.email_subject}`;
       {/* ── Shopify Modal ── */}
       <Modal open={shopifyModal} onClose={() => setShopifyModal(false)}>
         <div className="mb-4">
-          <ShoppingBag size={24} style={{ color: "#2dca72", marginBottom: 12 }} />
-          <div className="text-lg font-black" style={{ fontFamily: "Syne, sans-serif" }}>Export to Shopify</div>
-          <div className="text-xs mt-1" style={{ color: "rgba(240,237,232,0.4)" }}>Your theme ZIP has been downloaded.</div>
+          <ShoppingBag size={24} style={{ color: '#2dca72', marginBottom: 12 }} />
+          <div className="text-lg font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+            Export to Shopify
+          </div>
+          <div className="text-xs mt-1" style={{ color: 'rgba(240,237,232,0.4)' }}>
+            Your theme ZIP has been downloaded.
+          </div>
         </div>
-        <div className="text-sm leading-relaxed p-4 rounded-xl mb-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "rgba(240,237,232,0.7)" }}>
-          <p className="mb-2">1. Go to <strong>Shopify Admin</strong> → <strong>Online Store</strong> → <strong>Themes</strong></p>
-          <p className="mb-2">2. Click <strong>Add theme</strong> → <strong>Upload zip file</strong></p>
-          <p>3. Then click <strong>Customise</strong> to edit your new theme.</p>
+        <div
+          className="text-sm leading-relaxed p-4 rounded-xl mb-4"
+          style={{
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            color: 'rgba(240,237,232,0.7)',
+          }}
+        >
+          <p className="mb-2">
+            1. Go to <strong>Shopify Admin</strong> → <strong>Online Store</strong> →{' '}
+            <strong>Themes</strong>
+          </p>
+          <p className="mb-2">
+            2. Click <strong>Add theme</strong> → <strong>Upload zip file</strong>
+          </p>
+          <p>
+            3. Then click <strong>Customise</strong> to edit your new theme.
+          </p>
         </div>
         <button
           onClick={() => setShopifyModal(false)}
           className="w-full py-2.5 rounded-lg text-xs font-bold"
-          style={{ background: "rgba(45,202,114,0.12)", border: "1px solid rgba(45,202,114,0.3)", color: "#2dca72", fontFamily: "Syne, sans-serif", cursor: "pointer" }}
+          style={{
+            background: 'rgba(45,202,114,0.12)',
+            border: '1px solid rgba(45,202,114,0.3)',
+            color: '#2dca72',
+            fontFamily: 'Syne, sans-serif',
+            cursor: 'pointer',
+          }}
         >
           Got it
         </button>
@@ -1822,18 +2775,23 @@ ${generatedData.email_subject}`;
       {templatePreview && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: "rgba(0,0,0,0.8)", backdropFilter: "blur(12px)" }}
+          style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)' }}
           onClick={() => setTemplatePreview(null)}
         >
           <div
             className="relative w-full max-w-4xl mx-4 rounded-2xl overflow-hidden"
-            style={{ border: "1px solid rgba(255,255,255,0.1)", maxHeight: "85vh" }}
-            onClick={e => e.stopPropagation()}
+            style={{ border: '1px solid rgba(255,255,255,0.1)', maxHeight: '85vh' }}
+            onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setTemplatePreview(null)}
               className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center"
-              style={{ background: "rgba(0,0,0,0.6)", color: "#fff", border: "none", cursor: "pointer" }}
+              style={{
+                background: 'rgba(0,0,0,0.6)',
+                color: '#fff',
+                border: 'none',
+                cursor: 'pointer',
+              }}
             >
               <X size={16} />
             </button>
@@ -1863,7 +2821,12 @@ footer{text-align:center;padding:32px;font-size:12px;opacity:.4;border-top:1px s
 </head>
 <body>
 <div class="hero">
-<h1>${templatePreview.storeName.split(' ').map((w, i, a) => i === a.length - 1 ? '<span class="accent">' + w + '</span>' : w).join(' ')}</h1>
+<h1>${templatePreview.storeName
+                .split(' ')
+                .map((w, i, a) =>
+                  i === a.length - 1 ? '<span class="accent">' + w + '</span>' : w
+                )
+                .join(' ')}</h1>
 <p>${templatePreview.tagline}</p>
 <a class="btn" href="#features-section" onclick="event.preventDefault();document.getElementById('features-section').scrollIntoView({behavior:'smooth'})">Shop Now</a>
 </div>
@@ -1882,30 +2845,43 @@ footer{text-align:center;padding:32px;font-size:12px;opacity:.4;border-top:1px s
 </body>
 </html>`}
               className="w-full border-none"
-              style={{ height: "80vh" }}
+              style={{ height: '80vh' }}
               title={`${templatePreview.name} preview`}
               sandbox="allow-scripts"
             />
             <div
               className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-6 py-4"
-              style={{ background: "linear-gradient(transparent, rgba(0,0,0,0.9))" }}
+              style={{ background: 'linear-gradient(transparent, rgba(0,0,0,0.9))' }}
             >
               <div>
-                <div className="text-sm font-black" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>{templatePreview.name}</div>
-                <div className="text-xs" style={{ color: "rgba(240,237,232,0.5)" }}>{templatePreview.niche} · {templatePreview.tone}</div>
+                <div
+                  className="text-sm font-black"
+                  style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                >
+                  {templatePreview.name}
+                </div>
+                <div className="text-xs" style={{ color: 'rgba(240,237,232,0.5)' }}>
+                  {templatePreview.niche} · {templatePreview.tone}
+                </div>
               </div>
               <button
                 onClick={() => {
                   setStoreName(templatePreview.storeName);
                   setNiche(templatePreview.niche);
-                  setTargetAudience("Australian online shoppers");
+                  setTargetAudience('Australian online shoppers');
                   setAccentColor(templatePreview.colors.accent);
                   setTemplatePreview(null);
                   setShowTemplates(false);
                   toast.success(`"${templatePreview.name}" template loaded`);
                 }}
                 className="px-5 py-2.5 rounded-xl text-xs font-bold"
-                style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", border: "none", cursor: "pointer", fontFamily: "Syne, sans-serif" }}
+                style={{
+                  background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+                  color: '#080a0e',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontFamily: 'Syne, sans-serif',
+                }}
               >
                 Use This Template
               </button>
@@ -1920,15 +2896,20 @@ footer{text-align:center;padding:32px;font-size:12px;opacity:.4;border-top:1px s
 // ── System Prompt Builder ────────────────────────────────────────────────────
 function buildSystemPrompt(vibe: Vibe, platform: Platform, accentColor: string): string {
   const vibeDescriptions: Record<Vibe, string> = {
-    bold: "Bold, high-energy, attention-grabbing. Use strong action words, punchy headlines, urgency-driven CTAs. Think Nike, Gymshark.",
-    minimal: "Clean, minimal, sophisticated. Whitespace-heavy, understated elegance. Think Aesop, Apple.",
-    premium: "Premium luxury, exclusive. Rich language, trust-building, aspirational. Think Net-a-Porter, MR PORTER.",
+    bold: 'Bold, high-energy, attention-grabbing. Use strong action words, punchy headlines, urgency-driven CTAs. Think Nike, Gymshark.',
+    minimal:
+      'Clean, minimal, sophisticated. Whitespace-heavy, understated elegance. Think Aesop, Apple.',
+    premium:
+      'Premium luxury, exclusive. Rich language, trust-building, aspirational. Think Net-a-Porter, MR PORTER.',
   };
 
   const platformInstructions: Record<Platform, string> = {
-    shopify: "Generate Shopify Liquid template files (.liquid). Use Liquid syntax ({% %}, {{ }}). Files should be ready to upload as a Shopify theme.",
-    nextjs: "Generate Next.js App Router files (.tsx). Use React Server Components where appropriate. Include Tailwind CSS classes.",
-    react: "Generate React component files (.tsx). Use functional components with hooks. Include Tailwind CSS classes.",
+    shopify:
+      'Generate Shopify Liquid template files (.liquid). Use Liquid syntax ({% %}, {{ }}). Files should be ready to upload as a Shopify theme.',
+    nextjs:
+      'Generate Next.js App Router files (.tsx). Use React Server Components where appropriate. Include Tailwind CSS classes.',
+    react:
+      'Generate React component files (.tsx). Use functional components with hooks. Include Tailwind CSS classes.',
   };
 
   return `You are an elite Australian ecommerce website builder AI. You generate complete, production-ready website themes for Australian online stores.
@@ -1961,7 +2942,7 @@ You MUST return a single valid JSON object with EXACTLY these keys (no markdown,
   "email_subject": "string — welcome email subject line",
   "meta_description": "string — SEO meta description (under 160 chars)",
   "files": {
-    "sections/hero.liquid": "valid ${platform === "shopify" ? "Shopify Liquid" : platform === "nextjs" ? "Next.js TSX" : "React TSX"} hero section code",
+    "sections/hero.liquid": "valid ${platform === 'shopify' ? 'Shopify Liquid' : platform === 'nextjs' ? 'Next.js TSX' : 'React TSX'} hero section code",
     "sections/features.liquid": "valid features section code",
     "templates/product.liquid": "valid product template code",
     "snippets/au-trust-badges.liquid": "valid AU trust badges snippet",

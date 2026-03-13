@@ -2,7 +2,7 @@
  * Anthropic Claude API Client
  * Initialises the Anthropic SDK using environment variable ANTHROPIC_API_KEY.
  */
-import Anthropic from "@anthropic-ai/sdk";
+import Anthropic from '@anthropic-ai/sdk';
 
 let _client: Anthropic | null = null;
 
@@ -10,7 +10,7 @@ export function getAnthropicClient(): Anthropic {
   if (!_client) {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
-      throw new Error("ANTHROPIC_API_KEY is not configured in environment variables.");
+      throw new Error('ANTHROPIC_API_KEY is not configured in environment variables.');
     }
     _client = new Anthropic({ apiKey });
   }
@@ -18,7 +18,7 @@ export function getAnthropicClient(): Anthropic {
 }
 
 /** The default model to use across all Majorka tools */
-export const CLAUDE_MODEL = "claude-sonnet-4-5-20250929";
+export const CLAUDE_MODEL = 'claude-sonnet-4-5-20250929';
 
 /** Majorka product knowledge injected into every AI response */
 export const MAJORKA_KNOWLEDGE_BASE = `MAJORKA PRODUCT CONTEXT:

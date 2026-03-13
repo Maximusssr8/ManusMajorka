@@ -1,5 +1,5 @@
-import AIToolChat from "@/components/AIToolChat";
-import { Rocket } from "lucide-react";
+import { Rocket } from 'lucide-react';
+import AIToolChat from '@/components/AIToolChat';
 
 const SYSTEM_PROMPT = `You are Majorka's Launch Strategist — a go-to-market planning specialist inside Majorka, the AI Ecommerce Operating System.
 
@@ -85,9 +85,9 @@ OUTPUT RULES:
 - Keep responses 600-1000 words. Every section must be specific to their product.`;
 
 const EXAMPLE_PROMPTS = [
-  "LED skincare device, $500 budget, launch in 4 weeks",
-  "Online course platform, $2000 budget, launch in 8 weeks",
-  "Sustainable fashion brand, $1000 budget, 6 week timeline",
+  'LED skincare device, $500 budget, launch in 4 weeks',
+  'Online course platform, $2000 budget, launch in 8 weeks',
+  'Sustainable fashion brand, $1000 budget, 6 week timeline',
 ];
 
 export default function LaunchPlanner() {

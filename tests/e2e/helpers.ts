@@ -1,7 +1,7 @@
 import { Page } from '@playwright/test'
 
 export const ADMIN_EMAIL = 'maximusmajorka@gmail.com'
-export const BASE_URL = 'http://localhost:3000'
+export const BASE_URL = 'http://127.0.0.1:3000'
 
 // Inject a fake auth session into localStorage to bypass OAuth
 // This simulates a logged-in Supabase session without real OAuth

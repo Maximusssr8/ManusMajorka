@@ -1,13 +1,19 @@
+import { format } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
+import { AlertCircle, CalendarIcon, Check, Clock, Moon, Sun, X } from 'lucide-react';
+import { useState } from 'react';
+import { toast as sonnerToast } from 'sonner';
+import { AIChatBox } from '@/components/AIChatBox';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/accordion';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,9 +21,9 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+} from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import {
   Card,
   CardContent,
@@ -25,20 +31,16 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+} from '@/components/ui/carousel';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   Command,
   CommandEmpty,
@@ -46,13 +48,13 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
+} from '@/components/ui/command';
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+} from '@/components/ui/context-menu';
 import {
   Dialog,
   DialogContent,
@@ -60,7 +62,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Drawer,
   DrawerClose,
@@ -70,7 +72,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer";
+} from '@/components/ui/drawer';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -78,19 +80,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
-import { Input } from "@/components/ui/input";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/dropdown-menu';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Input } from '@/components/ui/input';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { Label } from '@/components/ui/label';
 import {
   Menubar,
   MenubarContent,
@@ -98,7 +92,7 @@ import {
   MenubarMenu,
   MenubarSeparator,
   MenubarTrigger,
-} from "@/components/ui/menubar";
+} from '@/components/ui/menubar';
 import {
   Pagination,
   PaginationContent,
@@ -106,28 +100,20 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Progress } from "@/components/ui/progress";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from '@/components/ui/pagination';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Progress } from '@/components/ui/progress';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
+} from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import {
   Sheet,
   SheetContent,
@@ -135,10 +121,10 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
+} from '@/components/ui/sheet';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 import {
   Table,
   TableBody,
@@ -147,31 +133,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
-import { Toggle } from "@/components/ui/toggle";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useTheme } from "@/contexts/ThemeContext";
-import { format } from "date-fns";
-import { zhCN } from "date-fns/locale";
-import {
-  AlertCircle,
-  CalendarIcon,
-  Check,
-  Clock,
-  Moon,
-  Sun,
-  X,
-} from "lucide-react";
-import { useState } from "react";
-import { toast as sonnerToast } from "sonner";
-import { AIChatBox } from "@/components/AIChatBox";
+} from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { Toggle } from '@/components/ui/toggle';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function ComponentsShowcase() {
   const { theme, toggleTheme } = useTheme();
@@ -181,23 +149,23 @@ export default function ComponentsShowcase() {
   const [progress, setProgress] = useState(33);
   const [currentPage, setCurrentPage] = useState(2);
   const [openCombobox, setOpenCombobox] = useState(false);
-  const [selectedFramework, setSelectedFramework] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState("");
-  const [selectedYear, setSelectedYear] = useState("");
-  const [dialogInput, setDialogInput] = useState("");
+  const [selectedFramework, setSelectedFramework] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState('');
+  const [selectedYear, setSelectedYear] = useState('');
+  const [dialogInput, setDialogInput] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleDialogSubmit = () => {
-    console.log("Dialog submitted with value:", dialogInput);
-    sonnerToast.success("Submitted successfully", {
+    console.log('Dialog submitted with value:', dialogInput);
+    sonnerToast.success('Submitted successfully', {
       description: `Input: ${dialogInput}`,
     });
-    setDialogInput("");
+    setDialogInput('');
     setDialogOpen(false);
   };
 
   const handleDialogKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+    if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
       e.preventDefault();
       handleDialogSubmit();
     }
@@ -207,15 +175,9 @@ export default function ComponentsShowcase() {
     <div className="min-h-screen bg-background text-foreground">
       <main className="container max-w-6xl mx-auto">
         <div className="space-y-2 justify-between flex">
-          <h2 className="text-3xl font-bold tracking-tight mb-6">
-            Shadcn/ui Component Library
-          </h2>
+          <h2 className="text-3xl font-bold tracking-tight mb-6">Shadcn/ui Component Library</h2>
           <Button variant="outline" size="icon" onClick={toggleTheme}>
-            {theme === "light" ? (
-              <Moon className="h-5 w-5" />
-            ) : (
-              <Sun className="h-5 w-5" />
-            )}
+            {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
           </Button>
         </div>
 
@@ -228,33 +190,21 @@ export default function ComponentsShowcase() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Foreground (Default)
-                      </p>
-                      <p className="text-foreground text-lg">
-                        Default text color for main content
-                      </p>
+                      <p className="text-sm text-muted-foreground mb-1">Foreground (Default)</p>
+                      <p className="text-foreground text-lg">Default text color for main content</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Muted Foreground
-                      </p>
+                      <p className="text-sm text-muted-foreground mb-1">Muted Foreground</p>
                       <p className="text-muted-foreground text-lg">
                         Muted text for secondary information
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Primary
-                      </p>
-                      <p className="text-primary text-lg font-medium">
-                        Primary brand color text
-                      </p>
+                      <p className="text-sm text-muted-foreground mb-1">Primary</p>
+                      <p className="text-primary text-lg font-medium">Primary brand color text</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Secondary Foreground
-                      </p>
+                      <p className="text-sm text-muted-foreground mb-1">Secondary Foreground</p>
                       <p className="text-secondary-foreground text-lg">
                         Secondary action text color
                       </p>
@@ -262,36 +212,22 @@ export default function ComponentsShowcase() {
                   </div>
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Accent Foreground
-                      </p>
-                      <p className="text-accent-foreground text-lg">
-                        Accent text for emphasis
-                      </p>
+                      <p className="text-sm text-muted-foreground mb-1">Accent Foreground</p>
+                      <p className="text-accent-foreground text-lg">Accent text for emphasis</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Destructive
-                      </p>
+                      <p className="text-sm text-muted-foreground mb-1">Destructive</p>
                       <p className="text-destructive text-lg font-medium">
                         Error or destructive action text
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Card Foreground
-                      </p>
-                      <p className="text-card-foreground text-lg">
-                        Text color on card backgrounds
-                      </p>
+                      <p className="text-sm text-muted-foreground mb-1">Card Foreground</p>
+                      <p className="text-card-foreground text-lg">Text color on card backgrounds</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">
-                        Popover Foreground
-                      </p>
-                      <p className="text-popover-foreground text-lg">
-                        Text color in popovers
-                      </p>
+                      <p className="text-sm text-muted-foreground mb-1">Popover Foreground</p>
+                      <p className="text-popover-foreground text-lg">Text color in popovers</p>
                     </div>
                   </div>
                 </div>
@@ -307,27 +243,19 @@ export default function ComponentsShowcase() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div className="bg-primary text-primary-foreground rounded-lg p-4">
                     <p className="font-medium mb-1">Primary</p>
-                    <p className="text-sm opacity-90">
-                      Primary background with foreground text
-                    </p>
+                    <p className="text-sm opacity-90">Primary background with foreground text</p>
                   </div>
                   <div className="bg-secondary text-secondary-foreground rounded-lg p-4">
                     <p className="font-medium mb-1">Secondary</p>
-                    <p className="text-sm opacity-90">
-                      Secondary background with foreground text
-                    </p>
+                    <p className="text-sm opacity-90">Secondary background with foreground text</p>
                   </div>
                   <div className="bg-muted text-muted-foreground rounded-lg p-4">
                     <p className="font-medium mb-1">Muted</p>
-                    <p className="text-sm opacity-90">
-                      Muted background with foreground text
-                    </p>
+                    <p className="text-sm opacity-90">Muted background with foreground text</p>
                   </div>
                   <div className="bg-accent text-accent-foreground rounded-lg p-4">
                     <p className="font-medium mb-1">Accent</p>
-                    <p className="text-sm opacity-90">
-                      Accent background with foreground text
-                    </p>
+                    <p className="text-sm opacity-90">Accent background with foreground text</p>
                   </div>
                   <div className="bg-destructive text-destructive-foreground rounded-lg p-4">
                     <p className="font-medium mb-1">Destructive</p>
@@ -337,21 +265,15 @@ export default function ComponentsShowcase() {
                   </div>
                   <div className="bg-card text-card-foreground rounded-lg p-4 border">
                     <p className="font-medium mb-1">Card</p>
-                    <p className="text-sm opacity-90">
-                      Card background with foreground text
-                    </p>
+                    <p className="text-sm opacity-90">Card background with foreground text</p>
                   </div>
                   <div className="bg-popover text-popover-foreground rounded-lg p-4 border">
                     <p className="font-medium mb-1">Popover</p>
-                    <p className="text-sm opacity-90">
-                      Popover background with foreground text
-                    </p>
+                    <p className="text-sm opacity-90">Popover background with foreground text</p>
                   </div>
                   <div className="bg-background text-foreground rounded-lg p-4 border">
                     <p className="font-medium mb-1">Background</p>
-                    <p className="text-sm opacity-90">
-                      Default background with foreground text
-                    </p>
+                    <p className="text-sm opacity-90">Default background with foreground text</p>
                   </div>
                 </div>
               </CardContent>
@@ -391,10 +313,7 @@ export default function ComponentsShowcase() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="message">Message</Label>
-                  <Textarea
-                    id="message"
-                    placeholder="Type your message here."
-                  />
+                  <Textarea id="message" placeholder="Type your message here." />
                 </div>
                 <div className="space-y-2">
                   <Label>Select</Label>
@@ -454,12 +373,12 @@ export default function ComponentsShowcase() {
                       <Button
                         variant="outline"
                         className={`w-full justify-start text-left font-normal ${
-                          !datePickerDate && "text-muted-foreground"
+                          !datePickerDate && 'text-muted-foreground'
                         }`}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {datePickerDate ? (
-                          format(datePickerDate, "PPP HH:mm", { locale: zhCN })
+                          format(datePickerDate, 'PPP HH:mm', { locale: zhCN })
                         ) : (
                           <span>Select date and time</span>
                         )}
@@ -480,14 +399,9 @@ export default function ComponentsShowcase() {
                           <div className="flex gap-2">
                             <Input
                               type="time"
-                              value={
-                                datePickerDate
-                                  ? format(datePickerDate, "HH:mm")
-                                  : "00:00"
-                              }
-                              onChange={e => {
-                                const [hours, minutes] =
-                                  e.target.value.split(":");
+                              value={datePickerDate ? format(datePickerDate, 'HH:mm') : '00:00'}
+                              onChange={(e) => {
+                                const [hours, minutes] = e.target.value.split(':');
                                 const newDate = datePickerDate
                                   ? new Date(datePickerDate)
                                   : new Date();
@@ -503,8 +417,8 @@ export default function ComponentsShowcase() {
                   </Popover>
                   {datePickerDate && (
                     <p className="text-sm text-muted-foreground">
-                      Selected:{" "}
-                      {format(datePickerDate, "yyyy/MM/dd  HH:mm", {
+                      Selected:{' '}
+                      {format(datePickerDate, 'yyyy/MM/dd  HH:mm', {
                         locale: zhCN,
                       })}
                     </p>
@@ -522,15 +436,15 @@ export default function ComponentsShowcase() {
                       >
                         {selectedFramework
                           ? [
-                              { value: "react", label: "React" },
-                              { value: "vue", label: "Vue" },
-                              { value: "angular", label: "Angular" },
-                              { value: "svelte", label: "Svelte" },
-                              { value: "nextjs", label: "Next.js" },
-                              { value: "nuxt", label: "Nuxt" },
-                              { value: "remix", label: "Remix" },
-                            ].find(fw => fw.value === selectedFramework)?.label
-                          : "Select framework..."}
+                              { value: 'react', label: 'React' },
+                              { value: 'vue', label: 'Vue' },
+                              { value: 'angular', label: 'Angular' },
+                              { value: 'svelte', label: 'Svelte' },
+                              { value: 'nextjs', label: 'Next.js' },
+                              { value: 'nuxt', label: 'Nuxt' },
+                              { value: 'remix', label: 'Remix' },
+                            ].find((fw) => fw.value === selectedFramework)?.label
+                          : 'Select framework...'}
                         <CalendarIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </PopoverTrigger>
@@ -541,22 +455,20 @@ export default function ComponentsShowcase() {
                           <CommandEmpty>No framework found</CommandEmpty>
                           <CommandGroup>
                             {[
-                              { value: "react", label: "React" },
-                              { value: "vue", label: "Vue" },
-                              { value: "angular", label: "Angular" },
-                              { value: "svelte", label: "Svelte" },
-                              { value: "nextjs", label: "Next.js" },
-                              { value: "nuxt", label: "Nuxt" },
-                              { value: "remix", label: "Remix" },
-                            ].map(framework => (
+                              { value: 'react', label: 'React' },
+                              { value: 'vue', label: 'Vue' },
+                              { value: 'angular', label: 'Angular' },
+                              { value: 'svelte', label: 'Svelte' },
+                              { value: 'nextjs', label: 'Next.js' },
+                              { value: 'nuxt', label: 'Nuxt' },
+                              { value: 'remix', label: 'Remix' },
+                            ].map((framework) => (
                               <CommandItem
                                 key={framework.value}
                                 value={framework.value}
-                                onSelect={currentValue => {
+                                onSelect={(currentValue) => {
                                   setSelectedFramework(
-                                    currentValue === selectedFramework
-                                      ? ""
-                                      : currentValue
+                                    currentValue === selectedFramework ? '' : currentValue
                                   );
                                   setOpenCombobox(false);
                                 }}
@@ -564,8 +476,8 @@ export default function ComponentsShowcase() {
                                 <Check
                                   className={`mr-2 h-4 w-4 ${
                                     selectedFramework === framework.value
-                                      ? "opacity-100"
-                                      : "opacity-0"
+                                      ? 'opacity-100'
+                                      : 'opacity-0'
                                   }`}
                                 />
                                 {framework.label}
@@ -578,17 +490,17 @@ export default function ComponentsShowcase() {
                   </Popover>
                   {selectedFramework && (
                     <p className="text-sm text-muted-foreground">
-                      Selected:{" "}
+                      Selected:{' '}
                       {
                         [
-                          { value: "react", label: "React" },
-                          { value: "vue", label: "Vue" },
-                          { value: "angular", label: "Angular" },
-                          { value: "svelte", label: "Svelte" },
-                          { value: "nextjs", label: "Next.js" },
-                          { value: "nuxt", label: "Nuxt" },
-                          { value: "remix", label: "Remix" },
-                        ].find(fw => fw.value === selectedFramework)?.label
+                          { value: 'react', label: 'React' },
+                          { value: 'vue', label: 'Vue' },
+                          { value: 'angular', label: 'Angular' },
+                          { value: 'svelte', label: 'Svelte' },
+                          { value: 'nextjs', label: 'Next.js' },
+                          { value: 'nuxt', label: 'Nuxt' },
+                          { value: 'remix', label: 'Remix' },
+                        ].find((fw) => fw.value === selectedFramework)?.label
                       }
                     </p>
                   )}
@@ -599,24 +511,16 @@ export default function ComponentsShowcase() {
                       <Label htmlFor="month" className="text-sm font-medium">
                         Month
                       </Label>
-                      <Select
-                        value={selectedMonth}
-                        onValueChange={setSelectedMonth}
-                      >
+                      <Select value={selectedMonth} onValueChange={setSelectedMonth}>
                         <SelectTrigger id="month">
                           <SelectValue placeholder="MM" />
                         </SelectTrigger>
                         <SelectContent>
-                          {Array.from({ length: 12 }, (_, i) => i + 1).map(
-                            month => (
-                              <SelectItem
-                                key={month}
-                                value={month.toString().padStart(2, "0")}
-                              >
-                                {month.toString().padStart(2, "0")}
-                              </SelectItem>
-                            )
-                          )}
+                          {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                            <SelectItem key={month} value={month.toString().padStart(2, '0')}>
+                              {month.toString().padStart(2, '0')}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -624,10 +528,7 @@ export default function ComponentsShowcase() {
                       <Label htmlFor="year" className="text-sm font-medium">
                         Year
                       </Label>
-                      <Select
-                        value={selectedYear}
-                        onValueChange={setSelectedYear}
-                      >
+                      <Select value={selectedYear} onValueChange={setSelectedYear}>
                         <SelectTrigger id="year">
                           <SelectValue placeholder="YYYY" />
                         </SelectTrigger>
@@ -635,7 +536,7 @@ export default function ComponentsShowcase() {
                           {Array.from(
                             { length: 10 },
                             (_, i) => new Date().getFullYear() - 5 + i
-                          ).map(year => (
+                          ).map((year) => (
                             <SelectItem key={year} value={year.toString()}>
                               {year}
                             </SelectItem>
@@ -686,16 +587,10 @@ export default function ComponentsShowcase() {
                   <Label>Progress</Label>
                   <Progress value={progress} />
                   <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => setProgress(Math.max(0, progress - 10))}
-                    >
+                    <Button size="sm" onClick={() => setProgress(Math.max(0, progress - 10))}>
                       -10
                     </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => setProgress(Math.min(100, progress + 10))}
-                    >
+                    <Button size="sm" onClick={() => setProgress(Math.min(100, progress + 10))}>
                       +10
                     </Button>
                   </div>
@@ -717,18 +612,18 @@ export default function ComponentsShowcase() {
                       <PaginationItem>
                         <PaginationPrevious
                           href="#"
-                          onClick={e => {
+                          onClick={(e) => {
                             e.preventDefault();
                             setCurrentPage(Math.max(1, currentPage - 1));
                           }}
                         />
                       </PaginationItem>
-                      {[1, 2, 3, 4, 5].map(page => (
+                      {[1, 2, 3, 4, 5].map((page) => (
                         <PaginationItem key={page}>
                           <PaginationLink
                             href="#"
                             isActive={currentPage === page}
-                            onClick={e => {
+                            onClick={(e) => {
                               e.preventDefault();
                               setCurrentPage(page);
                             }}
@@ -740,7 +635,7 @@ export default function ComponentsShowcase() {
                       <PaginationItem>
                         <PaginationNext
                           href="#"
-                          onClick={e => {
+                          onClick={(e) => {
                             e.preventDefault();
                             setCurrentPage(Math.min(5, currentPage + 1));
                           }}
@@ -828,9 +723,7 @@ export default function ComponentsShowcase() {
                       </BreadcrumbItem>
                       <BreadcrumbSeparator />
                       <BreadcrumbItem>
-                        <BreadcrumbLink href="/components">
-                          Components
-                        </BreadcrumbLink>
+                        <BreadcrumbLink href="/components">Components</BreadcrumbLink>
                       </BreadcrumbItem>
                       <BreadcrumbSeparator />
                       <BreadcrumbItem>
@@ -857,9 +750,7 @@ export default function ComponentsShowcase() {
               <Alert variant="destructive">
                 <X className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
-                <AlertDescription>
-                  Your session has expired. Please log in again.
-                </AlertDescription>
+                <AlertDescription>Your session has expired. Please log in again.</AlertDescription>
               </Alert>
             </div>
           </section>
@@ -877,9 +768,7 @@ export default function ComponentsShowcase() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Account</CardTitle>
-                    <CardDescription>
-                      Make changes to your account here.
-                    </CardDescription>
+                    <CardDescription>Make changes to your account here.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="space-y-1">
@@ -896,9 +785,7 @@ export default function ComponentsShowcase() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Password</CardTitle>
-                    <CardDescription>
-                      Change your password here.
-                    </CardDescription>
+                    <CardDescription>Change your password here.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <div className="space-y-1">
@@ -919,14 +806,10 @@ export default function ComponentsShowcase() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Settings</CardTitle>
-                    <CardDescription>
-                      Manage your settings here.
-                    </CardDescription>
+                    <CardDescription>Manage your settings here.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                      Settings content goes here.
-                    </p>
+                    <p className="text-sm text-muted-foreground">Settings content goes here.</p>
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -939,22 +822,18 @@ export default function ComponentsShowcase() {
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
                 <AccordionTrigger>Is it accessible?</AccordionTrigger>
-                <AccordionContent>
-                  Yes. It adheres to the WAI-ARIA design pattern.
-                </AccordionContent>
+                <AccordionContent>Yes. It adheres to the WAI-ARIA design pattern.</AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-2">
                 <AccordionTrigger>Is it styled?</AccordionTrigger>
                 <AccordionContent>
-                  Yes. It comes with default styles that matches the other
-                  components' aesthetic.
+                  Yes. It comes with default styles that matches the other components' aesthetic.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-3">
                 <AccordionTrigger>Is it animated?</AccordionTrigger>
                 <AccordionContent>
-                  Yes. It's animated by default, but you can disable it if you
-                  prefer.
+                  Yes. It's animated by default, but you can disable it if you prefer.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -1005,8 +884,7 @@ export default function ComponentsShowcase() {
                       <DialogHeader>
                         <DialogTitle>Test Input</DialogTitle>
                         <DialogDescription>
-                          Enter some text below. Press Enter to submit (IME
-                          composition supported).
+                          Enter some text below. Press Enter to submit (IME composition supported).
                         </DialogDescription>
                       </DialogHeader>
                       <div className="space-y-4 py-4">
@@ -1016,17 +894,14 @@ export default function ComponentsShowcase() {
                             id="dialog-input"
                             placeholder="Type something..."
                             value={dialogInput}
-                            onChange={e => setDialogInput(e.target.value)}
+                            onChange={(e) => setDialogInput(e.target.value)}
                             onKeyDown={handleDialogKeyDown}
                             autoFocus
                           />
                         </div>
                       </div>
                       <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          onClick={() => setDialogOpen(false)}
-                        >
+                        <Button variant="outline" onClick={() => setDialogOpen(false)}>
                           Cancel
                         </Button>
                         <Button onClick={handleDialogSubmit}>Submit</Button>
@@ -1042,8 +917,7 @@ export default function ComponentsShowcase() {
                       <SheetHeader>
                         <SheetTitle>Edit profile</SheetTitle>
                         <SheetDescription>
-                          Make changes to your profile here. Click save when
-                          you're done.
+                          Make changes to your profile here. Click save when you're done.
                         </SheetDescription>
                       </SheetHeader>
                     </SheetContent>
@@ -1056,9 +930,7 @@ export default function ComponentsShowcase() {
                     <DrawerContent>
                       <DrawerHeader>
                         <DrawerTitle>Are you absolutely sure?</DrawerTitle>
-                        <DrawerDescription>
-                          This action cannot be undone.
-                        </DrawerDescription>
+                        <DrawerDescription>This action cannot be undone.</DrawerDescription>
                       </DrawerHeader>
                       <DrawerFooter>
                         <Button>Submit</Button>
@@ -1136,8 +1008,7 @@ export default function ComponentsShowcase() {
                       <div className="space-y-2">
                         <h4 className="text-sm font-semibold">@nextjs</h4>
                         <p className="text-sm">
-                          The React Framework – created and maintained by
-                          @vercel.
+                          The React Framework – created and maintained by @vercel.
                         </p>
                       </div>
                     </HoverCardContent>
@@ -1174,9 +1045,7 @@ export default function ComponentsShowcase() {
                         <div className="p-1">
                           <Card>
                             <CardContent className="flex aspect-square items-center justify-center p-6">
-                              <span className="text-4xl font-semibold">
-                                {index + 1}
-                              </span>
+                              <span className="text-4xl font-semibold">{index + 1}</span>
                             </CardContent>
                           </Card>
                         </div>
@@ -1219,10 +1088,7 @@ export default function ComponentsShowcase() {
                     <ToggleGroupItem value="italic" aria-label="Toggle italic">
                       <span className="italic">I</span>
                     </ToggleGroupItem>
-                    <ToggleGroupItem
-                      value="underline"
-                      aria-label="Toggle underline"
-                    >
+                    <ToggleGroupItem value="underline" aria-label="Toggle underline">
                       <span className="underline">U</span>
                     </ToggleGroupItem>
                   </ToggleGroup>
@@ -1299,8 +1165,8 @@ export default function ComponentsShowcase() {
                     <Button
                       variant="outline"
                       onClick={() => {
-                        sonnerToast.success("Operation successful", {
-                          description: "Your changes have been saved",
+                        sonnerToast.success('Operation successful', {
+                          description: 'Your changes have been saved',
                         });
                       }}
                     >
@@ -1309,9 +1175,8 @@ export default function ComponentsShowcase() {
                     <Button
                       variant="outline"
                       onClick={() => {
-                        sonnerToast.error("Operation failed", {
-                          description:
-                            "Cannot complete operation, please try again",
+                        sonnerToast.error('Operation failed', {
+                          description: 'Cannot complete operation, please try again',
                         });
                       }}
                     >
@@ -1320,8 +1185,8 @@ export default function ComponentsShowcase() {
                     <Button
                       variant="outline"
                       onClick={() => {
-                        sonnerToast.info("Information", {
-                          description: "This is an information message",
+                        sonnerToast.info('Information', {
+                          description: 'This is an information message',
                         });
                       }}
                     >
@@ -1330,9 +1195,8 @@ export default function ComponentsShowcase() {
                     <Button
                       variant="outline"
                       onClick={() => {
-                        sonnerToast.warning("Warning", {
-                          description:
-                            "Please note the impact of this operation",
+                        sonnerToast.warning('Warning', {
+                          description: 'Please note the impact of this operation',
                         });
                       }}
                     >
@@ -1341,8 +1205,8 @@ export default function ComponentsShowcase() {
                     <Button
                       variant="outline"
                       onClick={() => {
-                        sonnerToast.loading("Loading", {
-                          description: "Please wait",
+                        sonnerToast.loading('Loading', {
+                          description: 'Please wait',
                         });
                       }}
                     >
@@ -1351,13 +1215,11 @@ export default function ComponentsShowcase() {
                     <Button
                       variant="outline"
                       onClick={() => {
-                        const promise = new Promise(resolve =>
-                          setTimeout(resolve, 2000)
-                        );
+                        const promise = new Promise((resolve) => setTimeout(resolve, 2000));
                         sonnerToast.promise(promise, {
-                          loading: "Processing...",
-                          success: "Processing complete!",
-                          error: "Processing failed",
+                          loading: 'Processing...',
+                          success: 'Processing complete!',
+                          error: 'Processing failed',
                         });
                       }}
                     >
@@ -1377,13 +1239,13 @@ export default function ComponentsShowcase() {
                 <div className="space-y-4">
                   <div className="text-sm text-muted-foreground">
                     <p>
-                      A ready-to-use chat interface component that integrates
-                      with the AI SDK. Features streaming responses, tool
-                      calling, markdown rendering, and auto-scrolling.
+                      A ready-to-use chat interface component that integrates with the AI SDK.
+                      Features streaming responses, tool calling, markdown rendering, and
+                      auto-scrolling.
                     </p>
                     <p className="mt-2">
-                      This component uses the /api/chat endpoint with AI SDK v6
-                      for streaming responses.
+                      This component uses the /api/chat endpoint with AI SDK v6 for streaming
+                      responses.
                     </p>
                   </div>
                   <AIChatBox
@@ -1393,9 +1255,9 @@ export default function ComponentsShowcase() {
                     emptyStateMessage="How can I help you today?"
                     suggestedPrompts={[
                       "What's the weather in Tokyo?",
-                      "Calculate 42 * 3.14",
-                      "What is React?",
-                      "Explain TypeScript",
+                      'Calculate 42 * 3.14',
+                      'What is React?',
+                      'Explain TypeScript',
                     ]}
                   />
                 </div>

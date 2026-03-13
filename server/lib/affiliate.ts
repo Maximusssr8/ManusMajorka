@@ -2,23 +2,23 @@
  * Affiliate & subscriber API routes.
  * Handles: affiliate join, stats, click tracking, email subscribe, user count.
  */
-import type { Express, Request, Response } from "express";
-import { getSupabaseAdmin } from "../_core/supabase";
+import type { Express, Request, Response } from 'express';
+import { getSupabaseAdmin } from '../_core/supabase';
 import {
-  getAffiliateByUserId,
-  getAffiliateByCode,
   createAffiliate,
-  incrementAffiliateClicks,
-  incrementAffiliateSignups,
+  createReferral,
   createSubscriber,
+  getAffiliateByCode,
+  getAffiliateByUserId,
   getSubscriberByEmail,
   getUserCount,
-  createReferral,
-} from "../db";
+  incrementAffiliateClicks,
+  incrementAffiliateSignups,
+} from '../db';
 
 function generateCode(length = 8): string {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-  let code = "";
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let code = '';
   for (let i = 0; i < length; i++) {
     code += chars[Math.floor(Math.random() * chars.length)];
   }
@@ -27,7 +27,7 @@ function generateCode(length = 8): string {
 
 async function authenticateUser(req: Request): Promise<string | null> {
   const auth = req.headers.authorization;
-  if (!auth?.startsWith("Bearer ")) return null;
+  if (!auth?.startsWith('Bearer ')) return null;
   const token = auth.slice(7);
   const supabase = getSupabaseAdmin();
   if (!supabase) return null;
@@ -41,9 +41,9 @@ async function authenticateUser(req: Request): Promise<string | null> {
 
 export function registerAffiliateRoutes(app: Express) {
   // ─── Affiliate: Join ────────────────────────────────────────────────────
-  app.post("/api/affiliate/join", async (req: Request, res: Response) => {
+  app.post('/api/affiliate/join', async (req: Request, res: Response) => {
     const userId = await authenticateUser(req);
-    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
     const existing = await getAffiliateByUserId(userId);
     if (existing) {
@@ -64,9 +64,9 @@ export function registerAffiliateRoutes(app: Express) {
   });
 
   // ─── Affiliate: Stats ──────────────────────────────────────────────────
-  app.get("/api/affiliate/stats", async (req: Request, res: Response) => {
+  app.get('/api/affiliate/stats', async (req: Request, res: Response) => {
     const userId = await authenticateUser(req);
-    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
     const affiliate = await getAffiliateByUserId(userId);
     if (!affiliate) {
@@ -84,15 +84,15 @@ export function registerAffiliateRoutes(app: Express) {
   });
 
   // ─── Affiliate: Track click ────────────────────────────────────────────
-  app.post("/api/affiliate/track", async (req: Request, res: Response) => {
+  app.post('/api/affiliate/track', async (req: Request, res: Response) => {
     const { code } = req.body;
-    if (!code || typeof code !== "string") {
-      return res.status(400).json({ error: "code is required" });
+    if (!code || typeof code !== 'string') {
+      return res.status(400).json({ error: 'code is required' });
     }
 
     const affiliate = await getAffiliateByCode(code);
     if (!affiliate) {
-      return res.status(404).json({ error: "Invalid affiliate code" });
+      return res.status(404).json({ error: 'Invalid affiliate code' });
     }
 
     await incrementAffiliateClicks(code);
@@ -100,22 +100,22 @@ export function registerAffiliateRoutes(app: Express) {
   });
 
   // ─── Affiliate: Record referral on signup ──────────────────────────────
-  app.post("/api/affiliate/referral", async (req: Request, res: Response) => {
+  app.post('/api/affiliate/referral', async (req: Request, res: Response) => {
     const { code, referredUserId } = req.body;
     if (!code || !referredUserId) {
-      return res.status(400).json({ error: "code and referredUserId are required" });
+      return res.status(400).json({ error: 'code and referredUserId are required' });
     }
 
     const affiliate = await getAffiliateByCode(code);
     if (!affiliate) {
-      return res.status(404).json({ error: "Invalid affiliate code" });
+      return res.status(404).json({ error: 'Invalid affiliate code' });
     }
 
     await incrementAffiliateSignups(code);
     await createReferral({
       affiliateId: affiliate.id,
       referredUserId,
-      status: "signed_up",
+      status: 'signed_up',
       commissionCents: 0,
     });
 
@@ -123,21 +123,21 @@ export function registerAffiliateRoutes(app: Express) {
   });
 
   // ─── Email Subscribe ───────────────────────────────────────────────────
-  app.post("/api/subscribe", async (req: Request, res: Response) => {
+  app.post('/api/subscribe', async (req: Request, res: Response) => {
     const { email, source, niche } = req.body;
-    if (!email || typeof email !== "string" || !email.includes("@")) {
-      return res.status(400).json({ error: "Valid email is required" });
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      return res.status(400).json({ error: 'Valid email is required' });
     }
 
     // Check for existing subscriber
     const existing = await getSubscriberByEmail(email);
     if (existing) {
-      return res.json({ success: true, message: "Already subscribed" });
+      return res.json({ success: true, message: 'Already subscribed' });
     }
 
     await createSubscriber({
       email: email.toLowerCase().trim(),
-      source: source || "homepage",
+      source: source || 'homepage',
       niche: niche || null,
     });
 
@@ -145,20 +145,22 @@ export function registerAffiliateRoutes(app: Express) {
     const webhookUrl = process.env.N8N_WEBHOOK_URL;
     if (webhookUrl) {
       fetch(webhookUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, source, niche, subscribedAt: new Date().toISOString() }),
-      }).catch(() => { /* fire and forget */ });
+      }).catch(() => {
+        /* fire and forget */
+      });
     }
 
     res.json({
       success: true,
-      message: "Check your inbox for your free AU product research guide",
+      message: 'Check your inbox for your free AU product research guide',
     });
   });
 
   // ─── Public: User count (for social proof) ─────────────────────────────
-  app.get("/api/stats/users", async (_req: Request, res: Response) => {
+  app.get('/api/stats/users', async (_req: Request, res: Response) => {
     const count = await getUserCount();
     // Add a base number for social proof (early stage)
     const displayCount = count + 127;

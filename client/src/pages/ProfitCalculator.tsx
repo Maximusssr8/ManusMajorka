@@ -1,23 +1,23 @@
-import { useState, useMemo } from "react";
-import { Calculator } from "lucide-react";
+import { Calculator } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 // ── Platform fee presets ────────────────────────────────────────────────────
 const PLATFORM_OPTIONS = [
-  { label: "Shopify", value: 2 },
-  { label: "eBay AU", value: 13 },
-  { label: "MyDeal", value: 12.5 },
-  { label: "Kogan", value: 12 },
-  { label: "Amazon AU", value: 15 },
-  { label: "Custom", value: -1 },
+  { label: 'Shopify', value: 2 },
+  { label: 'eBay AU', value: 13 },
+  { label: 'MyDeal', value: 12.5 },
+  { label: 'Kogan', value: 12 },
+  { label: 'Amazon AU', value: 15 },
+  { label: 'Custom', value: -1 },
 ] as const;
 
 const PAYMENT_PROCESSING_RATE = 1.75; // Stripe AU
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 const fmt = (n: number) =>
-  n.toLocaleString("en-AU", {
-    style: "currency",
-    currency: "AUD",
+  n.toLocaleString('en-AU', {
+    style: 'currency',
+    currency: 'AUD',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -29,7 +29,7 @@ export default function ProfitCalculator() {
   // Inputs
   const [productCost, setProductCost] = useState(12);
   const [shipping, setShipping] = useState(8);
-  const [platformKey, setPlatformKey] = useState("Shopify");
+  const [platformKey, setPlatformKey] = useState('Shopify');
   const [customPlatformFee, setCustomPlatformFee] = useState(5);
   const [adSpend, setAdSpend] = useState(10);
   const [sellingPrice, setSellingPrice] = useState(49);
@@ -75,20 +75,20 @@ export default function ProfitCalculator() {
     let verdictLabel: string;
     let verdictReason: string;
     if (netMarginPct > 30) {
-      verdictColor = "#22c55e";
-      verdictLabel = "Highly Viable";
+      verdictColor = '#22c55e';
+      verdictLabel = 'Highly Viable';
       verdictReason =
-        "Strong margins above 30%. This product has healthy room for scaling ad spend, absorbing returns, and still turning a solid profit per unit.";
+        'Strong margins above 30%. This product has healthy room for scaling ad spend, absorbing returns, and still turning a solid profit per unit.';
     } else if (netMarginPct >= 15) {
-      verdictColor = "#eab308";
-      verdictLabel = "Proceed with Caution";
+      verdictColor = '#eab308';
+      verdictLabel = 'Proceed with Caution';
       verdictReason =
-        "Margins between 15–30% can work but leave limited room for error. Optimise ad spend, negotiate supplier costs, or increase your selling price to improve viability.";
+        'Margins between 15–30% can work but leave limited room for error. Optimise ad spend, negotiate supplier costs, or increase your selling price to improve viability.';
     } else {
-      verdictColor = "#ef4444";
-      verdictLabel = "Not Viable";
+      verdictColor = '#ef4444';
+      verdictLabel = 'Not Viable';
       verdictReason =
-        "Net margin below 15% makes this product risky at scale. Factor in returns, refunds, and overhead — there may not be enough margin to sustain the business.";
+        'Net margin below 15% makes this product risky at scale. Factor in returns, refunds, and overhead — there may not be enough margin to sustain the business.';
     }
 
     return {
@@ -110,37 +110,37 @@ export default function ProfitCalculator() {
 
   // ── Shared styles ───────────────────────────────────────────────────────
   const cardStyle: React.CSSProperties = {
-    background: "#0c0c10",
-    border: "1px solid rgba(255,255,255,0.06)",
+    background: '#0c0c10',
+    border: '1px solid rgba(255,255,255,0.06)',
     borderRadius: 16,
-    padding: "24px",
+    padding: '24px',
   };
 
   const labelStyle: React.CSSProperties = {
-    fontFamily: "DM Sans, sans-serif",
+    fontFamily: 'DM Sans, sans-serif',
     fontSize: 13,
-    color: "#a1a1aa",
+    color: '#a1a1aa',
     marginBottom: 8,
-    display: "block",
+    display: 'block',
   };
 
   const numberInputStyle: React.CSSProperties = {
-    fontFamily: "DM Sans, sans-serif",
-    background: "#15151a",
-    border: "1px solid rgba(255,255,255,0.08)",
+    fontFamily: 'DM Sans, sans-serif',
+    background: '#15151a',
+    border: '1px solid rgba(255,255,255,0.08)',
     borderRadius: 8,
-    color: "#f5f5f5",
-    padding: "8px 12px",
+    color: '#f5f5f5',
+    padding: '8px 12px',
     width: 90,
     fontSize: 14,
-    outline: "none",
+    outline: 'none',
   };
 
   const sliderStyle: React.CSSProperties = {
     flex: 1,
-    accentColor: "#d4af37",
+    accentColor: '#d4af37',
     height: 6,
-    cursor: "pointer",
+    cursor: 'pointer',
   };
 
   // ── Slider + number group ───────────────────────────────────────────────
@@ -151,8 +151,8 @@ export default function ProfitCalculator() {
     min,
     max,
     step,
-    prefix = "$",
-    suffix = "",
+    prefix = '$',
+    suffix = '',
   }: {
     label: string;
     value: number;
@@ -165,7 +165,7 @@ export default function ProfitCalculator() {
   }) => (
     <div style={{ marginBottom: 20 }}>
       <label style={labelStyle}>{label}</label>
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <input
           type="range"
           min={min}
@@ -177,11 +177,11 @@ export default function ProfitCalculator() {
         />
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
+            display: 'flex',
+            alignItems: 'center',
             gap: 4,
-            fontFamily: "DM Sans, sans-serif",
-            color: "#a1a1aa",
+            fontFamily: 'DM Sans, sans-serif',
+            color: '#a1a1aa',
             fontSize: 14,
           }}
         >
@@ -205,23 +205,15 @@ export default function ProfitCalculator() {
   );
 
   // ── Result card ─────────────────────────────────────────────────────────
-  const ResultCard = ({
-    label,
-    value,
-    sub,
-  }: {
-    label: string;
-    value: string;
-    sub?: string;
-  }) => (
-    <div style={{ ...cardStyle, padding: "20px 24px" }}>
+  const ResultCard = ({ label, value, sub }: { label: string; value: string; sub?: string }) => (
+    <div style={{ ...cardStyle, padding: '20px 24px' }}>
       <div style={{ ...labelStyle, marginBottom: 4 }}>{label}</div>
       <div
         style={{
-          fontFamily: "Syne, sans-serif",
+          fontFamily: 'Syne, sans-serif',
           fontSize: 28,
           fontWeight: 700,
-          color: "#f5f5f5",
+          color: '#f5f5f5',
           lineHeight: 1.2,
         }}
       >
@@ -230,9 +222,9 @@ export default function ProfitCalculator() {
       {sub && (
         <div
           style={{
-            fontFamily: "DM Sans, sans-serif",
+            fontFamily: 'DM Sans, sans-serif',
             fontSize: 13,
-            color: "#a1a1aa",
+            color: '#a1a1aa',
             marginTop: 4,
           }}
         >
@@ -246,19 +238,19 @@ export default function ProfitCalculator() {
   return (
     <div
       style={{
-        minHeight: "100vh",
-        background: "#060608",
-        padding: "40px 24px 80px",
-        fontFamily: "DM Sans, sans-serif",
+        minHeight: '100vh',
+        background: '#060608',
+        padding: '40px 24px 80px',
+        fontFamily: 'DM Sans, sans-serif',
       }}
     >
       {/* Header */}
       <div
         style={{
           maxWidth: 1200,
-          margin: "0 auto 40px",
-          display: "flex",
-          alignItems: "center",
+          margin: '0 auto 40px',
+          display: 'flex',
+          alignItems: 'center',
           gap: 14,
         }}
       >
@@ -267,10 +259,10 @@ export default function ProfitCalculator() {
             width: 48,
             height: 48,
             borderRadius: 12,
-            background: "rgba(212,175,55,0.1)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            background: 'rgba(212,175,55,0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
           <Calculator size={24} color="#d4af37" />
@@ -278,10 +270,10 @@ export default function ProfitCalculator() {
         <div>
           <h1
             style={{
-              fontFamily: "Syne, sans-serif",
+              fontFamily: 'Syne, sans-serif',
               fontSize: 28,
               fontWeight: 700,
-              color: "#f5f5f5",
+              color: '#f5f5f5',
               margin: 0,
             }}
           >
@@ -290,7 +282,7 @@ export default function ProfitCalculator() {
           <p
             style={{
               fontSize: 14,
-              color: "#a1a1aa",
+              color: '#a1a1aa',
               margin: 0,
               marginTop: 2,
             }}
@@ -304,9 +296,9 @@ export default function ProfitCalculator() {
       <div
         style={{
           maxWidth: 1200,
-          margin: "0 auto",
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          margin: '0 auto',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
           gap: 32,
         }}
         className="profit-calc-grid"
@@ -316,11 +308,11 @@ export default function ProfitCalculator() {
           <div style={cardStyle}>
             <h2
               style={{
-                fontFamily: "Syne, sans-serif",
+                fontFamily: 'Syne, sans-serif',
                 fontSize: 18,
                 fontWeight: 600,
-                color: "#f5f5f5",
-                margin: "0 0 24px",
+                color: '#f5f5f5',
+                margin: '0 0 24px',
               }}
             >
               Product & Costs
@@ -347,37 +339,37 @@ export default function ProfitCalculator() {
             {/* Platform Fees */}
             <div style={{ marginBottom: 20 }}>
               <label style={labelStyle}>Platform Fees</label>
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <select
                   value={platformKey}
                   onChange={(e) => setPlatformKey(e.target.value)}
                   style={{
                     flex: 1,
-                    fontFamily: "DM Sans, sans-serif",
-                    background: "#15151a",
-                    border: "1px solid rgba(255,255,255,0.08)",
+                    fontFamily: 'DM Sans, sans-serif',
+                    background: '#15151a',
+                    border: '1px solid rgba(255,255,255,0.08)',
                     borderRadius: 8,
-                    color: "#f5f5f5",
-                    padding: "10px 12px",
+                    color: '#f5f5f5',
+                    padding: '10px 12px',
                     fontSize: 14,
-                    outline: "none",
-                    cursor: "pointer",
+                    outline: 'none',
+                    cursor: 'pointer',
                   }}
                 >
                   {PLATFORM_OPTIONS.map((o) => (
                     <option key={o.label} value={o.label}>
                       {o.label}
-                      {o.value > 0 ? ` (${o.value}%)` : ""}
+                      {o.value > 0 ? ` (${o.value}%)` : ''}
                     </option>
                   ))}
                 </select>
-                {platformKey === "Custom" && (
+                {platformKey === 'Custom' && (
                   <div
                     style={{
-                      display: "flex",
-                      alignItems: "center",
+                      display: 'flex',
+                      alignItems: 'center',
                       gap: 4,
-                      color: "#a1a1aa",
+                      color: '#a1a1aa',
                       fontSize: 14,
                     }}
                   >
@@ -389,8 +381,7 @@ export default function ProfitCalculator() {
                       value={customPlatformFee}
                       onChange={(e) => {
                         const v = parseFloat(e.target.value);
-                        if (!isNaN(v))
-                          setCustomPlatformFee(Math.min(100, Math.max(0, v)));
+                        if (!isNaN(v)) setCustomPlatformFee(Math.min(100, Math.max(0, v)));
                       }}
                       style={{ ...numberInputStyle, width: 70 }}
                     />
@@ -400,9 +391,9 @@ export default function ProfitCalculator() {
               </div>
               <div
                 style={{
-                  fontFamily: "DM Sans, sans-serif",
+                  fontFamily: 'DM Sans, sans-serif',
                   fontSize: 12,
-                  color: "#52525b",
+                  color: '#52525b',
                   marginTop: 6,
                 }}
               >
@@ -415,19 +406,19 @@ export default function ProfitCalculator() {
               <label style={labelStyle}>Payment Processing (Stripe AU)</label>
               <div
                 style={{
-                  fontFamily: "DM Sans, sans-serif",
+                  fontFamily: 'DM Sans, sans-serif',
                   fontSize: 14,
-                  color: "#f5f5f5",
-                  background: "#15151a",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  color: '#f5f5f5',
+                  background: '#15151a',
+                  border: '1px solid rgba(255,255,255,0.08)',
                   borderRadius: 8,
-                  padding: "10px 14px",
-                  display: "flex",
-                  justifyContent: "space-between",
+                  padding: '10px 14px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
                 }}
               >
                 <span>{PAYMENT_PROCESSING_RATE}%</span>
-                <span style={{ color: "#a1a1aa" }}>
+                <span style={{ color: '#a1a1aa' }}>
                   {fmt((PAYMENT_PROCESSING_RATE / 100) * sellingPrice)} per unit
                 </span>
               </div>
@@ -445,14 +436,14 @@ export default function ProfitCalculator() {
             {adSpend > 0 && sellingPrice > 0 && (
               <div
                 style={{
-                  fontFamily: "DM Sans, sans-serif",
+                  fontFamily: 'DM Sans, sans-serif',
                   fontSize: 12,
-                  color: "#52525b",
+                  color: '#52525b',
                   marginTop: -12,
                   marginBottom: 20,
                 }}
               >
-                Implied ROAS: {calc.roas === Infinity ? "∞" : calc.roas.toFixed(2)}x
+                Implied ROAS: {calc.roas === Infinity ? '∞' : calc.roas.toFixed(2)}x
               </div>
             )}
 
@@ -469,7 +460,7 @@ export default function ProfitCalculator() {
         </div>
 
         {/* ── RIGHT: Results ───────────────────────────────────────────── */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* Viability Verdict */}
           <div
             style={{
@@ -480,8 +471,8 @@ export default function ProfitCalculator() {
           >
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
+                display: 'flex',
+                alignItems: 'center',
                 gap: 10,
                 marginBottom: 8,
               }}
@@ -490,14 +481,14 @@ export default function ProfitCalculator() {
                 style={{
                   width: 12,
                   height: 12,
-                  borderRadius: "50%",
+                  borderRadius: '50%',
                   background: calc.verdictColor,
                   boxShadow: `0 0 12px ${calc.verdictColor}55`,
                 }}
               />
               <span
                 style={{
-                  fontFamily: "Syne, sans-serif",
+                  fontFamily: 'Syne, sans-serif',
                   fontSize: 22,
                   fontWeight: 700,
                   color: calc.verdictColor,
@@ -508,9 +499,9 @@ export default function ProfitCalculator() {
             </div>
             <p
               style={{
-                fontFamily: "DM Sans, sans-serif",
+                fontFamily: 'DM Sans, sans-serif',
                 fontSize: 14,
-                color: "#a1a1aa",
+                color: '#a1a1aa',
                 margin: 0,
                 lineHeight: 1.6,
               }}
@@ -522,8 +513,8 @@ export default function ProfitCalculator() {
           {/* Metric cards grid */}
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
               gap: 12,
             }}
           >
@@ -543,18 +534,14 @@ export default function ProfitCalculator() {
               label="Break-even ROAS"
               value={
                 calc.breakEvenRoas === Infinity || isNaN(calc.breakEvenRoas)
-                  ? "N/A"
+                  ? 'N/A'
                   : `${calc.breakEvenRoas.toFixed(2)}x`
               }
             />
             <ResultCard
               label="Afterpay Eligible"
-              value={calc.afterpayEligible ? "Yes" : "No"}
-              sub={
-                calc.afterpayEligible
-                  ? "Product under $2,000 AUD"
-                  : "Exceeds $2,000 AUD limit"
-              }
+              value={calc.afterpayEligible ? 'Yes' : 'No'}
+              sub={calc.afterpayEligible ? 'Product under $2,000 AUD' : 'Exceeds $2,000 AUD limit'}
             />
           </div>
 
@@ -562,38 +549,38 @@ export default function ProfitCalculator() {
           <div style={cardStyle}>
             <h3
               style={{
-                fontFamily: "Syne, sans-serif",
+                fontFamily: 'Syne, sans-serif',
                 fontSize: 16,
                 fontWeight: 600,
-                color: "#f5f5f5",
-                margin: "0 0 16px",
+                color: '#f5f5f5',
+                margin: '0 0 16px',
               }}
             >
               Monthly Profit Projections
             </h3>
-            <div style={{ overflowX: "auto" }}>
+            <div style={{ overflowX: 'auto' }}>
               <table
                 style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  fontFamily: "DM Sans, sans-serif",
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                  fontFamily: 'DM Sans, sans-serif',
                   fontSize: 14,
                 }}
               >
                 <thead>
                   <tr>
-                    {["Orders", "Revenue", "Costs", "Profit"].map((h) => (
+                    {['Orders', 'Revenue', 'Costs', 'Profit'].map((h) => (
                       <th
                         key={h}
                         style={{
-                          textAlign: "left",
-                          padding: "10px 12px",
-                          color: "#52525b",
+                          textAlign: 'left',
+                          padding: '10px 12px',
+                          color: '#52525b',
                           fontWeight: 500,
                           fontSize: 12,
-                          textTransform: "uppercase",
-                          letterSpacing: "0.05em",
-                          borderBottom: "1px solid rgba(255,255,255,0.06)",
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                          borderBottom: '1px solid rgba(255,255,255,0.06)',
                         }}
                       >
                         {h}
@@ -606,37 +593,37 @@ export default function ProfitCalculator() {
                     <tr key={row.orders}>
                       <td
                         style={{
-                          padding: "12px",
-                          color: "#f5f5f5",
-                          borderBottom: "1px solid rgba(255,255,255,0.04)",
+                          padding: '12px',
+                          color: '#f5f5f5',
+                          borderBottom: '1px solid rgba(255,255,255,0.04)',
                         }}
                       >
                         {row.orders.toLocaleString()}
                       </td>
                       <td
                         style={{
-                          padding: "12px",
-                          color: "#f5f5f5",
-                          borderBottom: "1px solid rgba(255,255,255,0.04)",
+                          padding: '12px',
+                          color: '#f5f5f5',
+                          borderBottom: '1px solid rgba(255,255,255,0.04)',
                         }}
                       >
                         {fmt(row.revenue)}
                       </td>
                       <td
                         style={{
-                          padding: "12px",
-                          color: "#a1a1aa",
-                          borderBottom: "1px solid rgba(255,255,255,0.04)",
+                          padding: '12px',
+                          color: '#a1a1aa',
+                          borderBottom: '1px solid rgba(255,255,255,0.04)',
                         }}
                       >
                         {fmt(row.costs)}
                       </td>
                       <td
                         style={{
-                          padding: "12px",
-                          color: row.profit >= 0 ? "#22c55e" : "#ef4444",
+                          padding: '12px',
+                          color: row.profit >= 0 ? '#22c55e' : '#ef4444',
                           fontWeight: 600,
-                          borderBottom: "1px solid rgba(255,255,255,0.04)",
+                          borderBottom: '1px solid rgba(255,255,255,0.04)',
                         }}
                       >
                         {fmt(row.profit)}

@@ -1,9 +1,9 @@
-"use client";
-import { useState, useEffect, useRef } from "react";
-import { ArrowRight, Link, Zap } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+'use client';
+import { ArrowRight, Link, Zap } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface TimelineItem {
   id: number;
@@ -13,7 +13,7 @@ interface TimelineItem {
   category: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   relatedIds: number[];
-  status: "completed" | "in-progress" | "pending";
+  status: 'completed' | 'in-progress' | 'pending';
   energy: number;
 }
 
@@ -21,9 +21,7 @@ interface RadialOrbitalTimelineProps {
   timelineData: TimelineItem[];
 }
 
-export default function RadialOrbitalTimeline({
-  timelineData,
-}: RadialOrbitalTimelineProps) {
+export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTimelineProps) {
   const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>({});
   const [rotationAngle, setRotationAngle] = useState<number>(0);
   const [autoRotate, setAutoRotate] = useState<boolean>(true);
@@ -55,7 +53,9 @@ export default function RadialOrbitalTimeline({
         setAutoRotate(false);
         const relatedItems = getRelatedItems(id);
         const newPulseEffect: Record<number, boolean> = {};
-        relatedItems.forEach((relId) => { newPulseEffect[relId] = true; });
+        relatedItems.forEach((relId) => {
+          newPulseEffect[relId] = true;
+        });
         setPulseEffect(newPulseEffect);
         centerViewOnNode(id);
       } else {
@@ -74,7 +74,9 @@ export default function RadialOrbitalTimeline({
         setRotationAngle((prev) => Number(((prev + 0.3) % 360).toFixed(3)));
       }, 50);
     }
-    return () => { if (rotationTimer) clearInterval(rotationTimer); };
+    return () => {
+      if (rotationTimer) clearInterval(rotationTimer);
+    };
   }, [autoRotate]);
 
   const centerViewOnNode = (nodeId: number) => {
@@ -105,12 +107,16 @@ export default function RadialOrbitalTimeline({
     return getRelatedItems(activeNodeId).includes(itemId);
   };
 
-  const getStatusStyles = (status: TimelineItem["status"]): string => {
+  const getStatusStyles = (status: TimelineItem['status']): string => {
     switch (status) {
-      case "completed": return "text-white bg-black border-white";
-      case "in-progress": return "text-black bg-white border-black";
-      case "pending": return "text-white bg-black/40 border-white/50";
-      default: return "text-white bg-black/40 border-white/50";
+      case 'completed':
+        return 'text-white bg-black border-white';
+      case 'in-progress':
+        return 'text-black bg-white border-black';
+      case 'pending':
+        return 'text-white bg-black/40 border-white/50';
+      default:
+        return 'text-white bg-black/40 border-white/50';
     }
   };
 
@@ -124,14 +130,25 @@ export default function RadialOrbitalTimeline({
         <div
           className="absolute w-full h-full flex items-center justify-center"
           ref={orbitRef}
-          style={{ perspective: "1000px", transform: `translate(${centerOffset.x}px, ${centerOffset.y}px)` }}
+          style={{
+            perspective: '1000px',
+            transform: `translate(${centerOffset.x}px, ${centerOffset.y}px)`,
+          }}
         >
           {/* Centre orb */}
-          <div className="absolute w-16 h-16 rounded-full flex items-center justify-center z-10"
-            style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", boxShadow: "0 0 40px rgba(212,175,55,0.5)" }}>
+          <div
+            className="absolute w-16 h-16 rounded-full flex items-center justify-center z-10"
+            style={{
+              background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+              boxShadow: '0 0 40px rgba(212,175,55,0.5)',
+            }}
+          >
             <div className="absolute w-20 h-20 rounded-full border border-yellow-400/20 animate-ping opacity-70" />
-            <div className="absolute w-24 h-24 rounded-full border border-yellow-400/10 animate-ping opacity-50" style={{ animationDelay: "0.5s" }} />
-            <div className="w-8 h-8 rounded-full" style={{ background: "#080a0e" }} />
+            <div
+              className="absolute w-24 h-24 rounded-full border border-yellow-400/10 animate-ping opacity-50"
+              style={{ animationDelay: '0.5s' }}
+            />
+            <div className="w-8 h-8 rounded-full" style={{ background: '#080a0e' }} />
           </div>
 
           {/* Orbit ring */}
@@ -147,20 +164,26 @@ export default function RadialOrbitalTimeline({
             return (
               <div
                 key={item.id}
-                ref={(el) => { nodeRefs.current[item.id] = el; }}
+                ref={(el) => {
+                  nodeRefs.current[item.id] = el;
+                }}
                 className="absolute transition-all duration-700 cursor-pointer"
                 style={{
                   transform: `translate(${position.x}px, ${position.y}px)`,
                   zIndex: isExpanded ? 200 : position.zIndex,
                   opacity: isExpanded ? 1 : position.opacity,
                 }}
-                onClick={(e) => { e.stopPropagation(); toggleItem(item.id); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleItem(item.id);
+                }}
               >
                 {/* Energy glow */}
                 <div
-                  className={`absolute rounded-full -inset-1 ${isPulsing ? "animate-pulse" : ""}`}
+                  className={`absolute rounded-full -inset-1 ${isPulsing ? 'animate-pulse' : ''}`}
                   style={{
-                    background: "radial-gradient(circle, rgba(212,175,55,0.25) 0%, rgba(212,175,55,0) 70%)",
+                    background:
+                      'radial-gradient(circle, rgba(212,175,55,0.25) 0%, rgba(212,175,55,0) 70%)',
                     width: `${item.energy * 0.5 + 40}px`,
                     height: `${item.energy * 0.5 + 40}px`,
                     left: `-${(item.energy * 0.5 + 40 - 40) / 2}px`,
@@ -170,12 +193,20 @@ export default function RadialOrbitalTimeline({
 
                 {/* Node button */}
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${isExpanded ? "scale-150" : ""} ${isPulsing ? "animate-pulse" : ""}`}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${isExpanded ? 'scale-150' : ''} ${isPulsing ? 'animate-pulse' : ''}`}
                   style={{
-                    background: isExpanded ? "#d4af37" : isRelated ? "rgba(212,175,55,0.4)" : "rgba(8,10,14,0.9)",
-                    borderColor: isExpanded ? "#d4af37" : isRelated ? "#d4af37" : "rgba(212,175,55,0.4)",
-                    color: isExpanded ? "#080a0e" : "#d4af37",
-                    boxShadow: isExpanded ? "0 0 20px rgba(212,175,55,0.5)" : "none",
+                    background: isExpanded
+                      ? '#d4af37'
+                      : isRelated
+                        ? 'rgba(212,175,55,0.4)'
+                        : 'rgba(8,10,14,0.9)',
+                    borderColor: isExpanded
+                      ? '#d4af37'
+                      : isRelated
+                        ? '#d4af37'
+                        : 'rgba(212,175,55,0.4)',
+                    color: isExpanded ? '#080a0e' : '#d4af37',
+                    boxShadow: isExpanded ? '0 0 20px rgba(212,175,55,0.5)' : 'none',
                   }}
                 >
                   <Icon size={16} />
@@ -183,12 +214,12 @@ export default function RadialOrbitalTimeline({
 
                 {/* Label */}
                 <div
-                  className={`absolute top-12 whitespace-nowrap text-xs font-bold tracking-wider transition-all duration-300 ${isExpanded ? "scale-125" : ""}`}
+                  className={`absolute top-12 whitespace-nowrap text-xs font-bold tracking-wider transition-all duration-300 ${isExpanded ? 'scale-125' : ''}`}
                   style={{
-                    color: isExpanded ? "#d4af37" : "rgba(240,237,232,0.7)",
-                    fontFamily: "Syne, sans-serif",
-                    left: "50%",
-                    transform: `translateX(-50%) ${isExpanded ? "scale(1.25)" : ""}`,
+                    color: isExpanded ? '#d4af37' : 'rgba(240,237,232,0.7)',
+                    fontFamily: 'Syne, sans-serif',
+                    left: '50%',
+                    transform: `translateX(-50%) ${isExpanded ? 'scale(1.25)' : ''}`,
                   }}
                 >
                   {item.title}
@@ -199,33 +230,62 @@ export default function RadialOrbitalTimeline({
                   <Card
                     className="absolute top-20 left-1/2 -translate-x-1/2 w-64 overflow-visible"
                     style={{
-                      background: "rgba(8,10,14,0.95)",
-                      backdropFilter: "blur(16px)",
-                      border: "1px solid rgba(212,175,55,0.3)",
-                      boxShadow: "0 20px 60px rgba(0,0,0,0.6), 0 0 30px rgba(212,175,55,0.1)",
+                      background: 'rgba(8,10,14,0.95)',
+                      backdropFilter: 'blur(16px)',
+                      border: '1px solid rgba(212,175,55,0.3)',
+                      boxShadow: '0 20px 60px rgba(0,0,0,0.6), 0 0 30px rgba(212,175,55,0.1)',
                     }}
                   >
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-px h-3" style={{ background: "rgba(212,175,55,0.5)" }} />
+                    <div
+                      className="absolute -top-3 left-1/2 -translate-x-1/2 w-px h-3"
+                      style={{ background: 'rgba(212,175,55,0.5)' }}
+                    />
                     <CardHeader className="pb-2">
                       <div className="flex justify-between items-center">
                         <Badge className={`px-2 text-xs ${getStatusStyles(item.status)}`}>
-                          {item.status === "completed" ? "COMPLETE" : item.status === "in-progress" ? "IN PROGRESS" : "PENDING"}
+                          {item.status === 'completed'
+                            ? 'COMPLETE'
+                            : item.status === 'in-progress'
+                              ? 'IN PROGRESS'
+                              : 'PENDING'}
                         </Badge>
-                        <span className="text-xs font-mono" style={{ color: "rgba(240,237,232,0.4)" }}>{item.date}</span>
+                        <span
+                          className="text-xs font-mono"
+                          style={{ color: 'rgba(240,237,232,0.4)' }}
+                        >
+                          {item.date}
+                        </span>
                       </div>
-                      <CardTitle className="text-sm mt-2" style={{ color: "#f0ede8", fontFamily: "Syne, sans-serif" }}>
+                      <CardTitle
+                        className="text-sm mt-2"
+                        style={{ color: '#f0ede8', fontFamily: 'Syne, sans-serif' }}
+                      >
                         {item.title}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-xs leading-relaxed mb-3" style={{ color: "rgba(240,237,232,0.6)" }}>{item.content}</p>
+                      <p
+                        className="text-xs leading-relaxed mb-3"
+                        style={{ color: 'rgba(240,237,232,0.6)' }}
+                      >
+                        {item.content}
+                      </p>
                       <div className="flex items-center justify-between">
-                        <span className="text-xs px-2 py-1 rounded-full" style={{ background: "rgba(212,175,55,0.1)", color: "#d4af37", border: "1px solid rgba(212,175,55,0.2)" }}>
+                        <span
+                          className="text-xs px-2 py-1 rounded-full"
+                          style={{
+                            background: 'rgba(212,175,55,0.1)',
+                            color: '#d4af37',
+                            border: '1px solid rgba(212,175,55,0.2)',
+                          }}
+                        >
                           {item.category}
                         </span>
                         <div className="flex items-center gap-1">
-                          <Zap size={10} style={{ color: "#d4af37" }} />
-                          <span className="text-xs" style={{ color: "rgba(240,237,232,0.4)" }}>{item.energy}%</span>
+                          <Zap size={10} style={{ color: '#d4af37' }} />
+                          <span className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                            {item.energy}%
+                          </span>
                         </div>
                       </div>
                     </CardContent>

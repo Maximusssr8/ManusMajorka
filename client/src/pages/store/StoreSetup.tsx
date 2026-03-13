@@ -1,22 +1,25 @@
-import { useState } from "react";
-import { useLocation } from "wouter";
-import { trpc } from "../../lib/trpc";
-import { useAuth } from "../../contexts/AuthContext";
-import { toast } from "sonner";
-import { Store, CreditCard, Target, Rocket, Check, ArrowRight, ArrowLeft } from "lucide-react";
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
+import { ArrowLeft, ArrowRight, Check, CreditCard, Rocket, Store, Target } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { useLocation } from 'wouter';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { useAuth } from '../../contexts/AuthContext';
+import { trpc } from '../../lib/trpc';
 
 const steps = [
-  { id: 1, label: "Store Info", icon: Store },
-  { id: 2, label: "Payments", icon: CreditCard },
-  { id: 3, label: "Meta Ads", icon: Target },
-  { id: 4, label: "Launch", icon: Rocket },
+  { id: 1, label: 'Store Info', icon: Store },
+  { id: 2, label: 'Payments', icon: CreditCard },
+  { id: 3, label: 'Meta Ads', icon: Target },
+  { id: 4, label: 'Launch', icon: Rocket },
 ];
 
 function slugify(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 export default function StoreSetup() {
@@ -24,29 +27,29 @@ export default function StoreSetup() {
   const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
-    storeName: "",
-    storeSlug: "",
-    niche: "",
-    metaAdAccountId: "",
-    metaPixelId: "",
-    brandColorPrimary: "#000000",
+    storeName: '',
+    storeSlug: '',
+    niche: '',
+    metaAdAccountId: '',
+    metaPixelId: '',
+    brandColorPrimary: '#000000',
   });
 
   const existingStore = trpc.storefront.getMyStore.useQuery();
   const createStore = trpc.storefront.createStore.useMutation({
     onSuccess: () => {
-      toast.success("Store launched!");
-      navigate("/app/store/products");
+      toast.success('Store launched!');
+      navigate('/app/store/products');
     },
     onError: (err) => toast.error(err.message),
   });
 
   if (existingStore.data) {
-    navigate("/app/store/products");
+    navigate('/app/store/products');
     return null;
   }
 
-  const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
+  const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
   const canProceed = () => {
     if (step === 1) return form.storeName.trim() && form.storeSlug.trim();
@@ -54,7 +57,10 @@ export default function StoreSetup() {
   };
 
   const handleLaunch = () => {
-    if (!form.storeName || !form.storeSlug) { toast.error("Store name and slug required"); return; }
+    if (!form.storeName || !form.storeSlug) {
+      toast.error('Store name and slug required');
+      return;
+    }
     createStore.mutate({
       storeName: form.storeName,
       storeSlug: form.storeSlug,
@@ -74,14 +80,27 @@ export default function StoreSetup() {
           const active = step === s.id;
           return (
             <div key={s.id} className="flex items-center gap-2 flex-1">
-              <div className={`w-9 h-9 rounded-full flex items-center justify-center border-2 transition-colors ${
-                done ? "bg-emerald-500 border-emerald-500 text-white" :
-                active ? "border-white text-white" : "border-neutral-700 text-neutral-500"
-              }`}>
+              <div
+                className={`w-9 h-9 rounded-full flex items-center justify-center border-2 transition-colors ${
+                  done
+                    ? 'bg-emerald-500 border-emerald-500 text-white'
+                    : active
+                      ? 'border-white text-white'
+                      : 'border-neutral-700 text-neutral-500'
+                }`}
+              >
                 {done ? <Check className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
               </div>
-              <span className={`text-sm hidden sm:block ${active ? "text-white" : "text-neutral-500"}`}>{s.label}</span>
-              {i < steps.length - 1 && <div className={`h-px flex-1 mx-2 ${step > s.id ? "bg-emerald-500" : "bg-neutral-800"}`} />}
+              <span
+                className={`text-sm hidden sm:block ${active ? 'text-white' : 'text-neutral-500'}`}
+              >
+                {s.label}
+              </span>
+              {i < steps.length - 1 && (
+                <div
+                  className={`h-px flex-1 mx-2 ${step > s.id ? 'bg-emerald-500' : 'bg-neutral-800'}`}
+                />
+              )}
             </div>
           );
         })}
@@ -93,14 +112,19 @@ export default function StoreSetup() {
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold text-white">Name your store</h2>
-              <p className="text-neutral-400 mt-1">This is what customers will see when they shop with you.</p>
+              <p className="text-neutral-400 mt-1">
+                This is what customers will see when they shop with you.
+              </p>
             </div>
             <div className="space-y-4">
               <div>
                 <Label className="text-white mb-1 block">Store Name</Label>
                 <Input
                   value={form.storeName}
-                  onChange={e => { set("storeName", e.target.value); set("storeSlug", slugify(e.target.value)); }}
+                  onChange={(e) => {
+                    set('storeName', e.target.value);
+                    set('storeSlug', slugify(e.target.value));
+                  }}
                   placeholder="e.g. Luxe Wellness"
                   className="bg-neutral-800 border-neutral-700 text-white"
                 />
@@ -108,10 +132,12 @@ export default function StoreSetup() {
               <div>
                 <Label className="text-white mb-1 block">Store URL</Label>
                 <div className="flex items-center gap-2">
-                  <span className="text-neutral-400 text-sm whitespace-nowrap">{window.location.origin}/store/</span>
+                  <span className="text-neutral-400 text-sm whitespace-nowrap">
+                    {window.location.origin}/store/
+                  </span>
                   <Input
                     value={form.storeSlug}
-                    onChange={e => set("storeSlug", slugify(e.target.value))}
+                    onChange={(e) => set('storeSlug', slugify(e.target.value))}
                     placeholder="luxe-wellness"
                     className="bg-neutral-800 border-neutral-700 text-white"
                   />
@@ -121,7 +147,7 @@ export default function StoreSetup() {
                 <Label className="text-white mb-1 block">Niche / Category</Label>
                 <Input
                   value={form.niche}
-                  onChange={e => set("niche", e.target.value)}
+                  onChange={(e) => set('niche', e.target.value)}
                   placeholder="e.g. Home & Wellness"
                   className="bg-neutral-800 border-neutral-700 text-white"
                 />
@@ -143,7 +169,9 @@ export default function StoreSetup() {
                 <span className="text-white font-medium">Stripe Payments</span>
               </div>
               <p className="text-neutral-400 text-sm mb-4">
-                Stripe processes your payments securely. Add your <code className="bg-neutral-700 px-1 rounded text-xs">STRIPE_SECRET_KEY</code> to your Vercel environment variables to enable live checkout.
+                Stripe processes your payments securely. Add your{' '}
+                <code className="bg-neutral-700 px-1 rounded text-xs">STRIPE_SECRET_KEY</code> to
+                your Vercel environment variables to enable live checkout.
               </p>
               <div className="flex items-center gap-2 text-sm text-emerald-400">
                 <Check className="w-4 h-4" />
@@ -158,30 +186,45 @@ export default function StoreSetup() {
           <div className="space-y-6">
             <div>
               <h2 className="text-2xl font-bold text-white">Meta Ads Setup</h2>
-              <p className="text-neutral-400 mt-1">Connect Meta to track conversions and run ads.</p>
+              <p className="text-neutral-400 mt-1">
+                Connect Meta to track conversions and run ads.
+              </p>
             </div>
             <div className="space-y-4">
               <div>
-                <Label className="text-white mb-1 block">Meta Ad Account ID <span className="text-neutral-500">(optional)</span></Label>
+                <Label className="text-white mb-1 block">
+                  Meta Ad Account ID <span className="text-neutral-500">(optional)</span>
+                </Label>
                 <Input
                   value={form.metaAdAccountId}
-                  onChange={e => set("metaAdAccountId", e.target.value)}
+                  onChange={(e) => set('metaAdAccountId', e.target.value)}
                   placeholder="act_XXXXXXXXXXXXXXX"
                   className="bg-neutral-800 border-neutral-700 text-white"
                 />
-                <p className="text-neutral-500 text-xs mt-1">Find this in Meta Business Manager → Ad Accounts</p>
+                <p className="text-neutral-500 text-xs mt-1">
+                  Find this in Meta Business Manager → Ad Accounts
+                </p>
               </div>
               <div>
-                <Label className="text-white mb-1 block">Meta Pixel ID <span className="text-neutral-500">(optional)</span></Label>
+                <Label className="text-white mb-1 block">
+                  Meta Pixel ID <span className="text-neutral-500">(optional)</span>
+                </Label>
                 <Input
                   value={form.metaPixelId}
-                  onChange={e => set("metaPixelId", e.target.value)}
+                  onChange={(e) => set('metaPixelId', e.target.value)}
                   placeholder="1234567890"
                   className="bg-neutral-800 border-neutral-700 text-white"
                 />
-                <p className="text-neutral-500 text-xs mt-1">Tracks ViewContent, AddToCart, Purchase events automatically</p>
+                <p className="text-neutral-500 text-xs mt-1">
+                  Tracks ViewContent, AddToCart, Purchase events automatically
+                </p>
               </div>
-              <a href="https://business.facebook.com" target="_blank" rel="noopener noreferrer" className="text-[#d4af37] text-sm hover:underline">
+              <a
+                href="https://business.facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#d4af37] text-sm hover:underline"
+              >
                 How to find your Meta IDs →
               </a>
             </div>
@@ -214,9 +257,10 @@ export default function StoreSetup() {
             <Button
               onClick={handleLaunch}
               disabled={createStore.isPending}
-              className="w-full py-3 text-lg font-semibold text-black" style={{ background: "#d4af37" }}
+              className="w-full py-3 text-lg font-semibold text-black"
+              style={{ background: '#d4af37' }}
             >
-              {createStore.isPending ? "Launching..." : "🚀 Launch My Store"}
+              {createStore.isPending ? 'Launching...' : '🚀 Launch My Store'}
             </Button>
           </div>
         )}
@@ -226,18 +270,21 @@ export default function StoreSetup() {
           <div className="flex justify-between mt-8">
             <Button
               variant="ghost"
-              onClick={() => setStep(s => s - 1)}
+              onClick={() => setStep((s) => s - 1)}
               disabled={step === 1}
               className="text-neutral-400 hover:text-white"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />Back
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
             </Button>
             <Button
-              onClick={() => setStep(s => s + 1)}
+              onClick={() => setStep((s) => s + 1)}
               disabled={!canProceed()}
-              className="text-black font-semibold" style={{ background: "#d4af37" }}
+              className="text-black font-semibold"
+              style={{ background: '#d4af37' }}
             >
-              Continue<ArrowRight className="w-4 h-4 ml-2" />
+              Continue
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
         )}

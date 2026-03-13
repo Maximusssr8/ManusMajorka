@@ -1,4 +1,4 @@
-import { Helmet } from "react-helmet-async";
+import { Helmet } from 'react-helmet-async';
 
 interface SEOProps {
   title: string;
@@ -7,16 +7,11 @@ interface SEOProps {
   ogImage?: string;
 }
 
-const BASE_URL = "https://majorka.ai";
+const BASE_URL = 'https://majorka.ai';
 
-export function SEO({
-  title,
-  description,
-  path = "/",
-  ogImage = "/og-image.svg",
-}: SEOProps) {
+export function SEO({ title, description, path = '/', ogImage = '/og-image.svg' }: SEOProps) {
   const url = `${BASE_URL}${path}`;
-  const imageUrl = ogImage.startsWith("http") ? ogImage : `${BASE_URL}${ogImage}`;
+  const imageUrl = ogImage.startsWith('http') ? ogImage : `${BASE_URL}${ogImage}`;
 
   return (
     <Helmet>

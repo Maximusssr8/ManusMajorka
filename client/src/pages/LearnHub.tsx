@@ -4,33 +4,29 @@
  * track progress, playlist, search + filter, completion celebration,
  * Supabase sync with localStorage fallback, mobile-first.
  */
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { useLocation } from "wouter";
+
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  CheckCircle2,
-  Lock,
-  BookOpen,
-  ChevronLeft,
-  ChevronRight,
-  Trophy,
-  Plus,
-  Minus,
-  ListOrdered,
-  Play,
-  X,
+  ArrowRight,
   Bookmark,
   BookmarkCheck,
-  ArrowRight,
-} from "lucide-react";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { supabase } from "@/lib/supabase";
+  BookOpen,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  ListOrdered,
+  Lock,
+  Minus,
+  Play,
+  Plus,
+  Trophy,
+  X,
+} from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation } from 'wouter';
+import { useAuth } from '@/_core/hooks/useAuth';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { supabase } from '@/lib/supabase';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -39,7 +35,7 @@ interface Lesson {
   title: string;
   description: string;
   readTime: string;
-  difficulty: "Beginner" | "Intermediate" | "Advanced";
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
   free: boolean;
 }
 
@@ -55,55 +51,195 @@ interface Track {
 
 const TRACKS: Track[] = [
   {
-    id: "fundamentals",
-    emoji: "🎓",
-    title: "Dropshipping Fundamentals",
-    description: "Everything you need to know before your first sale",
+    id: 'fundamentals',
+    emoji: '🎓',
+    title: 'Dropshipping Fundamentals',
+    description: 'Everything you need to know before your first sale',
     lessons: [
-      { id: "what-is-dropshipping", title: "What is Dropshipping?", description: "The complete business model explained with real AU examples", readTime: "5 min", difficulty: "Beginner", free: true },
-      { id: "au-market-101", title: "The Australian Market", description: "Why AU is different: consumer behaviour, platforms, regulations", readTime: "8 min", difficulty: "Beginner", free: true },
-      { id: "legal-setup", title: "Legal Setup in Australia", description: "ABN, GST, ACCC requirements — what you actually need", readTime: "6 min", difficulty: "Beginner", free: false },
-      { id: "supplier-types", title: "Types of Suppliers", description: "Alibaba, AU wholesalers, 3PL, print-on-demand compared", readTime: "7 min", difficulty: "Beginner", free: false },
-      { id: "profit-maths", title: "The Profit Maths", description: "COGS, margins, ROAS targets — the numbers you must know", readTime: "10 min", difficulty: "Intermediate", free: false },
+      {
+        id: 'what-is-dropshipping',
+        title: 'What is Dropshipping?',
+        description: 'The complete business model explained with real AU examples',
+        readTime: '5 min',
+        difficulty: 'Beginner',
+        free: true,
+      },
+      {
+        id: 'au-market-101',
+        title: 'The Australian Market',
+        description: 'Why AU is different: consumer behaviour, platforms, regulations',
+        readTime: '8 min',
+        difficulty: 'Beginner',
+        free: true,
+      },
+      {
+        id: 'legal-setup',
+        title: 'Legal Setup in Australia',
+        description: 'ABN, GST, ACCC requirements — what you actually need',
+        readTime: '6 min',
+        difficulty: 'Beginner',
+        free: false,
+      },
+      {
+        id: 'supplier-types',
+        title: 'Types of Suppliers',
+        description: 'Alibaba, AU wholesalers, 3PL, print-on-demand compared',
+        readTime: '7 min',
+        difficulty: 'Beginner',
+        free: false,
+      },
+      {
+        id: 'profit-maths',
+        title: 'The Profit Maths',
+        description: 'COGS, margins, ROAS targets — the numbers you must know',
+        readTime: '10 min',
+        difficulty: 'Intermediate',
+        free: false,
+      },
     ],
   },
   {
-    id: "products",
-    emoji: "🔍",
-    title: "Finding Winning Products",
-    description: "How to find products that actually sell",
+    id: 'products',
+    emoji: '🔍',
+    title: 'Finding Winning Products',
+    description: 'How to find products that actually sell',
     lessons: [
-      { id: "product-criteria", title: "The Winning Product Formula", description: "7 criteria that separate winners from money-wasters", readTime: "8 min", difficulty: "Beginner", free: true },
-      { id: "research-tools", title: "Using Majorka Product Scout", description: "Step-by-step: find your first winner using AI", readTime: "6 min", difficulty: "Beginner", free: true },
-      { id: "trend-timing", title: "Trend Timing", description: "How to enter a trend at the right moment", readTime: "7 min", difficulty: "Intermediate", free: false },
-      { id: "competition-analysis", title: "Analysing Competition", description: "How to read saturation signals and find untapped angles", readTime: "9 min", difficulty: "Intermediate", free: false },
-      { id: "validation", title: "Validate Before You Invest", description: "Test demand with $50 before spending $500", readTime: "8 min", difficulty: "Intermediate", free: false },
+      {
+        id: 'product-criteria',
+        title: 'The Winning Product Formula',
+        description: '7 criteria that separate winners from money-wasters',
+        readTime: '8 min',
+        difficulty: 'Beginner',
+        free: true,
+      },
+      {
+        id: 'research-tools',
+        title: 'Using Majorka Product Scout',
+        description: 'Step-by-step: find your first winner using AI',
+        readTime: '6 min',
+        difficulty: 'Beginner',
+        free: true,
+      },
+      {
+        id: 'trend-timing',
+        title: 'Trend Timing',
+        description: 'How to enter a trend at the right moment',
+        readTime: '7 min',
+        difficulty: 'Intermediate',
+        free: false,
+      },
+      {
+        id: 'competition-analysis',
+        title: 'Analysing Competition',
+        description: 'How to read saturation signals and find untapped angles',
+        readTime: '9 min',
+        difficulty: 'Intermediate',
+        free: false,
+      },
+      {
+        id: 'validation',
+        title: 'Validate Before You Invest',
+        description: 'Test demand with $50 before spending $500',
+        readTime: '8 min',
+        difficulty: 'Intermediate',
+        free: false,
+      },
     ],
   },
   {
-    id: "brand",
-    emoji: "🏗️",
-    title: "Building Your Brand",
-    description: "Stand out from generic dropship stores",
+    id: 'brand',
+    emoji: '🏗️',
+    title: 'Building Your Brand',
+    description: 'Stand out from generic dropship stores',
     lessons: [
-      { id: "brand-positioning", title: "Brand Positioning", description: "How to be specific enough to win, broad enough to scale", readTime: "7 min", difficulty: "Beginner", free: true },
-      { id: "store-building", title: "Building with Majorka", description: "From brand DNA to live Shopify store in one session", readTime: "10 min", difficulty: "Beginner", free: true },
-      { id: "copywriting-basics", title: "Copywriting That Converts", description: "5 principles of high-converting copy for AU buyers", readTime: "9 min", difficulty: "Intermediate", free: false },
-      { id: "trust-signals", title: "AU Trust Signals", description: "Afterpay, AusPost, reviews — what AU buyers need to see", readTime: "6 min", difficulty: "Beginner", free: false },
-      { id: "email-marketing", title: "Email Marketing Foundations", description: "Build a list from day one — your most valuable asset", readTime: "8 min", difficulty: "Intermediate", free: false },
+      {
+        id: 'brand-positioning',
+        title: 'Brand Positioning',
+        description: 'How to be specific enough to win, broad enough to scale',
+        readTime: '7 min',
+        difficulty: 'Beginner',
+        free: true,
+      },
+      {
+        id: 'store-building',
+        title: 'Building with Majorka',
+        description: 'From brand DNA to live Shopify store in one session',
+        readTime: '10 min',
+        difficulty: 'Beginner',
+        free: true,
+      },
+      {
+        id: 'copywriting-basics',
+        title: 'Copywriting That Converts',
+        description: '5 principles of high-converting copy for AU buyers',
+        readTime: '9 min',
+        difficulty: 'Intermediate',
+        free: false,
+      },
+      {
+        id: 'trust-signals',
+        title: 'AU Trust Signals',
+        description: 'Afterpay, AusPost, reviews — what AU buyers need to see',
+        readTime: '6 min',
+        difficulty: 'Beginner',
+        free: false,
+      },
+      {
+        id: 'email-marketing',
+        title: 'Email Marketing Foundations',
+        description: 'Build a list from day one — your most valuable asset',
+        readTime: '8 min',
+        difficulty: 'Intermediate',
+        free: false,
+      },
     ],
   },
   {
-    id: "ads",
-    emoji: "📢",
-    title: "Running Ads",
-    description: "Profitable paid traffic for AU ecommerce",
+    id: 'ads',
+    emoji: '📢',
+    title: 'Running Ads',
+    description: 'Profitable paid traffic for AU ecommerce',
     lessons: [
-      { id: "meta-basics", title: "Meta Ads for Beginners", description: "Your first AU Facebook/Instagram campaign, step by step", readTime: "12 min", difficulty: "Beginner", free: true },
-      { id: "creative-strategy", title: "Creative Strategy", description: "Hooks, angles, and formats that work for AU audiences", readTime: "10 min", difficulty: "Intermediate", free: true },
-      { id: "tiktok-ads", title: "TikTok Ads AU", description: "Profitable TikTok Shop and Spark Ads in Australia", readTime: "11 min", difficulty: "Intermediate", free: false },
-      { id: "scaling", title: "Scaling Winning Ads", description: "How to 2x, 5x, 10x a winning campaign without killing it", readTime: "9 min", difficulty: "Advanced", free: false },
-      { id: "analytics", title: "Reading Your Numbers", description: "CPM, CTR, ROAS, CPA — what each metric actually means", readTime: "8 min", difficulty: "Intermediate", free: false },
+      {
+        id: 'meta-basics',
+        title: 'Meta Ads for Beginners',
+        description: 'Your first AU Facebook/Instagram campaign, step by step',
+        readTime: '12 min',
+        difficulty: 'Beginner',
+        free: true,
+      },
+      {
+        id: 'creative-strategy',
+        title: 'Creative Strategy',
+        description: 'Hooks, angles, and formats that work for AU audiences',
+        readTime: '10 min',
+        difficulty: 'Intermediate',
+        free: true,
+      },
+      {
+        id: 'tiktok-ads',
+        title: 'TikTok Ads AU',
+        description: 'Profitable TikTok Shop and Spark Ads in Australia',
+        readTime: '11 min',
+        difficulty: 'Intermediate',
+        free: false,
+      },
+      {
+        id: 'scaling',
+        title: 'Scaling Winning Ads',
+        description: 'How to 2x, 5x, 10x a winning campaign without killing it',
+        readTime: '9 min',
+        difficulty: 'Advanced',
+        free: false,
+      },
+      {
+        id: 'analytics',
+        title: 'Reading Your Numbers',
+        description: 'CPM, CTR, ROAS, CPA — what each metric actually means',
+        readTime: '8 min',
+        difficulty: 'Intermediate',
+        free: false,
+      },
     ],
   },
 ];
@@ -114,32 +250,48 @@ export const FREE_LESSON_IDS: string[] = TRACKS.flatMap((t) =>
 );
 export const TOTAL_FREE = FREE_LESSON_IDS.length; // 8
 
-const STORAGE_KEY = "majorka_academy_v1";
-const PLAYLIST_KEY = "majorka_playlist";
-const PLAYBOOK_KEY = "majorka_playbook";
+const STORAGE_KEY = 'majorka_academy_v1';
+const PLAYLIST_KEY = 'majorka_playlist';
+const PLAYBOOK_KEY = 'majorka_playbook';
 const TOTAL_LESSONS = 20;
 
 // ── localStorage helpers ───────────────────────────────────────────────────────
 
 function loadProgress(): Record<string, boolean> {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}"); }
-  catch { return {}; }
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}');
+  } catch {
+    return {};
+  }
 }
 function saveProgress(p: Record<string, boolean>) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch { /* ignore */ }
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  } catch {
+    /* ignore */
+  }
 }
 function loadPlaylist(): string[] {
-  try { return JSON.parse(localStorage.getItem(PLAYLIST_KEY) ?? "[]"); }
-  catch { return []; }
+  try {
+    return JSON.parse(localStorage.getItem(PLAYLIST_KEY) ?? '[]');
+  } catch {
+    return [];
+  }
 }
 function savePlaylist(ids: string[]) {
-  try { localStorage.setItem(PLAYLIST_KEY, JSON.stringify(ids)); } catch { /* ignore */ }
+  try {
+    localStorage.setItem(PLAYLIST_KEY, JSON.stringify(ids));
+  } catch {
+    /* ignore */
+  }
 }
 function appendPlaybook(entry: string) {
   try {
-    const existing = localStorage.getItem(PLAYBOOK_KEY) ?? "";
+    const existing = localStorage.getItem(PLAYBOOK_KEY) ?? '';
     localStorage.setItem(PLAYBOOK_KEY, existing + entry);
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 // ── Supabase progress sync (graceful fallback) ────────────────────────────────
@@ -147,26 +299,35 @@ function appendPlaybook(entry: string) {
 async function loadProgressFromSupabase(userId: string): Promise<Record<string, boolean>> {
   try {
     const { data, error } = await supabase
-      .from("lesson_progress")
-      .select("lesson_id, completed")
-      .eq("user_id", userId)
-      .eq("completed", true);
+      .from('lesson_progress')
+      .select('lesson_id, completed')
+      .eq('user_id', userId)
+      .eq('completed', true);
     if (error) return {};
     const result: Record<string, boolean> = {};
     (data ?? []).forEach((r: { lesson_id: string; completed: boolean }) => {
       result[r.lesson_id] = r.completed;
     });
     return result;
-  } catch { return {}; }
+  } catch {
+    return {};
+  }
 }
 
 async function syncProgressToSupabase(userId: string, lessonId: string) {
   try {
-    await supabase.from("lesson_progress").upsert(
-      { user_id: userId, lesson_id: lessonId, completed: true, completed_at: new Date().toISOString() },
-      { onConflict: "user_id,lesson_id" }
+    await supabase.from('lesson_progress').upsert(
+      {
+        user_id: userId,
+        lesson_id: lessonId,
+        completed: true,
+        completed_at: new Date().toISOString(),
+      },
+      { onConflict: 'user_id,lesson_id' }
     );
-  } catch { /* no-op — table may not exist */ }
+  } catch {
+    /* no-op — table may not exist */
+  }
 }
 
 // ── Markdown renderer ──────────────────────────────────────────────────────────
@@ -174,40 +335,55 @@ async function syncProgressToSupabase(userId: string, lessonId: string) {
 function inlineStyles(text: string): string {
   return text
     .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
-    .replace(/\*([^*]+?)\*/g, "<em>$1</em>")
-    .replace(/`([^`]+?)`/g, '<code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.85em;color:#f0c040">$1</code>');
+    .replace(/\*([^*]+?)\*/g, '<em>$1</em>')
+    .replace(
+      /`([^`]+?)`/g,
+      '<code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.85em;color:#f0c040">$1</code>'
+    );
 }
 
 function renderMarkdown(text: string): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
-  const lines = text.split("\n");
+  const lines = text.split('\n');
   let i = 0;
   let key = 0;
 
   while (i < lines.length) {
     const line = lines[i];
-    if (line.trim() === "") { i++; continue; }
+    if (line.trim() === '') {
+      i++;
+      continue;
+    }
 
     // Headings
     if (/^#{1,3} /.test(line)) {
-      const content = line.replace(/^#{1,3} /, "");
+      const content = line.replace(/^#{1,3} /, '');
       nodes.push(
-        <h3 key={key++} className="text-lg font-bold text-white mt-6 mb-3" style={{ fontFamily: "Syne, sans-serif" }}>
+        <h3
+          key={key++}
+          className="text-lg font-bold text-white mt-6 mb-3"
+          style={{ fontFamily: 'Syne, sans-serif' }}
+        >
           {content}
         </h3>
       );
-      i++; continue;
+      i++;
+      continue;
     }
 
     // Bullet list
     if (/^[*-] /.test(line)) {
       const items: string[] = [];
       while (i < lines.length && /^[*-] /.test(lines[i])) {
-        items.push(lines[i].replace(/^[*-] /, ""));
+        items.push(lines[i].replace(/^[*-] /, ''));
         i++;
       }
       nodes.push(
-        <ul key={key++} className="list-disc list-inside space-y-1 mb-4" style={{ color: "#a1a1aa" }}>
+        <ul
+          key={key++}
+          className="list-disc list-inside space-y-1 mb-4"
+          style={{ color: '#a1a1aa' }}
+        >
           {items.map((item, j) => (
             <li key={j} className="mb-1" dangerouslySetInnerHTML={{ __html: inlineStyles(item) }} />
           ))}
@@ -220,11 +396,15 @@ function renderMarkdown(text: string): React.ReactNode[] {
     if (/^\d+\. /.test(line)) {
       const items: string[] = [];
       while (i < lines.length && /^\d+\. /.test(lines[i])) {
-        items.push(lines[i].replace(/^\d+\. /, ""));
+        items.push(lines[i].replace(/^\d+\. /, ''));
         i++;
       }
       nodes.push(
-        <ol key={key++} className="list-decimal list-inside space-y-1 mb-4" style={{ color: "#a1a1aa" }}>
+        <ol
+          key={key++}
+          className="list-decimal list-inside space-y-1 mb-4"
+          style={{ color: '#a1a1aa' }}
+        >
           {items.map((item, j) => (
             <li key={j} className="mb-1" dangerouslySetInnerHTML={{ __html: inlineStyles(item) }} />
           ))}
@@ -238,7 +418,7 @@ function renderMarkdown(text: string): React.ReactNode[] {
       <p
         key={key++}
         className="mb-4 leading-relaxed text-sm"
-        style={{ color: "#a1a1aa" }}
+        style={{ color: '#a1a1aa' }}
         dangerouslySetInnerHTML={{ __html: inlineStyles(line) }}
       />
     );
@@ -250,9 +430,9 @@ function renderMarkdown(text: string): React.ReactNode[] {
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 function difficultyStyle(d: string): { bg: string; color: string } {
-  if (d === "Beginner") return { bg: "rgba(34,197,94,0.1)", color: "#4ade80" };
-  if (d === "Advanced") return { bg: "rgba(239,68,68,0.1)", color: "#f87171" };
-  return { bg: "rgba(212,175,55,0.1)", color: "#d4af37" };
+  if (d === 'Beginner') return { bg: 'rgba(34,197,94,0.1)', color: '#4ade80' };
+  if (d === 'Advanced') return { bg: 'rgba(239,68,68,0.1)', color: '#f87171' };
+  return { bg: 'rgba(212,175,55,0.1)', color: '#d4af37' };
 }
 
 function getLessonByTrack(lessonId: string): { track: Track; index: number } | null {
@@ -273,11 +453,17 @@ function CircularRing({ percent }: { percent: number }) {
     <svg width={40} height={40} className="flex-shrink-0">
       <circle cx={20} cy={20} r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={3} />
       <circle
-        cx={20} cy={20} r={r} fill="none"
-        stroke="#d4af37" strokeWidth={3}
-        strokeDasharray={circ} strokeDashoffset={offset}
-        strokeLinecap="round" transform="rotate(-90 20 20)"
-        style={{ transition: "stroke-dashoffset 0.6s ease" }}
+        cx={20}
+        cy={20}
+        r={r}
+        fill="none"
+        stroke="#d4af37"
+        strokeWidth={3}
+        strokeDasharray={circ}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        transform="rotate(-90 20 20)"
+        style={{ transition: 'stroke-dashoffset 0.6s ease' }}
       />
     </svg>
   );
@@ -285,7 +471,7 @@ function CircularRing({ percent }: { percent: number }) {
 
 // ── Confetti (CSS-only) ───────────────────────────────────────────────────────
 
-const CONFETTI_COLORS = ["#d4af37", "#f0c040", "#22c55e", "#a855f7", "#3b82f6", "#f59e0b"];
+const CONFETTI_COLORS = ['#d4af37', '#f0c040', '#22c55e', '#a855f7', '#3b82f6', '#f59e0b'];
 
 function ConfettiBurst({ active }: { active: boolean }) {
   const pieces = useMemo(
@@ -311,15 +497,15 @@ function ConfettiBurst({ active }: { active: boolean }) {
         <motion.div
           key={p.id}
           initial={{ y: -10, opacity: 1, rotate: p.rotate }}
-          animate={{ y: "110vh", opacity: [1, 1, 0], rotate: p.rotate + 720 }}
-          transition={{ duration: p.duration, delay: p.delay, ease: "easeIn" }}
+          animate={{ y: '110vh', opacity: [1, 1, 0], rotate: p.rotate + 720 }}
+          transition={{ duration: p.duration, delay: p.delay, ease: 'easeIn' }}
           style={{
-            position: "absolute",
+            position: 'absolute',
             left: p.left,
             top: 0,
             width: p.size,
             height: p.size,
-            borderRadius: p.isCircle ? "50%" : 2,
+            borderRadius: p.isCircle ? '50%' : 2,
             background: p.color,
           }}
         />
@@ -338,17 +524,17 @@ function Toast({ message, visible }: { message: string; visible: boolean }) {
           initial={{ opacity: 0, y: 40, scale: 0.92 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
-          transition={{ duration: 0.25, ease: "easeOut" }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
           className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[250] px-6 py-3 rounded-2xl flex items-center gap-3"
           style={{
-            background: "linear-gradient(135deg, rgba(20,20,24,0.98), rgba(28,28,36,0.98))",
-            border: "1px solid rgba(212,175,55,0.4)",
-            boxShadow: "0 8px 32px rgba(212,175,55,0.15), 0 2px 8px rgba(0,0,0,0.4)",
-            backdropFilter: "blur(16px)",
-            fontFamily: "Syne, sans-serif",
+            background: 'linear-gradient(135deg, rgba(20,20,24,0.98), rgba(28,28,36,0.98))',
+            border: '1px solid rgba(212,175,55,0.4)',
+            boxShadow: '0 8px 32px rgba(212,175,55,0.15), 0 2px 8px rgba(0,0,0,0.4)',
+            backdropFilter: 'blur(16px)',
+            fontFamily: 'Syne, sans-serif',
           }}
         >
-          <Trophy size={18} style={{ color: "#d4af37", flexShrink: 0 }} />
+          <Trophy size={18} style={{ color: '#d4af37', flexShrink: 0 }} />
           <span className="text-sm font-bold text-white whitespace-nowrap">{message}</span>
         </motion.div>
       )}
@@ -367,9 +553,20 @@ interface PlaylistDrawerProps {
   onRemove: (lessonId: string) => void;
 }
 
-function PlaylistDrawer({ open, onClose, playlist, progress, onPlay, onRemove }: PlaylistDrawerProps) {
+function PlaylistDrawer({
+  open,
+  onClose,
+  playlist,
+  progress,
+  onPlay,
+  onRemove,
+}: PlaylistDrawerProps) {
   const allLessons: Record<string, Lesson> = {};
-  TRACKS.forEach((t) => t.lessons.forEach((l) => { allLessons[l.id] = l; }));
+  TRACKS.forEach((t) =>
+    t.lessons.forEach((l) => {
+      allLessons[l.id] = l;
+    })
+  );
 
   return (
     <AnimatePresence>
@@ -380,55 +577,82 @@ function PlaylistDrawer({ open, onClose, playlist, progress, onPlay, onRemove }:
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[150]"
-            style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
+            style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
             onClick={onClose}
           />
           <motion.div
-            initial={{ x: "100%" }}
+            initial={{ x: '100%' }}
             animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 28, stiffness: 280 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 280 }}
             className="fixed right-0 top-0 bottom-0 z-[160] flex flex-col"
             style={{
-              width: "min(380px, 100vw)",
-              background: "rgba(10,10,14,0.98)",
-              borderLeft: "1px solid rgba(255,255,255,0.08)",
-              boxShadow: "-16px 0 64px rgba(0,0,0,0.5)",
-              backdropFilter: "blur(20px)",
+              width: 'min(380px, 100vw)',
+              background: 'rgba(10,10,14,0.98)',
+              borderLeft: '1px solid rgba(255,255,255,0.08)',
+              boxShadow: '-16px 0 64px rgba(0,0,0,0.5)',
+              backdropFilter: 'blur(20px)',
             }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 flex-shrink-0"
-              style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+            <div
+              className="flex items-center justify-between px-5 py-4 flex-shrink-0"
+              style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}
+            >
               <div className="flex items-center gap-2">
-                <ListOrdered size={16} style={{ color: "#d4af37" }} />
-                <h3 className="font-bold text-white text-sm" style={{ fontFamily: "Syne, sans-serif" }}>
+                <ListOrdered size={16} style={{ color: '#d4af37' }} />
+                <h3
+                  className="font-bold text-white text-sm"
+                  style={{ fontFamily: 'Syne, sans-serif' }}
+                >
                   My Playlist
                 </h3>
                 {playlist.length > 0 && (
-                  <span className="px-2 py-0.5 rounded-full text-xs font-bold"
-                    style={{ background: "rgba(212,175,55,0.15)", color: "#d4af37" }}>
+                  <span
+                    className="px-2 py-0.5 rounded-full text-xs font-bold"
+                    style={{ background: 'rgba(212,175,55,0.15)', color: '#d4af37' }}
+                  >
                     {playlist.length}
                   </span>
                 )}
               </div>
-              <button onClick={onClose} className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
-                style={{ background: "rgba(255,255,255,0.06)", border: "none", cursor: "pointer", color: "#a1a1aa" }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.1)")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.06)")}
+              <button
+                onClick={onClose}
+                className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#a1a1aa',
+                }}
+                onMouseEnter={(e) =>
+                  ((e.currentTarget as HTMLButtonElement).style.background =
+                    'rgba(255,255,255,0.1)')
+                }
+                onMouseLeave={(e) =>
+                  ((e.currentTarget as HTMLButtonElement).style.background =
+                    'rgba(255,255,255,0.06)')
+                }
               >
                 <X size={13} />
               </button>
             </div>
 
             {/* List */}
-            <div className="flex-1 overflow-y-auto px-3 py-3"
-              style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.06) transparent" }}>
+            <div
+              className="flex-1 overflow-y-auto px-3 py-3"
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: 'rgba(255,255,255,0.06) transparent',
+              }}
+            >
               {playlist.length === 0 ? (
                 <div className="text-center py-12">
-                  <BookOpen size={32} style={{ color: "#3f3f46", margin: "0 auto 12px" }} />
-                  <p className="text-sm" style={{ color: "#52525b" }}>Your playlist is empty</p>
-                  <p className="text-xs mt-1" style={{ color: "#3f3f46" }}>
+                  <BookOpen size={32} style={{ color: '#3f3f46', margin: '0 auto 12px' }} />
+                  <p className="text-sm" style={{ color: '#52525b' }}>
+                    Your playlist is empty
+                  </p>
+                  <p className="text-xs mt-1" style={{ color: '#3f3f46' }}>
                     Add free lessons to build your queue
                   </p>
                 </div>
@@ -438,33 +662,81 @@ function PlaylistDrawer({ open, onClose, playlist, progress, onPlay, onRemove }:
                   if (!lesson) return null;
                   const done = progress[id];
                   return (
-                    <div key={id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1 group transition-all"
-                      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}
-                      onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = "rgba(212,175,55,0.15)")}
-                      onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.05)")}
+                    <div
+                      key={id}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1 group transition-all"
+                      style={{
+                        background: 'rgba(255,255,255,0.02)',
+                        border: '1px solid rgba(255,255,255,0.05)',
+                      }}
+                      onMouseEnter={(e) =>
+                        ((e.currentTarget as HTMLDivElement).style.borderColor =
+                          'rgba(212,175,55,0.15)')
+                      }
+                      onMouseLeave={(e) =>
+                        ((e.currentTarget as HTMLDivElement).style.borderColor =
+                          'rgba(255,255,255,0.05)')
+                      }
                     >
-                      <span className="text-xs font-bold flex-shrink-0" style={{ color: "#52525b", fontFamily: "Syne, sans-serif", minWidth: 20 }}>
-                        {String(idx + 1).padStart(2, "0")}
+                      <span
+                        className="text-xs font-bold flex-shrink-0"
+                        style={{ color: '#52525b', fontFamily: 'Syne, sans-serif', minWidth: 20 }}
+                      >
+                        {String(idx + 1).padStart(2, '0')}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <div className="text-xs font-semibold truncate" style={{ color: done ? "#52525b" : "#e5e5e5", textDecoration: done ? "line-through" : "none" }}>
+                        <div
+                          className="text-xs font-semibold truncate"
+                          style={{
+                            color: done ? '#52525b' : '#e5e5e5',
+                            textDecoration: done ? 'line-through' : 'none',
+                          }}
+                        >
                           {lesson.title}
                         </div>
-                        <div className="text-xs" style={{ color: "#3f3f46" }}>{lesson.readTime}</div>
+                        <div className="text-xs" style={{ color: '#3f3f46' }}>
+                          {lesson.readTime}
+                        </div>
                       </div>
-                      <button onClick={() => onPlay(id)} title="Open lesson"
+                      <button
+                        onClick={() => onPlay(id)}
+                        title="Open lesson"
                         className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all"
-                        style={{ background: "rgba(212,175,55,0.1)", border: "none", cursor: "pointer", color: "#d4af37" }}
-                        onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "rgba(212,175,55,0.2)")}
-                        onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "rgba(212,175,55,0.1)")}
+                        style={{
+                          background: 'rgba(212,175,55,0.1)',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: '#d4af37',
+                        }}
+                        onMouseEnter={(e) =>
+                          ((e.currentTarget as HTMLButtonElement).style.background =
+                            'rgba(212,175,55,0.2)')
+                        }
+                        onMouseLeave={(e) =>
+                          ((e.currentTarget as HTMLButtonElement).style.background =
+                            'rgba(212,175,55,0.1)')
+                        }
                       >
                         <Play size={10} />
                       </button>
-                      <button onClick={() => onRemove(id)} title="Remove from playlist"
+                      <button
+                        onClick={() => onRemove(id)}
+                        title="Remove from playlist"
                         className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all opacity-0 group-hover:opacity-100"
-                        style={{ background: "rgba(239,68,68,0.08)", border: "none", cursor: "pointer", color: "#f87171" }}
-                        onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "rgba(239,68,68,0.2)")}
-                        onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "rgba(239,68,68,0.08)")}
+                        style={{
+                          background: 'rgba(239,68,68,0.08)',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: '#f87171',
+                        }}
+                        onMouseEnter={(e) =>
+                          ((e.currentTarget as HTMLButtonElement).style.background =
+                            'rgba(239,68,68,0.2)')
+                        }
+                        onMouseLeave={(e) =>
+                          ((e.currentTarget as HTMLButtonElement).style.background =
+                            'rgba(239,68,68,0.08)')
+                        }
                       >
                         <X size={10} />
                       </button>
@@ -476,19 +748,27 @@ function PlaylistDrawer({ open, onClose, playlist, progress, onPlay, onRemove }:
 
             {/* Footer */}
             {playlist.length > 0 && (
-              <div className="flex-shrink-0 px-4 py-4" style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+              <div
+                className="flex-shrink-0 px-4 py-4"
+                style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}
+              >
                 <button
-                  onClick={() => { onPlay(playlist[0]); onClose(); }}
+                  onClick={() => {
+                    onPlay(playlist[0]);
+                    onClose();
+                  }}
                   className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all"
                   style={{
-                    background: "linear-gradient(135deg, #d4af37, #b8941f)",
-                    color: "#0a0a0a",
-                    border: "none",
-                    cursor: "pointer",
-                    fontFamily: "Syne, sans-serif",
+                    background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+                    color: '#0a0a0a',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'Syne, sans-serif',
                   }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = "0.9")}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = "1")}
+                  onMouseEnter={(e) =>
+                    ((e.currentTarget as HTMLButtonElement).style.opacity = '0.9')
+                  }
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '1')}
                 >
                   <Play size={14} />
                   Start Playlist
@@ -516,9 +796,16 @@ interface LessonModalProps {
 }
 
 function LessonModal({
-  lesson, open, onClose, onComplete, completed, prevLesson, nextLesson, onNavigate,
+  lesson,
+  open,
+  onClose,
+  onComplete,
+  completed,
+  prevLesson,
+  nextLesson,
+  onNavigate,
 }: LessonModalProps) {
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [readProgress, setReadProgress] = useState(0);
   const [saved, setSaved] = useState(false);
@@ -527,7 +814,7 @@ function LessonModal({
 
   useEffect(() => {
     if (!lesson || !open) return;
-    setContent("");
+    setContent('');
     setReadProgress(0);
     setSaved(false);
     setLoading(true);
@@ -546,13 +833,13 @@ Format requirements:
 
 Start with a brief intro paragraph, then dive straight into the content.`;
 
-    fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        messages: [{ role: "user", content: prompt }],
-        toolName: "ai-chat",
-        market: "AU",
+        messages: [{ role: 'user', content: prompt }],
+        toolName: 'ai-chat',
+        market: 'AU',
         stream: false,
       }),
     })
@@ -562,14 +849,16 @@ Start with a brief intro paragraph, then dive straight into the content.`;
         const choices = d.choices as Array<{ message: { content: string } }> | undefined;
         setContent(
           (d.content as string) ||
-          (d.text as string) ||
-          (d.result as string) ||
-          choices?.[0]?.message?.content ||
-          "## Lesson Content\n\nContent is loading. Please try again in a moment."
+            (d.text as string) ||
+            (d.result as string) ||
+            choices?.[0]?.message?.content ||
+            '## Lesson Content\n\nContent is loading. Please try again in a moment.'
         );
       })
       .catch(() =>
-        setContent("## Lesson Content\n\nContent is loading. Please try again in a moment.\n\nIf this persists, check your connection.")
+        setContent(
+          '## Lesson Content\n\nContent is loading. Please try again in a moment.\n\nIf this persists, check your connection.'
+        )
       )
       .finally(() => setLoading(false));
   }, [lesson, open]);
@@ -584,14 +873,14 @@ Start with a brief intro paragraph, then dive straight into the content.`;
 
   const handleSaveToPlaybook = useCallback(() => {
     if (!lesson || !content) return;
-    const date = new Date().toLocaleDateString("en-AU");
+    const date = new Date().toLocaleDateString('en-AU');
     const takeaways = content
-      .split("\n")
+      .split('\n')
       .filter((l) => /^\d+\. /.test(l))
       .slice(0, 3)
-      .map((l) => l.replace(/^\d+\. /, "• "))
-      .join("\n");
-    const entry = `\n\n---\n# ${lesson.title}\n*Saved ${date}*\n\n${takeaways || content.slice(0, 300) + "..."}\n`;
+      .map((l) => l.replace(/^\d+\. /, '• '))
+      .join('\n');
+    const entry = `\n\n---\n# ${lesson.title}\n*Saved ${date}*\n\n${takeaways || content.slice(0, 300) + '...'}\n`;
     appendPlaybook(entry);
     setSaved(true);
   }, [lesson, content]);
@@ -606,21 +895,24 @@ Start with a brief intro paragraph, then dive straight into the content.`;
       <DialogContent
         className="sm:max-w-2xl border border-white/10 p-0 overflow-hidden w-full"
         style={{
-          background: "rgba(10,10,18,0.98)",
-          backdropFilter: "blur(20px)",
-          maxHeight: "90vh",
-          display: "flex",
-          flexDirection: "column",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(212,175,55,0.08)",
+          background: 'rgba(10,10,18,0.98)',
+          backdropFilter: 'blur(20px)',
+          maxHeight: '90vh',
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: '0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(212,175,55,0.08)',
         }}
       >
         {/* Reading progress bar */}
-        <div className="absolute top-0 left-0 right-0 z-10" style={{ height: 2, background: "rgba(255,255,255,0.04)" }}>
+        <div
+          className="absolute top-0 left-0 right-0 z-10"
+          style={{ height: 2, background: 'rgba(255,255,255,0.04)' }}
+        >
           <div
             className="h-full transition-all duration-200"
             style={{
               width: `${readProgress}%`,
-              background: "linear-gradient(90deg, #d4af37, #f0c040)",
+              background: 'linear-gradient(90deg, #d4af37, #f0c040)',
             }}
           />
         </div>
@@ -628,26 +920,36 @@ Start with a brief intro paragraph, then dive straight into the content.`;
         {/* Header */}
         <DialogHeader
           className="px-6 pt-7 pb-4 flex-shrink-0"
-          style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
+          style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}
         >
           <div className="flex items-center gap-3 mb-2">
-            <span className="px-2.5 py-1 rounded-full text-xs font-bold"
-              style={{ background: diffStyle.bg, color: diffStyle.color }}>
+            <span
+              className="px-2.5 py-1 rounded-full text-xs font-bold"
+              style={{ background: diffStyle.bg, color: diffStyle.color }}
+            >
               {lesson.difficulty}
             </span>
-            <span className="text-xs" style={{ color: "#52525b" }}>{lesson.readTime} read</span>
+            <span className="text-xs" style={{ color: '#52525b' }}>
+              {lesson.readTime} read
+            </span>
             {lesson.free && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-bold"
-                style={{ background: "rgba(34,197,94,0.1)", color: "#4ade80" }}>
+              <span
+                className="px-2 py-0.5 rounded-full text-xs font-bold"
+                style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80' }}
+              >
                 Free
               </span>
             )}
           </div>
-          <DialogTitle className="text-xl font-bold text-white leading-tight"
-            style={{ fontFamily: "Syne, sans-serif" }}>
+          <DialogTitle
+            className="text-xl font-bold text-white leading-tight"
+            style={{ fontFamily: 'Syne, sans-serif' }}
+          >
             {lesson.title}
           </DialogTitle>
-          <p className="text-sm mt-1" style={{ color: "#71717a" }}>{lesson.description}</p>
+          <p className="text-sm mt-1" style={{ color: '#71717a' }}>
+            {lesson.description}
+          </p>
         </DialogHeader>
 
         {/* Content */}
@@ -655,16 +957,24 @@ Start with a brief intro paragraph, then dive straight into the content.`;
           ref={contentRef}
           onScroll={handleScroll}
           className="flex-1 overflow-y-auto px-6 py-4"
-          style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.06) transparent" }}
+          style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.06) transparent' }}
         >
           {loading ? (
             <div className="space-y-3 mt-2 animate-pulse">
               {[85, 70, 90, 60, 75, 55, 80, 65].map((w, i) => (
-                <div key={i} className="h-3.5 rounded-full" style={{ background: "rgba(255,255,255,0.05)", width: `${w}%` }} />
+                <div
+                  key={i}
+                  className="h-3.5 rounded-full"
+                  style={{ background: 'rgba(255,255,255,0.05)', width: `${w}%` }}
+                />
               ))}
-              <div className="mt-4 h-px" style={{ background: "rgba(255,255,255,0.05)" }} />
+              <div className="mt-4 h-px" style={{ background: 'rgba(255,255,255,0.05)' }} />
               {[70, 85, 60, 90].map((w, i) => (
-                <div key={i + 10} className="h-3.5 rounded-full mt-2" style={{ background: "rgba(255,255,255,0.04)", width: `${w}%` }} />
+                <div
+                  key={i + 10}
+                  className="h-3.5 rounded-full mt-2"
+                  style={{ background: 'rgba(255,255,255,0.04)', width: `${w}%` }}
+                />
               ))}
             </div>
           ) : (
@@ -675,7 +985,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
         {/* Footer */}
         <div
           className="flex-shrink-0 px-5 py-4 space-y-3"
-          style={{ borderTop: "1px solid rgba(255,255,255,0.07)" }}
+          style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}
         >
           {/* Navigation + Save */}
           <div className="flex items-center justify-between">
@@ -684,20 +994,44 @@ Start with a brief intro paragraph, then dive straight into the content.`;
                 <button
                   onClick={() => onNavigate(prevLesson)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                  style={{ background: "rgba(255,255,255,0.05)", color: "#a1a1aa", border: "none", cursor: "pointer" }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.09)")}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.05)")}
+                  style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    color: '#a1a1aa',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                  onMouseEnter={(e) =>
+                    ((e.currentTarget as HTMLButtonElement).style.background =
+                      'rgba(255,255,255,0.09)')
+                  }
+                  onMouseLeave={(e) =>
+                    ((e.currentTarget as HTMLButtonElement).style.background =
+                      'rgba(255,255,255,0.05)')
+                  }
                 >
                   <ChevronLeft size={12} /> Prev
                 </button>
-              ) : <div style={{ width: 60 }} />}
+              ) : (
+                <div style={{ width: 60 }} />
+              )}
               {nextLesson && (
                 <button
                   onClick={() => onNavigate(nextLesson)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                  style={{ background: "rgba(255,255,255,0.05)", color: "#a1a1aa", border: "none", cursor: "pointer" }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.09)")}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.05)")}
+                  style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    color: '#a1a1aa',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                  onMouseEnter={(e) =>
+                    ((e.currentTarget as HTMLButtonElement).style.background =
+                      'rgba(255,255,255,0.09)')
+                  }
+                  onMouseLeave={(e) =>
+                    ((e.currentTarget as HTMLButtonElement).style.background =
+                      'rgba(255,255,255,0.05)')
+                  }
                 >
                   Next <ChevronRight size={12} />
                 </button>
@@ -710,26 +1044,36 @@ Start with a brief intro paragraph, then dive straight into the content.`;
                   title="Save key takeaways to My Playbook"
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={{
-                    background: saved ? "rgba(212,175,55,0.1)" : "rgba(255,255,255,0.05)",
-                    color: saved ? "#d4af37" : "#71717a",
-                    border: `1px solid ${saved ? "rgba(212,175,55,0.2)" : "transparent"}`,
-                    cursor: "pointer",
+                    background: saved ? 'rgba(212,175,55,0.1)' : 'rgba(255,255,255,0.05)',
+                    color: saved ? '#d4af37' : '#71717a',
+                    border: `1px solid ${saved ? 'rgba(212,175,55,0.2)' : 'transparent'}`,
+                    cursor: 'pointer',
                   }}
-                  onMouseEnter={(e) => { if (!saved) (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.09)"; }}
-                  onMouseLeave={(e) => { if (!saved) (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.05)"; }}
+                  onMouseEnter={(e) => {
+                    if (!saved)
+                      (e.currentTarget as HTMLButtonElement).style.background =
+                        'rgba(255,255,255,0.09)';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!saved)
+                      (e.currentTarget as HTMLButtonElement).style.background =
+                        'rgba(255,255,255,0.05)';
+                  }}
                 >
                   {saved ? <BookmarkCheck size={12} /> : <Bookmark size={12} />}
-                  {saved ? "Saved" : "Save to Playbook"}
+                  {saved ? 'Saved' : 'Save to Playbook'}
                 </button>
               )}
               <button
                 onClick={() => {
-                  setLocation(`/app/ai-chat?q=${encodeURIComponent(`Tell me more about: ${lesson.title}`)}`);
+                  setLocation(
+                    `/app/ai-chat?q=${encodeURIComponent(`Tell me more about: ${lesson.title}`)}`
+                  );
                 }}
                 className="text-xs font-medium transition-opacity"
-                style={{ color: "#d4af37", background: "none", border: "none", cursor: "pointer" }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = "0.7")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = "1")}
+                style={{ color: '#d4af37', background: 'none', border: 'none', cursor: 'pointer' }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '0.7')}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '1')}
               >
                 Ask Maya →
               </button>
@@ -738,23 +1082,28 @@ Start with a brief intro paragraph, then dive straight into the content.`;
 
           {/* Complete button */}
           <button
-            onClick={() => { onComplete(lesson.id); onClose(); }}
+            onClick={() => {
+              onComplete(lesson.id);
+              onClose();
+            }}
             className="w-full py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2"
             style={{
               background: isCompleted
-                ? "rgba(34,197,94,0.12)"
-                : "linear-gradient(135deg, #d4af37, #b8941f)",
-              color: isCompleted ? "#4ade80" : "#0a0a0a",
-              border: isCompleted ? "1px solid rgba(34,197,94,0.25)" : "none",
-              cursor: "pointer",
-              fontFamily: "Syne, sans-serif",
-              boxShadow: isCompleted ? "none" : "0 4px 16px rgba(212,175,55,0.25)",
+                ? 'rgba(34,197,94,0.12)'
+                : 'linear-gradient(135deg, #d4af37, #b8941f)',
+              color: isCompleted ? '#4ade80' : '#0a0a0a',
+              border: isCompleted ? '1px solid rgba(34,197,94,0.25)' : 'none',
+              cursor: 'pointer',
+              fontFamily: 'Syne, sans-serif',
+              boxShadow: isCompleted ? 'none' : '0 4px 16px rgba(212,175,55,0.25)',
             }}
-            onMouseEnter={(e) => { if (!isCompleted) (e.currentTarget as HTMLButtonElement).style.opacity = "0.9"; }}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = "1")}
+            onMouseEnter={(e) => {
+              if (!isCompleted) (e.currentTarget as HTMLButtonElement).style.opacity = '0.9';
+            }}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '1')}
           >
             {isCompleted ? <CheckCircle2 size={15} /> : <ArrowRight size={15} />}
-            {isCompleted ? "Completed" : "Mark Complete"}
+            {isCompleted ? 'Completed' : 'Mark Complete'}
           </button>
         </div>
       </DialogContent>
@@ -768,32 +1117,45 @@ function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }
   const [, setLocation] = useLocation();
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-sm border border-white/10 text-center p-0 overflow-hidden"
-        style={{ background: "rgba(10,10,18,0.98)", backdropFilter: "blur(20px)" }}>
+      <DialogContent
+        className="max-w-sm border border-white/10 text-center p-0 overflow-hidden"
+        style={{ background: 'rgba(10,10,18,0.98)', backdropFilter: 'blur(20px)' }}
+      >
         <div className="py-8 px-6 flex flex-col items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center"
-            style={{ background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.2)" }}>
-            <Lock size={22} style={{ color: "#d4af37" }} />
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center"
+            style={{
+              background: 'rgba(212,175,55,0.08)',
+              border: '1px solid rgba(212,175,55,0.2)',
+            }}
+          >
+            <Lock size={22} style={{ color: '#d4af37' }} />
           </div>
-          <DialogTitle className="text-xl font-bold text-white" style={{ fontFamily: "Syne, sans-serif" }}>
+          <DialogTitle
+            className="text-xl font-bold text-white"
+            style={{ fontFamily: 'Syne, sans-serif' }}
+          >
             Builder Plan Required
           </DialogTitle>
-          <p className="text-sm" style={{ color: "#71717a" }}>
+          <p className="text-sm" style={{ color: '#71717a' }}>
             Unlock all 20 lessons + AI personalisation to accelerate your dropshipping journey.
           </p>
           <button
-            onClick={() => { setLocation("/pricing"); onClose(); }}
+            onClick={() => {
+              setLocation('/pricing');
+              onClose();
+            }}
             className="w-full py-3 rounded-xl font-bold text-sm transition-all"
             style={{
-              background: "linear-gradient(135deg, #d4af37, #b8941f)",
-              color: "#0a0a0a",
-              border: "none",
-              cursor: "pointer",
-              fontFamily: "Syne, sans-serif",
-              boxShadow: "0 4px 20px rgba(212,175,55,0.3)",
+              background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+              color: '#0a0a0a',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'Syne, sans-serif',
+              boxShadow: '0 4px 20px rgba(212,175,55,0.3)',
             }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = "0.9")}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = "1")}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '0.9')}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '1')}
           >
             Upgrade to Builder Plan
           </button>
@@ -815,7 +1177,15 @@ interface TrackCardProps {
   onPlaylistToggle: (lessonId: string) => void;
 }
 
-function TrackCard({ track, isOpen, onToggle, progress, playlist, onLessonClick, onPlaylistToggle }: TrackCardProps) {
+function TrackCard({
+  track,
+  isOpen,
+  onToggle,
+  progress,
+  playlist,
+  onLessonClick,
+  onPlaylistToggle,
+}: TrackCardProps) {
   const completedInTrack = track.lessons.filter((l) => progress[l.id]).length;
   const freeInTrack = track.lessons.filter((l) => l.free);
   const freeCompleted = freeInTrack.filter((l) => progress[l.id]).length;
@@ -828,17 +1198,13 @@ function TrackCard({ track, isOpen, onToggle, progress, playlist, onLessonClick,
       layout
       className="rounded-2xl overflow-hidden cursor-pointer"
       style={{
-        background: isOpen
-          ? "rgba(212,175,55,0.04)"
-          : "rgba(255,255,255,0.025)",
-        border: isOpen
-          ? "1px solid rgba(212,175,55,0.25)"
-          : "1px solid rgba(255,255,255,0.07)",
-        backdropFilter: "blur(12px)",
+        background: isOpen ? 'rgba(212,175,55,0.04)' : 'rgba(255,255,255,0.025)',
+        border: isOpen ? '1px solid rgba(212,175,55,0.25)' : '1px solid rgba(255,255,255,0.07)',
+        backdropFilter: 'blur(12px)',
         boxShadow: isOpen
-          ? "0 0 40px rgba(212,175,55,0.06), 0 4px 24px rgba(0,0,0,0.3)"
-          : "0 2px 12px rgba(0,0,0,0.2)",
-        transition: "border-color 200ms ease, box-shadow 200ms ease, background 200ms ease",
+          ? '0 0 40px rgba(212,175,55,0.06), 0 4px 24px rgba(0,0,0,0.3)'
+          : '0 2px 12px rgba(0,0,0,0.2)',
+        transition: 'border-color 200ms ease, box-shadow 200ms ease, background 200ms ease',
       }}
       onClick={onToggle}
     >
@@ -848,28 +1214,41 @@ function TrackCard({ track, isOpen, onToggle, progress, playlist, onLessonClick,
           <span style={{ fontSize: 40, lineHeight: 1, flexShrink: 0 }}>{track.emoji}</span>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-bold text-white text-base leading-tight" style={{ fontFamily: "Syne, sans-serif" }}>
+              <h3
+                className="font-bold text-white text-base leading-tight"
+                style={{ fontFamily: 'Syne, sans-serif' }}
+              >
                 {track.title}
               </h3>
               {trackComplete && (
                 <span
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold flex-shrink-0"
-                  style={{ background: "rgba(212,175,55,0.15)", color: "#d4af37", border: "1px solid rgba(212,175,55,0.25)" }}
+                  style={{
+                    background: 'rgba(212,175,55,0.15)',
+                    color: '#d4af37',
+                    border: '1px solid rgba(212,175,55,0.25)',
+                  }}
                 >
                   <Trophy size={10} />
                   Complete
                 </span>
               )}
             </div>
-            <p className="text-xs mt-1 leading-relaxed" style={{ color: "#71717a" }}>{track.description}</p>
+            <p className="text-xs mt-1 leading-relaxed" style={{ color: '#71717a' }}>
+              {track.description}
+            </p>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
-              <span className="px-2 py-0.5 rounded-full text-xs font-medium"
-                style={{ background: "rgba(255,255,255,0.05)", color: "#71717a" }}>
+              <span
+                className="px-2 py-0.5 rounded-full text-xs font-medium"
+                style={{ background: 'rgba(255,255,255,0.05)', color: '#71717a' }}
+              >
                 {track.lessons.length} lessons · {freeInTrack.length} free
               </span>
               {completedInTrack > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-xs font-bold"
-                  style={{ background: "rgba(212,175,55,0.1)", color: "#d4af37" }}>
+                <span
+                  className="px-2 py-0.5 rounded-full text-xs font-bold"
+                  style={{ background: 'rgba(212,175,55,0.1)', color: '#d4af37' }}
+                >
                   {completedInTrack}/{track.lessons.length} done
                 </span>
               )}
@@ -878,32 +1257,50 @@ function TrackCard({ track, isOpen, onToggle, progress, playlist, onLessonClick,
         </div>
 
         {/* Progress bar */}
-        <div className="mt-4 w-full rounded-full overflow-hidden" style={{ height: 3, background: "rgba(255,255,255,0.06)" }}>
+        <div
+          className="mt-4 w-full rounded-full overflow-hidden"
+          style={{ height: 3, background: 'rgba(255,255,255,0.06)' }}
+        >
           <motion.div
             className="h-full rounded-full"
             initial={false}
             animate={{ width: `${progressPercent}%` }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            style={{ background: trackComplete ? "linear-gradient(90deg, #4ade80, #22c55e)" : "linear-gradient(90deg, #d4af37, #f0c040)" }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            style={{
+              background: trackComplete
+                ? 'linear-gradient(90deg, #4ade80, #22c55e)'
+                : 'linear-gradient(90deg, #d4af37, #f0c040)',
+            }}
           />
         </div>
 
         {/* CTA button */}
         {!isOpen && (
           <button
-            onClick={(e) => { e.stopPropagation(); onToggle(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggle();
+            }}
             className="mt-3 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
             style={{
-              background: hasStarted ? "rgba(212,175,55,0.1)" : "rgba(255,255,255,0.04)",
-              color: hasStarted ? "#d4af37" : "#71717a",
-              border: `1px solid ${hasStarted ? "rgba(212,175,55,0.2)" : "rgba(255,255,255,0.07)"}`,
-              cursor: "pointer",
-              fontFamily: "Syne, sans-serif",
+              background: hasStarted ? 'rgba(212,175,55,0.1)' : 'rgba(255,255,255,0.04)',
+              color: hasStarted ? '#d4af37' : '#71717a',
+              border: `1px solid ${hasStarted ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.07)'}`,
+              cursor: 'pointer',
+              fontFamily: 'Syne, sans-serif',
             }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = "0.8")}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = "1")}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '0.8')}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '1')}
           >
-            {hasStarted ? <><Play size={10} /> Continue</> : <><BookOpen size={10} /> Start Learning</>}
+            {hasStarted ? (
+              <>
+                <Play size={10} /> Continue
+              </>
+            ) : (
+              <>
+                <BookOpen size={10} /> Start Learning
+              </>
+            )}
           </button>
         )}
       </div>
@@ -913,64 +1310,70 @@ function TrackCard({ track, isOpen, onToggle, progress, playlist, onLessonClick,
         {isOpen && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
+            animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22, ease: "easeInOut" }}
-            style={{ overflow: "hidden" }}
+            transition={{ duration: 0.22, ease: 'easeInOut' }}
+            style={{ overflow: 'hidden' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-3 pb-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+            <div className="px-3 pb-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
               {track.lessons.map((lesson, idx) => {
                 const isCompleted = progress[lesson.id];
                 const inPlaylist = playlist.includes(lesson.id);
                 const diffStyle = difficultyStyle(lesson.difficulty);
-                const num = String(idx + 1).padStart(2, "0");
+                const num = String(idx + 1).padStart(2, '0');
 
                 return (
                   <div
                     key={lesson.id}
                     className="group relative flex items-center gap-2.5 px-3 py-2.5 rounded-xl mt-1 cursor-pointer transition-all"
                     style={{
-                      background: "transparent",
-                      borderLeft: "2px solid transparent",
+                      background: 'transparent',
+                      borderLeft: '2px solid transparent',
                       minHeight: 48,
                     }}
                     onClick={() => onLessonClick(lesson)}
                     onMouseEnter={(e) => {
                       const el = e.currentTarget as HTMLDivElement;
-                      el.style.background = "rgba(255,255,255,0.03)";
-                      el.style.borderLeftColor = isCompleted ? "rgba(34,197,94,0.4)" : "rgba(212,175,55,0.4)";
+                      el.style.background = 'rgba(255,255,255,0.03)';
+                      el.style.borderLeftColor = isCompleted
+                        ? 'rgba(34,197,94,0.4)'
+                        : 'rgba(212,175,55,0.4)';
                     }}
                     onMouseLeave={(e) => {
                       const el = e.currentTarget as HTMLDivElement;
-                      el.style.background = "transparent";
-                      el.style.borderLeftColor = "transparent";
+                      el.style.background = 'transparent';
+                      el.style.borderLeftColor = 'transparent';
                     }}
                   >
                     {/* Lesson number */}
-                    <span className="text-xs font-bold flex-shrink-0 w-7 text-center"
-                      style={{ color: "#3f3f46", fontFamily: "Syne, sans-serif" }}>
+                    <span
+                      className="text-xs font-bold flex-shrink-0 w-7 text-center"
+                      style={{ color: '#3f3f46', fontFamily: 'Syne, sans-serif' }}
+                    >
                       {num}
                     </span>
 
                     {/* Status icon */}
                     <div className="flex-shrink-0">
                       {isCompleted ? (
-                        <CheckCircle2 size={15} style={{ color: "#4ade80" }} />
+                        <CheckCircle2 size={15} style={{ color: '#4ade80' }} />
                       ) : lesson.free ? (
-                        <BookOpen size={15} style={{ color: "#d4af37" }} />
+                        <BookOpen size={15} style={{ color: '#d4af37' }} />
                       ) : (
-                        <Lock size={14} style={{ color: "#3f3f46" }} />
+                        <Lock size={14} style={{ color: '#3f3f46' }} />
                       )}
                     </div>
 
                     {/* Title + description */}
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate transition-colors"
+                      <div
+                        className="text-sm font-medium truncate transition-colors"
                         style={{
-                          color: isCompleted ? "#52525b" : lesson.free ? "#e5e5e5" : "#71717a",
-                          textDecoration: isCompleted ? "line-through" : "none",
-                        }}>
+                          color: isCompleted ? '#52525b' : lesson.free ? '#e5e5e5' : '#71717a',
+                          textDecoration: isCompleted ? 'line-through' : 'none',
+                        }}
+                      >
                         {lesson.title}
                       </div>
                     </div>
@@ -978,32 +1381,43 @@ function TrackCard({ track, isOpen, onToggle, progress, playlist, onLessonClick,
                     {/* Right badges */}
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       {lesson.free && !isCompleted && (
-                        <span className="px-1.5 py-0.5 rounded-full text-xs font-bold"
-                          style={{ background: "rgba(34,197,94,0.1)", color: "#4ade80" }}>
+                        <span
+                          className="px-1.5 py-0.5 rounded-full text-xs font-bold"
+                          style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80' }}
+                        >
                           Free
                         </span>
                       )}
-                      <span className="text-xs hidden sm:block" style={{ color: "#3f3f46" }}>
+                      <span className="text-xs hidden sm:block" style={{ color: '#3f3f46' }}>
                         {lesson.readTime}
                       </span>
-                      <span className="px-1.5 py-0.5 rounded-full text-xs font-medium hidden sm:block"
-                        style={{ background: diffStyle.bg, color: diffStyle.color }}>
+                      <span
+                        className="px-1.5 py-0.5 rounded-full text-xs font-medium hidden sm:block"
+                        style={{ background: diffStyle.bg, color: diffStyle.color }}
+                      >
                         {lesson.difficulty}
                       </span>
 
                       {/* Playlist toggle — free lessons only */}
                       {lesson.free && (
                         <button
-                          onClick={(e) => { e.stopPropagation(); onPlaylistToggle(lesson.id); }}
-                          title={inPlaylist ? "Remove from playlist" : "Add to playlist"}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onPlaylistToggle(lesson.id);
+                          }}
+                          title={inPlaylist ? 'Remove from playlist' : 'Add to playlist'}
                           className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all opacity-0 group-hover:opacity-100"
                           style={{
-                            background: inPlaylist ? "rgba(212,175,55,0.15)" : "rgba(255,255,255,0.06)",
-                            border: "none",
-                            cursor: "pointer",
-                            color: inPlaylist ? "#d4af37" : "#71717a",
+                            background: inPlaylist
+                              ? 'rgba(212,175,55,0.15)'
+                              : 'rgba(255,255,255,0.06)',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: inPlaylist ? '#d4af37' : '#71717a',
                           }}
-                          onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = "1")}
+                          onMouseEnter={(e) =>
+                            ((e.currentTarget as HTMLButtonElement).style.opacity = '1')
+                          }
                         >
                           {inPlaylist ? <Minus size={10} /> : <Plus size={10} />}
                         </button>
@@ -1028,15 +1442,15 @@ export default function LearnHub() {
 
   const [progress, setProgress] = useState<Record<string, boolean>>({});
   const [progressLoaded, setProgressLoaded] = useState(false);
-  const [openTrack, setOpenTrack] = useState<string | null>("fundamentals");
+  const [openTrack, setOpenTrack] = useState<string | null>('fundamentals');
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [lessonModalOpen, setLessonModalOpen] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const [diffFilter, setDiffFilter] = useState<string>("All");
+  const [search, setSearch] = useState('');
+  const [diffFilter, setDiffFilter] = useState<string>('All');
   const [playlist, setPlaylist] = useState<string[]>([]);
   const [playlistOpen, setPlaylistOpen] = useState(false);
-  const [toast, setToast] = useState({ message: "", visible: false });
+  const [toast, setToast] = useState({ message: '', visible: false });
   const [confettiActive, setConfettiActive] = useState(false);
 
   // Load progress on mount — Supabase preferred, localStorage fallback
@@ -1093,14 +1507,19 @@ export default function LearnHub() {
   );
 
   const handleLessonClick = useCallback((lesson: Lesson) => {
-    if (!lesson.free) { setUpgradeOpen(true); return; }
+    if (!lesson.free) {
+      setUpgradeOpen(true);
+      return;
+    }
     setSelectedLesson(lesson);
     setLessonModalOpen(true);
   }, []);
 
   const handlePlaylistToggle = useCallback((lessonId: string) => {
     setPlaylist((prev) => {
-      const next = prev.includes(lessonId) ? prev.filter((id) => id !== lessonId) : [...prev, lessonId];
+      const next = prev.includes(lessonId)
+        ? prev.filter((id) => id !== lessonId)
+        : [...prev, lessonId];
       savePlaylist(next);
       return next;
     });
@@ -1129,7 +1548,7 @@ export default function LearnHub() {
     const q = search.toLowerCase().trim();
     return TRACKS.map((track) => {
       const lessons = track.lessons.filter((l) => {
-        const matchDiff = diffFilter === "All" || l.difficulty === diffFilter;
+        const matchDiff = diffFilter === 'All' || l.difficulty === diffFilter;
         const matchSearch =
           !q || l.title.toLowerCase().includes(q) || l.description.toLowerCase().includes(q);
         return matchDiff && matchSearch;
@@ -1138,15 +1557,18 @@ export default function LearnHub() {
     }).filter(
       (track) =>
         track.lessons.length > 0 ||
-        (!q && diffFilter === "All") ||
+        (!q && diffFilter === 'All') ||
         track.title.toLowerCase().includes(search.toLowerCase())
     );
   }, [search, diffFilter]);
 
-  const DIFF_PILLS = ["All", "Beginner", "Intermediate", "Advanced"] as const;
+  const DIFF_PILLS = ['All', 'Beginner', 'Intermediate', 'Advanced'] as const;
 
   return (
-    <div className="min-h-screen" style={{ background: "#080a0e", fontFamily: "DM Sans, sans-serif" }}>
+    <div
+      className="min-h-screen"
+      style={{ background: '#080a0e', fontFamily: 'DM Sans, sans-serif' }}
+    >
       {/* Confetti */}
       <ConfettiBurst active={confettiActive} />
 
@@ -1173,16 +1595,16 @@ export default function LearnHub() {
             <h1
               className="text-4xl md:text-5xl font-black leading-tight"
               style={{
-                fontFamily: "Syne, sans-serif",
-                background: "linear-gradient(135deg, #d4af37 20%, #f5d98a 60%, #d4af37 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
+                fontFamily: 'Syne, sans-serif',
+                background: 'linear-gradient(135deg, #d4af37 20%, #f5d98a 60%, #d4af37 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
               }}
             >
               Majorka Academy
             </h1>
-            <p className="text-sm mt-2" style={{ color: "#71717a" }}>
+            <p className="text-sm mt-2" style={{ color: '#71717a' }}>
               From zero to your first $10K month — step by step.
             </p>
           </div>
@@ -1194,21 +1616,21 @@ export default function LearnHub() {
               onClick={() => setPlaylistOpen(true)}
               className="relative flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all"
               style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                color: "#a1a1aa",
-                cursor: "pointer",
-                fontFamily: "Syne, sans-serif",
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                color: '#a1a1aa',
+                cursor: 'pointer',
+                fontFamily: 'Syne, sans-serif',
                 fontSize: 13,
                 fontWeight: 600,
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(212,175,55,0.25)";
-                (e.currentTarget as HTMLButtonElement).style.color = "#f5f5f5";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(212,175,55,0.25)';
+                (e.currentTarget as HTMLButtonElement).style.color = '#f5f5f5';
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.08)";
-                (e.currentTarget as HTMLButtonElement).style.color = "#a1a1aa";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.08)';
+                (e.currentTarget as HTMLButtonElement).style.color = '#a1a1aa';
               }}
             >
               <ListOrdered size={14} />
@@ -1216,7 +1638,7 @@ export default function LearnHub() {
               {playlist.length > 0 && (
                 <span
                   className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center text-xs font-black"
-                  style={{ background: "#d4af37", color: "#0a0a0a", fontSize: 9 }}
+                  style={{ background: '#d4af37', color: '#0a0a0a', fontSize: 9 }}
                 >
                   {playlist.length}
                 </span>
@@ -1228,22 +1650,30 @@ export default function LearnHub() {
               <div
                 className="flex items-center gap-3 px-4 py-3 rounded-2xl"
                 style={{
-                  background: "rgba(255,255,255,0.025)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  backdropFilter: "blur(12px)",
+                  background: 'rgba(255,255,255,0.025)',
+                  border: '1px solid rgba(255,255,255,0.07)',
+                  backdropFilter: 'blur(12px)',
                 }}
               >
                 <div className="relative flex items-center justify-center">
                   <CircularRing percent={overallPercent} />
-                  <span className="absolute text-xs font-black" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
+                  <span
+                    className="absolute text-xs font-black"
+                    style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+                  >
                     {overallPercent}%
                   </span>
                 </div>
                 <div>
-                  <div className="font-bold text-white text-sm" style={{ fontFamily: "Syne, sans-serif" }}>
+                  <div
+                    className="font-bold text-white text-sm"
+                    style={{ fontFamily: 'Syne, sans-serif' }}
+                  >
                     {completedCount} of {TOTAL_LESSONS}
                   </div>
-                  <div className="text-xs" style={{ color: "#52525b" }}>complete</div>
+                  <div className="text-xs" style={{ color: '#52525b' }}>
+                    complete
+                  </div>
                 </div>
               </div>
             )}
@@ -1259,24 +1689,25 @@ export default function LearnHub() {
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 sm:max-w-sm text-sm transition-all focus:outline-none"
             style={{
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
               borderRadius: 10,
-              padding: "10px 16px",
-              color: "#f5f5f5",
-              fontFamily: "DM Sans, sans-serif",
+              padding: '10px 16px',
+              color: '#f5f5f5',
+              fontFamily: 'DM Sans, sans-serif',
             }}
-            onFocus={(e) => (e.target.style.borderColor = "rgba(212,175,55,0.4)")}
-            onBlur={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
+            onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.4)')}
+            onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
           />
 
           {/* Difficulty pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+          <div
+            className="flex items-center gap-2 overflow-x-auto pb-1"
+            style={{ scrollbarWidth: 'none' }}
+          >
             {DIFF_PILLS.map((pill) => {
               const active = diffFilter === pill;
-              const col = pill === "All"
-                ? "#d4af37"
-                : difficultyStyle(pill).color;
+              const col = pill === 'All' ? '#d4af37' : difficultyStyle(pill).color;
               return (
                 <button
                   key={pill}
@@ -1284,19 +1715,21 @@ export default function LearnHub() {
                   className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all"
                   style={{
                     background: active
-                      ? pill === "All"
-                        ? "rgba(212,175,55,0.15)"
+                      ? pill === 'All'
+                        ? 'rgba(212,175,55,0.15)'
                         : `${difficultyStyle(pill).bg}`
-                      : "rgba(255,255,255,0.04)",
-                    color: active ? col : "#52525b",
-                    border: active
-                      ? `1px solid ${col}40`
-                      : "1px solid rgba(255,255,255,0.07)",
-                    cursor: "pointer",
-                    fontFamily: "Syne, sans-serif",
+                      : 'rgba(255,255,255,0.04)',
+                    color: active ? col : '#52525b',
+                    border: active ? `1px solid ${col}40` : '1px solid rgba(255,255,255,0.07)',
+                    cursor: 'pointer',
+                    fontFamily: 'Syne, sans-serif',
                   }}
-                  onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = "#a1a1aa"; }}
-                  onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = "#52525b"; }}
+                  onMouseEnter={(e) => {
+                    if (!active) (e.currentTarget as HTMLButtonElement).style.color = '#a1a1aa';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!active) (e.currentTarget as HTMLButtonElement).style.color = '#52525b';
+                  }}
                 >
                   {pill}
                 </button>
@@ -1308,8 +1741,10 @@ export default function LearnHub() {
         {/* Track grid */}
         {filteredTracks.length === 0 ? (
           <div className="text-center py-16">
-            <BookOpen size={36} style={{ color: "#3f3f46", margin: "0 auto 12px" }} />
-            <p className="text-sm font-medium" style={{ color: "#52525b" }}>No lessons match your search</p>
+            <BookOpen size={36} style={{ color: '#3f3f46', margin: '0 auto 12px' }} />
+            <p className="text-sm font-medium" style={{ color: '#52525b' }}>
+              No lessons match your search
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -1330,7 +1765,7 @@ export default function LearnHub() {
 
         {/* Footer */}
         <div className="mt-10 text-center">
-          <p className="text-xs" style={{ color: "#3f3f46" }}>
+          <p className="text-xs" style={{ color: '#3f3f46' }}>
             Free lessons open to all · Locked lessons require Builder Plan
           </p>
         </div>
@@ -1340,7 +1775,10 @@ export default function LearnHub() {
       <LessonModal
         lesson={selectedLesson}
         open={lessonModalOpen}
-        onClose={() => { setLessonModalOpen(false); setSelectedLesson(null); }}
+        onClose={() => {
+          setLessonModalOpen(false);
+          setSelectedLesson(null);
+        }}
         onComplete={handleComplete}
         completed={progress}
         prevLesson={prevLesson}

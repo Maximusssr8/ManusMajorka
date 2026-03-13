@@ -3,8 +3,8 @@
  * First touch is stored once (never overwritten). Last touch updates on every visit.
  */
 
-const FIRST_TOUCH_KEY = "majorka_first_touch";
-const LAST_TOUCH_KEY = "majorka_last_touch";
+const FIRST_TOUCH_KEY = 'majorka_first_touch';
+const LAST_TOUCH_KEY = 'majorka_last_touch';
 
 export interface UTMParams {
   utm_source: string | null;
@@ -19,11 +19,11 @@ export interface UTMParams {
 
 function readUTMFromURL(): UTMParams | null {
   const params = new URLSearchParams(window.location.search);
-  const utm_source = params.get("utm_source");
-  const utm_medium = params.get("utm_medium");
-  const utm_campaign = params.get("utm_campaign");
-  const utm_content = params.get("utm_content");
-  const utm_term = params.get("utm_term");
+  const utm_source = params.get('utm_source');
+  const utm_medium = params.get('utm_medium');
+  const utm_campaign = params.get('utm_campaign');
+  const utm_content = params.get('utm_content');
+  const utm_term = params.get('utm_term');
 
   // Only capture if at least one UTM param is present
   if (!utm_source && !utm_medium && !utm_campaign) return null;
@@ -35,7 +35,7 @@ function readUTMFromURL(): UTMParams | null {
     utm_content,
     utm_term,
     landing_page: window.location.pathname,
-    referrer: document.referrer || "",
+    referrer: document.referrer || '',
     captured_at: new Date().toISOString(),
   };
 }

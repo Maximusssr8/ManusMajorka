@@ -1,16 +1,16 @@
-import { describe, expect, it } from "vitest";
-import { appRouter } from "./routers";
-import type { TrpcContext } from "./_core/context";
+import { describe, expect, it } from 'vitest';
+import type { TrpcContext } from './_core/context';
+import { appRouter } from './routers';
 
-type AuthenticatedUser = NonNullable<TrpcContext["user"]>;
+type AuthenticatedUser = NonNullable<TrpcContext['user']>;
 
 function createAuthContext(): { ctx: TrpcContext } {
   const user: AuthenticatedUser = {
-    id: "00000000-0000-0000-0000-000000000001",
-    email: "sample@example.com",
-    name: "Sample User",
+    id: '00000000-0000-0000-0000-000000000001',
+    email: 'sample@example.com',
+    name: 'Sample User',
     avatarUrl: null,
-    role: "user",
+    role: 'user',
     createdAt: new Date(),
     updatedAt: new Date(),
     lastSignedIn: new Date(),
@@ -19,17 +19,17 @@ function createAuthContext(): { ctx: TrpcContext } {
   const ctx: TrpcContext = {
     user,
     req: {
-      protocol: "https",
+      protocol: 'https',
       headers: {},
-    } as TrpcContext["req"],
-    res: {} as TrpcContext["res"],
+    } as TrpcContext['req'],
+    res: {} as TrpcContext['res'],
   };
 
   return { ctx };
 }
 
-describe("auth.logout", () => {
-  it("reports success (client handles signOut via Supabase)", async () => {
+describe('auth.logout', () => {
+  it('reports success (client handles signOut via Supabase)', async () => {
     const { ctx } = createAuthContext();
     const caller = appRouter.createCaller(ctx);
 

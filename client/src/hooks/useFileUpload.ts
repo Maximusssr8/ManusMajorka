@@ -12,8 +12,8 @@
  * - File input rendering (implement in component)
  */
 
-import { useState, useCallback, useRef } from "react";
-import type { FileUIPart } from "ai";
+import type { FileUIPart } from 'ai';
+import { useCallback, useRef, useState } from 'react';
 
 // ============================================================================
 // TYPES
@@ -23,7 +23,7 @@ export interface PendingFile {
   id: string;
   file: File;
   previewUrl: string;
-  status: "uploading" | "success" | "error";
+  status: 'uploading' | 'success' | 'error';
   uploadedUrl?: string;
   error?: string;
 }
@@ -93,7 +93,7 @@ export function fileToBase64(file: File): Promise<string> {
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
-      const base64 = result.split(",")[1];
+      const base64 = result.split(',')[1];
       resolve(base64);
     };
     reader.onerror = reject;
@@ -102,12 +102,12 @@ export function fileToBase64(file: File): Promise<string> {
 }
 
 const DEFAULT_ACCEPT = [
-  "image/jpeg",
-  "image/png",
-  "image/gif",
-  "image/webp",
-  "image/svg+xml",
-  "application/pdf",
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'image/svg+xml',
+  'application/pdf',
 ];
 
 const DEFAULT_MAX_SIZE = 10 * 1024 * 1024; // 10MB
@@ -134,9 +134,7 @@ export function useFileUpload({
         const uploadedUrl = await uploadFn(pendingFile.file);
         setFiles((prev) =>
           prev.map((f) =>
-            f.id === pendingFile.id
-              ? { ...f, status: "success" as const, uploadedUrl }
-              : f
+            f.id === pendingFile.id ? { ...f, status: 'success' as const, uploadedUrl } : f
           )
         );
       } catch (err) {
@@ -145,8 +143,8 @@ export function useFileUpload({
             f.id === pendingFile.id
               ? {
                   ...f,
-                  status: "error" as const,
-                  error: err instanceof Error ? err.message : "Upload failed",
+                  status: 'error' as const,
+                  error: err instanceof Error ? err.message : 'Upload failed',
                 }
               : f
           )
@@ -167,7 +165,7 @@ export function useFileUpload({
         // Check file type
         const isAccepted =
           accept.includes(file.type) ||
-          accept.some((a) => a.endsWith("/*") && file.type.startsWith(a.replace("/*", "/")));
+          accept.some((a) => a.endsWith('/*') && file.type.startsWith(a.replace('/*', '/')));
 
         if (!isAccepted) {
           console.warn(`File type ${file.type} not accepted`);
@@ -184,7 +182,7 @@ export function useFileUpload({
           id: generateId(),
           file,
           previewUrl: URL.createObjectURL(file),
-          status: "uploading",
+          status: 'uploading',
         });
       }
 
@@ -213,10 +211,10 @@ export function useFileUpload({
 
       setFiles((prev) =>
         prev.map((f) =>
-          f.id === id ? { ...f, status: "uploading" as const, error: undefined } : f
+          f.id === id ? { ...f, status: 'uploading' as const, error: undefined } : f
         )
       );
-      uploadFile({ ...file, status: "uploading" });
+      uploadFile({ ...file, status: 'uploading' });
     },
     [files, uploadFile]
   );
@@ -230,9 +228,9 @@ export function useFileUpload({
   // Get uploaded files as FileUIPart[]
   const getUploadedFiles = useCallback((): FileUIPart[] => {
     return files
-      .filter((f) => f.status === "success" && f.uploadedUrl)
+      .filter((f) => f.status === 'success' && f.uploadedUrl)
       .map((f) => ({
-        type: "file" as const,
+        type: 'file' as const,
         url: f.uploadedUrl!,
         mediaType: f.file.type,
         filename: f.file.name,
@@ -240,9 +238,9 @@ export function useFileUpload({
   }, [files]);
 
   // Computed boolean states
-  const isUploading = files.some((f) => f.status === "uploading");
-  const hasErrors = files.some((f) => f.status === "error");
-  const isComplete = files.length > 0 && files.every((f) => f.status === "success");
+  const isUploading = files.some((f) => f.status === 'uploading');
+  const hasErrors = files.some((f) => f.status === 'error');
+  const isComplete = files.length > 0 && files.every((f) => f.status === 'success');
   const isEmpty = files.length === 0;
 
   return {

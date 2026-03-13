@@ -61,10 +61,10 @@
  * @see https://shiki.style/themes for full list
  */
 
-import { memo, type ReactNode, type ComponentProps } from "react";
-import { Streamdown } from "streamdown";
-import { code } from "@streamdown/code";
-import { cn } from "@/lib/utils";
+import { code } from '@streamdown/code';
+import { type ComponentProps, memo, type ReactNode } from 'react';
+import { Streamdown } from 'streamdown';
+import { cn } from '@/lib/utils';
 
 // ============================================================================
 // DEFAULT COMPONENT OVERRIDES
@@ -77,19 +77,13 @@ import { cn } from "@/lib/utils";
 const components = {
   // Headings - using tracking-tight for Vercel-style typography
   h1: ({ children }: { children?: ReactNode }) => (
-    <h1 className="text-3xl font-semibold tracking-tight mt-8 mb-4 first:mt-0">
-      {children}
-    </h1>
+    <h1 className="text-3xl font-semibold tracking-tight mt-8 mb-4 first:mt-0">{children}</h1>
   ),
   h2: ({ children }: { children?: ReactNode }) => (
-    <h2 className="text-2xl font-semibold tracking-tight mt-8 mb-3 first:mt-0">
-      {children}
-    </h2>
+    <h2 className="text-2xl font-semibold tracking-tight mt-8 mb-3 first:mt-0">{children}</h2>
   ),
   h3: ({ children }: { children?: ReactNode }) => (
-    <h3 className="text-xl font-semibold tracking-tight mt-6 mb-3 first:mt-0">
-      {children}
-    </h3>
+    <h3 className="text-xl font-semibold tracking-tight mt-6 mb-3 first:mt-0">{children}</h3>
   ),
   h4: ({ children }: { children?: ReactNode }) => (
     <h4 className="text-lg font-semibold mt-6 mb-2 first:mt-0">{children}</h4>
@@ -112,9 +106,7 @@ const components = {
   strong: ({ children }: { children?: ReactNode }) => (
     <strong className="font-semibold">{children}</strong>
   ),
-  em: ({ children }: { children?: ReactNode }) => (
-    <em className="italic">{children}</em>
-  ),
+  em: ({ children }: { children?: ReactNode }) => <em className="italic">{children}</em>,
 
   // Lists
   ul: ({ children }: { children?: ReactNode }) => (
@@ -123,9 +115,7 @@ const components = {
   ol: ({ children }: { children?: ReactNode }) => (
     <ol className="list-decimal pl-6 mb-4 space-y-2">{children}</ol>
   ),
-  li: ({ children }: { children?: ReactNode }) => (
-    <li className="leading-7">{children}</li>
-  ),
+  li: ({ children }: { children?: ReactNode }) => <li className="leading-7">{children}</li>,
 
   // Block elements
   blockquote: ({ children }: { children?: ReactNode }) => (
@@ -147,9 +137,7 @@ const components = {
     <tr className="border-b border-border">{children}</tr>
   ),
   th: ({ children }: { children?: ReactNode }) => (
-    <th className="border border-border bg-muted px-4 py-2 text-left font-semibold">
-      {children}
-    </th>
+    <th className="border border-border bg-muted px-4 py-2 text-left font-semibold">{children}</th>
   ),
   td: ({ children }: { children?: ReactNode }) => (
     <td className="border border-border px-4 py-2">{children}</td>
@@ -157,7 +145,7 @@ const components = {
 
   // Media
   img: ({ src, alt }: { src?: string; alt?: string }) => (
-    <img src={src} alt={alt || ""} className="max-w-full h-auto rounded-lg my-4" />
+    <img src={src} alt={alt || ''} className="max-w-full h-auto rounded-lg my-4" />
   ),
 };
 
@@ -165,7 +153,7 @@ const components = {
 // MARKDOWN COMPONENT
 // ============================================================================
 
-type MarkdownProps = Omit<ComponentProps<typeof Streamdown>, "components" | "mermaid"> & {
+type MarkdownProps = Omit<ComponentProps<typeof Streamdown>, 'components' | 'mermaid'> & {
   /** Override specific element renderers */
   components?: Partial<typeof components>;
   /** Enable/disable code syntax highlighting (default: true) */
@@ -197,16 +185,15 @@ export const Markdown = memo(function Markdown({
   className,
   children,
   components: customComponents,
-  shikiTheme = ["github-light", "github-dark"],
+  shikiTheme = ['github-light', 'github-dark'],
   controls = true,
   enableCode = true,
   ...props
 }: MarkdownProps) {
   return (
     <Streamdown
-      className={cn("text-foreground leading-relaxed", className)}
+      className={cn('text-foreground leading-relaxed', className)}
       components={{ ...components, ...customComponents }}
-
       shikiTheme={shikiTheme}
       controls={controls}
       {...props}

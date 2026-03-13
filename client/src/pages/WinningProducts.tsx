@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { toast } from "sonner";
 import {
-  Search,
-  TrendingUp,
-  Flame,
-  ShoppingBag,
-  Star,
+  ArrowRight,
   BarChart3,
   ChevronDown,
-  Plus,
-  Mail,
+  Flame,
   Loader2,
+  Mail,
   PackageSearch,
-  ArrowRight,
-} from "lucide-react";
+  Plus,
+  Search,
+  ShoppingBag,
+  Star,
+  TrendingUp,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { useAuth } from '@/_core/hooks/useAuth';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -26,7 +26,7 @@ interface WinningProduct {
   trendReason: string;
   platform: string;
   marginEstimate: string;
-  competition: "Low" | "Medium" | "High";
+  competition: 'Low' | 'Medium' | 'High';
   trendScore: number;
   category: string;
 }
@@ -34,83 +34,77 @@ interface WinningProduct {
 // ── Design Tokens ────────────────────────────────────────────────────────────
 
 const colors = {
-  pageBg: "#060608",
-  cardBg: "#0c0c10",
-  gold: "#d4af37",
-  goldHover: "#e5c24a",
-  textPrimary: "#f5f5f5",
-  textSecondary: "#a1a1aa",
-  textMuted: "#52525b",
-  border: "rgba(255,255,255,0.06)",
-  borderHover: "#d4af37",
-  green: "#22c55e",
-  yellow: "#eab308",
-  red: "#ef4444",
+  pageBg: '#060608',
+  cardBg: '#0c0c10',
+  gold: '#d4af37',
+  goldHover: '#e5c24a',
+  textPrimary: '#f5f5f5',
+  textSecondary: '#a1a1aa',
+  textMuted: '#52525b',
+  border: 'rgba(255,255,255,0.06)',
+  borderHover: '#d4af37',
+  green: '#22c55e',
+  yellow: '#eab308',
+  red: '#ef4444',
 };
 
 const fonts = {
-  heading: "Syne, sans-serif",
-  body: "DM Sans, sans-serif",
+  heading: 'Syne, sans-serif',
+  body: 'DM Sans, sans-serif',
 };
 
 // ── Filter Options ───────────────────────────────────────────────────────────
 
 const CATEGORIES = [
-  "All",
-  "Fashion",
-  "Beauty",
-  "Home",
-  "Tech",
-  "Pets",
-  "Fitness",
-  "Health",
-  "Electronics",
-  "Jewellery",
+  'All',
+  'Fashion',
+  'Beauty',
+  'Home',
+  'Tech',
+  'Pets',
+  'Fitness',
+  'Health',
+  'Electronics',
+  'Jewellery',
 ];
 
-const PRICE_RANGES = ["All", "Under $30", "$30-$60", "$60-$100", "$100+"];
+const PRICE_RANGES = ['All', 'Under $30', '$30-$60', '$60-$100', '$100+'];
 
-const PLATFORMS = [
-  "All",
-  "TikTok",
-  "Facebook",
-  "Instagram",
-  "Google Shopping",
-];
+const PLATFORMS = ['All', 'TikTok', 'Facebook', 'Instagram', 'Google Shopping'];
 
-const SORT_OPTIONS = ["Trend Score", "Margin", "Competition"];
+const SORT_OPTIONS = ['Trend Score', 'Margin', 'Competition'];
 
 const NICHES = [
-  "General",
-  "Fashion & Apparel",
-  "Beauty & Skincare",
-  "Health & Wellness",
-  "Pet Products",
-  "Home & Garden",
-  "Tech & Gadgets",
-  "Fitness & Sports",
-  "Kids & Baby",
-  "Jewellery & Accessories",
+  'General',
+  'Fashion & Apparel',
+  'Beauty & Skincare',
+  'Health & Wellness',
+  'Pet Products',
+  'Home & Garden',
+  'Tech & Gadgets',
+  'Fitness & Sports',
+  'Kids & Baby',
+  'Jewellery & Accessories',
 ];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function competitionColor(level: string) {
-  if (level === "Low") return colors.green;
-  if (level === "Medium") return colors.yellow;
+  if (level === 'Low') return colors.green;
+  if (level === 'Medium') return colors.yellow;
   return colors.red;
 }
 
 function platformColor(platform: string) {
   switch (platform) {
-    case "TikTok":
-      return "#00f2ea";
-    case "Facebook":
-      return "#1877f2";
-    case "Instagram":
-      return "#e1306c";
-    case "Google Shopping":
-      return "#4285f4";
+    case 'TikTok':
+      return '#00f2ea';
+    case 'Facebook':
+      return '#1877f2';
+    case 'Instagram':
+      return '#e1306c';
+    case 'Google Shopping':
+      return '#4285f4';
     default:
       return colors.gold;
   }
@@ -130,20 +124,20 @@ function FilterSelect({
   onChange: (v: string) => void;
 }) {
   return (
-    <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 4 }}>
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 4 }}>
       <label
         style={{
           fontFamily: fonts.body,
           fontSize: 11,
           fontWeight: 500,
           color: colors.textMuted,
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em',
         }}
       >
         {label}
       </label>
-      <div style={{ position: "relative" }}>
+      <div style={{ position: 'relative' }}>
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -154,18 +148,18 @@ function FilterSelect({
             backgroundColor: colors.cardBg,
             border: `1px solid ${colors.border}`,
             borderRadius: 8,
-            padding: "8px 32px 8px 12px",
-            appearance: "none",
-            outline: "none",
-            cursor: "pointer",
+            padding: '8px 32px 8px 12px',
+            appearance: 'none',
+            outline: 'none',
+            cursor: 'pointer',
             minWidth: 140,
-            transition: "border-color 0.2s",
+            transition: 'border-color 0.2s',
           }}
           onFocus={(e) => (e.currentTarget.style.borderColor = colors.gold)}
           onBlur={(e) => (e.currentTarget.style.borderColor = colors.border)}
         >
           {options.map((opt) => (
-            <option key={opt} value={opt} style={{ backgroundColor: "#111", color: "#fff" }}>
+            <option key={opt} value={opt} style={{ backgroundColor: '#111', color: '#fff' }}>
               {opt}
             </option>
           ))}
@@ -173,12 +167,12 @@ function FilterSelect({
         <ChevronDown
           size={14}
           style={{
-            position: "absolute",
+            position: 'absolute',
             right: 10,
-            top: "50%",
-            transform: "translateY(-50%)",
+            top: '50%',
+            transform: 'translateY(-50%)',
             color: colors.textMuted,
-            pointerEvents: "none",
+            pointerEvents: 'none',
           }}
         />
       </div>
@@ -196,80 +190,80 @@ function SkeletonCard() {
         border: `1px solid ${colors.border}`,
         borderRadius: 16,
         padding: 24,
-        display: "flex",
-        flexDirection: "column",
+        display: 'flex',
+        flexDirection: 'column',
         gap: 14,
       }}
     >
       <div
         style={{
           height: 20,
-          width: "60%",
-          backgroundColor: "rgba(255,255,255,0.04)",
+          width: '60%',
+          backgroundColor: 'rgba(255,255,255,0.04)',
           borderRadius: 6,
-          animation: "pulse 1.5s ease-in-out infinite",
+          animation: 'pulse 1.5s ease-in-out infinite',
         }}
       />
       <div
         style={{
           height: 14,
-          width: "90%",
-          backgroundColor: "rgba(255,255,255,0.03)",
+          width: '90%',
+          backgroundColor: 'rgba(255,255,255,0.03)',
           borderRadius: 6,
-          animation: "pulse 1.5s ease-in-out infinite",
-          animationDelay: "0.15s",
+          animation: 'pulse 1.5s ease-in-out infinite',
+          animationDelay: '0.15s',
         }}
       />
       <div
         style={{
           height: 14,
-          width: "75%",
-          backgroundColor: "rgba(255,255,255,0.03)",
+          width: '75%',
+          backgroundColor: 'rgba(255,255,255,0.03)',
           borderRadius: 6,
-          animation: "pulse 1.5s ease-in-out infinite",
-          animationDelay: "0.3s",
+          animation: 'pulse 1.5s ease-in-out infinite',
+          animationDelay: '0.3s',
         }}
       />
-      <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+      <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
         <div
           style={{
             height: 26,
             width: 70,
-            backgroundColor: "rgba(255,255,255,0.04)",
+            backgroundColor: 'rgba(255,255,255,0.04)',
             borderRadius: 20,
-            animation: "pulse 1.5s ease-in-out infinite",
-            animationDelay: "0.45s",
+            animation: 'pulse 1.5s ease-in-out infinite',
+            animationDelay: '0.45s',
           }}
         />
         <div
           style={{
             height: 26,
             width: 90,
-            backgroundColor: "rgba(255,255,255,0.04)",
+            backgroundColor: 'rgba(255,255,255,0.04)',
             borderRadius: 20,
-            animation: "pulse 1.5s ease-in-out infinite",
-            animationDelay: "0.6s",
+            animation: 'pulse 1.5s ease-in-out infinite',
+            animationDelay: '0.6s',
           }}
         />
       </div>
       <div
         style={{
           height: 8,
-          width: "100%",
-          backgroundColor: "rgba(255,255,255,0.03)",
+          width: '100%',
+          backgroundColor: 'rgba(255,255,255,0.03)',
           borderRadius: 4,
-          animation: "pulse 1.5s ease-in-out infinite",
-          animationDelay: "0.75s",
+          animation: 'pulse 1.5s ease-in-out infinite',
+          animationDelay: '0.75s',
         }}
       />
       <div
         style={{
           height: 36,
-          width: "100%",
-          backgroundColor: "rgba(255,255,255,0.03)",
+          width: '100%',
+          backgroundColor: 'rgba(255,255,255,0.03)',
           borderRadius: 8,
-          animation: "pulse 1.5s ease-in-out infinite",
-          animationDelay: "0.9s",
+          animation: 'pulse 1.5s ease-in-out infinite',
+          animationDelay: '0.9s',
         }}
       />
     </div>
@@ -296,15 +290,15 @@ function ProductCard({
         border: `1px solid ${hovered ? colors.borderHover : colors.border}`,
         borderRadius: 16,
         padding: 24,
-        display: "flex",
-        flexDirection: "column",
+        display: 'flex',
+        flexDirection: 'column',
         gap: 14,
-        transition: "border-color 0.25s ease, box-shadow 0.25s ease",
-        boxShadow: hovered ? `0 0 20px rgba(212,175,55,0.06)` : "none",
+        transition: 'border-color 0.25s ease, box-shadow 0.25s ease',
+        boxShadow: hovered ? `0 0 20px rgba(212,175,55,0.06)` : 'none',
       }}
     >
       {/* Title + Price */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <h3
           style={{
             fontFamily: fonts.heading,
@@ -324,7 +318,7 @@ function ProductCard({
             fontSize: 13,
             fontWeight: 600,
             color: colors.gold,
-            whiteSpace: "nowrap",
+            whiteSpace: 'nowrap',
             marginLeft: 12,
           }}
         >
@@ -348,11 +342,11 @@ function ProductCard({
       {/* Trend Reason */}
       <div
         style={{
-          display: "flex",
-          alignItems: "flex-start",
+          display: 'flex',
+          alignItems: 'flex-start',
           gap: 8,
-          padding: "10px 12px",
-          backgroundColor: "rgba(212,175,55,0.04)",
+          padding: '10px 12px',
+          backgroundColor: 'rgba(212,175,55,0.04)',
           borderRadius: 10,
           border: `1px solid rgba(212,175,55,0.08)`,
         }}
@@ -371,7 +365,7 @@ function ProductCard({
       </div>
 
       {/* Badges Row */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
         {/* Platform Badge */}
         <span
           style={{
@@ -380,7 +374,7 @@ function ProductCard({
             fontWeight: 600,
             color: platformColor(product.platform),
             backgroundColor: `${platformColor(product.platform)}14`,
-            padding: "4px 10px",
+            padding: '4px 10px',
             borderRadius: 20,
             border: `1px solid ${platformColor(product.platform)}30`,
           }}
@@ -396,7 +390,7 @@ function ProductCard({
             fontWeight: 600,
             color: colors.green,
             backgroundColor: `${colors.green}14`,
-            padding: "4px 10px",
+            padding: '4px 10px',
             borderRadius: 20,
             border: `1px solid ${colors.green}30`,
           }}
@@ -412,7 +406,7 @@ function ProductCard({
             fontWeight: 600,
             color: competitionColor(product.competition),
             backgroundColor: `${competitionColor(product.competition)}14`,
-            padding: "4px 10px",
+            padding: '4px 10px',
             borderRadius: 20,
             border: `1px solid ${competitionColor(product.competition)}30`,
           }}
@@ -422,16 +416,16 @@ function ProductCard({
       </div>
 
       {/* Trend Score Bar */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span
             style={{
               fontFamily: fonts.body,
               fontSize: 11,
               fontWeight: 500,
               color: colors.textMuted,
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
             }}
           >
             Trend Score
@@ -450,19 +444,19 @@ function ProductCard({
         <div
           style={{
             height: 6,
-            width: "100%",
-            backgroundColor: "rgba(255,255,255,0.04)",
+            width: '100%',
+            backgroundColor: 'rgba(255,255,255,0.04)',
             borderRadius: 3,
-            overflow: "hidden",
+            overflow: 'hidden',
           }}
         >
           <div
             style={{
-              height: "100%",
+              height: '100%',
               width: `${product.trendScore}%`,
               background: `linear-gradient(90deg, ${colors.gold}, ${colors.goldHover})`,
               borderRadius: 3,
-              transition: "width 0.6s ease",
+              transition: 'width 0.6s ease',
             }}
           />
         </div>
@@ -476,24 +470,24 @@ function ProductCard({
           fontSize: 13,
           fontWeight: 600,
           color: colors.gold,
-          backgroundColor: "transparent",
+          backgroundColor: 'transparent',
           border: `1px solid ${colors.gold}`,
           borderRadius: 10,
-          padding: "10px 16px",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          padding: '10px 16px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           gap: 8,
-          transition: "background-color 0.2s, color 0.2s",
+          transition: 'background-color 0.2s, color 0.2s',
           marginTop: 2,
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.backgroundColor = colors.gold;
-          e.currentTarget.style.color = "#000";
+          e.currentTarget.style.color = '#000';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = "transparent";
+          e.currentTarget.style.backgroundColor = 'transparent';
           e.currentTarget.style.color = colors.gold;
         }}
       >
@@ -511,10 +505,10 @@ export default function WinningProducts() {
   const token = session?.access_token;
 
   // Filters
-  const [category, setCategory] = useState("All");
-  const [priceRange, setPriceRange] = useState("All");
-  const [platform, setPlatform] = useState("All");
-  const [sortBy, setSortBy] = useState("Trend Score");
+  const [category, setCategory] = useState('All');
+  const [priceRange, setPriceRange] = useState('All');
+  const [platform, setPlatform] = useState('All');
+  const [sortBy, setSortBy] = useState('Trend Score');
 
   // Product data
   const [products, setProducts] = useState<WinningProduct[]>([]);
@@ -522,8 +516,8 @@ export default function WinningProducts() {
   const [hasSearched, setHasSearched] = useState(false);
 
   // Daily subscription
-  const [subEmail, setSubEmail] = useState("");
-  const [subNiche, setSubNiche] = useState("General");
+  const [subEmail, setSubEmail] = useState('');
+  const [subNiche, setSubNiche] = useState('General');
   const [subscribing, setSubscribing] = useState(false);
 
   // ── Fetch Products ───────────────────────────────────────────────────────
@@ -532,26 +526,26 @@ export default function WinningProducts() {
     setLoading(true);
     setHasSearched(true);
     try {
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const res = await fetch("/api/tools/winning-products", {
-        method: "POST",
+      const res = await fetch('/api/tools/winning-products', {
+        method: 'POST',
         headers,
         body: JSON.stringify({
-          category: category === "All" ? undefined : category,
-          priceRange: priceRange === "All" ? undefined : priceRange,
-          platform: platform === "All" ? undefined : platform,
+          category: category === 'All' ? undefined : category,
+          priceRange: priceRange === 'All' ? undefined : priceRange,
+          platform: platform === 'All' ? undefined : platform,
           sortBy,
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to fetch winning products");
+      if (!res.ok) throw new Error('Failed to fetch winning products');
 
       const data = await res.json();
       setProducts(data.products ?? []);
     } catch (err: any) {
-      toast.error(err.message || "Something went wrong");
+      toast.error(err.message || 'Something went wrong');
       setProducts([]);
     } finally {
       setLoading(false);
@@ -562,26 +556,26 @@ export default function WinningProducts() {
 
   const handleSubscribe = async () => {
     if (!subEmail.trim()) {
-      toast.error("Please enter your email");
+      toast.error('Please enter your email');
       return;
     }
     setSubscribing(true);
     try {
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const res = await fetch("/api/tools/daily-products-subscribe", {
-        method: "POST",
+      const res = await fetch('/api/tools/daily-products-subscribe', {
+        method: 'POST',
         headers,
         body: JSON.stringify({ email: subEmail.trim(), niche: subNiche }),
       });
 
-      if (!res.ok) throw new Error("Subscription failed");
+      if (!res.ok) throw new Error('Subscription failed');
 
-      toast.success("Subscribed! Check your inbox for daily winning products.");
-      setSubEmail("");
+      toast.success('Subscribed! Check your inbox for daily winning products.');
+      setSubEmail('');
     } catch (err: any) {
-      toast.error(err.message || "Subscription failed");
+      toast.error(err.message || 'Subscription failed');
     } finally {
       setSubscribing(false);
     }
@@ -598,7 +592,7 @@ export default function WinningProducts() {
   return (
     <div
       style={{
-        minHeight: "100vh",
+        minHeight: '100vh',
         backgroundColor: colors.pageBg,
         fontFamily: fonts.body,
         color: colors.textPrimary,
@@ -612,10 +606,10 @@ export default function WinningProducts() {
         }
       `}</style>
 
-      <div style={{ maxWidth: 960, margin: "0 auto", padding: "40px 20px 80px" }}>
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '40px 20px 80px' }}>
         {/* ── Header ──────────────────────────────────────────────────────── */}
         <div style={{ marginBottom: 36 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10 }}>
             <h1
               style={{
                 fontFamily: fonts.heading,
@@ -623,7 +617,7 @@ export default function WinningProducts() {
                 fontWeight: 800,
                 color: colors.textPrimary,
                 margin: 0,
-                letterSpacing: "-0.02em",
+                letterSpacing: '-0.02em',
               }}
             >
               Winning Products
@@ -633,14 +627,14 @@ export default function WinningProducts() {
                 fontFamily: fonts.body,
                 fontSize: 11,
                 fontWeight: 700,
-                color: "#fff",
+                color: '#fff',
                 backgroundColor: colors.red,
-                padding: "3px 10px",
+                padding: '3px 10px',
                 borderRadius: 20,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                display: "flex",
-                alignItems: "center",
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                display: 'flex',
+                alignItems: 'center',
                 gap: 4,
               }}
             >
@@ -664,10 +658,10 @@ export default function WinningProducts() {
         {/* ── Filter Bar ──────────────────────────────────────────────────── */}
         <div
           style={{
-            display: "flex",
-            flexWrap: "wrap",
+            display: 'flex',
+            flexWrap: 'wrap',
             gap: 14,
-            alignItems: "flex-end",
+            alignItems: 'flex-end',
             padding: 20,
             backgroundColor: colors.cardBg,
             border: `1px solid ${colors.border}`,
@@ -675,10 +669,30 @@ export default function WinningProducts() {
             marginBottom: 28,
           }}
         >
-          <FilterSelect label="Category" value={category} options={CATEGORIES} onChange={setCategory} />
-          <FilterSelect label="Price Range" value={priceRange} options={PRICE_RANGES} onChange={setPriceRange} />
-          <FilterSelect label="Platform" value={platform} options={PLATFORMS} onChange={setPlatform} />
-          <FilterSelect label="Sort By" value={sortBy} options={SORT_OPTIONS} onChange={setSortBy} />
+          <FilterSelect
+            label="Category"
+            value={category}
+            options={CATEGORIES}
+            onChange={setCategory}
+          />
+          <FilterSelect
+            label="Price Range"
+            value={priceRange}
+            options={PRICE_RANGES}
+            onChange={setPriceRange}
+          />
+          <FilterSelect
+            label="Platform"
+            value={platform}
+            options={PLATFORMS}
+            onChange={setPlatform}
+          />
+          <FilterSelect
+            label="Sort By"
+            value={sortBy}
+            options={SORT_OPTIONS}
+            onChange={setSortBy}
+          />
 
           <button
             onClick={fetchProducts}
@@ -687,18 +701,18 @@ export default function WinningProducts() {
               fontFamily: fonts.body,
               fontSize: 13,
               fontWeight: 700,
-              color: "#000",
+              color: '#000',
               backgroundColor: colors.gold,
-              border: "none",
+              border: 'none',
               borderRadius: 10,
-              padding: "10px 22px",
-              cursor: loading ? "not-allowed" : "pointer",
-              display: "flex",
-              alignItems: "center",
+              padding: '10px 22px',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
               gap: 8,
-              transition: "background-color 0.2s, transform 0.1s",
+              transition: 'background-color 0.2s, transform 0.1s',
               opacity: loading ? 0.7 : 1,
-              marginLeft: "auto",
+              marginLeft: 'auto',
             }}
             onMouseEnter={(e) => {
               if (!loading) e.currentTarget.style.backgroundColor = colors.goldHover;
@@ -716,8 +730,8 @@ export default function WinningProducts() {
         {loading ? (
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))",
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
               gap: 20,
             }}
           >
@@ -728,8 +742,8 @@ export default function WinningProducts() {
         ) : products.length > 0 ? (
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))",
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
               gap: 20,
             }}
           >
@@ -745,15 +759,15 @@ export default function WinningProducts() {
           /* ── Empty State ──────────────────────────────────────────────── */
           <div
             style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "64px 24px",
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '64px 24px',
               backgroundColor: colors.cardBg,
               border: `1px solid ${colors.border}`,
               borderRadius: 16,
-              textAlign: "center",
+              textAlign: 'center',
             }}
           >
             <PackageSearch size={48} style={{ color: colors.textMuted, marginBottom: 16 }} />
@@ -763,7 +777,7 @@ export default function WinningProducts() {
                 fontSize: 18,
                 fontWeight: 700,
                 color: colors.textPrimary,
-                margin: "0 0 8px",
+                margin: '0 0 8px',
               }}
             >
               No products found
@@ -773,7 +787,7 @@ export default function WinningProducts() {
                 fontFamily: fonts.body,
                 fontSize: 14,
                 color: colors.textSecondary,
-                margin: "0 0 24px",
+                margin: '0 0 24px',
                 maxWidth: 400,
                 lineHeight: 1.5,
               }}
@@ -783,26 +797,26 @@ export default function WinningProducts() {
             </p>
             <button
               onClick={() => {
-                setCategory("All");
-                setPriceRange("All");
-                setPlatform("All");
-                setSortBy("Trend Score");
+                setCategory('All');
+                setPriceRange('All');
+                setPlatform('All');
+                setSortBy('Trend Score');
                 fetchProducts();
               }}
               style={{
                 fontFamily: fonts.body,
                 fontSize: 13,
                 fontWeight: 600,
-                color: "#000",
+                color: '#000',
                 backgroundColor: colors.gold,
-                border: "none",
+                border: 'none',
                 borderRadius: 10,
-                padding: "10px 24px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
+                padding: '10px 24px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
                 gap: 8,
-                transition: "background-color 0.2s",
+                transition: 'background-color 0.2s',
               }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.goldHover)}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = colors.gold)}
@@ -815,15 +829,15 @@ export default function WinningProducts() {
           /* ── Initial State (before any search) ────────────────────────── */
           <div
             style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "64px 24px",
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '64px 24px',
               backgroundColor: colors.cardBg,
               border: `1px solid ${colors.border}`,
               borderRadius: 16,
-              textAlign: "center",
+              textAlign: 'center',
             }}
           >
             <ShoppingBag size={48} style={{ color: colors.gold, marginBottom: 16, opacity: 0.6 }} />
@@ -833,7 +847,7 @@ export default function WinningProducts() {
                 fontSize: 18,
                 fontWeight: 700,
                 color: colors.textPrimary,
-                margin: "0 0 8px",
+                margin: '0 0 8px',
               }}
             >
               Discover Winning Products
@@ -843,7 +857,7 @@ export default function WinningProducts() {
                 fontFamily: fonts.body,
                 fontSize: 14,
                 color: colors.textSecondary,
-                margin: "0 0 24px",
+                margin: '0 0 24px',
                 maxWidth: 420,
                 lineHeight: 1.5,
               }}
@@ -857,16 +871,16 @@ export default function WinningProducts() {
                 fontFamily: fonts.body,
                 fontSize: 13,
                 fontWeight: 700,
-                color: "#000",
+                color: '#000',
                 backgroundColor: colors.gold,
-                border: "none",
+                border: 'none',
                 borderRadius: 10,
-                padding: "12px 28px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
+                padding: '12px 28px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
                 gap: 8,
-                transition: "background-color 0.2s",
+                transition: 'background-color 0.2s',
               }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.goldHover)}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = colors.gold)}
@@ -885,10 +899,10 @@ export default function WinningProducts() {
             backgroundColor: colors.cardBg,
             border: `1px solid ${colors.border}`,
             borderRadius: 16,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            textAlign: "center",
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
             gap: 20,
           }}
         >
@@ -897,10 +911,10 @@ export default function WinningProducts() {
               width: 48,
               height: 48,
               borderRadius: 12,
-              backgroundColor: "rgba(212,175,55,0.08)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              backgroundColor: 'rgba(212,175,55,0.08)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
             <Mail size={22} style={{ color: colors.gold }} />
@@ -913,7 +927,7 @@ export default function WinningProducts() {
                 fontSize: 20,
                 fontWeight: 700,
                 color: colors.textPrimary,
-                margin: "0 0 6px",
+                margin: '0 0 6px',
               }}
             >
               Get Daily Winning Products by Email
@@ -935,12 +949,12 @@ export default function WinningProducts() {
 
           <div
             style={{
-              display: "flex",
-              flexWrap: "wrap",
+              display: 'flex',
+              flexWrap: 'wrap',
               gap: 10,
-              alignItems: "center",
-              justifyContent: "center",
-              width: "100%",
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
               maxWidth: 560,
             }}
           >
@@ -949,7 +963,7 @@ export default function WinningProducts() {
               placeholder="your@email.com"
               value={subEmail}
               onChange={(e) => setSubEmail(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSubscribe()}
+              onKeyDown={(e) => e.key === 'Enter' && handleSubscribe()}
               style={{
                 fontFamily: fonts.body,
                 fontSize: 13,
@@ -957,17 +971,17 @@ export default function WinningProducts() {
                 backgroundColor: colors.pageBg,
                 border: `1px solid ${colors.border}`,
                 borderRadius: 10,
-                padding: "10px 14px",
-                outline: "none",
-                flex: "1 1 200px",
+                padding: '10px 14px',
+                outline: 'none',
+                flex: '1 1 200px',
                 minWidth: 180,
-                transition: "border-color 0.2s",
+                transition: 'border-color 0.2s',
               }}
               onFocus={(e) => (e.currentTarget.style.borderColor = colors.gold)}
               onBlur={(e) => (e.currentTarget.style.borderColor = colors.border)}
             />
 
-            <div style={{ position: "relative", flex: "0 1 180px" }}>
+            <div style={{ position: 'relative', flex: '0 1 180px' }}>
               <select
                 value={subNiche}
                 onChange={(e) => setSubNiche(e.target.value)}
@@ -978,18 +992,18 @@ export default function WinningProducts() {
                   backgroundColor: colors.pageBg,
                   border: `1px solid ${colors.border}`,
                   borderRadius: 10,
-                  padding: "10px 32px 10px 14px",
-                  appearance: "none",
-                  outline: "none",
-                  cursor: "pointer",
-                  width: "100%",
-                  transition: "border-color 0.2s",
+                  padding: '10px 32px 10px 14px',
+                  appearance: 'none',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  width: '100%',
+                  transition: 'border-color 0.2s',
                 }}
                 onFocus={(e) => (e.currentTarget.style.borderColor = colors.gold)}
                 onBlur={(e) => (e.currentTarget.style.borderColor = colors.border)}
               >
                 {NICHES.map((n) => (
-                  <option key={n} value={n} style={{ backgroundColor: "#111", color: "#fff" }}>
+                  <option key={n} value={n} style={{ backgroundColor: '#111', color: '#fff' }}>
                     {n}
                   </option>
                 ))}
@@ -997,12 +1011,12 @@ export default function WinningProducts() {
               <ChevronDown
                 size={14}
                 style={{
-                  position: "absolute",
+                  position: 'absolute',
                   right: 10,
-                  top: "50%",
-                  transform: "translateY(-50%)",
+                  top: '50%',
+                  transform: 'translateY(-50%)',
                   color: colors.textMuted,
-                  pointerEvents: "none",
+                  pointerEvents: 'none',
                 }}
               />
             </div>
@@ -1014,18 +1028,18 @@ export default function WinningProducts() {
                 fontFamily: fonts.body,
                 fontSize: 13,
                 fontWeight: 700,
-                color: "#000",
+                color: '#000',
                 backgroundColor: colors.gold,
-                border: "none",
+                border: 'none',
                 borderRadius: 10,
-                padding: "10px 22px",
-                cursor: subscribing ? "not-allowed" : "pointer",
-                display: "flex",
-                alignItems: "center",
+                padding: '10px 22px',
+                cursor: subscribing ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
                 gap: 8,
                 opacity: subscribing ? 0.7 : 1,
-                transition: "background-color 0.2s",
-                whiteSpace: "nowrap",
+                transition: 'background-color 0.2s',
+                whiteSpace: 'nowrap',
               }}
               onMouseEnter={(e) => {
                 if (!subscribing) e.currentTarget.style.backgroundColor = colors.goldHover;
@@ -1034,7 +1048,11 @@ export default function WinningProducts() {
                 e.currentTarget.style.backgroundColor = colors.gold;
               }}
             >
-              {subscribing ? <Loader2 size={14} className="animate-spin" /> : <ArrowRight size={14} />}
+              {subscribing ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <ArrowRight size={14} />
+              )}
               Subscribe
             </button>
           </div>

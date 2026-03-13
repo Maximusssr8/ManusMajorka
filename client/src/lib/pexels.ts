@@ -5,7 +5,7 @@
  */
 
 const API_KEY = import.meta.env.VITE_PEXELS_API_KEY as string | undefined;
-const BASE_URL = "https://api.pexels.com/v1";
+const BASE_URL = 'https://api.pexels.com/v1';
 
 export interface PexelsPhoto {
   id: number;
@@ -37,11 +37,15 @@ interface PexelsSearchResponse {
 /** Search Pexels for photos by query */
 export async function searchPhotos(query: string, perPage: number = 8): Promise<PexelsPhoto[]> {
   if (!API_KEY) {
-    console.warn("[Pexels] No API key configured");
+    console.warn('[Pexels] No API key configured');
     return [];
   }
   try {
-    const params = new URLSearchParams({ query, per_page: String(perPage), orientation: "landscape" });
+    const params = new URLSearchParams({
+      query,
+      per_page: String(perPage),
+      orientation: 'landscape',
+    });
     const res = await fetch(`${BASE_URL}/search?${params}`, {
       headers: { Authorization: API_KEY },
     });
@@ -49,7 +53,7 @@ export async function searchPhotos(query: string, perPage: number = 8): Promise<
     const data: PexelsSearchResponse = await res.json();
     return data.photos;
   } catch (err) {
-    console.error("[Pexels] Search failed:", err);
+    console.error('[Pexels] Search failed:', err);
     return [];
   }
 }
@@ -62,10 +66,17 @@ export async function getRandomPhoto(query: string): Promise<PexelsPhoto | null>
 }
 
 /** Get portrait-oriented photos (for TikTok/Reels backgrounds) */
-export async function searchPortraitPhotos(query: string, perPage: number = 6): Promise<PexelsPhoto[]> {
+export async function searchPortraitPhotos(
+  query: string,
+  perPage: number = 6
+): Promise<PexelsPhoto[]> {
   if (!API_KEY) return [];
   try {
-    const params = new URLSearchParams({ query, per_page: String(perPage), orientation: "portrait" });
+    const params = new URLSearchParams({
+      query,
+      per_page: String(perPage),
+      orientation: 'portrait',
+    });
     const res = await fetch(`${BASE_URL}/search?${params}`, {
       headers: { Authorization: API_KEY },
     });
@@ -73,7 +84,7 @@ export async function searchPortraitPhotos(query: string, perPage: number = 6): 
     const data: PexelsSearchResponse = await res.json();
     return data.photos;
   } catch (err) {
-    console.error("[Pexels] Portrait search failed:", err);
+    console.error('[Pexels] Portrait search failed:', err);
     return [];
   }
 }

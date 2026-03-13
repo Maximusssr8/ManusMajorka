@@ -1,26 +1,26 @@
-import { useEffect } from "react";
-import { useLocation } from "wouter";
-import { SignInPage } from "@/components/ui/sign-in-flow";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { useDocumentTitle } from "@/_core/hooks/useDocumentTitle";
-import { SEO } from "@/components/SEO";
+import { useEffect } from 'react';
+import { useLocation } from 'wouter';
+import { useAuth } from '@/_core/hooks/useAuth';
+import { useDocumentTitle } from '@/_core/hooks/useDocumentTitle';
+import { SEO } from '@/components/SEO';
+import { SignInPage } from '@/components/ui/sign-in-flow';
 
 export default function SignIn() {
-  useDocumentTitle("Sign In");
+  useDocumentTitle('Sign In');
   const { isAuthenticated, loading } = useAuth();
   const [location, navigate] = useLocation();
 
   // Determine if this is a signup route
-  const isSignup = location === "/signup";
+  const isSignup = location === '/signup';
 
   // If already authenticated, check if onboarding is complete
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      const onboarded = localStorage.getItem("majorka_onboarded");
+      const onboarded = localStorage.getItem('majorka_onboarded');
       if (onboarded) {
-        navigate("/app");
+        navigate('/app');
       } else {
-        navigate("/onboarding");
+        navigate('/onboarding');
       }
     }
   }, [isAuthenticated, loading, navigate]);
@@ -33,10 +33,10 @@ export default function SignIn() {
         path="/login"
       />
       <SignInPage
-        mode={isSignup ? "signup" : "signin"}
+        mode={isSignup ? 'signup' : 'signin'}
         onSuccess={() => {
-          const onboarded = localStorage.getItem("majorka_onboarded");
-          navigate(onboarded ? "/app" : "/onboarding");
+          const onboarded = localStorage.getItem('majorka_onboarded');
+          navigate(onboarded ? '/app' : '/onboarding');
         }}
       />
     </>

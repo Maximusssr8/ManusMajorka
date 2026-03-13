@@ -1,86 +1,107 @@
-import { useState, useEffect, useRef } from "react";
-import { useLocation } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  ChevronRight, ChevronLeft, ArrowRight,
-  Heart, Sparkles, Home, PawPrint, Dumbbell, Smartphone, Shirt, Baby, Car, HelpCircle,
-  Sprout, TrendingUp, Rocket,
-  Target, DollarSign, Building2, Globe, Bot,
-  Truck, Package, Shuffle,
-  Check, Loader2, User,
-} from "lucide-react";
-import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { useDocumentTitle } from "@/_core/hooks/useDocumentTitle";
-import { capture } from "@/lib/posthog";
+  ArrowRight,
+  Baby,
+  Bot,
+  Building2,
+  Car,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  DollarSign,
+  Dumbbell,
+  Globe,
+  Heart,
+  HelpCircle,
+  Home,
+  Loader2,
+  Package,
+  PawPrint,
+  Rocket,
+  Shirt,
+  Shuffle,
+  Smartphone,
+  Sparkles,
+  Sprout,
+  Target,
+  TrendingUp,
+  Truck,
+  User,
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'wouter';
+import { useAuth } from '@/_core/hooks/useAuth';
+import { useDocumentTitle } from '@/_core/hooks/useDocumentTitle';
+import { capture } from '@/lib/posthog';
+import { trpc } from '@/lib/trpc';
 
-export const ONBOARDING_KEY = "majorka_onboarded";
+export const ONBOARDING_KEY = 'majorka_onboarded';
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
 const NICHES = [
-  { id: "health-wellness", label: "Health & Wellness", Icon: Heart },
-  { id: "beauty-skincare", label: "Beauty & Skincare", Icon: Sparkles },
-  { id: "home-living", label: "Home & Living", Icon: Home },
-  { id: "pets", label: "Pets", Icon: PawPrint },
-  { id: "sports-fitness", label: "Sports & Fitness", Icon: Dumbbell },
-  { id: "tech-gadgets", label: "Tech & Gadgets", Icon: Smartphone },
-  { id: "fashion", label: "Fashion & Accessories", Icon: Shirt },
-  { id: "baby-kids", label: "Baby & Kids", Icon: Baby },
-  { id: "automotive", label: "Automotive", Icon: Car },
-  { id: "other", label: "Other / Not sure", Icon: HelpCircle },
+  { id: 'health-wellness', label: 'Health & Wellness', Icon: Heart },
+  { id: 'beauty-skincare', label: 'Beauty & Skincare', Icon: Sparkles },
+  { id: 'home-living', label: 'Home & Living', Icon: Home },
+  { id: 'pets', label: 'Pets', Icon: PawPrint },
+  { id: 'sports-fitness', label: 'Sports & Fitness', Icon: Dumbbell },
+  { id: 'tech-gadgets', label: 'Tech & Gadgets', Icon: Smartphone },
+  { id: 'fashion', label: 'Fashion & Accessories', Icon: Shirt },
+  { id: 'baby-kids', label: 'Baby & Kids', Icon: Baby },
+  { id: 'automotive', label: 'Automotive', Icon: Car },
+  { id: 'other', label: 'Other / Not sure', Icon: HelpCircle },
 ];
 
 const EXPERIENCE_LEVELS = [
   {
-    id: "beginner",
-    label: "Just starting",
+    id: 'beginner',
+    label: 'Just starting',
     desc: "I'm brand new to ecommerce",
     Icon: Sprout,
   },
   {
-    id: "intermediate",
-    label: "Some experience",
+    id: 'intermediate',
+    label: 'Some experience',
     desc: "I've made some sales, want to grow",
     Icon: TrendingUp,
   },
   {
-    id: "advanced",
-    label: "Scaling",
-    desc: "I have a store doing revenue, want to scale",
+    id: 'advanced',
+    label: 'Scaling',
+    desc: 'I have a store doing revenue, want to scale',
     Icon: Rocket,
   },
 ];
 
 const GOALS = [
-  { id: "first-sale", label: "Get my first sale", Icon: Target },
-  { id: "5k-month", label: "Hit $5K/month", Icon: DollarSign },
-  { id: "build-brand", label: "Build a real brand", Icon: Building2 },
-  { id: "expand-markets", label: "Expand to more markets", Icon: Globe },
-  { id: "automate", label: "Automate and run on autopilot", Icon: Bot },
+  { id: 'first-sale', label: 'Get my first sale', Icon: Target },
+  { id: '5k-month', label: 'Hit $5K/month', Icon: DollarSign },
+  { id: 'build-brand', label: 'Build a real brand', Icon: Building2 },
+  { id: 'expand-markets', label: 'Expand to more markets', Icon: Globe },
+  { id: 'automate', label: 'Automate and run on autopilot', Icon: Bot },
 ];
 
 const STORE_TYPES = [
-  { id: "dropshipping", label: "Dropshipping", desc: "Supplier ships directly", Icon: Truck },
-  { id: "dtc", label: "DTC", desc: "I hold/fulfil inventory", Icon: Package },
-  { id: "both", label: "Both / Not sure", desc: "", Icon: Shuffle },
+  { id: 'dropshipping', label: 'Dropshipping', desc: 'Supplier ships directly', Icon: Truck },
+  { id: 'dtc', label: 'DTC', desc: 'I hold/fulfil inventory', Icon: Package },
+  { id: 'both', label: 'Both / Not sure', desc: '', Icon: Shuffle },
 ];
 
-const PLATFORMS = ["Shopify", "WooCommerce", "eBay AU", "Amazon", "Other"];
+const PLATFORMS = ['Shopify', 'WooCommerce', 'eBay AU', 'Amazon', 'Other'];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const GOLD = "#d4af37";
-const GOLD_DIM = "rgba(212,175,55,0.18)";
-const GOLD_BORDER = "rgba(212,175,55,0.4)";
-const DIM_BG = "rgba(255,255,255,0.03)";
-const DIM_BORDER = "rgba(255,255,255,0.08)";
+const GOLD = '#d4af37';
+const GOLD_DIM = 'rgba(212,175,55,0.18)';
+const GOLD_BORDER = 'rgba(212,175,55,0.4)';
+const DIM_BG = 'rgba(255,255,255,0.03)';
+const DIM_BORDER = 'rgba(255,255,255,0.08)';
 
 function goldCard(active: boolean) {
   return {
     background: active ? GOLD_DIM : DIM_BG,
     border: `1.5px solid ${active ? GOLD_BORDER : DIM_BORDER}`,
-    cursor: "pointer" as const,
+    cursor: 'pointer' as const,
   };
 }
 
@@ -98,13 +119,23 @@ function ProgressDots({ current, total }: { current: number; total: number }) {
             <motion.div
               animate={{
                 width: active ? 24 : 8,
-                background: active ? GOLD : done ? "rgba(212,175,55,0.5)" : "rgba(255,255,255,0.15)",
+                background: active
+                  ? GOLD
+                  : done
+                    ? 'rgba(212,175,55,0.5)'
+                    : 'rgba(255,255,255,0.15)',
               }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
               style={{ height: 6, borderRadius: 99 }}
             />
             {step < total && (
-              <div style={{ width: 16, height: 1, background: done ? GOLD_BORDER : "rgba(255,255,255,0.1)" }} />
+              <div
+                style={{
+                  width: 16,
+                  height: 1,
+                  background: done ? GOLD_BORDER : 'rgba(255,255,255,0.1)',
+                }}
+              />
             )}
           </div>
         );
@@ -119,16 +150,20 @@ function AnimatedCheck() {
   return (
     <div
       style={{
-        width: 80, height: 80, borderRadius: "50%",
+        width: 80,
+        height: 80,
+        borderRadius: '50%',
         border: `2px solid ${GOLD_BORDER}`,
         background: GOLD_DIM,
-        display: "flex", alignItems: "center", justifyContent: "center",
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 220, damping: 16, delay: 0.15 }}
+        transition={{ type: 'spring', stiffness: 220, damping: 16, delay: 0.15 }}
       >
         <Check size={36} style={{ color: GOLD }} strokeWidth={2.5} />
       </motion.div>
@@ -139,20 +174,20 @@ function AnimatedCheck() {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function Onboarding() {
-  useDocumentTitle("Get Started | Majorka");
+  useDocumentTitle('Get Started | Majorka');
   const [, navigate] = useLocation();
   const { user, session, isAuthenticated, loading: authLoading } = useAuth();
   const updateProfile = trpc.profile.update.useMutation();
 
   // Current step: 1-5 + "done"
-  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | "done">(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | 'done'>(1);
 
   // Step 1 — name
-  const [name, setName] = useState("");
+  const [name, setName] = useState('');
 
   // Step 2 — niche
   const [niche, setNiche] = useState<string | null>(null);
-  const [customNiche, setCustomNiche] = useState("");
+  const [customNiche, setCustomNiche] = useState('');
 
   // Step 3 — experience
   const [experience, setExperience] = useState<string | null>(null);
@@ -175,50 +210,56 @@ export default function Onboarding() {
   // Pre-fill name from auth
   useEffect(() => {
     if (user?.name) {
-      setName(user.name.split(" ")[0] || user.name);
+      setName(user.name.split(' ')[0] || user.name);
     } else if (session?.user?.user_metadata?.full_name) {
       const fn = session.user.user_metadata.full_name as string;
-      setName(fn.split(" ")[0] || fn);
+      setName(fn.split(' ')[0] || fn);
     } else if (session?.user?.email) {
-      setName(session.user.email.split("@")[0] || "");
+      setName(session.user.email.split('@')[0] || '');
     }
   }, [user, session]);
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) navigate("/sign-in");
+    if (!authLoading && !isAuthenticated) navigate('/sign-in');
   }, [authLoading, isAuthenticated, navigate]);
 
   // Check if already onboarded
   useEffect(() => {
-    if (localStorage.getItem(ONBOARDING_KEY)) navigate("/app");
+    if (localStorage.getItem(ONBOARDING_KEY)) navigate('/app');
   }, [navigate]);
 
   // Fetch AI first task when reaching completion screen
   useEffect(() => {
-    if (step !== "done" || firstTaskFetched.current) return;
+    if (step !== 'done' || firstTaskFetched.current) return;
     firstTaskFetched.current = true;
     setTaskLoading(true);
 
     const token = session?.access_token;
-    const nicheLabel = NICHES.find(n => n.id === niche)?.label || customNiche || "general ecommerce";
-    const expLabel = experience === "beginner" ? "beginner" : experience === "intermediate" ? "intermediate" : "advanced";
+    const nicheLabel =
+      NICHES.find((n) => n.id === niche)?.label || customNiche || 'general ecommerce';
+    const expLabel =
+      experience === 'beginner'
+        ? 'beginner'
+        : experience === 'intermediate'
+          ? 'intermediate'
+          : 'advanced';
 
     const prompt = `Give me ONE specific first action for a ${expLabel} ${nicheLabel} dropshipper in Australia. 1-2 sentences, very specific, actionable. Start with a verb.`;
 
-    fetch("/api/chat", {
-      method: "POST",
+    fetch('/api/chat', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       body: JSON.stringify({
         message: prompt,
-        toolName: "ai-chat",
+        toolName: 'ai-chat',
         stream: false,
       }),
     })
-      .then(r => r.json())
+      .then((r) => r.json())
       .then((data: { reply?: string }) => {
         setFirstTask(data.reply?.slice(0, 180) || null);
       })
@@ -231,7 +272,7 @@ export default function Onboarding() {
   function goNext(from: number) {
     setDirection(1);
     setStep((from + 1) as typeof step);
-    capture("onboarding_step_completed", { step: from });
+    capture('onboarding_step_completed', { step: from });
   }
 
   function goBack(from: number) {
@@ -240,23 +281,31 @@ export default function Onboarding() {
   }
 
   function handleSkip() {
-    localStorage.setItem(ONBOARDING_KEY, "true");
+    localStorage.setItem(ONBOARDING_KEY, 'true');
     updateProfile.mutate({ onboardingCompleted: false });
-    navigate("/app");
+    navigate('/app');
   }
 
   async function handleComplete() {
-    const nicheValue = customNiche.trim() || (NICHES.find(n => n.id === niche)?.label ?? "");
-    const storeInfo = [storeType, platform].filter(Boolean).join(" / ");
+    const nicheValue = customNiche.trim() || (NICHES.find((n) => n.id === niche)?.label ?? '');
+    const storeInfo = [storeType, platform].filter(Boolean).join(' / ');
 
     // Save to localStorage
-    localStorage.setItem(ONBOARDING_KEY, "true");
-    localStorage.setItem("majorka_user_profile", JSON.stringify({
-      name, niche: nicheValue, experience, goal, storeType, platform,
-    }));
-    if (nicheValue) localStorage.setItem("majorka_niche", nicheValue);
-    if (experience) localStorage.setItem("majorka_level", experience);
-    if (goal) localStorage.setItem("majorka_goal", goal);
+    localStorage.setItem(ONBOARDING_KEY, 'true');
+    localStorage.setItem(
+      'majorka_user_profile',
+      JSON.stringify({
+        name,
+        niche: nicheValue,
+        experience,
+        goal,
+        storeType,
+        platform,
+      })
+    );
+    if (nicheValue) localStorage.setItem('majorka_niche', nicheValue);
+    if (experience) localStorage.setItem('majorka_level', experience);
+    if (goal) localStorage.setItem('majorka_goal', goal);
 
     // Save to Supabase
     updateProfile.mutate({
@@ -264,14 +313,14 @@ export default function Onboarding() {
       experienceLevel: experience || undefined,
       mainGoal: goal || undefined,
       businessName: storeInfo || undefined,
-      country: "Australia",
+      country: 'Australia',
       onboardingCompleted: true,
     });
 
-    capture("onboarding_completed", { niche: nicheValue, experience, goal, storeType, platform });
+    capture('onboarding_completed', { niche: nicheValue, experience, goal, storeType, platform });
 
     setDirection(1);
-    setStep("done");
+    setStep('done');
   }
 
   // ── Framer variants ───────────────────────────────────────────────────────
@@ -282,9 +331,10 @@ export default function Onboarding() {
     exit: (d: number) => ({ x: d * -80, opacity: 0 }),
   };
 
-  const firstName = name.trim().split(" ")[0] || "there";
-  const nicheLabel = NICHES.find(n => n.id === niche)?.label || customNiche || "your niche";
-  const expLabel = EXPERIENCE_LEVELS.find(e => e.id === experience)?.label?.toLowerCase() || "beginner";
+  const firstName = name.trim().split(' ')[0] || 'there';
+  const nicheLabel = NICHES.find((n) => n.id === niche)?.label || customNiche || 'your niche';
+  const expLabel =
+    EXPERIENCE_LEVELS.find((e) => e.id === experience)?.label?.toLowerCase() || 'beginner';
 
   if (authLoading) return null;
 
@@ -292,8 +342,9 @@ export default function Onboarding() {
     <div
       className="min-h-screen flex flex-col"
       style={{
-        background: "#080a0e",
-        backgroundImage: "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212,175,55,0.06) 0%, transparent 70%)",
+        background: '#080a0e',
+        backgroundImage:
+          'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212,175,55,0.06) 0%, transparent 70%)',
       }}
     >
       {/* ── Top bar ─────────────────────────────────────────────────────── */}
@@ -303,18 +354,33 @@ export default function Onboarding() {
             className="w-7 h-7 rounded-md flex items-center justify-center"
             style={{ background: GOLD }}
           >
-            <span className="text-black font-bold text-xs" style={{ fontFamily: "Syne, sans-serif" }}>M</span>
+            <span
+              className="text-black font-bold text-xs"
+              style={{ fontFamily: 'Syne, sans-serif' }}
+            >
+              M
+            </span>
           </div>
-          <span className="text-white font-semibold text-sm" style={{ fontFamily: "Syne, sans-serif" }}>Majorka</span>
+          <span
+            className="text-white font-semibold text-sm"
+            style={{ fontFamily: 'Syne, sans-serif' }}
+          >
+            Majorka
+          </span>
         </div>
 
-        {step !== "done" && (
+        {step !== 'done' && (
           <button
             onClick={handleSkip}
             className="text-xs transition-colors"
-            style={{ background: "none", border: "none", color: "rgba(255,255,255,0.25)", cursor: "pointer" }}
-            onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.5)")}
-            onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.25)")}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'rgba(255,255,255,0.25)',
+              cursor: 'pointer',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.25)')}
           >
             Skip for now →
           </button>
@@ -322,13 +388,16 @@ export default function Onboarding() {
       </div>
 
       {/* ── Progress bar ─────────────────────────────────────────────────── */}
-      {step !== "done" && (
-        <div className="h-0.5 w-full flex-shrink-0" style={{ background: "rgba(255,255,255,0.04)" }}>
+      {step !== 'done' && (
+        <div
+          className="h-0.5 w-full flex-shrink-0"
+          style={{ background: 'rgba(255,255,255,0.04)' }}
+        >
           <motion.div
             className="h-full"
             style={{ background: `linear-gradient(90deg, ${GOLD}, #f0c040)` }}
-            animate={{ width: `${(typeof step === "number" ? step : 5) / 5 * 100}%` }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
+            animate={{ width: `${((typeof step === 'number' ? step : 5) / 5) * 100}%` }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
           />
         </div>
       )}
@@ -336,11 +405,10 @@ export default function Onboarding() {
       {/* ── Content ──────────────────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-10">
         <div className="w-full max-w-lg">
-
           {/* Dots */}
-          {step !== "done" && (
+          {step !== 'done' && (
             <div className="mb-8">
-              <ProgressDots current={typeof step === "number" ? step : 5} total={5} />
+              <ProgressDots current={typeof step === 'number' ? step : 5} total={5} />
             </div>
           )}
 
@@ -354,7 +422,7 @@ export default function Onboarding() {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.28, ease: "easeOut" }}
+                transition={{ duration: 0.28, ease: 'easeOut' }}
                 className="space-y-6"
               >
                 <div className="text-center space-y-2">
@@ -364,33 +432,39 @@ export default function Onboarding() {
                   >
                     <User size={24} style={{ color: GOLD }} />
                   </div>
-                  <h1 className="text-2xl font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
-                    Welcome to Majorka{name ? `, ${name.split(" ")[0]}` : ""}
+                  <h1
+                    className="text-2xl font-bold"
+                    style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                  >
+                    Welcome to Majorka{name ? `, ${name.split(' ')[0]}` : ''}
                   </h1>
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>
+                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
                     Let's personalise your experience. Takes 2 minutes.
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(255,255,255,0.5)" }}>
+                  <label
+                    className="block text-xs font-medium mb-1.5"
+                    style={{ color: 'rgba(255,255,255,0.5)' }}
+                  >
                     What should we call you?
                   </label>
                   <input
                     type="text"
                     placeholder="Your first name"
                     value={name}
-                    onChange={e => setName(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && name.trim() && goNext(1)}
+                    onChange={(e) => setName(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && name.trim() && goNext(1)}
                     autoFocus
                     className="w-full rounded-xl py-3 px-4 text-sm outline-none transition-all"
                     style={{
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1.5px solid rgba(255,255,255,0.1)",
-                      color: "#f5f5f5",
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1.5px solid rgba(255,255,255,0.1)',
+                      color: '#f5f5f5',
                     }}
-                    onFocus={e => (e.target.style.borderColor = GOLD_BORDER)}
-                    onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
+                    onFocus={(e) => (e.target.style.borderColor = GOLD_BORDER)}
+                    onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
                   />
                 </div>
 
@@ -399,11 +473,13 @@ export default function Onboarding() {
                   disabled={!name.trim()}
                   className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
                   style={{
-                    background: name.trim() ? `linear-gradient(135deg, ${GOLD}, #b8941f)` : "rgba(255,255,255,0.06)",
-                    color: name.trim() ? "#080a0e" : "rgba(255,255,255,0.3)",
-                    fontFamily: "Syne, sans-serif",
-                    cursor: name.trim() ? "pointer" : "not-allowed",
-                    border: "none",
+                    background: name.trim()
+                      ? `linear-gradient(135deg, ${GOLD}, #b8941f)`
+                      : 'rgba(255,255,255,0.06)',
+                    color: name.trim() ? '#080a0e' : 'rgba(255,255,255,0.3)',
+                    fontFamily: 'Syne, sans-serif',
+                    cursor: name.trim() ? 'pointer' : 'not-allowed',
+                    border: 'none',
                   }}
                 >
                   Continue <ChevronRight size={15} />
@@ -420,14 +496,17 @@ export default function Onboarding() {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.28, ease: "easeOut" }}
+                transition={{ duration: 0.28, ease: 'easeOut' }}
                 className="space-y-5"
               >
                 <div className="text-center space-y-1">
-                  <h1 className="text-2xl font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
+                  <h1
+                    className="text-2xl font-bold"
+                    style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                  >
                     What do you sell?
                   </h1>
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>
+                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
                     We'll personalise every AI tool to your market.
                   </p>
                 </div>
@@ -442,22 +521,31 @@ export default function Onboarding() {
                         onClick={() => setNiche(id)}
                         className="text-left flex items-center gap-3 px-3 py-3 rounded-xl transition-all"
                         style={goldCard(active)}
-                        onMouseEnter={e => {
-                          if (!active) (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.055)";
+                        onMouseEnter={(e) => {
+                          if (!active)
+                            (e.currentTarget as HTMLButtonElement).style.background =
+                              'rgba(255,255,255,0.055)';
                         }}
-                        onMouseLeave={e => {
-                          if (!active) (e.currentTarget as HTMLButtonElement).style.background = DIM_BG;
+                        onMouseLeave={(e) => {
+                          if (!active)
+                            (e.currentTarget as HTMLButtonElement).style.background = DIM_BG;
                         }}
                       >
                         <div
                           className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                          style={{ background: active ? GOLD_DIM : "rgba(255,255,255,0.05)" }}
+                          style={{ background: active ? GOLD_DIM : 'rgba(255,255,255,0.05)' }}
                         >
-                          <Icon size={14} style={{ color: active ? GOLD : "rgba(255,255,255,0.5)" }} />
+                          <Icon
+                            size={14}
+                            style={{ color: active ? GOLD : 'rgba(255,255,255,0.5)' }}
+                          />
                         </div>
                         <span
                           className="text-xs font-semibold leading-tight"
-                          style={{ color: active ? GOLD : "#f5f5f5", fontFamily: "Syne, sans-serif" }}
+                          style={{
+                            color: active ? GOLD : '#f5f5f5',
+                            fontFamily: 'Syne, sans-serif',
+                          }}
                         >
                           {label}
                         </span>
@@ -468,22 +556,28 @@ export default function Onboarding() {
 
                 {/* Custom niche input */}
                 <div>
-                  <label className="block text-xs mb-1.5" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  <label
+                    className="block text-xs mb-1.5"
+                    style={{ color: 'rgba(255,255,255,0.4)' }}
+                  >
                     Or describe your niche:
                   </label>
                   <input
                     type="text"
                     placeholder="e.g. sustainable baby products"
                     value={customNiche}
-                    onChange={e => { setCustomNiche(e.target.value); if (e.target.value.trim()) setNiche(null); }}
+                    onChange={(e) => {
+                      setCustomNiche(e.target.value);
+                      if (e.target.value.trim()) setNiche(null);
+                    }}
                     className="w-full rounded-xl py-2.5 px-3 text-sm outline-none transition-all"
                     style={{
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1.5px solid rgba(255,255,255,0.08)",
-                      color: "#f5f5f5",
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1.5px solid rgba(255,255,255,0.08)',
+                      color: '#f5f5f5',
                     }}
-                    onFocus={e => (e.target.style.borderColor = GOLD_BORDER)}
-                    onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
+                    onFocus={(e) => (e.target.style.borderColor = GOLD_BORDER)}
+                    onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
                   />
                 </div>
 
@@ -491,7 +585,12 @@ export default function Onboarding() {
                   <button
                     onClick={() => goBack(2)}
                     className="px-4 py-3.5 rounded-xl transition-all"
-                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", cursor: "pointer" }}
+                    style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: 'rgba(255,255,255,0.5)',
+                      cursor: 'pointer',
+                    }}
                   >
                     <ChevronLeft size={15} />
                   </button>
@@ -500,11 +599,14 @@ export default function Onboarding() {
                     disabled={!niche && !customNiche.trim()}
                     className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
                     style={{
-                      background: (niche || customNiche.trim()) ? `linear-gradient(135deg, ${GOLD}, #b8941f)` : "rgba(255,255,255,0.06)",
-                      color: (niche || customNiche.trim()) ? "#080a0e" : "rgba(255,255,255,0.3)",
-                      fontFamily: "Syne, sans-serif",
-                      cursor: (niche || customNiche.trim()) ? "pointer" : "not-allowed",
-                      border: "none",
+                      background:
+                        niche || customNiche.trim()
+                          ? `linear-gradient(135deg, ${GOLD}, #b8941f)`
+                          : 'rgba(255,255,255,0.06)',
+                      color: niche || customNiche.trim() ? '#080a0e' : 'rgba(255,255,255,0.3)',
+                      fontFamily: 'Syne, sans-serif',
+                      cursor: niche || customNiche.trim() ? 'pointer' : 'not-allowed',
+                      border: 'none',
                     }}
                   >
                     Continue <ChevronRight size={15} />
@@ -522,14 +624,17 @@ export default function Onboarding() {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.28, ease: "easeOut" }}
+                transition={{ duration: 0.28, ease: 'easeOut' }}
                 className="space-y-5"
               >
                 <div className="text-center space-y-1">
-                  <h1 className="text-2xl font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
+                  <h1
+                    className="text-2xl font-bold"
+                    style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                  >
                     How experienced are you?
                   </h1>
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>
+                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
                     Honest answer helps us show the right content.
                   </p>
                 </div>
@@ -543,24 +648,41 @@ export default function Onboarding() {
                         onClick={() => setExperience(id)}
                         className="w-full text-left flex items-center gap-4 px-4 py-4 rounded-xl transition-all"
                         style={goldCard(active)}
-                        onMouseEnter={e => {
-                          if (!active) (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.055)";
+                        onMouseEnter={(e) => {
+                          if (!active)
+                            (e.currentTarget as HTMLButtonElement).style.background =
+                              'rgba(255,255,255,0.055)';
                         }}
-                        onMouseLeave={e => {
-                          if (!active) (e.currentTarget as HTMLButtonElement).style.background = DIM_BG;
+                        onMouseLeave={(e) => {
+                          if (!active)
+                            (e.currentTarget as HTMLButtonElement).style.background = DIM_BG;
                         }}
                       >
                         <div
                           className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                          style={{ background: active ? GOLD_DIM : "rgba(255,255,255,0.05)" }}
+                          style={{ background: active ? GOLD_DIM : 'rgba(255,255,255,0.05)' }}
                         >
-                          <Icon size={18} style={{ color: active ? GOLD : "rgba(255,255,255,0.45)" }} />
+                          <Icon
+                            size={18}
+                            style={{ color: active ? GOLD : 'rgba(255,255,255,0.45)' }}
+                          />
                         </div>
                         <div>
-                          <div className="text-sm font-bold" style={{ fontFamily: "Syne, sans-serif", color: active ? GOLD : "#f5f5f5" }}>
+                          <div
+                            className="text-sm font-bold"
+                            style={{
+                              fontFamily: 'Syne, sans-serif',
+                              color: active ? GOLD : '#f5f5f5',
+                            }}
+                          >
                             {label}
                           </div>
-                          <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{desc}</div>
+                          <div
+                            className="text-xs mt-0.5"
+                            style={{ color: 'rgba(255,255,255,0.35)' }}
+                          >
+                            {desc}
+                          </div>
                         </div>
                       </button>
                     );
@@ -571,7 +693,12 @@ export default function Onboarding() {
                   <button
                     onClick={() => goBack(3)}
                     className="px-4 py-3.5 rounded-xl transition-all"
-                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", cursor: "pointer" }}
+                    style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: 'rgba(255,255,255,0.5)',
+                      cursor: 'pointer',
+                    }}
                   >
                     <ChevronLeft size={15} />
                   </button>
@@ -580,11 +707,13 @@ export default function Onboarding() {
                     disabled={!experience}
                     className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
                     style={{
-                      background: experience ? `linear-gradient(135deg, ${GOLD}, #b8941f)` : "rgba(255,255,255,0.06)",
-                      color: experience ? "#080a0e" : "rgba(255,255,255,0.3)",
-                      fontFamily: "Syne, sans-serif",
-                      cursor: experience ? "pointer" : "not-allowed",
-                      border: "none",
+                      background: experience
+                        ? `linear-gradient(135deg, ${GOLD}, #b8941f)`
+                        : 'rgba(255,255,255,0.06)',
+                      color: experience ? '#080a0e' : 'rgba(255,255,255,0.3)',
+                      fontFamily: 'Syne, sans-serif',
+                      cursor: experience ? 'pointer' : 'not-allowed',
+                      border: 'none',
                     }}
                   >
                     Continue <ChevronRight size={15} />
@@ -602,14 +731,17 @@ export default function Onboarding() {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.28, ease: "easeOut" }}
+                transition={{ duration: 0.28, ease: 'easeOut' }}
                 className="space-y-5"
               >
                 <div className="text-center space-y-1">
-                  <h1 className="text-2xl font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
+                  <h1
+                    className="text-2xl font-bold"
+                    style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                  >
                     What's your #1 goal?
                   </h1>
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>
+                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
                     We'll align every tool to help you get there.
                   </p>
                 </div>
@@ -623,20 +755,32 @@ export default function Onboarding() {
                         onClick={() => setGoal(id)}
                         className="w-full text-left flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all"
                         style={goldCard(active)}
-                        onMouseEnter={e => {
-                          if (!active) (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.055)";
+                        onMouseEnter={(e) => {
+                          if (!active)
+                            (e.currentTarget as HTMLButtonElement).style.background =
+                              'rgba(255,255,255,0.055)';
                         }}
-                        onMouseLeave={e => {
-                          if (!active) (e.currentTarget as HTMLButtonElement).style.background = DIM_BG;
+                        onMouseLeave={(e) => {
+                          if (!active)
+                            (e.currentTarget as HTMLButtonElement).style.background = DIM_BG;
                         }}
                       >
                         <div
                           className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                          style={{ background: active ? GOLD_DIM : "rgba(255,255,255,0.05)" }}
+                          style={{ background: active ? GOLD_DIM : 'rgba(255,255,255,0.05)' }}
                         >
-                          <Icon size={16} style={{ color: active ? GOLD : "rgba(255,255,255,0.45)" }} />
+                          <Icon
+                            size={16}
+                            style={{ color: active ? GOLD : 'rgba(255,255,255,0.45)' }}
+                          />
                         </div>
-                        <span className="text-sm font-semibold" style={{ fontFamily: "Syne, sans-serif", color: active ? GOLD : "#f5f5f5" }}>
+                        <span
+                          className="text-sm font-semibold"
+                          style={{
+                            fontFamily: 'Syne, sans-serif',
+                            color: active ? GOLD : '#f5f5f5',
+                          }}
+                        >
                           {label}
                         </span>
                       </button>
@@ -648,7 +792,12 @@ export default function Onboarding() {
                   <button
                     onClick={() => goBack(4)}
                     className="px-4 py-3.5 rounded-xl transition-all"
-                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", cursor: "pointer" }}
+                    style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: 'rgba(255,255,255,0.5)',
+                      cursor: 'pointer',
+                    }}
                   >
                     <ChevronLeft size={15} />
                   </button>
@@ -657,11 +806,13 @@ export default function Onboarding() {
                     disabled={!goal}
                     className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
                     style={{
-                      background: goal ? `linear-gradient(135deg, ${GOLD}, #b8941f)` : "rgba(255,255,255,0.06)",
-                      color: goal ? "#080a0e" : "rgba(255,255,255,0.3)",
-                      fontFamily: "Syne, sans-serif",
-                      cursor: goal ? "pointer" : "not-allowed",
-                      border: "none",
+                      background: goal
+                        ? `linear-gradient(135deg, ${GOLD}, #b8941f)`
+                        : 'rgba(255,255,255,0.06)',
+                      color: goal ? '#080a0e' : 'rgba(255,255,255,0.3)',
+                      fontFamily: 'Syne, sans-serif',
+                      cursor: goal ? 'pointer' : 'not-allowed',
+                      border: 'none',
                     }}
                   >
                     Continue <ChevronRight size={15} />
@@ -679,21 +830,27 @@ export default function Onboarding() {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.28, ease: "easeOut" }}
+                transition={{ duration: 0.28, ease: 'easeOut' }}
                 className="space-y-5"
               >
                 <div className="text-center space-y-1">
-                  <h1 className="text-2xl font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
+                  <h1
+                    className="text-2xl font-bold"
+                    style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                  >
                     How do you sell?
                   </h1>
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>
+                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
                     Almost done — just two quick picks.
                   </p>
                 </div>
 
                 {/* Store type */}
                 <div>
-                  <label className="block text-xs font-medium mb-2" style={{ color: "rgba(255,255,255,0.45)" }}>
+                  <label
+                    className="block text-xs font-medium mb-2"
+                    style={{ color: 'rgba(255,255,255,0.45)' }}
+                  >
                     Business model
                   </label>
                   <div className="space-y-2">
@@ -705,24 +862,43 @@ export default function Onboarding() {
                           onClick={() => setStoreType(id)}
                           className="w-full text-left flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all"
                           style={goldCard(active)}
-                          onMouseEnter={e => {
-                            if (!active) (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.055)";
+                          onMouseEnter={(e) => {
+                            if (!active)
+                              (e.currentTarget as HTMLButtonElement).style.background =
+                                'rgba(255,255,255,0.055)';
                           }}
-                          onMouseLeave={e => {
-                            if (!active) (e.currentTarget as HTMLButtonElement).style.background = DIM_BG;
+                          onMouseLeave={(e) => {
+                            if (!active)
+                              (e.currentTarget as HTMLButtonElement).style.background = DIM_BG;
                           }}
                         >
                           <div
                             className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                            style={{ background: active ? GOLD_DIM : "rgba(255,255,255,0.05)" }}
+                            style={{ background: active ? GOLD_DIM : 'rgba(255,255,255,0.05)' }}
                           >
-                            <Icon size={16} style={{ color: active ? GOLD : "rgba(255,255,255,0.45)" }} />
+                            <Icon
+                              size={16}
+                              style={{ color: active ? GOLD : 'rgba(255,255,255,0.45)' }}
+                            />
                           </div>
                           <div>
-                            <div className="text-sm font-semibold" style={{ fontFamily: "Syne, sans-serif", color: active ? GOLD : "#f5f5f5" }}>
+                            <div
+                              className="text-sm font-semibold"
+                              style={{
+                                fontFamily: 'Syne, sans-serif',
+                                color: active ? GOLD : '#f5f5f5',
+                              }}
+                            >
                               {label}
                             </div>
-                            {desc && <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{desc}</div>}
+                            {desc && (
+                              <div
+                                className="text-xs mt-0.5"
+                                style={{ color: 'rgba(255,255,255,0.35)' }}
+                              >
+                                {desc}
+                              </div>
+                            )}
                           </div>
                         </button>
                       );
@@ -732,11 +908,14 @@ export default function Onboarding() {
 
                 {/* Platform */}
                 <div>
-                  <label className="block text-xs font-medium mb-2" style={{ color: "rgba(255,255,255,0.45)" }}>
+                  <label
+                    className="block text-xs font-medium mb-2"
+                    style={{ color: 'rgba(255,255,255,0.45)' }}
+                  >
                     Which platform?
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    {PLATFORMS.map(p => {
+                    {PLATFORMS.map((p) => {
                       const active = platform === p;
                       return (
                         <button
@@ -744,10 +923,10 @@ export default function Onboarding() {
                           onClick={() => setPlatform(p)}
                           className="px-4 py-2 rounded-xl text-xs font-semibold transition-all"
                           style={{
-                            background: active ? GOLD_DIM : "rgba(255,255,255,0.04)",
+                            background: active ? GOLD_DIM : 'rgba(255,255,255,0.04)',
                             border: `1.5px solid ${active ? GOLD_BORDER : DIM_BORDER}`,
-                            color: active ? GOLD : "rgba(255,255,255,0.6)",
-                            cursor: "pointer",
+                            color: active ? GOLD : 'rgba(255,255,255,0.6)',
+                            cursor: 'pointer',
                           }}
                         >
                           {p}
@@ -761,7 +940,12 @@ export default function Onboarding() {
                   <button
                     onClick={() => goBack(5)}
                     className="px-4 py-3.5 rounded-xl transition-all"
-                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.5)", cursor: "pointer" }}
+                    style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: 'rgba(255,255,255,0.5)',
+                      cursor: 'pointer',
+                    }}
                   >
                     <ChevronLeft size={15} />
                   </button>
@@ -770,12 +954,14 @@ export default function Onboarding() {
                     disabled={!storeType}
                     className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
                     style={{
-                      background: storeType ? `linear-gradient(135deg, ${GOLD}, #b8941f)` : "rgba(255,255,255,0.06)",
-                      color: storeType ? "#080a0e" : "rgba(255,255,255,0.3)",
-                      fontFamily: "Syne, sans-serif",
-                      cursor: storeType ? "pointer" : "not-allowed",
-                      border: "none",
-                      boxShadow: storeType ? "0 8px 24px rgba(212,175,55,0.2)" : "none",
+                      background: storeType
+                        ? `linear-gradient(135deg, ${GOLD}, #b8941f)`
+                        : 'rgba(255,255,255,0.06)',
+                      color: storeType ? '#080a0e' : 'rgba(255,255,255,0.3)',
+                      fontFamily: 'Syne, sans-serif',
+                      cursor: storeType ? 'pointer' : 'not-allowed',
+                      border: 'none',
+                      boxShadow: storeType ? '0 8px 24px rgba(212,175,55,0.2)' : 'none',
                     }}
                   >
                     Finish Setup <ChevronRight size={15} />
@@ -785,7 +971,7 @@ export default function Onboarding() {
             )}
 
             {/* ── COMPLETION ───────────────────────────────────────────────── */}
-            {step === "done" && (
+            {step === 'done' && (
               <motion.div
                 key="done"
                 custom={direction}
@@ -793,27 +979,29 @@ export default function Onboarding() {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.35, ease: "easeOut" }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
                 className="space-y-8 text-center"
               >
                 {/* Checkmark */}
                 <motion.div
                   initial={{ scale: 0.6, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
                   className="flex justify-center"
                 >
                   <AnimatedCheck />
                 </motion.div>
 
                 <div className="space-y-2">
-                  <h1 className="text-2xl font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
+                  <h1
+                    className="text-2xl font-bold"
+                    style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                  >
                     You're all set, {firstName}!
                   </h1>
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>
-                    Majorka is now personalised for{" "}
-                    <span style={{ color: GOLD }}>{nicheLabel}</span>{" "}
-                    sellers at{" "}
+                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                    Majorka is now personalised for{' '}
+                    <span style={{ color: GOLD }}>{nicheLabel}</span> sellers at{' '}
                     <span style={{ color: GOLD }}>{expLabel}</span> level.
                   </p>
                 </div>
@@ -824,41 +1012,52 @@ export default function Onboarding() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: 0.4 }}
                   style={{
-                    background: "rgba(212,175,55,0.05)",
+                    background: 'rgba(212,175,55,0.05)',
                     border: `1.5px solid ${GOLD_BORDER}`,
                     borderRadius: 16,
-                    padding: "20px 24px",
-                    textAlign: "left",
+                    padding: '20px 24px',
+                    textAlign: 'left',
                   }}
                 >
                   <div className="flex items-center gap-2 mb-3">
                     <Sparkles size={14} style={{ color: GOLD }} />
-                    <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: GOLD, fontFamily: "Syne, sans-serif" }}>
+                    <span
+                      className="text-xs font-semibold uppercase tracking-widest"
+                      style={{ color: GOLD, fontFamily: 'Syne, sans-serif' }}
+                    >
                       Your First Task
                     </span>
                   </div>
                   {taskLoading ? (
-                    <div className="flex items-center gap-2" style={{ color: "rgba(255,255,255,0.35)" }}>
+                    <div
+                      className="flex items-center gap-2"
+                      style={{ color: 'rgba(255,255,255,0.35)' }}
+                    >
                       <Loader2 size={14} className="animate-spin" />
                       <span className="text-sm">Personalising your action plan...</span>
                     </div>
                   ) : firstTask ? (
                     <>
-                      <p className="text-sm leading-relaxed mb-4" style={{ color: "#f0ede8" }}>
+                      <p className="text-sm leading-relaxed mb-4" style={{ color: '#f0ede8' }}>
                         {firstTask}
                       </p>
                       <button
-                        onClick={() => navigate("/app/product-discovery")}
+                        onClick={() => navigate('/app/product-discovery')}
                         className="flex items-center gap-1.5 text-xs font-semibold transition-all"
-                        style={{ background: "none", border: "none", color: GOLD, cursor: "pointer" }}
-                        onMouseEnter={e => (e.currentTarget.style.opacity = "0.75")}
-                        onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: GOLD,
+                          cursor: 'pointer',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.75')}
+                        onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
                       >
                         Do this first <ArrowRight size={13} />
                       </button>
                     </>
                   ) : (
-                    <p className="text-sm" style={{ color: "rgba(255,255,255,0.45)" }}>
+                    <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
                       Head to your dashboard to get started with personalised tools.
                     </p>
                   )}
@@ -872,31 +1071,35 @@ export default function Onboarding() {
                   className="space-y-3"
                 >
                   <button
-                    onClick={() => navigate("/app")}
+                    onClick={() => navigate('/app')}
                     className="w-full flex items-center justify-center gap-2 py-4 rounded-xl text-sm font-bold transition-all"
                     style={{
                       background: `linear-gradient(135deg, ${GOLD}, #b8941f)`,
-                      color: "#080a0e",
-                      fontFamily: "Syne, sans-serif",
-                      cursor: "pointer",
-                      border: "none",
-                      boxShadow: "0 8px 32px rgba(212,175,55,0.25)",
+                      color: '#080a0e',
+                      fontFamily: 'Syne, sans-serif',
+                      cursor: 'pointer',
+                      border: 'none',
+                      boxShadow: '0 8px 32px rgba(212,175,55,0.25)',
                     }}
                   >
                     Go to Dashboard <ArrowRight size={15} />
                   </button>
                   <button
-                    onClick={() => navigate("/app")}
+                    onClick={() => navigate('/app')}
                     className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all"
                     style={{
-                      background: "transparent",
-                      border: "1.5px solid rgba(255,255,255,0.1)",
-                      color: "rgba(255,255,255,0.6)",
-                      fontFamily: "Syne, sans-serif",
-                      cursor: "pointer",
+                      background: 'transparent',
+                      border: '1.5px solid rgba(255,255,255,0.1)',
+                      color: 'rgba(255,255,255,0.6)',
+                      fontFamily: 'Syne, sans-serif',
+                      cursor: 'pointer',
                     }}
-                    onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)")}
-                    onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)')
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')
+                    }
                   >
                     Explore Tools
                   </button>

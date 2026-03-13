@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { Circle } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { TextShimmer } from "@/components/ui/text-shimmer";
+import { motion } from 'framer-motion';
+import { Circle } from 'lucide-react';
+import { TextShimmer } from '@/components/ui/text-shimmer';
+import { cn } from '@/lib/utils';
 
 function ElegantShape({
   className,
@@ -11,7 +11,7 @@ function ElegantShape({
   width = 400,
   height = 100,
   rotate = 0,
-  gradient = "from-white/[0.08]",
+  gradient = 'from-white/[0.08]',
 }: {
   className?: string;
   delay?: number;
@@ -32,13 +32,15 @@ function ElegantShape({
         y: 0,
         rotate: rotate,
       }}
-      transition={{
-        duration: 2.4,
-        delay,
-        ease: "easeInOut",
-        opacity: { duration: 1.2 },
-      } as any}
-      className={cn("absolute", className)}
+      transition={
+        {
+          duration: 2.4,
+          delay,
+          ease: 'easeInOut',
+          opacity: { duration: 1.2 },
+        } as any
+      }
+      className={cn('absolute', className)}
     >
       <motion.div
         animate={{
@@ -47,7 +49,7 @@ function ElegantShape({
         transition={{
           duration: 12,
           repeat: Number.POSITIVE_INFINITY,
-          ease: "easeInOut",
+          ease: 'easeInOut',
         }}
         style={{
           width,
@@ -57,13 +59,13 @@ function ElegantShape({
       >
         <div
           className={cn(
-            "absolute inset-0 rounded-full",
-            "bg-gradient-to-r to-transparent",
+            'absolute inset-0 rounded-full',
+            'bg-gradient-to-r to-transparent',
             gradient,
-            "backdrop-blur-[2px] border-2 border-white/[0.15]",
-            "shadow-[0_8px_32px_0_rgba(255,255,255,0.1)]",
-            "after:absolute after:inset-0 after:rounded-full",
-            "after:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2),transparent_70%)]"
+            'backdrop-blur-[2px] border-2 border-white/[0.15]',
+            'shadow-[0_8px_32px_0_rgba(255,255,255,0.1)]',
+            'after:absolute after:inset-0 after:rounded-full',
+            'after:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.2),transparent_70%)]'
           )}
         />
       </motion.div>
@@ -72,9 +74,9 @@ function ElegantShape({
 }
 
 function HeroGeometric({
-  badge = "Design Collective",
-  title1 = "Elevate Your Digital Vision",
-  title2 = "Crafting Exceptional Websites",
+  badge = 'Design Collective',
+  title1 = 'Elevate Your Digital Vision',
+  title2 = 'Crafting Exceptional Websites',
   description,
 }: {
   badge?: string;
@@ -90,7 +92,7 @@ function HeroGeometric({
       transition: {
         duration: 1,
         delay: 0.5 + i * 0.2,
-        ease: "easeInOut",
+        ease: 'easeInOut',
       } as any,
     }),
   };
@@ -161,19 +163,16 @@ function HeroGeometric({
             </TextShimmer>
           </motion.div>
 
-          <motion.div
-            custom={1}
-            variants={fadeUpVariants}
-            initial="hidden"
-            animate="visible"
-          >
+          <motion.div custom={1} variants={fadeUpVariants} initial="hidden" animate="visible">
             <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold mb-6 md:mb-8 tracking-tight">
               <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80">
                 {title1}
               </span>
               <br />
               <TextShimmer
-                className={cn("bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400")}
+                className={cn(
+                  'bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400'
+                )}
                 duration={3}
                 spread={3}
               >
@@ -182,12 +181,7 @@ function HeroGeometric({
             </h1>
           </motion.div>
 
-          <motion.div
-            custom={2}
-            variants={fadeUpVariants}
-            initial="hidden"
-            animate="visible"
-          >
+          <motion.div custom={2} variants={fadeUpVariants} initial="hidden" animate="visible">
             {description && (
               <p className="text-base sm:text-lg md:text-xl text-white/40 mb-8 leading-relaxed font-light tracking-wide max-w-xl mx-auto px-4">
                 {description}

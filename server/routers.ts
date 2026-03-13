@@ -1,46 +1,45 @@
-import { z } from "zod";
-import { systemRouter } from "./_core/systemRouter";
-import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { adminRouter } from "./routers/admin";
+import { z } from 'zod';
+import { systemRouter } from './_core/systemRouter';
+import { protectedProcedure, publicProcedure, router } from './_core/trpc';
 import {
-  getSubscriptionByUserId,
-  hasActiveSubscription,
-  createSubscription,
-  updateSubscriptionStatus,
-  getProductsByUserId,
-  getProductById,
   createProduct,
-  updateProduct,
-  deleteProduct,
-  getSavedOutputsByProductId,
   createSavedOutput,
-  deleteSavedOutput,
-  getUserProfile,
-  upsertUserProfile,
-  getConversationHistory,
-  saveConversationMessage,
-  getTaskPlanProgress,
-  upsertTaskPlanStep,
-  getStoreByUserId,
-  getStoreBySlug,
   createStore,
-  updateStore,
-  getStorefrontProducts,
-  upsertStorefrontProduct,
-  getOrdersByStoreId,
-  updateOrderFulfillment,
-  saveAttribution,
+  createSubscription,
+  deleteProduct,
+  deleteSavedOutput,
   getAttributionByUserId,
-} from "./db";
-
-import { tavilySearch, tavilyExtract, tavilyImageSearch } from "./tavily";
-import { getAllMemories } from "./lib/memory";
+  getConversationHistory,
+  getOrdersByStoreId,
+  getProductById,
+  getProductsByUserId,
+  getSavedOutputsByProductId,
+  getStoreBySlug,
+  getStoreByUserId,
+  getStorefrontProducts,
+  getSubscriptionByUserId,
+  getTaskPlanProgress,
+  getUserProfile,
+  hasActiveSubscription,
+  saveAttribution,
+  saveConversationMessage,
+  updateOrderFulfillment,
+  updateProduct,
+  updateStore,
+  updateSubscriptionStatus,
+  upsertStorefrontProduct,
+  upsertTaskPlanStep,
+  upsertUserProfile,
+} from './db';
+import { getAllMemories } from './lib/memory';
+import { adminRouter } from './routers/admin';
+import { tavilyExtract, tavilyImageSearch, tavilySearch } from './tavily';
 
 export const appRouter = router({
   system: systemRouter,
 
   auth: router({
-    me: publicProcedure.query(opts => opts.ctx.user),
+    me: publicProcedure.query((opts) => opts.ctx.user),
     logout: publicProcedure.mutation(() => {
       // Client-side handles signOut via Supabase; server is a no-op
       return { success: true } as const;
@@ -50,7 +49,7 @@ export const appRouter = router({
   subscription: router({
     /** Get the current user's subscription (null if none). */
     get: protectedProcedure.query(async ({ ctx }) => {
-      return await getSubscriptionByUserId(ctx.user.id) ?? null;
+      return (await getSubscriptionByUserId(ctx.user.id)) ?? null;
     }),
 
     /** Check whether the current user has active access. */
@@ -62,13 +61,13 @@ export const appRouter = router({
     activate: protectedProcedure
       .input(
         z.object({
-          plan: z.string().default("pro"),
+          plan: z.string().default('pro'),
           externalRef: z.string().optional(),
         })
       )
       .mutation(async ({ ctx, input }) => {
         const existing = await getSubscriptionByUserId(ctx.user.id);
-        if (existing?.status === "active") {
+        if (existing?.status === 'active') {
           return { success: true, subscription: existing };
         }
         const periodEnd = new Date();
@@ -76,10 +75,10 @@ export const appRouter = router({
 
         const sub = await createSubscription({
           userId: ctx.user.id,
-          status: "active",
+          status: 'active',
           plan: input.plan,
           priceInCents: 9900,
-          currency: "USD",
+          currency: 'USD',
           periodStart: new Date(),
           periodEnd,
           externalRef: input.externalRef ?? null,
@@ -89,10 +88,10 @@ export const appRouter = router({
 
     cancel: protectedProcedure.mutation(async ({ ctx }) => {
       const sub = await getSubscriptionByUserId(ctx.user.id);
-      if (!sub || sub.status !== "active") {
-        return { success: false, message: "No active subscription found." };
+      if (!sub || sub.status !== 'active') {
+        return { success: false, message: 'No active subscription found.' };
       }
-      await updateSubscriptionStatus(ctx.user.id, "cancelled");
+      await updateSubscriptionStatus(ctx.user.id, 'cancelled');
       return { success: true };
     }),
   }),
@@ -106,29 +105,35 @@ export const appRouter = router({
     get: protectedProcedure
       .input(z.object({ id: z.string().uuid() }))
       .query(async ({ ctx, input }) => {
-        return await getProductById(input.id, ctx.user.id) ?? null;
+        return (await getProductById(input.id, ctx.user.id)) ?? null;
       }),
 
     create: protectedProcedure
-      .input(z.object({
-        name: z.string().min(1).max(255),
-        url: z.string().optional(),
-        niche: z.string().optional(),
-        description: z.string().optional(),
-      }))
+      .input(
+        z.object({
+          name: z.string().min(1).max(255),
+          url: z.string().optional(),
+          niche: z.string().optional(),
+          description: z.string().optional(),
+        })
+      )
       .mutation(async ({ ctx, input }) => {
         return await createProduct({ ...input, userId: ctx.user.id });
       }),
 
     update: protectedProcedure
-      .input(z.object({
-        id: z.string().uuid(),
-        name: z.string().min(1).max(255).optional(),
-        url: z.string().optional(),
-        niche: z.string().optional(),
-        description: z.string().optional(),
-        status: z.enum(["research", "validate", "build", "launch", "optimize", "scale"]).optional(),
-      }))
+      .input(
+        z.object({
+          id: z.string().uuid(),
+          name: z.string().min(1).max(255).optional(),
+          url: z.string().optional(),
+          niche: z.string().optional(),
+          description: z.string().optional(),
+          status: z
+            .enum(['research', 'validate', 'build', 'launch', 'optimize', 'scale'])
+            .optional(),
+        })
+      )
       .mutation(async ({ ctx, input }) => {
         const { id, ...data } = input;
         return await updateProduct(id, ctx.user.id, data);
@@ -151,13 +156,15 @@ export const appRouter = router({
       }),
 
     save: protectedProcedure
-      .input(z.object({
-        productId: z.string().uuid(),
-        toolId: z.string(),
-        toolName: z.string(),
-        stage: z.string(),
-        outputJson: z.string(),
-      }))
+      .input(
+        z.object({
+          productId: z.string().uuid(),
+          toolId: z.string(),
+          toolName: z.string(),
+          stage: z.string(),
+          outputJson: z.string(),
+        })
+      )
       .mutation(async ({ ctx, input }) => {
         await createSavedOutput({ ...input, userId: ctx.user.id });
         return { success: true };
@@ -178,23 +185,25 @@ export const appRouter = router({
     }),
 
     update: protectedProcedure
-      .input(z.object({
-        businessName: z.string().optional(),
-        targetNiche: z.string().optional(),
-        monthlyRevenue: z.string().optional(),
-        country: z.string().optional(),
-        experienceLevel: z.string().optional(),
-        mainGoal: z.string().optional(),
-        budget: z.string().optional(),
-        onboardingCompleted: z.boolean().optional(),
-      }))
+      .input(
+        z.object({
+          businessName: z.string().optional(),
+          targetNiche: z.string().optional(),
+          monthlyRevenue: z.string().optional(),
+          country: z.string().optional(),
+          experienceLevel: z.string().optional(),
+          mainGoal: z.string().optional(),
+          budget: z.string().optional(),
+          onboardingCompleted: z.boolean().optional(),
+        })
+      )
       .mutation(async ({ ctx, input }) => {
         return await upsertUserProfile(ctx.user.id, input);
       }),
 
     /** Get all mem0 memories for the current user (admin/debug) */
     getMemories: protectedProcedure.query(async ({ ctx }) => {
-      return getAllMemories(ctx.user.id)
+      return getAllMemories(ctx.user.id);
     }),
   }),
 
@@ -207,11 +216,13 @@ export const appRouter = router({
       }),
 
     save: protectedProcedure
-      .input(z.object({
-        toolName: z.string(),
-        role: z.string(),
-        content: z.string(),
-      }))
+      .input(
+        z.object({
+          toolName: z.string(),
+          role: z.string(),
+          content: z.string(),
+        })
+      )
       .mutation(async ({ ctx, input }) => {
         await saveConversationMessage({ userId: ctx.user.id, ...input });
         return { success: true };
@@ -228,7 +239,7 @@ export const appRouter = router({
       .input(
         z.object({
           stepKey: z.string().min(1).max(64),
-          status: z.enum(["pending", "in_progress", "completed"]),
+          status: z.enum(['pending', 'in_progress', 'completed']),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -244,9 +255,9 @@ export const appRouter = router({
         z.object({
           query: z.string().min(1).max(500),
           maxResults: z.number().min(1).max(10).default(5),
-          searchDepth: z.enum(["basic", "advanced"]).default("basic"),
+          searchDepth: z.enum(['basic', 'advanced']).default('basic'),
           includeImages: z.boolean().default(false),
-          topic: z.enum(["general", "news"]).default("general"),
+          topic: z.enum(['general', 'news']).default('general'),
         })
       )
       .mutation(async ({ input }) => {
@@ -289,28 +300,36 @@ export const appRouter = router({
       }),
 
     createStore: protectedProcedure
-      .input(z.object({
-        storeName: z.string().min(1).max(255),
-        storeSlug: z.string().min(1).max(128).regex(/^[a-z0-9-]+$/),
-        metaAdAccountId: z.string().optional(),
-        metaPixelId: z.string().optional(),
-        brandColorPrimary: z.string().optional(),
-      }))
+      .input(
+        z.object({
+          storeName: z.string().min(1).max(255),
+          storeSlug: z
+            .string()
+            .min(1)
+            .max(128)
+            .regex(/^[a-z0-9-]+$/),
+          metaAdAccountId: z.string().optional(),
+          metaPixelId: z.string().optional(),
+          brandColorPrimary: z.string().optional(),
+        })
+      )
       .mutation(async ({ ctx, input }) => {
         return await createStore({ ...input, userId: ctx.user.id });
       }),
 
     updateStore: protectedProcedure
-      .input(z.object({
-        storeName: z.string().optional(),
-        storeSlug: z.string().optional(),
-        metaAdAccountId: z.string().optional(),
-        metaPixelId: z.string().optional(),
-        brandColorPrimary: z.string().optional(),
-      }))
+      .input(
+        z.object({
+          storeName: z.string().optional(),
+          storeSlug: z.string().optional(),
+          metaAdAccountId: z.string().optional(),
+          metaPixelId: z.string().optional(),
+          brandColorPrimary: z.string().optional(),
+        })
+      )
       .mutation(async ({ ctx, input }) => {
         const store = await getStoreByUserId(ctx.user.id);
-        if (!store) throw new Error("Store not found");
+        if (!store) throw new Error('Store not found');
         return await updateStore(store.id, input);
       }),
 
@@ -321,17 +340,19 @@ export const appRouter = router({
     }),
 
     upsertStorefrontProduct: protectedProcedure
-      .input(z.object({
-        productId: z.string().uuid(),
-        price: z.string().optional(),
-        comparePrice: z.string().optional(),
-        published: z.boolean().optional(),
-        seoTitle: z.string().optional(),
-        seoDescription: z.string().optional(),
-      }))
+      .input(
+        z.object({
+          productId: z.string().uuid(),
+          price: z.string().optional(),
+          comparePrice: z.string().optional(),
+          published: z.boolean().optional(),
+          seoTitle: z.string().optional(),
+          seoDescription: z.string().optional(),
+        })
+      )
       .mutation(async ({ ctx, input }) => {
-        let store = await getStoreByUserId(ctx.user.id);
-        if (!store) throw new Error("Create a store first");
+        const store = await getStoreByUserId(ctx.user.id);
+        if (!store) throw new Error('Create a store first');
         const { productId, ...data } = input;
         return await upsertStorefrontProduct(store.id, productId, data);
       }),
@@ -345,21 +366,23 @@ export const appRouter = router({
     markFulfilled: protectedProcedure
       .input(z.object({ orderId: z.string().uuid() }))
       .mutation(async ({ ctx, input }) => {
-        return await updateOrderFulfillment(input.orderId, "fulfilled");
+        return await updateOrderFulfillment(input.orderId, 'fulfilled');
       }),
   }),
 
   /** Email sending */
   email: router({
     sendPlaybook: protectedProcedure
-      .input(z.object({
-        to: z.string().email(),
-        content: z.string(),
-      }))
+      .input(
+        z.object({
+          to: z.string().email(),
+          content: z.string(),
+        })
+      )
       .mutation(async ({ input }) => {
-        const { sendPlaybook } = await import("./lib/email");
+        const { sendPlaybook } = await import('./lib/email');
         const result = await sendPlaybook(input.to, input.content);
-        if (result && "error" in result && result.error) {
+        if (result && 'error' in result && result.error) {
           throw new Error(String(result.error));
         }
         return { success: true };
@@ -372,15 +395,17 @@ export const appRouter = router({
   /** UTM attribution tracking */
   attribution: router({
     save: protectedProcedure
-      .input(z.object({
-        firstTouchSource: z.string().nullable().optional(),
-        firstTouchMedium: z.string().nullable().optional(),
-        firstTouchCampaign: z.string().nullable().optional(),
-        lastTouchSource: z.string().nullable().optional(),
-        lastTouchMedium: z.string().nullable().optional(),
-        lastTouchCampaign: z.string().nullable().optional(),
-        referrer: z.string().nullable().optional(),
-      }))
+      .input(
+        z.object({
+          firstTouchSource: z.string().nullable().optional(),
+          firstTouchMedium: z.string().nullable().optional(),
+          firstTouchCampaign: z.string().nullable().optional(),
+          lastTouchSource: z.string().nullable().optional(),
+          lastTouchMedium: z.string().nullable().optional(),
+          lastTouchCampaign: z.string().nullable().optional(),
+          referrer: z.string().nullable().optional(),
+        })
+      )
       .mutation(async ({ ctx, input }) => {
         const existing = await getAttributionByUserId(ctx.user.id);
         if (existing) return { success: true, attribution: existing };

@@ -2,7 +2,7 @@
  * AI Brain — Product Intelligence Engine
  * Analyzes a scraped product and returns deep intelligence used by every tool.
  */
-import Anthropic from "@anthropic-ai/sdk";
+import Anthropic from '@anthropic-ai/sdk';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
@@ -60,12 +60,12 @@ Return ONLY valid JSON matching the exact schema requested. No markdown, no prea
   const userPrompt = `Analyze this product and return the full ProductIntelligence JSON:
 
 Product: ${product.cleanTitle}
-Description: ${(product.description || "").slice(0, 800)}
+Description: ${(product.description || '').slice(0, 800)}
 Price: ${product.price} ${product.currency}
-Colors available: ${product.variants.colors.join(", ") || "not specified"}
-Sizes available: ${product.variants.sizes.join(", ") || "not specified"}
+Colors available: ${product.variants.colors.join(', ') || 'not specified'}
+Sizes available: ${product.variants.sizes.join(', ') || 'not specified'}
 Category: ${product.category}
-Brand: ${product.brand || "unknown"}
+Brand: ${product.brand || 'unknown'}
 Platform: ${product.sourcePlatform}
 
 Return this exact JSON (all fields required, arrays must have 3+ items):
@@ -102,14 +102,13 @@ Return this exact JSON (all fields required, arrays must have 3+ items):
 }`;
 
   const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-5-20250929",
+    model: 'claude-sonnet-4-5-20250929',
     max_tokens: 4000,
     system: systemPrompt,
-    messages: [{ role: "user", content: userPrompt }],
+    messages: [{ role: 'user', content: userPrompt }],
   });
 
-  const text =
-    response.content[0].type === "text" ? response.content[0].text : "{}";
-  const clean = text.replace(/```json\n?|\n?```/g, "").trim();
+  const text = response.content[0].type === 'text' ? response.content[0].text : '{}';
+  const clean = text.replace(/```json\n?|\n?```/g, '').trim();
   return JSON.parse(clean) as ProductIntelligence;
 }

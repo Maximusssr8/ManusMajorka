@@ -8,10 +8,10 @@
  *   POST /api/tools/daily-products-subscribe
  */
 
-import type { Application } from "express";
-import { getAnthropicClient, CLAUDE_MODEL } from "./anthropic";
-import { getSupabaseAdmin } from "../_core/supabase";
-import Firecrawl from "@mendable/firecrawl-js";
+import Firecrawl from '@mendable/firecrawl-js';
+import type { Application } from 'express';
+import { getSupabaseAdmin } from '../_core/supabase';
+import { CLAUDE_MODEL, getAnthropicClient } from './anthropic';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -19,14 +19,14 @@ import Firecrawl from "@mendable/firecrawl-js";
 
 async function tavilySearch(query: string, maxResults = 5): Promise<any> {
   const tavilyKey = process.env.TAVILY_API_KEY;
-  if (!tavilyKey) throw new Error("TAVILY_API_KEY is not configured.");
-  const sr = await fetch("https://api.tavily.com/search", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
+  if (!tavilyKey) throw new Error('TAVILY_API_KEY is not configured.');
+  const sr = await fetch('https://api.tavily.com/search', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
       api_key: tavilyKey,
       query,
-      search_depth: "basic",
+      search_depth: 'basic',
       max_results: maxResults,
     }),
   }).then((r) => r.json());
@@ -34,13 +34,13 @@ async function tavilySearch(query: string, maxResults = 5): Promise<any> {
 }
 
 async function authenticateRequest(req: any): Promise<{ userId: string; email: string } | null> {
-  const token = req.headers.authorization?.replace(/^Bearer\s+/i, "");
+  const token = req.headers.authorization?.replace(/^Bearer\s+/i, '');
   if (!token) return null;
   const {
     data: { user },
   } = await getSupabaseAdmin().auth.getUser(token);
   if (!user) return null;
-  return { userId: user.id, email: user.email ?? "" };
+  return { userId: user.id, email: user.email ?? '' };
 }
 
 // ---------------------------------------------------------------------------
@@ -51,23 +51,25 @@ export function registerToolsApi(app: Application): void {
   // -----------------------------------------------------------------------
   // 1. POST /api/tools/winning-products
   // -----------------------------------------------------------------------
-  app.post("/api/tools/winning-products", async (req, res) => {
+  app.post('/api/tools/winning-products', async (req, res) => {
     try {
       const { category, priceRange, platform } = req.body ?? {};
 
       // Build search query
-      let searchQuery = "trending dropshipping products Australia 2025";
+      let searchQuery = 'trending dropshipping products Australia 2025';
       if (category) searchQuery += ` ${category}`;
       if (platform) searchQuery += ` ${platform}`;
 
       const searchResults = await tavilySearch(searchQuery, 8);
 
       const resultsText = (searchResults.results ?? [])
-        .map((r: any) => `Title: ${r.title}\nURL: ${r.url}\nContent: ${r.content ?? ""}`)
-        .join("\n\n---\n\n");
+        .map((r: any) => `Title: ${r.title}\nURL: ${r.url}\nContent: ${r.content ?? ''}`)
+        .join('\n\n---\n\n');
 
-      const priceContext = priceRange ? `The user is looking for products in the ${priceRange} AUD price range.` : "";
-      const platformContext = platform ? `Preferred platform: ${platform}.` : "";
+      const priceContext = priceRange
+        ? `The user is looking for products in the ${priceRange} AUD price range.`
+        : '';
+      const platformContext = platform ? `Preferred platform: ${platform}.` : '';
 
       const claude = getAnthropicClient();
       const response = await claude.messages.create({
@@ -75,7 +77,7 @@ export function registerToolsApi(app: Application): void {
         max_tokens: 2048,
         messages: [
           {
-            role: "user",
+            role: 'user',
             content: `You are an expert Australian dropshipping product researcher. Analyse the following search results about trending products and return a JSON array of winning product opportunities for the Australian market.
 
 ${priceContext}
@@ -112,7 +114,7 @@ Rules:
         ],
       });
 
-      const text = response.content[0].type === "text" ? response.content[0].text : "";
+      const text = response.content[0].type === 'text' ? response.content[0].text : '';
       let parsed: any;
       try {
         parsed = JSON.parse(text);
@@ -124,31 +126,31 @@ Rules:
 
       res.json(parsed);
     } catch (err: any) {
-      console.error("[winning-products] Error:", err.message);
-      res.status(500).json({ error: err.message ?? "Internal server error" });
+      console.error('[winning-products] Error:', err.message);
+      res.status(500).json({ error: err.message ?? 'Internal server error' });
     }
   });
 
   // -----------------------------------------------------------------------
   // 2. POST /api/tools/store-spy
   // -----------------------------------------------------------------------
-  app.post("/api/tools/store-spy", async (req, res) => {
+  app.post('/api/tools/store-spy', async (req, res) => {
     try {
       const { url } = req.body ?? {};
-      if (!url || typeof url !== "string") {
-        res.status(400).json({ error: "A valid store URL is required." });
+      if (!url || typeof url !== 'string') {
+        res.status(400).json({ error: 'A valid store URL is required.' });
         return;
       }
 
       const firecrawlKey = process.env.FIRECRAWL_API_KEY;
       if (!firecrawlKey) {
-        res.status(500).json({ error: "FIRECRAWL_API_KEY is not configured." });
+        res.status(500).json({ error: 'FIRECRAWL_API_KEY is not configured.' });
         return;
       }
 
       const firecrawl = new Firecrawl({ apiKey: firecrawlKey });
       const scrapeResult = await (firecrawl as any).scrapeUrl(url, {
-        formats: ["markdown"],
+        formats: ['markdown'],
       });
 
       const scrapedContent =
@@ -162,7 +164,7 @@ Rules:
         max_tokens: 4096,
         messages: [
           {
-            role: "user",
+            role: 'user',
             content: `You are an elite ecommerce intelligence analyst specialising in the Australian market. Analyse this scraped Shopify store data and produce a comprehensive competitive intelligence report.
 
 Store URL: ${url}
@@ -207,22 +209,22 @@ Be specific, opinionated, and include estimated AUD figures wherever possible.`,
         ],
       });
 
-      const report = response.content[0].type === "text" ? response.content[0].text : "";
+      const report = response.content[0].type === 'text' ? response.content[0].text : '';
       res.json({ report });
     } catch (err: any) {
-      console.error("[store-spy] Error:", err.message);
-      res.status(500).json({ error: err.message ?? "Internal server error" });
+      console.error('[store-spy] Error:', err.message);
+      res.status(500).json({ error: err.message ?? 'Internal server error' });
     }
   });
 
   // -----------------------------------------------------------------------
   // 3. POST /api/tools/saturation-check
   // -----------------------------------------------------------------------
-  app.post("/api/tools/saturation-check", async (req, res) => {
+  app.post('/api/tools/saturation-check', async (req, res) => {
     try {
       const { product } = req.body ?? {};
-      if (!product || typeof product !== "string") {
-        res.status(400).json({ error: "A product name is required." });
+      if (!product || typeof product !== 'string') {
+        res.status(400).json({ error: 'A product name is required.' });
         return;
       }
 
@@ -234,19 +236,19 @@ Be specific, opinionated, and include estimated AUD figures wherever possible.`,
       ]);
 
       const combinedResults = [
-        "=== Shopify Store Results ===",
+        '=== Shopify Store Results ===',
         ...(shopifyResults.results ?? []).map(
-          (r: any) => `- ${r.title}: ${r.url}\n  ${r.content ?? ""}`
+          (r: any) => `- ${r.title}: ${r.url}\n  ${r.content ?? ''}`
         ),
-        "\n=== Dropshipping Discussion Results ===",
+        '\n=== Dropshipping Discussion Results ===',
         ...(dropshipResults.results ?? []).map(
-          (r: any) => `- ${r.title}: ${r.url}\n  ${r.content ?? ""}`
+          (r: any) => `- ${r.title}: ${r.url}\n  ${r.content ?? ''}`
         ),
-        "\n=== Facebook Ads Results ===",
+        '\n=== Facebook Ads Results ===',
         ...(adsResults.results ?? []).map(
-          (r: any) => `- ${r.title}: ${r.url}\n  ${r.content ?? ""}`
+          (r: any) => `- ${r.title}: ${r.url}\n  ${r.content ?? ''}`
         ),
-      ].join("\n");
+      ].join('\n');
 
       const claude = getAnthropicClient();
       const response = await claude.messages.create({
@@ -254,7 +256,7 @@ Be specific, opinionated, and include estimated AUD figures wherever possible.`,
         max_tokens: 2048,
         messages: [
           {
-            role: "user",
+            role: 'user',
             content: `You are an Australian ecommerce market analyst. Analyse the following search results to determine the market saturation level for "${product}" in Australia.
 
 Search data:
@@ -286,7 +288,7 @@ All analysis should be AU-focused. Reference AUD pricing, AU platforms, AU consu
         ],
       });
 
-      const text = response.content[0].type === "text" ? response.content[0].text : "";
+      const text = response.content[0].type === 'text' ? response.content[0].text : '';
       let parsed: any;
       try {
         parsed = JSON.parse(text);
@@ -294,7 +296,7 @@ All analysis should be AU-focused. Reference AUD pricing, AU platforms, AU consu
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         parsed = jsonMatch
           ? JSON.parse(jsonMatch[0])
-          : { level: "MEDIUM", score: 50, report: text };
+          : { level: 'MEDIUM', score: 50, report: text };
       }
 
       res.json({
@@ -303,34 +305,34 @@ All analysis should be AU-focused. Reference AUD pricing, AU platforms, AU consu
         score: parsed.score,
       });
     } catch (err: any) {
-      console.error("[saturation-check] Error:", err.message);
-      res.status(500).json({ error: err.message ?? "Internal server error" });
+      console.error('[saturation-check] Error:', err.message);
+      res.status(500).json({ error: err.message ?? 'Internal server error' });
     }
   });
 
   // -----------------------------------------------------------------------
   // 4. POST /api/tools/daily-products-subscribe
   // -----------------------------------------------------------------------
-  app.post("/api/tools/daily-products-subscribe", async (req, res) => {
+  app.post('/api/tools/daily-products-subscribe', async (req, res) => {
     try {
       const authUser = await authenticateRequest(req);
       if (!authUser) {
-        res.status(401).json({ error: "Unauthorized" });
+        res.status(401).json({ error: 'Unauthorized' });
         return;
       }
 
       const { email, niche } = req.body ?? {};
-      if (!email || typeof email !== "string") {
-        res.status(400).json({ error: "A valid email is required." });
+      if (!email || typeof email !== 'string') {
+        res.status(400).json({ error: 'A valid email is required.' });
         return;
       }
-      if (!niche || typeof niche !== "string") {
-        res.status(400).json({ error: "A niche is required." });
+      if (!niche || typeof niche !== 'string') {
+        res.status(400).json({ error: 'A niche is required.' });
         return;
       }
 
       const sb = getSupabaseAdmin();
-      const { error: insertError } = await sb.from("daily_product_subs").insert({
+      const { error: insertError } = await sb.from('daily_product_subs').insert({
         user_id: authUser.userId,
         email,
         niche,
@@ -338,7 +340,7 @@ All analysis should be AU-focused. Reference AUD pricing, AU platforms, AU consu
       });
 
       if (insertError) {
-        console.error("[daily-products-subscribe] Insert error:", insertError.message);
+        console.error('[daily-products-subscribe] Insert error:', insertError.message);
         res.status(500).json({ error: insertError.message });
         return;
       }
@@ -348,8 +350,8 @@ All analysis should be AU-focused. Reference AUD pricing, AU platforms, AU consu
       if (webhookUrl) {
         try {
           await fetch(webhookUrl, {
-            method: "POST",
-            headers: { "content-type": "application/json" },
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
             body: JSON.stringify({
               email,
               niche,
@@ -358,14 +360,14 @@ All analysis should be AU-focused. Reference AUD pricing, AU platforms, AU consu
           });
         } catch (webhookErr: any) {
           // Non-fatal — log but don't fail the request
-          console.error("[daily-products-subscribe] Webhook error:", webhookErr.message);
+          console.error('[daily-products-subscribe] Webhook error:', webhookErr.message);
         }
       }
 
       res.json({ ok: true });
     } catch (err: any) {
-      console.error("[daily-products-subscribe] Error:", err.message);
-      res.status(500).json({ error: err.message ?? "Internal server error" });
+      console.error('[daily-products-subscribe] Error:', err.message);
+      res.status(500).json({ error: err.message ?? 'Internal server error' });
     }
   });
 }

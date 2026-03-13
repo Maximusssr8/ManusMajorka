@@ -2,10 +2,10 @@
  * PostHog analytics — initialisation, identification, and event helpers.
  * Reads VITE_POSTHOG_KEY and VITE_POSTHOG_HOST from env.
  */
-import posthog from "posthog-js";
+import posthog from 'posthog-js';
 
 const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY as string | undefined;
-const POSTHOG_HOST = (import.meta.env.VITE_POSTHOG_HOST as string) || "https://us.i.posthog.com";
+const POSTHOG_HOST = (import.meta.env.VITE_POSTHOG_HOST as string) || 'https://us.i.posthog.com';
 
 let initialised = false;
 
@@ -16,7 +16,7 @@ export function initPostHog() {
     capture_pageview: true,
     capture_pageleave: true,
     autocapture: true,
-    persistence: "localStorage+cookie",
+    persistence: 'localStorage+cookie',
     // Session replay
     session_recording: { maskAllInputs: false, maskInputOptions: { password: true } },
   });

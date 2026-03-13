@@ -6,13 +6,13 @@
  * Used for the AI Chat tool and component showcase.
  */
 
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Markdown } from "@/components/Markdown";
-import { cn } from "@/lib/utils";
-import { Loader2, Send, Sparkles } from "lucide-react";
-import { useState, useRef, useEffect, ReactNode } from "react";
+import { Loader2, Send, Sparkles } from 'lucide-react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { Markdown } from '@/components/Markdown';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 
 // ============================================================================
 // TYPES
@@ -20,7 +20,7 @@ import { useState, useRef, useEffect, ReactNode } from "react";
 
 export interface Message {
   id: string;
-  role: "user" | "assistant";
+  role: 'user' | 'assistant';
   content: string;
   isError?: boolean;
 }
@@ -87,17 +87,13 @@ function ThinkingIndicator() {
 // MESSAGE BUBBLE
 // ============================================================================
 
-function MessageBubble({
-  message,
-  isStreaming,
-}: {
-  message: Message;
-  isStreaming: boolean;
-}) {
-  const isUser = message.role === "user";
+function MessageBubble({ message, isStreaming }: { message: Message; isStreaming: boolean }) {
+  const isUser = message.role === 'user';
 
   return (
-    <div className={cn("flex gap-3", isUser ? "justify-end items-start" : "justify-start items-start")}>
+    <div
+      className={cn('flex gap-3', isUser ? 'justify-end items-start' : 'justify-start items-start')}
+    >
       {!isUser && (
         <div className="size-8 shrink-0 mt-1 rounded-full bg-primary/10 flex items-center justify-center">
           <Sparkles className="size-4 text-primary" />
@@ -105,8 +101,8 @@ function MessageBubble({
       )}
       <div
         className={cn(
-          "max-w-[80%] rounded-lg px-4 py-2.5",
-          isUser ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
+          'max-w-[80%] rounded-lg px-4 py-2.5',
+          isUser ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'
         )}
       >
         {!message.content && isStreaming ? (
@@ -116,7 +112,7 @@ function MessageBubble({
           </div>
         ) : (
           <div className="prose prose-sm dark:prose-invert max-w-none">
-            <Markdown mode={isStreaming && !isUser ? "streaming" : "static"}>
+            <Markdown mode={isStreaming && !isUser ? 'streaming' : 'static'}>
               {message.content}
             </Markdown>
           </div>
@@ -134,22 +130,22 @@ let _msgIdCounter = 0;
 const genId = () => `msg-${++_msgIdCounter}-${Date.now()}`;
 
 export function AIChatBox({
-  api = "/api/chat",
+  api = '/api/chat',
   chatId,
   authToken,
-  toolName = "ai-chat",
-  market = "AU",
+  toolName = 'ai-chat',
+  market = 'AU',
   systemPrompt,
   onFinish,
   renderMessage,
-  placeholder = "Type your message...",
+  placeholder = 'Type your message...',
   className,
-  emptyStateMessage = "Start a conversation with AI",
+  emptyStateMessage = 'Start a conversation with AI',
   suggestedPrompts,
 }: AIChatBoxProps) {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [status, setStatus] = useState<"idle" | "streaming" | "submitted">("idle");
+  const [status, setStatus] = useState<'idle' | 'streaming' | 'submitted'>('idle');
   const [error, setError] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -158,39 +154,39 @@ export function AIChatBox({
   // Auto-scroll
   useEffect(() => {
     const viewport = scrollAreaRef.current?.querySelector(
-      "[data-radix-scroll-area-viewport]"
+      '[data-radix-scroll-area-viewport]'
     ) as HTMLDivElement;
     if (viewport) {
       requestAnimationFrame(() => {
-        viewport.scrollTo({ top: viewport.scrollHeight, behavior: "smooth" });
+        viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
       });
     }
   }, [messages, status]);
 
   const sendMessage = async (text: string) => {
     const trimmed = text.trim();
-    if (!trimmed || status !== "idle") return;
+    if (!trimmed || status !== 'idle') return;
 
     setError(null);
-    const userMsg: Message = { id: genId(), role: "user", content: trimmed };
-    const assistantMsg: Message = { id: genId(), role: "assistant", content: "" };
+    const userMsg: Message = { id: genId(), role: 'user', content: trimmed };
+    const assistantMsg: Message = { id: genId(), role: 'assistant', content: '' };
 
     const newMessages = [...messages, userMsg];
     setMessages([...newMessages, assistantMsg]);
-    setStatus("submitted");
+    setStatus('submitted');
 
     abortRef.current = new AbortController();
 
     try {
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
 
       const response = await fetch(`${api}?stream=1`, {
-        method: "POST",
+        method: 'POST',
         headers,
         signal: abortRef.current.signal,
         body: JSON.stringify({
-          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+          messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
           toolName,
           market,
           stream: true,
@@ -200,37 +196,39 @@ export function AIChatBox({
 
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
 
-      setStatus("streaming");
+      setStatus('streaming');
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
-      let accumulated = "";
+      let accumulated = '';
 
       if (reader) {
-        let buffer = "";
+        let buffer = '';
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
           buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || "";
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
 
           for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
+            if (!line.startsWith('data: ')) continue;
             const raw = line.slice(6);
-            if (raw === "[DONE]") continue;
+            if (raw === '[DONE]') continue;
             try {
               const payload = JSON.parse(raw);
               if (payload.text !== undefined) {
                 accumulated += payload.text;
-                setMessages(prev => {
+                setMessages((prev) => {
                   const updated = [...prev];
                   updated[updated.length - 1] = { ...assistantMsg, content: accumulated };
                   return updated;
                 });
               }
-            } catch { /* skip malformed */ }
+            } catch {
+              /* skip malformed */
+            }
           }
         }
       }
@@ -238,10 +236,10 @@ export function AIChatBox({
       // Fallback: if streaming produced nothing, try non-streaming
       if (!accumulated) {
         const fallback = await fetch(api, {
-          method: "POST",
+          method: 'POST',
           headers,
           body: JSON.stringify({
-            messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+            messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
             toolName,
             market,
             stream: false,
@@ -250,8 +248,8 @@ export function AIChatBox({
         });
         if (fallback.ok) {
           const data = await fallback.json();
-          accumulated = data.reply ?? "";
-          setMessages(prev => {
+          accumulated = data.reply ?? '';
+          setMessages((prev) => {
             const updated = [...prev];
             updated[updated.length - 1] = { ...assistantMsg, content: accumulated };
             return updated;
@@ -262,19 +260,19 @@ export function AIChatBox({
       const finalMessages = [...newMessages, { ...assistantMsg, content: accumulated }];
       onFinish?.(finalMessages);
     } catch (err: any) {
-      if (err.name === "AbortError") return;
-      setError(err.message || "Something went wrong");
-      setMessages(prev => {
+      if (err.name === 'AbortError') return;
+      setError(err.message || 'Something went wrong');
+      setMessages((prev) => {
         const updated = [...prev];
         updated[updated.length - 1] = {
           ...assistantMsg,
-          content: "Something went wrong. Please try again.",
+          content: 'Something went wrong. Please try again.',
           isError: true,
         };
         return updated;
       });
     } finally {
-      setStatus("idle");
+      setStatus('idle');
       abortRef.current = null;
     }
   };
@@ -282,25 +280,26 @@ export function AIChatBox({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     sendMessage(input);
-    setInput("");
+    setInput('');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage(input);
-      setInput("");
+      setInput('');
     }
   };
 
-  const canSend = status === "idle";
-  const isStreaming = status === "streaming";
-  const isWaiting = status === "submitted";
+  const canSend = status === 'idle';
+  const isStreaming = status === 'streaming';
+  const isWaiting = status === 'submitted';
   const lastMsg = messages[messages.length - 1];
-  const showThinking = isWaiting || (isStreaming && lastMsg?.role === "assistant" && !lastMsg.content);
+  const showThinking =
+    isWaiting || (isStreaming && lastMsg?.role === 'assistant' && !lastMsg.content);
 
   return (
-    <div className={cn("flex flex-col flex-1 min-h-0", className)}>
+    <div className={cn('flex flex-col flex-1 min-h-0', className)}>
       {/* Messages */}
       <div ref={scrollAreaRef} className="flex-1 overflow-hidden">
         <ScrollArea className="h-full">
@@ -340,7 +339,7 @@ export function AIChatBox({
                     <MessageBubble
                       key={msg.id}
                       message={msg}
-                      isStreaming={isStreaming && isLast && msg.role === "assistant"}
+                      isStreaming={isStreaming && isLast && msg.role === 'assistant'}
                     />
                   );
                 })}
@@ -363,7 +362,7 @@ export function AIChatBox({
             <Textarea
               ref={textareaRef}
               value={input}
-              onChange={e => setInput(e.target.value)}
+              onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={placeholder}
               className="min-h-[44px] max-h-32 resize-none"

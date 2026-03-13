@@ -1,25 +1,26 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/lib/utils";
-import { Link } from "wouter";
-import { supabase } from "@/lib/supabase";
-import { trackSignup, trackLogin, identify } from "@/lib/analytics";
-import { Shield, Zap, TrendingUp, Users } from "lucide-react";
+import { AnimatePresence, motion } from 'framer-motion';
+import { Shield, TrendingUp, Users, Zap } from 'lucide-react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'wouter';
+import { identify, trackLogin, trackSignup } from '@/lib/analytics';
+import { supabase } from '@/lib/supabase';
+import { cn } from '@/lib/utils';
 
 // ─── Social proof stats ────────────────────────────────────────────────────────
 const SOCIAL_PROOF = [
-  { icon: Users, stat: "500+", label: "AU sellers onboard" },
-  { icon: Zap, stat: "50+", label: "AI-powered tools" },
-  { icon: TrendingUp, stat: "$63B", label: "AU ecommerce market" },
-  { icon: Shield, stat: "100%", label: "AU-native, no US fluff" },
+  { icon: Users, stat: '500+', label: 'AU sellers onboard' },
+  { icon: Zap, stat: '50+', label: 'AI-powered tools' },
+  { icon: TrendingUp, stat: '$63B', label: 'AU ecommerce market' },
+  { icon: Shield, stat: '100%', label: 'AU-native, no US fluff' },
 ];
 
 const FEATURES = [
-  "AI product research tailored to the Australian market",
-  "Generate ad copy, websites, and brand identity in minutes",
-  "Built for Shopify, Amazon AU, and local marketplaces",
+  'AI product research tailored to the Australian market',
+  'Generate ad copy, websites, and brand identity in minutes',
+  'Built for Shopify, Amazon AU, and local marketplaces',
 ];
 
 // ─── SignInPage ──────────────────────────────────────────────────────────────
@@ -27,65 +28,75 @@ const FEATURES = [
 interface SignInPageProps {
   className?: string;
   onSuccess?: () => void;
-  mode?: "signin" | "signup";
+  mode?: 'signin' | 'signup';
 }
 
 export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPageProps) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [step, setStep] = useState<"form" | "magic-link-sent" | "success">("form");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [step, setStep] = useState<'form' | 'magic-link-sent' | 'success'>('form');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<"signin" | "signup">(initialMode || "signin");
+  const [mode, setMode] = useState<'signin' | 'signup'>(initialMode || 'signin');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
 
   useEffect(() => {
     // Capture referral code from URL
     const params = new URLSearchParams(window.location.search);
-    const ref = params.get("ref");
+    const ref = params.get('ref');
     if (ref) {
-      localStorage.setItem("majorka_ref", ref);
+      localStorage.setItem('majorka_ref', ref);
       // Track the click
-      fetch("/api/affiliate/track", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      fetch('/api/affiliate/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: ref }),
       }).catch(() => {});
     }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
-      if (event === "SIGNED_IN") {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event) => {
+      if (event === 'SIGNED_IN') {
         // Identify user and track login/signup
         try {
-          const { data: { user } } = await supabase.auth.getUser();
+          const {
+            data: { user },
+          } = await supabase.auth.getUser();
           if (user) {
-            identify(user.id, { email: user.email, plan: "free", market: "AU" });
-            const isNewUser = !localStorage.getItem("majorka_onboarded");
+            identify(user.id, { email: user.email, plan: 'free', market: 'AU' });
+            const isNewUser = !localStorage.getItem('majorka_onboarded');
             if (isNewUser) {
-              trackSignup("email");
+              trackSignup('email');
             } else {
-              trackLogin("email");
+              trackLogin('email');
             }
           }
-        } catch { /* best-effort */ }
+        } catch {
+          /* best-effort */
+        }
 
         // Credit referral on signup
-        const refCode = localStorage.getItem("majorka_ref");
+        const refCode = localStorage.getItem('majorka_ref');
         if (refCode) {
           try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const {
+              data: { user },
+            } = await supabase.auth.getUser();
             if (user) {
-              await fetch("/api/affiliate/referral", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+              await fetch('/api/affiliate/referral', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code: refCode, referredUserId: user.id }),
               });
-              localStorage.removeItem("majorka_ref");
+              localStorage.removeItem('majorka_ref');
             }
-          } catch { /* best-effort */ }
+          } catch {
+            /* best-effort */
+          }
         }
-        setStep("success");
+        setStep('success');
       }
     });
     return () => subscription.unsubscribe();
@@ -111,17 +122,17 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
     setLoading(true);
     setError(null);
     const { data, error: err } = await supabase.auth.signInWithOAuth({
-      provider: "google",
+      provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/app`,
         skipBrowserRedirect: true,
-        queryParams: { prompt: "select_account" },
+        queryParams: { prompt: 'select_account' },
       },
     });
     if (err) {
       setError(err.message);
     } else if (data?.url) {
-      window.open(data.url, "_self");
+      window.open(data.url, '_self');
     }
     setLoading(false);
   };
@@ -132,10 +143,10 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
     setLoading(true);
     setError(null);
 
-    if (mode === "signup" && password) {
+    if (mode === 'signup' && password) {
       // Sign up with email + password
       if (!agreedToTerms) {
-        setError("Please agree to the Terms and Privacy Policy.");
+        setError('Please agree to the Terms and Privacy Policy.');
         setLoading(false);
         return;
       }
@@ -147,7 +158,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
       if (err) {
         setError(err.message);
       } else {
-        setStep("magic-link-sent");
+        setStep('magic-link-sent');
       }
     } else {
       // Magic link sign in
@@ -158,59 +169,89 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
       if (err) {
         setError(err.message);
       } else {
-        setStep("magic-link-sent");
+        setStep('magic-link-sent');
       }
     }
     setLoading(false);
   };
 
-  const strengthColors = ["#ef4444", "#f59e0b", "#eab308", "#22c55e"];
-  const strengthLabels = ["Weak", "Fair", "Good", "Strong"];
+  const strengthColors = ['#ef4444', '#f59e0b', '#eab308', '#22c55e'];
+  const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong'];
 
   return (
-    <div className={cn("flex w-full min-h-screen", className)} style={{ background: "#080a0e" }}>
+    <div className={cn('flex w-full min-h-screen', className)} style={{ background: '#080a0e' }}>
       {/* ── Left panel: Brand + Social Proof (desktop only) ──────────── */}
       <div className="hidden lg:flex flex-col justify-between w-[480px] xl:w-[520px] flex-shrink-0 p-10 relative overflow-hidden">
         {/* Background glow */}
         <div
           className="absolute inset-0"
           style={{
-            background: "radial-gradient(ellipse at 30% 50%, rgba(212,175,55,0.08) 0%, transparent 70%)",
+            background:
+              'radial-gradient(ellipse at 30% 50%, rgba(212,175,55,0.08) 0%, transparent 70%)',
           }}
         />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.03) 0%, transparent 60%)" }} />
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(135deg, rgba(212,175,55,0.03) 0%, transparent 60%)',
+          }}
+        />
 
         {/* Top: Logo */}
         <div className="relative z-10">
           <div className="flex items-center gap-2.5 mb-16">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "#d4af37" }}>
-              <span className="text-black font-bold text-sm" style={{ fontFamily: "Syne, sans-serif" }}>M</span>
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center"
+              style={{ background: '#d4af37' }}
+            >
+              <span
+                className="text-black font-bold text-sm"
+                style={{ fontFamily: 'Syne, sans-serif' }}
+              >
+                M
+              </span>
             </div>
-            <span className="text-white font-bold text-xl" style={{ fontFamily: "Syne, sans-serif" }}>Majorka</span>
+            <span
+              className="text-white font-bold text-xl"
+              style={{ fontFamily: 'Syne, sans-serif' }}
+            >
+              Majorka
+            </span>
           </div>
 
           {/* Brand statement */}
           <h2
             className="text-3xl font-bold leading-tight mb-4"
-            style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5", letterSpacing: "-0.02em" }}
+            style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5', letterSpacing: '-0.02em' }}
           >
             Your AI ecommerce
             <br />
-            <span style={{ color: "#d4af37" }}>operating system.</span>
+            <span style={{ color: '#d4af37' }}>operating system.</span>
           </h2>
-          <p className="text-base mb-8" style={{ color: "rgba(255,255,255,0.5)", lineHeight: 1.7 }}>
-            50+ AI tools built specifically for Australian sellers.
-            Research, build, launch, and scale — all from one platform.
+          <p className="text-base mb-8" style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.7 }}>
+            50+ AI tools built specifically for Australian sellers. Research, build, launch, and
+            scale — all from one platform.
           </p>
 
           {/* Feature list */}
           <div className="space-y-3 mb-10">
             {FEATURES.map((feat, i) => (
               <div key={i} className="flex items-start gap-3">
-                <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "rgba(212,175,55,0.15)" }}>
-                  <svg width="10" height="10" viewBox="0 0 20 20" fill="#d4af37"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                <div
+                  className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                  style={{ background: 'rgba(212,175,55,0.15)' }}
+                >
+                  <svg width="10" height="10" viewBox="0 0 20 20" fill="#d4af37">
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                 </div>
-                <span className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>{feat}</span>
+                <span className="text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                  {feat}
+                </span>
               </div>
             ))}
           </div>
@@ -223,13 +264,23 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
               <div
                 key={label}
                 className="rounded-xl p-3"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                }}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <Icon size={13} style={{ color: "#d4af37" }} />
-                  <span className="text-lg font-bold" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>{stat}</span>
+                  <Icon size={13} style={{ color: '#d4af37' }} />
+                  <span
+                    className="text-lg font-bold"
+                    style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                  >
+                    {stat}
+                  </span>
                 </div>
-                <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{label}</span>
+                <span className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                  {label}
+                </span>
               </div>
             ))}
           </div>
@@ -243,39 +294,53 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
           <div
             className="absolute inset-0"
             style={{
-              background: "radial-gradient(ellipse at 50% 60%, rgba(212,175,55,0.08) 0%, transparent 60%)",
+              background:
+                'radial-gradient(ellipse at 50% 60%, rgba(212,175,55,0.08) 0%, transparent 60%)',
             }}
           />
         </div>
 
         {/* Mobile logo (hidden on desktop) */}
         <div className="lg:hidden mb-8 flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "#d4af37" }}>
-            <span className="text-black font-bold text-sm" style={{ fontFamily: "Syne, sans-serif" }}>M</span>
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ background: '#d4af37' }}
+          >
+            <span
+              className="text-black font-bold text-sm"
+              style={{ fontFamily: 'Syne, sans-serif' }}
+            >
+              M
+            </span>
           </div>
-          <span className="text-white font-bold text-xl" style={{ fontFamily: "Syne, sans-serif" }}>Majorka</span>
+          <span className="text-white font-bold text-xl" style={{ fontFamily: 'Syne, sans-serif' }}>
+            Majorka
+          </span>
         </div>
 
         <div className="w-full max-w-sm relative z-10">
           <AnimatePresence mode="wait">
-            {step === "form" ? (
+            {step === 'form' ? (
               <motion.div
                 key="form-step"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
                 className="space-y-5"
               >
                 {/* Header */}
                 <div className="text-center lg:text-left space-y-1">
-                  <h1 className="text-3xl font-bold tracking-tight text-white" style={{ fontFamily: "Syne, sans-serif" }}>
-                    {mode === "signup" ? "Create your account" : "Welcome back"}
+                  <h1
+                    className="text-3xl font-bold tracking-tight text-white"
+                    style={{ fontFamily: 'Syne, sans-serif' }}
+                  >
+                    {mode === 'signup' ? 'Create your account' : 'Welcome back'}
                   </h1>
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
-                    {mode === "signup"
-                      ? "Start free — no credit card needed"
-                      : "Sign in to your Majorka account"}
+                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                    {mode === 'signup'
+                      ? 'Start free — no credit card needed'
+                      : 'Sign in to your Majorka account'}
                   </p>
                 </div>
 
@@ -286,29 +351,58 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                   disabled={loading}
                   className="w-full flex items-center justify-center gap-2.5 rounded-xl py-3.5 px-4 font-medium transition-all disabled:opacity-50"
                   style={{
-                    background: "rgba(255,255,255,0.06)",
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    color: "#f5f5f5",
-                    cursor: loading ? "wait" : "pointer",
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: '#f5f5f5',
+                    cursor: loading ? 'wait' : 'pointer',
                   }}
-                  onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.1)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.06)"; }}
+                  onMouseEnter={(e) => {
+                    if (!loading)
+                      (e.currentTarget as HTMLButtonElement).style.background =
+                        'rgba(255,255,255,0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background =
+                      'rgba(255,255,255,0.06)';
+                  }}
                 >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                  <svg className="w-5 h-5" viewBox="0 0 24 24">
+                    <path
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+                      fill="#4285F4"
+                    />
+                    <path
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      fill="#34A853"
+                    />
+                    <path
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                      fill="#FBBC05"
+                    />
+                    <path
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                      fill="#EA4335"
+                    />
+                  </svg>
                   Continue with Google
                 </button>
 
                 {/* Divider */}
                 <div className="flex items-center gap-4">
-                  <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.08)" }} />
-                  <span className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>or use email</span>
-                  <div className="h-px flex-1" style={{ background: "rgba(255,255,255,0.08)" }} />
+                  <div className="h-px flex-1" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                  <span className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                    or use email
+                  </span>
+                  <div className="h-px flex-1" style={{ background: 'rgba(255,255,255,0.08)' }} />
                 </div>
 
                 {/* Email/Password form */}
                 <form onSubmit={handleEmailAuth} className="space-y-3">
                   <div>
-                    <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(255,255,255,0.5)" }}>
+                    <label
+                      className="block text-xs font-medium mb-1.5"
+                      style={{ color: 'rgba(255,255,255,0.5)' }}
+                    >
                       Email
                     </label>
                     <input
@@ -318,19 +412,22 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                       onChange={(e) => setEmail(e.target.value)}
                       className="w-full rounded-xl py-3 px-4 text-sm outline-none transition-all"
                       style={{
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        color: "#f5f5f5",
+                        background: 'rgba(255,255,255,0.04)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        color: '#f5f5f5',
                       }}
-                      onFocus={e => (e.target.style.borderColor = "rgba(212,175,55,0.4)")}
-                      onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
+                      onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.4)')}
+                      onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
                       required
                     />
                   </div>
 
-                  {mode === "signup" && (
+                  {mode === 'signup' && (
                     <div>
-                      <label className="block text-xs font-medium mb-1.5" style={{ color: "rgba(255,255,255,0.5)" }}>
+                      <label
+                        className="block text-xs font-medium mb-1.5"
+                        style={{ color: 'rgba(255,255,255,0.5)' }}
+                      >
                         Password
                       </label>
                       <input
@@ -340,12 +437,12 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                         onChange={(e) => handlePasswordChange(e.target.value)}
                         className="w-full rounded-xl py-3 px-4 text-sm outline-none transition-all"
                         style={{
-                          background: "rgba(255,255,255,0.04)",
-                          border: "1px solid rgba(255,255,255,0.1)",
-                          color: "#f5f5f5",
+                          background: 'rgba(255,255,255,0.04)',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                          color: '#f5f5f5',
                         }}
-                        onFocus={e => (e.target.style.borderColor = "rgba(212,175,55,0.4)")}
-                        onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
+                        onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.4)')}
+                        onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
                         required
                         minLength={8}
                       />
@@ -353,90 +450,137 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                       {password.length > 0 && (
                         <div className="mt-2">
                           <div className="flex gap-1 mb-1">
-                            {[0, 1, 2, 3].map(i => (
+                            {[0, 1, 2, 3].map((i) => (
                               <div
                                 key={i}
                                 className="h-1 flex-1 rounded-full transition-all"
                                 style={{
-                                  background: i < passwordStrength
-                                    ? strengthColors[passwordStrength - 1]
-                                    : "rgba(255,255,255,0.08)",
+                                  background:
+                                    i < passwordStrength
+                                      ? strengthColors[passwordStrength - 1]
+                                      : 'rgba(255,255,255,0.08)',
                                 }}
                               />
                             ))}
                           </div>
-                          <span className="text-xs" style={{ color: strengthColors[passwordStrength - 1] || "rgba(255,255,255,0.3)" }}>
-                            {passwordStrength > 0 ? strengthLabels[passwordStrength - 1] : "Too short"}
+                          <span
+                            className="text-xs"
+                            style={{
+                              color:
+                                strengthColors[passwordStrength - 1] || 'rgba(255,255,255,0.3)',
+                            }}
+                          >
+                            {passwordStrength > 0
+                              ? strengthLabels[passwordStrength - 1]
+                              : 'Too short'}
                           </span>
                         </div>
                       )}
                     </div>
                   )}
 
-                  {mode === "signup" && (
+                  {mode === 'signup' && (
                     <label className="flex items-start gap-2.5 cursor-pointer py-1">
                       <input
                         type="checkbox"
                         checked={agreedToTerms}
                         onChange={(e) => setAgreedToTerms(e.target.checked)}
                         className="mt-0.5 rounded"
-                        style={{ accentColor: "#d4af37" }}
+                        style={{ accentColor: '#d4af37' }}
                       />
-                      <span className="text-xs leading-relaxed" style={{ color: "rgba(255,255,255,0.45)" }}>
-                        I agree to the{" "}
-                        <Link href="/terms" className="underline" style={{ color: "rgba(255,255,255,0.6)" }}>Terms of Service</Link>
-                        {" "}and{" "}
-                        <Link href="/privacy" className="underline" style={{ color: "rgba(255,255,255,0.6)" }}>Privacy Policy</Link>
+                      <span
+                        className="text-xs leading-relaxed"
+                        style={{ color: 'rgba(255,255,255,0.45)' }}
+                      >
+                        I agree to the{' '}
+                        <Link
+                          href="/terms"
+                          className="underline"
+                          style={{ color: 'rgba(255,255,255,0.6)' }}
+                        >
+                          Terms of Service
+                        </Link>{' '}
+                        and{' '}
+                        <Link
+                          href="/privacy"
+                          className="underline"
+                          style={{ color: 'rgba(255,255,255,0.6)' }}
+                        >
+                          Privacy Policy
+                        </Link>
                       </span>
                     </label>
                   )}
 
                   {error && (
-                    <div className="text-sm px-3 py-2 rounded-lg" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#ef4444" }}>
+                    <div
+                      className="text-sm px-3 py-2 rounded-lg"
+                      style={{
+                        background: 'rgba(239,68,68,0.1)',
+                        border: '1px solid rgba(239,68,68,0.2)',
+                        color: '#ef4444',
+                      }}
+                    >
                       {error}
                     </div>
                   )}
 
                   <button
                     type="submit"
-                    disabled={loading || (mode === "signup" && !agreedToTerms)}
+                    disabled={loading || (mode === 'signup' && !agreedToTerms)}
                     className="w-full rounded-xl py-3.5 font-semibold text-sm transition-all disabled:opacity-50"
                     style={{
-                      background: "linear-gradient(135deg, #d4af37, #b8941f)",
-                      color: "#080a0e",
-                      border: "none",
-                      cursor: loading ? "wait" : "pointer",
-                      fontFamily: "Syne, sans-serif",
+                      background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+                      color: '#080a0e',
+                      border: 'none',
+                      cursor: loading ? 'wait' : 'pointer',
+                      fontFamily: 'Syne, sans-serif',
                     }}
                   >
                     {loading
-                      ? "Please wait..."
-                      : mode === "signup"
-                        ? "Start Free — No Credit Card Needed"
-                        : "Send Magic Link"}
+                      ? 'Please wait...'
+                      : mode === 'signup'
+                        ? 'Start Free — No Credit Card Needed'
+                        : 'Send Magic Link'}
                   </button>
                 </form>
 
                 {/* Toggle mode */}
-                <p className="text-center text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
-                  {mode === "signup" ? (
+                <p className="text-center text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                  {mode === 'signup' ? (
                     <>
-                      Already have an account?{" "}
+                      Already have an account?{' '}
                       <button
-                        onClick={() => { setMode("signin"); setError(null); }}
+                        onClick={() => {
+                          setMode('signin');
+                          setError(null);
+                        }}
                         className="font-medium underline"
-                        style={{ background: "none", border: "none", cursor: "pointer", color: "#d4af37" }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: '#d4af37',
+                        }}
                       >
                         Sign in
                       </button>
                     </>
                   ) : (
                     <>
-                      New to Majorka?{" "}
+                      New to Majorka?{' '}
                       <button
-                        onClick={() => { setMode("signup"); setError(null); }}
+                        onClick={() => {
+                          setMode('signup');
+                          setError(null);
+                        }}
                         className="font-medium underline"
-                        style={{ background: "none", border: "none", cursor: "pointer", color: "#d4af37" }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: '#d4af37',
+                        }}
                       >
                         Create an account
                       </button>
@@ -444,21 +588,24 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                   )}
                 </p>
               </motion.div>
-            ) : step === "magic-link-sent" ? (
+            ) : step === 'magic-link-sent' ? (
               <motion.div
                 key="sent-step"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
                 className="space-y-6 text-center"
               >
                 <div className="space-y-2">
-                  <h1 className="text-3xl font-bold tracking-tight text-white" style={{ fontFamily: "Syne, sans-serif" }}>
+                  <h1
+                    className="text-3xl font-bold tracking-tight text-white"
+                    style={{ fontFamily: 'Syne, sans-serif' }}
+                  >
                     Check your email
                   </h1>
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
-                    {mode === "signup"
+                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                    {mode === 'signup'
                       ? `We sent a confirmation link to ${email}`
                       : `We sent a magic link to ${email}`}
                   </p>
@@ -467,23 +614,39 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                 <div className="py-6">
                   <div
                     className="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
-                    style={{ background: "rgba(212,175,55,0.12)", border: "1px solid rgba(212,175,55,0.25)" }}
+                    style={{
+                      background: 'rgba(212,175,55,0.12)',
+                      border: '1px solid rgba(212,175,55,0.25)',
+                    }}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-7 w-7"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#d4af37"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <rect width="20" height="16" x="2" y="4" rx="2" />
                       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                     </svg>
                   </div>
                 </div>
 
-                <p className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
-                  Click the link in your email to {mode === "signup" ? "verify your account" : "sign in"}. You can close this tab.
+                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                  Click the link in your email to{' '}
+                  {mode === 'signup' ? 'verify your account' : 'sign in'}. You can close this tab.
                 </p>
 
                 <motion.button
-                  onClick={() => { setStep("form"); setError(null); }}
+                  onClick={() => {
+                    setStep('form');
+                    setError(null);
+                  }}
                   className="rounded-xl bg-white/10 text-white font-medium px-6 py-3 text-sm hover:bg-white/15 transition-colors"
-                  style={{ border: "none", cursor: "pointer" }}
+                  style={{ border: 'none', cursor: 'pointer' }}
                   whileTap={{ scale: 0.97 }}
                 >
                   Back to sign in
@@ -494,14 +657,19 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                 key="success-step"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: "easeOut", delay: 0.2 }}
+                transition={{ duration: 0.4, ease: 'easeOut', delay: 0.2 }}
                 className="space-y-6 text-center"
               >
                 <div className="space-y-2">
-                  <h1 className="text-3xl font-bold tracking-tight text-white" style={{ fontFamily: "Syne, sans-serif" }}>
+                  <h1
+                    className="text-3xl font-bold tracking-tight text-white"
+                    style={{ fontFamily: 'Syne, sans-serif' }}
+                  >
                     You're in!
                   </h1>
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>Welcome to Majorka</p>
+                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                    Welcome to Majorka
+                  </p>
                 </div>
 
                 <motion.div
@@ -512,10 +680,19 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                 >
                   <div
                     className="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
-                    style={{ background: "#d4af37" }}
+                    style={{ background: '#d4af37' }}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-black" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-8 w-8 text-black"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                   </div>
                 </motion.div>
@@ -526,7 +703,12 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                   transition={{ delay: 0.8 }}
                   onClick={onSuccess}
                   className="w-full rounded-xl font-semibold py-3.5 text-sm text-black transition-colors"
-                  style={{ background: "linear-gradient(135deg, #d4af37, #b8941f)", border: "none", cursor: "pointer", fontFamily: "Syne, sans-serif" }}
+                  style={{
+                    background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'Syne, sans-serif',
+                  }}
                 >
                   Continue to Dashboard
                 </motion.button>

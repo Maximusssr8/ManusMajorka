@@ -1,34 +1,36 @@
-import { config } from "dotenv";
-config(); // loads .env
-config({ path: ".env.local", override: false }); // loads .env.local, doesn't override existing
+import { config } from 'dotenv';
 
-import * as Sentry from "@sentry/node";
+config(); // loads .env
+config({ path: '.env.local', override: false }); // loads .env.local, doesn't override existing
+
+import * as Sentry from '@sentry/node';
+
 if (process.env.SENTRY_DSN) {
   Sentry.init({ dsn: process.env.SENTRY_DSN, tracesSampleRate: 0.1 });
 }
 
-import express from "express";
-import { createServer } from "http";
-import net from "net";
-import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { registerChatRoutes } from "./chat";
-import { registerScrapeRoutes } from "../lib/scrape-product";
-import { registerStripeRoutes } from "../lib/stripe";
-import { registerToolsApi } from "../lib/tools-api";
-import { registerAutomationRoutes } from "../lib/automation-api";
-import { registerAffiliateRoutes } from "../lib/affiliate";
-import { registerDemoRoutes } from "../lib/demo-api";
-import { appRouter } from "../routers";
-import { createContext } from "./context";
-import { serveStatic, setupVite } from "./vite";
+import { createExpressMiddleware } from '@trpc/server/adapters/express';
+import express from 'express';
+import { createServer } from 'http';
+import net from 'net';
+import { registerAffiliateRoutes } from '../lib/affiliate';
+import { registerAutomationRoutes } from '../lib/automation-api';
+import { registerDemoRoutes } from '../lib/demo-api';
+import { registerScrapeRoutes } from '../lib/scrape-product';
+import { registerStripeRoutes } from '../lib/stripe';
+import { registerToolsApi } from '../lib/tools-api';
+import { appRouter } from '../routers';
+import { registerChatRoutes } from './chat';
+import { createContext } from './context';
+import { serveStatic, setupVite } from './vite';
 
 function isPortAvailable(port: number): Promise<boolean> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const server = net.createServer();
     server.listen(port, () => {
       server.close(() => resolve(true));
     });
-    server.on("error", () => resolve(false));
+    server.on('error', () => resolve(false));
   });
 }
 
@@ -56,36 +58,36 @@ async function startServer() {
 
   // Security headers
   app.use((_req, res, next) => {
-    res.setHeader("X-Frame-Options", "DENY");
-    res.setHeader("X-Content-Type-Options", "nosniff");
-    res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     next();
   });
 
   // Configure body parser with larger size limit for file uploads
-  app.use(express.json({ limit: "50mb" }));
-  app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  app.use(express.json({ limit: '50mb' }));
+  app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
   // ═══ Agent Log API (CORS for dashboard at localhost:5173) ═══
-  app.options("/api/agent-log", (_req, res) => {
+  app.options('/api/agent-log', (_req, res) => {
     res.set({
-      "Access-Control-Allow-Origin": "http://localhost:5173",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
+      'Access-Control-Allow-Origin': 'http://localhost:5173',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
     });
     res.sendStatus(204);
   });
 
-  app.post("/api/agent-log", (req, res) => {
-    res.set("Access-Control-Allow-Origin", "http://localhost:5173");
+  app.post('/api/agent-log', (req, res) => {
+    res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
     const { agent, message, status, timestamp } = req.body;
     if (!agent || !message) {
-      return res.status(400).json({ error: "agent and message are required" });
+      return res.status(400).json({ error: 'agent and message are required' });
     }
     const entry: AgentLogEntry = {
       agent,
       message,
-      status: status || "info",
+      status: status || 'info',
       timestamp: timestamp || new Date().toISOString(),
     };
     agentLog.push(entry);
@@ -93,8 +95,8 @@ async function startServer() {
     res.json({ ok: true, count: agentLog.length });
   });
 
-  app.get("/api/agent-log", (_req, res) => {
-    res.set("Access-Control-Allow-Origin", "http://localhost:5173");
+  app.get('/api/agent-log', (_req, res) => {
+    res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
     res.json(agentLog);
   });
 
@@ -114,7 +116,7 @@ async function startServer() {
   registerDemoRoutes(app);
   // tRPC API
   app.use(
-    "/api/trpc",
+    '/api/trpc',
     createExpressMiddleware({
       router: appRouter,
       createContext,
@@ -126,13 +128,13 @@ async function startServer() {
   }
 
   // development mode uses Vite, production mode uses static files
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV === 'development') {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  const preferredPort = parseInt(process.env.PORT || "3000");
+  const preferredPort = parseInt(process.env.PORT || '3000');
   const port = await findAvailablePort(preferredPort);
 
   if (port !== preferredPort) {

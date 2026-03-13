@@ -1,16 +1,12 @@
-import { useState } from "react";
-import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { toast } from "sonner";
-import { stages } from "@/lib/tools";
-import { Save, Plus, Check, ChevronDown, Package, FolderPlus } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Check, ChevronDown, FolderPlus, Package, Plus, Save } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { useAuth } from '@/_core/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { stages } from '@/lib/tools';
+import { trpc } from '@/lib/trpc';
 
 interface SaveToProductProps {
   /** The tool ID from tools.ts (e.g. "brand-dna") */
@@ -28,19 +24,19 @@ function getStageForTool(toolId: string): string {
   for (const s of stages) {
     if (s.tools.some((t) => t.id === toolId)) return s.stage;
   }
-  return "Research";
+  return 'Research';
 }
 
 export function SaveToProduct({
   toolId,
   toolName,
   outputData,
-  className = "",
+  className = '',
 }: SaveToProductProps) {
   const { isAuthenticated } = useAuth();
   const [open, setOpen] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [newName, setNewName] = useState("");
+  const [newName, setNewName] = useState('');
   const [saved, setSaved] = useState(false);
 
   const productsQuery = trpc.products.list.useQuery(undefined, {
@@ -57,29 +53,27 @@ export function SaveToProduct({
       setTimeout(() => setSaved(false), 3000);
     },
     onError: (err) => {
-      toast.error("Failed to save", { description: err.message });
+      toast.error('Failed to save', { description: err.message });
     },
   });
 
   const createProductMutation = trpc.products.create.useMutation({
     onSuccess: (product) => {
       setCreating(false);
-      setNewName("");
+      setNewName('');
       productsQuery.refetch();
       // Auto-save to the newly created product
       if (product) handleSave(product.id);
     },
     onError: (err) => {
-      toast.error("Failed to create product", { description: err.message });
+      toast.error('Failed to create product', { description: err.message });
     },
   });
 
   const handleSave = (productId: string) => {
     const stage = getStageForTool(toolId);
     const outputJson =
-      typeof outputData === "string"
-        ? outputData
-        : JSON.stringify(outputData, null, 2);
+      typeof outputData === 'string' ? outputData : JSON.stringify(outputData, null, 2);
 
     saveMutation.mutate({
       productId,
@@ -101,9 +95,9 @@ export function SaveToProduct({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant={saved ? "default" : "outline"}
+          variant={saved ? 'default' : 'outline'}
           size="sm"
-          className={`gap-2 ${saved ? "bg-green-600 hover:bg-green-700 text-white" : ""} ${className}`}
+          className={`gap-2 ${saved ? 'bg-green-600 hover:bg-green-700 text-white' : ''} ${className}`}
           disabled={saveMutation.isPending}
         >
           {saved ? (
@@ -130,9 +124,7 @@ export function SaveToProduct({
         {/* Product list */}
         <div className="max-h-48 overflow-y-auto">
           {productsQuery.isLoading ? (
-            <div className="p-4 text-center text-sm text-muted-foreground">
-              Loading products...
-            </div>
+            <div className="p-4 text-center text-sm text-muted-foreground">Loading products...</div>
           ) : productsQuery.data && productsQuery.data.length > 0 ? (
             <div className="p-1">
               {productsQuery.data.map((product) => (
@@ -146,9 +138,7 @@ export function SaveToProduct({
                   <div className="min-w-0 flex-1">
                     <p className="font-medium truncate">{product.name}</p>
                     {product.niche && (
-                      <p className="text-xs text-muted-foreground truncate">
-                        {product.niche}
-                      </p>
+                      <p className="text-xs text-muted-foreground truncate">{product.niche}</p>
                     )}
                   </div>
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground bg-muted px-1.5 py-0.5 rounded shrink-0">
@@ -160,9 +150,7 @@ export function SaveToProduct({
           ) : (
             <div className="p-4 text-center">
               <Package className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">
-                No products yet
-              </p>
+              <p className="text-sm text-muted-foreground">No products yet</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Create one below to start saving outputs
               </p>
@@ -179,10 +167,10 @@ export function SaveToProduct({
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") handleCreateAndSave();
-                  if (e.key === "Escape") {
+                  if (e.key === 'Enter') handleCreateAndSave();
+                  if (e.key === 'Escape') {
                     setCreating(false);
-                    setNewName("");
+                    setNewName('');
                   }
                 }}
                 className="h-8 text-sm"
@@ -192,9 +180,7 @@ export function SaveToProduct({
                 size="sm"
                 className="h-8 px-3 shrink-0"
                 onClick={handleCreateAndSave}
-                disabled={
-                  !newName.trim() || createProductMutation.isPending
-                }
+                disabled={!newName.trim() || createProductMutation.isPending}
               >
                 {createProductMutation.isPending ? (
                   <span className="animate-spin">⟳</span>

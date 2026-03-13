@@ -1,12 +1,9 @@
-"use client";
+'use client';
 
-import { useLayoutEffect, useRef } from "react";
-import type { ComponentProps } from "react";
+import type { ComponentProps } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 
-export function useTextareaResize(
-  value: ComponentProps<"textarea">["value"],
-  rows = 1
-) {
+export function useTextareaResize(value: ComponentProps<'textarea'>['value'], rows = 1) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useLayoutEffect(() => {
@@ -24,7 +21,7 @@ export function useTextareaResize(
       const minHeight = lineHeight * rows + padding;
 
       // Reset height to auto first to get the correct scrollHeight
-      textArea.style.height = "0px";
+      textArea.style.height = '0px';
       const scrollHeight = Math.max(textArea.scrollHeight, minHeight);
 
       // Set the final height

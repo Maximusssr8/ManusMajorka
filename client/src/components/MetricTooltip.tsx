@@ -1,22 +1,22 @@
 import {
+  FloatingPortal,
+  flip,
+  offset,
+  shift,
   useFloating,
   useHover,
   useInteractions,
-  offset,
-  flip,
-  shift,
-  FloatingPortal,
-} from "@floating-ui/react";
-import { useState } from "react";
-import { HelpCircle } from "lucide-react";
+} from '@floating-ui/react';
+import { HelpCircle } from 'lucide-react';
+import { useState } from 'react';
 
 const METRIC_DEFINITIONS: Record<string, string> = {
-  ROAS: "Return on Ad Spend — revenue generated per dollar spent on ads. A ROAS of 3x means $3 revenue per $1 spent.",
-  COGS: "Cost of Goods Sold — total cost to produce/source a product including raw materials, manufacturing, and shipping to your warehouse.",
-  AOV: "Average Order Value — the average dollar amount per transaction. Higher AOV = more profit per customer.",
-  CTR: "Click-Through Rate — percentage of people who click your ad/link after seeing it. Higher = more engaging creative.",
-  LTV: "Lifetime Value — total revenue a customer generates over their entire relationship with your brand.",
-  CPA: "Cost Per Acquisition — how much you spend to acquire one paying customer through advertising.",
+  ROAS: 'Return on Ad Spend — revenue generated per dollar spent on ads. A ROAS of 3x means $3 revenue per $1 spent.',
+  COGS: 'Cost of Goods Sold — total cost to produce/source a product including raw materials, manufacturing, and shipping to your warehouse.',
+  AOV: 'Average Order Value — the average dollar amount per transaction. Higher AOV = more profit per customer.',
+  CTR: 'Click-Through Rate — percentage of people who click your ad/link after seeing it. Higher = more engaging creative.',
+  LTV: 'Lifetime Value — total revenue a customer generates over their entire relationship with your brand.',
+  CPA: 'Cost Per Acquisition — how much you spend to acquire one paying customer through advertising.',
 };
 
 interface MetricTooltipProps {
@@ -32,7 +32,7 @@ export function MetricTooltip({ term, children }: MetricTooltipProps) {
     open: isOpen,
     onOpenChange: setIsOpen,
     middleware: [offset(8), flip(), shift({ padding: 8 })],
-    placement: "top",
+    placement: 'top',
   });
 
   const hover = useHover(context, { delay: { open: 150, close: 0 } });
@@ -47,12 +47,12 @@ export function MetricTooltip({ term, children }: MetricTooltipProps) {
         {...getReferenceProps()}
         className="inline-flex items-center gap-1 cursor-help"
         style={{
-          borderBottom: "1px dotted rgba(212,175,55,0.4)",
-          color: "inherit",
+          borderBottom: '1px dotted rgba(212,175,55,0.4)',
+          color: 'inherit',
         }}
       >
         {children ?? term}
-        <HelpCircle size={10} style={{ color: "#d4af37", opacity: 0.6 }} />
+        <HelpCircle size={10} style={{ color: '#d4af37', opacity: 0.6 }} />
       </span>
       {isOpen && (
         <FloatingPortal>
@@ -64,15 +64,15 @@ export function MetricTooltip({ term, children }: MetricTooltipProps) {
             aria-label={`${term} definition`}
             style={{
               ...floatingStyles,
-              background: "#1a1a20",
-              border: "1px solid rgba(212,175,55,0.2)",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
-              color: "#e4e4e7",
-              fontFamily: "DM Sans, sans-serif",
+              background: '#1a1a20',
+              border: '1px solid rgba(212,175,55,0.2)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+              color: '#e4e4e7',
+              fontFamily: 'DM Sans, sans-serif',
               lineHeight: 1.6,
             }}
           >
-            <span className="font-bold" style={{ color: "#d4af37" }}>
+            <span className="font-bold" style={{ color: '#d4af37' }}>
               {term}
             </span>
             : {definition}

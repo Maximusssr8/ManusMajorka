@@ -8,7 +8,7 @@ export default defineConfig({
   workers: 1,
   reporter: [['list'], ['html', { open: 'never', outputFolder: 'tests/e2e/report' }]],
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://127.0.0.1:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'off',
@@ -25,6 +25,6 @@ export default defineConfig({
       use: { ...devices['Pixel 5'] },
     },
   ],
-  // Dev server should already be running
-  // webServer: { command: 'pnpm run dev', port: 3000, reuseExistingServer: true },
+  // Dev server must be running at http://127.0.0.1:3000 before running tests
+  // Start with: cd ~/ManusMajorka && pnpm run dev
 })

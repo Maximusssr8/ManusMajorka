@@ -1,40 +1,40 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Markdown } from "@/components/Markdown";
-import { Download, Copy, Send, Loader2, Sparkles, Check, RefreshCw } from "lucide-react";
-import { toast } from "sonner";
-import OutputToolbar from "@/components/OutputToolbar";
-import RelatedTools from "@/components/RelatedTools";
-import { SaveToProduct } from "@/components/SaveToProduct";
-import { ActiveProductBanner } from "@/components/ActiveProductBanner";
-import { useActiveProduct } from "@/hooks/useActiveProduct";
-import { useMarket } from "@/contexts/MarketContext";
-import { trackToolUsed } from "@/lib/analytics";
+import { Check, Copy, Download, Loader2, RefreshCw, Send, Sparkles } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
+import { ActiveProductBanner } from '@/components/ActiveProductBanner';
+import { Markdown } from '@/components/Markdown';
+import OutputToolbar from '@/components/OutputToolbar';
+import RelatedTools from '@/components/RelatedTools';
+import { SaveToProduct } from '@/components/SaveToProduct';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Textarea } from '@/components/ui/textarea';
+import { useMarket } from '@/contexts/MarketContext';
+import { useActiveProduct } from '@/hooks/useActiveProduct';
+import { trackToolUsed } from '@/lib/analytics';
 
 /** Tool-specific loading messages — shown while AI is generating */
 const TOOL_LOADING_MESSAGES: Record<string, string> = {
-  "product-discovery": "Scanning AU market demand signals...",
-  "meta-ads": "Writing AU ad copy for your audience...",
-  "ads-studio": "Crafting scroll-stopping creative hooks...",
-  "validate": "Running profit calculations for AU market...",
-  "supplier-finder": "Searching Alibaba, Dropshipzone, and CJ AU...",
-  "keyword-miner": "Mining AU buyer-intent keywords...",
-  "audience-profiler": "Building your AU customer personas...",
-  "copywriter": "Writing AU-optimised sales copy...",
-  "email-sequences": "Building your Klaviyo email flow...",
-  "tiktok-builder": "Scripting your AU TikTok slideshow...",
-  "scaling-playbook": "Mapping your AU scaling strategy...",
-  "website-generator": "Generating your AU store layout...",
-  "competitor-breakdown": "Analysing AU competitor landscape...",
-  "trend-radar": "Reading AU trend signals...",
-  "niche-scorer": "Scoring AU market opportunity...",
-  "au-trending": "Pulling live AU trending data...",
-  "market-intel": "Gathering AU market intelligence...",
-  "financial-modeler": "Building your AU financial model...",
-  "ai-chat": "Maya is thinking...",
+  'product-discovery': 'Scanning AU market demand signals...',
+  'meta-ads': 'Writing AU ad copy for your audience...',
+  'ads-studio': 'Crafting scroll-stopping creative hooks...',
+  validate: 'Running profit calculations for AU market...',
+  'supplier-finder': 'Searching Alibaba, Dropshipzone, and CJ AU...',
+  'keyword-miner': 'Mining AU buyer-intent keywords...',
+  'audience-profiler': 'Building your AU customer personas...',
+  copywriter: 'Writing AU-optimised sales copy...',
+  'email-sequences': 'Building your Klaviyo email flow...',
+  'tiktok-builder': 'Scripting your AU TikTok slideshow...',
+  'scaling-playbook': 'Mapping your AU scaling strategy...',
+  'website-generator': 'Generating your AU store layout...',
+  'competitor-breakdown': 'Analysing AU competitor landscape...',
+  'trend-radar': 'Reading AU trend signals...',
+  'niche-scorer': 'Scoring AU market opportunity...',
+  'au-trending': 'Pulling live AU trending data...',
+  'market-intel': 'Gathering AU market intelligence...',
+  'financial-modeler': 'Building your AU financial model...',
+  'ai-chat': 'Maya is thinking...',
 };
 
 interface AIToolChatProps {
@@ -51,7 +51,7 @@ interface AIToolChatProps {
   initialMessage?: string;
 }
 
-type Message = { role: "user" | "assistant"; content: string; isError?: boolean };
+type Message = { role: 'user' | 'assistant'; content: string; isError?: boolean };
 
 export default function AIToolChat({
   toolId,
@@ -59,38 +59,38 @@ export default function AIToolChat({
   toolDescription,
   toolIcon,
   systemPrompt,
-  placeholder = "Type your message...",
+  placeholder = 'Type your message...',
   showHTMLPreview = false,
   examplePrompts,
   initialMessage,
 }: AIToolChatProps) {
-  const [generatedHTML, setGeneratedHTML] = useState<string>("");
+  const [generatedHTML, setGeneratedHTML] = useState<string>('');
   const [showPreview, setShowPreview] = useState(false);
   const [previewError, setPreviewError] = useState(false);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [status, setStatus] = useState<"idle" | "streaming">("idle");
+  const [status, setStatus] = useState<'idle' | 'streaming'>('idle');
   const { activeProduct } = useActiveProduct();
   const { market } = useMarket();
 
   // Build system prompt with active product context injected
   const buildSystemPrompt = useCallback(() => {
     if (!activeProduct) return systemPrompt;
-    const productCtx = `\n\nACTIVE PRODUCT CONTEXT:\n- Product: ${activeProduct.name}${activeProduct.niche ? `\n- Niche: ${activeProduct.niche}` : ""}${activeProduct.summary ? `\n- Details: ${activeProduct.summary}` : ""}\n\nAlways tailor your advice specifically to this product and niche. Reference it directly in your response.`;
+    const productCtx = `\n\nACTIVE PRODUCT CONTEXT:\n- Product: ${activeProduct.name}${activeProduct.niche ? `\n- Niche: ${activeProduct.niche}` : ''}${activeProduct.summary ? `\n- Details: ${activeProduct.summary}` : ''}\n\nAlways tailor your advice specifically to this product and niche. Reference it directly in your response.`;
     return systemPrompt + productCtx;
   }, [systemPrompt, activeProduct]);
   // Extract HTML from assistant messages (for Website Generator)
   useEffect(() => {
     if (!showHTMLPreview) return;
     const lastMessage = messages[messages.length - 1];
-    if (lastMessage?.role === "assistant") {
+    if (lastMessage?.role === 'assistant') {
       const htmlMatch = lastMessage.content.match(/```html\n([\s\S]*?)\n```/);
       if (htmlMatch && htmlMatch[1]) {
         try {
           setGeneratedHTML(htmlMatch[1]);
           setPreviewError(false);
         } catch (err) {
-          console.warn("Failed to set generated HTML:", err);
+          console.warn('Failed to set generated HTML:', err);
           setPreviewError(true);
         }
       }
@@ -102,25 +102,25 @@ export default function AIToolChat({
 
   // Auto-scroll
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const handleSend = async (overrideText?: string) => {
     const msg = (overrideText ?? input).trim();
-    if (!msg || status === "streaming") return;
-    if (!overrideText) setInput("");
+    if (!msg || status === 'streaming') return;
+    if (!overrideText) setInput('');
     if (textareaRef.current) textareaRef.current.style.height = 'auto';
-    const newMessages = [...messages, { role: "user" as const, content: msg }];
-    setMessages([...newMessages, { role: "assistant" as const, content: "" }]);
-    setStatus("streaming");
+    const newMessages = [...messages, { role: 'user' as const, content: msg }];
+    setMessages([...newMessages, { role: 'assistant' as const, content: '' }]);
+    setStatus('streaming');
     trackToolUsed(toolId, market);
 
     try {
-      const response = await fetch("/api/chat?stream=1", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/chat?stream=1', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+          messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
           systemPrompt: buildSystemPrompt(),
           stream: true,
           market,
@@ -131,31 +131,33 @@ export default function AIToolChat({
       // Parse SSE stream
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
-      let accumulated = "";
+      let accumulated = '';
 
       if (reader) {
-        let buffer = "";
+        let buffer = '';
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
           buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() || "";
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
 
           for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
+            if (!line.startsWith('data: ')) continue;
             try {
               const payload = JSON.parse(line.slice(6));
               if (payload.text !== undefined) {
                 accumulated += payload.text;
-                setMessages(prev => {
+                setMessages((prev) => {
                   const updated = [...prev];
-                  updated[updated.length - 1] = { role: "assistant", content: accumulated };
+                  updated[updated.length - 1] = { role: 'assistant', content: accumulated };
                   return updated;
                 });
               }
-            } catch { /* skip malformed lines */ }
+            } catch {
+              /* skip malformed lines */
+            }
           }
         }
       }
@@ -165,23 +167,29 @@ export default function AIToolChat({
         try {
           const text = await response.text();
           const data = JSON.parse(text);
-          accumulated = data.reply ?? "";
-          setMessages(prev => {
+          accumulated = data.reply ?? '';
+          setMessages((prev) => {
             const updated = [...prev];
-            updated[updated.length - 1] = { role: "assistant", content: accumulated };
+            updated[updated.length - 1] = { role: 'assistant', content: accumulated };
             return updated;
           });
-        } catch { /* already handled */ }
+        } catch {
+          /* already handled */
+        }
       }
     } catch (err) {
-      console.error("Stream error:", err);
-      setMessages(prev => {
+      console.error('Stream error:', err);
+      setMessages((prev) => {
         const updated = [...prev];
-        updated[updated.length - 1] = { role: "assistant", content: "Something went wrong. Please try again.", isError: true };
+        updated[updated.length - 1] = {
+          role: 'assistant',
+          content: 'Something went wrong. Please try again.',
+          isError: true,
+        };
         return updated;
       });
     } finally {
-      setStatus("idle");
+      setStatus('idle');
     }
   };
 
@@ -196,13 +204,13 @@ export default function AIToolChat({
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success("Copied to clipboard!");
+    toast.success('Copied to clipboard!');
   };
 
   const handleRegenerate = () => {
-    if (status === "streaming" || messages.length < 2) return;
+    if (status === 'streaming' || messages.length < 2) return;
     // Find the last user message
-    const lastUserIdx = messages.map(m => m.role).lastIndexOf("user");
+    const lastUserIdx = messages.map((m) => m.role).lastIndexOf('user');
     if (lastUserIdx === -1) return;
     const lastUserMsg = messages[lastUserIdx].content;
     // Remove the last assistant message and re-send
@@ -214,44 +222,47 @@ export default function AIToolChat({
 
   const getAllAssistantText = () => {
     return messages
-      .filter(m => m.role === "assistant")
-      .map(m => m.content)
-      .join("\n\n");
+      .filter((m) => m.role === 'assistant')
+      .map((m) => m.content)
+      .join('\n\n');
   };
 
   const copyLastMessage = () => {
     const last = messages[messages.length - 1];
-    if (last?.role === "assistant") {
+    if (last?.role === 'assistant') {
       copyToClipboard(last.content);
     }
   };
 
   const downloadHTML = () => {
-    const el = document.createElement("a");
-    el.setAttribute("href", "data:text/html;charset=utf-8," + encodeURIComponent(generatedHTML));
-    el.setAttribute("download", "landing-page.html");
-    el.style.display = "none";
+    const el = document.createElement('a');
+    el.setAttribute('href', 'data:text/html;charset=utf-8,' + encodeURIComponent(generatedHTML));
+    el.setAttribute('download', 'landing-page.html');
+    el.style.display = 'none';
     document.body.appendChild(el);
     el.click();
     document.body.removeChild(el);
-    toast.success("Downloaded!");
+    toast.success('Downloaded!');
   };
 
-  const hasOutput = messages.some(m => m.role === "assistant");
+  const hasOutput = messages.some((m) => m.role === 'assistant');
 
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Tool Header */}
-      <div className="flex-shrink-0 border-b px-5 py-3" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+      <div
+        className="flex-shrink-0 border-b px-5 py-3"
+        style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+      >
         <div className="flex items-center gap-3">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: "rgba(212,175,55,0.15)", color: "#d4af37" }}
+            style={{ background: 'rgba(212,175,55,0.15)', color: '#d4af37' }}
           >
             {toolIcon}
           </div>
           <div className="flex-1">
-            <h1 className="font-black text-sm" style={{ fontFamily: "Syne, sans-serif" }}>
+            <h1 className="font-black text-sm" style={{ fontFamily: 'Syne, sans-serif' }}>
               {toolName}
             </h1>
             <p className="text-xs text-muted-foreground hidden sm:block">{toolDescription}</p>
@@ -259,7 +270,11 @@ export default function AIToolChat({
           {hasOutput && (
             <div className="flex items-center gap-2 flex-shrink-0">
               <OutputToolbar allContent={getAllAssistantText()} toolName={toolName} />
-              <SaveToProduct toolId={toolId} toolName={toolName} outputData={getAllAssistantText()} />
+              <SaveToProduct
+                toolId={toolId}
+                toolName={toolName}
+                outputData={getAllAssistantText()}
+              />
             </div>
           )}
         </div>
@@ -282,16 +297,21 @@ export default function AIToolChat({
                 <div className="flex flex-col items-center justify-center text-center py-16">
                   <div
                     className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-                    style={{ background: "rgba(212,175,55,0.08)" }}
+                    style={{ background: 'rgba(212,175,55,0.08)' }}
                   >
-                    <Sparkles className="w-7 h-7" style={{ color: "#d4af37", opacity: 0.4 }} />
+                    <Sparkles className="w-7 h-7" style={{ color: '#d4af37', opacity: 0.4 }} />
                   </div>
                   <p className="text-sm text-muted-foreground max-w-sm mb-6">
                     {toolDescription}. Start by describing what you need.
                   </p>
                   {examplePrompts && examplePrompts.length > 0 && (
                     <div className="flex flex-col gap-2 w-full max-w-md">
-                      <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "rgba(240,237,232,0.3)", fontFamily: "Syne, sans-serif" }}>Try an example</p>
+                      <p
+                        className="text-xs font-bold uppercase tracking-widest mb-1"
+                        style={{ color: 'rgba(240,237,232,0.3)', fontFamily: 'Syne, sans-serif' }}
+                      >
+                        Try an example
+                      </p>
                       {examplePrompts.map((prompt, i) => (
                         <button
                           key={i}
@@ -300,9 +320,9 @@ export default function AIToolChat({
                           }}
                           className="text-left text-xs px-4 py-2.5 rounded-xl border transition-all hover:border-yellow-500/40 hover:bg-yellow-500/5"
                           style={{
-                            borderColor: "rgba(212,175,55,0.2)",
-                            color: "rgba(212,175,55,0.75)",
-                            background: "rgba(212,175,55,0.03)",
+                            borderColor: 'rgba(212,175,55,0.2)',
+                            color: 'rgba(212,175,55,0.75)',
+                            background: 'rgba(212,175,55,0.03)',
                           }}
                         >
                           {prompt}
@@ -316,32 +336,40 @@ export default function AIToolChat({
               {messages.map((msg, i) => (
                 <div
                   key={i}
-                  className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  {msg.role === "assistant" && (
-                    <div className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center" style={{ background: "rgba(212,175,55,0.1)" }}>
-                      <Sparkles className="w-3.5 h-3.5" style={{ color: "#d4af37" }} />
+                  {msg.role === 'assistant' && (
+                    <div
+                      className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center"
+                      style={{ background: 'rgba(212,175,55,0.1)' }}
+                    >
+                      <Sparkles className="w-3.5 h-3.5" style={{ color: '#d4af37' }} />
                     </div>
                   )}
                   <div
                     className={`max-w-[75%] rounded-lg px-4 py-3 ${
-                      msg.role === "user"
-                        ? "text-sm"
-                        : "text-foreground"
+                      msg.role === 'user' ? 'text-sm' : 'text-foreground'
                     }`}
                     style={
-                      msg.role === "user"
-                        ? { background: "#1a1600", border: "1px solid rgba(212,175,55,0.3)", color: "#f0ede8" }
+                      msg.role === 'user'
+                        ? {
+                            background: '#1a1600',
+                            border: '1px solid rgba(212,175,55,0.3)',
+                            color: '#f0ede8',
+                          }
                         : msg.isError
-                        ? { background: "rgba(255,100,100,0.12)", border: "1px solid rgba(255,100,100,0.2)" }
-                        : { background: "#0d0f12", border: "1px solid rgba(255,255,255,0.06)" }
+                          ? {
+                              background: 'rgba(255,100,100,0.12)',
+                              border: '1px solid rgba(255,100,100,0.2)',
+                            }
+                          : { background: '#0d0f12', border: '1px solid rgba(255,255,255,0.06)' }
                     }
                   >
                     <div className="prose prose-sm dark:prose-invert max-w-none">
                       <Markdown mode="static">{msg.content}</Markdown>
                     </div>
                     {/* Per-message copy + export buttons */}
-                    {msg.role === "assistant" && msg.content && (
+                    {msg.role === 'assistant' && msg.content && (
                       <div className="mt-2 flex justify-end gap-1">
                         <CopyMsgBtn text={msg.content} />
                         <ExportMsgBtn text={msg.content} toolId={toolId} />
@@ -351,20 +379,26 @@ export default function AIToolChat({
                 </div>
               ))}
 
-              {status === "streaming" && messages[messages.length - 1]?.content === "" && (
+              {status === 'streaming' && messages[messages.length - 1]?.content === '' && (
                 <div className="flex gap-3 justify-start">
-                  <div className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center" style={{ background: "rgba(212,175,55,0.1)" }}>
-                    <Sparkles className="w-3.5 h-3.5" style={{ color: "#d4af37" }} />
+                  <div
+                    className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center"
+                    style={{ background: 'rgba(212,175,55,0.1)' }}
+                  >
+                    <Sparkles className="w-3.5 h-3.5" style={{ color: '#d4af37' }} />
                   </div>
-                  <div className="rounded-lg px-4 py-3" style={{ background: "#0d0f12", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div
+                    className="rounded-lg px-4 py-3"
+                    style={{ background: '#0d0f12', border: '1px solid rgba(255,255,255,0.06)' }}
+                  >
                     <div className="flex items-center gap-2">
                       {/* Pulsing gold dot */}
                       <span
                         className="inline-block w-2 h-2 rounded-full animate-pulse"
-                        style={{ background: "#d4af37", boxShadow: "0 0 6px #d4af37" }}
+                        style={{ background: '#d4af37', boxShadow: '0 0 6px #d4af37' }}
                       />
                       <span className="text-sm text-muted-foreground">
-                        {TOOL_LOADING_MESSAGES[toolId] ?? "Generating..."}
+                        {TOOL_LOADING_MESSAGES[toolId] ?? 'Generating...'}
                       </span>
                     </div>
                   </div>
@@ -373,38 +407,80 @@ export default function AIToolChat({
 
               {/* GO/NO-GO verdict action buttons */}
               {(() => {
-                const lastAssistantMsg = [...messages].reverse().find(m => m.role === "assistant");
-                const lastContent = lastAssistantMsg?.content || "";
-                const verdict = lastContent.match(/Verdict:\s*\*?\*?\s*(GO|NO-GO|PIVOT)/i)?.[1]?.toUpperCase();
-                if (!verdict || status !== "idle") return null;
+                const lastAssistantMsg = [...messages]
+                  .reverse()
+                  .find((m) => m.role === 'assistant');
+                const lastContent = lastAssistantMsg?.content || '';
+                const verdict = lastContent
+                  .match(/Verdict:\s*\*?\*?\s*(GO|NO-GO|PIVOT)/i)?.[1]
+                  ?.toUpperCase();
+                if (!verdict || status !== 'idle') return null;
                 return (
-                  <div className="flex gap-3 mt-2 p-4 rounded-2xl" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                  <div
+                    className="flex gap-3 mt-2 p-4 rounded-2xl"
+                    style={{
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.07)',
+                    }}
+                  >
                     <div className="flex-1">
-                      <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "rgba(240,237,232,0.35)", fontFamily: "Syne, sans-serif" }}>What's next?</div>
+                      <div
+                        className="text-xs font-bold uppercase tracking-widest mb-2"
+                        style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                      >
+                        What's next?
+                      </div>
                       <div className="flex gap-2 flex-wrap">
-                        {(verdict === "GO" || verdict === "PIVOT") && (
-                          <button onClick={() => window.location.href = "/app/website-generator"}
+                        {(verdict === 'GO' || verdict === 'PIVOT') && (
+                          <button
+                            onClick={() => (window.location.href = '/app/website-generator')}
                             className="text-xs font-bold px-4 py-2 rounded-xl"
-                            style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", cursor: "pointer" }}>
+                            style={{
+                              background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+                              color: '#080a0e',
+                              cursor: 'pointer',
+                            }}
+                          >
                             Build landing page →
                           </button>
                         )}
-                        {verdict === "NO-GO" && (
-                          <button onClick={() => { setInput(""); }}
+                        {verdict === 'NO-GO' && (
+                          <button
+                            onClick={() => {
+                              setInput('');
+                            }}
                             className="text-xs font-bold px-4 py-2 rounded-xl"
-                            style={{ background: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.25)", color: "#d4af37", cursor: "pointer" }}>
+                            style={{
+                              background: 'rgba(212,175,55,0.1)',
+                              border: '1px solid rgba(212,175,55,0.25)',
+                              color: '#d4af37',
+                              cursor: 'pointer',
+                            }}
+                          >
                             Try different idea →
                           </button>
                         )}
                       </div>
                     </div>
-                    <div className="w-16 h-16 rounded-xl flex items-center justify-center font-black text-sm"
+                    <div
+                      className="w-16 h-16 rounded-xl flex items-center justify-center font-black text-sm"
                       style={{
-                        background: verdict === "GO" ? "rgba(45,202,114,0.12)" : verdict === "NO-GO" ? "rgba(224,92,122,0.12)" : "rgba(212,175,55,0.12)",
-                        color: verdict === "GO" ? "#2dca72" : verdict === "NO-GO" ? "#e05c7a" : "#d4af37",
-                        fontFamily: "Syne, sans-serif",
-                        border: `1px solid ${verdict === "GO" ? "rgba(45,202,114,0.25)" : verdict === "NO-GO" ? "rgba(224,92,122,0.25)" : "rgba(212,175,55,0.25)"}`,
-                      }}>
+                        background:
+                          verdict === 'GO'
+                            ? 'rgba(45,202,114,0.12)'
+                            : verdict === 'NO-GO'
+                              ? 'rgba(224,92,122,0.12)'
+                              : 'rgba(212,175,55,0.12)',
+                        color:
+                          verdict === 'GO'
+                            ? '#2dca72'
+                            : verdict === 'NO-GO'
+                              ? '#e05c7a'
+                              : '#d4af37',
+                        fontFamily: 'Syne, sans-serif',
+                        border: `1px solid ${verdict === 'GO' ? 'rgba(45,202,114,0.25)' : verdict === 'NO-GO' ? 'rgba(224,92,122,0.25)' : 'rgba(212,175,55,0.25)'}`,
+                      }}
+                    >
                       {verdict}
                     </div>
                   </div>
@@ -412,23 +488,33 @@ export default function AIToolChat({
               })()}
 
               {/* Regenerate button */}
-              {status === "idle" && messages.length >= 2 && messages[messages.length - 1]?.role === "assistant" && (
-                <div className="flex justify-center pt-1 pb-2">
-                  <button
-                    onClick={handleRegenerate}
-                    className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all hover:bg-white/5"
-                    style={{ color: "rgba(240,237,232,0.4)", cursor: "pointer", border: "1px solid rgba(255,255,255,0.08)", background: "transparent" }}
-                  >
-                    <RefreshCw size={11} />
-                    Regenerate
-                  </button>
-                </div>
-              )}
+              {status === 'idle' &&
+                messages.length >= 2 &&
+                messages[messages.length - 1]?.role === 'assistant' && (
+                  <div className="flex justify-center pt-1 pb-2">
+                    <button
+                      onClick={handleRegenerate}
+                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all hover:bg-white/5"
+                      style={{
+                        color: 'rgba(240,237,232,0.4)',
+                        cursor: 'pointer',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        background: 'transparent',
+                      }}
+                    >
+                      <RefreshCw size={11} />
+                      Regenerate
+                    </button>
+                  </div>
+                )}
             </div>
           </ScrollArea>
 
           {/* Input Bar */}
-          <div className="flex-shrink-0 border-t p-4" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+          <div
+            className="flex-shrink-0 border-t p-4"
+            style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+          >
             <div className="flex gap-2 items-end">
               <Textarea
                 ref={textareaRef}
@@ -439,7 +525,7 @@ export default function AIToolChat({
                   e.target.style.height = e.target.scrollHeight + 'px';
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
+                  if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     handleSend();
                   }
@@ -447,15 +533,25 @@ export default function AIToolChat({
                 placeholder={placeholder}
                 className="resize-none text-sm"
                 rows={1}
-                style={{ background: "#0d0f12", borderColor: "rgba(255,255,255,0.1)", overflowY: 'auto', maxHeight: '200px', resize: 'none' }}
+                style={{
+                  background: '#0d0f12',
+                  borderColor: 'rgba(255,255,255,0.1)',
+                  overflowY: 'auto',
+                  maxHeight: '200px',
+                  resize: 'none',
+                }}
               />
               <div className="flex flex-col gap-1.5">
                 <Button
                   onClick={() => handleSend()}
-                  disabled={status === "streaming" || !input.trim()}
+                  disabled={status === 'streaming' || !input.trim()}
                   size="icon"
                   className="h-9 w-9 rounded-lg"
-                  style={{ background: "linear-gradient(135deg, #d4af37, #c09a28)", color: "#080a0e", border: "none" }}
+                  style={{
+                    background: 'linear-gradient(135deg, #d4af37, #c09a28)',
+                    color: '#080a0e',
+                    border: 'none',
+                  }}
                 >
                   <Send className="w-4 h-4" />
                 </Button>
@@ -471,7 +567,7 @@ export default function AIToolChat({
                 )}
               </div>
             </div>
-            <div className="text-xs mt-1.5" style={{ color: "rgba(240,237,232,0.2)" }}>
+            <div className="text-xs mt-1.5" style={{ color: 'rgba(240,237,232,0.2)' }}>
               Press Enter to send · Shift+Enter for new line
             </div>
           </div>
@@ -482,16 +578,27 @@ export default function AIToolChat({
 
         {/* HTML Preview Panel (Website Generator only) */}
         {showHTMLPreview && generatedHTML && (
-          <div className="hidden md:flex w-[380px] flex-shrink-0 flex-col border-l" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-            <Card className="flex-1 flex flex-col overflow-hidden rounded-none border-0" style={{ background: "transparent" }}>
-              <div className="p-3 border-b flex items-center justify-between" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                <span className="text-xs font-bold" style={{ fontFamily: "Syne, sans-serif" }}>Generated HTML</span>
+          <div
+            className="hidden md:flex w-[380px] flex-shrink-0 flex-col border-l"
+            style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+          >
+            <Card
+              className="flex-1 flex flex-col overflow-hidden rounded-none border-0"
+              style={{ background: 'transparent' }}
+            >
+              <div
+                className="p-3 border-b flex items-center justify-between"
+                style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+              >
+                <span className="text-xs font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
+                  Generated HTML
+                </span>
                 <button
                   onClick={() => setShowPreview(!showPreview)}
                   className="text-xs px-2 py-1 rounded hover:bg-white/5 transition-colors"
-                  style={{ color: "#d4af37" }}
+                  style={{ color: '#d4af37' }}
                 >
-                  {showPreview ? "Code" : "Preview"}
+                  {showPreview ? 'Code' : 'Preview'}
                 </button>
               </div>
               <div className="flex-1 overflow-auto p-3">
@@ -514,13 +621,16 @@ export default function AIToolChat({
                   </pre>
                 )}
               </div>
-              <div className="flex gap-2 p-3 border-t" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+              <div
+                className="flex gap-2 p-3 border-t"
+                style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+              >
                 <Button
                   size="sm"
                   className="flex-1 gap-2 text-xs"
                   onClick={() => copyToClipboard(generatedHTML)}
                   variant="outline"
-                  style={{ borderColor: "rgba(212,175,55,0.3)", color: "#d4af37" }}
+                  style={{ borderColor: 'rgba(212,175,55,0.3)', color: '#d4af37' }}
                 >
                   <Copy className="w-3 h-3" /> Copy
                 </Button>
@@ -528,7 +638,10 @@ export default function AIToolChat({
                   size="sm"
                   className="flex-1 gap-2 text-xs"
                   onClick={downloadHTML}
-                  style={{ background: "linear-gradient(135deg, #d4af37, #c09a28)", color: "#080a0e" }}
+                  style={{
+                    background: 'linear-gradient(135deg, #d4af37, #c09a28)',
+                    color: '#080a0e',
+                  }}
                 >
                   <Download className="w-3 h-3" /> Download
                 </Button>
@@ -549,19 +662,19 @@ function CopyMsgBtn({ text }: { text: string }) {
       onClick={() => {
         navigator.clipboard.writeText(text);
         setCopied(true);
-        toast.success("Copied!");
+        toast.success('Copied!');
         setTimeout(() => setCopied(false), 2000);
       }}
       className="text-xs flex items-center gap-1 px-2 py-1 rounded-md transition-all"
       style={{
-        background: copied ? "rgba(45,202,114,0.1)" : "transparent",
-        color: copied ? "#2dca72" : "rgba(240,237,232,0.25)",
-        cursor: "pointer",
-        border: "none",
+        background: copied ? 'rgba(45,202,114,0.1)' : 'transparent',
+        color: copied ? '#2dca72' : 'rgba(240,237,232,0.25)',
+        cursor: 'pointer',
+        border: 'none',
       }}
     >
       {copied ? <Check size={10} /> : <Copy size={10} />}
-      {copied ? "Copied ✓" : "Copy"}
+      {copied ? 'Copied ✓' : 'Copy'}
     </button>
   );
 }
@@ -569,24 +682,24 @@ function CopyMsgBtn({ text }: { text: string }) {
 /** Small per-message export (.txt) button */
 function ExportMsgBtn({ text, toolId }: { text: string; toolId: string }) {
   const handleExport = () => {
-    const blob = new Blob([text], { type: "text/plain" });
+    const blob = new Blob([text], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
     a.download = `majorka-${toolId}-${Date.now()}.txt`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Exported!");
+    toast.success('Exported!');
   };
   return (
     <button
       onClick={handleExport}
       className="text-xs flex items-center gap-1 px-2 py-1 rounded-md transition-all"
       style={{
-        background: "transparent",
-        color: "rgba(240,237,232,0.25)",
-        cursor: "pointer",
-        border: "none",
+        background: 'transparent',
+        color: 'rgba(240,237,232,0.25)',
+        cursor: 'pointer',
+        border: 'none',
       }}
     >
       <Download size={10} />

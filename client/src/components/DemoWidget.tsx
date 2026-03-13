@@ -2,11 +2,11 @@
  * DemoWidget — cinematic AI terminal experience for the Majorka landing page.
  * Auto-cycles through 3 demo prompts with typing → thinking → streaming → done phases.
  */
-import { useState, useEffect, useRef } from "react";
-import { Link } from "wouter";
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'wouter';
 
 const dm = "'DM Sans', sans-serif";
-const syne = "Syne, sans-serif";
+const syne = 'Syne, sans-serif';
 const mono = "'DM Mono', 'Fira Code', 'Courier New', monospace";
 
 const DEMO_STYLES = `
@@ -60,106 +60,143 @@ const DEMO_STYLES = `
 `;
 
 const PROMPTS = [
-  "Find me a trending product to sell in Australia under $50",
-  "Write me a Meta ad for a portable blender targeting gym-goers",
-  "Build me a 5-email welcome sequence for a skincare brand",
+  'Find me a trending product to sell in Australia under $50',
+  'Write me a Meta ad for a portable blender targeting gym-goers',
+  'Build me a 5-email welcome sequence for a skincare brand',
 ];
 
 const RESPONSE_LINES: string[][] = [
   [
-    "## 🔥 Trending Now: Posture Corrector Pro",
-    "",
-    "**AU Demand Signal** ██████████ 94/100",
-    "**Competition Level** ███░░░░░░░ Low-Med",
-    "",
-    "💰 Buy Price: $6–9 AUD (Alibaba)",
-    "💸 Sell Price: $49 AUD",
-    "📊 Gross Margin: 72%",
-    "🚚 Ship Time: 7–10 days (AusPost eParcel)",
-    "",
+    '## 🔥 Trending Now: Posture Corrector Pro',
+    '',
+    '**AU Demand Signal** ██████████ 94/100',
+    '**Competition Level** ███░░░░░░░ Low-Med',
+    '',
+    '💰 Buy Price: $6–9 AUD (Alibaba)',
+    '💸 Sell Price: $49 AUD',
+    '📊 Gross Margin: 72%',
+    '🚚 Ship Time: 7–10 days (AusPost eParcel)',
+    '',
     "**Why it's winning AU right now:**",
-    "→ Office workers post-COVID return surge",
-    "→ Low saturation on Meta AU (CPM ~$14)",
-    "→ Afterpay eligible — boosts AOV conversion",
-    "",
-    "**Top supplier:** Guangzhou Posture Co. ⭐ 4.8",
-    "MOQ: 10 units · DHL Express 4 days available",
+    '→ Office workers post-COVID return surge',
+    '→ Low saturation on Meta AU (CPM ~$14)',
+    '→ Afterpay eligible — boosts AOV conversion',
+    '',
+    '**Top supplier:** Guangzhou Posture Co. ⭐ 4.8',
+    'MOQ: 10 units · DHL Express 4 days available',
   ],
   [
-    "## 📱 Meta Ad — Portable Blender",
-    "",
-    "**Hook (stop the scroll):**",
+    '## 📱 Meta Ad — Portable Blender',
+    '',
+    '**Hook (stop the scroll):**',
     '"POV: You\'re the person at the gym who actually drinks their protein fresh"',
-    "",
-    "**Primary Text:**",
-    "Your blender is literally holding you back. The BlendGo fits in your gym bag, charges via USB, and blends a full protein shake in 20 seconds. No more chalky powder water.",
-    "",
-    "300ml. 6-blade motor. 3-hour battery.",
-    "",
-    "⚡ Free shipping Australia-wide",
-    "💳 Pay in 4 with Afterpay",
-    "",
-    "**Headline:** Stop Drinking Clumpy Protein Shakes",
-    "**CTA:** Shop Now · $39 AUD",
-    "",
-    "*Targeting: AU 🇦🇺 | 22–38 | Health & Fitness | Lookalike 1%*",
+    '',
+    '**Primary Text:**',
+    'Your blender is literally holding you back. The BlendGo fits in your gym bag, charges via USB, and blends a full protein shake in 20 seconds. No more chalky powder water.',
+    '',
+    '300ml. 6-blade motor. 3-hour battery.',
+    '',
+    '⚡ Free shipping Australia-wide',
+    '💳 Pay in 4 with Afterpay',
+    '',
+    '**Headline:** Stop Drinking Clumpy Protein Shakes',
+    '**CTA:** Shop Now · $39 AUD',
+    '',
+    '*Targeting: AU 🇦🇺 | 22–38 | Health & Fitness | Lookalike 1%*',
   ],
   [
-    "## 📧 5-Email Welcome Sequence — Skincare",
-    "",
-    "**Email 1 (Day 0) — The Welcome**",
+    '## 📧 5-Email Welcome Sequence — Skincare',
+    '',
+    '**Email 1 (Day 0) — The Welcome**',
     'Sub: "Your skin just found its new routine ✨"',
-    "→ Brand story, what makes you different, first purchase discount (WELCOME15)",
-    "",
-    "**Email 2 (Day 2) — Education**",
+    '→ Brand story, what makes you different, first purchase discount (WELCOME15)',
+    '',
+    '**Email 2 (Day 2) — Education**',
     'Sub: "The 3-step routine that actually works"',
-    "→ Product education, ingredient hero story, social proof",
-    "",
-    "**Email 3 (Day 5) — Social Proof**",
+    '→ Product education, ingredient hero story, social proof',
+    '',
+    '**Email 3 (Day 5) — Social Proof**',
     'Sub: "847 Australians can\'t be wrong..."',
-    "→ UGC, before/after, reviews from AU customers",
-    "",
-    "**Email 4 (Day 8) — Objection Handling**",
+    '→ UGC, before/after, reviews from AU customers',
+    '',
+    '**Email 4 (Day 8) — Objection Handling**',
     'Sub: "Is [product] actually worth it? Honest answer."',
-    "→ Address top 3 objections, money-back guarantee, ACCC rights",
-    "",
-    "**Email 5 (Day 12) — Last Chance**",
+    '→ Address top 3 objections, money-back guarantee, ACCC rights',
+    '',
+    '**Email 5 (Day 12) — Last Chance**',
     'Sub: "Your 15% off expires tonight"',
-    "→ Urgency, scarcity, final CTA",
-    "✅ Spam Act 2003 compliant · Unsubscribe included",
+    '→ Urgency, scarcity, final CTA',
+    '✅ Spam Act 2003 compliant · Unsubscribe included',
   ],
 ];
 
-type Phase = "typing" | "thinking" | "streaming" | "done";
+type Phase = 'typing' | 'thinking' | 'streaming' | 'done';
 
 function renderLine(line: string, idx: number) {
-  if (line === "") return <div key={idx} style={{ height: 5 }} />;
+  if (line === '') return <div key={idx} style={{ height: 5 }} />;
 
-  if (line.startsWith("## ")) {
+  if (line.startsWith('## ')) {
     return (
-      <div key={idx} style={{ fontFamily: syne, fontWeight: 800, fontSize: 14, color: "#d4af37", marginBottom: 6, marginTop: idx > 0 ? 12 : 0 }}>
+      <div
+        key={idx}
+        style={{
+          fontFamily: syne,
+          fontWeight: 800,
+          fontSize: 14,
+          color: '#d4af37',
+          marginBottom: 6,
+          marginTop: idx > 0 ? 12 : 0,
+        }}
+      >
         {line.slice(3)}
       </div>
     );
   }
-  if (line.startsWith("→")) {
+  if (line.startsWith('→')) {
     return (
-      <div key={idx} style={{ fontSize: 12, color: "#94949e", lineHeight: 1.65, paddingLeft: 4, marginBottom: 1 }}>
+      <div
+        key={idx}
+        style={{
+          fontSize: 12,
+          color: '#94949e',
+          lineHeight: 1.65,
+          paddingLeft: 4,
+          marginBottom: 1,
+        }}
+      >
         {line}
       </div>
     );
   }
-  if (/^[💰💸📊🚚⚡💳✅]/.test(line)) {
+  if (/^[💰💸📊🚚⚡💳✅]/u.test(line)) {
     return (
-      <div key={idx} style={{ fontSize: 12, color: "#94949e", lineHeight: 1.7, marginBottom: 1, fontFamily: mono }}>
+      <div
+        key={idx}
+        style={{
+          fontSize: 12,
+          color: '#94949e',
+          lineHeight: 1.7,
+          marginBottom: 1,
+          fontFamily: mono,
+        }}
+      >
         {line}
       </div>
     );
   }
-  if (line.startsWith("*") && line.endsWith("*") && !line.startsWith("**")) {
+  if (line.startsWith('*') && line.endsWith('*') && !line.startsWith('**')) {
     return (
-      <div key={idx} style={{ fontSize: 11, color: "#52525b", fontStyle: "italic", lineHeight: 1.6, marginBottom: 2 }}>
-        {line.replace(/^\*|\*$/g, "")}
+      <div
+        key={idx}
+        style={{
+          fontSize: 11,
+          color: '#52525b',
+          fontStyle: 'italic',
+          lineHeight: 1.6,
+          marginBottom: 2,
+        }}
+      >
+        {line.replace(/^\*|\*$/g, '')}
       </div>
     );
   }
@@ -167,13 +204,17 @@ function renderLine(line: string, idx: number) {
   // Parse inline bold
   const parts = line.split(/(\*\*[^*]+\*\*)/g);
   const rendered = parts.map((p, j) =>
-    p.startsWith("**") && p.endsWith("**")
-      ? <strong key={j} style={{ color: "#f5f5f5", fontWeight: 700 }}>{p.replace(/\*\*/g, "")}</strong>
-      : <span key={j}>{p}</span>
+    p.startsWith('**') && p.endsWith('**') ? (
+      <strong key={j} style={{ color: '#f5f5f5', fontWeight: 700 }}>
+        {p.replace(/\*\*/g, '')}
+      </strong>
+    ) : (
+      <span key={j}>{p}</span>
+    )
   );
 
   return (
-    <div key={idx} style={{ fontSize: 13, color: "#94949e", lineHeight: 1.7, marginBottom: 2 }}>
+    <div key={idx} style={{ fontSize: 13, color: '#94949e', lineHeight: 1.7, marginBottom: 2 }}>
       {rendered}
     </div>
   );
@@ -181,7 +222,7 @@ function renderLine(line: string, idx: number) {
 
 export default function DemoWidget() {
   const [promptIdx, setPromptIdx] = useState(0);
-  const [phase, setPhase] = useState<Phase>("typing");
+  const [phase, setPhase] = useState<Phase>('typing');
   const [typedLen, setTypedLen] = useState(0);
   const [visibleLines, setVisibleLines] = useState(0);
   const responseRef = useRef<HTMLDivElement>(null);
@@ -204,7 +245,7 @@ export default function DemoWidget() {
       const lines = RESPONSE_LINES[promptIndex];
 
       // Phase 1: typing
-      setPhase("typing");
+      setPhase('typing');
       setTypedLen(0);
       setVisibleLines(0);
       for (let i = 1; i <= prompt.length; i++) {
@@ -215,12 +256,12 @@ export default function DemoWidget() {
 
       // Phase 2: thinking
       if (cancelRef.current) return;
-      setPhase("thinking");
+      setPhase('thinking');
       await sleep(2200);
 
       // Phase 3: streaming lines
       if (cancelRef.current) return;
-      setPhase("streaming");
+      setPhase('streaming');
       setVisibleLines(0);
       for (let i = 1; i <= lines.length; i++) {
         if (cancelRef.current) return;
@@ -233,7 +274,7 @@ export default function DemoWidget() {
 
       // Phase 4: done
       if (cancelRef.current) return;
-      setPhase("done");
+      setPhase('done');
       await sleep(2500);
 
       if (cancelRef.current) return;
@@ -243,70 +284,121 @@ export default function DemoWidget() {
     };
 
     run(0);
-    return () => { cancelRef.current = true; };
+    return () => {
+      cancelRef.current = true;
+    };
   }, []);
 
   const currentPrompt = PROMPTS[promptIdx];
   const currentLines = RESPONSE_LINES[promptIdx];
 
   return (
-    <div style={{ maxWidth: 620, width: "100%", minWidth: 0 }}>
+    <div style={{ maxWidth: 620, width: '100%', minWidth: 0 }}>
       <style>{DEMO_STYLES}</style>
 
       <div
         style={{
-          background: "rgba(13,17,23,0.92)",
-          border: "1px solid rgba(212,175,55,0.25)",
+          background: 'rgba(13,17,23,0.92)',
+          border: '1px solid rgba(212,175,55,0.25)',
           borderRadius: 16,
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          animation: "border-breathe 4s ease-in-out infinite",
-          overflow: "hidden",
-          position: "relative",
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          animation: 'border-breathe 4s ease-in-out infinite',
+          overflow: 'hidden',
+          position: 'relative',
         }}
       >
         {/* Scanline overlay */}
-        <div style={{
-          position: "absolute", inset: 0, pointerEvents: "none", zIndex: 0,
-          backgroundImage: "repeating-linear-gradient(0deg, rgba(255,255,255,0.006) 0px, rgba(255,255,255,0.006) 1px, transparent 1px, transparent 4px)",
-          backgroundSize: "100% 4px",
-        }} />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            zIndex: 0,
+            backgroundImage:
+              'repeating-linear-gradient(0deg, rgba(255,255,255,0.006) 0px, rgba(255,255,255,0.006) 1px, transparent 1px, transparent 4px)',
+            backgroundSize: '100% 4px',
+          }}
+        />
 
         {/* Top bar */}
-        <div style={{
-          position: "relative", zIndex: 1,
-          display: "flex", alignItems: "center", gap: 8,
-          padding: "11px 16px",
-          background: "rgba(0,0,0,0.35)",
-          borderBottom: "1px solid rgba(212,175,55,0.1)",
-        }}>
-          <div style={{ display: "flex", gap: 6 }}>
-            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ff5f56" }} />
-            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ffbd2e" }} />
-            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#27c93f" }} />
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '11px 16px',
+            background: 'rgba(0,0,0,0.35)',
+            borderBottom: '1px solid rgba(212,175,55,0.1)',
+          }}
+        >
+          <div style={{ display: 'flex', gap: 6 }}>
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff5f56' }} />
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#ffbd2e' }} />
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#27c93f' }} />
           </div>
-          <div style={{ flex: 1, textAlign: "center", fontFamily: syne, fontWeight: 700, fontSize: 12, color: "#d4af37", letterSpacing: "0.06em", textShadow: "0 0 10px rgba(212,175,55,0.5)" }}>
+          <div
+            style={{
+              flex: 1,
+              textAlign: 'center',
+              fontFamily: syne,
+              fontWeight: 700,
+              fontSize: 12,
+              color: '#d4af37',
+              letterSpacing: '0.06em',
+              textShadow: '0 0 10px rgba(212,175,55,0.5)',
+            }}
+          >
             Majorka AI
           </div>
           <div style={{ width: 42 }} />
         </div>
 
         {/* Prompt input */}
-        <div style={{
-          position: "relative", zIndex: 1,
-          padding: "12px 16px",
-          borderBottom: "1px solid rgba(255,255,255,0.04)",
-        }}>
-          <div style={{
-            display: "flex", alignItems: "center", gap: 8,
-            background: "rgba(212,175,55,0.04)",
-            border: "1px solid rgba(212,175,55,0.14)",
-            borderRadius: 8, padding: "8px 12px",
-          }}>
-            <span style={{ color: "#d4af37", fontFamily: mono, fontSize: 14, fontWeight: 700, flexShrink: 0 }}>&gt;</span>
-            <span style={{ fontFamily: dm, fontSize: 13, color: "#e2e8f0", flex: 1, minHeight: 20, letterSpacing: "0.01em" }}>
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            padding: '12px 16px',
+            borderBottom: '1px solid rgba(255,255,255,0.04)',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              background: 'rgba(212,175,55,0.04)',
+              border: '1px solid rgba(212,175,55,0.14)',
+              borderRadius: 8,
+              padding: '8px 12px',
+            }}
+          >
+            <span
+              style={{
+                color: '#d4af37',
+                fontFamily: mono,
+                fontSize: 14,
+                fontWeight: 700,
+                flexShrink: 0,
+              }}
+            >
+              &gt;
+            </span>
+            <span
+              style={{
+                fontFamily: dm,
+                fontSize: 13,
+                color: '#e2e8f0',
+                flex: 1,
+                minHeight: 20,
+                letterSpacing: '0.01em',
+              }}
+            >
               {currentPrompt.slice(0, typedLen)}
-              {phase === "typing" && <span className="demo-cursor" />}
+              {phase === 'typing' && <span className="demo-cursor" />}
             </span>
           </div>
         </div>
@@ -315,72 +407,110 @@ export default function DemoWidget() {
         <div
           ref={responseRef}
           style={{
-            position: "relative", zIndex: 1,
-            padding: "14px 16px",
-            minHeight: 220, maxHeight: 300,
-            overflowY: "auto",
-            scrollbarWidth: "thin",
-            scrollbarColor: "rgba(255,255,255,0.08) transparent",
+            position: 'relative',
+            zIndex: 1,
+            padding: '14px 16px',
+            minHeight: 220,
+            maxHeight: 300,
+            overflowY: 'auto',
+            scrollbarWidth: 'thin',
+            scrollbarColor: 'rgba(255,255,255,0.08) transparent',
           }}
         >
-          {phase === "thinking" && (
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 0" }}>
-              <div style={{ display: "flex", gap: 5 }}>
+          {phase === 'thinking' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0' }}>
+              <div style={{ display: 'flex', gap: 5 }}>
                 <div className="thinking-dot" />
                 <div className="thinking-dot" />
                 <div className="thinking-dot" />
               </div>
-              <span style={{ fontFamily: dm, fontSize: 12, color: "#94949e" }}>Analysing market data...</span>
+              <span style={{ fontFamily: dm, fontSize: 12, color: '#94949e' }}>
+                Analysing market data...
+              </span>
             </div>
           )}
 
-          {(phase === "streaming" || phase === "done") && visibleLines > 0 && (
+          {(phase === 'streaming' || phase === 'done') && visibleLines > 0 && (
             <div>
               {currentLines.slice(0, visibleLines).map((line, i) => renderLine(line, i))}
-              {phase === "streaming" && <span className="demo-cursor" style={{ marginTop: 4 }} />}
+              {phase === 'streaming' && <span className="demo-cursor" style={{ marginTop: 4 }} />}
             </div>
           )}
 
-          {phase === "typing" && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "14px 0" }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(212,175,55,0.3)" }} />
-              <span style={{ fontSize: 12, color: "#3f3f46", fontFamily: dm }}>Waiting for your prompt...</span>
+          {phase === 'typing' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 0' }}>
+              <div
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: '50%',
+                  background: 'rgba(212,175,55,0.3)',
+                }}
+              />
+              <span style={{ fontSize: 12, color: '#3f3f46', fontFamily: dm }}>
+                Waiting for your prompt...
+              </span>
             </div>
           )}
         </div>
 
         {/* Prompt dot indicator */}
-        <div style={{
-          position: "relative", zIndex: 1,
-          display: "flex", justifyContent: "center", gap: 6,
-          padding: "8px 16px 12px",
-          borderTop: "1px solid rgba(255,255,255,0.04)",
-        }}>
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 6,
+            padding: '8px 16px 12px',
+            borderTop: '1px solid rgba(255,255,255,0.04)',
+          }}
+        >
           {PROMPTS.map((_, i) => (
-            <div key={i} style={{
-              width: i === promptIdx ? 18 : 6,
-              height: 6, borderRadius: 3,
-              background: i === promptIdx ? "#d4af37" : "rgba(255,255,255,0.1)",
-              transition: "all 0.35s ease",
-            }} />
+            <div
+              key={i}
+              style={{
+                width: i === promptIdx ? 18 : 6,
+                height: 6,
+                borderRadius: 3,
+                background: i === promptIdx ? '#d4af37' : 'rgba(255,255,255,0.1)',
+                transition: 'all 0.35s ease',
+              }}
+            />
           ))}
         </div>
       </div>
 
       {/* CTAs */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 20, alignItems: "center" }} className="sm:flex-row sm:justify-center sm:flex-wrap">
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 10,
+          marginTop: 20,
+          alignItems: 'center',
+        }}
+        className="sm:flex-row sm:justify-center sm:flex-wrap"
+      >
         <Link
           href="/sign-in"
           className="demo-cta-primary"
           style={{
-            background: "linear-gradient(135deg, #d4af37, #b8941f)",
-            color: "#000", borderRadius: 10,
-            padding: "11px 28px",
-            fontFamily: syne, fontWeight: 800, fontSize: 14,
-            textDecoration: "none", display: "block", textAlign: "center",
-            boxShadow: "0 0 24px rgba(212,175,55,0.25)",
-            width: "100%", maxWidth: 300, minHeight: 48,
-            boxSizing: "border-box",
+            background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+            color: '#000',
+            borderRadius: 10,
+            padding: '11px 28px',
+            fontFamily: syne,
+            fontWeight: 800,
+            fontSize: 14,
+            textDecoration: 'none',
+            display: 'block',
+            textAlign: 'center',
+            boxShadow: '0 0 24px rgba(212,175,55,0.25)',
+            width: '100%',
+            maxWidth: 300,
+            minHeight: 48,
+            boxSizing: 'border-box',
           }}
         >
           Try it yourself →
@@ -388,18 +518,29 @@ export default function DemoWidget() {
         <a
           href="#features"
           style={{
-            background: "transparent",
-            border: "1px solid rgba(212,175,55,0.3)",
-            color: "#d4af37", borderRadius: 10,
-            padding: "11px 28px",
-            fontFamily: syne, fontWeight: 700, fontSize: 14,
-            textDecoration: "none", display: "block", textAlign: "center",
-            transition: "all 0.2s",
-            width: "100%", maxWidth: 300, minHeight: 48,
-            boxSizing: "border-box",
+            background: 'transparent',
+            border: '1px solid rgba(212,175,55,0.3)',
+            color: '#d4af37',
+            borderRadius: 10,
+            padding: '11px 28px',
+            fontFamily: syne,
+            fontWeight: 700,
+            fontSize: 14,
+            textDecoration: 'none',
+            display: 'block',
+            textAlign: 'center',
+            transition: 'all 0.2s',
+            width: '100%',
+            maxWidth: 300,
+            minHeight: 48,
+            boxSizing: 'border-box',
           }}
-          onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(212,175,55,0.08)"; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(212,175,55,0.08)';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
+          }}
         >
           See all 20+ tools
         </a>

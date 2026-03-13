@@ -11,12 +11,15 @@ interface RateLimitEntry {
 const store = new Map<string, RateLimitEntry>();
 
 // Clean up expired entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of Array.from(store)) {
-    if (now >= entry.resetAt) store.delete(key);
-  }
-}, 5 * 60 * 1000);
+setInterval(
+  () => {
+    const now = Date.now();
+    for (const [key, entry] of Array.from(store)) {
+      if (now >= entry.resetAt) store.delete(key);
+    }
+  },
+  5 * 60 * 1000
+);
 
 /**
  * Check rate limit for a given key.

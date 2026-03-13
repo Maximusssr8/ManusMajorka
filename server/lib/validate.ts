@@ -1,8 +1,8 @@
 /**
  * Zod validation middleware for Express routes.
  */
-import type { Request, Response, NextFunction } from "express";
-import { z } from "zod/v4";
+import type { NextFunction, Request, Response } from 'express';
+import { z } from 'zod/v4';
 
 /** Express middleware that validates req.body against a Zod schema */
 export function validateBody<T extends z.ZodType>(schema: T) {
@@ -10,9 +10,9 @@ export function validateBody<T extends z.ZodType>(schema: T) {
     const result = schema.safeParse(req.body);
     if (!result.success) {
       res.status(400).json({
-        error: "Validation failed",
+        error: 'Validation failed',
         details: result.error.issues.map((i) => ({
-          path: i.path.join("."),
+          path: i.path.join('.'),
           message: i.message,
         })),
       });
@@ -26,9 +26,7 @@ export function validateBody<T extends z.ZodType>(schema: T) {
 // ── Shared schemas ─────────────────────────────────────────────────────────
 
 export const chatSchema = z.object({
-  messages: z
-    .array(z.object({ role: z.string(), content: z.string() }))
-    .optional(),
+  messages: z.array(z.object({ role: z.string(), content: z.string() })).optional(),
   message: z.any().optional(),
   systemPrompt: z.string().optional(),
   toolName: z.string().optional(),

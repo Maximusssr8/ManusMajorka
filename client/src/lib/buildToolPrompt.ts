@@ -56,26 +56,25 @@ export function injectProductIntelligence(
 ): string {
   if (!product) return baseSystemPrompt;
 
-  const name = product.cleanTitle || product.title || "this product";
-  const price = product.price ? `${product.price} ${product.currency || ""}`.trim() : "";
+  const name = product.cleanTitle || product.title || 'this product';
+  const price = product.price ? `${product.price} ${product.currency || ''}`.trim() : '';
   const intel = product.intelligence;
 
   if (!intel) {
-    return (
-      baseSystemPrompt +
-      `\n\nProduct context: ${name}${price ? ` — ${price}` : ""}\n`
-    );
+    return baseSystemPrompt + `\n\nProduct context: ${name}${price ? ` — ${price}` : ''}\n`;
   }
 
   // Handle both variant shapes: array of {type, options} or object {colors, sizes}
   const variantLines = Array.isArray(product.variants)
-    ? product.variants.map((v) => `${v.type}: ${v.options.join(", ")}`).join(" | ")
+    ? product.variants.map((v) => `${v.type}: ${v.options.join(', ')}`).join(' | ')
     : product.variants
       ? [
-          product.variants.colors?.length ? `Colors: ${product.variants.colors.join(", ")}` : "",
-          product.variants.sizes?.length ? `Sizes: ${product.variants.sizes.join(", ")}` : "",
-        ].filter(Boolean).join(" | ")
-      : "";
+          product.variants.colors?.length ? `Colors: ${product.variants.colors.join(', ')}` : '',
+          product.variants.sizes?.length ? `Sizes: ${product.variants.sizes.join(', ')}` : '',
+        ]
+          .filter(Boolean)
+          .join(' | ')
+      : '';
 
   return (
     baseSystemPrompt +
@@ -84,15 +83,15 @@ export function injectProductIntelligence(
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PRODUCT INTELLIGENCE BRIEF
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Product: ${name}${price ? ` | Price: ${price}` : ""}
-Category: ${intel.category} > ${intel.subcategory}${variantLines ? `\nVariants: ${variantLines}` : ""}
+Product: ${name}${price ? ` | Price: ${price}` : ''}
+Category: ${intel.category} > ${intel.subcategory}${variantLines ? `\nVariants: ${variantLines}` : ''}
 
 TARGET AUDIENCE
 Who they are: ${intel.primaryAudience}
 Buyer persona: ${intel.buyerPersona}
-Pain points: ${intel.audiencePainPoints.join(" | ")}
-Desires: ${intel.audienceDesires.join(" | ")}
-Emotional triggers: ${intel.emotionalTriggers.join(", ")}
+Pain points: ${intel.audiencePainPoints.join(' | ')}
+Desires: ${intel.audienceDesires.join(' | ')}
+Emotional triggers: ${intel.emotionalTriggers.join(', ')}
 
 MARKET CONTEXT
 Trend: ${intel.marketTrend}
@@ -102,7 +101,7 @@ Competition: ${intel.competition}
 
 SELLING ANGLES
 Hero angle: ${intel.heroAngle}
-Supporting: ${intel.secondaryAngles.join(" | ")}
+Supporting: ${intel.secondaryAngles.join(' | ')}
 Unique hook: ${intel.uniqueHook}
 Purchase motivation: ${intel.purchaseMotivation}
 
@@ -120,14 +119,14 @@ Body concept: ${intel.adBodyConcept}
 Video idea: ${intel.videoConceptIdea}
 
 OBJECTIONS TO OVERCOME
-${intel.topObjections.map((o, i) => `• ${o} → ${intel.objectionHandlers[i] || ""}`).join("\n")}
+${intel.topObjections.map((o, i) => `• ${o} → ${intel.objectionHandlers[i] || ''}`).join('\n')}
 
 EMAIL SUBJECT LINES (use as inspiration)
-${intel.emailSubjectLines.map((s, i) => `${i + 1}. ${s}`).join("\n")}
+${intel.emailSubjectLines.map((s, i) => `${i + 1}. ${s}`).join('\n')}
 
 SEO
 Primary keyword: ${intel.primaryKeyword}
-Secondary: ${intel.secondaryKeywords.join(", ")}
+Secondary: ${intel.secondaryKeywords.join(', ')}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Use this intelligence to produce output SPECIFIC to this product and buyer.
 Never produce generic copy. Speak directly to the buyer persona above.

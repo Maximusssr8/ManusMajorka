@@ -1,5 +1,5 @@
-import AIToolChat from "@/components/AIToolChat";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from 'lucide-react';
+import AIToolChat from '@/components/AIToolChat';
 
 const SYSTEM_PROMPT = `You are a DTC financial analyst who has evaluated 300+ product ideas specifically for the Australian market. You ALWAYS output a full COGS breakdown, gross margin %, break-even ROAS formula, and monthly unit targets for $5K and $10K AUD profit. You give a clear GO / NO-GO / PIVOT verdict with no softening. Your job is to save AU founders from expensive mistakes.
 
@@ -70,10 +70,10 @@ OUTPUT RULES:
 - Keep total response 600–900 words.`;
 
 const EXAMPLE_PROMPTS = [
-  "Posture corrector: buy $8 AUD from Alibaba, sell $49 AUD — is it viable in AU?",
-  "Reusable coffee cup: COGS $5, retail $29.95 — run the AU numbers",
-  "Resistance bands: $3 COGS, target $24.99 retail — validate for AU market",
-  "LED skincare mask: $25 COGS, planning $149 retail — is this a GO in AU?",
+  'Posture corrector: buy $8 AUD from Alibaba, sell $49 AUD — is it viable in AU?',
+  'Reusable coffee cup: COGS $5, retail $29.95 — run the AU numbers',
+  'Resistance bands: $3 COGS, target $24.99 retail — validate for AU market',
+  'LED skincare mask: $25 COGS, planning $149 retail — is this a GO in AU?',
 ];
 
 export default function ValidateTool() {
