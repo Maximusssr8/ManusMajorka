@@ -70,10 +70,10 @@ const NAV_SECTIONS = [
 ];
 
 const TOP_PRODUCTS = [
-  { name: 'Posture Corrector Belt', units: 32, revenue: 1439.68, margin: 38 },
-  { name: 'Dog Lick Mat Slow Feeder', units: 28, revenue: 699.72, margin: 41 },
-  { name: 'Portable Blender Bottle', units: 19, revenue: 759.81, margin: 34 },
-  { name: 'LED Strip Lights USB', units: 15, revenue: 284.85, margin: 52 },
+  { name: 'Posture Corrector Belt', units: 124, revenue: 5573.76, margin: 38 },
+  { name: 'Dog Lick Mat Slow Feeder', units: 98, revenue: 2449.02, margin: 41 },
+  { name: 'Portable Blender Bottle', units: 76, revenue: 3039.24, margin: 34 },
+  { name: 'LED Strip Lights USB', units: 49, revenue: 930.51, margin: 52 },
   { name: 'Bamboo Charging Station', units: null, revenue: null, margin: null },
 ];
 
@@ -162,14 +162,14 @@ export default function PromoDashboard() {
   // URL params
   const params = new URLSearchParams(window.location.search);
   const nameParam = params.get('name') || 'Alex';
-  const revenueParam = params.get('revenue') ? parseFloat(params.get('revenue')!) : 4847.2;
-  const ordersParam = params.get('orders') ? parseInt(params.get('orders')!) : 94;
+  const revenueParam = params.get('revenue') ? parseFloat(params.get('revenue')!) : 18420.60;
+  const ordersParam = params.get('orders') ? parseInt(params.get('orders')!) : 347;
 
   // Live state
   const [revenue, setRevenue] = useState(revenueParam);
   const [profit, setProfit] = useState(revenueParam * 0.36);
   const [orders, setOrders] = useState(ordersParam);
-  const [items, setItems] = useState(127 + (ordersParam - 94));
+  const [items, setItems] = useState(489 + (ordersParam - 347));
   const [flashCard, setFlashCard] = useState<string | null>(null);
   const [orders_feed, setOrdersFeed] = useState<Order[]>(() => {
     // Pre-populate with some fake old orders
@@ -213,7 +213,7 @@ export default function PromoDashboard() {
       const delay = randBetween(2000, 10000);
 
       timeout = setTimeout(() => {
-        const addRevenue = randBetween(32, 95);
+        const addRevenue = randBetween(55, 180);
         const product = PRODUCTS[randInt(0, PRODUCTS.length - 1)];
         const location = LOCATIONS[randInt(0, LOCATIONS.length - 1)];
 
@@ -1055,7 +1055,7 @@ export default function PromoDashboard() {
                   <div className="stat-label">Orders Fulfilled</div>
                   <div className="stat-value white">{fmtInt(displayOrders)}</div>
                   <div className="stat-sub">
-                    <span className="positive">↑12</span> since 9am
+                    <span className="positive">↑48</span> since 9am
                   </div>
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 8 }}>
                     📦 All shipped on time
