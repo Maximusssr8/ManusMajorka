@@ -831,13 +831,7 @@ Be specific, opinionated, use AUD figures.`;
           </div>
 
           {/* Metric row */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: 8,
-            }}
-          >
+          <div className="metric-grid-4">
             {(
               [
                 { label: 'Score', value: product.winning_score },

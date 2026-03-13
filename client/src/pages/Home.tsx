@@ -74,14 +74,23 @@ const GLOBAL_STYLES = `
 
 @media (max-width: 768px) {
   .hide-mobile   { display: none !important; }
-  .stack-mobile  { flex-direction: column !important; }
+  .stack-mobile  { flex-direction: column !important; align-items: stretch !important; }
+  .stack-mobile > * { width: 100% !important; min-width: 0 !important; text-align: center !important; justify-content: center !important; }
   .grid-1-mobile { grid-template-columns: 1fr !important; }
   .grid-2-mobile { grid-template-columns: 1fr 1fr !important; }
   .px-4-mobile   { padding-left: 16px !important; padding-right: 16px !important; }
   .text-center-mobile { text-align: center !important; }
   .hero-widget   { transform: none !important; animation: float-mobile 6s ease-in-out infinite !important; }
+  /* Hero section padding fix for mobile */
+  .hero-section  { padding-top: 80px !important; padding-bottom: 60px !important; min-height: auto !important; }
 }
 @media (min-width: 769px) { .hide-desktop { display: none !important; } }
+@media (max-width: 640px) {
+  /* Hero CTA: full width on mobile */
+  .hero-section .btn-shimmer { display: flex !important; width: 100%; }
+  /* Stats bar: reduce padding on mobile */
+  .stats-section { padding: 40px 16px !important; }
+}
 `;
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
@@ -384,7 +393,7 @@ export default function Home() {
       </nav>
 
       {/* ═══ HERO ══════════════════════════════════════════════════════════ */}
-      <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', padding: '100px 24px 80px', overflow: 'hidden' }}>
+      <section className="hero-section" style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', padding: '100px 24px 80px', overflow: 'hidden' }}>
         <div className="particle-grid" style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '70%', background: 'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212,175,55,0.12) 0%, transparent 70%)', zIndex: 0, pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', top: '50%', left: '50%', width: 900, height: 900, marginTop: -450, marginLeft: -450, background: 'conic-gradient(from 0deg, transparent, rgba(212,175,55,0.025), transparent, rgba(212,175,55,0.015), transparent, rgba(212,175,55,0.02), transparent)', animation: 'ray-rotate 40s linear infinite', borderRadius: '50%', zIndex: 0, pointerEvents: 'none' }} />
