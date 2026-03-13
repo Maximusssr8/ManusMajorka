@@ -71,7 +71,12 @@ async function fetchUserProfile(userId: string) {
 /** Build personalised system prompt */
 /** Server-side fallback prompts for tools that require specific output formats */
 const TOOL_FALLBACK_PROMPTS: Record<string, string> = {
-  "website-generator": `CRITICAL: Respond ONLY with a valid JSON object starting with { — no markdown, no explanation, no code fences. Raw JSON only. You are an elite AU Shopify builder (200+ stores). Generate a complete website theme as a JSON object with keys: headline, subheadline, features (array), cta_primary, cta_secondary, trust_badges (array), about_section, email_subject, meta_description, files (object: index.html, styles.css, product.html). All copy in AU English, GST-inclusive pricing, Afterpay messaging. RESPOND WITH RAW JSON ONLY.`,
+  "website-generator": `CRITICAL: Respond ONLY with a valid JSON object starting with { — absolutely no markdown, no text before or after, no code fences. RAW JSON ONLY starting with {.
+
+You are an elite AU Shopify builder (200+ stores built). Generate a website theme as a JSON object with EXACTLY these keys:
+{"headline":"<10 words, benefit-driven>","subheadline":"<objection-busting, 1 sentence>","features":["<benefit 1>","<benefit 2>","<benefit 3>","<benefit 4>","<benefit 5>"],"cta_primary":"<CTA text>","cta_secondary":"<secondary CTA>","trust_badges":["Australian Owned","Afterpay & Zip Available","Free AU Shipping $79+","30-Day Returns (ACCC Protected)","Secure Checkout","Fast AusPost Delivery"],"about_section":"<2 sentences, AU brand story>","email_subject":"<welcome email subject>","meta_description":"<SEO meta, max 155 chars>","files":{"index.html":"<complete self-contained HTML landing page with inline CSS, Afterpay messaging, GST-inclusive prices, AusPost shipping copy, trust badges, AU English. Must have: hero, features, social proof, CTA sections>","styles.css":"<additional CSS variables and utility classes for the theme, AU-specific colour palette>"}}
+
+Keep files compact but functional. Total JSON must be under 3000 tokens. Output ONLY the JSON object — no other text.`,
   "validate": `You are a DTC financial analyst for the AU market. ALWAYS output: (1) Full COGS breakdown in AUD table, (2) Gross margin %, (3) Break-even ROAS formula, (4) Monthly units needed for $5K and $10K AUD profit, (5) GO/NO-GO/PIVOT verdict. Use AUD throughout. Show all maths.`,
   "email-sequences": `You are an AU email specialist. Every sequence MUST include Spam Act 2003 compliance (unsubscribe link, sender identity, physical address). Use Klaviyo format, AEST timings, AU English. Include Afterpay reminders and EOFY seasonal hooks.`,
   "tiktok-builder": `You are an AU TikTok content strategist. Create faceless TikTok slideshow scripts with AU-specific hooks, AU hashtags, and AEST posting times. Output slide-by-slide with text overlays, captions, and audio recommendations.`,
@@ -229,6 +234,8 @@ export function registerChatRoutes(app: Application) {
       const wantStream = req.body.stream !== false && req.query.stream !== "0";
       // Detect AI SDK requests (CopywriterTool, AudienceProfiler, etc. send aiSdk:true)
       const useAiSdkProtocol = req.body.aiSdk === true;
+      // Tools that need more tokens for complex outputs
+      const maxTokens = toolName === "website-generator" ? 8192 : 4096;
 
       if (wantStream) {
         const client = getAnthropicClient();
@@ -244,7 +251,7 @@ export function registerChatRoutes(app: Application) {
 
           const stream = await client.messages.stream({
             model: CLAUDE_MODEL,
-            max_tokens: 4096,
+            max_tokens: maxTokens,
             system,
             messages,
           });
@@ -269,7 +276,7 @@ export function registerChatRoutes(app: Application) {
 
           const stream = await client.messages.stream({
             model: CLAUDE_MODEL,
-            max_tokens: 4096,
+            max_tokens: maxTokens,
             system,
             messages,
           });
@@ -299,19 +306,37 @@ export function registerChatRoutes(app: Application) {
         const client = getAnthropicClient();
         const aiResponse = await client.messages.create({
           model: CLAUDE_MODEL,
-          max_tokens: 4096,
+          max_tokens: maxTokens,
           system,
           messages,
         });
 
         let reply = aiResponse.content[0]?.type === "text" ? aiResponse.content[0].text : "";
 
-        // Strip markdown code fences for JSON-expected tools (website-generator, etc.)
-        // This ensures the client always gets parseable JSON even if the model wraps it
+        // For JSON-expected tools, extract the JSON object from the response
+        // even if the model wraps it in markdown fences or prefixes it with text
         const jsonTools = ["website-generator"];
         if (jsonTools.includes(toolName)) {
+          // Try fence stripping first
           const fenceMatch = reply.match(/```(?:json|JSON)?\s*\n?([\s\S]*?)```/);
-          if (fenceMatch) reply = fenceMatch[1].trim();
+          if (fenceMatch) {
+            reply = fenceMatch[1].trim();
+          } else {
+            // Extract from first { to matching } (handles truncated responses too)
+            const firstBrace = reply.indexOf("{");
+            if (firstBrace !== -1) {
+              let depth = 0;
+              let end = -1;
+              for (let i = firstBrace; i < reply.length; i++) {
+                if (reply[i] === "{") depth++;
+                else if (reply[i] === "}") { depth--; if (depth === 0) { end = i; break; } }
+              }
+              // If we found a balanced JSON object, use it
+              if (end !== -1) reply = reply.slice(firstBrace, end + 1);
+              // If no closing brace (truncated), extract from first { to end and close it
+              else if (firstBrace !== -1) reply = reply.slice(firstBrace);
+            }
+          }
         }
 
         // Save to memory (fire-and-forget)

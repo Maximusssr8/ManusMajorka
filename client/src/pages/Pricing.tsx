@@ -3,6 +3,8 @@ import { useState } from "react";
 import { SEO } from "@/components/SEO";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import CountUp from "react-countup";
+import { useInView } from "react-intersection-observer";
 
 // ── Design tokens ───────────────────────────────────────────────────────────
 const C = {
@@ -22,18 +24,139 @@ const C = {
 const syne = "Syne, sans-serif";
 const dm = "'DM Sans', sans-serif";
 
+// ── Locked tool overlay ─────────────────────────────────────────────────────
+function LockedToolOverlay({ toolName }: { toolName: string }) {
+  return (
+    <div style={{
+      position: "absolute", inset: 0,
+      backdropFilter: "blur(4px)", background: "rgba(0,0,0,0.65)",
+      borderRadius: 12, display: "flex", flexDirection: "column",
+      alignItems: "center", justifyContent: "center", zIndex: 10, gap: 6,
+    }}>
+      <span style={{ fontSize: 24 }}>🔒</span>
+      <p style={{ fontFamily: syne, fontWeight: 700, color: "#f5f5f5", fontSize: 14 }}>{toolName}</p>
+      <p style={{ color: "#94949e", fontSize: 12, marginBottom: 8 }}>Builder plan required</p>
+      <Link href="/pricing" style={{
+        padding: "6px 14px", background: "#d4af37", color: "#000",
+        borderRadius: 8, fontSize: 12, fontWeight: 700,
+        fontFamily: syne, textDecoration: "none",
+      }}>
+        Upgrade to Builder →
+      </Link>
+    </div>
+  );
+}
+
+// ── Emotional comparison table ──────────────────────────────────────────────
+const COMPETITOR_TOOLS = [
+  { name: "NicheScraper (Product Research)", cost: 79 },
+  { name: "Minea (Ad Spy)",                  cost: 69 },
+  { name: "Durable (Website Builder)",       cost: 59 },
+  { name: "Copy.ai (Copywriter)",            cost: 49 },
+  { name: "Klaviyo Lite (Email)",            cost: 20 },
+  { name: "SaleHoo (Suppliers)",             cost: 27 },
+];
+const TOTAL_COMPETITOR = COMPETITOR_TOOLS.reduce((s, t) => s + t.cost, 0);
+const MAJORKA_PRICE = 79;
+const SAVINGS_MO = TOTAL_COMPETITOR - MAJORKA_PRICE;
+const SAVINGS_YR = SAVINGS_MO * 12;
+
+function EmotionalComparisonTable() {
+  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.2 });
+
+  return (
+    <section ref={ref} style={{ padding: "0 24px 100px" }}>
+      <div style={{ maxWidth: 800, margin: "0 auto" }}>
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: 40 }}>
+          <p style={{ fontFamily: syne, fontWeight: 700, fontSize: 18, color: "#94949e", marginBottom: 8 }}>
+            While your competitors pay <span style={{ color: "#ef4444" }}>${TOTAL_COMPETITOR}/mo</span> for {COMPETITOR_TOOLS.length} tools...
+          </p>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 8 }}>
+            <span style={{ fontFamily: syne, fontWeight: 900, fontSize: "clamp(48px, 8vw, 80px)", color: "#d4af37", lineHeight: 1 }}>
+              {inView ? <CountUp start={TOTAL_COMPETITOR} end={MAJORKA_PRICE} duration={1.4} prefix="$" /> : `$${MAJORKA_PRICE}`}
+            </span>
+            <span style={{ fontFamily: syne, fontWeight: 600, fontSize: 18, color: "#52525b" }}>AUD/mo</span>
+          </div>
+          <p style={{ color: "#94949e", fontSize: 15, marginTop: 8 }}>You pay for everything. On one platform.</p>
+        </div>
+
+        {/* Table */}
+        <div style={{ border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, overflow: "hidden" }}>
+          {/* Table header */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 130px", background: "#131318", padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+            <span style={{ fontSize: 11, fontWeight: 700, fontFamily: syne, color: "#52525b", textTransform: "uppercase", letterSpacing: "0.08em" }}>Tool</span>
+            <span style={{ fontSize: 11, fontWeight: 700, fontFamily: syne, color: "#ef4444", textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "center" }}>Competitor Cost</span>
+            <span style={{ fontSize: 11, fontWeight: 700, fontFamily: syne, color: "#d4af37", textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "center" }}>Majorka</span>
+          </div>
+
+          {COMPETITOR_TOOLS.map((tool, i) => (
+            <div key={i} style={{
+              display: "grid", gridTemplateColumns: "1fr 140px 130px",
+              padding: "13px 20px", borderBottom: "1px solid rgba(255,255,255,0.04)",
+              background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)",
+            }}>
+              <span style={{ fontSize: 13, color: "#a1a1aa" }}>{tool.name}</span>
+              <span style={{ textAlign: "center", fontSize: 13, color: "#94949e" }}>${tool.cost}/mo</span>
+              <span style={{ textAlign: "center", fontSize: 14, color: "#22c55e", fontWeight: 700 }}>✓ Included</span>
+            </div>
+          ))}
+
+          {/* Totals row */}
+          <div style={{ background: "#131318", borderTop: "1px solid rgba(212,175,55,0.2)", padding: "16px 20px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 130px", marginBottom: 10 }}>
+              <span style={{ fontFamily: syne, fontWeight: 700, fontSize: 14, color: "#a1a1aa" }}>Total if bought separately</span>
+              <span style={{ textAlign: "center" }}>
+                <span style={{ fontFamily: syne, fontWeight: 900, fontSize: 16, color: "#ef4444", textDecoration: "line-through" }}>
+                  {inView ? <CountUp start={0} end={TOTAL_COMPETITOR} duration={1.8} prefix="$" suffix="/mo" /> : `$${TOTAL_COMPETITOR}/mo`}
+                </span>
+              </span>
+              <span style={{ textAlign: "center", fontFamily: syne, fontWeight: 900, fontSize: 16, color: "#d4af37" }}>
+                ${MAJORKA_PRICE}/mo
+              </span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
+              <span style={{
+                background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.25)",
+                color: "#22c55e", borderRadius: 100, padding: "4px 14px",
+                fontFamily: syne, fontWeight: 800, fontSize: 13,
+              }}>
+                You save: ${SAVINGS_MO}/mo · ${SAVINGS_YR.toLocaleString()}/yr
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Social proof + urgency */}
+        <div style={{ textAlign: "center", marginTop: 24, display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 6px #22c55e" }} />
+            <span style={{ fontSize: 13, color: "#94949e", fontWeight: 500 }}>2,847 sellers already made the switch</span>
+          </div>
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            background: "rgba(212,175,55,0.06)", border: "1px solid rgba(212,175,55,0.2)",
+            borderRadius: 100, padding: "5px 14px",
+          }}>
+            <span style={{ fontSize: 12 }}>⚡</span>
+            <span style={{ fontSize: 12, color: "#d4af37", fontWeight: 600 }}>Builder plan — 23 spots remaining this month</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Plan data ───────────────────────────────────────────────────────────────
 const PLANS = [
   {
     name: "Starter",
     price: "$0",
     period: "AUD/mo",
-    description: "Get started with essential AI tools. Free forever.",
+    description: "Taste what's possible. Upgrade to build.",
     features: [
-      "5 AI credits/day",
-      "Core tools access",
-      "Website Generator",
-      "Basic Copywriter",
+      "3 AI demos per day",
+      "Preview tools only",
       "AU market defaults",
       "Community support",
     ],
@@ -41,9 +164,10 @@ const PLANS = [
       "All 50+ tools",
       "Full Launch Kit",
       "Financial Modeler",
+      "Meta + TikTok Ads Pack",
       "API access",
     ],
-    cta: "Get Started Free",
+    cta: "Try a Demo Free",
     ctaHref: "/app",
     highlight: false,
     badge: null,
@@ -200,7 +324,7 @@ export default function Pricing() {
           Plans that scale with you.
         </h1>
         <p style={{ color: C.secondary, fontSize: 18, maxWidth: 520, margin: "0 auto", marginBottom: 32 }}>
-          Start free, upgrade when you're ready. Afterpay & Zip available. No hidden fees.
+          Start free, upgrade when you're ready. No hidden fees.
         </p>
 
         {/* Monthly / Annual toggle */}
@@ -228,7 +352,7 @@ export default function Pricing() {
           >
             Annual
             <span style={{ background: "rgba(34,197,94,0.15)", color: "#22c55e", fontSize: 10, fontWeight: 800, padding: "2px 8px", borderRadius: 100 }}>
-              2 months free
+              Save 20%
             </span>
           </button>
         </div>
@@ -310,8 +434,8 @@ export default function Pricing() {
                 </button>
               )}
 
-              {/* Afterpay badge */}
-              {plan.afterpay && (
+              {/* Payment info */}
+              {plan.afterpay && annual && (
                 <div style={{
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
                   padding: "6px 0", marginBottom: 16,
@@ -320,7 +444,12 @@ export default function Pricing() {
                   <span style={{ background: "#b2fce4", color: "#000", borderRadius: 4, padding: "2px 6px", fontSize: 10, fontWeight: 800 }}>Afterpay</span>
                   <span>&</span>
                   <span style={{ background: "#7b61ff", color: "#fff", borderRadius: 4, padding: "2px 6px", fontSize: 10, fontWeight: 800 }}>Zip</span>
-                  <span>available</span>
+                  <span>available on annual</span>
+                </div>
+              )}
+              {plan.afterpay && !annual && (
+                <div style={{ padding: "6px 0", marginBottom: 16, textAlign: "center" }}>
+                  <span style={{ fontSize: 11, color: C.muted }}>Or save 20% with annual billing</span>
                 </div>
               )}
 
@@ -384,8 +513,11 @@ export default function Pricing() {
         </div>
       </section>
 
+      {/* ── EMOTIONAL COMPARISON ── */}
+      <EmotionalComparisonTable />
+
       {/* ── FAQ ── */}
-      <section style={{ padding: "100px 24px" }}>
+      <section style={{ padding: "0 24px 80px" }}>
         <div style={{ maxWidth: 680, margin: "0 auto" }}>
           <h2 style={{ fontFamily: syne, fontWeight: 900, fontSize: "clamp(24px, 4vw, 36px)", letterSpacing: "-0.8px", textAlign: "center", marginBottom: 48 }}>
             Frequently asked questions

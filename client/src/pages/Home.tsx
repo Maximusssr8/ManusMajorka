@@ -4,6 +4,7 @@ import { useInView } from "react-intersection-observer";
 import CountUp from "react-countup";
 import Marquee from "react-fast-marquee";
 import { SEO } from "@/components/SEO";
+import DemoWidget from "@/components/DemoWidget";
 
 // ── Keyframe styles ──────────────────────────────────────────────────────────
 const GLOBAL_STYLES = `
@@ -917,6 +918,18 @@ export default function Home() {
 
           {/* Social proof counter */}
           <SocialProofCounter />
+
+          {/* Sellers joined this week */}
+          <div style={{ marginTop: 16, display: "flex", justifyContent: "center" }}>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              background: "rgba(212,175,55,0.07)", border: "1px solid rgba(212,175,55,0.2)",
+              borderRadius: 100, padding: "5px 14px",
+            }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 6px #22c55e" }} />
+              <span style={{ fontSize: 12, color: "#d4af37", fontWeight: 600 }}>47 sellers joined this week</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -983,7 +996,7 @@ export default function Home() {
           </div>
 
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <LiveDemo />
+            <DemoWidget />
           </div>
         </div>
       </section>

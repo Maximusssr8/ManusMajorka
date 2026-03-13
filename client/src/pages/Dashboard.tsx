@@ -83,6 +83,98 @@ export default function Dashboard() {
   );
 }
 
+// Sparkline data (static mock shape, different per card)
+const SPARKLINES = [
+  [{ v: 2 }, { v: 3 }, { v: 2 }, { v: 4 }, { v: 3 }, { v: 5 }, { v: 4 }],
+  [{ v: 1 }, { v: 3 }, { v: 2 }, { v: 5 }, { v: 3 }, { v: 6 }, { v: 5 }],
+  [{ v: 3 }, { v: 2 }, { v: 4 }, { v: 3 }, { v: 5 }, { v: 4 }, { v: 6 }],
+  [{ v: 2 }, { v: 4 }, { v: 3 }, { v: 5 }, { v: 4 }, { v: 6 }, { v: 7 }],
+];
+
+function StatCard({
+  label, numericValue, displayValue, sub, subColor,
+  icon: Icon, iconColor, iconBg, change, sparkIdx,
+}: {
+  label: string; numericValue: number | null; displayValue?: string;
+  sub: string; subColor: string;
+  icon: React.ElementType; iconColor: string; iconBg: string;
+  change?: string; sparkIdx: number;
+}) {
+  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
+
+  return (
+    <div
+      ref={ref}
+      className="stat-card-top-border glass-card group rounded-xl p-4 transition-all"
+      style={{ userSelect: "none" }}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-1.5">
+          <div className="w-5 h-5 rounded flex items-center justify-center" style={{ background: iconBg }}>
+            <Icon size={10} className="group-hover:text-[#d4af37] transition-colors" style={{ color: iconColor }} />
+          </div>
+          <span className="text-xs font-medium" style={{ color: "#71717a" }}>{label}</span>
+        </div>
+        {change && (
+          <span className="text-xs px-2 py-0.5 rounded-full" style={{ color: "#22c55e", background: "rgba(34,197,94,0.1)" }}>
+            {change}
+          </span>
+        )}
+      </div>
+
+      <div className="text-2xl font-bold mb-1" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5", letterSpacing: "-0.02em" }}>
+        {displayValue ?? (
+          numericValue !== null && inView
+            ? <CountUp start={0} end={numericValue} duration={1.5} separator="," />
+            : (numericValue ?? "—")
+        )}
+      </div>
+      <div className="text-xs mb-2" style={{ color: subColor }}>{sub}</div>
+
+      {/* Sparkline */}
+      <div style={{ height: 32, marginTop: 4 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={SPARKLINES[sparkIdx]} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id={`spark-grad-${sparkIdx}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#d4af37" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#d4af37" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <Area
+              type="monotone" dataKey="v"
+              stroke="#d4af37" strokeWidth={1.5}
+              fill={`url(#spark-grad-${sparkIdx})`}
+              dot={false} isAnimationActive={inView}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+
+// "X sellers joined this week" counter
+function SellersJoinedBadge() {
+  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
+  return (
+    <div ref={ref} style={{
+      display: "inline-flex", alignItems: "center", gap: 6,
+      background: "rgba(212,175,55,0.07)", border: "1px solid rgba(212,175,55,0.18)",
+      borderRadius: 100, padding: "4px 12px",
+    }}>
+      <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 6px #22c55e" }} />
+      <span style={{ fontSize: 12, color: "#d4af37", fontWeight: 600 }}>
+        {inView ? <CountUp start={0} end={47} duration={1.2} /> : "47"} sellers joined this week
+      </span>
+    </div>
+  );
+}
+
+// "Most used" & "NEW" tool badge helpers
+const MOST_USED_IDS = ["product-discovery", "website-generator"];
+const NEW_TOOL_IDS = ["au-trending", "launch-kit"];
+
 function DashboardHome() {
   const [, setLocation] = useLocation();
   const { user, session, isAuthenticated } = useAuth();
@@ -96,6 +188,7 @@ function DashboardHome() {
   const [activityLog, setActivityLog] = useState<ActivityEntry[]>([]);
   const [recentToolIds, setRecentToolIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [hoveredTool, setHoveredTool] = useState<string | null>(null);
 
   useEffect(() => {
     try { const r = localStorage.getItem("majorka_tools_today"); if (r) { const p = JSON.parse(r); setToolsToday(Array.isArray(p) ? p.length : 0); } } catch {}
@@ -123,17 +216,20 @@ function DashboardHome() {
   const isFreePlan = !subscriptionQuery.data || subscriptionQuery.data.plan === "free";
 
   return (
-    <div className="h-full overflow-auto" style={{ background: "#060608", scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}>
+    <div className="h-full overflow-auto dashboard-bg" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}>
       {isFreePlan && <TrialBanner />}
       <div className="max-w-5xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
-              <h1 className="text-2xl font-bold mb-1" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5", letterSpacing: "-0.02em" }}>
+              <h1 className="text-2xl font-bold mb-1" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
                 {getGreeting()}{firstName ? `, ${firstName}` : ""}
               </h1>
-              <p className="text-sm" style={{ color: "#a1a1aa" }}>Your AI Ecommerce OS &middot; <span style={{ color: "#52525b" }}>{formatDate()}</span></p>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                <p className="text-sm" style={{ color: "#a1a1aa" }}>Your AI Ecommerce OS &middot; <span style={{ color: "#52525b" }}>{formatDate()}</span></p>
+                <SellersJoinedBadge />
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <button onClick={() => setLocation("/app/history")} className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-sm"
@@ -142,7 +238,7 @@ function DashboardHome() {
                 onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)")}>
                 <Clock size={14} /> History
               </button>
-              <button onClick={() => setLocation("/app/ai-chat")} className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold"
+              <button onClick={() => setLocation("/app/ai-chat")} className="cta-shimmer flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold"
                 style={{ background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.2)", color: "#d4af37", cursor: "pointer", fontFamily: "Syne, sans-serif" }}
                 onMouseEnter={e => (e.currentTarget.style.background = "rgba(212,175,55,0.15)")}
                 onMouseLeave={e => (e.currentTarget.style.background = "rgba(212,175,55,0.08)")}>
@@ -155,24 +251,42 @@ function DashboardHome() {
         <OnboardingChecklist />
         <LaunchReadiness />
 
-        {/* KPIs */}
+        {/* KPI Stat Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-          {[
-            { label: "Active Products", value: productsQuery.isLoading ? "\u2014" : productCount, sub: productCount > 0 ? "Active" : "Add your first product", subColor: productCount > 0 ? "#10b981" : "#52525b", icon: Package, iconColor: "#3b82f6", iconBg: "rgba(59,130,246,0.1)" },
-            { label: "Tools Today", value: toolsToday, sub: toolsToday > 0 ? `${toolsToday} tool${toolsToday !== 1 ? "s" : ""} used` : "Start exploring", subColor: toolsToday > 0 ? "#10b981" : "#52525b", icon: Zap, iconColor: "#d4af37", iconBg: "rgba(212,175,55,0.1)" },
-            { label: "AI Requests", value: aiCount, sub: aiCount > 0 ? "Requests today" : "Ask anything", subColor: aiCount > 0 ? "#10b981" : "#52525b", icon: MessageSquare, iconColor: "#8b5cf6", iconBg: "rgba(139,92,246,0.1)" },
-            { label: timeSavedHours > 0 ? "Time Saved" : orderCount > 0 ? "Revenue (AUD)" : "Est. Potential", value: timeSavedHours > 0 ? `${timeSavedHours}h` : ordersQuery.isLoading ? "\u2014" : formatCurrency(revenuePotential), sub: timeSavedHours > 0 ? "Hours saved with AI" : orderCount > 0 ? `${orderCount} order${orderCount !== 1 ? "s" : ""}` : "AUD estimate", subColor: timeSavedHours > 0 || orderCount > 0 ? "#10b981" : "#52525b", icon: timeSavedHours > 0 ? Timer : BarChart2, iconColor: "#10b981", iconBg: "rgba(16,185,129,0.1)" },
-          ].map(({ label, value, sub, subColor, icon: Icon, iconColor, iconBg }) => (
-            <div key={label} className="rounded-xl p-4 transition-all" style={{ background: "#0c0c10", border: "1px solid rgba(255,255,255,0.06)" }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(212,175,55,0.2)")} onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)")}>
-              <div className="flex items-center gap-1.5 mb-3">
-                <div className="w-5 h-5 rounded flex items-center justify-center" style={{ background: iconBg }}><Icon size={10} style={{ color: iconColor }} /></div>
-                <span className="text-xs font-medium" style={{ color: "#71717a" }}>{label}</span>
-              </div>
-              <div className="text-2xl font-bold mb-1" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5", letterSpacing: "-0.02em" }}>{value}</div>
-              <div className="text-xs" style={{ color: subColor }}>{sub}</div>
-            </div>
-          ))}
+          <StatCard
+            label="Active Products"
+            numericValue={productsQuery.isLoading ? null : productCount}
+            sub={productCount > 0 ? "Active" : "Add your first product"}
+            subColor={productCount > 0 ? "#10b981" : "#52525b"}
+            icon={Package} iconColor="#3b82f6" iconBg="rgba(59,130,246,0.1)"
+            change="+12%" sparkIdx={0}
+          />
+          <StatCard
+            label="Tools Today"
+            numericValue={toolsToday}
+            sub={toolsToday > 0 ? `${toolsToday} tool${toolsToday !== 1 ? "s" : ""} used` : "Start exploring"}
+            subColor={toolsToday > 0 ? "#10b981" : "#52525b"}
+            icon={Zap} iconColor="#d4af37" iconBg="rgba(212,175,55,0.1)"
+            change="+8%" sparkIdx={1}
+          />
+          <StatCard
+            label="AI Requests"
+            numericValue={aiCount}
+            sub={aiCount > 0 ? "Requests today" : "Ask anything"}
+            subColor={aiCount > 0 ? "#10b981" : "#52525b"}
+            icon={MessageSquare} iconColor="#8b5cf6" iconBg="rgba(139,92,246,0.1)"
+            change="+24%" sparkIdx={2}
+          />
+          <StatCard
+            label={timeSavedHours > 0 ? "Time Saved" : orderCount > 0 ? "Revenue (AUD)" : "Est. Potential"}
+            numericValue={timeSavedHours > 0 ? null : ordersQuery.isLoading ? null : revenuePotential}
+            displayValue={timeSavedHours > 0 ? `${timeSavedHours}h` : undefined}
+            sub={timeSavedHours > 0 ? "Hours saved with AI" : orderCount > 0 ? `${orderCount} order${orderCount !== 1 ? "s" : ""}` : "AUD estimate"}
+            subColor={timeSavedHours > 0 || orderCount > 0 ? "#10b981" : "#52525b"}
+            icon={timeSavedHours > 0 ? Timer : BarChart2}
+            iconColor="#10b981" iconBg="rgba(16,185,129,0.1)"
+            change="+5%" sparkIdx={3}
+          />
         </div>
 
         {/* Recommended Tools */}
@@ -183,19 +297,72 @@ function DashboardHome() {
               <span className="text-xs" style={{ color: "#3f3f46" }}>Based on your goals</span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {recommendedTools.map(tool => (
-                <button key={tool.id} onClick={() => setLocation(tool.path)} className="text-left rounded-xl p-4 transition-all"
-                  style={{ background: "#0c0c10", border: "1px solid rgba(212,175,55,0.1)", cursor: "pointer" }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(212,175,55,0.3)"; e.currentTarget.style.background = "rgba(212,175,55,0.04)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(212,175,55,0.1)"; e.currentTarget.style.background = "#0c0c10"; }}>
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style={{ background: "rgba(212,175,55,0.08)" }}>
-                    {createElement(tool.icon, { size: 16, style: { color: "#d4af37" } })}
+              {recommendedTools.map((tool, idx) => {
+                const isMostUsed = MOST_USED_IDS.includes(tool.id) && idx < 2;
+                const isNew = NEW_TOOL_IDS.includes(tool.id);
+                const isHovered = hoveredTool === tool.id;
+                return (
+                  <div
+                    key={tool.id}
+                    className="relative"
+                    onMouseEnter={() => setHoveredTool(tool.id)}
+                    onMouseLeave={() => setHoveredTool(null)}
+                  >
+                    {/* Tooltip */}
+                    {isHovered && (
+                      <div style={{
+                        position: "absolute", bottom: "calc(100% + 6px)", left: "50%",
+                        transform: "translateX(-50%)", zIndex: 50,
+                        background: "#1a1a24", border: "1px solid rgba(212,175,55,0.2)",
+                        borderRadius: 8, padding: "6px 10px", whiteSpace: "nowrap",
+                        pointerEvents: "none",
+                      }}>
+                        <span style={{ fontSize: 11, color: "#a1a1aa" }}>{tool.description}</span>
+                        <div style={{ position: "absolute", bottom: -5, left: "50%", transform: "translateX(-50%)", width: 8, height: 8, background: "#1a1a24", borderRight: "1px solid rgba(212,175,55,0.2)", borderBottom: "1px solid rgba(212,175,55,0.2)", rotate: "45deg" }} />
+                      </div>
+                    )}
+                    <button
+                      onClick={() => setLocation(tool.path)}
+                      className="w-full text-left rounded-xl p-4 transition-all"
+                      style={{
+                        background: "#0c0c10",
+                        border: `1px solid ${isHovered ? "rgba(212,175,55,0.35)" : "rgba(212,175,55,0.1)"}`,
+                        cursor: "pointer",
+                        transform: isHovered ? "translateY(-4px)" : "none",
+                        boxShadow: isHovered ? "0 8px 24px rgba(212,175,55,0.1)" : "none",
+                        transition: "all 0.2s ease",
+                      }}
+                    >
+                      {/* Badges */}
+                      <div style={{ display: "flex", gap: 4, marginBottom: 8, minHeight: 16 }}>
+                        {isMostUsed && (
+                          <span style={{ fontSize: 9, fontWeight: 700, background: "rgba(212,175,55,0.12)", color: "#d4af37", borderRadius: 4, padding: "2px 6px", letterSpacing: "0.03em" }}>
+                            Most popular
+                          </span>
+                        )}
+                        {isNew && (
+                          <span style={{ fontSize: 9, fontWeight: 700, background: "rgba(139,92,246,0.15)", color: "#8b5cf6", borderRadius: 4, padding: "2px 6px" }}>
+                            NEW
+                          </span>
+                        )}
+                      </div>
+                      <div
+                        className="w-9 h-9 rounded-lg flex items-center justify-center mb-3"
+                        style={{
+                          background: "rgba(212,175,55,0.08)",
+                          filter: isHovered ? "drop-shadow(0 0 8px #d4af37)" : "none",
+                          transition: "filter 0.2s ease",
+                        }}
+                      >
+                        {createElement(tool.icon, { size: 16, style: { color: "#d4af37" } })}
+                      </div>
+                      <div className="text-sm font-bold mb-0.5" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>{tool.label}</div>
+                      <div className="text-xs mb-3" style={{ color: "#52525b", lineHeight: 1.5 }}>{tool.description}</div>
+                      <div className="flex items-center gap-1 text-xs font-bold" style={{ color: "#d4af37" }}>Try it <ArrowRight size={10} /></div>
+                    </button>
                   </div>
-                  <div className="text-sm font-bold mb-0.5" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>{tool.label}</div>
-                  <div className="text-xs mb-3" style={{ color: "#52525b", lineHeight: 1.5 }}>{tool.description}</div>
-                  <div className="flex items-center gap-1 text-xs font-bold" style={{ color: "#d4af37" }}>Try it <ArrowRight size={10} /></div>
-                </button>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

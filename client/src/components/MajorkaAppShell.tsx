@@ -582,6 +582,19 @@ export default function MajorkaAppShell({ children }: Props) {
             Running low — upgrade for more
           </p>
         )}
+        {usagePercent > 60 && (
+          <button
+            onClick={() => setLocation("/pricing")}
+            className="upgrade-pulse cta-shimmer w-full mt-2 text-xs font-bold py-1.5 rounded-lg"
+            style={{
+              background: "linear-gradient(135deg, #d4af37, #b8941f)",
+              color: "#000", border: "none", cursor: "pointer",
+              fontFamily: "Syne, sans-serif",
+            }}
+          >
+            Upgrade — Unlimited
+          </button>
+        )}
       </div>
 
       {/* User section */}
@@ -899,7 +912,7 @@ export default function MajorkaAppShell({ children }: Props) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-hidden pb-16 lg:pb-0">{children}</div>
+        <div className="flex-1 overflow-hidden pb-16 lg:pb-0 dashboard-bg">{children}</div>
 
         {/* Mobile bottom tab bar */}
         <nav
