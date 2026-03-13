@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { useState, useEffect, useRef } from "react";
+import { SEO } from "@/components/SEO";
 
 // ── Keyframe styles ──────────────────────────────────────────────────────────
 const GLOBAL_STYLES = `
@@ -430,12 +431,13 @@ export default function Home() {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
   const [hoveredPricing, setHoveredPricing] = useState<number | null>(null);
 
-  useEffect(() => {
-    document.title = "Majorka — AI Ecommerce Operating System for Australian Sellers";
-  }, []);
-
   return (
     <div style={{ background: C.bg, color: C.text, fontFamily: dm, overflowX: "hidden", minHeight: "100vh" }}>
+      <SEO
+        title="Majorka — AI Ecommerce OS for Australian Dropshippers | Start Free"
+        description="AI-powered ecommerce operating system for Australian dropshippers. 50+ tools to research, validate, build, launch and scale your store. Start free today."
+        path="/"
+      />
       <style>{GLOBAL_STYLES}</style>
 
       {/* ═══════════════════════════════════════════════════
@@ -554,22 +556,48 @@ export default function Home() {
 
           {/* CTA buttons */}
           <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 40 }}>
-            <Link href="/app" style={{
-              background: `linear-gradient(135deg, ${C.gold}, #b8941f)`,
-              color: "#000", borderRadius: 12,
-              padding: "16px 40px", fontFamily: syne, fontWeight: 800, fontSize: 17,
-              textDecoration: "none", display: "inline-block",
-              boxShadow: `0 0 40px rgba(212,175,55,0.3), 0 4px 16px rgba(0,0,0,0.3)`,
-              transition: "transform 0.2s, box-shadow 0.2s",
-            }}>Start Free</Link>
+            <Link
+              href="/app"
+              aria-label="Start using Majorka for free"
+              style={{
+                background: `linear-gradient(135deg, ${C.gold}, #b8941f)`,
+                color: "#000", borderRadius: 12,
+                padding: "16px 40px", fontFamily: syne, fontWeight: 800, fontSize: 17,
+                textDecoration: "none", display: "inline-block",
+                boxShadow: `0 0 40px rgba(212,175,55,0.3), 0 4px 16px rgba(0,0,0,0.3)`,
+                transition: "transform 0.2s, box-shadow 0.2s",
+              }}
+              onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 0 56px rgba(212,175,55,0.45), 0 8px 24px rgba(0,0,0,0.4)";
+              }}
+              onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                e.currentTarget.style.transform = "none";
+                e.currentTarget.style.boxShadow = "0 0 40px rgba(212,175,55,0.3), 0 4px 16px rgba(0,0,0,0.3)";
+              }}
+            >Start Free</Link>
 
-            <a href="#demo" style={{
-              background: "rgba(255,255,255,0.04)", border: `1px solid ${C.border}`,
-              color: C.text, borderRadius: 12, padding: "16px 36px",
-              fontFamily: syne, fontWeight: 700, fontSize: 17,
-              textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
-              transition: "border-color 0.2s, background 0.2s",
-            }}>
+            <a
+              href="#demo"
+              aria-label="Watch a live demo"
+              style={{
+                background: "rgba(255,255,255,0.04)", border: `1px solid ${C.border}`,
+                color: C.text, borderRadius: 12, padding: "16px 36px",
+                fontFamily: syne, fontWeight: 700, fontSize: 17,
+                textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
+                transition: "border-color 0.2s, background 0.2s, transform 0.2s",
+              }}
+              onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                e.currentTarget.style.borderColor = C.goldBorder;
+                e.currentTarget.style.background = "rgba(212,175,55,0.04)";
+                e.currentTarget.style.transform = "translateY(-1px)";
+              }}
+              onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                e.currentTarget.style.borderColor = C.border;
+                e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                e.currentTarget.style.transform = "none";
+              }}
+            >
               <span style={{ fontSize: 14 }}>{"\u25B6"}</span> See It Work
             </a>
           </div>

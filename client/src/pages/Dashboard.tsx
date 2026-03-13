@@ -134,6 +134,28 @@ export default function Dashboard() {
 }
 
 // ── DashboardHome ────────────────────────────────────────────────────────────
+// ── Goal-to-tool mapping for personalised recommendations ───────────────────
+const GOAL_RECOMMENDATIONS: Record<string, { label: string; path: string; desc: string; color: string }> = {
+  "find-products": { label: "Product Discovery", path: "/app/product-discovery", desc: "AI-powered product research for AU", color: "#3b82f6" },
+  "find-product": { label: "Product Discovery", path: "/app/product-discovery", desc: "AI-powered product research for AU", color: "#3b82f6" },
+  "write-copy": { label: "Copywriter", path: "/app/copywriter", desc: "Generate AU-native ad copy", color: "#d4af37" },
+  "build-brand": { label: "Brand DNA", path: "/app/brand-dna", desc: "Create your brand identity", color: "#8b5cf6" },
+  "research-competitors": { label: "Competitor Breakdown", path: "/app/competitor-breakdown", desc: "Analyse competitor strategies", color: "#ef4444" },
+  "create-store": { label: "Website Generator", path: "/app/website-generator", desc: "Build a landing page", color: "#10b981" },
+  "understand-au": { label: "Market Intelligence", path: "/app/market-intel", desc: "AU market data and trends", color: "#f59e0b" },
+  "build-store": { label: "Website Generator", path: "/app/website-generator", desc: "Build a landing page", color: "#10b981" },
+  "launch-ads": { label: "Meta Ads Pack", path: "/app/meta-ads", desc: "Create high-performing ad sets", color: "#ef4444" },
+  "scale-up": { label: "Scaling Playbook", path: "/app/scaling-playbook", desc: "Scale what's working", color: "#22c55e" },
+};
+
+// ── Personalised greeting messages ──────────────────────────────────────────
+function getPersonalisedSubtitle(niche: string | null, experience: string | null): string {
+  if (niche && experience === "beginner") return `Starting your ${niche} journey? Let's find your first winner.`;
+  if (niche && experience === "advanced") return `Ready to scale your ${niche} business? Let's optimise.`;
+  if (niche) return `Your AI co-pilot for ${niche}. What's next?`;
+  return "Your AI Ecommerce OS";
+}
+
 function DashboardHome() {
   const [, setLocation] = useLocation();
   const { user, session, isAuthenticated } = useAuth();
@@ -145,6 +167,34 @@ function DashboardHome() {
   const [toolsToday, setToolsToday] = useState(0);
   const [aiCount, setAiCount] = useState(0);
   const [activityLog, setActivityLog] = useState<ActivityEntry[]>([]);
+
+  // Personalisation data from onboarding
+  const savedNiche = localStorage.getItem("majorka_niche");
+  const savedGoal = localStorage.getItem("majorka_goal");
+  const savedLevel = localStorage.getItem("majorka_level");
+
+  const getRecommendedTools = () => {
+    const tools: { label: string; path: string; desc: string; color: string }[] = [];
+    // From main goal
+    if (savedGoal) {
+      const goals = savedGoal.split(",");
+      for (const g of goals) {
+        const rec = GOAL_RECOMMENDATIONS[g.trim()];
+        if (rec && !tools.find(t => t.path === rec.path)) tools.push(rec);
+      }
+    }
+    // Fill with defaults if needed
+    const defaults = [
+      GOAL_RECOMMENDATIONS["find-products"],
+      GOAL_RECOMMENDATIONS["write-copy"],
+      GOAL_RECOMMENDATIONS["build-brand"],
+    ];
+    for (const d of defaults) {
+      if (tools.length >= 3) break;
+      if (!tools.find(t => t.path === d.path)) tools.push(d);
+    }
+    return tools.slice(0, 3);
+  };
 
   useEffect(() => {
     try {
@@ -357,7 +407,7 @@ function DashboardHome() {
         </div>
 
         {/* ── D. Two-column layout ─────────────────────────────────────── */}
-        <div className="flex gap-6 mb-8" style={{ alignItems: "flex-start" }}>
+        <div className="flex flex-col lg:flex-row gap-6 mb-8" style={{ alignItems: "flex-start" }}>
           {/* Left column */}
           <div className="flex-1 min-w-0 space-y-4">
             {/* Active Product card */}
@@ -460,7 +510,7 @@ function DashboardHome() {
           </div>
 
           {/* Right column */}
-          <div style={{ width: 280, flexShrink: 0 }} className="space-y-4">
+          <div className="w-full lg:w-[280px] flex-shrink-0 space-y-4">
             {/* Launch Kit promo */}
             <div
               className="rounded-xl p-4"

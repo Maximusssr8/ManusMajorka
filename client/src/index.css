@@ -297,6 +297,46 @@
   transform: translateY(-1px);
 }
 
+/* ── Micro-interactions ── */
+
+/* Button press effect — apply via .press class or use globally */
+button:not(:disabled):active,
+[role="button"]:not([aria-disabled="true"]):active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}
+
+/* Card hover lift — apply .card-hover to any card element */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+/* Focus ring for keyboard navigation */
+:focus-visible {
+  outline: 2px solid rgba(212,175,55,0.6);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip focus ring for mouse clicks */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Smooth transitions on interactive elements */
+a, button, input, select, textarea {
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+/* Toast styling override for dark theme */
+[data-sonner-toaster] [data-sonner-toast] {
+  font-family: 'DM Sans', sans-serif;
+}
+
 /* ── Scrollbar styling ── */
 ::-webkit-scrollbar {
   width: 6px;

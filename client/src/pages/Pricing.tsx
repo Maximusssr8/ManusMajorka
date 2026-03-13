@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { useState } from "react";
+import { SEO } from "@/components/SEO";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -121,7 +122,24 @@ const FAQS = [
 
 export default function Pricing() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [annual, setAnnual] = useState(false);
   const { session } = useAuth();
+
+  // Compute display price based on toggle
+  const getDisplayPrice = (plan: typeof PLANS[number]) => {
+    if (plan.price === "$0") return "$0";
+    const base = parseInt(plan.price.replace("$", ""));
+    if (annual) {
+      const monthlyEquiv = Math.round(base * 10 / 12); // 10 months = 2 free
+      return `$${monthlyEquiv}`;
+    }
+    return plan.price;
+  };
+  const getAnnualTotal = (plan: typeof PLANS[number]) => {
+    if (plan.price === "$0") return null;
+    const base = parseInt(plan.price.replace("$", ""));
+    return base * 10; // 2 months free
+  };
 
   const handleProCheckout = async () => {
     const token = session?.access_token ?? "";
@@ -147,6 +165,11 @@ export default function Pricing() {
 
   return (
     <div style={{ background: C.bg, color: C.text, fontFamily: dm, overflowX: "hidden", minHeight: "100vh" }}>
+      <SEO
+        title="Majorka Pricing — From Free to Scale | AUD Plans"
+        description="Majorka pricing plans in AUD. Start free with 5 AI credits/day. Upgrade to Builder ($49/mo) or Scale ($149/mo) for unlimited access. Afterpay available."
+        path="/pricing"
+      />
 
       {/* ── NAV ── */}
       <nav style={{
@@ -176,9 +199,39 @@ export default function Pricing() {
         <h1 style={{ fontFamily: syne, fontWeight: 900, fontSize: "clamp(32px, 6vw, 56px)", letterSpacing: "-1.5px", marginBottom: 16 }}>
           Plans that scale with you.
         </h1>
-        <p style={{ color: C.secondary, fontSize: 18, maxWidth: 520, margin: "0 auto" }}>
+        <p style={{ color: C.secondary, fontSize: 18, maxWidth: 520, margin: "0 auto", marginBottom: 32 }}>
           Start free, upgrade when you're ready. Afterpay & Zip available. No hidden fees.
         </p>
+
+        {/* Monthly / Annual toggle */}
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 12, background: C.card, border: `1px solid ${C.border}`, borderRadius: 100, padding: "6px 8px" }}>
+          <button
+            onClick={() => setAnnual(false)}
+            style={{
+              padding: "8px 20px", borderRadius: 100, fontSize: 14, fontWeight: 700, fontFamily: syne,
+              background: !annual ? `linear-gradient(135deg, ${C.gold}, #b8941f)` : "transparent",
+              color: !annual ? "#000" : C.secondary,
+              border: "none", cursor: "pointer",
+            }}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setAnnual(true)}
+            style={{
+              padding: "8px 20px", borderRadius: 100, fontSize: 14, fontWeight: 700, fontFamily: syne,
+              background: annual ? `linear-gradient(135deg, ${C.gold}, #b8941f)` : "transparent",
+              color: annual ? "#000" : C.secondary,
+              border: "none", cursor: "pointer",
+              display: "flex", alignItems: "center", gap: 6,
+            }}
+          >
+            Annual
+            <span style={{ background: "rgba(34,197,94,0.15)", color: "#22c55e", fontSize: 10, fontWeight: 800, padding: "2px 8px", borderRadius: 100 }}>
+              2 months free
+            </span>
+          </button>
+        </div>
       </section>
 
       {/* ── PLAN CARDS ── */}
@@ -212,10 +265,18 @@ export default function Pricing() {
               <p style={{ fontSize: 13, color: C.muted, marginBottom: 24 }}>{plan.description}</p>
 
               {/* Price */}
-              <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 24 }}>
-                <span style={{ fontFamily: syne, fontWeight: 900, fontSize: 48, color: C.text }}>{plan.price}</span>
-                <span style={{ color: C.muted, fontSize: 15 }}>{plan.period}</span>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 4 }}>
+                <span style={{ fontFamily: syne, fontWeight: 900, fontSize: 48, color: C.text }}>{getDisplayPrice(plan)}</span>
+                <span style={{ color: C.muted, fontSize: 15 }}>{annual && plan.price !== "$0" ? "AUD/mo" : plan.period}</span>
               </div>
+              {annual && plan.price !== "$0" && (
+                <div style={{ fontSize: 12, color: C.secondary, marginBottom: 20 }}>
+                  <span style={{ textDecoration: "line-through", color: C.muted }}>${parseInt(plan.price.replace("$", "")) * 12}/yr</span>
+                  {" "}
+                  <span style={{ color: "#22c55e", fontWeight: 700 }}>${getAnnualTotal(plan)}/yr — save ${parseInt(plan.price.replace("$", "")) * 2}</span>
+                </div>
+              )}
+              {(!annual || plan.price === "$0") && <div style={{ marginBottom: 20 }} />}
 
               {/* CTA button */}
               {plan.ctaHref !== null ? (
@@ -372,9 +433,13 @@ export default function Pricing() {
         <p style={{ color: C.secondary, fontSize: 16, marginBottom: 36 }}>
           No credit card required. Upgrade when you're ready. Afterpay available.
         </p>
-        <Link href="/app" style={{ display: "inline-block", background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: "#000", borderRadius: 10, padding: "14px 36px", fontFamily: syne, fontWeight: 800, fontSize: 16, textDecoration: "none", boxShadow: "0 0 36px rgba(212,175,55,0.35)" }}>
+        <Link href="/app" style={{ display: "inline-block", background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: "#000", borderRadius: 10, padding: "14px 36px", fontFamily: syne, fontWeight: 800, fontSize: 16, textDecoration: "none", boxShadow: "0 0 36px rgba(212,175,55,0.35)", marginBottom: 24 }}>
           Get Started Free {"\u2192"}
         </Link>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 8 }}>
+          <span style={{ fontSize: 16 }}>{"\uD83D\uDEE1\uFE0F"}</span>
+          <span style={{ fontSize: 13, color: C.secondary, fontWeight: 500 }}>14-day money-back guarantee &middot; Australian Consumer Law applies</span>
+        </div>
       </section>
 
       {/* ── FOOTER ── */}

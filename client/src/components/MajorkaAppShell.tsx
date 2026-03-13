@@ -1,13 +1,12 @@
 /**
- * MajorkaAppShell — fixed 220px left sidebar + mobile bottom tab bar.
- * Premium sidebar with sectioned navigation (Linear/Vercel aesthetic).
- * Mobile: bottom tab bar with icons.
+ * MajorkaAppShell — premium 240px sidebar + mobile bottom tab bar.
+ * Includes: search bar, plan badge, usage meter, upgrade CTA.
  */
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 
-import { useState, useRef, useEffect, createElement } from "react";
+import { useState, useRef, useEffect, createElement, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import {
   MessageSquare, LogOut, User, Settings,
@@ -16,7 +15,9 @@ import {
   Target, BarChart2, Megaphone, Video, LineChart, PieChart,
   FolderKanban, Brain, PenTool, Mail, Eye, Sparkles, Truck,
   Store, ShoppingBag, ClipboardList,
+  Clock, Bell, HelpCircle, ChevronUp, Zap, Crown, ArrowUpRight,
 } from "lucide-react";
+import { allTools } from "@/lib/tools";
 
 // ── Navigation structure ──────────────────────────────────────────────────────
 
@@ -38,6 +39,7 @@ const NAV_SECTIONS: NavSection[] = [
     label: "WORKSPACE",
     items: [
       { label: "Dashboard", path: "/app", exact: true, icon: LayoutDashboard },
+      { label: "History", path: "/app/history", icon: Clock },
     ],
   },
   {
@@ -61,10 +63,10 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: "LAUNCH",
     items: [
-      { label: "Launch Kit", path: "/app/launch-kit", icon: Sparkles, badge: "✨" },
+      { label: "Launch Kit", path: "/app/launch-kit", icon: Sparkles, badge: "NEW" },
       { label: "Meta Ads Pack", path: "/app/meta-ads", icon: Megaphone },
       { label: "Ads Studio", path: "/app/ads-studio", icon: Video },
-      { label: "TikTok Slides", path: "/app/tiktok", icon: Video, badge: "NEW" },
+      { label: "TikTok Slides", path: "/app/tiktok", icon: Video },
       { label: "Launch Planner", path: "/app/launch-planner", icon: Rocket },
     ],
   },
@@ -107,6 +109,14 @@ const MOBILE_TABS: NavItem[] = [
   { label: "AI Chat", path: "/app/ai-chat", icon: MessageSquare },
 ];
 
+// ── Usage helper ──────────────────────────────────────────────────────────────
+function getUsageToday(): number {
+  try {
+    const raw = localStorage.getItem("majorka_ai_count");
+    return raw ? Number(raw) || 0 : 0;
+  } catch { return 0; }
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 interface Props { children: React.ReactNode }
@@ -116,9 +126,46 @@ export default function MajorkaAppShell({ children }: Props) {
   const { user, isAuthenticated, loading, session } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const productsQuery = trpc.products.list.useQuery(undefined, { enabled: isAuthenticated });
   const productCount = productsQuery.data?.length ?? 0;
+  const [usageCount, setUsageCount] = useState(0);
+
+  // Update usage count periodically
+  useEffect(() => {
+    setUsageCount(getUsageToday());
+    const interval = setInterval(() => setUsageCount(getUsageToday()), 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Search results
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase();
+    return allTools
+      .filter(t => t.label.toLowerCase().includes(q) || t.description.toLowerCase().includes(q))
+      .slice(0, 6);
+  }, [searchQuery]);
+
+  // Keyboard shortcut for search
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+        setTimeout(() => searchInputRef.current?.focus(), 50);
+      }
+      if (e.key === "Escape") {
+        setSearchOpen(false);
+        setSearchQuery("");
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, []);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -149,6 +196,9 @@ export default function MajorkaAppShell({ children }: Props) {
     setLocation("/login");
   };
 
+  const DAILY_LIMIT = 50;
+  const usagePercent = Math.min((usageCount / DAILY_LIMIT) * 100, 100);
+
   const navItem = (item: NavItem) => {
     const active = isActive(item.path, item.exact);
     return (
@@ -157,7 +207,7 @@ export default function MajorkaAppShell({ children }: Props) {
           onClick={() => handleNavClick(item.path)}
           className="w-full flex items-center gap-2 px-3 py-1.5 text-sm transition-all relative"
           style={{
-            borderRadius: 6,
+            borderRadius: 8,
             background: active ? "rgba(212,175,55,0.08)" : "transparent",
             color: active ? "#f5f5f5" : "#a1a1aa",
             fontFamily: "DM Sans, sans-serif",
@@ -183,7 +233,17 @@ export default function MajorkaAppShell({ children }: Props) {
           <span className="flex-1 text-left truncate text-sm">
             {item.label}
             {item.badge && (
-              <span className="ml-1" style={{ fontSize: 10 }}>{item.badge}</span>
+              <span
+                className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs"
+                style={{
+                  background: "rgba(212,175,55,0.15)",
+                  color: "#d4af37",
+                  fontSize: 9,
+                  fontWeight: 700,
+                }}
+              >
+                {item.badge}
+              </span>
             )}
             {item.path === "/app/my-products" && productCount > 0 && (
               <span
@@ -226,9 +286,39 @@ export default function MajorkaAppShell({ children }: Props) {
         </button>
       </div>
 
+      {/* Search bar */}
+      <div className="px-2.5 py-2 flex-shrink-0">
+        <button
+          onClick={() => {
+            setSearchOpen(true);
+            setTimeout(() => searchInputRef.current?.focus(), 50);
+          }}
+          className="w-full flex items-center gap-2 px-3 py-2 text-xs transition-all"
+          style={{
+            borderRadius: 8,
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            color: "#52525b",
+            cursor: "pointer",
+            fontFamily: "DM Sans, sans-serif",
+          }}
+          onMouseEnter={e => (e.currentTarget.style.borderColor = "rgba(212,175,55,0.2)")}
+          onMouseLeave={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)")}
+        >
+          <Search size={12} />
+          <span className="flex-1 text-left">Search tools...</span>
+          <kbd
+            className="px-1.5 py-0.5 rounded text-xs"
+            style={{ background: "rgba(255,255,255,0.06)", color: "#52525b", fontSize: 9, fontFamily: "DM Mono, monospace" }}
+          >
+            ⌘K
+          </kbd>
+        </button>
+      </div>
+
       {/* Nav sections */}
       <div
-        className="flex-1 overflow-y-auto py-3 px-2"
+        className="flex-1 overflow-y-auto py-2 px-2"
         style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}
       >
         {NAV_SECTIONS.map((section, si) => (
@@ -240,7 +330,7 @@ export default function MajorkaAppShell({ children }: Props) {
                 fontFamily: "Syne, sans-serif",
                 fontSize: 10,
                 letterSpacing: "0.12em",
-                paddingTop: si > 0 ? 12 : 4,
+                paddingTop: si > 0 ? 10 : 4,
               }}
             >
               {section.label}
@@ -252,6 +342,27 @@ export default function MajorkaAppShell({ children }: Props) {
         {/* Divider + bottom items */}
         <div className="mt-4 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
           {BOTTOM_ITEMS.map(item => navItem(item))}
+        </div>
+      </div>
+
+      {/* Usage meter */}
+      <div className="flex-shrink-0 px-3 py-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-xs" style={{ color: "#52525b", fontFamily: "DM Sans, sans-serif" }}>
+            {usageCount} / {DAILY_LIMIT} credits today
+          </span>
+          <Zap size={10} style={{ color: usagePercent > 80 ? "#ef4444" : "#d4af37" }} />
+        </div>
+        <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{
+              width: `${usagePercent}%`,
+              background: usagePercent > 80
+                ? "linear-gradient(90deg, #ef4444, #dc2626)"
+                : "linear-gradient(90deg, #d4af37, #f0c040)",
+            }}
+          />
         </div>
       </div>
 
@@ -302,8 +413,23 @@ export default function MajorkaAppShell({ children }: Props) {
                 </div>
               )}
               <div className="flex-1 text-left overflow-hidden">
-                <div className="text-xs font-bold truncate" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
-                  {user?.name ?? session?.user?.user_metadata?.full_name ?? "User"}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-bold truncate" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
+                    {user?.name ?? session?.user?.user_metadata?.full_name ?? "User"}
+                  </span>
+                  <span
+                    className="px-1.5 py-0.5 rounded text-xs flex-shrink-0"
+                    style={{
+                      background: "rgba(212,175,55,0.12)",
+                      color: "#d4af37",
+                      fontSize: 8,
+                      fontWeight: 800,
+                      fontFamily: "Syne, sans-serif",
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    PRO
+                  </span>
                 </div>
                 {(user?.email ?? session?.user?.email) && (
                   <div className="truncate" style={{ color: "#52525b", fontSize: 10, fontFamily: "DM Sans, sans-serif" }}>
@@ -396,6 +522,92 @@ export default function MajorkaAppShell({ children }: Props) {
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: "#060608", color: "#f5f5f5", fontFamily: "DM Sans, sans-serif" }}>
+      {/* Search overlay */}
+      {searchOpen && (
+        <div
+          className="fixed inset-0 z-[200] flex items-start justify-center pt-[15vh]"
+          style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}
+          onClick={() => { setSearchOpen(false); setSearchQuery(""); }}
+        >
+          <div
+            className="w-full max-w-lg mx-4 overflow-hidden"
+            style={{
+              background: "#141418",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 12,
+              boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 px-4 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              <Search size={16} style={{ color: "#52525b", flexShrink: 0 }} />
+              <input
+                ref={searchInputRef}
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search tools..."
+                className="flex-1 bg-transparent outline-none text-sm"
+                style={{ color: "#f5f5f5", fontFamily: "DM Sans, sans-serif" }}
+                autoFocus
+                onKeyDown={e => {
+                  if (e.key === "Escape") { setSearchOpen(false); setSearchQuery(""); }
+                  if (e.key === "Enter" && searchResults.length > 0) {
+                    setLocation(searchResults[0].path);
+                    setSearchOpen(false);
+                    setSearchQuery("");
+                  }
+                }}
+              />
+              <kbd
+                className="px-1.5 py-0.5 rounded text-xs"
+                style={{ background: "rgba(255,255,255,0.06)", color: "#52525b", fontSize: 10 }}
+              >
+                ESC
+              </kbd>
+            </div>
+            {searchResults.length > 0 && (
+              <div className="py-1 max-h-[300px] overflow-auto">
+                {searchResults.map(tool => (
+                  <button
+                    key={tool.id}
+                    onClick={() => {
+                      setLocation(tool.path);
+                      setSearchOpen(false);
+                      setSearchQuery("");
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all"
+                    style={{ background: "transparent", border: "none", cursor: "pointer", color: "#f5f5f5" }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "rgba(212,175,55,0.06)")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                  >
+                    <div
+                      className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ background: "rgba(212,175,55,0.1)" }}
+                    >
+                      {createElement(tool.icon, { size: 12, style: { color: "#d4af37" } })}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-bold truncate" style={{ fontFamily: "Syne, sans-serif" }}>
+                        {tool.label}
+                      </div>
+                      <div className="text-xs truncate" style={{ color: "#52525b" }}>
+                        {tool.description}
+                      </div>
+                    </div>
+                    <ArrowUpRight size={12} style={{ color: "#52525b", flexShrink: 0 }} />
+                  </button>
+                ))}
+              </div>
+            )}
+            {searchQuery && searchResults.length === 0 && (
+              <div className="px-4 py-6 text-center">
+                <p className="text-sm" style={{ color: "#52525b" }}>No tools found for "{searchQuery}"</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
@@ -405,11 +617,13 @@ export default function MajorkaAppShell({ children }: Props) {
         />
       )}
 
-      {/* Sidebar — always 220px, desktop only */}
+      {/* Sidebar — 240px, desktop only */}
       <aside
+        role="navigation"
+        aria-label="Main navigation"
         className={`flex-shrink-0 flex flex-col relative z-50 ${mobileOpen ? "fixed inset-y-0 left-0" : "hidden lg:flex"}`}
         style={{
-          width: 220,
+          width: 240,
           background: "#0a0a0e",
           borderRight: "1px solid rgba(255,255,255,0.06)",
         }}
@@ -435,12 +649,13 @@ export default function MajorkaAppShell({ children }: Props) {
         >
           <button
             onClick={() => setMobileOpen(true)}
+            aria-label="Open navigation menu"
             className="w-8 h-8 rounded-md flex items-center justify-center"
             style={{ background: "rgba(255,255,255,0.05)", color: "#f5f5f5", border: "none", cursor: "pointer" }}
           >
             <Menu size={15} />
           </button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1">
             <div
               className="w-6 h-6 rounded-md flex items-center justify-center font-black text-xs"
               style={{ background: "linear-gradient(135deg, #d4af37, #b8941f)", color: "#0a0a0a", fontFamily: "Syne, sans-serif" }}
@@ -454,12 +669,23 @@ export default function MajorkaAppShell({ children }: Props) {
               MAJORKA
             </span>
           </div>
+          <button
+            onClick={() => {
+              setSearchOpen(true);
+              setTimeout(() => searchInputRef.current?.focus(), 50);
+            }}
+            className="w-8 h-8 rounded-md flex items-center justify-center"
+            style={{ background: "rgba(255,255,255,0.05)", color: "#a1a1aa", border: "none", cursor: "pointer" }}
+          >
+            <Search size={14} />
+          </button>
         </div>
 
         <div className="flex-1 overflow-hidden pb-16 lg:pb-0">{children}</div>
 
         {/* Mobile bottom tab bar */}
-        <div
+        <nav
+          aria-label="Mobile navigation"
           className="fixed bottom-0 left-0 right-0 z-40 lg:hidden"
           style={{ background: "#0a0a0e", borderTop: "1px solid rgba(255,255,255,0.06)" }}
         >
@@ -480,7 +706,7 @@ export default function MajorkaAppShell({ children }: Props) {
               );
             })}
           </div>
-        </div>
+        </nav>
       </div>
     </div>
   );
