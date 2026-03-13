@@ -124,22 +124,64 @@ export function registerAffiliateRoutes(app: Express) {
 
   // ─── Email Subscribe ───────────────────────────────────────────────────
   app.post('/api/subscribe', async (req: Request, res: Response) => {
-    const { email, source, niche } = req.body;
+    const { email, name, source, niche } = req.body;
     if (!email || typeof email !== 'string' || !email.includes('@')) {
       return res.status(400).json({ error: 'Valid email is required' });
     }
 
-    // Check for existing subscriber
-    const existing = await getSubscriberByEmail(email);
-    if (existing) {
-      return res.json({ success: true, message: 'Already subscribed' });
+    const cleanEmail = email.toLowerCase().trim();
+
+    // Try DB — but don't fail if table doesn't exist
+    try {
+      const existing = await getSubscriberByEmail(cleanEmail);
+      if (existing) {
+        return res.json({ success: true, message: 'Already subscribed' });
+      }
+      await createSubscriber({ email: cleanEmail, source: source || 'homepage', niche: niche || null });
+    } catch {
+      // DB table may not exist yet — continue and use email fallback
     }
 
-    await createSubscriber({
-      email: email.toLowerCase().trim(),
-      source: source || 'homepage',
-      niche: niche || null,
-    });
+    // Send welcome email via Resend (primary path)
+    try {
+      const { Resend } = await import('resend');
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      await resend.emails.send({
+        from: 'Majorka AI <hello@majorka.ai>',
+        to: cleanEmail,
+        subject: '📦 Your FREE AU Product Research Playbook',
+        html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;background:#080a0e;color:#fff">
+          <h1 style="color:#d4af37;font-size:28px;margin-bottom:8px">Your playbook is on its way, ${name || 'friend'}!</h1>
+          <p style="color:#9ca3af;margin-bottom:24px">Thanks for joining 2,800+ AU sellers using Majorka AI to find winning products.</p>
+          <div style="background:#111;border:1px solid #d4af37;border-radius:12px;padding:24px;margin-bottom:24px">
+            <h2 style="color:#d4af37;font-size:18px;margin-top:0">🎯 What's in your playbook:</h2>
+            <ul style="color:#e5e7eb;line-height:2">
+              <li>The 5-step product validation framework used by AU's top sellers</li>
+              <li>How to find $10K/mo products before they get saturated</li>
+              <li>AU supplier directory (Alibaba + local warehouse contacts)</li>
+              <li>Afterpay pricing strategy to increase AOV by 30%</li>
+              <li>Real examples: $8 COGS → $49 sell price → $1.2M/year</li>
+            </ul>
+          </div>
+          <a href="https://majorka.io/sign-in" style="display:inline-block;background:#d4af37;color:#000;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px">Start Finding Winning Products →</a>
+          <p style="color:#6b7280;font-size:12px;margin-top:32px">Majorka AI · Built in 🇦🇺 Australia · <a href="https://majorka.io" style="color:#d4af37">majorka.io</a></p>
+        </div>`,
+      });
+    } catch {
+      // Email sending failed — still return success (user signed up)
+    }
+
+    // Notify Max via Resend
+    try {
+      const { Resend } = await import('resend');
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      resend.emails.send({
+        from: 'Majorka AI <hello@majorka.ai>',
+        to: 'maximusmajorka@gmail.com',
+        subject: `New lead: ${cleanEmail}`,
+        html: `<p>New subscriber: <strong>${cleanEmail}</strong>${name ? ` (${name})` : ''}<br>Source: ${source || 'homepage'}</p>`,
+      }).catch(() => {});
+    } catch { /* silent */ }
 
     // Fire n8n webhook if configured
     const webhookUrl = process.env.N8N_WEBHOOK_URL;
@@ -147,15 +189,13 @@ export function registerAffiliateRoutes(app: Express) {
       fetch(webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source, niche, subscribedAt: new Date().toISOString() }),
-      }).catch(() => {
-        /* fire and forget */
-      });
+        body: JSON.stringify({ email: cleanEmail, name, source, niche, subscribedAt: new Date().toISOString() }),
+      }).catch(() => {});
     }
 
     res.json({
       success: true,
-      message: 'Check your inbox for your free AU product research guide',
+      message: 'Check your inbox for your free AU product research playbook!',
     });
   });
 

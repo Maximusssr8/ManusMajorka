@@ -811,6 +811,7 @@ function LessonModal({
   const [saved, setSaved] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const [, setLocation] = useLocation();
+  const { session } = useAuth();
 
   useEffect(() => {
     if (!lesson || !open) return;
@@ -835,7 +836,10 @@ Start with a brief intro paragraph, then dive straight into the content.`;
 
     fetch('/api/chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+      },
       body: JSON.stringify({
         messages: [{ role: 'user', content: prompt }],
         toolName: 'ai-chat',

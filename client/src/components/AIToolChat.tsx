@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/contexts/AuthContext';
 import { useMarket } from '@/contexts/MarketContext';
 import { useActiveProduct } from '@/hooks/useActiveProduct';
 import { trackToolUsed } from '@/lib/analytics';
@@ -72,6 +73,7 @@ export default function AIToolChat({
   const [status, setStatus] = useState<'idle' | 'streaming'>('idle');
   const { activeProduct } = useActiveProduct();
   const { market } = useMarket();
+  const { session } = useAuth();
 
   // Build system prompt with active product context injected
   const buildSystemPrompt = useCallback(() => {
@@ -118,7 +120,10 @@ export default function AIToolChat({
     try {
       const response = await fetch('/api/chat?stream=1', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify({
           messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
           systemPrompt: buildSystemPrompt(),

@@ -21,6 +21,7 @@ import {
   X,
 } from 'lucide-react';
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { toast } from 'sonner';
@@ -467,6 +468,7 @@ export default function WebsiteGenerator() {
   const { activeProduct: contextProduct } = useProduct();
   const { activeProduct: legacyProduct } = useActiveProduct();
   const activeProduct = contextProduct ?? legacyProduct;
+  const { session } = useAuth();
 
   // Product import
   const [importUrl, setImportUrl] = useState('');
@@ -609,7 +611,10 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
 
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify({
           messages: [{ role: 'user', content: userMessage }],
           toolName: 'website-generator',

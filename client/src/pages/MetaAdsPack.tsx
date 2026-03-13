@@ -1,5 +1,6 @@
 import { Check, ChevronDown, ChevronUp, Copy, Link2, Loader2, RefreshCw, Zap } from 'lucide-react';
 import { useCallback, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { SaveToProduct } from '@/components/SaveToProduct';
 import { trpc } from '@/lib/trpc';
@@ -280,6 +281,7 @@ export default function MetaAdsPack() {
   const [generating, setGenerating] = useState(false);
   const [pack, setPack] = useState<AdsPack | null>(null);
   const [genError, setGenError] = useState('');
+  const { session } = useAuth();
 
   // URL import
   const [importUrl, setImportUrl] = useState('');
@@ -331,7 +333,10 @@ export default function MetaAdsPack() {
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify({
           messages: [{ role: 'user', content: prompt }],
           systemPrompt: META_SYSTEM_PROMPT,

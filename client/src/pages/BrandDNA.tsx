@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { ActiveProductBanner } from '@/components/ActiveProductBanner';
 import { SaveToProduct } from '@/components/SaveToProduct';
 import { getStoredMarket } from '@/contexts/MarketContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useActiveProduct } from '@/hooks/useActiveProduct';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -159,6 +160,7 @@ export default function BrandDNA() {
   const [result, setResult] = useState<BrandDNAResult | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const { activeProduct } = useActiveProduct();
+  const { session } = useAuth();
 
   useEffect(() => {
     if (activeProduct && !productType) {
@@ -252,7 +254,10 @@ Generate a comprehensive brand identity document as JSON.`;
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify({
           messages: [{ role: 'user', content: prompt }],
           systemPrompt: getContextualSystemPrompt(),

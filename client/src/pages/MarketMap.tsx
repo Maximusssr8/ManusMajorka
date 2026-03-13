@@ -1,5 +1,6 @@
 import { Copy, Loader2, Map, Plus, RefreshCw, X } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { SaveToProduct } from '@/components/SaveToProduct';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,7 @@ export default function MarketMap() {
   const [yourBrand, setYourBrand] = useState('');
   const [loading, setLoading] = useState(false);
   const [mapData, setMapData] = useState<MapData | null>(null);
+  const { session } = useAuth();
 
   const handleGenerate = async () => {
     if (!niche.trim()) return;
@@ -81,7 +83,10 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
 
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify({
           messages: [{ role: 'user', content: prompt }],
           systemPrompt:

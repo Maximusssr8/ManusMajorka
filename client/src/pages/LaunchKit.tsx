@@ -18,6 +18,7 @@ import {
   X,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { useLocation } from 'wouter';
 import { Markdown } from '@/components/Markdown';
@@ -62,10 +63,13 @@ const INITIAL_STEPS: LaunchKitStep[] = [
 
 // ── AI call helper ─────────────────────────────────────────────────────────────
 
-async function callAI(systemPrompt: string, userMessage: string): Promise<string> {
+async function callAI(systemPrompt: string, userMessage: string, token?: string): Promise<string> {
   const response = await fetch('/api/chat', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify({
       messages: [{ role: 'user', content: userMessage }],
       systemPrompt,
@@ -264,6 +268,7 @@ function StepIcon({ status, index }: { status: StepStatus; index: number }) {
 
 function LaunchKitContent() {
   const { activeProduct } = useActiveProduct();
+  const { session } = useAuth();
   const [, setLocation] = useLocation();
   const [steps, setSteps] = useState<LaunchKitStep[]>(INITIAL_STEPS);
   const [isRunning, setIsRunning] = useState(false);
@@ -339,7 +344,7 @@ function LaunchKitContent() {
       for (const step of aiSteps) {
         updateStep(step.id, { status: 'running' });
         try {
-          const result = await callAI(step.systemPrompt, userMessage);
+          const result = await callAI(step.systemPrompt, userMessage, session?.access_token);
           updateStep(step.id, { status: 'done', result });
         } catch {
           updateStep(step.id, { status: 'error' });

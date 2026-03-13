@@ -15,6 +15,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { ActiveProductBanner } from '@/components/ActiveProductBanner';
 import { SaveToProduct } from '@/components/SaveToProduct';
+import { ProductScoreCard } from '@/components/ProductScoreCard';
+import { useAuth } from '@/contexts/AuthContext';
 import { useActiveProduct } from '@/hooks/useActiveProduct';
 import { searchPhotos } from '@/lib/pexels';
 
@@ -334,6 +336,7 @@ export default function ProductDiscovery() {
   const [result, setResult] = useState<DiscoveryResult | null>(null);
   const [genError, setGenError] = useState('');
   const { activeProduct } = useActiveProduct();
+  const { session } = useAuth();
   const handleGenerate = useCallback(async () => {
     if (!niche.trim()) {
       toast.error('Please enter a niche or category');
@@ -356,7 +359,10 @@ export default function ProductDiscovery() {
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify({
           messages: [{ role: 'user', content: prompt }],
           systemPrompt: getSystemPrompt(SYSTEM_PROMPT, activeProduct),
@@ -652,6 +658,9 @@ export default function ProductDiscovery() {
                   {result.topPick}
                 </div>
               </div>
+
+              {/* AI Score Card for top product */}
+              <ProductScoreCard response={`${result.topPick}\n${result.summary}\n${result.products.map(p => `${p.name}: margin ${p.estimatedMargin}, competition ${p.competitionLevel}, score ${p.score}`).join('\n')}`} />
 
               {/* Product cards */}
               <div>

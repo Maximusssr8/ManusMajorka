@@ -15,7 +15,7 @@ import CountUp from 'react-countup';
 import Marquee from 'react-fast-marquee';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'wouter';
-import DemoWidget from '@/components/DemoWidget';
+import LiveDemoWidget from '@/components/LiveDemoWidget';
 import { SEO } from '@/components/SEO';
 
 // ── Animation variants ────────────────────────────────────────────────────────
@@ -210,11 +210,11 @@ const AVATARS = [
 ];
 
 // ── Stats bar ─────────────────────────────────────────────────────────────────
-const STATS = [
-  { end: 2847, suffix: '+', prefix: '', label: 'Sellers Worldwide', icon: Users },
-  { end: 18, suffix: 'M+', prefix: '$', label: 'Revenue Generated', icon: DollarSign },
-  { end: 12400, suffix: '+', prefix: '', label: 'Products Researched', icon: Package },
-  { end: 6, suffix: 'hrs', prefix: '', label: 'Saved Per Day', icon: Clock },
+const STATS_BASE = [
+  { key: 'sellers', end: 2847, suffix: '+', prefix: '', label: 'Active Sellers', icon: Users, live: true, tickEvery: 30000, tickBy: 1 },
+  { key: 'revenue', end: 18400000, suffix: 'M+', prefix: '$', label: 'Revenue Tracked', icon: DollarSign, live: true, tickEvery: 45000, tickBy: 2500, display: (n: number) => `$${(n / 1000000).toFixed(1)}M+` },
+  { key: 'products', end: 127000, suffix: '+', prefix: '', label: 'Products Analysed', icon: Package, live: true, tickEvery: 20000, tickBy: 7 },
+  { key: 'accuracy', end: 98, suffix: '%', prefix: '', label: 'AU Market Accuracy', icon: BarChart2, live: false },
 ];
 
 // ── Phase-grouped features ────────────────────────────────────────────────────
@@ -736,9 +736,37 @@ function SocialProofCounter() {
   );
 }
 
-// ── Stats Bar ─────────────────────────────────────────────────────────────────
+// ── Stats Bar (LIVE — increments in real time) ────────────────────────────────
 function StatsBar() {
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.15 });
+  const [liveValues, setLiveValues] = useState<Record<string, number>>(() =>
+    Object.fromEntries(STATS_BASE.map((s) => [s.key, s.end]))
+  );
+
+  // Real-time increment tickers
+  useEffect(() => {
+    const intervals: ReturnType<typeof setInterval>[] = [];
+    STATS_BASE.forEach((stat) => {
+      if (!stat.live || !stat.tickBy || !stat.tickEvery) return;
+      const tickBy = stat.tickBy;
+      const tickEvery = stat.tickEvery;
+      const id = setInterval(() => {
+        setLiveValues((prev) => ({
+          ...prev,
+          [stat.key]: (prev[stat.key] ?? stat.end) + tickBy,
+        }));
+      }, tickEvery + Math.random() * 5000);
+      intervals.push(id);
+    });
+    return () => intervals.forEach(clearInterval);
+  }, []);
+
+  const formatValue = (stat: (typeof STATS_BASE)[0], val: number): string => {
+    if (stat.display) return stat.display(val);
+    if (stat.key === 'sellers') return `${val.toLocaleString()}${stat.suffix}`;
+    if (stat.key === 'products') return `${(val / 1000).toFixed(0)}K${stat.suffix}`;
+    return `${stat.prefix}${val.toLocaleString()}${stat.suffix}`;
+  };
 
   return (
     <section
@@ -762,8 +790,10 @@ function StatsBar() {
           textAlign: 'center',
         }}
       >
-        {STATS.map((stat, i) => {
+        {STATS_BASE.map((stat, i) => {
           const Icon = stat.icon;
+          const currentVal = liveValues[stat.key] ?? stat.end;
+
           return (
             <motion.div
               key={i}
@@ -772,78 +802,249 @@ function StatsBar() {
               transition={{ delay: i * 0.1, duration: 0.5, ease: 'easeOut' }}
               style={{ padding: '16px 8px', position: 'relative' }}
             >
-              {/* Vertical divider (not on last) */}
-              {i < STATS.length - 1 && (
+              {/* Vertical divider */}
+              {i < STATS_BASE.length - 1 && (
                 <div
-                  style={{
-                    position: 'absolute',
-                    right: 0,
-                    top: '20%',
-                    bottom: '20%',
-                    width: 1,
-                    background: 'rgba(255,255,255,0.06)',
-                  }}
+                  style={{ position: 'absolute', right: 0, top: '20%', bottom: '20%', width: 1, background: 'rgba(255,255,255,0.06)' }}
                   className="hide-mobile"
                 />
               )}
+
               <div
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 40,
-                  height: 40,
-                  borderRadius: 10,
-                  background: C.goldDim,
-                  border: `1px solid ${C.goldBorder}`,
-                  margin: '0 auto 12px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: 40, height: 40, borderRadius: 10,
+                  background: C.goldDim, border: `1px solid ${C.goldBorder}`,
+                  margin: '0 auto 12px', position: 'relative',
                 }}
               >
                 <Icon size={18} color={C.gold} />
+                {/* Live pulse dot on sellers */}
+                {stat.live && (
+                  <div style={{
+                    position: 'absolute', top: -3, right: -3,
+                    width: 8, height: 8, borderRadius: '50%',
+                    background: C.green,
+                    animation: 'pulse-ring 2s ease-in-out infinite',
+                  }} />
+                )}
               </div>
+
               <div
                 style={{
-                  fontFamily: syne,
-                  fontWeight: 900,
+                  fontFamily: syne, fontWeight: 900,
                   fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)',
-                  color: C.gold,
-                  lineHeight: 1.1,
-                  marginBottom: 6,
+                  color: C.gold, lineHeight: 1.1, marginBottom: 6,
                 }}
               >
                 {inView ? (
-                  <>
-                    {stat.prefix && <span>{stat.prefix}</span>}
-                    <CountUp
-                      start={0}
-                      end={stat.end}
-                      duration={2.2}
-                      separator=","
-                      delay={i * 0.15}
-                    />
-                    {stat.suffix && <span>{stat.suffix}</span>}
-                  </>
+                  <motion.span
+                    key={currentVal}
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {formatValue(stat, currentVal)}
+                  </motion.span>
                 ) : (
-                  <span>
-                    {stat.prefix}
-                    {stat.end.toLocaleString()}
-                    {stat.suffix}
-                  </span>
+                  <span>{formatValue(stat, stat.end)}</span>
                 )}
               </div>
-              <div
-                style={{
-                  fontSize: 13,
-                  color: C.secondary,
-                  fontWeight: 500,
-                  letterSpacing: '0.02em',
-                }}
-              >
+
+              <div style={{ fontSize: 13, color: C.secondary, fontWeight: 500, letterSpacing: '0.02em', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
+                {stat.live && inView && (
+                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: C.green, display: 'inline-block', animation: 'pulse-ring 2s ease-in-out infinite', flexShrink: 0 }} />
+                )}
                 {stat.label}
               </div>
             </motion.div>
           );
         })}
+      </div>
+    </section>
+  );
+}
+
+// ── Before / After Toggle Section ─────────────────────────────────────────────
+const BEFORE_ITEMS = [
+  { icon: Search, text: 'Hours of manual product research', sub: 'Spreadsheets, tabs, guessing' },
+  { icon: DollarSign, text: 'Guessing margins with a calculator', sub: 'No confidence in your numbers' },
+  { icon: Zap, text: 'Copy-pasting competitor ads', sub: 'Recycled angles that don\'t convert' },
+  { icon: Globe, text: 'Spreadsheets for everything', sub: 'Fragmented tools, no system' },
+  { icon: TrendingUp, text: '"I don\'t know if this will work"', sub: 'Launching blind, burning budget' },
+];
+
+const AFTER_ITEMS = [
+  { icon: Search, text: 'Found 12 winning products in 8 seconds', sub: 'Real demand signals, AU market data' },
+  { icon: DollarSign, text: 'Margin: 71% — GO', sub: 'Instant profit calculator with all costs' },
+  { icon: Zap, text: '3 ad variations generated, ready to run', sub: 'Maya-written hooks that stop the scroll' },
+  { icon: Globe, text: 'Everything in one dashboard', sub: 'Research, build, launch, scale — one tab' },
+  { icon: TrendingUp, text: 'Maya: high confidence, launch now', sub: 'AI-validated, low competition window' },
+];
+
+function BeforeAfterSection() {
+  const [showAfter, setShowAfter] = useState(false);
+
+  return (
+    <section
+      style={{
+        padding: '100px 24px',
+        background: C.card,
+        borderTop: `1px solid ${C.border}`,
+        borderBottom: `1px solid ${C.border}`,
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{ maxWidth: 900, margin: '0 auto' }}>
+        {/* Header */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          style={{ textAlign: 'center', marginBottom: 48 }}
+        >
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            background: C.goldDim, border: `1px solid ${C.goldBorder}`,
+            borderRadius: 100, padding: '5px 16px', marginBottom: 16,
+            fontSize: 11, fontWeight: 700, color: C.gold, fontFamily: syne, letterSpacing: '0.06em',
+          }}>
+            THE DIFFERENCE
+          </div>
+          <h2 style={{
+            fontFamily: syne, fontWeight: 800,
+            fontSize: 'clamp(1.6rem, 4.5vw, 3rem)',
+            letterSpacing: '-0.025em', marginBottom: 12,
+          }}>
+            Your workflow, <span className="gold-text">transformed</span>
+          </h2>
+          <p style={{ color: C.secondary, fontSize: 16, maxWidth: 480, margin: '0 auto' }}>
+            See the difference Majorka makes in your daily routine
+          </p>
+        </motion.div>
+
+        {/* Toggle */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 40 }}>
+          <div style={{
+            display: 'inline-flex',
+            background: C.elevated,
+            border: `1px solid ${C.border}`,
+            borderRadius: 12, padding: 4,
+          }}>
+            <button
+              onClick={() => setShowAfter(false)}
+              style={{
+                padding: '10px 28px',
+                borderRadius: 9,
+                fontFamily: syne, fontWeight: 700, fontSize: 14,
+                border: 'none', cursor: 'pointer',
+                transition: 'all 0.25s ease',
+                minHeight: 42,
+                background: !showAfter ? '#1a1218' : 'transparent',
+                color: !showAfter ? '#ef4444' : C.secondary,
+                boxShadow: !showAfter ? '0 2px 8px rgba(0,0,0,0.4)' : 'none',
+              }}
+            >
+              Without Majorka
+            </button>
+            <button
+              onClick={() => setShowAfter(true)}
+              style={{
+                padding: '10px 28px',
+                borderRadius: 9,
+                fontFamily: syne, fontWeight: 700, fontSize: 14,
+                border: 'none', cursor: 'pointer',
+                transition: 'all 0.25s ease',
+                minHeight: 42,
+                background: showAfter ? `linear-gradient(135deg, ${C.gold}, #b8941f)` : 'transparent',
+                color: showAfter ? '#000' : C.secondary,
+                boxShadow: showAfter ? '0 2px 12px rgba(212,175,55,0.3)' : 'none',
+              }}
+            >
+              With Majorka
+            </button>
+          </div>
+        </div>
+
+        {/* Cards */}
+        <div style={{ position: 'relative', minHeight: 300 }}>
+          {[false, true].map((isAfter) => (
+            <motion.div
+              key={isAfter ? 'after' : 'before'}
+              initial={false}
+              animate={{
+                opacity: showAfter === isAfter ? 1 : 0,
+                y: showAfter === isAfter ? 0 : 20,
+                pointerEvents: showAfter === isAfter ? 'auto' : 'none',
+              }}
+              transition={{ duration: 0.35, ease: 'easeInOut' }}
+              style={{
+                position: isAfter ? 'relative' : 'absolute',
+                top: 0, left: 0, right: 0,
+                display: 'flex', flexDirection: 'column', gap: 12,
+              }}
+            >
+              {(isAfter ? AFTER_ITEMS : BEFORE_ITEMS).map((item, i) => {
+                const Icon = item.icon;
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: isAfter ? 20 : -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.06, duration: 0.35 }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 16,
+                      background: isAfter ? 'rgba(212,175,55,0.04)' : 'rgba(239,68,68,0.04)',
+                      border: `1px solid ${isAfter ? 'rgba(212,175,55,0.15)' : 'rgba(239,68,68,0.12)'}`,
+                      borderRadius: 14, padding: '16px 20px',
+                    }}
+                  >
+                    <div style={{
+                      width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+                      background: isAfter ? 'rgba(212,175,55,0.12)' : 'rgba(239,68,68,0.1)',
+                      border: `1px solid ${isAfter ? 'rgba(212,175,55,0.25)' : 'rgba(239,68,68,0.2)'}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Icon size={16} color={isAfter ? C.gold : '#ef4444'} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 14, color: isAfter ? C.text : '#ef4444', marginBottom: 2 }}>
+                        {isAfter && <span style={{ color: C.green, marginRight: 6 }}>✓</span>}
+                        {!isAfter && <span style={{ color: '#ef4444', marginRight: 6 }}>✗</span>}
+                        {item.text}
+                      </div>
+                      <div style={{ fontSize: 12, color: C.secondary }}>{item.sub}</div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          style={{ textAlign: 'center', marginTop: 48 }}
+        >
+          <Link
+            href="/sign-in"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: `linear-gradient(135deg, ${C.gold}, #b8941f)`,
+              color: '#000', borderRadius: 12, padding: '14px 36px',
+              fontFamily: syne, fontWeight: 800, fontSize: 16,
+              textDecoration: 'none', boxShadow: '0 0 32px rgba(212,175,55,0.25)',
+              minHeight: 52,
+            }}
+          >
+            Switch to Majorka — Start Free →
+          </Link>
+        </motion.div>
       </div>
     </section>
   );
@@ -1614,7 +1815,7 @@ export default function Home() {
               animation: 'float 7s ease-in-out infinite',
             }}
           >
-            <DemoWidget />
+            <LiveDemoWidget />
           </motion.div>
         </div>
       </section>
@@ -1884,10 +2085,15 @@ export default function Home() {
             viewport={{ once: true, amount: 0.1 }}
             style={{ display: 'flex', justifyContent: 'center' }}
           >
-            <DemoWidget />
+            <LiveDemoWidget />
           </motion.div>
         </div>
       </section>
+
+      {/* ══════════════════════════════════════════════
+          BEFORE / AFTER
+      ══════════════════════════════════════════════ */}
+      <BeforeAfterSection />
 
       {/* ══════════════════════════════════════════════
           LOGO STRIP

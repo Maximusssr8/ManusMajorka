@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { ActiveProductBanner } from '@/components/ActiveProductBanner';
 import { SaveToProduct } from '@/components/SaveToProduct';
+import { useAuth } from '@/contexts/AuthContext';
 import { useActiveProduct } from '@/hooks/useActiveProduct';
 
 interface Competitor {
@@ -244,6 +245,7 @@ export default function CompetitorBreakdown() {
   const [result, setResult] = useState<BreakdownResult | null>(null);
   const [genError, setGenError] = useState('');
   const { activeProduct } = useActiveProduct();
+  const { session } = useAuth();
 
   useEffect(() => {
     if (activeProduct && !product) {
@@ -279,7 +281,10 @@ export default function CompetitorBreakdown() {
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify({
           messages: [{ role: 'user', content: prompt }],
           systemPrompt: getSystemPrompt(SYSTEM_PROMPT),
