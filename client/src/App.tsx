@@ -27,6 +27,7 @@ const PublicProfitCalculator = lazy(() => import("./pages/PublicProfitCalculator
 const Affiliate = lazy(() => import("./pages/Affiliate"));
 const KnowledgeBase = lazy(() => import("./pages/KnowledgeBase"));
 const LearnHub = lazy(() => import("./pages/LearnHub"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 
 function LoadingFallback() {
   return (
@@ -90,6 +91,7 @@ function Router() {
             <Route path="/tools/profit-calculator" component={PublicProfitCalculator} />
             <Route path="/app/affiliate">{() => <ProtectedRoute><Affiliate /></ProtectedRoute>}</Route>
             <Route path="/admin/leads">{() => <ProtectedRoute><AdminLeads /></ProtectedRoute>}</Route>
+            <Route path="/admin">{() => <ProtectedRoute><AdminPanel /></ProtectedRoute>}</Route>
             <Route path="/app/knowledge-base">{() => <ProtectedRoute><KnowledgeBase /></ProtectedRoute>}</Route>
             <Route path="/app/learn">{() => <ProtectedRoute><LearnHub /></ProtectedRoute>}</Route>
             <Route path="/app">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>

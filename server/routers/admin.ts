@@ -3,12 +3,13 @@
  * All procedures require the caller to be maximusmajorka@gmail.com.
  */
 import { z } from "zod";
-import { router, protectedProcedure } from "../_core/trpc";
+import { router, protectedProcedure, adminProcedure } from "../_core/trpc";
 import { getSupabaseAdmin } from "../_core/supabase";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { subscriptions } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { getAllLeads } from "../db";
 
 const ADMIN_EMAIL = "maximusmajorka@gmail.com";
 
@@ -19,6 +20,11 @@ function requireAdmin(email: string | null | undefined) {
 }
 
 export const adminRouter = router({
+  /** Get all admin leads (role-based) */
+  getLeads: adminProcedure.query(async () => {
+    return await getAllLeads();
+  }),
+
   /** Get all Supabase auth users */
   getUsers: protectedProcedure.query(async ({ ctx }) => {
     requireAdmin(ctx.user?.email);

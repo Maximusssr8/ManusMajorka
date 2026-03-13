@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { adminRouter } from "./routers/admin";
 import {
   getSubscriptionByUserId,
   hasActiveSubscription,
@@ -30,9 +31,8 @@ import {
   updateOrderFulfillment,
   saveAttribution,
   getAttributionByUserId,
-  getAllLeads,
 } from "./db";
-import { adminProcedure } from "./_core/trpc";
+
 import { tavilySearch, tavilyExtract, tavilyImageSearch } from "./tavily";
 
 export const appRouter = router({
@@ -361,11 +361,7 @@ export const appRouter = router({
   }),
 
   /** Admin-only endpoints */
-  admin: router({
-    getLeads: adminProcedure.query(async () => {
-      return await getAllLeads();
-    }),
-  }),
+  admin: adminRouter,
 
   /** UTM attribution tracking */
   attribution: router({

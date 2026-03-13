@@ -15,8 +15,9 @@ import {
   Zap, ArrowUpRight,
   TrendingUp, Calculator,
   Flame, Globe, Brain, PenTool, Megaphone, Eye,
-  Activity, Store, ClipboardList,
+  Activity, Store, ClipboardList, Shield,
 } from "lucide-react";
+import { FREE_LESSON_IDS, TOTAL_FREE } from "@/pages/LearnHub";
 import { allTools } from "@/lib/tools";
 import MarketSelector from "@/components/MarketSelector";
 import { useBeginnerMode, BEGINNER_LABELS, BEGINNER_TOOLTIPS } from "@/hooks/useBeginnerMode";
@@ -83,6 +84,12 @@ const PHASE_SECTIONS: PhaseSection[] = [
         path: "/app/profit-calculator",
         icon: Calculator,
         tooltip: "Calculate real margins including AU shipping, GST, and ad costs.",
+      },
+      {
+        label: "Academy",
+        path: "/app/learn",
+        icon: GraduationCap,
+        tooltip: "20 lessons from zero to $10K/month — free lessons included.",
       },
     ],
   },
@@ -182,6 +189,17 @@ function getUsageToday(): number {
   } catch { return 0; }
 }
 
+// ── Academy badge helper ───────────────────────────────────────────────────────
+function getAcademyBadge(): string | null {
+  try {
+    const raw = localStorage.getItem("majorka_academy_v1");
+    const p: Record<string, boolean> = raw ? JSON.parse(raw) : {};
+    const completedFree = FREE_LESSON_IDS.filter((id) => p[id]).length;
+    if (completedFree >= TOTAL_FREE) return null;
+    return completedFree === 0 ? "Start" : `${TOTAL_FREE - completedFree} left`;
+  } catch { return "Start"; }
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 interface Props { children: React.ReactNode }
@@ -199,6 +217,7 @@ export default function MajorkaAppShell({ children }: Props) {
   const productsQuery = trpc.products.list.useQuery(undefined, { enabled: isAuthenticated });
   const productCount = productsQuery.data?.length ?? 0;
   const [usageCount, setUsageCount] = useState(0);
+  const [academyBadge, setAcademyBadge] = useState<string | null>(getAcademyBadge());
   const createdAtStr = user?.createdAt instanceof Date
     ? user.createdAt.toISOString()
     : (user?.createdAt as string | null | undefined);
@@ -221,6 +240,11 @@ export default function MajorkaAppShell({ children }: Props) {
     const interval = setInterval(() => setUsageCount(getUsageToday()), 10000);
     return () => clearInterval(interval);
   }, []);
+
+  // Academy badge — refresh when navigating (lesson completions update localStorage)
+  useEffect(() => {
+    setAcademyBadge(getAcademyBadge());
+  }, [location]);
 
   // Search results
   const searchResults = useMemo(() => {
@@ -289,6 +313,8 @@ export default function MajorkaAppShell({ children }: Props) {
     const beginnerTooltip = isBeginnerMode ? BEGINNER_TOOLTIPS[toolId] : undefined;
     const displayLabel = beginnerLabel ?? item.label;
     const tooltip = beginnerTooltip ?? item.tooltip;
+    // Inject dynamic academy badge
+    const badge = item.path === "/app/learn" ? (academyBadge ?? item.badge) : item.badge;
 
     return (
       <div key={item.path} className="mb-0.5" data-tour={`nav-${toolId}`}>
@@ -322,17 +348,19 @@ export default function MajorkaAppShell({ children }: Props) {
           {createElement(item.icon, { size: 14, style: { flexShrink: 0, opacity: active ? 1 : 0.8 } })}
           <span className="flex-1 text-left truncate text-sm">
             {displayLabel}
-            {item.badge && (
+            {badge && (
               <span
                 className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs"
                 style={{
-                  background: "rgba(212,175,55,0.15)",
-                  color: "#d4af37",
+                  background: item.path === "/app/learn" && badge !== "HOT"
+                    ? "rgba(34,197,94,0.12)"
+                    : "rgba(212,175,55,0.15)",
+                  color: item.path === "/app/learn" && badge !== "HOT" ? "#4ade80" : "#d4af37",
                   fontSize: 9,
                   fontWeight: 700,
                 }}
               >
-                {item.badge}
+                {badge}
               </span>
             )}
           </span>
@@ -469,14 +497,6 @@ export default function MajorkaAppShell({ children }: Props) {
         {/* Divider */}
         <div className="my-2" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }} />
 
-        {/* Academy */}
-        {navItem({
-          label: "Academy",
-          path: "/app/learn",
-          icon: GraduationCap,
-          tooltip: "20 lessons from zero to $10K/month",
-        })}
-
         {/* Ask Majorka AI — gold gradient full-width button */}
         <div className="px-1 mb-1">
           <button
@@ -510,6 +530,14 @@ export default function MajorkaAppShell({ children }: Props) {
           path: "/app/knowledge-base",
           icon: GraduationCap,
           tooltip: "Browse guides, tutorials, and resources for AU dropshippers.",
+        })}
+
+        {/* Admin — only visible to maximusmajorka@gmail.com */}
+        {user?.email === "maximusmajorka@gmail.com" && navItem({
+          label: "Admin",
+          path: "/admin",
+          icon: Shield,
+          tooltip: "Admin panel — user management, stats, quick actions.",
         })}
       </div>
 
