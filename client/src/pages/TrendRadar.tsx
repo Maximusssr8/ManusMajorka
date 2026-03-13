@@ -145,6 +145,7 @@ export default function TrendRadar() {
             })),
             systemPrompt: SYSTEM_PROMPT,
             searchQuery: searchQueryRef.current || undefined,
+            aiSdk: true,
           },
         };
       },

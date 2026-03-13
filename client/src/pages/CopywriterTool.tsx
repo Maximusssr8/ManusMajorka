@@ -116,6 +116,7 @@ export default function CopywriterTool() {
               content: m.parts.filter((p: any) => p.type === "text").map((p: any) => p.text).join(""),
             })),
             systemPrompt: getSystemPrompt(),
+            aiSdk: true,
           },
         };
       },

@@ -1,207 +1,353 @@
 /**
- * Launch Readiness Checklist Widget
- * Tracks progress across Majorka tools toward launch readiness.
- * Uses localStorage + user profile to track completion.
+ * LaunchReadiness — cinematic kanban checklist with SVG progress dial.
+ * Cards animate between columns via Framer Motion layoutId.
+ * Confetti CSS fireworks fire when 100% complete.
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
-import { Rocket, CheckCircle2, Circle, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Rocket, ArrowRight, Lock } from "lucide-react";
+
+const syne = "Syne, sans-serif";
+const dm = "'DM Sans', sans-serif";
+
+const LAUNCH_CSS = `
+@keyframes firework-burst {
+  0%   { transform: scale(0) translate(-50%, -50%); opacity: 1; }
+  100% { transform: scale(1) translate(-50%, -50%); opacity: 0; }
+}
+@keyframes firework-particle {
+  0%   { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0) translateY(-40px); opacity: 0; }
+}
+@keyframes launch-ready-glow {
+  0%,100% { box-shadow: 0 0 20px rgba(16,185,129,0.2); }
+  50%      { box-shadow: 0 0 40px rgba(16,185,129,0.5), 0 0 80px rgba(16,185,129,0.2); }
+}
+@keyframes confetti-fall {
+  0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(80px) rotate(720deg); opacity: 0; }
+}
+.launch-all-done {
+  animation: launch-ready-glow 2s ease-in-out infinite;
+}
+.confetti-piece {
+  position: absolute;
+  width: 6px; height: 6px;
+  border-radius: 1px;
+  animation: confetti-fall 1.2s ease-out forwards;
+}
+@keyframes pulse-ring-launch {
+  0%   { transform: scale(1); opacity: 0.8; }
+  50%  { transform: scale(1.3); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+`;
 
 interface ChecklistItem {
   id: string;
   label: string;
   toolPath: string;
   toolLabel: string;
+  icon: string;
+  column: "todo" | "inprogress" | "done";
 }
 
-const CHECKLIST_ITEMS: ChecklistItem[] = [
-  { id: "brand-dna", label: "Brand DNA created", toolPath: "/app/brand-dna", toolLabel: "Brand DNA" },
-  { id: "product-discovery", label: "Product researched", toolPath: "/app/product-discovery", toolLabel: "Product Discovery" },
-  { id: "winning-products", label: "Winning product identified", toolPath: "/app/winning-products", toolLabel: "Winning Products" },
-  { id: "profit-calculator", label: "Profit margins validated", toolPath: "/app/profit-calculator", toolLabel: "Profit Calculator" },
-  { id: "website-generator", label: "Website template downloaded", toolPath: "/app/website-generator", toolLabel: "Website Generator" },
-  { id: "meta-ads", label: "First ad copy written", toolPath: "/app/meta-ads", toolLabel: "Meta Ads Pack" },
-  { id: "supplier-finder", label: "Supplier contacted", toolPath: "/app/supplier-finder", toolLabel: "Supplier Finder" },
-  { id: "store-spy", label: "Competitor analysed", toolPath: "/app/store-spy", toolLabel: "Store Spy" },
+const INITIAL_ITEMS: Omit<ChecklistItem, "column">[] = [
+  { id: "brand-dna",         label: "Create Brand DNA",          toolPath: "/app/brand-dna",         toolLabel: "Brand DNA",         icon: "🎨" },
+  { id: "product-discovery", label: "Research your product",     toolPath: "/app/product-discovery", toolLabel: "Product Discovery", icon: "🔍" },
+  { id: "winning-products",  label: "Identify winning product",  toolPath: "/app/winning-products",  toolLabel: "Winning Products",  icon: "🏆" },
+  { id: "profit-calculator", label: "Validate profit margins",   toolPath: "/app/profit-calculator", toolLabel: "Profit Calculator", icon: "📊" },
+  { id: "website-generator", label: "Build your store page",     toolPath: "/app/website-generator", toolLabel: "Website Generator", icon: "🌐" },
+  { id: "meta-ads",          label: "Write first ad copy",       toolPath: "/app/meta-ads",          toolLabel: "Meta Ads Pack",     icon: "📢" },
+  { id: "supplier-finder",   label: "Contact your supplier",     toolPath: "/app/supplier-finder",   toolLabel: "Supplier Finder",   icon: "📦" },
+  { id: "store-spy",         label: "Analyse a competitor",      toolPath: "/app/store-spy",         toolLabel: "Store Spy",         icon: "🔎" },
 ];
 
-const STORAGE_KEY = "majorka_launch_checklist";
+const STORAGE_KEY = "majorka_launch_checklist_v2";
 
-function getCheckedItems(): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  } catch {
-    return [];
-  }
+type ColKey = "todo" | "inprogress" | "done";
+
+interface StoredState { [id: string]: ColKey }
+
+function loadState(): StoredState {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch { return {}; }
+}
+function saveState(s: StoredState) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
 }
 
-function setCheckedItems(items: string[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+function buildItems(stored: StoredState): ChecklistItem[] {
+  return INITIAL_ITEMS.map((item) => ({
+    ...item,
+    column: stored[item.id] ?? "todo",
+  }));
 }
+
+// SVG circular progress dial
+function ProgressDial({ percent, allDone }: { percent: number; allDone: boolean }) {
+  const r = 34;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (percent / 100) * circ;
+  const color = allDone ? "#10b981" : percent > 60 ? "#d4af37" : "#d4af37";
+
+  return (
+    <div style={{ position: "relative", width: 80, height: 80, flexShrink: 0 }}>
+      <svg width="80" height="80" viewBox="0 0 80 80" style={{ transform: "rotate(-90deg)" }}>
+        <circle cx="40" cy="40" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
+        <circle
+          cx="40" cy="40" r={r} fill="none"
+          stroke={color} strokeWidth="5"
+          strokeLinecap="round"
+          strokeDasharray={circ}
+          strokeDashoffset={offset}
+          style={{ transition: "stroke-dashoffset 0.6s cubic-bezier(.4,0,.2,1), stroke 0.4s ease" }}
+        />
+        {/* Glow */}
+        {percent > 0 && (
+          <circle
+            cx="40" cy="40" r={r} fill="none"
+            stroke={color} strokeWidth="2"
+            strokeLinecap="round"
+            strokeDasharray={circ}
+            strokeDashoffset={offset}
+            style={{ filter: `drop-shadow(0 0 4px ${color})`, opacity: 0.5, transition: "stroke-dashoffset 0.6s cubic-bezier(.4,0,.2,1)" }}
+          />
+        )}
+      </svg>
+      <div style={{
+        position: "absolute", inset: 0, display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+      }}>
+        <span style={{ fontFamily: syne, fontWeight: 900, fontSize: 18, color: allDone ? "#10b981" : "#f5f5f5", lineHeight: 1 }}>
+          {allDone ? "🚀" : `${percent}%`}
+        </span>
+        {!allDone && <span style={{ fontSize: 9, color: "#52525b", fontWeight: 600, letterSpacing: "0.04em" }}>DONE</span>}
+      </div>
+    </div>
+  );
+}
+
+// Confetti burst component
+function ConfettiBurst() {
+  const pieces = Array.from({ length: 18 });
+  const colors = ["#d4af37", "#10b981", "#3b82f6", "#f59e0b", "#ec4899", "#8b5cf6"];
+  return (
+    <div style={{ position: "absolute", top: "20%", left: "50%", pointerEvents: "none", zIndex: 10 }}>
+      {pieces.map((_, i) => {
+        const angle = (i / pieces.length) * 360;
+        const dist = 40 + Math.random() * 30;
+        const dx = Math.cos((angle * Math.PI) / 180) * dist;
+        const dy = Math.sin((angle * Math.PI) / 180) * dist;
+        const color = colors[i % colors.length];
+        const delay = Math.random() * 0.3;
+        return (
+          <div
+            key={i}
+            className="confetti-piece"
+            style={{
+              background: color,
+              left: 0, top: 0,
+              transform: `translate(${dx}px, ${dy}px)`,
+              animationDelay: `${delay}s`,
+              animationDuration: `${0.9 + Math.random() * 0.5}s`,
+              width: Math.random() > 0.5 ? 6 : 4,
+              height: Math.random() > 0.5 ? 6 : 10,
+              borderRadius: Math.random() > 0.5 ? "50%" : "1px",
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+const COLUMNS: { key: ColKey; label: string; color: string }[] = [
+  { key: "todo",       label: "To Do",       color: "#52525b" },
+  { key: "inprogress", label: "In Progress",  color: "#d4af37" },
+  { key: "done",       label: "Done ✓",       color: "#10b981" },
+];
 
 export default function LaunchReadiness() {
   const [, setLocation] = useLocation();
-  const [checked, setChecked] = useState<string[]>(getCheckedItems);
+  const [stored, setStored] = useState<StoredState>(loadState);
+  const [showConfetti, setShowConfetti] = useState(false);
 
+  const items = buildItems(stored);
+  const doneCount = items.filter(i => i.column === "done").length;
+  const total = items.length;
+  const percent = Math.round((doneCount / total) * 100);
+  const allDone = doneCount === total;
+
+  useEffect(() => { saveState(stored); }, [stored]);
+
+  // Fire confetti when all done
   useEffect(() => {
-    setCheckedItems(checked);
-  }, [checked]);
+    if (allDone) {
+      setShowConfetti(true);
+      const t = setTimeout(() => setShowConfetti(false), 1800);
+      return () => clearTimeout(t);
+    }
+  }, [allDone]);
 
-  const toggle = (id: string) => {
-    setChecked((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
-
-  const completedCount = checked.length;
-  const totalCount = CHECKLIST_ITEMS.length;
-  const percent = Math.round((completedCount / totalCount) * 100);
-  const allDone = completedCount === totalCount;
+  const cycleItem = useCallback((id: string) => {
+    setStored(prev => {
+      const cur: ColKey = prev[id] ?? "todo";
+      const next: ColKey = cur === "todo" ? "inprogress" : cur === "inprogress" ? "done" : "todo";
+      return { ...prev, [id]: next };
+    });
+  }, []);
 
   return (
     <div
-      className="rounded-xl p-5 mb-6"
+      className={allDone ? "launch-all-done" : ""}
       style={{
-        background: allDone
-          ? "rgba(16,185,129,0.04)"
-          : "rgba(212,175,55,0.03)",
+        background: allDone ? "rgba(16,185,129,0.04)" : "rgba(212,175,55,0.02)",
         border: `1px solid ${allDone ? "rgba(16,185,129,0.2)" : "rgba(212,175,55,0.12)"}`,
+        borderRadius: 16,
+        padding: "20px 20px",
+        marginBottom: 24,
+        position: "relative",
+        overflow: "hidden",
+        transition: "border-color 0.4s ease",
       }}
     >
+      <style>{LAUNCH_CSS}</style>
+      {showConfetti && <ConfettiBurst />}
+
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Rocket
-            size={16}
-            style={{ color: allDone ? "#10b981" : "#d4af37" }}
-          />
-          <span
-            className="text-sm font-bold"
-            style={{
-              fontFamily: "Syne, sans-serif",
-              color: "#f5f5f5",
-            }}
-          >
-            Launch Readiness
-          </span>
-          <span
-            className="text-xs px-2 py-0.5 rounded-full font-bold"
-            style={{
-              background: allDone
-                ? "rgba(16,185,129,0.15)"
-                : "rgba(212,175,55,0.12)",
-              color: allDone ? "#10b981" : "#d4af37",
-              fontSize: 10,
-            }}
-          >
-            {percent}%
-          </span>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
+          <Rocket size={16} style={{ color: allDone ? "#10b981" : "#d4af37", flexShrink: 0 }} />
+          <div>
+            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 14, color: "#f5f5f5" }}>
+              Launch Readiness
+            </span>
+            <div style={{ fontSize: 11, color: "#52525b", marginTop: 1 }}>
+              {doneCount} of {total} complete · click a card to advance it
+            </div>
+          </div>
         </div>
-        <span className="text-xs" style={{ color: "#52525b" }}>
-          {completedCount}/{totalCount} complete
-        </span>
+        <ProgressDial percent={percent} allDone={allDone} />
       </div>
 
-      {/* Progress bar */}
-      <div
-        className="w-full h-2 rounded-full mb-4 overflow-hidden"
-        style={{ background: "rgba(255,255,255,0.06)" }}
-      >
-        <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{
-            width: `${percent}%`,
-            background: allDone
-              ? "linear-gradient(90deg, #10b981, #059669)"
-              : "linear-gradient(90deg, #d4af37, #f0c040)",
-          }}
-        />
-      </div>
+      {/* All done banner */}
+      <AnimatePresence>
+        {allDone && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            style={{
+              background: "rgba(16,185,129,0.10)",
+              border: "1px solid rgba(16,185,129,0.3)",
+              borderRadius: 10, padding: "12px 16px",
+              textAlign: "center", marginBottom: 16,
+            }}
+          >
+            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 15, color: "#10b981" }}>
+              You're launch-ready 🚀
+            </span>
+            <p style={{ fontSize: 12, color: "#a1a1aa", marginTop: 4 }}>
+              All checklist items complete. Time to go live.
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Checklist */}
-      <div className="space-y-1">
-        {CHECKLIST_ITEMS.map((item) => {
-          const isDone = checked.includes(item.id);
+      {/* Kanban columns */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(3, 1fr)",
+        gap: 10,
+        overflowX: "auto",
+      }}>
+        {COLUMNS.map(col => {
+          const colItems = items.filter(i => i.column === col.key);
           return (
-            <div
-              key={item.id}
-              className="flex items-center gap-3 py-1.5 px-2 rounded-lg transition-all"
-              style={{ cursor: "pointer" }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "rgba(255,255,255,0.03)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "transparent")
-              }
-            >
-              <button
-                onClick={() => toggle(item.id)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  padding: 0,
-                  flexShrink: 0,
-                }}
-              >
-                {isDone ? (
-                  <CheckCircle2 size={16} style={{ color: "#10b981" }} />
-                ) : (
-                  <Circle size={16} style={{ color: "#3f3f46" }} />
+            <div key={col.key} style={{
+              background: "rgba(255,255,255,0.02)",
+              border: `1px solid rgba(255,255,255,0.05)`,
+              borderRadius: 10, padding: 10,
+              minWidth: 0,
+            }}>
+              {/* Column header */}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: col.color, flexShrink: 0 }} />
+                <span style={{ fontFamily: syne, fontWeight: 700, fontSize: 10, color: col.color, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  {col.label}
+                </span>
+                <span style={{ marginLeft: "auto", fontSize: 9, color: "#52525b", fontWeight: 600, background: "rgba(255,255,255,0.04)", borderRadius: 100, padding: "1px 6px" }}>
+                  {colItems.length}
+                </span>
+              </div>
+
+              {/* Cards */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, minHeight: 60 }}>
+                <AnimatePresence>
+                  {colItems.map(item => (
+                    <motion.div
+                      key={item.id}
+                      layoutId={`kanban-card-${item.id}`}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                      onClick={() => cycleItem(item.id)}
+                      style={{
+                        background: col.key === "done" ? "rgba(16,185,129,0.06)" : col.key === "inprogress" ? "rgba(212,175,55,0.06)" : "rgba(255,255,255,0.03)",
+                        border: `1px solid ${col.key === "done" ? "rgba(16,185,129,0.18)" : col.key === "inprogress" ? "rgba(212,175,55,0.18)" : "rgba(255,255,255,0.06)"}`,
+                        borderRadius: 8, padding: "8px 10px",
+                        cursor: "pointer",
+                        userSelect: "none",
+                      }}
+                      whileHover={{ scale: 1.02, y: -1 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ fontSize: 13, flexShrink: 0 }}>{item.icon}</span>
+                        <span style={{
+                          fontSize: 11, fontWeight: 600, fontFamily: dm,
+                          color: col.key === "done" ? "#52525b" : "#a1a1aa",
+                          textDecoration: col.key === "done" ? "line-through" : "none",
+                          flex: 1, lineHeight: 1.4,
+                        }}>
+                          {item.label}
+                        </span>
+                      </div>
+                      {col.key !== "done" && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setLocation(item.toolPath); }}
+                          style={{
+                            marginTop: 5, display: "flex", alignItems: "center", gap: 3,
+                            fontSize: 10, fontWeight: 600, color: col.key === "inprogress" ? "#d4af37" : "#52525b",
+                            background: "none", border: "none", cursor: "pointer", padding: 0,
+                            fontFamily: dm,
+                          }}
+                        >
+                          {item.toolLabel} <ArrowRight size={8} />
+                        </button>
+                      )}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+
+                {colItems.length === 0 && (
+                  <div style={{ height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ fontSize: 10, color: "#3f3f46", fontStyle: "italic" }}>
+                      {col.key === "done" ? "Nothing done yet" : col.key === "inprogress" ? "Nothing in progress" : "All clear!"}
+                    </span>
+                  </div>
                 )}
-              </button>
-              <span
-                className="flex-1 text-xs"
-                style={{
-                  color: isDone ? "#52525b" : "#a1a1aa",
-                  textDecoration: isDone ? "line-through" : "none",
-                }}
-              >
-                {item.label}
-              </span>
-              {!isDone && (
-                <button
-                  onClick={() => setLocation(item.toolPath)}
-                  className="flex items-center gap-1 text-xs font-medium transition-all"
-                  style={{
-                    color: "#d4af37",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: 0,
-                    opacity: 0.7,
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-                  onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.7")}
-                >
-                  {item.toolLabel} <ArrowRight size={10} />
-                </button>
-              )}
+              </div>
             </div>
           );
         })}
       </div>
 
-      {/* All done message */}
-      {allDone && (
-        <div
-          className="mt-4 p-3 rounded-lg text-center"
-          style={{
-            background: "rgba(16,185,129,0.08)",
-            border: "1px solid rgba(16,185,129,0.2)",
-          }}
-        >
-          <span
-            className="text-sm font-bold"
-            style={{ fontFamily: "Syne, sans-serif", color: "#10b981" }}
-          >
-            You're ready to launch!
-          </span>
-          <p className="text-xs mt-1" style={{ color: "#a1a1aa" }}>
-            All checklist items complete. Time to go live.
-          </p>
-        </div>
-      )}
+      <p style={{ fontSize: 10, color: "#3f3f46", marginTop: 12, textAlign: "center" }}>
+        Click any card to cycle it through the columns
+      </p>
     </div>
   );
 }

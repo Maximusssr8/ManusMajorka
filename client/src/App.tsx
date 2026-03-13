@@ -1,6 +1,6 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -9,6 +9,7 @@ import { MarketProvider } from "./contexts/MarketContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { lazy, Suspense, useEffect } from "react";
 import { capture } from "@/lib/posthog";
+import { AnimatePresence, motion } from "framer-motion";
 
 // Lazy-loaded page components for code splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -62,31 +63,43 @@ function LoadingFallback() {
 }
 
 function Router() {
+  const [location] = useLocation();
   return (
     <Suspense fallback={<LoadingFallback />}>
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/pricing" component={Pricing} />
-        <Route path="/login" component={SignIn} />
-        <Route path="/sign-in" component={SignIn} />
-        <Route path="/signup">{() => <SignIn />}</Route>
-        <Route path="/onboarding">{() => <ProtectedRoute><Onboarding /></ProtectedRoute>}</Route>
-        <Route path="/verify-email" component={VerifyEmail} />
-        <Route path="/account" component={Account} />
-        <Route path="/app/settings/profile" component={SettingsProfile} />
-        <Route path="/store/:slug" component={Storefront} />
-        <Route path="/tools/profit-calculator" component={PublicProfitCalculator} />
-        <Route path="/app/affiliate">{() => <ProtectedRoute><Affiliate /></ProtectedRoute>}</Route>
-        <Route path="/admin/leads">{() => <ProtectedRoute><AdminLeads /></ProtectedRoute>}</Route>
-        <Route path="/app/knowledge-base">{() => <ProtectedRoute><KnowledgeBase /></ProtectedRoute>}</Route>
-        <Route path="/app">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
-        <Route path="/app/settings">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
-        <Route path="/app/store/:subpage">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
-        <Route path="/app/:tool">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
-        <Route path="/app/product-hub/:id">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
-        <Route path="/404" component={NotFound} />
-        <Route component={NotFound} />
-      </Switch>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={location}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          style={{ height: "100%", display: "flex", flexDirection: "column" }}
+        >
+          <Switch>
+            <Route path="/" component={Home} />
+            <Route path="/pricing" component={Pricing} />
+            <Route path="/login" component={SignIn} />
+            <Route path="/sign-in" component={SignIn} />
+            <Route path="/signup">{() => <SignIn />}</Route>
+            <Route path="/onboarding">{() => <ProtectedRoute><Onboarding /></ProtectedRoute>}</Route>
+            <Route path="/verify-email" component={VerifyEmail} />
+            <Route path="/account" component={Account} />
+            <Route path="/app/settings/profile" component={SettingsProfile} />
+            <Route path="/store/:slug" component={Storefront} />
+            <Route path="/tools/profit-calculator" component={PublicProfitCalculator} />
+            <Route path="/app/affiliate">{() => <ProtectedRoute><Affiliate /></ProtectedRoute>}</Route>
+            <Route path="/admin/leads">{() => <ProtectedRoute><AdminLeads /></ProtectedRoute>}</Route>
+            <Route path="/app/knowledge-base">{() => <ProtectedRoute><KnowledgeBase /></ProtectedRoute>}</Route>
+            <Route path="/app">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+            <Route path="/app/settings">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+            <Route path="/app/store/:subpage">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+            <Route path="/app/:tool">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+            <Route path="/app/product-hub/:id">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+            <Route path="/404" component={NotFound} />
+            <Route component={NotFound} />
+          </Switch>
+        </motion.div>
+      </AnimatePresence>
     </Suspense>
   );
 }

@@ -25,6 +25,7 @@ export default function AutomationBuilder() {
           body: {
             messages: messages.map((m: any) => ({ role: m.role, content: m.parts?.filter((p: any) => p.type === "text").map((p: any) => p.text).join("") || "" })),
             systemPrompt: `You are an e-commerce automation expert. Output JSON: {"summary":"overview","totalTimeSaved":"15 hrs/week","automations":[{"name":"Order Fulfillment","description":"Auto-process orders","steps":[{"trigger":"New order placed","action":"Send to fulfillment","tool":"Shopify Flow","details":"details"}],"timeSaved":"3 hrs/week","difficulty":"easy","tools":["Shopify Flow","Zapier"]}]}. Include 4-6 automations. Output ONLY JSON.`,
+            aiSdk: true,
           },
         };
       },

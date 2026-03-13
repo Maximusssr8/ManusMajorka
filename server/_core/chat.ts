@@ -69,10 +69,19 @@ async function fetchUserProfile(userId: string) {
 }
 
 /** Build personalised system prompt */
+/** Server-side fallback prompts for tools that require specific output formats */
+const TOOL_FALLBACK_PROMPTS: Record<string, string> = {
+  "website-generator": `CRITICAL: Respond ONLY with a valid JSON object starting with { — no markdown, no explanation, no code fences. Raw JSON only. You are an elite AU Shopify builder (200+ stores). Generate a complete website theme as a JSON object with keys: headline, subheadline, features (array), cta_primary, cta_secondary, trust_badges (array), about_section, email_subject, meta_description, files (object: index.html, styles.css, product.html). All copy in AU English, GST-inclusive pricing, Afterpay messaging. RESPOND WITH RAW JSON ONLY.`,
+  "validate": `You are a DTC financial analyst for the AU market. ALWAYS output: (1) Full COGS breakdown in AUD table, (2) Gross margin %, (3) Break-even ROAS formula, (4) Monthly units needed for $5K and $10K AUD profit, (5) GO/NO-GO/PIVOT verdict. Use AUD throughout. Show all maths.`,
+  "email-sequences": `You are an AU email specialist. Every sequence MUST include Spam Act 2003 compliance (unsubscribe link, sender identity, physical address). Use Klaviyo format, AEST timings, AU English. Include Afterpay reminders and EOFY seasonal hooks.`,
+  "tiktok-builder": `You are an AU TikTok content strategist. Create faceless TikTok slideshow scripts with AU-specific hooks, AU hashtags, and AEST posting times. Output slide-by-slide with text overlays, captions, and audio recommendations.`,
+};
+
 function buildSystemPrompt(customPrompt: string | undefined, profile: Record<string, string> | null, toolName: string, marketCode?: MarketCode): string {
   const isAIChat = !customPrompt || toolName === "ai-chat";
 
-  const base = customPrompt || `You are Majorka AI — a sharp, direct ecommerce co-founder.`;
+  // Use custom prompt if provided, else check for tool-specific fallback, else use generic
+  const base = customPrompt || TOOL_FALLBACK_PROMPTS[toolName] || `You are Majorka AI — a sharp, direct ecommerce co-founder.`;
 
   // Inject user profile context for ALL tools so responses are personalised
   const goals = profile?.main_goal?.includes(",")
@@ -218,35 +227,64 @@ export function registerChatRoutes(app: Application) {
 
       // ── Determine if client wants streaming (default: true) ──────────
       const wantStream = req.body.stream !== false && req.query.stream !== "0";
+      // Detect AI SDK requests (CopywriterTool, AudienceProfiler, etc. send aiSdk:true)
+      const useAiSdkProtocol = req.body.aiSdk === true;
 
       if (wantStream) {
-        // ── SSE streaming response ──────────────────────────────────────
-        res.setHeader("Content-Type", "text/event-stream");
-        res.setHeader("Cache-Control", "no-cache");
-        res.setHeader("Connection", "keep-alive");
-        res.setHeader("X-Accel-Buffering", "no");
-        res.flushHeaders();
-
         const client = getAnthropicClient();
         let fullReply = "";
 
-        const stream = await client.messages.stream({
-          model: CLAUDE_MODEL,
-          max_tokens: 4096,
-          system,
-          messages,
-        });
+        if (useAiSdkProtocol) {
+          // ── AI SDK Data Stream Protocol ─────────────────────────────
+          // Format: `0:"text"\n` for chunks, `d:{...}\n` for finish
+          res.setHeader("Content-Type", "text/plain; charset=utf-8");
+          res.setHeader("Cache-Control", "no-cache");
+          res.setHeader("X-Accel-Buffering", "no");
+          res.flushHeaders();
 
-        for await (const event of stream) {
-          if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-            const text = event.delta.text;
-            fullReply += text;
-            res.write(`data: ${JSON.stringify({ text })}\n\n`);
+          const stream = await client.messages.stream({
+            model: CLAUDE_MODEL,
+            max_tokens: 4096,
+            system,
+            messages,
+          });
+
+          for await (const event of stream) {
+            if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+              const text = event.delta.text;
+              fullReply += text;
+              res.write(`0:${JSON.stringify(text)}\n`);
+            }
           }
-        }
 
-        res.write(`data: [DONE]\n\n`);
-        res.end();
+          res.write(`d:${JSON.stringify({ finishReason: "stop" })}\n`);
+          res.end();
+        } else {
+          // ── Custom SSE streaming response (AIChat, AIToolChat) ──────
+          res.setHeader("Content-Type", "text/event-stream");
+          res.setHeader("Cache-Control", "no-cache");
+          res.setHeader("Connection", "keep-alive");
+          res.setHeader("X-Accel-Buffering", "no");
+          res.flushHeaders();
+
+          const stream = await client.messages.stream({
+            model: CLAUDE_MODEL,
+            max_tokens: 4096,
+            system,
+            messages,
+          });
+
+          for await (const event of stream) {
+            if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+              const text = event.delta.text;
+              fullReply += text;
+              res.write(`data: ${JSON.stringify({ text })}\n\n`);
+            }
+          }
+
+          res.write(`data: [DONE]\n\n`);
+          res.end();
+        }
 
         // Save to memory (fire-and-forget)
         if (userId && fullReply) {
@@ -266,7 +304,15 @@ export function registerChatRoutes(app: Application) {
           messages,
         });
 
-        const reply = aiResponse.content[0]?.type === "text" ? aiResponse.content[0].text : "";
+        let reply = aiResponse.content[0]?.type === "text" ? aiResponse.content[0].text : "";
+
+        // Strip markdown code fences for JSON-expected tools (website-generator, etc.)
+        // This ensures the client always gets parseable JSON even if the model wraps it
+        const jsonTools = ["website-generator"];
+        if (jsonTools.includes(toolName)) {
+          const fenceMatch = reply.match(/```(?:json|JSON)?\s*\n?([\s\S]*?)```/);
+          if (fenceMatch) reply = fenceMatch[1].trim();
+        }
 
         // Save to memory (fire-and-forget)
         if (userId && reply) {

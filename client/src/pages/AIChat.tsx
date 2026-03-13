@@ -102,7 +102,7 @@ export default function AIChat() {
             if (!line.startsWith("data: ")) continue;
             try {
               const payload = JSON.parse(line.slice(6));
-              if (payload.type === "delta") {
+              if (payload.text !== undefined) {
                 accumulated += payload.text;
                 setMessages(prev => {
                   const updated = [...prev];

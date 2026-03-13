@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createElement } from "react";
+import React, { useEffect, useState, createElement, useRef } from "react";
 import { useLocation } from "wouter";
 import MajorkaAppShell from "@/components/MajorkaAppShell";
 import ToolPage from "./ToolPage";
@@ -20,6 +20,9 @@ import { useActiveProduct } from "@/hooks/useActiveProduct";
 import { ProductImporter } from "@/components/ProductImporter";
 import { getActivityLog, getRelativeTime, type ActivityEntry } from "@/lib/activity";
 import LaunchReadiness from "@/components/LaunchReadiness";
+import CountUp from "react-countup";
+import { useInView } from "react-intersection-observer";
+import { AreaChart, Area, ResponsiveContainer } from "recharts";
 
 function getGreeting() {
   const h = new Date().getHours();

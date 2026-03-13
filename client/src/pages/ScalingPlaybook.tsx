@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
-import { Copy, Rocket, Loader2, ChevronRight, Target, TrendingUp, DollarSign, Users } from "lucide-react";
+import { Copy, Rocket, Loader2, ChevronRight, Target, TrendingUp, DollarSign, Users, Mail, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useChat, type UIMessage } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
@@ -17,6 +17,11 @@ export default function ScalingPlaybook() {
   const [generating, setGenerating] = useState(false);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [summary, setSummary] = useState("");
+  const [emailInput, setEmailInput] = useState("");
+  const [emailSending, setEmailSending] = useState(false);
+  const [showFallbackModal, setShowFallbackModal] = useState(false);
+
+  const sendPlaybookEmail = trpc.email.sendPlaybook.useMutation();
 
   const { messages, sendMessage, status: chatStatus } = useChat({
     transport: new DefaultChatTransport({
@@ -62,11 +67,43 @@ export default function ScalingPlaybook() {
     });
   }, [currentRevenue, targetRevenue, niche, channels, constraints, sendMessage]);
 
+  const getPlaybookText = () =>
+    `Scaling Playbook\n${summary}\n\n` +
+    milestones.map(m => `${m.phase}: ${m.title}\nActions: ${m.actions.join(", ")}\nKPI: ${m.kpi}\nTimeline: ${m.timeline}`).join("\n\n");
+
   const copyAll = () => {
-    const text = `Scaling Playbook\n${summary}\n\n` +
-      milestones.map(m => `${m.phase}: ${m.title}\nActions: ${m.actions.join(", ")}\nKPI: ${m.kpi}\nTimeline: ${m.timeline}`).join("\n\n");
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(getPlaybookText());
     toast.success("Copied!");
+  };
+
+  const handleEmailSend = async () => {
+    if (!emailInput || !emailInput.includes("@")) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+    if (milestones.length === 0) {
+      toast.error("Generate a playbook first.");
+      return;
+    }
+    setEmailSending(true);
+    try {
+      const result = await sendPlaybookEmail.mutateAsync({
+        to: emailInput,
+        content: getPlaybookText(),
+      });
+      if (result.noKey) {
+        // No API key — show fallback modal
+        setShowFallbackModal(true);
+      } else {
+        toast.success("Playbook sent! Check your inbox (and spam folder) 📬");
+      }
+    } catch (err) {
+      console.error("[sendPlaybook] error:", err);
+      // On error, show fallback modal with copy option
+      setShowFallbackModal(true);
+    } finally {
+      setEmailSending(false);
+    }
   };
 
   const phaseColors = ["#2dca72", "#7c6af5", "#d4af37", "#ff6b6b", "#00b4d8", "#f472b6"];
@@ -122,7 +159,93 @@ export default function ScalingPlaybook() {
         >
           {generating ? <><Loader2 size={14} className="animate-spin" /> Generating…</> : <><Rocket size={14} /> Generate Playbook</>}
         </button>
+
+        {/* Email send section */}
+        {milestones.length > 0 && (
+          <div className="pt-2 space-y-2">
+            <div className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>
+              Email Your Playbook
+            </div>
+            <input
+              type="email"
+              value={emailInput}
+              onChange={e => setEmailInput(e.target.value)}
+              placeholder="your@email.com"
+              className="w-full text-xs px-3 py-2.5 rounded-lg outline-none"
+              style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(255,255,255,0.08)", color: "#f0ede8" }}
+              onFocus={e => (e.target.style.borderColor = "rgba(212,175,55,0.45)")}
+              onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
+            />
+            <button
+              onClick={handleEmailSend}
+              disabled={emailSending}
+              className="w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all disabled:opacity-60"
+              style={{
+                background: emailSending ? "rgba(212,175,55,0.2)" : "rgba(212,175,55,0.15)",
+                border: "1px solid rgba(212,175,55,0.3)",
+                color: "#d4af37",
+                cursor: emailSending ? "not-allowed" : "pointer",
+                fontFamily: "Syne, sans-serif",
+              }}
+            >
+              {emailSending
+                ? <><Loader2 size={12} className="animate-spin" /> Sending…</>
+                : <><Mail size={12} /> Send to My Email</>}
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Fallback Modal */}
+      {showFallbackModal && (
+        <div
+          className="fixed inset-0 z-[300] flex items-center justify-center"
+          style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}
+          onClick={() => setShowFallbackModal(false)}
+        >
+          <div
+            className="w-full max-w-lg mx-4 rounded-2xl overflow-hidden"
+            style={{ background: "#0d1117", border: "1px solid rgba(255,255,255,0.1)", boxShadow: "0 24px 64px rgba(0,0,0,0.6)" }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              <div>
+                <div className="text-sm font-black" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>Your Scaling Playbook</div>
+                <div className="text-xs mt-0.5" style={{ color: "rgba(240,237,232,0.4)" }}>Email not configured — copy your playbook below</div>
+              </div>
+              <button
+                onClick={() => setShowFallbackModal(false)}
+                style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(240,237,232,0.4)" }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="p-5">
+              <div
+                className="rounded-xl p-4 mb-4 overflow-auto"
+                style={{ background: "#080a0e", border: "1px solid rgba(255,255,255,0.06)", maxHeight: 300, scrollbarWidth: "thin" }}
+              >
+                <pre className="text-xs leading-relaxed" style={{ color: "#e5e7eb", whiteSpace: "pre-wrap", fontFamily: "inherit" }}>
+                  {getPlaybookText()}
+                </pre>
+              </div>
+              <button
+                onClick={() => { copyAll(); setShowFallbackModal(false); }}
+                className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all"
+                style={{
+                  background: "linear-gradient(135deg, #d4af37, #b8960c)",
+                  color: "#0a0a0a",
+                  border: "none",
+                  cursor: "pointer",
+                  fontFamily: "Syne, sans-serif",
+                }}
+              >
+                <Copy size={14} /> Copy Playbook
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* RIGHT */}
       <div className="flex-1 overflow-y-auto p-6" style={{ scrollbarWidth: "thin" }}>

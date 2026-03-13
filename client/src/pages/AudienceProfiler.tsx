@@ -206,6 +206,7 @@ export default function AudienceProfiler() {
             })),
             systemPrompt: SYSTEM_PROMPT,
             searchQuery: searchQueryRef.current || undefined,
+            aiSdk: true,
           },
         };
       },

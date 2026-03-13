@@ -55,6 +55,7 @@ export default function MarketIntel() {
             message: messages[messages.length - 1],
             chatId: "market-intel",
             systemPrompt: getSystemPrompt(),
+            aiSdk: true,
           },
         };
       },

@@ -24,6 +24,7 @@ export default function StoreAuditor() {
           body: {
             messages: messages.map((m: any) => ({ role: m.role, content: m.parts?.filter((p: any) => p.type === "text").map((p: any) => p.text).join("") || "" })),
             systemPrompt: `You are an expert Shopify store auditor. Analyze the provided store data and output a JSON object with this exact structure: {"score":75,"summary":"one paragraph","topFixes":["fix1","fix2","fix3"],"items":[{"category":"SEO","item":"Meta descriptions","status":"pass","note":"All pages have unique meta descriptions","priority":"high"}]}. Categories: SEO, Speed, Trust, UX, Conversion, Mobile. Status: pass/fail/warning. Include 12-18 items. Output ONLY JSON.`,
+            aiSdk: true,
           },
         };
       },

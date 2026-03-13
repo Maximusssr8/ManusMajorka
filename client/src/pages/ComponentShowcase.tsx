@@ -1389,7 +1389,6 @@ export default function ComponentsShowcase() {
                   <AIChatBox
                     api="/api/chat"
                     chatId="showcase-demo"
-                    initialMessages={[]}
                     placeholder="Try sending a message..."
                     emptyStateMessage="How can I help you today?"
                     suggestedPrompts={[

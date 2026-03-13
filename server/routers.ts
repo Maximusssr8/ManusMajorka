@@ -343,6 +343,26 @@ export const appRouter = router({
       }),
   }),
 
+  /** Email sending */
+  email: router({
+    sendPlaybook: protectedProcedure
+      .input(z.object({
+        to: z.string().email(),
+        content: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const { sendPlaybook } = await import("./lib/email");
+        const result = await sendPlaybook(input.to, input.content);
+        if (result && "noKey" in result && result.noKey) {
+          return { success: false, noKey: true };
+        }
+        if (result && "error" in result && result.error) {
+          throw new Error(String(result.error));
+        }
+        return { success: true };
+      }),
+  }),
+
   /** Admin-only endpoints */
   admin: router({
     getLeads: adminProcedure.query(async () => {

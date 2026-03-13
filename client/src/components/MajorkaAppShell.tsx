@@ -1,6 +1,6 @@
 /**
  * MajorkaAppShell — premium 240px sidebar + mobile bottom tab bar.
- * Includes: search bar, plan badge, usage meter, upgrade CTA.
+ * Sidebar: phase-based (Discover / Build / Spy) with collapsible sections.
  */
 import { useLocation } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -10,20 +10,18 @@ import { useState, useRef, useEffect, createElement, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import {
   MessageSquare, LogOut, User, Settings,
-  Menu, X, LayoutDashboard, Search, CheckCircle2, Globe,
-  Rocket, Package, Home,
-  Target, BarChart2, Megaphone, Video, LineChart, PieChart,
-  FolderKanban, Brain, PenTool, Mail, Eye, Sparkles, Truck,
-  Store, ShoppingBag, ClipboardList,
-  Clock, Bell, HelpCircle, ChevronUp, Zap, Crown, ArrowUpRight,
-  TrendingUp, Calculator, Activity,
-  Flame, Award, RefreshCw, Workflow, Compass, GraduationCap,
+  Menu, X, Search, Home,
+  GraduationCap, ChevronDown, ChevronRight,
+  Zap, ArrowUpRight,
+  TrendingUp, Calculator,
+  Flame, Globe, Brain, PenTool, Megaphone, Eye,
+  Activity, Store, ClipboardList,
 } from "lucide-react";
 import { allTools } from "@/lib/tools";
 import MarketSelector from "@/components/MarketSelector";
 import { useBeginnerMode, BEGINNER_LABELS, BEGINNER_TOOLTIPS } from "@/hooks/useBeginnerMode";
 
-// ── Navigation structure ──────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 interface NavItem {
   label: string;
@@ -31,99 +29,150 @@ interface NavItem {
   exact?: boolean;
   icon: any;
   badge?: string;
+  tooltip?: string;
 }
 
-interface NavSection {
+interface PhaseSection {
+  id: string;
+  phaseNum: number;
   label: string;
+  color: string;
   items: NavItem[];
 }
 
-const NAV_SECTIONS: NavSection[] = [
+// ── Phase-based nav structure ─────────────────────────────────────────────────
+
+const TOP_ITEMS: NavItem[] = [
   {
-    label: "WORKSPACE",
-    items: [
-      { label: "Dashboard", path: "/app", exact: true, icon: LayoutDashboard },
-      { label: "History", path: "/app/history", icon: Clock },
-    ],
+    label: "Home",
+    path: "/app",
+    exact: true,
+    icon: Home,
+    tooltip: "Your Majorka dashboard — overview of all tools and recent activity.",
   },
   {
-    label: "RESEARCH",
-    items: [
-      { label: "Product Discovery", path: "/app/product-discovery", icon: Search },
-      { label: "Winning Products", path: "/app/winning-products", icon: TrendingUp, badge: "HOT" },
-      { label: "AU Trending", path: "/app/au-trending", icon: Flame },
-      { label: "Validate", path: "/app/validate", icon: CheckCircle2 },
-      { label: "Niche Scorer", path: "/app/niche-scorer", icon: Award },
-      { label: "Competitor Breakdown", path: "/app/competitor-breakdown", icon: Target },
-      { label: "Ad Spy", path: "/app/ad-spy", icon: Eye },
-      { label: "Store Spy", path: "/app/store-spy", icon: Search },
-      { label: "Saturation Checker", path: "/app/saturation-checker", icon: Activity },
-      { label: "Profit Calculator", path: "/app/profit-calculator", icon: Calculator },
-    ],
-  },
-  {
-    label: "BUILD",
-    items: [
-      { label: "Website Generator", path: "/app/website-generator", icon: Globe },
-      { label: "Brand DNA", path: "/app/brand-dna", icon: Brain },
-      { label: "Copywriter", path: "/app/copywriter", icon: PenTool },
-      { label: "Email Sequences", path: "/app/email-sequences", icon: Mail },
-    ],
-  },
-  {
-    label: "LAUNCH",
-    items: [
-      { label: "Launch Kit", path: "/app/launch-kit", icon: Sparkles, badge: "NEW" },
-      { label: "Meta Ads Pack", path: "/app/meta-ads", icon: Megaphone },
-      { label: "Ads Studio", path: "/app/ads-studio", icon: Video },
-      { label: "TikTok Slides", path: "/app/tiktok", icon: Video },
-      { label: "Google Ads", path: "/app/google-ads", icon: BarChart2 },
-      { label: "Launch Planner", path: "/app/launch-planner", icon: Rocket },
-    ],
-  },
-  {
-    label: "GROW",
-    items: [
-      { label: "Market Intelligence", path: "/app/market-intel", icon: LineChart },
-      { label: "Analytics Decoder", path: "/app/analytics-decoder", icon: PieChart },
-      { label: "CRO Advisor", path: "/app/cro-advisor", icon: RefreshCw },
-      { label: "AI Chat", path: "/app/ai-chat", icon: MessageSquare },
-    ],
-  },
-  {
-    label: "MANAGE",
-    items: [
-      { label: "My Products", path: "/app/my-products", icon: Package },
-      { label: "Project Manager", path: "/app/project-manager", icon: FolderKanban },
-      { label: "Supplier Finder", path: "/app/supplier-finder", icon: Truck },
-      { label: "Scaling Playbook", path: "/app/scaling-playbook", icon: Workflow },
-      { label: "Financial Modeler", path: "/app/financial-modeler", icon: BarChart2 },
-    ],
-  },
-  {
-    label: "MY STORE",
-    items: [
-      { label: "Store Setup", path: "/app/store/setup", icon: Store },
-      { label: "Storefront", path: "/app/store/products", icon: ShoppingBag },
-      { label: "Orders", path: "/app/store/orders", icon: ClipboardList },
-    ],
+    label: "My Playbook",
+    path: "/app/history",
+    icon: ClipboardList,
+    tooltip: "View and revisit your saved tool outputs and session history.",
   },
 ];
 
-const BOTTOM_ITEMS: NavItem[] = [
-  { label: "Knowledge Base", path: "/app/knowledge-base", icon: GraduationCap },
-  { label: "Earn with Majorka", path: "/app/affiliate", icon: Award },
-  { label: "Settings", path: "/app/settings", icon: Settings },
-  { label: "Account", path: "/account", icon: User },
+const PHASE_SECTIONS: PhaseSection[] = [
+  {
+    id: "discover",
+    phaseNum: 1,
+    label: "DISCOVER",
+    color: "#10b981",
+    items: [
+      {
+        label: "Product Scout",
+        path: "/app/product-discovery",
+        icon: Search,
+        tooltip: "AI finds trending, profitable products for the Australian market.",
+      },
+      {
+        label: "Trending Now",
+        path: "/app/winning-products",
+        icon: Flame,
+        badge: "HOT",
+        tooltip: "See what's selling right now across AU platforms and social media.",
+      },
+      {
+        label: "Profit Check",
+        path: "/app/profit-calculator",
+        icon: Calculator,
+        tooltip: "Calculate real margins including AU shipping, GST, and ad costs.",
+      },
+    ],
+  },
+  {
+    id: "build",
+    phaseNum: 2,
+    label: "BUILD",
+    color: "#7c6af5",
+    items: [
+      {
+        label: "Store Builder",
+        path: "/app/website-generator",
+        icon: Globe,
+        tooltip: "Generate a complete Shopify store layout and copy in minutes.",
+      },
+      {
+        label: "Brand DNA",
+        path: "/app/brand-dna",
+        icon: Brain,
+        tooltip: "Define your brand name, tone, colours, and identity in one step.",
+      },
+      {
+        label: "Copy Studio",
+        path: "/app/copywriter",
+        icon: PenTool,
+        tooltip: "Write high-converting product copy and email sequences with AI.",
+      },
+      {
+        label: "Ad Studio",
+        path: "/app/meta-ads",
+        icon: Megaphone,
+        tooltip: "Create Meta and TikTok ad creatives, hooks, and full ad packs.",
+      },
+    ],
+  },
+  {
+    id: "spy",
+    phaseNum: 3,
+    label: "SPY",
+    color: "#f59e0b",
+    items: [
+      {
+        label: "Competitor Intel",
+        path: "/app/store-spy",
+        icon: Eye,
+        tooltip: "Reverse-engineer competitor stores, ads, and pricing strategies.",
+      },
+      {
+        label: "Market Saturation",
+        path: "/app/saturation-checker",
+        icon: Activity,
+        tooltip: "Check how crowded a niche is before you invest time and money.",
+      },
+    ],
+  },
 ];
 
 const MOBILE_TABS: NavItem[] = [
   { label: "Home", path: "/app", icon: Home, exact: true },
-  { label: "Research", path: "/app/product-discovery", icon: Search },
-  { label: "Website", path: "/app/website-generator", icon: Globe },
-  { label: "Planner", path: "/app/launch-planner", icon: Rocket },
+  { label: "Scout", path: "/app/product-discovery", icon: Search },
+  { label: "Store", path: "/app/website-generator", icon: Globe },
+  { label: "Ads", path: "/app/meta-ads", icon: Megaphone },
   { label: "AI Chat", path: "/app/ai-chat", icon: MessageSquare },
 ];
+
+// Beginner mode labels for the new sidebar items
+export const PHASE_BEGINNER_LABELS: Record<string, string> = {
+  "product-discovery": "Find Products to Sell",
+  "winning-products": "What's Hot Right Now",
+  "profit-calculator": "Check Your Profit",
+  "website-generator": "Build Your Store",
+  "brand-dna": "Design Your Brand",
+  "copywriter": "Write Your Copy",
+  "meta-ads": "Create Your Ads",
+  "store-spy": "Spy on Competitors",
+  "saturation-checker": "Check Market Crowding",
+};
+
+// ── Phase collapse state ───────────────────────────────────────────────────────
+
+const PHASE_STORAGE_KEY = "majorka_phase_open";
+
+function getDefaultPhaseState(): Record<string, boolean> {
+  try {
+    const stored = localStorage.getItem(PHASE_STORAGE_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch { /* ignore */ }
+  // New users: Phase 1 open, 2+3 closed
+  return { discover: true, build: false, spy: false };
+}
 
 // ── Usage helper ──────────────────────────────────────────────────────────────
 function getUsageToday(): number {
@@ -144,6 +193,7 @@ export default function MajorkaAppShell({ children }: Props) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [phaseOpen, setPhaseOpen] = useState<Record<string, boolean>>(getDefaultPhaseState);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const productsQuery = trpc.products.list.useQuery(undefined, { enabled: isAuthenticated });
@@ -153,6 +203,17 @@ export default function MajorkaAppShell({ children }: Props) {
     ? user.createdAt.toISOString()
     : (user?.createdAt as string | null | undefined);
   const { isBeginnerMode, toggleBeginnerMode } = useBeginnerMode(createdAtStr);
+
+  // Persist phase open state
+  useEffect(() => {
+    try {
+      localStorage.setItem(PHASE_STORAGE_KEY, JSON.stringify(phaseOpen));
+    } catch { /* ignore */ }
+  }, [phaseOpen]);
+
+  const togglePhase = (id: string) => {
+    setPhaseOpen(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   // Update usage count periodically
   useEffect(() => {
@@ -221,17 +282,19 @@ export default function MajorkaAppShell({ children }: Props) {
 
   const navItem = (item: NavItem) => {
     const active = isActive(item.path, item.exact);
-    // Extract tool ID from path for beginner mode lookup
     const toolId = item.path.replace("/app/", "").replace(/\//g, "-");
-    const beginnerLabel = isBeginnerMode ? BEGINNER_LABELS[toolId] : undefined;
+    const beginnerLabel = isBeginnerMode
+      ? (PHASE_BEGINNER_LABELS[toolId] ?? BEGINNER_LABELS[toolId])
+      : undefined;
     const beginnerTooltip = isBeginnerMode ? BEGINNER_TOOLTIPS[toolId] : undefined;
     const displayLabel = beginnerLabel ?? item.label;
-    // Extract tour ID from path for product tour targeting
-    const tourId = toolId;
+    const tooltip = beginnerTooltip ?? item.tooltip;
+
     return (
-      <div key={item.path} className="mb-0.5" data-tour={`nav-${tourId}`} title={beginnerTooltip ?? undefined}>
+      <div key={item.path} className="mb-0.5" data-tour={`nav-${toolId}`}>
         <button
           onClick={() => handleNavClick(item.path)}
+          title={tooltip}
           className="w-full flex items-center gap-2 px-3 py-1.5 text-sm transition-all relative"
           style={{
             borderRadius: 8,
@@ -272,15 +335,13 @@ export default function MajorkaAppShell({ children }: Props) {
                 {item.badge}
               </span>
             )}
-            {item.path === "/app/my-products" && productCount > 0 && (
-              <span
-                className="ml-1 px-1.5 py-0.5 rounded-full"
-                style={{ background: "rgba(212,175,55,0.15)", color: "#d4af37", fontSize: 9, fontWeight: 700 }}
-              >
-                {productCount}
-              </span>
-            )}
           </span>
+          {active && (
+            <div
+              className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+              style={{ background: "#f59e0b" }}
+            />
+          )}
         </button>
       </div>
     );
@@ -343,34 +404,105 @@ export default function MajorkaAppShell({ children }: Props) {
         </button>
       </div>
 
-      {/* Nav sections */}
+      {/* Nav */}
       <div
         className="flex-1 overflow-y-auto py-2 px-2"
         data-tour="sidebar-nav"
         style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}
       >
-        {NAV_SECTIONS.map((section, si) => (
-          <div key={section.label} className={si > 0 ? "mt-2" : ""}>
-            <div
-              className="px-3 pb-1 font-bold uppercase"
+        {/* Top items: Home + Playbook */}
+        <div className="mb-2">
+          {TOP_ITEMS.map(item => navItem(item))}
+        </div>
+
+        {/* Phase divider */}
+        <div className="mb-1" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }} />
+
+        {/* Phase sections */}
+        {PHASE_SECTIONS.map(phase => (
+          <div key={phase.id} className="mb-1">
+            {/* Phase header — collapsible */}
+            <button
+              onClick={() => togglePhase(phase.id)}
+              className="w-full flex items-center gap-2 px-2 py-1.5 transition-all"
               style={{
-                color: "#3f3f46",
-                fontFamily: "Syne, sans-serif",
-                fontSize: 10,
-                letterSpacing: "0.12em",
-                paddingTop: si > 0 ? 10 : 4,
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
               }}
             >
-              {section.label}
-            </div>
-            {section.items.map(item => navItem(item))}
+              {/* Phase badge */}
+              <div
+                className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ background: `${phase.color}20`, border: `1px solid ${phase.color}40` }}
+              >
+                <span style={{ fontSize: 8, fontWeight: 800, color: phase.color, fontFamily: "Syne, sans-serif" }}>
+                  {phase.phaseNum}
+                </span>
+              </div>
+              <span
+                className="flex-1 text-left uppercase"
+                style={{
+                  fontSize: 9.5,
+                  fontWeight: 700,
+                  letterSpacing: "0.14em",
+                  color: "#3f3f46",
+                  fontFamily: "Syne, sans-serif",
+                }}
+              >
+                PHASE {phase.phaseNum} · {phase.label}
+              </span>
+              {phaseOpen[phase.id]
+                ? <ChevronDown size={10} style={{ color: "#3f3f46", flexShrink: 0 }} />
+                : <ChevronRight size={10} style={{ color: "#3f3f46", flexShrink: 0 }} />}
+            </button>
+
+            {/* Phase items */}
+            {phaseOpen[phase.id] && (
+              <div className="pl-1">
+                {phase.items.map(item => navItem(item))}
+              </div>
+            )}
           </div>
         ))}
 
-        {/* Divider + bottom items */}
-        <div className="mt-4 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-          {BOTTOM_ITEMS.map(item => navItem(item))}
+        {/* Divider */}
+        <div className="my-2" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }} />
+
+        {/* Ask Majorka AI — gold gradient full-width button */}
+        <div className="px-1 mb-1">
+          <button
+            onClick={() => handleNavClick("/app/ai-chat")}
+            className="w-full flex items-center gap-2 px-3 py-2 font-semibold text-sm transition-all"
+            style={{
+              borderRadius: 8,
+              background: isActive("/app/ai-chat")
+                ? "linear-gradient(90deg, #d4af37, #b8960c)"
+                : "linear-gradient(90deg, #d4af37cc, #b8960ccc)",
+              color: "#0a0a0a",
+              border: "none",
+              cursor: "pointer",
+              fontFamily: "DM Sans, sans-serif",
+              boxShadow: "0 2px 8px rgba(212,175,55,0.2)",
+            }}
+            title="Chat with Majorka AI — your dedicated ecommerce strategist"
+            onMouseEnter={e => (e.currentTarget.style.background = "linear-gradient(90deg, #d4af37, #b8960c)")}
+            onMouseLeave={e => (e.currentTarget.style.background = isActive("/app/ai-chat")
+              ? "linear-gradient(90deg, #d4af37, #b8960c)"
+              : "linear-gradient(90deg, #d4af37cc, #b8960ccc)")}
+          >
+            <MessageSquare size={14} style={{ flexShrink: 0 }} />
+            <span className="flex-1 text-left">Ask Majorka AI</span>
+          </button>
         </div>
+
+        {/* Knowledge Base */}
+        {navItem({
+          label: "Knowledge Base",
+          path: "/app/knowledge-base",
+          icon: GraduationCap,
+          tooltip: "Browse guides, tutorials, and resources for AU dropshippers.",
+        })}
       </div>
 
       {/* Market selector */}
@@ -422,7 +554,7 @@ export default function MajorkaAppShell({ children }: Props) {
         </button>
       </div>
 
-      {/* Usage meter */}
+      {/* Usage meter — mini progress bar */}
       <div className="flex-shrink-0 px-3 py-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-xs" style={{ color: "#52525b", fontFamily: "DM Sans, sans-serif" }}>
@@ -430,7 +562,11 @@ export default function MajorkaAppShell({ children }: Props) {
           </span>
           <Zap size={10} style={{ color: usagePercent > 80 ? "#ef4444" : "#d4af37" }} />
         </div>
-        <div className="w-full h-1 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+        <div
+          className="w-full rounded-full overflow-hidden"
+          style={{ height: 4, background: "rgba(255,255,255,0.06)" }}
+          title={`${usageCount} of ${DAILY_LIMIT} daily credits used`}
+        >
           <div
             className="h-full rounded-full transition-all duration-500"
             style={{
@@ -441,6 +577,11 @@ export default function MajorkaAppShell({ children }: Props) {
             }}
           />
         </div>
+        {usagePercent > 80 && (
+          <p className="text-xs mt-1" style={{ color: "#ef4444", fontSize: 9.5 }}>
+            Running low — upgrade for more
+          </p>
+        )}
       </div>
 
       {/* User section */}
@@ -516,7 +657,7 @@ export default function MajorkaAppShell({ children }: Props) {
               </div>
             </button>
 
-            {/* Sign Out button always visible below user card */}
+            {/* Sign Out button */}
             <button
               onClick={handleSignOut}
               className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs transition-all mt-0.5"
