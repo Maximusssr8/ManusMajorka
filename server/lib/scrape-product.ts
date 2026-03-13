@@ -117,22 +117,26 @@ Additional page text snippet: ${rawData.rawText.slice(0, 800)}
 
 Return this exact JSON structure:
 {
-  "product_title": "Clean product name in English, max 70 chars. Must be a real product name NOT a page title, URL slug, sentence, question, or navigation text",
+  "product_title": "Clean product name in Australian English, max 70 chars. Must be a real product name NOT a page title, URL slug, sentence, question, or navigation text. Use AU English spelling (colour, organise, centre).",
   "brand": "Brand/manufacturer name if clearly visible, else empty string",
-  "description": "Clear product description in English, 40-120 words. Benefits-focused. If original is non-English, translate it.",
+  "description": "Clear product description in Australian English, 40-120 words. Benefits-focused for AU consumers. If original is non-English, translate it. Use AU spelling throughout.",
   "price_supplier": null or numeric price if found,
   "images": ["only include image URLs that look like actual product photos — URLs containing /product/, /item/, cdn, or image hosting. Exclude icon.png, logo, banner, sprite, pixel, 1x1, svg. Max 6 URLs from the provided list"],
   "key_features": ["3-5 specific product features in English. Real features, not generic marketing fluff"],
-  "variants": { "colors": ["color options if found"], "sizes": ["size options if found"] },
-  "category": "one of: fitness/beauty/home/tech/fashion/pets/other",
-  "confidence": "high if you found a clear product with title+description, medium if partial data, low if page seems irrelevant or no product found"
+  "variants": { "colors": ["colour options if found"], "sizes": ["size options if found"] },
+  "category": "one of: fitness/beauty/home/tech/fashion/pets/jewellery/supplements/other",
+  "confidence": "high if you found a clear product with title+description, medium if partial data, low if page seems irrelevant or no product found",
+  "au_retail_price_suggestion": "Suggested AUD retail price based on typical AU markup (2.5-4x for dropship, 1.8-2.5x for wholesale). Factor in AU shipping ($8-15), GST (10%), Afterpay fees (4-6%). Return as number or null.",
+  "au_compliance_flags": ["Any TGA concerns for health/beauty/therapeutic products", "ACCC product safety issues", "Electrical certification needs (SAA/RCM mark)", "AANZ food standards if applicable. Empty array if no concerns."]
 }
 
 Critical rules:
 - If the title looks like a question, sentence, menu item, or non-product text → set confidence to low
-- If the page appears to be in Portuguese, Spanish, Chinese, etc. → translate everything to English
+- If the page appears to be in Portuguese, Spanish, Chinese, etc. → translate everything to Australian English
 - If product_title would be something like "Quanto custa" or "How much does" → it's wrong, confidence low
-- If you cannot determine a real product, set confidence to "low" and add "error": "Could not extract valid product data from this URL"`;
+- If you cannot determine a real product, set confidence to "low" and add "error": "Could not extract valid product data from this URL"
+- Use Australian English spelling in all output: colour (not color), organise (not organize), centre (not center), favourite (not favorite)
+- For health, beauty, supplement, or therapeutic products: ALWAYS flag potential TGA compliance requirements in au_compliance_flags`;
 
     const response = await client.messages.create({
       model: CLAUDE_MODEL,

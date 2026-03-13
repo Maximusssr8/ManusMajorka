@@ -72,13 +72,20 @@ function buildSystemPrompt(customPrompt: string | undefined, profile: Record<str
 
   const base = customPrompt || `You are Majorka AI — a sharp, direct ecommerce co-founder.`;
 
-  // Only inject profile + personality for the main AI Chat, not structured tool pages
-  // Tool pages send their own precise system prompts (JSON schemas etc) that must not be overridden
-  if (!isAIChat) return base;
-
+  // Inject user profile context for ALL tools so responses are personalised
   const profileCtx = profile
-    ? `\n\nUSER PROFILE:\n- Name: ${profile.display_name || profile.full_name || "there"}\n- Niche: ${profile.target_niche || profile.business_niche || "not set"}\n- Experience: ${profile.experience_level || "unknown"}\n- Goal: ${profile.main_goal || "grow ecommerce business"}\n- Country: ${profile.country || "Australia"}`
+    ? `\n\nUSER PROFILE:\n- Name: ${profile.display_name || profile.full_name || "there"}\n- Niche: ${profile.target_niche || profile.business_niche || "not set"}\n- Experience: ${profile.experience_level || "unknown"}\n- Goal: ${profile.main_goal || "grow ecommerce business"}\n- Budget: ${profile.budget || "not set"}\n- Country: ${profile.country || "Australia"}`
     : "";
+
+  // AI Chat gets full personality rules; tool pages get profile context + lighter memory rules
+  if (!isAIChat) {
+    const toolMemoryRules = `\n\nSESSION MEMORY RULES:
+- Remember what the user has told you in this conversation — their product, niche, budget, store URL.
+- Build on previous answers. If they asked about a posture corrector earlier, reference it.
+- Never repeat the same advice. If you already covered something, reference it and move forward.
+- Relate all answers to their specific product/niche when known.`;
+    return base + profileCtx + toolMemoryRules;
+  }
 
   const personality = `\n\nBEHAVIOUR RULES:
 - You remember everything this user has told you and build on it over time.
@@ -156,8 +163,8 @@ export function registerChatRoutes(app: Application) {
             userId = user.id;
             profile = await fetchUserProfile(userId);
 
-            // Load persistent history only for AI Chat (not structured tool pages)
-            const history = toolName === "ai-chat" ? await loadHistory(userId, toolName) : [];
+            // Load persistent history for all tools so users get session continuity
+            const history = await loadHistory(userId, toolName);
             if (history.length > 0) {
               messages = [...history, ...messages];
               // Deduplicate consecutive same-role messages
