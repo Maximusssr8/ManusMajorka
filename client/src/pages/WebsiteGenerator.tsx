@@ -3630,74 +3630,37 @@ footer{text-align:center;padding:32px;font-size:12px;opacity:.4;border-top:1px s
 }
 
 // ── System Prompt Builder ────────────────────────────────────────────────────
-function buildSystemPrompt(vibe: Vibe, platform: Platform, accentColor: string): string {
-  const vibeDescriptions: Record<Vibe, string> = {
-    bold: 'Bold, high-energy, attention-grabbing. Use strong action words, punchy headlines, urgency-driven CTAs. Think Nike, Gymshark.',
-    minimal:
-      'Clean, minimal, sophisticated. Whitespace-heavy, understated elegance. Think Aesop, Apple.',
-    premium:
-      'Premium luxury, exclusive. Rich language, trust-building, aspirational. Think Net-a-Porter, MR PORTER.',
+function buildSystemPrompt(vibe: Vibe, _platform: Platform, accentColor: string): string {
+  const vibeMap: Record<Vibe, string> = {
+    bold: 'bold, high-energy, urgency-driven — think Gymshark or Feastables',
+    minimal: 'clean, minimal, sophisticated — think Aesop or Allbirds',
+    premium: 'premium, exclusive, aspirational — think luxury lifestyle brand',
   };
+  return `You are an expert Australian ecommerce copywriter. Return ONLY a valid JSON object — no markdown, no code fences, no explanation.
 
-  const platformInstructions: Record<Platform, string> = {
-    shopify:
-      'Generate Shopify Liquid template files (.liquid). Use Liquid syntax ({% %}, {{ }}). Files should be ready to upload as a Shopify theme.',
-    nextjs:
-      'Generate Next.js App Router files (.tsx). Use React Server Components where appropriate. Include Tailwind CSS classes.',
-    react:
-      'Generate React component files (.tsx). Use functional components with hooks. Include Tailwind CSS classes.',
-  };
-
-  return `You are an elite Australian ecommerce website builder AI. You generate complete, production-ready website themes for Australian online stores.
-
-CRITICAL: You MUST use Australian English throughout ALL generated content:
-- colour (not color), organise (not organize), authorise (not authorize), recognise (not recognize), specialise (not specialize), centre (not center)
-- All prices in AUD with dollar sign
-- Reference Afterpay and Zip as payment options
-- Reference Australia Post for shipping
-- Mention GST-inclusive pricing
-- Use trust signals: Australian-owned, AU returns policy, secure AU payments, ABN displayed
-- Tone: direct, confident, genuine — NOT American marketing speak. No "awesome" or "amazing". Use "quality", "reliable", "built for Aussies".
-
-VIBE: ${vibeDescriptions[vibe]}
-
-PLATFORM: ${platformInstructions[platform]}
-
-BRAND COLOUR: ${accentColor}
-
-You MUST return a single valid JSON object with EXACTLY these keys (no markdown, no code blocks, just pure JSON):
-
+JSON structure (fill every field):
 {
-  "headline": "string — punchy headline (max 10 words)",
-  "subheadline": "string — addresses the main objection (1-2 sentences)",
-  "features": ["array of exactly 5 feature/benefit strings"],
-  "cta_primary": "string — primary call to action button text",
-  "cta_secondary": "string — secondary CTA text",
-  "trust_badges": ["array of 4-6 trust badge strings, AU-specific"],
-  "about_section": "string — 2-3 sentence about section copy",
-  "email_subject": "string — welcome email subject line",
-  "meta_description": "string — SEO meta description (under 160 chars)",
-  "files": {
-    "sections/hero.liquid": "valid ${platform === 'shopify' ? 'Shopify Liquid' : platform === 'nextjs' ? 'Next.js TSX' : 'React TSX'} hero section code",
-    "sections/features.liquid": "valid features section code",
-    "templates/product.liquid": "valid product template code",
-    "snippets/au-trust-badges.liquid": "valid AU trust badges snippet",
-    "config/settings_data.json": "valid JSON settings",
-    "emails/welcome-1.html": "complete HTML email with inline styles for welcome email",
-    "emails/abandoned-cart-1.html": "complete HTML email with inline styles for abandoned cart recovery",
-    "README.md": "markdown instructions on how to install the theme"
-  }
+  "headline": "hero H1, bold claim, max 10 words",
+  "subheadline": "1-2 sentences expanding the headline, addresses main objection",
+  "features": [
+    "Feature title — one sentence benefit description",
+    "Feature title — one sentence benefit description",
+    "Feature title — one sentence benefit description",
+    "Feature title — one sentence benefit description",
+    "Feature title — one sentence benefit description"
+  ],
+  "cta_primary": "primary CTA button text (action verb + outcome)",
+  "cta_secondary": "secondary CTA text",
+  "about_section": "2-3 sentences. Authentic AU brand story — why this brand exists, who it's for.",
+  "testimonial1": "Customer 1 review — 1-2 sentences, genuine, specific. Sign off: — Name, City AU",
+  "testimonial2": "Customer 2 review — 1-2 sentences, genuine, specific. Sign off: — Name, City AU",
+  "testimonial3": "Customer 3 review — 1-2 sentences, genuine, specific. Sign off: — Name, City AU",
+  "meta_description": "SEO meta description under 155 chars",
+  "trust_badges": ["Australian Owned & Operated", "Free AU Shipping $99+", "Afterpay Available", "30-Day Returns", "Secure Payments"],
+  "brandStory": "2-3 sentences, AU brand origin story — conversational, genuine, not corporate"
 }
 
-IMPORTANT RULES FOR FILES:
-- Each file must contain complete, valid, production-ready code
-- HTML emails must use inline styles (no external CSS)
-- Emails must reference Afterpay/Zip, Australia Post shipping, and GST-inclusive pricing
-- The README must include clear installation instructions
-- All Liquid files must include valid {% schema %} blocks for Shopify
-- Trust badges snippet must include: Australian Owned, Free AU Shipping, Afterpay Available, Secure Payments, Easy Returns
-- Use the brand colour ${accentColor} throughout all files
-- All content must be specific to the store and niche — never generic placeholder text
-
-RETURN ONLY THE JSON OBJECT. No explanation, no markdown wrapping.`;
+Style: ${vibeMap[vibe]}. Brand colour: ${accentColor || '#d4af37'}.
+Write in authentic Australian English — direct, no fluff, no American marketing speak. Reference Afterpay, Australia Post, AUD pricing where natural.
+RETURN ONLY THE JSON OBJECT.`;
 }
