@@ -52,6 +52,7 @@ const MarketDashboard = lazy(() => import('./MarketDashboard'));
 const CreatorIntelligence = lazy(() => import('./CreatorIntelligence'));
 const VideoIntelligence = lazy(() => import('./VideoIntelligence'));
 const CompetitorSpyPage = lazy(() => import('./CompetitorSpy'));
+const TrendSignals = lazy(() => import('./TrendSignals'));
 const SupplierIntelligence = lazy(() => import('./SupplierIntelligence'));
 
 // Map stage landing paths to their stage names
@@ -187,6 +188,7 @@ export default function ToolPage() {
   if (location === '/app/creators') return page(<CreatorIntelligence />);
   if (location === '/app/videos') return page(<VideoIntelligence />);
   if (location === '/app/competitor-spy') return page(<CompetitorSpyPage />);
+  if (location === '/app/trend-signals') return page(<TrendSignals />);
   if (location === '/app/suppliers') return page(<SupplierIntelligence />);
   if (location === '/app/tiktok') return page(<TikTokSlideshow />);
   if (location === '/app/store/setup') return page(<StoreSetup />);

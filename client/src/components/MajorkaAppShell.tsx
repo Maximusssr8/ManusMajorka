@@ -95,6 +95,13 @@ const PHASE_SECTIONS: PhaseSection[] = [
         tooltip: 'AI finds trending, profitable products for the Australian market.',
       },
       {
+        label: 'Trend Signals',
+        path: '/app/trend-signals',
+        icon: TrendingUp,
+        badge: 'NEW',
+        tooltip: 'Emerging AU trends before they peak — 6h AI cron refresh.',
+      },
+      {
         label: 'Trending Now',
         path: '/app/winning-products',
         icon: Flame,
