@@ -9,6 +9,7 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerChatRoutes } from "./chat";
 import { registerScrapeRoutes } from "../lib/scrape-product";
 import { registerStripeRoutes } from "../lib/stripe";
+import { registerToolsApi } from "../lib/tools-api";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
@@ -44,6 +45,14 @@ const agentLog: AgentLogEntry[] = [];
 async function startServer() {
   const app = express();
   const server = createServer(app);
+
+  // Security headers
+  app.use((_req, res, next) => {
+    res.setHeader("X-Frame-Options", "DENY");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    next();
+  });
 
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
@@ -87,6 +96,8 @@ async function startServer() {
   registerScrapeRoutes(app);
   // Stripe checkout + webhook routes
   registerStripeRoutes(app);
+  // Research & intelligence tool endpoints
+  registerToolsApi(app);
   // tRPC API
   app.use(
     "/api/trpc",

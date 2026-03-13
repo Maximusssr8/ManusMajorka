@@ -16,6 +16,7 @@ import {
   FolderKanban, Brain, PenTool, Mail, Eye, Sparkles, Truck,
   Store, ShoppingBag, ClipboardList,
   Clock, Bell, HelpCircle, ChevronUp, Zap, Crown, ArrowUpRight,
+  TrendingUp, Calculator, Activity,
 } from "lucide-react";
 import { allTools } from "@/lib/tools";
 
@@ -49,6 +50,10 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Validate", path: "/app/validate", icon: CheckCircle2 },
       { label: "Competitor Breakdown", path: "/app/competitor-breakdown", icon: Target },
       { label: "Ad Spy", path: "/app/ad-spy", icon: Eye },
+      { label: "Winning Products", path: "/app/winning-products", icon: TrendingUp, badge: "HOT" },
+      { label: "Store Spy", path: "/app/store-spy", icon: Search },
+      { label: "Saturation Checker", path: "/app/saturation-checker", icon: Activity },
+      { label: "Profit Calculator", path: "/app/profit-calculator", icon: Calculator },
     ],
   },
   {
