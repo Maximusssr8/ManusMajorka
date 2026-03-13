@@ -4,6 +4,8 @@ import MajorkaAppShell from "@/components/MajorkaAppShell";
 import ToolPage from "./ToolPage";
 import OnboardingModal from "@/components/OnboardingModal";
 import OnboardingChecklist from "@/components/OnboardingChecklist";
+import ProductTour from "@/components/ProductTour";
+import WelcomeModal from "@/components/WelcomeModal";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getToolByPath, recordRecentTool, allTools, stages } from "@/lib/tools";
 import { useDocumentTitle } from "@/_core/hooks/useDocumentTitle";

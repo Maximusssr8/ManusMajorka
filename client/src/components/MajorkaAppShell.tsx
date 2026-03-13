@@ -206,8 +206,10 @@ export default function MajorkaAppShell({ children }: Props) {
 
   const navItem = (item: NavItem) => {
     const active = isActive(item.path, item.exact);
+    // Extract tour ID from path for product tour targeting
+    const tourId = item.path.replace("/app/", "").replace(/\//g, "-");
     return (
-      <div key={item.path} className="mb-0.5">
+      <div key={item.path} className="mb-0.5" data-tour={`nav-${tourId}`}>
         <button
           onClick={() => handleNavClick(item.path)}
           className="w-full flex items-center gap-2 px-3 py-1.5 text-sm transition-all relative"
@@ -324,6 +326,7 @@ export default function MajorkaAppShell({ children }: Props) {
       {/* Nav sections */}
       <div
         className="flex-1 overflow-y-auto py-2 px-2"
+        data-tour="sidebar-nav"
         style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}
       >
         {NAV_SECTIONS.map((section, si) => (
