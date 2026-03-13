@@ -17,6 +17,7 @@ import {
   Store, ShoppingBag, ClipboardList,
   Clock, Bell, HelpCircle, ChevronUp, Zap, Crown, ArrowUpRight,
   TrendingUp, Calculator, Activity,
+  Flame, Award, RefreshCw, Workflow, Compass,
 } from "lucide-react";
 import { allTools } from "@/lib/tools";
 
@@ -47,10 +48,12 @@ const NAV_SECTIONS: NavSection[] = [
     label: "RESEARCH",
     items: [
       { label: "Product Discovery", path: "/app/product-discovery", icon: Search },
+      { label: "Winning Products", path: "/app/winning-products", icon: TrendingUp, badge: "HOT" },
+      { label: "AU Trending", path: "/app/au-trending", icon: Flame },
       { label: "Validate", path: "/app/validate", icon: CheckCircle2 },
+      { label: "Niche Scorer", path: "/app/niche-scorer", icon: Award },
       { label: "Competitor Breakdown", path: "/app/competitor-breakdown", icon: Target },
       { label: "Ad Spy", path: "/app/ad-spy", icon: Eye },
-      { label: "Winning Products", path: "/app/winning-products", icon: TrendingUp, badge: "HOT" },
       { label: "Store Spy", path: "/app/store-spy", icon: Search },
       { label: "Saturation Checker", path: "/app/saturation-checker", icon: Activity },
       { label: "Profit Calculator", path: "/app/profit-calculator", icon: Calculator },
@@ -72,6 +75,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Meta Ads Pack", path: "/app/meta-ads", icon: Megaphone },
       { label: "Ads Studio", path: "/app/ads-studio", icon: Video },
       { label: "TikTok Slides", path: "/app/tiktok", icon: Video },
+      { label: "Google Ads", path: "/app/google-ads", icon: BarChart2 },
       { label: "Launch Planner", path: "/app/launch-planner", icon: Rocket },
     ],
   },
@@ -80,6 +84,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: "Market Intelligence", path: "/app/market-intel", icon: LineChart },
       { label: "Analytics Decoder", path: "/app/analytics-decoder", icon: PieChart },
+      { label: "CRO Advisor", path: "/app/cro-advisor", icon: RefreshCw },
       { label: "AI Chat", path: "/app/ai-chat", icon: MessageSquare },
     ],
   },
@@ -89,6 +94,8 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "My Products", path: "/app/my-products", icon: Package },
       { label: "Project Manager", path: "/app/project-manager", icon: FolderKanban },
       { label: "Supplier Finder", path: "/app/supplier-finder", icon: Truck },
+      { label: "Scaling Playbook", path: "/app/scaling-playbook", icon: Workflow },
+      { label: "Financial Modeler", path: "/app/financial-modeler", icon: BarChart2 },
     ],
   },
   {

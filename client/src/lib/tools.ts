@@ -899,6 +899,11 @@ export const stages: StageGroup[] = [
         path: "/app/product-discovery",
         description: "Find winning products with AI-powered market scanning",
         systemPrompt: PRODUCT_DISCOVERY_PROMPT,
+        examplePrompts: [
+          "Find 3 winning products to dropship in Australia under $40 AUD",
+          "What products are trending for pet owners in Australia?",
+          "Find impulse-buy products for 18-34 women in Sydney and Melbourne",
+        ],
       },
       {
         id: "competitor-breakdown",
@@ -907,6 +912,11 @@ export const stages: StageGroup[] = [
         path: "/app/competitor-breakdown",
         description: "Deep-dive competitor analysis and strategy extraction",
         systemPrompt: COMPETITOR_BREAKDOWN_PROMPT,
+        examplePrompts: [
+          "Analyse the AU skincare market — who are the top 5 Shopify brands?",
+          "Break down the competitive landscape for pet supplements in Australia",
+          "What AU competitors are running Meta ads for resistance bands?",
+        ],
       },
       {
         id: "trend-radar",
@@ -915,6 +925,11 @@ export const stages: StageGroup[] = [
         path: "/app/trend-radar",
         description: "Real-time trend detection and forecasting",
         systemPrompt: TREND_RADAR_PROMPT,
+        examplePrompts: [
+          "What ecommerce trends are emerging in Australia for 2026?",
+          "Which product categories are about to blow up in AU?",
+          "What US trends haven't hit Australia yet that I could get early on?",
+        ],
       },
       {
         id: "market-map",
@@ -923,6 +938,11 @@ export const stages: StageGroup[] = [
         path: "/app/market-map",
         description: "Visual market landscape and positioning analysis",
         systemPrompt: mkPrompt("a market mapping strategist specialising in the Australian ecommerce landscape", "Help users understand their market landscape in Australia. Create detailed market maps showing: key AU players and their positioning (include AU-native brands AND international brands with AU presence), market segments and sizes in AUD, AU price point distribution (accounting for AU's higher baseline pricing vs US), customer demographics by AU state/city, distribution channels (Shopify AU, Amazon AU, eBay AU, Catch, THE ICONIC, Kogan), and white space opportunities specific to the AU market. Always reference AU market sizes and AU consumer preferences. Present findings in structured tables and clear hierarchies."),
+        examplePrompts: [
+          "Map the AU home fragrance market — who are the key players?",
+          "Show me the competitive landscape for activewear brands in Australia",
+          "Map the AU baby products market by price tier and channel",
+        ],
       },
       {
         id: "niche-scorer",
@@ -931,6 +951,11 @@ export const stages: StageGroup[] = [
         path: "/app/niche-scorer",
         description: "Score and rank niches by profitability potential",
         systemPrompt: NICHE_SCORER_PROMPT,
+        examplePrompts: [
+          "Score the pet supplements niche for Australia",
+          "Rate the opportunity for eco-friendly kitchenware in the AU market",
+          "Is the posture corrector niche viable in Australia?",
+        ],
       },
       {
         id: "supplier-finder",
@@ -939,6 +964,11 @@ export const stages: StageGroup[] = [
         path: "/app/supplier-finder",
         description: "Find and evaluate reliable suppliers",
         systemPrompt: SUPPLIER_FINDER_PROMPT,
+        examplePrompts: [
+          "Find suppliers for bamboo products that ship to Australia",
+          "Where can I source stainless steel water bottles for AU dropshipping?",
+          "Find AU-based suppliers for pet accessories",
+        ],
       },
       {
         id: "keyword-miner",
@@ -947,6 +977,11 @@ export const stages: StageGroup[] = [
         path: "/app/keyword-miner",
         description: "Extract high-value keywords for SEO and ads",
         systemPrompt: KEYWORD_MINER_PROMPT,
+        examplePrompts: [
+          "Find buyer-intent keywords for 'blue light glasses' in Australia",
+          "What keywords should I target for a posture corrector store?",
+          "Give me Google Shopping keywords for organic skincare in AU",
+        ],
       },
       {
         id: "au-trending",
@@ -1103,6 +1138,11 @@ export const stages: StageGroup[] = [
         path: "/app/website-generator",
         description: "Generate high-converting Shopify landing pages",
         systemPrompt: WEBSITE_GENERATOR_PROMPT,
+        examplePrompts: [
+          "Build a Shopify store for premium pet products targeting Sydney professionals",
+          "Create a landing page for a $55 AUD reusable coffee cup brand",
+          "Generate a Shopify theme for an eco-friendly activewear brand",
+        ],
       },
       {
         id: "creative-studio",
@@ -1180,6 +1220,11 @@ Where this brand sits vs 3–4 AU competitors on Price (affordable↔premium) an
 
 ## Next Steps
 2–3 actions to bring this brand DNA to life this week — specific to AU (e.g., "Register .com.au domain", "Brief an AU designer on Fiverr/99designs", "Create brand mood board on Pinterest with AU lifestyle imagery").`),
+        examplePrompts: [
+          "Create a brand for eco pet products targeting AU millennial dog owners",
+          "Build brand DNA for a premium activewear label for Gold Coast women",
+          "Define the brand identity for an AU-made skincare brand competing with Go-To",
+        ],
       },
       {
         id: "copywriter",
@@ -1188,6 +1233,11 @@ Where this brand sits vs 3–4 AU competitors on Price (affordable↔premium) an
         path: "/app/copywriter",
         description: "Write product descriptions, headlines, and sales copy",
         systemPrompt: COPYWRITER_PROMPT,
+        examplePrompts: [
+          "Write product descriptions for bamboo towels, AU market",
+          "Create 10 headlines for a $39 posture corrector targeting office workers",
+          "Write ad copy for a $55 reusable coffee cup — casual AU tone",
+        ],
       },
       {
         id: "email-sequences",
@@ -1196,6 +1246,11 @@ Where this brand sits vs 3–4 AU competitors on Price (affordable↔premium) an
         path: "/app/email-sequences",
         description: "Build automated email flows and campaigns",
         systemPrompt: EMAIL_SEQUENCES_PROMPT,
+        examplePrompts: [
+          "Write a 5-email welcome sequence for a pet supply store",
+          "Create an abandoned cart recovery flow for a $79 skincare product",
+          "Write a post-purchase upsell sequence for a fitness brand",
+        ],
       },
       {
         id: "store-auditor",
@@ -1249,6 +1304,11 @@ Where this brand sits vs 3–4 AU competitors on Price (affordable↔premium) an
         path: "/app/meta-ads",
         description: "Complete Meta ad campaign launch packages",
         systemPrompt: META_ADS_PROMPT,
+        examplePrompts: [
+          "Write Meta ads for a $55 AUD reusable coffee cup brand",
+          "Create a full Meta campaign for a posture corrector targeting 25-45 AU women",
+          "Build a Meta ads pack for a new pet supplement brand launching in AU",
+        ],
       },
       {
         id: "ads-studio",
@@ -1257,6 +1317,11 @@ Where this brand sits vs 3–4 AU competitors on Price (affordable↔premium) an
         path: "/app/ads-studio",
         description: "Create ad hooks, scripts, and shot lists",
         systemPrompt: ADS_STUDIO_PROMPT,
+        examplePrompts: [
+          "Create TikTok video ideas for a $35 AUD skincare product",
+          "Write 5 scroll-stopping hooks for a resistance band brand",
+          "Create a UGC creator brief for a $49 blue light glasses brand",
+        ],
       },
       {
         id: "tiktok-ads",
@@ -1323,6 +1388,11 @@ Where this brand sits vs 3–4 AU competitors on Price (affordable↔premium) an
         path: "/app/market-intel",
         description: "Ongoing market monitoring and competitive intel",
         systemPrompt: MARKET_INTEL_PROMPT,
+        examplePrompts: [
+          "Analyse the AU home decor market opportunity",
+          "What's the market size and growth rate for pet products in Australia?",
+          "Compare the AU skincare market — who's winning and where are the gaps?",
+        ],
       },
       {
         id: "analytics-decoder",

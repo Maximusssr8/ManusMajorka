@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Markdown } from "@/components/Markdown";
-import { Download, Copy, Send, Loader2, Sparkles, Check } from "lucide-react";
+import { Download, Copy, Send, Loader2, Sparkles, Check, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import OutputToolbar from "@/components/OutputToolbar";
 import RelatedTools from "@/components/RelatedTools";
@@ -169,6 +169,19 @@ export default function AIToolChat({
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard!");
+  };
+
+  const handleRegenerate = () => {
+    if (status === "streaming" || messages.length < 2) return;
+    // Find the last user message
+    const lastUserIdx = messages.map(m => m.role).lastIndexOf("user");
+    if (lastUserIdx === -1) return;
+    const lastUserMsg = messages[lastUserIdx].content;
+    // Remove the last assistant message and re-send
+    const trimmed = messages.slice(0, lastUserIdx);
+    setMessages(trimmed);
+    // Small delay so state update propagates
+    setTimeout(() => handleSend(lastUserMsg), 50);
   };
 
   const getAllAssistantText = () => {
@@ -362,6 +375,20 @@ export default function AIToolChat({
                   </div>
                 );
               })()}
+
+              {/* Regenerate button */}
+              {status === "idle" && messages.length >= 2 && messages[messages.length - 1]?.role === "assistant" && (
+                <div className="flex justify-center pt-1 pb-2">
+                  <button
+                    onClick={handleRegenerate}
+                    className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all hover:bg-white/5"
+                    style={{ color: "rgba(240,237,232,0.4)", cursor: "pointer", border: "1px solid rgba(255,255,255,0.08)", background: "transparent" }}
+                  >
+                    <RefreshCw size={11} />
+                    Regenerate
+                  </button>
+                </div>
+              )}
             </div>
           </ScrollArea>
 
