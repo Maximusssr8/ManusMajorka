@@ -2,10 +2,11 @@
  * Tools API — Server-side endpoints for Majorka research & intelligence tools.
  *
  * Registers Express routes for:
- *   POST /api/tools/winning-products
+ *   POST /api/tools/winning-products   — Tavily-powered AU product research (legacy)
  *   POST /api/tools/store-spy
  *   POST /api/tools/saturation-check
  *   POST /api/tools/daily-products-subscribe
+ *   POST /api/products/refresh          — Manual trigger for product data refresh (auth, 1/hr)
  */
 
 import Firecrawl from '@mendable/firecrawl-js';
@@ -47,7 +48,52 @@ async function authenticateRequest(req: any): Promise<{ userId: string; email: s
 // Route registration
 // ---------------------------------------------------------------------------
 
+// ── In-memory rate limiter for /api/products/refresh (1/hr per user) ────────
+const refreshLimiter = new Map<string, number>(); // userId → last triggered ms
+const REFRESH_COOLDOWN_MS = 60 * 60 * 1000; // 1 hour
+
 export function registerToolsApi(app: Application): void {
+
+  // -----------------------------------------------------------------------
+  // 0. POST /api/products/refresh  — manual refresh trigger
+  // -----------------------------------------------------------------------
+  app.post('/api/products/refresh', async (req, res) => {
+    const authUser = await authenticateRequest(req);
+    if (!authUser) {
+      res.status(401).json({ error: 'Unauthorized — Bearer token required' });
+      return;
+    }
+
+    const now = Date.now();
+    const lastRun = refreshLimiter.get(authUser.userId) ?? 0;
+    const nextAllowedAt = new Date(lastRun + REFRESH_COOLDOWN_MS).toISOString();
+
+    if (now - lastRun < REFRESH_COOLDOWN_MS) {
+      res.status(429).json({ error: 'Rate limited — 1 refresh per hour', nextAllowedAt });
+      return;
+    }
+
+    refreshLimiter.set(authUser.userId, now);
+
+    const webhookUrl = process.env.PRODUCT_REFRESH_WEBHOOK_URL;
+    if (webhookUrl) {
+      try {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ triggeredBy: authUser.userId, triggeredAt: new Date().toISOString() }),
+        });
+        const nextAt = new Date(now + REFRESH_COOLDOWN_MS).toISOString();
+        res.json({ triggered: true, message: 'Product refresh webhook fired', nextAllowedAt: nextAt });
+      } catch (webhookErr: any) {
+        const nextAt = new Date(now + REFRESH_COOLDOWN_MS).toISOString();
+        res.json({ triggered: false, message: `Webhook error: ${webhookErr.message}`, nextAllowedAt: nextAt });
+      }
+    } else {
+      const nextAt = new Date(now + REFRESH_COOLDOWN_MS).toISOString();
+      res.json({ triggered: true, message: 'Webhook not configured yet — refresh queued', nextAllowedAt: nextAt });
+    }
+  });
   // -----------------------------------------------------------------------
   // 1. POST /api/tools/winning-products
   // -----------------------------------------------------------------------

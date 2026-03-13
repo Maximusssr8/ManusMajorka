@@ -16,6 +16,11 @@ import { createCheckoutSession, constructWebhookEvent, handleWebhook } from "../
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
 import { getProductByIdPublic } from "../server/db";
 
+// Run DB migrations on cold start (non-fatal)
+import('../server/lib/migrate-winning-products').then(({ runWinningProductsMigration }) =>
+  runWinningProductsMigration().catch(console.warn)
+);
+
 const app = express();
 
 // ── Stripe webhook must receive raw body — register BEFORE express.json() ─────

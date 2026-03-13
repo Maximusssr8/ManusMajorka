@@ -47,7 +47,7 @@ const SECTIONS = [
   {
     title: 'Contact Us',
     content:
-      'If you have any questions about this Privacy Policy or our data practices, please contact us at privacy@majorka.ai. We are based in Gold Coast, Queensland, Australia.',
+      'If you have any questions about this Privacy Policy or our data practices, please contact us at privacy@majorka.io. We are based in Gold Coast, Queensland, Australia.',
   },
 ];
 
@@ -144,7 +144,7 @@ export default function Privacy() {
           <p style={{ color: C.secondary, fontSize: 15, lineHeight: 1.6, marginTop: 12 }}>
             Majorka ("we", "us", or "our") is committed to protecting your privacy. This policy
             explains how we collect, use, and safeguard your information when you use our platform
-            at <span style={{ color: C.gold }}>majorka.ai</span>.
+            at <span style={{ color: C.gold }}>majorka.io</span>.
           </p>
         </div>
 

@@ -100,6 +100,11 @@ async function startServer() {
     res.json(agentLog);
   });
 
+  // Run DB migrations (non-fatal — gracefully skips if DB unreachable locally)
+  import('../lib/migrate-winning-products').then(({ runWinningProductsMigration }) =>
+    runWinningProductsMigration().catch(console.warn)
+  );
+
   // Chat API with streaming and tool calling
   registerChatRoutes(app);
   // Product scraping API
