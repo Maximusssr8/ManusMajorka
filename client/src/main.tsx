@@ -10,6 +10,7 @@ import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
+import { HelmetProvider } from "react-helmet-async";
 import App from "./App";
 import "./index.css";
 
@@ -118,11 +119,13 @@ console.log("[main] root element:", rootEl);
 try {
   createRoot(rootEl!).render(
   <ErrorBoundary>
+    <HelmetProvider>
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
         <App />
       </QueryClientProvider>
     </trpc.Provider>
+    </HelmetProvider>
   </ErrorBoundary>
   );
 } catch (err) {

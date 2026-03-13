@@ -1,7 +1,8 @@
 User-agent: *
 Allow: /
 Disallow: /app/
-Disallow: /api/
 Disallow: /account
+Disallow: /api/
+Disallow: /admin/
 
 Sitemap: https://majorka.ai/sitemap.xml

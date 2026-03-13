@@ -1,0 +1,16 @@
+{
+  "name": "Majorka",
+  "short_name": "Majorka",
+  "description": "AI Ecommerce OS for Australian Dropshippers",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080a0e",
+  "theme_color": "#d4af37",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
