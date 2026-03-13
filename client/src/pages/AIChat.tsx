@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Markdown } from "@/components/Markdown";
-import { Send, Loader2, Sparkles, Trash2, Package } from "lucide-react";
+import { Send, Loader2, Sparkles, Trash2, Package, RefreshCw } from "lucide-react";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -26,12 +26,12 @@ export default function AIChat() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const { activeProduct } = useActiveProduct();
   const { session } = useAuth();
+  const lastFailedMsg = useRef<string | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Build context-aware system prompt
   const buildSystemPrompt = useCallback(() => {
     const productCtx = activeProduct
       ? `\n\nACTIVE PRODUCT: ${activeProduct.name} | Niche: ${activeProduct.niche} | Stage: ${activeProduct.source}\n\nAlways reference this product specifically when answering questions. Give advice tailored to exactly this product and niche.`
@@ -39,7 +39,6 @@ export default function AIChat() {
     return BASE_SYSTEM_PROMPT + productCtx;
   }, [activeProduct]);
 
-  // Context-aware suggested prompts
   const suggestedPrompts = activeProduct
     ? [
         `What's the best ad angle for ${activeProduct.name}?`,
@@ -48,10 +47,10 @@ export default function AIChat() {
         `How do I validate demand for ${activeProduct.name} quickly?`,
       ]
     : [
-        "How do I find a winning product to dropship?",
-        "What's a realistic margin for a Shopify store?",
-        "How much should I spend on Meta ads to test a product?",
-        "What's the fastest way to validate a product idea?",
+        "What AU products are trending on TikTok right now?",
+        "Help me validate my niche: eco dog products",
+        "Write me Meta ads for a $45 AUD water bottle",
+        "What's the best way to start dropshipping in Australia?",
       ];
 
   const handleSend = useCallback(async (overrideText?: string) => {
@@ -59,6 +58,7 @@ export default function AIChat() {
     if (!msg || status === "streaming") return;
     if (!overrideText) setInput("");
     if (textareaRef.current) textareaRef.current.style.height = "auto";
+    lastFailedMsg.current = null;
 
     const userMsg: Message = { role: "user", content: msg };
     const newMessages = [...messages, userMsg];
@@ -68,34 +68,85 @@ export default function AIChat() {
     try {
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (session?.access_token) headers["Authorization"] = `Bearer ${session.access_token}`;
-      const response = await fetch("/api/chat", {
+
+      const response = await fetch("/api/chat?stream=1", {
         method: "POST",
         headers,
         body: JSON.stringify({
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
           systemPrompt: buildSystemPrompt(),
           toolName: "ai-chat",
+          stream: true,
         }),
       });
       if (!response.ok) throw new Error(`Server error: ${response.status}`);
-      const data = await response.json();
-      const reply = data.reply ?? "";
-      setMessages(prev => {
-        const updated = [...prev];
-        updated[updated.length - 1] = { role: "assistant", content: reply };
-        return updated;
-      });
+
+      // Parse SSE stream
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      if (reader) {
+        let buffer = "";
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            try {
+              const payload = JSON.parse(line.slice(6));
+              if (payload.type === "delta") {
+                accumulated += payload.text;
+                setMessages(prev => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = { role: "assistant", content: accumulated };
+                  return updated;
+                });
+              }
+            } catch { /* skip malformed lines */ }
+          }
+        }
+      }
+
+      // Fallback: if streaming produced nothing, try plain JSON
+      if (!accumulated) {
+        try {
+          const text = await response.text();
+          const data = JSON.parse(text);
+          accumulated = data.reply ?? "";
+          setMessages(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1] = { role: "assistant", content: accumulated };
+            return updated;
+          });
+        } catch { /* already handled */ }
+      }
     } catch (err) {
       console.error("Stream error:", err);
+      lastFailedMsg.current = msg;
       setMessages(prev => {
         const updated = [...prev];
-        updated[updated.length - 1] = { role: "assistant", content: "Something went wrong. Please try again.", isError: true };
+        updated[updated.length - 1] = { role: "assistant", content: "Something went wrong — try again", isError: true };
         return updated;
       });
     } finally {
       setStatus("idle");
     }
   }, [input, messages, status, buildSystemPrompt, session]);
+
+  const handleRetry = useCallback(() => {
+    if (!lastFailedMsg.current) return;
+    // Remove the error message
+    setMessages(prev => prev.slice(0, -2));
+    const retryMsg = lastFailedMsg.current;
+    lastFailedMsg.current = null;
+    handleSend(retryMsg);
+  }, [handleSend]);
 
   const handleClearHistory = useCallback(async () => {
     setMessages([]);
@@ -132,7 +183,6 @@ export default function AIChat() {
               {activeProduct ? `Advising on ${activeProduct.name}` : "Ask Majorka anything"}
             </p>
           </div>
-          {/* Active product chip */}
           {activeProduct && (
             <div
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg"
@@ -145,7 +195,6 @@ export default function AIChat() {
               )}
             </div>
           )}
-          {/* Clear chat */}
           {messages.length > 0 && (
             <button
               onClick={handleClearHistory}
@@ -176,7 +225,6 @@ export default function AIChat() {
                     ? `I have full context on your ${activeProduct.niche} product and can give you specific, targeted advice.`
                     : "Ask me anything about growing your ecommerce business."}
                 </p>
-                {/* Suggested prompts */}
                 <div className="flex flex-col gap-2 w-full max-w-md">
                   <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: "rgba(240,237,232,0.25)", fontFamily: "Syne, sans-serif" }}>Suggested</p>
                   {suggestedPrompts.map((prompt, i) => (
@@ -231,9 +279,29 @@ export default function AIChat() {
                         }
                   }
                 >
-                  <div className="prose prose-sm dark:prose-invert max-w-none">
-                    <Markdown mode="static">{msg.content}</Markdown>
-                  </div>
+                  {msg.isError ? (
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm" style={{ color: "rgba(255,150,150,0.9)" }}>{msg.content}</span>
+                      <button
+                        onClick={handleRetry}
+                        className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg flex-shrink-0 transition-all"
+                        style={{
+                          background: "rgba(212,175,55,0.12)",
+                          border: "1px solid rgba(212,175,55,0.3)",
+                          color: "#d4af37",
+                          cursor: "pointer",
+                          fontFamily: "Syne, sans-serif",
+                          fontWeight: 700,
+                        }}
+                      >
+                        <RefreshCw size={10} /> Retry
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <Markdown mode={status === "streaming" && i === messages.length - 1 && msg.role === "assistant" ? "streaming" : "static"}>{msg.content}</Markdown>
+                    </div>
+                  )}
                 </div>
 
                 {msg.role === "user" && (
@@ -247,15 +315,25 @@ export default function AIChat() {
               </div>
             ))}
 
+            {/* Bouncing dots typing indicator */}
             {status === "streaming" && messages[messages.length - 1]?.content === "" && (
               <div className="flex gap-3 justify-start">
                 <div className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center" style={{ background: "rgba(212,175,55,0.12)" }}>
                   <Sparkles className="w-3.5 h-3.5" style={{ color: "#d4af37" }} />
                 </div>
                 <div className="rounded-lg px-4 py-3" style={{ background: "#0d0f12", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" style={{ color: "#d4af37" }} />
-                    <span className="text-xs" style={{ color: "rgba(240,237,232,0.4)" }}>Thinking...</span>
+                  <div className="flex items-center gap-1.5">
+                    {[0, 1, 2].map(i => (
+                      <div
+                        key={i}
+                        className="w-2 h-2 rounded-full animate-bounce"
+                        style={{
+                          background: "#d4af37",
+                          animationDelay: `${i * 0.15}s`,
+                          animationDuration: "0.6s",
+                        }}
+                      />
+                    ))}
                   </div>
                 </div>
               </div>
@@ -300,7 +378,7 @@ export default function AIChat() {
                 border: "none",
               }}
             >
-              <Send className="w-3.5 h-3.5" />
+              {status === "streaming" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
             </button>
           </div>
           <p className="text-xs mt-1.5 text-center" style={{ color: "rgba(240,237,232,0.12)" }}>

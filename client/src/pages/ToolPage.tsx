@@ -2,7 +2,7 @@ import { useLocation } from "wouter";
 import { getToolByPath, stages } from "@/lib/tools";
 import AIToolChat from "@/components/AIToolChat";
 import { createElement, useState, lazy, Suspense, useEffect } from "react";
-import { logActivity } from "@/lib/activity";
+import { logActivity, getActivityLog, getRelativeTime, type ActivityEntry } from "@/lib/activity";
 import { injectProductIntelligence } from "@/lib/buildToolPrompt";
 import { useProduct } from "@/contexts/ProductContext";
 import { capture } from "@/lib/posthog";
@@ -118,6 +118,15 @@ export default function ToolPage() {
     </Suspense>
   );
 
+  // History page — show recent activity
+  if (location === "/app/history") return page(<HistoryPage />);
+
+  // Settings — redirect to profile settings
+  if (location === "/app/settings") {
+    const SettingsProfile = lazy(() => import("./SettingsProfile"));
+    return page(<SettingsProfile />);
+  }
+
   // Route dedicated tool pages
   if (location === "/app/website-generator") return page(<WebsiteGenerator />);
   if (location === "/app/meta-ads") return page(<MetaAdsPack />);
@@ -190,5 +199,44 @@ export default function ToolPage() {
       examplePrompts={tool.examplePrompts}
       initialMessage={prefill ?? undefined}
     />
+  );
+}
+
+// ── History Page ─────────────────────────────────────────────────────────────
+function HistoryPage() {
+  const [, setLocation] = useLocation();
+  const [entries] = useState<ActivityEntry[]>(() => getActivityLog().slice(0, 30));
+
+  return (
+    <div className="h-full overflow-auto p-6" style={{ background: "#080a0e" }}>
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-xl font-black mb-1" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>History</h1>
+        <p className="text-xs mb-6" style={{ color: "rgba(240,237,232,0.35)" }}>Your recent tool usage and activity.</p>
+        {entries.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="text-3xl mb-3">📋</div>
+            <p className="text-sm" style={{ color: "rgba(240,237,232,0.35)" }}>No activity yet. Start using tools to see your history here.</p>
+          </div>
+        ) : (
+          <div className="space-y-1">
+            {entries.map((entry, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all"
+                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}
+              >
+                <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0" style={{ background: "rgba(212,175,55,0.1)" }}>
+                  <span style={{ fontSize: 9, color: "#d4af37" }}>●</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-medium truncate" style={{ color: "#f0ede8" }}>{entry.label}</div>
+                </div>
+                <div className="text-xs flex-shrink-0" style={{ color: "#52525b" }}>{getRelativeTime(entry.timestamp)}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

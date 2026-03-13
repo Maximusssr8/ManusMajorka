@@ -15,6 +15,74 @@ import { useActiveProduct } from "@/hooks/useActiveProduct";
 import { useProduct } from "@/contexts/ProductContext";
 import { proxyImage } from "@/lib/imageProxy";
 
+// ── Template Definitions ─────────────────────────────────────────────────────
+interface StoreTemplate {
+  id: string;
+  name: string;
+  niche: string;
+  colors: { bg: string; accent: string; text: string };
+  tone: string;
+  storeName: string;
+  tagline: string;
+}
+
+const STORE_TEMPLATES: StoreTemplate[] = [
+  {
+    id: "bondi-wellness",
+    name: "Bondi Wellness",
+    niche: "Health supplements & wellness",
+    colors: { bg: "#f0faf0", accent: "#2d6a4f", text: "#1a1a2e" },
+    tone: "clean, credible, science-backed",
+    storeName: "Bondi Wellness Co",
+    tagline: "Clean Supplements for Active Australians",
+  },
+  {
+    id: "au-pet-collective",
+    name: "AU Pet Collective",
+    niche: "Premium pet products",
+    colors: { bg: "#fff8f0", accent: "#8b4513", text: "#1a1a2e" },
+    tone: "playful, loving, premium",
+    storeName: "The AU Pet Collective",
+    tagline: "Because Your Dog Deserves Better",
+  },
+  {
+    id: "gold-coast-fashion",
+    name: "Gold Coast Fashion",
+    niche: "Beachwear & fashion",
+    colors: { bg: "#fff9f0", accent: "#c9a227", text: "#1a1a2e" },
+    tone: "aspirational, beach lifestyle, AU summer",
+    storeName: "Sun & Salt Co",
+    tagline: "Made for the Australian Summer",
+  },
+  {
+    id: "tradie-gear",
+    name: "Tradie Gear AU",
+    niche: "Tools & workwear",
+    colors: { bg: "#1a1a1a", accent: "#f59e0b", text: "#ffffff" },
+    tone: "no-nonsense, tough, reliable",
+    storeName: "Tradie Gear AU",
+    tagline: "Built for the Australian Tradesperson",
+  },
+  {
+    id: "eco-edit",
+    name: "The Eco Edit",
+    niche: "Sustainable home products",
+    colors: { bg: "#f7f3ee", accent: "#5c4033", text: "#1a1a2e" },
+    tone: "conscious, minimal, warm",
+    storeName: "The Eco Edit",
+    tagline: "Sustainable Choices for Australian Homes",
+  },
+  {
+    id: "aussie-sports",
+    name: "Aussie Sports Hub",
+    niche: "Sports & outdoor gear",
+    colors: { bg: "#0a0a2e", accent: "#00b4d8", text: "#ffffff" },
+    tone: "energetic, performance, AU outdoor culture",
+    storeName: "Aussie Sports Hub",
+    tagline: "Gear Up. Get Out. Australia.",
+  },
+];
+
 // ── Types ────────────────────────────────────────────────────────────────────
 interface GeneratedData {
   headline: string;
@@ -329,6 +397,13 @@ export default function WebsiteGenerator() {
   const [cursorModal, setCursorModal] = useState(false);
   const [shopifyModal, setShopifyModal] = useState(false);
 
+  // Template preview
+  const [templatePreview, setTemplatePreview] = useState<StoreTemplate | null>(null);
+  const [showTemplates, setShowTemplates] = useState(true);
+
+  // Preview device toggle
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop");
+
   // Copy
   const { copiedKey, copy } = useCopyBtn();
 
@@ -479,49 +554,336 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
   }, [generatedData, storeName]);
 
   const handleShopifyExport = useCallback(async () => {
-    if (!generatedData?.files) return;
+    if (!generatedData) return;
     const zip = new JSZip();
+    const name = storeName || "My Store";
+    const accent = accentColor;
+    const hl = generatedData.headline;
+    const sub = generatedData.subheadline;
+    const feats = generatedData.features || [];
+    const badges = generatedData.trust_badges || [];
+    const ctaPrimary = generatedData.cta_primary || "Shop Now";
+    const ctaSecondary = generatedData.cta_secondary || "Learn More";
+    const about = generatedData.about_section || "";
 
-    // Add generated files
-    for (const [path, content] of Object.entries(generatedData.files)) {
+    // Add any AI-generated files
+    for (const [path, content] of Object.entries(generatedData.files || {})) {
       zip.file(path, content);
     }
 
-    // Add Shopify wrapper files
+    // layout/theme.liquid
     zip.file("layout/theme.liquid", `<!DOCTYPE html>
 <html lang="en-AU">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>{{ page_title }} - ${storeName || "Store"}</title>
+  <title>{{ page_title }} — ${name}</title>
   {{ content_for_header }}
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   {{ 'theme.css' | asset_url | stylesheet_tag }}
 </head>
 <body>
-  {{ content_for_layout }}
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">{{ shop.name }}</a>
+      <nav>
+        <a href="/collections/all">Shop</a>
+        <a href="/pages/about">About</a>
+        <a href="/cart">Cart ({{ cart.item_count }})</a>
+      </nav>
+    </div>
+  </header>
+  <main>{{ content_for_layout }}</main>
+  {% section 'footer' %}
+  <!-- Afterpay Widget -->
+  <script src="https://portal.afterpay.com/afterpay.js" defer></script>
 </body>
 </html>`);
 
+    // templates/index.liquid
+    zip.file("templates/index.liquid", `{% section 'hero' %}
+{% section 'featured-products' %}
+{% section 'footer' %}`);
+
+    // templates/product.liquid
+    zip.file("templates/product.liquid", `<div class="product-page">
+  <div class="product-images">
+    {% for image in product.images %}
+      <img src="{{ image | img_url: '600x' }}" alt="{{ image.alt | escape }}">
+    {% endfor %}
+  </div>
+  <div class="product-info">
+    <h1>{{ product.title }}</h1>
+    <p class="product-price">\${{ product.price | money }} AUD <span class="gst-badge">GST Inclusive</span></p>
+    <div class="product-description">{{ product.description }}</div>
+    {% form 'product', product %}
+      <select name="id">
+        {% for variant in product.variants %}
+          <option value="{{ variant.id }}">{{ variant.title }} — \${{ variant.price | money }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn-primary">Add to Cart</button>
+    {% endform %}
+    <div class="afterpay-widget">
+      <afterpay-placement data-locale="en_AU" data-currency="AUD" data-amount="{{ product.price | money_without_currency }}"></afterpay-placement>
+    </div>
+    <div class="trust-badges">
+      ${badges.map(b => `<span class="badge">✓ ${b}</span>`).join("\n      ")}
+    </div>
+  </div>
+</div>`);
+
+    // templates/collection.liquid
+    zip.file("templates/collection.liquid", `<div class="collection-page">
+  <h1>{{ collection.title }}</h1>
+  <p>{{ collection.description }}</p>
+  <div class="product-grid">
+    {% for product in collection.products %}
+      <a href="{{ product.url }}" class="product-card">
+        <img src="{{ product.featured_image | img_url: '400x' }}" alt="{{ product.title | escape }}">
+        <h3>{{ product.title }}</h3>
+        <p>\${{ product.price | money }} AUD</p>
+      </a>
+    {% endfor %}
+  </div>
+</div>`);
+
+    // templates/cart.liquid
+    zip.file("templates/cart.liquid", `<div class="cart-page">
+  <h1>Your Cart</h1>
+  {% if cart.item_count > 0 %}
+    {% for item in cart.items %}
+      <div class="cart-item">
+        <img src="{{ item.image | img_url: '100x' }}" alt="{{ item.title | escape }}">
+        <div>
+          <h3>{{ item.title }}</h3>
+          <p>\${{ item.line_price | money }} AUD</p>
+          <input type="number" name="updates[]" value="{{ item.quantity }}" min="0">
+        </div>
+      </div>
+    {% endfor %}
+    <div class="cart-total">
+      <strong>Total: \${{ cart.total_price | money }} AUD</strong>
+      <span class="gst-note">All prices include GST</span>
+    </div>
+    <div class="afterpay-widget">
+      <afterpay-placement data-locale="en_AU" data-currency="AUD" data-amount="{{ cart.total_price | money_without_currency }}"></afterpay-placement>
+    </div>
+    <button onclick="window.location='/checkout'" class="btn-primary">Checkout</button>
+  {% else %}
+    <p>Your cart is empty. <a href="/collections/all">Continue shopping</a></p>
+  {% endif %}
+</div>`);
+
+    // sections/hero.liquid
+    zip.file("sections/hero.liquid", `<section class="hero" style="background:${accent}08">
+  <div class="hero-inner">
+    <h1 class="hero-hl">${hl}</h1>
+    <p class="hero-sub">${sub}</p>
+    <div class="hero-ctas">
+      <a href="/collections/all" class="btn-primary">${ctaPrimary}</a>
+      <a href="/pages/about" class="btn-secondary">${ctaSecondary}</a>
+    </div>
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Hero Banner",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "${hl}" },
+    { "type": "text", "id": "subheading", "label": "Subheading", "default": "${sub}" }
+  ]
+}
+{% endschema %}`);
+
+    // sections/featured-products.liquid
+    zip.file("sections/featured-products.liquid", `<section class="featured-products">
+  <h2>{{ section.settings.title | default: "Our Bestsellers" }}</h2>
+  <div class="product-grid">
+    {% for product in collections.all.products limit:6 %}
+      <a href="{{ product.url }}" class="product-card">
+        <img src="{{ product.featured_image | img_url: '400x' }}" alt="{{ product.title | escape }}">
+        <h3>{{ product.title }}</h3>
+        <p>\${{ product.price | money }} AUD</p>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Featured Products",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Section Title", "default": "Our Bestsellers" }
+  ]
+}
+{% endschema %}`);
+
+    // sections/footer.liquid
+    zip.file("sections/footer.liquid", `<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-col">
+      <h4>${name}</h4>
+      <p>${about || "Australian-owned and operated."}</p>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <a href="/collections/all">All Products</a>
+      <a href="/pages/about">About Us</a>
+      <a href="/policies/refund-policy">Returns</a>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <a href="/pages/contact">Contact</a>
+      <a href="/policies/shipping-policy">Shipping</a>
+      <a href="/policies/privacy-policy">Privacy</a>
+    </div>
+    <div class="footer-col">
+      <h4>We Accept</h4>
+      <div class="payment-icons">Visa · Mastercard · Afterpay · Zip · Apple Pay</div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© {{ 'now' | date: '%Y' }} ${name}. All rights reserved. ABN: XX XXX XXX XXX</p>
+    <p>Australian Consumer Law applies. All prices in AUD and include GST.</p>
+  </div>
+</footer>
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    { "type": "text", "id": "abn", "label": "ABN", "default": "XX XXX XXX XXX" }
+  ]
+}
+{% endschema %}`);
+
+    // assets/theme.css
+    zip.file("assets/theme.css", `/* ${name} Theme — Generated by Majorka AI */
+:root { --accent: ${accent}; --bg: #080a0e; --text: #f2efe9; --surface: #111114; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; line-height:1.6; }
+h1,h2,h3,h4 { font-family:'Syne',sans-serif; font-weight:800; }
+.site-header { border-bottom:1px solid rgba(255,255,255,.06); padding:16px 24px; }
+.header-inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+.logo { font-family:'Syne',sans-serif; font-weight:900; font-size:20px; color:var(--text); text-decoration:none; }
+nav a { color:rgba(255,255,255,.6); text-decoration:none; margin-left:24px; font-size:14px; }
+nav a:hover { color:var(--accent); }
+.hero { min-height:70vh; display:flex; align-items:center; justify-content:center; text-align:center; padding:80px 24px; }
+.hero-inner { max-width:800px; }
+.hero-hl { font-size:clamp(32px,5vw,56px); letter-spacing:-1.5px; line-height:1.08; margin-bottom:20px; }
+.hero-sub { font-size:18px; opacity:.6; margin-bottom:36px; line-height:1.7; }
+.btn-primary { display:inline-flex; align-items:center; gap:10px; padding:18px 40px; background:var(--accent); color:#fff; font-family:'Syne',sans-serif; font-weight:800; font-size:17px; border:none; border-radius:14px; cursor:pointer; text-decoration:none; }
+.btn-secondary { display:inline-flex; align-items:center; gap:8px; padding:16px 32px; background:transparent; color:var(--text); font-family:'Syne',sans-serif; font-weight:700; font-size:15px; border:2px solid rgba(255,255,255,.15); border-radius:14px; cursor:pointer; text-decoration:none; margin-left:12px; }
+.product-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; max-width:1200px; margin:0 auto; padding:48px 24px; }
+@media(max-width:768px) { .product-grid { grid-template-columns:repeat(2,1fr); } }
+.product-card { background:var(--surface); border:1px solid rgba(255,255,255,.06); border-radius:16px; overflow:hidden; text-decoration:none; color:var(--text); transition:transform .2s; }
+.product-card:hover { transform:translateY(-4px); }
+.product-card img { width:100%; aspect-ratio:1; object-fit:cover; }
+.product-card h3 { padding:12px 16px 0; font-size:14px; }
+.product-card p { padding:4px 16px 16px; color:var(--accent); font-weight:700; }
+.featured-products { padding:80px 24px; }
+.featured-products h2 { text-align:center; font-size:clamp(24px,3vw,36px); margin-bottom:48px; }
+.product-page { display:grid; grid-template-columns:1fr 1fr; gap:48px; max-width:1200px; margin:0 auto; padding:48px 24px; }
+@media(max-width:768px) { .product-page { grid-template-columns:1fr; } }
+.product-price { font-size:24px; color:var(--accent); font-weight:800; margin:12px 0; }
+.gst-badge { font-size:11px; background:rgba(45,202,114,.1); color:#2dca72; padding:4px 10px; border-radius:99px; margin-left:8px; }
+.trust-badges { display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; }
+.badge { display:flex; align-items:center; gap:6px; padding:8px 16px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius:99px; font-size:12px; color:rgba(255,255,255,.65); }
+.cart-page { max-width:800px; margin:0 auto; padding:48px 24px; }
+.cart-item { display:flex; gap:16px; padding:16px 0; border-bottom:1px solid rgba(255,255,255,.06); }
+.cart-total { padding:24px 0; font-size:20px; }
+.gst-note { font-size:12px; opacity:.5; display:block; margin-top:4px; }
+.site-footer { border-top:1px solid rgba(255,255,255,.06); padding:48px 24px; }
+.footer-inner { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:32px; }
+@media(max-width:768px) { .footer-inner { grid-template-columns:repeat(2,1fr); } }
+.footer-col h4 { font-size:14px; margin-bottom:12px; color:var(--accent); }
+.footer-col a { display:block; font-size:13px; color:rgba(255,255,255,.5); text-decoration:none; margin-bottom:8px; }
+.footer-bottom { max-width:1200px; margin:24px auto 0; padding-top:24px; border-top:1px solid rgba(255,255,255,.06); font-size:12px; opacity:.4; text-align:center; }
+.payment-icons { font-size:12px; opacity:.6; }
+.afterpay-widget { margin:16px 0; }
+`);
+
+    // config/settings_schema.json
     zip.file("config/settings_schema.json", JSON.stringify([
       {
         name: "theme_info",
-        theme_name: storeName || "Majorka Theme",
+        theme_name: name,
         theme_version: "1.0.0",
         theme_author: "Majorka AI",
+        theme_documentation_url: "https://majorka.ai",
+        theme_support_url: "https://majorka.ai/support",
+      },
+      {
+        name: "Colors",
+        settings: [
+          { type: "color", id: "accent_color", label: "Accent Color", default: accent },
+          { type: "color", id: "background_color", label: "Background Color", default: "#080a0e" },
+        ],
       },
     ], null, 2));
+
+    // locales/en.default.json
+    zip.file("locales/en.default.json", JSON.stringify({
+      general: {
+        currency: "AUD",
+        add_to_cart: "Add to Cart",
+        sold_out: "Sold Out",
+        shipping_note: "Free AU shipping over $99",
+        gst_note: "All prices include GST",
+      },
+      cart: {
+        title: "Your Cart",
+        empty: "Your cart is empty",
+        checkout: "Checkout",
+        total: "Total",
+      },
+    }, null, 2));
+
+    // README.md
+    zip.file("README.md", `# ${name} — Shopify Theme
+
+Generated by [Majorka AI](https://majorka.ai)
+
+## How to Upload to Shopify
+
+1. Log in to your **Shopify Admin** panel
+2. Go to **Online Store** → **Themes**
+3. Click **Add theme** → **Upload zip file**
+4. Select this ZIP file and wait for upload to complete
+5. Click **Customise** to edit your theme
+6. Click **Publish** when you're ready to go live
+
+## Theme Structure
+
+- \`layout/theme.liquid\` — Main layout (includes Afterpay widget, AU trust badges)
+- \`templates/\` — Page templates (index, product, collection, cart)
+- \`sections/\` — Editable sections (hero, featured products, footer)
+- \`assets/theme.css\` — Theme styles using brand colour ${accent}
+- \`config/settings_schema.json\` — Theme settings
+- \`locales/en.default.json\` — AU English strings
+
+## Australian Compliance
+
+- All prices in AUD with GST included
+- Afterpay/Zip payment widgets included
+- Australian Consumer Law footer text
+- ABN placeholder (update with your real ABN)
+- Privacy and returns policy links
+
+## Customisation
+
+Edit the theme in Shopify's theme editor or download and open in [Cursor](https://cursor.com) for AI-assisted customisation.
+`);
 
     const blob = await zip.generateAsync({ type: "blob" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${(storeName || "store").replace(/\s+/g, "-").toLowerCase()}-shopify-theme.zip`;
+    a.download = `${(name).replace(/\s+/g, "-").toLowerCase()}-shopify-theme.zip`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("Shopify theme ZIP downloaded!");
     setShopifyModal(true);
-  }, [generatedData, storeName]);
+  }, [generatedData, storeName, accentColor]);
 
   const handleCopyNotion = useCallback(() => {
     if (!generatedData) return;
@@ -607,6 +969,75 @@ ${generatedData.email_subject}`;
             scrollbarColor: "rgba(255,255,255,0.1) transparent",
           }}
         >
+
+          {/* Template Gallery */}
+          <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1.5px solid rgba(255,255,255,0.08)" }}>
+            <button
+              onClick={() => setShowTemplates(!showTemplates)}
+              className="w-full flex items-center justify-between mb-2"
+              style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+            >
+              <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
+                Store Templates
+              </span>
+              <ChevronDown size={14} style={{ color: "rgba(240,237,232,0.4)", transform: showTemplates ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform 0.2s" }} />
+            </button>
+            {showTemplates && (
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {STORE_TEMPLATES.map(t => (
+                  <div
+                    key={t.id}
+                    className="rounded-lg overflow-hidden transition-all"
+                    style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+                  >
+                    {/* Mini preview card */}
+                    <div className="h-16 relative" style={{ background: t.colors.bg }}>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center px-2">
+                        <div className="text-xs font-black truncate w-full text-center" style={{ color: t.colors.accent, fontFamily: "Syne, sans-serif", fontSize: 9 }}>
+                          {t.storeName}
+                        </div>
+                        <div style={{ fontSize: 7, color: t.colors.text, opacity: 0.6 }} className="truncate w-full text-center">
+                          {t.tagline}
+                        </div>
+                        <div className="flex gap-1 mt-1">
+                          {[t.colors.bg, t.colors.accent, t.colors.text].map((c, i) => (
+                            <div key={i} className="w-3 h-3 rounded-full" style={{ background: c, border: "1px solid rgba(0,0,0,0.15)" }} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="px-2 py-2" style={{ background: "#0c0e12" }}>
+                      <div className="text-xs font-bold truncate" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8", fontSize: 10 }}>{t.name}</div>
+                      <div className="text-xs truncate" style={{ color: "rgba(240,237,232,0.35)", fontSize: 9 }}>{t.niche}</div>
+                      <div className="flex gap-1.5 mt-1.5">
+                        <button
+                          onClick={() => {
+                            setStoreName(t.storeName);
+                            setNiche(t.niche);
+                            setTargetAudience("Australian online shoppers");
+                            setAccentColor(t.colors.accent);
+                            setShowTemplates(false);
+                            toast.success(`"${t.name}" template loaded`);
+                          }}
+                          className="flex-1 py-1 rounded text-xs font-bold"
+                          style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", border: "none", cursor: "pointer", fontFamily: "Syne, sans-serif", fontSize: 9 }}
+                        >
+                          Use
+                        </button>
+                        <button
+                          onClick={() => setTemplatePreview(t)}
+                          className="flex-1 py-1 rounded text-xs font-bold"
+                          style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(240,237,232,0.6)", cursor: "pointer", fontFamily: "Syne, sans-serif", fontSize: 9 }}
+                        >
+                          Preview
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Product URL Import */}
           <div className="rounded-xl p-4" style={{ background: importedProduct ? "rgba(45,202,114,0.05)" : "rgba(255,255,255,0.03)", border: `1.5px solid ${importedProduct ? "rgba(45,202,114,0.35)" : "rgba(255,255,255,0.09)"}` }}>
@@ -994,14 +1425,43 @@ ${generatedData.email_subject}`;
                       >
                         <ExternalLink size={11} /> Open in new tab
                       </button>
+                      <div className="flex rounded-lg overflow-hidden ml-auto" style={{ border: "1px solid rgba(255,255,255,0.08)" }}>
+                        {(["desktop", "mobile"] as const).map(d => (
+                          <button
+                            key={d}
+                            onClick={() => setPreviewDevice(d)}
+                            className="text-xs px-3 py-1.5 capitalize"
+                            style={{
+                              background: previewDevice === d ? "rgba(212,175,55,0.12)" : "transparent",
+                              color: previewDevice === d ? "#d4af37" : "rgba(240,237,232,0.4)",
+                              border: "none",
+                              cursor: "pointer",
+                              fontFamily: "Syne, sans-serif",
+                              fontWeight: previewDevice === d ? 700 : 400,
+                            }}
+                          >
+                            {d}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                     {generatedData ? (
-                      <iframe
-                        srcDoc={previewHTML}
-                        className="flex-1 w-full border-none"
-                        title="Website preview"
-                        sandbox="allow-scripts"
-                      />
+                      <div className="flex-1 flex items-start justify-center overflow-auto p-4" style={{ background: "#060608" }}>
+                        <iframe
+                          srcDoc={previewHTML}
+                          className="border-none transition-all duration-300"
+                          style={{
+                            width: previewDevice === "mobile" ? 390 : "100%",
+                            height: previewDevice === "mobile" ? 844 : "100%",
+                            maxHeight: previewDevice === "mobile" ? 844 : undefined,
+                            borderRadius: previewDevice === "mobile" ? 24 : 0,
+                            border: previewDevice === "mobile" ? "3px solid rgba(255,255,255,0.1)" : "none",
+                            boxShadow: previewDevice === "mobile" ? "0 8px 32px rgba(0,0,0,0.4)" : "none",
+                          }}
+                          title="Website preview"
+                          sandbox="allow-scripts"
+                        />
+                      </div>
                     ) : (
                       <div className="flex-1 flex items-center justify-center">
                         <div className="text-sm" style={{ color: "rgba(240,237,232,0.3)" }}>No preview available. Raw response could not be parsed.</div>
@@ -1176,6 +1636,102 @@ ${generatedData.email_subject}`;
           Got it
         </button>
       </Modal>
+
+      {/* ── Template Preview Modal ── */}
+      {templatePreview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: "rgba(0,0,0,0.8)", backdropFilter: "blur(12px)" }}
+          onClick={() => setTemplatePreview(null)}
+        >
+          <div
+            className="relative w-full max-w-4xl mx-4 rounded-2xl overflow-hidden"
+            style={{ border: "1px solid rgba(255,255,255,0.1)", maxHeight: "85vh" }}
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setTemplatePreview(null)}
+              className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center"
+              style={{ background: "rgba(0,0,0,0.6)", color: "#fff", border: "none", cursor: "pointer" }}
+            >
+              <X size={16} />
+            </button>
+            <iframe
+              srcDoc={`<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:${templatePreview.colors.bg};color:${templatePreview.colors.text};font-family:'DM Sans',sans-serif}
+.hero{min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 24px}
+h1{font-family:'Syne',sans-serif;font-size:clamp(28px,5vw,48px);font-weight:900;letter-spacing:-1px;margin-bottom:16px}
+.accent{color:${templatePreview.colors.accent}}
+p{font-size:18px;opacity:.7;max-width:500px;margin:0 auto 32px;line-height:1.7}
+.btn{display:inline-flex;padding:16px 36px;background:${templatePreview.colors.accent};color:#fff;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;border:none;border-radius:12px;cursor:pointer;text-decoration:none}
+.features{padding:60px 24px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:900px;margin:0 auto}
+.feat{padding:24px;border-radius:12px;border:1px solid ${templatePreview.colors.accent}22;text-align:center}
+.feat h3{font-family:'Syne',sans-serif;font-size:14px;margin-bottom:8px;color:${templatePreview.colors.accent}}
+.feat p{font-size:13px;opacity:.5;margin:0}
+.badge-row{display:flex;gap:12px;justify-content:center;padding:32px 24px;flex-wrap:wrap}
+.badge{padding:8px 20px;border-radius:99px;font-size:12px;border:1px solid ${templatePreview.colors.accent}33;color:${templatePreview.colors.accent};font-weight:600}
+footer{text-align:center;padding:32px;font-size:12px;opacity:.4;border-top:1px solid ${templatePreview.colors.accent}15}
+@media(max-width:600px){.features{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="hero">
+<h1>${templatePreview.storeName.split(' ').map((w, i, a) => i === a.length - 1 ? '<span class="accent">' + w + '</span>' : w).join(' ')}</h1>
+<p>${templatePreview.tagline}</p>
+<a class="btn" href="#">Shop Now</a>
+</div>
+<div class="features">
+<div class="feat"><h3>Australian Made</h3><p>Quality products from local suppliers.</p></div>
+<div class="feat"><h3>Free AU Shipping</h3><p>Free delivery on orders over $99 AUD.</p></div>
+<div class="feat"><h3>Afterpay Available</h3><p>Buy now, pay later with Afterpay.</p></div>
+</div>
+<div class="badge-row">
+<span class="badge">✓ Australian Owned</span>
+<span class="badge">✓ GST Inclusive</span>
+<span class="badge">✓ Easy Returns</span>
+<span class="badge">✓ Secure Payments</span>
+</div>
+<footer>© 2026 ${templatePreview.storeName}. All rights reserved. ABN: XX XXX XXX XXX</footer>
+</body>
+</html>`}
+              className="w-full border-none"
+              style={{ height: "80vh" }}
+              title={`${templatePreview.name} preview`}
+              sandbox="allow-scripts"
+            />
+            <div
+              className="absolute bottom-0 left-0 right-0 flex items-center justify-between px-6 py-4"
+              style={{ background: "linear-gradient(transparent, rgba(0,0,0,0.9))" }}
+            >
+              <div>
+                <div className="text-sm font-black" style={{ fontFamily: "Syne, sans-serif", color: "#f0ede8" }}>{templatePreview.name}</div>
+                <div className="text-xs" style={{ color: "rgba(240,237,232,0.5)" }}>{templatePreview.niche} · {templatePreview.tone}</div>
+              </div>
+              <button
+                onClick={() => {
+                  setStoreName(templatePreview.storeName);
+                  setNiche(templatePreview.niche);
+                  setTargetAudience("Australian online shoppers");
+                  setAccentColor(templatePreview.colors.accent);
+                  setTemplatePreview(null);
+                  setShowTemplates(false);
+                  toast.success(`"${templatePreview.name}" template loaded`);
+                }}
+                className="px-5 py-2.5 rounded-xl text-xs font-bold"
+                style={{ background: "linear-gradient(135deg, #d4af37, #f0c040)", color: "#080a0e", border: "none", cursor: "pointer", fontFamily: "Syne, sans-serif" }}
+              >
+                Use This Template
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
