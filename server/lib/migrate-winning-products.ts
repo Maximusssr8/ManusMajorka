@@ -286,6 +286,52 @@ const SEED_CATEGORIES = [
   { category_name: 'Food & Beverage', total_products: 14, total_gmv_aud: 94000, revenue_growth_rate: 29.6, top_product_title: 'Mushroom Coffee Blend', avg_price_aud: 34.80, creator_count: 6, competition_level: 'low', trend: 'growing', au_opportunity_score: 86 },
 ];
 
+/** Try multiple connection strategies to reach the Supabase DB for DDL */
+async function connectWithFallbacks(dbUrl: string): Promise<ReturnType<typeof import('postgres')>> {
+  const postgres = (await import('postgres')).default;
+
+  // Strategy 1: Direct URL as-is
+  try {
+    const sql = postgres(dbUrl, { ssl: 'require', max: 1, connect_timeout: 10 });
+    await sql`SELECT 1`;
+    console.log('[intel-migrate] Direct URL OK');
+    return sql;
+  } catch (e1: any) {
+    console.log('[intel-migrate] Direct URL failed:', e1.message?.slice(0, 60));
+  }
+
+  // Strategy 2: Transform direct host → Supavisor pooler (for Vercel IPv4 environment)
+  // postgresql://postgres:PASS@db.{ref}.supabase.co → postgres.{ref}:PASS@pooler.supabase.com
+  const match = dbUrl.match(/postgresql:\/\/postgres:([^@]+)@db\.([^.]+)\.supabase\.co:(\d+)\/(.+)/);
+  if (match) {
+    const [, pass, ref, , db] = match;
+    for (const port of [5432, 6543]) {
+      const poolerUrl = `postgresql://postgres.${ref}:${pass}@aws-0-ap-southeast-2.pooler.supabase.com:${port}/${db}`;
+      try {
+        const sql = postgres(poolerUrl, { ssl: 'require', max: 1, connect_timeout: 10 });
+        await sql`SELECT 1`;
+        console.log(`[intel-migrate] Supavisor pooler OK (port ${port})`);
+        return sql;
+      } catch (e2: any) {
+        console.log(`[intel-migrate] Pooler port ${port} failed:`, e2.message?.slice(0, 60));
+      }
+    }
+
+    // Strategy 3: Try other pooler regions
+    for (const region of ['us-east-1', 'us-west-2', 'eu-west-2', 'eu-central-1']) {
+      const poolerUrl = `postgresql://postgres.${ref}:${pass}@aws-0-${region}.pooler.supabase.com:5432/${db}`;
+      try {
+        const sql = postgres(poolerUrl, { ssl: 'require', max: 1, connect_timeout: 8 });
+        await sql`SELECT 1`;
+        console.log(`[intel-migrate] Pooler ${region} OK`);
+        return sql;
+      } catch { /* continue */ }
+    }
+  }
+
+  throw new Error('All connection strategies failed — Supabase DB unreachable from this environment');
+}
+
 export async function createIntelligenceTables(): Promise<{ ok: boolean; message: string }> {
   const dbUrl = process.env.DATABASE_URL;
   const url = process.env.VITE_SUPABASE_URL;
@@ -293,8 +339,7 @@ export async function createIntelligenceTables(): Promise<{ ok: boolean; message
   if (!dbUrl) return { ok: false, message: 'No DATABASE_URL' };
   let sql: ReturnType<typeof import('postgres')> | null = null;
   try {
-    const postgres = (await import('postgres')).default;
-    sql = postgres(dbUrl, { ssl: 'require', max: 1, connect_timeout: 20 });
+    sql = await connectWithFallbacks(dbUrl);
     await sql`CREATE TABLE IF NOT EXISTS public.au_creators (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, username text NOT NULL, display_name text, avatar_url text, follower_count integer DEFAULT 0, gmv_30d_aud numeric DEFAULT 0, gmv_growth_rate numeric DEFAULT 0, items_sold_30d integer DEFAULT 0, avg_video_views integer DEFAULT 0, engagement_rate numeric DEFAULT 0, top_categories text[] DEFAULT '{}', commission_rate numeric DEFAULT 15, creator_conversion_ratio numeric DEFAULT 0, tiktok_url text, is_verified boolean DEFAULT false, location text DEFAULT 'Australia', revenue_sparkline jsonb DEFAULT '[]', scraped_at timestamptz DEFAULT now(), UNIQUE(username))`;
     await sql`CREATE TABLE IF NOT EXISTS public.trending_videos (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, video_title text, creator_username text, product_name text, thumbnail_url text, tiktok_video_url text, views integer DEFAULT 0, likes integer DEFAULT 0, gmv_driven_aud numeric DEFAULT 0, items_sold_from_video integer DEFAULT 0, engagement_rate numeric DEFAULT 0, hook_type text, category text, published_at timestamptz, scraped_at timestamptz DEFAULT now())`;
     await sql`CREATE TABLE IF NOT EXISTS public.category_rankings (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, category_name text NOT NULL UNIQUE, total_products integer DEFAULT 0, total_gmv_aud numeric DEFAULT 0, revenue_growth_rate numeric DEFAULT 0, top_product_title text, avg_price_aud numeric DEFAULT 0, creator_count integer DEFAULT 0, competition_level text DEFAULT 'medium', trend text DEFAULT 'growing', au_opportunity_score integer DEFAULT 75, updated_at timestamptz DEFAULT now())`;
