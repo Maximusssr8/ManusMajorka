@@ -4,6 +4,7 @@ import MajorkaAppShell from "@/components/MajorkaAppShell";
 import ToolPage from "./ToolPage";
 import OnboardingModal from "@/components/OnboardingModal";
 import OnboardingChecklist from "@/components/OnboardingChecklist";
+import { ONBOARDING_KEY } from "@/pages/Onboarding";
 import ProductTour from "@/components/ProductTour";
 import WelcomeModal from "@/components/WelcomeModal";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -161,6 +162,21 @@ function DashboardHome() {
   const [recentToolIds, setRecentToolIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [hoveredTool, setHoveredTool] = useState<string | null>(null);
+  const [onboardingBannerDismissed, setOnboardingBannerDismissed] = useState<boolean>(() =>
+    typeof window !== "undefined" && !!localStorage.getItem("majorka_banner_dismissed")
+  );
+
+  // Redirect to onboarding if not completed
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const localDone = localStorage.getItem(ONBOARDING_KEY);
+    if (!localDone && profileQuery.isFetched) {
+      const profile = profileQuery.data as { onboardingCompleted?: boolean } | null | undefined;
+      if (!profile?.onboardingCompleted) {
+        setLocation("/onboarding");
+      }
+    }
+  }, [isAuthenticated, profileQuery.isFetched, profileQuery.data, setLocation]);
 
   useEffect(() => {
     const today = new Date().toDateString();
@@ -211,6 +227,34 @@ function DashboardHome() {
   return (
     <div className="h-full overflow-auto dashboard-bg" style={{ scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}>
       {isFreePlan && <TrialBanner />}
+      {/* Onboarding personalisation nudge — shown when user skipped onboarding */}
+      {!onboardingBannerDismissed && isAuthenticated && profileQuery.isFetched && !(profileQuery.data as { onboardingCompleted?: boolean } | null)?.onboardingCompleted && localStorage.getItem(ONBOARDING_KEY) && (
+        <div
+          className="flex items-center justify-between px-4 sm:px-6 py-3"
+          style={{ background: "rgba(212,175,55,0.07)", borderBottom: "1px solid rgba(212,175,55,0.18)" }}
+        >
+          <span className="text-sm" style={{ color: "#d4af37" }}>
+            ✨ Personalise Majorka to your business →
+          </span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setLocation("/onboarding")}
+              className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
+              style={{ background: "#d4af37", color: "#080a0e", cursor: "pointer", border: "none" }}
+            >
+              Set up (2 min)
+            </button>
+            <button
+              onClick={() => { localStorage.setItem("majorka_banner_dismissed", "1"); setOnboardingBannerDismissed(true); }}
+              className="text-xs transition-all"
+              style={{ background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer" }}
+              aria-label="Dismiss"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <div className="mb-8">
