@@ -16,11 +16,35 @@
       }
     },
     {
+      "id": "a1b2c3d4-0001-0001-0001-000000000010",
+      "name": "Inject Current Date",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [360, 300],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "current_date_field",
+              "name": "current_date",
+              "value": "={{ $now.format('EEEE, MMMM d, yyyy') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "includeBinary": false,
+          "includeOtherFields": true
+        }
+      }
+    },
+    {
       "id": "a1b2c3d4-0001-0001-0001-000000000002",
       "name": "Call Claude API",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [480, 300],
+      "position": [560, 300],
       "parameters": {
         "method": "POST",
         "url": "https://api.anthropic.com/v1/messages",
@@ -44,7 +68,7 @@
         "sendBody": true,
         "contentType": "raw",
         "rawContentType": "application/json",
-        "body": "={{ JSON.stringify({\n  model: 'claude-sonnet-4-20250514',\n  max_tokens: 2048,\n  system: 'You are Majorka AI — a sharp, practical ecommerce business advisor for Australian entrepreneurs. You specialise in product research, idea validation, supplier sourcing, marketing strategy, and scaling ecommerce stores in the Australian market. You understand Australian consumer behaviour, GST, shipping costs, and local platforms like Afterpay and Australia Post. Keep answers concise, direct, and actionable. Skip filler. Talk like a co-founder, not a consultant.',\n  messages: [{ role: 'user', content: $json.body.message || $json.body.chatInput || $json.body.text || 'Hello' }]\n}) }}",
+        "body": "={{ JSON.stringify({\n  model: 'claude-sonnet-4-20250514',\n  max_tokens: 2048,\n  system: 'You are Majorka AI — a sharp, no-nonsense assistant built for Australian dropshippers and DTC brand builders.\\n\\n## IDENTITY\\n- You are embedded inside Majorka, an AI-powered ecommerce OS\\n- You help with product research, supplier sourcing, ad strategy, brand building, store setup, and general ecommerce questions\\n- You are direct, confident, and practical — no fluff\\n\\n## DATE AWARENESS — CRITICAL\\n- Today\\'s date is ' + $json.current_date + ' (always injected at runtime)\\n- Your training data has a knowledge cutoff and may not reflect current trends, platform changes, ad policies, supplier availability, or market conditions\\n- ALWAYS reason about whether your answer could be outdated\\n- If a question involves: Meta/TikTok ads, Shopify features, supplier pricing, trending products, platform policies, or anything market-dependent — explicitly flag it:\\n  \\'This is based on my last known data from [period] — I recommend verifying this is still current before acting on it.\\'\\n- NEVER state outdated info as current fact. If uncertain, say so.\\n\\n## BEHAVIOUR\\n- Be concise. Bullet points where useful.\\n- Prioritise Australian market context where relevant (AUD, Aus suppliers, local platforms)\\n- If you don\\'t know something or it\\'s outside your knowledge, say: \\'I don\\'t have reliable current data on this — worth Googling or checking directly.\\'\\n- Never make up product names, supplier details, or platform specs\\n\\n## GOAL\\nHelp Majorka users make faster, smarter ecommerce decisions — with honesty about what you know vs. what might have changed.',\n  messages: [{ role: 'user', content: $json.body.message || $json.body.chatInput || $json.body.text || 'Hello' }]\n}) }}",
         "options": {}
       }
     },
@@ -53,7 +77,7 @@
       "name": "Respond to Chat",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [720, 300],
+      "position": [800, 300],
       "parameters": {
         "respondWith": "json",
         "responseBody": "={{ { response: $json.content[0].text, model: $json.model, inputTokens: $json.usage.input_tokens, outputTokens: $json.usage.output_tokens } }}",
@@ -65,6 +89,17 @@
   ],
   "connections": {
     "Chat Webhook": {
+      "main": [
+        [
+          {
+            "node": "Inject Current Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inject Current Date": {
       "main": [
         [
           {
@@ -93,6 +128,6 @@
   },
   "meta": {
     "templateCredsSetupCompleted": true,
-    "notes": "POST to http://localhost:5678/webhook/majorka-chat with JSON body { \"message\": \"your question\" }. Requires ANTHROPIC_API_KEY set in n8n environment (.env.n8n)."
+    "notes": "POST to http://localhost:5678/webhook/majorka-chat with JSON body { \"message\": \"your question\" }. Requires ANTHROPIC_API_KEY set in n8n environment (.env.n8n). Tavily web search requires manual setup — see N8N_DATE_INJECTION.md."
   }
 }

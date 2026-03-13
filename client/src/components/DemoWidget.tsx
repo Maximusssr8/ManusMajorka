@@ -250,7 +250,7 @@ export default function DemoWidget() {
   const currentLines = RESPONSE_LINES[promptIdx];
 
   return (
-    <div style={{ maxWidth: 620, width: "100%" }}>
+    <div style={{ maxWidth: 620, width: "100%", minWidth: 0 }}>
       <style>{DEMO_STYLES}</style>
 
       <div
@@ -368,7 +368,7 @@ export default function DemoWidget() {
       </div>
 
       {/* CTAs */}
-      <div style={{ display: "flex", gap: 12, marginTop: 20, justifyContent: "center", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 20, alignItems: "center" }} className="sm:flex-row sm:justify-center sm:flex-wrap">
         <Link
           href="/sign-in"
           className="demo-cta-primary"
@@ -377,8 +377,10 @@ export default function DemoWidget() {
             color: "#000", borderRadius: 10,
             padding: "11px 28px",
             fontFamily: syne, fontWeight: 800, fontSize: 14,
-            textDecoration: "none", display: "inline-block",
+            textDecoration: "none", display: "block", textAlign: "center",
             boxShadow: "0 0 24px rgba(212,175,55,0.25)",
+            width: "100%", maxWidth: 300, minHeight: 48,
+            boxSizing: "border-box",
           }}
         >
           Try it yourself →
@@ -391,8 +393,10 @@ export default function DemoWidget() {
             color: "#d4af37", borderRadius: 10,
             padding: "11px 28px",
             fontFamily: syne, fontWeight: 700, fontSize: 14,
-            textDecoration: "none", display: "inline-block",
+            textDecoration: "none", display: "block", textAlign: "center",
             transition: "all 0.2s",
+            width: "100%", maxWidth: 300, minHeight: 48,
+            boxSizing: "border-box",
           }}
           onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(212,175,55,0.08)"; }}
           onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; }}

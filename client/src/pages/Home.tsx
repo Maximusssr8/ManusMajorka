@@ -850,7 +850,7 @@ export default function Home() {
           </p>
 
           {/* CTA buttons */}
-          <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 40 }}>
+          <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 40, width: "100%" }}>
             <Link
               href="/app"
               aria-label="Start using Majorka for free"
@@ -861,6 +861,7 @@ export default function Home() {
                 textDecoration: "none", display: "inline-block",
                 boxShadow: `0 0 40px rgba(212,175,55,0.3), 0 4px 16px rgba(0,0,0,0.3)`,
                 transition: "transform 0.2s, box-shadow 0.2s",
+                minHeight: 52, minWidth: 44,
               }}
               onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
                 e.currentTarget.style.transform = "translateY(-2px)";
@@ -1041,7 +1042,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="mobile-grid-1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20 }}>
+          <div className="mobile-grid-1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(320px, 100%), 1fr))", gap: 20 }}>
             {FEATURES.map((f, i) => (
               <div
                 key={i}
@@ -1085,7 +1086,7 @@ export default function Home() {
             From idea to launch in 3 steps.
           </h2>
 
-          <div className="mobile-grid-1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
+          <div className="mobile-grid-1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(300px, 100%), 1fr))", gap: 24 }}>
             {STEPS.map((step, i) => (
               <div key={i} style={{
                 background: C.elevated, border: `1px solid ${C.border}`,
@@ -1127,7 +1128,8 @@ export default function Home() {
             </p>
           </div>
 
-          <div style={{ border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden" }}>
+          <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", margin: "0 -4px", padding: "0 4px" }}>
+          <div style={{ border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", minWidth: 480 }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 160px", background: C.elevated, padding: "14px 24px", borderBottom: `1px solid ${C.border}` }}>
               <span style={{ fontSize: 12, fontWeight: 700, fontFamily: syne, color: C.muted, textTransform: "uppercase", letterSpacing: "0.08em" }}>Feature</span>
               <span style={{ fontSize: 12, fontWeight: 700, fontFamily: syne, color: C.gold, textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "center" }}>Majorka</span>
@@ -1155,6 +1157,7 @@ export default function Home() {
               <span style={{ textAlign: "center", fontFamily: syne, fontWeight: 900, fontSize: 15, color: C.gold }}>$0{"\u2013"}49</span>
               <span style={{ textAlign: "center", fontFamily: syne, fontWeight: 900, fontSize: 15, color: C.red }}>$250+</span>
             </div>
+          </div>
           </div>
         </div>
       </section>

@@ -848,11 +848,11 @@ export default function MajorkaAppShell({ children }: Props) {
         />
       )}
 
-      {/* Sidebar — 240px, desktop only */}
+      {/* Sidebar — 240px, desktop: part of flex flow; mobile: slide-in drawer */}
       <aside
         role="navigation"
         aria-label="Main navigation"
-        className={`flex-shrink-0 flex flex-col relative z-50 ${mobileOpen ? "fixed inset-y-0 left-0" : "hidden lg:flex"}`}
+        className={`flex-shrink-0 flex flex-col z-50 fixed inset-y-0 left-0 transition-transform duration-300 ease-in-out ${mobileOpen ? "translate-x-0" : "-translate-x-full"} lg:relative lg:inset-auto lg:translate-x-0`}
         style={{
           width: 240,
           background: "#0a0a0e",

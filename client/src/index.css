@@ -1,3 +1,7 @@
+/* Global overflow & box-sizing reset */
+html, body { overflow-x: hidden; }
+* { box-sizing: border-box; }
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./print.css";
@@ -134,6 +138,12 @@
   html, body {
     @apply bg-background text-foreground;
     font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+  img, video, iframe {
+    max-width: 100%;
+    height: auto;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Syne', sans-serif;

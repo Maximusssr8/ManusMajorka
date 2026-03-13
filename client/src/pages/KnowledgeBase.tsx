@@ -520,7 +520,7 @@ export default function KnowledgeBase() {
 
       {/* Right article area */}
       <main className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-6 py-10">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
           {/* Mobile section selector */}
           <div className="md:hidden mb-6">
             <select
@@ -580,7 +580,7 @@ export default function KnowledgeBase() {
 
           {/* Ask AI CTA */}
           <div
-            className="flex items-center justify-between p-4 rounded-xl"
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl"
             style={{
               background: "rgba(212,175,55,0.06)",
               border: "1px solid rgba(212,175,55,0.15)",
@@ -599,7 +599,7 @@ export default function KnowledgeBase() {
             </div>
             <button
               onClick={() => handleAskAI(activeSection.aiQuery)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold flex-shrink-0 ml-4 transition-all"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold flex-shrink-0 sm:ml-4 transition-all w-full sm:w-auto justify-center"
               style={{
                 background: "linear-gradient(135deg, #d4af37, #b8941f)",
                 color: "#080a0e",
