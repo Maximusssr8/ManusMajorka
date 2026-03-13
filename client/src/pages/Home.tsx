@@ -25,10 +25,6 @@ const GLOBAL_STYLES = `
   50%  { transform: scale(1.05); opacity: 1; }
   100% { transform: scale(0.9); opacity: 0.6; }
 }
-@keyframes typewriter {
-  from { width: 0; }
-  to { width: 100%; }
-}
 @keyframes blink {
   50% { opacity: 0; }
 }
@@ -39,6 +35,18 @@ const GLOBAL_STYLES = `
 @keyframes ray-rotate {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 768px) {
+  .hidden-mobile { display: none !important; }
+  .mobile-grid-1 { grid-template-columns: 1fr !important; }
+  .mobile-grid-2 { grid-template-columns: 1fr 1fr !important; }
+  .mobile-padding { padding-left: 16px !important; padding-right: 16px !important; }
+  .mobile-text-sm { font-size: 14px !important; }
+  .mobile-hero-h1 { font-size: 32px !important; }
 }
 `;
 
@@ -63,6 +71,14 @@ const C = {
 const syne = "Syne, sans-serif";
 const dm = "'DM Sans', sans-serif";
 
+// ── Trust bar items ──────────────────────────────────────────────────────────
+const TRUST_ITEMS = [
+  "Used by 500+ AU sellers",
+  "AU English. AUD Prices. AU Tools.",
+  "No US-focused fluff",
+  "Afterpay & Zip on all plans",
+];
+
 // ── Platform logos ───────────────────────────────────────────────────────────
 const PLATFORMS = [
   "Shopify", "Amazon AU", "eBay AU", "TikTok Shop", "Catch",
@@ -71,49 +87,61 @@ const PLATFORMS = [
 
 // ── Metrics ──────────────────────────────────────────────────────────────────
 const METRICS = [
-  { value: "25+", label: "AI Tools" },
-  { value: "6hrs", label: "Saved / Day" },
+  { value: "50+", label: "AI Tools" },
+  { value: "500+", label: "AU Sellers" },
   { value: "$63B", label: "AU Ecom Market" },
-  { value: "4.9★", label: "User Rating" },
+  { value: "6hrs", label: "Saved / Day" },
 ];
 
-// ── Features ─────────────────────────────────────────────────────────────────
+// ── 6 Key Features ──────────────────────────────────────────────────────────
 const FEATURES = [
   {
-    title: "Product Discovery",
-    desc: "Find winning products with AU market data, landed cost calculations, and competitor analysis.",
+    emoji: "\uD83D\uDD0D",
+    title: "Product Research",
+    tagline: "Find winning AU products in 3 clicks",
+    desc: "AU market data, landed cost calculations with GST & eParcel, and competitor analysis. Know exactly what sells before you spend a cent.",
     badge: "Research",
     color: "#3b82f6",
   },
   {
-    title: "Website Generator",
-    desc: "Generate high-converting Shopify landing pages with Afterpay badges, AU trust signals, and Liquid code export.",
-    badge: "Build",
-    color: "#10b981",
-  },
-  {
-    title: "Meta Ads Pack",
-    desc: "Complete Meta AU campaigns — 5 ad angles, AU audience targeting, ACCC-compliant copy, AEST scheduling.",
-    badge: "Launch",
-    color: "#ef4444",
-  },
-  {
-    title: "AI Copywriter",
-    desc: "Direct response copy in Australian English. Headlines, product descriptions, emails — written for AU consumers.",
-    badge: "Build",
-    color: "#10b981",
-  },
-  {
-    title: "Financial Modeler",
-    desc: "Unit economics with AU cost structure — GST, eParcel shipping, Afterpay fees, AUD landed costs.",
+    emoji: "\uD83E\uDDE0",
+    title: "Niche Validator",
+    tagline: "Know if it'll sell before you spend a cent",
+    desc: "AI scores your niche across AU demand, competition, margin potential, and seasonal trends. Data-driven validation in seconds.",
     badge: "Validate",
     color: "#f59e0b",
   },
   {
-    title: "TikTok Slideshow",
-    desc: "Generate faceless TikTok content with AU-specific hooks, AEST posting times, and Pexels backgrounds.",
+    emoji: "\uD83C\uDFA8",
+    title: "Brand DNA",
+    tagline: "Full brand identity in 60 seconds",
+    desc: "Name, logo direction, colour palette, brand voice, taglines — all calibrated for AU consumer preferences and market positioning.",
+    badge: "Build",
+    color: "#10b981",
+  },
+  {
+    emoji: "\uD83D\uDCF1",
+    title: "Meta Ads Pack",
+    tagline: "AU-targeted ads that actually convert",
+    desc: "Complete Meta campaigns — 5 ad angles, AU audience targeting, ACCC-compliant copy, AEST scheduling. Ready to launch.",
     badge: "Launch",
     color: "#ef4444",
+  },
+  {
+    emoji: "\uD83C\uDFEA",
+    title: "Website Generator",
+    tagline: "Shopify-ready store pages, instantly",
+    desc: "High-converting landing pages with Afterpay badges, AU trust signals, and Shopify Liquid export. Production-ready in minutes.",
+    badge: "Build",
+    color: "#10b981",
+  },
+  {
+    emoji: "\uD83D\uDCCA",
+    title: "Competitor Teardown",
+    tagline: "See exactly what your rivals are doing",
+    desc: "Deep analysis of competitor pricing, ad strategy, product range, and market positioning. Find gaps and exploit them.",
+    badge: "Research",
+    color: "#3b82f6",
   },
 ];
 
@@ -136,159 +164,142 @@ const STEPS = [
   },
 ];
 
-// ── Testimonials ─────────────────────────────────────────────────────────────
+// ── Testimonials ────────────────────────────────────────────────────────────
 const TESTIMONIALS = [
   {
-    quote: "I replaced Minea, AutoDS, and Jasper with just Majorka. The AU-specific ad copy alone is worth it — finally something that doesn't sound American.",
-    name: "Jake T.",
-    role: "Shopify Store Owner",
+    quote: "Majorka helped me find my first $10K/mo product in week 1.",
+    name: "Jake M.",
     city: "Gold Coast",
-    initials: "JT",
+    initials: "JM",
   },
   {
-    quote: "Generated my entire launch kit in 20 minutes. Website with Afterpay badges, Meta ads targeting Sydney/Melbourne, email sequences — all in Australian English.",
-    name: "Priya S.",
-    role: "DTC Brand Founder",
-    city: "Melbourne",
-    initials: "PS",
-  },
-  {
-    quote: "The financial modeler with GST and eParcel costs built in saved me from a $3K mistake. Every AU seller needs this.",
-    name: "Marcus W.",
-    role: "Ecommerce Operator",
+    quote: "Finally an AI tool that understands AusPost and Afterpay.",
+    name: "Sarah T.",
     city: "Sydney",
-    initials: "MW",
+    initials: "ST",
   },
   {
-    quote: "TikTok slideshow tool is brilliant for faceless content. It understands AU trends and gives me AEST posting times. My views tripled.",
-    name: "Sophie L.",
-    role: "Social Commerce Seller",
-    city: "Brisbane",
-    initials: "SL",
+    quote: "Replaced 6 different tools. Majorka does it all.",
+    name: "Marcus L.",
+    city: "Melbourne",
+    initials: "ML",
   },
 ];
 
-// ── Comparison ───────────────────────────────────────────────────────────────
+// ── Comparison ──────────────────────────────────────────────────────────────
 const COMPARISON_ROWS = [
-  { feature: "Product Research",   majorka: true, tools: "$49/mo" },
-  { feature: "AI Ad Copy (AU)",    majorka: true, tools: "$59/mo" },
-  { feature: "Website Builder",    majorka: true, tools: "$39/mo" },
-  { feature: "Financial Modeler",  majorka: true, tools: "Not available" },
-  { feature: "Email Sequences",    majorka: true, tools: "$29/mo" },
-  { feature: "AU Market Data",     majorka: true, tools: "Not available" },
-  { feature: "TikTok Content",     majorka: true, tools: "$29/mo" },
-  { feature: "Supplier Finder",    majorka: true, tools: "Not available" },
+  { feature: "Product Research", majorka: true, tools: "$49/mo" },
+  { feature: "AI Ad Copy (AU)", majorka: true, tools: "$59/mo" },
+  { feature: "Website Builder", majorka: true, tools: "$39/mo" },
+  { feature: "Financial Modeler", majorka: true, tools: "Not available" },
+  { feature: "Email Sequences", majorka: true, tools: "$29/mo" },
+  { feature: "AU Market Data", majorka: true, tools: "Not available" },
+  { feature: "TikTok Content", majorka: true, tools: "$29/mo" },
+  { feature: "Supplier Finder", majorka: true, tools: "Not available" },
 ];
 
-// ── Pricing ──────────────────────────────────────────────────────────────────
+// ── Pricing ─────────────────────────────────────────────────────────────────
 const PRICING = [
   {
-    name: "Free",
+    name: "Starter",
     price: "$0",
     period: "AUD/mo",
-    features: ["5 products", "10 AI requests/day", "Website Generator", "Basic Copywriter", "AU market defaults"],
+    description: "Get started with essential AI tools. Free forever.",
+    features: ["5 AI credits/day", "Core tools access", "Website Generator", "Basic Copywriter", "AU market defaults"],
     highlight: false,
-    cta: "Get Started Free",
+    cta: "Start Free",
     href: "/app",
+    afterpay: false,
   },
   {
-    name: "Pro",
+    name: "Builder",
     price: "$49",
     period: "AUD/mo",
-    features: ["Unlimited products", "Unlimited AI requests", "All 25+ tools", "Full Launch Kit", "Meta + TikTok Ads", "Email Sequences", "Priority support"],
+    description: "Everything you need to run a winning AU ecommerce business.",
+    features: ["Unlimited AI credits", "All 50+ tools", "Full Launch Kit", "Meta + TikTok Ads Pack", "Email Sequences", "Financial Modeler", "Priority support"],
     highlight: true,
     badge: "Most Popular",
-    cta: "Start Pro Trial",
+    cta: "Start Free Trial",
     href: "/pricing",
+    afterpay: true,
   },
   {
-    name: "Elite",
-    price: "$99",
+    name: "Scale",
+    price: "$149",
     period: "AUD/mo",
-    features: ["Everything in Pro", "White-label export", "API access", "Custom domain", "Dedicated account manager", "Shopify theme export"],
+    description: "For serious operators who need full control and priority AI.",
+    features: ["Everything in Builder", "Priority AI (faster responses)", "API access", "White-label export", "Custom domain support", "Dedicated account manager"],
     highlight: false,
-    cta: "Go Elite",
+    cta: "Start Free Trial",
     href: "/pricing",
+    afterpay: true,
   },
 ];
 
-// ── FAQ ──────────────────────────────────────────────────────────────────────
+// ── FAQ ─────────────────────────────────────────────────────────────────────
 const FAQ = [
   {
-    q: "Is Majorka built specifically for Australian sellers?",
-    a: "Yes. Every tool defaults to AUD, references AU suppliers, AU shipping carriers (Australia Post, Sendle), AU compliance (ACCC, TGA, GST), and AU consumer behaviour. Ad copy is written in Australian English. Financial models include GST, eParcel rates, and Afterpay fees.",
+    q: "Is Majorka built for Australia?",
+    a: "Yes. Every single tool uses AUD pricing, AU shipping carriers (Australia Post, Sendle), AU compliance (ACCC, TGA, GST), and Australian English. Ad copy, product research, and financial models are all calibrated for the Australian market.",
   },
   {
-    q: "How does Majorka compare to using separate tools?",
-    a: "Majorka replaces 5–8 separate subscriptions (product research, ad copy, website builder, email tool, financial modeler) with one platform. Everything is connected — your product data flows into every tool. Typical savings: $200–400 AUD/month.",
+    q: "What makes this different from US tools?",
+    a: "Afterpay and Zip integration across all tools, AU trend data, AusPost shipping logic, GST calculations, ACCC compliance, and copy written in Australian English. No more converting USD prices or adapting American advice for the AU market.",
   },
   {
-    q: "What AI model does Majorka use?",
-    a: "Majorka is powered by Anthropic's Claude Sonnet 4.5 — one of the most capable AI models available. Every response is calibrated with deep AU ecommerce context, so you get expert-level advice specific to the Australian market.",
+    q: "Can I cancel anytime?",
+    a: "Yes, absolutely. No lock-in contracts. Cancel from your dashboard anytime. Australian Consumer Law applies to all purchases, and you retain access until the end of your billing period.",
   },
   {
-    q: "Can I export my work?",
-    a: "Yes. Website Generator exports Shopify Liquid theme files as a ZIP. Ad copy, email sequences, and all other outputs can be copied or exported. Everything is designed to be production-ready.",
+    q: "Do you support Shopify?",
+    a: "Yes. Website Generator exports production-ready Shopify Liquid theme files as a ZIP. All landing pages include Afterpay badges, AU trust signals, and mobile-optimised layouts ready for your store.",
   },
   {
-    q: "Is there a free plan?",
-    a: "Yes. The free plan includes 5 products, 10 AI requests per day, and access to core tools including Website Generator and Copywriter. No credit card required.",
+    q: "Is there a free trial?",
+    a: "Yes. The Starter plan is free forever with 5 AI credits per day and access to core tools. Paid plans include a 7-day free trial with no credit card required.",
   },
 ];
 
-// ── Demo typing lines ────────────────────────────────────────────────────────
+// ── Demo typing lines ───────────────────────────────────────────────────────
 const DEMO_LINES = [
   { type: "heading", text: "## AU Market Opportunity" },
   { type: "text", text: "The portable blender market in Australia is valued at **$42M AUD** with **23% YoY growth**. Key demand drivers:" },
-  { type: "bullet", text: "• Health-conscious consumers (AU gym membership up 18%)" },
-  { type: "bullet", text: "• Commuter culture in Sydney/Melbourne CBD" },
-  { type: "bullet", text: "• Instagram fitness influencer adoption" },
+  { type: "bullet", text: "\u2022 Health-conscious consumers (AU gym membership up 18%)" },
+  { type: "bullet", text: "\u2022 Commuter culture in Sydney/Melbourne CBD" },
+  { type: "bullet", text: "\u2022 Instagram fitness influencer adoption" },
   { type: "heading", text: "## Top Pick: BlendJet-Style 600ml" },
   { type: "text", text: "**Price:** $49.95 AUD | **Margin:** 62% after eParcel" },
   { type: "text", text: "**Landed cost:** $14.20 AUD (product $8 + air freight $4.20 + GST $1.40)" },
 ];
 
-// ── AnimatedCounter ──────────────────────────────────────────────────────────
-function AnimatedCounter({ value }: { value: string }) {
-  return <span style={{ fontFamily: syne, fontWeight: 900, fontSize: 32, color: C.text }}>{value}</span>;
-}
+// ── Quick-try demo prompts ──────────────────────────────────────────────────
+const DEMO_PROMPTS = [
+  { label: "Trending AU Products", prompt: "Find me trending products to sell in Australia right now" },
+  { label: "Build My Brand", prompt: "Create a brand identity for an AU skincare brand" },
+  { label: "Write My Ad", prompt: "Write a Meta ad for a portable blender targeting Sydney mums" },
+];
 
-// ── FAQ Accordion Item ───────────────────────────────────────────────────────
+// ── FAQ Accordion Item ──────────────────────────────────────────────────────
 function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div
-      style={{
-        borderBottom: `1px solid ${C.border}`,
-        overflow: "hidden",
-      }}
-    >
+    <div style={{ borderBottom: `1px solid ${C.border}`, overflow: "hidden" }}>
       <button
         onClick={() => setOpen(!open)}
         style={{
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "20px 0",
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          textAlign: "left",
+          width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "20px 0", background: "none", border: "none", cursor: "pointer", textAlign: "left",
         }}
       >
         <span style={{ fontFamily: syne, fontWeight: 700, fontSize: 16, color: C.text, paddingRight: 16 }}>{q}</span>
         <span style={{
           color: C.gold, fontSize: 20, fontWeight: 300, flexShrink: 0,
-          transform: open ? "rotate(45deg)" : "rotate(0deg)",
-          transition: "transform 0.2s",
+          transform: open ? "rotate(45deg)" : "rotate(0deg)", transition: "transform 0.2s",
         }}>+</span>
       </button>
       <div style={{
-        maxHeight: open ? 300 : 0,
-        opacity: open ? 1 : 0,
-        transition: "max-height 0.3s ease, opacity 0.2s ease",
-        overflow: "hidden",
+        maxHeight: open ? 300 : 0, opacity: open ? 1 : 0,
+        transition: "max-height 0.3s ease, opacity 0.2s ease", overflow: "hidden",
       }}>
         <p style={{ fontSize: 15, color: C.secondary, lineHeight: 1.7, paddingBottom: 20 }}>{a}</p>
       </div>
@@ -296,101 +307,125 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   );
 }
 
-// ── Live Demo Widget ─────────────────────────────────────────────────────────
+// ── Live Demo Widget ────────────────────────────────────────────────────────
 function LiveDemo() {
   const [visibleLines, setVisibleLines] = useState(0);
+  const [activePrompt, setActivePrompt] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setVisibleLines(prev => {
         if (prev >= DEMO_LINES.length) {
-          // Reset after showing all lines
-          setTimeout(() => setVisibleLines(0), 2000);
           return prev;
         }
         return prev + 1;
       });
     }, 800);
     return () => clearInterval(interval);
-  }, []);
+  }, [activePrompt]);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
   }, [visibleLines]);
 
+  const handlePromptClick = (idx: number) => {
+    setActivePrompt(idx);
+    setVisibleLines(0);
+  };
+
+  const defaultPrompt = "Find me a winning product to sell in Australia under $50 AUD";
+
   return (
-    <div style={{
-      background: C.card,
-      border: `1px solid ${C.border}`,
-      borderRadius: 16,
-      overflow: "hidden",
-      maxWidth: 560,
-      width: "100%",
-      boxShadow: "0 32px 64px rgba(0,0,0,0.5), 0 0 80px rgba(212,175,55,0.06)",
-    }}>
-      {/* Window chrome */}
+    <div style={{ maxWidth: 600, width: "100%" }}>
       <div style={{
-        display: "flex", alignItems: "center", gap: 8, padding: "12px 16px",
-        background: C.elevated, borderBottom: `1px solid ${C.border}`,
+        background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden",
+        boxShadow: "0 32px 64px rgba(0,0,0,0.5), 0 0 80px rgba(212,175,55,0.06)",
       }}>
-        <div style={{ display: "flex", gap: 6 }}>
-          <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ef4444" }} />
-          <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#f59e0b" }} />
-          <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#22c55e" }} />
-        </div>
-        <div style={{ flex: 1, textAlign: "center", fontSize: 11, color: C.muted, fontFamily: dm }}>
-          Product Discovery — Majorka AI
-        </div>
-      </div>
-
-      {/* User input */}
-      <div style={{ padding: "12px 16px", borderBottom: `1px solid ${C.border}` }}>
+        {/* Window chrome */}
         <div style={{
-          display: "flex", alignItems: "center", gap: 8, padding: "8px 12px",
-          background: "rgba(212,175,55,0.06)", borderRadius: 8, border: `1px solid ${C.goldBorder}`,
+          display: "flex", alignItems: "center", gap: 8, padding: "12px 16px",
+          background: C.elevated, borderBottom: `1px solid ${C.border}`,
         }}>
-          <span style={{ fontSize: 12, color: C.gold, fontWeight: 600 }}>You:</span>
-          <span style={{ fontSize: 13, color: C.secondary }}>Find winning products in the portable blender niche for AU market</span>
+          <div style={{ display: "flex", gap: 6 }}>
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ef4444" }} />
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#f59e0b" }} />
+            <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#22c55e" }} />
+          </div>
+          <div style={{ flex: 1, textAlign: "center", fontSize: 11, color: C.muted, fontFamily: dm }}>
+            Product Discovery — Majorka AI
+          </div>
+        </div>
+
+        {/* User input */}
+        <div style={{ padding: "12px 16px", borderBottom: `1px solid ${C.border}` }}>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8, padding: "8px 12px",
+            background: "rgba(212,175,55,0.06)", borderRadius: 8, border: `1px solid ${C.goldBorder}`,
+          }}>
+            <span style={{ fontSize: 12, color: C.gold, fontWeight: 600, flexShrink: 0 }}>You:</span>
+            <span style={{ fontSize: 13, color: C.secondary }}>{activePrompt === 0 ? defaultPrompt : DEMO_PROMPTS[activePrompt - 1]?.prompt ?? defaultPrompt}</span>
+          </div>
+        </div>
+
+        {/* AI response */}
+        <div ref={containerRef} style={{ padding: 16, minHeight: 200, maxHeight: 280, overflowY: "auto", scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}>
+          {DEMO_LINES.slice(0, visibleLines).map((line, i) => (
+            <div key={i} style={{ animation: "fadeUp 0.3s ease both", marginBottom: line.type === "heading" ? 12 : 6 }}>
+              {line.type === "heading" ? (
+                <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 14, color: C.gold, marginTop: i > 0 ? 16 : 0 }}>
+                  {line.text.replace("## ", "")}
+                </div>
+              ) : line.type === "bullet" ? (
+                <div style={{ fontSize: 13, color: C.secondary, lineHeight: 1.6, paddingLeft: 4 }}>{line.text}</div>
+              ) : (
+                <div style={{ fontSize: 13, color: C.secondary, lineHeight: 1.6 }} dangerouslySetInnerHTML={{
+                  __html: line.text.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#f5f5f5;font-weight:600">$1</strong>'),
+                }} />
+              )}
+            </div>
+          ))}
+          {visibleLines < DEMO_LINES.length && visibleLines > 0 && (
+            <span style={{
+              display: "inline-block", width: 8, height: 16,
+              background: C.gold, animation: "blink 0.8s step-end infinite",
+              borderRadius: 1, verticalAlign: "middle",
+            }} />
+          )}
+          {visibleLines === 0 && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "20px 0" }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.gold, animation: "pulse-ring 1.5s ease-in-out infinite" }} />
+              <span style={{ fontSize: 13, color: C.muted }}>Majorka AI is analysing the AU market...</span>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* AI response */}
-      <div ref={containerRef} style={{ padding: 16, maxHeight: 260, overflowY: "auto", scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent" }}>
-        {DEMO_LINES.slice(0, visibleLines).map((line, i) => (
-          <div key={i} style={{
-            animation: "fadeUp 0.3s ease both",
-            marginBottom: line.type === "heading" ? 12 : 6,
-          }}>
-            {line.type === "heading" ? (
-              <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 14, color: C.gold, marginTop: i > 0 ? 16 : 0 }}>
-                {line.text.replace("## ", "")}
-              </div>
-            ) : line.type === "bullet" ? (
-              <div style={{ fontSize: 13, color: C.secondary, lineHeight: 1.6, paddingLeft: 4 }}>{line.text}</div>
-            ) : (
-              <div style={{ fontSize: 13, color: C.secondary, lineHeight: 1.6 }} dangerouslySetInnerHTML={{
-                __html: line.text.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#f5f5f5;font-weight:600">$1</strong>'),
-              }} />
-            )}
-          </div>
+      {/* Quick-try buttons */}
+      <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap", justifyContent: "center" }}>
+        {DEMO_PROMPTS.map((p, i) => (
+          <button
+            key={i}
+            onClick={() => handlePromptClick(i + 1)}
+            style={{
+              background: activePrompt === i + 1 ? C.goldDim : "rgba(255,255,255,0.04)",
+              border: `1px solid ${activePrompt === i + 1 ? C.goldBorder : C.border}`,
+              borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600,
+              color: activePrompt === i + 1 ? C.gold : C.secondary,
+              cursor: "pointer", transition: "all 0.2s", fontFamily: dm,
+            }}
+          >
+            {p.label}
+          </button>
         ))}
-        {visibleLines < DEMO_LINES.length && visibleLines > 0 && (
-          <span style={{
-            display: "inline-block", width: 8, height: 16,
-            background: C.gold, animation: "blink 0.8s step-end infinite",
-            borderRadius: 1, verticalAlign: "middle",
-          }} />
-        )}
       </div>
     </div>
   );
 }
 
-// ── Main Component ───────────────────────────────────────────────────────────
+// ── Main Component ──────────────────────────────────────────────────────────
 export default function Home() {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
   const [hoveredPricing, setHoveredPricing] = useState<number | null>(null);
@@ -426,6 +461,7 @@ export default function Home() {
 
           <div style={{ display: "flex", alignItems: "center", gap: 32 }} className="hidden-mobile">
             <a href="#features" style={{ color: C.secondary, textDecoration: "none", fontSize: 14, fontWeight: 500, transition: "color 0.2s" }}>Features</a>
+            <a href="#demo" style={{ color: C.secondary, textDecoration: "none", fontSize: 14, fontWeight: 500, transition: "color 0.2s" }}>Demo</a>
             <a href="#pricing" style={{ color: C.secondary, textDecoration: "none", fontSize: 14, fontWeight: 500, transition: "color 0.2s" }}>Pricing</a>
             <a href="#faq" style={{ color: C.secondary, textDecoration: "none", fontSize: 14, fontWeight: 500, transition: "color 0.2s" }}>FAQ</a>
             <Link href="/sign-in" style={{ color: C.secondary, textDecoration: "none", fontSize: 14, fontWeight: 500 }}>Sign In</Link>
@@ -442,12 +478,12 @@ export default function Home() {
       </nav>
 
       {/* ═══════════════════════════════════════════════════
-          2. HERO — Animated Aurora + Demo Widget
+          2. HERO SECTION
       ═══════════════════════════════════════════════════ */}
       <section style={{
         position: "relative", minHeight: "100vh",
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-        textAlign: "center", padding: "100px 24px 80px",
+        textAlign: "center", padding: "100px 24px 60px",
         overflow: "hidden",
       }}>
         {/* Animated aurora background */}
@@ -469,8 +505,7 @@ export default function Home() {
           marginTop: -400, marginLeft: -400,
           background: `conic-gradient(from 0deg, transparent, rgba(212,175,55,0.03), transparent, rgba(212,175,55,0.02), transparent, rgba(212,175,55,0.03), transparent)`,
           animation: "ray-rotate 30s linear infinite",
-          pointerEvents: "none", zIndex: 0,
-          borderRadius: "50%",
+          pointerEvents: "none", zIndex: 0, borderRadius: "50%",
         }} />
 
         <div style={{ position: "relative", zIndex: 1, maxWidth: 900, width: "100%" }}>
@@ -490,13 +525,14 @@ export default function Home() {
           </div>
 
           {/* Headline */}
-          <h1 style={{
+          <h1 className="mobile-hero-h1" style={{
             fontFamily: syne, fontWeight: 900,
             fontSize: "clamp(36px, 6.5vw, 68px)",
             lineHeight: 1.05, letterSpacing: "-2px",
             marginBottom: 24, color: C.text,
           }}>
-            Your AI Ecommerce<br />
+            50+ AU-Built AI Tools.<br />
+            One Platform.{" "}
             <span style={{
               background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight}, ${C.gold})`,
               backgroundSize: "200% 200%",
@@ -504,28 +540,28 @@ export default function Home() {
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",
-            }}>Operating System</span>
+            }}>Your Unfair Advantage.</span>
           </h1>
 
           {/* Subheadline */}
           <p style={{
             fontSize: "clamp(16px, 2.2vw, 20px)", color: C.secondary,
-            lineHeight: 1.6, marginBottom: 40, maxWidth: 600, margin: "0 auto 40px",
+            lineHeight: 1.6, marginBottom: 40, maxWidth: 640, margin: "0 auto 40px",
           }}>
-            25+ AI tools purpose-built for Australian ecommerce. Research, brand, copy,
-            website, ads, emails — from idea to launch in minutes. All in AUD.
+            Product research, ad copy, brand building, and launch strategy — all built for Australian
+            dropshippers and DTC brands. In AUD. With Afterpay. Actually useful.
           </p>
 
           {/* CTA buttons */}
-          <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 48 }}>
+          <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 40 }}>
             <Link href="/app" style={{
               background: `linear-gradient(135deg, ${C.gold}, #b8941f)`,
               color: "#000", borderRadius: 12,
-              padding: "16px 36px", fontFamily: syne, fontWeight: 800, fontSize: 17,
+              padding: "16px 40px", fontFamily: syne, fontWeight: 800, fontSize: 17,
               textDecoration: "none", display: "inline-block",
               boxShadow: `0 0 40px rgba(212,175,55,0.3), 0 4px 16px rgba(0,0,0,0.3)`,
               transition: "transform 0.2s, box-shadow 0.2s",
-            }}>Start Free Today</Link>
+            }}>Start Free</Link>
 
             <a href="#demo" style={{
               background: "rgba(255,255,255,0.04)", border: `1px solid ${C.border}`,
@@ -534,14 +570,28 @@ export default function Home() {
               textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8,
               transition: "border-color 0.2s, background 0.2s",
             }}>
-              <span style={{ fontSize: 14 }}>▶</span> See It Work
+              <span style={{ fontSize: 14 }}>{"\u25B6"}</span> See It Work
             </a>
           </div>
 
-          {/* Social proof */}
-          <p style={{ fontSize: 13, color: C.muted, letterSpacing: "0.02em" }}>
-            No credit card required &nbsp;·&nbsp; 25+ AI tools &nbsp;·&nbsp; AU-native &nbsp;·&nbsp; Saves 6+ hours/day
-          </p>
+          {/* Trust bar */}
+          <div style={{
+            display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8,
+            maxWidth: 700, margin: "0 auto",
+          }}>
+            {TRUST_ITEMS.map((item, i) => (
+              <div key={i} style={{
+                display: "flex", alignItems: "center", gap: 6,
+                fontSize: 12, color: C.muted, fontWeight: 500, letterSpacing: "0.02em",
+              }}>
+                <span style={{ color: C.gold, fontSize: 8 }}>{"\u25C6"}</span>
+                {item}
+                {i < TRUST_ITEMS.length - 1 && (
+                  <span style={{ color: C.border, margin: "0 4px" }}>{"\u00B7"}</span>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -552,14 +602,14 @@ export default function Home() {
         borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`,
         background: C.card,
       }}>
-        <div style={{
+        <div className="mobile-grid-2" style={{
           maxWidth: 900, margin: "0 auto", padding: "40px 24px",
           display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 24,
           textAlign: "center",
         }}>
           {METRICS.map((m, i) => (
-            <div key={i}>
-              <AnimatedCounter value={m.value} />
+            <div key={i} style={{ animation: "countUp 0.5s ease both", animationDelay: `${i * 0.1}s` }}>
+              <span style={{ fontFamily: syne, fontWeight: 900, fontSize: 32, color: C.text }}>{m.value}</span>
               <div style={{ fontSize: 13, color: C.muted, marginTop: 4, fontWeight: 500 }}>{m.label}</div>
             </div>
           ))}
@@ -623,14 +673,14 @@ export default function Home() {
               fontSize: "clamp(28px, 5vw, 44px)",
               letterSpacing: "-1px", marginBottom: 16,
             }}>
-              25+ tools. One platform. AU-native.
+              50+ tools. One platform. AU-native.
             </h2>
             <p style={{ color: C.secondary, fontSize: 17, maxWidth: 550, margin: "0 auto" }}>
               Every tool defaults to AUD, Australian English, AU suppliers, and AU compliance. No more adapting US-centric advice.
             </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20 }}>
+          <div className="mobile-grid-1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20 }}>
             {FEATURES.map((f, i) => (
               <div
                 key={i}
@@ -645,13 +695,19 @@ export default function Home() {
                   cursor: "default",
                 }}
               >
-                <div style={{
-                  display: "inline-block", padding: "4px 10px", borderRadius: 6,
-                  fontSize: 11, fontWeight: 700, fontFamily: syne,
-                  background: `${f.color}15`, color: f.color, border: `1px solid ${f.color}30`,
-                  marginBottom: 16, textTransform: "uppercase", letterSpacing: "0.05em",
-                }}>{f.badge}</div>
-                <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 18, marginBottom: 10, color: C.text }}>{f.title}</h3>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+                  <span style={{ fontSize: 28 }}>{f.emoji}</span>
+                  <div>
+                    <div style={{
+                      display: "inline-block", padding: "3px 8px", borderRadius: 6,
+                      fontSize: 10, fontWeight: 700, fontFamily: syne,
+                      background: `${f.color}15`, color: f.color, border: `1px solid ${f.color}30`,
+                      textTransform: "uppercase", letterSpacing: "0.05em",
+                    }}>{f.badge}</div>
+                  </div>
+                </div>
+                <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 18, marginBottom: 6, color: C.text }}>{f.title}</h3>
+                <p style={{ fontFamily: syne, fontWeight: 600, fontSize: 14, color: C.gold, marginBottom: 10 }}>{f.tagline}</p>
                 <p style={{ fontSize: 14, color: C.secondary, lineHeight: 1.7 }}>{f.desc}</p>
               </div>
             ))}
@@ -668,20 +724,18 @@ export default function Home() {
             From idea to launch in 3 steps.
           </h2>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
+          <div className="mobile-grid-1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 24 }}>
             {STEPS.map((step, i) => (
               <div key={i} style={{
                 background: C.elevated, border: `1px solid ${C.border}`,
                 borderRadius: 16, padding: 32,
                 position: "relative", overflow: "hidden",
               }}>
-                {/* Large background number */}
                 <div style={{
                   position: "absolute", top: -10, right: 12,
                   fontFamily: syne, fontWeight: 900, fontSize: 100,
                   color: "rgba(212,175,55,0.04)", lineHeight: 1, pointerEvents: "none",
                 }}>{step.num}</div>
-
                 <div style={{
                   fontFamily: syne, fontWeight: 900, fontSize: 14, color: C.gold,
                   marginBottom: 16, letterSpacing: "0.05em",
@@ -726,18 +780,18 @@ export default function Home() {
                 background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)",
               }}>
                 <span style={{ fontSize: 14, color: C.text }}>{row.feature}</span>
-                <span style={{ textAlign: "center", fontSize: 16, color: C.green, fontWeight: 700 }}>✓</span>
+                <span style={{ textAlign: "center", fontSize: 16, color: C.green, fontWeight: 700 }}>{"\u2713"}</span>
                 <span style={{
                   textAlign: "center", fontSize: 13,
                   color: row.tools.includes("Not") ? C.red : C.secondary,
                   fontWeight: row.tools.includes("Not") ? 600 : 400,
-                }}>{row.tools.includes("Not") ? "✗" : row.tools}</span>
+                }}>{row.tools.includes("Not") ? "\u2717" : row.tools}</span>
               </div>
             ))}
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 160px", padding: "18px 24px", background: C.elevated, borderTop: `1px solid ${C.goldBorder}` }}>
               <span style={{ fontFamily: syne, fontWeight: 900, fontSize: 15, color: C.text }}>Monthly Cost</span>
-              <span style={{ textAlign: "center", fontFamily: syne, fontWeight: 900, fontSize: 15, color: C.gold }}>$0–49</span>
+              <span style={{ textAlign: "center", fontFamily: syne, fontWeight: 900, fontSize: 15, color: C.gold }}>$0{"\u2013"}49</span>
               <span style={{ textAlign: "center", fontFamily: syne, fontWeight: 900, fontSize: 15, color: C.red }}>$250+</span>
             </div>
           </div>
@@ -753,15 +807,15 @@ export default function Home() {
             Loved by Australian sellers.
           </h2>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20 }}>
+          <div className="mobile-grid-1" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
             {TESTIMONIALS.map((t, i) => (
               <div key={i} style={{
                 background: C.elevated, border: `1px solid ${C.border}`,
                 borderRadius: 16, padding: 28,
                 transition: "border-color 0.3s",
               }}>
-                <div style={{ marginBottom: 16, color: C.gold, fontSize: 13, letterSpacing: 2 }}>★★★★★</div>
-                <p style={{ fontSize: 14, color: C.secondary, lineHeight: 1.7, fontStyle: "italic", marginBottom: 24 }}>
+                <div style={{ marginBottom: 16, color: C.gold, fontSize: 13, letterSpacing: 2 }}>{"\u2605\u2605\u2605\u2605\u2605"}</div>
+                <p style={{ fontSize: 15, color: C.text, lineHeight: 1.7, fontWeight: 500, marginBottom: 24 }}>
                   &ldquo;{t.quote}&rdquo;
                 </p>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -774,7 +828,7 @@ export default function Home() {
                   }}>{t.initials}</div>
                   <div>
                     <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 13, color: C.text }}>{t.name}</div>
-                    <div style={{ fontSize: 11, color: C.muted }}>{t.role} &middot; {t.city}</div>
+                    <div style={{ fontSize: 11, color: C.muted }}>{t.city}</div>
                   </div>
                 </div>
               </div>
@@ -787,17 +841,17 @@ export default function Home() {
           10. PRICING
       ═══════════════════════════════════════════════════ */}
       <section id="pricing" style={{ padding: "100px 24px" }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+        <div style={{ maxWidth: 1050, margin: "0 auto" }}>
           <div style={{ textAlign: "center", marginBottom: 56 }}>
             <h2 style={{ fontFamily: syne, fontWeight: 900, fontSize: "clamp(28px, 5vw, 44px)", letterSpacing: "-1px", marginBottom: 16 }}>
-              Simple pricing. No surprises.
+              Simple pricing. All in AUD.
             </h2>
             <p style={{ color: C.secondary, fontSize: 17 }}>
-              All prices in AUD. Start free, upgrade when you&apos;re ready.
+              Start free, upgrade when you&apos;re ready. Afterpay available on paid plans.
             </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
+          <div className="mobile-grid-1" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
             {PRICING.map((plan, i) => (
               <div
                 key={i}
@@ -820,18 +874,12 @@ export default function Home() {
                     fontFamily: syne, whiteSpace: "nowrap",
                   }}>{plan.badge}</div>
                 )}
-                <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 18, marginBottom: 8, color: plan.highlight ? C.gold : C.text }}>{plan.name}</div>
+                <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 18, marginBottom: 4, color: plan.highlight ? C.gold : C.text }}>{plan.name}</div>
+                <p style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>{plan.description}</p>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 24 }}>
                   <span style={{ fontFamily: syne, fontWeight: 900, fontSize: 44, color: C.text }}>{plan.price}</span>
                   <span style={{ color: C.muted, fontSize: 14 }}>{plan.period}</span>
                 </div>
-                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px", display: "flex", flexDirection: "column", gap: 10 }}>
-                  {plan.features.map((f) => (
-                    <li key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: C.secondary }}>
-                      <span style={{ color: C.green, fontWeight: 700, fontSize: 12 }}>✓</span> {f}
-                    </li>
-                  ))}
-                </ul>
                 <Link href={plan.href} style={{
                   display: "block", textAlign: "center",
                   background: plan.highlight ? `linear-gradient(135deg, ${C.gold}, #b8941f)` : "rgba(255,255,255,0.04)",
@@ -839,8 +887,31 @@ export default function Home() {
                   border: plan.highlight ? "none" : `1px solid ${C.border}`,
                   borderRadius: 10, padding: "12px 20px",
                   fontFamily: syne, fontWeight: 700, fontSize: 14, textDecoration: "none",
-                  transition: "opacity 0.2s",
+                  transition: "opacity 0.2s", marginBottom: 24,
                 }}>{plan.cta}</Link>
+
+                {/* Afterpay badge */}
+                {plan.afterpay && (
+                  <div style={{
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                    padding: "8px 0", marginBottom: 16,
+                    fontSize: 11, color: C.secondary, fontWeight: 500,
+                  }}>
+                    <span style={{ background: "#b2fce4", color: "#000", borderRadius: 4, padding: "2px 6px", fontSize: 10, fontWeight: 800 }}>Afterpay</span>
+                    <span>&</span>
+                    <span style={{ background: "#7b61ff", color: "#fff", borderRadius: 4, padding: "2px 6px", fontSize: 10, fontWeight: 800 }}>Zip</span>
+                    <span>available</span>
+                  </div>
+                )}
+
+                <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 16 }} />
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+                  {plan.features.map((f) => (
+                    <li key={f} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14, color: C.secondary }}>
+                      <span style={{ color: C.green, fontWeight: 700, fontSize: 12 }}>{"\u2713"}</span> {f}
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
@@ -868,7 +939,6 @@ export default function Home() {
         position: "relative", padding: "120px 24px", textAlign: "center",
         overflow: "hidden",
       }}>
-        {/* Background glow */}
         <div style={{
           position: "absolute", top: "50%", left: "50%",
           width: 800, height: 400,
@@ -879,10 +949,10 @@ export default function Home() {
 
         <div style={{ position: "relative", zIndex: 1, maxWidth: 600, margin: "0 auto" }}>
           <h2 style={{ fontFamily: syne, fontWeight: 900, fontSize: "clamp(28px, 5vw, 48px)", letterSpacing: "-1px", marginBottom: 20 }}>
-            Ready to build your<br />ecommerce empire?
+            Stop guessing.<br />Start selling.
           </h2>
           <p style={{ color: C.secondary, fontSize: 18, marginBottom: 40, lineHeight: 1.6 }}>
-            25+ AI tools. AU-native. No credit card required.<br />Start in 30 seconds.
+            50+ AI tools. AU-native. No credit card required.<br />Start in 30 seconds.
           </p>
           <Link href="/app" style={{
             display: "inline-block",
@@ -896,7 +966,7 @@ export default function Home() {
             Start Free Today
           </Link>
           <p style={{ marginTop: 20, fontSize: 13, color: C.muted }}>
-            Join Australian sellers already using Majorka
+            Join 500+ Australian sellers already using Majorka
           </p>
         </div>
       </section>
@@ -921,15 +991,19 @@ export default function Home() {
               <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.6 }}>
                 The AI Ecommerce Operating System built for Australian sellers. From idea to launch in minutes.
               </p>
+              <p style={{ color: C.muted, fontSize: 12, marginTop: 12 }}>
+                Made in Australia {"\uD83C\uDDE6\uD83C\uDDFA"}
+              </p>
             </div>
 
             {/* Links */}
-            <div style={{ display: "flex", gap: 48 }}>
+            <div style={{ display: "flex", gap: 48, flexWrap: "wrap" }}>
               <div>
                 <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 12, color: C.secondary, marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.08em" }}>Product</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   <a href="#features" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Features</a>
                   <a href="#pricing" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Pricing</a>
+                  <a href="#demo" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Demo</a>
                   <a href="#faq" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>FAQ</a>
                 </div>
               </div>
@@ -943,8 +1017,9 @@ export default function Home() {
               <div>
                 <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 12, color: C.secondary, marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.08em" }}>Legal</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <a href="#" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Terms</a>
-                  <a href="#" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Privacy</a>
+                  <a href="#" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Privacy Policy</a>
+                  <a href="#" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Terms of Service</a>
+                  <a href="#" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Refund Policy</a>
                 </div>
               </div>
             </div>
@@ -953,10 +1028,10 @@ export default function Home() {
           {/* Bottom bar */}
           <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
             <p style={{ color: C.muted, fontSize: 12 }}>
-              &copy; 2026 Majorka. Built on the Gold Coast, Australia.
+              &copy; 2026 Majorka. ABN: [pending] &middot; Built on the Gold Coast, Australia.
             </p>
             <p style={{ color: C.muted, fontSize: 12 }}>
-              Powered by Anthropic Claude AI
+              Powered by Anthropic Claude AI &middot; Australian Consumer Law applies
             </p>
           </div>
         </div>
