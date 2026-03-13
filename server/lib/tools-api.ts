@@ -75,23 +75,21 @@ export function registerToolsApi(app: Application): void {
 
     refreshLimiter.set(authUser.userId, now);
 
-    const webhookUrl = process.env.PRODUCT_REFRESH_WEBHOOK_URL;
-    if (webhookUrl) {
-      try {
-        await fetch(webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ triggeredBy: authUser.userId, triggeredAt: new Date().toISOString() }),
+    // Run Tavily-based refresh directly (no webhook needed)
+    const nextAt = new Date(now + REFRESH_COOLDOWN_MS).toISOString();
+    try {
+      const { refreshWinningProducts } = await import('./refresh-winning-products.js');
+      // Run in background — don't block the response
+      refreshWinningProducts()
+        .then((result) => {
+          console.log(`[products/refresh] ✅ ${result.count} products upserted`);
+        })
+        .catch((err) => {
+          console.error('[products/refresh] ❌ refresh error:', err.message);
         });
-        const nextAt = new Date(now + REFRESH_COOLDOWN_MS).toISOString();
-        res.json({ triggered: true, message: 'Product refresh webhook fired', nextAllowedAt: nextAt });
-      } catch (webhookErr: any) {
-        const nextAt = new Date(now + REFRESH_COOLDOWN_MS).toISOString();
-        res.json({ triggered: false, message: `Webhook error: ${webhookErr.message}`, nextAllowedAt: nextAt });
-      }
-    } else {
-      const nextAt = new Date(now + REFRESH_COOLDOWN_MS).toISOString();
-      res.json({ triggered: true, message: 'Webhook not configured yet — refresh queued', nextAllowedAt: nextAt });
+      res.json({ triggered: true, message: 'Product refresh started — new products will appear shortly', nextAllowedAt: nextAt });
+    } catch (err: any) {
+      res.json({ triggered: false, message: `Refresh error: ${err.message}`, nextAllowedAt: nextAt });
     }
   });
   // -----------------------------------------------------------------------
