@@ -109,6 +109,7 @@ const NAV_SECTIONS: NavSection[] = [
 ];
 
 const BOTTOM_ITEMS: NavItem[] = [
+  { label: "Earn with Majorka", path: "/app/affiliate", icon: Award },
   { label: "Settings", path: "/app/settings", icon: Settings },
   { label: "Account", path: "/account", icon: User },
 ];

@@ -772,13 +772,29 @@ export default function Home() {
               </div>
             ))}
           </div>
+
+          {/* Social proof counter */}
+          <SocialProofCounter />
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════
           2b. EMAIL CAPTURE + SOCIAL PROOF
       ═══════════════════════════════════════════════════ */}
-      <EmailCapture />
+      <section style={{ padding: "60px 24px 0", textAlign: "center" }}>
+        <div style={{ maxWidth: 700, margin: "0 auto" }}>
+          <h2 style={{
+            fontFamily: syne, fontWeight: 900, fontSize: "clamp(24px, 4vw, 36px)",
+            letterSpacing: "-0.5px", marginBottom: 12, color: C.text,
+          }}>
+            Get the Free AU Product Playbook
+          </h2>
+          <p style={{ color: C.secondary, fontSize: 16, marginBottom: 32, maxWidth: 500, margin: "0 auto 32px" }}>
+            50 winning products for 2025 + weekly trending product alerts. Built for Australian sellers.
+          </p>
+          <EmailCapture />
+        </div>
+      </section>
 
       {/* ═══════════════════════════════════════════════════
           3. METRICS STRIP
@@ -1211,6 +1227,7 @@ export default function Home() {
                   <a href="#pricing" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Pricing</a>
                   <a href="#demo" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Demo</a>
                   <a href="#faq" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>FAQ</a>
+                  <Link href="/tools/profit-calculator" style={{ color: C.muted, textDecoration: "none", fontSize: 13 }}>Profit Calculator</Link>
                 </div>
               </div>
               <div>

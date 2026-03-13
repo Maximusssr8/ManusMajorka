@@ -21,6 +21,8 @@ const Storefront = lazy(() => import("./pages/Storefront"));
 const AdminLeads = lazy(() => import("./pages/AdminLeads"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
+const PublicProfitCalculator = lazy(() => import("./pages/PublicProfitCalculator"));
+const Affiliate = lazy(() => import("./pages/Affiliate"));
 
 function LoadingFallback() {
   return (
@@ -71,6 +73,8 @@ function Router() {
         <Route path="/account" component={Account} />
         <Route path="/app/settings/profile" component={SettingsProfile} />
         <Route path="/store/:slug" component={Storefront} />
+        <Route path="/tools/profit-calculator" component={PublicProfitCalculator} />
+        <Route path="/app/affiliate">{() => <ProtectedRoute><Affiliate /></ProtectedRoute>}</Route>
         <Route path="/admin/leads">{() => <ProtectedRoute><AdminLeads /></ProtectedRoute>}</Route>
         <Route path="/app">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
         <Route path="/app/settings">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
@@ -85,7 +89,13 @@ function Router() {
 }
 
 function App() {
-  useEffect(() => { capture("app_loaded"); }, []);
+  useEffect(() => {
+    capture("app_loaded");
+    // Capture referral code from any page
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) localStorage.setItem("majorka_ref", ref);
+  }, []);
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark" switchable>

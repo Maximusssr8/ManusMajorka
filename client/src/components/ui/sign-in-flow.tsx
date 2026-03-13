@@ -40,8 +40,36 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
   const [passwordStrength, setPasswordStrength] = useState(0);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    // Capture referral code from URL
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      localStorage.setItem("majorka_ref", ref);
+      // Track the click
+      fetch("/api/affiliate/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: ref }),
+      }).catch(() => {});
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
       if (event === "SIGNED_IN") {
+        // Credit referral on signup
+        const refCode = localStorage.getItem("majorka_ref");
+        if (refCode) {
+          try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+              await fetch("/api/affiliate/referral", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code: refCode, referredUserId: user.id }),
+              });
+              localStorage.removeItem("majorka_ref");
+            }
+          } catch { /* best-effort */ }
+        }
         setStep("success");
       }
     });
