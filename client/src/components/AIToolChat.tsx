@@ -14,6 +14,29 @@ import { useActiveProduct } from "@/hooks/useActiveProduct";
 import { useMarket } from "@/contexts/MarketContext";
 import { trackToolUsed } from "@/lib/analytics";
 
+/** Tool-specific loading messages — shown while AI is generating */
+const TOOL_LOADING_MESSAGES: Record<string, string> = {
+  "product-discovery": "Scanning AU market demand signals...",
+  "meta-ads": "Writing AU ad copy for your audience...",
+  "ads-studio": "Crafting scroll-stopping creative hooks...",
+  "validate": "Running profit calculations for AU market...",
+  "supplier-finder": "Searching Alibaba, Dropshipzone, and CJ AU...",
+  "keyword-miner": "Mining AU buyer-intent keywords...",
+  "audience-profiler": "Building your AU customer personas...",
+  "copywriter": "Writing AU-optimised sales copy...",
+  "email-sequences": "Building your Klaviyo email flow...",
+  "tiktok-builder": "Scripting your AU TikTok slideshow...",
+  "scaling-playbook": "Mapping your AU scaling strategy...",
+  "website-generator": "Generating your AU store layout...",
+  "competitor-breakdown": "Analysing AU competitor landscape...",
+  "trend-radar": "Reading AU trend signals...",
+  "niche-scorer": "Scoring AU market opportunity...",
+  "au-trending": "Pulling live AU trending data...",
+  "market-intel": "Gathering AU market intelligence...",
+  "financial-modeler": "Building your AU financial model...",
+  "ai-chat": "Maya is thinking...",
+};
+
 interface AIToolChatProps {
   toolId: string;
   toolName: string;
@@ -317,10 +340,11 @@ export default function AIToolChat({
                     <div className="prose prose-sm dark:prose-invert max-w-none">
                       <Markdown mode="static">{msg.content}</Markdown>
                     </div>
-                    {/* Per-message copy button */}
-                    {msg.role === "assistant" && (
-                      <div className="mt-2 flex justify-end">
+                    {/* Per-message copy + export buttons */}
+                    {msg.role === "assistant" && msg.content && (
+                      <div className="mt-2 flex justify-end gap-1">
                         <CopyMsgBtn text={msg.content} />
+                        <ExportMsgBtn text={msg.content} toolId={toolId} />
                       </div>
                     )}
                   </div>
@@ -334,8 +358,14 @@ export default function AIToolChat({
                   </div>
                   <div className="rounded-lg px-4 py-3" style={{ background: "#0d0f12", border: "1px solid rgba(255,255,255,0.06)" }}>
                     <div className="flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#d4af37" }} />
-                      <span className="text-sm text-muted-foreground">Thinking...</span>
+                      {/* Pulsing gold dot */}
+                      <span
+                        className="inline-block w-2 h-2 rounded-full animate-pulse"
+                        style={{ background: "#d4af37", boxShadow: "0 0 6px #d4af37" }}
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {TOOL_LOADING_MESSAGES[toolId] ?? "Generating..."}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -532,6 +562,35 @@ function CopyMsgBtn({ text }: { text: string }) {
     >
       {copied ? <Check size={10} /> : <Copy size={10} />}
       {copied ? "Copied ✓" : "Copy"}
+    </button>
+  );
+}
+
+/** Small per-message export (.txt) button */
+function ExportMsgBtn({ text, toolId }: { text: string; toolId: string }) {
+  const handleExport = () => {
+    const blob = new Blob([text], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `majorka-${toolId}-${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Exported!");
+  };
+  return (
+    <button
+      onClick={handleExport}
+      className="text-xs flex items-center gap-1 px-2 py-1 rounded-md transition-all"
+      style={{
+        background: "transparent",
+        color: "rgba(240,237,232,0.25)",
+        cursor: "pointer",
+        border: "none",
+      }}
+    >
+      <Download size={10} />
+      Export
     </button>
   );
 }

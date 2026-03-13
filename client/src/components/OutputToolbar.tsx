@@ -3,7 +3,7 @@
  * Provides: Copy section, Copy All, Export PDF, Save to localStorage.
  */
 import { useState, useCallback } from "react";
-import { Copy, Check, Download, Save, FileText } from "lucide-react";
+import { Copy, Check, Download, Save } from "lucide-react";
 import { toast } from "sonner";
 
 interface OutputToolbarProps {
@@ -45,10 +45,16 @@ function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) 
 }
 
 export default function OutputToolbar({ allContent, toolName, className = "" }: OutputToolbarProps) {
-  const handleExportPDF = useCallback(() => {
-    window.print();
-    toast.success("Print dialog opened!");
-  }, []);
+  const handleExportTxt = useCallback(() => {
+    const blob = new Blob([allContent], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `majorka-${toolName.replace(/\s+/g, "-").toLowerCase()}-${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Exported as .txt!");
+  }, [allContent, toolName]);
 
   const handleSave = useCallback(() => {
     const key = `majorka_saved_${toolName.replace(/\s+/g, "_").toLowerCase()}_${Date.now()}`;
@@ -64,7 +70,7 @@ export default function OutputToolbar({ allContent, toolName, className = "" }: 
     <div className={`flex items-center gap-1.5 flex-wrap ${className}`}>
       <CopyButton text={allContent} label="Copy All" />
       <button
-        onClick={handleExportPDF}
+        onClick={handleExportTxt}
         className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all"
         style={{
           background: "rgba(255,255,255,0.05)",
@@ -75,7 +81,7 @@ export default function OutputToolbar({ allContent, toolName, className = "" }: 
           fontWeight: 600,
         }}
       >
-        <FileText size={11} /> Export PDF
+        <Download size={11} /> Export
       </button>
       <button
         onClick={handleSave}
