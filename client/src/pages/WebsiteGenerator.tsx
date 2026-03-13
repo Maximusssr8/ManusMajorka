@@ -13,15 +13,21 @@ import {
   FileText,
   FolderOpen,
   Globe,
+  Link,
   Loader2,
   Package,
+  Rocket,
+  Share2,
   ShoppingBag,
   StickyNote,
   Terminal,
   X,
+  Zap,
 } from 'lucide-react';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
+import { trpc } from '@/lib/trpc';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { toast } from 'sonner';
@@ -126,7 +132,7 @@ interface GeneratedData {
 
 type Vibe = 'bold' | 'minimal' | 'premium';
 type Platform = 'shopify' | 'nextjs' | 'react';
-type ActiveTab = 'copy' | 'code' | 'preview' | 'deploy';
+type ActiveTab = 'copy' | 'code' | 'preview' | 'deploy' | 'launch';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function cleanProductTitle(raw: string): string {
@@ -461,6 +467,691 @@ function Modal({
       </div>
     </div>
   );
+}
+
+// ── Shopify CSV Export ───────────────────────────────────────────────────────
+function generateShopifyCSV(data: GeneratedData, storeName: string, price: string): string {
+  const handle = storeName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const title = data.headline || storeName;
+  const bodyParts = [
+    data.about_section ? `<p>${data.about_section}</p>` : '',
+    data.features?.length
+      ? `<ul>${data.features.map((f) => `<li>${f}</li>`).join('')}</ul>`
+      : '',
+  ].filter(Boolean);
+  const body = bodyParts.join('');
+  const vendor = storeName;
+  const variantPrice = price || '49.00';
+
+  const header =
+    'Handle,Title,Body (HTML),Vendor,Type,Tags,Published,Option1 Name,Option1 Value,Variant SKU,Variant Grams,Variant Inventory Tracker,Variant Inventory Qty,Variant Inventory Policy,Variant Fulfillment Service,Variant Price,Variant Compare At Price,Variant Requires Shipping,Variant Taxable,Image Src,Image Position,Status';
+  const row = `${handle},"${title.replace(/"/g, '""')}","${body.replace(/"/g, '""')}","${vendor}",,,"true",Title,Default Title,,,shopify,100,deny,manual,${variantPrice},,TRUE,TRUE,,1,active`;
+  return header + '\n' + row;
+}
+
+// ── GoLive Launch Panel ──────────────────────────────────────────────────────
+interface GoLiveLaunchPanelProps {
+  generatedData: GeneratedData | null;
+  storeName: string;
+  priceAUD: string;
+  niche: string;
+}
+
+function GoLiveLaunchPanel({ generatedData, storeName, priceAUD, niche }: GoLiveLaunchPanelProps) {
+  const [, navigate] = useLocation();
+  const [mode, setMode] = useState<'choose' | 'majorka-wizard' | 'done'>('choose');
+  const [wizardStep, setWizardStep] = useState(1);
+
+  // Stripe keys (stored in localStorage only — no schema column exists)
+  const [stripePublishable, setStripePublishable] = useState('');
+  const [stripeSecret, setStripeSecret] = useState('');
+
+  // Product form
+  const [productName, setProductName] = useState(generatedData?.headline || storeName || '');
+  const [productPrice, setProductPrice] = useState(priceAUD || '49.00');
+  const [productDesc, setProductDesc] = useState(generatedData?.about_section || '');
+  const [productImageUrl, setProductImageUrl] = useState('');
+
+  // Store slug
+  const slug = (storeName || productName || 'my-store')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 30);
+
+  const [liveSlug, setLiveSlug] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  const createStoreMutation = trpc.storefront.createStore.useMutation();
+  const createProductMutation = trpc.products.create.useMutation();
+
+  // Sync pre-fills when generatedData arrives
+  useEffect(() => {
+    if (generatedData?.headline && !productName) setProductName(generatedData.headline);
+    if (generatedData?.about_section && !productDesc) setProductDesc(generatedData.about_section);
+  }, [generatedData]);
+
+  useEffect(() => {
+    if (priceAUD && !productPrice) setProductPrice(priceAUD);
+  }, [priceAUD]);
+
+  // ── Step 1 — Stripe Keys ──
+  const handleStep1Next = () => {
+    if (!stripePublishable.trim() || !stripeSecret.trim()) {
+      toast.error('Please enter both Stripe keys');
+      return;
+    }
+    // Save to localStorage only (no schema column for individual Stripe keys)
+    localStorage.setItem('majorka_stripe_pk', stripePublishable.trim());
+    localStorage.setItem('majorka_stripe_sk', stripeSecret.trim());
+    setWizardStep(2);
+  };
+
+  // ── Step 2 — Create Product & Store ──
+  const handleGoLive = async () => {
+    if (!productName.trim()) {
+      toast.error('Product name is required');
+      return;
+    }
+    if (!productPrice.trim()) {
+      toast.error('Price is required');
+      return;
+    }
+
+    try {
+      // Create store (will error if one already exists — that's fine, we'll handle)
+      let finalSlug = slug;
+      try {
+        await createStoreMutation.mutateAsync({
+          storeName: storeName || productName,
+          storeSlug: finalSlug,
+        });
+      } catch (storeErr: any) {
+        // If store already exists, that's OK — continue
+        if (!storeErr?.message?.includes('unique') && !storeErr?.message?.includes('already')) {
+          throw storeErr;
+        }
+      }
+
+      // Create product
+      await createProductMutation.mutateAsync({
+        name: productName.trim(),
+        niche: niche || undefined,
+        description: productDesc.trim() || undefined,
+      });
+
+      setLiveSlug(finalSlug);
+      setWizardStep(3);
+      setMode('done');
+    } catch (err: any) {
+      toast.error(err?.message || 'Something went wrong. Please try again.');
+    }
+  };
+
+  // ── Shopify Export ──
+  const handleShopifyExport = () => {
+    if (!generatedData) return;
+    const csv = generateShopifyCSV(generatedData, storeName, priceAUD);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${storeName || 'majorka-store'}-shopify-import.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Shopify CSV downloaded! Import it at Shopify → Products → Import');
+  };
+
+  const storeUrl = `majorka.io/store/${liveSlug || slug}`;
+
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(`https://${storeUrl}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (!generatedData) {
+    return (
+      <div
+        className="h-full flex flex-col items-center justify-center gap-4 p-8"
+        style={{ color: 'rgba(240,237,232,0.4)' }}
+      >
+        <Rocket size={40} style={{ opacity: 0.3 }} />
+        <p className="text-sm font-medium" style={{ fontFamily: 'Syne, sans-serif' }}>
+          Generate your website first, then launch it here.
+        </p>
+      </div>
+    );
+  }
+
+  // ── Choose path ──
+  if (mode === 'choose') {
+    return (
+      <div className="h-full overflow-y-auto p-6" style={{ scrollbarWidth: 'thin' }}>
+        <div className="max-w-2xl mx-auto space-y-6">
+          <div className="text-center space-y-1">
+            <p
+              className="text-xs font-bold uppercase tracking-widest"
+              style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+            >
+              Ready to sell?
+            </p>
+            <h2
+              className="text-xl font-bold"
+              style={{ color: 'rgba(240,237,232,0.95)', fontFamily: 'Syne, sans-serif' }}
+            >
+              Choose your launch path
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* Sell on Majorka */}
+            <button
+              onClick={() => setMode('majorka-wizard')}
+              className="group relative text-left p-6 rounded-2xl transition-all duration-200"
+              style={{
+                background: 'rgba(212,175,55,0.06)',
+                border: '1px solid rgba(212,175,55,0.2)',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.border =
+                  '1px solid rgba(212,175,55,0.6)';
+                (e.currentTarget as HTMLButtonElement).style.background =
+                  'rgba(212,175,55,0.1)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.border =
+                  '1px solid rgba(212,175,55,0.2)';
+                (e.currentTarget as HTMLButtonElement).style.background =
+                  'rgba(212,175,55,0.06)';
+              }}
+            >
+              <div className="space-y-3">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ background: 'rgba(212,175,55,0.15)' }}
+                >
+                  <Zap size={20} style={{ color: '#d4af37' }} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="font-bold text-sm"
+                      style={{ color: 'rgba(240,237,232,0.95)', fontFamily: 'Syne, sans-serif' }}
+                    >
+                      Sell on Majorka
+                    </span>
+                    <span
+                      className="text-xs px-2 py-0.5 rounded-full font-bold"
+                      style={{ background: 'rgba(212,175,55,0.2)', color: '#d4af37' }}
+                    >
+                      Recommended
+                    </span>
+                  </div>
+                  <p
+                    className="text-xs mt-1"
+                    style={{ color: 'rgba(240,237,232,0.5)', lineHeight: 1.5 }}
+                  >
+                    Your store is hosted here. Add Stripe and start selling in minutes. Free.
+                  </p>
+                </div>
+                <div
+                  className="text-xs font-bold flex items-center gap-1"
+                  style={{ color: '#d4af37' }}
+                >
+                  Set Up Store <ChevronRight size={12} />
+                </div>
+              </div>
+            </button>
+
+            {/* Export to Shopify */}
+            <button
+              onClick={handleShopifyExport}
+              className="group relative text-left p-6 rounded-2xl transition-all duration-200"
+              style={{
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.border =
+                  '1px solid rgba(255,255,255,0.18)';
+                (e.currentTarget as HTMLButtonElement).style.background =
+                  'rgba(255,255,255,0.06)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.border =
+                  '1px solid rgba(255,255,255,0.08)';
+                (e.currentTarget as HTMLButtonElement).style.background =
+                  'rgba(255,255,255,0.03)';
+              }}
+            >
+              <div className="space-y-3">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ background: 'rgba(255,255,255,0.06)' }}
+                >
+                  <ShoppingBag size={20} style={{ color: 'rgba(240,237,232,0.6)' }} />
+                </div>
+                <div>
+                  <span
+                    className="font-bold text-sm"
+                    style={{ color: 'rgba(240,237,232,0.95)', fontFamily: 'Syne, sans-serif' }}
+                  >
+                    Export to Shopify
+                  </span>
+                  <p
+                    className="text-xs mt-1"
+                    style={{ color: 'rgba(240,237,232,0.5)', lineHeight: 1.5 }}
+                  >
+                    Download a Shopify-ready product CSV and import it to your Shopify store in one
+                    click.
+                  </p>
+                </div>
+                <div
+                  className="text-xs font-bold flex items-center gap-1"
+                  style={{ color: 'rgba(240,237,232,0.5)' }}
+                >
+                  <Download size={12} /> Export CSV
+                </div>
+              </div>
+            </button>
+          </div>
+
+          {/* Preview URL */}
+          <div
+            className="text-center text-xs"
+            style={{ color: 'rgba(240,237,232,0.3)', fontFamily: 'DM Sans, sans-serif' }}
+          >
+            Your store will be hosted at{' '}
+            <span style={{ color: 'rgba(212,175,55,0.7)' }}>majorka.io/store/{slug}</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Majorka Wizard ──
+  if (mode === 'majorka-wizard') {
+    return (
+      <div className="h-full overflow-y-auto p-6" style={{ scrollbarWidth: 'thin' }}>
+        <div className="max-w-lg mx-auto space-y-6">
+          {/* Back */}
+          {wizardStep < 3 && (
+            <button
+              onClick={() => {
+                if (wizardStep === 1) setMode('choose');
+                else setWizardStep((s) => s - 1);
+              }}
+              className="flex items-center gap-1 text-xs transition-opacity hover:opacity-80"
+              style={{ color: 'rgba(240,237,232,0.4)', cursor: 'pointer' }}
+            >
+              <ChevronRight size={12} style={{ transform: 'rotate(180deg)' }} /> Back
+            </button>
+          )}
+
+          {/* Step indicator */}
+          <div className="flex items-center justify-center gap-2">
+            {[1, 2, 3].map((s) => (
+              <div
+                key={s}
+                className="rounded-full transition-all duration-200"
+                style={{
+                  width: s === wizardStep ? 24 : 8,
+                  height: 8,
+                  background: s === wizardStep ? '#d4af37' : s < wizardStep ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.12)',
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Step 1 — Stripe Keys */}
+          {wizardStep === 1 && (
+            <div className="space-y-5">
+              <div className="text-center space-y-1">
+                <h3
+                  className="text-lg font-bold"
+                  style={{ color: 'rgba(240,237,232,0.95)', fontFamily: 'Syne, sans-serif' }}
+                >
+                  Connect Stripe
+                </h3>
+                <p className="text-xs" style={{ color: 'rgba(240,237,232,0.45)' }}>
+                  Required to accept payments on your store.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <label
+                    className="text-xs font-medium"
+                    style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                  >
+                    Publishable Key
+                  </label>
+                  <input
+                    type="text"
+                    value={stripePublishable}
+                    onChange={(e) => setStripePublishable(e.target.value)}
+                    placeholder="pk_live_..."
+                    className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all"
+                    style={{
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: 'rgba(240,237,232,0.9)',
+                      fontFamily: 'monospace',
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.border = '1px solid rgba(212,175,55,0.4)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.border = '1px solid rgba(255,255,255,0.1)';
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label
+                    className="text-xs font-medium"
+                    style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                  >
+                    Secret Key
+                  </label>
+                  <input
+                    type="password"
+                    value={stripeSecret}
+                    onChange={(e) => setStripeSecret(e.target.value)}
+                    placeholder="sk_live_..."
+                    className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all"
+                    style={{
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: 'rgba(240,237,232,0.9)',
+                      fontFamily: 'monospace',
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.border = '1px solid rgba(212,175,55,0.4)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.border = '1px solid rgba(255,255,255,0.1)';
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <p className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+                  Saved locally. We never transmit your secret key to third parties.
+                </p>
+                <p className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+                  No Stripe account?{' '}
+                  <a
+                    href="https://stripe.com/au"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline transition-opacity hover:opacity-80"
+                    style={{ color: '#d4af37', cursor: 'pointer' }}
+                  >
+                    Create a free account →
+                  </a>
+                </p>
+              </div>
+
+              <button
+                onClick={handleStep1Next}
+                className="w-full py-3 rounded-xl text-sm font-bold transition-all duration-200"
+                style={{
+                  background: '#d4af37',
+                  color: '#0c0e12',
+                  fontFamily: 'Syne, sans-serif',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.opacity = '0.9';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.opacity = '1';
+                }}
+              >
+                Next: Set Your Product →
+              </button>
+            </div>
+          )}
+
+          {/* Step 2 — Product Setup */}
+          {wizardStep === 2 && (
+            <div className="space-y-5">
+              <div className="text-center space-y-1">
+                <h3
+                  className="text-lg font-bold"
+                  style={{ color: 'rgba(240,237,232,0.95)', fontFamily: 'Syne, sans-serif' }}
+                >
+                  What are you selling?
+                </h3>
+                <p className="text-xs" style={{ color: 'rgba(240,237,232,0.45)' }}>
+                  Pre-filled from your generated store. Edit as needed.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                {[
+                  {
+                    label: 'Product Name',
+                    value: productName,
+                    setter: setProductName,
+                    placeholder: 'e.g. Bondi Glow Supplement',
+                    type: 'text',
+                  },
+                  {
+                    label: 'Price (AUD)',
+                    value: productPrice,
+                    setter: setProductPrice,
+                    placeholder: '49.00',
+                    type: 'text',
+                  },
+                  {
+                    label: 'Product Image URL (optional)',
+                    value: productImageUrl,
+                    setter: setProductImageUrl,
+                    placeholder: 'https://...',
+                    type: 'text',
+                  },
+                ].map(({ label, value, setter, placeholder, type }) => (
+                  <div key={label} className="space-y-1.5">
+                    <label
+                      className="text-xs font-medium"
+                      style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                    >
+                      {label}
+                    </label>
+                    <input
+                      type={type}
+                      value={value}
+                      onChange={(e) => setter(e.target.value)}
+                      placeholder={placeholder}
+                      className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all"
+                      style={{
+                        background: 'rgba(255,255,255,0.04)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        color: 'rgba(240,237,232,0.9)',
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.border = '1px solid rgba(212,175,55,0.4)';
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.border = '1px solid rgba(255,255,255,0.1)';
+                      }}
+                    />
+                  </div>
+                ))}
+
+                <div className="space-y-1.5">
+                  <label
+                    className="text-xs font-medium"
+                    style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                  >
+                    Description
+                  </label>
+                  <textarea
+                    value={productDesc}
+                    onChange={(e) => setProductDesc(e.target.value)}
+                    placeholder="Describe your product..."
+                    rows={3}
+                    className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all resize-none"
+                    style={{
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: 'rgba(240,237,232,0.9)',
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.border = '1px solid rgba(212,175,55,0.4)';
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.border = '1px solid rgba(255,255,255,0.1)';
+                    }}
+                  />
+                </div>
+              </div>
+
+              <button
+                onClick={handleGoLive}
+                disabled={createStoreMutation.isPending || createProductMutation.isPending}
+                className="w-full py-3 rounded-xl text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2"
+                style={{
+                  background: '#d4af37',
+                  color: '#0c0e12',
+                  fontFamily: 'Syne, sans-serif',
+                  cursor:
+                    createStoreMutation.isPending || createProductMutation.isPending
+                      ? 'not-allowed'
+                      : 'pointer',
+                  opacity:
+                    createStoreMutation.isPending || createProductMutation.isPending ? 0.7 : 1,
+                }}
+              >
+                {createStoreMutation.isPending || createProductMutation.isPending ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" /> Creating your store...
+                  </>
+                ) : (
+                  <>
+                    <Rocket size={14} /> Create Product &amp; Go Live →
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Step 3 — Live! */}
+          {wizardStep === 3 && (
+            <div className="space-y-5 text-center">
+              <div
+                className="w-16 h-16 rounded-full mx-auto flex items-center justify-center"
+                style={{ background: 'rgba(212,175,55,0.15)', border: '2px solid #d4af37' }}
+              >
+                <Check size={28} style={{ color: '#d4af37' }} />
+              </div>
+
+              <div className="space-y-1">
+                <h3
+                  className="text-lg font-bold"
+                  style={{ color: 'rgba(240,237,232,0.95)', fontFamily: 'Syne, sans-serif' }}
+                >
+                  Your store is live!
+                </h3>
+                <p className="text-xs" style={{ color: 'rgba(240,237,232,0.45)' }}>
+                  Share this link to start selling immediately.
+                </p>
+              </div>
+
+              {/* Store URL card */}
+              <div
+                className="rounded-xl p-4 space-y-3"
+                style={{
+                  background: 'rgba(212,175,55,0.1)',
+                  border: '1px solid rgba(212,175,55,0.35)',
+                }}
+              >
+                <p className="text-xs" style={{ color: 'rgba(212,175,55,0.8)' }}>
+                  Your store URL
+                </p>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="flex-1 text-left text-sm font-bold truncate"
+                    style={{ color: '#d4af37', fontFamily: 'monospace' }}
+                  >
+                    majorka.io/store/{liveSlug || slug}
+                  </span>
+                  <button
+                    onClick={handleCopyUrl}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200"
+                    style={{
+                      background: copied ? 'rgba(212,175,55,0.3)' : 'rgba(212,175,55,0.15)',
+                      color: '#d4af37',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {copied ? <Check size={11} /> : <Copy size={11} />}
+                    {copied ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <a
+                  href={`https://majorka.io/store/${liveSlug || slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200"
+                  style={{
+                    background: '#d4af37',
+                    color: '#0c0e12',
+                    fontFamily: 'Syne, sans-serif',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <ExternalLink size={12} /> Open My Store
+                </a>
+                <button
+                  onClick={() => navigate('/app/store/products')}
+                  className="py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200"
+                  style={{
+                    background: 'rgba(255,255,255,0.06)',
+                    color: 'rgba(240,237,232,0.8)',
+                    fontFamily: 'Syne, sans-serif',
+                    cursor: 'pointer',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                  }}
+                >
+                  <Package size={12} /> Manage Store
+                </button>
+              </div>
+
+              <button
+                onClick={() => {
+                  const text = `Check out my new store: https://majorka.io/store/${liveSlug || slug}`;
+                  navigator.clipboard.writeText(text);
+                  toast.success('Link copied — paste it anywhere to share!');
+                }}
+                className="w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200"
+                style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  color: 'rgba(240,237,232,0.5)',
+                  fontFamily: 'Syne, sans-serif',
+                  cursor: 'pointer',
+                  border: '1px solid rgba(255,255,255,0.07)',
+                }}
+              >
+                <Share2 size={12} /> Share
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 // ── Main Component ───────────────────────────────────────────────────────────
@@ -1860,14 +2551,14 @@ ${generatedData.email_subject}`;
                 className="flex items-center gap-1 px-4 py-2.5 border-b flex-shrink-0"
                 style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#0c0e12' }}
               >
-                {(['copy', 'code', 'preview', 'deploy'] as ActiveTab[]).map((tab) => (
+                {(['copy', 'code', 'preview', 'deploy', 'launch'] as ActiveTab[]).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className="px-4 py-1.5 text-xs font-bold rounded-lg capitalize transition-all flex items-center gap-1.5"
                     style={{
                       background: activeTab === tab ? 'rgba(212,175,55,0.12)' : 'transparent',
-                      color: activeTab === tab ? '#d4af37' : 'rgba(240,237,232,0.4)',
+                      color: activeTab === tab ? '#d4af37' : tab === 'launch' ? 'rgba(212,175,55,0.7)' : 'rgba(240,237,232,0.4)',
                       borderBottom: `2px solid ${activeTab === tab ? '#d4af37' : 'transparent'}`,
                       fontFamily: 'Syne, sans-serif',
                       cursor: 'pointer',
@@ -1877,7 +2568,8 @@ ${generatedData.email_subject}`;
                     {tab === 'code' && <Code2 size={12} />}
                     {tab === 'preview' && <Globe size={12} />}
                     {tab === 'deploy' && <Package size={12} />}
-                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    {tab === 'launch' && <Rocket size={12} />}
+                    {tab === 'launch' ? 'Launch' : tab.charAt(0).toUpperCase() + tab.slice(1)}
                   </button>
                 ))}
               </div>
@@ -2603,6 +3295,16 @@ ${generatedData.email_subject}`;
                       </button>
                     </div>
                   </div>
+                )}
+
+                {/* ── LAUNCH TAB ── */}
+                {activeTab === 'launch' && (
+                  <GoLiveLaunchPanel
+                    generatedData={generatedData}
+                    storeName={storeName}
+                    priceAUD={priceAUD}
+                    niche={niche}
+                  />
                 )}
               </div>
             </>
