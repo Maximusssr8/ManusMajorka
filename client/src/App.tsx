@@ -28,6 +28,7 @@ const Affiliate = lazy(() => import('./pages/Affiliate'));
 const KnowledgeBase = lazy(() => import('./pages/KnowledgeBase'));
 const LearnHub = lazy(() => import('./pages/LearnHub'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+const PromoDashboard = lazy(() => import('./pages/PromoDashboard'));
 
 function LoadingFallback() {
   return (
@@ -165,6 +166,7 @@ function Router() {
                 </ProtectedRoute>
               )}
             </Route>
+            <Route path="/demo-dashboard" component={PromoDashboard} />
             <Route path="/404" component={NotFound} />
             <Route component={NotFound} />
           </Switch>
