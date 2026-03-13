@@ -42,14 +42,31 @@ const HOURLY_REVENUE = [
   390, 370, 310, 260, 230, 270, 340, 400, 380, 310, 180, 80,
 ];
 
-const NAV_ITEMS = [
-  { icon: '📊', label: 'Overview', active: true },
-  { icon: '🛒', label: 'Orders', active: false },
-  { icon: '📦', label: 'Products', active: false },
-  { icon: '💰', label: 'Payouts', active: false },
-  { icon: '📈', label: 'Analytics', active: false },
-  { icon: '🎯', label: 'Ads', active: false },
-  { icon: '⚙️', label: 'Settings', active: false },
+const NAV_SECTIONS = [
+  {
+    label: 'MAIN',
+    items: [
+      { icon: '▣', label: 'Overview', active: true, badge: null },
+      { icon: '◈', label: 'Orders', active: false, badge: '3' },
+      { icon: '⬡', label: 'Products', active: false, badge: null },
+      { icon: '⬢', label: 'Analytics', active: false, badge: null },
+    ],
+  },
+  {
+    label: 'GROW',
+    items: [
+      { icon: '◆', label: 'Ads Manager', active: false, badge: null },
+      { icon: '◉', label: 'Creators', active: false, badge: null },
+      { icon: '▲', label: 'Trends', active: false, badge: 'NEW' },
+    ],
+  },
+  {
+    label: 'FINANCE',
+    items: [
+      { icon: '◎', label: 'Payouts', active: false, badge: null },
+      { icon: '◐', label: 'Reports', active: false, badge: null },
+    ],
+  },
 ];
 
 const TOP_PRODUCTS = [
@@ -193,7 +210,7 @@ export default function PromoDashboard() {
     let timeout: ReturnType<typeof setTimeout>;
 
     const fireOrder = () => {
-      const delay = randBetween(8000, 12000);
+      const delay = randBetween(2000, 10000);
 
       timeout = setTimeout(() => {
         const addRevenue = randBetween(32, 95);
@@ -272,109 +289,222 @@ export default function PromoDashboard() {
 
         /* ── Sidebar ── */
         .sidebar {
-          width: 240px;
-          min-width: 240px;
-          background: #0c0e14;
-          border-right: 1px solid rgba(255,255,255,0.06);
+          width: 248px;
+          min-width: 248px;
+          background: #090b10;
+          border-right: 1px solid rgba(255,255,255,0.05);
           display: flex;
           flex-direction: column;
           padding: 0;
         }
 
         .sidebar-logo {
-          padding: 24px 20px 20px;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          padding: 22px 18px 18px;
+          border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
         .sidebar-logo-mark {
           display: flex;
           align-items: center;
           gap: 10px;
-          margin-bottom: 4px;
+          margin-bottom: 2px;
         }
 
         .logo-icon {
-          width: 32px;
-          height: 32px;
-          border-radius: 8px;
-          background: linear-gradient(135deg, #d4af37, #f0c040);
+          width: 34px;
+          height: 34px;
+          border-radius: 9px;
+          background: linear-gradient(135deg, #c9a227, #e8c84a);
           color: #080a0e;
           display: flex;
           align-items: center;
           justify-content: center;
           font-family: 'Syne', sans-serif;
           font-weight: 900;
-          font-size: 16px;
+          font-size: 15px;
+          box-shadow: 0 0 16px rgba(212,175,55,0.25);
         }
 
         .logo-name {
           font-family: 'Syne', sans-serif;
           font-weight: 800;
-          font-size: 18px;
+          font-size: 17px;
           color: #fff;
           letter-spacing: -0.5px;
         }
 
         .sidebar-label {
-          font-size: 11px;
-          color: rgba(255,255,255,0.35);
-          letter-spacing: 0.8px;
+          font-size: 10.5px;
+          color: rgba(255,255,255,0.28);
+          letter-spacing: 0.6px;
           text-transform: uppercase;
-          margin-top: 2px;
+          padding-left: 44px;
         }
 
         .sidebar-nav {
           flex: 1;
-          padding: 16px 0;
+          padding: 12px 0;
+          overflow-y: auto;
+        }
+
+        .nav-section {
+          margin-bottom: 4px;
+        }
+
+        .nav-section-label {
+          padding: 10px 18px 4px;
+          font-size: 9.5px;
+          font-weight: 600;
+          letter-spacing: 1.2px;
+          color: rgba(255,255,255,0.2);
+          text-transform: uppercase;
+          user-select: none;
         }
 
         .nav-item {
           display: flex;
           align-items: center;
           gap: 10px;
-          padding: 10px 20px;
+          padding: 9px 18px;
           cursor: default;
-          font-size: 14px;
-          color: rgba(255,255,255,0.45);
-          transition: color 0.2s;
-          border-left: 3px solid transparent;
+          font-size: 13.5px;
+          font-weight: 450;
+          color: rgba(255,255,255,0.38);
+          transition: all 0.15s;
+          border-left: 2px solid transparent;
           user-select: none;
+          position: relative;
+          margin: 1px 8px;
+          border-radius: 7px;
         }
 
         .nav-item.active {
           color: #d4af37;
-          border-left-color: #d4af37;
-          background: rgba(212,175,55,0.06);
+          background: rgba(212,175,55,0.08);
+          border-left: 2px solid #d4af37;
+          border-radius: 0 7px 7px 0;
+          margin-left: 0;
+          padding-left: 16px;
+          font-weight: 500;
         }
 
         .nav-item:not(.active):hover {
-          color: rgba(255,255,255,0.7);
+          color: rgba(255,255,255,0.65);
+          background: rgba(255,255,255,0.04);
         }
 
-        .nav-icon { font-size: 15px; }
+        .nav-icon {
+          font-size: 13px;
+          width: 18px;
+          text-align: center;
+          opacity: 0.7;
+        }
+
+        .nav-item.active .nav-icon { opacity: 1; }
+
+        .nav-badge {
+          margin-left: auto;
+          font-size: 10px;
+          font-weight: 600;
+          padding: 1px 6px;
+          border-radius: 10px;
+          background: rgba(212,175,55,0.15);
+          color: #d4af37;
+          border: 1px solid rgba(212,175,55,0.25);
+        }
+
+        .nav-badge.new-badge {
+          background: rgba(99,220,130,0.12);
+          color: #63dc82;
+          border-color: rgba(99,220,130,0.2);
+        }
 
         .sidebar-bottom {
-          padding: 16px 20px;
-          border-top: 1px solid rgba(255,255,255,0.06);
+          padding: 14px 16px;
+          border-top: 1px solid rgba(255,255,255,0.05);
         }
 
-        .pro-badge {
-          display: inline-flex;
+        .store-health {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 10px;
+          padding: 12px 14px;
+          margin-bottom: 10px;
+        }
+
+        .store-health-row {
+          display: flex;
           align-items: center;
-          gap: 6px;
-          background: rgba(212,175,55,0.12);
-          border: 1px solid rgba(212,175,55,0.3);
-          border-radius: 6px;
-          padding: 5px 10px;
-          font-size: 12px;
-          font-weight: 600;
-          color: #d4af37;
+          justify-content: space-between;
           margin-bottom: 8px;
         }
 
-        .sidebar-domain {
+        .store-health-title {
+          font-size: 11.5px;
+          font-weight: 600;
+          color: rgba(255,255,255,0.7);
+        }
+
+        .store-health-score {
           font-size: 11px;
-          color: rgba(255,255,255,0.25);
+          font-weight: 700;
+          color: #63dc82;
+        }
+
+        .health-bar-bg {
+          height: 4px;
+          background: rgba(255,255,255,0.08);
+          border-radius: 2px;
+          overflow: hidden;
+          margin-bottom: 6px;
+        }
+
+        .health-bar-fill {
+          height: 100%;
+          width: 92%;
+          background: linear-gradient(90deg, #63dc82, #a8f0b8);
+          border-radius: 2px;
+        }
+
+        .health-stats {
+          display: flex;
+          gap: 10px;
+        }
+
+        .health-stat {
+          font-size: 10px;
+          color: rgba(255,255,255,0.3);
+        }
+
+        .health-stat span {
+          color: rgba(255,255,255,0.6);
+          font-weight: 500;
+        }
+
+        .pro-badge {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background: linear-gradient(135deg, rgba(212,175,55,0.1), rgba(212,175,55,0.05));
+          border: 1px solid rgba(212,175,55,0.2);
+          border-radius: 8px;
+          padding: 8px 12px;
+          font-size: 12px;
+          font-weight: 600;
+          color: #d4af37;
+        }
+
+        .pro-badge-right {
+          font-size: 10px;
+          color: rgba(212,175,55,0.6);
+          font-weight: 400;
+        }
+
+        .sidebar-domain {
+          font-size: 10px;
+          color: rgba(255,255,255,0.18);
+          text-align: center;
+          margin-top: 8px;
         }
 
         /* ── Main Content ── */
@@ -817,20 +947,43 @@ export default function PromoDashboard() {
             </div>
 
             <nav className="sidebar-nav">
-              {NAV_ITEMS.map((item) => (
-                <div
-                  key={item.label}
-                  className={`nav-item${item.active ? ' active' : ''}`}
-                >
-                  <span className="nav-icon">{item.icon}</span>
-                  <span>{item.label}</span>
+              {NAV_SECTIONS.map((section) => (
+                <div key={section.label} className="nav-section">
+                  <div className="nav-section-label">{section.label}</div>
+                  {section.items.map((item) => (
+                    <div
+                      key={item.label}
+                      className={`nav-item${item.active ? ' active' : ''}`}
+                    >
+                      <span className="nav-icon">{item.icon}</span>
+                      <span>{item.label}</span>
+                      {item.badge && (
+                        <span className={`nav-badge${item.badge === 'NEW' ? ' new-badge' : ''}`}>
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               ))}
             </nav>
 
             <div className="sidebar-bottom">
+              <div className="store-health">
+                <div className="store-health-row">
+                  <span className="store-health-title">Store Health</span>
+                  <span className="store-health-score">92/100</span>
+                </div>
+                <div className="health-bar-bg"><div className="health-bar-fill" /></div>
+                <div className="health-stats">
+                  <span className="health-stat">Listings <span>23</span></span>
+                  <span className="health-stat">Returns <span>1.2%</span></span>
+                  <span className="health-stat">Rating <span>4.9★</span></span>
+                </div>
+              </div>
               <div className="pro-badge">
-                ✦ Pro Plan
+                <span>✦ Pro Plan</span>
+                <span className="pro-badge-right">Active</span>
               </div>
               <div className="sidebar-domain">majorka.io</div>
             </div>
