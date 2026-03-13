@@ -1,5 +1,18 @@
 console.log('[main] mounting React app');
 
+// ── Cross-domain OAuth redirect fix ──────────────────────────────────────────
+// Supabase Site URL is still manus-majorka.vercel.app. After Google OAuth it
+// sends the access_token hash there. This snippet detects that and immediately
+// bounces to majorka.io with the same hash so auth completes on the right domain.
+if (
+  typeof window !== 'undefined' &&
+  window.location.hostname.includes('manus-majorka.vercel.app') &&
+  (window.location.hash.includes('access_token') || window.location.search.includes('code='))
+) {
+  const newUrl = `https://www.majorka.io/app${window.location.hash || window.location.search}`;
+  window.location.replace(newUrl);
+}
+
 import * as Sentry from '@sentry/react';
 import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
