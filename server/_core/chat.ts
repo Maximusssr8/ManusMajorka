@@ -14,6 +14,7 @@ import { rateLimit } from "../lib/rate-limit";
 import { searchMemories, addMemory } from "../lib/memory";
 import { type MarketCode, MARKETS, buildMarketContext, DEFAULT_MARKET } from "../../shared/markets";
 import { ANTHROPIC_AI_TOOLS, TOOL_STATUS_MESSAGES, executeTool } from "../lib/ai-tools";
+import { logTrace, runAURelevanceEval } from "../lib/opik";
 
 const MAX_HISTORY = 20;
 
@@ -336,6 +337,9 @@ export function registerChatRoutes(app: Application) {
         }
       }
 
+      // ── Observability timing ────────────────────────────────────────────
+      const _opikStartTime = Date.now()
+
       // Accept both formats: messages array or singular message
       let messages = rawMessages;
       if (!messages && message) {
@@ -596,6 +600,24 @@ export function registerChatRoutes(app: Application) {
             ]).catch(() => {})
           }
         }
+
+        // ── Opik observability (fire-and-forget) ───────────────────────
+        if (fullReply) {
+          const _opikLatency = Date.now() - _opikStartTime
+          const _opikInput = messages.map((m: any) => m.content).join(' ').slice(0, 1000)
+          logTrace({
+            toolName,
+            userId,
+            input: _opikInput,
+            output: fullReply.slice(0, 2000),
+            model: CLAUDE_MODEL,
+            latencyMs: _opikLatency,
+            market: market,
+          }).catch(() => {})
+          if (['product-discovery', 'meta-ads', 'meta-ads-pack'].includes(toolName)) {
+            runAURelevanceEval(toolName, _opikInput, fullReply, userId).catch(() => {})
+          }
+        }
       } else {
         // ── Non-streaming response (legacy) ─────────────────────────────
         const client = getAnthropicClient();
@@ -703,6 +725,24 @@ export function registerChatRoutes(app: Application) {
               { role: 'user', content: lastUserMsg.content },
               { role: 'assistant', content: reply },
             ]).catch(() => {})
+          }
+        }
+
+        // ── Opik observability (fire-and-forget) ───────────────────────
+        if (reply) {
+          const _opikLatency = Date.now() - _opikStartTime
+          const _opikInput = messages.map((m: any) => m.content).join(' ').slice(0, 1000)
+          logTrace({
+            toolName,
+            userId,
+            input: _opikInput,
+            output: reply.slice(0, 2000),
+            model: CLAUDE_MODEL,
+            latencyMs: _opikLatency,
+            market: market,
+          }).catch(() => {})
+          if (['product-discovery', 'meta-ads', 'meta-ads-pack'].includes(toolName)) {
+            runAURelevanceEval(toolName, _opikInput, reply, userId).catch(() => {})
           }
         }
 
