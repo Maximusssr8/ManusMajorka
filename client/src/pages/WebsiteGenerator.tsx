@@ -91,13 +91,21 @@ interface GeneratedData {
   headline: string;
   subheadline: string;
   features: string[];
-  cta_primary: string;
-  cta_secondary: string;
-  trust_badges: string[];
-  about_section: string;
-  email_subject: string;
-  meta_description: string;
-  files: Record<string, string>;
+  // New simple AI content fields
+  productDescription?: string;
+  testimonial1?: string;
+  testimonial2?: string;
+  testimonial3?: string;
+  ctaText?: string;
+  brandStory?: string;
+  // Legacy fields (backward compat)
+  cta_primary?: string;
+  cta_secondary?: string;
+  trust_badges?: string[];
+  about_section?: string;
+  email_subject?: string;
+  meta_description?: string;
+  files?: Record<string, string>;
 }
 
 type Vibe = "bold" | "minimal" | "premium";
@@ -128,7 +136,6 @@ function getLanguage(filePath: string): string {
 }
 
 function parseAIResponse(raw: string): GeneratedData | null {
-  // Clean up common AI response wrappers
   let text = raw.trim();
 
   // Strip markdown code fences
@@ -138,10 +145,10 @@ function parseAIResponse(raw: string): GeneratedData | null {
   // Try direct JSON parse
   try {
     const parsed = JSON.parse(text);
-    if (parsed.headline && parsed.files) return parsed as GeneratedData;
+    if (parsed.headline) return parsed as GeneratedData;
   } catch { /* continue */ }
 
-  // Extract largest JSON object (first { to matching })
+  // Extract largest JSON object
   const firstBrace = text.indexOf("{");
   if (firstBrace !== -1) {
     let depth = 0;
@@ -156,12 +163,12 @@ function parseAIResponse(raw: string): GeneratedData | null {
     if (end !== -1) {
       try {
         const parsed = JSON.parse(text.slice(firstBrace, end + 1));
-        if (parsed.headline || parsed.files) return parsed as GeneratedData;
+        if (parsed.headline) return parsed as GeneratedData;
       } catch { /* continue */ }
     }
   }
 
-  // Last resort: build GeneratedData from prose if it has enough content
+  // Last resort: build from prose
   if (text.length > 200) {
     const lines = text.split("\n").filter(l => l.trim());
     const firstLine = lines[0]?.replace(/^#+\s*/, "").slice(0, 80) || "Your AU Ecommerce Store";
@@ -170,14 +177,7 @@ function parseAIResponse(raw: string): GeneratedData | null {
       subheadline: lines[1]?.slice(0, 150) || "Built for Australian shoppers",
       features: lines.slice(2, 7).map(l => l.replace(/^[-*•]\s*/, "").slice(0, 100)).filter(Boolean),
       cta_primary: "Shop Now",
-      cta_secondary: "Learn More",
-      trust_badges: ["Australian Owned", "Free AU Shipping", "Afterpay Available", "Secure Checkout"],
-      about_section: lines.slice(7, 10).join(" ").slice(0, 300) || "Quality products for Australian customers.",
-      email_subject: "Welcome to your new store!",
-      meta_description: firstLine.slice(0, 155),
-      files: {
-        "README.md": text,
-      },
+      brandStory: "Quality products for Australian customers.",
     } as GeneratedData;
   }
 
@@ -408,6 +408,8 @@ export default function WebsiteGenerator() {
   const [storeName, setStoreName] = useState("");
   const [niche, setNiche] = useState("");
   const [targetAudience, setTargetAudience] = useState("");
+  const [tagline, setTagline] = useState("");
+  const [priceAUD, setPriceAUD] = useState("");
   const [vibe, setVibe] = useState<Vibe>("premium");
   const [accentColor, setAccentColor] = useState("#d4af37");
   const [platform, setPlatform] = useState<Platform>("shopify");
@@ -947,27 +949,43 @@ ${generatedData.email_subject}`;
   // ── Preview HTML ──────────────────────────────────────────────────────────
   const previewHTML = useMemo(() => {
     if (!generatedData) return "";
-    const selectedPremiumTemplate = WEBSITE_TEMPLATES.find(t => t.id === premiumTemplateId);
-    if (selectedPremiumTemplate) {
-      return buildTemplatePreview(
-        selectedPremiumTemplate,
-        {
-          headline: generatedData.headline,
-          subheadline: generatedData.subheadline,
-          ctaPrimary: generatedData.cta_primary,
-          ctaSecondary: generatedData.cta_secondary,
-          features: generatedData.features,
-          about: generatedData.about_section,
-          trustBadges: generatedData.trust_badges,
-        },
-        storeName,
-        accentColor,
-        importedProduct?.title || niche,
-        niche
-      );
-    }
-    return buildPreviewHTML(generatedData, accentColor);
-  }, [generatedData, accentColor, premiumTemplateId, storeName, niche, importedProduct]);
+    return buildTemplatePreview(
+      premiumTemplateId,
+      {
+        brandName: storeName || "Your Brand",
+        brandColor: accentColor,
+        productName: importedProduct?.title || niche || "Our Product",
+        niche: niche || "products",
+        tagline: tagline || undefined,
+        price: priceAUD || undefined,
+      },
+      {
+        headline: generatedData.headline,
+        subheadline: generatedData.subheadline,
+        productDescription: generatedData.productDescription,
+        features: generatedData.features,
+        testimonial1: generatedData.testimonial1,
+        testimonial2: generatedData.testimonial2,
+        testimonial3: generatedData.testimonial3,
+        ctaText: generatedData.ctaText,
+        brandStory: generatedData.brandStory,
+        cta_primary: generatedData.cta_primary,
+        about_section: generatedData.about_section,
+      }
+    );
+  }, [generatedData, accentColor, premiumTemplateId, storeName, niche, importedProduct, tagline, priceAUD]);
+
+  const handleDownloadHTML = useCallback(() => {
+    if (!previewHTML) return;
+    const blob = new Blob([previewHTML], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(storeName || "store").replace(/\s+/g, "-").toLowerCase()}-website.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("HTML file downloaded!");
+  }, [previewHTML, storeName]);
 
   const handleOpenPreviewNewTab = useCallback(() => {
     const win = window.open("", "_blank");
@@ -1008,35 +1026,70 @@ ${generatedData.email_subject}`;
           }}
         >
 
-          {/* Premium Template Selector */}
+          {/* Premium Template Selector — 3-col grid */}
           <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.02)", border: "1.5px solid rgba(212,175,55,0.2)" }}>
             <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#d4af37", fontFamily: "Syne, sans-serif" }}>
-              Choose Design Template
+              Choose Template
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(3,1fr)" }}>
               {WEBSITE_TEMPLATES.map(t => {
                 const isSelected = premiumTemplateId === t.id;
+                const isDark = t.palette.bg.startsWith('#0') || t.palette.bg.startsWith('#1');
                 return (
                   <button
                     key={t.id}
                     onClick={() => setPremiumTemplateId(t.id)}
-                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left transition-all"
+                    className="flex flex-col w-full rounded-lg text-left transition-all overflow-hidden"
                     style={{
-                      background: isSelected ? "rgba(212,175,55,0.12)" : "rgba(255,255,255,0.03)",
-                      border: `1.5px solid ${isSelected ? "rgba(212,175,55,0.5)" : "rgba(255,255,255,0.07)"}`,
+                      background: "rgba(255,255,255,0.03)",
+                      border: `2px solid ${isSelected ? "#d4af37" : "rgba(255,255,255,0.08)"}`,
                       cursor: "pointer",
+                      padding: 0,
                     }}
                   >
-                    <span style={{ fontSize: 20, lineHeight: 1, flexShrink: 0 }}>{t.thumbnail}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs font-bold truncate" style={{ fontFamily: "Syne, sans-serif", color: isSelected ? "#d4af37" : "#f0ede8" }}>{t.name}</div>
-                      <div className="text-xs truncate" style={{ color: "rgba(240,237,232,0.4)", fontSize: 10 }}>{t.description.slice(0, 52)}…</div>
-                    </div>
-                    {isSelected && (
-                      <div className="flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center" style={{ background: "#d4af37" }}>
-                        <Check size={10} style={{ color: "#080a0e" }} />
+                    {/* CSS thumbnail */}
+                    <div style={{
+                      height: 68,
+                      background: `linear-gradient(135deg, ${t.palette.bg} 0%, ${t.palette.accent}55 100%)`,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      position: "relative",
+                      gap: 4,
+                    }}>
+                      <span style={{
+                        fontFamily: "Syne, sans-serif",
+                        fontWeight: 900,
+                        fontSize: 8,
+                        letterSpacing: 1.5,
+                        textTransform: "uppercase",
+                        color: isDark ? t.palette.accent : t.palette.text,
+                        lineHeight: 1,
+                      }}>{t.name}</span>
+                      <div style={{ display: "flex", gap: 3 }}>
+                        {[t.palette.bg, t.palette.accent, t.palette.text].map((c, i) => (
+                          <div key={i} style={{ width: 7, height: 7, borderRadius: "50%", background: c, border: "1px solid rgba(128,128,128,0.3)" }} />
+                        ))}
                       </div>
-                    )}
+                    </div>
+                    {/* Card bottom */}
+                    <div style={{ padding: "8px 8px 10px" }}>
+                      <div style={{ fontFamily: "Syne, sans-serif", fontWeight: 700, fontSize: 10, color: isSelected ? "#d4af37" : "#f0ede8", marginBottom: 3, lineHeight: 1.2 }}>{t.name}</div>
+                      <div style={{ fontSize: 9, color: "rgba(240,237,232,0.4)", lineHeight: 1.4, marginBottom: 5 }}>{t.description.slice(0, 42)}…</div>
+                      <div style={{
+                        display: "inline-flex",
+                        fontSize: 8,
+                        fontWeight: 700,
+                        letterSpacing: 0.5,
+                        textTransform: "capitalize",
+                        padding: "2px 6px",
+                        borderRadius: 3,
+                        background: isSelected ? "rgba(212,175,55,0.15)" : "rgba(255,255,255,0.06)",
+                        color: isSelected ? "#d4af37" : "rgba(240,237,232,0.45)",
+                        border: `1px solid ${isSelected ? "rgba(212,175,55,0.35)" : "rgba(255,255,255,0.08)"}`,
+                      }}>{t.category}</div>
+                    </div>
                   </button>
                 );
               })}
@@ -1201,6 +1254,34 @@ ${generatedData.email_subject}`;
               onFocus={e => (e.target.style.borderColor = "rgba(212,175,55,0.45)")}
               onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
             />
+          </div>
+
+          {/* Tagline + Price in one row */}
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Tagline <span style={{ opacity: 0.4, fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
+              <input
+                value={tagline}
+                onChange={e => setTagline(e.target.value)}
+                placeholder="e.g. Made for Aussies"
+                className="w-full text-sm px-3 py-2.5 rounded-lg outline-none"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(255,255,255,0.08)", color: "#f0ede8" }}
+                onFocus={e => (e.target.style.borderColor = "rgba(212,175,55,0.45)")}
+                onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: "rgba(240,237,232,0.4)", fontFamily: "Syne, sans-serif" }}>Price AUD <span style={{ opacity: 0.4, fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
+              <input
+                value={priceAUD}
+                onChange={e => setPriceAUD(e.target.value)}
+                placeholder="e.g. 59.99"
+                className="w-full text-sm px-3 py-2.5 rounded-lg outline-none"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(255,255,255,0.08)", color: "#f0ede8" }}
+                onFocus={e => (e.target.style.borderColor = "rgba(212,175,55,0.45)")}
+                onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.08)")}
+              />
+            </div>
           </div>
 
           {/* Vibe Toggle */}

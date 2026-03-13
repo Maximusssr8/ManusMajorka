@@ -236,6 +236,13 @@ export default function AIChat() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <ScrollArea className="flex-1">
           <div className="space-y-4 p-5">
+            {/* Memory indicator — shown when user is logged in and has chat history (mem0 active) */}
+            {session && messages.length > 0 && (
+              <div className="flex items-center gap-2 text-xs mb-1" style={{ color: "rgba(212,175,55,0.5)" }}>
+                <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: "#d4af37", flexShrink: 0 }} />
+                <span style={{ fontFamily: "DM Sans, sans-serif" }}>Maya is using your conversation history</span>
+              </div>
+            )}
             {messages.length === 0 && (
               <div className="flex flex-col items-center justify-center text-center py-12">
                 <Sparkles className="w-10 h-10 mb-4" style={{ color: "#d4af37", opacity: 0.25 }} />

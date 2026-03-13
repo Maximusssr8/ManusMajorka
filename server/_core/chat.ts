@@ -11,6 +11,7 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { getAnthropicClient, CLAUDE_MODEL } from "../lib/anthropic";
 import { getSupabaseAdmin } from "./supabase";
 import { rateLimit } from "../lib/rate-limit";
+import { searchMemories, addMemory } from "../lib/memory";
 import { type MarketCode, MARKETS, buildMarketContext, DEFAULT_MARKET } from "../../shared/markets";
 import { ANTHROPIC_AI_TOOLS, TOOL_STATUS_MESSAGES, executeTool } from "../lib/ai-tools";
 
@@ -410,7 +411,12 @@ export function registerChatRoutes(app: Application) {
       }
 
       // ── Build system prompt ─────────────────────────────────────────────
-      const system = buildSystemPrompt(systemPrompt, profile, toolName, market) + webContext;
+      const baseSystem = buildSystemPrompt(systemPrompt, profile, toolName, market) + webContext;
+
+      // ── Inject mem0 persistent memories ────────────────────────────────
+      const userQuery = messages[messages.length - 1]?.content || ''
+      const userMemories = userId ? await searchMemories(userId, userQuery) : ''
+      const system = userMemories ? `${baseSystem}\n\n${userMemories}` : baseSystem
 
       // ── Determine if client wants streaming (default: true) ──────────
       const wantStream = req.body.stream !== false && req.query.stream !== "0";
@@ -583,6 +589,11 @@ export function registerChatRoutes(app: Application) {
           if (lastUserMsg) {
             saveMessage(userId, toolName, "user", lastUserMsg.content).catch(() => {});
             saveMessage(userId, toolName, "assistant", fullReply).catch(() => {});
+            // mem0 persistent memory — fire-and-forget
+            addMemory(userId, [
+              { role: 'user', content: lastUserMsg.content },
+              { role: 'assistant', content: fullReply },
+            ]).catch(() => {})
           }
         }
       } else {
@@ -687,6 +698,11 @@ export function registerChatRoutes(app: Application) {
           if (lastUserMsg) {
             saveMessage(userId, toolName, "user", lastUserMsg.content).catch(() => {});
             saveMessage(userId, toolName, "assistant", reply).catch(() => {});
+            // mem0 persistent memory — fire-and-forget
+            addMemory(userId, [
+              { role: 'user', content: lastUserMsg.content },
+              { role: 'assistant', content: reply },
+            ]).catch(() => {})
           }
         }
 

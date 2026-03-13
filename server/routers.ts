@@ -34,6 +34,7 @@ import {
 } from "./db";
 
 import { tavilySearch, tavilyExtract, tavilyImageSearch } from "./tavily";
+import { getAllMemories } from "./lib/memory";
 
 export const appRouter = router({
   system: systemRouter,
@@ -190,6 +191,11 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         return await upsertUserProfile(ctx.user.id, input);
       }),
+
+    /** Get all mem0 memories for the current user (admin/debug) */
+    getMemories: protectedProcedure.query(async ({ ctx }) => {
+      return getAllMemories(ctx.user.id)
+    }),
   }),
 
   /** Conversation memory per tool */

@@ -1,772 +1,138 @@
 // ── Website Templates Library ─────────────────────────────────────────────
 // 3 premium, self-contained HTML templates for the Website Generator.
 // Placeholders: {BRAND_NAME}, {BRAND_COLOR}, {PRODUCT_NAME}, {NICHE},
-//               {HEADLINE}, {SUBHEADLINE}, {CTA_PRIMARY}, {CTA_SECONDARY},
-//               {FEATURES_HTML}, {TRUST_BADGES}, {ABOUT}, {BRAND_SLUG}
+//   {TAGLINE}, {PRICE}, {HEADLINE}, {SUBHEADLINE}, {PRODUCT_DESC},
+//   {CTA_TEXT}, {BRAND_STORY}, {TESTIMONIAL_1}, {TESTIMONIAL_2},
+//   {TESTIMONIAL_3}, {FEATURES_HTML}, {BRAND_SLUG}
 
 export interface WebsiteTemplate {
   id: string
   name: string
   description: string
-  thumbnail: string
   category: 'minimal' | 'bold' | 'premium'
+  palette: { bg: string; accent: string; text: string }
   html: string
-  liquid?: string
 }
 
-// ── Template A — Minimalist DTC ───────────────────────────────────────────
-const templateDTCMinimal: WebsiteTemplate = {
-  id: 'template-dtc-minimal',
-  name: 'Minimalist DTC',
-  description: 'Clean, conversion-focused. One hero product, maximum clarity. Perfect for single-product stores.',
-  thumbnail: '🎯',
+const tplA: WebsiteTemplate = {
+  id: 'dtc-minimal',
+  name: 'DTC Minimal',
+  description: 'Conversion-focused single product. Dark OLED, gold accents, maximum clarity.',
   category: 'minimal',
-  html: `<!DOCTYPE html>
-<html lang="en-AU">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{BRAND_NAME}</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--accent:{BRAND_COLOR};--bg:#fffef9;--text:#1a1a1a;--muted:#777;--surface:#f5f3ee}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;line-height:1.6}
-a{text-decoration:none;color:inherit}
-nav{position:sticky;top:0;background:rgba(255,254,249,0.96);backdrop-filter:blur(12px);padding:0 6%;height:60px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(0,0,0,0.07);z-index:100}
-.logo{font-size:17px;font-weight:900;letter-spacing:-.5px}
-.nav-links{display:flex;gap:28px;list-style:none}
-.nav-links a{font-size:13px;font-weight:500;color:var(--muted);transition:color .2s}
-.nav-links a:hover{color:var(--text)}
-.nav-cta{padding:9px 20px;background:var(--accent);color:#fff;border-radius:7px;font-size:12px;font-weight:800;letter-spacing:.3px;transition:opacity .2s;cursor:pointer}
-.nav-cta:hover{opacity:.85}
-#hero{min-height:88vh;display:flex;align-items:center;padding:60px 6%;max-width:1140px;margin:0 auto;gap:60px}
-.hero-content{flex:1;max-width:600px}
-.eyebrow{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
-h1{font-size:clamp(36px,5.5vw,62px);font-weight:900;letter-spacing:-2px;line-height:1.04;margin-bottom:18px}
-h1 em{font-style:normal;color:var(--accent)}
-.hero-sub{font-size:17px;color:var(--muted);line-height:1.75;margin-bottom:34px;max-width:460px}
-.ctas{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:28px}
-.btn-primary{padding:15px 34px;background:var(--accent);color:#fff;border-radius:9px;font-size:14px;font-weight:800;display:inline-flex;align-items:center;gap:8px;transition:all .2s;cursor:pointer;border:none;box-shadow:0 4px 18px rgba(0,0,0,0.12)}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,0.18)}
-.btn-outline{padding:13px 26px;background:transparent;color:var(--text);border:2px solid rgba(0,0,0,0.13);border-radius:9px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:7px;transition:all .2s;cursor:pointer}
-.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
-.trust-strip{display:flex;flex-wrap:wrap;gap:18px}
-.trust-item{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--muted)}
-.trust-item::before{content:'✓';color:var(--accent);font-weight:900;font-size:13px}
-.hero-visual{flex:1;max-width:480px;border-radius:20px;overflow:hidden;background:var(--surface);min-height:400px;display:flex;align-items:center;justify-content:center}
-.hero-visual-inner{text-align:center;padding:40px}
-.product-emoji{font-size:80px;display:block;margin-bottom:16px}
-.product-label{font-size:14px;font-weight:700;color:var(--accent)}
-#products{padding:90px 6%;background:var(--surface)}
-.section-inner{max-width:1080px;margin:0 auto}
-.section-label{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;text-align:center}
-h2{font-size:clamp(26px,3.5vw,40px);font-weight:900;letter-spacing:-1px;text-align:center;margin-bottom:14px}
-.section-sub{font-size:15px;color:var(--muted);text-align:center;max-width:520px;margin:0 auto 48px;line-height:1.7}
-.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
-.feat{background:var(--bg);padding:26px;border-radius:12px;border:1px solid rgba(0,0,0,0.07);transition:transform .2s,box-shadow .2s}
-.feat:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
-.feat-num{font-size:11px;font-weight:800;color:var(--accent);letter-spacing:1px;margin-bottom:10px}
-.feat h3{font-size:15px;font-weight:800;margin-bottom:7px}
-.feat p{font-size:13px;color:var(--muted);line-height:1.65}
-#proof{padding:80px 6%}
-.proof-inner{max-width:900px;margin:0 auto;text-align:center}
-.stars{font-size:26px;letter-spacing:3px;margin-bottom:10px}
-.rating-text{font-size:14px;color:var(--muted);margin-bottom:40px}
-.testimonials{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;text-align:left}
-.testi{background:var(--surface);padding:22px;border-radius:12px;border:1px solid rgba(0,0,0,0.06)}
-.testi-stars{font-size:12px;color:var(--accent);margin-bottom:8px}
-.testi p{font-size:13px;color:var(--text);line-height:1.65;margin-bottom:10px}
-.testi-author{font-size:11px;font-weight:700;color:var(--muted)}
-#email-capture{padding:80px 6%;background:var(--accent);text-align:center}
-#email-capture h2{font-size:clamp(24px,4vw,40px);font-weight:900;letter-spacing:-1px;color:#fff;margin-bottom:10px}
-#email-capture p{font-size:15px;color:rgba(255,255,255,.8);margin-bottom:30px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.7}
-.email-form{display:flex;gap:8px;max-width:400px;margin:0 auto}
-.email-form input{flex:1;padding:13px 18px;border-radius:8px;border:none;font-size:14px;outline:none;background:#fff;color:#1a1a1a}
-.email-form button{padding:13px 22px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;transition:opacity .2s}
-.email-form button:hover{opacity:.82}
-.success-msg{display:none;padding:14px 20px;color:#fff;font-size:14px;font-weight:600;background:rgba(255,255,255,.2);border-radius:10px;max-width:400px;margin:0 auto}
-footer{padding:48px 6% 28px;background:#111}
-.footer-top{display:flex;justify-content:space-between;gap:32px;flex-wrap:wrap;margin-bottom:36px}
-.footer-brand .logo{color:#fff;font-size:16px}
-.footer-brand p{font-size:12px;color:rgba(255,255,255,.35);margin-top:8px;line-height:1.65;max-width:220px}
-.footer-col h4{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:12px}
-.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.55);margin-bottom:7px;transition:color .2s}
-.footer-col a:hover{color:#fff}
-.footer-bottom{border-top:1px solid rgba(255,255,255,.07);padding-top:18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:11px;color:rgba(255,255,255,.25)}
-@media(max-width:900px){#hero{flex-direction:column}.hero-visual{max-width:100%;width:100%}.testimonials{grid-template-columns:1fr}}
-@media(max-width:600px){.nav-links{display:none}.footer-top{flex-direction:column}.email-form{flex-direction:column}}
-</style>
-</head>
-<body>
-<nav>
-  <span class="logo">{BRAND_NAME}</span>
-  <ul class="nav-links">
-    <li><a href="#products" onclick="event.preventDefault();document.getElementById('products').scrollIntoView({behavior:'smooth'})">Product</a></li>
-    <li><a href="#proof" onclick="event.preventDefault();document.getElementById('proof').scrollIntoView({behavior:'smooth'})">Reviews</a></li>
-    <li><a href="#email-capture" onclick="event.preventDefault();document.getElementById('email-capture').scrollIntoView({behavior:'smooth'})">Offer</a></li>
-  </ul>
-  <a class="nav-cta" href="#products" onclick="event.preventDefault();document.getElementById('products').scrollIntoView({behavior:'smooth'})">Shop Now</a>
-</nav>
-
-<section id="hero">
-  <div class="hero-content">
-    <div class="eyebrow">Australian {NICHE}</div>
-    <h1>{HEADLINE}</h1>
-    <p class="hero-sub">{SUBHEADLINE}</p>
-    <div class="ctas">
-      <a class="btn-primary" href="#products" onclick="event.preventDefault();document.getElementById('products').scrollIntoView({behavior:'smooth'})">{CTA_PRIMARY} →</a>
-      <a class="btn-outline" href="#proof" onclick="event.preventDefault();document.getElementById('proof').scrollIntoView({behavior:'smooth'})">{CTA_SECONDARY}</a>
-    </div>
-    <div class="trust-strip">
-      <span class="trust-item">30-day guarantee</span>
-      <span class="trust-item">Free AU shipping</span>
-      <span class="trust-item">Afterpay available</span>
-      <span class="trust-item">Ships in 2 days</span>
-    </div>
-  </div>
-  <div class="hero-visual">
-    <div class="hero-visual-inner">
-      <span class="product-emoji">🛍️</span>
-      <div class="product-label">{PRODUCT_NAME}</div>
-    </div>
-  </div>
-</section>
-
-<section id="products">
-  <div class="section-inner">
-    <div class="section-label">Why {BRAND_NAME}</div>
-    <h2>Built for <em style="font-style:normal;color:{BRAND_COLOR}">Australians</em></h2>
-    <p class="section-sub">Everything you need, nothing you don't. Designed for the way Australians actually live.</p>
-    <div class="features-grid">
-      {FEATURES_HTML}
-    </div>
-  </div>
-</section>
-
-<section id="proof">
-  <div class="proof-inner">
-    <div class="stars">★★★★★</div>
-    <p class="rating-text">Rated 4.9 / 5 from 200+ verified Australian customers</p>
-    <div class="testimonials">
-      <div class="testi"><div class="testi-stars">★★★★★</div><p>"Absolutely love it. Fast shipping and quality you can actually feel."</p><div class="testi-author">Sarah M. — Sydney, NSW</div></div>
-      <div class="testi"><div class="testi-stars">★★★★★</div><p>"Finally a product that works. Would 100% buy again. Great value too."</p><div class="testi-author">Jake T. — Melbourne, VIC</div></div>
-      <div class="testi"><div class="testi-stars">★★★★★</div><p>"Quick delivery from the AU warehouse. Exactly as described. Very happy!"</p><div class="testi-author">Amy K. — Brisbane, QLD</div></div>
-    </div>
-  </div>
-</section>
-
-<section id="email-capture">
-  <h2>Get 10% Off Your First Order</h2>
-  <p>Join 3,000+ Australians who've discovered {BRAND_NAME}. Free shipping on orders over $99.</p>
-  <form class="email-form" onsubmit="event.preventDefault();this.style.display='none';document.getElementById('dtc-success').style.display='block'">
-    <input type="email" placeholder="Enter your email" required>
-    <button type="submit">Claim Discount</button>
-  </form>
-  <div id="dtc-success" class="success-msg">🎉 Discount code sent! Check your inbox.</div>
-</section>
-
-<footer>
-  <div class="footer-top">
-    <div class="footer-brand">
-      <div class="logo">{BRAND_NAME}</div>
-      <p>{ABOUT}</p>
-    </div>
-    <div class="footer-col">
-      <h4>Shop</h4>
-      <a href="#products" onclick="event.preventDefault();document.getElementById('products').scrollIntoView({behavior:'smooth'})">All Products</a>
-      <a href="#proof" onclick="event.preventDefault();document.getElementById('proof').scrollIntoView({behavior:'smooth'})">Reviews</a>
-      <a href="#email-capture" onclick="event.preventDefault();document.getElementById('email-capture').scrollIntoView({behavior:'smooth'})">Offers</a>
-    </div>
-    <div class="footer-col">
-      <h4>Support</h4>
-      <a href="mailto:hello@{BRAND_SLUG}.com.au">Contact Us</a>
-      <a href="mailto:returns@{BRAND_SLUG}.com.au">Returns</a>
-      <a href="mailto:hello@{BRAND_SLUG}.com.au">Shipping Info</a>
-    </div>
-    <div class="footer-col">
-      <h4>Legal</h4>
-      <a href="/privacy">Privacy Policy</a>
-      <a href="/terms">Terms of Service</a>
-      <a href="/refund-policy">Refund Policy</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span>© 2026 {BRAND_NAME}. All rights reserved. ABN: [Enter your ABN]</span>
-    <span>All prices AUD incl. GST · Proudly Australian 🇦🇺</span>
-  </div>
-</footer>
-<script>
-document.querySelectorAll('a[href^="#"]').forEach(function(a){
-  a.addEventListener('click',function(e){
-    var id=this.getAttribute('href').slice(1);
-    var t=document.getElementById(id);
-    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'})}
-  });
-});
-</script>
-</body>
-</html>`,
+  palette: { bg: '#080a0e', accent: '#d4af37', text: '#f2efe9' },
+  html: "<!DOCTYPE html>\n<html lang=\"en-AU\">\n<head>\n<meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>{BRAND_NAME} — {TAGLINE}</title>\n<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n<link href=\"https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap\" rel=\"stylesheet\">\n<style>\n*{margin:0;padding:0;box-sizing:border-box}\n:root{--accent:{BRAND_COLOR};--bg:#080a0e;--surface:#0d1018;--card:#111720;--text:#f2efe9;--muted:rgba(242,239,233,0.5);--border:rgba(242,239,233,0.08)}\nhtml{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;line-height:1.6;overflow-x:hidden}\na{text-decoration:none;color:inherit}button{cursor:pointer;font-family:inherit;border:none}\n.nav{position:sticky;top:0;z-index:100;background:rgba(8,10,14,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);height:64px;display:flex;align-items:center;padding:0 5%;gap:20px}\n.nl{font-family:'Syne',sans-serif;font-size:18px;font-weight:900;letter-spacing:-0.5px;flex-shrink:0;cursor:pointer}\n.nv{display:flex;gap:28px;list-style:none;flex:1;justify-content:center}\n.nv a{font-size:13px;font-weight:500;color:var(--muted);transition:color 200ms ease}\n.nv a:hover{color:var(--text)}\n.nc{padding:10px 22px;background:var(--accent);color:#080a0e;border-radius:8px;font-size:13px;font-weight:700;font-family:'Syne',sans-serif;transition:opacity 200ms ease}\n.nc:hover{opacity:.85}\n.nh{display:none;flex-direction:column;gap:5px;background:none;padding:6px;margin-left:auto}\n.nh span{display:block;width:22px;height:2px;background:var(--text);transition:all 300ms ease;border-radius:2px}\n.nh.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}\n.nh.open span:nth-child(2){opacity:0}\n.nh.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}\n.nm{display:none;flex-direction:column;background:rgba(8,10,14,0.98);border-bottom:1px solid var(--border);position:fixed;top:64px;left:0;right:0;z-index:99}\n.nm.open{display:flex}\n.nm a{padding:15px 5%;font-size:15px;font-weight:600;color:var(--muted);border-bottom:1px solid var(--border);transition:color 200ms ease}\n.nm a:hover{color:var(--text)}\n#hero{min-height:100vh;display:flex;align-items:center;padding:100px 5% 80px;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(212,175,55,.07) 0%,transparent 70%)}\n.hi{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;width:100%}\n.ey{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:10px}\n.ey::before{content:'';display:block;width:28px;height:1px;background:var(--accent)}\nh1{font-family:'Syne',sans-serif;font-size:clamp(36px,5vw,60px);font-weight:900;letter-spacing:-2px;line-height:1.04;margin-bottom:20px}\nh1 em{font-style:normal;color:var(--accent)}\n.hs{font-size:17px;color:var(--muted);line-height:1.75;margin-bottom:32px;max-width:480px}\n.hb{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px}\n.bp{display:inline-flex;align-items:center;gap:8px;padding:15px 32px;background:var(--accent);color:#080a0e;border-radius:9px;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;transition:all 200ms ease;white-space:nowrap}\n.bp:hover{opacity:.9;transform:translateY(-1px)}\n.bp:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n.bo{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;background:transparent;color:var(--text);border:1.5px solid var(--border);border-radius:9px;font-size:14px;font-weight:600;transition:all 200ms ease;white-space:nowrap}\n.bo:hover{border-color:var(--accent);color:var(--accent)}\n.tr{display:flex;flex-wrap:wrap;gap:16px}\n.ti{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--muted)}\n.td{width:16px;height:16px;border-radius:50%;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.25);color:var(--accent);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}\n.hv{border-radius:20px;overflow:hidden;border:1px solid var(--border);min-height:440px;display:flex;align-items:center;justify-content:center}\n#product{padding:100px 5%;background:var(--surface)}\n.pi{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}\n.pw{border-radius:16px;overflow:hidden;background:var(--card);min-height:480px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border)}\n.sl{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}\nh2{font-family:'Syne',sans-serif;font-size:clamp(24px,3.5vw,38px);font-weight:900;letter-spacing:-1px;line-height:1.15;margin-bottom:14px}\n.pr{font-family:'Syne',sans-serif;font-size:30px;font-weight:900;color:var(--accent);margin-bottom:6px}\n.pn{font-size:13px;color:var(--muted);margin-bottom:20px}\n.pd{font-size:15px;color:var(--muted);line-height:1.75;margin-bottom:24px}\n.apb{display:flex;align-items:center;gap:9px;padding:11px 16px;background:rgba(212,175,55,.05);border:1px solid rgba(212,175,55,.18);border-radius:8px;font-size:13px;font-weight:600;margin-bottom:14px}\n.sh{font-size:13px;color:var(--muted);margin-bottom:22px;display:flex;align-items:center;gap:7px}\n.atc{width:100%;padding:16px;background:var(--accent);color:#080a0e;border-radius:10px;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;transition:all 200ms ease}\n.atc:hover:not(:disabled){opacity:.9;transform:translateY(-1px)}\n.atc:disabled{opacity:.6;cursor:not-allowed}\n#features{padding:100px 5%}\n.fi{max-width:1100px;margin:0 auto;text-align:center}\n.si{font-size:16px;color:var(--muted);max-width:520px;margin:0 auto 52px;line-height:1.75}\n.fg{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;text-align:left}\n.fc{padding:28px;background:var(--surface);border-radius:14px;border:1px solid var(--border);transition:all 200ms ease}\n.fc:hover{border-color:rgba(212,175,55,.3);transform:translateY(-2px)}\n.fn{font-family:'Syne',sans-serif;font-size:10px;font-weight:800;color:var(--accent);letter-spacing:2px;margin-bottom:12px;opacity:.7}\n.fc h3{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:8px}\n.fc p{font-size:13px;color:var(--muted);line-height:1.65}\n#proof{padding:100px 5%;background:var(--surface)}\n.poi{max-width:1100px;margin:0 auto}\n.ph{text-align:center;margin-bottom:48px}\n.rr{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:10px;color:var(--accent)}\n.rc{font-size:14px;color:var(--muted)}\n.rg{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}\n.rv{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px}\n.rs{display:flex;gap:2px;margin-bottom:12px;color:var(--accent)}\n.rt{font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:14px}\n.rm{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}\n.ra{font-size:13px;font-weight:700}\n.vb{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--accent);background:rgba(212,175,55,.1);padding:3px 8px;border-radius:4px}\n#cta-strip{padding:100px 5%;background:linear-gradient(135deg,var(--surface) 0%,rgba(212,175,55,.06) 100%);text-align:center}\n.ci{max-width:680px;margin:0 auto}\n.ci h2{margin-bottom:12px}\n.cs{font-size:16px;color:var(--muted);margin-bottom:36px;line-height:1.7}\n.cb{font-size:16px;padding:17px 48px;margin-bottom:28px;display:inline-flex}\n.cw{display:inline-flex;flex-direction:column;align-items:center;gap:10px}\n.cl{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}\n.cd{display:flex;align-items:center;gap:8px}\n.cdb{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 18px;min-width:56px;text-align:center}\n.cdn{font-family:'Syne',sans-serif;font-size:26px;font-weight:900;color:var(--accent);display:block;font-variant-numeric:tabular-nums;letter-spacing:-1px}\n.cds{font-family:'Syne',sans-serif;font-size:24px;font-weight:900;color:var(--accent);opacity:.4}\nfooter{padding:64px 5% 28px;background:#050710}\n.ft{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px}\n.fl{font-family:'Syne',sans-serif;font-size:18px;font-weight:900;margin-bottom:10px}\n.fa{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px}\n.soc{display:flex;gap:10px}\n.sli{width:34px;height:34px;border-radius:8px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;transition:all 200ms ease;color:var(--muted)}\n.sli:hover{border-color:var(--accent);color:var(--accent)}\n.fh h4{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(242,239,233,.22);margin-bottom:14px}\n.fh a{display:block;font-size:13px;color:var(--muted);margin-bottom:9px;transition:color 200ms ease}\n.fh a:hover{color:var(--text)}\n.fb{border-top:1px solid var(--border);padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:11px;color:rgba(242,239,233,.18)}\n@media(max-width:900px){.hi{grid-template-columns:1fr}.hv{display:none}.pi{grid-template-columns:1fr}.fg{grid-template-columns:1fr 1fr}.rg{grid-template-columns:1fr 1fr}.ft{grid-template-columns:1fr 1fr}}\n@media(max-width:600px){.nv,.nc{display:none}.nh{display:flex}.fg,.rg{grid-template-columns:1fr}.ft{grid-template-columns:1fr}.hb{flex-direction:column}.hb .bp,.hb .bo{width:100%;justify-content:center}}\n@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition-duration:0ms!important}}\n</style>\n</head>\n<body>\n<nav class=\"nav\">\n  <span class=\"nl\" onclick=\"window.scrollTo({top:0,behavior:'smooth'})\">{BRAND_NAME}</span>\n  <ul class=\"nv\">\n    <li><a href=\"#product\" onclick=\"event.preventDefault();document.getElementById('product').scrollIntoView({behavior:'smooth'})\">Product</a></li>\n    <li><a href=\"#features\" onclick=\"event.preventDefault();document.getElementById('features').scrollIntoView({behavior:'smooth'})\">Features</a></li>\n    <li><a href=\"#proof\" onclick=\"event.preventDefault();document.getElementById('proof').scrollIntoView({behavior:'smooth'})\">Reviews</a></li>\n  </ul>\n  <button class=\"nc\" onclick=\"document.getElementById('product').scrollIntoView({behavior:'smooth'})\">Shop Now</button>\n  <button class=\"nh\" id=\"nav-ham\" aria-label=\"Toggle menu\" aria-expanded=\"false\"><span></span><span></span><span></span></button>\n</nav>\n<div class=\"nm\" id=\"nav-mob\">\n  <a href=\"#product\" onclick=\"event.preventDefault();nm(0);document.getElementById('product').scrollIntoView({behavior:'smooth'})\">Product</a>\n  <a href=\"#features\" onclick=\"event.preventDefault();nm(0);document.getElementById('features').scrollIntoView({behavior:'smooth'})\">Features</a>\n  <a href=\"#proof\" onclick=\"event.preventDefault();nm(0);document.getElementById('proof').scrollIntoView({behavior:'smooth'})\">Reviews</a>\n  <a href=\"#cta-strip\" onclick=\"event.preventDefault();nm(0);document.getElementById('cta-strip').scrollIntoView({behavior:'smooth'})\">Shop Now</a>\n</div>\n<section id=\"hero\">\n  <div class=\"hi\">\n    <div>\n      <div class=\"ey\">Australian {NICHE}</div>\n      <h1>{HEADLINE}</h1>\n      <p class=\"hs\">{SUBHEADLINE}</p>\n      <div class=\"hb\">\n        <button class=\"bp\" onclick=\"document.getElementById('product').scrollIntoView({behavior:'smooth'})\">Shop Now</button>\n        <button class=\"bo\" onclick=\"document.getElementById('features').scrollIntoView({behavior:'smooth'})\">Learn More</button>\n      </div>\n      <div class=\"tr\">\n        <span class=\"ti\"><span class=\"td\"><svg width=\"9\" height=\"9\" viewBox=\"0 0 12 12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polyline points=\"2,6 5,9 10,3\"></polyline></svg></span>30-day guarantee</span>\n        <span class=\"ti\"><span class=\"td\"><svg width=\"9\" height=\"9\" viewBox=\"0 0 12 12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polyline points=\"2,6 5,9 10,3\"></polyline></svg></span>Free AU shipping</span>\n        <span class=\"ti\"><span class=\"td\"><svg width=\"9\" height=\"9\" viewBox=\"0 0 12 12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polyline points=\"2,6 5,9 10,3\"></polyline></svg></span>Afterpay available</span>\n      </div>\n    </div>\n    <div class=\"hv\"><div style=\"background:linear-gradient(135deg,{BRAND_COLOR}22,{BRAND_COLOR}44);width:100%;min-height:440px;display:flex;align-items:center;justify-content:center\"><span style=\"font-size:3rem\">&#128444;</span></div></div>\n  </div>\n</section>\n<section id=\"product\">\n  <div class=\"pi\">\n    <div class=\"pw\"><div style=\"background:linear-gradient(135deg,{BRAND_COLOR}22,{BRAND_COLOR}44);width:100%;min-height:480px;display:flex;align-items:center;justify-content:center\"><span style=\"font-size:3rem\">&#128444;</span></div></div>\n    <div>\n      <div class=\"sl\">{NICHE}</div>\n      <h2>{PRODUCT_NAME}</h2>\n      <div class=\"pr\">{PRICE} AUD</div>\n      <div class=\"pn\">GST included &middot; Pay in 4 with Afterpay</div>\n      <p class=\"pd\">{PRODUCT_DESC}</p>\n      <div class=\"apb\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><line x1=\"2\" y1=\"10\" x2=\"22\" y2=\"10\"/></svg>Pay in 4 interest-free instalments with Afterpay</div>\n      <div class=\"sh\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"1\" y=\"3\" width=\"15\" height=\"13\"/><polygon points=\"16 8 20 8 23 11 23 16 16 16 16 8\"/><circle cx=\"5.5\" cy=\"18.5\" r=\"2.5\"/><circle cx=\"18.5\" cy=\"18.5\" r=\"2.5\"/></svg>Free AU shipping on orders over $80</div>\n      <button class=\"atc\" id=\"atc-main\">Add to Cart</button>\n    </div>\n  </div>\n</section>\n<section id=\"features\">\n  <div class=\"fi\">\n    <div class=\"sl\">Why {BRAND_NAME}</div>\n    <h2>Built for <em>{NICHE}</em></h2>\n    <p class=\"si\">Everything you need, nothing you don&rsquo;t. Designed for the way Australians actually live.</p>\n    <div class=\"fg\">{FEATURES_HTML}</div>\n  </div>\n</section>\n<section id=\"proof\">\n  <div class=\"poi\">\n    <div class=\"ph\">\n      <div class=\"sl\">Customer Reviews</div>\n      <h2>Trusted by Australians</h2>\n      <div class=\"rr\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><span class=\"rc\">4.9 / 5 from 200+ verified reviews</span></div>\n    </div>\n    <div class=\"rg\">\n      <div class=\"rv\"><div class=\"rs\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg></div><p class=\"rt\">{TESTIMONIAL_1}</p><div class=\"rm\"><span class=\"ra\">Sarah M. &mdash; Sydney, NSW</span><span class=\"vb\">Verified purchase</span></div></div>\n      <div class=\"rv\"><div class=\"rs\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg></div><p class=\"rt\">{TESTIMONIAL_2}</p><div class=\"rm\"><span class=\"ra\">James K. &mdash; Melbourne, VIC</span><span class=\"vb\">Verified purchase</span></div></div>\n      <div class=\"rv\"><div class=\"rs\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg></div><p class=\"rt\">{TESTIMONIAL_3}</p><div class=\"rm\"><span class=\"ra\">Emma T. &mdash; Brisbane, QLD</span><span class=\"vb\">Verified purchase</span></div></div>\n    </div>\n  </div>\n</section>\n<section id=\"cta-strip\">\n  <div class=\"ci\">\n    <div class=\"sl\">Limited Time</div>\n    <h2>Ready to transform your {NICHE}?</h2>\n    <p class=\"cs\">{CTA_TEXT}</p>\n    <button class=\"bp cb\" onclick=\"document.getElementById('product').scrollIntoView({behavior:'smooth'})\">Shop {BRAND_NAME} Now</button>\n    <div class=\"cw\">\n      <div class=\"cl\">Offer ends in</div>\n      <div class=\"cd\">\n        <div class=\"cdb\"><span class=\"cdn\" id=\"cd-m\">10</span></div>\n        <span class=\"cds\">:</span>\n        <div class=\"cdb\"><span class=\"cdn\" id=\"cd-s\">00</span></div>\n      </div>\n    </div>\n  </div>\n</section>\n<footer>\n  <div class=\"ft\">\n    <div>\n      <div class=\"fl\">{BRAND_NAME}</div>\n      <p class=\"fa\">{BRAND_STORY}</p>\n      <div class=\"soc\">\n        <a href=\"https://instagram.com\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"sli\" aria-label=\"Instagram\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2\" y=\"2\" width=\"20\" height=\"20\" rx=\"5\" ry=\"5\"/><path d=\"M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z\"/><line x1=\"17.5\" y1=\"6.5\" x2=\"17.51\" y2=\"6.5\"/></svg></a>\n        <a href=\"https://facebook.com\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"sli\" aria-label=\"Facebook\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z\"/></svg></a>\n        <a href=\"https://tiktok.com\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"sli\" aria-label=\"TikTok\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.79 1.53V6.79a4.85 4.85 0 01-1.02-.1z\"/></svg></a>\n      </div>\n    </div>\n    <div class=\"fh\"><h4>Shop</h4><a href=\"#product\" onclick=\"event.preventDefault();document.getElementById('product').scrollIntoView({behavior:'smooth'})\">All Products</a><a href=\"#features\" onclick=\"event.preventDefault();document.getElementById('features').scrollIntoView({behavior:'smooth'})\">Features</a><a href=\"#proof\" onclick=\"event.preventDefault();document.getElementById('proof').scrollIntoView({behavior:'smooth'})\">Reviews</a><a href=\"#cta-strip\" onclick=\"event.preventDefault();document.getElementById('cta-strip').scrollIntoView({behavior:'smooth'})\">Offers</a></div>\n    <div class=\"fh\"><h4>Support</h4><a href=\"mailto:hello@{BRAND_SLUG}.com.au\">Contact Us</a><a href=\"mailto:returns@{BRAND_SLUG}.com.au\">Returns Policy</a><a href=\"mailto:hello@{BRAND_SLUG}.com.au\">Shipping Info</a></div>\n    <div class=\"fh\"><h4>Legal</h4><a href=\"/privacy\">Privacy Policy</a><a href=\"/terms\">Terms of Service</a><a href=\"/refund-policy\">Refund Policy</a></div>\n  </div>\n  <div class=\"fb\"><span>&copy; 2025 {BRAND_NAME}. All rights reserved. ABN: [Enter your ABN] &nbsp;&middot;&nbsp; &#127462;&#127482; Proudly Australian</span><span>All prices AUD incl. GST &middot; Australian Consumer Law applies</span></div>\n</footer>\n<script>(function(){var ham=document.getElementById('nav-ham'),mob=document.getElementById('nav-mob');function nm(o){mob.classList.toggle('open',!!o);ham.classList.toggle('open',!!o);ham.setAttribute('aria-expanded',o?'true':'false')}window.nm=nm;ham.addEventListener('click',function(){nm(!mob.classList.contains('open'))});document.querySelectorAll('.atc,.atb').forEach(function(b){b.addEventListener('click',function(){var o=this.textContent;this.textContent='Added \\u2713';this.disabled=true;var me=this;setTimeout(function(){me.textContent=o;me.disabled=false},2000)})});var _t=600;function _pad(n){return n<10?'0'+n:n}function _tick(){var _m=document.getElementById('cd-m'),_s=document.getElementById('cd-s');if(!_m||!_s)return;_m.textContent=_pad(Math.floor(_t/60));_s.textContent=_pad(_t%60);_t--;if(_t<0)_t=600}_tick();setInterval(_tick,1000);})();</script>\n</body>\n</html>",
 }
 
-// ── Template B — Bold Dropship Store ─────────────────────────────────────
-const templateDropshipBold: WebsiteTemplate = {
-  id: 'template-dropship-bold',
-  name: 'Bold Dropship Store',
-  description: 'High-energy dark design with urgency, countdown timer, and scarcity signals.',
-  thumbnail: '⚡',
+const tplB: WebsiteTemplate = {
+  id: 'dropship-bold',
+  name: 'Dropship Bold',
+  description: 'Multi-product urgency store. Marquee bar, countdown, stock scarcity.',
   category: 'bold',
-  html: `<!DOCTYPE html>
-<html lang="en-AU">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{BRAND_NAME} — Limited Stock</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--accent:{BRAND_COLOR};--bg:#0d0d1a;--surface:#13131f;--card:#1a1a2e;--text:#f0ecff;--muted:#8888aa}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;line-height:1.6}
-a{text-decoration:none;color:inherit}
-.announce{background:var(--accent);text-align:center;padding:9px 16px;font-size:12px;font-weight:700;letter-spacing:.5px;color:#fff}
-.announce span{opacity:.85;margin:0 8px}
-nav{background:var(--surface);padding:0 5%;height:62px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.07);position:sticky;top:0;z-index:100}
-.logo{font-size:18px;font-weight:900;letter-spacing:-.5px;color:var(--accent)}
-.nav-links{display:flex;gap:24px;list-style:none}
-.nav-links a{font-size:13px;font-weight:600;color:var(--muted);transition:color .2s}
-.nav-links a:hover{color:var(--text)}
-.nav-right{display:flex;align-items:center;gap:10px}
-.stock-pill{font-size:11px;font-weight:700;padding:5px 12px;background:rgba(255,60,60,.12);color:#ff6666;border:1px solid rgba(255,60,60,.3);border-radius:99px}
-.btn-nav{padding:9px 20px;background:var(--accent);color:#fff;border-radius:7px;font-size:12px;font-weight:800;transition:opacity .2s;cursor:pointer}
-.btn-nav:hover{opacity:.85}
-#hero{min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 5%;position:relative;overflow:hidden}
-#hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 30%,rgba(108,99,255,.18) 0%,transparent 70%);pointer-events:none}
-.hero-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 16px;background:rgba(255,200,60,.1);border:1px solid rgba(255,200,60,.3);border-radius:99px;font-size:12px;font-weight:700;color:#ffc83c;margin-bottom:20px}
-.hero-badge::before{content:'🔥'}
-h1{font-size:clamp(32px,5.5vw,62px);font-weight:900;letter-spacing:-1.5px;line-height:1.06;margin-bottom:16px;max-width:800px}
-h1 em{font-style:normal;color:var(--accent)}
-.hero-sub{font-size:17px;color:var(--muted);max-width:580px;line-height:1.7;margin-bottom:28px}
-.countdown-wrap{margin-bottom:32px}
-.countdown-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
-.countdown{display:flex;gap:12px;justify-content:center}
-.count-block{background:var(--card);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px 18px;min-width:60px;text-align:center}
-.count-num{font-size:28px;font-weight:900;color:var(--accent);display:block;letter-spacing:-1px;font-variant-numeric:tabular-nums}
-.count-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-top:2px}
-.hero-ctas{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
-.btn-primary{padding:16px 38px;background:var(--accent);color:#fff;border-radius:10px;font-size:15px;font-weight:900;display:inline-flex;align-items:center;gap:8px;cursor:pointer;transition:all .2s;box-shadow:0 4px 24px rgba(0,0,0,.3);border:none}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
-.btn-secondary{padding:14px 28px;background:transparent;color:var(--text);border:2px solid rgba(255,255,255,.15);border-radius:10px;font-size:14px;font-weight:700;display:inline-flex;align-items:center;gap:7px;cursor:pointer;transition:all .2s}
-.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
-.social-proof{font-size:13px;color:var(--muted)}
-.social-proof strong{color:var(--text)}
-#products{padding:80px 5%;background:var(--surface)}
-.products-inner{max-width:1100px;margin:0 auto}
-.section-header{text-align:center;margin-bottom:48px}
-.section-label{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
-h2{font-size:clamp(24px,3.5vw,38px);font-weight:900;letter-spacing:-1px}
-.products-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.product-card{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;transition:transform .2s,box-shadow .2s}
-.product-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.4)}
-.product-img{height:200px;background:linear-gradient(135deg,var(--bg) 0%,var(--surface) 100%);display:flex;align-items:center;justify-content:center;font-size:48px;position:relative}
-.badge-sold{position:absolute;top:10px;right:10px;background:rgba(255,60,60,.9);color:#fff;font-size:10px;font-weight:800;padding:4px 9px;border-radius:6px}
-.product-info{padding:16px}
-.product-title{font-size:14px;font-weight:800;margin-bottom:6px}
-.product-sold{font-size:11px;color:var(--muted);margin-bottom:8px}
-.product-sold strong{color:#ffc83c}
-.product-price{font-size:18px;font-weight:900;color:var(--accent);margin-bottom:10px}
-.product-old{text-decoration:line-through;font-size:13px;color:var(--muted);margin-left:6px;font-weight:400}
-.product-cta{width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;transition:opacity .2s}
-.product-cta:hover{opacity:.85}
-#reviews{padding:70px 5%;overflow:hidden}
-.reviews-inner{max-width:1100px;margin:0 auto}
-.reviews-track{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:32px}
-.review-card{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:20px;max-width:280px;flex-shrink:0}
-.review-stars{font-size:13px;color:var(--accent);margin-bottom:8px}
-.review-text{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px}
-.review-author{font-size:12px;font-weight:700;color:var(--text)}
-#badges{padding:50px 5%;background:var(--surface)}
-.badges-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}
-.guarantee-badge{padding:24px 16px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:var(--card)}
-.badge-icon{font-size:28px;margin-bottom:10px}
-.badge-title{font-size:13px;font-weight:800;margin-bottom:5px;color:var(--text)}
-.badge-desc{font-size:11px;color:var(--muted);line-height:1.5}
-#email-capture{padding:80px 5%;text-align:center;background:linear-gradient(180deg,var(--bg) 0%,rgba(108,99,255,.12) 100%)}
-#email-capture h2{font-size:clamp(24px,4vw,38px);font-weight:900;letter-spacing:-1px;margin-bottom:10px}
-#email-capture p{font-size:15px;color:var(--muted);margin-bottom:28px;max-width:420px;margin-left:auto;margin-right:auto;line-height:1.7}
-.email-form{display:flex;gap:8px;max-width:400px;margin:0 auto}
-.email-form input{flex:1;padding:13px 18px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:var(--text);font-size:14px;outline:none}
-.email-form input:focus{border-color:var(--accent)}
-.email-form button{padding:13px 22px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;transition:opacity .2s}
-.email-form button:hover{opacity:.85}
-.success-msg{display:none;padding:14px 20px;font-size:14px;font-weight:600;background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.3);border-radius:10px;max-width:400px;margin:0 auto;color:var(--text)}
-footer{padding:48px 5% 24px;background:var(--surface);border-top:1px solid rgba(255,255,255,.06)}
-.footer-top{display:flex;justify-content:space-between;gap:28px;flex-wrap:wrap;margin-bottom:32px}
-.footer-brand .logo{font-size:16px}
-.footer-brand p{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.6;max-width:200px}
-.footer-col h4{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
-.footer-col a{display:block;font-size:13px;color:rgba(255,255,255,.5);margin-bottom:7px;transition:color .2s}
-.footer-col a:hover{color:var(--text)}
-.footer-bottom{border-top:1px solid rgba(255,255,255,.06);padding-top:16px;font-size:11px;color:rgba(255,255,255,.2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.afterpay-note{font-size:11px;color:var(--muted);margin-top:14px}
-@media(max-width:900px){.products-grid{grid-template-columns:repeat(2,1fr)}.badges-inner{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.nav-links{display:none}.products-grid{grid-template-columns:1fr}.badges-inner{grid-template-columns:1fr}.footer-top{flex-direction:column}.email-form{flex-direction:column}.countdown{gap:8px}}
-</style>
-</head>
-<body>
-<div class="announce">🚚 FREE AU Shipping on orders $99+ <span>·</span> Afterpay in 4 installments <span>·</span> Ships from AU warehouse 🇦🇺</div>
-<nav>
-  <span class="logo">{BRAND_NAME}</span>
-  <ul class="nav-links">
-    <li><a href="#products" onclick="event.preventDefault();document.getElementById('products').scrollIntoView({behavior:'smooth'})">Shop</a></li>
-    <li><a href="#reviews" onclick="event.preventDefault();document.getElementById('reviews').scrollIntoView({behavior:'smooth'})">Reviews</a></li>
-    <li><a href="#badges" onclick="event.preventDefault();document.getElementById('badges').scrollIntoView({behavior:'smooth'})">Guarantees</a></li>
-  </ul>
-  <div class="nav-right">
-    <span class="stock-pill">⚠ Limited Stock</span>
-    <a class="btn-nav" href="#products" onclick="event.preventDefault();document.getElementById('products').scrollIntoView({behavior:'smooth'})">Shop Now</a>
-  </div>
-</nav>
-
-<section id="hero">
-  <div class="hero-badge">SALE ENDS SOON</div>
-  <h1>{HEADLINE}</h1>
-  <p class="hero-sub">{SUBHEADLINE}</p>
-  <div class="countdown-wrap">
-    <div class="countdown-label">Sale ends in</div>
-    <div class="countdown">
-      <div class="count-block"><span class="count-num" id="c-h">00</span><span class="count-lbl">Hours</span></div>
-      <div class="count-block"><span class="count-num" id="c-m">00</span><span class="count-lbl">Mins</span></div>
-      <div class="count-block"><span class="count-num" id="c-s">00</span><span class="count-lbl">Secs</span></div>
-    </div>
-  </div>
-  <div class="hero-ctas">
-    <a class="btn-primary" href="#products" onclick="event.preventDefault();document.getElementById('products').scrollIntoView({behavior:'smooth'})">🛒 {CTA_PRIMARY}</a>
-    <a class="btn-secondary" href="#reviews" onclick="event.preventDefault();document.getElementById('reviews').scrollIntoView({behavior:'smooth'})">{CTA_SECONDARY}</a>
-  </div>
-  <p class="social-proof">⭐ <strong>127 people</strong> bought this today · Ships from AU warehouse</p>
-  <p class="afterpay-note">Pay in 4 with Afterpay · Zip available at checkout</p>
-</section>
-
-<section id="products">
-  <div class="products-inner">
-    <div class="section-header">
-      <div class="section-label">Featured Products</div>
-      <h2>{PRODUCT_NAME} — Ships from <em style="font-style:normal;color:{BRAND_COLOR}">AU Warehouse</em></h2>
-    </div>
-    <div class="products-grid">
-      <div class="product-card">
-        <div class="product-img">🛍️<span class="badge-sold">🔥 HOT</span></div>
-        <div class="product-info">
-          <div class="product-title">{PRODUCT_NAME} — Standard</div>
-          <div class="product-sold"><strong>43</strong> sold today</div>
-          <div class="product-price">$49.95 AUD <span class="product-old">$79.95</span></div>
-          <button class="product-cta" onclick="document.getElementById('email-capture').scrollIntoView({behavior:'smooth'})">Add to Cart</button>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="product-img">✨<span class="badge-sold">LIMITED</span></div>
-        <div class="product-info">
-          <div class="product-title">{PRODUCT_NAME} — Pro Bundle</div>
-          <div class="product-sold"><strong>18</strong> sold today</div>
-          <div class="product-price">$89.95 AUD <span class="product-old">$139.95</span></div>
-          <button class="product-cta" onclick="document.getElementById('email-capture').scrollIntoView({behavior:'smooth'})">Add to Cart</button>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="product-img">🎁</div>
-        <div class="product-info">
-          <div class="product-title">{PRODUCT_NAME} — Gift Set</div>
-          <div class="product-sold"><strong>9</strong> sold today</div>
-          <div class="product-price">$129.95 AUD <span class="product-old">$199.95</span></div>
-          <button class="product-cta" onclick="document.getElementById('email-capture').scrollIntoView({behavior:'smooth'})">Add to Cart</button>
-        </div>
-      </div>
-    </div>
-    <div class="features-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:32px">
-      {FEATURES_HTML}
-    </div>
-  </div>
-</section>
-
-<section id="reviews">
-  <div class="reviews-inner">
-    <div class="section-header">
-      <div class="section-label">Customer Reviews</div>
-      <h2>⭐ 4.9 / 5 from 847 Reviews</h2>
-    </div>
-    <div class="reviews-track">
-      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"Absolutely smashed my expectations. Quality is top notch and arrived from the AU warehouse super fast."</p><div class="review-author">Brad H. — Gold Coast, QLD</div></div>
-      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"Limited stock for real! Almost missed out. So glad I grabbed it — worth every cent."</p><div class="review-author">Mia C. — Melbourne, VIC</div></div>
-      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"Used Afterpay, arrived in 3 days. Exactly what I needed. Will be buying the bundle next."</p><div class="review-author">Daniel R. — Sydney, NSW</div></div>
-      <div class="review-card"><div class="review-stars">★★★★★</div><p class="review-text">"Was sceptical at first but the reviews were right. Brilliant product at a fair price."</p><div class="review-author">Jess P. — Perth, WA</div></div>
-    </div>
-  </div>
-</section>
-
-<section id="badges">
-  <div class="badges-inner">
-    <div class="guarantee-badge"><div class="badge-icon">🛡️</div><div class="badge-title">30-Day Guarantee</div><div class="badge-desc">Not happy? Full refund. No questions asked.</div></div>
-    <div class="guarantee-badge"><div class="badge-icon">🚚</div><div class="badge-title">Free AU Shipping</div><div class="badge-desc">Orders over $99. Ships from Australian warehouse.</div></div>
-    <div class="guarantee-badge"><div class="badge-icon">💳</div><div class="badge-title">Afterpay / Zip</div><div class="badge-desc">Split into 4 payments. Zero interest.</div></div>
-    <div class="guarantee-badge"><div class="badge-icon">🔒</div><div class="badge-title">Secure Checkout</div><div class="badge-desc">256-bit SSL. All major cards accepted.</div></div>
-  </div>
-</section>
-
-<section id="email-capture">
-  <h2>Get Early Access + 15% Off</h2>
-  <p>Join {BRAND_NAME} insiders. First access to new drops, exclusive Afterpay deals, and AU-only offers.</p>
-  <form class="email-form" onsubmit="event.preventDefault();this.style.display='none';document.getElementById('bold-success').style.display='block'">
-    <input type="email" placeholder="Enter your email" required>
-    <button type="submit">Get Access</button>
-  </form>
-  <div id="bold-success" class="success-msg">🎉 You're in! Check your inbox for 15% off.</div>
-</section>
-
-<footer>
-  <div class="footer-top">
-    <div class="footer-brand">
-      <div class="logo">{BRAND_NAME}</div>
-      <p>{ABOUT}</p>
-    </div>
-    <div class="footer-col">
-      <h4>Shop</h4>
-      <a href="#products" onclick="event.preventDefault();document.getElementById('products').scrollIntoView({behavior:'smooth'})">All Products</a>
-      <a href="#reviews" onclick="event.preventDefault();document.getElementById('reviews').scrollIntoView({behavior:'smooth'})">Reviews</a>
-      <a href="#badges" onclick="event.preventDefault();document.getElementById('badges').scrollIntoView({behavior:'smooth'})">Guarantees</a>
-    </div>
-    <div class="footer-col">
-      <h4>Support</h4>
-      <a href="mailto:hello@{BRAND_SLUG}.com.au">Contact</a>
-      <a href="mailto:returns@{BRAND_SLUG}.com.au">Returns</a>
-      <a href="mailto:hello@{BRAND_SLUG}.com.au">Shipping</a>
-    </div>
-    <div class="footer-col">
-      <h4>Legal</h4>
-      <a href="/privacy">Privacy Policy</a>
-      <a href="/terms">Terms of Service</a>
-      <a href="/refund-policy">Refund Policy</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span>© 2026 {BRAND_NAME}. All rights reserved. ABN: [Enter your ABN]</span>
-    <span>All prices AUD incl. GST · Ships from Australia 🇦🇺</span>
-  </div>
-</footer>
-<script>
-(function(){
-  function pad(n){return n<10?'0'+n:n}
-  var end=Date.now()+18*3600*1000;
-  function tick(){
-    var d=end-Date.now();
-    if(d<=0){document.getElementById('c-h').textContent='00';document.getElementById('c-m').textContent='00';document.getElementById('c-s').textContent='00';return}
-    document.getElementById('c-h').textContent=pad(Math.floor(d/3600000));
-    document.getElementById('c-m').textContent=pad(Math.floor((d%3600000)/60000));
-    document.getElementById('c-s').textContent=pad(Math.floor((d%60000)/1000));
-    setTimeout(tick,1000);
-  }
-  tick();
-  document.querySelectorAll('a[href^="#"]').forEach(function(a){
-    a.addEventListener('click',function(e){
-      var id=this.getAttribute('href').slice(1);
-      var t=document.getElementById(id);
-      if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'})}
-    });
-  });
-})();
-</script>
-</body>
-</html>`,
+  palette: { bg: '#0d0d1a', accent: '#7c3aed', text: '#f0ecff' },
+  html: "<!DOCTYPE html>\n<html lang=\"en-AU\">\n<head>\n<meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>{BRAND_NAME}</title>\n<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n<link href=\"https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Rubik:wght@300;400;500;600&display=swap\" rel=\"stylesheet\">\n<style>\n*{margin:0;padding:0;box-sizing:border-box}\n:root{--accent:{BRAND_COLOR};--bg:#0d0d1a;--surface:#13131f;--card:#1a1a2e;--text:#f0ecff;--muted:#8888aa;--border:rgba(255,255,255,.07)}\nhtml{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:'Rubik',system-ui,sans-serif;line-height:1.6;overflow-x:hidden}\na{text-decoration:none;color:inherit}button{cursor:pointer;font-family:inherit;border:none}\n.ann{background:var(--accent);overflow:hidden;padding:8px 0}\n.ann-t{display:flex;gap:64px;animation:marquee 22s linear infinite;width:max-content}\n.ann-t span{font-size:12px;font-weight:700;color:#fff;white-space:nowrap;letter-spacing:.4px}\n@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}\n.nav{position:sticky;top:0;z-index:100;background:rgba(13,13,26,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);height:60px;display:flex;align-items:center;padding:0 5%;gap:20px}\n.nl{font-family:'Outfit',sans-serif;font-size:19px;font-weight:900;letter-spacing:-.5px;color:var(--accent);flex-shrink:0;cursor:pointer}\n.nv{display:flex;gap:24px;list-style:none;flex:1;justify-content:center}\n.nv a{font-size:13px;font-weight:600;color:var(--muted);transition:color 200ms ease}\n.nv a:hover{color:var(--text)}\n.sb{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;background:rgba(255,70,70,.15);color:#ff7070;border:1px solid rgba(255,70,70,.3);padding:4px 10px;border-radius:6px}\n.nc{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--text);padding:8px 14px;border:1px solid var(--border);border-radius:8px;transition:all 200ms ease}\n.nc:hover{border-color:var(--accent);color:var(--accent)}\n.nh{display:none;flex-direction:column;gap:5px;background:none;padding:6px;margin-left:auto}\n.nh span{display:block;width:22px;height:2px;background:var(--text);transition:all 300ms ease;border-radius:2px}\n.nh.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}\n.nh.open span:nth-child(2){opacity:0}\n.nh.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}\n.nm{display:none;flex-direction:column;background:rgba(13,13,26,.98);border-bottom:1px solid var(--border);position:fixed;top:60px;left:0;right:0;z-index:99}\n.nm.open{display:flex}\n.nm a{padding:15px 5%;font-size:15px;font-weight:600;color:var(--muted);border-bottom:1px solid var(--border);transition:color 200ms ease}\n.nm a:hover{color:var(--text)}\n#hero{min-height:90vh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:80px 5%;gap:40px;position:relative;overflow:hidden}\n#hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 0% 50%,rgba(124,58,237,.12) 0%,transparent 70%);pointer-events:none}\n.hbadge{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;background:rgba(255,200,60,.08);border:1px solid rgba(255,200,60,.25);border-radius:99px;font-size:11px;font-weight:700;color:#ffc040;margin-bottom:18px;letter-spacing:.5px}\nh1{font-family:'Outfit',sans-serif;font-size:clamp(32px,5vw,58px);font-weight:900;letter-spacing:-1.5px;line-height:1.06;margin-bottom:16px}\nh1 em{font-style:normal;color:var(--accent)}\n.hs{font-size:17px;color:var(--muted);max-width:520px;line-height:1.7;margin-bottom:28px}\n.cdw{margin-bottom:28px}\n.cdl{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}\n.cd{display:flex;gap:10px}\n.cdb{background:var(--card);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;min-width:58px;text-align:center}\n.cdn{font-family:'Outfit',sans-serif;font-size:26px;font-weight:900;color:var(--accent);display:block;font-variant-numeric:tabular-nums;letter-spacing:-1px}\n.cdlb{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-top:2px}\n.hbtns{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}\n.bp{display:inline-flex;align-items:center;gap:8px;padding:15px 32px;background:var(--accent);color:#fff;border-radius:10px;font-size:15px;font-weight:800;font-family:'Outfit',sans-serif;transition:all 200ms ease;white-space:nowrap}\n.bp:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.3)}\n.bp:focus-visible{outline:2px solid var(--accent);outline-offset:3px}\n.bg{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;background:transparent;color:var(--text);border:1.5px solid rgba(255,255,255,.15);border-radius:10px;font-size:14px;font-weight:700;transition:all 200ms ease}\n.bg:hover{border-color:var(--accent);color:var(--accent)}\n.hp{font-size:13px;color:var(--muted)}\n.hp strong{color:var(--text)}\n.hv{display:flex;align-items:center;justify-content:center}\n.hiw{border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.08);width:100%;min-height:400px;display:flex;align-items:center;justify-content:center;position:relative}\n.hib{position:absolute;top:14px;right:14px;background:var(--accent);color:#fff;font-size:11px;font-weight:800;padding:6px 12px;border-radius:8px;letter-spacing:.5px;font-family:'Outfit',sans-serif}\nh2{font-family:'Outfit',sans-serif;font-size:clamp(24px,3.5vw,38px);font-weight:900;letter-spacing:-1px}\n.sl{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:10px}\n#products{padding:80px 5%;background:var(--surface)}\n.sh{text-align:center;margin-bottom:48px}\n.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}\n.pc{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all 200ms ease}\n.pc:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.35)}\n.pimg{height:200px;display:flex;align-items:center;justify-content:center;position:relative}\n.pbadge{position:absolute;top:10px;right:10px;font-size:10px;font-weight:800;padding:4px 10px;border-radius:6px;background:rgba(255,60,60,.9);color:#fff;letter-spacing:.5px;font-family:'Outfit',sans-serif}\n.pinfo{padding:16px}\n.pn{font-family:'Outfit',sans-serif;font-size:14px;font-weight:800;margin-bottom:5px}\n.psold{font-size:11px;color:var(--muted);margin-bottom:8px}\n.psold strong{color:#ffc040}\n.pp{font-family:'Outfit',sans-serif;font-size:18px;font-weight:900;color:var(--accent);margin-bottom:10px}\n.po{text-decoration:line-through;font-size:13px;color:var(--muted);margin-left:6px;font-weight:400}\n.atc{width:100%;padding:11px;background:var(--accent);color:#fff;border-radius:8px;font-size:13px;font-weight:800;font-family:'Outfit',sans-serif;transition:all 200ms ease}\n.atc:hover:not(:disabled){opacity:.85}\n.atc:disabled{opacity:.6;cursor:not-allowed}\n#urgency{padding:64px 5%;text-align:center;background:linear-gradient(135deg,var(--bg) 0%,var(--surface) 100%)}\n.ui{max-width:700px;margin:0 auto}\n.ui h2{margin-bottom:10px}\n.us{font-size:15px;color:var(--muted);margin-bottom:32px}\n.ucd{display:flex;gap:12px;justify-content:center;margin-bottom:24px}\n.ucd .cdb{min-width:72px;padding:14px 20px}\n.ucd .cdn{font-size:32px}\n.stk{font-size:14px;color:var(--muted)}\n.stk strong{color:#ff8080}\n#trust{padding:60px 5%;background:var(--surface)}\n.ti{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:16px;text-align:center}\n.tb{padding:20px 12px;border:1px solid var(--border);border-radius:12px;background:var(--card);transition:all 200ms ease}\n.tb:hover{border-color:rgba(var(--accent-rgb),.3)}\n.tbi{width:36px;height:36px;border-radius:50%;background:rgba(var(--accent-rgb),.1);border:1px solid rgba(var(--accent-rgb),.2);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;color:var(--accent)}\n.tbn{font-family:'Outfit',sans-serif;font-size:12px;font-weight:800;margin-bottom:4px}\n.tbd{font-size:11px;color:var(--muted);line-height:1.5}\n#reviews{padding:80px 5%;overflow:hidden}\n.ri{max-width:1100px;margin:0 auto}\n.rtw{overflow:hidden;margin-top:32px;-webkit-mask-image:linear-gradient(to right,transparent,black 10%,black 90%,transparent)}\n.rtr{display:flex;gap:16px;animation:rscroll 28s linear infinite;width:max-content}\n.rtr:hover{animation-play-state:paused}\n@keyframes rscroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}\n.rc2{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 24px;max-width:280px;flex-shrink:0}\n.rc2-s{display:flex;gap:2px;margin-bottom:8px;color:var(--accent)}\n.rc2-t{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px}\n.rc2-a{font-size:12px;font-weight:700;color:var(--text)}\nfooter{padding:48px 5% 24px;background:var(--surface);border-top:1px solid var(--border)}\n.ft{display:flex;justify-content:space-between;gap:28px;flex-wrap:wrap;margin-bottom:32px}\n.fl{font-family:'Outfit',sans-serif;font-size:18px;font-weight:900;color:var(--accent);margin-bottom:8px}\n.fa{font-size:12px;color:var(--muted);line-height:1.6;max-width:200px}\n.fh h4{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}\n.fh a{display:block;font-size:13px;color:rgba(255,255,255,.45);margin-bottom:7px;transition:color 200ms ease}\n.fh a:hover{color:var(--text)}\n.fb{border-top:1px solid var(--border);padding-top:16px;font-size:11px;color:rgba(255,255,255,.18);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}\n@media(max-width:1000px){.ti{grid-template-columns:repeat(3,1fr)}}\n@media(max-width:900px){#hero{grid-template-columns:1fr}.hv{display:none}.pg{grid-template-columns:repeat(2,1fr)}}\n@media(max-width:600px){.nv,.nc,.sb{display:none}.nh{display:flex}.pg{grid-template-columns:1fr}.ti{grid-template-columns:repeat(2,1fr)}.ucd{flex-wrap:wrap}.ft{flex-direction:column}}\n@media(prefers-reduced-motion:reduce){.ann-t,.rtr{animation:none}html{scroll-behavior:auto}*{transition-duration:0ms!important}}\n</style>\n</head>\n<body>\n<div class=\"ann\"><div class=\"ann-t\"><span>&#128293; Free shipping AU-wide on orders over $75</span><span>&#9889; 47 sold today</span><span>&#127462;&#127482; Ships from AU warehouse</span><span>&#128293; Free shipping AU-wide on orders over $75</span><span>&#9889; 47 sold today</span><span>&#127462;&#127482; Ships from AU warehouse</span><span>&#128293; Free shipping AU-wide on orders over $75</span><span>&#9889; 47 sold today</span><span>&#127462;&#127482; Ships from AU warehouse</span></div></div>\n<nav class=\"nav\">\n  <span class=\"nl\" onclick=\"window.scrollTo({top:0,behavior:'smooth'})\">{BRAND_NAME}</span>\n  <ul class=\"nv\">\n    <li><a href=\"#products\" onclick=\"event.preventDefault();document.getElementById('products').scrollIntoView({behavior:'smooth'})\">Shop</a></li>\n    <li><a href=\"#reviews\" onclick=\"event.preventDefault();document.getElementById('reviews').scrollIntoView({behavior:'smooth'})\">Reviews</a></li>\n    <li><a href=\"#trust\" onclick=\"event.preventDefault();document.getElementById('trust').scrollIntoView({behavior:'smooth'})\">Guarantees</a></li>\n    <li><span class=\"sb\">SALE</span></li>\n  </ul>\n  <a href=\"#products\" onclick=\"event.preventDefault();document.getElementById('products').scrollIntoView({behavior:'smooth'})\" class=\"nc\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"9\" cy=\"21\" r=\"1\"/><circle cx=\"20\" cy=\"21\" r=\"1\"/><path d=\"M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6\"/></svg>Cart</a>\n  <button class=\"nh\" id=\"nav-ham\" aria-label=\"Toggle menu\" aria-expanded=\"false\"><span></span><span></span><span></span></button>\n</nav>\n<div class=\"nm\" id=\"nav-mob\">\n  <a href=\"#products\" onclick=\"event.preventDefault();nm(0);document.getElementById('products').scrollIntoView({behavior:'smooth'})\">Shop</a>\n  <a href=\"#reviews\" onclick=\"event.preventDefault();nm(0);document.getElementById('reviews').scrollIntoView({behavior:'smooth'})\">Reviews</a>\n  <a href=\"#trust\" onclick=\"event.preventDefault();nm(0);document.getElementById('trust').scrollIntoView({behavior:'smooth'})\">Guarantees</a>\n  <a href=\"#urgency\" onclick=\"event.preventDefault();nm(0);document.getElementById('urgency').scrollIntoView({behavior:'smooth'})\">Sale Ends Soon</a>\n</div>\n<section id=\"hero\">\n  <div>\n    <div class=\"hbadge\">&#9889; LIMITED STOCK</div>\n    <h1>{HEADLINE}</h1>\n    <p class=\"hs\">{SUBHEADLINE}</p>\n    <div class=\"cdw\">\n      <div class=\"cdl\">Sale ends in</div>\n      <div class=\"cd\">\n        <div class=\"cdb\"><span class=\"cdn\" id=\"h-h\">00</span><span class=\"cdlb\">Hrs</span></div>\n        <div class=\"cdb\"><span class=\"cdn\" id=\"h-m\">10</span><span class=\"cdlb\">Mins</span></div>\n        <div class=\"cdb\"><span class=\"cdn\" id=\"h-s\">00</span><span class=\"cdlb\">Secs</span></div>\n      </div>\n    </div>\n    <div class=\"hbtns\">\n      <button class=\"bp\" onclick=\"document.getElementById('products').scrollIntoView({behavior:'smooth'})\">Shop Now</button>\n      <button class=\"bg\" onclick=\"document.getElementById('reviews').scrollIntoView({behavior:'smooth'})\">See Reviews</button>\n    </div>\n    <p class=\"hp\">&#11088; <strong>127 people</strong> bought this today &middot; Ships from AU warehouse</p>\n  </div>\n  <div class=\"hv\">\n    <div class=\"hiw\">\n      <div style=\"background:linear-gradient(135deg,{BRAND_COLOR}22,{BRAND_COLOR}44);width:100%;min-height:400px;display:flex;align-items:center;justify-content:center\"><span style=\"font-size:3rem\">&#128444;</span></div>\n      <span class=\"hib\">&#11088; #1 Best Seller</span>\n    </div>\n  </div>\n</section>\n<section id=\"products\">\n  <div class=\"sh\"><div class=\"sl\">Featured Products</div><h2>{PRODUCT_NAME} &mdash; Ships from <em style=\"font-style:normal;color:{BRAND_COLOR}\">AU Warehouse</em></h2></div>\n  <div class=\"pg\">\n    <div class=\"pc\">\n      <div class=\"pimg\" style=\"background:linear-gradient(135deg,{BRAND_COLOR}22,{BRAND_COLOR}33)\"><span style=\"font-size:2.5rem\">&#128444;</span><span class=\"pbadge\">&#128293; HOT</span></div>\n      <div class=\"pinfo\"><div class=\"pn\">{PRODUCT_NAME} &mdash; Standard</div><div class=\"psold\"><strong>43</strong> sold today</div><div class=\"pp\">$49.95 AUD <span class=\"po\">$79.95</span></div><button class=\"atc\">Add to Cart</button></div>\n    </div>\n    <div class=\"pc\">\n      <div class=\"pimg\" style=\"background:linear-gradient(135deg,{BRAND_COLOR}33,{BRAND_COLOR}44)\"><span style=\"font-size:2.5rem\">&#128444;</span><span class=\"pbadge\">LIMITED</span></div>\n      <div class=\"pinfo\"><div class=\"pn\">{PRODUCT_NAME} &mdash; Pro Bundle</div><div class=\"psold\"><strong>18</strong> sold today</div><div class=\"pp\">$89.95 AUD <span class=\"po\">$139.95</span></div><button class=\"atc\">Add to Cart</button></div>\n    </div>\n    <div class=\"pc\">\n      <div class=\"pimg\" style=\"background:linear-gradient(135deg,{BRAND_COLOR}1a,{BRAND_COLOR}33)\"><span style=\"font-size:2.5rem\">&#128444;</span></div>\n      <div class=\"pinfo\"><div class=\"pn\">{PRODUCT_NAME} &mdash; Gift Set</div><div class=\"psold\"><strong>9</strong> sold today</div><div class=\"pp\">$129.95 AUD <span class=\"po\">$199.95</span></div><button class=\"atc\">Add to Cart</button></div>\n    </div>\n  </div>\n</section>\n<section id=\"urgency\">\n  <div class=\"ui\">\n    <div class=\"sl\">Flash Sale</div>\n    <h2>Sale ends in:</h2>\n    <p class=\"us\">Don&rsquo;t miss out &mdash; these prices end soon.</p>\n    <div class=\"ucd cd\">\n      <div class=\"cdb\"><span class=\"cdn\" id=\"u-h\">00</span><span class=\"cdlb\">Hrs</span></div>\n      <div class=\"cdb\"><span class=\"cdn\" id=\"u-m\">10</span><span class=\"cdlb\">Mins</span></div>\n      <div class=\"cdb\"><span class=\"cdn\" id=\"u-s\">00</span><span class=\"cdlb\">Secs</span></div>\n    </div>\n    <p class=\"stk\">Only <strong id=\"stock-count\">4</strong> left in stock at this price</p>\n  </div>\n</section>\n<section id=\"trust\">\n  <div class=\"ti\">\n    <div class=\"tb\"><div class=\"tbi\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/><polyline points=\"9 22 9 12 15 12 15 22\"/></svg></div><div class=\"tbn\">AU Warehouse</div><div class=\"tbd\">Ships from Australia. Fast, reliable delivery.</div></div>\n    <div class=\"tb\"><div class=\"tbi\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polyline points=\"1 4 1 10 7 10\"/><path d=\"M3.51 15a9 9 0 1 0 .49-4.51\"/></svg></div><div class=\"tbn\">30-Day Returns</div><div class=\"tbd\">Not happy? Full refund, no questions asked.</div></div>\n    <div class=\"tb\"><div class=\"tbi\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><line x1=\"2\" y1=\"10\" x2=\"22\" y2=\"10\"/></svg></div><div class=\"tbn\">Afterpay Available</div><div class=\"tbd\">Split into 4 payments. Zero interest.</div></div>\n    <div class=\"tb\"><div class=\"tbi\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\" ry=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/></svg></div><div class=\"tbn\">Secure Checkout</div><div class=\"tbd\">256-bit SSL. All major cards accepted.</div></div>\n    <div class=\"tb\"><div class=\"tbi\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg></div><div class=\"tbn\">24/7 Support</div><div class=\"tbd\">We respond within hours, every day.</div></div>\n  </div>\n</section>\n<section id=\"reviews\">\n  <div class=\"ri\">\n    <div class=\"sh\"><div class=\"sl\">Customer Reviews</div><h2>&#11088; 4.9 / 5 from 847 Reviews</h2></div>\n    <div class=\"rtw\"><div class=\"rtr\"><div class=\"rc2\"><div class=\"rc2-s\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg></div><p class=\"rc2-t\">Absolutely smashed my expectations. Quality is top notch and arrived super fast from the AU warehouse.</p><div class=\"rc2-a\">Brad H. &mdash; Gold Coast, QLD</div></div><div class=\"rc2\"><div class=\"rc2-s\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg></div><p class=\"rc2-t\">Limited stock for real! Almost missed out. So glad I grabbed it &mdash; worth every cent.</p><div class=\"rc2-a\">Mia C. &mdash; Melbourne, VIC</div></div><div class=\"rc2\"><div class=\"rc2-s\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg></div><p class=\"rc2-t\">Used Afterpay, arrived in 3 days. Exactly what I needed. Will be buying the bundle next.</p><div class=\"rc2-a\">Daniel R. &mdash; Sydney, NSW</div></div><div class=\"rc2\"><div class=\"rc2-s\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg></div><p class=\"rc2-t\">Was sceptical at first but the reviews were right. Brilliant product at a fair price.</p><div class=\"rc2-a\">Jess P. &mdash; Perth, WA</div></div><div class=\"rc2\"><div class=\"rc2-s\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg></div><p class=\"rc2-t\">Fast, reliable, and the Afterpay option made it a no-brainer. The bundle is incredible value.</p><div class=\"rc2-a\">Tom B. &mdash; Adelaide, SA</div></div><div class=\"rc2\"><div class=\"rc2-s\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg></div><p class=\"rc2-t\">Absolutely smashed my expectations. Quality is top notch and arrived super fast from the AU warehouse.</p><div class=\"rc2-a\">Brad H. &mdash; Gold Coast, QLD</div></div><div class=\"rc2\"><div class=\"rc2-s\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg></div><p class=\"rc2-t\">Limited stock for real! Almost missed out. So glad I grabbed it &mdash; worth every cent.</p><div class=\"rc2-a\">Mia C. &mdash; Melbourne, VIC</div></div><div class=\"rc2\"><div class=\"rc2-s\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg></div><p class=\"rc2-t\">Used Afterpay, arrived in 3 days. Exactly what I needed. Will be buying the bundle next.</p><div class=\"rc2-a\">Daniel R. &mdash; Sydney, NSW</div></div><div class=\"rc2\"><div class=\"rc2-s\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg></div><p class=\"rc2-t\">Was sceptical at first but the reviews were right. Brilliant product at a fair price.</p><div class=\"rc2-a\">Jess P. &mdash; Perth, WA</div></div><div class=\"rc2\"><div class=\"rc2-s\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"/></svg></div><p class=\"rc2-t\">Fast, reliable, and the Afterpay option made it a no-brainer. The bundle is incredible value.</p><div class=\"rc2-a\">Tom B. &mdash; Adelaide, SA</div></div></div></div>\n  </div>\n</section>\n<footer>\n  <div class=\"ft\">\n    <div><div class=\"fl\">{BRAND_NAME}</div><p class=\"fa\">{BRAND_STORY}</p></div>\n    <div class=\"fh\"><h4>Shop</h4><a href=\"#products\" onclick=\"event.preventDefault();document.getElementById('products').scrollIntoView({behavior:'smooth'})\">All Products</a><a href=\"#reviews\" onclick=\"event.preventDefault();document.getElementById('reviews').scrollIntoView({behavior:'smooth'})\">Reviews</a><a href=\"#trust\" onclick=\"event.preventDefault();document.getElementById('trust').scrollIntoView({behavior:'smooth'})\">Guarantees</a></div>\n    <div class=\"fh\"><h4>Support</h4><a href=\"mailto:hello@{BRAND_SLUG}.com.au\">Contact</a><a href=\"mailto:returns@{BRAND_SLUG}.com.au\">Returns</a><a href=\"mailto:hello@{BRAND_SLUG}.com.au\">Shipping</a></div>\n    <div class=\"fh\"><h4>Legal</h4><a href=\"/privacy\">Privacy Policy</a><a href=\"/terms\">Terms of Service</a><a href=\"/refund-policy\">Refund Policy</a></div>\n  </div>\n  <div class=\"fb\"><span>&copy; 2025 {BRAND_NAME}. All rights reserved. ABN: [Enter your ABN] &middot; &#127462;&#127482; Ships from Australia</span><span>All prices AUD incl. GST &middot; Afterpay available</span></div>\n</footer>\n<script>(function(){var ham=document.getElementById('nav-ham'),mob=document.getElementById('nav-mob');function nm(o){mob.classList.toggle('open',!!o);ham.classList.toggle('open',!!o);ham.setAttribute('aria-expanded',o?'true':'false')}window.nm=nm;ham.addEventListener('click',function(){nm(!mob.classList.contains('open'))});document.querySelectorAll('.atc,.atb').forEach(function(b){b.addEventListener('click',function(){var o=this.textContent;this.textContent='Added \\u2713';this.disabled=true;var me=this;setTimeout(function(){me.textContent=o;me.disabled=false},2000)})});var _t=600;function _pad(n){return n<10?'0'+n:n}function _tick(){['h-h','u-h'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent='00'});var m=_pad(Math.floor(_t/60)),s=_pad(_t%60);['h-m','u-m'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=m});['h-s','u-s'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=s});_t--;if(_t<0)_t=600}_tick();setInterval(_tick,1000);var stock=Math.floor(Math.random()*5)+3;var sc=document.getElementById('stock-count');if(sc){sc.textContent=stock;setInterval(function(){if(stock>1){stock--;sc.textContent=stock}},45000);}var acc='{BRAND_COLOR}';var r=parseInt(acc.slice(1,3),16)||124,g=parseInt(acc.slice(3,5),16)||58,b=parseInt(acc.slice(5,7),16)||237;document.documentElement.style.setProperty('--accent-rgb',r+','+g+','+b);})();</script>\n</body>\n</html>",
 }
 
-// ── Template C — Premium Brand ────────────────────────────────────────────
-const templatePremiumBrand: WebsiteTemplate = {
-  id: 'template-premium-brand',
+const tplC: WebsiteTemplate = {
+  id: 'premium-brand',
   name: 'Premium Brand',
-  description: 'Aesop-inspired luxury design. Brand story, founder section, and premium email capture.',
-  thumbnail: '✨',
+  description: 'Luxury storytelling. Off-white, serif headings, gold accents, spacious.',
   category: 'premium',
-  html: `<!DOCTYPE html>
-<html lang="en-AU">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{BRAND_NAME}</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap');
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--accent:{BRAND_COLOR};--gold:#c9a84c;--bg:#faf9f7;--surface:#f3f0ea;--dark:#1c1a17;--text:#2a2520;--muted:#8a8278}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;line-height:1.7}
-a{text-decoration:none;color:inherit}
-h1,h2,h3,h4{font-family:'Playfair Display',Georgia,serif;line-height:1.15}
-nav{padding:0 6%;height:70px;display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-bottom:1px solid rgba(0,0,0,0.06);position:sticky;top:0;z-index:100}
-.logo{font-family:'Playfair Display',Georgia,serif;font-size:20px;font-weight:900;letter-spacing:-.3px;color:var(--dark)}
-.logo em{font-style:italic;color:var(--accent)}
-.nav-links{display:flex;gap:32px;list-style:none}
-.nav-links a{font-size:13px;font-weight:500;color:var(--muted);letter-spacing:.3px;transition:color .2s}
-.nav-links a:hover{color:var(--text)}
-.nav-right{display:flex;align-items:center;gap:16px}
-.nav-au{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold)}
-.nav-cta{padding:10px 22px;border:1.5px solid var(--accent);color:var(--accent);border-radius:6px;font-size:12px;font-weight:600;letter-spacing:.5px;transition:all .2s;cursor:pointer}
-.nav-cta:hover{background:var(--accent);color:#fff}
-#hero{min-height:92vh;display:flex;align-items:center;padding:80px 6%;position:relative;overflow:hidden;background:var(--dark)}
-#hero::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(201,168,76,.08) 0%,transparent 60%)}
-.hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;width:100%}
-.hero-content{color:#faf9f7}
-.hero-overline{display:flex;align-items:center;gap:12px;margin-bottom:24px}
-.hero-overline::before{content:'';display:block;width:32px;height:1px;background:var(--gold)}
-.hero-overline span{font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
-h1{font-size:clamp(36px,5vw,58px);font-weight:900;letter-spacing:-.5px;color:#faf9f7;margin-bottom:20px}
-h1 em{font-style:italic;color:var(--gold)}
-.hero-sub{font-size:16px;color:rgba(250,249,247,.65);line-height:1.75;margin-bottom:36px;max-width:440px}
-.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px}
-.btn-primary{padding:15px 34px;background:var(--gold);color:var(--dark);border-radius:6px;font-size:13px;font-weight:700;letter-spacing:.5px;display:inline-flex;align-items:center;gap:8px;transition:all .2s;cursor:pointer;border:none}
-.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
-.btn-ghost{padding:13px 28px;background:transparent;color:rgba(250,249,247,.8);border:1.5px solid rgba(250,249,247,.2);border-radius:6px;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:7px;transition:all .2s;cursor:pointer}
-.btn-ghost:hover{border-color:rgba(250,249,247,.5);color:#faf9f7}
-.au-marks{display:flex;flex-wrap:wrap;gap:20px}
-.au-mark{display:flex;align-items:center;gap:7px;font-size:12px;color:rgba(250,249,247,.4);font-weight:400}
-.au-mark::before{content:'—';color:var(--gold);font-size:14px}
-.hero-visual{display:flex;align-items:center;justify-content:center}
-.hero-card{background:rgba(250,249,247,.05);border:1px solid rgba(250,249,247,.1);border-radius:16px;padding:40px;text-align:center;min-height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.product-glyph{font-size:64px;margin-bottom:16px}
-.product-name-display{font-family:'Playfair Display',Georgia,serif;font-size:16px;font-style:italic;color:var(--gold)}
-#brand-story{padding:100px 6%;background:var(--bg)}
-.story-inner{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
-.story-tag{font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
-.story-inner h2{font-size:clamp(28px,3.5vw,42px);margin-bottom:20px;letter-spacing:-.5px}
-.story-inner p{font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:16px}
-.story-visual{background:var(--surface);border-radius:14px;min-height:320px;display:flex;align-items:center;justify-content:center;font-size:56px;border:1px solid rgba(0,0,0,.06)}
-.story-facts{display:flex;flex-wrap:wrap;gap:20px;margin-top:28px}
-.fact{border-left:2px solid var(--accent);padding-left:14px}
-.fact-num{font-family:'Playfair Display',Georgia,serif;font-size:28px;font-weight:900;color:var(--dark)}
-.fact-label{font-size:12px;color:var(--muted);font-weight:500;margin-top:2px}
-#product-feature{padding:100px 6%;background:var(--surface)}
-.feature-inner{max-width:1080px;margin:0 auto;text-align:center}
-.feature-inner h2{font-size:clamp(26px,3.5vw,40px);margin-bottom:14px}
-.feature-inner .section-intro{font-size:16px;color:var(--muted);max-width:500px;margin:0 auto 56px;line-height:1.75}
-.features-premium{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;text-align:left}
-.fp{padding:28px;background:var(--bg);border-radius:12px;border:1px solid rgba(0,0,0,.07)}
-.fp-dot{width:36px;height:36px;border-radius:50%;background:color-mix(in srgb,var(--accent) 12%,transparent);display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:16px;border:1px solid color-mix(in srgb,var(--accent) 25%,transparent)}
-.fp h3{font-family:'Playfair Display',Georgia,serif;font-size:15px;font-weight:700;margin-bottom:8px}
-.fp p{font-size:13px;color:var(--muted);line-height:1.7}
-#lead-capture{padding:100px 6%;background:var(--dark);text-align:center;position:relative;overflow:hidden}
-#lead-capture::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(201,168,76,.12) 0%,transparent 70%);pointer-events:none}
-.lead-overline{font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
-#lead-capture h2{font-size:clamp(26px,4vw,42px);color:#faf9f7;margin-bottom:12px;letter-spacing:-.5px}
-#lead-capture p{font-size:15px;color:rgba(250,249,247,.55);max-width:460px;margin:0 auto 32px;line-height:1.75}
-.lead-form{display:flex;gap:8px;max-width:400px;margin:0 auto}
-.lead-form input{flex:1;padding:14px 20px;border-radius:7px;border:1px solid rgba(250,249,247,.15);background:rgba(250,249,247,.06);color:#faf9f7;font-size:14px;outline:none;font-family:inherit}
-.lead-form input:focus{border-color:var(--gold)}
-.lead-form input::placeholder{color:rgba(250,249,247,.3)}
-.lead-form button{padding:14px 24px;background:var(--gold);color:var(--dark);border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .2s}
-.lead-form button:hover{opacity:.88}
-.lead-guarantee{font-size:12px;color:rgba(250,249,247,.3);margin-top:14px}
-.success-msg{display:none;padding:14px 24px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);border-radius:8px;color:var(--gold);font-size:14px;font-weight:600;max-width:400px;margin:0 auto}
-#founder{padding:100px 6%;background:var(--bg)}
-.founder-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:200px 1fr;gap:60px;align-items:center}
-.founder-photo{width:160px;height:160px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:48px;border:3px solid rgba(0,0,0,.07)}
-.founder-tag{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
-.founder-name{font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:700;margin-bottom:4px}
-.founder-title{font-size:13px;color:var(--muted);margin-bottom:16px}
-.founder-quote{font-family:'Playfair Display',Georgia,serif;font-size:18px;font-style:italic;color:var(--dark);line-height:1.6;border-left:3px solid var(--accent);padding-left:20px}
-footer{padding:60px 6% 28px;background:var(--dark);color:rgba(250,249,247,.6)}
-.footer-top{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
-.footer-brand .logo{color:#faf9f7}
-.footer-brand p{font-size:12px;color:rgba(250,249,247,.3);margin-top:10px;line-height:1.7;max-width:200px}
-.footer-au-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--gold);margin-top:16px;letter-spacing:.5px}
-.footer-col h4{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(250,249,247,.25);margin-bottom:14px}
-.footer-col a{display:block;font-size:13px;color:rgba(250,249,247,.45);margin-bottom:8px;transition:color .2s}
-.footer-col a:hover{color:#faf9f7}
-.footer-bottom{border-top:1px solid rgba(250,249,247,.07);padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:11px;color:rgba(250,249,247,.2)}
-@media(max-width:960px){.hero-inner{grid-template-columns:1fr}.hero-visual{display:none}.story-inner{grid-template-columns:1fr}.story-visual{display:none}.features-premium{grid-template-columns:1fr 1fr}.footer-top{grid-template-columns:1fr 1fr}.founder-inner{grid-template-columns:1fr}}
-@media(max-width:600px){.nav-links{display:none}.features-premium{grid-template-columns:1fr}.footer-top{grid-template-columns:1fr}.lead-form{flex-direction:column}.hero-ctas{flex-direction:column;align-items:flex-start}}
-</style>
-</head>
-<body>
-<nav>
-  <span class="logo">{BRAND_NAME}</span>
-  <ul class="nav-links">
-    <li><a href="#brand-story" onclick="event.preventDefault();document.getElementById('brand-story').scrollIntoView({behavior:'smooth'})">Our Story</a></li>
-    <li><a href="#product-feature" onclick="event.preventDefault();document.getElementById('product-feature').scrollIntoView({behavior:'smooth'})">Products</a></li>
-    <li><a href="#founder" onclick="event.preventDefault();document.getElementById('founder').scrollIntoView({behavior:'smooth'})">Founder</a></li>
-  </ul>
-  <div class="nav-right">
-    <span class="nav-au">🇦🇺 Proudly Australian</span>
-    <a class="nav-cta" href="#lead-capture" onclick="event.preventDefault();document.getElementById('lead-capture').scrollIntoView({behavior:'smooth'})">Explore</a>
-  </div>
-</nav>
-
-<section id="hero">
-  <div class="hero-inner">
-    <div class="hero-content">
-      <div class="hero-overline"><span>Craft · Quality · Australia</span></div>
-      <h1>{HEADLINE}</h1>
-      <p class="hero-sub">{SUBHEADLINE}</p>
-      <div class="hero-ctas">
-        <a class="btn-primary" href="#product-feature" onclick="event.preventDefault();document.getElementById('product-feature').scrollIntoView({behavior:'smooth'})">{CTA_PRIMARY}</a>
-        <a class="btn-ghost" href="#brand-story" onclick="event.preventDefault();document.getElementById('brand-story').scrollIntoView({behavior:'smooth'})">{CTA_SECONDARY}</a>
-      </div>
-      <div class="au-marks">
-        <span class="au-mark">Proudly Australian</span>
-        <span class="au-mark">Carbon-offset shipping</span>
-        <span class="au-mark">Afterpay available</span>
-      </div>
-    </div>
-    <div class="hero-visual">
-      <div class="hero-card">
-        <span class="product-glyph">🌿</span>
-        <div class="product-name-display">{PRODUCT_NAME}</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="brand-story">
-  <div class="story-inner">
-    <div>
-      <div class="story-tag">Our Story</div>
-      <h2>Where <em>Craft</em> Meets {NICHE}</h2>
-      <p>{ABOUT}</p>
-      <p>We believe in making things properly — sustainable materials, ethical sourcing, and Australian craftsmanship that lasts.</p>
-      <div class="story-facts">
-        <div class="fact"><div class="fact-num">3K+</div><div class="fact-label">Australian customers</div></div>
-        <div class="fact"><div class="fact-num">4.9★</div><div class="fact-label">Average rating</div></div>
-        <div class="fact"><div class="fact-num">100%</div><div class="fact-label">Carbon-offset shipping</div></div>
-      </div>
-    </div>
-    <div class="story-visual">🌿</div>
-  </div>
-</section>
-
-<section id="product-feature">
-  <div class="feature-inner">
-    <div class="story-tag">Why {BRAND_NAME}</div>
-    <h2>Thoughtfully Made for<br><em style="font-style:italic;color:{BRAND_COLOR}">Australian Living</em></h2>
-    <p class="section-intro">Every detail considered. Every material chosen with intention. This is what premium looks like.</p>
-    <div class="features-premium">
-      {FEATURES_HTML}
-    </div>
-  </div>
-</section>
-
-<section id="lead-capture">
-  <div class="lead-overline">Exclusive Access</div>
-  <h2>The {BRAND_NAME} Edit</h2>
-  <p>Receive our curated guide to {NICHE}, plus early access to limited releases and members-only pricing.</p>
-  <form class="lead-form" onsubmit="event.preventDefault();this.style.display='none';document.getElementById('prem-success').style.display='block'">
-    <input type="email" placeholder="Your email address" required>
-    <button type="submit">Join the Edit</button>
-  </form>
-  <div id="prem-success" class="success-msg">Welcome to the Edit. Check your inbox.</div>
-  <div class="lead-guarantee">No spam, ever. Unsubscribe any time.</div>
-</section>
-
-<section id="founder">
-  <div class="founder-inner">
-    <div class="founder-photo">👤</div>
-    <div>
-      <div class="founder-tag">From the Founder</div>
-      <div class="founder-name">The {BRAND_NAME} Promise</div>
-      <div class="founder-title">{NICHE} · Gold Coast, Australia</div>
-      <blockquote class="founder-quote">"We started {BRAND_NAME} because we couldn't find {NICHE} products that felt genuinely Australian — thoughtfully made, honestly priced, and built to last."</blockquote>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="footer-top">
-    <div class="footer-brand">
-      <div class="logo">{BRAND_NAME}</div>
-      <p>Premium Australian {NICHE}. Crafted with intention. Delivered with care.</p>
-      <div class="footer-au-badge">🇦🇺 Proudly Australian · Carbon-offset</div>
-    </div>
-    <div class="footer-col">
-      <h4>Explore</h4>
-      <a href="#brand-story" onclick="event.preventDefault();document.getElementById('brand-story').scrollIntoView({behavior:'smooth'})">Our Story</a>
-      <a href="#product-feature" onclick="event.preventDefault();document.getElementById('product-feature').scrollIntoView({behavior:'smooth'})">Products</a>
-      <a href="#founder" onclick="event.preventDefault();document.getElementById('founder').scrollIntoView({behavior:'smooth'})">Founder</a>
-    </div>
-    <div class="footer-col">
-      <h4>Support</h4>
-      <a href="mailto:hello@{BRAND_SLUG}.com.au">Contact Us</a>
-      <a href="mailto:returns@{BRAND_SLUG}.com.au">Returns</a>
-      <a href="mailto:hello@{BRAND_SLUG}.com.au">Afterpay Info</a>
-    </div>
-    <div class="footer-col">
-      <h4>Legal</h4>
-      <a href="/privacy">Privacy Policy</a>
-      <a href="/terms">Terms of Service</a>
-      <a href="/refund-policy">Refund Policy</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span>© 2026 {BRAND_NAME}. All rights reserved. ABN: [Enter your ABN]</span>
-    <span>All prices AUD incl. GST · Australian Consumer Law applies</span>
-  </div>
-</footer>
-<script>
-document.querySelectorAll('a[href^="#"]').forEach(function(a){
-  a.addEventListener('click',function(e){
-    var id=this.getAttribute('href').slice(1);
-    var t=document.getElementById(id);
-    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'})}
-  });
-});
-</script>
-</body>
-</html>`,
+  palette: { bg: '#faf9f7', accent: '#ca8a04', text: '#1c1917' },
+  html: "<!DOCTYPE html>\n<html lang=\"en-AU\">\n<head>\n<meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>{BRAND_NAME}</title>\n<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n<link href=\"https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Jost:wght@300;400;500;600&display=swap\" rel=\"stylesheet\">\n<style>\n*{margin:0;padding:0;box-sizing:border-box}\n:root{--accent:{BRAND_COLOR};--gold:#ca8a04;--bg:#faf9f7;--surface:#f3f0ea;--dark:#1c1917;--card:#eee9e0;--text:#2a2520;--muted:#78716c;--border:rgba(28,25,23,.08)}\nhtml{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:'Jost',Georgia,sans-serif;line-height:1.7;overflow-x:hidden}\na{text-decoration:none;color:inherit}button{cursor:pointer;font-family:inherit;border:none}\nh1,h2,h3{font-family:'Bodoni Moda',Georgia,serif;line-height:1.15}\n.nav{height:70px;display:flex;align-items:center;justify-content:center;padding:0 5%;background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;gap:0}\n.nav-links{display:flex;gap:32px;list-style:none}\n.nav-links a{font-size:12px;font-weight:500;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;transition:color 200ms ease}\n.nav-links a:hover{color:var(--text)}\n.nl{font-family:'Bodoni Moda',Georgia,serif;font-size:22px;font-weight:900;letter-spacing:-.3px;color:var(--dark);white-space:nowrap;margin:0 48px;cursor:pointer}\n.nl em{font-style:italic;color:var(--accent)}\n#hero{min-height:92vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:80px 5%;background:var(--dark);position:relative;overflow:hidden}\n#hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(202,138,4,.08) 0%,transparent 70%);pointer-events:none}\n.ho{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:24px}\n.ho::before,.ho::after{content:'';display:block;width:32px;height:1px;background:var(--gold)}\n.ho span{font-size:10px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}\n#hero h1{font-size:clamp(38px,5.5vw,68px);font-weight:900;letter-spacing:-1px;color:#faf9f7;margin-bottom:20px;line-height:1.08}\n#hero h1 em{font-style:italic;color:var(--gold)}\n.hsub{font-size:16px;color:rgba(250,249,247,.55);max-width:480px;margin:0 auto 36px;line-height:1.8}\n.bg{display:inline-flex;align-items:center;gap:8px;padding:15px 36px;background:var(--gold);color:var(--dark);border-radius:6px;font-size:13px;font-weight:600;letter-spacing:.5px;transition:all 250ms ease;font-family:'Jost',sans-serif}\n.bg:hover{opacity:.9;transform:translateY(-1px)}\n.bg:focus-visible{outline:2px solid var(--gold);outline-offset:3px}\n.hmarks{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;margin-top:32px}\n.hm{display:flex;align-items:center;gap:7px;font-size:12px;color:rgba(250,249,247,.35)}\n.hm::before{content:'—';color:var(--gold);font-size:13px}\n#story{padding:100px 5%;background:var(--bg)}\n.sti{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}\n.stag{font-size:10px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:14px}\n.sti h2{font-size:clamp(28px,3.5vw,42px);margin-bottom:18px;letter-spacing:-.5px}\n.sti h2 em{font-style:italic;color:var(--accent)}\n.sti p{font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:16px}\n.stv{border-radius:12px;background:var(--surface);border:1px solid var(--border);aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;overflow:hidden}\n.sff{display:flex;flex-wrap:wrap;gap:24px;margin-top:28px}\n.sf{border-left:2px solid var(--accent);padding-left:14px}\n.sfn{font-family:'Bodoni Moda',Georgia,serif;font-size:28px;font-weight:900;color:var(--dark)}\n.sfl{font-size:12px;color:var(--muted);font-weight:500;margin-top:2px}\n#product-feature{padding:100px 5%;background:var(--surface)}\n.pfi{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}\n.pfimg{border-radius:12px;border:1px solid var(--border);background:var(--card);aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;overflow:hidden}\n.pft{font-size:10px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}\n.pfn{font-family:'Bodoni Moda',Georgia,serif;font-size:clamp(24px,3vw,36px);font-weight:700;margin-bottom:16px;letter-spacing:-.3px}\n.pfd{font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:24px}\n.pfp{font-family:'Bodoni Moda',Georgia,serif;font-size:26px;font-weight:700;color:var(--dark);margin-bottom:6px}\n.pfs{font-size:13px;color:var(--muted);margin-bottom:24px;display:flex;align-items:center;gap:6px}\n.atb{width:100%;padding:15px;background:var(--dark);color:var(--bg);border-radius:6px;font-size:14px;font-weight:600;font-family:'Jost',sans-serif;letter-spacing:.3px;transition:all 250ms ease}\n.atb:hover:not(:disabled){opacity:.85}\n.atb:disabled{opacity:.6;cursor:not-allowed}\n#values{padding:100px 5%;background:var(--bg)}\n.vi{max-width:1000px;margin:0 auto;text-align:center}\n.vi h2{margin-bottom:14px}\n.vintro{font-size:15px;color:var(--muted);max-width:460px;margin:0 auto 56px;line-height:1.75}\n.vg{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;text-align:left}\n.vv{padding:32px;background:var(--surface);border-radius:12px;border:1px solid var(--border);transition:all 250ms ease}\n.vv:hover{border-color:rgba(202,138,4,.25)}\n.vvi{width:40px;height:40px;border-radius:10px;background:rgba(202,138,4,.08);border:1px solid rgba(202,138,4,.18);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:var(--gold)}\n.vv h3{font-family:'Bodoni Moda',Georgia,serif;font-size:16px;font-weight:700;margin-bottom:8px}\n.vv p{font-size:13px;color:var(--muted);line-height:1.7}\n#email-capture{padding:100px 5%;background:var(--dark);text-align:center;position:relative;overflow:hidden}\n#email-capture::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(202,138,4,.1) 0%,transparent 70%);pointer-events:none}\n.eco{font-size:10px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:16px}\n#email-capture h2{font-size:clamp(26px,4vw,44px);color:#faf9f7;margin-bottom:12px;letter-spacing:-.5px}\n#email-capture p{font-size:15px;color:rgba(250,249,247,.5);max-width:440px;margin:0 auto 32px;line-height:1.75}\n.ecf{display:flex;gap:8px;max-width:400px;margin:0 auto}\n.ecf input{flex:1;padding:14px 20px;border-radius:6px;border:1px solid rgba(250,249,247,.15);background:rgba(250,249,247,.05);color:#faf9f7;font-size:14px;outline:none;font-family:'Jost',sans-serif}\n.ecf input:focus{border-color:var(--gold)}\n.ecf input::placeholder{color:rgba(250,249,247,.3)}\n.ecf button{padding:14px 24px;background:var(--gold);color:var(--dark);border-radius:6px;font-size:13px;font-weight:600;font-family:'Jost',sans-serif;transition:opacity 200ms ease;white-space:nowrap}\n.ecf button:hover{opacity:.88}\n.ecs{display:none;padding:14px 24px;background:rgba(202,138,4,.1);border:1px solid rgba(202,138,4,.3);border-radius:8px;color:var(--gold);font-size:14px;font-weight:600;max-width:400px;margin:0 auto}\n.ecn{font-size:12px;color:rgba(250,249,247,.25);margin-top:14px}\nfooter{padding:60px 5% 28px;background:var(--dark)}\n.ft{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}\n.fl{font-family:'Bodoni Moda',Georgia,serif;font-size:20px;font-weight:900;color:#faf9f7;margin-bottom:10px}\n.fl em{font-style:italic;color:var(--gold)}\n.fa{font-size:12px;color:rgba(250,249,247,.3);margin-top:8px;line-height:1.7;max-width:200px}\n.fau{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--gold);margin-top:14px;letter-spacing:.5px}\n.fh h4{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(250,249,247,.22);margin-bottom:14px}\n.fh a{display:block;font-size:13px;color:rgba(250,249,247,.4);margin-bottom:9px;transition:color 200ms ease;font-family:'Jost',sans-serif}\n.fh a:hover{color:#faf9f7}\n.fb{border-top:1px solid rgba(250,249,247,.07);padding-top:20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:11px;color:rgba(250,249,247,.18);font-family:'Jost',sans-serif}\n@media(max-width:960px){.sti{grid-template-columns:1fr}.stv{display:none}.pfi{grid-template-columns:1fr}.vg{grid-template-columns:1fr 1fr}.ft{grid-template-columns:1fr 1fr}}\n@media(max-width:600px){.nav-links{display:none}.nl{margin:0 16px}.vg{grid-template-columns:1fr}.ft{grid-template-columns:1fr}.ecf{flex-direction:column}}\n@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition-duration:0ms!important}}\n</style>\n</head>\n<body>\n<nav class=\"nav\">\n  <ul class=\"nav-links\">\n    <li><a href=\"#story\" onclick=\"event.preventDefault();document.getElementById('story').scrollIntoView({behavior:'smooth'})\">Our Story</a></li>\n    <li><a href=\"#product-feature\" onclick=\"event.preventDefault();document.getElementById('product-feature').scrollIntoView({behavior:'smooth'})\">Shop</a></li>\n  </ul>\n  <span class=\"nl\" onclick=\"window.scrollTo({top:0,behavior:'smooth'})\">{BRAND_NAME}</span>\n  <ul class=\"nav-links\">\n    <li><a href=\"#values\" onclick=\"event.preventDefault();document.getElementById('values').scrollIntoView({behavior:'smooth'})\">Values</a></li>\n    <li><a href=\"#email-capture\" onclick=\"event.preventDefault();document.getElementById('email-capture').scrollIntoView({behavior:'smooth'})\">Join</a></li>\n  </ul>\n</nav>\n<section id=\"hero\">\n  <div style=\"max-width:700px;margin:0 auto;position:relative;z-index:1\">\n    <div class=\"ho\"><span>Craft &middot; Quality &middot; Australia</span></div>\n    <h1>{HEADLINE}</h1>\n    <p class=\"hsub\">{SUBHEADLINE}</p>\n    <a class=\"bg\" href=\"#product-feature\" onclick=\"event.preventDefault();document.getElementById('product-feature').scrollIntoView({behavior:'smooth'})\">Discover the Collection &rarr;</a>\n    <div class=\"hmarks\">\n      <span class=\"hm\">Proudly Australian</span>\n      <span class=\"hm\">Carbon-offset shipping</span>\n      <span class=\"hm\">Afterpay available</span>\n    </div>\n  </div>\n</section>\n<section id=\"story\">\n  <div class=\"sti\">\n    <div>\n      <div class=\"stag\">Our Story</div>\n      <h2>Where <em>Craft</em> Meets {NICHE}</h2>\n      <p>{BRAND_STORY}</p>\n      <p>We believe in making things properly &mdash; sustainable materials, ethical sourcing, and Australian craftsmanship built to last.</p>\n      <div class=\"sff\">\n        <div class=\"sf\"><div class=\"sfn\">3K+</div><div class=\"sfl\">Australian customers</div></div>\n        <div class=\"sf\"><div class=\"sfn\">4.9&#9733;</div><div class=\"sfl\">Average rating</div></div>\n        <div class=\"sf\"><div class=\"sfn\">100%</div><div class=\"sfl\">Carbon-offset shipping</div></div>\n      </div>\n    </div>\n    <div class=\"stv\"><div style=\"background:linear-gradient(135deg,{BRAND_COLOR}22,{BRAND_COLOR}44);width:100%;height:100%;display:flex;align-items:center;justify-content:center\"><span style=\"font-size:3rem\">&#128444;</span></div></div>\n  </div>\n</section>\n<section id=\"product-feature\">\n  <div class=\"pfi\">\n    <div class=\"pfimg\"><div style=\"background:linear-gradient(135deg,{BRAND_COLOR}22,{BRAND_COLOR}44);width:100%;height:100%;display:flex;align-items:center;justify-content:center\"><span style=\"font-size:3rem\">&#128444;</span></div></div>\n    <div>\n      <div class=\"pft\">{NICHE}</div>\n      <div class=\"pfn\">{PRODUCT_NAME}</div>\n      <p class=\"pfd\">{PRODUCT_DESC}</p>\n      <div class=\"pfp\">{PRICE} AUD</div>\n      <div class=\"pfs\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"1\" y=\"3\" width=\"15\" height=\"13\"/><polygon points=\"16 8 20 8 23 11 23 16 16 16 16 8\"/><circle cx=\"5.5\" cy=\"18.5\" r=\"2.5\"/><circle cx=\"18.5\" cy=\"18.5\" r=\"2.5\"/></svg>Complimentary AU shipping on all orders.</div>\n      <button class=\"atb\" id=\"atb-main\">Add to Bag</button>\n    </div>\n  </div>\n</section>\n<section id=\"values\">\n  <div class=\"vi\">\n    <div class=\"stag\">Our Commitment</div>\n    <h2>Made with Intention</h2>\n    <p class=\"vintro\">Every detail considered. Every material chosen with care. This is what premium looks like.</p>\n    <div class=\"vg\">\n      <div class=\"vv\"><div class=\"vvi\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/></svg></div><h3>Ethically Made</h3><p>Sourced from verified ethical suppliers. Every partner meets our strict standards for fair wages and safe conditions.</p></div>\n      <div class=\"vv\"><div class=\"vvi\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"2\" y1=\"12\" x2=\"22\" y2=\"12\"/><path d=\"M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z\"/></svg></div><h3>Certified AU Owned</h3><p>100% Australian owned and operated. When you buy from us, you&rsquo;re supporting local jobs and the Australian economy.</p></div>\n      <div class=\"vv\"><div class=\"vvi\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/><polyline points=\"9 12 11 14 15 10\"/></svg></div><h3>Carbon Neutral Delivery</h3><p>Every order is carbon offset through verified Australian environmental projects. Shop with a clear conscience.</p></div>\n    </div>\n  </div>\n</section>\n<section id=\"email-capture\">\n  <div style=\"position:relative;z-index:1\">\n    <div class=\"eco\">Exclusive Access</div>\n    <h2>Join the Inner Circle</h2>\n    <p>Receive our curated guide to {NICHE}, plus early access to limited releases and members-only pricing.</p>\n    <form class=\"ecf\" id=\"ec-form\">\n      <input type=\"email\" placeholder=\"Your email address\" required aria-label=\"Email address\">\n      <button type=\"submit\">Join</button>\n    </form>\n    <div class=\"ecs\" id=\"ec-success\">Welcome to the family &#10024;</div>\n    <div class=\"ecn\">No spam, ever. Unsubscribe any time.</div>\n  </div>\n</section>\n<footer>\n  <div class=\"ft\">\n    <div>\n      <div class=\"fl\">{BRAND_NAME}</div>\n      <p class=\"fa\">Premium Australian {NICHE}. Crafted with intention. Delivered with care.</p>\n      <div class=\"fau\">&#127462;&#127482; Proudly Australian &middot; Carbon-offset</div>\n    </div>\n    <div class=\"fh\"><h4>Explore</h4><a href=\"#story\" onclick=\"event.preventDefault();document.getElementById('story').scrollIntoView({behavior:'smooth'})\">Our Story</a><a href=\"#product-feature\" onclick=\"event.preventDefault();document.getElementById('product-feature').scrollIntoView({behavior:'smooth'})\">Products</a><a href=\"#values\" onclick=\"event.preventDefault();document.getElementById('values').scrollIntoView({behavior:'smooth'})\">Values</a></div>\n    <div class=\"fh\"><h4>Support</h4><a href=\"mailto:hello@{BRAND_SLUG}.com.au\">Contact Us</a><a href=\"mailto:returns@{BRAND_SLUG}.com.au\">Returns</a><a href=\"mailto:hello@{BRAND_SLUG}.com.au\">Afterpay Info</a></div>\n    <div class=\"fh\"><h4>Legal</h4><a href=\"/privacy\">Privacy Policy</a><a href=\"/terms\">Terms of Service</a><a href=\"/refund-policy\">Refund Policy</a></div>\n  </div>\n  <div class=\"fb\"><span>&copy; 2025 {BRAND_NAME}. All rights reserved. ABN: [Enter your ABN]</span><span>All prices AUD incl. GST &middot; Australian Consumer Law applies</span></div>\n</footer>\n<script>(function(){document.querySelectorAll('.atc,.atb').forEach(function(b){b.addEventListener('click',function(){var o=this.textContent;this.textContent='Added \\u2713';this.disabled=true;var me=this;setTimeout(function(){me.textContent=o;me.disabled=false},2000)})});var f=document.getElementById('ec-form');if(f)f.addEventListener('submit',function(e){e.preventDefault();f.style.display='none';var s=document.getElementById('ec-success');if(s)s.style.display='block'});})();</script>\n</body>\n</html>",
 }
 
-// ── Export ────────────────────────────────────────────────────────────────────
-export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [
-  templateDTCMinimal,
-  templateDropshipBold,
-  templatePremiumBrand,
-]
+export const WEBSITE_TEMPLATES: WebsiteTemplate[] = [tplA, tplB, tplC]
+
+export interface BrandData {
+  brandName: string
+  brandColor: string
+  productName: string
+  niche: string
+  tagline?: string
+  price?: string
+}
+
+export interface AIContent {
+  headline?: string
+  subheadline?: string
+  productDescription?: string
+  features?: string[]
+  testimonial1?: string
+  testimonial2?: string
+  testimonial3?: string
+  ctaText?: string
+  brandStory?: string
+  // Legacy fields
+  cta_primary?: string
+  cta_secondary?: string
+  about_section?: string
+  trust_badges?: string[]
+}
 
 export function buildTemplatePreview(
-  template: WebsiteTemplate,
-  data: {
-    headline?: string
-    subheadline?: string
-    ctaPrimary?: string
-    ctaSecondary?: string
-    features?: string[]
-    about?: string
-    trustBadges?: string[]
-  } | null,
-  brandName: string,
-  accentColor: string,
-  productName: string,
-  niche: string
+  templateId: string,
+  brandData: BrandData,
+  aiContent: AIContent
 ): string {
-  const brandSlug = brandName.toLowerCase().replace(/[^a-z0-9]+/g, '')
-  const headline = data?.headline || `Premium ${niche} for Australians`
-  const subheadline = data?.subheadline || `Quality ${niche} delivered to your door. Proudly Australian.`
-  const ctaPrimary = data?.ctaPrimary || 'Shop Now'
-  const ctaSecondary = data?.ctaSecondary || 'Learn More'
-  const about = data?.about || `${brandName} is an Australian-owned ${niche} brand focused on quality, value, and exceptional service.`
+  const tmpl = WEBSITE_TEMPLATES.find(t => t.id === templateId) ?? WEBSITE_TEMPLATES[0]
+  const { brandName, brandColor, productName, niche, tagline, price } = brandData
+  const {
+    headline, subheadline, productDescription, features,
+    testimonial1, testimonial2, testimonial3, ctaText, brandStory,
+    cta_primary, about_section,
+  } = aiContent
 
-  const featuresHtml = (data?.features || [
+  const brandSlug = brandName.toLowerCase().replace(/[^a-z0-9]+/g, '') || 'yourbrand'
+  const safeHL = headline || `Premium ${niche} for Australians`
+  const safeSub = subheadline || `Quality ${niche} delivered to your door. Proudly Australian.`
+  const safeCTA = ctaText || cta_primary || `Discover ${brandName}`
+  const safeStory = brandStory || about_section || `${brandName} is an Australian-owned ${niche} brand focused on quality, value, and exceptional service.`
+  const safeProd = productDescription || `Discover the premium ${productName} — crafted for Australian conditions, built to last, backed by a 30-day guarantee.`
+  const safePrice = price ? `$${price}` : `$59.99`
+  const safeT1 = testimonial1 || `Absolutely love it. Fast shipping from the AU warehouse and quality you can actually feel. Would 100% buy again.`
+  const safeT2 = testimonial2 || `Finally a product that delivers on its promise. Great value and arrived quickly. Highly recommend!`
+  const safeT3 = testimonial3 || `Quick delivery from the AU warehouse. Exactly as described. Very happy with the purchase.`
+
+  const featList = features?.length ? features : [
     `Premium quality ${niche}`,
-    'Free AU shipping on orders $99+',
-    'Afterpay available at checkout',
-    '30-day money-back guarantee',
-    'Ships from Australian warehouse',
-  ]).map((f, i) => {
-    const [title, desc] = f.includes(' — ') ? f.split(' — ') : [f, `Quality feature for Australian customers. Designed for performance and value.`]
-    return `<div class="feat feat-card fp">
-      <div class="feat-num feature-num fp-dot">${String(i + 1).padStart(2, '0')}</div>
-      <h3>${title}</h3>
-      <p>${desc}</p>
-    </div>`
+    `Free AU shipping on orders $99+`,
+    `Afterpay available at checkout`,
+    `30-day money-back guarantee`,
+    `Ships from Australian warehouse`,
+  ]
+
+  // Generate features HTML — style adapts to template type
+  const isMinimal = tmpl.id === 'dtc-minimal'
+  const isPremium = tmpl.id === 'premium-brand'
+  const featuresHtml = featList.map((f, i) => {
+    const parts = f.includes(' — ') ? f.split(' — ') : f.includes(': ') ? f.split(': ') : [f, `Designed for Australian customers.`]
+    const title = parts[0].trim()
+    const desc = (parts[1] ?? `Designed for Australian customers. Quality you can trust.`).trim()
+    const num = String(i + 1).padStart(2, '0')
+    if (isPremium) {
+      return `<div class="vv"><div class="vvi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg></div><h3>${title}</h3><p>${desc}</p></div>`
+    }
+    if (isMinimal) {
+      return `<div class="fc"><div class="fn">${num}</div><h3>${title}</h3><p>${desc}</p></div>`
+    }
+    return `<div class="fc"><div class="fn">${num}</div><h3>${title}</h3><p>${desc}</p></div>`
   }).join('\n')
 
-  return template.html
+  return tmpl.html
     .replace(/{BRAND_NAME}/g, brandName || 'Your Brand')
-    .replace(/{BRAND_COLOR}/g, accentColor || '#d4af37')
+    .replace(/{BRAND_COLOR}/g, brandColor || '#d4af37')
     .replace(/{PRODUCT_NAME}/g, productName || 'Our Product')
     .replace(/{NICHE}/g, niche || 'products')
-    .replace(/{HEADLINE}/g, headline)
-    .replace(/{SUBHEADLINE}/g, subheadline)
-    .replace(/{CTA_PRIMARY}/g, ctaPrimary)
-    .replace(/{CTA_SECONDARY}/g, ctaSecondary)
+    .replace(/{TAGLINE}/g, tagline || `Quality ${niche} for Australians`)
+    .replace(/{PRICE}/g, safePrice)
+    .replace(/{HEADLINE}/g, safeHL)
+    .replace(/{SUBHEADLINE}/g, safeSub)
+    .replace(/{PRODUCT_DESC}/g, safeProd)
+    .replace(/{CTA_TEXT}/g, safeCTA)
+    .replace(/{BRAND_STORY}/g, safeStory)
+    .replace(/{TESTIMONIAL_1}/g, safeT1)
+    .replace(/{TESTIMONIAL_2}/g, safeT2)
+    .replace(/{TESTIMONIAL_3}/g, safeT3)
     .replace(/{FEATURES_HTML}/g, featuresHtml)
-    .replace(/{ABOUT}/g, about)
-    .replace(/{BRAND_SLUG}/g, brandSlug || 'yourbrand')
+    .replace(/{BRAND_SLUG}/g, brandSlug)
 }
