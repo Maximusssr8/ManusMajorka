@@ -1527,8 +1527,7 @@ export default function WinningProducts() {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: C.sub }}>
               <RefreshCw size={12} />
-              Next refresh: <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: C.gold }}>{countdown}</span>
-              <span style={{ color: C.muted }}>(AEST)</span>
+              Updated regularly — <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: C.gold }}>always fresh</span>
             </div>
           </div>
         </div>
@@ -1730,14 +1729,14 @@ export default function WinningProducts() {
           >
             <div style={{ fontSize: 40, marginBottom: 16 }}>🔍</div>
             <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, color: C.text, margin: '0 0 8px' }}>
-              First data drop in {countdown}
+              No products match your filters
             </h3>
             <p style={{ fontSize: 13, color: C.sub, margin: '0 0 24px', maxWidth: 360, marginLeft: 'auto', marginRight: 'auto' }}>
-              The n8n workflow runs every 6 hours AEST. Products will appear automatically — or hit ⚡ Refresh Now to trigger it.
+              Try clearing your filters or hit ⚡ Refresh Now to pull the latest data.
             </p>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 12, color: C.muted }}>
               <Award size={12} />
-              Powered by TikTok Shop Apify scraper + Claude AI scoring
+              AI-scored opportunities updated regularly
             </div>
           </motion.div>
         )}
