@@ -10,6 +10,8 @@ import { registerChatRoutes } from "./chat";
 import { registerScrapeRoutes } from "../lib/scrape-product";
 import { registerStripeRoutes } from "../lib/stripe";
 import { registerToolsApi } from "../lib/tools-api";
+import { registerAutomationRoutes } from "../lib/automation-api";
+import { registerAffiliateRoutes } from "../lib/affiliate";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
@@ -98,6 +100,10 @@ async function startServer() {
   registerStripeRoutes(app);
   // Research & intelligence tool endpoints
   registerToolsApi(app);
+  // Lead generation & automation webhooks
+  registerAutomationRoutes(app);
+  // Affiliate program, email subscribe, social proof
+  registerAffiliateRoutes(app);
   // tRPC API
   app.use(
     "/api/trpc",

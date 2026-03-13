@@ -204,3 +204,70 @@ export const attribution = pgTable("attribution", {
 
 export type Attribution = typeof attribution.$inferSelect;
 export type InsertAttribution = typeof attribution.$inferInsert;
+
+/**
+ * Subscribers — email list subscribers (not necessarily authenticated users).
+ */
+export const subscribers = pgTable("subscribers", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  name: text("name"),
+  niche: text("niche"),
+  source: varchar("source", { length: 128 }),
+  status: varchar("status", { length: 32 }).default("active"),
+  tags: text("tags"),
+  subscribedAt: timestamp("subscribed_at").defaultNow().notNull(),
+  unsubscribedAt: timestamp("unsubscribed_at"),
+  lastEmailedAt: timestamp("last_emailed_at"),
+  emailSequenceStep: integer("email_sequence_step").default(0),
+});
+
+export type Subscriber = typeof subscribers.$inferSelect;
+export type InsertSubscriber = typeof subscribers.$inferInsert;
+
+/**
+ * Automation logs — tracks workflow actions (emails sent, webhooks fired, etc.).
+ */
+export const automationLogs = pgTable("automation_logs", {
+  id: serial("id").primaryKey(),
+  workflowName: varchar("workflow_name", { length: 128 }).notNull(),
+  subscriberEmail: varchar("subscriber_email", { length: 320 }),
+  action: varchar("action", { length: 128 }).notNull(),
+  details: text("details"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type AutomationLog = typeof automationLogs.$inferSelect;
+export type InsertAutomationLog = typeof automationLogs.$inferInsert;
+
+/**
+ * Affiliates — tracks affiliate partners and their commissions.
+ */
+export const affiliates = pgTable("affiliates", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").notNull().unique().references(() => profiles.id, { onDelete: "cascade" }),
+  code: varchar("code", { length: 64 }).notNull().unique(),
+  clicks: integer("clicks").default(0).notNull(),
+  signups: integer("signups").default(0).notNull(),
+  revenue: integer("revenue_cents").default(0).notNull(), // in cents AUD
+  commissionRate: integer("commission_rate").default(30).notNull(), // percentage
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Affiliate = typeof affiliates.$inferSelect;
+export type InsertAffiliate = typeof affiliates.$inferInsert;
+
+/**
+ * Referrals — tracks individual referral conversions.
+ */
+export const referrals = pgTable("referrals", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  affiliateId: uuid("affiliate_id").notNull().references(() => affiliates.id, { onDelete: "cascade" }),
+  referredUserId: uuid("referred_user_id").notNull().references(() => profiles.id, { onDelete: "cascade" }),
+  status: varchar("status", { length: 32 }).default("signed_up").notNull(), // signed_up, subscribed, paid
+  commissionCents: integer("commission_cents").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Referral = typeof referrals.$inferSelect;
+export type InsertReferral = typeof referrals.$inferInsert;

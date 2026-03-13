@@ -400,3 +400,79 @@ export async function getAttributionByUserId(userId: string) {
   const result = await db.select().from(attribution).where(eq(attribution.userId, userId)).limit(1);
   return result[0] ?? null;
 }
+
+// ─── Affiliate helpers ──────────────────────────────────────────────────────
+
+import type { InsertAffiliate, InsertReferral, InsertSubscriber } from "../drizzle/schema";
+import { affiliates, referrals, subscribers } from "../drizzle/schema";
+import { sql } from "drizzle-orm";
+
+export async function getAffiliateByUserId(userId: string) {
+  const db = getDb();
+  if (!db) return null;
+  const result = await db.select().from(affiliates).where(eq(affiliates.userId, userId)).limit(1);
+  return result[0] ?? null;
+}
+
+export async function getAffiliateByCode(code: string) {
+  const db = getDb();
+  if (!db) return null;
+  const result = await db.select().from(affiliates).where(eq(affiliates.code, code)).limit(1);
+  return result[0] ?? null;
+}
+
+export async function createAffiliate(data: InsertAffiliate) {
+  const db = getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(affiliates).values(data).returning();
+  return result[0];
+}
+
+export async function incrementAffiliateClicks(code: string) {
+  const db = getDb();
+  if (!db) return;
+  await db.update(affiliates).set({ clicks: sql`${affiliates.clicks} + 1` }).where(eq(affiliates.code, code));
+}
+
+export async function incrementAffiliateSignups(code: string) {
+  const db = getDb();
+  if (!db) return;
+  await db.update(affiliates).set({ signups: sql`${affiliates.signups} + 1` }).where(eq(affiliates.code, code));
+}
+
+export async function createReferral(data: InsertReferral) {
+  const db = getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(referrals).values(data).returning();
+  return result[0];
+}
+
+// ─── Subscriber helpers ─────────────────────────────────────────────────────
+
+export async function createSubscriber(data: InsertSubscriber) {
+  const db = getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(subscribers).values(data).onConflictDoNothing().returning();
+  return result[0] ?? null;
+}
+
+export async function getSubscriberByEmail(email: string) {
+  const db = getDb();
+  if (!db) return null;
+  const result = await db.select().from(subscribers).where(eq(subscribers.email, email)).limit(1);
+  return result[0] ?? null;
+}
+
+export async function getSubscriberCount() {
+  const db = getDb();
+  if (!db) return 0;
+  const result = await db.select({ count: sql<number>`count(*)` }).from(subscribers);
+  return Number(result[0]?.count ?? 0);
+}
+
+export async function getUserCount() {
+  const db = getDb();
+  if (!db) return 0;
+  const result = await db.select({ count: sql<number>`count(*)` }).from(profiles);
+  return Number(result[0]?.count ?? 0);
+}

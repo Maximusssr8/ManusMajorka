@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useState, useEffect, useRef } from "react";
 import { SEO } from "@/components/SEO";
+import { ArrowRight } from "lucide-react";
 
 // ── Keyframe styles ──────────────────────────────────────────────────────────
 const GLOBAL_STYLES = `
@@ -426,7 +427,158 @@ function LiveDemo() {
   );
 }
 
+// ── Social Proof Counter ────────────────────────────────────────────────────
+function SocialProofCounter() {
+  const [count, setCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("/api/stats/users")
+      .then((r) => r.json())
+      .then((d) => setCount(d.count))
+      .catch(() => setCount(500)); // fallback
+  }, []);
+
+  if (count === null) return null;
+
+  return (
+    <div style={{
+      display: "inline-flex", alignItems: "center", gap: 8,
+      background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)",
+      borderRadius: 100, padding: "6px 18px", marginTop: 24,
+    }}>
+      <div style={{
+        width: 8, height: 8, borderRadius: "50%", background: C.green,
+        animation: "pulse-ring 2s ease-in-out infinite",
+      }} />
+      <span style={{ fontSize: 13, fontWeight: 600, color: C.green }}>
+        Join {count.toLocaleString()}+ Australian sellers using Majorka
+      </span>
+    </div>
+  );
+}
+
 // ── Main Component ──────────────────────────────────────────────────────────
+// ── Email Capture Component ─────────────────────────────────────────────────
+function EmailCapture() {
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !email.includes("@")) return;
+    setStatus("loading");
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, name: name || undefined, source: "landing-guide" }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setStatus("success");
+      } else {
+        setStatus("error");
+        setErrorMsg(data.error || "Something went wrong. Try again.");
+      }
+    } catch {
+      setStatus("error");
+      setErrorMsg("Network error. Check your connection and try again.");
+    }
+  };
+
+  if (status === "success") {
+    return (
+      <div style={{
+        background: C.elevated, border: `1px solid ${C.goldBorder}`,
+        borderRadius: 20, padding: "48px 32px", textAlign: "center",
+        maxWidth: 560, margin: "0 auto",
+      }}>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>{"\u2705"}</div>
+        <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 22, color: C.text, marginBottom: 12 }}>
+          You're in! Check your inbox.
+        </h3>
+        <p style={{ color: C.secondary, fontSize: 15, lineHeight: 1.6 }}>
+          Your free AU product research guide is on its way. While you wait,{" "}
+          <Link href="/app" style={{ color: C.gold, textDecoration: "underline" }}>try the tools free</Link>.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      background: C.elevated, border: `1px solid ${C.border}`,
+      borderRadius: 20, padding: "48px 32px",
+      maxWidth: 560, margin: "0 auto",
+      boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+    }}>
+      <div style={{ textAlign: "center", marginBottom: 28 }}>
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 6,
+          background: C.goldDim, border: `1px solid ${C.goldBorder}`,
+          borderRadius: 100, padding: "5px 14px", marginBottom: 16,
+        }}>
+          <span style={{ fontSize: 14 }}>{"\uD83C\uDDE6\uD83C\uDDFA"}</span>
+          <span style={{ fontSize: 11, fontWeight: 600, color: C.gold }}>FREE AU PRODUCT GUIDE</span>
+        </div>
+        <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 22, color: C.text, marginBottom: 8 }}>
+          Get the AU Product Research Playbook
+        </h3>
+        <p style={{ color: C.secondary, fontSize: 14, lineHeight: 1.6 }}>
+          How top AU sellers find $10K/mo products — plus weekly trending product alerts. Free, no spam.
+        </p>
+      </div>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <input
+          type="text"
+          placeholder="First name (optional)"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          style={{
+            background: "rgba(255,255,255,0.04)", border: `1px solid ${C.border}`,
+            borderRadius: 10, padding: "12px 16px", color: C.text, fontSize: 14,
+            fontFamily: dm, outline: "none",
+          }}
+        />
+        <input
+          type="email"
+          placeholder="Your email address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          style={{
+            background: "rgba(255,255,255,0.04)", border: `1px solid ${C.border}`,
+            borderRadius: 10, padding: "12px 16px", color: C.text, fontSize: 14,
+            fontFamily: dm, outline: "none",
+          }}
+        />
+        <button
+          type="submit"
+          disabled={status === "loading"}
+          style={{
+            background: `linear-gradient(135deg, ${C.gold}, #b8941f)`,
+            color: "#000", borderRadius: 10, padding: "14px 20px",
+            fontFamily: syne, fontWeight: 800, fontSize: 15,
+            border: "none", cursor: status === "loading" ? "wait" : "pointer",
+            opacity: status === "loading" ? 0.7 : 1,
+            transition: "opacity 0.2s",
+          }}
+        >
+          {status === "loading" ? "Sending..." : "Send Me the Guide"}
+        </button>
+        {status === "error" && (
+          <p style={{ color: C.red, fontSize: 13, textAlign: "center" }}>{errorMsg}</p>
+        )}
+        <p style={{ fontSize: 11, color: C.muted, textAlign: "center" }}>
+          Unsubscribe anytime. We respect AU Privacy Act 1988.
+        </p>
+      </form>
+    </div>
+  );
+}
+
 export default function Home() {
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
   const [hoveredPricing, setHoveredPricing] = useState<number | null>(null);
@@ -622,6 +774,11 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════════════════
+          2b. EMAIL CAPTURE + SOCIAL PROOF
+      ═══════════════════════════════════════════════════ */}
+      <EmailCapture />
 
       {/* ═══════════════════════════════════════════════════
           3. METRICS STRIP
@@ -957,6 +1114,27 @@ export default function Home() {
           <div>
             {FAQ.map((item, i) => <FAQItem key={i} q={item.q} a={item.a} />)}
           </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════
+          11.5. EMAIL CAPTURE — LEAD MAGNET
+      ═══════════════════════════════════════════════════ */}
+      <section id="guide" style={{ padding: "100px 24px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 48 }}>
+            <h2 style={{
+              fontFamily: syne, fontWeight: 900,
+              fontSize: "clamp(28px, 5vw, 44px)",
+              letterSpacing: "-1px", marginBottom: 16,
+            }}>
+              Free resources. No catch.
+            </h2>
+            <p style={{ color: C.secondary, fontSize: 17, maxWidth: 550, margin: "0 auto" }}>
+              Get our AU product research playbook and weekly trending products — straight to your inbox.
+            </p>
+          </div>
+          <EmailCapture />
         </div>
       </section>
 

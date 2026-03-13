@@ -1,0 +1,1214 @@
+[
+  {
+    "name": "Majorka Welcome Email Sequence",
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "nodes": [
+      {
+        "id": "uuid-wf1-node1",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [0, 300],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "majorka-welcome",
+          "responseMode": "onReceived",
+          "responseData": "allEntries"
+        },
+        "webhookId": "majorka-welcome"
+      },
+      {
+        "id": "uuid-wf1-node2",
+        "name": "Prepare Variables",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3,
+        "position": [250, 300],
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "assign-name",
+                "name": "recipientName",
+                "type": "string",
+                "value": "={{ $json.name || 'there' }}"
+              },
+              {
+                "id": "assign-email",
+                "name": "recipientEmail",
+                "type": "string",
+                "value": "={{ $json.email }}"
+              },
+              {
+                "id": "assign-niche",
+                "name": "recipientNiche",
+                "type": "string",
+                "value": "={{ $json.niche || 'ecommerce' }}"
+              },
+              {
+                "id": "assign-source",
+                "name": "signupSource",
+                "type": "string",
+                "value": "={{ $json.source || 'direct' }}"
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf1-node3",
+        "name": "Log Start",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4,
+        "position": [500, 300],
+        "parameters": {
+          "method": "POST",
+          "url": "http://localhost:3000/api/agent-log",
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "agent",
+                "value": "welcome-sequence"
+              },
+              {
+                "name": "message",
+                "value": "=Started for {{ $node['Webhook'].json.email }}"
+              },
+              {
+                "name": "status",
+                "value": "info"
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf1-node4",
+        "name": "Wait Immediate",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1,
+        "position": [750, 300],
+        "parameters": {
+          "amount": 0,
+          "unit": "seconds"
+        },
+        "webhookId": "uuid-wf1-wait1"
+      },
+      {
+        "id": "uuid-wf1-node5",
+        "name": "Welcome Email",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2,
+        "position": [1000, 300],
+        "parameters": {
+          "fromEmail": "hello@majorka.ai",
+          "toEmail": "={{ $node['Webhook'].json.email }}",
+          "subject": "Your AU product research guide is here \ud83c\udf81",
+          "emailType": "html",
+          "html": "<div style=\"background-color:#080a0e;color:#ffffff;font-family:'Helvetica Neue',Arial,sans-serif;padding:40px;max-width:600px;margin:0 auto;\"><div style=\"text-align:center;margin-bottom:32px;\"><h1 style=\"color:#d4af37;font-size:28px;margin:0;\">Welcome to Majorka</h1></div><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">Hey {{ $node['Prepare Variables'].json.recipientName }},</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">Welcome aboard! You've just unlocked Australia's most powerful AI-driven ecommerce research toolkit.</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">Majorka was built specifically for AU sellers like you. We know the local market inside-out \u2014 from supplier logistics to seasonal demand patterns unique to Australia.</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">Here's what you can start doing right now:</p><ul style=\"font-size:16px;line-height:1.8;color:#e0e0e0;\"><li><strong style=\"color:#d4af37;\">Product Discovery</strong> \u2014 Find trending products with real AU demand data</li><li><strong style=\"color:#d4af37;\">Profit Calculator</strong> \u2014 Instant margin analysis with GST and AU shipping costs</li><li><strong style=\"color:#d4af37;\">Store Spy</strong> \u2014 Analyse competitor stores and their best sellers</li><li><strong style=\"color:#d4af37;\">Saturation Checker</strong> \u2014 See how crowded a niche really is in the AU market</li></ul><div style=\"text-align:center;margin:32px 0;\"><a href=\"https://majorka.ai/app\" style=\"background-color:#d4af37;color:#080a0e;padding:14px 32px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;display:inline-block;\">Open Your Dashboard</a></div><p style=\"font-size:14px;color:#888;\">You signed up for the {{ $node['Prepare Variables'].json.recipientNiche }} niche \u2014 we'll tailor your experience accordingly.</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">Let's build something great together.</p><p style=\"font-size:16px;color:#d4af37;\">Max &amp; the Majorka team</p><hr style=\"border:none;border-top:1px solid #222;margin:32px 0;\"/><p style=\"font-size:12px;color:#666;text-align:center;\">Majorka AI \u2022 Gold Coast, Australia<br/><a href=\"https://majorka.ai\" style=\"color:#d4af37;\">majorka.ai</a></p></div>",
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf1-node6",
+        "name": "Wait 2 Days",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1,
+        "position": [1250, 300],
+        "parameters": {
+          "amount": 2,
+          "unit": "days"
+        },
+        "webhookId": "uuid-wf1-wait2"
+      },
+      {
+        "id": "uuid-wf1-node7",
+        "name": "Day 2 Email",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2,
+        "position": [1500, 300],
+        "parameters": {
+          "fromEmail": "hello@majorka.ai",
+          "toEmail": "={{ $node['Webhook'].json.email }}",
+          "subject": "One thing AU sellers get wrong about product research",
+          "emailType": "html",
+          "html": "<div style=\"background-color:#080a0e;color:#ffffff;font-family:'Helvetica Neue',Arial,sans-serif;padding:40px;max-width:600px;margin:0 auto;\"><div style=\"text-align:center;margin-bottom:32px;\"><h1 style=\"color:#d4af37;font-size:24px;margin:0;\">The #1 Mistake AU Sellers Make</h1></div><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">Hey {{ $node['Prepare Variables'].json.recipientName }},</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">After working with hundreds of AU ecommerce sellers, we see the same mistake over and over:</p><p style=\"font-size:18px;line-height:1.6;color:#d4af37;font-weight:bold;text-align:center;padding:20px 0;\">They source products before validating demand.</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">They find something cool on Alibaba, order 500 units, and then discover nobody in Australia is actually searching for it. Sound familiar?</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">The winning move? <strong>Validate first, source second.</strong></p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">Majorka's <strong style=\"color:#d4af37;\">Product Discovery</strong> tool cross-references AU search volume, competition data, and margin potential before you spend a cent on inventory.</p><div style=\"text-align:center;margin:32px 0;\"><a href=\"https://majorka.ai/app/product-discovery\" style=\"background-color:#d4af37;color:#080a0e;padding:14px 32px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;display:inline-block;\">Try Product Discovery</a></div><p style=\"font-size:16px;color:#d4af37;\">Max</p><hr style=\"border:none;border-top:1px solid #222;margin:32px 0;\"/><p style=\"font-size:12px;color:#666;text-align:center;\">Majorka AI \u2022 Gold Coast, Australia<br/><a href=\"https://majorka.ai\" style=\"color:#d4af37;\">majorka.ai</a></p></div>",
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf1-node8",
+        "name": "Wait 3 Days",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1,
+        "position": [1750, 300],
+        "parameters": {
+          "amount": 3,
+          "unit": "days"
+        },
+        "webhookId": "uuid-wf1-wait3"
+      },
+      {
+        "id": "uuid-wf1-node9",
+        "name": "Day 5 Case Study Email",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2,
+        "position": [2000, 300],
+        "parameters": {
+          "fromEmail": "hello@majorka.ai",
+          "toEmail": "={{ $node['Webhook'].json.email }}",
+          "subject": "How Jake found a $10K/mo product in week 1",
+          "emailType": "html",
+          "html": "<div style=\"background-color:#080a0e;color:#ffffff;font-family:'Helvetica Neue',Arial,sans-serif;padding:40px;max-width:600px;margin:0 auto;\"><div style=\"text-align:center;margin-bottom:32px;\"><h1 style=\"color:#d4af37;font-size:24px;margin:0;\">From Zero to $10K/mo in One Week</h1></div><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">Hey {{ $node['Prepare Variables'].json.recipientName }},</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">I want to share a quick story about Jake from Melbourne.</p><div style=\"background-color:#111;border-left:3px solid #d4af37;padding:20px;margin:20px 0;border-radius:4px;\"><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;margin:0 0 12px 0;\"><strong style=\"color:#d4af37;\">The Problem:</strong> Jake had been dropshipping for 6 months with mediocre results. He was picking products based on gut feeling and TikTok trends.</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;margin:0 0 12px 0;\"><strong style=\"color:#d4af37;\">The Shift:</strong> He started using Majorka's Product Discovery + Profit Calculator combo. Within 3 days, he identified a home organisation product with 40% margins and low AU competition.</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;margin:0 0 12px 0;\"><strong style=\"color:#d4af37;\">The Result:</strong> $10,400 in revenue by end of month one. His store now does $25K/mo consistently.</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;margin:0;\"><strong style=\"color:#d4af37;\">The Key Insight:</strong> \"I stopped guessing and started using data. Majorka showed me exactly what Australians were already buying \u2014 I just had to find a better version.\"</p></div><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">You have the same tools Jake used. The question is: will you use them?</p><div style=\"text-align:center;margin:32px 0;\"><a href=\"https://majorka.ai/app\" style=\"background-color:#d4af37;color:#080a0e;padding:14px 32px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;display:inline-block;\">Start Your Research</a></div><p style=\"font-size:16px;color:#d4af37;\">Max</p><hr style=\"border:none;border-top:1px solid #222;margin:32px 0;\"/><p style=\"font-size:12px;color:#666;text-align:center;\">Majorka AI \u2022 Gold Coast, Australia<br/><a href=\"https://majorka.ai\" style=\"color:#d4af37;\">majorka.ai</a></p></div>",
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf1-node10",
+        "name": "Wait 5 Days",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1,
+        "position": [2250, 300],
+        "parameters": {
+          "amount": 5,
+          "unit": "days"
+        },
+        "webhookId": "uuid-wf1-wait4"
+      },
+      {
+        "id": "uuid-wf1-node11",
+        "name": "Day 10 Usage Email",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2,
+        "position": [2500, 300],
+        "parameters": {
+          "fromEmail": "hello@majorka.ai",
+          "toEmail": "={{ $node['Webhook'].json.email }}",
+          "subject": "Your Majorka journey so far",
+          "emailType": "html",
+          "html": "<div style=\"background-color:#080a0e;color:#ffffff;font-family:'Helvetica Neue',Arial,sans-serif;padding:40px;max-width:600px;margin:0 auto;\"><div style=\"text-align:center;margin-bottom:32px;\"><h1 style=\"color:#d4af37;font-size:24px;margin:0;\">Your 10-Day Check-In</h1></div><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">Hey {{ $node['Prepare Variables'].json.recipientName }},</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">You've been with Majorka for 10 days now. Here's what we hope you've had a chance to explore:</p><ul style=\"font-size:16px;line-height:1.8;color:#e0e0e0;\"><li>Discovered trending products in the {{ $node['Prepare Variables'].json.recipientNiche }} space</li><li>Calculated real profit margins (with AU shipping &amp; GST)</li><li>Analysed competitor stores to spot opportunities</li></ul><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">But if you're on the free plan, you're only scratching the surface.</p><div style=\"background-color:#111;border:1px solid #d4af37;padding:24px;margin:20px 0;border-radius:8px;\"><h3 style=\"color:#d4af37;margin:0 0 16px 0;\">Builder Plan \u2014 $99 AUD/mo</h3><ul style=\"font-size:15px;line-height:1.8;color:#e0e0e0;\"><li>Unlimited AI tool usage (no daily limits)</li><li>Advanced product research with supplier data</li><li>Store builder with AU-optimised templates</li><li>Priority AI responses</li><li>Personalised weekly market reports</li><li>Full conversation memory across all tools</li></ul><p style=\"font-size:14px;color:#888;margin:12px 0 0 0;\">Afterpay available \u2014 4 payments of $24.75</p></div><div style=\"text-align:center;margin:32px 0;\"><a href=\"https://majorka.ai/account\" style=\"background-color:#d4af37;color:#080a0e;padding:14px 32px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;display:inline-block;\">Upgrade to Builder</a></div><p style=\"font-size:16px;color:#d4af37;\">Max</p><hr style=\"border:none;border-top:1px solid #222;margin:32px 0;\"/><p style=\"font-size:12px;color:#666;text-align:center;\">Majorka AI \u2022 Gold Coast, Australia<br/><a href=\"https://majorka.ai\" style=\"color:#d4af37;\">majorka.ai</a></p></div>",
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf1-node12",
+        "name": "Wait 5 Days Final",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1,
+        "position": [2750, 300],
+        "parameters": {
+          "amount": 5,
+          "unit": "days"
+        },
+        "webhookId": "uuid-wf1-wait5"
+      },
+      {
+        "id": "uuid-wf1-node13",
+        "name": "Day 15 Final Offer Email",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2,
+        "position": [3000, 300],
+        "parameters": {
+          "fromEmail": "hello@majorka.ai",
+          "toEmail": "={{ $node['Webhook'].json.email }}",
+          "subject": "Last chance: 10% off Majorka Builder",
+          "emailType": "html",
+          "html": "<div style=\"background-color:#080a0e;color:#ffffff;font-family:'Helvetica Neue',Arial,sans-serif;padding:40px;max-width:600px;margin:0 auto;\"><div style=\"text-align:center;margin-bottom:32px;\"><h1 style=\"color:#d4af37;font-size:24px;margin:0;\">Your Exclusive Offer Expires Soon</h1></div><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">Hey {{ $node['Prepare Variables'].json.recipientName }},</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">This is your last email in our welcome series, and I wanted to make it count.</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">For the next 48 hours, you can lock in <strong style=\"color:#d4af37;\">10% off Majorka Builder</strong> \u2014 that's just <strong style=\"color:#d4af37;\">$89.10 AUD/mo</strong> for unlimited access to every tool.</p><div style=\"background-color:#111;border:2px solid #d4af37;padding:24px;margin:24px 0;border-radius:8px;text-align:center;\"><p style=\"font-size:20px;color:#d4af37;font-weight:bold;margin:0 0 8px 0;\">Discount Code</p><p style=\"font-size:32px;color:#ffffff;font-weight:bold;letter-spacing:4px;margin:0 0 8px 0;\">MAJORKA10</p><p style=\"font-size:14px;color:#888;margin:0;\">Valid for 48 hours \u2022 10% off your first 3 months</p></div><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">What you get with Builder:</p><ul style=\"font-size:16px;line-height:1.8;color:#e0e0e0;\"><li>Unlimited access to all 20+ AI tools</li><li>Advanced product research &amp; supplier matching</li><li>Store builder with conversion-optimised templates</li><li>Weekly personalised market reports</li><li>Priority AI with full conversation memory</li></ul><p style=\"font-size:15px;line-height:1.6;color:#e0e0e0;\"><strong>Afterpay available</strong> \u2014 split into 4 fortnightly payments. No stress.</p><div style=\"text-align:center;margin:32px 0;\"><a href=\"https://majorka.ai/account?code=MAJORKA10\" style=\"background-color:#d4af37;color:#080a0e;padding:16px 40px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:18px;display:inline-block;\">Claim Your 10% Off</a></div><p style=\"font-size:14px;line-height:1.6;color:#888;\">If Majorka isn't for you, no worries at all. But if you've been on the fence, this is the nudge.</p><p style=\"font-size:16px;color:#d4af37;\">Max</p><hr style=\"border:none;border-top:1px solid #222;margin:32px 0;\"/><p style=\"font-size:12px;color:#666;text-align:center;\">Majorka AI \u2022 Gold Coast, Australia<br/><a href=\"https://majorka.ai\" style=\"color:#d4af37;\">majorka.ai</a></p></div>",
+          "options": {}
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Prepare Variables",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Variables": {
+        "main": [
+          [
+            {
+              "node": "Log Start",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Log Start": {
+        "main": [
+          [
+            {
+              "node": "Wait Immediate",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait Immediate": {
+        "main": [
+          [
+            {
+              "node": "Welcome Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Welcome Email": {
+        "main": [
+          [
+            {
+              "node": "Wait 2 Days",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait 2 Days": {
+        "main": [
+          [
+            {
+              "node": "Day 2 Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Day 2 Email": {
+        "main": [
+          [
+            {
+              "node": "Wait 3 Days",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait 3 Days": {
+        "main": [
+          [
+            {
+              "node": "Day 5 Case Study Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Day 5 Case Study Email": {
+        "main": [
+          [
+            {
+              "node": "Wait 5 Days",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait 5 Days": {
+        "main": [
+          [
+            {
+              "node": "Day 10 Usage Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Day 10 Usage Email": {
+        "main": [
+          [
+            {
+              "node": "Wait 5 Days Final",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait 5 Days Final": {
+        "main": [
+          [
+            {
+              "node": "Day 15 Final Offer Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "name": "Majorka Daily Winning Products Digest",
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "nodes": [
+      {
+        "id": "uuid-wf2-node1",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1,
+        "position": [0, 300],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "cronExpression",
+                "expression": "0 22 * * *"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "uuid-wf2-node2",
+        "name": "Get Active Subscribers",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4,
+        "position": [250, 300],
+        "parameters": {
+          "method": "GET",
+          "url": "http://localhost:3000/api/subscribers",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "status",
+                "value": "active"
+              },
+              {
+                "name": "limit",
+                "value": "200"
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf2-node3",
+        "name": "Generate Digest Content",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4,
+        "position": [500, 300],
+        "parameters": {
+          "method": "POST",
+          "url": "http://localhost:3000/api/chat",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "{\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Give me today's top 5 trending AU ecommerce products with estimated margins. Format as a brief email digest.\"\n    }\n  ],\n  \"toolName\": \"winning-products\",\n  \"stream\": false\n}",
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf2-node4",
+        "name": "Split Subscribers",
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [750, 300],
+        "parameters": {
+          "batchSize": 10,
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf2-node5",
+        "name": "Send Digest Email",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2,
+        "position": [1000, 300],
+        "parameters": {
+          "fromEmail": "hello@majorka.ai",
+          "toEmail": "={{ $json.email }}",
+          "subject": "=Daily AU Winning Products \u2014 {{ new Date().toLocaleDateString('en-AU', {day:'numeric',month:'short'}) }}",
+          "emailType": "html",
+          "html": "<div style=\"background-color:#080a0e;color:#ffffff;font-family:'Helvetica Neue',Arial,sans-serif;padding:40px;max-width:600px;margin:0 auto;\"><div style=\"text-align:center;margin-bottom:32px;\"><h1 style=\"color:#d4af37;font-size:24px;margin:0;\">Daily Winning Products</h1><p style=\"color:#888;font-size:14px;\">Your AI-curated AU market digest</p></div><div style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">{{ $node['Generate Digest Content'].json.content }}</div><hr style=\"border:none;border-top:1px solid #222;margin:32px 0;\"/><div style=\"text-align:center;\"><a href=\"https://majorka.ai/app/winning-products\" style=\"background-color:#d4af37;color:#080a0e;padding:14px 32px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;display:inline-block;\">Research These Products</a></div><hr style=\"border:none;border-top:1px solid #222;margin:32px 0;\"/><p style=\"font-size:12px;color:#666;text-align:center;\">Majorka AI \u2022 Gold Coast, Australia<br/><a href=\"https://majorka.ai\" style=\"color:#d4af37;\">majorka.ai</a></p></div>",
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf2-node6",
+        "name": "Log Completion",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4,
+        "position": [1250, 300],
+        "parameters": {
+          "method": "POST",
+          "url": "http://localhost:3000/api/agent-log",
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "agent",
+                "value": "daily-digest"
+              },
+              {
+                "name": "message",
+                "value": "Daily winning products digest sent successfully"
+              },
+              {
+                "name": "status",
+                "value": "info"
+              }
+            ]
+          },
+          "options": {}
+        }
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get Active Subscribers",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Active Subscribers": {
+        "main": [
+          [
+            {
+              "node": "Generate Digest Content",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Digest Content": {
+        "main": [
+          [
+            {
+              "node": "Split Subscribers",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Subscribers": {
+        "main": [
+          [
+            {
+              "node": "Send Digest Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Digest Email": {
+        "main": [
+          [
+            {
+              "node": "Split Subscribers",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Subscribers1": {
+        "main": [
+          [
+            {
+              "node": "Log Completion",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "name": "Majorka New Signup \u2192 Telegram Alert",
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "nodes": [
+      {
+        "id": "uuid-wf3-node1",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [0, 300],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "majorka-signup-alert",
+          "responseMode": "onReceived",
+          "responseData": "allEntries"
+        },
+        "webhookId": "majorka-signup-alert"
+      },
+      {
+        "id": "uuid-wf3-node2",
+        "name": "Telegram Alert",
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1,
+        "position": [250, 300],
+        "parameters": {
+          "chatId": "5185376886",
+          "text": "=\ud83c\udf89 New Majorka signup!\n\ud83d\udc64 {{ $json.name }}\n\ud83d\udce7 {{ $json.email }}\n\ud83d\udcca Plan: {{ $json.plan }}\n\ud83d\udd17 Source: {{ $json.source }}",
+          "additionalFields": {}
+        }
+      },
+      {
+        "id": "uuid-wf3-node3",
+        "name": "Log Signup",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4,
+        "position": [500, 300],
+        "parameters": {
+          "method": "POST",
+          "url": "http://localhost:3000/api/agent-log",
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "agent",
+                "value": "signup-alert"
+              },
+              {
+                "name": "message",
+                "value": "=New signup alert sent for {{ $node['Webhook'].json.email }} ({{ $node['Webhook'].json.plan }})"
+              },
+              {
+                "name": "status",
+                "value": "info"
+              }
+            ]
+          },
+          "options": {}
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Telegram Alert",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Telegram Alert": {
+        "main": [
+          [
+            {
+              "node": "Log Signup",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "name": "Majorka Upgrade Nudge",
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "nodes": [
+      {
+        "id": "uuid-wf4-node1",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [0, 300],
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "majorka-upgrade-nudge",
+          "responseMode": "onReceived",
+          "responseData": "allEntries"
+        },
+        "webhookId": "majorka-upgrade-nudge"
+      },
+      {
+        "id": "uuid-wf4-node2",
+        "name": "Wait 30 Minutes",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1,
+        "position": [250, 300],
+        "parameters": {
+          "amount": 30,
+          "unit": "minutes"
+        },
+        "webhookId": "uuid-wf4-wait1"
+      },
+      {
+        "id": "uuid-wf4-node3",
+        "name": "Upgrade Prompt Email",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2,
+        "position": [500, 300],
+        "parameters": {
+          "fromEmail": "hello@majorka.ai",
+          "toEmail": "={{ $node['Webhook'].json.email }}",
+          "subject": "You've hit your daily limit \u2014 unlock unlimited access",
+          "emailType": "html",
+          "html": "<div style=\"background-color:#080a0e;color:#ffffff;font-family:'Helvetica Neue',Arial,sans-serif;padding:40px;max-width:600px;margin:0 auto;\"><div style=\"text-align:center;margin-bottom:32px;\"><h1 style=\"color:#d4af37;font-size:24px;margin:0;\">You're On a Roll \ud83d\ude80</h1></div><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">Hey {{ $node['Webhook'].json.name || 'there' }},</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">We noticed you hit your daily limit on <strong style=\"color:#d4af37;\">{{ $node['Webhook'].json.toolName }}</strong> \u2014 that means you're putting in the work. Nice.</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">But daily limits can kill momentum. Here's what you're missing on the <strong>Builder plan</strong>:</p><div style=\"background-color:#111;border:1px solid #d4af37;padding:24px;margin:20px 0;border-radius:8px;\"><h3 style=\"color:#d4af37;margin:0 0 16px 0;\">Builder Plan \u2014 $99 AUD/mo</h3><ul style=\"font-size:15px;line-height:1.8;color:#e0e0e0;margin:0;padding-left:20px;\"><li><strong>Unlimited</strong> usage across all 20+ AI tools</li><li>Advanced product research with supplier data</li><li>Store builder with AU-optimised templates</li><li>Priority AI responses (faster, more detailed)</li><li>Full conversation memory across sessions</li><li>Weekly personalised market reports</li><li>Saturation alerts and trend notifications</li></ul><p style=\"font-size:14px;color:#888;margin:16px 0 0 0;\">Afterpay available \u2014 4 fortnightly payments of $24.75</p></div><div style=\"text-align:center;margin:32px 0;\"><a href=\"https://majorka.ai/account\" style=\"background-color:#d4af37;color:#080a0e;padding:14px 32px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;display:inline-block;\">Upgrade to Builder</a></div><p style=\"font-size:16px;color:#d4af37;\">Max</p><hr style=\"border:none;border-top:1px solid #222;margin:32px 0;\"/><p style=\"font-size:12px;color:#666;text-align:center;\">Majorka AI \u2022 Gold Coast, Australia<br/><a href=\"https://majorka.ai\" style=\"color:#d4af37;\">majorka.ai</a></p></div>",
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf4-node4",
+        "name": "Wait 3 Days",
+        "type": "n8n-nodes-base.wait",
+        "typeVersion": 1,
+        "position": [750, 300],
+        "parameters": {
+          "amount": 3,
+          "unit": "days"
+        },
+        "webhookId": "uuid-wf4-wait2"
+      },
+      {
+        "id": "uuid-wf4-node5",
+        "name": "Check Subscription Status",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4,
+        "position": [1000, 300],
+        "parameters": {
+          "method": "GET",
+          "url": "=http://localhost:3000/api/trpc/subscription.get?input={{ encodeURIComponent(JSON.stringify({email: $node['Webhook'].json.email})) }}",
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf4-node6",
+        "name": "Still Free Plan?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [1250, 300],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "condition-upgrade-check",
+                "leftValue": "={{ $json.result?.data?.plan }}",
+                "rightValue": "builder",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEquals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf4-node7",
+        "name": "Follow-Up Email",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2,
+        "position": [1500, 200],
+        "parameters": {
+          "fromEmail": "hello@majorka.ai",
+          "toEmail": "={{ $node['Webhook'].json.email }}",
+          "subject": "Quick question about your ecommerce goals",
+          "emailType": "html",
+          "html": "<div style=\"background-color:#080a0e;color:#ffffff;font-family:'Helvetica Neue',Arial,sans-serif;padding:40px;max-width:600px;margin:0 auto;\"><div style=\"text-align:center;margin-bottom:32px;\"><h1 style=\"color:#d4af37;font-size:24px;margin:0;\">Still Thinking It Over?</h1></div><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">Hey {{ $node['Webhook'].json.name || 'there' }},</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">A few days ago you were deep into <strong style=\"color:#d4af37;\">{{ $node['Webhook'].json.toolName }}</strong> research and hit the daily cap. I wanted to check in.</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">Here's the thing: the AU ecommerce market moves fast. Every day without proper research data is a day your competitors are getting ahead.</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">Builder plan members typically identify profitable products <strong>3x faster</strong> than free users because they can run unlimited searches and deep-dive into data without interruption.</p><div style=\"background-color:#111;border-left:3px solid #d4af37;padding:20px;margin:20px 0;border-radius:4px;\"><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;margin:0;\"><strong style=\"color:#d4af37;\">Limited offer:</strong> Use code <strong>MOMENTUM</strong> for 15% off your first month. That's just $84.15 AUD.</p></div><div style=\"text-align:center;margin:32px 0;\"><a href=\"https://majorka.ai/account?code=MOMENTUM\" style=\"background-color:#d4af37;color:#080a0e;padding:14px 32px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;display:inline-block;\">Unlock Unlimited Access</a></div><p style=\"font-size:14px;color:#888;\">Afterpay available. Cancel anytime. No lock-in contracts.</p><p style=\"font-size:16px;color:#d4af37;\">Max</p><hr style=\"border:none;border-top:1px solid #222;margin:32px 0;\"/><p style=\"font-size:12px;color:#666;text-align:center;\">Majorka AI \u2022 Gold Coast, Australia<br/><a href=\"https://majorka.ai\" style=\"color:#d4af37;\">majorka.ai</a></p></div>",
+          "options": {}
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Wait 30 Minutes",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait 30 Minutes": {
+        "main": [
+          [
+            {
+              "node": "Upgrade Prompt Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upgrade Prompt Email": {
+        "main": [
+          [
+            {
+              "node": "Wait 3 Days",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait 3 Days": {
+        "main": [
+          [
+            {
+              "node": "Check Subscription Status",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Subscription Status": {
+        "main": [
+          [
+            {
+              "node": "Still Free Plan?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Still Free Plan?": {
+        "main": [
+          [
+            {
+              "node": "Follow-Up Email",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      }
+    }
+  },
+  {
+    "name": "Majorka Weekly AU Market Report",
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "nodes": [
+      {
+        "id": "uuid-wf5-node1",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1,
+        "position": [0, 300],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "cronExpression",
+                "expression": "0 21 * * 1"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "uuid-wf5-node2",
+        "name": "Generate Market Report",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4,
+        "position": [250, 300],
+        "parameters": {
+          "method": "POST",
+          "url": "http://localhost:3000/api/chat",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "{\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Generate a weekly AU market report: top 5 trending products, emerging niches, and one 'dark horse' opportunity. Format for email newsletter.\"\n    }\n  ],\n  \"toolName\": \"market-report\",\n  \"stream\": false\n}",
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf5-node3",
+        "name": "Get Subscribers",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4,
+        "position": [500, 300],
+        "parameters": {
+          "method": "GET",
+          "url": "http://localhost:3000/api/subscribers",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "status",
+                "value": "active"
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf5-node4",
+        "name": "Split Subscribers",
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [750, 300],
+        "parameters": {
+          "batchSize": 10,
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf5-node5",
+        "name": "Send Weekly Report",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2,
+        "position": [1000, 300],
+        "parameters": {
+          "fromEmail": "hello@majorka.ai",
+          "toEmail": "={{ $json.email }}",
+          "subject": "=Weekly AU Market Report \u2014 {{ new Date().toLocaleDateString('en-AU', {day:'numeric',month:'short',year:'numeric'}) }}",
+          "emailType": "html",
+          "html": "<div style=\"background-color:#080a0e;color:#ffffff;font-family:'Helvetica Neue',Arial,sans-serif;padding:40px;max-width:600px;margin:0 auto;\"><div style=\"text-align:center;margin-bottom:32px;\"><h1 style=\"color:#d4af37;font-size:24px;margin:0;\">Weekly AU Market Report</h1><p style=\"color:#888;font-size:14px;\">Your Monday morning market intelligence briefing</p></div><div style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">{{ $node['Generate Market Report'].json.content }}</div><hr style=\"border:none;border-top:1px solid #222;margin:32px 0;\"/><div style=\"text-align:center;\"><a href=\"https://majorka.ai/app\" style=\"background-color:#d4af37;color:#080a0e;padding:14px 32px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;display:inline-block;\">Research These Opportunities</a></div><hr style=\"border:none;border-top:1px solid #222;margin:32px 0;\"/><p style=\"font-size:12px;color:#666;text-align:center;\">Majorka AI \u2022 Gold Coast, Australia<br/><a href=\"https://majorka.ai\" style=\"color:#d4af37;\">majorka.ai</a></p></div>",
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf5-node6",
+        "name": "Telegram Summary",
+        "type": "n8n-nodes-base.telegram",
+        "typeVersion": 1,
+        "position": [1250, 300],
+        "parameters": {
+          "chatId": "5185376886",
+          "text": "=\ud83d\udcca Weekly AU Market Report sent!\n\nSubscribers notified: {{ $node['Get Subscribers'].json.length || 'all' }}\n\nReport preview:\n{{ $node['Generate Market Report'].json.content?.substring(0, 500) || 'Report generated successfully' }}",
+          "additionalFields": {}
+        }
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Generate Market Report",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Market Report": {
+        "main": [
+          [
+            {
+              "node": "Get Subscribers",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Subscribers": {
+        "main": [
+          [
+            {
+              "node": "Split Subscribers",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Subscribers": {
+        "main": [
+          [
+            {
+              "node": "Send Weekly Report",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Weekly Report": {
+        "main": [
+          [
+            {
+              "node": "Split Subscribers",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Split Subscribers1": {
+        "main": [
+          [
+            {
+              "node": "Telegram Summary",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "name": "Majorka Churn Prevention",
+    "active": false,
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "nodes": [
+      {
+        "id": "uuid-wf6-node1",
+        "name": "Schedule Trigger",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1,
+        "position": [0, 300],
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "cronExpression",
+                "expression": "0 23 * * *"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "uuid-wf6-node2",
+        "name": "Get All Subscribers",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4,
+        "position": [250, 300],
+        "parameters": {
+          "method": "GET",
+          "url": "http://localhost:3000/api/subscribers",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "status",
+                "value": "active"
+              }
+            ]
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf6-node3",
+        "name": "Filter Inactive Users",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [500, 300],
+        "parameters": {
+          "jsCode": "const now = new Date();\nconst sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);\n\nconst items = $input.all();\nconst inactive = [];\n\nfor (const item of items) {\n  const lastEmailed = item.json.lastEmailedAt ? new Date(item.json.lastEmailedAt) : null;\n  const subscribedAt = item.json.subscribedAt ? new Date(item.json.subscribedAt) : null;\n  const emailSequenceStep = item.json.emailSequenceStep || 0;\n\n  const lastEmailOld = lastEmailed && lastEmailed < sevenDaysAgo;\n  const neverEngaged = subscribedAt && subscribedAt < sevenDaysAgo && emailSequenceStep === 0;\n\n  if (lastEmailOld || neverEngaged) {\n    inactive.push(item);\n  }\n}\n\nreturn inactive;"
+        }
+      },
+      {
+        "id": "uuid-wf6-node4",
+        "name": "Has Inactive Users?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [750, 300],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "condition-has-inactive",
+                "leftValue": "={{ $input.all().length }}",
+                "rightValue": "0",
+                "operator": {
+                  "type": "number",
+                  "operation": "gt"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf6-node5",
+        "name": "Split Inactive Users",
+        "type": "n8n-nodes-base.splitInBatches",
+        "typeVersion": 3,
+        "position": [1000, 200],
+        "parameters": {
+          "batchSize": 10,
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf6-node6",
+        "name": "Re-engagement Email",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2,
+        "position": [1250, 200],
+        "parameters": {
+          "fromEmail": "hello@majorka.ai",
+          "toEmail": "={{ $json.email }}",
+          "subject": "We miss you \u2014 here's what's new in Majorka",
+          "emailType": "html",
+          "html": "<div style=\"background-color:#080a0e;color:#ffffff;font-family:'Helvetica Neue',Arial,sans-serif;padding:40px;max-width:600px;margin:0 auto;\"><div style=\"text-align:center;margin-bottom:32px;\"><h1 style=\"color:#d4af37;font-size:24px;margin:0;\">We've Been Building While You Were Away</h1></div><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">Hey {{ $json.name || 'there' }},</p><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">It's been a while since you logged into Majorka, and we wanted to share some exciting updates:</p><div style=\"background-color:#111;padding:24px;margin:20px 0;border-radius:8px;\"><h3 style=\"color:#d4af37;margin:0 0 16px 0;\">What's New</h3><ul style=\"font-size:15px;line-height:1.8;color:#e0e0e0;margin:0;padding-left:20px;\"><li><strong style=\"color:#d4af37;\">Smarter Product Discovery</strong> \u2014 Now with real-time AU trend data and improved margin estimates</li><li><strong style=\"color:#d4af37;\">Store Spy 2.0</strong> \u2014 Deeper competitor analysis with traffic estimates</li><li><strong style=\"color:#d4af37;\">Launch Checklist</strong> \u2014 Step-by-step guide to go from idea to live store</li><li><strong style=\"color:#d4af37;\">Weekly Market Reports</strong> \u2014 AI-curated trending products delivered to your inbox</li></ul></div><p style=\"font-size:16px;line-height:1.6;color:#e0e0e0;\">Plus, this week's trending AU products include some incredible opportunities in home &amp; garden and pet accessories. Don't miss out.</p><div style=\"text-align:center;margin:32px 0;\"><a href=\"https://majorka.ai/app\" style=\"background-color:#d4af37;color:#080a0e;padding:14px 32px;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;display:inline-block;\">See What's Trending</a></div><p style=\"font-size:14px;color:#888;\">Your account is still active and waiting for you.</p><p style=\"font-size:16px;color:#d4af37;\">Max</p><hr style=\"border:none;border-top:1px solid #222;margin:32px 0;\"/><p style=\"font-size:12px;color:#666;text-align:center;\">Majorka AI \u2022 Gold Coast, Australia<br/><a href=\"https://majorka.ai\" style=\"color:#d4af37;\">majorka.ai</a></p></div>",
+          "options": {}
+        }
+      },
+      {
+        "id": "uuid-wf6-node7",
+        "name": "Log Re-engagement",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4,
+        "position": [1500, 200],
+        "parameters": {
+          "method": "POST",
+          "url": "http://localhost:3000/api/agent-log",
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "agent",
+                "value": "churn-prevention"
+              },
+              {
+                "name": "message",
+                "value": "=Re-engagement email sent to {{ $json.email }}"
+              },
+              {
+                "name": "status",
+                "value": "info"
+              }
+            ]
+          },
+          "options": {}
+        }
+      }
+    ],
+    "connections": {
+      "Schedule Trigger": {
+        "main": [
+          [
+            {
+              "node": "Get All Subscribers",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get All Subscribers": {
+        "main": [
+          [
+            {
+              "node": "Filter Inactive Users",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Inactive Users": {
+        "main": [
+          [
+            {
+              "node": "Has Inactive Users?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Has Inactive Users?": {
+        "main": [
+          [
+            {
+              "node": "Split Inactive Users",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      },
+      "Split Inactive Users": {
+        "main": [
+          [
+            {
+              "node": "Re-engagement Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Re-engagement Email": {
+        "main": [
+          [
+            {
+              "node": "Log Re-engagement",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Log Re-engagement": {
+        "main": [
+          [
+            {
+              "node": "Split Inactive Users",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    }
+  }
+]

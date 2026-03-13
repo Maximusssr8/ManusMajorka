@@ -125,29 +125,57 @@ function getLanguage(filePath: string): string {
 }
 
 function parseAIResponse(raw: string): GeneratedData | null {
+  // Clean up common AI response wrappers
+  let text = raw.trim();
+
+  // Strip markdown code fences
+  const fenceMatch = text.match(/```(?:json)?\s*\n?([\s\S]*?)```/);
+  if (fenceMatch) text = fenceMatch[1].trim();
+
   // Try direct JSON parse
   try {
-    const parsed = JSON.parse(raw);
+    const parsed = JSON.parse(text);
     if (parsed.headline && parsed.files) return parsed as GeneratedData;
   } catch { /* continue */ }
 
-  // Try extracting JSON between first { and last }
-  const firstBrace = raw.indexOf("{");
-  const lastBrace = raw.lastIndexOf("}");
-  if (firstBrace !== -1 && lastBrace > firstBrace) {
-    try {
-      const parsed = JSON.parse(raw.slice(firstBrace, lastBrace + 1));
-      if (parsed.headline && parsed.files) return parsed as GeneratedData;
-    } catch { /* continue */ }
+  // Extract largest JSON object (first { to matching })
+  const firstBrace = text.indexOf("{");
+  if (firstBrace !== -1) {
+    let depth = 0;
+    let end = -1;
+    for (let i = firstBrace; i < text.length; i++) {
+      if (text[i] === "{") depth++;
+      else if (text[i] === "}") {
+        depth--;
+        if (depth === 0) { end = i; break; }
+      }
+    }
+    if (end !== -1) {
+      try {
+        const parsed = JSON.parse(text.slice(firstBrace, end + 1));
+        if (parsed.headline || parsed.files) return parsed as GeneratedData;
+      } catch { /* continue */ }
+    }
   }
 
-  // Try to find JSON in code block
-  const codeBlockMatch = raw.match(/```(?:json)?\s*\n?([\s\S]*?)```/);
-  if (codeBlockMatch) {
-    try {
-      const parsed = JSON.parse(codeBlockMatch[1].trim());
-      if (parsed.headline && parsed.files) return parsed as GeneratedData;
-    } catch { /* continue */ }
+  // Last resort: build GeneratedData from prose if it has enough content
+  if (text.length > 200) {
+    const lines = text.split("\n").filter(l => l.trim());
+    const firstLine = lines[0]?.replace(/^#+\s*/, "").slice(0, 80) || "Your AU Ecommerce Store";
+    return {
+      headline: firstLine,
+      subheadline: lines[1]?.slice(0, 150) || "Built for Australian shoppers",
+      features: lines.slice(2, 7).map(l => l.replace(/^[-*•]\s*/, "").slice(0, 100)).filter(Boolean),
+      cta_primary: "Shop Now",
+      cta_secondary: "Learn More",
+      trust_badges: ["Australian Owned", "Free AU Shipping", "Afterpay Available", "Secure Checkout"],
+      about_section: lines.slice(7, 10).join(" ").slice(0, 300) || "Quality products for Australian customers.",
+      email_subject: "Welcome to your new store!",
+      meta_description: firstLine.slice(0, 155),
+      files: {
+        "README.md": text,
+      },
+    } as GeneratedData;
   }
 
   return null;
@@ -476,37 +504,15 @@ Return ONLY valid JSON with the exact structure specified in your system prompt.
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: [{ role: "user", content: userMessage }],
+          toolName: "website-generator",
           systemPrompt: buildSystemPrompt(vibe, platform, accentColor),
         }),
       });
 
       if (!response.ok) throw new Error(`Generation failed: ${response.status}`);
 
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("No response stream");
-
-      let fullText = "";
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        // Parse SSE-like format: lines starting with 0:" contain text
-        for (const line of chunk.split("\n")) {
-          if (line.startsWith('0:"')) {
-            try {
-              const text = JSON.parse(line.slice(2));
-              fullText += text;
-            } catch { /* skip malformed chunks */ }
-          } else if (line.startsWith("0:")) {
-            try {
-              const text = JSON.parse(line.slice(2));
-              if (typeof text === "string") fullText += text;
-            } catch { /* skip */ }
-          }
-        }
-      }
+      const data = await response.json();
+      const fullText: string = data.reply || data.response || data.content || "";
 
       clearInterval(progressInterval);
       setGenProgress(100);
