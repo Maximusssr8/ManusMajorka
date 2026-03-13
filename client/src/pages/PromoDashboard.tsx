@@ -186,6 +186,7 @@ export default function PromoDashboard() {
   const [lastOrderSec, setLastOrderSec] = useState(0);
   const [now, setNow] = useState(Date.now());
   const [currentHourProgress, setCurrentHourProgress] = useState(0);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [hudDate, setHudDate] = useState(() => formatHUDDate(new Date()));
 
   const displayRevenue = useAnimatedNumber(revenue, 800);
@@ -599,6 +600,102 @@ export default function PromoDashboard() {
           flex-direction: column;
           overflow: hidden;
           position: relative;
+          min-width: 0;
+        }
+
+        /* ── Mobile responsive ── */
+        @media (max-width: 768px) {
+          .sidebar {
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 200;
+            transform: translateX(-100%);
+            transition: transform 0.25s ease;
+            width: 240px;
+            min-width: 240px;
+          }
+          .sidebar.open {
+            transform: translateX(0);
+          }
+          .sidebar-overlay {
+            display: block;
+          }
+          .mobile-header {
+            display: flex;
+          }
+          .header {
+            display: none;
+          }
+          .stats-row {
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 12px;
+          }
+          .stat-value.gold { font-size: 28px; }
+          .stat-value.green { font-size: 26px; }
+          .stat-value { font-size: 26px; }
+          .stat-card { padding: 14px 14px; }
+          .bottom-panels { flex-direction: column; gap: 12px; padding: 0 12px 12px; }
+          .chart-section { padding: 12px; }
+          .revenue-chart-wrap { padding: 12px; }
+          .promo-scroll { padding: 0; }
+          .ticker { display: none; }
+        }
+
+        .sidebar-overlay {
+          display: none;
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.6);
+          z-index: 199;
+        }
+
+        .mobile-header {
+          display: none;
+          align-items: center;
+          justify-content: space-between;
+          padding: 14px 16px;
+          background: #0c0e14;
+          border-bottom: 1px solid rgba(212,175,55,0.1);
+          position: relative;
+          z-index: 10;
+        }
+
+        .mobile-logo {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .hamburger {
+          background: none;
+          border: 1px solid rgba(212,175,55,0.2);
+          border-radius: 7px;
+          width: 36px;
+          height: 36px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+          cursor: pointer;
+          padding: 0;
+        }
+
+        .hamburger span {
+          display: block;
+          width: 16px;
+          height: 1.5px;
+          background: #d4af37;
+          border-radius: 2px;
+        }
+
+        .mobile-store-live {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 11px;
+          color: rgba(255,255,255,0.6);
         }
 
         .main-content::before {
@@ -1277,9 +1374,29 @@ export default function PromoDashboard() {
           ))}
         </div>
 
+        {/* ── Mobile Header ── */}
+        <div className="mobile-header">
+          <button className="hamburger" onClick={() => setSidebarOpen(true)}>
+            <span /><span /><span />
+          </button>
+          <div className="mobile-logo">
+            <div className="logo-icon">M</div>
+            <span className="logo-name">majorka</span>
+          </div>
+          <div className="mobile-store-live">
+            <div className="pulse-dot-green" />
+            Live
+          </div>
+        </div>
+
         <div className="promo-body">
+          {/* ── Sidebar overlay ── */}
+          {sidebarOpen && (
+            <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
+          )}
+
           {/* ── Sidebar ── */}
-          <aside className="sidebar">
+          <aside className={`sidebar${sidebarOpen ? ' open' : ''}`}>
             <div className="sidebar-logo">
               <div className="sidebar-logo-mark">
                 <div className="logo-icon">M</div>
