@@ -70,11 +70,30 @@ type ColKey = "todo" | "inprogress" | "done";
 
 interface StoredState { [id: string]: ColKey }
 
-function loadState(): StoredState {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch { return {}; }
+function getStorageKey(userId?: string | null) {
+  return userId ? `majorka_kanban_${userId}` : STORAGE_KEY;
 }
-function saveState(s: StoredState) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+
+function loadState(userId?: string | null): StoredState {
+  // Try user-specific key first, then fall back to legacy key
+  try {
+    const key = getStorageKey(userId);
+    const stored = localStorage.getItem(key);
+    if (stored) return JSON.parse(stored);
+    // Migrate from legacy key if user-specific key is empty
+    if (userId) {
+      const legacy = localStorage.getItem(STORAGE_KEY);
+      if (legacy) {
+        const parsed = JSON.parse(legacy);
+        localStorage.setItem(key, legacy);
+        return parsed;
+      }
+    }
+  } catch { /* ignore */ }
+  return {};
+}
+function saveState(s: StoredState, userId?: string | null) {
+  localStorage.setItem(getStorageKey(userId), JSON.stringify(s));
 }
 
 function buildItems(stored: StoredState): ChecklistItem[] {
@@ -168,9 +187,13 @@ const COLUMNS: { key: ColKey; label: string; color: string }[] = [
   { key: "done",       label: "Done ✓",       color: "#10b981" },
 ];
 
-export default function LaunchReadiness() {
+interface LaunchReadinessProps {
+  userId?: string | null;
+}
+
+export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
   const [, setLocation] = useLocation();
-  const [stored, setStored] = useState<StoredState>(loadState);
+  const [stored, setStored] = useState<StoredState>(() => loadState(userId));
   const [showConfetti, setShowConfetti] = useState(false);
 
   const items = buildItems(stored);
@@ -179,7 +202,7 @@ export default function LaunchReadiness() {
   const percent = Math.round((doneCount / total) * 100);
   const allDone = doneCount === total;
 
-  useEffect(() => { saveState(stored); }, [stored]);
+  useEffect(() => { saveState(stored, userId); }, [stored, userId]);
 
   // Fire confetti when all done
   useEffect(() => {
@@ -194,9 +217,18 @@ export default function LaunchReadiness() {
     setStored(prev => {
       const cur: ColKey = prev[id] ?? "todo";
       const next: ColKey = cur === "todo" ? "inprogress" : cur === "inprogress" ? "done" : "todo";
-      return { ...prev, [id]: next };
+      const newState = { ...prev, [id]: next };
+      // Save immediately on card move
+      saveState(newState, userId);
+      return newState;
     });
-  }, []);
+  }, [userId]);
+
+  const resetBoard = useCallback(() => {
+    const empty: StoredState = {};
+    setStored(empty);
+    saveState(empty, userId);
+  }, [userId]);
 
   return (
     <div
@@ -345,9 +377,34 @@ export default function LaunchReadiness() {
         })}
       </div>
 
-      <p style={{ fontSize: 10, color: "#3f3f46", marginTop: 12, textAlign: "center" }}>
-        Click any card to cycle it through the columns
-      </p>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12 }}>
+        <p style={{ fontSize: 10, color: "#3f3f46" }}>
+          Click any card to cycle it through the columns
+        </p>
+        <button
+          onClick={resetBoard}
+          style={{
+            fontSize: 10,
+            color: "#3f3f46",
+            background: "none",
+            border: "1px solid rgba(255,255,255,0.06)",
+            borderRadius: 6,
+            padding: "3px 8px",
+            cursor: "pointer",
+            transition: "color 150ms ease, border-color 150ms ease",
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLButtonElement).style.color = "#a1a1aa";
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.15)";
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLButtonElement).style.color = "#3f3f46";
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.06)";
+          }}
+        >
+          Reset board
+        </button>
+      </div>
     </div>
   );
 }

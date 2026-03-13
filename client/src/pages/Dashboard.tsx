@@ -13,13 +13,14 @@ import { useDocumentTitle } from "@/_core/hooks/useDocumentTitle";
 import {
   Search, MessageSquare, Package,
   BarChart2, Star, Zap, ArrowRight,
-  Clock, ArrowUpRight, Timer,
+  Clock, ArrowUpRight, Timer, BookOpen, Megaphone, Globe, ShoppingBag,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useActiveProduct } from "@/hooks/useActiveProduct";
 import { ProductImporter } from "@/components/ProductImporter";
 import { getActivityLog, getRelativeTime, type ActivityEntry } from "@/lib/activity";
 import LaunchReadiness from "@/components/LaunchReadiness";
+import { DashboardAISuggestion } from "@/components/DashboardAISuggestion";
 import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
 
@@ -152,6 +153,7 @@ function DashboardHome() {
   const productsQuery = trpc.products.list.useQuery(undefined, { enabled: isAuthenticated });
   const ordersQuery = trpc.storefront.getOrders.useQuery(undefined, { enabled: isAuthenticated });
   const subscriptionQuery = trpc.subscription.get.useQuery(undefined, { enabled: isAuthenticated });
+  const profileQuery = trpc.profile.get.useQuery(undefined, { enabled: isAuthenticated });
 
   const [toolsToday, setToolsToday] = useState(0);
   const [aiCount, setAiCount] = useState(0);
@@ -161,8 +163,28 @@ function DashboardHome() {
   const [hoveredTool, setHoveredTool] = useState<string | null>(null);
 
   useEffect(() => {
-    try { const r = localStorage.getItem("majorka_tools_today"); if (r) { const p = JSON.parse(r); setToolsToday(Array.isArray(p) ? p.length : 0); } } catch {}
-    try { const c = localStorage.getItem("majorka_ai_count"); if (c) setAiCount(Number(c) || 0); } catch {}
+    const today = new Date().toDateString();
+    // Primary: new daily-keyed counters; fallback: legacy keys
+    try {
+      const raw = localStorage.getItem(`majorka_tool_usage_${today}`);
+      if (raw !== null) {
+        setToolsToday(Number(raw) || 0);
+      } else {
+        // Fallback to legacy array key
+        const legacy = localStorage.getItem("majorka_tools_today");
+        if (legacy) { const p = JSON.parse(legacy); setToolsToday(Array.isArray(p) ? p.length : 0); }
+      }
+    } catch {}
+    try {
+      const raw = localStorage.getItem(`majorka_ai_requests_${today}`);
+      if (raw !== null) {
+        setAiCount(Number(raw) || 0);
+      } else {
+        // Fallback to legacy counter key
+        const legacy = localStorage.getItem("majorka_ai_count");
+        if (legacy) setAiCount(Number(legacy) || 0);
+      }
+    } catch {}
     setActivityLog(getActivityLog().slice(0, 6));
     setRecentToolIds(getRecentToolIds());
   }, []);
@@ -171,7 +193,8 @@ function DashboardHome() {
   const orders = ordersQuery.data ?? [];
   const orderCount = orders.length;
   const totalRevenue = orders.reduce((sum, o) => sum + parseFloat((o as any).amount ?? "0"), 0);
-  const revenuePotential = totalRevenue > 0 ? totalRevenue : productCount * 49;
+  // Never fake revenue — show real orders only, never productCount × 49
+  const revenuePotential = totalRevenue > 0 ? totalRevenue : 0;
   const rawDisplayName = user?.name?.trim() || session?.user?.user_metadata?.full_name || session?.user?.user_metadata?.name || session?.user?.email?.split("@")[0] || null;
   const firstName = rawDisplayName ? (rawDisplayName as string).split(" ")[0] : "there";
   const savedGoal = typeof window !== "undefined" ? localStorage.getItem("majorka_goal") : null;
@@ -219,7 +242,7 @@ function DashboardHome() {
         </div>
 
         <OnboardingChecklist />
-        <LaunchReadiness />
+        <LaunchReadiness userId={user?.id} />
 
         {/* KPI Stat Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
@@ -258,6 +281,50 @@ function DashboardHome() {
             iconColor="#10b981" iconBg="rgba(16,185,129,0.1)"
             sparkIdx={3}
           />
+        </div>
+
+        {/* Maya's Daily Recommendation */}
+        <DashboardAISuggestion
+          userProfile={{
+            niche: profileQuery.data?.targetNiche ?? undefined,
+            market: profileQuery.data?.country ?? "Australia",
+            experience: profileQuery.data?.experienceLevel ?? undefined,
+          }}
+        />
+
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#52525b", fontFamily: "Syne, sans-serif" }}>Quick Actions</div>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            {([
+              { label: "Find Products", path: "/app/product-discovery", icon: Search, color: "#10b981" },
+              { label: "Build Store", path: "/app/website-generator", icon: Globe, color: "#7c6af5" },
+              { label: "Create Ad", path: "/app/meta-ads", icon: Megaphone, color: "#f59e0b" },
+              { label: "Ask Maya", path: "/app/ai-chat", icon: MessageSquare, color: "#d4af37" },
+              { label: "Learn", path: "/app/learn", icon: BookOpen, color: "#3b82f6" },
+            ] as const).map(({ label, path, icon: Icon, color }) => (
+              <button
+                key={path}
+                onClick={() => setLocation(path)}
+                className="flex items-center gap-2.5 rounded-xl p-3 transition-all"
+                style={{ background: "#0c0c10", border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer" }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = `${color}40`;
+                  e.currentTarget.style.background = `${color}08`;
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)";
+                  e.currentTarget.style.background = "#0c0c10";
+                }}
+              >
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `${color}12` }}>
+                  <Icon size={13} style={{ color }} />
+                </div>
+                <span className="text-xs font-semibold" style={{ color: "#d1d5db", fontFamily: "Syne, sans-serif" }}>{label}</span>
+                <ArrowRight size={10} style={{ color: "#52525b", marginLeft: "auto" }} />
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Recommended Tools */}
