@@ -258,6 +258,36 @@ const SEED_CATEGORIES = [
   { category_name: 'Food & Beverage', total_products: 14, total_gmv_aud: 94000, revenue_growth_rate: 29.6, top_product_title: 'Mushroom Coffee Blend', avg_price_aud: 34.80, creator_count: 6, competition_level: 'low', trend: 'growing', au_opportunity_score: 86 },
 ];
 
+export async function createIntelligenceTables(): Promise<{ ok: boolean; message: string }> {
+  const dbUrl = process.env.DATABASE_URL;
+  const url = process.env.VITE_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!dbUrl) return { ok: false, message: 'No DATABASE_URL' };
+  let sql: ReturnType<typeof import('postgres')> | null = null;
+  try {
+    const postgres = (await import('postgres')).default;
+    sql = postgres(dbUrl, { ssl: 'require', max: 1, connect_timeout: 20 });
+    await sql`CREATE TABLE IF NOT EXISTS public.au_creators (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, username text NOT NULL, display_name text, avatar_url text, follower_count integer DEFAULT 0, gmv_30d_aud numeric DEFAULT 0, gmv_growth_rate numeric DEFAULT 0, items_sold_30d integer DEFAULT 0, avg_video_views integer DEFAULT 0, engagement_rate numeric DEFAULT 0, top_categories text[] DEFAULT '{}', commission_rate numeric DEFAULT 15, creator_conversion_ratio numeric DEFAULT 0, tiktok_url text, is_verified boolean DEFAULT false, location text DEFAULT 'Australia', revenue_sparkline jsonb DEFAULT '[]', scraped_at timestamptz DEFAULT now(), UNIQUE(username))`;
+    await sql`CREATE TABLE IF NOT EXISTS public.trending_videos (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, video_title text, creator_username text, product_name text, thumbnail_url text, tiktok_video_url text, views integer DEFAULT 0, likes integer DEFAULT 0, gmv_driven_aud numeric DEFAULT 0, items_sold_from_video integer DEFAULT 0, engagement_rate numeric DEFAULT 0, hook_type text, category text, published_at timestamptz, scraped_at timestamptz DEFAULT now())`;
+    await sql`CREATE TABLE IF NOT EXISTS public.category_rankings (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, category_name text NOT NULL UNIQUE, total_products integer DEFAULT 0, total_gmv_aud numeric DEFAULT 0, revenue_growth_rate numeric DEFAULT 0, top_product_title text, avg_price_aud numeric DEFAULT 0, creator_count integer DEFAULT 0, competition_level text DEFAULT 'medium', trend text DEFAULT 'growing', au_opportunity_score integer DEFAULT 75, updated_at timestamptz DEFAULT now())`;
+    await sql`CREATE TABLE IF NOT EXISTS public.competitor_watchlist (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE, query text NOT NULL, notes text, created_at timestamptz DEFAULT now(), UNIQUE(user_id, query))`;
+    for (const t of ['au_creators', 'trending_videos', 'category_rankings', 'competitor_watchlist']) {
+      await sql.unsafe(`ALTER TABLE public.${t} ENABLE ROW LEVEL SECURITY`);
+      try { await sql.unsafe(`CREATE POLICY "${t}_pub" ON public.${t} FOR SELECT USING (true)`); } catch {}
+      try { await sql.unsafe(`CREATE POLICY "${t}_svc" ON public.${t} FOR ALL TO service_role USING (true) WITH CHECK (true)`); } catch {}
+    }
+    try { await sql`CREATE POLICY "cw_own" ON public.competitor_watchlist USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id)`; } catch {}
+    console.log('[intel-migrate] ✅ Intelligence tables created');
+    if (url && key) await seedIntelligenceData();
+    return { ok: true, message: 'Intelligence tables created and seeded' };
+  } catch (e: any) {
+    console.warn('[intel-migrate] Error:', e.message?.slice(0, 200));
+    return { ok: false, message: e.message };
+  } finally {
+    if (sql) { try { await sql.end(); } catch {} }
+  }
+}
+
 async function seedIntelligenceData(): Promise<void> {
   const url = process.env.VITE_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;

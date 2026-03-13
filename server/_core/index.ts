@@ -107,6 +107,22 @@ async function startServer() {
     runWinningProductsMigration().catch(console.warn)
   );
 
+  // One-time intelligence tables migration endpoint
+  app.post('/api/internal/run-intel-migration', async (req, res) => {
+    const secret = req.headers['x-migration-secret'];
+    if (secret !== 'majorka-intel-2026') {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
+    try {
+      const { createIntelligenceTables } = await import('../lib/migrate-winning-products');
+      const result = await createIntelligenceTables();
+      res.json(result);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // Chat API with streaming and tool calling
   registerChatRoutes(app);
   // Product scraping API
