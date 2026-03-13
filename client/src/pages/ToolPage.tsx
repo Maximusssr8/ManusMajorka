@@ -48,6 +48,10 @@ const WinningProducts = lazy(() => import('./WinningProducts'));
 const ProfitCalculator = lazy(() => import('./ProfitCalculator'));
 const StoreSpy = lazy(() => import('./StoreSpy'));
 const SaturationChecker = lazy(() => import('./SaturationChecker'));
+const MarketDashboard = lazy(() => import('./MarketDashboard'));
+const CreatorIntelligence = lazy(() => import('./CreatorIntelligence'));
+const VideoIntelligence = lazy(() => import('./VideoIntelligence'));
+const CompetitorSpyPage = lazy(() => import('./CompetitorSpy'));
 
 // Map stage landing paths to their stage names
 const STAGE_PATHS: Record<string, string> = {
@@ -178,6 +182,10 @@ export default function ToolPage() {
   if (location === '/app/profit-calculator') return page(<ProfitCalculator />);
   if (location === '/app/store-spy') return page(<StoreSpy />);
   if (location === '/app/saturation-checker') return page(<SaturationChecker />);
+  if (location === '/app/market') return page(<MarketDashboard />);
+  if (location === '/app/creators') return page(<CreatorIntelligence />);
+  if (location === '/app/videos') return page(<VideoIntelligence />);
+  if (location === '/app/competitor-spy') return page(<CompetitorSpyPage />);
   if (location === '/app/tiktok') return page(<TikTokSlideshow />);
   if (location === '/app/store/setup') return page(<StoreSetup />);
   if (location === '/app/store/products') return page(<StoreProducts />);

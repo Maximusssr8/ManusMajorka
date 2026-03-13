@@ -6,6 +6,7 @@
 import {
   Activity,
   ArrowUpRight,
+  BarChart3,
   Brain,
   Calculator,
   ChevronDown,
@@ -21,12 +22,14 @@ import {
   Menu,
   MessageSquare,
   PenTool,
+  Play,
   Search,
   Settings,
   Shield,
   Store,
   TrendingUp,
   User,
+  Users,
   X,
   Zap,
 } from 'lucide-react';
@@ -98,6 +101,24 @@ const PHASE_SECTIONS: PhaseSection[] = [
         tooltip: "See what's selling right now across AU platforms and social media.",
       },
       {
+        label: 'Market',
+        path: '/app/market',
+        icon: BarChart3,
+        tooltip: 'AU market overview — trending categories, top creators, hot products.',
+      },
+      {
+        label: 'Creators',
+        path: '/app/creators',
+        icon: Users,
+        tooltip: 'Find AU TikTok creators to partner with for product promotions.',
+      },
+      {
+        label: 'Videos',
+        path: '/app/videos',
+        icon: Play,
+        tooltip: 'Top-performing AU product videos driving real sales.',
+      },
+      {
         label: 'Profit Check',
         path: '/app/profit-calculator',
         icon: Calculator,
@@ -156,6 +177,12 @@ const PHASE_SECTIONS: PhaseSection[] = [
         tooltip: 'Reverse-engineer competitor stores, ads, and pricing strategies.',
       },
       {
+        label: 'Competitor Spy',
+        path: '/app/competitor-spy',
+        icon: Eye,
+        tooltip: 'Research any TikTok Shop competitor — products, strategy, how to beat them.',
+      },
+      {
         label: 'Market Saturation',
         path: '/app/saturation-checker',
         icon: Activity,
@@ -167,8 +194,8 @@ const PHASE_SECTIONS: PhaseSection[] = [
 
 const MOBILE_TABS: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home, exact: true },
+  { label: 'Market', path: '/app/market', icon: BarChart3 },
   { label: 'Scout', path: '/app/product-discovery', icon: Search },
-  { label: 'Store', path: '/app/website-generator', icon: Globe },
   { label: 'Ads', path: '/app/meta-ads', icon: Megaphone },
   { label: 'AI Chat', path: '/app/ai-chat', icon: MessageSquare },
 ];

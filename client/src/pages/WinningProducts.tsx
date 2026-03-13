@@ -1,15 +1,10 @@
 /**
- * WinningProducts.tsx — KaloData-level AU market intelligence dashboard V2.
- * Hero stats · Score rings · Podium · Detail drawer · 7-day charts · Watchlist (localStorage)
+ * WinningProducts.tsx — V2. Revenue-first. Flat top-5 ranking. Supabase watchlist.
+ * No framer-motion, no SVG gauges, no localStorage, no CountUp.
  */
 
-import CountUp from 'react-countup';
-import { AnimatePresence, motion } from 'framer-motion';
 import {
-  Award,
   BarChart2,
-  BookmarkCheck,
-  BookmarkPlus,
   ChevronLeft,
   ChevronRight,
   ClipboardCopy,
@@ -40,8 +35,6 @@ import {
   Tooltip as RechartTooltip,
   XAxis,
   YAxis,
-  Area,
-  AreaChart,
 } from 'recharts';
 import { toast } from 'sonner';
 import { useAuth } from '@/_core/hooks/useAuth';
@@ -119,7 +112,6 @@ const COMPETITION_MAP: Record<Competition, { label: string; color: string }> = {
 };
 
 const PAGE_SIZE = 20;
-const WATCHLIST_KEY = 'majorka_watchlist_v2';
 
 // ── Seeded fallback products ──────────────────────────────────────────────────
 
@@ -168,15 +160,6 @@ function generateWeekData(base: number, id: string): { day: string; rev: number 
   }));
 }
 
-function generateMonthData(base: number, id: string): { day: number; rev: number }[] {
-  const seedNum = id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-  const rand = seededRand(seedNum);
-  return Array.from({ length: 30 }, (_, i) => ({
-    day: i + 1,
-    rev: Math.round(Math.max(0, base * (0.55 + rand() * 0.9))),
-  }));
-}
-
 function fmtAUD(n: number | null | undefined): string {
   if (n === null || n === undefined) return '—';
   return `$${n.toLocaleString('en-AU', { maximumFractionDigits: 0 })}`;
@@ -201,115 +184,28 @@ function getAdAngles(p: WinningProduct): string[] {
   ];
 }
 
-// ── Watchlist localStorage helpers ────────────────────────────────────────────
+// ── Score Badge ───────────────────────────────────────────────────────────────
 
-function loadWatchlistFromStorage(): WinningProduct[] {
-  try {
-    return JSON.parse(localStorage.getItem(WATCHLIST_KEY) ?? '[]') as WinningProduct[];
-  } catch {
-    return [];
-  }
-}
-
-function saveWatchlistToStorage(products: WinningProduct[]): void {
-  localStorage.setItem(WATCHLIST_KEY, JSON.stringify(products));
-}
-
-// ── SVG Score Ring ────────────────────────────────────────────────────────────
-
-function ScoreRing({ score, size = 56 }: { score: number; size?: number }) {
-  const r = size / 2 - 6;
-  const cx = size / 2;
-  const cy = size / 2;
-  const circ = 2 * Math.PI * r;
-  const dash = (score / 100) * circ;
+function ScoreBadge({ score }: { score: number }) {
   const color = scoreColor(score);
-
   return (
-    <div style={{ position: 'relative', width: size, height: size, flexShrink: 0 }}>
-      <svg
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
-        style={{ transform: 'rotate(-90deg)', display: 'block' }}
-      >
-        <circle
-          cx={cx}
-          cy={cy}
-          r={r}
-          fill="none"
-          stroke="rgba(255,255,255,0.06)"
-          strokeWidth={5}
-        />
-        <circle
-          cx={cx}
-          cy={cy}
-          r={r}
-          fill="none"
-          stroke={color}
-          strokeWidth={5}
-          strokeLinecap="round"
-          strokeDasharray={`${circ}`}
-          strokeDashoffset={`${circ - dash}`}
-          style={{ transition: 'stroke-dashoffset 0.8s ease' }}
-        />
-      </svg>
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontFamily: 'Syne, sans-serif',
-          fontSize: size > 50 ? 14 : 11,
-          fontWeight: 800,
-          color,
-        }}
-      >
-        {score}
-      </div>
-    </div>
-  );
-}
-
-// ── AU Relevance Bar ──────────────────────────────────────────────────────────
-
-function AURelevanceBar({ value }: { value: number }) {
-  return (
-    <div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          fontSize: 10,
-          color: C.muted,
-          marginBottom: 4,
-        }}
-      >
-        <span>🇦🇺 AU Relevance</span>
-        <span style={{ fontWeight: 700, color: C.gold }}>{value}%</span>
-      </div>
-      <div
-        style={{
-          height: 4,
-          background: 'rgba(255,255,255,0.07)',
-          borderRadius: 4,
-          overflow: 'hidden',
-        }}
-      >
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${value}%` }}
-          transition={{ duration: 0.9, ease: 'easeOut', delay: 0.1 }}
-          style={{
-            height: '100%',
-            background: `linear-gradient(90deg, ${C.gold}, #e5c24a)`,
-            borderRadius: 4,
-          }}
-        />
-      </div>
-    </div>
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        padding: '3px 8px',
+        borderRadius: 8,
+        fontSize: 11,
+        fontWeight: 700,
+        color,
+        background: `${color}15`,
+        border: `1px solid ${color}35`,
+        whiteSpace: 'nowrap',
+        fontFamily: 'Syne, sans-serif',
+      }}
+    >
+      Score {score}
+    </span>
   );
 }
 
@@ -370,21 +266,23 @@ function CompetitionDot({ level }: { level: Competition | null }) {
   );
 }
 
-// ── Hero Stats Bar ────────────────────────────────────────────────────────────
+// ── Hero Stats Bar (static — no CountUp, no framer-motion) ───────────────────
 
-interface HeroStat {
-  label: string;
-  value: number;
-  prefix?: string;
-  suffix?: string;
-  decimals?: number;
-  icon: React.ReactNode;
-}
-
-function HeroStatsBar({ products, total }: { products: WinningProduct[]; total: number }) {
-  const avgScore = useMemo(() => {
-    if (!products.length) return 0;
-    return Math.round(products.reduce((a, p) => a + p.winning_score, 0) / products.length);
+function HeroStatsBar({
+  products,
+  total,
+  lastUpdatedISO,
+}: {
+  products: WinningProduct[];
+  total: number;
+  lastUpdatedISO: string | null;
+}) {
+  const avgRev = useMemo(() => {
+    const withRev = products.filter((p) => p.est_daily_revenue_aud != null);
+    if (!withRev.length) return 0;
+    return Math.round(
+      withRev.reduce((a, p) => a + (p.est_daily_revenue_aud ?? 0), 0) / withRev.length,
+    );
   }, [products]);
 
   const explodingCount = useMemo(
@@ -392,19 +290,32 @@ function HeroStatsBar({ products, total }: { products: WinningProduct[]; total: 
     [products],
   );
 
-  const avgAU = useMemo(() => {
-    if (!products.length) return 0;
-    return Math.round(products.reduce((a, p) => a + p.au_relevance, 0) / products.length);
-  }, [products]);
-
-  const stats: HeroStat[] = [
-    { label: 'Products Tracked', value: total || products.length, icon: <BarChart2 size={16} />, suffix: '' },
-    { label: 'Avg Winning Score', value: avgScore, icon: <Flame size={16} />, suffix: '/100' },
-    { label: 'Exploding Trends', value: explodingCount, icon: <Zap size={16} />, suffix: '' },
-    { label: 'AU Relevance Avg', value: avgAU, icon: <TrendingUp size={16} />, suffix: '%' },
+  const stats = [
+    {
+      label: 'Total Products',
+      value: String(total || products.length),
+      icon: <BarChart2 size={16} />,
+      highlight: true,
+    },
+    {
+      label: 'Avg Daily Revenue',
+      value: `$${avgRev.toLocaleString('en-AU')}/day`,
+      icon: <TrendingUp size={16} />,
+      highlight: false,
+    },
+    {
+      label: 'Exploding Trends',
+      value: String(explodingCount),
+      icon: <Flame size={16} />,
+      highlight: false,
+    },
+    {
+      label: 'Last Updated',
+      value: fmtLastUpdated(lastUpdatedISO),
+      icon: <RefreshCw size={16} />,
+      highlight: false,
+    },
   ];
-
-  const maxValue = Math.max(...stats.map((s) => s.value));
 
   return (
     <div
@@ -415,86 +326,73 @@ function HeroStatsBar({ products, total }: { products: WinningProduct[]; total: 
         marginBottom: 28,
       }}
     >
-      {stats.map((s, i) => {
-        const isHighest = s.value === maxValue;
-        return (
-          <motion.div
-            key={s.label}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.08, duration: 0.4 }}
+      {stats.map((s) => (
+        <div
+          key={s.label}
+          style={{
+            background: s.highlight
+              ? 'linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.04) 100%)'
+              : C.glass,
+            border: `1px solid ${s.highlight ? C.goldBorder : C.border}`,
+            borderRadius: 16,
+            padding: '18px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8,
+          }}
+        >
+          <div
             style={{
-              background: isHighest
-                ? 'linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.04) 100%)'
-                : C.glass,
-              border: `1px solid ${isHighest ? C.goldBorder : C.border}`,
-              borderRadius: 16,
-              padding: '18px 20px',
               display: 'flex',
-              flexDirection: 'column',
-              gap: 8,
-              boxShadow: isHighest ? `0 0 24px rgba(212,175,55,0.12)` : 'none',
+              alignItems: 'center',
+              gap: 7,
+              color: s.highlight ? C.gold : C.sub,
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7, color: isHighest ? C.gold : C.sub }}>
-              {s.icon}
-              <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                {s.label}
-              </span>
-            </div>
-            <div
+            {s.icon}
+            <span
               style={{
-                fontFamily: 'Syne, sans-serif',
-                fontSize: 28,
-                fontWeight: 800,
-                color: isHighest ? C.gold : C.text,
-                lineHeight: 1,
+                fontSize: 11,
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
               }}
             >
-              <CountUp
-                end={s.value}
-                duration={1.4}
-                delay={i * 0.1}
-                separator=","
-              />
-              {s.suffix && (
-                <span style={{ fontSize: 14, fontWeight: 600, color: C.sub, marginLeft: 2 }}>
-                  {s.suffix}
-                </span>
-              )}
-            </div>
-          </motion.div>
-        );
-      })}
+              {s.label}
+            </span>
+          </div>
+          <div
+            style={{
+              fontFamily: 'Syne, sans-serif',
+              fontSize: 26,
+              fontWeight: 800,
+              color: s.highlight ? C.gold : C.text,
+              lineHeight: 1,
+            }}
+          >
+            {s.value}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
 
-// ── Top 3 Podium ──────────────────────────────────────────────────────────────
+// ── Top 5 Rankings (replaces Top3Podium) ─────────────────────────────────────
 
-const RANK_META = [
-  { crown: '👑', color: C.gold, height: 120, label: '#1' },
-  { crown: '🥈', color: C.silver, height: 90, label: '#2' },
-  { crown: '🥉', color: C.bronze, height: 70, label: '#3' },
-];
-
-function Top3Podium({
+function Top5Rankings({
   products,
   onSelect,
 }: {
   products: WinningProduct[];
   onSelect: (p: WinningProduct) => void;
 }) {
-  if (products.length < 1) return null;
-
-  // Podium order: 2nd, 1st, 3rd
-  const order = [products[1], products[0], products[2]].filter(Boolean);
-  const rankMap: Record<string, number> = {};
-  products.forEach((p, i) => (rankMap[p.id] = i));
+  const top5 = products.slice(0, 5);
+  if (top5.length === 0) return null;
 
   return (
     <div style={{ marginBottom: 32 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
         <Crown size={14} style={{ color: C.gold }} />
         <span
           style={{
@@ -506,163 +404,132 @@ function Top3Podium({
             letterSpacing: '0.06em',
           }}
         >
-          Top 3 Podium
+          Top Products Today
         </span>
-        <span style={{ fontSize: 11, color: C.muted }}>by winning score</span>
+        <span style={{ fontSize: 11, color: C.muted }}>by daily revenue</span>
       </div>
 
-      {/* Cards */}
       <div
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: 14,
+          background: C.glass,
+          border: `1px solid ${C.border}`,
+          borderRadius: 16,
+          overflow: 'hidden',
         }}
       >
-        {products.slice(0, 3).map((p, i) => {
-          const meta = RANK_META[i];
-          return (
-            <motion.div
-              key={p.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.12, duration: 0.45 }}
-              onClick={() => onSelect(p)}
+        {top5.map((p, i) => (
+          <div
+            key={p.id}
+            onClick={() => onSelect(p)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 14,
+              padding: '14px 18px',
+              cursor: 'pointer',
+              borderBottom: i < top5.length - 1 ? `1px solid ${C.border}` : 'none',
+              transition: 'background 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLDivElement).style.background = C.cardHover;
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLDivElement).style.background = 'transparent';
+            }}
+          >
+            {/* Rank */}
+            <span
               style={{
-                background:
-                  i === 0
-                    ? 'linear-gradient(135deg, rgba(212,175,55,0.14) 0%, rgba(212,175,55,0.04) 100%)'
-                    : C.glass,
-                border: `1px solid ${i === 0 ? C.goldBorder : C.glassBorder}`,
-                borderRadius: 18,
-                padding: '20px 20px 16px',
-                cursor: 'pointer',
-                position: 'relative',
-                overflow: 'hidden',
-                transition: 'box-shadow 0.2s',
+                fontFamily: 'Syne, sans-serif',
+                fontSize: 13,
+                fontWeight: 800,
+                color: i === 0 ? C.gold : C.muted,
+                width: 26,
+                flexShrink: 0,
               }}
-              whileHover={{ boxShadow: `0 0 28px ${meta.color}22` }}
             >
-              {/* Rank badge */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 14,
-                  right: 14,
-                  fontSize: 24,
-                  userSelect: 'none',
-                }}
-              >
-                {meta.crown}
-              </div>
+              #{i + 1}
+            </span>
 
-              {/* Podium bar visualization */}
-              <div
+            {/* Image */}
+            {p.image_url ? (
+              <img
+                src={p.image_url}
+                alt=""
                 style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  height: meta.height,
-                  background: `linear-gradient(to top, ${meta.color}08, transparent)`,
-                  pointerEvents: 'none',
+                  width: 40,
+                  height: 40,
+                  borderRadius: 8,
+                  objectFit: 'cover',
+                  flexShrink: 0,
+                }}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
-
-              {/* Rank label */}
+            ) : (
               <div
                 style={{
-                  display: 'inline-flex',
+                  width: 40,
+                  height: 40,
+                  borderRadius: 8,
+                  background: 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${C.border}`,
+                  flexShrink: 0,
+                  display: 'flex',
                   alignItems: 'center',
-                  gap: 5,
-                  padding: '3px 10px',
-                  borderRadius: 20,
-                  fontSize: 11,
-                  fontWeight: 800,
-                  color: meta.color,
-                  background: `${meta.color}18`,
-                  border: `1px solid ${meta.color}35`,
-                  marginBottom: 12,
-                  letterSpacing: '0.04em',
-                  fontFamily: 'Syne, sans-serif',
+                  justifyContent: 'center',
                 }}
               >
-                {meta.label}
+                <BarChart2 size={14} style={{ color: C.muted }} />
               </div>
+            )}
 
-              {/* Image */}
-              {p.image_url && (
-                <img
-                  src={p.image_url}
-                  alt={p.product_title}
-                  style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: 12,
-                    objectFit: 'cover',
-                    marginBottom: 12,
-                    display: 'block',
-                  }}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              )}
-
-              {/* Title */}
+            {/* Title */}
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div
                 style={{
                   fontFamily: 'Syne, sans-serif',
-                  fontSize: 15,
-                  fontWeight: 800,
+                  fontSize: 14,
+                  fontWeight: 700,
                   color: C.text,
-                  lineHeight: 1.25,
-                  marginBottom: 10,
-                  paddingRight: 32,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
                 }}
               >
                 {p.product_title}
               </div>
+              {p.category && (
+                <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{p.category}</div>
+              )}
+            </div>
 
-              {/* Stats row */}
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
-                <ScoreRing score={p.winning_score} size={44} />
-                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 4 }}>
-                  <TrendBadge trend={p.trend} />
-                  <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>
-                    {fmtAUD(p.est_daily_revenue_aud)}/day
-                  </span>
-                </div>
-              </div>
+            {/* Revenue */}
+            <div
+              style={{
+                fontSize: 18,
+                fontWeight: 800,
+                color: C.gold,
+                fontFamily: 'Syne, sans-serif',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+              }}
+            >
+              {fmtAUD(p.est_daily_revenue_aud)}/day
+            </div>
 
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelect(p);
-                }}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6,
-                  padding: '9px 12px',
-                  borderRadius: 10,
-                  background: i === 0 ? C.gold : C.glass,
-                  border: `1px solid ${i === 0 ? C.gold : C.border}`,
-                  color: i === 0 ? '#000' : C.gold,
-                  fontSize: 12,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  marginTop: 4,
-                }}
-              >
-                <Sparkles size={11} />
-                View Details
-              </button>
-            </motion.div>
-          );
-        })}
+            {/* Trend badge */}
+            <div style={{ flexShrink: 0 }}>
+              <TrendBadge trend={p.trend} />
+            </div>
+
+            {/* Score badge */}
+            <div style={{ flexShrink: 0 }}>
+              <ScoreBadge score={p.winning_score} />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -793,710 +660,725 @@ Be specific, opinionated, use AUD figures.`;
   const weeklyRev = product?.est_daily_revenue_aud ? product.est_daily_revenue_aud * 7 : null;
   const monthlyRev = product?.est_daily_revenue_aud ? product.est_daily_revenue_aud * 30 : null;
 
-  return (
-    <AnimatePresence>
-      {product && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(0,0,0,0.65)',
-              backdropFilter: 'blur(4px)',
-              zIndex: 998,
-            }}
-          />
+  if (!product) return null;
 
-          <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.65)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 998,
+        }}
+      />
+
+      {/* Drawer */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          width: 'min(480px, 100vw)',
+          background: '#0d1017',
+          borderLeft: `1px solid ${C.glassBorder}`,
+          zIndex: 999,
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Image header */}
+        {product.image_url && (
+          <div
             style={{
-              position: 'fixed',
-              top: 0,
-              right: 0,
-              bottom: 0,
-              width: 'min(480px, 100vw)',
-              background: '#0d1017',
-              borderLeft: `1px solid ${C.glassBorder}`,
-              zIndex: 999,
-              overflowY: 'auto',
-              display: 'flex',
-              flexDirection: 'column',
+              position: 'relative',
+              flexShrink: 0,
+              height: 200,
+              overflow: 'hidden',
             }}
           >
-            {/* Image header */}
-            {product.image_url && (
-              <div
-                style={{
-                  position: 'relative',
-                  flexShrink: 0,
-                  height: 200,
-                  overflow: 'hidden',
-                }}
-              >
-                <img
-                  src={product.image_url}
-                  alt={product.product_title}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-                <div
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: 'linear-gradient(to bottom, transparent 40%, #0d1017 100%)',
-                  }}
-                />
-                <button
-                  onClick={onClose}
-                  style={{
-                    position: 'absolute',
-                    top: 12,
-                    right: 12,
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
-                    background: 'rgba(0,0,0,0.6)',
-                    border: `1px solid ${C.glassBorder}`,
-                    color: C.text,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            )}
-
+            <img
+              src={product.image_url}
+              alt={product.product_title}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
             <div
               style={{
-                padding: 24,
-                flex: 1,
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(to bottom, transparent 40%, #0d1017 100%)',
+              }}
+            />
+            <button
+              onClick={onClose}
+              style={{
+                position: 'absolute',
+                top: 12,
+                right: 12,
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: 'rgba(0,0,0,0.6)',
+                border: `1px solid ${C.glassBorder}`,
+                color: C.text,
+                cursor: 'pointer',
                 display: 'flex',
-                flexDirection: 'column',
-                gap: 20,
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              {/* Close (no image) */}
-              {!product.image_url && (
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <X size={14} />
+            </button>
+          </div>
+        )}
+
+        <div
+          style={{
+            padding: 24,
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 20,
+          }}
+        >
+          {/* Close (no image) */}
+          {!product.image_url && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                onClick={onClose}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  background: C.glass,
+                  border: `1px solid ${C.glassBorder}`,
+                  color: C.text,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <X size={14} />
+              </button>
+            </div>
+          )}
+
+          {/* Title */}
+          <div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                marginBottom: 8,
+                flexWrap: 'wrap',
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: C.gold,
+                  background: C.goldBg,
+                  border: `1px solid ${C.goldBorder}`,
+                  padding: '3px 8px',
+                  borderRadius: 20,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {product.platform}
+              </span>
+              {product.category && (
+                <span
+                  style={{
+                    fontSize: 11,
+                    color: C.sub,
+                    background: C.glass,
+                    padding: '3px 8px',
+                    borderRadius: 20,
+                    border: `1px solid ${C.border}`,
+                  }}
+                >
+                  {product.category}
+                </span>
+              )}
+            </div>
+            <h2
+              style={{
+                fontFamily: 'Syne, sans-serif',
+                fontSize: 22,
+                fontWeight: 800,
+                color: C.text,
+                margin: 0,
+                lineHeight: 1.25,
+              }}
+            >
+              {product.product_title}
+            </h2>
+          </div>
+
+          {/* Metric row */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: 8,
+            }}
+          >
+            {(
+              [
+                { label: 'Score', value: product.winning_score },
+                { label: 'Rev/Day', value: fmtAUD(product.est_daily_revenue_aud) },
+                { label: 'Units/Day', value: product.units_per_day?.toFixed(0) ?? '—' },
+                { label: 'Price', value: fmtAUD(product.price_aud) },
+              ] as { label: string; value: React.ReactNode }[]
+            ).map(({ label, value }) => (
+              <div
+                key={label}
+                style={{
+                  background: C.glass,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: 12,
+                  padding: '12px 10px',
+                  textAlign: 'center',
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 10,
+                    color: C.muted,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    marginBottom: 4,
+                  }}
+                >
+                  {label}
+                </div>
+                <div
+                  style={{
+                    fontFamily: 'Syne, sans-serif',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: C.text,
+                  }}
+                >
+                  {label === 'Score' ? (
+                    <span style={{ color: scoreColor(product.winning_score) }}>
+                      {product.winning_score}
+                    </span>
+                  ) : (
+                    value
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Revenue projections */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 8,
+            }}
+          >
+            <div
+              style={{
+                background: 'rgba(34,197,94,0.07)',
+                border: '1px solid rgba(34,197,94,0.2)',
+                borderRadius: 12,
+                padding: '12px 14px',
+                textAlign: 'center',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 10,
+                  color: C.muted,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  marginBottom: 4,
+                }}
+              >
+                Weekly Proj.
+              </div>
+              <div
+                style={{
+                  fontFamily: 'Syne, sans-serif',
+                  fontSize: 18,
+                  fontWeight: 800,
+                  color: C.green,
+                }}
+              >
+                {fmtAUD(weeklyRev)}
+              </div>
+            </div>
+            <div
+              style={{
+                background: C.goldBg,
+                border: `1px solid ${C.goldBorder}`,
+                borderRadius: 12,
+                padding: '12px 14px',
+                textAlign: 'center',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 10,
+                  color: C.muted,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  marginBottom: 4,
+                }}
+              >
+                Monthly Proj.
+              </div>
+              <div
+                style={{
+                  fontFamily: 'Syne, sans-serif',
+                  fontSize: 18,
+                  fontWeight: 800,
+                  color: C.gold,
+                }}
+              >
+                {fmtAUD(monthlyRev)}
+              </div>
+            </div>
+          </div>
+
+          {/* 7-day trend chart */}
+          <div>
+            <div
+              style={{
+                fontSize: 11,
+                color: C.muted,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                marginBottom: 10,
+              }}
+            >
+              7-Day Revenue Trend (Est. AUD)
+            </div>
+            <div style={{ width: '100%', height: 130 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={weekData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="rgba(255,255,255,0.05)"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="day"
+                    tick={{ fontSize: 10, fill: C.muted }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 10, fill: C.muted }}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(v: number) => `$${v}`}
+                    width={44}
+                  />
+                  <RechartTooltip
+                    contentStyle={{
+                      background: '#0f1117',
+                      border: `1px solid ${C.goldBorder}`,
+                      borderRadius: 8,
+                      fontSize: 12,
+                    }}
+                    labelStyle={{ color: C.sub }}
+                    formatter={(v: number) => [`$${v} AUD`, 'Est. Rev']}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="rev"
+                    stroke={C.gold}
+                    strokeWidth={2}
+                    dot={{ fill: C.gold, r: 3, strokeWidth: 0 }}
+                    activeDot={{ r: 5, fill: C.gold }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Trend + Competition */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+            <TrendBadge trend={product.trend} />
+            <CompetitionDot level={product.competition_level} />
+            <span style={{ fontSize: 11, color: C.sub }}>
+              🇦🇺 AU Fit{' '}
+              <span
+                style={{
+                  fontWeight: 700,
+                  color:
+                    product.au_relevance >= 90
+                      ? C.green
+                      : product.au_relevance >= 70
+                        ? C.amber
+                        : C.sub,
+                }}
+              >
+                {product.au_relevance}%
+              </span>
+            </span>
+          </div>
+
+          {/* Why Winning */}
+          {product.why_winning && (
+            <div
+              style={{
+                background: C.goldBg,
+                border: `1px solid ${C.goldBorder}`,
+                borderRadius: 12,
+                padding: '12px 14px',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 10,
+                  color: C.gold,
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.06em',
+                  marginBottom: 6,
+                }}
+              >
+                Why It's Winning
+              </div>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 13,
+                  color: 'rgba(245,245,245,0.85)',
+                  lineHeight: 1.55,
+                }}
+              >
+                {product.why_winning}
+              </p>
+            </div>
+          )}
+
+          {/* 3 Ad Angles */}
+          <div>
+            <div
+              style={{
+                fontSize: 10,
+                color: C.muted,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                marginBottom: 10,
+              }}
+            >
+              Ad Angles (3 Variations)
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {adAngles.map((angle, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    background: 'rgba(34,197,94,0.05)',
+                    border: '1px solid rgba(34,197,94,0.18)',
+                    borderRadius: 12,
+                    padding: '10px 12px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 10,
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        fontSize: 10,
+                        color: C.green,
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        marginBottom: 4,
+                      }}
+                    >
+                      Angle {idx + 1}
+                    </div>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: 13,
+                        color: 'rgba(245,245,245,0.85)',
+                        lineHeight: 1.5,
+                        fontStyle: 'italic',
+                      }}
+                    >
+                      "{angle}"
+                    </p>
+                  </div>
                   <button
-                    onClick={onClose}
+                    onClick={() => copyAngle(angle, idx)}
+                    title="Copy ad angle"
                     style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: '50%',
-                      background: C.glass,
-                      border: `1px solid ${C.glassBorder}`,
-                      color: C.text,
+                      flexShrink: 0,
+                      width: 30,
+                      height: 30,
+                      borderRadius: 8,
+                      background: copiedIdx === idx ? 'rgba(34,197,94,0.2)' : C.glass,
+                      border: `1px solid ${copiedIdx === idx ? 'rgba(34,197,94,0.4)' : C.border}`,
+                      color: copiedIdx === idx ? C.green : C.sub,
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
                   >
-                    <X size={14} />
+                    <ClipboardCopy size={12} />
                   </button>
                 </div>
-              )}
+              ))}
+            </div>
+          </div>
 
-              {/* Title */}
-              <div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    marginBottom: 8,
-                    flexWrap: 'wrap',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      color: C.gold,
-                      background: C.goldBg,
-                      border: `1px solid ${C.goldBorder}`,
-                      padding: '3px 8px',
-                      borderRadius: 20,
-                      letterSpacing: '0.06em',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    {product.platform}
-                  </span>
-                  {product.category && (
-                    <span
-                      style={{
-                        fontSize: 11,
-                        color: C.sub,
-                        background: C.glass,
-                        padding: '3px 8px',
-                        borderRadius: 20,
-                        border: `1px solid ${C.border}`,
-                      }}
-                    >
-                      {product.category}
-                    </span>
-                  )}
-                </div>
-                <h2
+          {/* AI Analysis */}
+          <div
+            style={{
+              border: `1px solid ${C.glassBorder}`,
+              borderRadius: 14,
+              overflow: 'hidden',
+            }}
+          >
+            <button
+              onClick={analysisOpen ? undefined : () => void runAnalysis()}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '14px 16px',
+                background: analysisOpen ? C.glass : C.goldBg,
+                border: 'none',
+                cursor: analysing ? 'wait' : 'pointer',
+                color: C.text,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Sparkles size={14} style={{ color: C.gold }} />
+                <span
                   style={{
                     fontFamily: 'Syne, sans-serif',
-                    fontSize: 22,
-                    fontWeight: 800,
-                    color: C.text,
-                    margin: 0,
-                    lineHeight: 1.25,
+                    fontSize: 13,
+                    fontWeight: 700,
                   }}
                 >
-                  {product.product_title}
-                </h2>
-              </div>
-
-              {/* Metric row */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(4, 1fr)',
-                  gap: 8,
-                }}
-              >
-                {(
-                  [
-                    { label: 'Score', value: product.winning_score },
-                    { label: 'Rev/Day', value: fmtAUD(product.est_daily_revenue_aud) },
-                    { label: 'Units/Day', value: product.units_per_day?.toFixed(0) ?? '—' },
-                    { label: 'Price', value: fmtAUD(product.price_aud) },
-                  ] as { label: string; value: React.ReactNode }[]
-                ).map(({ label, value }) => (
-                  <div
-                    key={label}
+                  AI AU Analysis
+                </span>
+                {analysing && (
+                  <Loader2
+                    size={12}
                     style={{
-                      background: C.glass,
-                      border: `1px solid ${C.border}`,
-                      borderRadius: 12,
-                      padding: '12px 10px',
-                      textAlign: 'center',
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 10,
-                        color: C.muted,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.06em',
-                        marginBottom: 4,
-                      }}
-                    >
-                      {label}
-                    </div>
-                    <div
-                      style={{
-                        fontFamily: 'Syne, sans-serif',
-                        fontSize: 13,
-                        fontWeight: 700,
-                        color: C.text,
-                      }}
-                    >
-                      {label === 'Score' ? (
-                        <span style={{ color: scoreColor(product.winning_score) }}>
-                          {product.winning_score}
-                        </span>
-                      ) : (
-                        value
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Revenue projections */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: 8,
-                }}
-              >
-                <div
-                  style={{
-                    background: 'rgba(34,197,94,0.07)',
-                    border: '1px solid rgba(34,197,94,0.2)',
-                    borderRadius: 12,
-                    padding: '12px 14px',
-                    textAlign: 'center',
-                  }}
-                >
-                  <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
-                    Weekly Proj.
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: 'Syne, sans-serif',
-                      fontSize: 18,
-                      fontWeight: 800,
-                      color: C.green,
-                    }}
-                  >
-                    {fmtAUD(weeklyRev)}
-                  </div>
-                </div>
-                <div
-                  style={{
-                    background: C.goldBg,
-                    border: `1px solid ${C.goldBorder}`,
-                    borderRadius: 12,
-                    padding: '12px 14px',
-                    textAlign: 'center',
-                  }}
-                >
-                  <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
-                    Monthly Proj.
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: 'Syne, sans-serif',
-                      fontSize: 18,
-                      fontWeight: 800,
                       color: C.gold,
+                      animation: 'spin 1s linear infinite',
                     }}
-                  >
-                    {fmtAUD(monthlyRev)}
-                  </div>
-                </div>
+                  />
+                )}
               </div>
-
-              {/* 7-day trend chart */}
-              <div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: C.muted,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    marginBottom: 10,
-                  }}
-                >
-                  7-Day Revenue Trend (Est. AUD)
-                </div>
-                <div style={{ width: '100%', height: 130 }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={weekData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke="rgba(255,255,255,0.05)"
-                        vertical={false}
-                      />
-                      <XAxis
-                        dataKey="day"
-                        tick={{ fontSize: 10, fill: C.muted }}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <YAxis
-                        tick={{ fontSize: 10, fill: C.muted }}
-                        tickLine={false}
-                        axisLine={false}
-                        tickFormatter={(v: number) => `$${v}`}
-                        width={44}
-                      />
-                      <RechartTooltip
-                        contentStyle={{
-                          background: '#0f1117',
-                          border: `1px solid ${C.goldBorder}`,
-                          borderRadius: 8,
-                          fontSize: 12,
-                        }}
-                        labelStyle={{ color: C.sub }}
-                        formatter={(v: number) => [`$${v} AUD`, 'Est. Rev']}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="rev"
-                        stroke={C.gold}
-                        strokeWidth={2}
-                        dot={{ fill: C.gold, r: 3, strokeWidth: 0 }}
-                        activeDot={{ r: 5, fill: C.gold }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Trend + Competition + AU */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                <TrendBadge trend={product.trend} />
-                <CompetitionDot level={product.competition_level} />
-                <AURelevanceBar value={product.au_relevance} />
-              </div>
-
-              {/* Why Winning */}
-              {product.why_winning && (
-                <div
-                  style={{
-                    background: C.goldBg,
-                    border: `1px solid ${C.goldBorder}`,
-                    borderRadius: 12,
-                    padding: '12px 14px',
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 10,
-                      color: C.gold,
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.06em',
-                      marginBottom: 6,
-                    }}
-                  >
-                    Why It's Winning
-                  </div>
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: 13,
-                      color: 'rgba(245,245,245,0.85)',
-                      lineHeight: 1.55,
-                    }}
-                  >
-                    {product.why_winning}
-                  </p>
-                </div>
+              {!analysisOpen && (
+                <span style={{ fontSize: 11, color: C.gold, fontWeight: 600 }}>
+                  Run Analysis →
+                </span>
               )}
+            </button>
 
-              {/* 3 Ad Angles */}
-              <div>
-                <div
-                  style={{
-                    fontSize: 10,
-                    color: C.muted,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    marginBottom: 10,
-                  }}
-                >
-                  Ad Angles (3 Variations)
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {adAngles.map((angle, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        background: 'rgba(34,197,94,0.05)',
-                        border: '1px solid rgba(34,197,94,0.18)',
-                        borderRadius: 12,
-                        padding: '10px 12px',
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: 10,
-                      }}
-                    >
-                      <div style={{ flex: 1 }}>
-                        <div
-                          style={{
-                            fontSize: 10,
-                            color: C.green,
-                            fontWeight: 700,
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
-                            marginBottom: 4,
-                          }}
-                        >
-                          Angle {idx + 1}
-                        </div>
-                        <p
-                          style={{
-                            margin: 0,
-                            fontSize: 13,
-                            color: 'rgba(245,245,245,0.85)',
-                            lineHeight: 1.5,
-                            fontStyle: 'italic',
-                          }}
-                        >
-                          "{angle}"
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => copyAngle(angle, idx)}
-                        title="Copy ad angle"
-                        style={{
-                          flexShrink: 0,
-                          width: 30,
-                          height: 30,
-                          borderRadius: 8,
-                          background: copiedIdx === idx ? 'rgba(34,197,94,0.2)' : C.glass,
-                          border: `1px solid ${copiedIdx === idx ? 'rgba(34,197,94,0.4)' : C.border}`,
-                          color: copiedIdx === idx ? C.green : C.sub,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <ClipboardCopy size={12} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* AI Analysis */}
+            {analysisOpen && (
               <div
+                ref={analysisRef}
                 style={{
-                  border: `1px solid ${C.glassBorder}`,
-                  borderRadius: 14,
-                  overflow: 'hidden',
+                  maxHeight: 320,
+                  overflowY: 'auto',
+                  padding: '14px 16px',
+                  fontSize: 12,
+                  lineHeight: 1.7,
+                  color: 'rgba(245,245,245,0.85)',
+                  whiteSpace: 'pre-wrap',
+                  fontFamily: 'DM Sans, sans-serif',
                 }}
               >
-                <button
-                  onClick={analysisOpen ? undefined : runAnalysis}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '14px 16px',
-                    background: analysisOpen ? C.glass : C.goldBg,
-                    border: 'none',
-                    cursor: analysing ? 'wait' : 'pointer',
-                    color: C.text,
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Sparkles size={14} style={{ color: C.gold }} />
-                    <span
-                      style={{
-                        fontFamily: 'Syne, sans-serif',
-                        fontSize: 13,
-                        fontWeight: 700,
-                      }}
-                    >
-                      AI AU Analysis
-                    </span>
-                    {analysing && (
-                      <Loader2
-                        size={12}
-                        style={{
-                          color: C.gold,
-                          animation: 'spin 1s linear infinite',
-                        }}
-                      />
-                    )}
-                  </div>
-                  {!analysisOpen && (
-                    <span style={{ fontSize: 11, color: C.gold, fontWeight: 600 }}>
-                      Run Analysis →
-                    </span>
-                  )}
-                </button>
-
-                <AnimatePresence>
-                  {analysisOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <div
-                        ref={analysisRef}
-                        style={{
-                          maxHeight: 320,
-                          overflowY: 'auto',
-                          padding: '14px 16px',
-                          fontSize: 12,
-                          lineHeight: 1.7,
-                          color: 'rgba(245,245,245,0.85)',
-                          whiteSpace: 'pre-wrap',
-                          fontFamily: 'DM Sans, sans-serif',
-                        }}
-                      >
-                        {analysis || (analysing ? '' : 'Click "Run Analysis" to get AI insights.')}
-                        {analysing && (
-                          <span
-                            style={{
-                              display: 'inline-block',
-                              width: 8,
-                              height: 14,
-                              background: C.gold,
-                              marginLeft: 2,
-                              animation: 'blink 0.8s step-end infinite',
-                            }}
-                          />
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {analysis || (analysing ? '' : 'Click "Run Analysis" to get AI insights.')}
+                {analysing && (
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 8,
+                      height: 14,
+                      background: C.gold,
+                      marginLeft: 2,
+                      animation: 'blink 0.8s step-end infinite',
+                    }}
+                  />
+                )}
               </div>
+            )}
+          </div>
 
-              {/* Supplier links */}
-              <div>
-                <div
-                  style={{
-                    fontSize: 10,
-                    color: C.muted,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    marginBottom: 10,
-                  }}
-                >
-                  Find Suppliers
-                </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  {[
-                    {
-                      label: 'AliExpress',
-                      url: `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(product.product_title)}`,
-                      color: '#ff6a00',
-                    },
-                    {
-                      label: 'CJ Dropshipping',
-                      url: `https://cjdropshipping.com/search?q=${encodeURIComponent(product.product_title)}`,
-                      color: '#0ea5e9',
-                    },
-                  ].map(({ label, url, color }) => (
-                    <a
-                      key={label}
-                      href={url}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{
-                        flex: 1,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 6,
-                        padding: '10px 12px',
-                        borderRadius: 10,
-                        background: `${color}14`,
-                        border: `1px solid ${color}40`,
-                        color,
-                        fontSize: 12,
-                        fontWeight: 700,
-                        textDecoration: 'none',
-                      }}
-                    >
-                      <ExternalLink size={11} />
-                      {label}
-                    </a>
-                  ))}
-                </div>
-              </div>
-
-              {/* TikTok link */}
-              {product.tiktok_product_url && (
+          {/* Supplier links */}
+          <div>
+            <div
+              style={{
+                fontSize: 10,
+                color: C.muted,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                marginBottom: 10,
+              }}
+            >
+              Find Suppliers
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {[
+                {
+                  label: 'AliExpress',
+                  url: `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(product.product_title)}`,
+                  color: '#ff6a00',
+                },
+                {
+                  label: 'CJ Dropshipping',
+                  url: `https://cjdropshipping.com/search?q=${encodeURIComponent(product.product_title)}`,
+                  color: '#0ea5e9',
+                },
+              ].map(({ label, url, color }) => (
                 <a
-                  href={product.tiktok_product_url}
+                  key={label}
+                  href={url}
                   target="_blank"
                   rel="noreferrer"
                   style={{
+                    flex: 1,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: 8,
-                    padding: '10px 16px',
+                    gap: 6,
+                    padding: '10px 12px',
                     borderRadius: 10,
-                    background: 'rgba(255,0,80,0.08)',
-                    border: '1px solid rgba(255,0,80,0.25)',
-                    color: '#ff0050',
+                    background: `${color}14`,
+                    border: `1px solid ${color}40`,
+                    color,
                     fontSize: 12,
                     fontWeight: 700,
                     textDecoration: 'none',
                   }}
                 >
                   <ExternalLink size={11} />
-                  View on TikTok Shop
+                  {label}
                 </a>
-              )}
-
-              {/* Action buttons */}
-              <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-                <button
-                  onClick={() => onToggleWatchlist(product)}
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 7,
-                    padding: '12px 16px',
-                    borderRadius: 12,
-                    background: inWatchlist ? 'rgba(34,197,94,0.12)' : C.glass,
-                    border: `1px solid ${inWatchlist ? 'rgba(34,197,94,0.35)' : C.border}`,
-                    color: inWatchlist ? C.green : C.sub,
-                    fontSize: 13,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                  }}
-                >
-                  <Heart size={14} fill={inWatchlist ? C.green : 'none'} />
-                  {inWatchlist ? '♥ Saved' : 'Watchlist'}
-                </button>
-                <a
-                  href="/app/meta-ads"
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 7,
-                    padding: '12px 16px',
-                    borderRadius: 12,
-                    background: 'rgba(59,130,246,0.12)',
-                    border: '1px solid rgba(59,130,246,0.3)',
-                    color: '#60a5fa',
-                    fontSize: 13,
-                    fontWeight: 700,
-                    textDecoration: 'none',
-                  }}
-                >
-                  <Play size={14} />
-                  Run Ads
-                </a>
-                <button
-                  onClick={() => {
-                    localStorage.setItem('majorka_website_prefill', product.product_title);
-                    window.location.href = `/app/website-generator?product=${encodeURIComponent(product.product_title)}`;
-                  }}
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 7,
-                    padding: '12px 16px',
-                    borderRadius: 12,
-                    background: C.gold,
-                    border: 'none',
-                    color: '#000',
-                    fontSize: 13,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                  }}
-                >
-                  <Store size={14} />
-                  Build Store
-                </button>
-              </div>
+              ))}
             </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+          </div>
+
+          {/* TikTok link */}
+          {product.tiktok_product_url && (
+            <a
+              href={product.tiktok_product_url}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                padding: '10px 16px',
+                borderRadius: 10,
+                background: 'rgba(255,0,80,0.08)',
+                border: '1px solid rgba(255,0,80,0.25)',
+                color: '#ff0050',
+                fontSize: 12,
+                fontWeight: 700,
+                textDecoration: 'none',
+              }}
+            >
+              <ExternalLink size={11} />
+              View on TikTok Shop
+            </a>
+          )}
+
+          {/* Action buttons */}
+          <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+            <button
+              onClick={() => onToggleWatchlist(product)}
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 7,
+                padding: '12px 16px',
+                borderRadius: 12,
+                background: inWatchlist ? 'rgba(34,197,94,0.12)' : C.glass,
+                border: `1px solid ${inWatchlist ? 'rgba(34,197,94,0.35)' : C.border}`,
+                color: inWatchlist ? C.green : C.sub,
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              <Heart size={14} fill={inWatchlist ? C.green : 'none'} />
+              {inWatchlist ? '♥ Saved' : 'Watchlist'}
+            </button>
+            <a
+              href="/app/meta-ads"
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 7,
+                padding: '12px 16px',
+                borderRadius: 12,
+                background: 'rgba(59,130,246,0.12)',
+                border: '1px solid rgba(59,130,246,0.3)',
+                color: '#60a5fa',
+                fontSize: 13,
+                fontWeight: 700,
+                textDecoration: 'none',
+              }}
+            >
+              <Play size={14} />
+              Run Ads
+            </a>
+            <button
+              onClick={() => {
+                localStorage.setItem('majorka_website_prefill', product.product_title);
+                window.location.href = `/app/website-generator?product=${encodeURIComponent(product.product_title)}`;
+              }}
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 7,
+                padding: '12px 16px',
+                borderRadius: 12,
+                background: C.gold,
+                border: 'none',
+                color: '#000',
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              <Store size={14} />
+              Build Store
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -1531,6 +1413,8 @@ function ProductCard({
   onToggleWatchlist: (p: WinningProduct) => void;
   inWatchlist: boolean;
 }) {
+  const [hovered, setHovered] = useState(false);
+
   const rankMeta =
     rank === 1
       ? { color: C.gold, label: '#1' }
@@ -1541,25 +1425,22 @@ function ProductCard({
           : null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+    <div
       onClick={() => onSelect(product)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         background: C.glass,
         backdropFilter: 'blur(12px)',
-        border: `1px solid ${C.glassBorder}`,
+        border: `1px solid ${hovered ? C.goldBorder : C.glassBorder}`,
         borderRadius: 18,
         overflow: 'hidden',
         cursor: 'pointer',
         display: 'flex',
         flexDirection: 'column',
         transition: 'border-color 0.2s, box-shadow 0.2s',
+        boxShadow: hovered ? '0 0 24px rgba(212,175,55,0.08)' : 'none',
         position: 'relative',
-      }}
-      whileHover={{
-        borderColor: C.goldBorder,
-        boxShadow: `0 0 24px rgba(212,175,55,0.08)`,
       }}
     >
       {/* Image */}
@@ -1594,9 +1475,9 @@ function ProductCard({
           </div>
         )}
 
-        {/* Score ring overlay */}
+        {/* Score badge (top-left) */}
         <div style={{ position: 'absolute', top: 10, left: 10 }}>
-          <ScoreRing score={product.winning_score} size={48} />
+          <ScoreBadge score={product.winning_score} />
         </div>
 
         {/* Rank badge */}
@@ -1651,59 +1532,41 @@ function ProductCard({
             {product.product_title}
           </div>
           {product.price_aud != null && (
-            <div style={{ fontSize: 13, color: C.gold, fontWeight: 700 }}>
+            <div style={{ fontSize: 13, color: C.sub, fontWeight: 600 }}>
               {fmtAUD(product.price_aud)}
             </div>
           )}
         </div>
 
-        {/* Revenue + units */}
-        <div style={{ display: 'flex', gap: 8 }}>
+        {/* Revenue primary — large gold */}
+        <div
+          style={{
+            background: C.goldBg,
+            border: `1px solid ${C.goldBorder}`,
+            borderRadius: 10,
+            padding: '10px 12px',
+            textAlign: 'center',
+          }}
+        >
+          <div style={{ fontSize: 10, color: C.muted, marginBottom: 3 }}>Est. Daily Revenue</div>
           <div
             style={{
-              flex: 1,
-              background: 'rgba(34,197,94,0.06)',
-              border: '1px solid rgba(34,197,94,0.15)',
-              borderRadius: 10,
-              padding: '8px 10px',
-              textAlign: 'center',
+              fontFamily: 'Syne, sans-serif',
+              fontSize: 18,
+              fontWeight: 800,
+              color: C.gold,
             }}
           >
-            <div style={{ fontSize: 10, color: C.muted, marginBottom: 2 }}>Daily Rev</div>
-            <div
-              style={{
-                fontFamily: 'Syne, sans-serif',
-                fontSize: 14,
-                fontWeight: 800,
-                color: C.green,
-              }}
-            >
-              {fmtAUD(product.est_daily_revenue_aud)}
-            </div>
-          </div>
-          <div
-            style={{
-              flex: 1,
-              background: C.goldBg,
-              border: `1px solid ${C.goldBorder}`,
-              borderRadius: 10,
-              padding: '8px 10px',
-              textAlign: 'center',
-            }}
-          >
-            <div style={{ fontSize: 10, color: C.muted, marginBottom: 2 }}>Units/Day</div>
-            <div
-              style={{
-                fontFamily: 'Syne, sans-serif',
-                fontSize: 14,
-                fontWeight: 800,
-                color: C.gold,
-              }}
-            >
-              {product.units_per_day?.toFixed(0) ?? '—'}
-            </div>
+            {fmtAUD(product.est_daily_revenue_aud)}/day
           </div>
         </div>
+
+        {/* Units */}
+        {product.units_per_day != null && (
+          <div style={{ fontSize: 12, color: C.sub }}>
+            ~{product.units_per_day.toFixed(0)} units/day
+          </div>
+        )}
 
         {/* Competition */}
         <CompetitionDot level={product.competition_level} />
@@ -1726,8 +1589,23 @@ function ProductCard({
           </p>
         )}
 
-        {/* AU Relevance bar */}
-        <AURelevanceBar value={product.au_relevance} />
+        {/* AU relevance text */}
+        <div style={{ fontSize: 11, color: C.muted }}>
+          🇦🇺 AU Fit{' '}
+          <span
+            style={{
+              fontWeight: 700,
+              color:
+                product.au_relevance >= 90
+                  ? C.green
+                  : product.au_relevance >= 70
+                    ? C.amber
+                    : C.sub,
+            }}
+          >
+            {product.au_relevance}%
+          </span>
+        </div>
 
         {/* Action buttons */}
         <div
@@ -1773,7 +1651,7 @@ function ProductCard({
           </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -1881,11 +1759,8 @@ function TableView({
                   </tr>
                 ))
               : products.map((p, idx) => (
-                  <motion.tr
+                  <tr
                     key={p.id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.04 }}
                     onClick={() => onSelect(p)}
                     style={{
                       cursor: 'pointer',
@@ -1899,7 +1774,15 @@ function TableView({
                       (e.currentTarget as HTMLTableRowElement).style.background = 'transparent';
                     }}
                   >
-                    <td style={{ padding: '12px', fontSize: 12, color: C.muted, fontWeight: 700, width: 40 }}>
+                    <td
+                      style={{
+                        padding: '12px',
+                        fontSize: 12,
+                        color: C.muted,
+                        fontWeight: 700,
+                        width: 40,
+                      }}
+                    >
                       {(page - 1) * PAGE_SIZE + idx + 1}
                     </td>
                     <td style={{ padding: '12px' }}>
@@ -1957,7 +1840,7 @@ function TableView({
                             {p.product_title}
                           </div>
                           {p.price_aud != null && (
-                            <div style={{ fontSize: 11, color: C.gold, fontWeight: 600 }}>
+                            <div style={{ fontSize: 11, color: C.sub, fontWeight: 600 }}>
                               {fmtAUD(p.price_aud)}
                             </div>
                           )}
@@ -1965,9 +1848,7 @@ function TableView({
                       </div>
                     </td>
                     <td style={{ padding: '12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <ScoreRing score={p.winning_score} size={38} />
-                      </div>
+                      <ScoreBadge score={p.winning_score} />
                     </td>
                     <td
                       style={{
@@ -1975,11 +1856,11 @@ function TableView({
                         fontFamily: 'Syne, sans-serif',
                         fontSize: 13,
                         fontWeight: 700,
-                        color: C.green,
+                        color: C.gold,
                         whiteSpace: 'nowrap',
                       }}
                     >
-                      {fmtAUD(p.est_daily_revenue_aud)}
+                      {fmtAUD(p.est_daily_revenue_aud)}/day
                     </td>
                     <td
                       style={{
@@ -2056,7 +1937,7 @@ function TableView({
                         </button>
                       </div>
                     </td>
-                  </motion.tr>
+                  </tr>
                 ))}
           </tbody>
         </table>
@@ -2155,20 +2036,14 @@ function CardGrid({
         {loading
           ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
           : products.map((p, idx) => (
-              <motion.div
+              <ProductCard
                 key={p.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05, duration: 0.4 }}
-              >
-                <ProductCard
-                  product={p}
-                  rank={(pageOffset ?? (page - 1) * PAGE_SIZE) + idx + 1}
-                  onSelect={onSelect}
-                  onToggleWatchlist={onToggleWatchlist}
-                  inWatchlist={watchlistIds.has(p.id)}
-                />
-              </motion.div>
+                product={p}
+                rank={(pageOffset ?? (page - 1) * PAGE_SIZE) + idx + 1}
+                onSelect={onSelect}
+                onToggleWatchlist={onToggleWatchlist}
+                inWatchlist={watchlistIds.has(p.id)}
+              />
             ))}
       </div>
 
@@ -2234,6 +2109,7 @@ function CardGrid({
 export default function WinningProducts() {
   const { session } = useAuth();
   const token = session?.access_token;
+  const userId = session?.user?.id;
 
   // ── Tab ───────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<'all' | 'watchlist'>('all');
@@ -2255,23 +2131,52 @@ export default function WinningProducts() {
     'Tech',
     'Fashion',
   ]);
-  const [top3, setTop3] = useState<WinningProduct[]>(SEEDED_PRODUCTS.slice(0, 3));
+  const [topProducts, setTopProducts] = useState<WinningProduct[]>(SEEDED_PRODUCTS.slice(0, 5));
 
-  // ── Watchlist (localStorage) ──────────────────────────────────────────
-  const [watchlistProducts, setWatchlistProducts] = useState<WinningProduct[]>(() =>
-    loadWatchlistFromStorage(),
-  );
-  const watchlistIds = useMemo(
-    () => new Set(watchlistProducts.map((p) => p.id)),
-    [watchlistProducts],
-  );
+  // ── Watchlist (Supabase) ──────────────────────────────────────────────
+  const [watchlistIds, setWatchlistIds] = useState<Set<string>>(new Set());
+  const [watchlistProducts, setWatchlistProducts] = useState<WinningProduct[]>([]);
+
+  // Load watchlist IDs from Supabase on auth change
+  useEffect(() => {
+    if (!userId) {
+      setWatchlistIds(new Set());
+      setWatchlistProducts([]);
+      return;
+    }
+    void supabase
+      .from('user_watchlist')
+      .select('product_id')
+      .eq('user_id', userId)
+      .then(({ data }) => {
+        if (data) {
+          setWatchlistIds(new Set((data as { product_id: string }[]).map((r) => r.product_id)));
+        }
+      });
+  }, [userId]);
+
+  // Load full product objects for watchlist tab
+  useEffect(() => {
+    const ids = [...watchlistIds];
+    if (ids.length === 0) {
+      setWatchlistProducts([]);
+      return;
+    }
+    void supabase
+      .from('winning_products')
+      .select('*')
+      .in('id', ids)
+      .then(({ data }) => {
+        if (data) setWatchlistProducts(data as WinningProduct[]);
+      });
+  }, [watchlistIds]);
 
   // ── Filters ───────────────────────────────────────────────────────────
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [category, setCategory] = useState('All');
   const [trend, setTrend] = useState('All');
-  const [sort, setSort] = useState('Score');
+  const [sort, setSort] = useState('Revenue');
   const [page, setPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -2308,7 +2213,7 @@ export default function WinningProducts() {
       });
   }, []);
 
-  // ── Load meta (last updated, top 3) ──────────────────────────────────
+  // ── Load meta (last updated, top 5 by revenue) ────────────────────────
   const loadMeta = async () => {
     const { data: latestData } = await supabase
       .from('winning_products')
@@ -2322,10 +2227,10 @@ export default function WinningProducts() {
     const { data: topData } = await supabase
       .from('winning_products')
       .select('*')
-      .order('winning_score', { ascending: false })
-      .limit(3);
+      .order('est_daily_revenue_aud', { ascending: false })
+      .limit(5);
     if (topData && topData.length > 0) {
-      setTop3(topData as WinningProduct[]);
+      setTopProducts(topData as WinningProduct[]);
     }
   };
 
@@ -2337,16 +2242,20 @@ export default function WinningProducts() {
   useEffect(() => {
     const channel = supabase
       .channel('winning_products_live')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'winning_products' }, () => {
-        toast('🔥 New products just dropped!', {
-          action: { label: 'Refresh', onClick: () => void fetchProducts() },
-        });
-      })
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'winning_products' },
+        () => {
+          toast('🔥 New products just dropped!', {
+            action: { label: 'Refresh', onClick: () => void fetchProducts() },
+          });
+        },
+      )
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Fetch products ────────────────────────────────────────────────────
@@ -2372,6 +2281,8 @@ export default function WinningProducts() {
         case 'Most Sold':
           query = query.order('sold_count', { ascending: false });
           break;
+        default:
+          query = query.order('est_daily_revenue_aud', { ascending: false });
       }
 
       query = query.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
@@ -2379,9 +2290,12 @@ export default function WinningProducts() {
       const { data, error, count } = await query;
 
       if (error) {
-        // Table not ready — use seeded products
         const filtered = SEEDED_PRODUCTS.filter((p) => {
-          if (debouncedSearch && !p.product_title.toLowerCase().includes(debouncedSearch.toLowerCase())) return false;
+          if (
+            debouncedSearch &&
+            !p.product_title.toLowerCase().includes(debouncedSearch.toLowerCase())
+          )
+            return false;
           if (category !== 'All' && p.category !== category) return false;
           if (trend !== 'All' && p.trend !== trend.toLowerCase()) return false;
           return true;
@@ -2391,7 +2305,6 @@ export default function WinningProducts() {
       } else {
         const loaded = (data as WinningProduct[] | null) ?? [];
         if (loaded.length === 0 && !debouncedSearch && category === 'All' && trend === 'All') {
-          // DB empty — show seeded
           setProducts(SEEDED_PRODUCTS);
           setTotal(SEEDED_PRODUCTS.length);
         } else {
@@ -2413,23 +2326,36 @@ export default function WinningProducts() {
 
   useEffect(() => {
     if (activeTab === 'all') void fetchProducts();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch, category, trend, sort, page, activeTab]);
 
-  // ── Toggle watchlist (localStorage) ──────────────────────────────────
-  const toggleWatchlist = (p: WinningProduct) => {
-    setWatchlistProducts((prev) => {
-      let next: WinningProduct[];
-      if (prev.some((w) => w.id === p.id)) {
-        next = prev.filter((w) => w.id !== p.id);
-        toast('Removed from watchlist');
-      } else {
-        next = [...prev, p];
-        toast('❤️ Saved to watchlist!');
-      }
-      saveWatchlistToStorage(next);
-      return next;
-    });
+  // ── Toggle watchlist (Supabase) ───────────────────────────────────────
+  const toggleWatchlist = async (p: WinningProduct) => {
+    if (!userId) {
+      toast('Sign in to save products');
+      return;
+    }
+    if (watchlistIds.has(p.id)) {
+      await supabase
+        .from('user_watchlist')
+        .delete()
+        .eq('user_id', userId)
+        .eq('product_id', p.id);
+      setWatchlistIds((prev) => {
+        const next = new Set(prev);
+        next.delete(p.id);
+        return next;
+      });
+      setWatchlistProducts((prev) => prev.filter((w) => w.id !== p.id));
+      toast('Removed from watchlist');
+    } else {
+      await supabase
+        .from('user_watchlist')
+        .insert({ user_id: userId, product_id: p.id });
+      setWatchlistIds((prev) => new Set([...prev, p.id]));
+      setWatchlistProducts((prev) => [...prev, p]);
+      toast('❤️ Saved to watchlist!');
+    }
   };
 
   // ── Manual refresh ────────────────────────────────────────────────────
@@ -2464,16 +2390,9 @@ export default function WinningProducts() {
     }
   };
 
-  const activeFilters = [
-    debouncedSearch !== '',
-    category !== 'All',
-    trend !== 'All',
-  ].filter(Boolean).length;
-
-  const nextRefreshTime = useMemo(() => {
-    if (!lastUpdatedISO) return null;
-    return new Date(new Date(lastUpdatedISO).getTime() + 6 * 60 * 60 * 1000);
-  }, [lastUpdatedISO]);
+  const activeFilters = [debouncedSearch !== '', category !== 'All', trend !== 'All'].filter(
+    Boolean,
+  ).length;
 
   return (
     <div
@@ -2493,7 +2412,7 @@ export default function WinningProducts() {
 
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '36px 20px 80px' }}>
 
-        {/* ── Market Intelligence Header ──────────────────────────────── */}
+        {/* ── Header ──────────────────────────────────────────────────── */}
         <div style={{ marginBottom: 24 }}>
           <div
             style={{
@@ -2506,14 +2425,7 @@ export default function WinningProducts() {
             }}
           >
             <div>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  marginBottom: 6,
-                }}
-              >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
                 <h1
                   style={{
                     fontFamily: 'Syne, sans-serif',
@@ -2563,15 +2475,6 @@ export default function WinningProducts() {
               <p style={{ margin: 0, fontSize: 13, color: C.sub, lineHeight: 1.5 }}>
                 AU Market Snapshot —{' '}
                 <span style={{ color: C.text }}>Updated {fmtLastUpdated(lastUpdatedISO)}</span>
-                {nextRefreshTime && (
-                  <>
-                    {' · '}
-                    Next refresh ~{' '}
-                    <span style={{ color: C.gold, fontWeight: 600 }}>
-                      {fmtLastUpdated(nextRefreshTime.toISOString()).replace(' ago', '')} from now
-                    </span>
-                  </>
-                )}
               </p>
             </div>
 
@@ -2603,10 +2506,10 @@ export default function WinningProducts() {
           </div>
         </div>
 
-        {/* ── Hero Stats Bar ─────────────────────────────────────────────── */}
-        <HeroStatsBar products={products} total={total} />
+        {/* ── Hero Stats Bar ──────────────────────────────────────────── */}
+        <HeroStatsBar products={products} total={total} lastUpdatedISO={lastUpdatedISO} />
 
-        {/* ── Tabs ───────────────────────────────────────────────────────── */}
+        {/* ── Tabs ──────────────────────────────────────────────────────── */}
         <div
           style={{
             display: 'flex',
@@ -2666,12 +2569,12 @@ export default function WinningProducts() {
           ))}
         </div>
 
-        {/* ── Top 3 Podium (all tab) ─────────────────────────────────────── */}
-        {activeTab === 'all' && top3.length > 0 && (
-          <Top3Podium products={top3} onSelect={setSelectedProduct} />
+        {/* ── Top 5 Rankings (all tab) ───────────────────────────────────── */}
+        {activeTab === 'all' && topProducts.length > 0 && (
+          <Top5Rankings products={topProducts} onSelect={setSelectedProduct} />
         )}
 
-        {/* ── Filter Bar ─────────────────────────────────────────────────── */}
+        {/* ── Filter Bar ────────────────────────────────────────────────── */}
         {activeTab === 'all' && (
           <div style={{ marginBottom: 24 }}>
             <div
@@ -2786,110 +2689,98 @@ export default function WinningProducts() {
               </div>
             </div>
 
-            <AnimatePresence>
-              {filtersOpen && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.25 }}
-                  style={{ overflow: 'hidden' }}
-                >
-                  <div
+            {filtersOpen && (
+              <div
+                style={{
+                  background: C.glass,
+                  border: `1px solid ${C.glassBorder}`,
+                  borderRadius: 16,
+                  padding: '20px',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 20,
+                }}
+              >
+                {/* Category */}
+                <div style={{ flex: '1 1 200px' }}>
+                  <div style={filterLabelStyle}>Category</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {categories.map((c) => (
+                      <Chip key={c} active={category === c} onClick={() => setCategory(c)}>
+                        {c}
+                      </Chip>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Trend */}
+                <div style={{ flex: '1 1 160px' }}>
+                  <div style={filterLabelStyle}>Trend</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {(['All', 'Exploding', 'Growing', 'Stable'] as const).map((t) => {
+                      const meta =
+                        t !== 'All' ? TREND_MAP[t.toLowerCase() as Trend] : null;
+                      return (
+                        <Chip key={t} active={trend === t} onClick={() => setTrend(t)}>
+                          {meta ? `${meta.emoji} ${t}` : t}
+                        </Chip>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Sort */}
+                <div style={{ flex: '1 1 140px' }}>
+                  <div style={filterLabelStyle}>Sort by</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {['Revenue', 'Score', 'Newest', 'Most Sold'].map((s) => (
+                      <Chip key={s} active={sort === s} onClick={() => setSort(s)}>
+                        {s}
+                      </Chip>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Clear */}
+                {activeFilters > 0 && (
+                  <button
+                    onClick={() => {
+                      setCategory('All');
+                      setTrend('All');
+                      setSearch('');
+                      setSort('Revenue');
+                    }}
                     style={{
-                      background: C.glass,
-                      border: `1px solid ${C.glassBorder}`,
-                      borderRadius: 16,
-                      padding: '20px',
+                      alignSelf: 'flex-end',
                       display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: 20,
+                      alignItems: 'center',
+                      gap: 5,
+                      padding: '7px 12px',
+                      borderRadius: 10,
+                      background: 'rgba(239,68,68,0.08)',
+                      border: '1px solid rgba(239,68,68,0.2)',
+                      color: C.red,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: 'pointer',
                     }}
                   >
-                    {/* Category */}
-                    <div style={{ flex: '1 1 200px' }}>
-                      <div style={filterLabelStyle}>Category</div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                        {categories.map((c) => (
-                          <Chip key={c} active={category === c} onClick={() => setCategory(c)}>
-                            {c}
-                          </Chip>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Trend */}
-                    <div style={{ flex: '1 1 160px' }}>
-                      <div style={filterLabelStyle}>Trend</div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                        {(['All', 'Exploding', 'Growing', 'Stable'] as const).map((t) => {
-                          const meta =
-                            t !== 'All'
-                              ? TREND_MAP[t.toLowerCase() as Trend]
-                              : null;
-                          return (
-                            <Chip key={t} active={trend === t} onClick={() => setTrend(t)}>
-                              {meta ? `${meta.emoji} ${t}` : t}
-                            </Chip>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Sort */}
-                    <div style={{ flex: '1 1 140px' }}>
-                      <div style={filterLabelStyle}>Sort by</div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                        {['Score', 'Revenue', 'Newest', 'Most Sold'].map((s) => (
-                          <Chip key={s} active={sort === s} onClick={() => setSort(s)}>
-                            {s}
-                          </Chip>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Clear */}
-                    {activeFilters > 0 && (
-                      <button
-                        onClick={() => {
-                          setCategory('All');
-                          setTrend('All');
-                          setSearch('');
-                          setSort('Score');
-                        }}
-                        style={{
-                          alignSelf: 'flex-end',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 5,
-                          padding: '7px 12px',
-                          borderRadius: 10,
-                          background: 'rgba(239,68,68,0.08)',
-                          border: '1px solid rgba(239,68,68,0.2)',
-                          color: C.red,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <X size={11} /> Clear all
-                      </button>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                    <X size={11} /> Clear all
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         )}
 
         {/* ── All Products ───────────────────────────────────────────────── */}
-        {activeTab === 'all' && (
-          view === 'cards' ? (
+        {activeTab === 'all' &&
+          (view === 'cards' ? (
             <CardGrid
               products={products}
               loading={loading}
               onSelect={setSelectedProduct}
-              onToggleWatchlist={toggleWatchlist}
+              onToggleWatchlist={(p) => void toggleWatchlist(p)}
               watchlistIds={watchlistIds}
               page={page}
               setPage={setPage}
@@ -2900,21 +2791,18 @@ export default function WinningProducts() {
               products={products}
               loading={loading}
               onSelect={setSelectedProduct}
-              onToggleWatchlist={toggleWatchlist}
+              onToggleWatchlist={(p) => void toggleWatchlist(p)}
               watchlistIds={watchlistIds}
               page={page}
               setPage={setPage}
               total={total}
             />
-          )
-        )}
+          ))}
 
         {/* ── Watchlist ──────────────────────────────────────────────────── */}
-        {activeTab === 'watchlist' && (
-          watchlistProducts.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+        {activeTab === 'watchlist' &&
+          (watchlistProducts.length === 0 ? (
+            <div
               style={{
                 textAlign: 'center',
                 padding: '72px 24px',
@@ -2936,7 +2824,9 @@ export default function WinningProducts() {
                 No saved products yet
               </h3>
               <p style={{ fontSize: 13, color: C.sub, margin: '0 0 20px' }}>
-                Hit ❤️ on any product to save it to your watchlist
+                {userId
+                  ? 'Hit ❤️ on any product to save it to your watchlist'
+                  : 'Sign in to save products to your watchlist'}
               </p>
               <button
                 onClick={() => setActiveTab('all')}
@@ -2953,21 +2843,20 @@ export default function WinningProducts() {
               >
                 Browse Products
               </button>
-            </motion.div>
+            </div>
           ) : (
             <CardGrid
               products={watchlistProducts}
               loading={false}
               onSelect={setSelectedProduct}
-              onToggleWatchlist={toggleWatchlist}
+              onToggleWatchlist={(p) => void toggleWatchlist(p)}
               watchlistIds={watchlistIds}
               page={1}
               setPage={() => {}}
               total={watchlistProducts.length}
               pageOffset={0}
             />
-          )
-        )}
+          ))}
       </div>
 
       {/* ── Detail Drawer ─────────────────────────────────────────────────── */}
@@ -2975,7 +2864,7 @@ export default function WinningProducts() {
         product={selectedProduct}
         onClose={() => setSelectedProduct(null)}
         watchlistIds={watchlistIds}
-        onToggleWatchlist={toggleWatchlist}
+        onToggleWatchlist={(p) => void toggleWatchlist(p)}
         token={token}
       />
     </div>

@@ -516,6 +516,35 @@ For any competitor analysis request, output:
 Always reference AU-specific context: AusPost, Afterpay, AU pricing psychology, ACCC, AU seasonal calendar.`,
 };
 
+/** Fetch live market context from Supabase for Maya injection */
+async function fetchMayaMarketContext(): Promise<string> {
+  const url = process.env.VITE_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return '';
+  try {
+    const [prRes, catRes] = await Promise.all([
+      fetch(`${url}/rest/v1/winning_products?select=product_title,category,est_daily_revenue_aud,trend,winning_score&order=winning_score.desc&limit=5`, {
+        headers: { apikey: key, Authorization: `Bearer ${key}` },
+      }),
+      fetch(`${url}/rest/v1/category_rankings?select=category_name,total_gmv_aud,revenue_growth_rate,trend&order=revenue_growth_rate.desc&limit=3`, {
+        headers: { apikey: key, Authorization: `Bearer ${key}` },
+      }),
+    ]);
+    const products = prRes.ok ? (await prRes.json() as Array<{ product_title: string; category: string; est_daily_revenue_aud: number; trend: string; winning_score: number }>) : [];
+    const categories = catRes.ok ? (await catRes.json() as Array<{ category_name: string; total_gmv_aud: number; revenue_growth_rate: number; trend: string }>) : [];
+    if (!products.length && !categories.length) return '';
+    const productLines = products.map((p, i) =>
+      `  ${i + 1}. ${p.product_title} (${p.category}) — $${p.est_daily_revenue_aud}/day revenue, score ${p.winning_score}, trend: ${p.trend}`
+    ).join('\n');
+    const categoryLines = categories.map((c) =>
+      `  - ${c.category_name}: $${(c.total_gmv_aud / 1000).toFixed(0)}k GMV, +${c.revenue_growth_rate.toFixed(1)}% growth, ${c.trend}`
+    ).join('\n');
+    return `\n\nLIVE MAJORKA MARKET DATA (injected ${new Date().toLocaleDateString('en-AU')}):\n\nTop 5 winning products right now:\n${productLines}\n\nHottest categories:\n${categoryLines}\n\nWhen answering product/category questions, reference this real AU data. Give specific numbers, not generic advice.`;
+  } catch {
+    return '';
+  }
+}
+
 /** Maya system prompt for AI Chat — date-aware, tool-using, AU-first */
 function buildMayaPrompt(profileCtx: string, marketCtx: string): string {
   const today = new Date().toLocaleDateString('en-AU', {
@@ -782,7 +811,8 @@ export function registerChatRoutes(app: Application) {
       }
 
       // ── Build system prompt ─────────────────────────────────────────────
-      const baseSystem = buildSystemPrompt(systemPrompt, profile, toolName, market) + webContext;
+      const mayaMarketCtx = (toolName === 'ai-chat' || !toolName) ? await fetchMayaMarketContext() : '';
+      const baseSystem = buildSystemPrompt(systemPrompt, profile, toolName, market) + webContext + mayaMarketCtx;
 
       // ── Inject mem0 persistent memories ────────────────────────────────
       const userQuery = messages[messages.length - 1]?.content || '';
