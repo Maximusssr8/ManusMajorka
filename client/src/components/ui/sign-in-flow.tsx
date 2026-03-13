@@ -124,7 +124,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
     const { data, error: err } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/app`,
+        redirectTo: `https://www.majorka.io/app`,
         skipBrowserRedirect: true,
         queryParams: { prompt: 'select_account' },
       },
