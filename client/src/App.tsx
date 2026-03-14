@@ -28,6 +28,7 @@ const Affiliate = lazy(() => import('./pages/Affiliate'));
 const KnowledgeBase = lazy(() => import('./pages/KnowledgeBase'));
 const LearnHub = lazy(() => import('./pages/LearnHub'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+const AdminSubscribers = lazy(() => import('./pages/AdminSubscribers'));
 const PromoDashboard = lazy(() => import('./pages/PromoDashboard'));
 
 function LoadingFallback() {
@@ -100,6 +101,13 @@ function Router() {
               {() => (
                 <ProtectedRoute>
                   <Affiliate />
+                </ProtectedRoute>
+              )}
+            </Route>
+            <Route path="/admin/subscribers">
+              {() => (
+                <ProtectedRoute>
+                  <AdminSubscribers />
                 </ProtectedRoute>
               )}
             </Route>
