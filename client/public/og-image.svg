@@ -20,7 +20,7 @@
   <text x="600" y="451" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="800" font-size="18" fill="#080a0e">Start Free Today</text>
 
   <!-- Bottom URL -->
-  <text x="600" y="560" text-anchor="middle" font-family="monospace" font-weight="400" font-size="16" fill="rgba(255,255,255,0.25)">majorka.ai</text>
+  <text x="600" y="560" text-anchor="middle" font-family="monospace" font-weight="400" font-size="16" fill="rgba(255,255,255,0.25)">majorka.io</text>
 
   <defs>
     <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">

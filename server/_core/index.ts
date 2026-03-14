@@ -76,10 +76,13 @@ async function startServer() {
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-  // ═══ Agent Log API (CORS for dashboard at localhost:5173) ═══
+  // ═══ Agent Log API ═══
+  const agentLogOrigin = process.env.NODE_ENV === 'production'
+    ? (process.env.VITE_APP_URL ?? 'https://www.majorka.io')
+    : 'http://localhost:5173';
   app.options('/api/agent-log', (_req, res) => {
     res.set({
-      'Access-Control-Allow-Origin': 'http://localhost:5173',
+      'Access-Control-Allow-Origin': agentLogOrigin,
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
     });
@@ -87,7 +90,7 @@ async function startServer() {
   });
 
   app.post('/api/agent-log', (req, res) => {
-    res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
+    res.set('Access-Control-Allow-Origin', agentLogOrigin);
     const { agent, message, status, timestamp } = req.body;
     if (!agent || !message) {
       return res.status(400).json({ error: 'agent and message are required' });
@@ -104,7 +107,7 @@ async function startServer() {
   });
 
   app.get('/api/agent-log', (_req, res) => {
-    res.set('Access-Control-Allow-Origin', 'http://localhost:5173');
+    res.set('Access-Control-Allow-Origin', agentLogOrigin);
     res.json(agentLog);
   });
 
@@ -168,36 +171,25 @@ async function startServer() {
   const preferredPort = parseInt(process.env.PORT || '3000');
   const port = await findAvailablePort(preferredPort);
 
-  if (port !== preferredPort) {
-    console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
-  }
-
   server.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}/`);
   });
 
   // ── Scheduled product refresh (every 6h at 0:00, 6:00, 12:00, 18:00 AEST) ──
   cron.schedule('0 0,6,12,18 * * *', async () => {
-    console.log('[Products] Starting scheduled refresh...');
     try {
       const result = await refreshWinningProducts();
-      console.log(`[Products] Scheduled refresh complete — ${result.count} products updated`);
     } catch (err: any) {
       console.error('[Products] Scheduled refresh failed:', err.message);
     }
   }, { timezone: 'Australia/Brisbane' });
-  console.log('[Products] Auto-refresh scheduled: 0:00, 6:00, 12:00, 18:00 AEST');
 
   // ── Scheduled trend detection (every 6h at 3:00, 9:00, 15:00, 21:00 AEST) ──
   cron.schedule('0 3,9,15,21 * * *', async () => {
-    console.log('[Trends] Starting scheduled trend detection...');
     const trends = await detectTrends().catch((err: Error) => {
       console.error('[Trends] Detection failed:', err.message);
       return null;
     });
-    if (trends) console.log(`[Trends] Refreshed ${trends.length} trend signals`);
   }, { timezone: 'Australia/Brisbane' });
-  console.log('[Trends] Detection scheduled: 3:00, 9:00, 15:00, 21:00 AEST');
 }
 
 startServer().catch(console.error);

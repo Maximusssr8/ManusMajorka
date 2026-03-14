@@ -395,9 +395,6 @@ bulletPoints: array of 3-6 key product features or selling points (array of stri
       rawText,
       url,
     });
-    console.log(
-      `[Scrape] Claude cleaning done | confidence=${cleaned.confidence} | title="${cleaned.product_title.slice(0, 50)}"`
-    );
   }
 
   // ── Pexels image fallback if no product images found ────────────────────

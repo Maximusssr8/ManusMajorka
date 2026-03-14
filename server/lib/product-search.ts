@@ -168,7 +168,6 @@ export async function productSearch(
     .maybeSingle();
 
   if (cached) {
-    console.log(`[product-search] Cache hit for: "${query}"`);
     // Log to user history if userId provided
     if (userId) {
       void sb.from('user_search_history').insert({

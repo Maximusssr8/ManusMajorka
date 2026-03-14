@@ -187,9 +187,7 @@ export async function refreshWinningProducts(): Promise<{ count: number; product
 
   // 1. Try Firecrawl first (real data)
   try {
-    console.log('[refresh] Attempting Firecrawl product scrape...');
     products = await fetchFirecrawlProducts();
-    console.log(`[refresh] Firecrawl returned ${products.length} products`);
   } catch (err: any) {
     console.warn('[refresh] Firecrawl failed:', err.message);
     products = [];
@@ -201,7 +199,6 @@ export async function refreshWinningProducts(): Promise<{ count: number; product
     source = 'tavily';
     try {
       products = await fetchTavilyProducts();
-      console.log(`[refresh] Tavily returned ${products.length} products`);
     } catch (err: any) {
       throw new Error(`Both Firecrawl and Tavily failed: ${err.message}`);
     }
@@ -210,7 +207,6 @@ export async function refreshWinningProducts(): Promise<{ count: number; product
   if (!products.length) throw new Error('No products from any source');
 
   // 3. Upsert to Supabase
-  console.log(`[refresh] Upserting ${products.length} products via ${source}...`);
   await upsertProducts(products);
 
   return {

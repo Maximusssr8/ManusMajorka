@@ -158,8 +158,7 @@ export function registerToolsApi(app: Application): void {
       const { refreshWinningProducts } = await import('./refresh-winning-products.js');
       // Run in background — don't block the response
       refreshWinningProducts()
-        .then((result) => {
-          console.log(`[products/refresh] ✅ ${result.count} products upserted`);
+        .then(() => {
         })
         .catch((err) => {
           console.error('[products/refresh] ❌ refresh error:', err.message);
@@ -194,8 +193,7 @@ export function registerToolsApi(app: Application): void {
     try {
       const { detectTrends } = await import('./trend-detection.js');
       detectTrends()
-        .then((trends) => {
-          console.log(`[trends/refresh] ✅ ${trends.length} trend signals refreshed`);
+        .then(() => {
         })
         .catch((err: Error) => {
           console.error('[trends/refresh] ❌ error:', err.message);

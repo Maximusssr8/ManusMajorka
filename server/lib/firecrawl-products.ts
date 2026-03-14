@@ -307,16 +307,10 @@ export async function fetchFirecrawlProducts(): Promise<WinningProduct[]> {
   if (!FIRECRAWL_KEY) throw new Error('Missing FIRECRAWL_API_KEY');
   if (!ANTHROPIC_KEY) throw new Error('Missing ANTHROPIC_API_KEY');
 
-  console.log(`[firecrawl] Scraping ${SOURCES.length} AU sources in parallel...`);
-
   // 1. Scrape all sources in parallel
   const scrapeResults = await Promise.allSettled(
     SOURCES.map(async (source) => {
       const content = await scrapeUrl(source.url);
-      const chars = content.length;
-      console.log(
-        `[firecrawl] ${source.label}: ${chars > 0 ? `${chars} chars` : 'BLOCKED/EMPTY'}`
-      );
       return { content, platform: source.platform, label: source.label };
     })
   );
@@ -332,9 +326,7 @@ export async function fetchFirecrawlProducts(): Promise<WinningProduct[]> {
       continue;
     }
 
-    console.log(`[firecrawl] Extracting products from ${label}...`);
     const products = await extractProductsFromContent(content, platform);
-    console.log(`[firecrawl] ${label}: extracted ${products.length} products`);
     allProducts.push(...products);
   }
 
@@ -375,6 +367,5 @@ export async function fetchFirecrawlProducts(): Promise<WinningProduct[]> {
     sold_count: 0,
   }));
 
-  console.log(`[firecrawl] Final: ${final.length} unique products ready for upsert`);
   return final;
 }

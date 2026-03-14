@@ -1,4 +1,3 @@
-console.log('[main] mounting React app');
 
 // ── Stale chunk reload fix ───────────────────────────────────────────────────
 // After a new deploy, old lazily-loaded JS chunks no longer exist (hash mismatch).
@@ -166,9 +165,6 @@ const trpcClient = trpc.createClient({
         const {
           data: { session },
         } = await supabase.auth.getSession();
-        console.log(
-          `[trpc] headers() | has session: ${!!session} | user: ${session?.user?.email ?? 'none'}`
-        );
         if (session?.access_token) {
           return { Authorization: `Bearer ${session.access_token}` };
         }
@@ -179,7 +175,6 @@ const trpcClient = trpc.createClient({
 });
 
 const rootEl = document.getElementById('root');
-console.log('[main] root element:', rootEl);
 try {
   createRoot(rootEl!).render(
     <ErrorBoundary>

@@ -33,8 +33,9 @@ import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 
 // Lazy-load heavy syntax highlighter to keep initial bundle small
-const SyntaxHighlighter = lazy(() =>
-  import('react-syntax-highlighter').then((m) => ({ default: m.Prism as any }))
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const SyntaxHighlighter = lazy<React.ComponentType<any>>(() =>
+  import('react-syntax-highlighter').then((m) => ({ default: m.Prism }))
 );
 // vscDarkPlus style — loaded lazily via dynamic import where used
 let _vscDarkPlus: any = null;
@@ -1750,7 +1751,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       </div>
                       {issues && issues.length > 0 && (
                         <ul className="ml-5 mt-1 space-y-0.5">
-                          {issues.map((issue, i) => (
+                          {issues.map((issue: string, i: number) => (
                             <li key={i} className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>• {issue}</li>
                           ))}
                         </ul>

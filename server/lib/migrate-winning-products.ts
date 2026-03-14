@@ -125,10 +125,6 @@ export async function runWinningProductsMigration(): Promise<void> {
     await sql`ALTER TABLE public.trend_signals ENABLE ROW LEVEL SECURITY`;
     try { await sql`CREATE POLICY "ts_public_read"   ON public.trend_signals FOR SELECT USING (true)`; } catch {}
     try { await sql`CREATE POLICY "ts_service_write" ON public.trend_signals FOR ALL TO service_role USING (true) WITH CHECK (true)`; } catch {}
-    console.log('[migrate] ✅ trend_signals table ready');
-
-    console.log('[migrate] ✅ winning_products + user_watchlist tables ready');
-
     // ── au_creators table ────────────────────────────────────────────────────
     await sql`
       CREATE TABLE IF NOT EXISTS public.au_creators (
@@ -254,7 +250,6 @@ export async function runWinningProductsMigration(): Promise<void> {
     try { await sql`CREATE POLICY "ush_public_read"   ON public.user_search_history FOR SELECT USING (true)`; } catch {}
     try { await sql`CREATE POLICY "ush_service_write" ON public.user_search_history FOR ALL TO service_role USING (true) WITH CHECK (true)`; } catch {}
 
-    console.log('[migrate] ✅ au_creators + trending_videos + category_rankings + search_cache + user_search_history tables ready');
     _migrationDone = true;
 
     // ── Seed if empty ────────────────────────────────────────────────────────
@@ -262,7 +257,6 @@ export async function runWinningProductsMigration(): Promise<void> {
     if (parseInt(count) === 0) {
       await seedViaRest();
     } else {
-      console.log(`[seed] Already has ${count} rows — skipping`);
     }
 
     // ── Seed intelligence tables if empty ───────────────────────────────────
@@ -270,11 +264,10 @@ export async function runWinningProductsMigration(): Promise<void> {
     if (parseInt(creatorCount) === 0) {
       await seedIntelligenceData();
     } else {
-      console.log(`[seed] au_creators already has ${creatorCount} rows — skipping`);
     }
   } catch (e: any) {
     if (e.message?.includes('already exists')) {
-      console.log('[migrate] Tables already exist');
+      console.warn('[migrate] Tables already exist');
       _migrationDone = true;
     } else {
       console.warn('[migrate] ⚠️ Migration skipped (DB unreachable):', e.message?.slice(0, 120));
@@ -346,10 +339,9 @@ async function connectWithFallbacks(dbUrl: string): Promise<ReturnType<typeof im
   try {
     const sql = postgres(dbUrl, { ssl: 'require', max: 1, connect_timeout: 10 });
     await sql`SELECT 1`;
-    console.log('[intel-migrate] Direct URL OK');
     return sql;
   } catch (e1: any) {
-    console.log('[intel-migrate] Direct URL failed:', e1.message?.slice(0, 60));
+    console.warn('[intel-migrate] Direct URL failed:', e1.message?.slice(0, 60));
   }
 
   // Strategy 2: Transform direct host → Supavisor pooler (for Vercel IPv4 environment)
@@ -362,10 +354,9 @@ async function connectWithFallbacks(dbUrl: string): Promise<ReturnType<typeof im
       try {
         const sql = postgres(poolerUrl, { ssl: 'require', max: 1, connect_timeout: 10 });
         await sql`SELECT 1`;
-        console.log(`[intel-migrate] Supavisor pooler OK (port ${port})`);
         return sql;
       } catch (e2: any) {
-        console.log(`[intel-migrate] Pooler port ${port} failed:`, e2.message?.slice(0, 60));
+        console.warn(`[intel-migrate] Pooler port ${port} failed:`, e2.message?.slice(0, 60));
       }
     }
 
@@ -375,7 +366,6 @@ async function connectWithFallbacks(dbUrl: string): Promise<ReturnType<typeof im
       try {
         const sql = postgres(poolerUrl, { ssl: 'require', max: 1, connect_timeout: 8 });
         await sql`SELECT 1`;
-        console.log(`[intel-migrate] Pooler ${region} OK`);
         return sql;
       } catch { /* continue */ }
     }
@@ -402,7 +392,6 @@ export async function createIntelligenceTables(): Promise<{ ok: boolean; message
       try { await sql.unsafe(`CREATE POLICY "${t}_svc" ON public.${t} FOR ALL TO service_role USING (true) WITH CHECK (true)`); } catch {}
     }
     try { await sql`CREATE POLICY "cw_own" ON public.competitor_watchlist USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id)`; } catch {}
-    console.log('[intel-migrate] ✅ Intelligence tables created');
     if (url && key) await seedIntelligenceData();
     return { ok: true, message: 'Intelligence tables created and seeded' };
   } catch (e: any) {
@@ -432,7 +421,6 @@ async function seedIntelligenceData(): Promise<void> {
   ]);
 
   if (cr.ok && tv.ok && cat.ok) {
-    console.log(`[seed] ✅ Seeded ${SEED_CREATORS.length} creators, ${SEED_VIDEOS.length} videos, ${SEED_CATEGORIES.length} categories`);
   } else {
     const errs = await Promise.all([cr.text(), tv.text(), cat.text()]);
     console.warn('[seed] ⚠️ Intelligence seed partial failure:', errs.map(e => e.slice(0, 100)).join(' | '));
@@ -452,7 +440,7 @@ export async function seedViaRest(): Promise<void> {
   });
   if (!check.ok) { console.warn('[seed] Cannot check table — maybe not created yet'); return; }
   const existing = await check.json() as unknown[];
-  if (existing.length > 0) { console.log('[seed] Table already seeded'); return; }
+  if (existing.length > 0) { return; }
 
   const res = await fetch(`${url}/rest/v1/winning_products`, {
     method: 'POST',
@@ -466,7 +454,6 @@ export async function seedViaRest(): Promise<void> {
   });
 
   if (res.ok) {
-    console.log(`[seed] ✅ Seeded ${SEED_PRODUCTS.length} AU winning products`);
   } else {
     const err = await res.text();
     console.warn('[seed] ⚠️ Seed failed:', err.slice(0, 200));

@@ -339,7 +339,8 @@ export default function AdminPanel() {
   const triggerN8nWorkflow = async (workflowId: string, label: string) => {
     try {
       const apiKey = (import.meta as any).env?.VITE_N8N_API_KEY || '';
-      await fetch(`http://localhost:5678/api/v1/workflows/${workflowId}/activate`, {
+      const n8nBase = (import.meta as any).env?.VITE_N8N_BASE_URL || 'http://localhost:5678';
+      await fetch(`${n8nBase}/api/v1/workflows/${workflowId}/activate`, {
         method: 'POST',
         headers: { 'X-N8N-API-KEY': apiKey },
       });

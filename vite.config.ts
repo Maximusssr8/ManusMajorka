@@ -35,7 +35,6 @@ export default defineConfig({
           "vendor-supabase": ["@supabase/supabase-js"],
           "vendor-query": ["@tanstack/react-query", "@trpc/react-query"],
           "vendor-charts": ["recharts"],
-          "vendor-syntax": ["react-syntax-highlighter"],
         },
       },
     },

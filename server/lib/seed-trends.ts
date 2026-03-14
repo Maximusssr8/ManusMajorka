@@ -64,11 +64,10 @@ async function createTable(): Promise<boolean> {
         try { await sql`ALTER TABLE public.trend_signals ENABLE ROW LEVEL SECURITY`; } catch {}
         try { await sql`CREATE POLICY ts_pub ON public.trend_signals FOR SELECT USING (true)`; } catch {}
         try { await sql`CREATE POLICY ts_svc ON public.trend_signals FOR ALL TO service_role USING (true) WITH CHECK (true)`; } catch {}
-        console.log('✅ Table created via postgres');
         await sql.end();
         return true;
       } catch (e: any) {
-        console.log('Postgres strategy failed:', e.message?.slice(0, 80));
+        console.warn('Postgres strategy failed:', e.message?.slice(0, 80));
         try { await sql.end(); } catch {}
       }
     }
@@ -90,7 +89,6 @@ async function seedTrends(trends: any[]): Promise<void> {
   });
   
   if (res.ok) {
-    console.log(`✅ Seeded ${trends.length} trend signals`);
   } else {
     const err = await res.text();
     console.error('Seed failed:', err.slice(0, 300));
@@ -98,8 +96,6 @@ async function seedTrends(trends: any[]): Promise<void> {
 }
 
 async function main() {
-  console.log('🔍 Running Tavily searches...');
-  
   const queries = [
     'viral products TikTok Australia trending this week 2025',
     'fastest growing niches ecommerce Australia 2025',
@@ -114,8 +110,6 @@ async function main() {
     if (r.status === 'fulfilled') return `=== ${queries[i]} ===\n${r.value}`;
     return `=== ${queries[i]} ===\n[failed]`;
   }).join('\n\n');
-  
-  console.log('🤖 Calling Claude Haiku...');
   
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -162,18 +156,16 @@ ${combined}`
   }
   
   const trends = JSON.parse(match[0]);
-  console.log(`Parsed ${trends.length} trends`);
-  
+
   // Create table
   const tableCreated = await createTable();
   if (!tableCreated) {
-    console.log('Could not create table via postgres — will try to insert anyway (table may exist)');
+    console.warn('Could not create table via postgres — will try to insert anyway (table may exist)');
   }
   
   // Seed
   await seedTrends(trends);
   
-  console.log('✅ Done!');
 }
 
 main().catch(console.error);

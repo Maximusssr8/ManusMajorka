@@ -39,7 +39,7 @@ export async function createCheckoutSession(opts: CreateCheckoutOptions): Promis
   if (!stripe) return null;
 
   const priceId = opts.priceId ?? process.env.STRIPE_PRO_PRICE_ID;
-  if (!priceId) throw new Error('STRIPE_PRO_PRICE_ID is not set');
+  if (!priceId) return null;
 
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
@@ -175,7 +175,7 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
         currentPeriodEnd: periodEnd,
       });
 
-      console.log(`[Stripe] Subscription activated for user ${userId}`);
+      console.info(`[Stripe] Subscription activated for user ${userId}`);
       break;
     }
 
@@ -197,7 +197,7 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
         status,
         currentPeriodEnd: periodEnd,
       });
-      console.log(`[Stripe] Subscription updated for user ${userId}: ${status}`);
+      console.info(`[Stripe] Subscription updated for user ${userId}: ${status}`);
       break;
     }
 
@@ -214,7 +214,7 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
         status: 'cancelled',
         currentPeriodEnd: periodEnd,
       });
-      console.log(`[Stripe] Subscription cancelled for user ${userId}`);
+      console.info(`[Stripe] Subscription cancelled for user ${userId}`);
       break;
     }
 
@@ -228,7 +228,6 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
     }
 
     default:
-      console.log(`[Stripe] Unhandled event type: ${event.type}`);
   }
 
   return true;

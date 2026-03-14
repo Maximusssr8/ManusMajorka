@@ -99,8 +99,6 @@ async function upsertTrends(trends: TrendSignal[]): Promise<void> {
   if (!res.ok) {
     const err = await res.text();
     console.warn('[trends] Upsert failed:', err.slice(0, 200));
-  } else {
-    console.log(`[trends] ✅ Upserted ${trends.length} trend signals`);
   }
 }
 
@@ -108,8 +106,6 @@ export async function detectTrends(): Promise<TrendSignal[]> {
   if (!TAVILY_KEY || !ANTHROPIC_KEY) {
     throw new Error('Missing TAVILY_API_KEY or ANTHROPIC_API_KEY');
   }
-
-  console.log('[trends] Running 6 parallel Tavily searches...');
 
   // Fire all searches in parallel
   const searchResults = await Promise.allSettled(
@@ -123,8 +119,6 @@ export async function detectTrends(): Promise<TrendSignal[]> {
       return `=== Query: ${SEARCH_QUERIES[i]} ===\n[No results]`;
     })
     .join('\n\n');
-
-  console.log('[trends] Sending to Claude Haiku for analysis...');
 
   const prompt = `Analyse these search results for emerging product/niche trends in Australia.
 Return JSON array of 10 trends:
@@ -165,8 +159,6 @@ ${combinedContent}`;
       t.signal_strength >= 6 &&
       ['emerging', 'rising', 'peak', 'declining'].includes(t.stage)
   );
-
-  console.log(`[trends] Parsed ${trends.length} valid trend signals`);
 
   // Upsert to Supabase
   await upsertTrends(trends);

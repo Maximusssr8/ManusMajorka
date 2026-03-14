@@ -17,7 +17,6 @@ export async function submitToIndexNow(urls: string[]): Promise<number> {
         urlList: urls,
       }),
     });
-    console.log(`[IndexNow] Submitted ${urls.length} URLs — status ${response.status}`);
     return response.status;
   } catch (err) {
     console.error('[IndexNow] Submission failed:', err);

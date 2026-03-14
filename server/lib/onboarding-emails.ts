@@ -212,7 +212,6 @@ export async function sendWelcomeEmail(email: string, name: string): Promise<voi
       subject: 'Welcome to Majorka — Your AU dropshipping edge starts now 🚀',
       html: welcomeEmail1(name),
     });
-    console.log(`[onboarding-emails] Welcome email sent to ${email}`);
   } catch (err: any) {
     console.error('[onboarding-emails] Failed to send welcome email:', err.message);
   }
@@ -231,7 +230,6 @@ export async function sendDay2Email(email: string, name: string): Promise<void> 
       subject: 'The #1 product Aussie dropshippers are missing right now 👀',
       html: welcomeEmail2(name),
     });
-    console.log(`[onboarding-emails] Day-2 email sent to ${email}`);
   } catch (err: any) {
     console.error('[onboarding-emails] Failed to send day-2 email:', err.message);
   }
@@ -250,7 +248,6 @@ export async function sendDay5Email(email: string, name: string): Promise<void> 
       subject: '3 stores making $10k+/month — what they have in common 📊',
       html: welcomeEmail3(name),
     });
-    console.log(`[onboarding-emails] Day-5 email sent to ${email}`);
   } catch (err: any) {
     console.error('[onboarding-emails] Failed to send day-5 email:', err.message);
   }
