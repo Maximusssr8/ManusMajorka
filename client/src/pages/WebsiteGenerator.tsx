@@ -145,7 +145,7 @@ const PREVIEW_TEMPLATE = `<!DOCTYPE html>
     .announcement { background: var(--primary); color: #fff; text-align: center; padding: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
     /* HERO */
     .hero { position: relative; min-height: 540px; display: flex; align-items: center; overflow: hidden; }
-    .hero-bg { position: absolute; inset: 0; background: url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&q=80') center/cover no-repeat; filter: brightness(0.45); }
+    .hero-bg { position: absolute; inset: 0; background: url('{heroBgImage}') center/cover no-repeat; filter: brightness(0.45); }
     .hero-content { position: relative; z-index: 1; padding: 60px 40px; max-width: 700px; }
     .hero-badge { display: inline-block; background: var(--primary); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
     .hero h1 { font-size: clamp(32px, 5vw, 56px); font-weight: 900; color: #fff; line-height: 1.08; margin-bottom: 16px; letter-spacing: -1px; }
@@ -221,6 +221,15 @@ const PREVIEW_TEMPLATE = `<!DOCTYPE html>
     .footer-links a { font-size: 13px; color: rgba(255,255,255,0.5); text-decoration: none; }
     .footer-links a:hover { color: #fff; }
     .footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); margin-top: 32px; padding-top: 20px; text-align: center; font-size: 12px; color: rgba(255,255,255,0.35); }
+    /* VARIANTS */
+    .variant-row { margin-bottom: 16px; }
+    .variant-label { font-size: 13px; font-weight: 600; color: #555; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .variant-options { display: flex; gap: 8px; flex-wrap: wrap; }
+    .variant-btn { padding: 8px 16px; border: 1.5px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.15s; }
+    .variant-btn.active { border-color: var(--primary); background: var(--primary); color: #fff; }
+    .variant-btn:hover:not(.active) { border-color: var(--primary); }
+    .size-guide-link { font-size: 11px; color: var(--primary); text-decoration: underline; cursor: pointer; background: none; border: none; font-weight: 600; padding: 0; }
+    #cartCount { background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; margin-left: 4px; vertical-align: middle; }
     /* RESPONSIVE */
     @media (max-width: 768px) {
       nav { padding: 12px 20px; }
@@ -247,7 +256,7 @@ const PREVIEW_TEMPLATE = `<!DOCTYPE html>
       <a href="#faq">FAQ</a>
       <a href="#contact">Contact</a>
     </div>
-    <button class="cart-btn" onclick="document.getElementById('cart-count').textContent='(' + cartCount + ')'">🛒 Cart (<span id="cart-count">0</span>)</button>
+    <button class="cart-btn" onclick="showCart()">🛒 Cart <span id="cartCount"></span></button>
   </nav>
 
   <!-- HERO -->
@@ -276,7 +285,7 @@ const PREVIEW_TEMPLATE = `<!DOCTYPE html>
   <div class="product-section" id="product">
     <div class="product-image">
       <div class="badge">SALE</div>
-      <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80" alt="{headline}" onerror="this.src='https://placehold.co/600x500/f3f4f6/94a3b8?text=Product+Image'" />
+      <img src="{productImage}" alt="{headline}" id="mainProductImg" onerror="this.src='https://placehold.co/600x500/f3f4f6/94a3b8?text=Product+Image'" />
     </div>
     <div class="product-info">
       <h1>{headline}</h1>
@@ -295,16 +304,18 @@ const PREVIEW_TEMPLATE = `<!DOCTYPE html>
           <div class="countdown-timer" id="countdown">02:14:33</div>
         </div>
       </div>
+      {SIZES_HTML}
+      {COLORS_HTML}
       <div class="qty-row">
         <span class="qty-label">Quantity:</span>
         <div class="qty-control">
-          <button class="qty-btn" onclick="updateQty(-1)">−</button>
-          <span class="qty-val" id="qty">1</span>
-          <button class="qty-btn" onclick="updateQty(1)">+</button>
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
+          <span class="qty-val" id="qtyVal">1</span>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
         </div>
       </div>
-      <button class="add-btn" id="cart-btn" onclick="addToCart()">Add to Cart — $89.99 AUD</button>
-      <button class="buy-btn">⚡ Buy Now with Afterpay</button>
+      <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+      <button class="buy-btn" onclick="buyNow()">Buy Now — Afterpay Available</button>
       <ul class="benefits-list">
         {BENEFITS_HTML}
       </ul>
@@ -355,39 +366,153 @@ const PREVIEW_TEMPLATE = `<!DOCTYPE html>
   </footer>
 
   <script>
-    let cartCount = 0;
-    let qty = 1;
+    // ── Cart State ────────────────────────────────────────────────────────────
+    var cart = JSON.parse(localStorage.getItem('maj_cart') || '[]');
+    var qty = 1;
+    var selectedSize = '';
+    var selectedColor = '';
+    var colorImages = {COLOR_VARIANT_MAP_JSON};
+    var sizeChartImg = '{sizeChartImage}';
 
-    function updateQty(delta) {
+    // ── Variant Selection ─────────────────────────────────────────────────────
+    function selectVariant(btn, type) {
+      document.querySelectorAll('.variant-btn[data-type="' + type + '"]').forEach(function(b) {
+        b.classList.remove('active');
+      });
+      btn.classList.add('active');
+      if (type === 'size') selectedSize = btn.textContent.trim();
+      if (type === 'color') {
+        selectedColor = btn.textContent.trim();
+        var img = colorImages[selectedColor];
+        if (img) {
+          var mainImg = document.getElementById('mainProductImg');
+          if (mainImg) mainImg.src = img;
+        }
+      }
+    }
+
+    // ── Quantity ──────────────────────────────────────────────────────────────
+    function changeQty(delta) {
       qty = Math.max(1, qty + delta);
-      document.getElementById('qty').textContent = qty;
+      var el = document.getElementById('qtyVal');
+      if (el) el.textContent = qty;
     }
 
+    // ── Add to Cart ───────────────────────────────────────────────────────────
     function addToCart() {
-      cartCount += qty;
-      document.getElementById('cart-count').textContent = cartCount;
-      const btn = document.getElementById('cart-btn');
-      btn.textContent = '✓ Added! Continue Shopping';
-      btn.style.opacity = '0.8';
-      setTimeout(() => {
-        btn.textContent = 'Add to Cart — $89.99 AUD';
-        btn.style.opacity = '1';
-      }, 2000);
+      var nameEl = document.querySelector('.product-info h1');
+      var priceEl = document.querySelector('.price-current');
+      var product = {
+        name: nameEl ? nameEl.textContent : 'Product',
+        price: priceEl ? parseFloat(priceEl.textContent.replace(/[^0-9.]/g, '')) || 0 : 0,
+        qty: qty,
+        size: selectedSize,
+        color: selectedColor,
+        id: Date.now()
+      };
+      cart.push(product);
+      try { localStorage.setItem('maj_cart', JSON.stringify(cart)); } catch(e) {}
+      updateCartCount();
+      var btn = document.querySelector('.add-btn');
+      if (btn) {
+        btn.textContent = '✓ Added to Cart!';
+        btn.style.background = '#16a34a';
+        setTimeout(function() { btn.textContent = 'Add to Cart'; btn.style.background = ''; }, 2000);
+      }
     }
 
-    // Countdown timer
-    let seconds = 2 * 3600 + 14 * 60 + 33;
-    setInterval(function() {
-      seconds--;
-      if (seconds < 0) seconds = 3600;
-      var h = Math.floor(seconds / 3600);
-      var m = Math.floor((seconds % 3600) / 60);
-      var s = seconds % 60;
-      var el = document.getElementById('countdown');
-      if (el) el.textContent = (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
-    }, 1000);
+    function buyNow() { addToCart(); showCart(); }
 
-    // FAQ accordion
+    // ── Cart Count ────────────────────────────────────────────────────────────
+    function updateCartCount() {
+      var total = cart.reduce(function(s, i) { return s + i.qty; }, 0);
+      var el = document.getElementById('cartCount');
+      if (el) el.textContent = total > 0 ? String(total) : '';
+    }
+
+    // ── Cart Modal ────────────────────────────────────────────────────────────
+    function showCart() {
+      var modal = document.getElementById('cartModal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'cartModal';
+        modal.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:flex-start;justify-content:flex-end;padding:0';
+        document.body.appendChild(modal);
+      }
+      var total = cart.reduce(function(s, i) { return s + (i.price * i.qty); }, 0).toFixed(2);
+      var itemsHtml = cart.length === 0
+        ? '<p style="color:#999;text-align:center;padding:40px 0">Your cart is empty</p>'
+        : cart.map(function(item, i) {
+            return '<div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f0f0f0">'
+              + '<div><div style="font-weight:600;font-size:14px">' + item.name + '</div>'
+              + (item.size ? '<div style="font-size:12px;color:#888">Size: ' + item.size + '</div>' : '')
+              + (item.color ? '<div style="font-size:12px;color:#888">Colour: ' + item.color + '</div>' : '')
+              + '<div style="font-size:12px;color:#888">Qty: ' + item.qty + '</div></div>'
+              + '<div style="font-weight:700">$' + (item.price * item.qty).toFixed(2) + '</div></div>';
+          }).join('');
+      modal.innerHTML = '<div style="background:rgba(0,0,0,0.5);position:fixed;inset:0;" onclick="closeCart()"></div>'
+        + '<div style="background:#fff;width:380px;height:100vh;overflow-y:auto;position:relative;z-index:1;padding:24px;box-shadow:-4px 0 24px rgba(0,0,0,0.15)">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">'
+        + '<h2 style="font-size:20px;font-weight:800">Your Cart (' + cart.length + ')</h2>'
+        + '<button onclick="closeCart()" style="background:none;border:none;font-size:24px;cursor:pointer">×</button></div>'
+        + itemsHtml
+        + (cart.length > 0
+          ? '<div style="margin-top:20px;padding-top:16px;border-top:2px solid #f0f0f0">'
+            + '<div style="display:flex;justify-content:space-between;font-size:18px;font-weight:800;margin-bottom:16px"><span>Total</span><span>$' + total + ' AUD</span></div>'
+            + '<button onclick="alert(\'Checkout coming soon! This is a demo store.\')" style="width:100%;background:var(--primary);color:#fff;border:none;padding:16px;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer">Checkout →</button>'
+            + '<button onclick="closeCart()" style="width:100%;background:transparent;border:1px solid #ddd;color:#555;padding:12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px">Continue Shopping</button>'
+            + '</div>'
+          : '')
+        + '</div>';
+    }
+
+    function closeCart() {
+      var modal = document.getElementById('cartModal');
+      if (modal) modal.remove();
+    }
+
+    // ── Size Guide Modal ──────────────────────────────────────────────────────
+    function showSizeGuide() {
+      if (!sizeChartImg || sizeChartImg === 'null' || sizeChartImg === '{sizeChartImage}') {
+        alert('Size Guide: XS≈6, S≈8-10, M≈12, L≈14, XL≈16 (approximate AU sizing)');
+        return;
+      }
+      var modal = document.createElement('div');
+      modal.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.8)';
+      modal.innerHTML = '<div style="max-width:600px;width:90%;background:#fff;border-radius:16px;padding:24px;position:relative">'
+        + '<button onclick="this.closest(\'[style*=fixed]\').remove()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:22px;cursor:pointer">×</button>'
+        + '<h3 style="font-size:18px;font-weight:800;margin-bottom:16px">Size Guide</h3>'
+        + '<img src="' + sizeChartImg + '" style="width:100%;border-radius:8px" onerror="this.parentElement.innerHTML=\'<p style=padding:20px>Size guide not available</p>\'" /></div>';
+      document.body.appendChild(modal);
+      modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
+    }
+
+    // ── Assign data-type to variant buttons on load ───────────────────────────
+    document.querySelectorAll('.variant-btn').forEach(function(btn) {
+      var row = btn.closest('.variant-row');
+      var label = row ? (row.querySelector('.variant-label') ? row.querySelector('.variant-label').textContent.toLowerCase() : '') : '';
+      btn.setAttribute('data-type', label.indexOf('size') !== -1 ? 'size' : 'color');
+    });
+    // Init default selections
+    var firstSize = document.querySelector('.variant-btn[data-type="size"]');
+    if (firstSize) selectedSize = firstSize.textContent.trim();
+    var firstColor = document.querySelector('.variant-btn[data-type="color"]');
+    if (firstColor) selectedColor = firstColor.textContent.trim();
+
+    // ── Countdown Timer ───────────────────────────────────────────────────────
+    (function() {
+      var s = 3600 * 4 + 1800;
+      var el = document.getElementById('countdown');
+      if (!el) return;
+      setInterval(function() {
+        if (s <= 0) return;
+        s--;
+        var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sc = s % 60;
+        el.textContent = h + ':' + (m<10?'0':'') + m + ':' + (sc<10?'0':'') + sc;
+      }, 1000);
+    })();
+
+    // ── FAQ Accordion ─────────────────────────────────────────────────────────
     document.querySelectorAll('.faq-q').forEach(function(q) {
       q.addEventListener('click', function() {
         var ans = q.nextElementSibling;
@@ -396,6 +521,17 @@ const PREVIEW_TEMPLATE = `<!DOCTYPE html>
         if (arrow) arrow.style.transform = ans && ans.classList.contains('open') ? 'rotate(45deg)' : '';
       });
     });
+
+    // ── Smooth Scroll ─────────────────────────────────────────────────────────
+    document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        var target = document.querySelector(a.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    updateCartCount();
   </script>
 </body>
 </html>`;
@@ -445,11 +581,84 @@ function parseStoreData(raw: string): GeneratedData | null {
   }
 }
 
+// ── Category hero images (fallback only when no product images) ───────────────
+const CATEGORY_HERO_IMAGES: Record<string, string> = {
+  fitness:    'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1400&q=80',
+  athletic:   'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1400&q=80',
+  streetwear: 'https://images.unsplash.com/photo-1523398002811-999ca8dec234?w=1400&q=80',
+  fashion:    'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1400&q=80',
+  health:     'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=1400&q=80',
+  beauty:     'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=1400&q=80',
+  pet:        'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=1400&q=80',
+  tech:       'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1400&q=80',
+  home:       'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1400&q=80',
+  outdoor:    'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1400&q=80',
+  baby:       'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=1400&q=80',
+};
+
+function pickCategoryFallbackImage(niche: string): string {
+  const n = niche.toLowerCase();
+  const map: [string[], string][] = [
+    [['gym', 'fit', 'sport', 'workout', 'athletic', 'train'], CATEGORY_HERO_IMAGES.fitness],
+    [['wear', 'cloth', 'street', 'fashion', 'apparel', 'garment'], CATEGORY_HERO_IMAGES.streetwear],
+    [['beauty', 'skin', 'hair', 'makeup', 'cosmetic'], CATEGORY_HERO_IMAGES.beauty],
+    [['health', 'supplement', 'vitamin', 'wellness'], CATEGORY_HERO_IMAGES.health],
+    [['pet', 'dog', 'cat', 'animal'], CATEGORY_HERO_IMAGES.pet],
+    [['tech', 'gadget', 'electronic', 'smart', 'device'], CATEGORY_HERO_IMAGES.tech],
+    [['home', 'kitchen', 'decor', 'furniture'], CATEGORY_HERO_IMAGES.home],
+    [['outdoor', 'camping', 'hiking', 'adventure'], CATEGORY_HERO_IMAGES.outdoor],
+    [['baby', 'kid', 'child', 'infant', 'toddler'], CATEGORY_HERO_IMAGES.baby],
+  ];
+  for (const [keywords, img] of map) {
+    if (keywords.some(k => n.includes(k))) return img;
+  }
+  return 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&q=80';
+}
+
 // ── Build Store Preview HTML ──────────────────────────────────────────────────
-function buildStorePreview(data: GeneratedData): string {
+function buildStorePreview(data: GeneratedData, productData?: Record<string, any>): string {
   const primaryColor = data.primaryColor || '#d4af37';
   const featureIcons = ['⚡', '🎯', '✨', '🛡️', '🚀', '💎'];
 
+  // ── Images: prefer real product photos over Unsplash ─────────────────────
+  const productImages: string[] = (productData?.product_images as string[]) || [];
+  const heroImageRaw: string = (productData?.hero_image as string) || productImages[0] || '';
+  const productImageSrc: string = productImages[0] || heroImageRaw || 'https://placehold.co/600x500/f3f4f6/94a3b8?text=Product+Image';
+  // Hero bg: use real product photo (2nd if available for variety) or fall back to category Unsplash
+  const heroBgImage: string = productImages[1] || heroImageRaw || pickCategoryFallbackImage(
+    (productData?.category as string) || (productData?.product_type as string) || data.heroImageKeyword || ''
+  );
+
+  // ── Sizes HTML ────────────────────────────────────────────────────────────
+  const sizes: string[] = (productData?.sizes as string[]) || [];
+  const sizeChartImage: string = (productData?.size_chart_image as string) || '';
+  const sizesHtml = sizes.length > 0 ? `
+  <div class="variant-row">
+    <span class="variant-label">Size: ${sizeChartImage ? '<button class="size-guide-link" onclick="showSizeGuide()">Size Guide</button>' : ''}</span>
+    <div class="variant-options">
+      ${sizes.map((s, i) => `<button class="variant-btn${i === 0 ? ' active' : ''}" data-type="size" onclick="selectVariant(this,'size')">${s}</button>`).join('')}
+    </div>
+  </div>` : '';
+
+  // ── Colors HTML ───────────────────────────────────────────────────────────
+  const colors: string[] = (productData?.colors as string[]) || [];
+  const colorsHtml = colors.length > 0 ? `
+  <div class="variant-row">
+    <span class="variant-label">Colour:</span>
+    <div class="variant-options">
+      ${colors.map((c, i) => `<button class="variant-btn${i === 0 ? ' active' : ''}" data-type="color" onclick="selectVariant(this,'color')">${c}</button>`).join('')}
+    </div>
+  </div>` : '';
+
+  // ── Color variant image map ───────────────────────────────────────────────
+  const colorVariantMap: Record<string, string> = {};
+  const cvImages = (productData?.color_variant_images as {color: string; image_url: string}[]) || [];
+  for (const cv of cvImages) {
+    if (cv.color && cv.image_url) colorVariantMap[cv.color] = cv.image_url;
+  }
+  const colorVariantMapJson = JSON.stringify(colorVariantMap);
+
+  // ── Features / benefits (use key_features from productData if available) ──
   const featuresHtml = (data.features || []).slice(0, 3).map((f, i) => {
     const title = typeof f === 'string' ? f : f.title;
     const description = typeof f === 'string'
@@ -458,8 +667,11 @@ function buildStorePreview(data: GeneratedData): string {
     return `<div class="feature-card"><div class="feature-icon">${featureIcons[i] || '✓'}</div><h3>${title}</h3><p>${description}</p></div>`;
   }).join('');
 
-  const benefits = data.productBenefits || (data.features || []).slice(0, 5).map(featureToStr);
-  const benefitsHtml = benefits.slice(0, 5).map(b => `<li>${b}</li>`).join('');
+  const keyFeatures = (productData?.key_features as string[]) || [];
+  const benefits = keyFeatures.length > 0
+    ? keyFeatures
+    : data.productBenefits || (data.features || []).slice(0, 5).map(featureToStr);
+  const benefitsHtml = benefits.slice(0, 6).map(b => `<li>${b}</li>`).join('');
 
   const testimonials = data.testimonials || [];
   const testimonialsHtml = testimonials.length > 0
@@ -474,16 +686,26 @@ function buildStorePreview(data: GeneratedData): string {
   const storeName = data.storeName || 'My Store';
   const storeNameSlug = storeName.toLowerCase().replace(/[^a-z0-9]/g, '');
 
+  // Use AI-extracted headline/subheadline from product analysis if AI didn't write one
+  const headline = data.headline || (productData?.hero_headline as string) || 'Built for Australia';
+  const subheadline = data.subheadline || (productData?.hero_subheading as string) || 'Quality products delivered to your door.';
+
   let html = PREVIEW_TEMPLATE;
   html = html.replace(/{storeName}/g, storeName);
   html = html.replace(/{storeNameSlug}/g, storeNameSlug);
   html = html.replace(/{tagline}/g, data.tagline || 'Quality products for Australians');
-  html = html.replace(/{headline}/g, data.headline || 'Built for Australia');
-  html = html.replace(/{subheadline}/g, data.subheadline || 'Quality products delivered to your door.');
+  html = html.replace(/{headline}/g, headline);
+  html = html.replace(/{subheadline}/g, subheadline);
   html = html.replace(/{metaDescription}/g, data.metaDescription || data.meta_description || `${storeName} — premium Australian products with free shipping and 30-day returns.`);
   html = html.replace(/{ctaText}/g, data.ctaText || data.cta_primary || 'Shop Now');
   html = html.replace(/{brandStory}/g, data.brandStory || data.about_section || 'An Australian brand built on quality, value, and exceptional service.');
   html = html.replace(/{primaryColor}/g, primaryColor);
+  html = html.replace('{heroBgImage}', heroBgImage);
+  html = html.replace('{productImage}', productImageSrc);
+  html = html.replace('{SIZES_HTML}', sizesHtml);
+  html = html.replace('{COLORS_HTML}', colorsHtml);
+  html = html.replace('{COLOR_VARIANT_MAP_JSON}', colorVariantMapJson);
+  html = html.replace('{sizeChartImage}', sizeChartImage || 'null');
   html = html.replace('{FEATURES_HTML}', featuresHtml);
   html = html.replace('{BENEFITS_HTML}', benefitsHtml);
   html = html.replace('{TESTIMONIALS_HTML}', testimonialsHtml);
@@ -925,21 +1147,8 @@ export default function WebsiteGenerator() {
   // ── Product URL Analyzer State ────────────────────────────────────────────
   const [analyzeUrl, setAnalyzeUrl] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<{
-    product_name?: string | null;
-    image_quality?: string;
-    image_issues?: string[];
-    title_quality?: string;
-    title_issues?: string[];
-    description_quality?: string;
-    description_issues?: string[];
-    price_found?: string | null;
-    supplier?: string;
-    overall_score?: number;
-    recommendation?: string;
-    suggested_title?: string;
-    suggested_description?: string;
-  } | null>(null);
+  // Rich product data from Firecrawl + Claude — includes images, sizes, colors, copy
+  const [analysisResult, setAnalysisResult] = useState<Record<string, any> | null>(null);
   const [analyzeError, setAnalyzeError] = useState('');
 
   // Debounced auto-analyze on URL paste (1s debounce)
@@ -982,11 +1191,11 @@ export default function WebsiteGenerator() {
     return () => clearInterval(interval);
   }, [generating]);
 
-  // Preview HTML (memoised)
+  // Preview HTML (memoised) — passes productData so images/variants are injected
   const previewHTML = useMemo(() => {
     if (!generatedData) return '';
-    return buildStorePreview(generatedData);
-  }, [generatedData]);
+    return buildStorePreview(generatedData, analysisResult || undefined);
+  }, [generatedData, analysisResult]);
 
   const hasOutput = generatedData || rawResponse;
 
@@ -1032,17 +1241,36 @@ export default function WebsiteGenerator() {
         ? `\nDesign Template: ${selectedPremiumTemplate.name} (${selectedPremiumTemplate.category}) — ${selectedPremiumTemplate.description}`
         : '';
 
+      const productAnalysisNote = analysisResult ? `
+PRODUCT DATA (scanned from URL — use this exact product, not generic):
+- Title: ${analysisResult.product_title || analysisResult.product_name || ''}
+- Type: ${analysisResult.product_type || ''}
+- Category: ${analysisResult.category || ''}
+- Description: ${analysisResult.description || ''}
+- Hero benefit: ${analysisResult.hero_benefit || ''}
+- Target customer: ${analysisResult.target_customer || ''}
+- Sizes: ${((analysisResult.sizes as string[]) || []).join(', ') || 'N/A'}
+- Colours: ${((analysisResult.colors as string[]) || []).join(', ') || 'N/A'}
+- Material: ${analysisResult.material || 'N/A'}
+- Key features: ${((analysisResult.key_features as string[]) || []).join('; ')}
+- Suggested headline: ${analysisResult.hero_headline || ''}
+- Suggested subheading: ${analysisResult.hero_subheading || ''}
+- Ad angle: ${analysisResult.ad_angle || ''}
+- Price: $${analysisResult.price_aud || analysisResult.suggested_price_aud || ''} AUD
+CRITICAL: Write ALL copy specifically for THIS product (${analysisResult.product_title || niche}). No generic filler.` : '';
+
       const userMessage = [
-        `Generate a complete store for:`,
+        `Generate a complete AU Shopify store for:`,
         `Store name: ${storeName || 'My AU Store'}`,
         `Niche: ${niche}`,
-        `Target audience: ${targetAudience}`,
+        `Target audience: ${targetAudience || 'Australian shoppers'}`,
         vibe ? `Style/vibe: ${vibe}` : '',
         accentColor ? `Brand color: ${accentColor}` : '',
         platform ? `Platform: ${platform}` : '',
         importedProduct ? `Featured product: ${JSON.stringify(importedProduct)}` : '',
         `Location: Australia`,
         templateNote,
+        productAnalysisNote,
       ].filter(Boolean).join('\n');
 
       const response = await fetch('/api/chat?stream=1', {
@@ -1131,7 +1359,7 @@ export default function WebsiteGenerator() {
       }
     } else {
       // New format: zip the preview HTML
-      zip.file('index.html', buildStorePreview(generatedData));
+      zip.file('index.html', buildStorePreview(generatedData, analysisResult || undefined));
     }
     const blob = await zip.generateAsync({ type: 'blob' });
     const url = URL.createObjectURL(blob);
@@ -1145,7 +1373,7 @@ export default function WebsiteGenerator() {
 
   const handleDownloadHTML = useCallback(() => {
     if (!generatedData) return;
-    const html = buildStorePreview(generatedData);
+    const html = buildStorePreview(generatedData, analysisResult || undefined);
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1256,7 +1484,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
     setVercelError('');
     setVercelResult(null);
     try {
-      const html = buildStorePreview(generatedData);
+      const html = buildStorePreview(generatedData, analysisResult || undefined);
       const response = await fetch('/api/website/deploy-vercel', {
         method: 'POST',
         headers: {
@@ -1471,12 +1699,12 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     🔍 Product Analysis
                   </span>
                   <div className="flex items-center justify-center w-10 h-10 rounded-full font-black text-sm" style={{
-                    background: (analysisResult.overall_score ?? 0) >= 80 ? 'rgba(74,222,128,0.15)' : (analysisResult.overall_score ?? 0) >= 60 ? 'rgba(245,158,11,0.15)' : 'rgba(248,113,113,0.15)',
-                    border: `2px solid ${(analysisResult.overall_score ?? 0) >= 80 ? '#4ade80' : (analysisResult.overall_score ?? 0) >= 60 ? '#f59e0b' : '#f87171'}`,
-                    color: (analysisResult.overall_score ?? 0) >= 80 ? '#4ade80' : (analysisResult.overall_score ?? 0) >= 60 ? '#f59e0b' : '#f87171',
+                    background: ((analysisResult.overall_score ?? analysisResult.score ?? 0) as number) >= 80 ? 'rgba(74,222,128,0.15)' : ((analysisResult.overall_score ?? analysisResult.score ?? 0) as number) >= 60 ? 'rgba(245,158,11,0.15)' : 'rgba(248,113,113,0.15)',
+                    border: `2px solid ${((analysisResult.overall_score ?? analysisResult.score ?? 0) as number) >= 80 ? '#4ade80' : ((analysisResult.overall_score ?? analysisResult.score ?? 0) as number) >= 60 ? '#f59e0b' : '#f87171'}`,
+                    color: ((analysisResult.overall_score ?? analysisResult.score ?? 0) as number) >= 80 ? '#4ade80' : ((analysisResult.overall_score ?? analysisResult.score ?? 0) as number) >= 60 ? '#f59e0b' : '#f87171',
                     fontFamily: 'Syne, sans-serif',
                   }}>
-                    {analysisResult.overall_score ?? '?'}
+                    {(analysisResult.overall_score ?? analysisResult.score ?? '?') as number}
                   </div>
                 </div>
 
@@ -1512,23 +1740,50 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                   );
                 })}
 
-                {/* Suggested title */}
-                {analysisResult.suggested_title && (
-                  <div className="rounded-lg p-2.5" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}>
-                    <div className="text-xs font-bold mb-1" style={{ color: 'rgba(99,102,241,0.9)', fontFamily: 'Syne, sans-serif' }}>💡 Suggested Title:</div>
-                    <div className="text-xs italic" style={{ color: 'rgba(240,237,232,0.7)', lineHeight: 1.5 }}>"{analysisResult.suggested_title}"</div>
+                {/* Product intel summary */}
+                {(analysisResult.hero_headline || analysisResult.suggested_title || analysisResult.au_suggested_title) && (
+                  <div className="rounded-lg p-2.5 space-y-1.5" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}>
+                    {(analysisResult.au_suggested_title || analysisResult.suggested_title) && (
+                      <div>
+                        <div className="text-xs font-bold mb-0.5" style={{ color: 'rgba(99,102,241,0.9)', fontFamily: 'Syne, sans-serif' }}>💡 AU Title:</div>
+                        <div className="text-xs italic" style={{ color: 'rgba(240,237,232,0.7)', lineHeight: 1.5 }}>"{analysisResult.au_suggested_title || analysisResult.suggested_title}"</div>
+                      </div>
+                    )}
+                    {analysisResult.hero_headline && (
+                      <div>
+                        <div className="text-xs font-bold mb-0.5" style={{ color: 'rgba(99,102,241,0.9)', fontFamily: 'Syne, sans-serif' }}>🎯 Hero Headline:</div>
+                        <div className="text-xs italic" style={{ color: 'rgba(240,237,232,0.7)', lineHeight: 1.5 }}>"{analysisResult.hero_headline}"</div>
+                      </div>
+                    )}
+                    {analysisResult.hero_benefit && (
+                      <div className="text-xs" style={{ color: 'rgba(240,237,232,0.5)' }}>⚡ Hero benefit: <span style={{ color: '#d4af37' }}>{analysisResult.hero_benefit}</span></div>
+                    )}
+                    {((analysisResult.sizes as string[]) || []).length > 0 && (
+                      <div className="text-xs" style={{ color: 'rgba(240,237,232,0.5)' }}>📐 Sizes: {((analysisResult.sizes as string[]) || []).join(', ')}</div>
+                    )}
+                    {((analysisResult.colors as string[]) || []).length > 0 && (
+                      <div className="text-xs" style={{ color: 'rgba(240,237,232,0.5)' }}>🎨 Colours: {((analysisResult.colors as string[]) || []).join(', ')}</div>
+                    )}
+                    {((analysisResult.product_images as string[]) || []).length > 0 && (
+                      <div className="text-xs" style={{ color: 'rgba(45,202,114,0.8)' }}>✓ {((analysisResult.product_images as string[]) || []).length} product image(s) extracted</div>
+                    )}
                   </div>
                 )}
 
                 {/* Action buttons */}
                 <div className="flex gap-1.5 flex-wrap">
-                  {analysisResult.suggested_title && (
+                  {(analysisResult.suggested_title || analysisResult.au_suggested_title || analysisResult.product_title) && (
                     <button
                       onClick={() => {
-                        if (analysisResult.suggested_title) setStoreName(analysisResult.suggested_title.slice(0, 40));
-                        if (analysisResult.suggested_description) setTagline(analysisResult.suggested_description.slice(0, 80));
-                        if (analysisResult.product_name) setNiche(analysisResult.product_name.slice(0, 60));
-                        toast.success('Suggested content applied!');
+                        const title = analysisResult.au_suggested_title || analysisResult.suggested_title;
+                        if (title) setStoreName(title.slice(0, 40));
+                        const desc = analysisResult.description || analysisResult.suggested_description;
+                        if (desc) setTagline(desc.slice(0, 80));
+                        const productName = analysisResult.product_title || analysisResult.product_name;
+                        if (productName) setNiche(productName.slice(0, 60));
+                        if (analysisResult.target_customer) setTargetAudience(analysisResult.target_customer.slice(0, 80));
+                        if (analysisResult.price_aud) setPriceAUD(String(analysisResult.price_aud));
+                        toast.success('Product data applied! Hit Generate to build your store.');
                       }}
                       className="text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1"
                       style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.35)', color: 'rgba(99,102,241,0.9)', cursor: 'pointer' }}
@@ -2129,39 +2384,46 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 function buildSystemPrompt(vibe: string, platform: Platform, accentColor: string): string {
   return `You are a world-class Shopify store designer and AU copywriter. Return ONLY valid JSON — no markdown, no code fences, no explanation text. Start with { and end with }.
 
+CRITICAL RULE: If PRODUCT DATA is provided in the user message, write ALL copy specifically for THAT product. Every word of copy — headline, features, testimonials, FAQs — must be specific to that actual product. DO NOT write generic placeholder content. DO NOT make up a different product.
+
 Return this exact JSON structure (all keys required):
 {
-  "storeName": "string",
-  "tagline": "string — punchy, 8 words max",
-  "headline": "string — hero section H1, bold benefit claim, 10 words max",
-  "subheadline": "string — 1-2 sentences expanding the headline, overcome objection",
+  "storeName": "string — brand name for this specific product/niche",
+  "tagline": "string — punchy 8-word max tagline specific to the product",
+  "headline": "string — hero H1 based on the product's #1 benefit, max 10 words, bold and specific",
+  "subheadline": "string — 1-2 sentences: who this product is for + the outcome they get",
   "features": [
-    { "title": "string", "description": "string — 1 concrete sentence" },
-    { "title": "string", "description": "string — 1 concrete sentence" },
-    { "title": "string", "description": "string — 1 concrete sentence" }
+    { "title": "string — specific product feature, not generic", "description": "string — 1 concrete sentence about this feature" },
+    { "title": "string — specific product feature", "description": "string — 1 concrete sentence" },
+    { "title": "string — specific product feature", "description": "string — 1 concrete sentence" }
   ],
-  "ctaText": "string — action verb + outcome, e.g. Shop Now",
-  "brandStory": "string — 2-3 sentences, AU brand mission + connection",
-  "metaTitle": "string — SEO title 60 chars max, include AU + keyword",
-  "metaDescription": "string — SEO description 155 chars max, AU focused",
+  "ctaText": "string — action verb + outcome, e.g. 'Shop Now', 'Get Yours Today'",
+  "brandStory": "string — 2-3 sentences, AU brand mission connected to this specific product category",
+  "metaTitle": "string — SEO title 60 chars max, include product type + AU",
+  "metaDescription": "string — SEO description 155 chars max, specific to this product",
   "primaryColor": "${accentColor || '#d4af37'}",
   "secondaryColor": "#hexcode",
   "fontStyle": "${vibe || 'modern'}",
-  "heroImageKeyword": "string — 3-word Unsplash search term for hero image",
-  "productBenefits": ["string — specific benefit 1", "string — specific benefit 2", "string — specific benefit 3", "string — specific benefit 4", "string — specific benefit 5"],
+  "heroImageKeyword": "string — 3-word description of the product for image search",
+  "productBenefits": ["string — specific benefit from product features", "string — specific benefit 2", "string — specific benefit 3", "string — specific benefit 4", "string — specific benefit 5"],
   "testimonials": [
-    { "name": "Jordan K.", "text": "string — 1-2 sentence specific review mentioning result", "location": "Brisbane" },
-    { "name": "Sarah M.", "text": "string — 1-2 sentence specific review", "location": "Sydney" },
-    { "name": "Marcus T.", "text": "string — 1-2 sentence specific review", "location": "Melbourne" }
+    { "name": "Jordan K.", "text": "string — 1-2 sentences referencing this specific product type and a real result", "location": "Brisbane" },
+    { "name": "Sarah M.", "text": "string — 1-2 sentences referencing this specific product", "location": "Sydney" },
+    { "name": "Marcus T.", "text": "string — 1-2 sentences referencing this specific product", "location": "Melbourne" }
   ],
   "faqs": [
-    { "question": "Do you ship to all of Australia?", "answer": "string — specific AU shipping answer mentioning AusPost and delivery times" },
-    { "question": "How long does delivery take?", "answer": "string — specific timeframe in business days" },
+    { "question": "Do you ship to all of Australia?", "answer": "string — AU shipping answer with AusPost and business day timeframes" },
+    { "question": "string — product-specific question e.g. about sizing/fit/compatibility", "answer": "string — specific answer about this product" },
     { "question": "What is your return policy?", "answer": "string — ACCC-compliant 30-day return policy" },
-    { "question": "Is this product compatible with Australian standards?", "answer": "string — AU compliance answer" }
+    { "question": "string — another product-specific FAQ", "answer": "string — specific answer" }
   ]
 }
 
 Platform: ${platform}. Vibe: ${vibe || 'premium'}.
-CRITICAL: Make copy authentically Australian — direct, confident, Aussie slang where natural. NOT American-corporate. Use AUD pricing. Mention Afterpay where relevant. Trust badges MUST include "🇦🇺 Ships from AU Warehouse". All 3 testimonials MUST have Brisbane, Sydney, Melbourne as locations.`;
+RULES:
+- Copy must be authentically Australian — direct, confident, no American corporate speak
+- Use AUD pricing. Mention Afterpay where relevant
+- All 3 testimonials MUST reference the specific product and have Brisbane, Sydney, Melbourne as locations
+- Features must come from the actual product — not "fast shipping" or "great quality" filler
+- If product has specific sizes/materials/tech (e.g. "squat-proof", "4-way stretch", "80% nylon") — mention them`;
 }
