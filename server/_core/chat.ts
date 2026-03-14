@@ -692,8 +692,76 @@ async function fetchMayaMarketContext(): Promise<string> {
   }
 }
 
+/** Extract <<<ACTION>>>...<<<END_ACTION>>> blocks from AI response */
+function extractActions(text: string): { cleanText: string; actions: any[] } {
+  const actions: any[] = [];
+  const cleanText = text
+    .replace(/<<<ACTION>>>([\s\S]*?)<<<END_ACTION>>>/g, (_, json) => {
+      try {
+        actions.push(JSON.parse(json.trim()));
+      } catch {
+        /* skip malformed */
+      }
+      return '';
+    })
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+  return { cleanText, actions };
+}
+
+/** MAYA_TOOLS_PROMPT — injected into Maya system prompt to enable agentic tool invocation */
+const MAYA_TOOLS_PROMPT = `
+TOOL ACTIONS — You can trigger real platform actions by including action cards in your response.
+Format: Include a JSON block starting with <<<ACTION>>> and ending with <<<END_ACTION>>> in your response.
+
+Available actions:
+1. Navigate to tool with pre-filled data:
+<<<ACTION>>>
+{"type":"navigate","tool":"website-generator","params":{"productUrl":"https://...","productTitle":"...","niche":"...","price":49}}
+<<<END_ACTION>>>
+
+2. Search suppliers:
+<<<ACTION>>>
+{"type":"navigate","tool":"suppliers","params":{"query":"LED face mask"}}
+<<<END_ACTION>>>
+
+3. Check saturation:
+<<<ACTION>>>
+{"type":"navigate","tool":"saturation-checker","params":{"product":"LED face mask"}}
+<<<END_ACTION>>>
+
+4. Find winning products in category:
+<<<ACTION>>>
+{"type":"navigate","tool":"winning-products","params":{"category":"Health & Beauty","filter":"low-competition"}}
+<<<END_ACTION>>>
+
+5. Open profit calculator:
+<<<ACTION>>>
+{"type":"navigate","tool":"profit-calculator","params":{"costPrice":22,"sellPrice":89,"productName":"LED Face Mask"}}
+<<<END_ACTION>>>
+
+6. Run chained workflow (multiple steps):
+<<<ACTION>>>
+{"type":"workflow","steps":[
+  {"tool":"saturation-checker","params":{"product":"massage gun"}},
+  {"tool":"suppliers","params":{"query":"massage gun"}},
+  {"tool":"profit-calculator","params":{"costPrice":25,"sellPrice":79,"productName":"Massage Gun"}}
+],"message":"I'm checking saturation, finding suppliers, and calculating your profit margin — all at once."}
+<<<END_ACTION>>>
+
+WHEN TO USE ACTIONS:
+- User says "build me a store for [url]" → navigate to website-generator with that URL
+- User says "find suppliers for [product]" → navigate to suppliers with query
+- User says "is [product] saturated?" → navigate to saturation-checker
+- User says "I want to start selling [product]" → trigger workflow (saturation + suppliers + profit calc)
+- User says "show me [category] products" → navigate to winning-products with filter
+- User says "calculate profit for [product]" → navigate to profit-calculator with prices
+- ALWAYS include an action when the user's request maps to a tool
+- Include the action AFTER your text response, not before
+`;
+
 /** Maya system prompt for AI Chat — date-aware, tool-using, AU-first */
-function buildMayaPrompt(profileCtx: string, marketCtx: string): string {
+function buildMayaPrompt(profileCtx: string, marketCtx: string, pageContext?: { page?: string; currentProduct?: any }): string {
   const today = new Date().toLocaleDateString('en-AU', {
     weekday: 'long',
     year: 'numeric',
@@ -764,14 +832,18 @@ For all other questions: respond in plain text with specific, decisive intellige
 
 You have access to live web search and research tools. Use web_search when asked about current trends, specific store/competitor analysis, or recent market data.
 
-${marketCtx}`;
+${marketCtx}
+
+${MAYA_TOOLS_PROMPT}
+${pageContext?.page ? `\nCURRENT USER CONTEXT:\n- Page: ${pageContext.page}${pageContext.currentProduct ? `\n- Viewing product: ${pageContext.currentProduct.title || pageContext.currentProduct.name || 'unknown'} (${pageContext.currentProduct.revenue ? `$${pageContext.currentProduct.revenue}/day` : ''})` : ''}\nWhen user asks "tell me more" or "what about this", they mean the product/item they are currently viewing.` : ''}`;
 }
 
 function buildSystemPrompt(
   customPrompt: string | undefined,
   profile: Record<string, string> | null,
   toolName: string,
-  marketCode?: MarketCode
+  marketCode?: MarketCode,
+  pageContext?: { page?: string; currentProduct?: any }
 ): string {
   const isAIChat = !customPrompt || toolName === 'ai-chat';
 
@@ -804,7 +876,7 @@ function buildSystemPrompt(
 
   // AI Chat gets Maya personality with tool-using rules
   if (isAIChat) {
-    return buildMayaPrompt(profileCtx, marketCtx);
+    return buildMayaPrompt(profileCtx, marketCtx, pageContext);
   }
 
   // Tool pages get profile context + lighter memory rules
@@ -856,6 +928,7 @@ export function registerChatRoutes(app: Application) {
         toolName = 'ai-chat',
         searchQuery,
         market: rawMarket,
+        pageContext,
       } = req.body;
       const market = (rawMarket && rawMarket in MARKETS ? rawMarket : DEFAULT_MARKET) as MarketCode;
 
@@ -912,7 +985,7 @@ export function registerChatRoutes(app: Application) {
               : typeof message === 'string'
                 ? message
                 : '';
-          messages = [{ role: (message.role || 'user') as const, content: text }];
+          messages = [{ role: ((message.role || 'user') === 'user' ? 'user' : 'assistant') as 'user' | 'assistant', content: text }];
         }
       }
 
@@ -1047,7 +1120,7 @@ export function registerChatRoutes(app: Application) {
 
       // ── Build system prompt ─────────────────────────────────────────────
       const mayaMarketCtx = await fetchMayaMarketContext();
-      const baseSystem = buildSystemPrompt(systemPrompt, profile, toolName, market) + webContext + mayaMarketCtx;
+      const baseSystem = buildSystemPrompt(systemPrompt, profile, toolName, market, pageContext) + webContext + mayaMarketCtx;
 
       // ── Inject mem0 persistent memories ────────────────────────────────
       const userQuery = messages[messages.length - 1]?.content || '';
@@ -1202,6 +1275,11 @@ export function registerChatRoutes(app: Application) {
               }
             }
 
+            // Extract and emit actions before DONE
+            const { actions: agentActions } = extractActions(fullReply);
+            if (agentActions.length > 0) {
+              res.write(`data: ${JSON.stringify({ actions: agentActions })}\n\n`);
+            }
             res.write(`data: [DONE]\n\n`);
             res.end();
           } else {
@@ -1221,6 +1299,11 @@ export function registerChatRoutes(app: Application) {
               }
             }
 
+            // Extract and emit actions before DONE
+            const { actions: streamActions } = extractActions(fullReply);
+            if (streamActions.length > 0) {
+              res.write(`data: ${JSON.stringify({ actions: streamActions })}\n\n`);
+            }
             res.write(`data: [DONE]\n\n`);
             res.end();
           }
@@ -1416,7 +1499,10 @@ export function registerChatRoutes(app: Application) {
           }
         }
 
-        res.json({ reply });
+        // Extract actions from reply for non-streaming clients
+        const { cleanText: cleanReply, actions } = extractActions(reply);
+        const finalReply = actions.length > 0 ? cleanReply : reply;
+        res.json({ reply: finalReply, actions: actions.length > 0 ? actions : undefined });
       }
     } catch (error: any) {
       console.error('[/api/chat] Error:', error);

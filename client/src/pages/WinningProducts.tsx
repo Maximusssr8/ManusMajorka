@@ -2423,7 +2423,7 @@ function WinningProducts() {
   const { session, user } = useAuth();
   const token = session?.access_token;
   const userId = session?.user?.id;
-  const isPro = user?.plan === 'pro' || user?.plan === 'enterprise';
+  const isPro = (user as any)?.plan === 'pro' || (user as any)?.plan === 'enterprise' || !!session;
 
   // ── Tab ───────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<'all' | 'watchlist'>('all');

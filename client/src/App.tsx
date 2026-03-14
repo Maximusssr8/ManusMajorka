@@ -11,6 +11,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { MarketProvider } from './contexts/MarketContext';
 import { ProductProvider } from './contexts/ProductContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { MayaProvider } from './context/MayaContext';
 
 // Lazy-loaded page components for code splitting
 const Home = lazy(() => import('./pages/Home'));

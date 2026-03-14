@@ -116,6 +116,8 @@ interface SupabaseProduct {
   why_winning: string | null;
   ad_angle: string | null;
   competition_level: string | null;
+  updated_at?: string | null;
+  scraped_at?: string | null;
 }
 
 interface DisplayProduct {
