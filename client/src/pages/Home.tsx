@@ -611,8 +611,8 @@ export default function Home() {
   return (
     <div style={{ background: C.bg, color: C.text, fontFamily: dm, overflowX: 'hidden', minHeight: '100vh' }}>
       <SEO
-        title="AI-Powered Dropshipping Platform for Australian Sellers | Majorka"
-        description="Find winning products, spy on competitors, generate ads, and build stores — powered by AI. Built for Australian dropshippers."
+        title="Majorka — AI Product Intelligence for Australian Dropshippers | Find $10k/month Products"
+        description="The #1 AI platform for Australian dropshippers. Find winning products, source AU suppliers, and build profitable Shopify stores. Join 2,400+ AU sellers. Start free."
         path="/"
       />
       <style>{GLOBAL_STYLES}</style>
@@ -1081,6 +1081,16 @@ export default function Home() {
                   <a href="/privacy" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Privacy</a>
                   <a href="/terms" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Terms</a>
                   <a href="/refund-policy" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Refund Policy</a>
+                </div>
+              </div>
+              <div>
+                <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 11, color: C.secondary, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>📚 Resources</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <Link href="/dropshipping-australia" style={{ color: C.muted, textDecoration: 'none', fontSize: 13, transition: 'color 0.2s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = C.gold; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = C.muted; }}>Dropshipping in Australia Guide</Link>
+                  <Link href="/tiktok-shop-australia" style={{ color: C.muted, textDecoration: 'none', fontSize: 13, transition: 'color 0.2s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = C.gold; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = C.muted; }}>TikTok Shop Australia 2025</Link>
+                  <Link href="/winning-products-australia" style={{ color: C.muted, textDecoration: 'none', fontSize: 13, transition: 'color 0.2s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = C.gold; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = C.muted; }}>Top 47 Winning Products AU</Link>
+                  <Link href="/store-health" style={{ color: C.muted, textDecoration: 'none', fontSize: 13, transition: 'color 0.2s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = C.gold; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = C.muted; }}>Free Store Health Score</Link>
+                  <Link href="/pricing" style={{ color: C.muted, textDecoration: 'none', fontSize: 13, transition: 'color 0.2s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = C.gold; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = C.muted; }}>Pricing</Link>
                 </div>
               </div>
             </div>

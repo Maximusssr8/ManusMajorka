@@ -20,6 +20,7 @@ import { useAuth } from '@/_core/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import UsageCounter from '@/components/UsageCounter';
 import UpgradePromptBanner from '@/components/UpgradePromptBanner';
+import { SEO } from '@/components/SEO';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -257,6 +258,11 @@ export default function SupplierIntelligence() {
       className="flex h-full overflow-hidden"
       style={{ background: '#080a0e', color: '#f0ede8', fontFamily: 'DM Sans, sans-serif' }}
     >
+      <SEO
+        title="Supplier Intelligence Australia — Find AU-Ready Suppliers | Majorka"
+        description="Find AU-compliant suppliers for any dropshipping product. 240V, AU plug, AU sizing — source suppliers with fast AU shipping verified by Majorka AI."
+        path="/app/supplier-intelligence"
+      />
       {/* ── Main content ── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Usage Counter */}

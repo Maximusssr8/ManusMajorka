@@ -22,6 +22,7 @@ import { detectTrends } from '../lib/trend-detection';
 import { registerScrapeRoutes } from '../lib/scrape-product';
 import { registerStripeRoutes } from '../lib/stripe';
 import { registerToolsApi } from '../lib/tools-api';
+import { registerWebsiteRoutes } from '../lib/website-api';
 import { appRouter } from '../routers';
 import { registerChatRoutes } from './chat';
 import { createContext } from './context';
@@ -138,6 +139,8 @@ async function startServer() {
   registerAffiliateRoutes(app);
   // Demo research endpoint (unauthenticated, rate-limited)
   registerDemoRoutes(app);
+  // Website Generator — Vercel deploy + product analyzer
+  registerWebsiteRoutes(app);
   // tRPC API
   app.use(
     '/api/trpc',

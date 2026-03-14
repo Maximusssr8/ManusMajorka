@@ -18,6 +18,7 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
 import UsageCounter from '@/components/UsageCounter';
+import { SEO } from '@/components/SEO';
 import UpgradePromptBanner from '@/components/UpgradePromptBanner';
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -640,6 +641,11 @@ export default function TrendSignals() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#080a0e', color: '#f0ede8', fontFamily: 'DM Sans, sans-serif', overflowY: 'auto' }}>
+      <SEO
+        title="AU Dropshipping Trend Signals — Emerging Products Before They Peak | Majorka"
+        description="Real-time AU dropshipping trend signals. Discover emerging products with explosive growth potential before they hit mainstream saturation. Updated every 6 hours."
+        path="/app/trend-signals"
+      />
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '32px 24px 80px' }}>
 
         {/* Usage Counter */}

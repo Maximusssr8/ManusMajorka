@@ -627,8 +627,8 @@ export default function Pricing() {
       }}
     >
       <SEO
-        title="Pricing Plans | Majorka"
-        description="Start free. Upgrade when you're ready. Majorka Pro gives unlimited AI searches, advanced analytics and more."
+        title="Majorka Pricing — Start Free, Upgrade When Ready | AU Dropshipping AI"
+        description="Majorka is free to start. Pro plan $79 AUD/month — unlimited AI product searches, real-time AU market data, and full supplier intelligence for Australian dropshippers."
         path="/pricing"
       />
 

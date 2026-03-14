@@ -31,26 +31,96 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.json" />
 
-    <!-- JSON-LD Structured Data -->
+    <!-- JSON-LD Structured Data: Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Majorka",
+      "url": "https://www.majorka.io",
+      "logo": "https://www.majorka.io/favicon.svg",
+      "description": "AI-powered product intelligence platform for Australian dropshippers",
+      "foundingDate": "2025",
+      "areaServed": "AU",
+      "sameAs": [
+        "https://twitter.com/majorkaai",
+        "https://instagram.com/majorkaai",
+        "https://tiktok.com/@majorkaai"
+      ]
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data: SoftwareApplication -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "Majorka",
       "applicationCategory": "BusinessApplication",
-      "description": "AI-powered ecommerce OS for Australian dropshippers",
+      "description": "AI-powered product intelligence platform for Australian dropshippers. Find winning products, source AU suppliers, and build stores with AI.",
       "url": "https://www.majorka.io",
+      "operatingSystem": "Web",
       "offers": {
         "@type": "Offer",
         "price": "0",
-        "priceCurrency": "AUD"
+        "priceCurrency": "AUD",
+        "description": "Free tier available — 10 product searches per day"
       },
-      "operatingSystem": "Web",
       "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": "4.9",
         "reviewCount": "247"
       }
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data: FAQPage (Homepage) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is Majorka?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Majorka is an AI-powered product intelligence platform for Australian dropshippers. We analyse TikTok Shop AU, AliExpress, Amazon AU, and eBay AU data to surface winning products with full revenue estimates, supplier info, and ad angles."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much does Majorka cost?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Majorka offers a free tier with 10 searches per day. Pro plan is $79 AUD/month with unlimited searches, real-time data, and full supplier intelligence."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Majorka only for Australian sellers?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Majorka is built for Australian dropshippers but supports US, EU, UK, Asia, and Global markets. AU data is the most detailed."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What makes Majorka different from other product research tools?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Majorka is the only product intelligence platform built specifically for the Australian market. We cross-reference TikTok Shop AU, Amazon AU, eBay AU, and AliExpress AU data simultaneously — giving you AU-validated revenue estimates and AU-compliant supplier recommendations that US-focused tools can't provide."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I find winning products with Majorka?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sign up for a free account at majorka.io, navigate to the Winning Products section, and browse our daily-updated feed of AU-validated products. Each product shows estimated daily revenue, margin, supplier info, and AI-generated ad angles. Filter by niche, revenue threshold, or trend velocity to find your next winner."
+          }
+        }
+      ]
     }
     </script>
 

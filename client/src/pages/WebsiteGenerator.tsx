@@ -1,5 +1,6 @@
 import JSZip from 'jszip';
 import {
+  AlertTriangle,
   Check,
   ChevronRight,
   Clipboard,
@@ -16,6 +17,7 @@ import {
   Monitor,
   Package,
   Rocket,
+  Search,
   Share2,
   ShoppingBag,
   Smartphone,
@@ -727,6 +729,31 @@ export default function WebsiteGenerator() {
   // Demo mode state
   const [demoMode, setDemoMode] = useState(false);
   const [demoBannerVisible, setDemoBannerVisible] = useState(true);
+
+  // ── Vercel Deploy State ───────────────────────────────────────────────────
+  const [vercelDeploying, setVercelDeploying] = useState(false);
+  const [vercelResult, setVercelResult] = useState<{ url: string; deployId: string } | null>(null);
+  const [vercelError, setVercelError] = useState('');
+
+  // ── Product URL Analyzer State ────────────────────────────────────────────
+  const [analyzeUrl, setAnalyzeUrl] = useState('');
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<{
+    product_name?: string | null;
+    image_quality?: string;
+    image_issues?: string[];
+    title_quality?: string;
+    title_issues?: string[];
+    description_quality?: string;
+    description_issues?: string[];
+    price_found?: string | null;
+    supplier?: string;
+    overall_score?: number;
+    recommendation?: string;
+    suggested_title?: string;
+    suggested_description?: string;
+  } | null>(null);
+  const [analyzeError, setAnalyzeError] = useState('');
 
   // Auto-fill from URL params (e.g. from Winning Products quick actions or demo links)
   useEffect(() => {

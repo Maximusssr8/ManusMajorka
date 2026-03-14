@@ -33,6 +33,10 @@ const AdminSubscribers = lazy(() => import('./pages/AdminSubscribers'));
 const PromoDashboard = lazy(() => import('./pages/PromoDashboard'));
 const ProductReport = lazy(() => import('./pages/ProductReport'));
 const StoreHealthScore = lazy(() => import('./pages/StoreHealthScore'));
+// SEO landing pages
+const DropshippingAustralia = lazy(() => import('./pages/seo/DropshippingAustralia'));
+const TikTokShopAustralia = lazy(() => import('./pages/seo/TikTokShopAustralia'));
+const WinningProductsAustralia = lazy(() => import('./pages/seo/WinningProductsAustralia'));
 
 function LoadingFallback() {
   return (
@@ -178,6 +182,9 @@ function Router() {
               )}
             </Route>
             <Route path="/store-health" component={StoreHealthScore} />
+            <Route path="/dropshipping-australia" component={DropshippingAustralia} />
+            <Route path="/tiktok-shop-australia" component={TikTokShopAustralia} />
+            <Route path="/winning-products-australia" component={WinningProductsAustralia} />
             <Route path="/product/:slug" component={ProductReport} />
             <Route path="/demo-dashboard" component={PromoDashboard} />
             <Route path="/404" component={NotFound} />

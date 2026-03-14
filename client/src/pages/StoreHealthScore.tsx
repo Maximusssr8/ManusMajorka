@@ -564,8 +564,8 @@ export default function StoreHealthScore() {
       }}
     >
       <SEO
-        title="Free Store Health Score — Majorka"
-        description="Get an instant AI-powered health report for your Shopify store. Score your niche, pricing, SEO, and social proof in 30 seconds."
+        title="Free Store Health Score — Analyse Your Shopify Store | Majorka"
+        description="Get an instant AI-powered health score for your Shopify store. Score your niche fit, pricing, SEO strength, and social proof in 30 seconds. Free for AU dropshippers."
       />
 
       {/* Nav */}

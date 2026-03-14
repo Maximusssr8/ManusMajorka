@@ -2577,8 +2577,8 @@ function WinningProducts() {
       }}
     >
       <SEO
-        title="Winning Products AU | Majorka"
-        description="Discover Australia's top-selling TikTok Shop products with real revenue data. Updated every 6 hours."
+        title="Winning Products Australia — Real TikTok Shop Revenue Data | Majorka"
+        description="Discover Australia's top-selling TikTok Shop products with real revenue data, margins, and supplier info. Updated every 6 hours by Majorka AI."
         path="/app/winning-products"
       />
       <style>{`
