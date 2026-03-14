@@ -1606,13 +1606,19 @@ function FullReportModal({
             <div style={{ fontSize: 11, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>7-Day Revenue Trend (AUD)</div>
             <div style={{ width: '100%', height: 140 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={weekData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                <AreaChart data={weekData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                  <defs>
+                    <linearGradient id="revGrad2" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={C.gold} stopOpacity={0.15} />
+                      <stop offset="95%" stopColor={C.gold} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                   <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.muted }} tickLine={false} axisLine={false} />
                   <YAxis tick={{ fontSize: 10, fill: C.muted }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `$${v}`} width={44} />
                   <RechartTooltip contentStyle={{ background: '#0f1117', border: `1px solid ${C.goldBorder}`, borderRadius: 8, fontSize: 12 }} labelStyle={{ color: C.sub }} formatter={(v: number) => [`$${v} AUD`, 'Est. Rev']} />
-                  <Line type="monotone" dataKey="rev" stroke={C.gold} strokeWidth={2} dot={{ fill: C.gold, r: 3, strokeWidth: 0 }} activeDot={{ r: 5, fill: C.gold }} />
-                </LineChart>
+                  <Area type="monotone" dataKey="rev" stroke={C.gold} strokeWidth={2} fill="url(#revGrad2)" dot={{ fill: C.gold, r: 3, strokeWidth: 0 }} activeDot={{ r: 5, fill: C.gold }} />
+                </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
@@ -2065,6 +2071,333 @@ function ProductCard({
   );
 }
 
+// ── Sidebar Section (collapsible) ─────────────────────────────────────────────
+
+function SidebarSection({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div style={{ borderBottom: `1px solid ${C.border}`, padding: '12px 0' }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%',
+          background: 'none', border: 'none', color: C.sub, fontSize: 10, fontWeight: 700,
+          textTransform: 'uppercase', letterSpacing: '0.06em', cursor: 'pointer', padding: '0 0 6px',
+        }}
+      >
+        {title}
+        <span style={{ fontSize: 12, transform: open ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }}>▾</span>
+      </button>
+      {open && <div style={{ paddingTop: 4 }}>{children}</div>}
+    </div>
+  );
+}
+
+// ── Filter Sidebar ────────────────────────────────────────────────────────────
+
+function FilterSidebar({
+  platformFilter, setPlatformFilter,
+  categories, category, setCategory,
+  trend, setTrend,
+  competition, setCompetition,
+  sort, setSort,
+  minMonthlyRevenue, setMinMonthlyRevenue,
+  hideSaturated, setHideSaturated,
+  activeFilters, onClearAll,
+}: {
+  platformFilter: string[];
+  setPlatformFilter: React.Dispatch<React.SetStateAction<string[]>>;
+  categories: string[];
+  category: string;
+  setCategory: (c: string) => void;
+  trend: string;
+  setTrend: (t: string) => void;
+  competition: string;
+  setCompetition: (c: string) => void;
+  sort: string;
+  setSort: (s: string) => void;
+  minMonthlyRevenue: number;
+  setMinMonthlyRevenue: (n: number) => void;
+  hideSaturated: boolean;
+  setHideSaturated: React.Dispatch<React.SetStateAction<boolean>>;
+  activeFilters: number;
+  onClearAll: () => void;
+}) {
+  return (
+    <aside
+      style={{
+        width: 240, flexShrink: 0, position: 'sticky', top: 20, alignSelf: 'flex-start',
+        background: C.glass, border: `1px solid ${C.border}`, borderRadius: 16,
+        padding: '8px 16px 16px', maxHeight: 'calc(100vh - 40px)', overflowY: 'auto',
+        display: 'none',
+      }}
+      className="sidebar-filters"
+    >
+      <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 700, color: C.gold, padding: '10px 0 4px', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Filter size={13} /> Filters
+        {activeFilters > 0 && (
+          <span style={{ fontSize: 10, fontWeight: 800, background: C.gold, color: '#000', padding: '1px 6px', borderRadius: 20 }}>{activeFilters}</span>
+        )}
+      </div>
+
+      <SidebarSection title="Platform">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+          {(['TikTok Shop', 'AliExpress', 'Alibaba', 'Amazon AU'] as const).map((pl) => (
+            <label key={pl} style={{ display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer', fontSize: 12, color: C.text }}>
+              <input
+                type="checkbox"
+                checked={platformFilter.includes(pl)}
+                onChange={() => setPlatformFilter((prev) => prev.includes(pl) ? prev.filter((p) => p !== pl) : [...prev, pl])}
+                style={{ accentColor: C.gold, width: 13, height: 13 }}
+              />
+              {pl}
+            </label>
+          ))}
+        </div>
+      </SidebarSection>
+
+      <SidebarSection title="Category">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+          {categories.map((c) => (
+            <Chip key={c} active={category === c} onClick={() => setCategory(c)}>{c}</Chip>
+          ))}
+        </div>
+      </SidebarSection>
+
+      <SidebarSection title="Trend">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+          {(['All', 'Exploding', 'Growing', 'Stable', 'Declining'] as const).map((t) => {
+            const meta = t !== 'All' ? TREND_MAP[t.toLowerCase() as Trend] : null;
+            return <Chip key={t} active={trend === t} onClick={() => setTrend(t)}>{meta ? `${meta.emoji} ${t}` : t}</Chip>;
+          })}
+        </div>
+      </SidebarSection>
+
+      <SidebarSection title="Competition">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {['All', 'Low', 'Medium', 'High'].map((c) => (
+            <label key={c} style={{ display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer', fontSize: 12, color: competition === c ? C.gold : C.text }}>
+              <input type="radio" name="sidebar-comp" checked={competition === c} onChange={() => setCompetition(c)} style={{ accentColor: C.gold }} />
+              {c}
+            </label>
+          ))}
+        </div>
+      </SidebarSection>
+
+      <SidebarSection title="Sort by">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+          {['Revenue', 'Growth %', 'Most Sold', 'Score', 'Newest'].map((s) => (
+            <Chip key={s} active={sort === s} onClick={() => setSort(s)}>{s}</Chip>
+          ))}
+        </div>
+      </SidebarSection>
+
+      <SidebarSection title={`Min Revenue: $${minMonthlyRevenue === 0 ? 'Any' : `${(minMonthlyRevenue / 1000).toFixed(0)}k`}/mo`}>
+        <input
+          type="range" min={0} max={500000} step={10000} value={minMonthlyRevenue}
+          onChange={(e) => setMinMonthlyRevenue(Number(e.target.value))}
+          style={{ width: '100%', accentColor: C.gold }}
+        />
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: C.muted, marginTop: 2 }}>
+          <span>$0</span><span>$250k</span><span>$500k</span>
+        </div>
+      </SidebarSection>
+
+      <div style={{ padding: '12px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: C.text }}>
+          <div
+            onClick={() => setHideSaturated((v) => !v)}
+            style={{ width: 36, height: 20, borderRadius: 10, background: hideSaturated ? C.gold : C.glass, border: `1px solid ${hideSaturated ? C.gold : C.border}`, position: 'relative', cursor: 'pointer', transition: 'background 0.2s', flexShrink: 0 }}
+          >
+            <div style={{ position: 'absolute', top: 2, left: hideSaturated ? 18 : 2, width: 14, height: 14, borderRadius: '50%', background: hideSaturated ? '#000' : C.muted, transition: 'left 0.2s' }} />
+          </div>
+          Hide Saturated
+        </label>
+      </div>
+
+      {activeFilters > 0 && (
+        <button
+          onClick={onClearAll}
+          style={{
+            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+            padding: '8px 12px', borderRadius: 10, background: 'rgba(239,68,68,0.08)',
+            border: '1px solid rgba(239,68,68,0.2)', color: C.red, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+          }}
+        >
+          <X size={11} /> Clear All
+        </button>
+      )}
+    </aside>
+  );
+}
+
+// ── Trending Now Bar ──────────────────────────────────────────────────────────
+
+function TrendingNowBar({ products, onSelect }: { products: WinningProduct[]; onSelect: (p: WinningProduct) => void }) {
+  const top5 = useMemo(() =>
+    [...products].sort((a, b) => (b.est_daily_revenue_aud ?? 0) - (a.est_daily_revenue_aud ?? 0)).slice(0, 5),
+    [products]
+  );
+  if (top5.length === 0) return null;
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+        <Flame size={13} style={{ color: C.gold }} />
+        <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 11, fontWeight: 700, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Trending Now</span>
+      </div>
+      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
+        {top5.map((p) => (
+          <button
+            key={p.id}
+            onClick={() => onSelect(p)}
+            style={{
+              flexShrink: 0, padding: '8px 14px', borderRadius: 20,
+              background: C.goldBg, border: `1px solid ${C.goldBorder}`,
+              color: C.text, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+              whiteSpace: 'nowrap', transition: 'background 0.15s',
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(212,175,55,0.18)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.goldBg; }}
+          >
+            🔥 {p.product_title.length > 30 ? p.product_title.slice(0, 30) + '…' : p.product_title} — <span style={{ color: C.gold, fontWeight: 700 }}>{fmtAUD(p.est_daily_revenue_aud)}/day</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Market Signals Bar ────────────────────────────────────────────────────────
+
+function MarketSignalsBar({ products }: { products: WinningProduct[] }) {
+  const signals = useMemo(() => {
+    const sigs: string[] = [];
+
+    // Exploding per category
+    const explodingByCat: Record<string, number> = {};
+    products.forEach((p) => {
+      if (p.trend === 'exploding' && p.category) {
+        explodingByCat[p.category] = (explodingByCat[p.category] ?? 0) + 1;
+      }
+    });
+    Object.entries(explodingByCat).forEach(([cat, count]) => {
+      sigs.push(`${count} product${count > 1 ? 's' : ''} exploding in ${cat}`);
+    });
+
+    // Top category by revenue
+    const revByCat: Record<string, number> = {};
+    products.forEach((p) => {
+      if (p.category && p.est_daily_revenue_aud) {
+        revByCat[p.category] = (revByCat[p.category] ?? 0) + p.est_daily_revenue_aud;
+      }
+    });
+    const topCat = Object.entries(revByCat).sort((a, b) => b[1] - a[1])[0];
+    if (topCat) sigs.push(`${topCat[0]} is the #1 AU niche this week`);
+
+    // Newest product
+    const newest = [...products].sort((a, b) => new Date(b.scraped_at).getTime() - new Date(a.scraped_at).getTime())[0];
+    if (newest) sigs.push(`Just added: ${newest.product_title}`);
+
+    return sigs.slice(0, 5);
+  }, [products]);
+
+  if (signals.length === 0) return null;
+
+  return (
+    <div style={{
+      marginBottom: 20, background: 'rgba(0,0,0,0.4)', border: `1px solid ${C.border}`,
+      borderRadius: 12, padding: '10px 16px', overflowX: 'auto', display: 'flex', gap: 24, alignItems: 'center',
+    }}>
+      <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', flexShrink: 0 }}>Signals</span>
+      {signals.map((s, i) => (
+        <span key={i} style={{ fontSize: 11, color: C.gold, whiteSpace: 'nowrap', flexShrink: 0 }}>
+          {s}
+          {i < signals.length - 1 && <span style={{ margin: '0 12px', color: C.muted }}>·</span>}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// ── Category Intelligence Table ───────────────────────────────────────────────
+
+function CategoryIntelligenceTable({ products }: { products: WinningProduct[] }) {
+  const catData = useMemo(() => {
+    const map: Record<string, { count: number; totalDailyRev: number; topProduct: string; topRev: number; compScores: number[] }> = {};
+    products.forEach((p) => {
+      const cat = p.category ?? 'Uncategorised';
+      if (!map[cat]) map[cat] = { count: 0, totalDailyRev: 0, topProduct: '', topRev: 0, compScores: [] };
+      const entry = map[cat];
+      entry.count++;
+      entry.totalDailyRev += p.est_daily_revenue_aud ?? 0;
+      if ((p.est_daily_revenue_aud ?? 0) > entry.topRev) {
+        entry.topRev = p.est_daily_revenue_aud ?? 0;
+        entry.topProduct = p.product_title;
+      }
+      const compNum = p.competition_level === 'low' ? 1 : p.competition_level === 'medium' ? 2 : p.competition_level === 'high' ? 3 : 2;
+      entry.compScores.push(compNum);
+    });
+
+    return Object.entries(map).map(([cat, d]) => {
+      const avgComp = d.compScores.reduce((a, b) => a + b, 0) / d.compScores.length;
+      const marketSize = d.totalDailyRev * 30;
+      // Opportunity: high rev + low competition = high score (scale 1-100)
+      const revScore = Math.min(d.totalDailyRev / 100, 50);
+      const compScore = (4 - avgComp) * 16.7; // low comp = higher score
+      const opportunity = Math.round(Math.min(100, revScore + compScore));
+      return { cat, count: d.count, marketSize, topProduct: d.topProduct, avgComp, opportunity };
+    }).sort((a, b) => b.opportunity - a.opportunity);
+  }, [products]);
+
+  const compLabel = (v: number) => v < 1.5 ? 'Low' : v < 2.5 ? 'Medium' : 'High';
+  const compColor = (v: number) => v < 1.5 ? C.green : v < 2.5 ? C.amber : C.red;
+
+  const th: React.CSSProperties = {
+    padding: '10px 12px', fontSize: 10, fontWeight: 700, color: C.muted,
+    textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'left',
+    borderBottom: `1px solid ${C.border}`, whiteSpace: 'nowrap',
+  };
+
+  return (
+    <div style={{ overflowX: 'auto', borderRadius: 16, border: `1px solid ${C.border}` }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr style={{ background: C.glass }}>
+            <th style={th}>Category</th>
+            <th style={th}># Products</th>
+            <th style={th}>Est Market Size</th>
+            <th style={th}>Top Product</th>
+            <th style={th}>Avg Competition</th>
+            <th style={th}>Opportunity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {catData.map((row) => (
+            <tr key={row.cat} style={{ borderBottom: `1px solid ${C.border}` }}>
+              <td style={{ padding: '12px', fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 700, color: C.text }}>{row.cat}</td>
+              <td style={{ padding: '12px', fontSize: 12, color: C.sub, fontWeight: 600 }}>{row.count}</td>
+              <td style={{ padding: '12px', fontFamily: 'Syne, sans-serif', fontSize: 14, fontWeight: 800, color: C.gold }}>{fmtAUD(row.marketSize)}/mo</td>
+              <td style={{ padding: '12px', fontSize: 12, color: C.text, maxWidth: 200, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{row.topProduct}</td>
+              <td style={{ padding: '12px' }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: compColor(row.avgComp) }}>{compLabel(row.avgComp)}</span>
+              </td>
+              <td style={{ padding: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ flex: 1, maxWidth: 80, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)' }}>
+                    <div style={{ width: `${row.opportunity}%`, height: '100%', borderRadius: 3, background: row.opportunity >= 70 ? C.green : row.opportunity >= 40 ? C.amber : C.red }} />
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: row.opportunity >= 70 ? C.green : row.opportunity >= 40 ? C.amber : C.red }}>{row.opportunity}</span>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 // ── Chip ──────────────────────────────────────────────────────────────────────
 
 function Chip({
@@ -2467,7 +2800,7 @@ function WinningProducts() {
   const isPro = (user as any)?.plan === 'pro' || (user as any)?.plan === 'enterprise' || !!session;
 
   // ── Tab ───────────────────────────────────────────────────────────────
-  const [activeTab, setActiveTab] = useState<'all' | 'watchlist'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'watchlist' | 'category_intel'>('all');
 
   // ── View ──────────────────────────────────────────────────────────────
   const [view, setView] = useState<'table' | 'cards'>('cards');
@@ -2942,6 +3275,7 @@ function WinningProducts() {
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(0.88)} }
         @keyframes skeleton-pulse { 0%,100%{opacity:.4} 50%{opacity:.8} }
         .skeleton { background: rgba(255,255,255,0.06); border-radius: 6px; animation: skeleton-pulse 1.5s ease-in-out infinite; }
+        @media (min-width: 1024px) { .sidebar-filters { display: block !important; } }
       `}</style>
 
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '36px 20px 80px' }}>
@@ -3109,40 +3443,10 @@ function WinningProducts() {
         <HeroStatsBar products={products} total={total} lastUpdatedISO={lastUpdatedISO} />
 
         {/* ── Trending Now Bar ────────────────────────────────────────── */}
-        {topProducts.length > 0 && (
-          <div style={{ marginBottom: 20, overflowX: 'auto' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 'max-content' }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', flexShrink: 0 }}>
-                🔥 Trending Now
-              </span>
-              {topProducts.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => setSelectedProduct(p)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    padding: '6px 12px',
-                    borderRadius: 20,
-                    background: 'rgba(212,175,55,0.08)',
-                    border: '1px solid rgba(212,175,55,0.2)',
-                    color: C.text,
-                    fontSize: 12,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    flexShrink: 0,
-                  }}
-                >
-                  <span style={{ color: C.gold }}>{p.product_title.length > 24 ? p.product_title.slice(0, 24) + '…' : p.product_title}</span>
-                  <span style={{ color: C.green, fontWeight: 700 }}>{fmtAUD(p.est_daily_revenue_aud)}/day</span>
-                  {p.trend === 'exploding' && <span>🔥</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        <TrendingNowBar products={topProducts} onSelect={setSelectedProduct} />
+
+        {/* ── Market Signals Bar ─────────────────────────────────────── */}
+        <MarketSignalsBar products={products} />
 
         {/* ── Usage Counter + Upgrade Banner ─────────────────────────── */}
         <UsageCounter />
@@ -3169,10 +3473,11 @@ function WinningProducts() {
               icon: <Heart size={13} />,
               count: watchlistIds.size,
             },
+            { id: 'category_intel', label: 'Category Intelligence', icon: <BarChart2 size={13} /> },
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as 'all' | 'watchlist')}
+              onClick={() => setActiveTab(tab.id as 'all' | 'watchlist' | 'category_intel')}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -3207,6 +3512,25 @@ function WinningProducts() {
             </button>
           ))}
         </div>
+
+        {/* ── Sidebar + Content Flex Layout ──────────────────────────── */}
+        <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+
+        {/* ── Filter Sidebar (desktop only) ──────────────────────────── */}
+        <FilterSidebar
+          platformFilter={platformFilter} setPlatformFilter={setPlatformFilter}
+          categories={categories} category={category} setCategory={setCategory}
+          trend={trend} setTrend={setTrend}
+          competition={competition} setCompetition={setCompetition}
+          sort={sort} setSort={setSort}
+          minMonthlyRevenue={minMonthlyRevenue} setMinMonthlyRevenue={setMinMonthlyRevenue}
+          hideSaturated={hideSaturated} setHideSaturated={setHideSaturated}
+          activeFilters={activeFilters}
+          onClearAll={() => { setCategory('All'); setTrend('All'); setCompetition('All'); setSearch(''); setSort('Revenue'); setMinMonthlyRevenue(0); setPlatformFilter(['TikTok Shop', 'AliExpress', 'Alibaba', 'Amazon AU']); }}
+        />
+
+        {/* ── Main Content ───────────────────────────────────────────── */}
+        <div style={{ flex: 1, minWidth: 0 }}>
 
         {/* ── Niche Search Engine ─────────────────────────────────────────── */}
         {activeTab === 'all' && (
@@ -3803,6 +4127,14 @@ function WinningProducts() {
               onFullReport={setFullReportProduct}
             />
           ))}
+
+        {/* ── Category Intelligence ──────────────────────────────────── */}
+        {activeTab === 'category_intel' && (
+          <CategoryIntelligenceTable products={[...products, ...SEEDED_PRODUCTS].filter((p, i, arr) => arr.findIndex((x) => x.id === p.id) === i)} />
+        )}
+
+        </div>{/* end Main Content */}
+        </div>{/* end Sidebar + Content Flex */}
       </div>
 
       {/* ── Detail Drawer ─────────────────────────────────────────────────── */}
