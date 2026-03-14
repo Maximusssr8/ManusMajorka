@@ -32,6 +32,8 @@ import {
 import ProductCompareModal from '@/components/ProductCompareModal';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Area,
+  AreaChart,
   CartesianGrid,
   Line,
   LineChart,
@@ -977,7 +979,13 @@ Be specific, opinionated, use AUD figures.`;
             <div style={{ width: '100%', height: 130 }}>
               {weekData && weekData.length > 0 && (
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={weekData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                <AreaChart data={weekData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                  <defs>
+                    <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={C.gold} stopOpacity={0.25} />
+                      <stop offset="95%" stopColor={C.gold} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
                     stroke="rgba(255,255,255,0.05)"
@@ -1006,15 +1014,16 @@ Be specific, opinionated, use AUD figures.`;
                     labelStyle={{ color: C.sub }}
                     formatter={(v: number) => [`$${v} AUD`, 'Est. Rev']}
                   />
-                  <Line
+                  <Area
                     type="monotone"
                     dataKey="rev"
                     stroke={C.gold}
                     strokeWidth={2}
+                    fill="url(#revGrad)"
                     dot={{ fill: C.gold, r: 3, strokeWidth: 0 }}
                     activeDot={{ r: 5, fill: C.gold }}
                   />
-                </LineChart>
+                </AreaChart>
               </ResponsiveContainer>
               )}
             </div>
@@ -2110,17 +2119,48 @@ function TableView({
   total: number;
 }) {
   const totalPages = Math.ceil(total / PAGE_SIZE);
-  const th: React.CSSProperties = {
+  const [sortCol, setSortCol] = useState<string>('revenue');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (col: string) => {
+    if (sortCol === col) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    else { setSortCol(col); setSortDir('desc'); }
+  };
+
+  const sorted = useMemo(() => {
+    const arr = [...products];
+    arr.sort((a, b) => {
+      let av = 0, bv = 0;
+      if (sortCol === 'revenue') { av = a.est_daily_revenue_aud ?? 0; bv = b.est_daily_revenue_aud ?? 0; }
+      else if (sortCol === 'growth') { av = a.revenue_growth_pct ?? 0; bv = b.revenue_growth_pct ?? 0; }
+      else if (sortCol === 'sold') { av = a.sold_count ?? 0; bv = b.sold_count ?? 0; }
+      else if (sortCol === 'price') { av = a.price_aud ?? 0; bv = b.price_aud ?? 0; }
+      else if (sortCol === 'score') { av = a.winning_score ?? 0; bv = b.winning_score ?? 0; }
+      else if (sortCol === 'au') { av = a.au_relevance ?? 0; bv = b.au_relevance ?? 0; }
+      return sortDir === 'desc' ? bv - av : av - bv;
+    });
+    return arr;
+  }, [products, sortCol, sortDir]);
+
+  const SortArrow = ({ col }: { col: string }) => (
+    <span style={{ marginLeft: 3, opacity: sortCol === col ? 1 : 0.3, fontSize: 9 }}>
+      {sortCol === col ? (sortDir === 'desc' ? '↓' : '↑') : '↕'}
+    </span>
+  );
+
+  const th = (col: string): React.CSSProperties => ({
     padding: '10px 12px',
     fontSize: 10,
     fontWeight: 700,
-    color: C.muted,
+    color: sortCol === col ? C.gold : C.muted,
     textTransform: 'uppercase',
     letterSpacing: '0.06em',
     textAlign: 'left',
     borderBottom: `1px solid ${C.border}`,
     whiteSpace: 'nowrap',
-  };
+    cursor: 'pointer',
+    userSelect: 'none',
+  });
 
   return (
     <div>
@@ -2128,15 +2168,16 @@ function TableView({
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ background: C.glass }}>
-              <th style={{ ...th, width: 40 }}>#</th>
-              <th style={th}>Product</th>
-              <th style={th}>Est. Revenue/mo</th>
-              <th style={th}>Trend</th>
-              <th style={th}>Growth %</th>
-              <th style={th}>Items Sold</th>
-              <th style={th}>Avg Price</th>
-              <th style={th}>Platforms</th>
-              <th style={{ ...th, textAlign: 'center' }}>→</th>
+              <th style={{ padding: '10px 12px', fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'left', borderBottom: `1px solid ${C.border}`, whiteSpace: 'nowrap', width: 40 }}>#</th>
+              <th style={th('product')}>Product</th>
+              <th style={th('revenue')} onClick={() => handleSort('revenue')}>Est. Revenue/mo <SortArrow col="revenue" /></th>
+              <th style={th('trend')}>Trend</th>
+              <th style={th('growth')} onClick={() => handleSort('growth')}>Growth % <SortArrow col="growth" /></th>
+              <th style={th('sold')} onClick={() => handleSort('sold')}>Items Sold <SortArrow col="sold" /></th>
+              <th style={th('price')} onClick={() => handleSort('price')}>Avg Price <SortArrow col="price" /></th>
+              <th style={th('platforms')}>Platforms</th>
+              <th style={th('score')} onClick={() => handleSort('score')}>Score <SortArrow col="score" /></th>
+              <th style={{ padding: '10px 12px', fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center', borderBottom: `1px solid ${C.border}`, whiteSpace: 'nowrap' }}>→</th>
             </tr>
           </thead>
           <tbody>
@@ -2150,7 +2191,7 @@ function TableView({
                     ))}
                   </tr>
                 ))
-              : products.map((p, idx) => {
+              : sorted.map((p, idx) => {
                   const monthly = p.est_monthly_revenue_aud ?? (p.est_daily_revenue_aud ? p.est_daily_revenue_aud * 30 : null);
                   const growth = p.revenue_growth_pct;
                   const plats = p.platforms ?? [p.platform];
@@ -3066,6 +3107,42 @@ function WinningProducts() {
 
         {/* ── Hero Stats Bar ──────────────────────────────────────────── */}
         <HeroStatsBar products={products} total={total} lastUpdatedISO={lastUpdatedISO} />
+
+        {/* ── Trending Now Bar ────────────────────────────────────────── */}
+        {topProducts.length > 0 && (
+          <div style={{ marginBottom: 20, overflowX: 'auto' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 'max-content' }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', flexShrink: 0 }}>
+                🔥 Trending Now
+              </span>
+              {topProducts.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => setSelectedProduct(p)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '6px 12px',
+                    borderRadius: 20,
+                    background: 'rgba(212,175,55,0.08)',
+                    border: '1px solid rgba(212,175,55,0.2)',
+                    color: C.text,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                  }}
+                >
+                  <span style={{ color: C.gold }}>{p.product_title.length > 24 ? p.product_title.slice(0, 24) + '…' : p.product_title}</span>
+                  <span style={{ color: C.green, fontWeight: 700 }}>{fmtAUD(p.est_daily_revenue_aud)}/day</span>
+                  {p.trend === 'exploding' && <span>🔥</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* ── Usage Counter + Upgrade Banner ─────────────────────────── */}
         <UsageCounter />
