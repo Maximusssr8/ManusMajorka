@@ -780,6 +780,80 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ═══ MEET MAYA — AI AGENT SHOWCASE ═══════════════════════════════ */}
+      <section style={{ padding: '80px 0', background: `linear-gradient(180deg, ${C.bg} 0%, rgba(212,175,55,0.025) 50%, ${C.bg} 100%)` }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
+          {/* Header */}
+          <div style={{ textAlign: 'center', marginBottom: 64 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 20, padding: '6px 16px', marginBottom: 20 }}>
+              <span style={{ color: '#d4af37', fontSize: 13, fontWeight: 700, fontFamily: syne }}>✦ AI AGENT</span>
+            </div>
+            <h2 style={{ fontFamily: syne, fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 800, color: '#f5f5f5', lineHeight: 1.1, marginBottom: 16 }}>
+              Meet Maya — Your AI<br /><span style={{ color: '#d4af37' }}>Ecommerce Co-Pilot</span>
+            </h2>
+            <p style={{ color: '#6b7280', fontSize: 17, maxWidth: 560, margin: '0 auto', fontFamily: dm }}>
+              Maya doesn't just answer questions. She takes action — building stores, finding suppliers, and chaining tools together so you can move from idea to live store in minutes.
+            </p>
+          </div>
+
+          {/* Chat demo mockup */}
+          <div style={{ maxWidth: 680, margin: '0 auto', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)' }}>
+            {/* Chat header */}
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #d4af37, #b8941f)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 14, color: '#080a0e', fontFamily: syne }}>M</div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: '#f5f5f5', fontFamily: syne }}>Maya</div>
+                <div style={{ fontSize: 11, color: '#22c55e', fontFamily: dm }}>● Live</div>
+              </div>
+            </div>
+
+            {/* Chat messages */}
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* User message */}
+              <div style={{ alignSelf: 'flex-end', background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: '14px 14px 4px 14px', padding: '10px 14px', maxWidth: '80%' }}>
+                <p style={{ color: '#f5f5f5', fontSize: 14, margin: 0, fontFamily: dm }}>I want to start selling LED face masks. What do I need to do?</p>
+              </div>
+
+              {/* Maya response */}
+              <div style={{ alignSelf: 'flex-start', maxWidth: '90%' }}>
+                <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px 14px 14px 4px', padding: '12px 14px', marginBottom: 8 }}>
+                  <p style={{ color: '#d1d5db', fontSize: 14, margin: 0, lineHeight: 1.6, fontFamily: dm }}>LED face masks are <strong style={{ color: '#f5f5f5' }}>LOW competition</strong> in AU right now — 23 competing stores vs 340K monthly searches. Estimated <strong style={{ color: '#d4af37' }}>$24,200/day revenue</strong> for top sellers. I'll run the full workflow for you:</p>
+                </div>
+                {/* Workflow card */}
+                <div style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 12, padding: '14px 16px' }}>
+                  <div style={{ color: '#d4af37', fontSize: 12, fontWeight: 700, marginBottom: 10, fontFamily: syne }}>⚡ STARTING WORKFLOW — 3 tools</div>
+                  {[
+                    { text: '1. ✓ Saturation check — LOW (score 23/100)', color: '#22c55e' },
+                    { text: '2. ✓ CJ AU supplier found — $22 landed cost', color: '#22c55e' },
+                    { text: '3. → Building your store...', color: '#d4af37' },
+                  ].map((step, i) => (
+                    <div key={i} style={{ fontSize: 13, color: step.color, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6, fontFamily: dm }}>
+                      {step.text}
+                    </div>
+                  ))}
+                  <button style={{ marginTop: 10, width: '100%', background: 'linear-gradient(135deg, #d4af37, #b8941f)', color: '#080a0e', border: 'none', borderRadius: 8, padding: '10px 16px', fontWeight: 800, fontSize: 14, cursor: 'pointer', fontFamily: syne }}>
+                    Open Your Store → Ready to Deploy
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Input bar */}
+            <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: 8 }}>
+              <input readOnly placeholder="Ask Maya anything about your business..." style={{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 14px', color: '#6b7280', fontSize: 14, outline: 'none', fontFamily: dm }} />
+              <button style={{ background: '#d4af37', border: 'none', borderRadius: 8, width: 40, height: 40, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 18, color: '#080a0e' }}>→</button>
+            </div>
+          </div>
+
+          {/* Feature pills */}
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 40, flexWrap: 'wrap' }}>
+            {['🏪 Builds stores from a URL', '📦 Finds & compares suppliers', '📊 Chains 5 tools in one prompt', '💰 Calculates profit instantly', '🔥 Knows AU market deeply'].map(f => (
+              <div key={f} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '8px 16px', fontSize: 13, color: '#d1d5db', fontFamily: dm }}>{f}</div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ═══ FEATURES — 3 big ══════════════════════════════════════════════ */}
       <section id="features" style={{ padding: '100px 24px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>

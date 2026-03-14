@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ExternalLink, Loader2, Package, RefreshCw, Send, Sparkles, Trash2 } from 'lucide-react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Markdown } from '@/components/Markdown';
@@ -9,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '@/contexts/AuthContext';
 import { getStoredMarket } from '@/contexts/MarketContext';
 import { useActiveProduct } from '@/hooks/useActiveProduct';
+import { useMaya } from '@/context/MayaContext';
 
 const BASE_SYSTEM_PROMPT = `You are an elite ecommerce advisor with 15 years experience scaling 7-figure Shopify stores. You give specific, actionable advice tailored to the user's exact situation. Never give generic answers.
 
@@ -46,7 +47,7 @@ const STARTER_CARDS = [
   { emoji: '📈', label: 'Analyse market trends for [category]' },
 ];
 
-// Parse action card JSON from Maya's response
+// Parse action card JSON from Maya's response (old format: pure JSON array)
 function parseActionCards(content: string): Array<{ title: string; context: string; cta: string; path: string }> | null {
   if (!content || content.trim().length < 10) return null;
   try {
@@ -60,6 +61,157 @@ function parseActionCards(content: string): Array<{ title: string; context: stri
     /* not valid JSON */
   }
   return null;
+}
+
+// Extract <<<ACTION>>>...<<<END_ACTION>>> blocks from text (new agentic format)
+function extractAgentActions(text: string): { cleanText: string; actions: any[] } {
+  const actions: any[] = [];
+  const cleanText = text
+    .replace(/<<<ACTION>>>([\s\S]*?)<<<END_ACTION>>>/g, (_, json) => {
+      try {
+        actions.push(JSON.parse(json.trim()));
+      } catch {
+        /* skip malformed */
+      }
+      return '';
+    })
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+  return { cleanText, actions };
+}
+
+const TOOL_LABELS: Record<string, string> = {
+  'website-generator': '🏪 Open Website Generator',
+  'suppliers': '📦 Search Suppliers',
+  'saturation-checker': '📊 Check Saturation',
+  'profit-calculator': '💰 Calculate Profit',
+  'winning-products': '🔥 Browse Products',
+  'product-discovery': '🔍 Discover Products',
+  'store-spy': '🕵️ Spy on Stores',
+  'trend-signals': '📈 Trend Signals',
+};
+
+// Agentic action card (new format with navigate/workflow types)
+function MayaActionCard({ action }: { action: any }) {
+  const [, setLocation] = useLocation();
+
+  const handleNavigate = (tool: string, params?: any) => {
+    if (params) {
+      sessionStorage.setItem(`maya_prefill_${tool}`, JSON.stringify(params));
+    }
+    setLocation(`/app/${tool}`);
+  };
+
+  if (action.type === 'workflow') {
+    return (
+      <div
+        style={{
+          background: 'rgba(212,175,55,0.06)',
+          border: '1px solid rgba(212,175,55,0.25)',
+          borderRadius: 12,
+          padding: '14px 16px',
+          marginTop: 8,
+        }}
+      >
+        <div style={{ color: '#d4af37', fontSize: 12, fontWeight: 700, marginBottom: 10 }}>
+          ⚡ WORKFLOW — {action.steps?.length ?? 0} tools
+        </div>
+        {(action.steps ?? []).map((step: any, i: number) => (
+          <div
+            key={i}
+            style={{ fontSize: 13, color: '#a1a1aa', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}
+          >
+            <span style={{ color: '#d4af37' }}>{i + 1}.</span>
+            {TOOL_LABELS[step.tool] || step.tool}
+          </div>
+        ))}
+        <button
+          onClick={() => {
+            if (action.steps?.length > 0) {
+              sessionStorage.setItem('maya_workflow', JSON.stringify(action.steps));
+              const firstTool = action.steps[0].tool;
+              if (action.steps[0].params) {
+                sessionStorage.setItem(`maya_prefill_${firstTool}`, JSON.stringify(action.steps[0].params));
+              }
+              setLocation(`/app/${firstTool}`);
+            }
+          }}
+          style={{
+            marginTop: 10,
+            background: '#d4af37',
+            color: '#080a0e',
+            border: 'none',
+            borderRadius: 8,
+            padding: '8px 16px',
+            fontWeight: 700,
+            fontSize: 13,
+            cursor: 'pointer',
+            width: '100%',
+            fontFamily: 'Syne, sans-serif',
+          }}
+        >
+          Start Workflow →
+        </button>
+      </div>
+    );
+  }
+
+  // navigate type
+  const tool = action.tool ?? '';
+  const params = action.params ?? {};
+  return (
+    <button
+      onClick={() => handleNavigate(tool, params)}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        background: 'rgba(212,175,55,0.06)',
+        border: '1px solid rgba(212,175,55,0.25)',
+        borderRadius: 10,
+        padding: '10px 14px',
+        marginTop: 8,
+        cursor: 'pointer',
+        width: '100%',
+        textAlign: 'left',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = 'rgba(212,175,55,0.12)';
+        e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = 'rgba(212,175,55,0.06)';
+        e.currentTarget.style.borderColor = 'rgba(212,175,55,0.25)';
+      }}
+    >
+      <span style={{ fontSize: 16, color: '#d4af37' }}>→</span>
+      <div>
+        <div style={{ color: '#d4af37', fontWeight: 700, fontSize: 13, fontFamily: 'Syne, sans-serif' }}>
+          {TOOL_LABELS[tool] || tool}
+        </div>
+        {params.productUrl && (
+          <div style={{ color: '#52525b', fontSize: 11, marginTop: 2 }}>
+            Pre-loaded: {String(params.productUrl).slice(0, 40)}...
+          </div>
+        )}
+        {params.query && (
+          <div style={{ color: '#52525b', fontSize: 11, marginTop: 2 }}>
+            Search: "{params.query}"
+          </div>
+        )}
+        {params.product && (
+          <div style={{ color: '#52525b', fontSize: 11, marginTop: 2 }}>
+            Checking: "{params.product}"
+          </div>
+        )}
+        {params.productName && !params.query && !params.product && !params.productUrl && (
+          <div style={{ color: '#52525b', fontSize: 11, marginTop: 2 }}>
+            {params.productName}
+          </div>
+        )}
+      </div>
+    </button>
+  );
 }
 
 // Action card component for Maya navigation suggestions
@@ -107,9 +259,12 @@ function detectProductLink(content: string): boolean {
   return patterns.some((p) => p.test(content));
 }
 
+// Extended message type to include agentic actions
+type MessageWithActions = Message & { agentActions?: any[] };
+
 export default function AIChat() {
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<MessageWithActions[]>([]);
   const [status, setStatus] = useState<'idle' | 'streaming'>('idle');
   const [toolStatus, setToolStatus] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -117,6 +272,8 @@ export default function AIChat() {
   const { activeProduct } = useActiveProduct();
   const { session } = useAuth();
   const lastFailedMsg = useRef<string | null>(null);
+  const { currentPage, currentProduct } = useMaya();
+  const [location] = useLocation();
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -160,6 +317,11 @@ export default function AIChat() {
         const headers: Record<string, string> = { 'Content-Type': 'application/json' };
         if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
 
+        const pageCtx = (currentPage && currentPage !== '/') ? {
+          page: currentPage,
+          ...(currentProduct ? { currentProduct } : {}),
+        } : undefined;
+
         const response = await fetch('/api/chat?stream=1', {
           method: 'POST',
           headers,
@@ -170,6 +332,7 @@ export default function AIChat() {
             stream: true,
             market: getStoredMarket(),
             ...(searchQuery ? { searchQuery } : {}),
+            ...(pageCtx ? { pageContext: pageCtx } : {}),
           }),
         });
         if (!response.ok) throw new Error(`Server error: ${response.status}`);
@@ -178,6 +341,7 @@ export default function AIChat() {
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
         let accumulated = '';
+        let streamedActions: any[] = [];
 
         if (reader) {
           let buffer = '';
@@ -202,6 +366,9 @@ export default function AIChat() {
                     payload.statusMessage ||
                     `🔧 Working...`;
                   setToolStatus(label);
+                } else if (payload.actions) {
+                  // Server emitted extracted actions
+                  streamedActions = payload.actions;
                 } else if (payload.text !== undefined) {
                   // Text is streaming — clear tool status
                   setToolStatus(null);
@@ -225,6 +392,7 @@ export default function AIChat() {
             const text = await response.text();
             const data = JSON.parse(text);
             accumulated = data.reply ?? '';
+            if (data.actions) streamedActions = data.actions;
             setMessages((prev) => {
               const updated = [...prev];
               updated[updated.length - 1] = { role: 'assistant', content: accumulated };
@@ -233,6 +401,23 @@ export default function AIChat() {
           } catch {
             /* already handled */
           }
+        }
+
+        // Extract any inline action blocks from text and clean display text
+        const { cleanText, actions: inlineActions } = extractAgentActions(accumulated);
+        const allActions = streamedActions.length > 0 ? streamedActions : inlineActions;
+
+        // Update final message with clean text + actions
+        if (allActions.length > 0 || cleanText !== accumulated) {
+          setMessages((prev) => {
+            const updated = [...prev];
+            updated[updated.length - 1] = {
+              role: 'assistant',
+              content: cleanText || accumulated,
+              agentActions: allActions.length > 0 ? allActions : undefined,
+            };
+            return updated;
+          });
         }
       } catch (err) {
         console.error('Stream error:', err);
@@ -540,6 +725,25 @@ export default function AIChat() {
                     <div className="prose prose-sm dark:prose-invert max-w-none">
                       {(() => {
                         const isStreaming = status === 'streaming' && i === messages.length - 1 && msg.role === 'assistant';
+                        const msgWithActions = msg as MessageWithActions;
+
+                        // New agentic action cards (navigate/workflow)
+                        if (!isStreaming && msg.role === 'assistant' && msgWithActions.agentActions && msgWithActions.agentActions.length > 0) {
+                          return (
+                            <>
+                              {msg.content && (
+                                <Markdown mode="static">{msg.content}</Markdown>
+                              )}
+                              <div style={{ marginTop: 8 }}>
+                                {msgWithActions.agentActions.map((action: any, idx: number) => (
+                                  <MayaActionCard key={idx} action={action} />
+                                ))}
+                              </div>
+                            </>
+                          );
+                        }
+
+                        // Old format action cards (pure JSON array)
                         const actionCards = !isStreaming && msg.role === 'assistant' ? parseActionCards(msg.content) : null;
                         if (actionCards) {
                           return (

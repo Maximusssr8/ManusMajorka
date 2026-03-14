@@ -173,6 +173,21 @@ export default function SupplierIntelligence() {
       setQuery(q);
       setTimeout(() => handleSearch(q), 800);
     }
+
+    // Maya prefill — agentic navigation
+    const mayaPrefill = sessionStorage.getItem('maya_prefill_suppliers');
+    if (mayaPrefill) {
+      try {
+        const data = JSON.parse(mayaPrefill);
+        if (data.query) {
+          setQuery(data.query);
+          sessionStorage.removeItem('maya_prefill_suppliers');
+          setTimeout(() => handleSearch(data.query), 800);
+        }
+      } catch {
+        /* ignore */
+      }
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

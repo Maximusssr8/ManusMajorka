@@ -1180,7 +1180,26 @@ export default function WebsiteGenerator() {
       const demoNiche = demoNiches[demoParam] || demoParam.replace(/-/g, ' ');
       setNiche(demoNiche);
     }
-  }, []);
+
+    // Maya prefill — check sessionStorage for agentic navigation
+    const mayaPrefill = sessionStorage.getItem('maya_prefill_website-generator');
+    if (mayaPrefill) {
+      try {
+        const data = JSON.parse(mayaPrefill);
+        if (data.productUrl) setAnalyzeUrl(data.productUrl);
+        if (data.productTitle) setStoreName(data.productTitle);
+        if (data.niche) setNiche(data.niche);
+        if (data.price) setPriceAUD(String(data.price));
+        sessionStorage.removeItem('maya_prefill_website-generator');
+        // Auto-trigger analyze after a short delay
+        if (data.productUrl) {
+          setTimeout(() => handleAnalyzeProduct(data.productUrl), 800);
+        }
+      } catch {
+        /* ignore malformed data */
+      }
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Progress message cycling
   useEffect(() => {

@@ -211,11 +211,13 @@ function App() {
         <AuthProvider>
           <MarketProvider>
             <ProductProvider>
-              <TooltipProvider>
-                <Toaster />
-                <AlmostWonModal />
-                <Router />
-              </TooltipProvider>
+              <MayaProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <AlmostWonModal />
+                  <Router />
+                </TooltipProvider>
+              </MayaProvider>
             </ProductProvider>
           </MarketProvider>
         </AuthProvider>

@@ -1,6 +1,7 @@
 import { createElement, lazy, Suspense, useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import AIToolChat from '@/components/AIToolChat';
+import MayaProactiveBar from '@/components/MayaProactiveBar';
 import { useProduct } from '@/contexts/ProductContext';
 import { type ActivityEntry, getActivityLog, getRelativeTime, logActivity } from '@/lib/activity';
 import { injectProductIntelligence } from '@/lib/buildToolPrompt';
@@ -122,11 +123,23 @@ export default function ToolPage() {
     return null;
   });
 
+  // Pages that get the Maya proactive bar
+  const MAYA_BAR_PAGES = new Set([
+    '/app/winning-products',
+    '/app/suppliers',
+    '/app/saturation-checker',
+    '/app/website-generator',
+    '/app/profit-calculator',
+  ]);
+
   // Wrap in page transition animation + Suspense
   const page = (el: React.ReactElement) => (
     <Suspense fallback={<ToolLoadingFallback />}>
-      <div key={location} className="page-enter h-full">
-        {el}
+      <div key={location} className="page-enter h-full flex flex-col">
+        <div className="flex-1 overflow-auto">
+          {el}
+        </div>
+        {MAYA_BAR_PAGES.has(location) && <MayaProactiveBar />}
       </div>
     </Suspense>
   );

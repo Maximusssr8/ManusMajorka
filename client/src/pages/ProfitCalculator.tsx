@@ -151,6 +151,25 @@ export default function ProfitCalculator() {
       const parsedCost = parseFloat(cost);
       if (!isNaN(parsedCost)) setProductCost(parsedCost);
     }
+
+    // Maya prefill — agentic navigation
+    const mayaPrefill = sessionStorage.getItem('maya_prefill_profit-calculator');
+    if (mayaPrefill) {
+      try {
+        const data = JSON.parse(mayaPrefill);
+        if (data.sellPrice) {
+          const parsed = parseFloat(String(data.sellPrice));
+          if (!isNaN(parsed)) setSellingPrice(parsed);
+        }
+        if (data.costPrice) {
+          const parsed = parseFloat(String(data.costPrice));
+          if (!isNaN(parsed)) setProductCost(parsed);
+        }
+        sessionStorage.removeItem('maya_prefill_profit-calculator');
+      } catch {
+        /* ignore */
+      }
+    }
   }, []);
 
   const platformFeeRate = useMemo(() => {

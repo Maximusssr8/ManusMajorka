@@ -2542,6 +2542,22 @@ function WinningProducts() {
     return () => clearTimeout(t);
   }, [search]);
 
+  // ── Maya prefill — agentic navigation ────────────────────────────────
+  useEffect(() => {
+    const mayaPrefill = sessionStorage.getItem('maya_prefill_winning-products');
+    if (mayaPrefill) {
+      try {
+        const data = JSON.parse(mayaPrefill);
+        if (data.category && data.category !== 'All') setCategory(data.category);
+        if (data.filter === 'low-competition') setCompetition('low');
+        if (data.search) setSearch(data.search);
+        sessionStorage.removeItem('maya_prefill_winning-products');
+      } catch {
+        /* ignore */
+      }
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Load recent searches (user_search_history) ───────────────────────
   useEffect(() => {
     if (!userId) { setRecentSearches([]); return; }

@@ -112,7 +112,26 @@ export default function SaturationChecker() {
     } catch {
       /* ignore */
     }
-  }, []);
+
+    // Maya prefill — agentic navigation
+    const mayaPrefill = sessionStorage.getItem('maya_prefill_saturation-checker');
+    if (mayaPrefill) {
+      try {
+        const data = JSON.parse(mayaPrefill);
+        if (data.product) {
+          setProduct(data.product);
+          sessionStorage.removeItem('maya_prefill_saturation-checker');
+          // Auto-check after a short delay
+          setTimeout(() => {
+            const form = document.querySelector<HTMLFormElement>('[data-saturation-form]');
+            if (form) form.requestSubmit();
+          }, 800);
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function saveRecent(name: string) {
     const updated = [
