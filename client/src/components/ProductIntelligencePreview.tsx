@@ -5,7 +5,8 @@ import { supabase } from '@/lib/supabase';
 // ── Types ──────────────────────────────────────────────────────────────────────
 interface WinningProduct {
   id?: string;
-  name: string;
+  product_title?: string;
+  name?: string;
   category: string;
   image_url?: string;
   est_daily_revenue_aud: number;
@@ -14,156 +15,142 @@ interface WinningProduct {
   au_relevance?: number;
   profit_margin?: number;
   competition_level?: string;
+  trend?: string;
   trend_status?: string;
   why_winning?: string;
   ad_angle?: string;
 }
 
-// ── Fallback product ───────────────────────────────────────────────────────────
-const FALLBACK_PRODUCT: WinningProduct = {
-  name: 'LED Smart Ring Light & Beauty Mirror',
-  category: 'Beauty & Wellness',
-  image_url: 'https://images.unsplash.com/photo-1583241800698-e8ab01830a24?w=800&h=500&fit=crop&crop=center&q=90',
-  est_daily_revenue_aud: 28400,
-  est_monthly_revenue_aud: 852000,
-  winning_score: 94,
-  au_relevance: 97,
-  profit_margin: 38,
-  competition_level: 'Medium',
+// ── Hardcoded fallback ─────────────────────────────────────────────────────────
+const FEATURED_PRODUCT: WinningProduct = {
+  product_title: 'LED Light Therapy Face Mask Pro',
+  name: 'LED Light Therapy Face Mask Pro',
+  category: 'Health & Beauty',
+  est_daily_revenue_aud: 24200,
+  est_monthly_revenue_aud: 726000,
+  winning_score: 97,
+  trend: 'exploding',
   trend_status: 'EXPLODING',
-  why_winning: 'High-protein, low-calorie ice cream trend exploding on TikTok AU. Perfect for summer + gym culture. AUD price point 20% below US retail. Strong recurring purchase behaviour.',
-  ad_angle: 'Show the transformation: unhealthy store-bought vs. clean, high-protein homemade. UGC-style "I made ice cream in 90 seconds" hooks are converting at 4.2% CTR.',
+  au_relevance: 97,
+  profit_margin: 70,
+  competition_level: 'Low',
+  why_winning:
+    'Celebrity-endorsed skincare at a fraction of clinic prices. AU women 25-45 are obsessed with at-home LED therapy. Repeat buyer rate 34%.',
+  ad_angle: 'Before/after transformation in 4 weeks — no clinic needed',
+  image_url:
+    'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=400&fit=crop&crop=center&q=90',
 };
 
-// ── Injected styles ────────────────────────────────────────────────────────────
+const IMAGE_FALLBACK =
+  'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&h=400&fit=crop&crop=center&q=90';
+
+function isBadImage(url?: string | null): boolean {
+  if (!url) return true;
+  const lower = url.toLowerCase();
+  return (
+    lower.includes('food') ||
+    lower.includes('creami') ||
+    lower.includes('pizza') ||
+    lower.includes('burger') ||
+    lower.includes('cake') ||
+    lower.includes('dessert')
+  );
+}
+
+// ── Helper ─────────────────────────────────────────────────────────────────────
+function fmtDailyRev(n: number): string {
+  return '$' + n.toLocaleString('en-AU') + '/day';
+}
+function fmtMonthlyRev(n: number): string {
+  if (n >= 1_000_000) return '$' + (n / 1_000_000).toFixed(1) + 'M/mo';
+  return '$' + Math.round(n / 1000) + 'K/mo';
+}
+
+// ── CSS ────────────────────────────────────────────────────────────────────────
 const PIP_STYLES = `
+@keyframes pip-fade-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes type-line {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+@keyframes pip-blink {
+  50% { opacity: 0; }
+}
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.35; }
+}
+@keyframes gold-dot-pulse {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1; }
+}
+
+.pip-animate-in {
+  animation: pip-fade-in 0.6s ease-out forwards;
+}
+
 .pip-section {
   padding: 80px 24px;
   max-width: 1200px;
   margin: 0 auto;
 }
+
 .pip-grid {
   display: grid;
   grid-template-columns: 55fr 45fr;
   gap: 24px;
   align-items: start;
-  margin-top: 48px;
+  margin-top: 40px;
 }
+
 @media (max-width: 768px) {
   .pip-section { padding: 48px 16px 40px; }
   .pip-grid { grid-template-columns: 1fr; gap: 16px; }
-  /* Show locked panel on mobile but compact */
-  .pip-locked { display: block !important; }
-  /* Section header */
-  .pip-section h2 { font-size: 26px !important; }
-  /* Product image */
+  .pip-section-h2 { font-size: 28px !important; }
   .pip-product-img { height: 160px !important; }
-  /* Revenue number */
-  .pip-revenue { font-size: 28px !important; }
-  /* Metrics row: 2x2 grid */
-  .pip-metrics-row { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 0 !important; }
-  .pip-metrics-row > * { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.06) !important; }
-  .pip-metrics-row > *:nth-child(odd) { border-right: 1px solid rgba(255,255,255,0.06) !important; }
-  .pip-metrics-row > *:nth-last-child(-n+2) { border-bottom: none !important; }
-  /* Action buttons: stack vertically */
+  .pip-daily-rev { font-size: 26px !important; }
   .pip-actions { flex-direction: column !important; gap: 8px !important; }
   .pip-actions .pip-action-btn { width: 100% !important; justify-content: center !important; box-sizing: border-box !important; }
-  /* Ghost grid: 1 column, only first 2 */
-  .pip-ghost-grid { grid-template-columns: 1fr !important; }
-  .pip-ghost-grid > *:nth-child(n+3) { display: none !important; }
-  /* Workflow strip: hide on mobile */
-  .pip-workflow { display: none !important; }
-  /* Lock overlay compact */
-  .pip-lock-overlay { padding: 16px; }
 }
+
+/* ── Product card ──────────────────────── */
 .pip-product-card {
-  background: rgba(12,14,20,0.95);
-  border: 1px solid rgba(212,175,55,0.2);
+  background: rgba(11,13,19,0.95);
+  border: 1px solid rgba(212,175,55,0.18);
   border-radius: 12px;
-  padding: 24px;
+  padding: 20px;
   position: relative;
 }
 .pip-product-card::before {
   content: '';
   position: absolute;
   top: -1px; left: -1px;
-  width: 16px; height: 16px;
+  width: 18px; height: 18px;
   border-top: 2px solid #d4af37;
   border-left: 2px solid #d4af37;
+  border-radius: 2px 0 0 0;
 }
 .pip-product-card::after {
   content: '';
   position: absolute;
   bottom: -1px; right: -1px;
-  width: 16px; height: 16px;
+  width: 18px; height: 18px;
   border-bottom: 2px solid #d4af37;
   border-right: 2px solid #d4af37;
+  border-radius: 0 0 2px 0;
 }
-.pip-revenue {
-  font-family: 'Syne', sans-serif;
-  font-size: 36px;
-  font-weight: 800;
-  color: #d4af37;
-  text-shadow: 0 0 20px rgba(212,175,55,0.3);
-  letter-spacing: -0.5px;
-  line-height: 1;
-  white-space: nowrap;
-}
-.pip-locked-container {
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-}
-.pip-ghost-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  filter: blur(4px);
-  pointer-events: none;
-}
-.pip-lock-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(8,10,14,0.75);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  text-align: center;
-  border: 1px solid rgba(212,175,55,0.15);
-  border-radius: 12px;
-}
-.pip-unlock-btn {
-  background: #d4af37;
-  color: #080a0e;
-  border: none;
-  border-radius: 8px;
-  padding: 14px 24px;
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
-  width: 100%;
-  margin-top: 0;
-  transition: all 0.2s;
-  text-decoration: none;
-  display: block;
-  text-align: center;
-  box-sizing: border-box;
-}
-.pip-unlock-btn:hover {
-  background: #e8c547;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 25px rgba(212,175,55,0.35);
-}
+
+/* ── Action buttons ────────────────────── */
 .pip-action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: 5px;
+  padding: 8px 14px;
   background: transparent;
-  border: 1px solid rgba(212,175,55,0.3);
+  border: 1px solid rgba(212,175,55,0.28);
   border-radius: 6px;
   color: #d4af37;
   font-family: 'DM Sans', sans-serif;
@@ -179,161 +166,111 @@ const PIP_STYLES = `
   background: rgba(212,175,55,0.08);
   border-color: rgba(212,175,55,0.5);
 }
-@keyframes type-line {
-  from { width: 0; }
-  to { width: 100%; }
-}
-@keyframes blink {
-  50% { opacity: 0; }
-}
-.pip-terminal {
-  background: rgba(8,10,14,0.95);
-  border: 1px solid rgba(212,175,55,0.2);
+
+/* ── Unlock button ─────────────────────── */
+.pip-unlock-btn {
+  background: #d4af37;
+  color: #080a0e;
+  border: none;
   border-radius: 8px;
-  padding: 14px 16px;
-  margin: 12px;
-  font-family: 'JetBrains Mono', 'Courier New', monospace;
-  font-size: 11px;
-}
-.pip-terminal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(212,175,55,0.1);
-}
-.pip-terminal-title {
-  color: #d4af37;
-  font-size: 10px;
+  padding: 14px 20px;
+  font-family: 'Syne', sans-serif;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: block;
+  text-align: center;
+  box-sizing: border-box;
+  letter-spacing: 0.01em;
 }
-.pip-terminal-dots {
-  display: flex;
-  gap: 5px;
+.pip-unlock-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
 }
-.pip-terminal-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-}
+
+/* ── Terminal ──────────────────────────── */
 .pip-terminal-line {
   color: #d4af37;
   overflow: hidden;
   white-space: nowrap;
   width: 0;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   font-size: 11px;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
   animation: type-line 0.6s steps(30, end) forwards;
 }
-.pip-terminal-line:nth-child(1) { animation-delay: 0.5s; }
-.pip-terminal-line:nth-child(2) { animation-delay: 1.5s; }
-.pip-terminal-line:nth-child(3) { animation-delay: 2.5s; }
-.pip-terminal-line:nth-child(4) { animation-delay: 3.5s; }
-.pip-terminal-line:nth-child(5) { animation-delay: 4.5s; }
+.pip-terminal-line:nth-child(1) { animation-delay: 0.3s; }
+.pip-terminal-line:nth-child(2) { animation-delay: 1.1s; }
+.pip-terminal-line:nth-child(3) { animation-delay: 1.9s; }
+.pip-terminal-line:nth-child(4) { animation-delay: 2.7s; }
+.pip-terminal-line:nth-child(5) { animation-delay: 3.5s; }
 .pip-terminal-ready {
   color: #4ade80;
   font-size: 11px;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
   margin-top: 8px;
   opacity: 0;
-  animation: pip-fade-in 0.4s ease-out 5.5s forwards;
+  animation: pip-fade-in 0.4s ease-out 4.5s forwards;
 }
-@keyframes step-activate {
-  0%, 20%   { background: transparent; color: #d4af37; box-shadow: none; }
-  25%, 45%  { background: #d4af37; color: #080a0e; box-shadow: 0 0 20px rgba(212,175,55,0.5); }
-  50%, 100% { background: transparent; color: #d4af37; box-shadow: none; }
-}
-.workflow-step-1 .step-circle { animation: step-activate 10s ease-in-out 0s infinite; }
-.workflow-step-2 .step-circle { animation: step-activate 10s ease-in-out 2s infinite; }
-.workflow-step-3 .step-circle { animation: step-activate 10s ease-in-out 4s infinite; }
-.workflow-step-4 .step-circle { animation: step-activate 10s ease-in-out 6s infinite; }
-.workflow-step-5 .step-circle { animation: step-activate 10s ease-in-out 8s infinite; }
-.step-circle {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 2px solid #d4af37;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 16px;
-  color: #d4af37;
-  transition: all 0.3s;
-  flex-shrink: 0;
-}
-@keyframes pip-fade-in {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.pip-animate-in {
-  animation: pip-fade-in 0.6s ease-out forwards;
-}
-@keyframes live-pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
-}
-.live-dot {
+.pip-cursor {
   display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #22c55e;
-  animation: live-pulse 2s ease-in-out infinite;
-  margin-right: 6px;
+  width: 7px;
+  height: 11px;
+  background: #d4af37;
+  animation: pip-blink 1s step-end infinite;
   vertical-align: middle;
+  margin-left: 2px;
+}
+
+/* ── Blurred row shimmer ───────────────── */
+.pip-shimmer-name {
+  height: 10px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 4px;
+  flex: 1;
+  filter: blur(6px);
+}
+.pip-shimmer-rev {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(212,175,55,0.55);
+  filter: blur(3px);
+  white-space: nowrap;
+  user-select: none;
 }
 `;
 
-// ── Ghost card ─────────────────────────────────────────────────────────────────
-function GhostCard({ revenue }: { revenue: string }) {
-  return (
-    <div style={{ background: 'rgba(12,14,20,0.9)', border: '1px solid rgba(212,175,55,0.1)', borderRadius: 10, padding: 16 }}>
-      <div style={{ height: 100, background: 'rgba(255,255,255,0.04)', borderRadius: 6, marginBottom: 12 }} />
-      <div style={{ height: 10, background: 'rgba(255,255,255,0.08)', borderRadius: 4, marginBottom: 8, width: '80%' }} />
-      <div style={{ height: 10, background: 'rgba(255,255,255,0.05)', borderRadius: 4, marginBottom: 14, width: '55%' }} />
-      <div style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 6, padding: '8px 10px', marginBottom: 10 }}>
-        <div style={{ fontSize: 11, color: 'rgba(212,175,55,0.5)', marginBottom: 3 }}>Est. Daily Revenue</div>
-        <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 800, color: 'rgba(212,175,55,0.6)', letterSpacing: '-0.5px' }}>
-          {revenue}
-        </div>
-      </div>
-      <div style={{ display: 'flex', gap: 6 }}>
-        {[70, 50, 60].map((w, i) => (
-          <div key={i} style={{ height: 8, background: 'rgba(255,255,255,0.06)', borderRadius: 4, flex: `0 0 ${w}px` }} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ── Terminal animation ─────────────────────────────────────────────────────────
-function TerminalAnimation() {
+// ── Terminal component ─────────────────────────────────────────────────────────
+function TerminalAnimation({ dailyRev }: { dailyRev: number }) {
   const [key, setKey] = useState(0);
-
-  // Restart every 8 seconds
   useEffect(() => {
-    const t = setInterval(() => setKey((k) => k + 1), 8000);
+    const t = setInterval(() => setKey((k) => k + 1), 9000);
     return () => clearInterval(t);
   }, []);
 
   return (
-    <div key={key} className="pip-terminal" style={{ position: 'absolute', top: 12, left: 12, right: 12, zIndex: 1 }}>
-      <div className="pip-terminal-header">
-        <span className="pip-terminal-title">◈ MAJORKA AI</span>
-        <div className="pip-terminal-dots">
-          <div className="pip-terminal-dot" style={{ background: '#ef4444' }} />
-          <div className="pip-terminal-dot" style={{ background: '#f59e0b' }} />
-          <div className="pip-terminal-dot" style={{ background: '#22c55e' }} />
+    <div key={key} style={{ padding: '14px 16px', background: 'rgba(8,10,14,1)', borderRadius: 8, flexShrink: 0 }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid rgba(212,175,55,0.1)' }}>
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 500, color: '#d4af37', letterSpacing: '0.06em' }}>
+          ◈ MAJORKA AI TERMINAL
+        </span>
+        <div style={{ display: 'flex', gap: 5 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444' }} />
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#f59e0b' }} />
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e' }} />
         </div>
       </div>
+      {/* Lines */}
       <div className="pip-terminal-line">&gt; Analysing AU market trends...</div>
       <div className="pip-terminal-line">&gt; Found 47 winning products today</div>
-      <div className="pip-terminal-line">&gt; Top revenue: $28,400/day</div>
+      <div className="pip-terminal-line">&gt; Top revenue: {fmtDailyRev(dailyRev)}</div>
       <div className="pip-terminal-line">&gt; Suppliers sourced: 6 options</div>
-      <div className="pip-terminal-line">&gt; Store generated in 12s</div>
+      <div className="pip-terminal-line">&gt; Store ready in 12s <span className="pip-cursor" /></div>
       <div className="pip-terminal-ready">✓ Intelligence ready</div>
     </div>
   );
@@ -352,54 +289,46 @@ export default function ProductIntelligencePreview() {
         const { data, error } = await supabase
           .from('winning_products')
           .select('*')
+          .gte('au_relevance', 90)
           .order('est_daily_revenue_aud', { ascending: false })
-          .limit(1)
-          .single();
+          .limit(10);
+
         if (!cancelled) {
-          if (error || !data) {
-            setProduct(FALLBACK_PRODUCT);
+          if (error || !data || data.length === 0) {
+            setProduct(FEATURED_PRODUCT);
           } else {
-            setProduct(data as WinningProduct);
+            // Pick first item that doesn't have a food image
+            const good = (data as WinningProduct[]).find((d) => !isBadImage(d.image_url));
+            setProduct(good ?? FEATURED_PRODUCT);
           }
         }
       } catch {
-        if (!cancelled) setProduct(FALLBACK_PRODUCT);
+        if (!cancelled) setProduct(FEATURED_PRODUCT);
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
     fetchProduct();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const handleActionClick = (path: string) => {
-    navigate(path);
-  };
+  const p = product ?? FEATURED_PRODUCT;
+  const title = p.product_title ?? p.name ?? 'LED Light Therapy Face Mask Pro';
+  const daily = p.est_daily_revenue_aud;
+  const monthly = p.est_monthly_revenue_aud ?? daily * 30;
+  const score = p.winning_score ?? 97;
+  const auRel = p.au_relevance ?? 97;
+  const margin = p.profit_margin ?? 70;
+  const comp = p.competition_level ?? 'Low';
+  const trend = (p.trend ?? p.trend_status ?? 'exploding').toUpperCase();
+  const imgSrc = isBadImage(p.image_url) ? FEATURED_PRODUCT.image_url! : (p.image_url ?? FEATURED_PRODUCT.image_url!);
 
-  const p = product ?? FALLBACK_PRODUCT;
-  const dailyRevFmt = `$${(p.est_daily_revenue_aud).toLocaleString()} AUD`;
-  const monthlyRev = p.est_monthly_revenue_aud ?? p.est_daily_revenue_aud * 30;
-  const monthlyRevFmt = `$${(monthlyRev / 1000).toFixed(0)}K AUD/mo`;
-  const trendBadge = p.trend_status === 'EXPLODING'
-    ? { label: '🔥 EXPLODING', color: '#22c55e' }
-    : p.trend_status === 'RISING'
-      ? { label: '📈 RISING', color: '#3b82f6' }
-      : { label: '✨ TRENDING', color: '#a78bfa' };
-
-  const WORKFLOW_STEPS = [
-    { num: '1', label: 'FIND PRODUCT' },
-    { num: '2', label: 'ANALYSE MARKET' },
-    { num: '3', label: 'SOURCE SUPPLIER' },
-    { num: '4', label: 'BUILD STORE' },
-    { num: '5', label: 'RUN ADS' },
-  ];
-
-  const AVATARS_PROOF = [
-    { initials: 'JM', bg: '#d4af37', color: '#000' },
-    { initials: 'ST', bg: '#b8941f', color: '#000' },
-    { initials: 'ML', bg: '#374151', color: '#e5e7eb' },
-    { initials: 'PK', bg: '#d4af37', color: '#000' },
-    { initials: 'TB', bg: '#4b5563', color: '#f9fafb' },
+  const LOCKED_ROWS = [
+    { rev: '$21,800/day' },
+    { rev: '$19,600/day' },
+    { rev: '$18,500/day' },
   ];
 
   return (
@@ -408,117 +337,126 @@ export default function ProductIntelligencePreview() {
       <section style={{ background: '#080a0e', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
         <div className="pip-section pip-animate-in">
 
-          {/* ── PART A: Section header ─────────────────────────────────── */}
+          {/* ── Section header ─────────────────────────────────────────── */}
           <div style={{ textAlign: 'center' }}>
-            {/* Live chip */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 100, padding: '5px 14px', marginBottom: 20 }}>
-              <span className="live-dot" />
-              <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 11, fontWeight: 700, color: '#d4af37', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                Live Product Intelligence
+            {/* Live dot row */}
+            <div style={{ marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#d4af37', animation: 'gold-dot-pulse 2s ease-in-out infinite' }} />
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: 'rgba(212,175,55,0.6)' }}>
+                Live intelligence · Updated 6h ago
               </span>
             </div>
 
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', color: '#f5f5f5', lineHeight: 1.15, letterSpacing: '-0.025em', marginBottom: 14 }}>
+            <h2
+              className="pip-section-h2"
+              style={{
+                fontFamily: 'Syne, sans-serif',
+                fontWeight: 800,
+                fontSize: 40,
+                color: '#f5f5f5',
+                lineHeight: 1.15,
+                letterSpacing: '-0.025em',
+                marginBottom: 12,
+              }}
+            >
               Find your next{' '}
-              <span style={{ background: 'linear-gradient(135deg, #d4af37, #f5d98a, #d4af37)', backgroundSize: '200% 200%', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+              <span style={{
+                background: 'linear-gradient(135deg, #d4af37, #f0c840)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>
                 $10k/month product
               </span>
             </h2>
 
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, color: '#94949e', marginBottom: 0 }}>
-              Real AU TikTok Shop data. Updated every 6 hours.
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: '#6b7280', marginBottom: 0 }}>
+              Real AU TikTok Shop data · Updated every 6 hours
             </p>
           </div>
 
-          {/* ── PART B + C: Product grid ───────────────────────────────── */}
+          {/* ── Grid ───────────────────────────────────────────────────── */}
           <div className="pip-grid">
 
-            {/* LEFT: Unlocked product */}
+            {/* LEFT: Unlocked product card */}
             <div className="pip-product-card">
-              {/* Image area */}
-              <div style={{ position: 'relative', marginBottom: 16 }}>
-                {p.image_url ? (
-                  <img
-                    src={p.image_url}
-                    alt={p.name}
-                    className="pip-product-img"
-                    style={{ width: '100%', height: 220, objectFit: 'cover', objectPosition: 'center', borderRadius: 8, display: 'block' }}
-                  />
-                ) : (
-                  <div style={{ width: '100%', height: 220, background: 'linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(12,14,20,0.95) 100%)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: 48 }}>📦</span>
-                  </div>
-                )}
+
+              {/* Image */}
+              <div style={{ position: 'relative', marginBottom: 18 }}>
+                <img
+                  src={imgSrc}
+                  alt={title}
+                  className="pip-product-img"
+                  style={{ width: '100%', height: 200, objectFit: 'cover', objectPosition: 'center', borderRadius: 8, display: 'block' }}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = IMAGE_FALLBACK;
+                  }}
+                />
                 {/* Category chip */}
-                <div style={{ position: 'absolute', top: 10, left: 10, background: 'rgba(212,175,55,0.9)', color: '#080a0e', borderRadius: 100, padding: '3px 10px', fontSize: 11, fontWeight: 700, fontFamily: 'Syne, sans-serif', letterSpacing: '0.04em' }}>
+                <div style={{ position: 'absolute', top: 10, left: 10, background: 'rgba(212,175,55,0.92)', color: '#080a0e', borderRadius: 100, padding: '3px 10px', fontSize: 11, fontWeight: 700, fontFamily: 'Syne, sans-serif', letterSpacing: '0.04em' }}>
                   {p.category}
                 </div>
                 {/* Trend badge */}
-                <div style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(0,0,0,0.7)', border: `1px solid ${trendBadge.color}`, borderRadius: 100, padding: '3px 10px', fontSize: 11, fontWeight: 700, color: trendBadge.color }}>
-                  {trendBadge.label}
+                <div style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(0,0,0,0.72)', border: '1px solid rgba(212,175,55,0.5)', borderRadius: 100, padding: '3px 10px', fontSize: 11, fontWeight: 700, color: '#d4af37', fontFamily: "'DM Sans', sans-serif" }}>
+                  🔥 {trend === 'EXPLODING' ? 'TRENDING' : trend}
                 </div>
               </div>
 
-              {/* Product name */}
+              {/* Product title */}
               <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: '#f5f5f5', marginBottom: 4, lineHeight: 1.3 }}>
-                {p.name}
+                {title}
               </h3>
               <p style={{ fontSize: 12, color: 'rgba(212,175,55,0.6)', marginBottom: 20, fontFamily: "'DM Sans', sans-serif" }}>
                 Trending on TikTok Shop AU
               </p>
 
-              {/* Revenue hero numbers */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20, background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.1)', borderRadius: 10, padding: 16 }}>
+              {/* Revenue numbers — HERO */}
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 18, flexWrap: 'wrap' }}>
                 <div>
-                  <div style={{ fontSize: 11, color: '#52525b', fontFamily: "'DM Sans', sans-serif", marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    Est. Daily Revenue
+                  <div className="pip-daily-rev" style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 34, color: '#d4af37', lineHeight: 1, letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>
+                    {fmtDailyRev(daily)}
                   </div>
-                  <div className="pip-revenue">{dailyRevFmt}</div>
                 </div>
-                <div>
-                  <div style={{ fontSize: 11, color: '#52525b', fontFamily: "'DM Sans', sans-serif", marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    Est. Monthly
-                  </div>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, fontWeight: 600, color: '#4ade80', lineHeight: 1, letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>
-                    {monthlyRevFmt}
-                  </div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: '#4ade80', lineHeight: 1, whiteSpace: 'nowrap' }}>
+                  {fmtMonthlyRev(monthly)}
                 </div>
               </div>
 
+              {/* Separator */}
+              <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)', marginBottom: 12 }} />
+
               {/* Metrics row */}
-              <div className="pip-metrics-row" style={{ display: 'flex', gap: 0, marginBottom: 20, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, overflow: 'hidden' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 12, flexWrap: 'nowrap', overflow: 'hidden' }}>
                 {[
-                  { label: 'Win Score', value: `${p.winning_score ?? 94}/100` },
-                  { label: 'AU Relevance', value: `${p.au_relevance ?? 97}%` },
-                  { label: 'Margin', value: `${p.profit_margin ?? 38}%` },
-                  { label: 'Competition', value: p.competition_level ?? 'Medium' },
-                ].map((metric, i, arr) => (
-                  <div
-                    key={metric.label}
-                    style={{
-                      flex: 1,
-                      padding: '10px 6px',
-                      textAlign: 'center',
-                      borderRight: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
-                    }}
-                  >
-                    <div style={{ fontSize: 10, color: '#52525b', fontFamily: "'DM Sans', sans-serif", marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      {metric.label}
+                  { label: 'Score', value: `${score}/100` },
+                  { label: 'AU', value: `${auRel}%` },
+                  { label: 'Margin', value: `${margin}%` },
+                  { label: 'Comp', value: comp },
+                ].map((m, i, arr) => (
+                  <div key={m.label} style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
+                    <div style={{ textAlign: 'center', padding: '0 10px' }}>
+                      <span style={{ fontSize: 12, color: '#9ca3af', fontFamily: "'DM Sans', sans-serif" }}>
+                        {m.label}{' '}
+                        <span style={{ color: '#ffffff', fontWeight: 500 }}>{m.value}</span>
+                      </span>
                     </div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#f5f5f5', fontFamily: 'Syne, sans-serif' }}>
-                      {metric.value}
-                    </div>
+                    {i < arr.length - 1 && (
+                      <span style={{ color: 'rgba(255,255,255,0.1)', fontSize: 14, paddingRight: 0 }}>|</span>
+                    )}
                   </div>
                 ))}
               </div>
 
+              {/* Separator */}
+              <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)', marginBottom: 16 }} />
+
               {/* Why it's winning */}
               {p.why_winning && (
-                <div style={{ borderLeft: '3px solid #d4af37', background: 'rgba(212,175,55,0.04)', borderRadius: '0 8px 8px 0', padding: '12px 14px', marginBottom: 16 }}>
-                  <div style={{ fontSize: 11, color: '#d4af37', fontWeight: 700, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    Why It's Winning
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 10, color: 'rgba(212,175,55,0.5)', fontFamily: "'DM Sans', sans-serif", fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>
+                    Why it's winning
                   </div>
-                  <p style={{ fontSize: 13, color: '#94949e', lineHeight: 1.6, margin: 0, fontFamily: "'DM Sans', sans-serif" }}>
+                  <p style={{ fontSize: 13, color: '#d1d5db', lineHeight: 1.55, margin: 0, fontFamily: "'DM Sans', sans-serif", display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis' } as React.CSSProperties}>
                     {p.why_winning}
                   </p>
                 </div>
@@ -527,134 +465,102 @@ export default function ProductIntelligencePreview() {
               {/* Ad angle */}
               {p.ad_angle && (
                 <div style={{ marginBottom: 20 }}>
-                  <div style={{ fontSize: 11, color: '#52525b', fontWeight: 700, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    💡 Winning Ad Angle
-                  </div>
-                  <p style={{ fontSize: 13, color: '#d4af37', lineHeight: 1.6, margin: 0, fontStyle: 'italic', fontFamily: "'DM Sans', sans-serif" }}>
-                    {p.ad_angle}
-                  </p>
+                  <span style={{ fontSize: 12, color: 'rgba(212,175,55,0.8)', fontStyle: 'italic', fontFamily: "'DM Sans', sans-serif" }}>
+                    💡 Ad angle: {p.ad_angle}
+                  </span>
                 </div>
               )}
 
               {/* Action buttons */}
-              <div className="pip-actions" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
-                <button className="pip-action-btn" onClick={() => handleActionClick('/app/suppliers?demo=posture-corrector')}>
+              <div className="pip-actions" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+                <button className="pip-action-btn" onClick={() => navigate('/app/suppliers?demo=led-face-mask')}>
                   Find Suppliers →
                 </button>
-                <button className="pip-action-btn" onClick={() => handleActionClick('/app/profit-calculator?price=89.99&cost=24.50&name=LED+Face+Mask')}>
-                  Profit Calculator →
+                <button className="pip-action-btn" onClick={() => navigate('/app/profit-calculator?price=89.99&cost=24.50&name=LED+Face+Mask')}>
+                  Profit Calc →
                 </button>
-                <button className="pip-action-btn" onClick={() => handleActionClick('/app/website-generator?demo=beauty-gadgets')}>
+                <button className="pip-action-btn" onClick={() => navigate('/app/website-generator?demo=health-beauty')}>
                   Build Store →
                 </button>
               </div>
-              {/* Demo hint */}
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginTop: 8, marginBottom: 12, fontFamily: "'DM Sans', sans-serif" }}>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textAlign: 'center', fontFamily: "'DM Sans', sans-serif" }}>
                 Try a live demo — no signup needed
-              </div>
-
-              {/* Tags */}
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {[`#${p.category.replace(/\s+/g, '')}`, '#TikTokShopAU', '#Trending'].map((tag) => (
-                  <span key={tag} style={{ fontSize: 11, color: '#52525b', fontFamily: "'DM Sans', sans-serif", background: 'rgba(255,255,255,0.03)', padding: '3px 8px', borderRadius: 4, border: '1px solid rgba(255,255,255,0.06)' }}>
-                    {tag}
-                  </span>
-                ))}
               </div>
             </div>
 
-            {/* RIGHT: Locked products */}
-            <div className="pip-locked pip-locked-container">
-              {/* Ghost grid behind the lock */}
-              <div className="pip-ghost-grid">
-                <GhostCard revenue="████ $21,800/day" />
-                <GhostCard revenue="████ $19,200/day" />
-                <GhostCard revenue="████ $17,800/day" />
-                <GhostCard revenue="████ $16,400/day" />
+            {/* RIGHT: Locked intelligence panel */}
+            <div style={{ background: 'rgba(11,13,19,0.95)', border: '1px solid rgba(212,175,55,0.18)', borderRadius: 12, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+
+              {/* Terminal section */}
+              <div style={{ padding: 16, borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
+                <TerminalAnimation dailyRev={daily} />
               </div>
 
-              {/* Animated terminal — sits behind blur overlay */}
-              <TerminalAnimation />
-
-              {/* Lock overlay */}
-              <div className="pip-lock-overlay">
-                <div style={{ marginBottom: 12, color: '#d4af37', opacity: 0.85 }}>
-                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              {/* Blurred products + lock */}
+              <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
+                {/* Lock header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                   </svg>
-                </div>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 20, color: '#f5f5f5', marginBottom: 16 }}>
-                  47 more products today
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: 13, color: '#ffffff' }}>
+                    47 products locked
+                  </span>
                 </div>
 
-                {/* Peeking product names */}
-                <div style={{ background: 'rgba(12,14,20,0.8)', border: '1px solid rgba(212,175,55,0.1)', borderRadius: 8, padding: '10px 14px', width: '100%', marginBottom: 4, textAlign: 'left' }}>
-                  {[
-                    'Ninja Creami Ice Cream Maker...',
-                    'LED Light Therapy Face Mask...',
-                    'Wide Leg Cargo Pants Y2K...',
-                  ].map((name) => (
-                    <div key={name} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <span style={{ color: '#d4af37', fontSize: 12 }}>•</span>
-                      <span style={{ fontSize: 13, color: 'rgba(245,245,245,0.5)', fontFamily: "'DM Sans', sans-serif", filter: 'blur(3px)', userSelect: 'none' }}>
-                        {name}
-                      </span>
+                {/* Blurred product rows */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  {LOCKED_ROWS.map((row, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        padding: '11px 14px',
+                        borderBottom: i < LOCKED_ROWS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                        background: 'rgba(12,14,20,0.7)',
+                      }}
+                    >
+                      <div className="pip-shimmer-name" />
+                      <span className="pip-shimmer-rev">{row.rev}</span>
                     </div>
                   ))}
                 </div>
 
                 {/* CTA */}
-                <a href="/sign-up" className="pip-unlock-btn">
-                  Unlock All Products — Start Free →
-                </a>
-
-                <p style={{ fontSize: 11, color: '#52525b', marginTop: 10, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.5 }}>
-                  No credit card required
-                </p>
+                <div style={{ marginTop: 4 }}>
+                  <a href="/sign-up" className="pip-unlock-btn">
+                    Unlock All Products — Start Free →
+                  </a>
+                  <p style={{ fontSize: 11, color: '#4b5563', textAlign: 'center', marginTop: 10, fontFamily: "'DM Sans', sans-serif" }}>
+                    No credit card required
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* ── PART D: Workflow animation strip ──────────────────────── */}
-          <div className="pip-workflow" style={{ marginTop: 64, padding: '32px 24px', background: 'rgba(12,14,20,0.6)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16 }}>
-            <p style={{ textAlign: 'center', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#52525b', textTransform: 'uppercase', marginBottom: 28, fontFamily: 'Syne, sans-serif' }}>
-              How It Works
-            </p>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, flexWrap: 'nowrap', overflowX: 'auto', paddingBottom: 4 }}>
-              {WORKFLOW_STEPS.map((step, i) => (
-                <div key={step.num} style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
-                  <div className={`workflow-step-${i + 1}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-                    <div className="step-circle">
-                      {step.num}
-                    </div>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#94949e', fontFamily: 'Syne, sans-serif', letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
-                      {step.label}
-                    </span>
-                  </div>
-                  {i < WORKFLOW_STEPS.length - 1 && (
-                    <div style={{ color: '#d4af37', fontSize: 18, padding: '0 12px', marginBottom: 24, flexShrink: 0 }}>
-                      →
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ── PART E: Social proof ───────────────────────────────────── */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, marginTop: 32, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 14, color: '#94949e', fontFamily: "'DM Sans', sans-serif" }}>
+          {/* ── Social proof ───────────────────────────────────────────── */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, marginTop: 36, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 14, color: '#6b7280', fontFamily: "'DM Sans', sans-serif" }}>
               Joining <strong style={{ color: '#f5f5f5' }}>2,400+</strong> AU sellers already using Majorka
             </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ display: 'flex' }}>
-                {AVATARS_PROOF.map((av, i) => (
+                {[
+                  { initials: 'JM', bg: '#d4af37', color: '#000' },
+                  { initials: 'ST', bg: '#b8941f', color: '#000' },
+                  { initials: 'ML', bg: '#374151', color: '#e5e7eb' },
+                  { initials: 'PK', bg: '#d4af37', color: '#000' },
+                  { initials: 'TB', bg: '#4b5563', color: '#f9fafb' },
+                ].map((av, i) => (
                   <div
                     key={i}
                     style={{
-                      width: 32,
-                      height: 32,
+                      width: 30,
+                      height: 30,
                       borderRadius: '50%',
                       background: av.bg,
                       border: '2px solid #080a0e',
@@ -666,7 +572,7 @@ export default function ProductIntelligencePreview() {
                       fontSize: 10,
                       color: av.color,
                       marginLeft: i === 0 ? 0 : -10,
-                      zIndex: AVATARS_PROOF.length - i,
+                      zIndex: 5 - i,
                       position: 'relative',
                       flexShrink: 0,
                     }}
@@ -675,23 +581,19 @@ export default function ProductIntelligencePreview() {
                   </div>
                 ))}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ color: '#d4af37', fontSize: 14 }}>⭐⭐⭐⭐⭐</span>
-                <span style={{ fontSize: 13, color: '#94949e', fontFamily: "'DM Sans', sans-serif" }}>
-                  <strong style={{ color: '#f5f5f5' }}>4.9</strong> / 5 (247 reviews)
-                </span>
-              </div>
+              <span style={{ color: '#d4af37', fontSize: 13 }}>⭐⭐⭐⭐⭐</span>
+              <span style={{ fontSize: 13, color: '#6b7280', fontFamily: "'DM Sans', sans-serif" }}>
+                <strong style={{ color: '#f5f5f5' }}>4.9</strong> / 5 (247 reviews)
+              </span>
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* Loading shimmer overlay */}
+      {/* Loading shimmer — barely visible overlay */}
       {loading && (
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,14,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', zIndex: 10, borderRadius: 12 }}>
-          <div style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid rgba(212,175,55,0.2)', borderTopColor: '#d4af37', animation: 'spin 0.8s linear infinite' }} />
-        </div>
+        <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: -1 }} />
       )}
     </>
   );
