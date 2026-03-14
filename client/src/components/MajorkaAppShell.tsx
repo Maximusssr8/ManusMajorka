@@ -1333,7 +1333,7 @@ export default function MajorkaAppShell({ children }: Props) {
           </div>
         </div>
 
-        <div className="flex-1 overflow-hidden pb-16 lg:pb-0 dashboard-bg">{children}</div>
+        <div className="flex-1 overflow-y-auto pb-16 lg:pb-0 dashboard-bg">{children}</div>
 
         {/* Mobile bottom tab bar */}
         <nav
