@@ -12,6 +12,7 @@ import Marquee from 'react-fast-marquee';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'wouter';
 import LiveDemoWidget from '@/components/LiveDemoWidget';
+import ProductIntelligencePreview from '@/components/ProductIntelligencePreview';
 import { SEO } from '@/components/SEO';
 
 // ── Animation variants ────────────────────────────────────────────────────────
@@ -472,6 +473,9 @@ export default function Home() {
 
       {/* ═══ STATS ═════════════════════════════════════════════════════════ */}
       <StatsBar />
+
+      {/* ═══ PRODUCT INTELLIGENCE PREVIEW ══════════════════════════════════ */}
+      <ProductIntelligencePreview />
 
       {/* ═══ TRUSTED BY ════════════════════════════════════════════════════ */}
       <section style={{ padding: '32px 24px', background: C.bg, borderBottom: `1px solid ${C.border}` }}>
