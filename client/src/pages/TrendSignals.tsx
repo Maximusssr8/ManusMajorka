@@ -639,7 +639,7 @@ export default function TrendSignals() {
   }
 
   return (
-    <div style={{ minHeight: '100%', background: '#080a0e', color: '#f0ede8', fontFamily: 'DM Sans, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#080a0e', color: '#f0ede8', fontFamily: 'DM Sans, sans-serif', overflowY: 'auto' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '32px 24px 80px' }}>
 
         {/* Usage Counter */}

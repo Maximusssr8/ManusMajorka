@@ -3,6 +3,7 @@
  * No framer-motion, no SVG gauges, no localStorage, no CountUp.
  */
 
+import { Component, ErrorInfo, ReactNode } from 'react';
 import {
   BarChart2,
   CheckSquare,
@@ -159,9 +160,10 @@ function seededRand(seed: number): () => number {
   };
 }
 
-function generateWeekData(base: number, id: string): { day: string; rev: number }[] {
+function generateWeekData(base: number, id: string | undefined | null): { day: string; rev: number }[] {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const seedNum = id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  const safeId = id ?? 'default';
+  const seedNum = safeId.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
   const rand = seededRand(seedNum);
   return days.map((day, i) => ({
     day,
@@ -973,6 +975,7 @@ Be specific, opinionated, use AUD figures.`;
               7-Day Revenue Trend (Est. AUD)
             </div>
             <div style={{ width: '100%', height: 130 }}>
+              {weekData && weekData.length > 0 && (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={weekData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
                   <CartesianGrid
@@ -1013,6 +1016,7 @@ Be specific, opinionated, use AUD figures.`;
                   />
                 </LineChart>
               </ResponsiveContainer>
+              )}
             </div>
           </div>
 
@@ -2128,7 +2132,7 @@ function CardGrid({
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-export default function WinningProducts() {
+function WinningProducts() {
   const { session, user } = useAuth();
   const token = session?.access_token;
   const userId = session?.user?.id;
@@ -3497,3 +3501,74 @@ const filterLabelStyle: React.CSSProperties = {
   letterSpacing: '0.06em',
   marginBottom: 8,
 };
+
+// ── Error Boundary ────────────────────────────────────────────────────────────
+
+class WPErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError(): { hasError: boolean } {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('WinningProducts crash:', error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          style={{
+            padding: 40,
+            textAlign: 'center',
+            color: '#d4af37',
+            fontFamily: 'Syne, sans-serif',
+            minHeight: '100vh',
+            background: '#080a0e',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div style={{ fontSize: 32, marginBottom: 16 }}>⚠️</div>
+          <div style={{ fontSize: 18, marginBottom: 8, color: '#f5f5f5' }}>
+            Something went wrong loading products
+          </div>
+          <div style={{ fontSize: 13, color: '#a1a1aa', marginBottom: 24 }}>
+            Check your connection and try reloading.
+          </div>
+          <button
+            onClick={() => {
+              this.setState({ hasError: false });
+              window.location.reload();
+            }}
+            style={{
+              background: '#d4af37',
+              color: '#080a0e',
+              border: 'none',
+              borderRadius: 8,
+              padding: '10px 24px',
+              cursor: 'pointer',
+              fontFamily: 'Syne, sans-serif',
+              fontWeight: 700,
+              fontSize: 14,
+            }}
+          >
+            Reload Page
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const WinningProductsWithBoundary = () => (
+  <WPErrorBoundary>
+    <WinningProducts />
+  </WPErrorBoundary>
+);
+
+export default WinningProductsWithBoundary;
