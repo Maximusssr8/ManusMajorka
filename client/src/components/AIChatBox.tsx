@@ -301,7 +301,7 @@ export function AIChatBox({
   return (
     <div className={cn('flex flex-col flex-1 min-h-0', className)}>
       {/* Messages */}
-      <div ref={scrollAreaRef} className="flex-1 overflow-hidden">
+      <div ref={scrollAreaRef} className="flex-1 overflow-hidden min-h-0" style={{ height: 0 }}>
         <ScrollArea className="h-full">
           <div className="mx-auto max-w-3xl space-y-4 p-4">
             {messages.length === 0 && !showThinking ? (

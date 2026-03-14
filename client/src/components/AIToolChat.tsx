@@ -294,9 +294,9 @@ export default function AIToolChat({
       />
 
       {/* Chat Area */}
-      <div className="flex-1 flex overflow-hidden">
-        <div className="flex-1 flex flex-col min-w-0">
-          <ScrollArea className="flex-1">
+      <div className="flex-1 flex overflow-hidden min-h-0">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0">
+          <ScrollArea className="flex-1 min-h-0" style={{ height: 0 }}>
             <div className="space-y-4 p-5">
               {messages.length === 0 && (
                 <div className="flex flex-col items-center justify-center text-center py-16">
@@ -517,8 +517,8 @@ export default function AIToolChat({
 
           {/* Input Bar */}
           <div
-            className="flex-shrink-0 border-t p-4"
-            style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+            className="flex-shrink-0 border-t p-3 pb-safe"
+            style={{ borderColor: 'rgba(255,255,255,0.08)', paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
           >
             <div className="flex gap-2 items-end">
               <Textarea
