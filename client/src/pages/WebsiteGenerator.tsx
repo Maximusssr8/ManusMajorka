@@ -123,99 +123,280 @@ type ActiveTab = 'preview' | 'code' | 'copy' | 'deploy' | 'launch';
 
 // ── Preview HTML Template ─────────────────────────────────────────────────────
 const PREVIEW_TEMPLATE = `<!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{storeName}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <title>{storeName} | AU Free Shipping</title>
+  <meta name="description" content="{metaDescription}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-    body { background: #fff; color: #111; }
-    nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 40px; background: #fff; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
-    .nav-logo { font-weight: 900; font-size: 20px; color: {primaryColor}; }
-    .nav-links { display: flex; gap: 24px; list-style: none; }
-    .nav-links a { text-decoration: none; color: #333; font-size: 14px; cursor: pointer; }
-    .nav-btn { background: {primaryColor}; color: #fff; padding: 8px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px; cursor: pointer; }
-    .hero { position: relative; min-height: 520px; display: flex; align-items: center; overflow: hidden; }
-    .hero-bg { position: absolute; inset: 0; background: url('https://source.unsplash.com/1200x600/?{heroImageKeyword}') center/cover no-repeat; filter: brightness(0.55); }
-    .hero-content { position: relative; z-index: 1; padding: 60px 40px; max-width: 680px; }
-    .hero h1 { font-size: 52px; font-weight: 900; color: #fff; line-height: 1.1; margin-bottom: 16px; }
-    .hero p { font-size: 18px; color: rgba(255,255,255,0.85); margin-bottom: 32px; max-width: 480px; line-height: 1.6; }
-    .hero-cta { display: inline-block; background: {primaryColor}; color: #fff; padding: 14px 32px; border-radius: 8px; font-weight: 700; font-size: 16px; text-decoration: none; cursor: pointer; }
-    .features { padding: 80px 40px; background: #f9f9f9; }
-    .features h2 { text-align: center; font-size: 32px; font-weight: 800; margin-bottom: 48px; }
-    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 960px; margin: 0 auto; }
-    .feature-card { background: #fff; padding: 32px 24px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
-    .feature-icon { width: 48px; height: 48px; background: {primaryColor}20; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 24px; }
-    .feature-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    :root { --primary: {primaryColor}; --accent: {primaryColor}; --text: #1a1a1a; --bg: #ffffff; --light: #f8f9fa; --border: #e9ecef; --dark: #111827; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); }
+    /* NAV */
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 14px 40px; background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 8px rgba(0,0,0,0.06); }
+    .logo { font-weight: 900; font-size: 20px; color: var(--primary); letter-spacing: -0.5px; }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a { text-decoration: none; color: #555; font-size: 14px; font-weight: 500; }
+    .nav-links a:hover { color: var(--primary); }
+    .cart-btn { background: var(--primary); color: #fff; padding: 8px 18px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: none; }
+    /* ANNOUNCEMENT */
+    .announcement { background: var(--primary); color: #fff; text-align: center; padding: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
+    /* HERO */
+    .hero { position: relative; min-height: 540px; display: flex; align-items: center; overflow: hidden; }
+    .hero-bg { position: absolute; inset: 0; background: url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&q=80') center/cover no-repeat; filter: brightness(0.45); }
+    .hero-content { position: relative; z-index: 1; padding: 60px 40px; max-width: 700px; }
+    .hero-badge { display: inline-block; background: var(--primary); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+    .hero h1 { font-size: clamp(32px, 5vw, 56px); font-weight: 900; color: #fff; line-height: 1.08; margin-bottom: 16px; letter-spacing: -1px; }
+    .hero p { font-size: 17px; color: rgba(255,255,255,0.85); margin-bottom: 28px; max-width: 500px; line-height: 1.65; }
+    .hero-cta { display: inline-block; background: var(--primary); color: #fff; padding: 16px 36px; border-radius: 10px; font-weight: 800; font-size: 16px; text-decoration: none; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+    /* TRUST BADGES */
+    .trust-bar { background: var(--light); border-bottom: 1px solid var(--border); padding: 14px 40px; }
+    .trust-badges { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
+    .trust-badge { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: #444; }
+    /* PRODUCT SECTION */
+    .product-section { padding: 60px 40px; max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+    .product-image { position: relative; }
+    .product-image img { width: 100%; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); }
+    .product-image .badge { position: absolute; top: 16px; left: 16px; background: #ef4444; color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; }
+    .product-info { }
+    .product-info h1 { font-size: 28px; font-weight: 900; line-height: 1.2; margin-bottom: 12px; }
+    .rating { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .stars { color: #f59e0b; font-size: 16px; letter-spacing: 1px; }
+    .rating-count { font-size: 13px; color: #777; }
+    .price-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .price-current { font-size: 36px; font-weight: 900; color: var(--primary); }
+    .price-original { font-size: 20px; color: #aaa; text-decoration: line-through; }
+    .price-save { background: #dcfce7; color: #16a34a; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; }
+    .countdown-box { background: var(--dark); color: #fff; padding: 12px 16px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .countdown-label { font-size: 12px; color: rgba(255,255,255,0.7); }
+    .countdown-timer { font-size: 22px; font-weight: 900; font-family: monospace; color: #f59e0b; }
+    .qty-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .qty-label { font-size: 13px; font-weight: 600; color: #555; }
+    .qty-control { display: flex; align-items: center; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .qty-btn { background: none; border: none; padding: 8px 14px; cursor: pointer; font-size: 18px; font-weight: 700; color: #333; }
+    .qty-val { padding: 8px 16px; font-weight: 700; font-size: 15px; border-left: 1.5px solid var(--border); border-right: 1.5px solid var(--border); }
+    .add-btn { width: 100%; background: var(--primary); color: #fff; border: none; padding: 18px; border-radius: 12px; font-size: 17px; font-weight: 800; cursor: pointer; margin-bottom: 12px; transition: opacity 0.2s; }
+    .add-btn:hover { opacity: 0.9; }
+    .buy-btn { width: 100%; background: #111; color: #fff; border: none; padding: 16px; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; margin-bottom: 20px; }
+    .benefits-list { list-style: none; space-y: 8px; }
+    .benefits-list li { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; color: #444; line-height: 1.5; padding: 6px 0; border-bottom: 1px solid var(--border); }
+    .benefits-list li::before { content: "✓"; color: var(--primary); font-weight: 800; flex-shrink: 0; }
+    /* FEATURES */
+    .features { padding: 80px 40px; background: var(--light); }
+    .features h2 { text-align: center; font-size: 32px; font-weight: 900; margin-bottom: 48px; }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; max-width: 960px; margin: 0 auto; }
+    .feature-card { background: #fff; padding: 28px 22px; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .feature-icon { font-size: 28px; margin-bottom: 12px; }
+    .feature-card h3 { font-size: 17px; font-weight: 800; margin-bottom: 8px; }
     .feature-card p { font-size: 14px; color: #666; line-height: 1.6; }
-    .brand-story { padding: 80px 40px; max-width: 700px; margin: 0 auto; text-align: center; }
-    .brand-story h2 { font-size: 28px; font-weight: 800; margin-bottom: 20px; }
-    .brand-story p { font-size: 16px; color: #555; line-height: 1.8; }
-    .testimonials { padding: 80px 40px; background: {primaryColor}08; }
-    .testimonials h2 { text-align: center; font-size: 28px; font-weight: 800; margin-bottom: 48px; }
+    /* TESTIMONIALS */
+    .testimonials { padding: 80px 40px; }
+    .testimonials h2 { text-align: center; font-size: 32px; font-weight: 900; margin-bottom: 12px; }
+    .rating-summary { text-align: center; font-size: 15px; color: #666; margin-bottom: 48px; }
     .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 960px; margin: 0 auto; }
-    .testimonial-card { background: #fff; padding: 24px; border-radius: 12px; border-left: 4px solid {primaryColor}; }
-    .testimonial-card p { font-size: 14px; color: #444; line-height: 1.6; margin-bottom: 16px; font-style: italic; }
-    .testimonial-name { font-weight: 700; font-size: 13px; color: #111; }
-    .testimonial-location { font-size: 12px; color: #999; }
-    .faq { padding: 80px 40px; max-width: 700px; margin: 0 auto; }
-    .faq h2 { font-size: 28px; font-weight: 800; margin-bottom: 32px; text-align: center; }
-    .faq-item { border-bottom: 1px solid #eee; padding: 20px 0; }
-    .faq-q { font-weight: 700; font-size: 15px; margin-bottom: 8px; }
-    .faq-a { font-size: 14px; color: #666; line-height: 1.6; }
-    footer { background: #111; color: #fff; padding: 40px; text-align: center; }
-    footer .footer-logo { font-size: 20px; font-weight: 900; color: {primaryColor}; margin-bottom: 8px; }
-    footer p { font-size: 13px; color: #888; }
+    .testimonial-card { background: #fff; padding: 24px; border-radius: 14px; box-shadow: 0 2px 16px rgba(0,0,0,0.07); border-top: 3px solid var(--primary); }
+    .t-stars { color: #f59e0b; font-size: 14px; margin-bottom: 10px; }
+    .testimonial-card blockquote { font-size: 14px; color: #444; line-height: 1.65; margin-bottom: 14px; font-style: italic; }
+    .t-name { font-weight: 800; font-size: 13px; }
+    .t-loc { font-size: 12px; color: #999; margin-top: 2px; }
+    /* FAQ */
+    .faq { padding: 80px 40px; background: var(--light); }
+    .faq h2 { font-size: 30px; font-weight: 900; text-align: center; margin-bottom: 40px; }
+    .faq-inner { max-width: 700px; margin: 0 auto; }
+    .faq-item { background: #fff; border-radius: 12px; margin-bottom: 12px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,0.05); }
+    .faq-q { padding: 18px 22px; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+    .faq-q:hover { background: var(--light); }
+    .faq-arrow { transition: transform 0.3s; font-size: 18px; }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+    .faq-a.open { max-height: 300px; }
+    .faq-a p { padding: 0 22px 18px; font-size: 14px; color: #666; line-height: 1.7; }
+    /* FOOTER */
+    footer { background: var(--dark); color: #fff; padding: 48px 40px; }
+    .footer-inner { max-width: 960px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 32px; }
+    .footer-brand .logo { font-size: 22px; margin-bottom: 8px; }
+    .footer-brand p { font-size: 13px; color: rgba(255,255,255,0.5); max-width: 240px; line-height: 1.6; }
+    .footer-links { display: flex; flex-direction: column; gap: 8px; }
+    .footer-links a { font-size: 13px; color: rgba(255,255,255,0.5); text-decoration: none; }
+    .footer-links a:hover { color: #fff; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); margin-top: 32px; padding-top: 20px; text-align: center; font-size: 12px; color: rgba(255,255,255,0.35); }
+    /* RESPONSIVE */
     @media (max-width: 768px) {
-      .features-grid, .testimonials-grid { grid-template-columns: 1fr; }
-      .hero h1 { font-size: 34px; }
-      nav { padding: 14px 20px; }
+      nav { padding: 12px 20px; }
       .nav-links { display: none; }
-      .features { padding: 60px 20px; }
+      .product-section { grid-template-columns: 1fr; gap: 32px; padding: 32px 20px; }
+      .features-grid, .testimonials-grid { grid-template-columns: 1fr; }
+      .hero { min-height: 420px; }
+      .hero-content { padding: 40px 20px; }
+      .hero h1 { font-size: 32px; }
+      .features, .testimonials, .faq { padding: 48px 20px; }
+      .trust-bar { padding: 12px 20px; }
+      .trust-badges { gap: 16px; justify-content: flex-start; }
+      .footer-inner { flex-direction: column; }
     }
   </style>
 </head>
 <body>
+  <div class="announcement">🇦🇺 Free AU Shipping on Orders Over $79 | Afterpay Available | 30-Day Returns</div>
   <nav>
-    <div class="nav-logo">{storeName}</div>
-    <ul class="nav-links">
-      <li><a href="#">Shop</a></li>
-      <li><a href="#">About</a></li>
-      <li><a href="#">Reviews</a></li>
-    </ul>
-    <a href="#" class="nav-btn">{ctaText}</a>
+    <div class="logo">{storeName}</div>
+    <div class="nav-links">
+      <a href="#product">Product</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <button class="cart-btn" onclick="document.getElementById('cart-count').textContent='(' + cartCount + ')'">🛒 Cart (<span id="cart-count">0</span>)</button>
   </nav>
+
+  <!-- HERO -->
   <section class="hero">
     <div class="hero-bg"></div>
     <div class="hero-content">
+      <div class="hero-badge">🇦🇺 Australian Store</div>
       <h1>{headline}</h1>
       <p>{subheadline}</p>
-      <a href="#" class="hero-cta">{ctaText}</a>
+      <a href="#product" class="hero-cta">{ctaText} →</a>
     </div>
   </section>
+
+  <!-- TRUST BAR -->
+  <div class="trust-bar">
+    <div class="trust-badges">
+      <div class="trust-badge">🇦🇺 Ships from AU</div>
+      <div class="trust-badge">⭐ 4.9 Stars (247 reviews)</div>
+      <div class="trust-badge">🔒 Secure Checkout</div>
+      <div class="trust-badge">↩️ 30-Day Returns</div>
+      <div class="trust-badge">💳 Afterpay Available</div>
+    </div>
+  </div>
+
+  <!-- PRODUCT SECTION -->
+  <div class="product-section" id="product">
+    <div class="product-image">
+      <div class="badge">SALE</div>
+      <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80" alt="{headline}" onerror="this.src='https://placehold.co/600x500/f3f4f6/94a3b8?text=Product+Image'" />
+    </div>
+    <div class="product-info">
+      <h1>{headline}</h1>
+      <div class="rating">
+        <span class="stars">★★★★★</span>
+        <span class="rating-count">4.9/5 (247 reviews)</span>
+      </div>
+      <div class="price-row">
+        <span class="price-current">$89.99 AUD</span>
+        <span class="price-original">$129.99</span>
+        <span class="price-save">Save 31%</span>
+      </div>
+      <div class="countdown-box">
+        <div>
+          <div class="countdown-label">⚡ Limited offer ends in:</div>
+          <div class="countdown-timer" id="countdown">02:14:33</div>
+        </div>
+      </div>
+      <div class="qty-row">
+        <span class="qty-label">Quantity:</span>
+        <div class="qty-control">
+          <button class="qty-btn" onclick="updateQty(-1)">−</button>
+          <span class="qty-val" id="qty">1</span>
+          <button class="qty-btn" onclick="updateQty(1)">+</button>
+        </div>
+      </div>
+      <button class="add-btn" id="cart-btn" onclick="addToCart()">Add to Cart — $89.99 AUD</button>
+      <button class="buy-btn">⚡ Buy Now with Afterpay</button>
+      <ul class="benefits-list">
+        {BENEFITS_HTML}
+      </ul>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
   <section class="features">
     <h2>Why Australians Love {storeName}</h2>
     <div class="features-grid">{FEATURES_HTML}</div>
   </section>
-  <section class="brand-story">
-    <h2>Our Story</h2>
-    <p>{brandStory}</p>
+
+  <!-- BRAND STORY -->
+  <section style="padding:60px 40px;max-width:760px;margin:0 auto;text-align:center">
+    <h2 style="font-size:28px;font-weight:900;margin-bottom:20px">Our Story</h2>
+    <p style="font-size:16px;color:#555;line-height:1.8">{brandStory}</p>
   </section>
-  <section class="testimonials">
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials" id="reviews">
     <h2>Real Reviews From Real Aussies</h2>
+    <div class="rating-summary">⭐⭐⭐⭐⭐ <strong>4.9/5</strong> from 247 verified Australian customers</div>
     <div class="testimonials-grid">{TESTIMONIALS_HTML}</div>
   </section>
-  <section class="faq">
+
+  <!-- FAQ -->
+  <section class="faq" id="faq">
     <h2>Frequently Asked Questions</h2>
-    {FAQS_HTML}
+    <div class="faq-inner">{FAQS_HTML}</div>
   </section>
-  <footer>
-    <div class="footer-logo">{storeName}</div>
-    <p>{tagline}</p>
-    <p style="margin-top:16px;font-size:11px">&copy; 2025 {storeName}. All rights reserved. Australia.</p>
+
+  <!-- FOOTER -->
+  <footer id="contact">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="logo">{storeName}</div>
+        <p>{tagline}</p>
+      </div>
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms & Conditions</a>
+        <a href="#">Shipping Policy</a>
+        <a href="#">Returns & Refunds</a>
+        <a href="mailto:hello@{storeNameSlug}.com.au">Contact Us</a>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2025 {storeName}. All rights reserved. ABN: XX XXX XXX XXX | 🇦🇺 Australian Business</div>
   </footer>
+
+  <script>
+    let cartCount = 0;
+    let qty = 1;
+
+    function updateQty(delta) {
+      qty = Math.max(1, qty + delta);
+      document.getElementById('qty').textContent = qty;
+    }
+
+    function addToCart() {
+      cartCount += qty;
+      document.getElementById('cart-count').textContent = cartCount;
+      const btn = document.getElementById('cart-btn');
+      btn.textContent = '✓ Added! Continue Shopping';
+      btn.style.opacity = '0.8';
+      setTimeout(() => {
+        btn.textContent = 'Add to Cart — $89.99 AUD';
+        btn.style.opacity = '1';
+      }, 2000);
+    }
+
+    // Countdown timer
+    let seconds = 2 * 3600 + 14 * 60 + 33;
+    setInterval(function() {
+      seconds--;
+      if (seconds < 0) seconds = 3600;
+      var h = Math.floor(seconds / 3600);
+      var m = Math.floor((seconds % 3600) / 60);
+      var s = seconds % 60;
+      var el = document.getElementById('countdown');
+      if (el) el.textContent = (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+    }, 1000);
+
+    // FAQ accordion
+    document.querySelectorAll('.faq-q').forEach(function(q) {
+      q.addEventListener('click', function() {
+        var ans = q.nextElementSibling;
+        var arrow = q.querySelector('.faq-arrow');
+        if (ans) ans.classList.toggle('open');
+        if (arrow) arrow.style.transform = ans && ans.classList.contains('open') ? 'rotate(45deg)' : '';
+      });
+    });
+  </script>
 </body>
 </html>`;
 
@@ -267,9 +448,9 @@ function parseStoreData(raw: string): GeneratedData | null {
 // ── Build Store Preview HTML ──────────────────────────────────────────────────
 function buildStorePreview(data: GeneratedData): string {
   const primaryColor = data.primaryColor || '#d4af37';
-  const featureIcons = ['⚡', '🎯', '✨'];
+  const featureIcons = ['⚡', '🎯', '✨', '🛡️', '🚀', '💎'];
 
-  const featuresHtml = (data.features || []).map((f, i) => {
+  const featuresHtml = (data.features || []).slice(0, 3).map((f, i) => {
     const title = typeof f === 'string' ? f : f.title;
     const description = typeof f === 'string'
       ? 'Quality product for Australian customers.'
@@ -277,28 +458,34 @@ function buildStorePreview(data: GeneratedData): string {
     return `<div class="feature-card"><div class="feature-icon">${featureIcons[i] || '✓'}</div><h3>${title}</h3><p>${description}</p></div>`;
   }).join('');
 
+  const benefits = data.productBenefits || (data.features || []).slice(0, 5).map(featureToStr);
+  const benefitsHtml = benefits.slice(0, 5).map(b => `<li>${b}</li>`).join('');
+
   const testimonials = data.testimonials || [];
   const testimonialsHtml = testimonials.length > 0
-    ? testimonials.map(t => `<div class="testimonial-card"><p>"${t.text}"</p><div class="testimonial-name">${t.name}</div><div class="testimonial-location">${t.location}, Australia</div></div>`).join('')
-    : `<div class="testimonial-card"><p>"Fast shipping and brilliant quality. Exactly what I needed — will definitely order again!"</p><div class="testimonial-name">Sarah M.</div><div class="testimonial-location">Sydney, Australia</div></div><div class="testimonial-card"><p>"Arrived quickly from the AU warehouse. Great value and the product is top notch."</p><div class="testimonial-name">James K.</div><div class="testimonial-location">Melbourne, Australia</div></div><div class="testimonial-card"><p>"Finally a brand that delivers on its promises. Highly recommend to any Aussie."</p><div class="testimonial-name">Emma T.</div><div class="testimonial-location">Brisbane, Australia</div></div>`;
+    ? testimonials.map(t => `<div class="testimonial-card"><div class="t-stars">★★★★★</div><blockquote>"${t.text}"</blockquote><div class="t-name">${t.name}</div><div class="t-loc">${t.location}, Australia</div></div>`).join('')
+    : `<div class="testimonial-card"><div class="t-stars">★★★★★</div><blockquote>"Fast shipping and brilliant quality. Exactly what I needed — will definitely order again!"</blockquote><div class="t-name">Jordan K.</div><div class="t-loc">Brisbane, Australia</div></div><div class="testimonial-card"><div class="t-stars">★★★★★</div><blockquote>"Arrived quickly from the AU warehouse. Great value and the product is top notch."</blockquote><div class="t-name">Sarah M.</div><div class="t-loc">Sydney, Australia</div></div><div class="testimonial-card"><div class="t-stars">★★★★★</div><blockquote>"Finally a brand that delivers on its promises. Highly recommend to any Aussie."</blockquote><div class="t-name">Marcus T.</div><div class="t-loc">Melbourne, Australia</div></div>`;
 
   const faqs = data.faqs || [];
   const faqsHtml = faqs.length > 0
-    ? faqs.map(f => `<div class="faq-item"><div class="faq-q">${f.question}</div><div class="faq-a">${f.answer}</div></div>`).join('')
-    : `<div class="faq-item"><div class="faq-q">Do you ship to all of Australia?</div><div class="faq-a">Yes! We ship Australia-wide via Australia Post. Free shipping on orders over $80.</div></div><div class="faq-item"><div class="faq-q">Is Afterpay available?</div><div class="faq-a">Absolutely. Pay in 4 interest-free instalments with Afterpay at checkout.</div></div><div class="faq-item"><div class="faq-q">What is your returns policy?</div><div class="faq-a">30-day hassle-free returns. If you're not happy, we'll sort it out — no questions asked.</div></div>`;
+    ? faqs.map(f => `<div class="faq-item"><div class="faq-q">${f.question}<span class="faq-arrow">+</span></div><div class="faq-a"><p>${f.answer}</p></div></div>`).join('')
+    : `<div class="faq-item"><div class="faq-q">Do you ship to all of Australia?<span class="faq-arrow">+</span></div><div class="faq-a"><p>Yes! We ship Australia-wide via Australia Post. Free shipping on orders over $79.</p></div></div><div class="faq-item"><div class="faq-q">How long does delivery take?<span class="faq-arrow">+</span></div><div class="faq-a"><p>Typically 3-7 business days for metro areas, 5-10 business days for regional Australia.</p></div></div><div class="faq-item"><div class="faq-q">What is your return policy?<span class="faq-arrow">+</span></div><div class="faq-a"><p>30-day hassle-free returns as per Australian Consumer Law. If you're not happy, we'll sort it — no questions asked.</p></div></div><div class="faq-item"><div class="faq-q">Is this product compatible with Australian standards?<span class="faq-arrow">+</span></div><div class="faq-a"><p>Yes — all our products meet Australian safety standards and electrical compliance (where applicable). We import only AU-certified products.</p></div></div>`;
 
-  const heroKeyword = encodeURIComponent(data.heroImageKeyword || data.tagline || 'Australian lifestyle product');
+  const storeName = data.storeName || 'My Store';
+  const storeNameSlug = storeName.toLowerCase().replace(/[^a-z0-9]/g, '');
 
   let html = PREVIEW_TEMPLATE;
-  html = html.replace(/{storeName}/g, data.storeName || 'My Store');
+  html = html.replace(/{storeName}/g, storeName);
+  html = html.replace(/{storeNameSlug}/g, storeNameSlug);
   html = html.replace(/{tagline}/g, data.tagline || 'Quality products for Australians');
   html = html.replace(/{headline}/g, data.headline || 'Built for Australia');
   html = html.replace(/{subheadline}/g, data.subheadline || 'Quality products delivered to your door.');
+  html = html.replace(/{metaDescription}/g, data.metaDescription || data.meta_description || `${storeName} — premium Australian products with free shipping and 30-day returns.`);
   html = html.replace(/{ctaText}/g, data.ctaText || data.cta_primary || 'Shop Now');
   html = html.replace(/{brandStory}/g, data.brandStory || data.about_section || 'An Australian brand built on quality, value, and exceptional service.');
   html = html.replace(/{primaryColor}/g, primaryColor);
-  html = html.replace(/{heroImageKeyword}/g, heroKeyword);
   html = html.replace('{FEATURES_HTML}', featuresHtml);
+  html = html.replace('{BENEFITS_HTML}', benefitsHtml);
   html = html.replace('{TESTIMONIALS_HTML}', testimonialsHtml);
   html = html.replace('{FAQS_HTML}', faqsHtml);
   return html;
@@ -755,6 +942,15 @@ export default function WebsiteGenerator() {
   } | null>(null);
   const [analyzeError, setAnalyzeError] = useState('');
 
+  // Debounced auto-analyze on URL paste (1s debounce)
+  useEffect(() => {
+    if (!analyzeUrl.trim() || analyzeUrl.length < 10) return;
+    const timer = setTimeout(() => {
+      handleAnalyzeProduct(analyzeUrl);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [analyzeUrl]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Auto-fill from URL params (e.g. from Winning Products quick actions or demo links)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -1053,6 +1249,59 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
     setCursorModal(true);
   }, [handleDownloadZip]);
 
+  // ── Vercel Deploy Handler ──────────────────────────────────────────────────
+  const handleVercelDeploy = useCallback(async () => {
+    if (!generatedData) return;
+    setVercelDeploying(true);
+    setVercelError('');
+    setVercelResult(null);
+    try {
+      const html = buildStorePreview(generatedData);
+      const response = await fetch('/api/website/deploy-vercel', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ html, storeName: storeName || generatedData.storeName || 'my-store' }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Deployment failed');
+      setVercelResult(data);
+      toast.success('🚀 Store deployed to Vercel!');
+    } catch (err: any) {
+      setVercelError(err?.message || 'Deployment failed. Please try again.');
+    } finally {
+      setVercelDeploying(false);
+    }
+  }, [generatedData, storeName, session]);
+
+  // ── Product Analyzer Handler ───────────────────────────────────────────────
+  const handleAnalyzeProduct = useCallback(async (urlToAnalyze?: string) => {
+    const url = urlToAnalyze || analyzeUrl;
+    if (!url.trim()) return;
+    setAnalyzing(true);
+    setAnalyzeError('');
+    setAnalysisResult(null);
+    try {
+      const response = await fetch('/api/website/analyze-product', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ url }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Analysis failed');
+      setAnalysisResult(data);
+    } catch (err: any) {
+      setAnalyzeError(err?.message || 'Analysis failed. Please try again.');
+    } finally {
+      setAnalyzing(false);
+    }
+  }, [analyzeUrl, session]);
+
   const handleOpenPreviewNewTab = useCallback(() => {
     if (!previewHTML) return;
     const win = window.open('', '_blank');
@@ -1180,6 +1429,139 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                   </button>
                 </div>
                 {importError && <div className="text-xs mt-1.5" style={{ color: 'rgba(255,150,100,0.8)' }}>{importError}</div>}
+              </div>
+            )}
+          </div>
+
+          {/* Product URL Quality Analyzer */}
+          <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1.5px solid rgba(99,102,241,0.2)' }}>
+            <div className="text-xs font-bold uppercase tracking-widest mb-2.5 flex items-center gap-1.5" style={{ color: 'rgba(99,102,241,0.9)', fontFamily: 'Syne, sans-serif' }}>
+              <Search size={11} /> Analyze Product URL
+            </div>
+            <div className="flex gap-1.5 mb-2">
+              <input
+                value={analyzeUrl}
+                onChange={(e) => setAnalyzeUrl(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAnalyzeProduct(); } }}
+                placeholder="https://aliexpress.com/item/..."
+                className="flex-1 text-xs px-3 py-2 rounded-lg outline-none"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.1)', color: '#f0ede8' }}
+              />
+              <button
+                onClick={() => handleAnalyzeProduct()}
+                disabled={analyzing || !analyzeUrl.trim()}
+                className="text-xs font-bold px-3 py-2 rounded-lg flex-shrink-0 flex items-center gap-1 disabled:opacity-50"
+                style={{ background: 'rgba(99,102,241,0.15)', border: '1.5px solid rgba(99,102,241,0.35)', color: 'rgba(99,102,241,0.9)', fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}
+              >
+                {analyzing ? <Loader2 size={10} className="animate-spin" /> : <Search size={10} />}
+                {analyzing ? '…' : 'Analyze'}
+              </button>
+            </div>
+            <p className="text-xs" style={{ color: 'rgba(240,237,232,0.25)' }}>Paste a URL — AI scores your product before you build</p>
+
+            {/* Analysis Result Panel */}
+            {analyzeError && (
+              <div className="mt-3 text-xs p-2.5 rounded-lg" style={{ background: 'rgba(255,100,100,0.08)', border: '1px solid rgba(255,100,100,0.2)', color: 'rgba(255,150,150,0.9)' }}>{analyzeError}</div>
+            )}
+            {analysisResult && (
+              <div className="mt-3 rounded-xl p-4 space-y-3" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(99,102,241,0.25)' }}>
+                {/* Score badge */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black uppercase tracking-wider" style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}>
+                    🔍 Product Analysis
+                  </span>
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full font-black text-sm" style={{
+                    background: (analysisResult.overall_score ?? 0) >= 80 ? 'rgba(74,222,128,0.15)' : (analysisResult.overall_score ?? 0) >= 60 ? 'rgba(245,158,11,0.15)' : 'rgba(248,113,113,0.15)',
+                    border: `2px solid ${(analysisResult.overall_score ?? 0) >= 80 ? '#4ade80' : (analysisResult.overall_score ?? 0) >= 60 ? '#f59e0b' : '#f87171'}`,
+                    color: (analysisResult.overall_score ?? 0) >= 80 ? '#4ade80' : (analysisResult.overall_score ?? 0) >= 60 ? '#f59e0b' : '#f87171',
+                    fontFamily: 'Syne, sans-serif',
+                  }}>
+                    {analysisResult.overall_score ?? '?'}
+                  </div>
+                </div>
+
+                {/* Supplier badge */}
+                {analysisResult.supplier && (
+                  <div className="text-xs px-2 py-0.5 inline-flex rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(240,237,232,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    {analysisResult.supplier}
+                  </div>
+                )}
+
+                {/* Quality signals */}
+                {(['image', 'title', 'description'] as const).map((signal) => {
+                  const quality = signal === 'image' ? analysisResult.image_quality : signal === 'title' ? analysisResult.title_quality : analysisResult.description_quality;
+                  const issues = signal === 'image' ? analysisResult.image_issues : signal === 'title' ? analysisResult.title_issues : analysisResult.description_issues;
+                  const icon = quality === 'good' ? '✅' : quality === 'bad' ? '❌' : '⚠️';
+                  const color = quality === 'good' ? '#4ade80' : quality === 'bad' ? '#f87171' : '#f59e0b';
+                  const label = signal === 'image' ? 'Image Quality' : signal === 'title' ? 'Title Quality' : 'Description';
+                  return (
+                    <div key={signal}>
+                      <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color }}>
+                        <span>{icon}</span>
+                        <span style={{ color: 'rgba(240,237,232,0.7)' }}>{label}:</span>
+                        <span>{quality === 'good' ? 'Looks good' : quality === 'bad' ? 'Needs fixing' : 'Issues found'}</span>
+                      </div>
+                      {issues && issues.length > 0 && (
+                        <ul className="ml-5 mt-1 space-y-0.5">
+                          {issues.map((issue, i) => (
+                            <li key={i} className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>• {issue}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* Suggested title */}
+                {analysisResult.suggested_title && (
+                  <div className="rounded-lg p-2.5" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}>
+                    <div className="text-xs font-bold mb-1" style={{ color: 'rgba(99,102,241,0.9)', fontFamily: 'Syne, sans-serif' }}>💡 Suggested Title:</div>
+                    <div className="text-xs italic" style={{ color: 'rgba(240,237,232,0.7)', lineHeight: 1.5 }}>"{analysisResult.suggested_title}"</div>
+                  </div>
+                )}
+
+                {/* Action buttons */}
+                <div className="flex gap-1.5 flex-wrap">
+                  {analysisResult.suggested_title && (
+                    <button
+                      onClick={() => {
+                        if (analysisResult.suggested_title) setStoreName(analysisResult.suggested_title.slice(0, 40));
+                        if (analysisResult.suggested_description) setTagline(analysisResult.suggested_description.slice(0, 80));
+                        if (analysisResult.product_name) setNiche(analysisResult.product_name.slice(0, 60));
+                        toast.success('Suggested content applied!');
+                      }}
+                      className="text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1"
+                      style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.35)', color: 'rgba(99,102,241,0.9)', cursor: 'pointer' }}
+                    >
+                      <Check size={9} /> Use Suggested →
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      if (analyzeUrl) setImportUrl(analyzeUrl);
+                      setAnalysisResult(null);
+                      toast.info('URL moved to Import — click Import to load product data');
+                    }}
+                    className="text-xs font-bold px-2.5 py-1.5 rounded-lg"
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,237,232,0.5)', cursor: 'pointer' }}
+                  >
+                    Import Anyway
+                  </button>
+                  <button
+                    onClick={() => { setAnalysisResult(null); setAnalyzeUrl(''); }}
+                    className="text-xs font-bold px-2.5 py-1.5 rounded-lg"
+                    style={{ background: 'rgba(255,100,100,0.08)', border: '1px solid rgba(255,100,100,0.15)', color: 'rgba(255,150,150,0.7)', cursor: 'pointer' }}
+                  >
+                    Find Better
+                  </button>
+                </div>
+
+                {/* Recommendation */}
+                {analysisResult.recommendation && (
+                  <div className="text-xs font-semibold" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                    Recommendation: <span style={{ color: '#f0c040' }}>{analysisResult.recommendation}</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1513,7 +1895,103 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
                 {/* ── DEPLOY TAB ── */}
                 {activeTab === 'deploy' && (
-                  <div className="h-full overflow-y-auto p-6" style={{ scrollbarWidth: 'thin' }}>
+                  <div className="h-full overflow-y-auto p-6 space-y-6" style={{ scrollbarWidth: 'thin' }}>
+                    {/* 1-Click Deploy Section */}
+                    <div>
+                      <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}>🚀 Deploy Your Store</div>
+                      <div className="grid grid-cols-3 gap-3 mb-3">
+                        {/* Vercel Deploy Button */}
+                        <div className="col-span-3 sm:col-span-1">
+                          <button
+                            onClick={handleVercelDeploy}
+                            disabled={!generatedData || vercelDeploying}
+                            className="w-full p-4 rounded-xl text-left transition-all disabled:opacity-40 flex flex-col gap-2"
+                            style={{ background: '#000', border: '1px solid rgba(255,255,255,0.15)', cursor: (!generatedData || vercelDeploying) ? 'not-allowed' : 'pointer' }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="font-black text-base">▲</span>
+                              <span className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif', color: '#fff' }}>
+                                {vercelDeploying ? 'Deploying…' : vercelResult ? 'Re-deploy' : 'Deploy to Vercel'}
+                              </span>
+                              {vercelDeploying && <Loader2 size={13} className="animate-spin ml-auto" style={{ color: 'rgba(255,255,255,0.6)' }} />}
+                            </div>
+                            <div className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>Live in ~30 seconds</div>
+                          </button>
+                        </div>
+                        {/* Netlify — Coming Soon */}
+                        <div className="col-span-3 sm:col-span-1" title="Coming soon">
+                          <button
+                            disabled
+                            className="w-full p-4 rounded-xl text-left flex flex-col gap-2"
+                            style={{ background: 'rgba(0,173,164,0.1)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'not-allowed', opacity: 0.55 }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="font-black text-base">◆</span>
+                              <span className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif', color: '#6b7280' }}>Netlify</span>
+                            </div>
+                            <div className="text-xs" style={{ color: '#6b7280' }}>Coming soon</div>
+                          </button>
+                        </div>
+                        {/* Shopify Export */}
+                        <div className="col-span-3 sm:col-span-1">
+                          <button
+                            onClick={handleShopifyExport}
+                            disabled={!generatedData}
+                            className="w-full p-4 rounded-xl text-left transition-all disabled:opacity-40 flex flex-col gap-2"
+                            style={{ background: 'rgba(150,191,74,0.1)', border: '1px solid rgba(150,191,74,0.2)', cursor: !generatedData ? 'not-allowed' : 'pointer' }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <ShoppingBag size={14} style={{ color: '#96bf4a' }} />
+                              <span className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif', color: '#96bf4a' }}>Shopify CSV</span>
+                            </div>
+                            <div className="text-xs" style={{ color: 'rgba(150,191,74,0.6)' }}>Download CSV</div>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Vercel Result / Error */}
+                      {vercelResult && (
+                        <div className="rounded-xl p-4 space-y-2" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.3)' }}>
+                          <div className="flex items-center gap-2 text-sm font-bold" style={{ color: '#4ade80', fontFamily: 'Syne, sans-serif' }}>
+                            <Check size={14} /> Deployed successfully!
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <a
+                              href={vercelResult.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-lg"
+                              style={{ background: '#d4af37', color: '#0c0e12', textDecoration: 'none', fontFamily: 'Syne, sans-serif' }}
+                            >
+                              <ExternalLink size={11} /> 🌐 Visit Store →
+                            </a>
+                            <button
+                              onClick={() => { navigator.clipboard.writeText(vercelResult.url); toast.success('URL copied!'); }}
+                              className="text-xs px-3 py-2 rounded-lg flex items-center gap-1"
+                              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,237,232,0.6)', cursor: 'pointer' }}
+                            >
+                              <Copy size={10} /> Copy URL
+                            </button>
+                          </div>
+                          <div className="text-xs font-mono truncate" style={{ color: 'rgba(240,237,232,0.4)' }}>{vercelResult.url}</div>
+                        </div>
+                      )}
+                      {vercelError && (
+                        <div className="rounded-xl p-3 flex items-start gap-2" style={{ background: 'rgba(255,100,100,0.08)', border: '1px solid rgba(255,100,100,0.2)' }}>
+                          <AlertTriangle size={13} style={{ color: '#f87171', flexShrink: 0, marginTop: 1 }} />
+                          <div>
+                            <div className="text-xs font-bold mb-0.5" style={{ color: '#f87171' }}>Deployment failed</div>
+                            <div className="text-xs" style={{ color: 'rgba(255,150,150,0.8)' }}>{vercelError}</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
+
+                    {/* Download Options */}
+                    <div>
+                      <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Download & Export</div>
                     <div className="grid grid-cols-2 gap-4 max-w-2xl">
                       {/* Download HTML */}
                       <button onClick={handleDownloadHTML} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: 'rgba(212,175,55,0.06)', border: '1.5px solid rgba(212,175,55,0.2)', cursor: 'pointer' }}>
@@ -1550,12 +2028,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                         <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.4)' }}>Copy headline, features, CTAs, and brand story as clean Markdown for Notion.</div>
                       </button>
 
-                      {/* Coming soon: Vercel/Netlify deploy */}
-                      <div className="p-5 rounded-xl text-left" style={{ background: 'rgba(255,255,255,0.02)', border: '1.5px dashed rgba(255,255,255,0.06)' }}>
-                        <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.05)' }}><Rocket size={20} style={{ color: 'rgba(240,237,232,0.25)' }} /></div>
-                        <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif', color: 'rgba(240,237,232,0.35)' }}>1-Click Deploy</div>
-                        <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.25)' }}>Direct deploy to Vercel, Netlify, or Shopify — coming soon.</div>
-                      </div>
+                    </div>
                     </div>
                   </div>
                 )}
@@ -1654,38 +2127,41 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
 // ── System Prompt Builder ─────────────────────────────────────────────────────
 function buildSystemPrompt(vibe: string, platform: Platform, accentColor: string): string {
-  return `You are a Shopify store copywriter for Australian DTC brands and dropshippers. Return ONLY valid JSON. No markdown, no code fences, no explanation text before or after. Return exactly this JSON structure:
+  return `You are a world-class Shopify store designer and AU copywriter. Return ONLY valid JSON — no markdown, no code fences, no explanation text. Start with { and end with }.
 
+Return this exact JSON structure (all keys required):
 {
   "storeName": "string",
   "tagline": "string — punchy, 8 words max",
-  "headline": "string — hero section H1, bold claim, 10 words max",
-  "subheadline": "string — 1-2 sentences expanding the headline",
+  "headline": "string — hero section H1, bold benefit claim, 10 words max",
+  "subheadline": "string — 1-2 sentences expanding the headline, overcome objection",
   "features": [
-    { "title": "string", "description": "string — 1 sentence" },
-    { "title": "string", "description": "string — 1 sentence" },
-    { "title": "string", "description": "string — 1 sentence" }
+    { "title": "string", "description": "string — 1 concrete sentence" },
+    { "title": "string", "description": "string — 1 concrete sentence" },
+    { "title": "string", "description": "string — 1 concrete sentence" }
   ],
   "ctaText": "string — action verb + outcome, e.g. Shop Now",
-  "brandStory": "string — 2-3 sentences, AU brand origin story",
-  "metaTitle": "string — SEO title 60 chars max",
-  "metaDescription": "string — SEO description 155 chars max",
+  "brandStory": "string — 2-3 sentences, AU brand mission + connection",
+  "metaTitle": "string — SEO title 60 chars max, include AU + keyword",
+  "metaDescription": "string — SEO description 155 chars max, AU focused",
   "primaryColor": "${accentColor || '#d4af37'}",
   "secondaryColor": "#hexcode",
   "fontStyle": "${vibe || 'modern'}",
   "heroImageKeyword": "string — 3-word Unsplash search term for hero image",
-  "productBenefits": ["string", "string", "string"],
+  "productBenefits": ["string — specific benefit 1", "string — specific benefit 2", "string — specific benefit 3", "string — specific benefit 4", "string — specific benefit 5"],
   "testimonials": [
-    { "name": "string — Australian name", "text": "string — 1 sentence review", "location": "string — AU city" },
-    { "name": "string", "text": "string", "location": "string" },
-    { "name": "string", "text": "string", "location": "string" }
+    { "name": "Jordan K.", "text": "string — 1-2 sentence specific review mentioning result", "location": "Brisbane" },
+    { "name": "Sarah M.", "text": "string — 1-2 sentence specific review", "location": "Sydney" },
+    { "name": "Marcus T.", "text": "string — 1-2 sentence specific review", "location": "Melbourne" }
   ],
   "faqs": [
-    { "question": "string", "answer": "string" },
-    { "question": "string", "answer": "string" },
-    { "question": "string", "answer": "string" }
+    { "question": "Do you ship to all of Australia?", "answer": "string — specific AU shipping answer mentioning AusPost and delivery times" },
+    { "question": "How long does delivery take?", "answer": "string — specific timeframe in business days" },
+    { "question": "What is your return policy?", "answer": "string — ACCC-compliant 30-day return policy" },
+    { "question": "Is this product compatible with Australian standards?", "answer": "string — AU compliance answer" }
   ]
 }
 
-Platform: ${platform}. Make copy feel authentically Australian — direct, confident, not American-corporate. Reference AU lifestyle where relevant. Use AUD pricing references. Mention Afterpay where appropriate.`;
+Platform: ${platform}. Vibe: ${vibe || 'premium'}.
+CRITICAL: Make copy authentically Australian — direct, confident, Aussie slang where natural. NOT American-corporate. Use AUD pricing. Mention Afterpay where relevant. Trust badges MUST include "🇦🇺 Ships from AU Warehouse". All 3 testimonials MUST have Brisbane, Sydney, Melbourne as locations.`;
 }
