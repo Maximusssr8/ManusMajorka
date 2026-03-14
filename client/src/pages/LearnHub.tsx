@@ -332,14 +332,50 @@ async function syncProgressToSupabase(userId: string, lessonId: string) {
 
 // ── Markdown renderer ──────────────────────────────────────────────────────────
 
-function inlineStyles(text: string): string {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
-    .replace(/\*([^*]+?)\*/g, '<em>$1</em>')
-    .replace(
-      /`([^`]+?)`/g,
-      '<code style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px;font-family:monospace;font-size:0.85em;color:#f0c040">$1</code>'
-    );
+// SafeInlineText: parses **bold**, *italic*, `code` without dangerouslySetInnerHTML
+function SafeInlineText({ text }: { text: string }) {
+  // Split on **bold**, *italic*, and `code` patterns
+  const parts: React.ReactNode[] = [];
+  const regex = /(\*\*(.+?)\*\*|\*([^*]+?)\*|`([^`]+?)`)/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  let key = 0;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    if (match[0].startsWith('**')) {
+      parts.push(
+        <strong key={key++} className="text-white font-semibold">
+          {match[2]}
+        </strong>
+      );
+    } else if (match[0].startsWith('*')) {
+      parts.push(<em key={key++}>{match[3]}</em>);
+    } else {
+      parts.push(
+        <code
+          key={key++}
+          style={{
+            background: 'rgba(255,255,255,0.08)',
+            padding: '1px 6px',
+            borderRadius: '4px',
+            fontFamily: 'monospace',
+            fontSize: '0.85em',
+            color: '#f0c040',
+          }}
+        >
+          {match[4]}
+        </code>
+      );
+    }
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+  return <>{parts}</>;
 }
 
 function renderMarkdown(text: string): React.ReactNode[] {
@@ -385,7 +421,9 @@ function renderMarkdown(text: string): React.ReactNode[] {
           style={{ color: '#a1a1aa' }}
         >
           {items.map((item, j) => (
-            <li key={j} className="mb-1" dangerouslySetInnerHTML={{ __html: inlineStyles(item) }} />
+            <li key={j} className="mb-1">
+              <SafeInlineText text={item} />
+            </li>
           ))}
         </ul>
       );
@@ -406,7 +444,9 @@ function renderMarkdown(text: string): React.ReactNode[] {
           style={{ color: '#a1a1aa' }}
         >
           {items.map((item, j) => (
-            <li key={j} className="mb-1" dangerouslySetInnerHTML={{ __html: inlineStyles(item) }} />
+            <li key={j} className="mb-1">
+              <SafeInlineText text={item} />
+            </li>
           ))}
         </ol>
       );
@@ -415,12 +455,9 @@ function renderMarkdown(text: string): React.ReactNode[] {
 
     // Paragraph
     nodes.push(
-      <p
-        key={key++}
-        className="mb-4 leading-relaxed text-sm"
-        style={{ color: '#a1a1aa' }}
-        dangerouslySetInnerHTML={{ __html: inlineStyles(line) }}
-      />
+      <p key={key++} className="mb-4 leading-relaxed text-sm" style={{ color: '#a1a1aa' }}>
+        <SafeInlineText text={line} />
+      </p>
     );
     i++;
   }

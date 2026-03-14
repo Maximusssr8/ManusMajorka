@@ -668,9 +668,13 @@ export default function TrendSignals() {
 
         {/* Trend cards grid */}
         {filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(240,237,232,0.4)' }}>
-            <TrendingUp size={36} style={{ marginBottom: 12, opacity: 0.3 }} />
-            <p>No trends found for this filter.</p>
+          <div style={{ textAlign: 'center', padding: '60px 0' }}>
+            <TrendingUp size={36} style={{ marginBottom: 12, opacity: 0.3, color: '#d4af37' }} />
+            <p style={{ color: '#e2e8f0', fontSize: 15, fontWeight: 600, fontFamily: 'Syne, sans-serif', marginBottom: 6 }}>Trend detection running...</p>
+            <p style={{ color: 'rgba(240,237,232,0.4)', fontSize: 13, marginBottom: 20 }}>Check back in a few minutes — trends update every 6 hours</p>
+            <button onClick={() => window.location.reload()} style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', color: '#d4af37', borderRadius: 8, padding: '8px 18px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}>
+              Refresh
+            </button>
           </div>
         ) : (
           <div style={{

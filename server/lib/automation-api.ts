@@ -12,6 +12,7 @@
 
 import type { Application } from 'express';
 import { getSupabaseAdmin } from '../_core/supabase';
+import { sendWelcomeSequence } from './onboarding-emails';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -69,32 +70,8 @@ export function registerAutomationRoutes(app: Application): void {
         console.warn('[subscribe] DB unavailable:', dbErr.message);
       }
 
-      // Send welcome email via Resend
-      try {
-        const { Resend } = await import('resend');
-        const resend = new Resend(process.env.RESEND_API_KEY);
-        await resend.emails.send({
-          from: 'Majorka AI <hello@majorka.ai>',
-          to: cleanEmail,
-          subject: '📦 Your FREE AU Product Research Playbook',
-          html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;background:#080a0e;color:#fff">
-            <h1 style="color:#d4af37;font-size:28px;margin-bottom:8px">You're in, ${name || 'friend'}! 🎉</h1>
-            <p style="color:#9ca3af;margin-bottom:24px">Thanks for joining 2,800+ AU sellers using Majorka AI to find winning products.</p>
-            <div style="background:#111;border:1px solid #d4af37;border-radius:12px;padding:24px;margin-bottom:24px">
-              <h2 style="color:#d4af37;font-size:18px;margin-top:0">🎯 What's in your playbook:</h2>
-              <ul style="color:#e5e7eb;line-height:2">
-                <li>The 5-step product validation framework used by AU's top sellers</li>
-                <li>How to find $10K/mo products before they get saturated</li>
-                <li>AU supplier directory (Alibaba + local warehouse contacts)</li>
-                <li>Afterpay pricing strategy to increase AOV by 30%</li>
-                <li>Real examples: $8 COGS → $49 sell price → $1.2M/year</li>
-              </ul>
-            </div>
-            <a href="https://majorka.io/sign-in" style="display:inline-block;background:#d4af37;color:#000;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px">Start Finding Winning Products →</a>
-            <p style="color:#6b7280;font-size:12px;margin-top:32px">Majorka AI · Built in 🇦🇺 Australia · <a href="https://majorka.io" style="color:#d4af37">majorka.io</a></p>
-          </div>`,
-        });
-      } catch { /* email failed — still succeed */ }
+      // Send branded welcome sequence (email 1 of 3) via onboarding-emails.ts
+      sendWelcomeSequence(cleanEmail, name ?? '').catch(() => { /* non-fatal */ });
 
       // Notify Max
       try {
@@ -131,6 +108,11 @@ export function registerAutomationRoutes(app: Application): void {
   app.post('/api/webhooks/n8n/signup', async (req, res) => {
     try {
       const { email, name, plan, source } = req.body ?? {};
+
+      // Send onboarding welcome sequence (email 1 immediately, 2+3 via n8n)
+      if (email) {
+        sendWelcomeSequence(email, name ?? '').catch(() => { /* non-fatal */ });
+      }
 
       // Fire Telegram notification via n8n
       fireWebhook(process.env.N8N_SIGNUP_WEBHOOK_URL, {

@@ -24,13 +24,33 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, useCallback, useEffect, useMemo, useRef, useState, Suspense } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
 import { trpc } from '@/lib/trpc';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { toast } from 'sonner';
+
+// Lazy-load heavy syntax highlighter to keep initial bundle small
+const SyntaxHighlighter = lazy(() =>
+  import('react-syntax-highlighter').then((m) => ({ default: m.Prism as any }))
+);
+// vscDarkPlus style — loaded lazily via dynamic import where used
+let _vscDarkPlus: any = null;
+async function getVscDarkPlus() {
+  if (!_vscDarkPlus) {
+    const mod = await import('react-syntax-highlighter/dist/esm/styles/prism');
+    _vscDarkPlus = mod.vscDarkPlus;
+  }
+  return _vscDarkPlus;
+}
+// Preload style eagerly but non-blocking
+getVscDarkPlus();
+// Synchronous fallback — populated after first async load
+function useVscDarkPlus() {
+  const [style, setStyle] = useState<any>(_vscDarkPlus);
+  useEffect(() => { getVscDarkPlus().then(setStyle); }, []);
+  return style;
+}
 import { SaveToProduct } from '@/components/SaveToProduct';
 import { getStoredMarket } from '@/contexts/MarketContext';
 import { useProduct } from '@/contexts/ProductContext';
@@ -641,6 +661,7 @@ export default function WebsiteGenerator() {
   const { activeProduct: legacyProduct } = useActiveProduct();
   const activeProduct = contextProduct ?? legacyProduct;
   const { session } = useAuth();
+  const vscDarkPlus = useVscDarkPlus();
 
   // Product import
   const [importUrl, setImportUrl] = useState('');
@@ -1285,16 +1306,18 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     </div>
                     <div className="flex-1 overflow-auto" style={{ scrollbarWidth: 'thin' }}>
                       {generatedData ? (
-                        <SyntaxHighlighter
-                          language="markup"
-                          style={vscDarkPlus}
-                          customStyle={{ margin: 0, padding: 16, background: '#080a0e', fontSize: 12, lineHeight: 1.6, minHeight: '100%' }}
-                          showLineNumbers
-                          lineNumberStyle={{ color: 'rgba(240,237,232,0.15)', minWidth: 36 }}
-                          wrapLongLines
-                        >
-                          {previewHTML}
-                        </SyntaxHighlighter>
+                        <Suspense fallback={<pre className="text-xs p-4" style={{ color: 'rgba(240,237,232,0.7)', fontFamily: 'monospace', background: '#080a0e', minHeight: '100%' }}>{previewHTML}</pre>}>
+                          <SyntaxHighlighter
+                            language="markup"
+                            style={vscDarkPlus ?? {}}
+                            customStyle={{ margin: 0, padding: 16, background: '#080a0e', fontSize: 12, lineHeight: 1.6, minHeight: '100%' }}
+                            showLineNumbers
+                            lineNumberStyle={{ color: 'rgba(240,237,232,0.15)', minWidth: 36 }}
+                            wrapLongLines
+                          >
+                            {previewHTML}
+                          </SyntaxHighlighter>
+                        </Suspense>
                       ) : rawResponse ? (
                         <pre className="text-xs p-4" style={{ color: 'rgba(240,237,232,0.7)', fontFamily: 'monospace', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: '#080a0e', minHeight: '100%' }}>
                           {rawResponse}

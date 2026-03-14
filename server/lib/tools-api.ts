@@ -53,6 +53,82 @@ const refreshLimiter = new Map<string, number>(); // userId → last triggered m
 const trendsRefreshLimiter = new Map<string, number>(); // userId → last triggered ms
 const REFRESH_COOLDOWN_MS = 60 * 60 * 1000; // 1 hour
 
+// ── Free tier usage tracking (10 AI calls/day) ───────────────────────────────
+const FREE_TIER_DAILY_LIMIT = 10;
+
+async function getUserPlan(userId: string): Promise<string> {
+  try {
+    const sb = getSupabaseAdmin();
+    const { data } = await sb
+      .from('user_subscriptions')
+      .select('plan, status')
+      .eq('user_id', userId)
+      .single();
+    if (data?.plan === 'pro' && data?.status === 'active') return 'pro';
+  } catch { /* table might not exist yet */ }
+  return 'free';
+}
+
+async function trackAndCheckUsage(userId: string, toolName: string): Promise<{ allowed: boolean; used: number }> {
+  try {
+    const sb = getSupabaseAdmin();
+    const today = new Date().toISOString().split('T')[0];
+
+    // Count today's usage
+    const { count } = await sb
+      .from('usage_tracking')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('date', today);
+
+    const used = count ?? 0;
+    if (used >= FREE_TIER_DAILY_LIMIT) {
+      return { allowed: false, used };
+    }
+
+    // Track this call
+    await sb.from('usage_tracking').insert({
+      user_id: userId,
+      tool_name: toolName,
+      date: today,
+    });
+
+    return { allowed: true, used: used + 1 };
+  } catch (err: any) {
+    console.warn('[usage-tracking] DB error, allowing request:', err.message);
+    return { allowed: true, used: 0 }; // fail open — don't block if DB is down
+  }
+}
+
+/**
+ * Check if a user has exceeded their free tier limit.
+ * Returns 402 response if limit hit, otherwise null (proceed).
+ */
+export async function checkFreeTierLimit(
+  req: any,
+  res: any,
+  toolName: string
+): Promise<boolean> {
+  const authUser = await authenticateRequest(req);
+  if (!authUser) return true; // unauthenticated handled elsewhere
+
+  const plan = await getUserPlan(authUser.userId);
+  if (plan === 'pro') return true; // unlimited
+
+  const { allowed, used } = await trackAndCheckUsage(authUser.userId, toolName);
+  if (!allowed) {
+    res.status(402).json({
+      error: 'limit_reached',
+      message: `You've used all ${FREE_TIER_DAILY_LIMIT} free searches today. Upgrade to Pro for unlimited access.`,
+      upgrade_url: '/pricing',
+      used,
+      limit: FREE_TIER_DAILY_LIMIT,
+    });
+    return false;
+  }
+  return true;
+}
+
 export function registerToolsApi(app: Application): void {
 
   // -----------------------------------------------------------------------
@@ -134,6 +210,10 @@ export function registerToolsApi(app: Application): void {
   // 1. POST /api/tools/winning-products
   // -----------------------------------------------------------------------
   app.post('/api/tools/winning-products', async (req, res) => {
+    // Free tier check — 10 AI calls/day for free users
+    const allowed = await checkFreeTierLimit(req, res, 'winning-products');
+    if (!allowed) return;
+
     try {
       const { category, priceRange, platform } = req.body ?? {};
 
@@ -217,6 +297,9 @@ Rules:
   // 2. POST /api/tools/store-spy
   // -----------------------------------------------------------------------
   app.post('/api/tools/store-spy', async (req, res) => {
+    const allowed = await checkFreeTierLimit(req, res, 'store-spy');
+    if (!allowed) return;
+
     try {
       const { url } = req.body ?? {};
       if (!url || typeof url !== 'string') {
@@ -303,6 +386,9 @@ Be specific, opinionated, and include estimated AUD figures wherever possible.`,
   // 3. POST /api/tools/saturation-check
   // -----------------------------------------------------------------------
   app.post('/api/tools/saturation-check', async (req, res) => {
+    const allowed = await checkFreeTierLimit(req, res, 'saturation-check');
+    if (!allowed) return;
+
     try {
       const { product } = req.body ?? {};
       if (!product || typeof product !== 'string') {
@@ -596,4 +682,68 @@ All analysis should be AU-focused. Reference AUD pricing, AU platforms, AU consu
       res.status(500).json({ error: err.message ?? 'Search failed' });
     }
   });
+
+  // -----------------------------------------------------------------------
+  // POST /api/shopify/import-product — generate Shopify-compatible CSV
+  // -----------------------------------------------------------------------
+  app.post('/api/shopify/import-product', async (req, res) => {
+    const authUser = await authenticateRequest(req);
+    if (!authUser) {
+      res.status(401).json({ error: 'Unauthorized — Bearer token required' });
+      return;
+    }
+
+    const { product_title, price_aud, supplier_cost_aud, description, image_url, category } =
+      (req.body ?? {}) as {
+        product_title?: string;
+        price_aud?: number;
+        supplier_cost_aud?: number;
+        description?: string;
+        image_url?: string;
+        category?: string;
+      };
+
+    if (!product_title) {
+      res.status(400).json({ error: 'product_title is required' });
+      return;
+    }
+
+    const csv = generateShopifyCSV({
+      product_title,
+      price_aud: price_aud ?? 0,
+      supplier_cost_aud: supplier_cost_aud ?? (price_aud ? price_aud / 2.8 : 10),
+      description,
+      image_url,
+      category: category ?? 'General',
+    });
+
+    const safeName = product_title.replace(/[^a-z0-9]/gi, '-');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${safeName}.csv"`);
+    res.send(csv);
+  });
+}
+
+// ── Shopify CSV generator ─────────────────────────────────────────────────────
+function generateShopifyCSV(product: {
+  product_title: string;
+  price_aud: number;
+  supplier_cost_aud: number;
+  description?: string;
+  image_url?: string;
+  category: string;
+}): string {
+  const markup = 2.8; // ~180% markup
+  const price = (product.supplier_cost_aud * markup).toFixed(2);
+  const compareAt = (parseFloat(price) * 1.3).toFixed(2);
+  const handle = product.product_title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  const body = product.description
+    ? `<p>${product.description}</p>`
+    : '<p>Premium quality product for Australian customers.</p>';
+  const sku = `SKU-${Date.now()}`;
+
+  return (
+    `Handle,Title,Body (HTML),Vendor,Type,Tags,Published,Option1 Name,Option1 Value,Variant SKU,Variant Grams,Variant Inventory Tracker,Variant Inventory Qty,Variant Price,Variant Compare At Price,Variant Requires Shipping,Variant Taxable,Image Src,Image Position,Status\n` +
+    `${handle},${product.product_title},"${body}",Majorka,${product.category},"trending,australia,dropship",true,Title,Default Title,${sku},200,shopify,50,${price},${compareAt},true,true,${product.image_url ?? ''},1,active`
+  );
 }

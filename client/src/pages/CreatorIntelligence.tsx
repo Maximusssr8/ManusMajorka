@@ -456,7 +456,13 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
                   {loading ? (
                     <tr><td colSpan={9} className="px-4 py-8 text-center text-sm" style={{ color: '#475569' }}>Loading creators…</td></tr>
                   ) : filtered.length === 0 ? (
-                    <tr><td colSpan={9} className="px-4 py-8 text-center text-sm" style={{ color: '#475569' }}>No creators found</td></tr>
+                    <tr><td colSpan={9} style={{ padding: '48px 24px', textAlign: 'center' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 32, opacity: 0.4 }}>👥</span>
+                        <p style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 600, fontFamily: 'Syne, sans-serif', margin: 0 }}>No creators found</p>
+                        <p style={{ color: '#475569', fontSize: 12, margin: 0 }}>Data refreshes every 6 hours — check back soon</p>
+                      </div>
+                    </td></tr>
                   ) : (
                     filtered.map((c, i) => (
                       <tr

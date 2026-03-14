@@ -34,9 +34,19 @@ interface StoreData {
 function MetaPixel({ pixelId }: { pixelId: string }) {
   useEffect(() => {
     if (!pixelId || (window as any).fbq) return;
+    // Safe approach: load fbevents.js via src (no innerHTML), then init with sanitized pixelId
+    const safePixelId = pixelId.replace(/[^0-9]/g, ''); // strip non-numeric chars
+    if (!safePixelId) return;
     const script = document.createElement('script');
-    script.innerHTML = `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${pixelId}');fbq('track','PageView');`;
+    script.async = true;
+    script.src = 'https://connect.facebook.net/en_US/fbevents.js';
     document.head.appendChild(script);
+    script.onload = () => {
+      if ((window as any).fbq) {
+        (window as any).fbq('init', safePixelId);
+        (window as any).fbq('track', 'PageView');
+      }
+    };
   }, [pixelId]);
   return null;
 }

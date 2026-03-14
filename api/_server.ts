@@ -12,7 +12,7 @@ import { registerAffiliateRoutes } from "../server/lib/affiliate";
 import { analyzeProduct } from "../server/lib/product-intelligence";
 import { appRouter } from "../server/routers";
 import { createContext } from "../server/_core/context";
-import { createCheckoutSession, constructWebhookEvent, handleWebhook } from "../server/lib/stripe";
+import { handleWebhook, registerStripeRoutes } from "../server/lib/stripe";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
 import { getProductByIdPublic } from "../server/db";
 
@@ -30,8 +30,7 @@ app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async
     return res.status(400).json({ error: "Missing Stripe signature header" });
   }
   try {
-    const event = constructWebhookEvent(req.body as Buffer, signature);
-    await handleWebhook(event);
+    await handleWebhook(req.body as Buffer, signature);
     res.json({ received: true });
   } catch (err: any) {
     console.error("[Stripe webhook] Error:", err.message);
@@ -107,6 +106,7 @@ registerScrapeRoutes(app);
 registerToolsApi(app);
 registerAutomationRoutes(app);
 registerAffiliateRoutes(app);
+registerStripeRoutes(app);
 
 // ── Product import with AI Brain ─────────────────────────────────────────────
 app.post("/api/import-product", async (req: Request, res: Response) => {
@@ -137,23 +137,8 @@ app.post("/api/import-product", async (req: Request, res: Response) => {
   }
 });
 
-// ── Stripe checkout session ─────────────────────────────────────────────────
-app.post("/api/stripe/checkout-session", async (req, res) => {
-  try {
-    const context = await createContext({ req, res } as any);
-    if (!context.user) {
-      return res.status(401).json({ error: "Authentication required" });
-    }
-    const { url } = await createCheckoutSession({
-      userId: context.user.id,
-      userEmail: context.user.email ?? undefined,
-    });
-    res.json({ url });
-  } catch (err: any) {
-    console.error("[Stripe checkout] Error:", err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
+// Stripe routes (checkout-session, customer-portal, subscription-status, webhook)
+// are registered via registerStripeRoutes(app) above
 
 // ── Public storefront data API ────────────────────────────────────────────
 app.get("/api/store/:slug", async (req: Request, res: Response) => {

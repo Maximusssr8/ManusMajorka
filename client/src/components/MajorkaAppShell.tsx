@@ -271,6 +271,48 @@ interface Props {
   children: React.ReactNode;
 }
 
+function PWAInstallBanner() {
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem('pwa-install-dismissed')) return;
+    const handler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShow(true);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    setShow(false);
+    localStorage.setItem('pwa-install-dismissed', '1');
+  };
+
+  const handleDismiss = () => {
+    setShow(false);
+    localStorage.setItem('pwa-install-dismissed', '1');
+  };
+
+  if (!show) return null;
+
+  return (
+    <div style={{ position: 'fixed', bottom: 72, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: '#131620', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 14, padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', maxWidth: 380, width: 'calc(100% - 32px)' }}>
+      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, #d4af37, #b8941f)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Syne, sans-serif', fontWeight: 900, fontSize: 15, color: '#000', flexShrink: 0 }}>M</div>
+      <p style={{ flex: 1, fontSize: 13, color: '#e2e8f0', lineHeight: 1.4, margin: 0 }}>Install Majorka as an app for faster access</p>
+      <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+        <button onClick={handleInstall} style={{ background: 'linear-gradient(135deg, #d4af37, #b8941f)', color: '#000', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 700, fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}>Install</button>
+        <button onClick={handleDismiss} style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>Later</button>
+      </div>
+    </div>
+  );
+}
+
 export default function MajorkaAppShell({ children }: Props) {
   const [location, setLocation] = useLocation();
   const { user, isAuthenticated, loading, session } = useAuth();
@@ -940,6 +982,7 @@ export default function MajorkaAppShell({ children }: Props) {
       className="flex h-screen overflow-hidden"
       style={{ background: '#060608', color: '#f5f5f5', fontFamily: 'DM Sans, sans-serif' }}
     >
+      <PWAInstallBanner />
       {/* Search overlay */}
       {searchOpen && (
         <div

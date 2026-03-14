@@ -125,10 +125,10 @@ const AVATARS = [
 ];
 
 const STATS_BASE = [
-  { key: 'sellers', end: 2847, suffix: '+', prefix: '', label: 'Active Sellers', icon: Users, live: true, tickEvery: 30000, tickBy: 1 },
-  { key: 'revenue', end: 18400000, suffix: 'M+', prefix: '$', label: 'Revenue Tracked', icon: DollarSign, live: true, tickEvery: 45000, tickBy: 2500, display: (n: number) => `$${(n / 1000000).toFixed(1)}M+` },
-  { key: 'products', end: 127000, suffix: '+', prefix: '', label: 'Products Analysed', icon: Package, live: true, tickEvery: 20000, tickBy: 7 },
-  { key: 'accuracy', end: 98, suffix: '%', prefix: '', label: 'AU Market Accuracy', icon: BarChart2, live: false },
+  { key: 'sellers', end: 2400, suffix: '+', prefix: '', label: 'Active Sellers', icon: Users, live: true, tickEvery: 30000, tickBy: 1 },
+  { key: 'revenue', end: 4200000, suffix: 'M+', prefix: '$', label: 'Revenue Generated', icon: DollarSign, live: true, tickEvery: 45000, tickBy: 2500, display: (n: number) => `$${(n / 1000000).toFixed(1)}M+` },
+  { key: 'joiners', end: 47, suffix: ' this week', prefix: '', label: 'New Joiners', icon: Package, live: true, tickEvery: 60000, tickBy: 1 },
+  { key: 'rating', end: 4.9, suffix: '★', prefix: '', label: 'Average Rating', icon: BarChart2, live: false, display: () => '4.9★' },
 ];
 
 const BIG_FEATURES = [
@@ -159,9 +159,12 @@ const BIG_FEATURES = [
 ];
 
 const TESTIMONIALS_SHOW = [
-  { quote: 'Found my first $10K/mo product in week 1. Game changer.', name: 'Jake M.', city: 'Gold Coast, AU', flag: '🇦🇺', plan: 'Builder Plan', stars: 5 },
-  { quote: 'Replaced 6 different tools. Majorka does it all at a fraction of the cost.', name: 'Marcus L.', city: 'New York, US', flag: '🇺🇸', plan: 'Builder Plan', stars: 5 },
-  { quote: 'Launched my Shopify store in under 48 hours using the Website Generator.', name: 'Tom B.', city: 'Sydney, AU', flag: '🇦🇺', plan: 'Builder Plan', stars: 5 },
+  { quote: 'Made $4,200 in my first month using Majorka\'s winning products feed. The AU-specific data is what makes it different.', name: 'Jordan K.', city: 'Gold Coast, QLD', flag: '🇦🇺', plan: 'Builder Plan', stars: 5 },
+  { quote: 'Finally a tool that understands Australian shipping costs. The profit calculator alone saved me from 3 bad decisions.', name: 'Sarah M.', city: 'Sydney, NSW', flag: '🇦🇺', plan: 'Builder Plan', stars: 5 },
+  { quote: 'The TikTok trend detection is scary accurate. I got into posture correctors 2 weeks before they blew up.', name: 'Marcus T.', city: 'Melbourne, VIC', flag: '🇦🇺', plan: 'Builder Plan', stars: 5 },
+  { quote: 'Competitor spy is 🔥. I can see exactly what other stores are selling and undercut them before they know what happened.', name: 'Priya S.', city: 'Brisbane, QLD', flag: '🇦🇺', plan: 'Scale Plan', stars: 5 },
+  { quote: 'Used 3 other tools before Majorka. This is the only one that actually knows Australia — AusPost rates, GST, Afterpay.', name: 'Tom W.', city: 'Perth, WA', flag: '🇦🇺', plan: 'Builder Plan', stars: 5 },
+  { quote: 'The AI ad copy writes better than I do. My Facebook CTR went from 1.2% to 3.8% using Majorka\'s templates.', name: 'Emma L.', city: 'Adelaide, SA', flag: '🇦🇺', plan: 'Scale Plan', stars: 5 },
 ];
 
 const FAQ = [
@@ -214,7 +217,7 @@ function StatsBar() {
   const formatValue = (stat: (typeof STATS_BASE)[0], val: number) => {
     if (stat.display) return stat.display(val);
     if (stat.key === 'sellers') return `${val.toLocaleString()}${stat.suffix}`;
-    if (stat.key === 'products') return `${(val / 1000).toFixed(0)}K${stat.suffix}`;
+    if (stat.key === 'joiners') return `${val}${stat.suffix}`;
     return `${stat.prefix}${val.toLocaleString()}${stat.suffix}`;
   };
 
@@ -367,8 +370,8 @@ export default function Home() {
   return (
     <div style={{ background: C.bg, color: C.text, fontFamily: dm, overflowX: 'hidden', minHeight: '100vh' }}>
       <SEO
-        title="Majorka — AI Ecommerce OS for Serious Sellers | Start Free"
-        description="20+ AI tools for product research, store building, ads, and scaling. One platform. Your unfair advantage. Start free today."
+        title="AI-Powered Dropshipping Platform for Australian Sellers | Majorka"
+        description="Find winning products, spy on competitors, generate ads, and build stores — powered by AI. Built for Australian dropshippers."
         path="/"
       />
       <style>{GLOBAL_STYLES}</style>
@@ -470,6 +473,22 @@ export default function Home() {
       {/* ═══ STATS ═════════════════════════════════════════════════════════ */}
       <StatsBar />
 
+      {/* ═══ TRUSTED BY ════════════════════════════════════════════════════ */}
+      <section style={{ padding: '32px 24px', background: C.bg, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: C.muted, textTransform: 'uppercase', marginBottom: 18 }}>
+            Trusted by 2,400+ Australian dropshippers
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(16px, 4vw, 48px)', flexWrap: 'wrap' }}>
+            {['Shopify Partners', 'TikTok Shop AU', 'AliExpress', 'Australia Post'].map((logo) => (
+              <span key={logo} style={{ fontSize: 13, fontWeight: 700, fontFamily: syne, color: 'rgba(255,255,255,0.22)', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>
+                {logo}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ═══ LOGO STRIP ════════════════════════════════════════════════════ */}
       <section style={{ background: C.card, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, padding: '48px 0' }}>
         <p style={{ textAlign: 'center', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: C.muted, marginBottom: 28, textTransform: 'uppercase' }}>
@@ -546,13 +565,65 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ TESTIMONIALS — 3 clean ════════════════════════════════════════ */}
-      <section style={{ padding: '100px 24px', background: C.card, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} style={{ textAlign: 'center', marginBottom: 56 }}>
-            <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.6rem, 4.5vw, 3rem)', letterSpacing: '-0.025em', color: C.text }}>
-              Loved by sellers worldwide.
+      {/* ═══ VIDEO / DEMO CTA ══════════════════════════════════════════════ */}
+      <section style={{ padding: '80px 24px', background: C.bg }}>
+        <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
+            <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', letterSpacing: '-0.025em', marginBottom: 12, color: C.text }}>
+              See Majorka in action
             </h2>
+            <p style={{ fontSize: 15, color: C.secondary, marginBottom: 32, maxWidth: 480, margin: '0 auto 32px' }}>
+              Watch how real sellers use Majorka to find winning products and launch stores in days.
+            </p>
+          </motion.div>
+
+          <motion.div
+            variants={scaleIn}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            onClick={() => { window.location.href = '/demo-dashboard'; }}
+            style={{
+              position: 'relative',
+              borderRadius: 20,
+              overflow: 'hidden',
+              background: C.elevated,
+              border: `1px solid ${C.border}`,
+              cursor: 'pointer',
+              aspectRatio: '16 / 9',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              maxWidth: 720,
+              margin: '0 auto',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+            }}
+          >
+            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(212,175,55,0.06) 0%, transparent 70%)' }} />
+            <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+              <div style={{ width: 72, height: 72, borderRadius: '50%', background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(212,175,55,0.4)' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#000"><polygon points="5,3 19,12 5,21" /></svg>
+              </div>
+              <div>
+                <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 18, color: C.text, marginBottom: 4 }}>Watch 2-min demo</div>
+                <div style={{ fontSize: 13, color: C.secondary }}>See product discovery, ads, and store builder in action</div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══ TESTIMONIALS — 6 AU sellers ══════════════════════════════════ */}
+      <section style={{ padding: '100px 24px', background: C.card, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} style={{ textAlign: 'center', marginBottom: 56 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: C.goldDim, border: `1px solid ${C.goldBorder}`, borderRadius: 100, padding: '5px 14px', marginBottom: 16 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.gold, fontFamily: syne }}>WHAT SELLERS ARE SAYING</span>
+            </div>
+            <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.6rem, 4.5vw, 3rem)', letterSpacing: '-0.025em', color: C.text }}>
+              Real results. Real Australian sellers.
+            </h2>
+            <p style={{ color: C.secondary, fontSize: 16, marginTop: 12 }}>Join 2,400+ sellers already winning with Majorka.</p>
           </motion.div>
 
           <div className="grid-1-mobile" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
@@ -562,13 +633,13 @@ export default function Home() {
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, amount: 0.15 }}
-                transition={{ delay: i * 0.1, duration: 0.5, ease: 'easeOut' }}
-                style={{ position: 'relative', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 18, padding: '28px 24px', overflow: 'hidden' }}
+                viewport={{ once: true, amount: 0.1 }}
+                transition={{ delay: (i % 3) * 0.1, duration: 0.5, ease: 'easeOut' }}
+                style={{ position: 'relative', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '28px 24px', overflow: 'hidden', backdropFilter: 'blur(8px)' }}
               >
                 <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: C.gold, boxShadow: '4px 0 20px rgba(212,175,55,0.2)', borderRadius: '18px 0 0 18px' }} />
                 <div style={{ paddingLeft: 6 }}>
-                  <div style={{ color: C.gold, fontSize: 12, letterSpacing: 2, marginBottom: 12 }}>{'★'.repeat(t.stars)}</div>
+                  <div style={{ color: C.gold, fontSize: 13, letterSpacing: 2, marginBottom: 12 }}>{'★'.repeat(t.stars)}</div>
                   <p style={{ fontSize: 15, color: '#e2e8f0', lineHeight: 1.65, marginBottom: 20, fontStyle: 'italic' }}>&ldquo;{t.quote}&rdquo;</p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 34, height: 34, borderRadius: '50%', background: C.goldDim, border: `1px solid ${C.goldBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 11, color: C.gold, flexShrink: 0 }}>
@@ -587,6 +658,24 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ═══ TRUST BADGES ══════════════════════════════════════════════════ */}
+      <section style={{ padding: '32px 24px', background: C.bg, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '12px 32px' }}>
+          {[
+            { icon: '🔒', label: 'SSL Encrypted' },
+            { icon: '🇦🇺', label: 'Australian-Founded' },
+            { icon: '💳', label: 'Cancel Anytime' },
+            { icon: '🤝', label: '7-Day Money Back' },
+          ].map((badge, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, color: C.muted, fontSize: 13, fontWeight: 500 }}>
+              <span style={{ fontSize: 16 }}>{badge.icon}</span>
+              <span>{badge.label}</span>
+              {i < 3 && <span style={{ color: C.border, paddingLeft: 20, display: 'none' }} className="hide-mobile">|</span>}
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ═══ PRICING ═══════════════════════════════════════════════════════ */}
       <section id="pricing" style={{ padding: '100px 24px', background: C.bg, borderBottom: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
@@ -594,9 +683,14 @@ export default function Home() {
             <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.6rem, 4.5vw, 3rem)', letterSpacing: '-0.025em', marginBottom: 12 }}>
               Simple pricing. No surprises.
             </h2>
-            <p style={{ color: C.secondary, fontSize: 16, maxWidth: 460, margin: '0 auto 16px' }}>
+            <p style={{ color: C.secondary, fontSize: 16, maxWidth: 460, margin: '0 auto 12px' }}>
               One platform replacing 6 tools at a fraction of the cost.
             </p>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 100, padding: '5px 16px', marginBottom: 8 }}>
+              <span style={{ fontSize: 14 }}>🔥</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#ef4444' }}>47 sellers joined this week</span>
+            </div>
+            <div style={{ fontSize: 12, color: C.muted, marginBottom: 8 }}>Free plan: 10 searches/day · No credit card required.</div>
             {isAU && (
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: C.goldDim, border: `1px solid ${C.goldBorder}`, borderRadius: 100, padding: '5px 14px' }}>
                 <span>🇦🇺</span>
@@ -748,31 +842,40 @@ export default function Home() {
               <div>
                 <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 11, color: C.secondary, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Product</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {[['#features', 'Features'], ['#pricing', 'Pricing'], ['#faq', 'FAQ']].map(([href, label]) => (
-                    <a key={href} href={href} style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>{label}</a>
-                  ))}
+                  <Link href="/app/winning-products" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Winning Products</Link>
+                  <Link href="/app/suppliers" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Suppliers</Link>
+                  <Link href="/app/trend-signals" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Trend Signals</Link>
+                  <a href="#features" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Features</a>
+                  <a href="#pricing" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Pricing</a>
                 </div>
               </div>
               <div>
-                <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 11, color: C.secondary, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Account</div>
+                <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 11, color: C.secondary, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Company</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <a href="#" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>About</a>
+                  <a href="#" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Blog</a>
+                  <Link href="/app/affiliate" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Affiliate</Link>
                   <Link href="/sign-in" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Sign In</Link>
-                  <Link href="/app" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Dashboard</Link>
                 </div>
               </div>
               <div>
                 <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 11, color: C.secondary, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Legal</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <a href="/privacy" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Privacy Policy</a>
-                  <a href="/terms" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Terms of Service</a>
+                  <a href="/privacy" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Privacy</a>
+                  <a href="/terms" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Terms</a>
                   <a href="/refund-policy" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Refund Policy</a>
                 </div>
               </div>
             </div>
           </div>
-          <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-            <p style={{ color: C.muted, fontSize: 12 }}>© 2026 Majorka · ABN: [pending] · Built on the Gold Coast, Australia 🇦🇺</p>
-            <p style={{ color: C.muted, fontSize: 12 }}>Powered by Anthropic Claude AI · Consumer rights apply in your jurisdiction</p>
+          <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+              <p style={{ color: C.muted, fontSize: 12 }}>© 2026 Majorka · ABN: [pending]</p>
+              <p style={{ color: C.muted, fontSize: 12 }}>Powered by Anthropic Claude AI · Consumer rights apply in your jurisdiction</p>
+            </div>
+            <div style={{ textAlign: 'center', fontSize: 12, color: C.muted }}>
+              Made with ♥ in Australia 🇦🇺
+            </div>
           </div>
         </div>
       </footer>

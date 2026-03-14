@@ -5,6 +5,7 @@
 
 import {
   BarChart2,
+  CheckSquare,
   ChevronLeft,
   ChevronRight,
   ClipboardCopy,
@@ -20,12 +21,14 @@ import {
   RefreshCw,
   Search,
   Sparkles,
+  Square,
   Store,
   Table2,
   TrendingUp,
   X,
   Zap,
 } from 'lucide-react';
+import ProductCompareModal from '@/components/ProductCompareModal';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   CartesianGrid,
@@ -37,6 +40,7 @@ import {
   YAxis,
 } from 'recharts';
 import { toast } from 'sonner';
+import { SEO } from '@/components/SEO';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 
@@ -1418,12 +1422,18 @@ function ProductCard({
   onSelect,
   onToggleWatchlist,
   inWatchlist,
+  onImportShopify,
+  onToggleCompare,
+  inCompare,
 }: {
   product: WinningProduct;
   rank: number;
   onSelect: (p: WinningProduct) => void;
   onToggleWatchlist: (p: WinningProduct) => void;
   inWatchlist: boolean;
+  onImportShopify?: (p: WinningProduct) => void;
+  onToggleCompare?: (p: WinningProduct) => void;
+  inCompare?: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
 
@@ -1621,46 +1631,99 @@ function ProductCard({
 
         {/* Action buttons */}
         <div
-          style={{ display: 'flex', gap: 8, marginTop: 'auto' }}
+          style={{ display: 'flex', gap: 8, marginTop: 'auto', flexDirection: 'column' }}
           onClick={(e) => e.stopPropagation()}
         >
-          <button
-            onClick={() => onSelect(product)}
-            style={{
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-              padding: '9px 12px',
-              borderRadius: 10,
-              background: C.gold,
-              border: 'none',
-              color: '#000',
-              fontSize: 12,
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
-          >
-            <Sparkles size={11} /> Analyse
-          </button>
-          <button
-            onClick={() => onToggleWatchlist(product)}
-            title={inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
-            style={{
-              width: 38,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 10,
-              background: inWatchlist ? 'rgba(239,68,68,0.12)' : C.glass,
-              border: `1px solid ${inWatchlist ? 'rgba(239,68,68,0.35)' : C.border}`,
-              color: inWatchlist ? C.red : C.sub,
-              cursor: 'pointer',
-            }}
-          >
-            <Heart size={14} fill={inWatchlist ? C.red : 'none'} />
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => onSelect(product)}
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                padding: '9px 12px',
+                borderRadius: 10,
+                background: C.gold,
+                border: 'none',
+                color: '#000',
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              <Sparkles size={11} /> Analyse
+            </button>
+            <button
+              onClick={() => onToggleWatchlist(product)}
+              title={inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
+              style={{
+                width: 38,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 10,
+                background: inWatchlist ? 'rgba(239,68,68,0.12)' : C.glass,
+                border: `1px solid ${inWatchlist ? 'rgba(239,68,68,0.35)' : C.border}`,
+                color: inWatchlist ? C.red : C.sub,
+                cursor: 'pointer',
+              }}
+            >
+              <Heart size={14} fill={inWatchlist ? C.red : 'none'} />
+            </button>
+          </div>
+          {/* Shopify + Compare row */}
+          <div style={{ display: 'flex', gap: 6 }}>
+            {onImportShopify && (
+              <button
+                onClick={() => onImportShopify(product)}
+                title="Download Shopify CSV"
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 5,
+                  padding: '7px 10px',
+                  borderRadius: 10,
+                  background: 'rgba(6,20,2,0.6)',
+                  border: '1px solid rgba(150,191,72,0.3)',
+                  color: '#96BF48',
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                ↓ Shopify CSV
+              </button>
+            )}
+            {onToggleCompare && (
+              <button
+                onClick={() => onToggleCompare(product)}
+                title={inCompare ? 'Remove from compare' : 'Add to compare'}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 5,
+                  padding: '7px 10px',
+                  borderRadius: 10,
+                  background: inCompare ? 'rgba(212,175,55,0.12)' : C.glass,
+                  border: `1px solid ${inCompare ? C.goldBorder : C.border}`,
+                  color: inCompare ? C.gold : C.sub,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {inCompare ? <CheckSquare size={11} /> : <Square size={11} />}
+                Compare
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -1921,6 +1984,9 @@ function CardGrid({
   setPage,
   total,
   pageOffset,
+  onImportShopify,
+  onToggleCompare,
+  compareIds,
 }: {
   products: WinningProduct[];
   loading: boolean;
@@ -1931,6 +1997,9 @@ function CardGrid({
   setPage: (n: number) => void;
   total: number;
   pageOffset?: number;
+  onImportShopify?: (p: WinningProduct) => void;
+  onToggleCompare?: (p: WinningProduct) => void;
+  compareIds?: Set<string>;
 }) {
   const totalPages = Math.ceil(total / PAGE_SIZE);
   return (
@@ -1952,6 +2021,9 @@ function CardGrid({
                 onSelect={onSelect}
                 onToggleWatchlist={onToggleWatchlist}
                 inWatchlist={watchlistIds.has(p.id)}
+                onImportShopify={onImportShopify}
+                onToggleCompare={onToggleCompare}
+                inCompare={compareIds?.has(p.id)}
               />
             ))}
       </div>
@@ -2105,6 +2177,24 @@ export default function WinningProducts() {
 
   // ── Refresh ───────────────────────────────────────────────────────────
   const [refreshing, setRefreshing] = useState(false);
+
+  // ── Compare ───────────────────────────────────────────────────────────
+  const [compareIds, setCompareIds] = useState<Set<string>>(new Set());
+  const [showCompare, setShowCompare] = useState(false);
+
+  const toggleCompare = (p: WinningProduct) => {
+    setCompareIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(p.id)) {
+        next.delete(p.id);
+      } else if (next.size < 3) {
+        next.add(p.id);
+      } else {
+        toast('Compare up to 3 products at once');
+      }
+      return next;
+    });
+  };
 
   // ── Debounce search ───────────────────────────────────────────────────
   useEffect(() => {
@@ -2348,6 +2438,43 @@ export default function WinningProducts() {
     }
   };
 
+  // ── Shopify CSV import ────────────────────────────────────────────────
+  const importToShopify = async (product: WinningProduct) => {
+    if (!token) {
+      toast.error('Sign in to use Shopify import');
+      return;
+    }
+    try {
+      const res = await fetch('/api/shopify/import-product', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          product_title: product.product_title,
+          price_aud: product.price_aud,
+          supplier_cost_aud: product.price_aud ? product.price_aud / 2.8 : 10,
+          description: product.why_winning,
+          image_url: product.image_url,
+          category: product.category,
+        }),
+      });
+      if (!res.ok) throw new Error(`Server ${res.status}`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${product.product_title.replace(/[^a-z0-9]/gi, '-')}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success('Shopify CSV downloaded! Import at Shopify Admin → Products → Import');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to generate CSV';
+      toast.error(msg);
+    }
+  };
+
   // ── Manual refresh ────────────────────────────────────────────────────
   const handleRefresh = async () => {
     if (!token) {
@@ -2391,11 +2518,18 @@ export default function WinningProducts() {
         color: C.text,
       }}
     >
+      <SEO
+        title="Winning Products AU | Majorka"
+        description="Discover Australia's top-selling TikTok Shop products with real revenue data. Updated every 6 hours."
+        path="/app/winning-products"
+      />
       <style>{`
         @keyframes shimmer { 0%,100%{opacity:.5} 50%{opacity:.2} }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(0.88)} }
+        @keyframes skeleton-pulse { 0%,100%{opacity:.4} 50%{opacity:.8} }
+        .skeleton { background: rgba(255,255,255,0.06); border-radius: 6px; animation: skeleton-pulse 1.5s ease-in-out infinite; }
       `}</style>
 
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '36px 20px 80px' }}>
@@ -2653,8 +2787,13 @@ export default function WinningProducts() {
                   </button>
                 </div>
                 {searchResults.length === 0 ? (
-                  <div style={{ padding: '24px', background: C.glass, border: `1px solid ${C.border}`, borderRadius: 14, textAlign: 'center', color: C.sub, fontSize: 13 }}>
-                    No products found — try a different query
+                  <div style={{ padding: '40px 24px', background: C.glass, border: `1px solid ${C.border}`, borderRadius: 14, textAlign: 'center' }}>
+                    <Search size={32} style={{ color: C.muted, marginBottom: 12, opacity: 0.5 }} />
+                    <p style={{ color: C.text, fontSize: 14, fontWeight: 600, marginBottom: 6, fontFamily: 'Syne, sans-serif' }}>No products found</p>
+                    <p style={{ color: C.sub, fontSize: 13, marginBottom: 16 }}>Try a different category or search term</p>
+                    <button onClick={() => setSearchResults(null)} style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', color: '#d4af37', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}>
+                      ← Clear Search
+                    </button>
                   </div>
                 ) : (
                   <>
@@ -3009,6 +3148,9 @@ export default function WinningProducts() {
               page={page}
               setPage={setPage}
               total={total}
+              onImportShopify={(p) => void importToShopify(p)}
+              onToggleCompare={toggleCompare}
+              compareIds={compareIds}
             />
           ) : (
             <TableView
@@ -3079,6 +3221,9 @@ export default function WinningProducts() {
               setPage={() => {}}
               total={watchlistProducts.length}
               pageOffset={0}
+              onImportShopify={(p) => void importToShopify(p)}
+              onToggleCompare={toggleCompare}
+              compareIds={compareIds}
             />
           ))}
       </div>
@@ -3091,6 +3236,74 @@ export default function WinningProducts() {
         onToggleWatchlist={(p) => void toggleWatchlist(p)}
         token={token}
       />
+
+      {/* ── Compare floating bar ───────────────────────────────────────────── */}
+      {compareIds.size >= 2 && !showCompare && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 28,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 990,
+            background: 'linear-gradient(135deg, #1a1600, #0d1017)',
+            border: `1px solid ${C.goldBorder}`,
+            borderRadius: 16,
+            padding: '14px 24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 40px rgba(212,175,55,0.1)',
+          }}
+        >
+          <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>
+            {compareIds.size} products selected
+          </span>
+          <button
+            onClick={() => setShowCompare(true)}
+            style={{
+              padding: '9px 20px',
+              borderRadius: 10,
+              background: C.gold,
+              border: 'none',
+              color: '#000',
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'Syne, sans-serif',
+            }}
+          >
+            Compare Selected →
+          </button>
+          <button
+            onClick={() => setCompareIds(new Set())}
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 8,
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: C.sub,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <X size={12} />
+          </button>
+        </div>
+      )}
+
+      {/* ── Compare Modal ──────────────────────────────────────────────────── */}
+      {showCompare && (
+        <ProductCompareModal
+          products={[...products, ...watchlistProducts, ...SEEDED_PRODUCTS].filter(
+            (p, i, arr) => compareIds.has(p.id) && arr.findIndex((x) => x.id === p.id) === i,
+          )}
+          onClose={() => setShowCompare(false)}
+        />
+      )}
     </div>
   );
 }

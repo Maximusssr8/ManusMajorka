@@ -1,8 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Loader2, Package, RefreshCw, Send, Sparkles, Trash2 } from 'lucide-react';
+import { ExternalLink, Loader2, Package, RefreshCw, Send, Sparkles, Trash2 } from 'lucide-react';
+import { Link } from 'wouter';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Markdown } from '@/components/Markdown';
+import { SEO } from '@/components/SEO';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '@/contexts/AuthContext';
 import { getStoredMarket } from '@/contexts/MarketContext';
@@ -28,6 +30,34 @@ const TOOL_STATUS_LABELS: Record<string, string> = {
   trend_scout: '🔥 Scouting trends...',
   ad_angle_generator: '🎯 Generating ad angles...',
 };
+
+const QUICK_CHIPS = [
+  "What's trending in AU this week?",
+  'Find me a winning product under $30',
+  "What's my best niche for summer?",
+  'Analyse this product: [paste URL]',
+  'How do I beat competitors selling [X]?',
+];
+
+const STARTER_CARDS = [
+  { emoji: '🔥', label: "Show me today's top AU products" },
+  { emoji: '💰', label: "What's the most profitable niche right now?" },
+  { emoji: '🛍️', label: 'Find me winning products under $50' },
+  { emoji: '📈', label: 'Analyse market trends for [category]' },
+];
+
+// Detect product names in assistant responses
+function detectProductLink(content: string): boolean {
+  if (!content || content.length < 20) return false;
+  const patterns = [
+    /posture corrector/i, /lick mat/i, /led.*mask/i, /face mask/i,
+    /neck fan/i, /resistance band/i, /fridge organis/i, /pet.*brush/i,
+    /scalp massager/i, /knee brace/i, /air fryer/i, /dog.*coat/i,
+    /charging dock/i, /blue light/i, /jump rope/i, /phone sanitiser/i,
+    /wall planter/i, /meal prep/i,
+  ];
+  return patterns.some((p) => p.test(content));
+}
 
 export default function AIChat() {
   const [input, setInput] = useState('');
@@ -201,6 +231,11 @@ export default function AIChat() {
 
   return (
     <div className="flex flex-col h-full" style={{ background: '#080a0e' }}>
+      <SEO
+        title="Maya — Your AI Dropshipping Coach | Majorka"
+        description="Ask Maya anything about dropshipping in Australia. Live market data, product research, and strategy."
+        path="/app/ai-chat"
+      />
       {/* Header */}
       <div
         className="flex-shrink-0 px-5 py-3"
@@ -300,35 +335,83 @@ export default function AIChat() {
               </div>
             )}
             {messages.length === 0 && (
-              <div className="flex flex-col items-center justify-center text-center py-12">
-                <Sparkles className="w-10 h-10 mb-4" style={{ color: '#d4af37', opacity: 0.25 }} />
+              <div className="flex flex-col items-center justify-center text-center py-8">
+                <div
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 16,
+                    background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: 16,
+                  }}
+                >
+                  <Sparkles style={{ color: '#080a0e' }} size={24} />
+                </div>
                 <p
                   className="text-sm mb-1 font-bold"
                   style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
                 >
                   {activeProduct
                     ? `Let's talk about ${activeProduct.name}`
-                    : 'What can I help you with?'}
+                    : "I'm Maya — your AU ecommerce strategist"}
                 </p>
                 <p
-                  className="text-xs mb-8 max-w-xs"
+                  className="text-xs mb-6 max-w-xs"
                   style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'DM Sans, sans-serif' }}
                 >
                   {activeProduct
                     ? `I have full context on your ${activeProduct.niche} product and can give you specific, targeted advice.`
-                    : 'Ask me anything about growing your ecommerce business.'}
+                    : 'Ask me anything about winning products, niches, ads, and scaling in Australia.'}
                 </p>
+
+                {/* 4 large starter cards */}
+                {!activeProduct && (
+                  <div className="grid grid-cols-2 gap-2 w-full max-w-lg mb-4">
+                    {STARTER_CARDS.map((card, i) => (
+                      <button
+                        key={i}
+                        onClick={() => void handleSend(card.label)}
+                        className="text-left rounded-xl border p-3 transition-all"
+                        style={{
+                          borderColor: 'rgba(212,175,55,0.15)',
+                          background: 'rgba(212,175,55,0.03)',
+                          cursor: 'pointer',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = 'rgba(212,175,55,0.35)';
+                          e.currentTarget.style.background = 'rgba(212,175,55,0.07)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = 'rgba(212,175,55,0.15)';
+                          e.currentTarget.style.background = 'rgba(212,175,55,0.03)';
+                        }}
+                      >
+                        <div style={{ fontSize: 20, marginBottom: 6 }}>{card.emoji}</div>
+                        <div
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: 'rgba(240,237,232,0.8)',
+                            fontFamily: 'DM Sans, sans-serif',
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          {card.label}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Suggested prompts */}
                 <div className="flex flex-col gap-2 w-full max-w-md">
-                  <p
-                    className="text-xs font-bold uppercase tracking-widest mb-1"
-                    style={{ color: 'rgba(240,237,232,0.25)', fontFamily: 'Syne, sans-serif' }}
-                  >
-                    Suggested
-                  </p>
-                  {suggestedPrompts.map((prompt, i) => (
+                  {activeProduct && suggestedPrompts.map((prompt, i) => (
                     <button
                       key={i}
-                      onClick={() => handleSend(prompt)}
+                      onClick={() => void handleSend(prompt)}
                       className="text-left text-xs px-4 py-2.5 rounded-lg border transition-all"
                       style={{
                         borderColor: 'rgba(212,175,55,0.18)',
@@ -417,6 +500,29 @@ export default function AIChat() {
                       >
                         {msg.content}
                       </Markdown>
+                      {/* View in Winning Products link */}
+                      {msg.role === 'assistant' &&
+                        msg.content.length > 50 &&
+                        detectProductLink(msg.content) && (
+                          <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                            <Link
+                              href="/app/winning-products"
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 5,
+                                fontSize: 11,
+                                fontWeight: 700,
+                                color: '#d4af37',
+                                textDecoration: 'none',
+                                fontFamily: 'Syne, sans-serif',
+                              }}
+                            >
+                              <ExternalLink size={10} />
+                              → View in Winning Products
+                            </Link>
+                          </div>
+                        )}
                     </div>
                   )}
                 </div>
@@ -504,6 +610,48 @@ export default function AIChat() {
 
         {/* Input */}
         <div className="flex-shrink-0 px-4 pb-4 pt-2">
+          {/* Quick chips — shown when input is empty and there are messages */}
+          {messages.length > 0 && !input.trim() && (
+            <div
+              style={{
+                display: 'flex',
+                gap: 6,
+                flexWrap: 'wrap',
+                marginBottom: 8,
+                paddingBottom: 2,
+              }}
+            >
+              {QUICK_CHIPS.map((chip, i) => (
+                <button
+                  key={i}
+                  onClick={() => setInput(chip)}
+                  style={{
+                    padding: '5px 10px',
+                    borderRadius: 20,
+                    background: 'rgba(212,175,55,0.07)',
+                    border: '1px solid rgba(212,175,55,0.2)',
+                    color: 'rgba(212,175,55,0.8)',
+                    fontSize: 11,
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    fontFamily: 'DM Sans, sans-serif',
+                    transition: 'border-color 0.15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(212,175,55,0.5)';
+                    e.currentTarget.style.background = 'rgba(212,175,55,0.12)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(212,175,55,0.2)';
+                    e.currentTarget.style.background = 'rgba(212,175,55,0.07)';
+                  }}
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+          )}
           <div
             className="flex items-end gap-2 px-4 py-3 rounded-lg"
             style={{

@@ -1,8 +1,11 @@
 User-agent: *
 Allow: /
+Allow: /pricing
+Allow: /affiliate
+Allow: /privacy
+Allow: /terms
 Disallow: /app/
-Disallow: /account
-Disallow: /api/
 Disallow: /admin/
+Disallow: /api/
 
-Sitemap: https://majorka.ai/sitemap.xml
+Sitemap: https://www.majorka.io/sitemap.xml

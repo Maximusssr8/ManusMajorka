@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CountUp from 'react-countup';
 import { useInView } from 'react-intersection-observer';
 import { toast } from 'sonner';
@@ -428,7 +428,34 @@ const FAQS = [
 export default function Pricing() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [annual, setAnnual] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [stripeConfigured, setStripeConfigured] = useState<boolean | null>(null);
+  const [currentPlan, setCurrentPlan] = useState<string>('free');
   const { session } = useAuth();
+
+  // Check Stripe config + current subscription status
+  useEffect(() => {
+    const token = session?.access_token;
+    if (!token) {
+      // For logged-out users, just check if Stripe is configured via a quick probe
+      fetch('/api/stripe/subscription-status', {
+        headers: { Authorization: 'Bearer anonymous' },
+      })
+        .then((r) => r.json())
+        .then((d) => setStripeConfigured(d.stripeConfigured ?? false))
+        .catch(() => setStripeConfigured(false));
+      return;
+    }
+    fetch('/api/stripe/subscription-status', {
+      headers: { Authorization: 'Bearer ' + token },
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        setStripeConfigured(d.stripeConfigured ?? false);
+        setCurrentPlan(d.plan ?? 'free');
+      })
+      .catch(() => setStripeConfigured(false));
+  }, [session]);
 
   // Compute display price based on toggle
   const getDisplayPrice = (plan: (typeof PLANS)[number]) => {
@@ -447,7 +474,20 @@ export default function Pricing() {
   };
 
   const handleProCheckout = async () => {
-    const token = session?.access_token ?? '';
+    // If Stripe not configured, show friendly message
+    if (stripeConfigured === false) {
+      toast.info('Payment processing launching soon — join the waitlist to be first in line!');
+      return;
+    }
+
+    const token = session?.access_token;
+    if (!token) {
+      toast.error('Please sign in to upgrade.');
+      window.location.href = '/sign-in?redirect=/pricing';
+      return;
+    }
+
+    setCheckoutLoading(true);
     try {
       const res = await fetch('/api/stripe/checkout-session', {
         method: 'POST',
@@ -456,15 +496,19 @@ export default function Pricing() {
           Authorization: 'Bearer ' + token,
         },
       });
-      const data = (await res.json()) as { url?: string; error?: string };
+      const data = (await res.json()) as { url?: string; error?: string; configured?: boolean };
       if (data.url) {
         window.location.href = data.url;
+      } else if (data.configured === false) {
+        toast.info('Payment processing launching soon');
       } else if (data.error) {
         toast.error(data.error);
       }
     } catch (err: any) {
       console.error('Stripe checkout error:', err);
       toast.error(err.message || 'Payment error \u2014 please try again.');
+    } finally {
+      setCheckoutLoading(false);
     }
   };
 
@@ -479,8 +523,8 @@ export default function Pricing() {
       }}
     >
       <SEO
-        title="Majorka Pricing — From Free to Scale | AUD Plans"
-        description="Majorka pricing plans in AUD. Start free with 5 AI credits/day. Upgrade to Builder ($49/mo) or Scale ($149/mo) for unlimited access. Afterpay available."
+        title="Pricing Plans | Majorka"
+        description="Start free. Upgrade when you're ready. Majorka Pro gives unlimited AI searches, advanced analytics and more."
         path="/pricing"
       />
 
@@ -755,6 +799,7 @@ export default function Pricing() {
               ) : (
                 <button
                   onClick={handleProCheckout}
+                  disabled={checkoutLoading}
                   style={{
                     display: 'block',
                     width: '100%',
@@ -767,12 +812,13 @@ export default function Pricing() {
                     fontFamily: syne,
                     fontWeight: 700,
                     fontSize: 15,
-                    cursor: 'pointer',
+                    cursor: checkoutLoading ? 'not-allowed' : 'pointer',
                     marginBottom: 16,
                     boxShadow: '0 0 24px rgba(212,175,55,0.3)',
+                    opacity: checkoutLoading ? 0.7 : 1,
                   }}
                 >
-                  {plan.cta}
+                  {checkoutLoading ? 'Redirecting...' : stripeConfigured === false ? 'Coming Soon' : plan.cta}
                 </button>
               )}
 

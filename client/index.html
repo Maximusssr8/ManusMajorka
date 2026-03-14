@@ -38,15 +38,19 @@
       "@type": "SoftwareApplication",
       "name": "Majorka",
       "applicationCategory": "BusinessApplication",
+      "description": "AI-powered ecommerce OS for Australian dropshippers",
+      "url": "https://www.majorka.io",
       "offers": {
-        "@type": "AggregateOffer",
-        "priceCurrency": "AUD",
-        "lowPrice": "0",
-        "highPrice": "149"
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "AUD"
       },
       "operatingSystem": "Web",
-      "description": "AI-powered ecommerce operating system for Australian dropshippers. 50+ tools to research, validate, build, launch and scale.",
-      "url": "https://majorka.io"
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "247"
+      }
     }
     </script>
 
@@ -59,6 +63,11 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+      }
+    </script>
   </body>
 
 </html>

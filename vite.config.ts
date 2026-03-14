@@ -26,7 +26,7 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -34,6 +34,8 @@ export default defineConfig({
           "vendor-ui": ["framer-motion", "lucide-react"],
           "vendor-supabase": ["@supabase/supabase-js"],
           "vendor-query": ["@tanstack/react-query", "@trpc/react-query"],
+          "vendor-charts": ["recharts"],
+          "vendor-syntax": ["react-syntax-highlighter"],
         },
       },
     },
