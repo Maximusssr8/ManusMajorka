@@ -827,54 +827,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ VIDEO / DEMO CTA ══════════════════════════════════════════════ */}
-      <section style={{ padding: '80px 24px', background: C.bg }}>
-        <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}>
-            <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', letterSpacing: '-0.025em', marginBottom: 12, color: C.text }}>
-              See Majorka in action
-            </h2>
-            <p style={{ fontSize: 15, color: C.secondary, marginBottom: 32, maxWidth: 480, margin: '0 auto 32px' }}>
-              Watch how real sellers use Majorka to find winning products and launch stores in days.
-            </p>
-          </motion.div>
-
-          <motion.div
-            variants={scaleIn}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            onClick={() => { window.location.href = '/demo-dashboard'; }}
-            style={{
-              position: 'relative',
-              borderRadius: 20,
-              overflow: 'hidden',
-              background: C.elevated,
-              border: `1px solid ${C.border}`,
-              cursor: 'pointer',
-              aspectRatio: '16 / 9',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              maxWidth: 720,
-              margin: '0 auto',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
-            }}
-          >
-            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(212,175,55,0.06) 0%, transparent 70%)' }} />
-            <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-              <div style={{ width: 72, height: 72, borderRadius: '50%', background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(212,175,55,0.4)' }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#000"><polygon points="5,3 19,12 5,21" /></svg>
-              </div>
-              <div>
-                <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 18, color: C.text, marginBottom: 4 }}>Watch 2-min demo</div>
-                <div style={{ fontSize: 13, color: C.secondary }}>See product discovery, ads, and store builder in action</div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
       {/* ═══ TESTIMONIALS — 6 AU sellers ══════════════════════════════════ */}
       <section style={{ padding: '100px 24px', background: C.card, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
