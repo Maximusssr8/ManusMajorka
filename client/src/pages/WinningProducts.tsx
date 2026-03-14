@@ -1404,6 +1404,306 @@ Be specific, opinionated, use AUD figures.`;
   );
 }
 
+// ── Spy Ads Modal ─────────────────────────────────────────────────────────────
+
+function SpyAdsModal({ product, onClose }: { product: WinningProduct; onClose: () => void }) {
+  const angles = getAdAngles(product);
+  return (
+    <>
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)', zIndex: 1000 }} />
+      <div style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 'min(560px, 96vw)',
+        maxHeight: '85vh',
+        overflowY: 'auto',
+        background: '#0d1017',
+        border: `1px solid ${C.goldBorder}`,
+        borderRadius: 20,
+        zIndex: 1001,
+        boxShadow: '0 24px 80px rgba(0,0,0,0.8)',
+      }}>
+        <div style={{ padding: 28 }}>
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div>
+              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>
+                🔍 Spy Ads
+              </div>
+              <div style={{ fontSize: 12, color: C.sub }}>{product.product_title}</div>
+            </div>
+            <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%', background: C.glass, border: `1px solid ${C.border}`, color: C.sub, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <X size={14} />
+            </button>
+          </div>
+
+          {/* Platform links */}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, fontWeight: 700 }}>Find Active Ads</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <a
+                href={`https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en?keyword=${encodeURIComponent(product.product_title)}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 12, background: 'rgba(255,0,80,0.06)', border: '1px solid rgba(255,0,80,0.2)', textDecoration: 'none' }}
+              >
+                <span style={{ fontSize: 22 }}>🎵</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 700, color: '#ff0050', marginBottom: 2 }}>TikTok Creative Center</div>
+                  <div style={{ fontSize: 11, color: C.sub }}>See top-performing TikTok ads for this product</div>
+                </div>
+                <ExternalLink size={13} style={{ color: '#ff0050', flexShrink: 0 }} />
+              </a>
+              <a
+                href={`https://www.facebook.com/ads/library/?search_type=keyword_unordered&q=${encodeURIComponent(product.product_title)}&country=AU`}
+                target="_blank"
+                rel="noreferrer"
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 12, background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.2)', textDecoration: 'none' }}
+              >
+                <span style={{ fontSize: 22 }}>📘</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 700, color: '#60a5fa', marginBottom: 2 }}>Meta Ad Library (AU)</div>
+                  <div style={{ fontSize: 11, color: C.sub }}>Active Facebook & Instagram ads in Australia</div>
+                </div>
+                <ExternalLink size={13} style={{ color: '#60a5fa', flexShrink: 0 }} />
+              </a>
+            </div>
+          </div>
+
+          {/* Ad Angles */}
+          <div>
+            <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, fontWeight: 700 }}>3 Proven Ad Angles</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {angles.map((angle, idx) => (
+                <div key={idx} style={{ padding: '12px 14px', borderRadius: 10, background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.15)' }}>
+                  <div style={{ fontSize: 10, color: C.green, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Angle {idx + 1}</div>
+                  <p style={{ margin: 0, fontSize: 13, color: 'rgba(245,245,245,0.85)', lineHeight: 1.5, fontStyle: 'italic' }}>"{angle}"</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ── Full Report Modal ─────────────────────────────────────────────────────────
+
+function FullReportModal({
+  product,
+  onClose,
+  watchlistIds,
+  onToggleWatchlist,
+  allProducts,
+}: {
+  product: WinningProduct;
+  onClose: () => void;
+  watchlistIds: Set<string>;
+  onToggleWatchlist: (p: WinningProduct) => void;
+  allProducts: WinningProduct[];
+}) {
+  const weekData = useMemo(
+    () => generateWeekData(product.est_daily_revenue_aud ?? 500, product.id),
+    [product.id, product.est_daily_revenue_aud],
+  );
+
+  const inWatchlist = watchlistIds.has(product.id);
+  const adAngles = getAdAngles(product);
+  const weeklyRev = product.est_daily_revenue_aud ? product.est_daily_revenue_aud * 7 : null;
+  const monthlyRev = product.est_daily_revenue_aud ? product.est_daily_revenue_aud * 30 : null;
+  const costEstimate = product.price_aud ? Math.round(product.price_aud / 3) : null;
+  const marginPct = product.price_aud && costEstimate ? Math.round(((product.price_aud - costEstimate) / product.price_aud) * 100) : null;
+
+  const similar = useMemo(() => {
+    return allProducts.filter(p => p.id !== product.id && p.category === product.category).slice(0, 3);
+  }, [allProducts, product.id, product.category]);
+
+  return (
+    <>
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', zIndex: 1000 }} />
+      <div style={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 'min(780px, 96vw)',
+        maxHeight: '92vh',
+        overflowY: 'auto',
+        background: '#0a0c14',
+        border: `1px solid ${C.goldBorder}`,
+        borderRadius: 24,
+        zIndex: 1001,
+        boxShadow: '0 32px 100px rgba(0,0,0,0.9)',
+      }}>
+        {/* Hero image */}
+        {product.image_url && (
+          <div style={{ position: 'relative', height: 220, overflow: 'hidden', borderRadius: '24px 24px 0 0' }}>
+            <img src={product.image_url} alt={product.product_title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, #0a0c14 100%)' }} />
+            <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, width: 36, height: 36, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: `1px solid ${C.glassBorder}`, color: C.text, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <X size={16} />
+            </button>
+          </div>
+        )}
+
+        <div style={{ padding: 32 }}>
+          {/* Close btn (no image) */}
+          {!product.image_url && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+              <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: '50%', background: C.glass, border: `1px solid ${C.glassBorder}`, color: C.text, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <X size={16} />
+              </button>
+            </div>
+          )}
+
+          {/* Title + badges */}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: C.gold, background: C.goldBg, border: `1px solid ${C.goldBorder}`, padding: '4px 10px', borderRadius: 20, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{product.platform}</span>
+              {product.category && <span style={{ fontSize: 11, color: C.sub, background: C.glass, padding: '4px 10px', borderRadius: 20, border: `1px solid ${C.border}` }}>{product.category}</span>}
+              <TrendBadge trend={product.trend} />
+              <CompetitionDot level={product.competition_level} />
+            </div>
+            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 26, fontWeight: 800, color: C.text, margin: 0, lineHeight: 1.2 }}>
+              {product.product_title}
+            </h2>
+            <div style={{ marginTop: 8, fontSize: 14, color: C.sub }}>
+              {product.price_aud != null && <span style={{ fontWeight: 700, color: C.text }}>{fmtAUD(product.price_aud)} AUD</span>}
+              <span style={{ marginLeft: 12, color: C.muted }}>Score: <span style={{ color: scoreColor(product.winning_score), fontWeight: 700 }}>{product.winning_score}</span></span>
+              <span style={{ marginLeft: 12 }}>🇦🇺 AU Fit: <span style={{ fontWeight: 700, color: product.au_relevance >= 85 ? C.green : C.amber }}>{product.au_relevance}%</span></span>
+            </div>
+          </div>
+
+          {/* Revenue metrics */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 24 }}>
+            {[
+              { label: 'Daily Revenue', value: fmtAUD(product.est_daily_revenue_aud), highlight: true },
+              { label: 'Weekly Proj.', value: fmtAUD(weeklyRev), color: C.green },
+              { label: 'Monthly Proj.', value: fmtAUD(monthlyRev), color: C.gold },
+              { label: 'Units/Day', value: product.units_per_day?.toFixed(0) ?? '—' },
+            ].map(({ label, value, highlight, color }) => (
+              <div key={label} style={{ background: highlight ? C.goldBg : C.glass, border: `1px solid ${highlight ? C.goldBorder : C.border}`, borderRadius: 14, padding: '14px 16px', textAlign: 'center' }}>
+                <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>{label}</div>
+                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: color ?? (highlight ? C.gold : C.text) }}>{value}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* 7-day revenue chart */}
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 11, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>7-Day Revenue Trend (AUD)</div>
+            <div style={{ width: '100%', height: 140 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={weekData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.muted }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 10, fill: C.muted }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `$${v}`} width={44} />
+                  <RechartTooltip contentStyle={{ background: '#0f1117', border: `1px solid ${C.goldBorder}`, borderRadius: 8, fontSize: 12 }} labelStyle={{ color: C.sub }} formatter={(v: number) => [`$${v} AUD`, 'Est. Rev']} />
+                  <Line type="monotone" dataKey="rev" stroke={C.gold} strokeWidth={2} dot={{ fill: C.gold, r: 3, strokeWidth: 0 }} activeDot={{ r: 5, fill: C.gold }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Why winning */}
+          {product.why_winning && (
+            <div style={{ background: C.goldBg, border: `1px solid ${C.goldBorder}`, borderRadius: 14, padding: '16px 18px', marginBottom: 20 }}>
+              <div style={{ fontSize: 10, color: C.gold, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>💡 Why It's Winning</div>
+              <p style={{ margin: 0, fontSize: 14, color: 'rgba(245,245,245,0.9)', lineHeight: 1.6 }}>{product.why_winning}</p>
+            </div>
+          )}
+
+          {/* Ad angles */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, fontWeight: 700 }}>Top 3 Ad Angles</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {adAngles.map((angle, idx) => (
+                <div key={idx} style={{ padding: '12px 14px', borderRadius: 10, background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.15)', display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                  <span style={{ fontSize: 10, color: C.green, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>#{idx + 1}</span>
+                  <p style={{ margin: 0, fontSize: 13, color: 'rgba(245,245,245,0.85)', lineHeight: 1.5, fontStyle: 'italic' }}>"{angle}"</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Profit calculator quick view */}
+          {product.price_aud != null && costEstimate != null && (
+            <div style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.15)', borderRadius: 14, padding: '16px 18px', marginBottom: 20 }}>
+              <div style={{ fontSize: 10, color: C.green, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>💰 Profit Snapshot (3× markup)</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                {[
+                  { label: 'Sell Price', value: fmtAUD(product.price_aud) },
+                  { label: 'Est. COGS', value: fmtAUD(costEstimate) },
+                  { label: 'Gross Margin', value: `${marginPct ?? 0}%` },
+                ].map(({ label, value }) => (
+                  <div key={label} style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: 10, color: C.muted, marginBottom: 4 }}>{label}</div>
+                    <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 16, fontWeight: 700, color: C.text }}>{value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Supplier links */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, fontWeight: 700 }}>📦 Supplier Recommendations</div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {[
+                { label: 'Search Suppliers →', url: `/app/suppliers?q=${encodeURIComponent(product.product_title)}`, color: C.gold, bg: C.goldBg, border: C.goldBorder },
+                { label: 'AliExpress', url: `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(product.product_title)}`, color: '#ff6a00', bg: 'rgba(255,106,0,0.08)', border: 'rgba(255,106,0,0.25)' },
+                { label: 'CJ Dropshipping', url: `https://cjdropshipping.com/search.html?q=${encodeURIComponent(product.product_title)}`, color: '#0ea5e9', bg: 'rgba(14,165,233,0.08)', border: 'rgba(14,165,233,0.25)' },
+              ].map(({ label, url, color, bg, border }) => (
+                <a key={label} href={url} target={url.startsWith('http') ? '_blank' : undefined} rel="noreferrer" style={{ flex: '1 1 130px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px 12px', borderRadius: 10, background: bg, border: `1px solid ${border}`, color, fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>
+                  <ExternalLink size={10} />{label}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Similar products */}
+          {similar.length > 0 && (
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, fontWeight: 700 }}>Similar {product.category} Products</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {similar.map(p => (
+                  <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: C.glass, border: `1px solid ${C.border}`, borderRadius: 10 }}>
+                    {p.image_url && <img src={p.image_url} alt="" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.product_title}</div>
+                    </div>
+                    <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 14, fontWeight: 700, color: C.gold, flexShrink: 0 }}>{fmtAUD(p.est_daily_revenue_aud)}/day</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* CTAs */}
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <a
+              href={`/app/suppliers?q=${encodeURIComponent(product.product_title)}`}
+              style={{ flex: 1, minWidth: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px 20px', borderRadius: 14, background: C.gold, border: 'none', color: '#000', fontSize: 14, fontWeight: 800, textDecoration: 'none', fontFamily: 'Syne, sans-serif' }}
+            >
+              🚀 Start Selling This
+            </a>
+            <button
+              onClick={() => onToggleWatchlist(product)}
+              style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: 7, padding: '14px 18px', borderRadius: 14, background: inWatchlist ? 'rgba(34,197,94,0.12)' : C.glass, border: `1px solid ${inWatchlist ? 'rgba(34,197,94,0.35)' : C.border}`, color: inWatchlist ? C.green : C.sub, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+            >
+              <Heart size={14} fill={inWatchlist ? C.green : 'none'} />
+              {inWatchlist ? 'Saved' : '+ Watchlist'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 
 function SkeletonCard() {
@@ -1440,6 +1740,8 @@ function ProductCard({
   onImportShopify,
   onToggleCompare,
   inCompare,
+  onSpyAds,
+  onFullReport,
 }: {
   product: WinningProduct;
   rank: number;
@@ -1449,9 +1751,15 @@ function ProductCard({
   onImportShopify?: (p: WinningProduct) => void;
   onToggleCompare?: (p: WinningProduct) => void;
   inCompare?: boolean;
+  onSpyAds?: (p: WinningProduct) => void;
+  onFullReport?: (p: WinningProduct) => void;
 }) {
   const [hovered, setHovered] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+  const sparkData = useMemo(
+    () => generateWeekData(product.est_daily_revenue_aud ?? 500, product.id),
+    [product.id, product.est_daily_revenue_aud],
+  );
 
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -1610,15 +1918,24 @@ function ProductCard({
           </div>
         </div>
 
-        {/* Units */}
-        {product.units_per_day != null && (
-          <div style={{ fontSize: 12, color: C.sub }}>
-            ~{product.units_per_day.toFixed(0)} units/day
-          </div>
-        )}
+        {/* Revenue Sparkline */}
+        <div style={{ width: '100%', height: 40 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={sparkData} margin={{ top: 2, right: 0, bottom: 2, left: 0 }}>
+              <Line type="monotone" dataKey="rev" stroke={C.gold} strokeWidth={1.5} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
 
-        {/* Competition */}
-        <CompetitionDot level={product.competition_level} />
+        {/* Units + Competition row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, flexWrap: 'wrap' }}>
+          {product.units_per_day != null && (
+            <div style={{ fontSize: 12, color: C.sub }}>
+              ~{product.units_per_day.toFixed(0)} units/day
+            </div>
+          )}
+          <CompetitionDot level={product.competition_level} />
+        </div>
 
         {/* Why winning */}
         {product.why_winning && (
@@ -1658,88 +1975,66 @@ function ProductCard({
 
         {/* Action buttons */}
         <div
-          style={{ display: 'flex', gap: 8, marginTop: 'auto', flexDirection: 'column' }}
+          style={{ display: 'flex', gap: 6, marginTop: 'auto', flexDirection: 'column' }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div style={{ display: 'flex', gap: 8 }}>
+          {/* Row 1: Spy Ads + Find Supplier + Full Report */}
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button
+              onClick={() => onSpyAds?.(product)}
+              title="Spy on ads for this product"
+              style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, padding: '8px 6px', borderRadius: 9, background: 'rgba(255,0,80,0.08)', border: '1px solid rgba(255,0,80,0.2)', color: '#ff0050', fontSize: 11, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+            >
+              🔍 Spy Ads
+            </button>
+            <a
+              href={`/app/suppliers?q=${encodeURIComponent(product.product_title)}`}
+              onClick={(e) => e.stopPropagation()}
+              title="Find suppliers"
+              style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, padding: '8px 6px', borderRadius: 9, background: 'rgba(255,106,0,0.08)', border: '1px solid rgba(255,106,0,0.2)', color: '#ff6a00', fontSize: 11, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}
+            >
+              📦 Supplier
+            </a>
+            <button
+              onClick={() => onFullReport?.(product)}
+              title="Full product report"
+              style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, padding: '8px 6px', borderRadius: 9, background: C.goldBg, border: `1px solid ${C.goldBorder}`, color: C.gold, fontSize: 11, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+            >
+              📋 Report
+            </button>
+          </div>
+
+          {/* Row 2: Analyse + Watchlist + Share */}
+          <div style={{ display: 'flex', gap: 6 }}>
             <button
               onClick={() => onSelect(product)}
-              style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
-                padding: '9px 12px',
-                borderRadius: 10,
-                background: C.gold,
-                border: 'none',
-                color: '#000',
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: 'pointer',
-              }}
+              style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '8px 10px', borderRadius: 9, background: C.glass, border: `1px solid ${C.border}`, color: C.sub, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
             >
-              <Sparkles size={11} /> Analyse
+              <Sparkles size={11} /> AI Deep Dive
             </button>
             <button
               onClick={() => onToggleWatchlist(product)}
               title={inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
-              style={{
-                width: 38,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 10,
-                background: inWatchlist ? 'rgba(239,68,68,0.12)' : C.glass,
-                border: `1px solid ${inWatchlist ? 'rgba(239,68,68,0.35)' : C.border}`,
-                color: inWatchlist ? C.red : C.sub,
-                cursor: 'pointer',
-              }}
+              style={{ width: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 9, background: inWatchlist ? 'rgba(239,68,68,0.12)' : C.glass, border: `1px solid ${inWatchlist ? 'rgba(239,68,68,0.35)' : C.border}`, color: inWatchlist ? C.red : C.sub, cursor: 'pointer' }}
             >
-              <Heart size={14} fill={inWatchlist ? C.red : 'none'} />
+              <Heart size={13} fill={inWatchlist ? C.red : 'none'} />
             </button>
             <button
               onClick={handleShare}
               title="Share product report"
-              style={{
-                width: 38,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 10,
-                background: shareCopied ? 'rgba(34,197,94,0.12)' : C.glass,
-                border: `1px solid ${shareCopied ? 'rgba(34,197,94,0.35)' : C.border}`,
-                color: shareCopied ? '#22c55e' : C.sub,
-                cursor: 'pointer',
-                fontSize: 14,
-              }}
+              style={{ width: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 9, background: shareCopied ? 'rgba(34,197,94,0.12)' : C.glass, border: `1px solid ${shareCopied ? 'rgba(34,197,94,0.35)' : C.border}`, color: shareCopied ? '#22c55e' : C.sub, cursor: 'pointer', fontSize: 13 }}
             >
-              {shareCopied ? '✓' : <ClipboardCopy size={13} />}
+              {shareCopied ? '✓' : <ClipboardCopy size={12} />}
             </button>
           </div>
-          {/* Shopify + Compare row */}
+
+          {/* Row 3: Shopify + Compare */}
           <div style={{ display: 'flex', gap: 6 }}>
             {onImportShopify && (
               <button
                 onClick={() => onImportShopify(product)}
                 title="Download Shopify CSV"
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 5,
-                  padding: '7px 10px',
-                  borderRadius: 10,
-                  background: 'rgba(6,20,2,0.6)',
-                  border: '1px solid rgba(150,191,72,0.3)',
-                  color: '#96BF48',
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                }}
+                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '7px 10px', borderRadius: 9, background: 'rgba(6,20,2,0.6)', border: '1px solid rgba(150,191,72,0.3)', color: '#96BF48', fontSize: 11, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
               >
                 ↓ Shopify CSV
               </button>
@@ -1748,21 +2043,7 @@ function ProductCard({
               <button
                 onClick={() => onToggleCompare(product)}
                 title={inCompare ? 'Remove from compare' : 'Add to compare'}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 5,
-                  padding: '7px 10px',
-                  borderRadius: 10,
-                  background: inCompare ? 'rgba(212,175,55,0.12)' : C.glass,
-                  border: `1px solid ${inCompare ? C.goldBorder : C.border}`,
-                  color: inCompare ? C.gold : C.sub,
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                }}
+                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '7px 10px', borderRadius: 9, background: inCompare ? 'rgba(212,175,55,0.12)' : C.glass, border: `1px solid ${inCompare ? C.goldBorder : C.border}`, color: inCompare ? C.gold : C.sub, fontSize: 11, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
               >
                 {inCompare ? <CheckSquare size={11} /> : <Square size={11} />}
                 Compare
@@ -2032,6 +2313,8 @@ function CardGrid({
   onImportShopify,
   onToggleCompare,
   compareIds,
+  onSpyAds,
+  onFullReport,
 }: {
   products: WinningProduct[];
   loading: boolean;
@@ -2045,6 +2328,8 @@ function CardGrid({
   onImportShopify?: (p: WinningProduct) => void;
   onToggleCompare?: (p: WinningProduct) => void;
   compareIds?: Set<string>;
+  onSpyAds?: (p: WinningProduct) => void;
+  onFullReport?: (p: WinningProduct) => void;
 }) {
   const totalPages = Math.ceil(total / PAGE_SIZE);
   return (
@@ -2069,6 +2354,8 @@ function CardGrid({
                 onImportShopify={onImportShopify}
                 onToggleCompare={onToggleCompare}
                 inCompare={compareIds?.has(p.id)}
+                onSpyAds={onSpyAds}
+                onFullReport={onFullReport}
               />
             ))}
       </div>
@@ -2220,6 +2507,10 @@ function WinningProducts() {
 
   // ── Detail drawer ─────────────────────────────────────────────────────
   const [selectedProduct, setSelectedProduct] = useState<WinningProduct | null>(null);
+
+  // ── Spy Ads + Full Report modals ──────────────────────────────────────
+  const [spyAdsProduct, setSpyAdsProduct] = useState<WinningProduct | null>(null);
+  const [fullReportProduct, setFullReportProduct] = useState<WinningProduct | null>(null);
 
   // ── Refresh ───────────────────────────────────────────────────────────
   const [refreshing, setRefreshing] = useState(false);
@@ -3334,6 +3625,8 @@ function WinningProducts() {
               onImportShopify={(p) => void importToShopify(p)}
               onToggleCompare={toggleCompare}
               compareIds={compareIds}
+              onSpyAds={setSpyAdsProduct}
+              onFullReport={setFullReportProduct}
             />
           ) : (
             <TableView
@@ -3407,6 +3700,8 @@ function WinningProducts() {
               onImportShopify={(p) => void importToShopify(p)}
               onToggleCompare={toggleCompare}
               compareIds={compareIds}
+              onSpyAds={setSpyAdsProduct}
+              onFullReport={setFullReportProduct}
             />
           ))}
       </div>
@@ -3419,6 +3714,22 @@ function WinningProducts() {
         onToggleWatchlist={(p) => void toggleWatchlist(p)}
         token={token}
       />
+
+      {/* ── Spy Ads Modal ────────────────────────────────────────────────── */}
+      {spyAdsProduct && (
+        <SpyAdsModal product={spyAdsProduct} onClose={() => setSpyAdsProduct(null)} />
+      )}
+
+      {/* ── Full Report Modal ────────────────────────────────────────────── */}
+      {fullReportProduct && (
+        <FullReportModal
+          product={fullReportProduct}
+          onClose={() => setFullReportProduct(null)}
+          watchlistIds={watchlistIds}
+          onToggleWatchlist={(p) => void toggleWatchlist(p)}
+          allProducts={[...products, ...SEEDED_PRODUCTS]}
+        />
+      )}
 
       {/* ── Compare floating bar ───────────────────────────────────────────── */}
       {compareIds.size >= 2 && !showCompare && (

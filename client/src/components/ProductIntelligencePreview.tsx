@@ -1,11 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
+import { LineChart, Line, ResponsiveContainer } from 'recharts';
 
-// ── Demo data (hardcoded, no DB) ───────────────────────────────────────────────
+// ── Supabase config (anon key — public read only) ─────────────────────────────
+const SUPABASE_URL = 'https://ievekuazsjbdrltsdksn.supabase.co';
+const SUPABASE_ANON_KEY =
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlldmVrdWF6c2piZHJsdHNka3NuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIwMjE0NDAsImV4cCI6MjA4NzU5NzQ0MH0.kW2sMm2BLMi1xQcI6tnfvhyWiAm2CXVGJ1gOqLKFkRM';
+
+// ── Fallback demo data (used if Supabase fetch fails) ─────────────────────────
 const DEMO_PRODUCTS = [
   {
     rank: 1,
-    image: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=88&h=88&fit=crop&crop=center&q=85',
+    image: 'https://images.pexels.com/photos/3985300/pexels-photo-3985300.jpeg?auto=compress&cs=tinysrgb&w=88',
     name: 'LED Light Therapy Face Mask Pro',
     category: 'Health & Beauty',
     platform: 'TikTok Shop AU',
@@ -20,7 +26,7 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 2,
-    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=88&h=88&fit=crop&crop=center&q=85',
+    image: 'https://images.pexels.com/photos/3993316/pexels-photo-3993316.jpeg?auto=compress&cs=tinysrgb&w=88',
     name: 'Heatless Curl Ribbon Rods Set',
     category: 'Health & Beauty',
     platform: 'TikTok Shop AU',
@@ -35,7 +41,7 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 3,
-    image: 'https://images.unsplash.com/photo-1559599101-f09722fb4948?w=88&h=88&fit=crop&crop=center&q=85',
+    image: 'https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=88',
     name: 'Cordless Auto Hair Curler Waver',
     category: 'Health & Beauty',
     platform: 'TikTok Shop AU',
@@ -50,7 +56,7 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 4,
-    image: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=88&h=88&fit=crop&crop=center&q=85',
+    image: 'https://images.pexels.com/photos/1000084/pexels-photo-1000084.jpeg?auto=compress&cs=tinysrgb&w=88',
     name: 'Stanley Dupe 40oz Quencher Tumbler',
     category: 'Home & Kitchen',
     platform: 'TikTok Shop AU',
@@ -65,8 +71,8 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 5,
-    image: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=88&h=88&fit=crop&crop=center&q=85',
-    name: 'Dog Cooling Gel Mat Summer AU',
+    image: 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=88',
+    name: 'Dog Lick Mat Slow Feeder',
     category: 'Pet',
     platform: 'TikTok Shop AU',
     revenue: '$17,800/day',
@@ -80,7 +86,7 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 6,
-    image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=88&h=88&fit=crop&crop=center&q=85',
+    image: 'https://images.pexels.com/photos/3768916/pexels-photo-3768916.jpeg?auto=compress&cs=tinysrgb&w=88',
     name: 'Booty Resistance Bands Set 5 Levels',
     category: 'Fitness',
     platform: 'TikTok Shop AU',
@@ -94,6 +100,85 @@ const DEMO_PRODUCTS = [
     locked: true,
   },
 ];
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+interface SupabaseProduct {
+  id: string;
+  product_title: string;
+  image_url: string | null;
+  category: string | null;
+  platform: string;
+  est_daily_revenue_aud: number | null;
+  units_per_day: number | null;
+  winning_score: number;
+  trend: string | null;
+  revenue_growth_pct: number | null;
+  why_winning: string | null;
+  ad_angle: string | null;
+  competition_level: string | null;
+}
+
+interface DisplayProduct {
+  rank: number;
+  image: string;
+  name: string;
+  category: string;
+  platform: string;
+  revenue: string;
+  revenueRaw: number;
+  salesDay: number;
+  growth: string;
+  growthPositive: boolean;
+  score: number;
+  trend: string;
+  locked: boolean;
+  whyWinning?: string;
+  adAngle?: string;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function seededRand(seed: number): () => number {
+  let s = seed;
+  return () => {
+    s = (s * 1664525 + 1013904223) & 0xffffffff;
+    return (s >>> 0) / 0xffffffff;
+  };
+}
+
+function generateSparkData(base: number, id: string): { v: number }[] {
+  const seedNum = id.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  const rand = seededRand(seedNum);
+  return Array.from({ length: 7 }, (_, i) => ({
+    v: Math.round(Math.max(base * 0.5, base * (0.7 + i * 0.04 + rand() * 0.25))),
+  }));
+}
+
+function mapSupabaseProduct(p: SupabaseProduct, idx: number): DisplayProduct {
+  const rev = p.est_daily_revenue_aud ?? 0;
+  const growthPct = p.revenue_growth_pct ?? (p.trend === 'exploding' ? 34 : p.trend === 'growing' ? 18 : 8);
+  const trendLabel =
+    p.trend === 'exploding' ? 'EXPLODING' :
+    p.trend === 'growing'   ? 'RISING'    :
+    p.trend === 'stable'    ? 'STABLE'    : 'STABLE';
+
+  return {
+    rank: idx + 1,
+    image: p.image_url ?? '',
+    name: p.product_title,
+    category: p.category ?? 'General',
+    platform: p.platform ?? 'TikTok Shop AU',
+    revenue: `$${rev.toLocaleString('en-AU')}/day`,
+    revenueRaw: rev,
+    salesDay: p.units_per_day ?? Math.round(rev / 45),
+    growth: `+${growthPct}%`,
+    growthPositive: growthPct >= 0,
+    score: p.winning_score ?? 80,
+    trend: trendLabel,
+    locked: idx > 0,
+    whyWinning: p.why_winning ?? undefined,
+    adAngle: p.ad_angle ?? undefined,
+  };
+}
 
 // ── Styles ─────────────────────────────────────────────────────────────────────
 const PIP_CSS = `
@@ -109,10 +194,12 @@ const PIP_CSS = `
   0%, 100% { box-shadow: 0 0 60px rgba(212,175,55,0.05); }
   50%       { box-shadow: 0 0 80px rgba(212,175,55,0.09); }
 }
-
-.pip-kalo-wrap {
-  animation: pip-fade-in 0.6s ease-out forwards;
+@keyframes shimmer-pip {
+  0%,100% { opacity: 0.4; }
+  50%     { opacity: 0.8; }
 }
+
+.pip-kalo-wrap { animation: pip-fade-in 0.6s ease-out forwards; }
 
 .pip-section-container {
   border: 1px solid rgba(212,175,55,0.2);
@@ -138,9 +225,7 @@ const PIP_CSS = `
   cursor: pointer;
 }
 
-.pip-row:hover {
-  background: rgba(255,255,255,0.025) !important;
-}
+.pip-row:hover { background: rgba(255,255,255,0.025) !important; }
 
 .pip-action-sm {
   display: inline-flex;
@@ -204,7 +289,6 @@ const PIP_CSS = `
   box-shadow: 0 8px 32px rgba(212,175,55,0.4);
 }
 
-/* Detail panel slide */
 .pip-detail-panel {
   overflow: hidden;
   max-height: 0;
@@ -212,11 +296,10 @@ const PIP_CSS = `
   opacity: 0;
 }
 .pip-detail-panel.open {
-  max-height: 200px;
+  max-height: 240px;
   opacity: 1;
 }
 
-/* Trend badge */
 .pip-trend-EXPLODING {
   background: rgba(239,68,68,0.15);
   color: #f87171;
@@ -233,7 +316,12 @@ const PIP_CSS = `
   border: 1px solid rgba(107,114,128,0.2);
 }
 
-/* Mobile card */
+.pip-skeleton {
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  animation: shimmer-pip 1.5s ease-in-out infinite;
+}
+
 @media (max-width: 767px) {
   .pip-table-area { display: none !important; }
   .pip-mobile-card { display: block !important; }
@@ -242,30 +330,125 @@ const PIP_CSS = `
 @media (min-width: 768px) {
   .pip-mobile-card { display: none !important; }
 }
-
-/* Mobile: hide Sales/Day and Score columns */
 @media (max-width: 1024px) {
   .pip-col-sales { display: none !important; }
   .pip-col-score { display: none !important; }
   .pip-col-category { display: none !important; }
+  .pip-col-spark { display: none !important; }
 }
 `;
+
+// ── Skeleton row ──────────────────────────────────────────────────────────────
+function SkeletonRow({ isFirst }: { isFirst?: boolean }) {
+  return (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: '36px 1fr 130px 140px 90px 80px 64px',
+      padding: '0 20px',
+      height: 56,
+      borderBottom: '1px solid rgba(255,255,255,0.04)',
+      alignItems: 'center',
+      background: isFirst ? 'rgba(212,175,55,0.02)' : 'transparent',
+    }}>
+      <div className="pip-skeleton" style={{ width: 18, height: 14 }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div className="pip-skeleton" style={{ width: 44, height: 44, borderRadius: 8, flexShrink: 0 }} />
+        <div>
+          <div className="pip-skeleton" style={{ width: 160, height: 13, marginBottom: 5 }} />
+          <div className="pip-skeleton" style={{ width: 80, height: 10 }} />
+        </div>
+      </div>
+      <div className="pip-skeleton pip-col-category" style={{ width: 70, height: 22, borderRadius: 5 }} />
+      <div className="pip-skeleton" style={{ width: 100, height: 16 }} />
+      <div className="pip-skeleton pip-col-sales" style={{ width: 40, height: 14 }} />
+      <div className="pip-skeleton" style={{ width: 50, height: 14 }} />
+      <div className="pip-skeleton pip-col-score" style={{ width: 30, height: 14 }} />
+    </div>
+  );
+}
 
 // ── Component ──────────────────────────────────────────────────────────────────
 export default function ProductIntelligencePreview() {
   const [showDetail, setShowDetail] = useState(false);
   const [, navigate] = useLocation();
+  const [products, setProducts] = useState<DisplayProduct[]>([]);
+  const [productCount, setProductCount] = useState(47);
+  const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState('2 hours ago');
 
-  const first = DEMO_PRODUCTS[0];
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        // Fetch top 6 by daily revenue
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/winning_products?select=id,product_title,image_url,category,platform,est_daily_revenue_aud,units_per_day,winning_score,trend,revenue_growth_pct,why_winning,ad_angle,competition_level,updated_at&order=est_daily_revenue_aud.desc&limit=6`,
+          {
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            },
+          }
+        );
+
+        // Get total count
+        const countRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/winning_products?select=id`,
+          {
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+              'Prefer': 'count=exact',
+              'Range': '0-0',
+            },
+          }
+        );
+
+        if (res.ok) {
+          const data: SupabaseProduct[] = await res.json();
+          if (data && data.length > 0) {
+            const mapped = data.map((p, i) => mapSupabaseProduct(p, i));
+            setProducts(mapped);
+
+            // Last updated from first product
+            if (data[0]?.updated_at) {
+              const diff = Date.now() - new Date(data[0].updated_at as unknown as string).getTime();
+              const h = Math.floor(diff / 3600000);
+              const m = Math.floor((diff % 3600000) / 60000);
+              setLastUpdated(h > 0 ? `${h}h ago` : m > 0 ? `${m}m ago` : 'just now');
+            }
+          } else {
+            setProducts(DEMO_PRODUCTS as DisplayProduct[]);
+          }
+        } else {
+          setProducts(DEMO_PRODUCTS as DisplayProduct[]);
+        }
+
+        if (countRes.ok) {
+          const contentRange = countRes.headers.get('Content-Range');
+          if (contentRange) {
+            const total = parseInt(contentRange.split('/')[1] || '47', 10);
+            if (!isNaN(total)) setProductCount(total);
+          }
+        }
+      } catch {
+        // Fallback to demo data
+        setProducts(DEMO_PRODUCTS as DisplayProduct[]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    void fetchProducts();
+  }, []);
+
+  const displayProducts = loading ? [] : (products.length > 0 ? products : (DEMO_PRODUCTS as DisplayProduct[]));
+  const first = displayProducts[0];
 
   return (
     <>
       <style>{PIP_CSS}</style>
       <section style={{ background: '#080a0e', padding: '80px 24px' }}>
-        <div
-          className="pip-kalo-wrap"
-          style={{ maxWidth: 1100, margin: '0 auto' }}
-        >
+        <div className="pip-kalo-wrap" style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div className="pip-section-container">
 
             {/* ── Section header ──────────────────────────────────────────── */}
@@ -295,7 +478,13 @@ export default function ProductIntelligencePreview() {
                     flexShrink: 0,
                   }} />
                   LIVE PRODUCT INTELLIGENCE
-                  <span style={{ color: '#4ade80', fontWeight: 700 }}>· 47 products found today</span>
+                  {loading ? (
+                    <span className="pip-skeleton" style={{ width: 120, height: 12, display: 'inline-block', borderRadius: 6 }} />
+                  ) : (
+                    <span style={{ color: '#4ade80', fontWeight: 700 }}>
+                      · {productCount} products found today
+                    </span>
+                  )}
                 </div>
                 {/* H2 */}
                 <h2 style={{
@@ -326,7 +515,9 @@ export default function ProductIntelligencePreview() {
                   Unlock All →
                 </a>
                 <div style={{ fontSize: 11, color: '#4b5563', fontFamily: 'DM Sans, sans-serif', textAlign: 'right' }}>
-                  Last updated: 2 hours ago
+                  {loading ? (
+                    <span className="pip-skeleton" style={{ width: 100, height: 10, display: 'inline-block', borderRadius: 4 }} />
+                  ) : `Last updated: ${lastUpdated}`}
                 </div>
               </div>
             </div>
@@ -372,7 +563,13 @@ export default function ProductIntelligencePreview() {
                 </div>
 
                 {/* Rows */}
-                {DEMO_PRODUCTS.map((product) => (
+                {loading ? (
+                  <>
+                    <SkeletonRow isFirst />
+                    <SkeletonRow />
+                    <SkeletonRow />
+                  </>
+                ) : displayProducts.map((product) => (
                   <div key={product.rank}>
                     {/* Row */}
                     <div
@@ -388,7 +585,6 @@ export default function ProductIntelligencePreview() {
                         background: product.rank === 1 ? 'rgba(212,175,55,0.04)' : 'transparent',
                         position: 'relative',
                         transition: 'background 0.15s',
-                        // Lock effect with backdrop blur on locked rows
                         ...(product.locked ? {
                           filter: 'blur(3px)',
                           userSelect: 'none',
@@ -416,12 +612,14 @@ export default function ProductIntelligencePreview() {
                           flexShrink: 0,
                           outline: '1px solid rgba(255,255,255,0.1)',
                           outlineOffset: 0,
+                          background: 'rgba(255,255,255,0.05)',
                         }}>
                           {product.image ? (
                             <img
                               src={product.image}
                               alt={product.name}
                               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                             />
                           ) : (
                             <div style={{ width: '100%', height: '100%', background: 'rgba(255,255,255,0.05)' }} />
@@ -540,11 +738,11 @@ export default function ProductIntelligencePreview() {
                         }}>
                           <div style={{ marginBottom: 8 }}>
                             <span style={{ color: '#d4af37', fontWeight: 700 }}>💡 Why it's winning:</span>{' '}
-                            Celebrity-endorsed skincare at 1/3 clinic price. 34% repeat buyer rate on TikTok Shop AU.
+                            {product.whyWinning ?? 'Celebrity-endorsed skincare at 1/3 clinic price. 34% repeat buyer rate on TikTok Shop AU.'}
                           </div>
                           <div style={{ marginBottom: 12 }}>
                             <span style={{ color: '#e5e7eb', fontStyle: 'italic', fontSize: 12 }}>
-                              Best ad angle: "Before/after in 4 weeks — no clinic needed"
+                              Best ad angle: "{product.adAngle ?? 'Before/after in 4 weeks — no clinic needed'}"
                             </span>
                           </div>
                           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -589,22 +787,18 @@ export default function ProductIntelligencePreview() {
                   gap: 10,
                   pointerEvents: 'none',
                 }}>
-                  {/* Lock text */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, pointerEvents: 'auto' }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="2">
                       <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                     </svg>
                     <span style={{ color: '#d4af37', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600 }}>
-                      46 more products locked — updated 2 hours ago
+                      {productCount - 1} more products locked — updated {lastUpdated}
                     </span>
                   </div>
-
-                  {/* CTA button */}
                   <a href="/sign-up" className="pip-unlock-cta" style={{ pointerEvents: 'auto', display: 'block', textAlign: 'center' }}>
                     Unlock All Products — Start Free →
                   </a>
-
                   <span style={{ color: '#4b5563', fontFamily: 'DM Sans, sans-serif', fontSize: 11, pointerEvents: 'auto' }}>
                     No credit card required · 10 free searches/day
                   </span>
@@ -622,62 +816,73 @@ export default function ProductIntelligencePreview() {
 
             {/* ── Mobile card (hidden on desktop) ─────────────────────────── */}
             <div className="pip-mobile-card" style={{ display: 'none' }}>
-              <div style={{
-                background: 'rgba(6,8,14,0.9)',
-                border: '1px solid rgba(212,175,55,0.2)',
-                borderRadius: 14,
-                padding: 20,
-              }}>
-                {/* Product image */}
-                <img
-                  src={first.image}
-                  alt={first.name}
-                  style={{ width: '100%', height: 180, objectFit: 'cover', borderRadius: 10, marginBottom: 14, display: 'block' }}
-                />
-                {/* Trend badge */}
-                <span className="pip-trend-EXPLODING" style={{
-                  fontSize: 10,
-                  padding: '3px 10px',
-                  borderRadius: 20,
-                  fontFamily: 'DM Sans, sans-serif',
-                  fontWeight: 700,
-                  letterSpacing: '0.06em',
-                  marginBottom: 8,
-                  display: 'inline-block',
+              {loading ? (
+                <div style={{
+                  background: 'rgba(6,8,14,0.9)',
+                  border: '1px solid rgba(212,175,55,0.2)',
+                  borderRadius: 14,
+                  padding: 20,
                 }}>
-                  {first.trend}
-                </span>
-                {/* Name */}
-                <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: '#f5f5f5', margin: '8px 0 4px', lineHeight: 1.3 }}>
-                  {first.name}
-                </h3>
-                {/* Revenue + growth */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-                  <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#d4af37' }}>
-                    {first.revenue}
-                  </span>
-                  <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#4ade80' }}>
-                    ▲ {first.growth.replace('+', '')}
-                  </span>
+                  <div className="pip-skeleton" style={{ width: '100%', height: 180, borderRadius: 10, marginBottom: 14 }} />
+                  <div className="pip-skeleton" style={{ width: 80, height: 20, borderRadius: 20, marginBottom: 8 }} />
+                  <div className="pip-skeleton" style={{ width: '90%', height: 18, marginBottom: 8 }} />
+                  <div className="pip-skeleton" style={{ width: 120, height: 24 }} />
                 </div>
-                {/* Lock notice */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                  <span style={{ color: '#d4af37', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600 }}>
-                    46 more products locked
+              ) : first ? (
+                <div style={{
+                  background: 'rgba(6,8,14,0.9)',
+                  border: '1px solid rgba(212,175,55,0.2)',
+                  borderRadius: 14,
+                  padding: 20,
+                }}>
+                  {first.image && (
+                    <img
+                      src={first.image}
+                      alt={first.name}
+                      style={{ width: '100%', height: 180, objectFit: 'cover', borderRadius: 10, marginBottom: 14, display: 'block' }}
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  )}
+                  <span className="pip-trend-EXPLODING" style={{
+                    fontSize: 10,
+                    padding: '3px 10px',
+                    borderRadius: 20,
+                    fontFamily: 'DM Sans, sans-serif',
+                    fontWeight: 700,
+                    letterSpacing: '0.06em',
+                    marginBottom: 8,
+                    display: 'inline-block',
+                  }}>
+                    {first.trend}
                   </span>
+                  <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: '#f5f5f5', margin: '8px 0 4px', lineHeight: 1.3 }}>
+                    {first.name}
+                  </h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+                    <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#d4af37' }}>
+                      {first.revenue}
+                    </span>
+                    <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#4ade80' }}>
+                      ▲ {first.growth.replace('+', '')}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d4af37" strokeWidth="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    <span style={{ color: '#d4af37', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600 }}>
+                      {productCount - 1} more products locked
+                    </span>
+                  </div>
+                  <a href="/sign-up" className="pip-unlock-cta" style={{ display: 'block', textAlign: 'center' }}>
+                    Unlock All Products — Start Free →
+                  </a>
+                  <p style={{ fontSize: 11, color: '#4b5563', textAlign: 'center', marginTop: 10, fontFamily: 'DM Sans, sans-serif' }}>
+                    No credit card required · 10 free searches/day
+                  </p>
                 </div>
-                {/* CTA */}
-                <a href="/sign-up" className="pip-unlock-cta" style={{ display: 'block', textAlign: 'center' }}>
-                  Unlock All Products — Start Free →
-                </a>
-                <p style={{ fontSize: 11, color: '#4b5563', textAlign: 'center', marginTop: 10, fontFamily: 'DM Sans, sans-serif' }}>
-                  No credit card required · 10 free searches/day
-                </p>
-              </div>
+              ) : null}
             </div>
 
           </div>
