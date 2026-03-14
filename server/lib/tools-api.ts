@@ -313,15 +313,20 @@ Rules:
         return;
       }
 
-      const firecrawl = new Firecrawl({ apiKey: firecrawlKey });
-      const scrapeResult = await (firecrawl as any).scrapeUrl(url, {
-        formats: ['markdown'],
+      // Use Firecrawl REST API directly (SDK v4 broke scrapeUrl)
+      const fcRes = await fetch('https://api.firecrawl.dev/v1/scrape', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${firecrawlKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, formats: ['markdown'], onlyMainContent: true, timeout: 20000 }),
       });
+      const fcData = await fcRes.json();
+      const scrapeResult = fcData;
 
       const scrapedContent =
-        (scrapeResult as any)?.markdown ??
-        (scrapeResult as any)?.content ??
-        JSON.stringify(scrapeResult);
+        fcData?.data?.markdown ??
+        fcData?.markdown ??
+        fcData?.content ??
+        JSON.stringify(fcData).slice(0, 5000);
 
       const claude = getAnthropicClient();
       const response = await claude.messages.create({
@@ -396,12 +401,12 @@ Be specific, opinionated, and include estimated AUD figures wherever possible.`,
         return;
       }
 
-      // Run three parallel Tavily searches for saturation signals
-      const [shopifyResults, dropshipResults, adsResults] = await Promise.all([
-        tavilySearch(`buy ${product} Australia site:*.myshopify.com`, 5),
-        tavilySearch(`${product} Australia dropshipping`, 5),
-        tavilySearch(`${product} facebook ads Australia`, 5),
+      // Run two parallel Tavily searches (reduced from 3 to avoid timeouts)
+      const [shopifyResults, dropshipResults] = await Promise.all([
+        tavilySearch(`${product} Australia dropshipping competition sellers`, 4),
+        tavilySearch(`${product} Australia buy online reviews market`, 4),
       ]);
+      const adsResults = { results: [] };
 
       const combinedResults = [
         '=== Shopify Store Results ===',

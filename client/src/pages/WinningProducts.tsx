@@ -2687,7 +2687,13 @@ function WinningProducts() {
         setProducts(filtered);
         setTotal(filtered.length);
       } else {
-        const loaded = (data as WinningProduct[] | null) ?? [];
+        // Normalise DB values to lowercase to match type definitions
+        const normalise = (p: any): WinningProduct => ({
+          ...p,
+          trend: p.trend ? p.trend.toLowerCase() : null,
+          competition_level: p.competition_level ? p.competition_level.toLowerCase() : null,
+        });
+        const loaded = ((data as any[] | null) ?? []).map(normalise);
         if (loaded.length === 0 && !debouncedSearch && category === 'All' && trend === 'All') {
           setProducts(SEEDED_PRODUCTS);
           setTotal(SEEDED_PRODUCTS.length);
