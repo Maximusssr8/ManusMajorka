@@ -46,6 +46,54 @@ const STARTER_CARDS = [
   { emoji: '📈', label: 'Analyse market trends for [category]' },
 ];
 
+// Parse action card JSON from Maya's response
+function parseActionCards(content: string): Array<{ title: string; context: string; cta: string; path: string }> | null {
+  if (!content || content.trim().length < 10) return null;
+  try {
+    const jsonMatch = content.match(/\[[\s\S]*\]|\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      const items = Array.isArray(parsed) ? parsed : [parsed];
+      if (items.length > 0 && items[0]?.title && items[0]?.path) return items;
+    }
+  } catch {
+    /* not valid JSON */
+  }
+  return null;
+}
+
+// Action card component for Maya navigation suggestions
+function ActionCard({ title, context, cta, path }: { title: string; context: string; cta: string; path: string }) {
+  return (
+    <a
+      href={path}
+      style={{
+        display: 'block',
+        background: 'rgba(212,175,55,0.06)',
+        border: '1px solid rgba(212,175,55,0.2)',
+        borderRadius: 8,
+        padding: '12px 16px',
+        marginBottom: 8,
+        textDecoration: 'none',
+        cursor: 'pointer',
+        transition: 'all 0.15s',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = 'rgba(212,175,55,0.12)';
+        e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = 'rgba(212,175,55,0.06)';
+        e.currentTarget.style.borderColor = 'rgba(212,175,55,0.2)';
+      }}
+    >
+      <div style={{ color: '#fff', fontWeight: 600, fontSize: 14, fontFamily: 'Syne, sans-serif' }}>{title}</div>
+      <div style={{ color: '#9ca3af', fontSize: 12, marginTop: 4, lineHeight: 1.4 }}>{context}</div>
+      <div style={{ color: '#d4af37', fontSize: 12, marginTop: 8, fontWeight: 500 }}>{cta} →</div>
+    </a>
+  );
+}
+
 // Detect product names in assistant responses
 function detectProductLink(content: string): boolean {
   if (!content || content.length < 20) return false;
@@ -96,7 +144,7 @@ export default function AIChat() {
       ];
 
   const handleSend = useCallback(
-    async (overrideText?: string) => {
+    async (overrideText?: string, searchQuery?: string) => {
       const msg = (overrideText ?? input).trim();
       if (!msg || status === 'streaming') return;
       if (!overrideText) setInput('');
@@ -121,6 +169,7 @@ export default function AIChat() {
             toolName: 'ai-chat',
             stream: true,
             market: getStoredMarket(),
+            ...(searchQuery ? { searchQuery } : {}),
           }),
         });
         if (!response.ok) throw new Error(`Server error: ${response.status}`);
@@ -489,40 +538,49 @@ export default function AIChat() {
                     </div>
                   ) : (
                     <div className="prose prose-sm dark:prose-invert max-w-none">
-                      <Markdown
-                        mode={
-                          status === 'streaming' &&
-                          i === messages.length - 1 &&
-                          msg.role === 'assistant'
-                            ? 'streaming'
-                            : 'static'
+                      {(() => {
+                        const isStreaming = status === 'streaming' && i === messages.length - 1 && msg.role === 'assistant';
+                        const actionCards = !isStreaming && msg.role === 'assistant' ? parseActionCards(msg.content) : null;
+                        if (actionCards) {
+                          return (
+                            <div style={{ marginTop: 4 }}>
+                              {actionCards.map((card, idx) => (
+                                <ActionCard key={idx} {...card} />
+                              ))}
+                            </div>
+                          );
                         }
-                      >
-                        {msg.content}
-                      </Markdown>
-                      {/* View in Winning Products link */}
-                      {msg.role === 'assistant' &&
-                        msg.content.length > 50 &&
-                        detectProductLink(msg.content) && (
-                          <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                            <Link
-                              href="/app/winning-products"
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: 5,
-                                fontSize: 11,
-                                fontWeight: 700,
-                                color: '#d4af37',
-                                textDecoration: 'none',
-                                fontFamily: 'Syne, sans-serif',
-                              }}
-                            >
-                              <ExternalLink size={10} />
-                              → View in Winning Products
-                            </Link>
-                          </div>
-                        )}
+                        return (
+                          <>
+                            <Markdown mode={isStreaming ? 'streaming' : 'static'}>
+                              {msg.content}
+                            </Markdown>
+                            {/* View in Winning Products link */}
+                            {msg.role === 'assistant' &&
+                              msg.content.length > 50 &&
+                              detectProductLink(msg.content) && (
+                                <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                                  <Link
+                                    href="/app/winning-products"
+                                    style={{
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: 5,
+                                      fontSize: 11,
+                                      fontWeight: 700,
+                                      color: '#d4af37',
+                                      textDecoration: 'none',
+                                      fontFamily: 'Syne, sans-serif',
+                                    }}
+                                  >
+                                    <ExternalLink size={10} />
+                                    → View in Winning Products
+                                  </Link>
+                                </div>
+                              )}
+                          </>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>
@@ -624,7 +682,13 @@ export default function AIChat() {
               {QUICK_CHIPS.map((chip, i) => (
                 <button
                   key={i}
-                  onClick={() => setInput(chip)}
+                  onClick={() => {
+                    if (chip === "What's trending in AU this week?") {
+                      void handleSend(chip, 'TikTok Shop Australia trending products this week 2025');
+                    } else {
+                      setInput(chip);
+                    }
+                  }}
                   style={{
                     padding: '5px 10px',
                     borderRadius: 20,
