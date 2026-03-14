@@ -6,7 +6,11 @@ config({ path: '.env.local', override: false }); // loads .env.local, doesn't ov
 import * as Sentry from '@sentry/node';
 
 if (process.env.SENTRY_DSN) {
-  Sentry.init({ dsn: process.env.SENTRY_DSN, tracesSampleRate: 0.1 });
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'production',
+    tracesSampleRate: 0.1,
+  });
 }
 
 import { createExpressMiddleware } from '@trpc/server/adapters/express';

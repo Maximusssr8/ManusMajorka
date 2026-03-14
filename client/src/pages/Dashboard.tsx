@@ -160,8 +160,8 @@ function StatCard({
       </div>
 
       <div
-        className="text-2xl font-bold mb-1"
-        style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5', letterSpacing: '-0.02em' }}
+        className="font-bold mb-1"
+        style={{ fontFamily: 'Syne, sans-serif', color: '#d4af37', letterSpacing: '-0.02em', fontSize: 28, fontWeight: 700 }}
       >
         {displayValue ??
           (numericValue !== null && inView ? (
@@ -589,37 +589,50 @@ function DashboardHome() {
           >
             Quick Actions
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {(
               [
                 {
-                  label: 'Find Products',
-                  path: '/app/product-discovery',
-                  icon: Search,
+                  label: 'Winning Products',
+                  path: '/app/winning-products',
+                  icon: ShoppingBag,
                   color: '#10b981',
+                  desc: 'AU trending products',
                 },
                 {
-                  label: 'Build Store',
-                  path: '/app/website-generator',
-                  icon: Globe,
-                  color: '#7c6af5',
+                  label: 'Ask Maya',
+                  path: '/app/ai-chat',
+                  icon: MessageSquare,
+                  color: '#d4af37',
+                  desc: 'AI market intelligence',
                 },
-                { label: 'Create Ad', path: '/app/meta-ads', icon: Megaphone, color: '#f59e0b' },
-                { label: 'Ask Maya', path: '/app/ai-chat', icon: MessageSquare, color: '#d4af37' },
-                { label: 'Learn', path: '/app/learn', icon: BookOpen, color: '#3b82f6' },
+                {
+                  label: 'Supplier Search',
+                  path: '/app/suppliers',
+                  icon: Package,
+                  color: '#7c6af5',
+                  desc: 'Source AU-ready products',
+                },
+                {
+                  label: 'Store Health',
+                  path: '/store-health',
+                  icon: Star,
+                  color: '#f59e0b',
+                  desc: 'Free health score',
+                },
               ] as const
-            ).map(({ label, path, icon: Icon, color }) => (
+            ).map(({ label, path, icon: Icon, color, desc }) => (
               <button
                 key={path}
                 onClick={() => setLocation(path)}
-                className="flex items-center gap-2.5 rounded-xl p-3 transition-all"
+                className="flex flex-col rounded-xl p-4 transition-all text-left"
                 style={{
                   background: '#0c0c10',
                   border: '1px solid rgba(255,255,255,0.06)',
                   cursor: 'pointer',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = `${color}40`;
+                  e.currentTarget.style.borderColor = `${color}50`;
                   e.currentTarget.style.background = `${color}08`;
                 }}
                 onMouseLeave={(e) => {
@@ -628,18 +641,23 @@ function DashboardHome() {
                 }}
               >
                 <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
                   style={{ background: `${color}12` }}
                 >
-                  <Icon size={13} style={{ color }} />
+                  <Icon size={15} style={{ color }} />
                 </div>
                 <span
-                  className="text-xs font-semibold"
-                  style={{ color: '#d1d5db', fontFamily: 'Syne, sans-serif' }}
+                  className="text-sm font-bold block mb-0.5"
+                  style={{ color: '#f5f5f5', fontFamily: 'Syne, sans-serif' }}
                 >
                   {label}
                 </span>
-                <ArrowRight size={10} style={{ color: '#52525b', marginLeft: 'auto' }} />
+                <span
+                  className="text-xs"
+                  style={{ color: '#52525b' }}
+                >
+                  {desc}
+                </span>
               </button>
             ))}
           </div>

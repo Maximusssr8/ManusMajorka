@@ -216,10 +216,10 @@ const PHASE_SECTIONS: PhaseSection[] = [
 
 const MOBILE_TABS: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home, exact: true },
-  { label: 'Market', path: '/app/market', icon: BarChart3 },
-  { label: 'Scout', path: '/app/product-discovery', icon: Search },
-  { label: 'Ads', path: '/app/meta-ads', icon: Megaphone },
-  { label: 'AI Chat', path: '/app/ai-chat', icon: MessageSquare },
+  { label: 'Products', path: '/app/winning-products', icon: TrendingUp },
+  { label: 'Maya', path: '/app/ai-chat', icon: MessageSquare },
+  { label: 'Tools', path: '/app/product-discovery', icon: Search },
+  { label: 'Account', path: '/account', icon: User },
 ];
 
 // Beginner mode labels for the new sidebar items
@@ -582,7 +582,7 @@ export default function MajorkaAppShell({ children }: Props) {
         <button
           onClick={() => handleNavClick(item.path)}
           title={tooltip}
-          className="w-full flex items-center gap-2 px-3 py-1.5 text-sm transition-all relative"
+          className="w-full flex items-center gap-2 text-sm transition-all relative"
           style={{
             borderRadius: 8,
             background: active ? 'rgba(212,175,55,0.08)' : 'transparent',
@@ -592,6 +592,11 @@ export default function MajorkaAppShell({ children }: Props) {
             cursor: 'pointer',
             borderLeft: active ? '2px solid #d4af37' : '2px solid transparent',
             paddingLeft: active ? 10 : 12,
+            paddingRight: 12,
+            paddingTop: 6,
+            paddingBottom: 6,
+            // On mobile: 56px touch targets for menu items
+            minHeight: 36,
           }}
           onMouseEnter={(e) => {
             if (!active) {
@@ -608,7 +613,7 @@ export default function MajorkaAppShell({ children }: Props) {
         >
           {createElement(item.icon, {
             size: 14,
-            style: { flexShrink: 0, opacity: active ? 1 : 0.8 },
+            style: { flexShrink: 0, opacity: active ? 1 : 0.8, color: active ? '#d4af37' : undefined },
           })}
           <span className="flex-1 text-left truncate text-sm">
             {displayLabel}
@@ -1242,7 +1247,7 @@ export default function MajorkaAppShell({ children }: Props) {
       {mobileOpen && (
         <div
           className="fixed inset-0 z-40 lg:hidden"
-          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+          style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -1339,9 +1344,9 @@ export default function MajorkaAppShell({ children }: Props) {
         <nav
           aria-label="Mobile navigation"
           className="fixed bottom-0 left-0 right-0 z-40 lg:hidden"
-          style={{ background: '#0a0a0e', borderTop: '1px solid rgba(255,255,255,0.06)' }}
+          style={{ background: '#0d1017', borderTop: '1px solid #1f2937' }}
         >
-          <div className="flex items-center justify-around py-2">
+          <div className="flex items-center justify-around" style={{ paddingTop: 8, paddingBottom: 10 }}>
             {MOBILE_TABS.map((tab) => {
               const active = tab.exact ? location === tab.path : location.startsWith(tab.path);
               const Icon = tab.icon;
@@ -1349,20 +1354,25 @@ export default function MajorkaAppShell({ children }: Props) {
                 <button
                   key={tab.label}
                   onClick={() => setLocation(tab.path)}
-                  className="flex flex-col items-center gap-0.5 px-3 py-1 transition-colors"
+                  className="flex flex-col items-center"
                   style={{
-                    color: active ? '#d4af37' : 'rgba(161,161,170,0.6)',
+                    gap: 3,
+                    padding: '4px 12px',
+                    color: active ? '#d4af37' : 'rgba(107,114,128,0.8)',
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
+                    transition: 'color 0.15s',
+                    minWidth: 56,
                   }}
                 >
-                  <Icon size={17} />
+                  <Icon size={18} strokeWidth={active ? 2.5 : 1.75} />
                   <span
                     style={{
                       fontSize: 9,
-                      fontFamily: 'Syne, sans-serif',
+                      fontFamily: 'DM Sans, sans-serif',
                       fontWeight: active ? 700 : 500,
+                      letterSpacing: '0.02em',
                     }}
                   >
                     {tab.label}

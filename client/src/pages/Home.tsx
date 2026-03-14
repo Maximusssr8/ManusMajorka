@@ -626,9 +626,9 @@ export default function Home() {
           </div>
           <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
             {[['#features', 'Features'], ['#pricing', 'Pricing'], ['#faq', 'FAQ']].map(([href, label]) => (
-              <a key={href} href={href} style={{ color: C.secondary, textDecoration: 'none', fontSize: 14, fontWeight: 500, transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = C.text)} onMouseLeave={(e) => (e.currentTarget.style.color = C.secondary)}>{label}</a>
+              <a key={href} href={href} style={{ color: '#9ca3af', textDecoration: 'none', fontSize: 14, fontWeight: 400, fontFamily: dm, transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = C.gold)} onMouseLeave={(e) => (e.currentTarget.style.color = '#9ca3af')}>{label}</a>
             ))}
-            <Link href="/sign-in" style={{ color: C.secondary, textDecoration: 'none', fontSize: 14, fontWeight: 500 }}>Sign In</Link>
+            <Link href="/sign-in" style={{ color: '#9ca3af', textDecoration: 'none', fontSize: 14, fontWeight: 400, fontFamily: dm, transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = C.gold)} onMouseLeave={(e) => (e.currentTarget.style.color = '#9ca3af')}>Sign In</Link>
           </div>
           <Link href="/app" style={{ background: '#d4af37', color: '#080a0e', borderRadius: 20, padding: '8px 20px', fontFamily: syne, fontWeight: 600, fontSize: 14, textDecoration: 'none', display: 'inline-block', border: 'none', minHeight: 36 }}>
             Start Free
@@ -736,14 +736,25 @@ export default function Home() {
       <ProductIntelligencePreview />
 
       {/* ═══ TRUSTED BY ════════════════════════════════════════════════════ */}
-      <section style={{ padding: '32px 24px', background: C.bg, borderBottom: `1px solid ${C.border}` }}>
+      <section style={{ padding: '36px 24px', background: C.bg, borderBottom: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: C.muted, textTransform: 'uppercase', marginBottom: 18 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: C.muted, textTransform: 'uppercase', marginBottom: 20 }}>
             Trusted by 2,400+ Australian dropshippers
           </p>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(16px, 4vw, 48px)', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
             {['Shopify Partners', 'TikTok Shop AU', 'AliExpress', 'Australia Post'].map((logo) => (
-              <span key={logo} style={{ fontSize: 13, fontWeight: 700, fontFamily: syne, color: 'rgba(255,255,255,0.22)', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>
+              <span key={logo} style={{
+                background: '#1a1d21',
+                border: '1px solid #374151',
+                borderRadius: 100,
+                padding: '6px 16px',
+                fontSize: 13,
+                fontWeight: 600,
+                fontFamily: dm,
+                color: '#f5f5f5',
+                whiteSpace: 'nowrap',
+                letterSpacing: '0.01em',
+              }}>
                 {logo}
               </span>
             ))}
@@ -1097,8 +1108,12 @@ export default function Home() {
           </div>
           <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-              <p style={{ color: C.muted, fontSize: 12 }}>© 2026 Majorka · ABN: [pending]</p>
-              <p style={{ color: C.muted, fontSize: 12 }}>Powered by Anthropic Claude AI · Consumer rights apply in your jurisdiction</p>
+              <p style={{ color: C.muted, fontSize: 12 }}>© 2026 Majorka. Built for AU dropshippers.</p>
+              <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
+                <a href="/privacy" style={{ color: C.muted, fontSize: 12, textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = C.gold; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = C.muted; }}>Privacy</a>
+                <a href="/terms" style={{ color: C.muted, fontSize: 12, textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = C.gold; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = C.muted; }}>Terms</a>
+                <a href="mailto:hello@majorka.io" style={{ color: C.muted, fontSize: 12, textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = C.gold; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = C.muted; }}>Contact</a>
+              </div>
             </div>
             <div style={{ textAlign: 'center', fontSize: 12, color: C.muted }}>
               Made with ♥ in Australia 🇦🇺

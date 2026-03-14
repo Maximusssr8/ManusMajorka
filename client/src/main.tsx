@@ -60,11 +60,14 @@ import { trpc } from '@/lib/trpc';
 import App from './App';
 import './index.css';
 
-// Initialise Sentry error tracking
-if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
+// Initialise Sentry error tracking — conditional on DSN (works in any env when DSN is set)
+if (import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({
     dsn: import.meta.env.VITE_SENTRY_DSN as string,
+    environment: import.meta.env.MODE,
     tracesSampleRate: 0.1,
+    replaysSessionSampleRate: 0.05,
+    integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
   });
 }
 
