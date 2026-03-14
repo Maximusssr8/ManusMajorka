@@ -33,18 +33,18 @@ const TOOL_STATUS_LABELS: Record<string, string> = {
 };
 
 const QUICK_CHIPS = [
-  "What's trending in AU this week?",
-  'Find me a winning product under $30',
-  "What's my best niche for summer?",
-  'Analyse this product: [paste URL]',
-  'How do I beat competitors selling [X]?',
+  "What's the #1 product to dropship in AU right now?",
+  'Find me a low-competition product under $40 AUD',
+  'Is the massage gun niche still viable in Australia?',
+  'What are the best TikTok ad angles for fitness products in AU?',
+  'I want to start selling LED face masks — run the full analysis',
 ];
 
 const STARTER_CARDS = [
-  { emoji: '🔥', label: "Show me today's top AU products" },
-  { emoji: '💰', label: "What's the most profitable niche right now?" },
-  { emoji: '🛍️', label: 'Find me winning products under $50' },
-  { emoji: '📈', label: 'Analyse market trends for [category]' },
+  { emoji: '🔥', label: "What's the #1 product to dropship in AU right now?" },
+  { emoji: '💰', label: 'I want to start selling LED face masks — run the full analysis' },
+  { emoji: '🛍️', label: 'Build me a store for [paste product URL]' },
+  { emoji: '📈', label: 'Is the massage gun niche still viable in Australia?' },
 ];
 
 // Parse action card JSON from Maya's response (old format: pure JSON array)
@@ -294,10 +294,10 @@ export default function AIChat() {
         `How do I validate demand for ${activeProduct.name} quickly?`,
       ]
     : [
-        'What AU products are trending on TikTok right now?',
-        'Help me validate my niche: eco dog products',
-        'Write me Meta ads for a $45 AUD water bottle',
-        "What's the best way to start dropshipping in Australia?",
+        "What's the #1 product to dropship in AU right now?",
+        'Find me a low-competition product under $40 AUD',
+        'What are the best TikTok ad angles for fitness products in AU?',
+        'Is the massage gun niche still viable in Australia?',
       ];
 
   const handleSend = useCallback(
@@ -391,7 +391,7 @@ export default function AIChat() {
           try {
             const text = await response.text();
             const data = JSON.parse(text);
-            accumulated = data.reply ?? '';
+            accumulated = data.content ?? data.reply ?? '';
             if (data.actions) streamedActions = data.actions;
             setMessages((prev) => {
               const updated = [...prev];

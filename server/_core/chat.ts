@@ -749,7 +749,15 @@ Available actions:
 ],"message":"I'm checking saturation, finding suppliers, and calculating your profit margin — all at once."}
 <<<END_ACTION>>>
 
-WHEN TO USE ACTIONS:
+MANDATORY ACTIONS — you MUST include an action block for these (no exceptions):
+- ANY message containing a product URL → navigate website-generator with that URL
+- "find supplier" / "source" / "where to buy" / "supplier for" → navigate suppliers
+- "saturated" / "too many sellers" / "competition" / "is [X] saturated" → navigate saturation-checker
+- "profit" / "margin" / "how much can I make" / "calculate" → navigate profit-calculator
+- "I want to sell" / "start selling" / "launch" / "I want to start" → workflow (saturation + suppliers + profit)
+- "show me products" / "what's trending" / "winning products" / "top products" → navigate winning-products
+
+WHEN TO USE ACTIONS (softer signals — still include action when confident):
 - User says "build me a store for [url]" → navigate to website-generator with that URL
 - User says "find suppliers for [product]" → navigate to suppliers with query
 - User says "is [product] saturated?" → navigate to saturation-checker
@@ -757,6 +765,7 @@ WHEN TO USE ACTIONS:
 - User says "show me [category] products" → navigate to winning-products with filter
 - User says "calculate profit for [product]" → navigate to profit-calculator with prices
 - ALWAYS include an action when the user's request maps to a tool
+- If in doubt, include the action. An action card never hurts.
 - Include the action AFTER your text response, not before
 `;
 
@@ -1082,9 +1091,9 @@ export function registerChatRoutes(app: Application) {
         }
       }
 
-      // ── Auto-Tavily enrichment for product/trend queries (ai-chat only) ─
+      // ── Auto-Tavily enrichment for product/trend queries ──────────────
+      const lastUserContent = (messages[messages.length - 1]?.content || '').toLowerCase();
       if (!webContext && toolName === 'ai-chat') {
-        const lastUserContent = (messages[messages.length - 1]?.content || '').toLowerCase();
         const isProductQuery =
           lastUserContent.includes('trending') ||
           lastUserContent.includes('product') ||
@@ -1118,14 +1127,48 @@ export function registerChatRoutes(app: Application) {
         }
       }
 
+      // ── Tavily enrichment for saturation-checker and store-spy ─────────
+      if (!webContext && (toolName === 'saturation-checker' || toolName === 'store-spy')) {
+        try {
+          const tavilyKey = process.env.TAVILY_API_KEY;
+          if (tavilyKey) {
+            const lastMsg = messages[messages.length - 1]?.content || '';
+            const autoQuery = toolName === 'store-spy'
+              ? `${lastMsg} Shopify store competitor analysis Australia 2025`
+              : `${lastMsg} market saturation competition Australia dropshipping TikTok Shop 2025`;
+            const sr = await fetch('https://api.tavily.com/search', {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({
+                api_key: tavilyKey,
+                query: autoQuery,
+                search_depth: 'basic',
+                max_results: 4,
+              }),
+            })
+              .then((r) => r.json())
+              .catch(() => null);
+            if (sr?.results?.length > 0) {
+              const label = toolName === 'store-spy' ? 'LIVE COMPETITOR INTELLIGENCE' : 'LIVE MARKET SATURATION DATA';
+              webContext = `\n\n${label}:\n${sr.results.map((r: any, i: number) => `[${i + 1}] ${r.title}: ${r.content}`).join('\n')}`;
+            }
+          }
+        } catch {
+          /* non-fatal */
+        }
+      }
+
       // ── Build system prompt ─────────────────────────────────────────────
       const mayaMarketCtx = await fetchMayaMarketContext();
       const baseSystem = buildSystemPrompt(systemPrompt, profile, toolName, market, pageContext) + webContext + mayaMarketCtx;
 
-      // ── Inject mem0 persistent memories ────────────────────────────────
+      // ── Inject mem0 persistent memories (prepended at TOP for priority) ─
       const userQuery = messages[messages.length - 1]?.content || '';
-      const userMemories = userId ? await searchMemories(userId, userQuery) : '';
-      const system = userMemories ? `${baseSystem}\n\n${userMemories}` : baseSystem;
+      const rawMemories = userId ? await searchMemories(userId, userQuery) : '';
+      const userMemories = rawMemories
+        ? `USER MEMORY (from previous conversations — use this to personalise your response):\n${rawMemories}\n`
+        : '';
+      const system = userMemories ? `${userMemories}\n${baseSystem}` : baseSystem;
 
       // ── Determine if client wants streaming (default: true) ──────────
       const wantStream = req.body.stream !== false && req.query.stream !== '0';
@@ -1502,7 +1545,7 @@ export function registerChatRoutes(app: Application) {
         // Extract actions from reply for non-streaming clients
         const { cleanText: cleanReply, actions } = extractActions(reply);
         const finalReply = actions.length > 0 ? cleanReply : reply;
-        res.json({ reply: finalReply, actions: actions.length > 0 ? actions : undefined });
+        res.json({ content: finalReply, reply: finalReply, actions: actions.length > 0 ? actions : undefined });
       }
     } catch (error: any) {
       console.error('[/api/chat] Error:', error);
