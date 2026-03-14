@@ -138,22 +138,83 @@ const PIP_STYLES = `
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
-  background: rgba(12,14,20,0.8);
+  padding: 8px 16px;
+  background: transparent;
   border: 1px solid rgba(212,175,55,0.3);
-  border-radius: 8px;
+  border-radius: 6px;
   color: #d4af37;
   font-family: 'DM Sans', sans-serif;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all 0.15s;
   white-space: nowrap;
+  letter-spacing: 0.01em;
 }
 .pip-action-btn:hover {
-  background: #d4af37;
-  color: #080a0e;
+  background: rgba(212,175,55,0.08);
+  border-color: rgba(212,175,55,0.5);
+}
+@keyframes type-line {
+  from { width: 0; }
+  to { width: 100%; }
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+.pip-terminal {
+  background: rgba(8,10,14,0.95);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 12px;
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 11px;
+}
+.pip-terminal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(212,175,55,0.1);
+}
+.pip-terminal-title {
+  color: #d4af37;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.pip-terminal-dots {
+  display: flex;
+  gap: 5px;
+}
+.pip-terminal-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.pip-terminal-line {
+  color: #d4af37;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0;
+  margin-bottom: 5px;
+  font-size: 11px;
+  animation: type-line 0.6s steps(30, end) forwards;
+}
+.pip-terminal-line:nth-child(1) { animation-delay: 0.5s; }
+.pip-terminal-line:nth-child(2) { animation-delay: 1.5s; }
+.pip-terminal-line:nth-child(3) { animation-delay: 2.5s; }
+.pip-terminal-line:nth-child(4) { animation-delay: 3.5s; }
+.pip-terminal-line:nth-child(5) { animation-delay: 4.5s; }
+.pip-terminal-ready {
+  color: #4ade80;
+  font-size: 11px;
+  margin-top: 8px;
+  opacity: 0;
+  animation: pip-fade-in 0.4s ease-out 5.5s forwards;
 }
 @keyframes step-activate {
   0%, 20%   { background: transparent; color: #d4af37; box-shadow: none; }
@@ -225,6 +286,36 @@ function GhostCard({ revenue }: { revenue: string }) {
   );
 }
 
+// ── Terminal animation ─────────────────────────────────────────────────────────
+function TerminalAnimation() {
+  const [key, setKey] = useState(0);
+
+  // Restart every 8 seconds
+  useEffect(() => {
+    const t = setInterval(() => setKey((k) => k + 1), 8000);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <div key={key} className="pip-terminal" style={{ position: 'absolute', top: 12, left: 12, right: 12, zIndex: 1 }}>
+      <div className="pip-terminal-header">
+        <span className="pip-terminal-title">◈ MAJORKA AI</span>
+        <div className="pip-terminal-dots">
+          <div className="pip-terminal-dot" style={{ background: '#ef4444' }} />
+          <div className="pip-terminal-dot" style={{ background: '#f59e0b' }} />
+          <div className="pip-terminal-dot" style={{ background: '#22c55e' }} />
+        </div>
+      </div>
+      <div className="pip-terminal-line">&gt; Analysing AU market trends...</div>
+      <div className="pip-terminal-line">&gt; Found 47 winning products today</div>
+      <div className="pip-terminal-line">&gt; Top revenue: $28,400/day</div>
+      <div className="pip-terminal-line">&gt; Suppliers sourced: 6 options</div>
+      <div className="pip-terminal-line">&gt; Store generated in 12s</div>
+      <div className="pip-terminal-ready">✓ Intelligence ready</div>
+    </div>
+  );
+}
+
 // ── Main component ─────────────────────────────────────────────────────────────
 export default function ProductIntelligencePreview() {
   const [product, setProduct] = useState<WinningProduct | null>(null);
@@ -259,8 +350,7 @@ export default function ProductIntelligencePreview() {
   }, []);
 
   const handleActionClick = (path: string) => {
-    navigate('/sign-up');
-    void path;
+    navigate(path);
   };
 
   const p = product ?? FALLBACK_PRODUCT;
@@ -423,16 +513,20 @@ export default function ProductIntelligencePreview() {
               )}
 
               {/* Action buttons */}
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-                <button className="pip-action-btn" onClick={() => handleActionClick('/app/suppliers')}>
-                  🔍 Find Suppliers →
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
+                <button className="pip-action-btn" onClick={() => handleActionClick('/app/suppliers?demo=posture-corrector')}>
+                  Find Suppliers →
                 </button>
-                <button className="pip-action-btn" onClick={() => handleActionClick('/app/profit-calculator')}>
-                  💰 Profit Calc →
+                <button className="pip-action-btn" onClick={() => handleActionClick('/app/profit-calculator?price=89.99&cost=24.50&name=LED+Face+Mask')}>
+                  Profit Calculator →
                 </button>
-                <button className="pip-action-btn" onClick={() => handleActionClick('/app/website-generator')}>
-                  🏗 Build Store →
+                <button className="pip-action-btn" onClick={() => handleActionClick('/app/website-generator?demo=beauty-gadgets')}>
+                  Build Store →
                 </button>
+              </div>
+              {/* Demo hint */}
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginTop: 8, marginBottom: 12, fontFamily: "'DM Sans', sans-serif" }}>
+                Try a live demo — no signup needed
               </div>
 
               {/* Tags */}
@@ -454,6 +548,9 @@ export default function ProductIntelligencePreview() {
                 <GhostCard revenue="████ $17,800/day" />
                 <GhostCard revenue="████ $16,400/day" />
               </div>
+
+              {/* Animated terminal — sits behind blur overlay */}
+              <TerminalAnimation />
 
               {/* Lock overlay */}
               <div className="pip-lock-overlay">

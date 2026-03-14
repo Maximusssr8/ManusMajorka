@@ -159,6 +159,22 @@ export default function SupplierIntelligence() {
     } catch { /* ignore */ }
   }, []);
 
+  // Demo pre-fill from URL params
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const demo = params.get('demo');
+    if (demo) {
+      const queries: Record<string, string> = {
+        'posture-corrector': 'posture corrector',
+        'led-face-mask': 'LED light therapy face mask',
+      };
+      const q = queries[demo] || demo.replace(/-/g, ' ');
+      setQuery(q);
+      setTimeout(() => handleSearch(q), 800);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const saveRecentSearch = (q: string) => {
     const updated = [q, ...recentSearches.filter((s) => s !== q)].slice(0, 5);
     setRecentSearches(updated);

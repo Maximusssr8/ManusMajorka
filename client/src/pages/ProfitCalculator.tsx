@@ -138,13 +138,18 @@ export default function ProfitCalculator() {
   const [adSpend, setAdSpend] = useState(10);
   const [sellingPrice, setSellingPrice] = useState(49);
 
-  // Auto-fill from URL params (e.g. from Winning Products quick actions)
+  // Auto-fill from URL params (e.g. from Winning Products quick actions or demo links)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const price = params.get('price');
+    const cost = params.get('cost');
     if (price) {
       const parsed = parseFloat(price);
       if (!isNaN(parsed)) setSellingPrice(parsed);
+    }
+    if (cost) {
+      const parsedCost = parseFloat(cost);
+      if (!isNaN(parsedCost)) setProductCost(parsedCost);
     }
   }, []);
 

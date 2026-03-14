@@ -724,13 +724,30 @@ export default function WebsiteGenerator() {
   // Copy
   const { copiedKey, copy } = useCopyBtn();
 
-  // Auto-fill from URL params (e.g. from Winning Products quick actions)
+  // Demo mode state
+  const [demoMode, setDemoMode] = useState(false);
+  const [demoBannerVisible, setDemoBannerVisible] = useState(true);
+
+  // Auto-fill from URL params (e.g. from Winning Products quick actions or demo links)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const nicheParam = params.get('niche');
     const productParam = params.get('product');
+    const demoParam = params.get('demo');
+
     if (nicheParam) setNiche(nicheParam);
     if (productParam) setStoreName(productParam);
+
+    if (demoParam) {
+      setDemoMode(true);
+      const demoNiches: Record<string, string> = {
+        'beauty-gadgets': 'Beauty & Skincare Gadgets',
+        'fitness': 'Fitness & Wellness',
+        'home-decor': 'Home Decor & Lifestyle',
+      };
+      const demoNiche = demoNiches[demoParam] || demoParam.replace(/-/g, ' ');
+      setNiche(demoNiche);
+    }
   }, []);
 
   // Progress message cycling
@@ -1028,6 +1045,16 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
   return (
     <div className="h-full flex flex-col" style={{ background: '#080a0e', color: '#f0ede8', fontFamily: 'DM Sans, sans-serif' }}>
+      {/* Demo mode banner */}
+      {demoMode && demoBannerVisible && (
+        <div style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 0, padding: '8px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexShrink: 0 }}>
+          <span style={{ fontSize: 12, color: '#d4af37', fontFamily: "'DM Sans', sans-serif" }}>
+            ✦ Demo mode — see how Majorka builds your store
+          </span>
+          <button onClick={() => setDemoBannerVisible(false)} style={{ background: 'none', border: 'none', color: 'rgba(212,175,55,0.6)', cursor: 'pointer', padding: '0 4px', fontSize: 14, lineHeight: 1 }}>✕</button>
+        </div>
+      )}
+
       {/* Top bar */}
       <div className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#0c0e12' }}>
         <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)' }}>
