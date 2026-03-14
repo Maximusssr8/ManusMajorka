@@ -2481,7 +2481,19 @@ export default function WinningProducts() {
   };
 
   // ── Shopify CSV import ────────────────────────────────────────────────
+  const showExportLockedToast = () => {
+    toast('🔒 Export to CSV is a Pro feature. Upgrade to export unlimited products to Shopify, Google Sheets, or CSV.', {
+      duration: 5000,
+      style: { background: '#0d0f15', border: '1px solid rgba(212,175,55,0.3)', color: '#f5f5f5', fontSize: 13 },
+      action: { label: 'Upgrade Now →', onClick: () => window.location.assign('/pricing') },
+    });
+  };
+
   const importToShopify = async (product: WinningProduct) => {
+    if (!isPro) {
+      showExportLockedToast();
+      return;
+    }
     if (!token) {
       toast.error('Sign in to use Shopify import');
       return;
@@ -3315,7 +3327,7 @@ export default function WinningProducts() {
               page={page}
               setPage={setPage}
               total={total}
-              onImportShopify={(p) => { if (!isPro) { toast(<div style={{ display: "flex", flexDirection: "column", gap: 8 }}><span style={{ fontWeight: 700, color: "#f5f5f5" }}>🔒 Pro feature</span><span style={{ fontSize: 12, color: "rgba(240,237,232,0.6)" }}>Export to CSV is a Pro feature. Upgrade to export unlimited products.</span><button onClick={() => window.location.assign("/pricing")} style={{ background: "#d4af37", color: "#000", border: "none", borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Upgrade Now u2192</button></div>, { duration: 5000, style: { background: "#0d0f15", border: "1px solid rgba(212,175,55,0.3)", color: "#f5f5f5" } }); return; } void importToShopify(p); }}
+              onImportShopify={(p) => void importToShopify(p)}
               onToggleCompare={toggleCompare}
               compareIds={compareIds}
             />
@@ -3388,7 +3400,7 @@ export default function WinningProducts() {
               setPage={() => {}}
               total={watchlistProducts.length}
               pageOffset={0}
-              onImportShopify={(p) => { if (!isPro) { toast(<div style={{ display: "flex", flexDirection: "column", gap: 8 }}><span style={{ fontWeight: 700, color: "#f5f5f5" }}>🔒 Pro feature</span><span style={{ fontSize: 12, color: "rgba(240,237,232,0.6)" }}>Export to CSV is a Pro feature. Upgrade to export unlimited products.</span><button onClick={() => window.location.assign("/pricing")} style={{ background: "#d4af37", color: "#000", border: "none", borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Upgrade Now u2192</button></div>, { duration: 5000, style: { background: "#0d0f15", border: "1px solid rgba(212,175,55,0.3)", color: "#f5f5f5" } }); return; } void importToShopify(p); }}
+              onImportShopify={(p) => void importToShopify(p)}
               onToggleCompare={toggleCompare}
               compareIds={compareIds}
             />

@@ -38,6 +38,7 @@ import { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/_core/hooks/useAuth';
 import MarketSelector from '@/components/MarketSelector';
+import SocialProofTicker from '@/components/SocialProofTicker';
 import { BEGINNER_LABELS, BEGINNER_TOOLTIPS, useBeginnerMode } from '@/hooks/useBeginnerMode';
 import { supabase } from '@/lib/supabase';
 import { allTools } from '@/lib/tools';
