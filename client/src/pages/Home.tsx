@@ -14,7 +14,7 @@ import { Link } from 'wouter';
 import LiveDemoWidget from '@/components/LiveDemoWidget';
 import ProductIntelligencePreview from '@/components/ProductIntelligencePreview';
 import { SEO } from '@/components/SEO';
-import SocialProofTicker from '@/components/SocialProofTicker';
+// SocialProofTicker removed — felt cheap/spammy
 
 // ── Animation variants ────────────────────────────────────────────────────────
 const fadeUp = {
@@ -601,11 +601,10 @@ export default function Home() {
         path="/"
       />
       <style>{GLOBAL_STYLES}</style>
-      <SocialProofTicker />
 
       {/* ═══ NAV ═══════════════════════════════════════════════════════════ */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(8,10,14,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(8,10,14,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 34, height: 34, borderRadius: 8, background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 17, color: '#000' }}>M</div>
             <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 17, letterSpacing: '0.08em' }}>MAJORKA</span>
@@ -616,7 +615,7 @@ export default function Home() {
             ))}
             <Link href="/sign-in" style={{ color: C.secondary, textDecoration: 'none', fontSize: 14, fontWeight: 500 }}>Sign In</Link>
           </div>
-          <Link href="/app" style={{ background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: '#000', borderRadius: 8, padding: '8px 20px', fontFamily: syne, fontWeight: 700, fontSize: 14, textDecoration: 'none', display: 'inline-block', boxShadow: `0 0 20px rgba(212,175,55,0.2)`, minHeight: 36 }}>
+          <Link href="/app" style={{ background: '#d4af37', color: '#080a0e', borderRadius: 20, padding: '8px 20px', fontFamily: syne, fontWeight: 600, fontSize: 14, textDecoration: 'none', display: 'inline-block', border: 'none', minHeight: 36 }}>
             Start Free
           </Link>
         </div>

@@ -38,7 +38,7 @@ import { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/_core/hooks/useAuth';
 import MarketSelector from '@/components/MarketSelector';
-import SocialProofTicker from '@/components/SocialProofTicker';
+// SocialProofTicker removed — felt cheap/spammy
 import { BEGINNER_LABELS, BEGINNER_TOOLTIPS, useBeginnerMode } from '@/hooks/useBeginnerMode';
 import { supabase } from '@/lib/supabase';
 import { allTools } from '@/lib/tools';
@@ -590,7 +590,7 @@ export default function MajorkaAppShell({ children }: Props) {
             fontFamily: 'DM Sans, sans-serif',
             border: 'none',
             cursor: 'pointer',
-            borderLeft: active ? '2px solid #f59e0b' : '2px solid transparent',
+            borderLeft: active ? '2px solid #d4af37' : '2px solid transparent',
             paddingLeft: active ? 10 : 12,
           }}
           onMouseEnter={(e) => {
@@ -632,7 +632,7 @@ export default function MajorkaAppShell({ children }: Props) {
           {active && (
             <div
               className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-              style={{ background: '#f59e0b' }}
+              style={{ background: '#d4af37' }}
             />
           )}
         </button>
@@ -751,11 +751,11 @@ export default function MajorkaAppShell({ children }: Props) {
               <span
                 className="flex-1 text-left uppercase"
                 style={{
-                  fontSize: 9.5,
-                  fontWeight: 700,
-                  letterSpacing: '0.14em',
-                  color: '#3f3f46',
-                  fontFamily: 'Syne, sans-serif',
+                  fontSize: 11,
+                  fontWeight: 500,
+                  letterSpacing: '0.08em',
+                  color: '#6b7280',
+                  fontFamily: "'DM Sans', sans-serif",
                 }}
               >
                 PHASE {phase.phaseNum} · {phase.label}
@@ -1255,7 +1255,7 @@ export default function MajorkaAppShell({ children }: Props) {
         style={{
           width: 240,
           background: '#0a0a0e',
-          borderRight: '1px solid rgba(255,255,255,0.06)',
+          borderRight: '1px solid rgba(255,255,255,0.05)',
         }}
       >
         {mobileOpen && (
@@ -1334,7 +1334,6 @@ export default function MajorkaAppShell({ children }: Props) {
         </div>
 
         <div className="flex-1 overflow-hidden pb-16 lg:pb-0 dashboard-bg">{children}</div>
-        <SocialProofTicker />
 
         {/* Mobile bottom tab bar */}
         <nav
@@ -1352,7 +1351,7 @@ export default function MajorkaAppShell({ children }: Props) {
                   onClick={() => setLocation(tab.path)}
                   className="flex flex-col items-center gap-0.5 px-3 py-1 transition-colors"
                   style={{
-                    color: active ? '#f59e0b' : 'rgba(161,161,170,0.6)',
+                    color: active ? '#d4af37' : 'rgba(161,161,170,0.6)',
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',

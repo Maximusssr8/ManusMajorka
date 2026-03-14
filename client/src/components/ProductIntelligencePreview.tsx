@@ -21,9 +21,9 @@ interface WinningProduct {
 
 // ── Fallback product ───────────────────────────────────────────────────────────
 const FALLBACK_PRODUCT: WinningProduct = {
-  name: 'Ninja Creami Deluxe Ice Cream Maker',
-  category: 'Kitchen & Home',
-  image_url: undefined,
+  name: 'LED Smart Ring Light & Beauty Mirror',
+  category: 'Beauty & Wellness',
+  image_url: 'https://images.unsplash.com/photo-1583241800698-e8ab01830a24?w=800&h=500&fit=crop&crop=center&q=90',
   est_daily_revenue_aud: 28400,
   est_monthly_revenue_aud: 852000,
   winning_score: 94,
@@ -78,12 +78,13 @@ const PIP_STYLES = `
 }
 .pip-revenue {
   font-family: 'Syne', sans-serif;
-  font-size: 42px;
+  font-size: 36px;
   font-weight: 800;
   color: #d4af37;
-  text-shadow: 0 0 30px rgba(212,175,55,0.4);
-  letter-spacing: -1.5px;
+  text-shadow: 0 0 20px rgba(212,175,55,0.3);
+  letter-spacing: -0.5px;
   line-height: 1;
+  white-space: nowrap;
 }
 .pip-locked-container {
   position: relative;
@@ -115,22 +116,23 @@ const PIP_STYLES = `
   color: #080a0e;
   border: none;
   border-radius: 8px;
-  padding: 14px 28px;
+  padding: 14px 24px;
   font-family: 'Syne', sans-serif;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 14px;
   cursor: pointer;
   width: 100%;
-  margin-top: 16px;
+  margin-top: 0;
   transition: all 0.2s;
   text-decoration: none;
   display: block;
   text-align: center;
+  box-sizing: border-box;
 }
 .pip-unlock-btn:hover {
-  background: #f0c840;
+  background: #e8c547;
   transform: translateY(-1px);
-  box-shadow: 0 8px 25px rgba(212,175,55,0.4);
+  box-shadow: 0 8px 25px rgba(212,175,55,0.35);
 }
 .pip-action-btn {
   display: inline-flex;
@@ -264,7 +266,7 @@ export default function ProductIntelligencePreview() {
   const p = product ?? FALLBACK_PRODUCT;
   const dailyRevFmt = `$${(p.est_daily_revenue_aud).toLocaleString()} AUD`;
   const monthlyRev = p.est_monthly_revenue_aud ?? p.est_daily_revenue_aud * 30;
-  const monthlyRevFmt = `$${(monthlyRev / 1000).toFixed(0)}K AUD`;
+  const monthlyRevFmt = `$${(monthlyRev / 1000).toFixed(0)}K AUD/mo`;
   const trendBadge = p.trend_status === 'EXPLODING'
     ? { label: '🔥 EXPLODING', color: '#22c55e' }
     : p.trend_status === 'RISING'
@@ -326,10 +328,10 @@ export default function ProductIntelligencePreview() {
                   <img
                     src={p.image_url}
                     alt={p.name}
-                    style={{ width: '100%', maxHeight: 200, objectFit: 'cover', borderRadius: 8, display: 'block' }}
+                    style={{ width: '100%', height: 220, objectFit: 'cover', objectPosition: 'center', borderRadius: 8, display: 'block' }}
                   />
                 ) : (
-                  <div style={{ width: '100%', height: 180, background: 'linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(12,14,20,0.95) 100%)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ width: '100%', height: 220, background: 'linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(12,14,20,0.95) 100%)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <span style={{ fontSize: 48 }}>📦</span>
                   </div>
                 )}
@@ -363,7 +365,7 @@ export default function ProductIntelligencePreview() {
                   <div style={{ fontSize: 11, color: '#52525b', fontFamily: "'DM Sans', sans-serif", marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                     Est. Monthly
                   </div>
-                  <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: '#22c55e', lineHeight: 1, letterSpacing: '-0.5px' }}>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, fontWeight: 600, color: '#4ade80', lineHeight: 1, letterSpacing: '-0.5px', whiteSpace: 'nowrap' }}>
                     {monthlyRevFmt}
                   </div>
                 </div>
@@ -455,12 +457,14 @@ export default function ProductIntelligencePreview() {
 
               {/* Lock overlay */}
               <div className="pip-lock-overlay">
-                <div style={{ fontSize: 36, marginBottom: 8 }}>🔒</div>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, color: '#f5f5f5', marginBottom: 6 }}>
-                  47 more products today
+                <div style={{ marginBottom: 12, color: '#d4af37', opacity: 0.85 }}>
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
                 </div>
-                <div style={{ fontSize: 13, color: '#52525b', marginBottom: 16, fontFamily: "'DM Sans', sans-serif" }}>
-                  Peeking through the lock:
+                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 20, color: '#f5f5f5', marginBottom: 16 }}>
+                  47 more products today
                 </div>
 
                 {/* Peeking product names */}
@@ -485,7 +489,7 @@ export default function ProductIntelligencePreview() {
                 </a>
 
                 <p style={{ fontSize: 11, color: '#52525b', marginTop: 10, fontFamily: "'DM Sans', sans-serif", lineHeight: 1.5 }}>
-                  No credit card required · 10 free searches/day · Cancel anytime
+                  No credit card required
                 </p>
               </div>
             </div>
