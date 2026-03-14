@@ -14,6 +14,7 @@ import { Link } from 'wouter';
 import LiveDemoWidget from '@/components/LiveDemoWidget';
 import ProductIntelligencePreview from '@/components/ProductIntelligencePreview';
 import { SEO } from '@/components/SEO';
+import SocialProofTicker from '@/components/SocialProofTicker';
 
 // ── Animation variants ────────────────────────────────────────────────────────
 const fadeUp = {
@@ -600,6 +601,7 @@ export default function Home() {
         path="/"
       />
       <style>{GLOBAL_STYLES}</style>
+      <SocialProofTicker />
 
       {/* ═══ NAV ═══════════════════════════════════════════════════════════ */}
       <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(8,10,14,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: `1px solid ${C.border}` }}>

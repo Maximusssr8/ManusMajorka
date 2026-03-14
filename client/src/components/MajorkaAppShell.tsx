@@ -1334,6 +1334,7 @@ export default function MajorkaAppShell({ children }: Props) {
         </div>
 
         <div className="flex-1 overflow-hidden pb-16 lg:pb-0 dashboard-bg">{children}</div>
+        <SocialProofTicker />
 
         {/* Mobile bottom tab bar */}
         <nav

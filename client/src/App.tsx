@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { lazy, Suspense, useEffect } from 'react';
 import { Route, Switch, useLocation } from 'wouter';
 import { Toaster } from '@/components/ui/sonner';
+import AlmostWonModal from '@/components/AlmostWonModal';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { capture } from '@/lib/posthog';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -204,6 +205,7 @@ function App() {
             <ProductProvider>
               <TooltipProvider>
                 <Toaster />
+                <AlmostWonModal />
                 <Router />
               </TooltipProvider>
             </ProductProvider>
