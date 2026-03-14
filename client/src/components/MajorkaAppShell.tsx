@@ -641,7 +641,7 @@ export default function MajorkaAppShell({ children }: Props) {
       >
         <button
           onClick={() => setLocation('/app')}
-          className="flex items-center gap-2.5"
+          className="flex items-center gap-2.5 flex-1"
           style={{ background: 'none', border: 'none', cursor: 'pointer' }}
         >
           <div
@@ -661,6 +661,7 @@ export default function MajorkaAppShell({ children }: Props) {
             MAJORKA
           </span>
         </button>
+        <NotificationBell />
       </div>
 
       {/* Search bar */}
