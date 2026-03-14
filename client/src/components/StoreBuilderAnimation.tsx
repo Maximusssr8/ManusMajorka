@@ -1,6 +1,19 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 
+// ── Mobile hook ───────────────────────────────────────────────────────────────
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' && window.innerWidth < 768
+  );
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  return isMobile;
+}
+
 // ── Typing hook ───────────────────────────────────────────────────────────────
 
 function useTypingEffect(text: string, active: boolean, speed = 38) {
@@ -44,6 +57,7 @@ const BLINK_STYLE = `
 type Phase = 0 | 1 | 2 | 3 | 4 | 5;
 
 export default function StoreBuilderAnimation() {
+  const isMobile = useIsMobile();
   const [phase, setPhase] = useState<Phase>(0);
   const [browserStep, setBrowserStep] = useState(0);
   // browserStep: 0=none, 1=chrome, 2=nav, 3=product-img, 4=title, 5=price, 6=button, 7=stars, 8=badge
@@ -151,6 +165,10 @@ export default function StoreBuilderAnimation() {
   return (
     <>
       <style>{BLINK_STYLE}</style>
+
+      {/* Mobile scaling wrapper */}
+      <div style={isMobile ? { maxHeight: 280, overflow: 'hidden' } : {}}>
+      <div style={isMobile ? { transform: 'scale(0.75)', transformOrigin: 'top center', width: '100%' } : {}}>
 
       <AnimatePresence>
         {visible && (
@@ -592,6 +610,9 @@ export default function StoreBuilderAnimation() {
           }}
         />
       )}
+
+      </div>{/* end mobile scale wrapper */}
+      </div>{/* end mobile height wrapper */}
     </>
   );
 }

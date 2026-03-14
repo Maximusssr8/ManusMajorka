@@ -50,8 +50,31 @@ const PIP_STYLES = `
   margin-top: 48px;
 }
 @media (max-width: 768px) {
-  .pip-grid { grid-template-columns: 1fr; }
-  .pip-locked { display: none; }
+  .pip-section { padding: 48px 16px 40px; }
+  .pip-grid { grid-template-columns: 1fr; gap: 16px; }
+  /* Show locked panel on mobile but compact */
+  .pip-locked { display: block !important; }
+  /* Section header */
+  .pip-section h2 { font-size: 26px !important; }
+  /* Product image */
+  .pip-product-img { height: 160px !important; }
+  /* Revenue number */
+  .pip-revenue { font-size: 28px !important; }
+  /* Metrics row: 2x2 grid */
+  .pip-metrics-row { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 0 !important; }
+  .pip-metrics-row > * { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.06) !important; }
+  .pip-metrics-row > *:nth-child(odd) { border-right: 1px solid rgba(255,255,255,0.06) !important; }
+  .pip-metrics-row > *:nth-last-child(-n+2) { border-bottom: none !important; }
+  /* Action buttons: stack vertically */
+  .pip-actions { flex-direction: column !important; gap: 8px !important; }
+  .pip-actions .pip-action-btn { width: 100% !important; justify-content: center !important; box-sizing: border-box !important; }
+  /* Ghost grid: 1 column, only first 2 */
+  .pip-ghost-grid { grid-template-columns: 1fr !important; }
+  .pip-ghost-grid > *:nth-child(n+3) { display: none !important; }
+  /* Workflow strip: hide on mobile */
+  .pip-workflow { display: none !important; }
+  /* Lock overlay compact */
+  .pip-lock-overlay { padding: 16px; }
 }
 .pip-product-card {
   background: rgba(12,14,20,0.95);
@@ -418,6 +441,7 @@ export default function ProductIntelligencePreview() {
                   <img
                     src={p.image_url}
                     alt={p.name}
+                    className="pip-product-img"
                     style={{ width: '100%', height: 220, objectFit: 'cover', objectPosition: 'center', borderRadius: 8, display: 'block' }}
                   />
                 ) : (
@@ -462,7 +486,7 @@ export default function ProductIntelligencePreview() {
               </div>
 
               {/* Metrics row */}
-              <div style={{ display: 'flex', gap: 0, marginBottom: 20, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, overflow: 'hidden' }}>
+              <div className="pip-metrics-row" style={{ display: 'flex', gap: 0, marginBottom: 20, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, overflow: 'hidden' }}>
                 {[
                   { label: 'Win Score', value: `${p.winning_score ?? 94}/100` },
                   { label: 'AU Relevance', value: `${p.au_relevance ?? 97}%` },
@@ -513,7 +537,7 @@ export default function ProductIntelligencePreview() {
               )}
 
               {/* Action buttons */}
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
+              <div className="pip-actions" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
                 <button className="pip-action-btn" onClick={() => handleActionClick('/app/suppliers?demo=posture-corrector')}>
                   Find Suppliers →
                 </button>
@@ -593,7 +617,7 @@ export default function ProductIntelligencePreview() {
           </div>
 
           {/* ── PART D: Workflow animation strip ──────────────────────── */}
-          <div style={{ marginTop: 64, padding: '32px 24px', background: 'rgba(12,14,20,0.6)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16 }}>
+          <div className="pip-workflow" style={{ marginTop: 64, padding: '32px 24px', background: 'rgba(12,14,20,0.6)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16 }}>
             <p style={{ textAlign: 'center', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#52525b', textTransform: 'uppercase', marginBottom: 28, fontFamily: 'Syne, sans-serif' }}>
               How It Works
             </p>

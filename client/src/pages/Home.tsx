@@ -85,17 +85,29 @@ const GLOBAL_STYLES = `
   .grid-2-mobile { grid-template-columns: 1fr 1fr !important; }
   .px-4-mobile   { padding-left: 16px !important; padding-right: 16px !important; }
   .text-center-mobile { text-align: center !important; }
-  .hero-widget   { transform: none !important; animation: float-mobile 6s ease-in-out infinite !important; }
-  /* Hero section padding fix for mobile */
-  .hero-section  { padding-top: 80px !important; padding-bottom: 60px !important; min-height: auto !important; }
+  /* Hero section */
+  .hero-section  { padding: 80px 16px 60px !important; min-height: auto !important; }
+  /* Hero CTA: full width */
+  .hero-section .btn-shimmer { display: flex !important; width: 100% !important; box-sizing: border-box !important; }
+  /* Hero animation wrapper: show on mobile but no float animation */
+  .hero-widget   { animation: none !important; width: 100% !important; flex: 0 0 auto !important; }
+  /* Nav: compact on mobile */
+  .nav-inner     { height: 56px !important; padding: 0 16px !important; overflow: hidden !important; }
+  /* Weekly winners: show only first 2 cards */
+  .weekly-card:nth-child(n+3) { display: none !important; }
+  /* Weekly form: stack vertically */
+  .weekly-form   { flex-direction: column !important; }
+  .weekly-form > * { flex: none !important; width: 100% !important; box-sizing: border-box !important; }
+  /* Floating CTA */
+  .floating-cta-bar { padding: 12px 16px !important; }
+  /* Stats bar */
+  .stats-section { padding: 40px 16px !important; }
+  /* Urgency strip items */
+  .urgency-item  { font-size: 11px !important; }
+  /* Section horizontal padding */
+  section { padding-left: 16px !important; padding-right: 16px !important; }
 }
 @media (min-width: 769px) { .hide-desktop { display: none !important; } }
-@media (max-width: 640px) {
-  /* Hero CTA: full width on mobile */
-  .hero-section .btn-shimmer { display: flex !important; width: 100%; }
-  /* Stats bar: reduce padding on mobile */
-  .stats-section { padding: 40px 16px !important; }
-}
 `;
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
@@ -372,6 +384,7 @@ function WeeklyWinnersSection() {
             return (
               <div
                 key={i}
+                className="weekly-card"
                 style={{
                   flex: '1 1 160px',
                   minWidth: 150,
@@ -412,7 +425,7 @@ function WeeklyWinnersSection() {
           </div>
         ) : (
           <div style={{ maxWidth: 640, margin: '0 auto' }}>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            <form onSubmit={handleSubmit} className="weekly-form" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <input
                 type="email"
                 placeholder="your@email.com"
@@ -493,7 +506,7 @@ function UrgencyStrip() {
         `🔥 Last product found: ${lastFound} minute${lastFound !== 1 ? 's' : ''} ago`,
         `📦 Next data refresh: ${refreshHours}h ${String(refreshMins).padStart(2, '0')}m`,
       ].map((item) => (
-        <span key={item} style={{ fontSize: 12, color: 'rgba(212,175,55,0.7)', fontWeight: 500 }}>{item}</span>
+        <span key={item} className="urgency-item" style={{ fontSize: 12, color: 'rgba(212,175,55,0.7)', fontWeight: 500 }}>{item}</span>
       ))}
     </div>
   );
@@ -533,9 +546,10 @@ function FloatingCTA() {
       justifyContent: 'space-between',
       gap: 16,
       animation: 'float-cta 0.4s ease-out',
-    }}>
+    }} className="floating-cta-bar">
       <span style={{ fontSize: 14, fontWeight: 600, color: C.text, flex: 1 }}>
-        🔥 Join 2,400+ AU sellers · Find your first winner →
+        <span className="hide-mobile">🔥 Join 2,400+ AU sellers · Find your first winner →</span>
+        <span className="hide-desktop">Find your winner →</span>
       </span>
       <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: '#000', borderRadius: 10, padding: '10px 22px', fontFamily: syne, fontWeight: 800, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
         Start Free
@@ -605,7 +619,7 @@ export default function Home() {
 
       {/* ═══ NAV ═══════════════════════════════════════════════════════════ */}
       <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(8,10,14,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="nav-inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 34, height: 34, borderRadius: 8, background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 17, color: '#000' }}>M</div>
             <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 17, letterSpacing: '0.08em' }}>MAJORKA</span>
@@ -704,7 +718,7 @@ export default function Home() {
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4, duration: 0.7, ease: 'easeOut' }}
-            className="hero-widget hide-mobile"
+            className="hero-widget"
             style={{ flex: '1 1 400px', minWidth: 0 }}
           >
             <StoreBuilderAnimation />
