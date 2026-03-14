@@ -429,7 +429,17 @@ function TrendCard({ trend }: { trend: TrendSignal }) {
 // ── Trend Alert Teaser ────────────────────────────────────────────────────────
 
 function TrendAlertTeaser({ isPro }: { isPro: boolean }) {
-  const [alertsActive, setAlertsActive] = useState(true);
+  const [alertsActive, setAlertsActive] = useState(() => {
+    try { return localStorage.getItem('trend_alerts_active') !== 'false'; } catch { return true; }
+  });
+
+  const handleToggle = () => {
+    try {
+      const next = !alertsActive;
+      setAlertsActive(next);
+      localStorage.setItem('trend_alerts_active', String(next));
+    } catch { /* localStorage unavailable — no-op */ }
+  };
 
   if (isPro) {
     return (
@@ -455,7 +465,7 @@ function TrendAlertTeaser({ isPro }: { isPro: boolean }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 12, color: 'rgba(240,237,232,0.5)' }}>Notifications</span>
           <button
-            onClick={() => setAlertsActive((p) => !p)}
+            onClick={handleToggle}
             style={{
               width: 44,
               height: 24,
