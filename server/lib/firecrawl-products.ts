@@ -29,24 +29,46 @@ const UNSPLASH_BY_CATEGORY: Record<string, string> = {
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop&q=80';
 
-// ── Sources to scrape (confirmed working as of 2026-03) ──────────────────────
+// ── PRODUCT STRATEGY — Strict dropship-friendly sources only ─────────────────
+// NEVER scrape: hot-deals, popular (full of TVs/appliances/electronics)
+// ONLY scrape niche-specific pages that match TikTok dropship categories
 const SOURCES = [
-  {
-    url: 'https://www.kogan.com/au/c/hot-deals/',
-    platform: 'Kogan AU',
-    label: 'Kogan Hot Deals',
-  },
-  {
-    url: 'https://www.kogan.com/au/buy/?sort=popular',
-    platform: 'Kogan AU',
-    label: 'Kogan Popular',
-  },
-  {
-    url: 'https://www.kogan.com/au/c/health-beauty/',
-    platform: 'Kogan AU',
-    label: 'Kogan Health & Beauty',
-  },
+  { url: 'https://www.kogan.com/au/c/health-beauty/', platform: 'TikTok Shop AU', label: 'Health & Beauty' },
+  { url: 'https://www.kogan.com/au/c/sports-fitness/', platform: 'TikTok Shop AU', label: 'Fitness & Sports' },
+  { url: 'https://www.kogan.com/au/c/babies-kids/', platform: 'TikTok Shop AU', label: 'Baby & Kids' },
+  { url: 'https://www.kogan.com/au/c/pets/', platform: 'TikTok Shop AU', label: 'Pet' },
+  { url: 'https://www.kogan.com/au/c/home-lifestyle/', platform: 'TikTok Shop AU', label: 'Home & Lifestyle' },
 ];
+
+// ── ABSOLUTE BLACKLIST — never show these product types ──────────────────────
+const BLACKLISTED_KEYWORDS = [
+  'tv', 'television', 'smart tv', 'oled', 'qled', '4k tv', '8k tv',
+  'laptop', 'notebook', 'macbook', 'computer', 'desktop pc',
+  'tablet', 'ipad', 'surface pro',
+  'refrigerator', 'fridge', 'washing machine', 'dishwasher', 'dryer',
+  'air conditioner', 'air con', 'split system', 'heat pump',
+  'vacuum cleaner', 'robot vacuum', 'dyson',
+  'microwave', 'oven', 'stove', 'cooktop',
+  'gaming console', 'playstation', 'xbox', 'nintendo switch',
+  'monitor', 'computer screen',
+  'printer', 'scanner',
+  'electric scooter', 'e-scooter', 'electric bike', 'e-bike',
+  'lawnmower', 'pressure washer',
+  'solar panel', 'generator',
+  'phone case', 'smartphone', 'iphone',
+  'earbuds', 'headphones', 'airpods', // too competitive
+  'coffee machine', 'espresso machine', // too heavy/complex
+];
+
+// ── PRICE CEILING — dropship-friendly items only ─────────────────────────────
+const MAX_PRICE_AUD = 180; // above this → likely major appliance/electronics
+const MIN_PRICE_AUD = 12;  // below this → too cheap to be viable
+
+function isDropshipFriendly(title: string, price: number): boolean {
+  const lower = title.toLowerCase();
+  if (price > MAX_PRICE_AUD || price < MIN_PRICE_AUD) return false;
+  return !BLACKLISTED_KEYWORDS.some(kw => lower.includes(kw));
+}
 
 export interface WinningProduct {
   product_title: string;
@@ -117,30 +139,48 @@ async function extractProductsFromContent(
   const productContent = trimToProductSection(content);
   const truncated = productContent.slice(0, 25000);
 
-  const prompt = `You are an AU ecommerce product analyst. Extract ALL individual products mentioned in the content below.
+  const prompt = `You are a TikTok dropshipping product analyst for the Australian market. Extract ONLY dropship-friendly products from the content below.
 
-For each product, return a JSON array item with these exact fields:
+STRICT RULES — NEVER include:
+❌ TVs, televisions, monitors, screens of any size
+❌ Laptops, computers, tablets, iPads
+❌ Major appliances: fridges, washing machines, dishwashers, dryers, ovens, microwaves, air conditioners
+❌ Vacuum cleaners, robot vacuums
+❌ Gaming consoles (PlayStation, Xbox, Nintendo Switch)
+❌ Electric scooters, e-bikes, electric vehicles
+❌ Smartphones, phones
+❌ Anything over $180 AUD (too expensive for TikTok impulse buying)
+❌ Anything under $12 AUD (too cheap, no margin)
+❌ Services, subscriptions, warranties, accessories for major electronics
+
+ONLY include dropship-friendly items:
+✅ Skincare, beauty tools, hair care, wellness devices
+✅ Fitness accessories (resistance bands, yoga mats, massage guns under $100, jump ropes)
+✅ Pet accessories (toys, feeders, grooming tools, beds under $150)
+✅ Home accessories (organisers, kitchen gadgets, LED strips, small decorative items)
+✅ Baby & kids accessories (toys, feeding, bath time items)
+✅ Fashion accessories (jewellery, bags, sunglasses)
+✅ Sports accessories (water bottles, gym bags, compression gear)
+✅ Impulse-buy gadgets under $80 that solve a real problem
+
+For each QUALIFYING product, return a JSON array item:
 {
-  "product_title": "exact product name as shown",
-  "category": "one of: Health & Beauty | Pet | Home & Kitchen | Fitness | Tech | Fashion | Baby & Kids | Sports & Outdoors",
-  "price_aud": <number — price in AUD, parse from $ amounts shown>,
-  "est_daily_revenue_aud": <number — estimate: price × estimated daily AU units sold>,
-  "winning_score": <integer 1-100 — demand signals, reviews, ratings, trending>,
+  "product_title": "exact product name",
+  "category": "one of: Health & Beauty | Pet | Home & Kitchen | Fitness | Fashion | Baby & Kids | Sports & Outdoors",
+  "price_aud": <number — actual price in AUD>,
+  "est_daily_revenue_aud": <number — price × estimated daily AU units for TikTok sellers>,
+  "winning_score": <integer 1-100 — viral potential + demand signals + AU fit>,
   "trend": "one of: exploding | growing | stable | declining",
-  "au_relevance": <integer 1-100>,
+  "au_relevance": <integer 1-100 — how well this fits AU market specifically>,
   "competition_level": "one of: Low | Medium | High",
-  "why_winning": "1-2 sentences why this wins in the AU market",
-  "ad_angle": "specific TikTok/Meta hook angle for AU shoppers",
-  "image_url": "full image URL if present in content starting with https://, else empty string",
-  "platform": "${platform}"
+  "why_winning": "1-2 sentences: specific AU angle — climate, lifestyle, seasonal demand, AU problem it solves",
+  "ad_angle": "exact TikTok hook: first 5 words of the video that stops the scroll",
+  "image_url": "full https:// image URL if in content, else empty string",
+  "platform": "TikTok Shop AU"
 }
 
-Rules:
-- Extract real physical products with ACTUAL prices shown (skip items without a $ price, skip nav links, skip mobile plans, skip presale items with no price)
-- Kogan markdown format: product name is in **bold**, price follows as $XX or $XX.XX
-- image_url: look for markdown image pattern [![name](https://assets.kogan.com/...)](link) — use that CDN URL. If not found, use empty string
-- Prioritise products with ratings like 4.5(123) — they are proven sellers with real reviews
-- Return ONLY the raw JSON array, no markdown fences, no explanation
+- Return ONLY raw JSON array, no markdown, no explanation
+- If fewer than 3 qualifying products exist, return empty array []
 
 CONTENT:
 ${truncated}`;
@@ -246,10 +286,19 @@ export async function fetchFirecrawlProducts(): Promise<WinningProduct[]> {
     throw new Error('Firecrawl returned 0 products — all sources may be blocked');
   }
 
-  // 3. Deduplicate by product_title (case-insensitive)
-  const seen = new Set<string>();
-  const deduped = allProducts.filter((p) => {
+  // 3. Hard filter — remove blacklisted/non-dropship items BEFORE dedup
+  const filtered = allProducts.filter((p) => {
     if (!p.product_title) return false;
+    return isDropshipFriendly(p.product_title, Number(p.price_aud) || 0);
+  });
+
+  if (filtered.length === 0) {
+    console.warn('[firecrawl] All products filtered out — blacklist too aggressive or wrong sources');
+  }
+
+  // 4. Deduplicate by product_title (case-insensitive)
+  const seen = new Set<string>();
+  const deduped = filtered.filter((p) => {
     const key = p.product_title.toLowerCase().trim();
     if (seen.has(key)) return false;
     seen.add(key);
