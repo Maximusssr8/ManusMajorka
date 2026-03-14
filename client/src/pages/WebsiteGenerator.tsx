@@ -1571,9 +1571,9 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
       </div>
 
       {/* Body */}
-      <div className="flex-1 overflow-hidden flex">
+      <div className="flex-1 overflow-auto flex flex-col md:flex-row">
         {/* ── LEFT PANEL ── */}
-        <div className="flex-shrink-0 overflow-y-auto p-5 space-y-4" style={{ width: 400, borderRight: '1px solid rgba(255,255,255,0.07)', scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.1) transparent' }}>
+        <div className="flex-shrink-0 overflow-y-auto p-5 space-y-4 w-full md:w-[400px]" style={{ borderRight: '1px solid rgba(255,255,255,0.07)', borderBottom: '1px solid rgba(255,255,255,0.07)', scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.1) transparent' }}>
 
           {/* Premium Template Selector */}
           <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1.5px solid rgba(212,175,55,0.2)' }}>
@@ -1913,7 +1913,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
         </div>
 
         {/* ── RIGHT PANEL ── */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden min-h-[600px] md:min-h-0">
           {hasOutput ? (
             <>
               {/* Tab bar */}

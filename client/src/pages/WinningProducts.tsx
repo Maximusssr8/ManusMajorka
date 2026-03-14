@@ -3334,9 +3334,9 @@ function WinningProducts() {
                 )}
               </button>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, overflowX: 'auto', flexShrink: 0 }}>
                 {/* Search */}
-                <div style={{ position: 'relative' }}>
+                <div style={{ position: 'relative', flexShrink: 0 }}>
                   <Search
                     size={13}
                     style={{
@@ -3359,7 +3359,7 @@ function WinningProducts() {
                       color: C.text,
                       fontSize: 12,
                       outline: 'none',
-                      width: 200,
+                      width: 160,
                     }}
                   />
                 </div>

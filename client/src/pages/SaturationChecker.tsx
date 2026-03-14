@@ -189,7 +189,7 @@ export default function SaturationChecker() {
     background: '#060608',
     fontFamily: 'DM Sans, sans-serif',
     color: '#f5f5f5',
-    padding: '2rem 1rem 4rem',
+    padding: '1.5rem 1rem 5rem',
   };
 
   const containerStyle: React.CSSProperties = {
@@ -274,7 +274,7 @@ export default function SaturationChecker() {
           <h1
             style={{
               fontFamily: 'Syne, sans-serif',
-              fontSize: '2.25rem',
+              fontSize: 'clamp(1.75rem, 5vw, 2.25rem)',
               fontWeight: 800,
               color: '#f5f5f5',
               margin: '0.5rem 0 0.75rem',
@@ -298,7 +298,7 @@ export default function SaturationChecker() {
 
         {/* Input Section */}
         <div style={cardStyle}>
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div className="input-btn-row">
             <input
               type="text"
               value={product}

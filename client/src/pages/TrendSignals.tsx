@@ -655,7 +655,7 @@ export default function TrendSignals() {
         description="Real-time AU dropshipping trend signals. Discover emerging products with explosive growth potential before they hit mainstream saturation. Updated every 6 hours."
         path="/app/trend-signals"
       />
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '32px 24px 80px' }}>
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '24px 16px 80px' }}>
 
         {/* Usage Counter */}
         <UsageCounter />
@@ -751,7 +751,7 @@ export default function TrendSignals() {
         )}
 
         {/* Stats row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 28 }}>
+        <div className="stats-grid-responsive" style={{ marginBottom: 28 }}>
           {[
             { label: 'Trends Tracked', value: trends.length },
             { label: 'Emerging Now', value: emergingCount },
@@ -828,7 +828,7 @@ export default function TrendSignals() {
         ) : (
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(min(340px, 100%), 1fr))',
             gap: 16,
             marginBottom: 48,
           }}>

@@ -547,6 +547,45 @@ textarea {
   background-size: 32px 32px;
 }
 
+/* ── Mobile responsive utilities ── */
+/* Responsive stats grid: 2 cols on mobile, 4 on desktop */
+.stats-grid-responsive {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (min-width: 640px) {
+  .stats-grid-responsive {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Input+button row that stacks on mobile */
+.input-btn-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+@media (max-width: 639px) {
+  .input-btn-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .input-btn-row > * {
+    width: 100%;
+  }
+}
+
+/* Mobile safe bottom padding (accounts for 56px tab bar + 8px buffer) */
+.pb-mobile-safe {
+  padding-bottom: 80px;
+}
+@media (min-width: 1024px) {
+  .pb-mobile-safe {
+    padding-bottom: 2rem;
+  }
+}
+
 .glass-card {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.07);

@@ -174,7 +174,7 @@ export default function StoreSpy() {
   const pageStyle: React.CSSProperties = {
     background: '#060608',
     minHeight: '100vh',
-    padding: '48px 24px',
+    padding: '32px 16px 80px',
     fontFamily: 'DM Sans, sans-serif',
     color: '#f5f5f5',
   };
@@ -225,7 +225,7 @@ export default function StoreSpy() {
 
         {/* ── URL Input ───────────────────────────────────────────────── */}
         <div style={{ ...cardStyle, marginBottom: 32 }}>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <div className="input-btn-row">
             <div style={{ position: 'relative', flex: 1 }}>
               <Search
                 size={18}
@@ -404,7 +404,7 @@ export default function StoreSpy() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(min(280px, 100%), 1fr))',
                 gap: 16,
                 marginBottom: 40,
               }}
