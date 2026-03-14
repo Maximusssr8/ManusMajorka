@@ -12,6 +12,7 @@ import Marquee from 'react-fast-marquee';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'wouter';
 import LiveDemoWidget from '@/components/LiveDemoWidget';
+import StoreBuilderAnimation from '@/components/StoreBuilderAnimation';
 import ProductIntelligencePreview from '@/components/ProductIntelligencePreview';
 import { SEO } from '@/components/SEO';
 // SocialProofTicker removed — felt cheap/spammy
@@ -698,15 +699,15 @@ export default function Home() {
             </motion.div>
           </div>
 
-          {/* Right: Demo widget */}
+          {/* Right: Store builder animation */}
           <motion.div
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4, duration: 0.7, ease: 'easeOut' }}
-            className="hero-widget"
-            style={{ flex: '1 1 400px', minWidth: 0, transform: 'rotate(-1deg)', transformOrigin: 'top right', boxShadow: '0 40px 80px rgba(0,0,0,0.6), 0 0 60px rgba(212,175,55,0.06)', animation: 'float 7s ease-in-out infinite' }}
+            className="hero-widget hide-mobile"
+            style={{ flex: '1 1 400px', minWidth: 0 }}
           >
-            <LiveDemoWidget />
+            <StoreBuilderAnimation />
           </motion.div>
         </div>
       </section>
