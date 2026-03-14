@@ -578,8 +578,17 @@ export default function TrendSignals() {
         setTrends(FALLBACK_TRENDS);
         setUsingFallback(true);
       } else {
-        setTrends(data as TrendSignal[]);
-        setUsingFallback(false);
+        // Check if data is stale (older than 7 days) — if so, use fallback
+        const newest = data.reduce((latest: string, t: any) =>
+          (t.updated_at || t.detected_at || '') > latest ? (t.updated_at || t.detected_at || '') : latest, '');
+        const isStale = newest && (Date.now() - new Date(newest).getTime()) > 7 * 24 * 60 * 60 * 1000;
+        if (isStale) {
+          setTrends(FALLBACK_TRENDS);
+          setUsingFallback(true);
+        } else {
+          setTrends(data as TrendSignal[]);
+          setUsingFallback(false);
+        }
       }
     } catch {
       setTrends(FALLBACK_TRENDS);

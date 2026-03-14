@@ -749,15 +749,22 @@ export function registerChatRoutes(app: Application) {
       // Accept both formats: messages array or singular message
       let messages = rawMessages;
       if (!messages && message) {
-        const text = Array.isArray(message.parts)
-          ? message.parts
-              .filter((p: any) => p.type === 'text')
-              .map((p: any) => p.text)
-              .join('')
-          : typeof message.content === 'string'
-            ? message.content
-            : '';
-        messages = [{ role: message.role || 'user', content: text }];
+        // Handle plain string message (e.g. {"message": "Hello", "stream": false})
+        if (typeof message === 'string') {
+          messages = [{ role: 'user' as const, content: message }];
+        } else {
+          const text = Array.isArray(message.parts)
+            ? message.parts
+                .filter((p: any) => p.type === 'text')
+                .map((p: any) => p.text)
+                .join('')
+            : typeof message.content === 'string'
+              ? message.content
+              : typeof message === 'string'
+                ? message
+                : '';
+          messages = [{ role: (message.role || 'user') as const, content: text }];
+        }
       }
 
       if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -779,6 +786,9 @@ export function registerChatRoutes(app: Application) {
               : JSON.stringify(m.content),
         }))
         .filter((m: any) => m.role === 'user' || m.role === 'assistant');
+
+      // Filter out any messages with empty content (prevents Claude API errors)
+      messages = messages.filter((m: any) => m.content && String(m.content).trim().length > 0);
 
       if (messages.length > 0 && messages[0].role !== 'user') messages = messages.slice(1);
       if (messages.length === 0) {
