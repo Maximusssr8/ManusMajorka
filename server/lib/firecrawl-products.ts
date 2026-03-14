@@ -29,15 +29,64 @@ const UNSPLASH_BY_CATEGORY: Record<string, string> = {
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop&q=80';
 
-// ── PRODUCT STRATEGY — Strict dropship-friendly sources only ─────────────────
-// NEVER scrape: hot-deals, popular (full of TVs/appliances/electronics)
-// ONLY scrape niche-specific pages that match TikTok dropship categories
+// ── PRODUCT STRATEGY ─────────────────────────────────────────────────────────
+// Sources: AliExpress (dropship #1), Amazon AU (demand validation), Alibaba (wholesale)
+// TikTok Shop AU blocks Firecrawl — use Tavily for TikTok trend signals separately
+// All AliExpress URLs sorted by most orders (total_tranHiScore_desc) + AU shipping filter
 const SOURCES = [
-  { url: 'https://www.kogan.com/au/c/health-beauty/', platform: 'TikTok Shop AU', label: 'Health & Beauty' },
-  { url: 'https://www.kogan.com/au/c/sports-fitness/', platform: 'TikTok Shop AU', label: 'Fitness & Sports' },
-  { url: 'https://www.kogan.com/au/c/babies-kids/', platform: 'TikTok Shop AU', label: 'Baby & Kids' },
-  { url: 'https://www.kogan.com/au/c/pets/', platform: 'TikTok Shop AU', label: 'Pet' },
-  { url: 'https://www.kogan.com/au/c/home-lifestyle/', platform: 'TikTok Shop AU', label: 'Home & Lifestyle' },
+  // AliExpress — sorted by most orders, AU shipping, TikTok-friendly categories
+  {
+    url: 'https://www.aliexpress.com/category/200003482/beauty-health.html?SortType=total_tranHiScore_desc&shipCountry=AU',
+    platform: 'AliExpress',
+    label: 'AliExpress Health & Beauty',
+  },
+  {
+    url: 'https://www.aliexpress.com/category/66/sports-entertainment.html?SortType=total_tranHiScore_desc&shipCountry=AU',
+    platform: 'AliExpress',
+    label: 'AliExpress Sports & Fitness',
+  },
+  {
+    url: 'https://www.aliexpress.com/category/200003484/home-improvement.html?SortType=total_tranHiScore_desc&shipCountry=AU',
+    platform: 'AliExpress',
+    label: 'AliExpress Home & Kitchen',
+  },
+  {
+    url: 'https://www.aliexpress.com/category/200003483/pets-pet-supplies.html?SortType=total_tranHiScore_desc&shipCountry=AU',
+    platform: 'AliExpress',
+    label: 'AliExpress Pet',
+  },
+  {
+    url: 'https://www.aliexpress.com/category/100003070/mother-kids.html?SortType=total_tranHiScore_desc&shipCountry=AU',
+    platform: 'AliExpress',
+    label: 'AliExpress Baby & Kids',
+  },
+  // Amazon AU — demand validation (high reviews = proven AU demand)
+  {
+    url: 'https://www.amazon.com.au/s?k=beauty+skincare+tools&s=review-rank',
+    platform: 'Amazon AU',
+    label: 'Amazon AU Beauty & Skincare',
+  },
+  {
+    url: 'https://www.amazon.com.au/s?k=pet+accessories+dog+cat&s=review-rank',
+    platform: 'Amazon AU',
+    label: 'Amazon AU Pet',
+  },
+  {
+    url: 'https://www.amazon.com.au/s?k=fitness+home+gym+accessories&s=review-rank',
+    platform: 'Amazon AU',
+    label: 'Amazon AU Fitness',
+  },
+  {
+    url: 'https://www.amazon.com.au/s?k=kitchen+gadgets+home+organiser&s=review-rank',
+    platform: 'Amazon AU',
+    label: 'Amazon AU Home Gadgets',
+  },
+  // Alibaba — wholesale/manufacturer data for margin validation
+  {
+    url: 'https://www.alibaba.com/trade/search?SearchText=dropshipping+trending+australia&SortType=total_tranHiScore_desc',
+    platform: 'Alibaba',
+    label: 'Alibaba Dropship Trending',
+  },
 ];
 
 // ── ABSOLUTE BLACKLIST — never show these product types ──────────────────────
@@ -179,10 +228,17 @@ For each QUALIFYING product, return a JSON array item:
   "platform": "TikTok Shop AU"
 }
 
-- Return ONLY raw JSON array, no markdown, no explanation
-- If fewer than 3 qualifying products exist, return empty array []
+Platform-specific extraction notes:
+- AliExpress: products shown as "Product Name ... US $X.XX ... X sold" — use sold count as demand signal
+- Amazon AU: products shown with star ratings (4.5 out of 5, X,XXX ratings) — high ratings = proven AU demand
+- Alibaba: products shown with MOQ and price ranges — use for wholesale cost estimation only, set platform to "Alibaba"
+- For AliExpress/Amazon products, label platform as "TikTok Shop AU" if the product is trending/impulse-buy style
+- Always convert USD prices to AUD (multiply by 1.55)
 
-CONTENT:
+- Return ONLY raw JSON array, no markdown, no explanation
+- If fewer than 3 qualifying products exist in this content, return empty array []
+
+CONTENT (from ${platform}):
 ${truncated}`;
 
   try {
