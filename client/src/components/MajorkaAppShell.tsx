@@ -227,6 +227,145 @@ export const PHASE_BEGINNER_LABELS: Record<string, string> = {
   'saturation-checker': 'Check Market Crowding',
 };
 
+// ── NotificationBell component ────────────────────────────────────────────────
+
+const INITIAL_NOTIFICATIONS = [
+  { id: '1', text: '🔥 New trending product detected: Silicone Air Fryer Liners — $5,100/day' },
+  { id: '2', text: '📦 Your watchlist product price dropped 12%' },
+  { id: '3', text: '💡 New trend signal: Portable Neck Fans are exploding in AU' },
+  { id: '4', text: '🎉 Welcome to Majorka! Complete your profile to unlock all features' },
+];
+
+function NotificationBell() {
+  const [open, setOpen] = useState(false);
+  const [readIds, setReadIds] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem('majorka_notif_read');
+      return stored ? new Set(JSON.parse(stored)) : new Set<string>();
+    } catch {
+      return new Set<string>();
+    }
+  });
+  const panelRef = useRef<HTMLDivElement>(null);
+  const unread = INITIAL_NOTIFICATIONS.filter((n) => !readIds.has(n.id)).length;
+
+  // Close on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    if (open) document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const markAllRead = () => {
+    const allIds = new Set(INITIAL_NOTIFICATIONS.map((n) => n.id));
+    setReadIds(allIds);
+    try {
+      localStorage.setItem('majorka_notif_read', JSON.stringify([...allIds]));
+    } catch { /* ignore */ }
+  };
+
+  return (
+    <div style={{ position: 'relative' }} ref={panelRef}>
+      <button
+        onClick={() => setOpen((p) => !p)}
+        style={{
+          width: 32,
+          height: 32,
+          borderRadius: 8,
+          background: open ? 'rgba(212,175,55,0.1)' : 'rgba(255,255,255,0.05)',
+          border: open ? '1px solid rgba(212,175,55,0.3)' : '1px solid rgba(255,255,255,0.06)',
+          color: '#a1a1aa',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+        }}
+        aria-label="Notifications"
+      >
+        {/* Bell icon */}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+        {unread > 0 && (
+          <div style={{
+            position: 'absolute',
+            top: -4,
+            right: -4,
+            width: 16,
+            height: 16,
+            borderRadius: '50%',
+            background: '#ef4444',
+            color: '#fff',
+            fontSize: 9,
+            fontWeight: 800,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontFamily: 'Syne, sans-serif',
+            border: '1.5px solid #0a0a0e',
+          }}>
+            {unread}
+          </div>
+        )}
+      </button>
+
+      {open && (
+        <div style={{
+          position: 'absolute',
+          top: 'calc(100% + 8px)',
+          right: 0,
+          width: 320,
+          background: '#141418',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 14,
+          boxShadow: '0 16px 48px rgba(0,0,0,0.6)',
+          zIndex: 500,
+          overflow: 'hidden',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+            <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: '#f5f5f5' }}>Notifications</span>
+            {unread > 0 && (
+              <button onClick={markAllRead} style={{ fontSize: 11, color: '#d4af37', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
+                Mark all read
+              </button>
+            )}
+          </div>
+          <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+            {INITIAL_NOTIFICATIONS.map((n) => (
+              <div key={n.id} style={{
+                padding: '12px 16px',
+                borderBottom: '1px solid rgba(255,255,255,0.04)',
+                display: 'flex',
+                gap: 10,
+                alignItems: 'flex-start',
+                background: readIds.has(n.id) ? 'transparent' : 'rgba(212,175,55,0.03)',
+              }}>
+                {!readIds.has(n.id) && (
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#d4af37', flexShrink: 0, marginTop: 5 }} />
+                )}
+                <p style={{ fontSize: 12, color: readIds.has(n.id) ? '#52525b' : '#a1a1aa', lineHeight: 1.5, margin: 0, fontFamily: 'DM Sans, sans-serif', paddingLeft: readIds.has(n.id) ? 16 : 0 }}>
+                  {n.text}
+                </p>
+              </div>
+            ))}
+          </div>
+          {unread === 0 && (
+            <div style={{ padding: '12px 16px', textAlign: 'center', fontSize: 12, color: '#52525b' }}>
+              All caught up ✓
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Phase collapse state ───────────────────────────────────────────────────────
 
 const PHASE_STORAGE_KEY = 'majorka_phase_open';
@@ -1165,21 +1304,24 @@ export default function MajorkaAppShell({ children }: Props) {
               MAJORKA
             </span>
           </div>
-          <button
-            onClick={() => {
-              setSearchOpen(true);
-              setTimeout(() => searchInputRef.current?.focus(), 50);
-            }}
-            className="w-8 h-8 rounded-md flex items-center justify-center"
-            style={{
-              background: 'rgba(255,255,255,0.05)',
-              color: '#a1a1aa',
-              border: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            <Search size={14} />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <button
+              onClick={() => {
+                setSearchOpen(true);
+                setTimeout(() => searchInputRef.current?.focus(), 50);
+              }}
+              className="w-8 h-8 rounded-md flex items-center justify-center"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                color: '#a1a1aa',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              <Search size={14} />
+            </button>
+            <NotificationBell />
+          </div>
         </div>
 
         <div className="flex-1 overflow-hidden pb-16 lg:pb-0 dashboard-bg">{children}</div>
