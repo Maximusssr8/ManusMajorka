@@ -5,7 +5,7 @@ import { useLocation } from 'wouter';
 const DEMO_PRODUCTS = [
   {
     rank: 1,
-    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=80&fit=crop&crop=center&q=85',
+    image: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?w=80&h=80&fit=crop&crop=center&q=85',
     name: 'LED Light Therapy Face Mask Pro',
     category: 'Health & Beauty',
     platform: 'TikTok Shop AU',
@@ -20,7 +20,7 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 2,
-    image: '',
+    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=80&h=80&fit=crop&crop=center&q=85',
     name: 'Heatless Curl Ribbon Rods Set',
     category: 'Health & Beauty',
     platform: 'TikTok Shop AU',
@@ -35,7 +35,7 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 3,
-    image: '',
+    image: 'https://images.unsplash.com/photo-1559599101-f09722fb4948?w=80&h=80&fit=crop&crop=center&q=85',
     name: 'Cordless Auto Hair Curler Waver',
     category: 'Health & Beauty',
     platform: 'TikTok Shop AU',
@@ -50,7 +50,7 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 4,
-    image: '',
+    image: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=80&h=80&fit=crop&crop=center&q=85',
     name: 'Stanley Dupe 40oz Quencher Tumbler',
     category: 'Home & Kitchen',
     platform: 'TikTok Shop AU',
@@ -65,7 +65,7 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 5,
-    image: '',
+    image: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=80&h=80&fit=crop&crop=center&q=85',
     name: 'Dog Cooling Gel Mat Summer AU',
     category: 'Pet',
     platform: 'TikTok Shop AU',
@@ -80,7 +80,7 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 6,
-    image: '',
+    image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=80&h=80&fit=crop&crop=center&q=85',
     name: 'Booty Resistance Bands Set 5 Levels',
     category: 'Fitness',
     platform: 'TikTok Shop AU',
