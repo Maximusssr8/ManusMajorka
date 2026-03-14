@@ -684,6 +684,101 @@ All analysis should be AU-focused. Reference AUD pricing, AU platforms, AU consu
   });
 
   // -----------------------------------------------------------------------
+  // PUBLIC: POST /api/tools/store-health-score — lead-gen tool, no auth required
+  // Rate limit: 3 per IP per day
+  // -----------------------------------------------------------------------
+  const healthScoreIpLimiter = new Map<string, { count: number; date: string }>();
+
+  app.post('/api/tools/store-health-score', async (req, res) => {
+    const ip =
+      (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ??
+      req.socket.remoteAddress ??
+      'unknown';
+    const today = new Date().toISOString().split('T')[0];
+
+    // Rate limit: 3/day per IP
+    const ipEntry = healthScoreIpLimiter.get(ip);
+    if (ipEntry && ipEntry.date === today && ipEntry.count >= 3) {
+      res.status(429).json({
+        error: 'rate_limited',
+        message: 'You\'ve used your 3 free analyses today. Come back tomorrow or sign up for unlimited access.',
+        upgrade_url: '/sign-in',
+      });
+      return;
+    }
+
+    const { storeUrl } = req.body ?? {};
+    if (!storeUrl || typeof storeUrl !== 'string') {
+      res.status(400).json({ error: 'storeUrl is required' });
+      return;
+    }
+
+    // Update rate limit counter
+    if (!ipEntry || ipEntry.date !== today) {
+      healthScoreIpLimiter.set(ip, { count: 1, date: today });
+    } else {
+      healthScoreIpLimiter.set(ip, { count: ipEntry.count + 1, date: today });
+    }
+
+    try {
+      const [searchResults, competitorResults] = await Promise.all([
+        tavilySearch(`${storeUrl} shopify store products reviews`, 3),
+        tavilySearch(`${storeUrl} competitors similar stores australia`, 3),
+      ]);
+
+      const claude = getAnthropicClient();
+      const prompt = `Analyse this Shopify dropshipping store: ${storeUrl}
+
+Search results: ${JSON.stringify((searchResults.results ?? []).slice(0, 3))}
+Competitor context: ${JSON.stringify((competitorResults.results ?? []).slice(0, 2))}
+
+Score this store 0-100 on these dimensions (be realistic but encouraging). Base your analysis on the search data — if limited data is available, make reasonable inferences based on the store URL and niche.
+
+Return ONLY valid JSON (no markdown, no code fences):
+{
+  "overall_score": <0-100>,
+  "niche_saturation": <0-100, higher=less saturated=better>,
+  "product_mix": <0-100>,
+  "pricing_competitiveness": <0-100>,
+  "seo_strength": <0-100>,
+  "social_proof": <0-100>,
+  "market_position": <0-100>,
+  "grade": "A" | "B" | "C" | "D" | "F",
+  "biggest_opportunity": "one specific actionable insight for an AU dropshipper",
+  "top_3_issues": ["issue1", "issue2", "issue3"],
+  "estimated_monthly_revenue": <realistic AUD estimate as number>,
+  "competitor_advantage": "what competitors are doing better",
+  "summary": "2-sentence encouraging but honest store assessment"
+}`;
+
+      const response = await claude.messages.create({
+        model: 'claude-haiku-4-5',
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: prompt }],
+      });
+
+      const text = response.content[0].type === 'text' ? response.content[0].text : '{}';
+      let parsed: any;
+      try {
+        parsed = JSON.parse(text);
+      } catch {
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+      }
+
+      if (!parsed) {
+        res.status(500).json({ error: 'Failed to parse AI response' });
+        return;
+      }
+
+      res.json(parsed);
+    } catch (err: any) {
+      console.error('[store-health-score] Error:', err.message);
+      res.status(500).json({ error: err.message ?? 'Internal server error' });
+    }
+  });
+
+  // -----------------------------------------------------------------------
   // POST /api/shopify/import-product — generate Shopify-compatible CSV
   // -----------------------------------------------------------------------
   app.post('/api/shopify/import-product', async (req, res) => {

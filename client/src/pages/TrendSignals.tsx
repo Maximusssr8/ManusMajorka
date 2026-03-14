@@ -17,6 +17,8 @@ import {
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
+import UsageCounter from '@/components/UsageCounter';
+import UpgradePromptBanner from '@/components/UpgradePromptBanner';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -424,6 +426,121 @@ function TrendCard({ trend }: { trend: TrendSignal }) {
   );
 }
 
+// ── Trend Alert Teaser ────────────────────────────────────────────────────────
+
+function TrendAlertTeaser({ isPro }: { isPro: boolean }) {
+  const [alertsActive, setAlertsActive] = useState(true);
+
+  if (isPro) {
+    return (
+      <div style={{
+        background: 'rgba(34,197,94,0.06)',
+        border: '1px solid rgba(34,197,94,0.2)',
+        borderRadius: 14,
+        padding: '16px 20px',
+        marginBottom: 24,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 16,
+        flexWrap: 'wrap',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 20 }}>✅</span>
+          <div>
+            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 14, color: '#22c55e', marginBottom: 2 }}>Alerts active</div>
+            <div style={{ fontSize: 12, color: 'rgba(240,237,232,0.5)' }}>You'll be notified the moment a trend explodes</div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 12, color: 'rgba(240,237,232,0.5)' }}>Notifications</span>
+          <button
+            onClick={() => setAlertsActive((p) => !p)}
+            style={{
+              width: 44,
+              height: 24,
+              borderRadius: 12,
+              background: alertsActive ? '#22c55e' : 'rgba(255,255,255,0.1)',
+              border: 'none',
+              cursor: 'pointer',
+              position: 'relative',
+              transition: 'background 0.2s',
+            }}
+          >
+            <div style={{
+              width: 18,
+              height: 18,
+              borderRadius: '50%',
+              background: '#fff',
+              position: 'absolute',
+              top: 3,
+              left: alertsActive ? 23 : 3,
+              transition: 'left 0.2s',
+            }} />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      background: '#10131a',
+      border: '1px solid rgba(212,175,55,0.2)',
+      borderRadius: 14,
+      padding: '24px 20px',
+      marginBottom: 28,
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent, #d4af37, transparent)' }} />
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Zap size={18} color="#d4af37" />
+          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 15, color: '#f0ede8' }}>TREND ALERT SYSTEM</span>
+        </div>
+        <span style={{ fontSize: 11, fontWeight: 700, color: '#d4af37', background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 6, padding: '3px 10px', fontFamily: 'Syne, sans-serif' }}>🔒 PRO</span>
+      </div>
+
+      <p style={{ fontSize: 14, color: 'rgba(240,237,232,0.65)', lineHeight: 1.6, marginBottom: 16 }}>
+        Get notified the <strong style={{ color: '#f0ede8' }}>MOMENT a product starts exploding</strong> — before your competitors know.
+      </p>
+
+      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}>
+        <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)', marginBottom: 4 }}>Last alert sent: 2 hours ago</div>
+        <div style={{ fontSize: 13, color: '#f0ede8', fontStyle: 'italic' }}>"Heatless Curl Rods just jumped $8k → $18k/day"</div>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
+        <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)' }}>Alert channels:</span>
+        {['Push notification', 'Email', 'SMS'].map((ch) => (
+          <span key={ch} style={{ fontSize: 11, color: '#d4af37', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 6, padding: '2px 8px' }}>{ch}</span>
+        ))}
+      </div>
+
+      <a
+        href="/pricing"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+          color: '#000',
+          borderRadius: 10,
+          padding: '10px 22px',
+          fontFamily: 'Syne, sans-serif',
+          fontWeight: 800,
+          fontSize: 13,
+          textDecoration: 'none',
+        }}
+      >
+        <Zap size={13} />
+        Unlock Trend Alerts → Upgrade to Pro
+      </a>
+    </div>
+  );
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 type StageFilter = 'all' | 'emerging' | 'rising' | 'peak' | 'declining';
@@ -514,6 +631,10 @@ export default function TrendSignals() {
   return (
     <div style={{ minHeight: '100%', background: '#080a0e', color: '#f0ede8', fontFamily: 'DM Sans, sans-serif' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '32px 24px 80px' }}>
+
+        {/* Usage Counter */}
+        <UsageCounter />
+        <UpgradePromptBanner />
 
         {/* Header */}
         <div style={{ marginBottom: 32 }}>
@@ -623,6 +744,9 @@ export default function TrendSignals() {
             </div>
           ))}
         </div>
+
+        {/* Trend Alert Teaser */}
+        <TrendAlertTeaser isPro={false} />
 
         {/* Stage filter tabs */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 24 }}>

@@ -30,6 +30,8 @@ const LearnHub = lazy(() => import('./pages/LearnHub'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const AdminSubscribers = lazy(() => import('./pages/AdminSubscribers'));
 const PromoDashboard = lazy(() => import('./pages/PromoDashboard'));
+const ProductReport = lazy(() => import('./pages/ProductReport'));
+const StoreHealthScore = lazy(() => import('./pages/StoreHealthScore'));
 
 function LoadingFallback() {
   return (
@@ -174,6 +176,8 @@ function Router() {
                 </ProtectedRoute>
               )}
             </Route>
+            <Route path="/store-health" component={StoreHealthScore} />
+            <Route path="/product/:slug" component={ProductReport} />
             <Route path="/demo-dashboard" component={PromoDashboard} />
             <Route path="/404" component={NotFound} />
             <Route component={NotFound} />

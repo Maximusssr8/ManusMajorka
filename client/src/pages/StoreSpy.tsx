@@ -1,6 +1,8 @@
 import { Search } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
+import UsageCounter from '@/components/UsageCounter';
+import UpgradePromptBanner from '@/components/UpgradePromptBanner';
 
 // ── Simple markdown-to-HTML converter ────────────────────────────────────────
 
@@ -192,6 +194,10 @@ export default function StoreSpy() {
   return (
     <div style={pageStyle}>
       <div style={containerStyle}>
+        {/* Usage Counter */}
+        <UsageCounter />
+        <UpgradePromptBanner />
+
         {/* ── Header ──────────────────────────────────────────────────── */}
         <div style={{ marginBottom: 40, textAlign: 'center' }}>
           <h1

@@ -30,6 +30,7 @@ import ProductTour from '@/components/ProductTour';
 import TrialBanner from '@/components/TrialBanner';
 import WelcomeModal from '@/components/WelcomeModal';
 import { useActiveProduct } from '@/hooks/useActiveProduct';
+import StreakWidget from '@/components/StreakWidget';
 import { type ActivityEntry, getActivityLog, getRelativeTime } from '@/lib/activity';
 import { allTools, getToolByPath, recordRecentTool, stages } from '@/lib/tools';
 import { trpc } from '@/lib/trpc';
@@ -490,6 +491,11 @@ function DashboardHome() {
 
         <OnboardingChecklist />
         <LaunchReadiness userId={user?.id} />
+
+        {/* Daily Streak Widget */}
+        <div style={{ marginBottom: 20 }}>
+          <StreakWidget />
+        </div>
 
         {/* KPI Stat Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">

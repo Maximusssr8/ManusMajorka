@@ -43,6 +43,8 @@ import { toast } from 'sonner';
 import { SEO } from '@/components/SEO';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
+import UsageCounter from '@/components/UsageCounter';
+import UpgradePromptBanner from '@/components/UpgradePromptBanner';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -1414,6 +1416,15 @@ function SkeletonCard() {
   );
 }
 
+// ── Slug helper ───────────────────────────────────────────────────────────────
+
+function toSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 // ── Product Card ──────────────────────────────────────────────────────────────
 
 function ProductCard({
@@ -1436,6 +1447,18 @@ function ProductCard({
   inCompare?: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const slug = toSlug(product.product_title);
+    const url = `https://majorka.io/product/${slug}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setShareCopied(true);
+      toast.success('Report link copied! Share with your dropshipping community');
+      setTimeout(() => setShareCopied(false), 2500);
+    });
+  };
 
   const rankMeta =
     rank === 1
@@ -1671,6 +1694,24 @@ function ProductCard({
               }}
             >
               <Heart size={14} fill={inWatchlist ? C.red : 'none'} />
+            </button>
+            <button
+              onClick={handleShare}
+              title="Share product report"
+              style={{
+                width: 38,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 10,
+                background: shareCopied ? 'rgba(34,197,94,0.12)' : C.glass,
+                border: `1px solid ${shareCopied ? 'rgba(34,197,94,0.35)' : C.border}`,
+                color: shareCopied ? '#22c55e' : C.sub,
+                cursor: 'pointer',
+                fontSize: 14,
+              }}
+            >
+              {shareCopied ? '✓' : <ClipboardCopy size={13} />}
             </button>
           </div>
           {/* Shopify + Compare row */}
@@ -2088,9 +2129,10 @@ function CardGrid({
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function WinningProducts() {
-  const { session } = useAuth();
+  const { session, user } = useAuth();
   const token = session?.access_token;
   const userId = session?.user?.id;
+  const isPro = user?.plan === 'pro' || user?.plan === 'enterprise';
 
   // ── Tab ───────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<'all' | 'watchlist'>('all');
@@ -2628,8 +2670,77 @@ export default function WinningProducts() {
           </div>
         </div>
 
+        {/* ── Data Recency Lock ────────────────────────────────────────── */}
+        {isPro ? (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '6px 14px',
+              background: 'rgba(34,197,94,0.08)',
+              border: '1px solid rgba(34,197,94,0.2)',
+              borderRadius: 20,
+              marginBottom: 16,
+              fontSize: 12,
+              color: '#22c55e',
+              fontWeight: 600,
+            }}
+          >
+            ✅ Live data · Updates every 6h
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'flex-start',
+              flexDirection: 'column',
+              gap: 4,
+              padding: '10px 16px',
+              background: 'rgba(212,175,55,0.04)',
+              border: '1px solid rgba(212,175,55,0.2)',
+              borderRadius: 12,
+              marginBottom: 16,
+              fontSize: 12,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 14 }}>📅</span>
+              <span style={{ color: 'rgba(240,237,232,0.6)' }}>
+                Showing data from: <strong style={{ color: '#f5f5f5' }}>Last 30 days</strong>
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 14 }}>🔒</span>
+              <span style={{ color: 'rgba(240,237,232,0.4)' }}>
+                Real-time (6h updates) —{' '}
+                <button
+                  onClick={() => window.location.assign('/pricing')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    color: '#d4af37',
+                    cursor: 'pointer',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    textDecoration: 'underline',
+                    textUnderlineOffset: 3,
+                  }}
+                >
+                  Unlock Real-Time Data →
+                </button>
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* ── Hero Stats Bar ──────────────────────────────────────────── */}
         <HeroStatsBar products={products} total={total} lastUpdatedISO={lastUpdatedISO} />
+
+        {/* ── Usage Counter + Upgrade Banner ─────────────────────────── */}
+        <UsageCounter />
+        <UpgradePromptBanner />
 
         {/* ── Tabs ──────────────────────────────────────────────────────── */}
         <div
@@ -2946,6 +3057,62 @@ export default function WinningProducts() {
                   />
                 </div>
 
+                {/* Export All CSV — locked for free users */}
+                <button
+                  onClick={() => {
+                    if (!isPro) {
+                      toast(
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          <span style={{ fontWeight: 700, color: '#f5f5f5' }}>🔒 Pro feature</span>
+                          <span style={{ fontSize: 12, color: 'rgba(240,237,232,0.6)' }}>
+                            Export to CSV is a Pro feature. Upgrade to export unlimited products to Shopify, Google Sheets, or CSV.
+                          </span>
+                          <button
+                            onClick={() => window.location.assign('/pricing')}
+                            style={{ background: '#d4af37', color: '#000', border: 'none', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer', alignSelf: 'flex-start' }}
+                          >
+                            Upgrade Now →
+                          </button>
+                        </div>,
+                        { duration: 5000, style: { background: '#0d0f15', border: '1px solid rgba(212,175,55,0.3)', color: '#f5f5f5' } }
+                      );
+                      return;
+                    }
+                    // Pro: download all products as CSV
+                    const headers = ['Title', 'Category', 'Platform', 'Revenue/mo', 'Score', 'Competition', 'AU Relevance'];
+                    const rows = products.map((p) => [
+                      p.product_title,
+                      p.category ?? '',
+                      p.platform,
+                      p.est_monthly_revenue_aud ?? '',
+                      p.winning_score,
+                      p.competition_level ?? '',
+                      p.au_relevance,
+                    ]);
+                    const csv = [headers, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+                    a.download = 'majorka-winning-products.csv';
+                    a.click();
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '8px 14px',
+                    borderRadius: 10,
+                    background: isPro ? C.goldBg : C.glass,
+                    border: `1px solid ${isPro ? C.goldBorder : C.border}`,
+                    color: isPro ? C.gold : C.sub,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {isPro ? '↓' : '🔒'} Export All (CSV)
+                </button>
+
                 {/* View toggle */}
                 <div
                   style={{
@@ -3148,7 +3315,7 @@ export default function WinningProducts() {
               page={page}
               setPage={setPage}
               total={total}
-              onImportShopify={(p) => void importToShopify(p)}
+              onImportShopify={(p) => { if (!isPro) { toast(<div style={{ display: "flex", flexDirection: "column", gap: 8 }}><span style={{ fontWeight: 700, color: "#f5f5f5" }}>🔒 Pro feature</span><span style={{ fontSize: 12, color: "rgba(240,237,232,0.6)" }}>Export to CSV is a Pro feature. Upgrade to export unlimited products.</span><button onClick={() => window.location.assign("/pricing")} style={{ background: "#d4af37", color: "#000", border: "none", borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Upgrade Now u2192</button></div>, { duration: 5000, style: { background: "#0d0f15", border: "1px solid rgba(212,175,55,0.3)", color: "#f5f5f5" } }); return; } void importToShopify(p); }}
               onToggleCompare={toggleCompare}
               compareIds={compareIds}
             />
@@ -3221,7 +3388,7 @@ export default function WinningProducts() {
               setPage={() => {}}
               total={watchlistProducts.length}
               pageOffset={0}
-              onImportShopify={(p) => void importToShopify(p)}
+              onImportShopify={(p) => { if (!isPro) { toast(<div style={{ display: "flex", flexDirection: "column", gap: 8 }}><span style={{ fontWeight: 700, color: "#f5f5f5" }}>🔒 Pro feature</span><span style={{ fontSize: 12, color: "rgba(240,237,232,0.6)" }}>Export to CSV is a Pro feature. Upgrade to export unlimited products.</span><button onClick={() => window.location.assign("/pricing")} style={{ background: "#d4af37", color: "#000", border: "none", borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Upgrade Now u2192</button></div>, { duration: 5000, style: { background: "#0d0f15", border: "1px solid rgba(212,175,55,0.3)", color: "#f5f5f5" } }); return; } void importToShopify(p); }}
               onToggleCompare={toggleCompare}
               compareIds={compareIds}
             />

@@ -401,6 +401,110 @@ const PLANS = [
   },
 ];
 
+// ── Savings Calculator ──────────────────────────────────────────────────────
+
+function SavingsCalculator() {
+  const [adSpend, setAdSpend] = useState(2000);
+  const wastedSpend = Math.round(adSpend * 0.35);
+  const savings = Math.round(wastedSpend * 0.9);
+  const paybackDays = Math.round(79 / (savings / 30));
+  const fmt = (n: number) => `$${n.toLocaleString('en-AU')}`;
+
+  return (
+    <section style={{ padding: '0 24px 60px' }}>
+      <div style={{
+        maxWidth: 860,
+        margin: '0 auto',
+        background: '#0c0c10',
+        border: '1px solid rgba(212,175,55,0.2)',
+        borderRadius: 20,
+        padding: '40px 36px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent, #d4af37, transparent)' }} />
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <div style={{ fontSize: 24, marginBottom: 8 }}>💸</div>
+          <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', color: '#f5f5f5', letterSpacing: '-0.02em', marginBottom: 6 }}>
+            HOW MUCH IS ONE BAD PRODUCT DECISION COSTING YOU?
+          </h2>
+          <p style={{ fontSize: 14, color: '#94949e' }}>Drag the slider to see your real numbers</p>
+        </div>
+
+        {/* Slider */}
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+            <span style={{ fontSize: 13, color: '#94949e' }}>Your monthly ad spend:</span>
+            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 18, color: '#d4af37' }}>{fmt(adSpend)}/month</span>
+          </div>
+          <input
+            type="range"
+            min={500}
+            max={50000}
+            step={500}
+            value={adSpend}
+            onChange={(e) => setAdSpend(Number(e.target.value))}
+            style={{
+              width: '100%',
+              appearance: 'none',
+              WebkitAppearance: 'none',
+              height: 6,
+              borderRadius: 3,
+              background: `linear-gradient(to right, #d4af37 ${((adSpend - 500) / (50000 - 500)) * 100}%, rgba(255,255,255,0.1) ${((adSpend - 500) / (50000 - 500)) * 100}%)`,
+              outline: 'none',
+              cursor: 'pointer',
+            }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
+            <span style={{ fontSize: 11, color: '#52525b' }}>$500</span>
+            <span style={{ fontSize: 11, color: '#52525b' }}>$50,000</span>
+          </div>
+        </div>
+
+        {/* Comparison columns */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 28 }}>
+          <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 14, padding: '20px 18px' }}>
+            <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 13, color: '#ef4444', marginBottom: 14 }}>Without Majorka</div>
+            {[
+              `❌ 35% wasted on bad products`,
+              `❌ ${fmt(wastedSpend)} lost/month`,
+              `❌ 15h researching manually`,
+            ].map((item) => (
+              <div key={item} style={{ fontSize: 13, color: '#94949e', marginBottom: 10, transition: 'all 0.3s' }}>{item}</div>
+            ))}
+          </div>
+          <div style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 14, padding: '20px 18px' }}>
+            <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 13, color: '#22c55e', marginBottom: 14 }}>With Majorka Pro</div>
+            {[
+              `✅ Data-backed choices`,
+              `✅ Save ~${fmt(savings)}/month`,
+              `✅ 15min automated`,
+            ].map((item) => (
+              <div key={item} style={{ fontSize: 13, color: '#94949e', marginBottom: 10, transition: 'all 0.3s' }}>{item}</div>
+            ))}
+          </div>
+        </div>
+
+        {/* Payback box */}
+        <div style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.12), rgba(212,175,55,0.06))', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 14, padding: '20px 24px', textAlign: 'center', marginBottom: 24 }}>
+          <div style={{ fontFamily: syne, fontWeight: 900, fontSize: 'clamp(1.2rem, 3vw, 1.7rem)', color: '#d4af37', marginBottom: 4, transition: 'all 0.3s' }}>
+            💰 Majorka Pro pays for itself in {paybackDays} day{paybackDays !== 1 ? 's' : ''}
+          </div>
+          <div style={{ fontSize: 13, color: '#94949e' }}>
+            ($79/mo vs {fmt(wastedSpend)} in wasted ad spend)
+          </div>
+        </div>
+
+        <div style={{ textAlign: 'center' }}>
+          <a href="/sign-in" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, #d4af37, #b8941f)', color: '#000', borderRadius: 12, padding: '14px 36px', fontFamily: syne, fontWeight: 800, fontSize: 15, textDecoration: 'none' }}>
+            Start Saving Now →
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── FAQ data ────────────────────────────────────────────────────────────────
 const FAQS = [
   {
@@ -691,6 +795,9 @@ export default function Pricing() {
           </button>
         </div>
       </section>
+
+      {/* ── SAVINGS CALCULATOR ── */}
+      <SavingsCalculator />
 
       {/* ── PLAN CARDS ── */}
       <section style={{ padding: '0 24px 100px' }}>

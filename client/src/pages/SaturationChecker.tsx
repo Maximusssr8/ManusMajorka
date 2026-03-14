@@ -1,6 +1,8 @@
 import { Activity } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/_core/hooks/useAuth';
+import UsageCounter from '@/components/UsageCounter';
+import UpgradePromptBanner from '@/components/UpgradePromptBanner';
 
 // ── Markdown renderer ────────────────────────────────────────────────────────
 
@@ -245,6 +247,10 @@ export default function SaturationChecker() {
   return (
     <div style={pageStyle}>
       <div style={containerStyle}>
+        {/* Usage Counter */}
+        <UsageCounter />
+        <UpgradePromptBanner />
+
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <span

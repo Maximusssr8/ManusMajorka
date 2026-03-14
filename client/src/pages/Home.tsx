@@ -37,6 +37,8 @@ const GLOBAL_STYLES = `
 @keyframes shimmer-btn { 0% { background-position: 200% center; } 100% { background-position: -200% center; } }
 @keyframes gold-pulse { 0%, 100% { opacity: 0.05; } 50% { opacity: 0.08; } }
 @keyframes horizon-glow { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.55; } }
+@keyframes live-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+@keyframes float-cta { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
 .btn-shimmer {
   background: linear-gradient(90deg, #b8941f 0%, #d4af37 25%, #f5d98a 50%, #d4af37 75%, #b8941f 100%);
@@ -319,6 +321,228 @@ function EmailCapture() {
   );
 }
 
+// ── Weekly Winners Email Capture ──────────────────────────────────────────────
+
+const WEEKLY_PRODUCTS = [
+  { name: 'Ninja Creami 7-in-1', revenue: '$28,400', badge: '🔥', blur: 0 },
+  { name: 'Heatless Curl Kit',   revenue: '$21,800', badge: '📈', blur: 1 },
+  { name: 'Pet Hair Remover',    revenue: '$19,600', badge: '🚀', blur: 3 },
+  { name: 'Posture Corrector',   revenue: '$18,500', badge: '⚡', blur: 6 },
+  { name: 'LED Face Mask Pro',   revenue: '$17,800', badge: '🔥', blur: 10 },
+];
+
+function WeeklyWinnersSection() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errMsg, setErrMsg] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !email.includes('@')) return;
+    setStatus('loading');
+    try {
+      const res = await fetch('/api/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, source: 'weekly-winners' }) });
+      const data = await res.json();
+      if (res.ok && data.success) { setStatus('success'); }
+      else { setStatus('error'); setErrMsg(data.error || 'Something went wrong. Try again.'); }
+    } catch { setStatus('error'); setErrMsg('Network error. Check your connection.'); }
+  };
+
+  return (
+    <section style={{ background: C.card, borderTop: '2px solid transparent', backgroundImage: `linear-gradient(${C.card}, ${C.card}), linear-gradient(90deg, transparent, ${C.gold}, transparent)`, backgroundOrigin: 'border-box', backgroundClip: 'padding-box, border-box', borderBottom: `1px solid ${C.border}`, padding: '72px 24px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 40 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: C.goldDim, border: `1px solid ${C.goldBorder}`, borderRadius: 100, padding: '5px 14px', marginBottom: 16 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: C.gold, fontFamily: syne }}>📬 FREE EVERY MONDAY</span>
+          </div>
+          <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.5rem, 4vw, 2.6rem)', letterSpacing: '-0.025em', color: C.text, marginBottom: 10 }}>
+            Get AU's Top 5 Products Every Monday — <span className="gold-text">Free Forever</span>
+          </h2>
+          <p style={{ fontSize: 15, color: C.secondary, maxWidth: 500, margin: '0 auto' }}>
+            Real revenue data. Real opportunities. Before your competitors find them.
+          </p>
+        </div>
+
+        {/* Blurred product preview row */}
+        <div style={{ display: 'flex', gap: 12, marginBottom: 40, overflowX: 'auto', paddingBottom: 8 }}>
+          {WEEKLY_PRODUCTS.map((prod, i) => {
+            const overlayOpacity = i === 0 ? 0 : Math.min(0.1 + i * 0.12, 0.7);
+            return (
+              <div
+                key={i}
+                style={{
+                  flex: '1 1 160px',
+                  minWidth: 150,
+                  background: C.elevated,
+                  border: `1px solid ${i === 0 ? C.goldBorder : C.border}`,
+                  borderRadius: 14,
+                  padding: '16px 14px',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  filter: prod.blur > 0 ? `blur(${prod.blur}px)` : 'none',
+                  userSelect: prod.blur > 0 ? 'none' : 'auto',
+                  pointerEvents: prod.blur > 0 ? 'none' : 'auto',
+                }}
+              >
+                {overlayOpacity > 0 && (
+                  <div style={{ position: 'absolute', inset: 0, background: `rgba(8,10,14,${overlayOpacity})`, borderRadius: 14, zIndex: 1 }} />
+                )}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <span style={{ fontSize: 16 }}>{prod.badge}</span>
+                  {i === 0 && <span style={{ fontSize: 10, fontWeight: 700, background: C.goldDim, color: C.gold, border: `1px solid ${C.goldBorder}`, borderRadius: 6, padding: '2px 6px', fontFamily: syne }}>#{i + 1}</span>}
+                </div>
+                <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 13, color: C.text, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {prod.name}
+                </div>
+                <div style={{ fontFamily: syne, fontWeight: 900, fontSize: 16, color: C.gold }}>{prod.revenue}</div>
+                <div style={{ fontSize: 10, color: C.secondary, marginTop: 2 }}>/day revenue</div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Form */}
+        {status === 'success' ? (
+          <div style={{ textAlign: 'center', padding: '28px 24px', background: C.elevated, border: `1px solid ${C.goldBorder}`, borderRadius: 16, maxWidth: 600, margin: '0 auto' }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>🎉</div>
+            <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 20, color: C.text, marginBottom: 8 }}>You're in! Check your inbox.</h3>
+            <p style={{ color: C.secondary, fontSize: 14 }}>First report arrives Monday. We'll also send one now so you know what to expect.</p>
+          </div>
+        ) : (
+          <div style={{ maxWidth: 640, margin: '0 auto' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                style={{ flex: '1 1 260px', background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`, borderRadius: 12, padding: '14px 18px', color: C.text, fontSize: 15, fontFamily: dm, outline: 'none', minHeight: 52 }}
+              />
+              <button
+                type="submit"
+                disabled={status === 'loading'}
+                style={{ flex: '0 0 auto', background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: '#000', borderRadius: 12, padding: '14px 28px', fontFamily: syne, fontWeight: 800, fontSize: 15, border: 'none', cursor: status === 'loading' ? 'wait' : 'pointer', opacity: status === 'loading' ? 0.7 : 1, whiteSpace: 'nowrap', minHeight: 52 }}
+              >
+                {status === 'loading' ? 'Sending...' : 'Get Free Weekly Report →'}
+              </button>
+            </form>
+            {status === 'error' && <p style={{ color: '#ef4444', fontSize: 13, marginTop: 8, textAlign: 'center' }}>{errMsg}</p>}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, marginTop: 14, flexWrap: 'wrap' }}>
+              {['✓ No spam', '✓ Unsubscribe anytime', '✓ 2,847 subscribers'].map((t) => (
+                <span key={t} style={{ fontSize: 12, color: C.secondary }}>{t}</span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ── Live Counter Badge ─────────────────────────────────────────────────────────
+
+function LiveCounterBadge() {
+  const [count, setCount] = useState(2412);
+  useEffect(() => {
+    const tick = () => {
+      const delay = 5000 + Math.random() * 3000;
+      const timer = setTimeout(() => {
+        setCount((prev) => prev + (Math.random() > 0.4 ? 1 : -1) * Math.ceil(Math.random() * 2));
+        tick();
+      }, delay);
+      return timer;
+    };
+    const t = tick();
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.18)', borderRadius: 100, padding: '6px 16px', marginTop: 16, marginBottom: 8 }}>
+      <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e', display: 'inline-block', animation: 'live-dot 1.5s ease-in-out infinite', flexShrink: 0 }} />
+      <span style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: syne }}>LIVE</span>
+      <span style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>{count.toLocaleString()} sellers online right now</span>
+    </div>
+  );
+}
+
+// ── Urgency Strip ─────────────────────────────────────────────────────────────
+
+function UrgencyStrip() {
+  const [lastFound, setLastFound] = useState(() => Math.floor(Math.random() * 4) + 1);
+  const [refreshHours, setRefreshHours] = useState(5);
+  const [refreshMins, setRefreshMins] = useState(47);
+
+  useEffect(() => {
+    const foundTimer = setInterval(() => setLastFound((p) => p + 1), 60000);
+    const refreshTimer = setInterval(() => {
+      setRefreshMins((m) => {
+        if (m === 0) { setRefreshHours((h) => Math.max(0, h - 1)); return 59; }
+        return m - 1;
+      });
+    }, 60000);
+    return () => { clearInterval(foundTimer); clearInterval(refreshTimer); };
+  }, []);
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px 20px', flexWrap: 'wrap', marginTop: 16, justifyContent: 'flex-start' }}>
+      {[
+        `⚡ 47 sellers joined today`,
+        `🔥 Last product found: ${lastFound} minute${lastFound !== 1 ? 's' : ''} ago`,
+        `📦 Next data refresh: ${refreshHours}h ${String(refreshMins).padStart(2, '0')}m`,
+      ].map((item) => (
+        <span key={item} style={{ fontSize: 12, color: 'rgba(212,175,55,0.7)', fontWeight: 500 }}>{item}</span>
+      ))}
+    </div>
+  );
+}
+
+// ── Floating CTA ──────────────────────────────────────────────────────────────
+
+function FloatingCTA() {
+  const [visible, setVisible] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem('floatingCTADismissed')) { setDismissed(true); return; }
+    const onScroll = () => setVisible(window.scrollY > 300);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const dismiss = () => { setDismissed(true); sessionStorage.setItem('floatingCTADismissed', '1'); };
+
+  if (dismissed || !visible) return null;
+
+  return (
+    <div style={{
+      position: 'fixed',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      zIndex: 999,
+      background: 'rgba(8,10,14,0.95)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
+      borderTop: `1px solid ${C.gold}`,
+      padding: '14px 24px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 16,
+      animation: 'float-cta 0.4s ease-out',
+    }}>
+      <span style={{ fontSize: 14, fontWeight: 600, color: C.text, flex: 1 }}>
+        🔥 Join 2,400+ AU sellers · Find your first winner →
+      </span>
+      <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: '#000', borderRadius: 10, padding: '10px 22px', fontFamily: syne, fontWeight: 800, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
+        Start Free
+      </Link>
+      <button onClick={dismiss} style={{ background: 'none', border: 'none', color: C.secondary, cursor: 'pointer', fontSize: 18, flexShrink: 0, padding: '4px 6px' }}>×</button>
+    </div>
+  );
+}
+
 // ── Main Home ─────────────────────────────────────────────────────────────────
 export default function Home() {
   const [hoveredPricing, setHoveredPricing] = useState<number | null>(null);
@@ -439,9 +663,24 @@ export default function Home() {
               </Link>
             </motion.div>
 
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} style={{ fontSize: 12, color: C.muted, marginBottom: 28 }}>
+            <LiveCounterBadge />
+
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} style={{ fontSize: 12, color: C.muted, marginBottom: 12 }}>
               No credit card · Free forever plan · Cancel anytime
             </motion.p>
+
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }} style={{ marginBottom: 16 }}>
+              <Link
+                href="/store-health"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, borderRadius: 10, padding: '9px 20px', fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 13, textDecoration: 'none', color: C.gold, border: `1px solid rgba(212,175,55,0.25)`, background: 'rgba(212,175,55,0.07)', transition: 'background 0.2s' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.14)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.07)'; }}
+              >
+                🏥 Get Your Free Store Health Score →
+              </Link>
+            </motion.div>
+
+            <UrgencyStrip />
 
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.92, duration: 0.5 }} style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
               <div style={{ display: 'flex' }}>
@@ -473,6 +712,9 @@ export default function Home() {
 
       {/* ═══ STATS ═════════════════════════════════════════════════════════ */}
       <StatsBar />
+
+      {/* ═══ WEEKLY WINNERS EMAIL CAPTURE ══════════════════════════════════ */}
+      <WeeklyWinnersSection />
 
       {/* ═══ PRODUCT INTELLIGENCE PREVIEW ══════════════════════════════════ */}
       <ProductIntelligencePreview />
@@ -815,6 +1057,9 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* ═══ FLOATING CTA ═══════════════════════════════════════════════════ */}
+      <FloatingCTA />
 
       {/* ═══ FOOTER ════════════════════════════════════════════════════════ */}
       <footer style={{ background: C.card, position: 'relative' }}>

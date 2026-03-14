@@ -202,6 +202,13 @@ const PHASE_SECTIONS: PhaseSection[] = [
         icon: Activity,
         tooltip: 'Check how crowded a niche is before you invest time and money.',
       },
+      {
+        label: 'Store Health',
+        path: '/store-health',
+        icon: Activity,
+        badge: 'FREE',
+        tooltip: 'Free public tool — AI-powered health score for any Shopify store.',
+      },
     ],
   },
 ];

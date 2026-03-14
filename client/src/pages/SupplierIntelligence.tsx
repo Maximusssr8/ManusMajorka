@@ -18,6 +18,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
+import UsageCounter from '@/components/UsageCounter';
+import UpgradePromptBanner from '@/components/UpgradePromptBanner';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -241,9 +243,14 @@ export default function SupplierIntelligence() {
     >
       {/* ── Main content ── */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Usage Counter */}
+        <div className="flex-none px-6 pt-4">
+          <UsageCounter />
+          <UpgradePromptBanner />
+        </div>
         {/* Header */}
         <div
-          className="flex-none px-6 pt-6 pb-4 border-b"
+          className="flex-none px-6 pt-2 pb-4 border-b"
           style={{ borderColor: 'rgba(255,255,255,0.06)' }}
         >
           <div className="flex items-center gap-3 mb-4">
