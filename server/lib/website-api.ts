@@ -336,7 +336,7 @@ export const DESIGN_DIRECTIONS = {
 export type DesignDirection = keyof typeof DESIGN_DIRECTIONS | 'default';
 
 // ─── Favicon + OG SVG Generator ──────────────────────────────────────────────
-function buildFaviconAndOgTags(storeName: string, color: string, tagline: string): string {
+function buildFaviconAndOgTags(storeName: string, color: string, niche: string, productTitle?: string, price?: string): string {
   const letter = (storeName || 'S').charAt(0).toUpperCase();
   const safe = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   const bg = color.replace('#', '%23');
@@ -347,10 +347,41 @@ function buildFaviconAndOgTags(storeName: string, color: string, tagline: string
 
   // OG image SVG — 1200×630 branded card
   const ogColor = bg;
-  const ogSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 630' width='1200' height='630'><rect width='1200' height='630' fill='%230a0a12'/><rect x='0' y='0' width='6' height='630' fill='${ogColor}'/><text x='80' y='240' font-family='sans-serif' font-size='32' font-weight='900' fill='${ogColor}'>${safe(storeName)}</text><text x='80' y='310' font-family='sans-serif' font-size='64' font-weight='900' fill='%23f2efe9' style='letter-spacing:-2px'>${safe(storeName)}</text><text x='80' y='370' font-family='sans-serif' font-size='24' fill='rgba(242,239,233,0.6)'>${safe(tagline || 'Premium Australian Store')}</text><text x='80' y='560' font-family='sans-serif' font-size='18' fill='rgba(242,239,233,0.3)'>🇦🇺 Ships Australia-wide · Afterpay available · 30-day returns</text></svg>`;
+  const ogSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 630' width='1200' height='630'><rect width='1200' height='630' fill='%230a0a12'/><rect x='0' y='0' width='6' height='630' fill='${ogColor}'/><text x='80' y='240' font-family='sans-serif' font-size='32' font-weight='900' fill='${ogColor}'>${safe(storeName)}</text><text x='80' y='310' font-family='sans-serif' font-size='64' font-weight='900' fill='%23f2efe9' style='letter-spacing:-2px'>${safe(storeName)}</text><text x='80' y='370' font-family='sans-serif' font-size='24' fill='rgba(242,239,233,0.6)'>${safe(niche || 'Premium Australian Store')}</text><text x='80' y='560' font-family='sans-serif' font-size='18' fill='rgba(242,239,233,0.3)'>🇦🇺 Ships Australia-wide · Afterpay available · 30-day returns</text></svg>`;
   const ogDataUri = 'data:image/svg+xml,' + ogSvg;
 
+  const titleTag = productTitle ? `${safe(productTitle)} | ${safe(storeName)}` : `${safe(storeName)} — Premium ${safe(niche)} for Australians`;
+  const metaDesc = productTitle
+    ? `Shop ${safe(productTitle)} from ${safe(storeName)}. Free AU shipping on orders $79+. Afterpay available.`
+    : `Premium ${safe(niche)} for Australians. Free shipping on orders $79+. Pay with Afterpay. 30-day returns.`;
+  const ogTitle = safe(productTitle || storeName);
+  const ogDesc = `Shop ${safe(storeName)} — Premium ${safe(niche)} for Australians. Free AU shipping. Afterpay available.`;
+
+  const schemaJson = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": productTitle || storeName,
+    "description": `Premium ${niche} available in Australia. Free shipping on orders over $79.`,
+    "brand": { "@type": "Brand", "name": storeName },
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "AUD",
+      "price": price || "49.95",
+      "availability": "https://schema.org/InStock",
+      "seller": { "@type": "Organization", "name": storeName }
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "247"
+    }
+  });
+
   return `
+  <title>${titleTag}</title>
+  <meta name="description" content="${metaDesc}">
+  <meta property="og:title" content="${ogTitle}">
+  <meta property="og:description" content="${ogDesc}">
   <link rel="icon" type="image/svg+xml" href="${faviconDataUri}">
   <link rel="apple-touch-icon" href="${faviconDataUri}">
   <meta property="og:image" content="${ogDataUri}">
@@ -358,7 +389,9 @@ function buildFaviconAndOgTags(storeName: string, color: string, tagline: string
   <meta property="og:site_name" content="${safe(storeName)}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="${ogDataUri}">
-  <link rel="manifest" href="manifest.json">`;
+  <link rel="canonical" href="https://your-store-url.com">
+  <link rel="manifest" href="manifest.json">
+  <script type="application/ld+json">${schemaJson}</script>`;
 }
 
 // ─── Manifest Generator ───────────────────────────────────────────────────────
@@ -491,6 +524,31 @@ document.querySelectorAll('.btn-cart, .add-to-cart, [data-cart]').forEach(functi
 </html>`;
 }
 
+// ─── HTML Post-Processing ─────────────────────────────────────────────────────
+function postProcessHtml(html: string): string {
+  // 1. Add loading="lazy" to all images (except first 2 above-fold)
+  let imgCount = 0;
+  html = html.replace(/<img\s/gi, (match) => {
+    imgCount++;
+    if (imgCount <= 2) return match;
+    return '<img loading="lazy" ';
+  });
+
+  // 2. Add explicit width/height to pexels images (intrinsic 800x600)
+  html = html.replace(/<img([^>]*src="[^"]*pexels[^"]*")([^>]*)>/gi, (match, before: string, after: string) => {
+    if (/width=/i.test(match)) return match;
+    return `<img${before} width="800" height="600"${after}>`;
+  });
+
+  // 3. Light minify — collapse 3+ blank lines into 2
+  html = html.replace(/\n\s*\n\s*\n/g, '\n\n');
+
+  // 4. Remove HTML comments (except IE conditionals)
+  html = html.replace(/<!--(?!\[if)[\s\S]*?-->/gi, '');
+
+  return html;
+}
+
 // ─── Full AI HTML Generator (2-pass) ──────────────────────────────────────────
 export async function generateFullStore(params: {
   niche: string;
@@ -523,16 +581,27 @@ export async function generateFullStore(params: {
 
   // ── 1. Fetch real images from Pexels ───────────────────────────────────────
   const searchQuery = productData?.product_title || niche;
-  const [heroImages, productPortrait] = await Promise.all([
-    fetchPexelsImages(searchQuery, 5),
-    fetchPexelsPortrait(searchQuery),
-  ]);
+  let heroImg = 'https://images.pexels.com/photos/1005638/pexels-photo-1005638.jpeg';
+  let productImg = 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg';
+  let lifestyleImg1 = 'https://images.pexels.com/photos/3965548/pexels-photo-3965548.jpeg';
+  let lifestyleImg2 = 'https://images.pexels.com/photos/3965549/pexels-photo-3965549.jpeg';
+  let heroImg2 = heroImg;
 
-  const heroImg = heroImages[0] || `https://images.pexels.com/photos/5632399/pexels-photo-5632399.jpeg`;
-  const heroImg2 = heroImages[1] || heroImg;
-  const productImg = productPortrait || heroImages[2] || heroImg;
-  const lifestyleImg1 = heroImages[2] || heroImg;
-  const lifestyleImg2 = heroImages[3] || heroImg;
+  try {
+    const [heroImages, productPortrait] = await Promise.all([
+      fetchPexelsImages(searchQuery, 5),
+      fetchPexelsPortrait(searchQuery),
+    ]);
+
+    if (heroImages.length >= 1) heroImg = heroImages[0];
+    heroImg2 = heroImages[1] || heroImg;
+    if (productPortrait) productImg = productPortrait;
+    else if (heroImages.length >= 3) productImg = heroImages[2];
+    if (heroImages.length >= 3) lifestyleImg1 = heroImages[2];
+    if (heroImages.length >= 4) lifestyleImg2 = heroImages[3];
+  } catch (err) {
+    console.warn('[website-api] Pexels fetch failed, using fallbacks:', (err as Error).message);
+  }
 
   // ── 2. Build product context ──────────────────────────────────────────────
   const pd = productData || {};
@@ -563,7 +632,9 @@ Price range: ${price || '$49.95'} AUD`;
   progress(10, '\U0001f50d Finding product images...');
 
   const client = getAnthropicClient();
-  const faviconOgHtml = buildFaviconAndOgTags(storeName_, color, vibe || niche);
+  const pdTitle = pd.product_title as string | undefined;
+  const pdPrice = price || (pd.price_aud ? String(pd.price_aud) : (pd.suggested_price_aud ? String(pd.suggested_price_aud) : undefined));
+  const faviconOgHtml = buildFaviconAndOgTags(storeName_, color, niche, pdTitle, pdPrice);
   const animCss = buildAnimationCss();
   const manifestJson = buildManifest(storeName_, color, vibe || ('Premium ' + niche + ' for Australians'));
 
@@ -572,7 +643,17 @@ Price range: ${price || '$49.95'} AUD`;
   const isLight = ['editorial', 'minimal'].includes(designDirection as string);
 
   const systemPrompt = `You are a world-class frontend developer. Output ONLY raw HTML — no markdown, no explanation. Start with <!DOCTYPE html>.
-RULES: All CSS in one <style> block in <head>. No external CSS frameworks. Google Fonts via <link> only. Use exact image URLs given. AU English (colour, Afterpay, AusPost, AUD).`;
+RULES: All CSS in one <style> block in <head>. No external CSS frameworks. Google Fonts via <link> only. Use exact image URLs given. AU English (colour, Afterpay, AusPost, AUD).
+
+AUSTRALIAN COPY RULES (enforce strictly):
+- Currency: AUD $ only (never USD)
+- Shipping: "Free AU Shipping on orders $79+" or "Ships from our Sydney warehouse"
+- Trust: "Australian owned & operated" | "ABN registered" | "ACCC compliant"
+- Afterpay: "Pay in 4 interest-free instalments with Afterpay — available on orders $35–$2000"
+- Never mention: "Lower 48 states", "CONUS", "continental US", USD prices
+- Product reviews: use Australian names and cities (Sarah M., Melbourne | Jake T., Brisbane | Emma K., Perth)
+- Date format: DD/MM/YYYY if shown
+- Phone: Australian mobile format if shown (04XX XXX XXX)`;
 
   const pass1 = `Build the first half of an Australian ecommerce store.
 
@@ -588,6 +669,10 @@ TYPOGRAPHY:
 - H1: ${h1Size} weight:${headingWeight} letter-spacing:${dir?.letterSpacing || '-0.03em'}
 
 COLORS: bg:${bgColor} | surface:${surfColor} | text:${textColor} | muted:${mutedColor} | accent:${color}
+
+CRITICAL — inject this :root block at the TOP of the <style> tag:
+:root { --bg: ${bgColor}; --surface: ${surfColor}; --text: ${textColor}; --accent: ${color}; --muted: ${mutedColor}; --border: ${cardBorder}; }
+Reference these throughout: background: var(--bg); color: var(--text); etc.
 
 INJECT in <head> verbatim:
 ` + faviconOgHtml + `
@@ -644,8 +729,9 @@ SOCIAL PROOF BAR — immediately after hero, before product section
 End output after product </section>. Do NOT write features/testimonials/FAQ yet.`;
 
   const msg1 = await client.messages.create({ model: CLAUDE_MODEL, max_tokens: 6000, system: systemPrompt, messages: [{ role: 'user', content: pass1 }] });
-  const part1Raw = ((msg1.content[0] as any).text as string).trim();
-  const part1Clean = part1Raw.replace(/<\/body>\s*<\/html>\s*$/i, '').trim();
+  const text1 = ((msg1.content[0] as any)?.text as string | undefined)?.trim() || '';
+  if (!text1 || text1.length < 500) throw new Error('AI generation returned insufficient content — please try again.');
+  const part1Clean = text1.replace(/<\/body>\s*<\/html>\s*$/i, '').trim();
 
   progress(60, '\U0001f3d7\ufe0f Adding features, reviews & footer...');
 
@@ -669,10 +755,20 @@ Add class="anim" to first H2 of each section. Add class="anim anim-delay-1/2/3" 
 
 7. <section id="reviews"> padding:100px 5% bg:${bgColor}
    H2 class="anim" + p "\u2b50 4.9/5 · 200+ verified AU reviews". class="testimonials-grid" 3-col.
-   3x <div class="testimonial-card anim anim-delay-N"> stars \u2605\u2605\u2605\u2605\u2605 | italic quote specific to ${niche} | name + AU city + <span class="verified">\u2713 Verified</span>
+   3 realistic AU reviews:
+   - Card 1 (5★): Sarah M. from Melbourne — mentions specific product result
+   - Card 2 (5★): Jake T. from Brisbane — mentions fast AU shipping + Afterpay
+   - Card 3 (4★): Emma K. from Perth — mentions value for money, small critique (believable)
+   Each card: <div class="testimonial-card anim anim-delay-N"> stars in accent colour | italic quote | name bold | city muted | "✓ Verified Purchase" badge in accent colour
 
 8. <section id="faq"> padding:80px 5% bg:${surfColor} max-width:760px margin:0 auto
-   H2 class="anim". 5x <div class="faq-item"><div class="faq-question"><span>Q</span><span class="faq-toggle">+</span></div><div class="faq-answer"><p>A</p></div></div> — specific to ${niche}
+   H2 class="anim". 6x <div class="faq-item"><div class="faq-question"><span>Q</span><span class="faq-toggle">+</span></div><div class="faq-answer"><p>A</p></div></div>
+   Q1: Shipping — "How long does delivery take?" (answer: 3-7 business days AU wide, same-day dispatch)
+   Q2: Returns — "What's your return policy?" (answer: 30-day no-questions-asked, AU Consumer Law)
+   Q3: Product quality — specific to ${niche}
+   Q4: Payment — "Do you accept Afterpay?" (answer: yes, orders $35–$2000)
+   Q5: Authenticity — specific to ${niche}
+   Q6: Sizing/fit or product-specific question
 
 9. <section id="offer"> padding:100px 5% text-align:center bg:linear-gradient(135deg,${surfColor},rgba(${colorRgb},0.12))
    H2 class="anim" | p subtext | <button class="btn-primary btn-cart">Shop ${storeName_} Now</button>
@@ -685,14 +781,21 @@ Add class="anim" to first H2 of each section. Add class="anim anim-delay-1/2/3" 
 End with </footer> only. No script tags.`;
 
   const msg2 = await client.messages.create({ model: CLAUDE_MODEL, max_tokens: 6000, system: 'Output only HTML starting from <section id="features">. No explanation. No script tags.', messages: [{ role: 'user', content: pass2 }] });
-  const part2Raw = ((msg2.content[0] as any).text as string).trim().replace(/<\/body>\s*<\/html>\s*$/i, '').replace(/<script[\s\S]*?<\/script>/gi, '');
+  const text2 = ((msg2.content[0] as any)?.text as string | undefined)?.trim() || '';
+  if (!text2 || text2.length < 500) throw new Error('AI generation returned insufficient content — please try again.');
+  const part2Raw = text2.replace(/<\/body>\s*<\/html>\s*$/i, '').replace(/<script[\s\S]*?<\/script>/gi, '');
 
   progress(92, '\u26a1 Wiring interactivity...');
 
   const jsWithAnim = buildHardCodedJs().replace('</script>', buildAnimationJs() + '\n</script>');
   const merged = part1Clean + '\n' + part2Raw + '\n' + jsWithAnim;
   const startIdx = merged.indexOf('<!DOCTYPE');
-  const finalHtml = startIdx >= 0 ? merged.slice(startIdx) : merged;
+  const rawHtml = startIdx >= 0 ? merged.slice(startIdx) : merged;
+  const finalHtml = postProcessHtml(rawHtml);
+
+  const sizeKb = Math.round(Buffer.byteLength(finalHtml, 'utf8') / 1024);
+  console.log(`[website-api] Generated HTML size: ${sizeKb}kb`);
+  if (sizeKb > 120) console.warn(`[website-api] HTML exceeds 120kb target (${sizeKb}kb) — consider trimming prompts`);
 
   return { html: finalHtml, manifest: manifestJson };
 }
@@ -830,6 +933,10 @@ export function registerWebsiteRoutes(app: Application): void {
       res.setHeader('Connection', 'keep-alive');
       const send = (evt: string, data: any) => res.write('event: ' + evt + '\ndata: ' + JSON.stringify(data) + '\n\n');
 
+      req.on('close', () => {
+        console.log('[website/generate] client disconnected');
+      });
+
       const result = await generateFullStore({
         niche,
         storeName: storeName || niche,
@@ -846,7 +953,10 @@ export function registerWebsiteRoutes(app: Application): void {
       res.end();
     } catch (err: any) {
       console.error('[website/generate]', err.message);
-      try { const ep = 'event: error\ndata: ' + JSON.stringify({ error: err.message || 'Generation failed.' }) + '\n\n'; res.write(ep); res.end(); } catch {}
+      const safeMsg = (err.message && !err.message.includes('at ') && err.message.length < 200)
+        ? err.message
+        : 'Generation failed — please try again.';
+      try { const ep = 'event: error\ndata: ' + JSON.stringify({ error: safeMsg }) + '\n\n'; res.write(ep); res.end(); } catch {}
     }
   });
 
@@ -900,6 +1010,37 @@ Output ONLY JSON:
     } catch (err: any) {
       console.error('[website/enhance-description]', err.message);
       res.status(500).json({ error: err.message || 'Enhancement failed.' });
+    }
+  });
+
+  // POST /api/website/headline-variants — generate 3 hero headline variants
+  app.post('/api/website/headline-variants', async (req, res) => {
+    try {
+      const user = await authenticateRequest(req);
+      if (!user) { res.status(401).json({ error: 'Unauthorized' }); return; }
+      const { niche, storeName, productData } = req.body as { niche?: string; storeName?: string; productData?: Record<string, unknown> };
+      const client = getAnthropicClient();
+      const msg = await client.messages.create({
+        model: 'claude-haiku-4-5',
+        max_tokens: 300,
+        messages: [{ role: 'user', content: `Generate 3 hero headline variants for an Australian ecommerce store.
+Niche: ${niche} | Store: ${storeName || niche}
+${(productData as Record<string, unknown>)?.product_title ? 'Product: ' + (productData as Record<string, unknown>).product_title : ''}
+
+Output ONLY JSON:
+{
+  "painPoint": "Tired of [specific problem]? [One-line solution]",
+  "benefit": "The [product] that [specific quantified benefit] for Australians",
+  "socialProof": "Join 12,000+ Australians who [specific outcome with product]"
+}
+All headlines AU English. No clichés. Be specific to the niche.` }],
+      });
+      const raw = ((msg.content[0] as { type: 'text'; text: string }).text).replace(/```json|```/g, '').trim();
+      try { res.json(JSON.parse(raw)); } catch { res.status(500).json({ error: 'Parse failed' }); }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Headline generation failed.';
+      console.error('[website/headline-variants]', message);
+      res.status(500).json({ error: message });
     }
   });
 }

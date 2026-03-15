@@ -1117,6 +1117,35 @@ function GoLiveLaunchPanel({ generatedData, storeName, priceAUD, niche }: GoLive
   return null;
 }
 
+// ── Feature Constants ─────────────────────────────────────────────────────────
+const QUICK_THEMES = {
+  dark:  { bg: '#08080f', surface: '#0f1018', text: '#f2efe9', accent: null as string | null },
+  light: { bg: '#ffffff', surface: '#f8f8f6', text: '#111111', accent: null as string | null },
+  bold:  { bg: '#000000', surface: '#111111', text: '#ffffff', accent: null as string | null },
+  muted: { bg: '#f5f2ec', surface: '#ece9e2', text: '#2c2c2c', accent: '#8b7355' },
+} as const;
+
+const DEVICE_WIDTHS = { desktop: '100%', tablet: '768px', mobile: '375px' } as const;
+
+const GEN_STEPS = [
+  { label: 'Analysing brief', threshold: 15 },
+  { label: 'Applying design direction', threshold: 25 },
+  { label: 'Writing copy', threshold: 40 },
+  { label: 'Building layout & CSS', threshold: 60 },
+  { label: 'Adding features & reviews', threshold: 80 },
+  { label: 'Wiring animations', threshold: 92 },
+  { label: 'Finalising store', threshold: 100 },
+];
+
+interface SiteHistoryItem {
+  id: string;
+  storeName: string;
+  niche: string;
+  direction: string;
+  timestamp: number;
+  html: string;
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function WebsiteGenerator() {
   const { activeProduct: contextProduct } = useProduct();
@@ -1214,6 +1243,21 @@ export default function WebsiteGenerator() {
   const [analysisResult, setAnalysisResult] = useState<Record<string, any> | null>(null);
   const [directHtml, setDirectHtml] = useState<string | null>(null);
   const [analyzeError, setAnalyzeError] = useState('');
+
+  // B3 — Headline variants
+  const [headlines, setHeadlines] = useState<{painPoint:string;benefit:string;socialProof:string}|null>(null);
+  // B4 — Theme switcher
+  const [activeTheme, setActiveTheme] = useState<string>('dark');
+  // C1 — Progress checklist
+  const [progressSteps, setProgressSteps] = useState<{label:string;done:boolean}[]>([]);
+  const [genStartTime, setGenStartTime] = useState(0);
+  const [eta, setEta] = useState(90);
+  // C2 — Device preview
+  const [previewDevice, setPreviewDevice] = useState<'desktop'|'tablet'|'mobile'>('desktop');
+  // C3 — Site history
+  const [siteHistory, setSiteHistory] = useState<SiteHistoryItem[]>([]);
+  // genStartRef for stale-closure-safe elapsed time
+  const genStartRef = useRef(0);
 
   // Debounced auto-analyze on URL paste (1s debounce)
   useEffect(() => {
@@ -2057,7 +2101,12 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           </button>
 
           {genError && (
-            <div className="text-xs p-3 rounded-lg" style={{ background: 'rgba(255,100,100,0.08)', border: '1px solid rgba(255,100,100,0.2)', color: 'rgba(255,150,150,0.9)' }}>{genError}</div>
+            <div className="text-xs p-3 rounded-lg" style={{ background: 'rgba(255,100,100,0.08)', border: '1px solid rgba(255,100,100,0.2)', color: 'rgba(255,150,150,0.9)' }}>
+              {genError}
+              <button onClick={handleGenerate} style={{ marginTop: 12, padding: '10px 20px', borderRadius: 8, background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)', color: '#d4af37', cursor: 'pointer', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, display: 'block' }}>
+                ↺ Retry generation
+              </button>
+            </div>
           )}
 
           {hasOutput && (

@@ -8,6 +8,11 @@ Generated: 2026-03-15
 - [x] A5 Animation Polish — scale+fade, glow pulse, reduced motion, improved IntersectionObserver
 - [x] B1 Colour Palette Generator — server endpoint + client UI with swatches
 - [x] B2 Description Enhancer — server endpoint + client UI with 3 variants (benefit/story/urgency)
+- [x] E1 Error Handling — Pexels fallback, stream disconnect, pass 1/2 validation, client retry button, no stack traces
+- [x] E2 Performance — postProcessHtml (lazy-load images, pexels width/height, minify whitespace, strip comments), size logging
+- [x] E3 SEO Basics — title/meta description/og tags/twitter card/canonical, Schema.org Product JSON-LD
+
+## Phase E — COMPLETE
 
 ## Outstanding
 - [ ] A1 Mobile Audit (deferred — prompt includes @media, manual QA needed)
