@@ -282,18 +282,16 @@ Price range: ${price || '$49.95'} AUD`;
   // ── 3. Call Claude to generate the full HTML ───────────────────────────────
   const client = getAnthropicClient();
 
-  const systemPrompt = `You are a world-class frontend developer AND conversion rate optimisation expert who has built stores for Gymshark, Allbirds, and Frank Body. You write clean, beautiful, production-ready HTML in a single file.
+  const systemPrompt = `You are a senior frontend developer who builds high-converting Australian ecommerce stores. Output ONLY the complete HTML document — start with <!DOCTYPE html> and end with </html>. No explanation, no markdown.
 
-RULES YOU NEVER BREAK:
-1. Output ONLY the complete HTML document — nothing before <!DOCTYPE html>, nothing after </html>
-2. All CSS is embedded in <style> tags in <head>. All JS in <script> at bottom of <body>
-3. No external CSS frameworks (no Bootstrap, no Tailwind CDN) — write pure CSS
-4. Google Fonts are allowed via <link> in head
-5. Every section must be fully responsive (mobile-first)
-6. Use the EXACT image URLs provided — never use placeholder.com or via.placeholder
-7. AU English throughout (colour, organise, Afterpay, AusPost, AUD)
-8. Include real interactive JS: sticky nav, countdown timer, FAQ accordion, add-to-cart feedback, announcement bar scroll
-9. The store must look like it costs $10,000 to build — NOT like a template`;
+RULES:
+1. All CSS in <style> in <head>. All JS in <script> at bottom of <body>. No external CSS frameworks.
+2. Google Fonts allowed via <link>
+3. Mobile responsive
+4. Use the EXACT Pexels image URLs provided — never use placeholder images
+5. AU English (colour, Afterpay, AusPost, AUD)
+6. Include: sticky nav with blur, FAQ accordion JS, countdown timer JS, add-to-cart button feedback
+7. Dark theme: bg #08080f, surface #0f1018. Premium feel.`;
 
   const userPrompt = `Build a complete, high-converting Australian ecommerce store for the following product/niche.
 
@@ -312,49 +310,30 @@ REAL IMAGES TO USE (embed these exact URLs):
 - Lifestyle image 1: ${lifestyleImg1}
 - Lifestyle image 2: ${lifestyleImg2}
 
-BUILD THESE SECTIONS IN ORDER:
+SECTIONS TO BUILD:
+1. Announcement bar — scrolling marquee, brand color bg, "Free AU shipping $79+ | Afterpay | Ships AU warehouse"
+2. Sticky nav — logo left, links center (Product/Features/Reviews/FAQ), Shop Now button right, blur on scroll
+3. Hero — full-height, hero bg image + dark overlay, AU badge, bold H1, subheadline, 2 CTA buttons, 3 trust badges
+4. Product section — 2-col (image left, info right): product image, name, stars, price in brand color, Afterpay row, Add to Cart (full width), benefits list
+5. Features — 3-col dark cards, emoji icon + title + description, specific to this product
+6. Testimonials — 3-col, 5 stars, specific quote, name + AU city + verified
+7. FAQ accordion — 5 questions specific to this niche, expand/collapse JS
+8. CTA strip — gradient bg, headline, button, countdown timer
+9. Footer — brand story, links, copyright with ABN, "All prices AUD incl. GST"
 
-1. ANNOUNCEMENT BAR — "🔥 Free AU shipping on orders $79+ | Afterpay available | Ships from AU warehouse" — brand color background, white text, scrolling marquee
+DESIGN: Syne font (headings 800/900) + DM Sans (body). H1: 52-64px. Cards: border-radius 14px, 1px border rgba(255,255,255,0.08). Buttons: brand color, 10px radius. Generous padding (80px sections).
 
-2. STICKY NAV — Logo left, links center (Product, Features, Reviews, FAQ), "Shop Now" CTA button right — background blur on scroll, mobile hamburger
+Output the full HTML document only.`;
 
-3. HERO SECTION — Full viewport height, hero background image with dark overlay, badge "🇦🇺 Proudly Australian", H1 headline (large, bold, Syne), subheadline, two CTA buttons (primary: Shop Now, secondary: See Reviews), 3 trust badges inline (30-day returns, Afterpay, Fast AU shipping)
-
-4. PRODUCT SECTION — Two-column grid (image left, details right): product image in styled card, product name, 5-star rating row, price in brand color (large, bold), original/compare price struck through, "Pay in 4 x [price/4] with Afterpay" row, Add to Cart button (full width, brand color), Buy Now button (dark), bullet benefits list (6 items), stock counter "Only 8 left"
-
-5. FEATURES/WHY US — 3-column grid on dark background, each card: icon (emoji), feature title, 2-line description — all specific to this product
-
-6. LIFESTYLE GALLERY — 2-column image grid using lifestyle images, text overlay on hover
-
-7. TESTIMONIALS — 3-column grid, each card: 5 stars, quote (specific to product), customer name + city + verified badge — make them feel real and specific
-
-8. FAQ ACCORDION — 5 questions specific to this product/niche, JS-powered expand/collapse
-
-9. FINAL CTA STRIP — Full-width gradient section, headline, subheadline, Shop Now button, countdown timer "Offer ends in: HH:MM:SS"
-
-10. FOOTER — 4 columns: brand story + socials, Shop links, Support links, Legal links — copyright with ABN placeholder, "All prices AUD incl. GST"
-
-DESIGN RULES:
-- Spacing is generous — sections have 80-100px padding
-- Typography scale: H1 56-72px, H2 36-44px, H3 20-24px, body 15-16px
-- Card borders: 1px solid rgba(255,255,255,0.08) on dark, rgba(0,0,0,0.06) on light
-- Shadows: subtle, modern — box-shadow: 0 4px 24px rgba(0,0,0,0.12)
-- Hover states on all interactive elements
-- Border radius: 12-16px on cards, 8-10px on buttons
-- Dark color palette: bg #08080f, surface #0f1018, card #151820
-- Text: #f2efe9 primary, rgba(242,239,233,0.6) muted
-
-OUTPUT: The complete HTML document only. Start with <!DOCTYPE html>.`;
-
+  // Use claude-haiku for speed (5x faster than Sonnet — stays within Vercel 60s limit)
   const message = await client.messages.create({
-    model: CLAUDE_MODEL,
-    max_tokens: 16000,
+    model: 'claude-haiku-4-5',
+    max_tokens: 8000,
     messages: [{ role: 'user', content: userPrompt }],
     system: systemPrompt,
   });
 
   const html = (message.content[0] as any).text as string;
-  // Ensure it starts with doctype
   const start = html.indexOf('<!DOCTYPE');
   return start >= 0 ? html.slice(start) : html;
 }
