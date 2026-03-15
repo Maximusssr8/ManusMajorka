@@ -1157,7 +1157,19 @@ export default function WebsiteGenerator() {
   const [priceAUD, setPriceAUD] = useState('');
   const [vibe, setVibe] = useState('premium');
   const [accentColor, setAccentColor] = useState('#d4af37');
+  const [designDirection, setDesignDirection] = useState<string>('default');
+  const [storeManifest, setStoreManifest] = useState<string | null>(null);
   const [platform, setPlatform] = useState<Platform>('shopify');
+
+  // Palette generator
+  const [palette, setPalette] = useState<{ primary: string; secondary: string; accent: string; background: string; surface: string; text: string; muted: string; swatches: string[]; rationale?: string } | null>(null);
+  const [paletteLoading, setPaletteLoading] = useState(false);
+
+  // Description enhancer
+  const [rawDesc, setRawDesc] = useState('');
+  const [descVariants, setDescVariants] = useState<{ benefit: string; story: string; urgency: string } | null>(null);
+  const [selectedDesc, setSelectedDesc] = useState<string>('');
+  const [enhancingDesc, setEnhancingDesc] = useState(false);
 
   // Template selection
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
@@ -1307,6 +1319,7 @@ export default function WebsiteGenerator() {
     setGenProgress(0);
     setParseWarning(false);
     setDirectHtml(null);
+    setStoreManifest(null);
 
     try {
       // ── Stream from /api/website/generate via SSE ─────────────────────
@@ -1322,13 +1335,16 @@ export default function WebsiteGenerator() {
           targetAudience: targetAudience || undefined,
           vibe: vibe || undefined,
           accentColor: accentColor || undefined,
+          designDirection: designDirection !== 'default' ? designDirection : undefined,
           price: importedProduct?.price ? `$${importedProduct.price}` : undefined,
-          productData: analysisResult || (importedProduct ? {
-            product_title: importedProduct.title || importedProduct.name,
-            description: importedProduct.description,
-            price_aud: importedProduct.price,
-            category: importedProduct.category || niche,
-          } : undefined),
+          productData: analysisResult
+            ? { ...analysisResult, ...(selectedDesc ? { description: selectedDesc } : {}) }
+            : (importedProduct ? {
+                product_title: importedProduct.title || importedProduct.name,
+                description: selectedDesc || importedProduct.description,
+                price_aud: importedProduct.price,
+                category: importedProduct.category || niche,
+              } : (selectedDesc ? { description: selectedDesc } : undefined)),
         }),
       });
 
@@ -1357,6 +1373,7 @@ export default function WebsiteGenerator() {
                 const payload = JSON.parse(line.slice(6));
                 if (payload.pct !== undefined) setGenProgress(payload.pct);
                 if (payload.html) finalHtml = payload.html;
+                if (payload.manifest) setStoreManifest(payload.manifest);
                 if (payload.error) throw new Error(payload.error);
               } catch (e: any) {
                 if (e?.message && !e.message.includes('JSON')) throw e;
@@ -1389,7 +1406,7 @@ export default function WebsiteGenerator() {
       setGenerating(false);
       setGenProgress(0);
     }
-  }, [storeName, niche, targetAudience, vibe, accentColor, platform, importedProduct, premiumTemplateId, session, analysisResult]);
+  }, [storeName, niche, targetAudience, vibe, accentColor, platform, importedProduct, premiumTemplateId, session, analysisResult, selectedDesc, designDirection]);
 
   // ── Export handlers ────────────────────────────────────────────────────────
 
@@ -1898,11 +1915,19 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
           {/* Vibe Toggle */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Vibe</label>
-            <div className="flex gap-2">
-              {['bold', 'minimal', 'premium'].map((v) => (
-                <button key={v} onClick={() => setVibe(v)} className="flex-1 py-2 rounded-full text-xs font-bold capitalize transition-all" style={{ background: vibe === v ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.03)', border: `1.5px solid ${vibe === v ? 'rgba(212,175,55,0.5)' : 'rgba(255,255,255,0.08)'}`, color: vibe === v ? '#d4af37' : 'rgba(240,237,232,0.45)', fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}>
-                  {v}
+            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Design Direction</label>
+            <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+              {[
+                { id: 'default', emoji: '✦', label: 'Dark DTC' },
+                { id: 'luxury',  emoji: '✦', label: 'Luxury' },
+                { id: 'brutalist', emoji: '⬛', label: 'Brutalist' },
+                { id: 'editorial', emoji: '📰', label: 'Editorial' },
+                { id: 'saas', emoji: '⚡', label: 'SaaS' },
+                { id: 'minimal', emoji: '○', label: 'Minimal' },
+              ].map((d) => (
+                <button key={d.id} onClick={() => setDesignDirection(d.id)} style={{ padding: '8px 6px', borderRadius: 8, background: designDirection === d.id ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.03)', border: `1.5px solid ${designDirection === d.id ? 'rgba(212,175,55,0.5)' : 'rgba(255,255,255,0.07)'}`, color: designDirection === d.id ? '#d4af37' : 'rgba(240,237,232,0.45)', fontFamily: 'Syne, sans-serif', fontSize: 11, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>
+                  <div style={{ fontSize: 14, marginBottom: 3 }}>{d.emoji}</div>
+                  {d.label}
                 </button>
               ))}
             </div>
@@ -1917,7 +1942,37 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 <input type="color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
               </label>
               <span className="text-sm font-mono" style={{ color: 'rgba(240,237,232,0.5)' }}>{accentColor}</span>
+              <button
+                onClick={async () => {
+                  if (!niche.trim()) { toast.error('Enter a niche first'); return; }
+                  setPaletteLoading(true);
+                  try {
+                    const res = await fetch('/api/website/palette', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json', ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}) },
+                      body: JSON.stringify({ niche, brandColor: accentColor, direction: designDirection !== 'default' ? designDirection : undefined }),
+                    });
+                    if (!res.ok) throw new Error('Failed');
+                    const data = await res.json();
+                    setPalette(data);
+                  } catch { toast.error('Palette generation failed'); }
+                  finally { setPaletteLoading(false); }
+                }}
+                disabled={paletteLoading}
+                style={{ marginLeft: 'auto', padding: '6px 12px', borderRadius: 8, background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)', color: '#d4af37', fontSize: 11, fontWeight: 700, fontFamily: 'Syne, sans-serif', cursor: paletteLoading ? 'not-allowed' : 'pointer', opacity: paletteLoading ? 0.6 : 1 }}
+              >
+                {paletteLoading ? '...' : '🎨 Generate Palette'}
+              </button>
             </div>
+            {palette && (
+              <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                {palette.swatches.map((s: string, i: number) => (
+                  <button key={i} onClick={() => setAccentColor(s)} title={s}
+                    style={{ width: 28, height: 28, borderRadius: 6, background: s, border: accentColor === s ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', flexShrink: 0 }} />
+                ))}
+                {palette.rationale && <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)', marginLeft: 4 }}>{palette.rationale}</span>}
+              </div>
+            )}
           </div>
 
           {/* Platform */}
@@ -1928,6 +1983,61 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               <option value="nextjs" style={{ background: '#0c0e12' }}>Next.js</option>
               <option value="react" style={{ background: '#0c0e12' }}>React</option>
             </select>
+          </div>
+
+          {/* Description Enhancer */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Product Description</label>
+            <textarea
+              value={rawDesc}
+              onChange={(e) => setRawDesc(e.target.value)}
+              placeholder="Paste your raw product description here..."
+              rows={3}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#f0ede8', fontSize: 13, resize: 'vertical', fontFamily: 'DM Sans, sans-serif' }}
+            />
+            <div className="flex items-center gap-2" style={{ marginTop: 6 }}>
+              <button
+                onClick={async () => {
+                  if (!rawDesc.trim()) { toast.error('Enter a description first'); return; }
+                  setEnhancingDesc(true);
+                  try {
+                    const res = await fetch('/api/website/enhance-description', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json', ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}) },
+                      body: JSON.stringify({ description: rawDesc, niche: niche || undefined }),
+                    });
+                    if (!res.ok) throw new Error('Failed');
+                    const data = await res.json();
+                    setDescVariants(data);
+                  } catch { toast.error('Enhancement failed'); }
+                  finally { setEnhancingDesc(false); }
+                }}
+                disabled={enhancingDesc || !rawDesc.trim()}
+                style={{ padding: '6px 14px', borderRadius: 8, background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)', color: '#d4af37', fontSize: 11, fontWeight: 700, fontFamily: 'Syne, sans-serif', cursor: enhancingDesc || !rawDesc.trim() ? 'not-allowed' : 'pointer', opacity: enhancingDesc || !rawDesc.trim() ? 0.5 : 1 }}
+              >
+                {enhancingDesc ? '...' : 'Enhance'}
+              </button>
+              {selectedDesc && <span style={{ fontSize: 10, color: 'rgba(212,175,55,0.6)' }}>Selected</span>}
+            </div>
+            {descVariants && (
+              <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {(Object.entries(descVariants) as [string, string][]).map(([key, val]) => (
+                  <button
+                    key={key}
+                    onClick={() => setSelectedDesc(val)}
+                    style={{
+                      textAlign: 'left', padding: '8px 10px', borderRadius: 8, fontSize: 12, lineHeight: 1.5, cursor: 'pointer',
+                      background: selectedDesc === val ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${selectedDesc === val ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.07)'}`,
+                      color: selectedDesc === val ? '#f0ede8' : 'rgba(240,237,232,0.6)',
+                    }}
+                  >
+                    <span style={{ fontWeight: 700, textTransform: 'capitalize', color: '#d4af37', fontSize: 10, marginRight: 6 }}>{key}</span>
+                    {val}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
@@ -2304,6 +2414,15 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                         <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>Download ZIP</div>
                         <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.4)' }}>Download all generated files as a ZIP archive with folder structure preserved.</div>
                       </button>
+
+                      {/* Download Manifest */}
+                      {storeManifest && (
+                        <button onClick={() => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([storeManifest], { type: 'application/json' })); a.download = 'manifest.json'; a.click(); }} className="p-5 rounded-xl text-left transition-all" style={{ background: 'rgba(59,130,246,0.05)', border: '1.5px solid rgba(59,130,246,0.2)', cursor: 'pointer' }}>
+                          <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(59,130,246,0.12)' }}><span style={{ fontSize: 20 }}>📱</span></div>
+                          <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>Download manifest.json</div>
+                          <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.4)' }}>PWA manifest for your store — enables "Add to Home Screen" on mobile.</div>
+                        </button>
+                      )}
 
                       {/* Open in Cursor */}
                       <button onClick={handleOpenCursor} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: 'rgba(255,255,255,0.03)', border: '1.5px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
