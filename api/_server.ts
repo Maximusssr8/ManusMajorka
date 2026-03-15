@@ -13,6 +13,7 @@ import { analyzeProduct } from "../server/lib/product-intelligence";
 import { appRouter } from "../server/routers";
 import { createContext } from "../server/_core/context";
 import { handleWebhook, registerStripeRoutes } from "../server/lib/stripe";
+import { registerWebsiteRoutes } from "../server/lib/website-api";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
 import { getProductByIdPublic } from "../server/db";
 
@@ -107,6 +108,7 @@ registerToolsApi(app);
 registerAutomationRoutes(app);
 registerAffiliateRoutes(app);
 registerStripeRoutes(app);
+registerWebsiteRoutes(app);
 
 // ── Product import with AI Brain ─────────────────────────────────────────────
 app.post("/api/import-product", async (req: Request, res: Response) => {
