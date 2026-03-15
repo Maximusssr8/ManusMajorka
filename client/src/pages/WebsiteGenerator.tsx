@@ -1200,6 +1200,7 @@ export default function WebsiteGenerator() {
   const [analyzing, setAnalyzing] = useState(false);
   // Rich product data from Firecrawl + Claude — includes images, sizes, colors, copy
   const [analysisResult, setAnalysisResult] = useState<Record<string, any> | null>(null);
+  const [directHtml, setDirectHtml] = useState<string | null>(null);
   const [analyzeError, setAnalyzeError] = useState('');
 
   // Debounced auto-analyze on URL paste (1s debounce)
@@ -1263,9 +1264,10 @@ export default function WebsiteGenerator() {
 
   // Preview HTML (memoised) — passes productData so images/variants are injected
   const previewHTML = useMemo(() => {
+    if (directHtml) return directHtml;
     if (!generatedData) return '';
     return buildPremiumStore(premiumTemplateId, generatedData, analysisResult || undefined);
-  }, [generatedData, analysisResult, premiumTemplateId]);
+  }, [generatedData, analysisResult, premiumTemplateId, directHtml]);
 
   const hasOutput = generatedData || rawResponse;
 
@@ -1304,119 +1306,83 @@ export default function WebsiteGenerator() {
     setGenError('');
     setGenProgress(0);
     setParseWarning(false);
+    setDirectHtml(null);
 
     try {
-      const selectedPremiumTemplate = WEBSITE_TEMPLATES.find((t) => t.id === premiumTemplateId);
-      const templateNote = selectedPremiumTemplate
-        ? `\nDesign Template: ${selectedPremiumTemplate.name} (${selectedPremiumTemplate.category}) — ${selectedPremiumTemplate.description}`
-        : '';
+      // ── Progress ticker (visual feedback while Claude works) ─────────────
+      const progressSteps = [
+        { pct: 10, msg: '🔍 Searching Pexels for product images...' },
+        { pct: 30, msg: '✍️ Writing AU-optimised copy...' },
+        { pct: 55, msg: '🎨 Building your store layout...' },
+        { pct: 75, msg: '⚡ Generating HTML & CSS...' },
+        { pct: 90, msg: '🏗️ Finalising your store...' },
+      ];
+      let stepIdx = 0;
+      const ticker = setInterval(() => {
+        if (stepIdx < progressSteps.length) {
+          setGenProgress(progressSteps[stepIdx].pct);
+          stepIdx++;
+        }
+      }, 3500);
 
-      const productAnalysisNote = analysisResult ? `
-PRODUCT DATA (scanned from URL — use this exact product, not generic):
-- Title: ${analysisResult.product_title || analysisResult.product_name || ''}
-- Type: ${analysisResult.product_type || ''}
-- Category: ${analysisResult.category || ''}
-- Description: ${analysisResult.description || ''}
-- Hero benefit: ${analysisResult.hero_benefit || ''}
-- Target customer: ${analysisResult.target_customer || ''}
-- Sizes: ${((analysisResult.sizes as string[]) || []).join(', ') || 'N/A'}
-- Colours: ${((analysisResult.colors as string[]) || []).join(', ') || 'N/A'}
-- Material: ${analysisResult.material || 'N/A'}
-- Key features: ${((analysisResult.key_features as string[]) || []).join('; ')}
-- Suggested headline: ${analysisResult.hero_headline || ''}
-- Suggested subheading: ${analysisResult.hero_subheading || ''}
-- Ad angle: ${analysisResult.ad_angle || ''}
-- Price: $${analysisResult.price_aud || analysisResult.suggested_price_aud || ''} AUD
-CRITICAL: Write ALL copy specifically for THIS product (${analysisResult.product_title || niche}). No generic filler.` : '';
-
-      const userMessage = [
-        `Generate a complete AU Shopify store for:`,
-        `Store name: ${storeName || 'My AU Store'}`,
-        `Niche: ${niche}`,
-        `Target audience: ${targetAudience || 'Australian shoppers'}`,
-        vibe ? `Style/vibe: ${vibe}` : '',
-        accentColor ? `Brand color: ${accentColor}` : '',
-        platform ? `Platform: ${platform}` : '',
-        importedProduct ? `Featured product: ${JSON.stringify(importedProduct)}` : '',
-        `Location: Australia`,
-        templateNote,
-        productAnalysisNote,
-      ].filter(Boolean).join('\n');
-
-      const response = await fetch('/api/chat?stream=1', {
+      const response = await fetch('/api/website/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
         },
         body: JSON.stringify({
-          messages: [{ role: 'user', content: userMessage }],
-          toolName: 'website-generator',
-          systemPrompt: buildSystemPrompt(vibe, platform, accentColor),
-          market: getStoredMarket(),
-          stream: true,
+          niche,
+          storeName: storeName || niche,
+          targetAudience: targetAudience || undefined,
+          vibe: vibe || undefined,
+          accentColor: accentColor || undefined,
+          price: importedProduct?.price ? `$${importedProduct.price}` : undefined,
+          productData: analysisResult || (importedProduct ? {
+            product_title: importedProduct.title || importedProduct.name,
+            description: importedProduct.description,
+            price_aud: importedProduct.price,
+            category: importedProduct.category || niche,
+          } : undefined),
         }),
       });
 
-      if (!response.ok) throw new Error(`Generation failed: ${response.status}`);
+      clearInterval(ticker);
 
-      // Collect SSE stream
-      let fullText = '';
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      if (reader) {
-        let buffer = '';
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || '';
-          for (const line of lines) {
-            if (!line.startsWith('data: ')) continue;
-            try {
-              const payload = JSON.parse(line.slice(6));
-              if (payload.text !== undefined) {
-                fullText += payload.text;
-                setGenProgress(Math.min(90, Math.floor((fullText.length / 800) * 90)));
-              }
-            } catch { /* skip malformed */ }
-          }
-        }
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error((err as any).error || `Generation failed: ${response.status}`);
       }
-      if (!fullText) {
-        const text = await response.text().catch(() => '');
-        try { const d = JSON.parse(text); fullText = d.reply || d.content || ''; } catch { fullText = text; }
-      }
+
+      const data = await response.json() as { html: string };
+      if (!data.html) throw new Error('No HTML returned from server.');
 
       setGenProgress(100);
-      setRawResponse(fullText);
 
-      const parsed = parseStoreData(fullText);
-      if (parsed) {
-        // Inject accent colour if AI didn't return one
-        if (!parsed.primaryColor && accentColor) parsed.primaryColor = accentColor;
-        setGeneratedData(parsed);
-        setActiveTab('preview');
-        if (parsed.files) {
-          const firstFile = Object.keys(parsed.files)[0];
-          if (firstFile) setActiveFile(firstFile);
-        }
-        toast.success('Store generated!');
-        trackWebsiteGenerated({ niche, platform, vibe, market: getStoredMarket() });
-        localStorage.setItem('majorka_milestone_site', 'true');
-      } else {
-        setParseWarning(true);
-        setActiveTab('copy');
-        toast.warning('Generated content could not be parsed. Showing raw output.');
-      }
+      // Store the raw HTML directly — no JSON parsing needed
+      setRawResponse(data.html);
+      // Set a minimal generatedData so the copy/deploy tabs still work
+      const minData: GeneratedData = {
+        storeName: storeName || niche,
+        headline: niche,
+        features: [],
+        primaryColor: accentColor || '#d4af37',
+      };
+      setGeneratedData(minData);
+      // Override the preview HTML directly
+      setDirectHtml(data.html);
+      setActiveTab('preview');
+
+      toast.success('Store generated! 🏪');
+      trackWebsiteGenerated({ niche, platform, vibe, market: getStoredMarket() });
+      localStorage.setItem('majorka_milestone_site', 'true');
     } catch (err: any) {
       setGenError(err?.message || 'Generation failed. Please try again.');
     } finally {
       setGenerating(false);
       setGenProgress(0);
     }
-  }, [storeName, niche, targetAudience, vibe, accentColor, platform, importedProduct, premiumTemplateId, session]);
+  }, [storeName, niche, targetAudience, vibe, accentColor, platform, importedProduct, premiumTemplateId, session, analysisResult]);
 
   // ── Export handlers ────────────────────────────────────────────────────────
 
@@ -1429,7 +1395,7 @@ CRITICAL: Write ALL copy specifically for THIS product (${analysisResult.product
       }
     } else {
       // New format: zip the preview HTML
-      zip.file('index.html', buildPremiumStore(premiumTemplateId, generatedData, analysisResult || undefined));
+      zip.file('index.html', directHtml || buildPremiumStore(premiumTemplateId, generatedData, analysisResult || undefined));
     }
     const blob = await zip.generateAsync({ type: 'blob' });
     const url = URL.createObjectURL(blob);
@@ -1443,7 +1409,7 @@ CRITICAL: Write ALL copy specifically for THIS product (${analysisResult.product
 
   const handleDownloadHTML = useCallback(() => {
     if (!generatedData) return;
-    const html = buildPremiumStore(premiumTemplateId, generatedData, analysisResult || undefined);
+    const html = directHtml || buildPremiumStore(premiumTemplateId, generatedData, analysisResult || undefined);
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1554,7 +1520,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
     setVercelError('');
     setVercelResult(null);
     try {
-      const html = buildPremiumStore(premiumTemplateId, generatedData, analysisResult || undefined);
+      const html = directHtml || buildPremiumStore(premiumTemplateId, generatedData, analysisResult || undefined);
       const response = await fetch('/api/website/deploy-vercel', {
         method: 'POST',
         headers: {

@@ -203,6 +203,162 @@ Include ALL product image URLs you find — this is the most important field.`,
   return result;
 }
 
+// ─── Pexels Image Fetcher ─────────────────────────────────────────────────────
+async function fetchPexelsImages(query: string, count = 6): Promise<string[]> {
+  const key = process.env.PEXELS_API_KEY;
+  if (!key) return [];
+  try {
+    const res = await fetch(
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${count}&orientation=landscape`,
+      { headers: { Authorization: key } }
+    );
+    const data = await res.json() as any;
+    return (data.photos || []).map((p: any) => p.src?.large || p.src?.medium || '').filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+async function fetchPexelsPortrait(query: string): Promise<string> {
+  const key = process.env.PEXELS_API_KEY;
+  if (!key) return '';
+  try {
+    const res = await fetch(
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=3&orientation=portrait`,
+      { headers: { Authorization: key } }
+    );
+    const data = await res.json() as any;
+    return data.photos?.[0]?.src?.large || '';
+  } catch {
+    return '';
+  }
+}
+
+// ─── Full AI HTML Generator ────────────────────────────────────────────────────
+export async function generateFullStore(params: {
+  niche: string;
+  storeName: string;
+  targetAudience?: string;
+  vibe?: string;
+  accentColor?: string;
+  price?: string;
+  productData?: Record<string, any>;
+}): Promise<string> {
+  const { niche, storeName, targetAudience, vibe, accentColor, price, productData } = params;
+  const color = accentColor || '#d4af37';
+
+  // ── 1. Fetch real images from Pexels ───────────────────────────────────────
+  const searchQuery = productData?.product_title || niche;
+  const [heroImages, productPortrait] = await Promise.all([
+    fetchPexelsImages(searchQuery, 5),
+    fetchPexelsPortrait(searchQuery),
+  ]);
+
+  const heroImg = heroImages[0] || `https://images.pexels.com/photos/5632399/pexels-photo-5632399.jpeg`;
+  const heroImg2 = heroImages[1] || heroImg;
+  const productImg = productPortrait || heroImages[2] || heroImg;
+  const lifestyleImg1 = heroImages[2] || heroImg;
+  const lifestyleImg2 = heroImages[3] || heroImg;
+
+  // ── 2. Build product context ──────────────────────────────────────────────
+  const pd = productData || {};
+  const productContext = pd.product_title ? `
+PRODUCT DETAILS (use these exactly — do not invent):
+- Name: ${pd.product_title}
+- Category: ${pd.category || pd.product_type || niche}
+- Description: ${pd.description || ''}
+- Key features: ${(pd.key_features as string[] || []).join(', ')}
+- Target customer: ${pd.target_customer || targetAudience || 'Australian shoppers'}
+- Hero benefit: ${pd.hero_benefit || ''}
+- Suggested headline: ${pd.hero_headline || ''}
+- Suggested subheadline: ${pd.hero_subheading || ''}
+- Price: ${price || `$${pd.price_aud || pd.suggested_price_aud || '49.95'}`} AUD
+- Sizes available: ${(pd.sizes as string[] || []).join(', ') || 'One size'}
+- Colors available: ${(pd.colors as string[] || []).join(', ') || ''}` : `
+PRODUCT: ${niche}
+Target: ${targetAudience || 'Australian shoppers aged 25-45'}
+Price range: ${price || '$49.95'} AUD`;
+
+  // ── 3. Call Claude to generate the full HTML ───────────────────────────────
+  const client = getAnthropicClient();
+
+  const systemPrompt = `You are a world-class frontend developer AND conversion rate optimisation expert who has built stores for Gymshark, Allbirds, and Frank Body. You write clean, beautiful, production-ready HTML in a single file.
+
+RULES YOU NEVER BREAK:
+1. Output ONLY the complete HTML document — nothing before <!DOCTYPE html>, nothing after </html>
+2. All CSS is embedded in <style> tags in <head>. All JS in <script> at bottom of <body>
+3. No external CSS frameworks (no Bootstrap, no Tailwind CDN) — write pure CSS
+4. Google Fonts are allowed via <link> in head
+5. Every section must be fully responsive (mobile-first)
+6. Use the EXACT image URLs provided — never use placeholder.com or via.placeholder
+7. AU English throughout (colour, organise, Afterpay, AusPost, AUD)
+8. Include real interactive JS: sticky nav, countdown timer, FAQ accordion, add-to-cart feedback, announcement bar scroll
+9. The store must look like it costs $10,000 to build — NOT like a template`;
+
+  const userPrompt = `Build a complete, high-converting Australian ecommerce store for the following product/niche.
+
+${productContext}
+
+STORE CONFIG:
+- Store name: ${storeName}
+- Brand color (use throughout): ${color}
+- Style/vibe: ${vibe || 'modern premium DTC brand'}
+- Font: Use "Syne" (headings, 700/900) + "DM Sans" (body, 400/500) from Google Fonts
+
+REAL IMAGES TO USE (embed these exact URLs):
+- Hero background: ${heroImg}
+- Hero secondary: ${heroImg2}
+- Product shot: ${productImg}
+- Lifestyle image 1: ${lifestyleImg1}
+- Lifestyle image 2: ${lifestyleImg2}
+
+BUILD THESE SECTIONS IN ORDER:
+
+1. ANNOUNCEMENT BAR — "🔥 Free AU shipping on orders $79+ | Afterpay available | Ships from AU warehouse" — brand color background, white text, scrolling marquee
+
+2. STICKY NAV — Logo left, links center (Product, Features, Reviews, FAQ), "Shop Now" CTA button right — background blur on scroll, mobile hamburger
+
+3. HERO SECTION — Full viewport height, hero background image with dark overlay, badge "🇦🇺 Proudly Australian", H1 headline (large, bold, Syne), subheadline, two CTA buttons (primary: Shop Now, secondary: See Reviews), 3 trust badges inline (30-day returns, Afterpay, Fast AU shipping)
+
+4. PRODUCT SECTION — Two-column grid (image left, details right): product image in styled card, product name, 5-star rating row, price in brand color (large, bold), original/compare price struck through, "Pay in 4 x [price/4] with Afterpay" row, Add to Cart button (full width, brand color), Buy Now button (dark), bullet benefits list (6 items), stock counter "Only 8 left"
+
+5. FEATURES/WHY US — 3-column grid on dark background, each card: icon (emoji), feature title, 2-line description — all specific to this product
+
+6. LIFESTYLE GALLERY — 2-column image grid using lifestyle images, text overlay on hover
+
+7. TESTIMONIALS — 3-column grid, each card: 5 stars, quote (specific to product), customer name + city + verified badge — make them feel real and specific
+
+8. FAQ ACCORDION — 5 questions specific to this product/niche, JS-powered expand/collapse
+
+9. FINAL CTA STRIP — Full-width gradient section, headline, subheadline, Shop Now button, countdown timer "Offer ends in: HH:MM:SS"
+
+10. FOOTER — 4 columns: brand story + socials, Shop links, Support links, Legal links — copyright with ABN placeholder, "All prices AUD incl. GST"
+
+DESIGN RULES:
+- Spacing is generous — sections have 80-100px padding
+- Typography scale: H1 56-72px, H2 36-44px, H3 20-24px, body 15-16px
+- Card borders: 1px solid rgba(255,255,255,0.08) on dark, rgba(0,0,0,0.06) on light
+- Shadows: subtle, modern — box-shadow: 0 4px 24px rgba(0,0,0,0.12)
+- Hover states on all interactive elements
+- Border radius: 12-16px on cards, 8-10px on buttons
+- Dark color palette: bg #08080f, surface #0f1018, card #151820
+- Text: #f2efe9 primary, rgba(242,239,233,0.6) muted
+
+OUTPUT: The complete HTML document only. Start with <!DOCTYPE html>.`;
+
+  const message = await client.messages.create({
+    model: CLAUDE_MODEL,
+    max_tokens: 16000,
+    messages: [{ role: 'user', content: userPrompt }],
+    system: systemPrompt,
+  });
+
+  const html = (message.content[0] as any).text as string;
+  // Ensure it starts with doctype
+  const start = html.indexOf('<!DOCTYPE');
+  return start >= 0 ? html.slice(start) : html;
+}
+
 // ─── Route Registration ───────────────────────────────────────────────────────
 export function registerWebsiteRoutes(app: Application): void {
   // POST /api/website/deploy-vercel
@@ -252,6 +408,41 @@ export function registerWebsiteRoutes(app: Application): void {
     } catch (err: any) {
       console.error('[website/analyze-product]', err.message);
       res.status(500).json({ error: err.message || 'Analysis failed.' });
+    }
+  });
+
+  // POST /api/website/generate — Full AI HTML generation with Pexels images
+  app.post('/api/website/generate', async (req, res) => {
+    try {
+      const user = await authenticateRequest(req);
+      if (!user) { res.status(401).json({ error: 'Unauthorized' }); return; }
+
+      const { niche, storeName, targetAudience, vibe, accentColor, price, productData } = req.body as {
+        niche?: string;
+        storeName?: string;
+        targetAudience?: string;
+        vibe?: string;
+        accentColor?: string;
+        price?: string;
+        productData?: Record<string, any>;
+      };
+
+      if (!niche) { res.status(400).json({ error: 'niche is required.' }); return; }
+
+      const html = await generateFullStore({
+        niche,
+        storeName: storeName || niche,
+        targetAudience,
+        vibe,
+        accentColor,
+        price,
+        productData,
+      });
+
+      res.json({ html });
+    } catch (err: any) {
+      console.error('[website/generate]', err.message);
+      res.status(500).json({ error: err.message || 'Generation failed.' });
     }
   });
 }
