@@ -410,7 +410,7 @@ export function registerWebsiteRoutes(app: Application): void {
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
-      const send = (event: string, data: any) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+      const send = (evt: string, data: any) => res.write('event: ' + evt + '\ndata: ' + JSON.stringify(data) + '\n\n');
 
       // ── 1. Fetch Pexels images ────────────────────────────────────────────
       send('progress', { pct: 10, msg: '🔍 Finding product images...' });
@@ -427,6 +427,16 @@ export function registerWebsiteRoutes(app: Application): void {
       send('progress', { pct: 25, msg: '✍️ Writing your store...' });
 
       // ── 2. Build prompt ───────────────────────────────────────────────────
+      // Pre-compute RGB from hex for use in rgba() values
+      const hexToRgb = (hex: string): string => {
+        const c = hex.replace('#', '');
+        const r = parseInt(c.substring(0,2), 16);
+        const g = parseInt(c.substring(2,4), 16);
+        const b = parseInt(c.substring(4,6), 16);
+        return `${r},${g},${b}`;
+      };
+      const colorRgb = hexToRgb(color);
+
       const pd = productData || {};
       const productContext = (pd as any).product_title ? `
 PRODUCT DETAILS:
@@ -442,52 +452,138 @@ PRODUCT: ${niche}
 Target: ${targetAudience || 'Australian shoppers 25-45'}
 Price: ${price || '$49.95'} AUD`;
 
-      const systemPrompt = `You are a senior frontend developer who builds high-converting Australian ecommerce stores. Output ONLY the complete HTML document — start with <!DOCTYPE html> and end with </html>. No explanation, no markdown.
+      const systemPrompt = `You are a world-class frontend developer who builds $10,000 ecommerce stores. You've built for Gymshark, Allbirds, and Frank Body. You write flawless, premium HTML/CSS/JS in a single file.
 
-RULES:
-1. All CSS in <style> in <head>. All JS in <script> at bottom of <body>. No external CSS frameworks.
-2. Google Fonts allowed via <link>
-3. Mobile responsive
-4. Use the EXACT Pexels image URLs provided — never use placeholder images
-5. AU English (colour, Afterpay, AusPost, AUD)
-6. Include: sticky nav with blur, FAQ accordion JS, countdown timer JS, add-to-cart button feedback
-7. Dark theme: bg #08080f, surface #0f1018. Premium feel.`;
+ABSOLUTE RULES — break any of these and the output is rejected:
+1. Output ONLY the HTML document. Start with <!DOCTYPE html>. End with </html>. Zero text outside those tags.
+2. All CSS inside one <style> block in <head>. All JS inside one <script> block before </body>.
+3. NO external CSS frameworks. NO Bootstrap. NO Tailwind. Pure hand-crafted CSS only.
+4. Google Fonts via <link> only.
+5. USE the exact Pexels image URLs given — never generate placeholder URLs.
+6. ALL copy must be specific to the product — NO generic "quality product" filler.
+7. AU English: colour, organise, capitalise, favour. Prices in AUD. Afterpay, AusPost.
+8. Every interactive element must work: hamburger menu, FAQ accordion, countdown timer, add-to-cart feedback, nav scroll behaviour.`;
 
-      const userPrompt = `Build a complete high-converting Australian ecommerce store.
+      const userPrompt = `Build a complete, premium, high-converting Australian ecommerce store.
 
 ${productContext}
 
-STORE: ${storeName || niche} | Brand color: ${color} | Style: ${vibe || 'modern premium DTC'}
-Fonts: Syne (headings 800/900) + DM Sans (body) from Google Fonts
+STORE CONFIG:
+- Name: ${storeName || niche}
+- Brand color (PRIMARY): ${color}
+- Style: ${vibe || 'modern premium dark DTC'}
+- Fonts: "Syne" (headings, weight 800/900) + "DM Sans" (body, weight 400/500) — load from Google Fonts
 
-REAL IMAGES (use these exact URLs):
-- Hero bg: ${heroImg}
-- Hero secondary: ${heroImg2}
-- Product: ${productImg}
-- Lifestyle 1: ${lifestyleImg1}
-- Lifestyle 2: ${lifestyleImg2}
+REAL PEXELS IMAGES — use ALL of them:
+- Hero background (full-bleed): ${heroImg}
+- Hero secondary (lifestyle): ${heroImg2}  
+- Product hero image: ${productImg}
+- Lifestyle photo 1: ${lifestyleImg1}
+- Lifestyle photo 2: ${lifestyleImg2}
 
-SECTIONS:
-1. Announcement bar — scrolling marquee, brand color bg, "Free AU shipping $79+ | Afterpay | Ships AU warehouse"
-2. Sticky nav — logo left, links center (Product/Features/Reviews/FAQ), Shop Now button right, blur on scroll
-3. Hero — full-height, hero bg image + dark overlay, AU badge, bold H1, subheadline, 2 CTA buttons, 3 trust badges
-4. Product section — 2-col: product image left, info right (name, stars, price, Afterpay row, Add to Cart, benefits list)
-5. Features — 3-col dark cards, emoji + title + description specific to this product
-6. Testimonials — 3-col, 5 stars, specific quotes, AU city + verified badge
-7. FAQ accordion — 5 product-specific questions, expand/collapse JS
-8. CTA strip — gradient, headline, button, countdown timer
-9. Footer — brand story, links, ABN placeholder, "All prices AUD incl. GST"
+━━━ BUILD EACH SECTION EXACTLY AS DESCRIBED ━━━
 
-Design: H1 52-64px, cards border-radius 14px, 1px border rgba(255,255,255,0.08), 80px section padding.
-Output full HTML only.`;
+① ANNOUNCEMENT BAR
+- bg: ${color}, text: #08080f, font-weight: 700, font-size: 13px, padding: 10px 0
+- Duplicate text 4x so marquee loops seamlessly: "🔥 Free AU shipping on orders $79+ &nbsp;&nbsp;|&nbsp;&nbsp; ⚡ Afterpay available &nbsp;&nbsp;|&nbsp;&nbsp; 🇦🇺 Ships from AU warehouse &nbsp;&nbsp;|&nbsp;&nbsp; ✓ 30-day returns"
+- @keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } } — animation: marquee 25s linear infinite
+
+② STICKY NAV
+- height: 68px, position: sticky, top: 0, z-index: 1000
+- Default: background: rgba(8,8,15,0.85), backdrop-filter: blur(20px), border-bottom: 1px solid rgba(255,255,255,0.06)
+- On scroll (.scrolled class via JS): background: rgba(8,8,15,0.97), border-bottom: 1px solid ${color}30
+- Layout: Logo (Syne 900, color: ${color}) | Center links (gap: 40px, font-size: 14px, color: rgba(255,255,255,0.7), hover: ${color}) | Right: "Shop Now" button (bg: ${color}, color: #08080f, padding: 10px 24px, border-radius: 8px, font-weight: 700)
+- MOBILE HAMBURGER (display:none above 768px): 3-line icon, clicking opens full-screen overlay nav
+
+③ HERO SECTION
+- min-height: 100vh, background: url(${heroImg}) center/cover, position: relative
+- Overlay: position:absolute, inset:0, background: linear-gradient(to bottom, rgba(8,8,15,0.55) 0%, rgba(8,8,15,0.75) 100%)
+- Content centered, z-index:1, max-width: 740px, margin: 0 auto, text-align: center, padding: 0 24px
+- AU badge: display:inline-block, background: ${color}22, border: 1px solid ${color}60, color: ${color}, padding: 6px 18px, border-radius: 99px, font-size: 11px, font-weight: 700, letter-spacing: 2px, text-transform: uppercase, margin-bottom: 28px
+- H1: font-family Syne, font-size: clamp(44px,7vw,72px), font-weight: 900, color: #ffffff, line-height: 1.05, letter-spacing: -2px, margin-bottom: 20px — write a punchy benefit-driven headline specific to the product
+- Subheadline: font-size: 18px, color: rgba(255,255,255,0.75), max-width: 540px, margin: 0 auto 36px, line-height: 1.7
+- Two buttons side by side: Primary (bg: ${color}, color: #08080f, padding: 16px 40px, border-radius: 10px, font-size: 16px, font-weight: 800, box-shadow: 0 8px 32px ${color}50) | Secondary (bg: transparent, border: 2px solid rgba(255,255,255,0.3), color: #fff, padding: 14px 32px, border-radius: 10px)
+- Trust strip below buttons: flex row, 3 items, each: icon (✓) + text, font-size: 13px, color: rgba(255,255,255,0.55), gap: 32px
+
+④ PRODUCT SECTION  
+- padding: 100px 5%, background: #0a0a12, max-width: 1100px, margin: 0 auto
+- 2-column grid (1fr 1fr, gap: 64px, align-items: start)
+- LEFT — Product image card: border-radius: 20px, overflow: hidden, border: 1px solid rgba(255,255,255,0.08), box-shadow: 0 24px 80px rgba(0,0,0,0.5), position: relative
+  - img width: 100%, display: block
+  - Sale badge (position:absolute, top:16px, left:16px, bg: #ef4444, color:#fff, padding: 6px 14px, border-radius: 6px, font-size: 12px, font-weight: 800): "BEST SELLER"
+- RIGHT — Product info:
+  - Product name: Syne, 28px, 900, color: #f2efe9, margin-bottom: 12px
+  - Star rating row: ★★★★★ in ${color}, "4.9 (247 reviews)", font-size: 14px, margin-bottom: 20px
+  - Price: font-size: 40px, font-weight: 900, color: ${color}, font-family: Syne + strikethrough original price in grey
+  - Afterpay row: bg: rgba(${colorRgb},0.08), border: 1px solid ${color}30, border-radius: 8px, padding: 12px 16px, font-size: 14px, display:flex, align-items:center, gap:8px, margin-bottom: 24px — "Pay in 4 interest-free instalments with Afterpay"
+  - Stock warning: font-size: 13px, color: #f59e0b, margin-bottom: 16px — "⚡ Only 8 left in stock"  
+  - Add to Cart button: width: 100%, padding: 18px, bg: ${color}, color: #08080f, border-radius: 12px, font-size: 17px, font-weight: 800, border: none, cursor: pointer, margin-bottom: 12px — JS: on click change text to "✓ Added to Cart!" for 2s then reset
+  - Buy Now (dark): width: 100%, padding: 16px, bg: #1a1a2a, color: #f2efe9, border: 1px solid rgba(255,255,255,0.1), border-radius: 12px, font-size: 15px, font-weight: 700
+  - Benefits list: list-style none, each item: display:flex, gap:10px, padding: 10px 0, border-bottom: 1px solid rgba(255,255,255,0.05), font-size: 14px, color: rgba(242,239,233,0.7) — checkmark in ${color} — write 6 SPECIFIC benefits for this product
+
+⑤ FEATURES SECTION
+- padding: 100px 5%, background: #08080f
+- H2 centered, Syne 800, font-size: clamp(28px,4vw,44px), margin-bottom: 64px
+- 3-column grid, gap: 20px
+- Each card: background: #0f1018, border: 1px solid rgba(255,255,255,0.06), border-radius: 16px, padding: 32px 28px, transition: all 0.3s — on hover: border-color: ${color}40, transform: translateY(-4px), box-shadow: 0 16px 48px rgba(0,0,0,0.3)
+- Card: emoji icon (font-size: 32px, margin-bottom: 16px) | feature title (Syne, 17px, 700, color: #f2efe9, margin-bottom: 8px) | description (14px, color: rgba(242,239,233,0.55), line-height: 1.7)
+- Write 3 features SPECIFIC to this product — not generic
+
+⑥ LIFESTYLE GALLERY
+- padding: 80px 5%, background: #0a0a12  
+- 2-column image grid, gap: 16px, max-width: 1000px, margin: 0 auto
+- Image 1 (${lifestyleImg1}): border-radius: 16px, aspect-ratio: 16/10, object-fit: cover, width: 100%
+- Image 2 (${lifestyleImg2}): border-radius: 16px, aspect-ratio: 16/10, object-fit: cover, width: 100%
+
+⑦ TESTIMONIALS
+- padding: 100px 5%, background: #08080f
+- H2 centered + star rating summary (⭐ 4.9/5 from 200+ verified AU reviews)
+- 3-column grid, gap: 20px
+- Each card: background: #0f1018, border: 1px solid rgba(255,255,255,0.07), border-radius: 16px, padding: 28px, border-top: 3px solid ${color}
+- Stars row: ${color}, font-size: 14px, margin-bottom: 14px
+- Quote: font-size: 15px, color: rgba(242,239,233,0.7), line-height: 1.75, font-style: italic, margin-bottom: 18px — make quotes SPECIFIC to this product, mention results
+- Name (Syne, 14px, 700) + City (13px, muted) + "Verified Purchase" badge (tiny, ${color}, bg ${color}15)
+- Write 3 different specific reviews: reviewer 1 mentions the product benefit, reviewer 2 mentions fast AU shipping, reviewer 3 mentions Afterpay
+
+⑧ FAQ ACCORDION
+- padding: 80px 5%, background: #0a0a12, max-width: 760px, margin: 0 auto
+- H2 centered, Syne 800
+- Each item: background: #0f1018, border: 1px solid rgba(255,255,255,0.07), border-radius: 12px, margin-bottom: 10px, overflow: hidden
+- Question row: padding: 20px 24px, display:flex, justify-content:space-between, align-items:center, cursor:pointer, font-weight: 700, font-size: 15px — + / − icon in ${color}
+- Answer: max-height: 0, overflow: hidden, transition: max-height 0.35s ease — when .open: max-height: 200px — padding: 0 24px 20px, font-size: 14px, color: rgba(242,239,233,0.6), line-height: 1.75
+- JS: toggle .open class on click, change icon + → −
+- Write 5 questions SPECIFIC to this niche
+
+⑨ CTA STRIP
+- padding: 100px 5%, background: linear-gradient(135deg, #0f1018 0%, rgba(${colorRgb},0.15) 100%), text-align: center
+- H2: Syne 800, clamp(28px,4vw,44px), margin-bottom: 12px
+- Subtext: 17px, rgba(242,239,233,0.6), margin-bottom: 36px
+- Big CTA button: same style as primary
+- Countdown timer below button: "⏰ Offer ends in: HH:MM:SS" — font-family: Syne, font-size: 20px, color: ${color}, margin-top: 24px — JS: countdown from 23:59:59, decrement every second
+
+⑩ FOOTER  
+- padding: 64px 5% 28px, background: #050508, border-top: 1px solid rgba(255,255,255,0.06)
+- 4-column grid: Brand (logo + tagline + social icons) | Shop links | Support links | Legal links
+- Bottom bar: flex space-between, font-size: 12px, color: rgba(255,255,255,0.2) — "© 2025 ${storeName || niche}. ABN: [Enter your ABN] · 🇦🇺 Proudly Australian" | "All prices AUD incl. GST · Australian Consumer Law applies"
+
+━━━ MOBILE RESPONSIVE (max-width: 768px) ━━━
+- Nav: hide .nav-center and .btn-nav, show hamburger button (3 lines, 26px wide)
+- Mobile menu: position:fixed, inset:0, bg: rgba(8,8,15,0.98), z-index:9999, flex-column, gap:32px, align-items:center, justify-content:center, font-size: 24px — hidden by default, .mobile-open shows it
+- Product section: grid-template-columns: 1fr
+- Features grid: grid-template-columns: 1fr
+- Testimonials grid: grid-template-columns: 1fr
+- Lifestyle gallery: grid-template-columns: 1fr
+- Footer: grid-template-columns: 1fr 1fr
+
+Output the complete HTML document. Every section. Full CSS. Working JS. Nothing omitted.`;
 
       // ── 3. Stream from Claude ─────────────────────────────────────────────
       send('progress', { pct: 40, msg: '🎨 Building layout & styles...' });
 
       const client = getAnthropicClient();
       const stream = await client.messages.stream({
-        model: 'claude-haiku-4-5',
-        max_tokens: 8000,
+        model: CLAUDE_MODEL,
+        max_tokens: 12000,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }],
       });
@@ -514,7 +610,7 @@ Output full HTML only.`;
       res.end();
     } catch (err: any) {
       console.error('[website/generate]', err.message);
-      try { res.write(`event: error\ndata: ${JSON.stringify({ error: err.message || 'Generation failed.' })}\n\n`); res.end(); } catch {}
+      try { const errPayload = 'event: error\ndata: ' + JSON.stringify({ error: err.message || 'Generation failed.' }) + '\n\n'; res.write(errPayload); res.end(); } catch {}
     }
   });
 }
