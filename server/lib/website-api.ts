@@ -366,7 +366,7 @@ function buildFaviconAndOgTags(storeName: string, color: string, niche: string, 
     "offers": {
       "@type": "Offer",
       "priceCurrency": "AUD",
-      "price": price || "49.95",
+      "price": (price || "49.95").replace(/[$,AUD\s]/g, ''),
       "availability": "https://schema.org/InStock",
       "seller": { "@type": "Organization", "name": storeName }
     },
@@ -530,7 +530,7 @@ function postProcessHtml(html: string): string {
   let imgCount = 0;
   html = html.replace(/<img\s/gi, (match) => {
     imgCount++;
-    if (imgCount <= 2) return match;
+    if (imgCount <= 1) return match; // only hero image is eager
     return '<img loading="lazy" ';
   });
 
