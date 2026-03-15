@@ -617,6 +617,56 @@ function pickCategoryFallbackImage(niche: string): string {
 }
 
 // ── Build Store Preview HTML ──────────────────────────────────────────────────
+// ── Premium Template Builder — uses the WEBSITE_TEMPLATES (DTC Minimal / Dropship Bold / Premium Brand) ──
+function buildPremiumStore(templateId: string, data: GeneratedData, productData?: Record<string, any>): string {
+  const tpl = WEBSITE_TEMPLATES.find((t) => t.id === templateId) || WEBSITE_TEMPLATES[0];
+  const storeName = data.storeName || (productData?.brand_name as string) || 'My Store';
+  const brandSlug = storeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30);
+  const primaryColor = data.primaryColor || tpl.palette.accent;
+  const headline = data.headline || (productData?.hero_headline as string) || 'Built for Australia';
+  const subheadline = data.subheadline || (productData?.hero_subheading as string) || 'Quality products delivered to your door.';
+  const niche = (productData?.product_type as string) || data.heroImageKeyword || 'lifestyle';
+  const price = (productData?.price as number) ? `$${productData.price}` : '$49.95';
+  const productName = (productData?.product_title as string) || storeName;
+  const productDesc = (data.features && data.features.length > 0)
+    ? (typeof data.features[0] === 'string' ? data.features[0] : (data.features[0] as any).description)
+    : 'Premium quality product built for Australian customers.';
+  const brandStory = data.brandStory || data.about_section || `${storeName} was born from a desire to bring the best ${niche} products to Australians. We're passionate about quality, fast delivery, and genuine customer service.`;
+  const testimonials = data.testimonials && data.testimonials.length >= 3
+    ? data.testimonials
+    : [
+        { text: 'Fast shipping and brilliant quality. Exactly what I needed — will definitely order again!', name: 'Jordan K.' },
+        { text: 'Arrived quickly from the AU warehouse. Great value and the product is top notch.', name: 'Sarah M.' },
+        { text: 'Finally a brand that delivers on its promises. Highly recommend to any Aussie.', name: 'Emma T.' },
+      ];
+
+  const featureIcons = ['⚡', '🎯', '✨', '🛡️', '🚀'];
+  const featuresHtml = (data.features || []).slice(0, 3).map((f, i) => {
+    const title = typeof f === 'string' ? f : f.title;
+    const desc = typeof f === 'string' ? 'Quality crafted for Australian customers.' : (f as any).description;
+    return `<div class="fc"><div class="fn">${featureIcons[i] || '✓'}</div><h3>${title}</h3><p>${desc}</p></div>`;
+  }).join('') || `<div class="fc"><div class="fn">⚡</div><h3>Fast AU Delivery</h3><p>Ships from AU warehouse. Arrives in 3-7 business days.</p></div><div class="fc"><div class="fn">🛡️</div><h3>30-Day Returns</h3><p>Not happy? Full refund, no questions asked.</p></div><div class="fc"><div class="fn">💎</div><h3>Premium Quality</h3><p>Built to last, designed for Australian standards.</p></div>`;
+
+  let html = tpl.html;
+  html = html.replace(/{BRAND_NAME}/g, storeName);
+  html = html.replace(/{BRAND_COLOR}/g, primaryColor);
+  html = html.replace(/{BRAND_SLUG}/g, brandSlug);
+  html = html.replace(/{PRODUCT_NAME}/g, productName);
+  html = html.replace(/{NICHE}/g, niche);
+  html = html.replace(/{TAGLINE}/g, data.tagline || `Premium ${niche} for Australians`);
+  html = html.replace(/{PRICE}/g, price);
+  html = html.replace(/{HEADLINE}/g, headline);
+  html = html.replace(/{SUBHEADLINE}/g, subheadline);
+  html = html.replace(/{PRODUCT_DESC}/g, productDesc);
+  html = html.replace(/{CTA_TEXT}/g, data.cta_primary || 'Shop Now — Free AU Shipping');
+  html = html.replace(/{BRAND_STORY}/g, brandStory);
+  html = html.replace(/{TESTIMONIAL_1}/g, testimonials[0]?.text || '');
+  html = html.replace(/{TESTIMONIAL_2}/g, testimonials[1]?.text || '');
+  html = html.replace(/{TESTIMONIAL_3}/g, testimonials[2]?.text || '');
+  html = html.replace(/{FEATURES_HTML}/g, featuresHtml);
+  return html;
+}
+
 function buildStorePreview(data: GeneratedData, productData?: Record<string, any>): string {
   const primaryColor = data.primaryColor || '#d4af37';
   const featureIcons = ['⚡', '🎯', '✨', '🛡️', '🚀', '💎'];
@@ -1214,8 +1264,8 @@ export default function WebsiteGenerator() {
   // Preview HTML (memoised) — passes productData so images/variants are injected
   const previewHTML = useMemo(() => {
     if (!generatedData) return '';
-    return buildStorePreview(generatedData, analysisResult || undefined);
-  }, [generatedData, analysisResult]);
+    return buildPremiumStore(premiumTemplateId, generatedData, analysisResult || undefined);
+  }, [generatedData, analysisResult, premiumTemplateId]);
 
   const hasOutput = generatedData || rawResponse;
 
@@ -1379,7 +1429,7 @@ CRITICAL: Write ALL copy specifically for THIS product (${analysisResult.product
       }
     } else {
       // New format: zip the preview HTML
-      zip.file('index.html', buildStorePreview(generatedData, analysisResult || undefined));
+      zip.file('index.html', buildPremiumStore(premiumTemplateId, generatedData, analysisResult || undefined));
     }
     const blob = await zip.generateAsync({ type: 'blob' });
     const url = URL.createObjectURL(blob);
@@ -1393,7 +1443,7 @@ CRITICAL: Write ALL copy specifically for THIS product (${analysisResult.product
 
   const handleDownloadHTML = useCallback(() => {
     if (!generatedData) return;
-    const html = buildStorePreview(generatedData, analysisResult || undefined);
+    const html = buildPremiumStore(premiumTemplateId, generatedData, analysisResult || undefined);
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1504,7 +1554,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
     setVercelError('');
     setVercelResult(null);
     try {
-      const html = buildStorePreview(generatedData, analysisResult || undefined);
+      const html = buildPremiumStore(premiumTemplateId, generatedData, analysisResult || undefined);
       const response = await fetch('/api/website/deploy-vercel', {
         method: 'POST',
         headers: {

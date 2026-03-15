@@ -188,12 +188,62 @@ function Router() {
             <Route path="/winning-products-australia" component={WinningProductsAustralia} />
             <Route path="/product/:slug" component={ProductReport} />
             <Route path="/demo-dashboard" component={PromoDashboard} />
+            <Route path="/privacy">{() => <LegalPage title="Privacy Policy" slug="privacy" />}</Route>
+            <Route path="/terms">{() => <LegalPage title="Terms of Service" slug="terms" />}</Route>
+            <Route path="/refund-policy">{() => <LegalPage title="Refund Policy" slug="refund-policy" />}</Route>
             <Route path="/404" component={NotFound} />
             <Route component={NotFound} />
           </Switch>
         </motion.div>
       </AnimatePresence>
     </Suspense>
+  );
+}
+
+function LegalPage({ title, slug }: { title: string; slug: string }) {
+  const content: Record<string, string[]> = {
+    privacy: [
+      'Majorka Pty Ltd ("we", "us") is committed to protecting your privacy in accordance with the Australian Privacy Act 1988.',
+      'We collect personal information such as name, email, and usage data to provide and improve our service.',
+      'Your data is stored securely and never sold to third parties. We use it solely to operate the platform and communicate with you.',
+      'You may request access to, correction of, or deletion of your personal data by emailing hello@majorka.io.',
+      'We use cookies and analytics tools (PostHog) to understand how users interact with Majorka. You may opt out at any time.',
+      'By using Majorka, you consent to this policy. We may update it — continued use constitutes acceptance.',
+    ],
+    terms: [
+      'These Terms of Service govern your use of Majorka (majorka.io), operated by Majorka Pty Ltd (ABN pending), Gold Coast, QLD, Australia.',
+      'By creating an account, you agree to use the platform lawfully and not to misuse AI tools, resell access, or reverse-engineer the service.',
+      'Subscription fees are charged in AUD. Cancellations take effect at the end of the current billing period. No refunds for partial months.',
+      'Majorka provides AI-generated content for informational purposes. We do not guarantee specific business outcomes.',
+      'Australian Consumer Law applies. Nothing in these terms limits your rights under the Competition and Consumer Act 2010.',
+      'We may suspend accounts that breach these terms. For disputes, contact hello@majorka.io before seeking legal remedies.',
+    ],
+    'refund-policy': [
+      'We offer a 7-day money-back guarantee on your first subscription payment if you are not satisfied with Majorka.',
+      'To request a refund, email hello@majorka.io within 7 days of your first charge with your account email and reason.',
+      'Refunds are processed within 5-10 business days to your original payment method.',
+      'Subsequent billing periods are non-refundable unless required by Australian Consumer Law.',
+      'If you experience a technical issue preventing you from using the platform, contact us immediately — we will resolve it or issue a credit.',
+      'This policy does not affect your rights under the Australian Consumer Law.',
+    ],
+  };
+  const paragraphs = content[slug] || [];
+  return (
+    <div style={{ minHeight: '100vh', background: '#080a0e', color: '#f2efe9', fontFamily: 'DM Sans, sans-serif', padding: '80px 24px' }}>
+      <div style={{ maxWidth: 720, margin: '0 auto' }}>
+        <a href="/" style={{ color: '#d4af37', fontSize: 13, textDecoration: 'none', display: 'inline-block', marginBottom: 32 }}>← Back to Majorka</a>
+        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 36, fontWeight: 800, marginBottom: 8, color: '#f2efe9' }}>{title}</h1>
+        <p style={{ fontSize: 13, color: '#52525b', marginBottom: 48 }}>Last updated: March 2025 · Majorka Pty Ltd · Gold Coast, QLD, Australia</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {paragraphs.map((p, i) => (
+            <p key={i} style={{ fontSize: 15, lineHeight: 1.8, color: '#a1a1aa', borderLeft: '2px solid rgba(212,175,55,0.2)', paddingLeft: 20 }}>{p}</p>
+          ))}
+        </div>
+        <div style={{ marginTop: 60, padding: '24px', background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 12 }}>
+          <p style={{ fontSize: 14, color: '#71717a' }}>Questions? Email us at <a href="mailto:hello@majorka.io" style={{ color: '#d4af37' }}>hello@majorka.io</a></p>
+        </div>
+      </div>
+    </div>
   );
 }
 

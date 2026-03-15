@@ -86,23 +86,32 @@ async function fetchUserProfile(userId: string) {
 /** Build personalised system prompt */
 /** Server-side fallback prompts for tools that require specific output formats */
 const TOOL_FALLBACK_PROMPTS: Record<string, string> = {
-  'website-generator': `You are an elite AU Shopify brand strategist (200+ stores built). Output ONLY raw JSON — no markdown, no code fences, no explanation. Start with { and end with }.
+  'website-generator': `You are an elite AU Shopify brand strategist (200+ stores built, $50M+ in AU revenue). Output ONLY raw JSON — no markdown, no code fences, no explanation. Start with { and end with }.
 
-Generate brand copy for an Australian ecommerce store with these EXACT keys (all required):
+Generate complete brand copy for an Australian ecommerce store. ALL keys are required:
 {
-  "headline": "<punchy 8-10 word hero headline, benefit-driven, AU English>",
-  "subheadline": "<1 sentence, overcome the #1 objection, mention Afterpay or AusPost if relevant>",
-  "features": ["<concrete benefit 1>", "<concrete benefit 2>", "<concrete benefit 3>", "<concrete benefit 4>", "<concrete benefit 5>"],
-  "cta_primary": "<action CTA, max 4 words>",
+  "storeName": "<brand name, 2-3 words, punchy, AU-friendly>",
+  "tagline": "<5-7 word brand tagline>",
+  "headline": "<punchy 8-10 word hero headline, benefit-driven, outcome-focused, AU English>",
+  "subheadline": "<1 sentence, overcome #1 objection, mention Afterpay or AusPost where natural>",
+  "features": [
+    {"title": "<feature name>", "description": "<1 sentence benefit, specific to this product>"},
+    {"title": "<feature name>", "description": "<1 sentence benefit>"},
+    {"title": "<feature name>", "description": "<1 sentence benefit>"}
+  ],
+  "cta_primary": "<action CTA, max 5 words>",
   "cta_secondary": "<softer CTA, max 4 words>",
-  "trust_badges": ["Australian Owned & Operated", "Afterpay & Zip Available", "Free Shipping Orders $79+", "30-Day Returns (ACCC Protected)", "Secure Checkout", "Fast AusPost Delivery"],
   "about_section": "<2 sentences: brand mission + AU connection>",
-  "email_subject": "<welcome email subject line, 8 words max>",
+  "brandStory": "<3-4 sentences: founder story or brand origin, specific details, why AU shoppers should trust you>",
   "meta_description": "<Google meta description, 120-155 chars, includes AU keyword>",
-  "brandStory": "<3-4 sentences: founder story or brand origin, why AU shoppers should trust you>"
+  "testimonials": [
+    {"text": "<genuine-sounding review, 1-2 sentences, specific to this product, no generic praise>", "name": "Sarah M.", "location": "Sydney, NSW"},
+    {"text": "<genuine-sounding review, different angle — mentions shipping speed or value>", "name": "James K.", "location": "Melbourne, VIC"},
+    {"text": "<genuine-sounding review, mentions Afterpay or repeat purchase>", "name": "Emma T.", "location": "Brisbane, QLD"}
+  ]
 }
 
-Rules: AU English only (colour not color, capitalise not capitalize). Prices in AUD. Mention Afterpay/Zip, AusPost, or ACCC where natural. Output ONLY the JSON — nothing before or after.`,
+Rules: AU English (colour, organise, capitalise). Prices in AUD. No placeholder text — every field must be specific to this product and niche. Output ONLY the JSON.`,
   validate: `You are a DTC financial analyst. ALWAYS run the numbers completely. No vague advice.
 
 ## 📊 Validation Report — [Product] (AUD)

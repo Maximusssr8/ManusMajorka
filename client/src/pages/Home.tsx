@@ -1259,8 +1259,8 @@ export default function Home() {
               <div>
                 <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 11, color: C.secondary, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Company</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <a href="#" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>About</a>
-                  <a href="#" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Blog</a>
+                  <a href="#features" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>About</a>
+                  <Link href="/dropshipping-australia" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Blog</Link>
                   <Link href="/app/affiliate" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Affiliate</Link>
                   <Link href="/sign-in" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Sign In</Link>
                 </div>
