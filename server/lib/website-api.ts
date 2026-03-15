@@ -234,7 +234,51 @@ async function fetchPexelsPortrait(query: string): Promise<string> {
   }
 }
 
-// ─── Full AI HTML Generator ────────────────────────────────────────────────────
+// ─── Shared JS block (always appended — never AI-generated to avoid truncation) ──
+function buildHardCodedJs(): string {
+  return `
+<script>
+window.addEventListener('scroll', function() {
+  var nav = document.querySelector('nav');
+  if (nav) nav.classList.toggle('scrolled', window.scrollY > 50);
+});
+var ham = document.getElementById('hamburger');
+var mob = document.getElementById('mobile-menu');
+if (ham && mob) {
+  ham.addEventListener('click', function() { mob.classList.toggle('mobile-open'); });
+  mob.querySelectorAll('a').forEach(function(a) { a.addEventListener('click', function() { mob.classList.remove('mobile-open'); }); });
+}
+document.querySelectorAll('.faq-item').forEach(function(item) {
+  var q = item.querySelector('.faq-question');
+  if (!q) return;
+  q.addEventListener('click', function() {
+    var isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(function(i) { i.classList.remove('open'); var t = i.querySelector('.faq-toggle'); if (t) t.textContent = '+'; });
+    if (!isOpen) { item.classList.add('open'); var t = item.querySelector('.faq-toggle'); if (t) t.textContent = '−'; }
+  });
+});
+document.querySelectorAll('.btn-cart, .add-to-cart, [data-cart]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var orig = this.textContent; this.textContent = '✓ Added to Cart!'; this.disabled = true;
+    var self = this; setTimeout(function() { self.textContent = orig; self.disabled = false; }, 2000);
+  });
+});
+(function() {
+  var t = 23 * 3600 + 59 * 59;
+  var el = document.getElementById('countdown');
+  if (!el) return;
+  setInterval(function() {
+    if (t <= 0) t = 86399;
+    el.textContent = String(Math.floor(t/3600)).padStart(2,'0') + ':' + String(Math.floor((t%3600)/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0');
+    t--;
+  }, 1000);
+})();
+</script>
+</body>
+</html>`;
+}
+
+// ─── Full AI HTML Generator (2-pass) ──────────────────────────────────────────
 export async function generateFullStore(params: {
   niche: string;
   storeName: string;
@@ -279,63 +323,97 @@ PRODUCT: ${niche}
 Target: ${targetAudience || 'Australian shoppers aged 25-45'}
 Price range: ${price || '$49.95'} AUD`;
 
-  // ── 3. Call Claude to generate the full HTML ───────────────────────────────
+  const colorRgb = (function(hex: string) {
+    const c = hex.replace('#', '');
+    return parseInt(c.substring(0,2),16)+','+parseInt(c.substring(2,4),16)+','+parseInt(c.substring(4,6),16);
+  })(color);
+
   const client = getAnthropicClient();
 
-  const systemPrompt = `You are a senior frontend developer who builds high-converting Australian ecommerce stores. Output ONLY the complete HTML document — start with <!DOCTYPE html> and end with </html>. No explanation, no markdown.
+  // ── PASS 1: DOCTYPE + CSS + above-the-fold ───────────────────────────────
+  const systemPrompt = `You are a world-class frontend developer. Output ONLY raw HTML — no markdown, no explanation. Start with <!DOCTYPE html>.
 
-RULES:
-1. All CSS in <style> in <head>. All JS in <script> at bottom of <body>. No external CSS frameworks.
-2. Google Fonts allowed via <link>
-3. Mobile responsive
-4. Use the EXACT Pexels image URLs provided — never use placeholder images
-5. AU English (colour, Afterpay, AusPost, AUD)
-6. Include: sticky nav with blur, FAQ accordion JS, countdown timer JS, add-to-cart button feedback
-7. Dark theme: bg #08080f, surface #0f1018. Premium feel.`;
+RULES: All CSS in one <style> block in <head>. No external CSS frameworks. Google Fonts via <link> only. Use exact image URLs given. AU English.`;
 
-  const userPrompt = `Build a complete, high-converting Australian ecommerce store for the following product/niche.
+  const pass1 = `Build the first half of an Australian ecommerce store for: ${niche}
 
+Store: ${storeName} | Brand color: ${color} | Style: ${vibe || 'modern premium dark DTC'}
+Fonts: Syne (headings 800/900) + DM Sans (body) from Google Fonts
 ${productContext}
 
-STORE CONFIG:
-- Store name: ${storeName}
-- Brand color (use throughout): ${color}
-- Style/vibe: ${vibe || 'modern premium DTC brand'}
-- Font: Use "Syne" (headings, 700/900) + "DM Sans" (body, 400/500) from Google Fonts
+IMAGES:
+- Hero bg: ${heroImg}
+- Product: ${productImg}
 
-REAL IMAGES TO USE (embed these exact URLs):
-- Hero background: ${heroImg}
-- Hero secondary: ${heroImg2}
-- Product shot: ${productImg}
-- Lifestyle image 1: ${lifestyleImg1}
-- Lifestyle image 2: ${lifestyleImg2}
+OUTPUT: <!DOCTYPE html> → complete <head> with ALL CSS (dark theme bg:#08080f, all sections styled) → <body> → these sections:
 
-SECTIONS TO BUILD:
-1. Announcement bar — scrolling marquee, brand color bg, "Free AU shipping $79+ | Afterpay | Ships AU warehouse"
-2. Sticky nav — logo left, links center (Product/Features/Reviews/FAQ), Shop Now button right, blur on scroll
-3. Hero — full-height, hero bg image + dark overlay, AU badge, bold H1, subheadline, 2 CTA buttons, 3 trust badges
-4. Product section — 2-col (image left, info right): product image, name, stars, price in brand color, Afterpay row, Add to Cart (full width), benefits list
-5. Features — 3-col dark cards, emoji icon + title + description, specific to this product
-6. Testimonials — 3-col, 5 stars, specific quote, name + AU city + verified
-7. FAQ accordion — 5 questions specific to this niche, expand/collapse JS
-8. CTA strip — gradient bg, headline, button, countdown timer
-9. Footer — brand story, links, copyright with ABN, "All prices AUD incl. GST"
+① ANNOUNCEMENT BAR — bg:${color}, color:#08080f, font-weight:700, 13px
+  Marquee: duplicate text 4x for seamless loop. Text: "🔥 Free AU shipping $79+ &nbsp;|&nbsp; ⚡ Afterpay &nbsp;|&nbsp; 🇦🇺 Ships AU warehouse &nbsp;|&nbsp; ✓ 30-day returns"
+  @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} } animation:marquee 25s linear infinite
 
-DESIGN: Syne font (headings 800/900) + DM Sans (body). H1: 52-64px. Cards: border-radius 14px, 1px border rgba(255,255,255,0.08). Buttons: brand color, 10px radius. Generous padding (80px sections).
+② STICKY NAV — height:68px, sticky top:0, z-index:1000, bg:rgba(8,8,15,0.85), backdrop-filter:blur(20px), border-bottom:1px solid rgba(255,255,255,0.06)
+  .scrolled class: bg:rgba(8,8,15,0.97), border-bottom:1px solid ${color}30
+  Logo left (Syne 900, color:${color}) | center links (gap:40px, 14px, hover:${color}) | right: Shop Now btn (bg:${color}, color:#08080f, padding:10px 24px, border-radius:8px, font-weight:700)
+  MOBILE: hamburger button id="hamburger" (3 lines, display:none above 768px) + full-screen overlay id="mobile-menu" (fixed inset-0, bg:rgba(8,8,15,0.98), z-index:9999, flex-col, gap:32px, centered, font-size:24px, hidden by default, .mobile-open shows it)
 
-Output the full HTML document only.`;
+③ HERO — min-height:100vh, bg:url(${heroImg}) center/cover, overlay rgba(8,8,15,0.6)
+  Content centered z-index:1. AU badge (${color} bg, 11px uppercase, border-radius:99px). H1 Syne 900 clamp(44px,7vw,72px) white. Subheadline 18px rgba(255,255,255,0.75). Two buttons (primary bg:${color} color:#08080f + secondary transparent border:2px solid rgba(255,255,255,0.3)). Trust strip 3 items.
+  Write headline/subheadline specific to: ${niche}
 
-  // Use claude-haiku for speed (5x faster than Sonnet — stays within Vercel 60s limit)
-  const message = await client.messages.create({
-    model: 'claude-haiku-4-5',
-    max_tokens: 8000,
-    messages: [{ role: 'user', content: userPrompt }],
-    system: systemPrompt,
-  });
+④ PRODUCT SECTION — padding:100px 5%, bg:#0a0a12, max-width:1100px margin:0 auto
+  2-col grid (1fr 1fr, gap:64px). LEFT: product image card (border-radius:20px, border:1px solid rgba(255,255,255,0.08), overflow:hidden, <img src="${productImg}" width:100%>) + "BEST SELLER" badge (absolute top:16px left:16px, bg:#ef4444, white, 12px 800).
+  RIGHT: name (Syne 28px 900) | stars ★★★★★ in ${color} + "4.9 (247 reviews)" | price (Syne 40px 900 color:${color}) + original struck | Afterpay row (bg:rgba(${colorRgb},0.08), border:1px solid ${color}30, 12px 16px, "Pay 4x with Afterpay") | stock "⚡ Only 8 left" (#f59e0b) | Add to Cart btn (width:100%, bg:${color}, 18px, Syne 800, class="btn-cart") | Buy Now (#1a1a2a, width:100%) | 6 benefits list (✓ in ${color}, 14px each, specific to ${niche})
 
-  const html = (message.content[0] as any).text as string;
-  const start = html.indexOf('<!DOCTYPE');
-  return start >= 0 ? html.slice(start) : html;
+Include ALL CSS for ALL sections (features, testimonials, FAQ, CTA, footer, gallery, mobile) in the <style> block now so pass 2 only needs to write HTML.
+
+End output at </section> after product section. Do NOT write features/testimonials/FAQ/footer yet.`;
+
+  const msg1 = await client.messages.create({ model: CLAUDE_MODEL, max_tokens: 6000, system: systemPrompt, messages: [{ role: 'user', content: pass1 }] });
+  const part1Raw = ((msg1.content[0] as any).text as string).trim();
+  const part1Clean = part1Raw.replace(/<!--\s*PASS1_END\s*-->/gi, '').replace(/<\/body>\s*<\/html>\s*$/i, '').trim();
+
+  // ── PASS 2: Remaining sections (features → footer) ───────────────────────
+  const pass2 = `Continue the Australian ecommerce store HTML. Output ONLY raw HTML sections, no explanation. Start immediately with <section id="features">.
+
+Product: ${niche} | Store: ${storeName} | Color: ${color} | colorRgb: ${colorRgb}
+${productContext}
+Lifestyle images: ${lifestyleImg1} | ${lifestyleImg2}
+
+BUILD (CSS already written in pass 1 — HTML only):
+
+⑤ <section id="features" ...> — padding:100px 5%, bg:#08080f
+  H2 centered Syne 800. 3-col grid class="features-grid". 3 cards class="feature-card" specific to ${niche}: <div class="feature-icon">EMOJI</div><h3>TITLE</h3><p>DESC</p>
+
+⑥ <section id="gallery" ...> — padding:80px 5%, bg:#0a0a12
+  2-col grid, max-width:1000px, margin:0 auto
+  <img src="${lifestyleImg1}" style="border-radius:16px;width:100%;aspect-ratio:16/10;object-fit:cover;display:block">
+  <img src="${lifestyleImg2}" style="border-radius:16px;width:100%;aspect-ratio:16/10;object-fit:cover;display:block">
+
+⑦ <section id="reviews" ...> — padding:100px 5%, bg:#08080f
+  H2 + p "⭐ 4.9/5 · 200+ verified AU reviews". 3-col grid class="testimonials-grid".
+  Each card class="testimonial-card": stars ★★★★★, quote specific to ${niche} (mention result/benefit/shipping/Afterpay), name + AU city + <span class="verified">✓ Verified</span>
+
+⑧ <section id="faq" ...> — padding:80px 5%, bg:#0a0a12, max-width:760px, margin:0 auto
+  H2. 5x <div class="faq-item"><div class="faq-question"><span>Q</span><span class="faq-toggle">+</span></div><div class="faq-answer"><p>A</p></div></div>
+  Questions specific to ${niche}.
+
+⑨ <section id="offer" ...> — padding:100px 5%, background:linear-gradient(135deg,#0f1018,rgba(${colorRgb},0.15)), text-align:center
+  H2 Syne 800, p subtext, <button class="btn-primary btn-cart">Shop ${storeName} Now</button>
+  <p ...>⏰ Offer ends in: <span id="countdown">23:59:59</span></p>
+
+⑩ <footer> — padding:64px 5% 28px, bg:#050508, border-top:1px solid rgba(255,255,255,0.06)
+  4-col grid: brand (logo Syne ${color} + tagline + social) | Shop | Support | Legal
+  <div class="footer-bottom">© 2025 ${storeName}. ABN: [Your ABN] 🇦🇺 | All prices AUD incl. GST · Australian Consumer Law applies</div>
+
+End with </footer>. No script tags. No </body> or </html>.`;
+
+  const msg2 = await client.messages.create({ model: CLAUDE_MODEL, max_tokens: 6000, system: 'Output only raw HTML sections starting from <section id="features">. No explanation.', messages: [{ role: 'user', content: pass2 }] });
+  const part2Raw = ((msg2.content[0] as any).text as string).trim().replace(/<\/body>\s*<\/html>\s*$/i, '').replace(/<script[\s\S]*?<\/script>/gi, '');
+
+  // ── Merge + guaranteed JS ─────────────────────────────────────────────────
+  const merged = part1Clean + '\n' + part2Raw + '\n' + buildHardCodedJs();
+  const startIdx = merged.indexOf('<!DOCTYPE');
+  return startIdx >= 0 ? merged.slice(startIdx) : merged;
 }
 
 // ─── Route Registration ───────────────────────────────────────────────────────
@@ -577,34 +655,167 @@ REAL PEXELS IMAGES — use ALL of them:
 
 Output the complete HTML document. Every section. Full CSS. Working JS. Nothing omitted.`;
 
-      // ── 3. Stream from Claude ─────────────────────────────────────────────
-      send('progress', { pct: 40, msg: '🎨 Building layout & styles...' });
-
       const client = getAnthropicClient();
-      const stream = await client.messages.stream({
+
+      // ── PASS 1: Structure + CSS + Above the fold ──────────────────────────
+      send('progress', { pct: 30, msg: '🎨 Building layout & styles...' });
+
+      const pass1Prompt = userPrompt + `
+
+IMPORTANT — OUTPUT ONLY THESE SECTIONS NOW (stop after the product section):
+<!DOCTYPE html> → <head> (with ALL CSS in one <style> block) → <body> → announcement bar → nav → hero → product section
+
+End your output with a comment: <!-- PASS1_END -->
+Do NOT include features, testimonials, FAQ, CTA strip, footer or <script> tags yet.`;
+
+      const pass2SystemPrompt = `You are continuing to build an Australian ecommerce store HTML file. You will receive the first half of the HTML (above-the-fold sections) and must append the remaining sections to complete the page.
+
+Output ONLY the continuation HTML — starting from the features section and ending with </body></html>. No explanation.
+Include ALL remaining JS in a single <script> block before </body>.`;
+
+      let part1 = '';
+      const stream1 = await client.messages.stream({
         model: CLAUDE_MODEL,
-        max_tokens: 12000,
+        max_tokens: 6000,
         system: systemPrompt,
-        messages: [{ role: 'user', content: userPrompt }],
+        messages: [{ role: 'user', content: pass1Prompt }],
       });
 
-      let html = '';
-      let lastProgressPct = 40;
-      for await (const chunk of stream) {
+      for await (const chunk of stream1) {
         if (chunk.type === 'content_block_delta' && (chunk.delta as any).type === 'text_delta') {
-          html += (chunk.delta as any).text;
-          // Send incremental progress based on output size
-          const pct = Math.min(90, 40 + Math.floor((html.length / 7000) * 50));
-          if (pct > lastProgressPct + 5) {
-            lastProgressPct = pct;
-            send('progress', { pct, msg: '⚡ Generating HTML...' });
-          }
+          part1 += (chunk.delta as any).text;
+          const pct = Math.min(58, 30 + Math.floor((part1.length / 4000) * 28));
+          send('progress', { pct, msg: '⚡ Building above the fold...' });
         }
       }
 
+      // ── PASS 2: Features, testimonials, FAQ, footer, all JS ──────────────
+      send('progress', { pct: 60, msg: '🏗️ Adding features, reviews & footer...' });
+
+      // Strip the PASS1_END marker and any closing tags from part1
+      const part1Clean = part1.replace(/<!--\s*PASS1_END\s*-->/gi, '').replace(/<\/body>\s*<\/html>\s*$/i, '').trim();
+
+      const pass2Prompt = `Continue building an Australian ecommerce store. Output ONLY these sections as raw HTML (no preamble, no explanation, start immediately with <section):
+
+Product/niche: ${niche} | Store: ${storeName || niche} | Brand color: ${color}
+${productContext}
+
+Images available:
+- Lifestyle 1: ${lifestyleImg1}
+- Lifestyle 2: ${lifestyleImg2}
+
+BUILD IN ORDER — stop at </footer>, do NOT include <script> tags:
+
+1. FEATURES SECTION <section id="features"> — padding:100px 5%, bg:#08080f
+   H2 centered (Syne 800, "Why ${storeName || niche}"). 3-col card grid (gap:20px).
+   Each card: bg:#0f1018, border:1px solid rgba(255,255,255,0.06), border-radius:16px, padding:32px 28px, hover border-color:${color}40
+   3 features SPECIFIC to ${niche}: emoji icon (font-size:32px) + title (Syne 700 17px) + description (14px, rgba(242,239,233,0.55), line-height:1.7)
+
+2. LIFESTYLE GALLERY <section id="gallery"> — padding:80px 5%, bg:#0a0a12
+   2-col grid, max-width:1000px, margin:0 auto
+   <img src="${lifestyleImg1}" style="border-radius:16px;width:100%;aspect-ratio:16/10;object-fit:cover;display:block">
+   <img src="${lifestyleImg2}" style="border-radius:16px;width:100%;aspect-ratio:16/10;object-fit:cover;display:block">
+
+3. TESTIMONIALS <section id="reviews"> — padding:100px 5%, bg:#08080f
+   H2 "Loved by Australians" + p "⭐ 4.9/5 from 200+ verified AU reviews"
+   3-col grid. Each card: bg:#0f1018, border:1px solid rgba(255,255,255,0.07), border-radius:16px, padding:28px, border-top:3px solid ${color}
+   Stars: ★★★★★ in ${color}. Quote in italic (specific to ${niche}, 1-2 sentences). Name + AU city + <span class="verified">✓ Verified</span>
+   Review 1: mentions product result. Review 2: mentions fast AU delivery. Review 3: mentions Afterpay.
+
+4. FAQ <section id="faq"> — padding:80px 5%, bg:#0a0a12, max-width:760px, margin:0 auto
+   H2 "Frequently Asked Questions"
+   5 divs class="faq-item". Each: bg:#0f1018, border:1px solid rgba(255,255,255,0.07), border-radius:12px, mb:10px
+   Inside each: <div class="faq-question"><span>QUESTION</span><span class="faq-toggle">+</span></div>
+   <div class="faq-answer"><p>ANSWER</p></div>
+   Questions specific to ${niche}.
+
+5. CTA STRIP <section id="offer"> — padding:100px 5%, background:linear-gradient(135deg,#0f1018,rgba(${colorRgb},0.15)), text-align:center
+   H2 (Syne 800, clamp(28px,4vw,42px)), p subtext (17px muted), button class="btn-primary btn-cart" "Shop ${storeName || niche} Now"
+   <p style="font-family:Syne;font-size:20px;color:${color};margin-top:24px">⏰ Offer ends in: <span id="countdown">23:59:59</span></p>
+
+6. FOOTER <footer> — padding:64px 5% 28px, bg:#050508, border-top:1px solid rgba(255,255,255,0.06)
+   4-col grid (1.5fr 1fr 1fr 1fr): brand col (logo in ${color}, Syne 900 + tagline + social links) | Shop col | Support col | Legal col
+   <div class="footer-bottom">© 2025 ${storeName || niche}. ABN: [Enter your ABN] · 🇦🇺 Proudly Australian &nbsp;|&nbsp; All prices AUD incl. GST · Australian Consumer Law applies</div>
+
+End your output with </footer> only. No script tags. No </body> or </html>.`;
+
+      let part2 = '';
+      const stream2 = await client.messages.stream({
+        model: CLAUDE_MODEL,
+        max_tokens: 8000,
+        system: pass2SystemPrompt,
+        messages: [{ role: 'user', content: pass2Prompt }],
+      });
+
+      for await (const chunk of stream2) {
+        if (chunk.type === 'content_block_delta' && (chunk.delta as any).type === 'text_delta') {
+          part2 += (chunk.delta as any).text;
+          const pct = Math.min(92, 60 + Math.floor((part2.length / 4000) * 32));
+          send('progress', { pct, msg: '⚡ Adding reviews, FAQ & finishing...' });
+        }
+      }
+
+      // ── Pass 3: always inject hard-coded JS + close (no AI needed) ─────
+      send('progress', { pct: 93, msg: '⚡ Wiring up interactivity...' });
+      const part2Final = part2.trim().replace(/<\/body>\s*<\/html>\s*$/i, '').replace(/<script[\s\S]*?<\/script>/gi, '');
+
+      const hardCodedJs = `
+<script>
+// Sticky nav
+window.addEventListener('scroll', function() {
+  var nav = document.querySelector('nav');
+  if (nav) nav.classList.toggle('scrolled', window.scrollY > 50);
+});
+// Mobile menu
+var ham = document.getElementById('hamburger');
+var mob = document.getElementById('mobile-menu');
+if (ham && mob) { ham.addEventListener('click', function() { mob.classList.toggle('mobile-open'); }); }
+// Close mobile menu on link click
+if (mob) { mob.querySelectorAll('a').forEach(function(a) { a.addEventListener('click', function() { mob.classList.remove('mobile-open'); }); }); }
+// FAQ accordion
+document.querySelectorAll('.faq-item').forEach(function(item) {
+  var q = item.querySelector('.faq-question');
+  if (!q) return;
+  q.addEventListener('click', function() {
+    var isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(function(i) { i.classList.remove('open'); var t = i.querySelector('.faq-toggle'); if (t) t.textContent = '+'; });
+    if (!isOpen) { item.classList.add('open'); var t = item.querySelector('.faq-toggle'); if (t) t.textContent = '−'; }
+  });
+});
+// Add to cart feedback
+document.querySelectorAll('.btn-cart, .add-to-cart, [data-cart]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var orig = this.textContent;
+    this.textContent = '✓ Added to Cart!';
+    this.disabled = true;
+    var self = this;
+    setTimeout(function() { self.textContent = orig; self.disabled = false; }, 2000);
+  });
+});
+// Countdown timer
+(function() {
+  var t = 23 * 3600 + 59 * 59;
+  var el = document.getElementById('countdown');
+  if (!el) return;
+  setInterval(function() {
+    if (t <= 0) t = 86399;
+    var h = String(Math.floor(t / 3600)).padStart(2, '0');
+    var m = String(Math.floor((t % 3600) / 60)).padStart(2, '0');
+    var s = String(t % 60).padStart(2, '0');
+    el.textContent = h + ':' + m + ':' + s;
+    t--;
+  }, 1000);
+})();
+</script>
+</body>
+</html>`;
+
+      // ── Merge all 3 parts ─────────────────────────────────────────────────
+      const merged = part1Clean + '\n' + part2Final + hardCodedJs;
+      const startIdx = merged.indexOf('<!DOCTYPE');
+      const finalHtml = startIdx >= 0 ? merged.slice(startIdx) : merged;
+
       // ── 4. Done ───────────────────────────────────────────────────────────
-      const start = html.indexOf('<!DOCTYPE');
-      const finalHtml = start >= 0 ? html.slice(start) : html;
       send('progress', { pct: 100, msg: '✅ Store ready!' });
       send('done', { html: finalHtml });
       res.end();
