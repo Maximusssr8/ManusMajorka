@@ -693,25 +693,99 @@ document.querySelectorAll('.anim').forEach(function(el) { io.observe(el); });
 }
 
 // ─── HTML Post-Processing ─────────────────────────────────────────────────────
-function postProcessHtml(html: string): string {
-  // 1. Add loading="lazy" to all images (except first 2 above-fold)
+function postProcessHtml(html: string, storeName: string, niche: string, color: string, colorRgb: string, surfColor: string, bgColor: string, cardRadius: string): string {
+  // 1. Add loading="lazy" to all images (except first hero image)
   let imgCount = 0;
   html = html.replace(/<img\s/gi, (match) => {
     imgCount++;
-    if (imgCount <= 1) return match; // only hero image is eager
+    if (imgCount <= 1) return match;
     return '<img loading="lazy" ';
   });
 
-  // 2. Add explicit width/height to pexels images (intrinsic 800x600)
+  // 2. Add width/height to pexels images
   html = html.replace(/<img([^>]*src="[^"]*pexels[^"]*")([^>]*)>/gi, (match, before: string, after: string) => {
     if (/width=/i.test(match)) return match;
     return `<img${before} width="800" height="600"${after}>`;
   });
 
-  // 3. Light minify — collapse 3+ blank lines into 2
+  // 3. Fix nav logo href (# → #home)
+  html = html.replace(/(<a[^>]*class="nav-logo"[^>]*)href="#"([^>]*>)/gi, '$1href="#home"$2');
+  html = html.replace(/(<a[^>]*href="#"[^>]*class="nav-logo"[^>]*>)/gi, (m) => m.replace('href="#"', 'href="#home"'));
+
+  // 4. INJECT data-page="home" wrapper programmatically
+  // Strategy: find where <nav> ends, inject open div; find first <div data-page="shop" and inject close div before it
+  if (!html.includes('data-page="home"')) {
+    // Insert after closing </nav>
+    const navEnd = html.indexOf('</nav>');
+    if (navEnd !== -1) {
+      html = html.slice(0, navEnd + 6) + '\n<div data-page="home" style="display:block">' + html.slice(navEnd + 6);
+    }
+    // Insert closing div before first subpage OR before </body>
+    const shopIdx = html.indexOf('<div data-page="shop"');
+    const bodyEnd = html.lastIndexOf('</body>');
+    const insertBefore = shopIdx !== -1 ? shopIdx : bodyEnd;
+    if (insertBefore !== -1) {
+      html = html.slice(0, insertBefore) + '\n</div><!-- /home -->\n' + html.slice(insertBefore);
+    }
+  }
+
+  // 5. Ensure HTML closes properly
+  if (!html.includes('</body>')) html = html + '\n</body>';
+  if (!html.includes('</html>')) html = html + '\n</html>';
+
+  // 6. Inject shipping page if missing
+  if (!html.includes('data-page="shipping"')) {
+    const shippingPage = `
+<div data-page="shipping" style="display:none;padding-top:100px;min-height:100vh;background:var(--bg,${bgColor})">
+  <div style="max-width:800px;margin:0 auto;padding:0 5% 80px">
+    <h1 style="font-family:var(--font-heading,Syne,sans-serif);font-size:clamp(32px,5vw,48px);font-weight:900;color:var(--text,#f2efe9);margin-bottom:16px">Shipping & Returns</h1>
+    <p style="color:var(--muted,rgba(242,239,233,0.55));margin-bottom:48px;font-size:15px">🇦🇺 Proudly shipping Australia-wide. All orders dispatched same business day when placed before 2pm AEST.</p>
+
+    <h2 style="font-family:var(--font-heading,Syne,sans-serif);font-size:22px;font-weight:800;color:var(--text,#f2efe9);margin-bottom:20px">Delivery Options</h2>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:40px;font-size:14px">
+      <thead><tr style="background:rgba(${colorRgb},0.1)">
+        <th style="padding:12px 16px;text-align:left;color:var(--accent,${color});font-weight:700;border-bottom:1px solid rgba(255,255,255,0.08)">Method</th>
+        <th style="padding:12px 16px;text-align:left;color:var(--accent,${color});font-weight:700;border-bottom:1px solid rgba(255,255,255,0.08)">Timeframe</th>
+        <th style="padding:12px 16px;text-align:left;color:var(--accent,${color});font-weight:700;border-bottom:1px solid rgba(255,255,255,0.08)">Cost</th>
+      </tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05)"><td style="padding:12px 16px;color:var(--text,#f2efe9)">Standard (AusPost)</td><td style="padding:12px 16px;color:var(--muted)">3–7 business days</td><td style="padding:12px 16px;color:var(--accent,${color});font-weight:700">Free over $79 · $7.95 under</td></tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05)"><td style="padding:12px 16px;color:var(--text,#f2efe9)">Express (AusPost)</td><td style="padding:12px 16px;color:var(--muted)">1–3 business days</td><td style="padding:12px 16px;color:var(--accent,${color});font-weight:700">$12.95</td></tr>
+        <tr><td style="padding:12px 16px;color:var(--text,#f2efe9)">New Zealand</td><td style="padding:12px 16px;color:var(--muted)">7–14 business days</td><td style="padding:12px 16px;color:var(--accent,${color});font-weight:700">$19.95</td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="font-family:var(--font-heading,Syne,sans-serif);font-size:22px;font-weight:800;color:var(--text,#f2efe9);margin-bottom:16px">30-Day Returns</h2>
+    <p style="color:var(--muted,rgba(242,239,233,0.55));line-height:1.8;margin-bottom:16px">Not happy? No problem. Return any item within 30 days of delivery for a full refund or exchange — no questions asked. Our policy is backed by Australian Consumer Law.</p>
+    <div style="background:rgba(${colorRgb},0.08);border:1px solid rgba(${colorRgb},0.2);border-radius:${cardRadius};padding:20px 24px;margin-bottom:32px">
+      <div style="font-weight:700;color:var(--text,#f2efe9);margin-bottom:8px">How to Return</div>
+      <ol style="color:var(--muted,rgba(242,239,233,0.55));padding-left:20px;line-height:2;font-size:14px">
+        <li>Email us at returns@${storeName.toLowerCase().replace(/\s+/g,'')}.com.au with your order number</li>
+        <li>We'll send a prepaid return label within 24 hours</li>
+        <li>Pack item securely and drop at any AusPost outlet</li>
+        <li>Refund processed within 2–3 business days of receipt</li>
+      </ol>
+    </div>
+
+    <h2 style="font-family:var(--font-heading,Syne,sans-serif);font-size:22px;font-weight:800;color:var(--text,#f2efe9);margin-bottom:16px">Afterpay</h2>
+    <p style="color:var(--muted,rgba(242,239,233,0.55));line-height:1.8">Pay in 4 interest-free fortnightly instalments with Afterpay. Available on all orders $35–$2,000 AUD. No interest, ever. Instant approval at checkout.</p>
+  </div>
+</div>`;
+    const bodyEnd2 = html.lastIndexOf('</body>');
+    if (bodyEnd2 !== -1) {
+      html = html.slice(0, bodyEnd2) + shippingPage + '\n' + html.slice(bodyEnd2);
+    }
+  }
+
+  // 6. Ensure #about link exists in nav (add if only missing)
+  if (!html.includes('href="#about"') && html.includes('href="#shop"')) {
+    html = html.replace('href="#shop"', 'href="#about" data-nav="about">About</a>&nbsp;&nbsp;<a href="#shop"');
+  }
+
+  // 7. Light minify
   html = html.replace(/\n\s*\n\s*\n/g, '\n\n');
 
-  // 4. Remove HTML comments (except IE conditionals)
+  // 8. Remove HTML comments
   html = html.replace(/<!--(?!\[if)[\s\S]*?-->/gi, '');
 
   return html;
@@ -1045,7 +1119,7 @@ Product images in shop: use gradient div with emoji instead of img tags.`;
   const merged = part1Clean + '\n' + part2Raw + '\n' + part3Raw + '\n' + jsWithAnim;
   const startIdx = merged.indexOf('<!DOCTYPE');
   const rawHtml = startIdx >= 0 ? merged.slice(startIdx) : merged;
-  const finalHtml = postProcessHtml(rawHtml);
+  const finalHtml = postProcessHtml(rawHtml, storeName_, niche, color, colorRgb, surfColor, bgColor, cardRadius);
 
   const sizeKb = Math.round(Buffer.byteLength(finalHtml, 'utf8') / 1024);
   console.log(`[website-api] Generated HTML size: ${sizeKb}kb`);
