@@ -781,74 +781,179 @@ export default function Home() {
       </section>
 
       {/* ═══ MEET MAYA — AI AGENT SHOWCASE ═══════════════════════════════ */}
-      <section style={{ padding: '80px 0', background: `linear-gradient(180deg, ${C.bg} 0%, rgba(212,175,55,0.025) 50%, ${C.bg} 100%)` }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
-          {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: 64 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 20, padding: '6px 16px', marginBottom: 20 }}>
-              <span style={{ color: '#d4af37', fontSize: 13, fontWeight: 700, fontFamily: syne }}>✦ AI AGENT</span>
+      <section style={{ padding: '100px 0', position: 'relative', overflow: 'hidden' }}>
+        {/* Background glow */}
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(212,175,55,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        {/* Dot grid */}
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(212,175,55,0.08) 1px, transparent 1px)', backgroundSize: '32px 32px', pointerEvents: 'none', maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)' }} />
+
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', position: 'relative' }}>
+
+          {/* ── Section label ── */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 20, padding: '6px 16px' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#d4af37', display: 'inline-block', boxShadow: '0 0 8px #d4af37' }} />
+              <span style={{ color: '#d4af37', fontSize: 12, fontWeight: 700, fontFamily: syne, letterSpacing: '0.1em', textTransform: 'uppercase' }}>AI Co-Pilot</span>
             </div>
-            <h2 style={{ fontFamily: syne, fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 800, color: '#f5f5f5', lineHeight: 1.1, marginBottom: 16 }}>
-              Meet Maya — Your AI<br /><span style={{ color: '#d4af37' }}>Ecommerce Co-Pilot</span>
+          </div>
+
+          {/* ── Headline ── */}
+          <div style={{ textAlign: 'center', marginBottom: 72 }}>
+            <h2 style={{ fontFamily: syne, fontSize: 'clamp(36px, 5.5vw, 60px)', fontWeight: 800, color: '#f5f5f5', lineHeight: 1.05, letterSpacing: '-0.03em', margin: '0 0 20px' }}>
+              Meet Maya — she doesn't<br />just answer. She <span style={{ color: '#d4af37' }}>acts.</span>
             </h2>
-            <p style={{ color: '#6b7280', fontSize: 17, maxWidth: 560, margin: '0 auto', fontFamily: dm }}>
-              Maya doesn't just answer questions. She takes action — building stores, finding suppliers, and chaining tools together so you can move from idea to live store in minutes.
+            <p style={{ color: '#71717a', fontSize: 18, maxWidth: 520, margin: '0 auto', fontFamily: dm, lineHeight: 1.6 }}>
+              One message. Maya researches your niche, finds suppliers, builds your store, and writes your ads — all in under 3 minutes.
             </p>
           </div>
 
-          {/* Chat demo mockup */}
-          <div style={{ maxWidth: 680, margin: '0 auto', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)' }}>
-            {/* Chat header */}
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #d4af37, #b8941f)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 14, color: '#080a0e', fontFamily: syne }}>M</div>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: '#f5f5f5', fontFamily: syne }}>Maya</div>
-                <div style={{ fontSize: 11, color: '#22c55e', fontFamily: dm }}>● Live</div>
-              </div>
-            </div>
+          {/* ── Split layout ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1.1fr)', gap: 48, alignItems: 'center' }}>
 
-            {/* Chat messages */}
-            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {/* User message */}
-              <div style={{ alignSelf: 'flex-end', background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: '14px 14px 4px 14px', padding: '10px 14px', maxWidth: '80%' }}>
-                <p style={{ color: '#f5f5f5', fontSize: 14, margin: 0, fontFamily: dm }}>I want to start selling LED face masks. What do I need to do?</p>
-              </div>
-
-              {/* Maya response */}
-              <div style={{ alignSelf: 'flex-start', maxWidth: '90%' }}>
-                <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px 14px 14px 4px', padding: '12px 14px', marginBottom: 8 }}>
-                  <p style={{ color: '#d1d5db', fontSize: 14, margin: 0, lineHeight: 1.6, fontFamily: dm }}>LED face masks are <strong style={{ color: '#f5f5f5' }}>LOW competition</strong> in AU right now — 23 competing stores vs 340K monthly searches. Estimated <strong style={{ color: '#d4af37' }}>$24,200/day revenue</strong> for top sellers. I'll run the full workflow for you:</p>
-                </div>
-                {/* Workflow card */}
-                <div style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 12, padding: '14px 16px' }}>
-                  <div style={{ color: '#d4af37', fontSize: 12, fontWeight: 700, marginBottom: 10, fontFamily: syne }}>⚡ STARTING WORKFLOW — 3 tools</div>
-                  {[
-                    { text: '1. ✓ Saturation check — LOW (score 23/100)', color: '#22c55e' },
-                    { text: '2. ✓ CJ AU supplier found — $22 landed cost', color: '#22c55e' },
-                    { text: '3. → Building your store...', color: '#d4af37' },
-                  ].map((step, i) => (
-                    <div key={i} style={{ fontSize: 13, color: step.color, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6, fontFamily: dm }}>
-                      {step.text}
+            {/* LEFT — capabilities */}
+            <div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 40 }}>
+                {[
+                  { icon: '🔍', label: 'Market Intelligence', desc: 'Scans TikTok Shop, Amazon AU & AliExpress for what\'s actually selling right now.' },
+                  { icon: '🏪', label: 'Store Builder', desc: 'Generates a full Shopify store from a competitor URL or product idea in 60 seconds.' },
+                  { icon: '🎯', label: 'Ad Creative Engine', desc: 'Writes Meta + TikTok hooks, scripts, and targeting briefs — AU-specific, high-converting.' },
+                  { icon: '📦', label: 'Supplier Finder', desc: 'Compares AliExpress, CJDropshipping & AU local suppliers with landed cost estimates.' },
+                ].map((item) => (
+                  <div key={item.label} style={{ display: 'flex', gap: 16, padding: '18px 20px', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, transition: 'border-color 0.2s' }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.3)')}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
+                  >
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
+                      {item.icon}
                     </div>
-                  ))}
-                  <button style={{ marginTop: 10, width: '100%', background: 'linear-gradient(135deg, #d4af37, #b8941f)', color: '#080a0e', border: 'none', borderRadius: 8, padding: '10px 16px', fontWeight: 800, fontSize: 14, cursor: 'pointer', fontFamily: syne }}>
-                    Open Your Store → Ready to Deploy
-                  </button>
-                </div>
+                    <div>
+                      <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 15, color: '#f5f5f5', marginBottom: 4 }}>{item.label}</div>
+                      <div style={{ fontSize: 13, color: '#71717a', lineHeight: 1.5, fontFamily: dm }}>{item.desc}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
+
+              <Link href="/app/chat" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 28px',
+                background: 'linear-gradient(135deg, #d4af37 0%, #b8941f 100%)',
+                borderRadius: 14, color: '#080a0e', fontFamily: syne, fontWeight: 800,
+                fontSize: 15, textDecoration: 'none', boxShadow: '0 8px 32px rgba(212,175,55,0.35)',
+              }}>
+                Talk to Maya → <span style={{ opacity: 0.7, fontSize: 12 }}>Free</span>
+              </Link>
             </div>
 
-            {/* Input bar */}
-            <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: 8 }}>
-              <input readOnly placeholder="Ask Maya anything about your business..." style={{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 14px', color: '#6b7280', fontSize: 14, outline: 'none', fontFamily: dm }} />
-              <button style={{ background: '#d4af37', border: 'none', borderRadius: 8, width: 40, height: 40, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 18, color: '#080a0e' }}>→</button>
+            {/* RIGHT — chat window */}
+            <div style={{ position: 'relative' }}>
+              {/* Glow behind card */}
+              <div style={{ position: 'absolute', inset: -20, background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+              <div style={{
+                position: 'relative',
+                background: 'rgba(10,12,20,0.9)',
+                border: '1px solid rgba(212,175,55,0.2)',
+                borderRadius: 24,
+                overflow: 'hidden',
+                backdropFilter: 'blur(20px)',
+                boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.1) inset',
+              }}>
+                {/* Title bar — macOS style */}
+                <div style={{ padding: '14px 18px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.02)' }}>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {['#ff5f57','#febc2e','#28c840'].map(c => <div key={c} style={{ width: 11, height: 11, borderRadius: '50%', background: c }} />)}
+                  </div>
+                  <div style={{ flex: 1, textAlign: 'center', fontSize: 12, color: '#52525b', fontFamily: dm, fontWeight: 600 }}>Maya — AI Co-Pilot</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', display: 'inline-block', boxShadow: '0 0 6px #22c55e' }} />
+                    <span style={{ fontSize: 11, color: '#22c55e', fontFamily: dm, fontWeight: 600 }}>Online</span>
+                  </div>
+                </div>
+
+                {/* Messages */}
+                <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 20, minHeight: 360 }}>
+
+                  {/* Maya greeting */}
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #d4af37 0%, #92711a 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 13, color: '#080a0e', flexShrink: 0, boxShadow: '0 4px 12px rgba(212,175,55,0.4)' }}>M</div>
+                    <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px 16px 16px 16px', padding: '12px 16px', maxWidth: '85%' }}>
+                      <p style={{ color: '#d1d5db', fontSize: 14, margin: 0, lineHeight: 1.6, fontFamily: dm }}>
+                        Hey 👋 I'm Maya. Tell me what you want to sell and I'll handle everything — research, suppliers, store, ads. What's the niche?
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* User message */}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <div style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.08))', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '16px 4px 16px 16px', padding: '12px 16px', maxWidth: '80%' }}>
+                      <p style={{ color: '#f5f5f5', fontSize: 14, margin: 0, fontFamily: dm }}>LED face masks for the AU market</p>
+                    </div>
+                  </div>
+
+                  {/* Maya action response */}
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #d4af37 0%, #92711a 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 13, color: '#080a0e', flexShrink: 0, boxShadow: '0 4px 12px rgba(212,175,55,0.4)' }}>M</div>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px 16px 16px 16px', padding: '12px 16px' }}>
+                        <p style={{ color: '#d1d5db', fontSize: 14, margin: 0, lineHeight: 1.6, fontFamily: dm }}>
+                          Solid pick. <strong style={{ color: '#f5f5f5' }}>Low competition</strong> in AU right now — 23 stores vs 340K searches/mo. Top sellers averaging <strong style={{ color: '#d4af37' }}>$2,800/day</strong>. Running full workflow now ↓
+                        </p>
+                      </div>
+
+                      {/* Workflow card */}
+                      <div style={{ background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 14, padding: '16px 18px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 14 }}>
+                          <span style={{ fontSize: 12, fontWeight: 800, color: '#d4af37', fontFamily: syne, letterSpacing: '0.05em' }}>⚡ WORKFLOW RUNNING</span>
+                          <span style={{ fontSize: 10, color: '#52525b', fontFamily: dm }}>3 of 4 complete</span>
+                        </div>
+                        {[
+                          { done: true, label: 'Market scan', detail: 'Score 82/100 — high opportunity' },
+                          { done: true, label: 'Supplier match', detail: 'CJDropshipping · $19 landed AU' },
+                          { done: true, label: 'Ad angles', detail: '3 hooks written — TikTok + Meta' },
+                          { done: false, label: 'Store build', detail: 'Generating…' },
+                        ].map((step) => (
+                          <div key={step.label} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                            <div style={{ width: 20, height: 20, borderRadius: '50%', background: step.done ? 'rgba(34,197,94,0.15)' : 'rgba(212,175,55,0.1)', border: `1px solid ${step.done ? 'rgba(34,197,94,0.4)' : 'rgba(212,175,55,0.3)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, flexShrink: 0 }}>
+                              {step.done ? <span style={{ color: '#22c55e' }}>✓</span> : <span style={{ color: '#d4af37' }}>◌</span>}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <span style={{ fontSize: 13, fontWeight: 600, color: step.done ? '#e5e7eb' : '#71717a', fontFamily: dm }}>{step.label}</span>
+                              <span style={{ fontSize: 11, color: '#52525b', fontFamily: dm, marginLeft: 8 }}>— {step.detail}</span>
+                            </div>
+                          </div>
+                        ))}
+                        <button style={{ marginTop: 6, width: '100%', background: 'linear-gradient(135deg, #d4af37, #b8941f)', color: '#080a0e', border: 'none', borderRadius: 10, padding: '11px 16px', fontWeight: 800, fontSize: 13, cursor: 'pointer', fontFamily: syne, letterSpacing: '0.02em' }}>
+                          Open Store Preview →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Input bar */}
+                <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: 10, background: 'rgba(255,255,255,0.01)' }}>
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '0 14px', gap: 8 }}>
+                    <input readOnly placeholder="Message Maya…" style={{ flex: 1, background: 'transparent', border: 'none', padding: '11px 0', color: '#52525b', fontSize: 14, outline: 'none', fontFamily: dm }} />
+                    <span style={{ fontSize: 11, color: '#3f3f46', fontFamily: dm }}>⌘↵</span>
+                  </div>
+                  <button style={{ background: 'linear-gradient(135deg, #d4af37, #b8941f)', border: 'none', borderRadius: 12, width: 42, height: 42, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 14px rgba(212,175,55,0.4)', fontSize: 16 }}>→</button>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Feature pills */}
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 40, flexWrap: 'wrap' }}>
-            {['🏪 Builds stores from a URL', '📦 Finds & compares suppliers', '📊 Chains 5 tools in one prompt', '💰 Calculates profit instantly', '🔥 Knows AU market deeply'].map(f => (
-              <div key={f} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '8px 16px', fontSize: 13, color: '#d1d5db', fontFamily: dm }}>{f}</div>
+          {/* ── Bottom stat strip ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 1, marginTop: 64, background: 'rgba(255,255,255,0.05)', borderRadius: 20, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
+            {[
+              { value: '< 3 min', label: 'Idea to live store' },
+              { value: '50+', label: 'AI tools chained' },
+              { value: '$0', label: 'Extra subscriptions' },
+              { value: '24/7', label: 'Always running' },
+            ].map((stat) => (
+              <div key={stat.label} style={{ padding: '28px 24px', background: 'rgba(255,255,255,0.02)', textAlign: 'center' }}>
+                <div style={{ fontFamily: syne, fontSize: 28, fontWeight: 800, color: '#d4af37', marginBottom: 6 }}>{stat.value}</div>
+                <div style={{ fontSize: 13, color: '#52525b', fontFamily: dm }}>{stat.label}</div>
+              </div>
             ))}
           </div>
         </div>
