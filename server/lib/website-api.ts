@@ -204,33 +204,101 @@ Include ALL product image URLs you find — this is the most important field.`,
 }
 
 // ─── Pexels Image Fetcher ─────────────────────────────────────────────────────
-async function fetchPexelsImages(query: string, count = 6): Promise<string[]> {
-  const key = process.env.PEXELS_API_KEY;
-  if (!key) return [];
-  try {
-    const res = await fetch(
-      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${count}&orientation=landscape`,
-      { headers: { Authorization: key } }
-    );
-    const data = await res.json() as any;
-    return (data.photos || []).map((p: any) => p.src?.large || p.src?.medium || '').filter(Boolean);
-  } catch {
-    return [];
-  }
+// ─── Curated niche fallback images (always-on Pexels URLs) ──────────────────
+const NICHE_FALLBACKS: Record<string, { hero: string; product: string; lifestyle1: string; lifestyle2: string }> = {
+  skincare:     { hero: 'https://images.pexels.com/photos/3997993/pexels-photo-3997993.jpeg', product: 'https://images.pexels.com/photos/4041392/pexels-photo-4041392.jpeg', lifestyle1: 'https://images.pexels.com/photos/3762875/pexels-photo-3762875.jpeg', lifestyle2: 'https://images.pexels.com/photos/3373739/pexels-photo-3373739.jpeg' },
+  beauty:       { hero: 'https://images.pexels.com/photos/1029896/pexels-photo-1029896.jpeg', product: 'https://images.pexels.com/photos/2253833/pexels-photo-2253833.jpeg', lifestyle1: 'https://images.pexels.com/photos/3373746/pexels-photo-3373746.jpeg', lifestyle2: 'https://images.pexels.com/photos/3373739/pexels-photo-3373739.jpeg' },
+  fitness:      { hero: 'https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg',   product: 'https://images.pexels.com/photos/4162486/pexels-photo-4162486.jpeg', lifestyle1: 'https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg', lifestyle2: 'https://images.pexels.com/photos/3768916/pexels-photo-3768916.jpeg' },
+  supplements:  { hero: 'https://images.pexels.com/photos/3621168/pexels-photo-3621168.jpeg', product: 'https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg', lifestyle1: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', lifestyle2: 'https://images.pexels.com/photos/3622608/pexels-photo-3622608.jpeg' },
+  pet:          { hero: 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg', product: 'https://images.pexels.com/photos/406014/pexels-photo-406014.jpeg',   lifestyle1: 'https://images.pexels.com/photos/1458916/pexels-photo-1458916.jpeg', lifestyle2: 'https://images.pexels.com/photos/2253275/pexels-photo-2253275.jpeg' },
+  home:         { hero: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg', product: 'https://images.pexels.com/photos/2062426/pexels-photo-2062426.jpeg', lifestyle1: 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg', lifestyle2: 'https://images.pexels.com/photos/1080721/pexels-photo-1080721.jpeg' },
+  tech:         { hero: 'https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg',   product: 'https://images.pexels.com/photos/1029757/pexels-photo-1029757.jpeg', lifestyle1: 'https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg', lifestyle2: 'https://images.pexels.com/photos/2182973/pexels-photo-2182973.jpeg' },
+  fashion:      { hero: 'https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg', product: 'https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg',   lifestyle1: 'https://images.pexels.com/photos/2220316/pexels-photo-2220316.jpeg', lifestyle2: 'https://images.pexels.com/photos/1126993/pexels-photo-1126993.jpeg' },
+  outdoor:      { hero: 'https://images.pexels.com/photos/1526713/pexels-photo-1526713.jpeg', product: 'https://images.pexels.com/photos/2422588/pexels-photo-2422588.jpeg', lifestyle1: 'https://images.pexels.com/photos/3622608/pexels-photo-3622608.jpeg', lifestyle2: 'https://images.pexels.com/photos/1365425/pexels-photo-1365425.jpeg' },
+  baby:         { hero: 'https://images.pexels.com/photos/35537/child-children-girl-happy.jpg', product: 'https://images.pexels.com/photos/459947/pexels-photo-459947.jpeg', lifestyle1: 'https://images.pexels.com/photos/1912868/pexels-photo-1912868.jpeg', lifestyle2: 'https://images.pexels.com/photos/265987/pexels-photo-265987.jpeg' },
+  coffee:       { hero: 'https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg',   product: 'https://images.pexels.com/photos/894695/pexels-photo-894695.jpeg',   lifestyle1: 'https://images.pexels.com/photos/1695052/pexels-photo-1695052.jpeg', lifestyle2: 'https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg' },
+  jewellery:    { hero: 'https://images.pexels.com/photos/1191531/pexels-photo-1191531.jpeg', product: 'https://images.pexels.com/photos/1453005/pexels-photo-1453005.jpeg', lifestyle1: 'https://images.pexels.com/photos/2735970/pexels-photo-2735970.jpeg', lifestyle2: 'https://images.pexels.com/photos/1689731/pexels-photo-1689731.jpeg' },
+  default:      { hero: 'https://images.pexels.com/photos/5632399/pexels-photo-5632399.jpeg', product: 'https://images.pexels.com/photos/5632371/pexels-photo-5632371.jpeg', lifestyle1: 'https://images.pexels.com/photos/3965548/pexels-photo-3965548.jpeg', lifestyle2: 'https://images.pexels.com/photos/3965549/pexels-photo-3965549.jpeg' },
+};
+
+function getNicheFallback(niche: string) {
+  const n = niche.toLowerCase();
+  if (/skin|glow|serum|face|led|light|mask|acne|anti.ag/.test(n)) return NICHE_FALLBACKS.skincare;
+  if (/beauty|makeup|cosmetic|lash|brow/.test(n)) return NICHE_FALLBACKS.beauty;
+  if (/fit|gym|workout|exercise|yoga|sport|protein/.test(n)) return NICHE_FALLBACKS.fitness;
+  if (/supplement|vitamin|health|wellness|nutrition/.test(n)) return NICHE_FALLBACKS.supplements;
+  if (/pet|dog|cat|paw|collar|treat/.test(n)) return NICHE_FALLBACKS.pet;
+  if (/home|kitchen|cook|decor|clean|organi/.test(n)) return NICHE_FALLBACKS.home;
+  if (/tech|gadget|electronic|phone|device|charger/.test(n)) return NICHE_FALLBACKS.tech;
+  if (/fashion|cloth|wear|shirt|dress|shoe|bag/.test(n)) return NICHE_FALLBACKS.fashion;
+  if (/outdoor|hike|camp|adventure|trail/.test(n)) return NICHE_FALLBACKS.outdoor;
+  if (/baby|kid|child|infant|toy/.test(n)) return NICHE_FALLBACKS.baby;
+  if (/coffee|tea|brew|caf/.test(n)) return NICHE_FALLBACKS.coffee;
+  if (/jewel|ring|necklace|bracelet|watch/.test(n)) return NICHE_FALLBACKS.jewellery;
+  return NICHE_FALLBACKS.default;
 }
 
-async function fetchPexelsPortrait(query: string): Promise<string> {
+async function pexelsSearch(query: string, count: number, orientation: 'landscape' | 'portrait' | 'square' = 'landscape'): Promise<any[]> {
   const key = process.env.PEXELS_API_KEY;
-  if (!key) return '';
+  if (!key) return [];
+  const res = await fetch(
+    `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${count}&orientation=${orientation}`,
+    { headers: { Authorization: key }, signal: AbortSignal.timeout(8000) }
+  );
+  if (!res.ok) return [];
+  const data = await res.json() as any;
+  return data.photos || [];
+}
+
+function bestUrl(photo: any): string {
+  return photo?.src?.large2x || photo?.src?.large || photo?.src?.medium || '';
+}
+
+// Multi-query Pexels fetcher: tries specific → simplified → category fallback
+async function fetchImagesForStore(productTitle: string, niche: string): Promise<{
+  hero: string; product: string; lifestyle1: string; lifestyle2: string;
+}> {
+  const fallback = getNicheFallback(niche);
+
+  // Build query variants from most specific to broadest
+  const specificQuery = productTitle
+    .replace(/\b(device|machine|tool|kit|set|pack|system|pro|plus|max|ultra|v\d)\b/gi, '')
+    .trim();
+  // Lifestyle query: niche + context word (no product hardware terms)
+  const nicheWords = niche.replace(/\b(device|machine|tool|kit|set)\b/gi, '').trim();
+  const heroQuery = `${nicheWords} lifestyle australian woman`;
+  const productQuery = `${specificQuery} product white background`;
+  const lifestyleQuery = `${nicheWords} before after result`;
+
   try {
-    const res = await fetch(
-      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=3&orientation=portrait`,
-      { headers: { Authorization: key } }
-    );
-    const data = await res.json() as any;
-    return data.photos?.[0]?.src?.large || '';
+    // Parallel: hero + lifestyle (landscape), product (portrait/square)
+    const [heroPhotos, productPhotos, lifestylePhotos] = await Promise.all([
+      pexelsSearch(heroQuery, 4, 'landscape').catch(() => []),
+      pexelsSearch(productQuery, 3, 'portrait').catch(() => []),
+      pexelsSearch(lifestyleQuery, 3, 'landscape').catch(() => []),
+    ]);
+
+    // If specific query yields < 2 results, fall back to broader niche
+    const nichePhotos = (heroPhotos.length < 2 || productPhotos.length < 1)
+      ? await pexelsSearch(nicheWords, 5, 'landscape').catch(() => [])
+      : [];
+
+    const pool = [...heroPhotos, ...nichePhotos];
+
+    const hero      = bestUrl(pool[0])       || fallback.hero;
+    const product   = bestUrl(productPhotos[0] || pool[1]) || fallback.product;
+    const lifestyle1 = bestUrl(lifestylePhotos[0] || pool[2]) || fallback.lifestyle1;
+    const lifestyle2 = bestUrl(lifestylePhotos[1] || pool[3]) || fallback.lifestyle2;
+
+    // Deduplicate: if any slot is same URL as hero, use fallback
+    return {
+      hero,
+      product:    product    === hero ? fallback.product    : product,
+      lifestyle1: lifestyle1 === hero ? fallback.lifestyle1 : lifestyle1,
+      lifestyle2: lifestyle2 === hero || lifestyle2 === lifestyle1 ? fallback.lifestyle2 : lifestyle2,
+    };
   } catch {
-    return '';
+    return fallback;
   }
 }
 
@@ -602,28 +670,13 @@ export async function generateFullStore(params: {
   const dirNote     = dir?.promptNote   || 'Modern dark DTC brand aesthetic.';
 
   // ── 1. Fetch real images from Pexels ───────────────────────────────────────
-  const searchQuery = productData?.product_title || niche;
-  let heroImg = 'https://images.pexels.com/photos/1005638/pexels-photo-1005638.jpeg';
-  let productImg = 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg';
-  let lifestyleImg1 = 'https://images.pexels.com/photos/3965548/pexels-photo-3965548.jpeg';
-  let lifestyleImg2 = 'https://images.pexels.com/photos/3965549/pexels-photo-3965549.jpeg';
-  let heroImg2 = heroImg;
-
-  try {
-    const [heroImages, productPortrait] = await Promise.all([
-      fetchPexelsImages(searchQuery, 5),
-      fetchPexelsPortrait(searchQuery),
-    ]);
-
-    if (heroImages.length >= 1) heroImg = heroImages[0];
-    heroImg2 = heroImages[1] || heroImg;
-    if (productPortrait) productImg = productPortrait;
-    else if (heroImages.length >= 3) productImg = heroImages[2];
-    if (heroImages.length >= 3) lifestyleImg1 = heroImages[2];
-    if (heroImages.length >= 4) lifestyleImg2 = heroImages[3];
-  } catch (err) {
-    console.warn('[website-api] Pexels fetch failed, using fallbacks:', (err as Error).message);
-  }
+  const productTitle = productData?.product_title as string || '';
+  const imgs = await fetchImagesForStore(productTitle, niche);
+  const heroImg     = imgs.hero;
+  const productImg  = imgs.product;
+  const lifestyleImg1 = imgs.lifestyle1;
+  const lifestyleImg2 = imgs.lifestyle2;
+  console.log('[website-api] Images →', { hero: heroImg.slice(-30), product: productImg.slice(-30), l1: lifestyleImg1.slice(-30), l2: lifestyleImg2.slice(-30) });
 
   // ── 2. Build product context ──────────────────────────────────────────────
   const pd = productData || {};
