@@ -536,60 +536,160 @@ function buildAnimationJs(): string {
 function buildHardCodedJs(): string {
   return `
 <script>
-// Mobile sticky buy bar
+(function() {
+
+// ── 1. Hash Router ──────────────────────────────────────────────────────────
+function route() {
+  var hash = (location.hash || '#home').replace('#','');
+  document.querySelectorAll('[data-page]').forEach(function(p) {
+    p.style.display = (p.dataset.page === hash) ? 'block' : 'none';
+  });
+  document.querySelectorAll('a[data-nav]').forEach(function(a) {
+    var active = a.dataset.nav === hash;
+    a.style.color = active ? 'var(--accent,#d4af37)' : '';
+    a.style.fontWeight = active ? '700' : '';
+  });
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+window.addEventListener('hashchange', route);
+route();
+
+// ── 2. Sticky Nav ────────────────────────────────────────────────────────────
+var nav = document.querySelector('nav');
+if (nav) {
+  window.addEventListener('scroll', function() {
+    if (window.scrollY > 40) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+  }, { passive: true });
+}
+
+// ── 3. Mobile Hamburger ───────────────────────────────────────────────────────
+var hamburger = document.getElementById('hamburger');
+var mobileMenu = document.getElementById('mobile-menu');
+if (hamburger && mobileMenu) {
+  hamburger.onclick = function() { mobileMenu.classList.toggle('mobile-open'); };
+  mobileMenu.querySelectorAll('a').forEach(function(a) {
+    a.onclick = function() { mobileMenu.classList.remove('mobile-open'); };
+  });
+}
+
+// ── 4. FAQ Accordion ─────────────────────────────────────────────────────────
+document.querySelectorAll('.faq-question').forEach(function(q) {
+  q.onclick = function() {
+    var item = q.closest('.faq-item');
+    var isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(function(o) { o.classList.remove('open'); var t = o.querySelector('.faq-toggle'); if(t) t.textContent='+'; });
+    if (!isOpen) { item.classList.add('open'); var t = item.querySelector('.faq-toggle'); if(t) t.textContent='\\u2212'; }
+  };
+});
+
+// ── 5. Countdown Timer ───────────────────────────────────────────────────────
+var cdEl = document.getElementById('countdown');
+if (cdEl) {
+  var t = 23*3600 + 59*60 + 59;
+  setInterval(function() {
+    t--;
+    if (t < 0) t = 86399;
+    var h = Math.floor(t/3600), m = Math.floor((t%3600)/60), s = t%60;
+    cdEl.textContent = (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+  }, 1000);
+}
+
+// ── 6. Cart System ────────────────────────────────────────────────────────────
+var cartCount = 0;
+var cartItems = [];
+
+var cartSidebar = document.createElement('div');
+cartSidebar.id = 'cart-sidebar';
+cartSidebar.style.cssText = 'position:fixed;top:0;right:0;width:380px;max-width:95vw;height:100vh;z-index:10000;background:var(--surface,#0f1018);border-left:1px solid rgba(255,255,255,0.08);transform:translateX(100%);transition:transform 0.35s cubic-bezier(0.22,1,0.36,1);display:flex;flex-direction:column;';
+cartSidebar.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.08);"><span style="font-family:var(--font-heading,Syne);font-size:18px;font-weight:800;color:var(--text,#f2efe9)">Your Cart</span><button id="cart-close" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:24px;line-height:1;padding:0;">&times;</button></div><div id="cart-items" style="flex:1;overflow-y:auto;padding:16px 24px;"></div><div style="padding:20px 24px;border-top:1px solid rgba(255,255,255,0.08);"><div style="display:flex;justify-content:space-between;margin-bottom:16px;"><span style="color:var(--text,#f2efe9);font-weight:600">Total</span><span id="cart-total" style="color:var(--accent,#d4af37);font-family:var(--font-heading,Syne);font-weight:800;font-size:20px">AUD $0.00</span></div><div style="font-size:12px;color:var(--muted);margin-bottom:12px;text-align:center">Pay in 4 with Afterpay \\u00b7 Free AU shipping over $79</div><button onclick="alert(\\x27Checkout coming soon!\\x27)" style="width:100%;padding:16px;background:var(--accent,#d4af37);color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:800;cursor:pointer;font-family:var(--font-heading,Syne);">Checkout \\u2192</button></div>';
+document.body.appendChild(cartSidebar);
+
+var cartOverlay = document.createElement('div');
+cartOverlay.id = 'cart-overlay';
+cartOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:none;backdrop-filter:blur(4px);';
+document.body.appendChild(cartOverlay);
+
+function openCart() { cartSidebar.style.transform='translateX(0)'; cartOverlay.style.display='block'; }
+function closeCart() { cartSidebar.style.transform='translateX(100%)'; cartOverlay.style.display='none'; }
+window.openCart = openCart;
+
+document.getElementById('cart-close').onclick = closeCart;
+cartOverlay.onclick = closeCart;
+
+function renderCart() {
+  var el = document.getElementById('cart-items');
+  var totalEl = document.getElementById('cart-total');
+  if (!el || !totalEl) return;
+  if (cartItems.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:60px 0;color:var(--muted,rgba(242,239,233,0.4))"><div style="font-size:40px;margin-bottom:12px">\\ud83d\\uded2</div><div>Your cart is empty</div></div>';
+    totalEl.textContent = 'AUD $0.00';
+    return;
+  }
+  var total = 0;
+  el.innerHTML = cartItems.map(function(item,i) {
+    total += item.price * item.qty;
+    return '<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><img src="' + item.img + '" style="width:64px;height:64px;object-fit:cover;border-radius:8px;flex-shrink:0;" onerror="this.style.background=\\x27rgba(255,255,255,0.06)\\x27"><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;color:var(--text,#f2efe9);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + item.name + '</div><div style="font-size:12px;color:var(--muted)">Qty: ' + item.qty + '</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;"><span style="color:var(--accent,#d4af37);font-weight:800;font-size:14px">$' + (item.price*item.qty).toFixed(2) + '</span><button onclick="removeFromCart(' + i + ')" style="background:none;border:1px solid rgba(255,255,255,0.1);border-radius:4px;color:var(--muted);cursor:pointer;font-size:11px;padding:2px 6px;">\\u2715</button></div></div>';
+  }).join('');
+  totalEl.textContent = 'AUD $' + total.toFixed(2);
+  updateCartBadge();
+}
+
+window.removeFromCart = function(i) { cartItems.splice(i,1); cartCount=cartItems.reduce(function(s,it){return s+it.qty;},0); renderCart(); };
+
+function updateCartBadge() {
+  var badges = document.querySelectorAll('.cart-badge');
+  badges.forEach(function(b) { b.textContent = cartCount; b.style.display = cartCount > 0 ? 'flex' : 'none'; });
+}
+
+window.addToCart = function(name, price, img) {
+  cartCount++;
+  var existing = cartItems.find(function(it) { return it.name === name; });
+  if (existing) existing.qty++;
+  else cartItems.push({ name: name, price: parseFloat(price) || 49.95, img: img || '', qty: 1 });
+  renderCart();
+  openCart();
+};
+
+document.querySelectorAll('.btn-cart').forEach(function(btn) {
+  btn.onclick = function(e) {
+    e.preventDefault();
+    var section = btn.closest('section,[data-page]');
+    var name = (section && section.querySelector('h1,h2,h3')) ? section.querySelector('h1,h2,h3').textContent.trim().slice(0,40) : 'Product';
+    var priceEl = section && section.querySelector('.price,[class*="price"]');
+    var price = priceEl ? priceEl.textContent.replace(/[^0-9.]/g,'') : '49.95';
+    var img = section && section.querySelector('img') ? section.querySelector('img').src : '';
+    window.addToCart(name, price, img);
+  };
+});
+
+// ── 7. Mobile Sticky Bar ─────────────────────────────────────────────────────
 (function() {
   var bar = document.createElement('div');
   bar.id = 'sticky-bar';
-  bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9998;background:#000;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid rgba(255,255,255,0.1);transform:translateY(100%);transition:transform 0.3s ease;';
-  bar.innerHTML = '<div style="font-size:13px;color:rgba(255,255,255,0.7)">Limited stock available</div><button class="btn-cart" style="background:var(--accent,#d4af37);color:#fff;border:none;padding:12px 24px;border-radius:8px;font-weight:800;font-size:14px;cursor:pointer;white-space:nowrap">Buy Now \\u2192</button>';
+  bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9998;background:var(--surface,#0f1018);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid rgba(255,255,255,0.08);transform:translateY(100%);transition:transform 0.3s ease;';
+  bar.innerHTML = '<div style="font-size:13px;color:var(--muted,rgba(255,255,255,0.5))">\\u26a1 Only 8 left in stock</div><button class="btn-cart" style="background:var(--accent,#d4af37);color:#fff;border:none;padding:12px 24px;border-radius:8px;font-weight:800;font-size:14px;cursor:pointer;white-space:nowrap;">Add to Cart</button>';
   document.body.appendChild(bar);
-  function showBar() {
-    if (window.innerWidth <= 768) { bar.style.transform = 'translateY(0)'; }
-  }
-  setTimeout(showBar, 3000);
+  setTimeout(function() {
+    if (window.innerWidth <= 768) bar.style.transform = 'translateY(0)';
+  }, 3000);
   window.addEventListener('resize', function() {
-    if (window.innerWidth > 768) bar.style.transform = 'translateY(100%)';
-    else showBar();
+    bar.style.transform = window.innerWidth > 768 ? 'translateY(100%)' : 'translateY(0)';
   });
+  bar.querySelector('.btn-cart').onclick = function() {
+    var firstH = document.querySelector('[data-page="home"] h1,h2');
+    window.addToCart(firstH ? firstH.textContent.slice(0,40) : 'Product', '49.95', '');
+  };
 })();
-window.addEventListener('scroll', function() {
-  var nav = document.querySelector('nav');
-  if (nav) nav.classList.toggle('scrolled', window.scrollY > 50);
-});
-var ham = document.getElementById('hamburger');
-var mob = document.getElementById('mobile-menu');
-if (ham && mob) {
-  ham.addEventListener('click', function() { mob.classList.toggle('mobile-open'); });
-  mob.querySelectorAll('a').forEach(function(a) { a.addEventListener('click', function() { mob.classList.remove('mobile-open'); }); });
-}
-document.querySelectorAll('.faq-item').forEach(function(item) {
-  var q = item.querySelector('.faq-question');
-  if (!q) return;
-  q.addEventListener('click', function() {
-    var isOpen = item.classList.contains('open');
-    document.querySelectorAll('.faq-item').forEach(function(i) { i.classList.remove('open'); var t = i.querySelector('.faq-toggle'); if (t) t.textContent = '+'; });
-    if (!isOpen) { item.classList.add('open'); var t = item.querySelector('.faq-toggle'); if (t) t.textContent = '−'; }
-  });
-});
-document.querySelectorAll('.btn-cart, .add-to-cart, [data-cart]').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    var orig = this.textContent; this.textContent = '✓ Added to Cart!'; this.disabled = true;
-    var self = this; setTimeout(function() { self.textContent = orig; self.disabled = false; }, 2000);
-  });
-});
-(function() {
-  var t = 23 * 3600 + 59 * 59;
-  var el = document.getElementById('countdown');
-  if (!el) return;
-  setInterval(function() {
-    if (t <= 0) t = 86399;
-    el.textContent = String(Math.floor(t/3600)).padStart(2,'0') + ':' + String(Math.floor((t%3600)/60)).padStart(2,'0') + ':' + String(t%60).padStart(2,'0');
-    t--;
-  }, 1000);
+
+// ── 8. Scroll Animations ─────────────────────────────────────────────────────
+var io = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.anim').forEach(function(el) { io.observe(el); });
+
 })();
-</script>
-</body>
-</html>`;
+</script>`;
 }
 
 // ─── HTML Post-Processing ─────────────────────────────────────────────────────
@@ -777,9 +877,12 @@ SECTIONS TO BUILD:
 2. STICKY NAV — height:68px sticky top:0 z-index:1000 backdrop-filter:blur(20px)
    bg:${isLight ? 'rgba(250,250,250,0.9)' : 'rgba(8,8,15,0.85)'}; border-bottom:${cardBorder}
    .scrolled: bg:${isLight ? 'rgba(250,250,250,0.98)' : 'rgba(8,8,15,0.97)'}
-   Logo (heading font 900 color:${color}) | .nav-center links | .nav-cta Shop Now btn
+   Logo: <a href="#home" style="font-family:${headingFont};font-weight:900;color:${color};text-decoration:none;font-size:22px">${storeName_}</a>
+   .nav-center links: <a href="#home" data-nav="home">Home</a> | <a href="#shop" data-nav="shop">Shop</a> | <a href="#about" data-nav="about">About</a> | <a href="#contact" data-nav="contact">Contact</a>
+   Right side: cart icon button <button onclick="openCart && openCart()" style="position:relative;background:none;border:none;cursor:pointer;color:var(--text);font-size:20px;padding:8px;">\\ud83d\\uded2<span class="cart-badge" style="display:none;position:absolute;top:2px;right:2px;background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;font-size:11px;font-weight:800;align-items:center;justify-content:center;">0</span></button>
+   Then .nav-cta: <a href="#shop" class="nav-cta" style="...">Shop Now</a>
    id="hamburger" 3-line mobile button (3 spans 24px wide 2px high gap 5px)
-   id="mobile-menu" overlay with same nav links
+   id="mobile-menu" overlay with links: <a href="#home" data-nav="home">Home</a>, <a href="#shop" data-nav="shop">Shop</a>, <a href="#about" data-nav="about">About</a>, <a href="#contact" data-nav="contact">Contact</a>, <a href="#shipping" data-nav="shipping">Shipping</a>
 
 3. HERO — min-height:100vh bg:url(${heroImg}) center/cover
    overlay ${isLight ? 'rgba(0,0,0,0.45)' : 'rgba(8,8,15,0.62)'}
@@ -801,7 +904,21 @@ SOCIAL PROOF BAR — immediately after hero, before product section
    LEFT: img card border-radius:${cardRadius} border:${cardBorder} overflow:hidden <img src="${productImg}"> + BEST SELLER badge
    RIGHT: name (heading font 28px 700) | stars \u2605\u2605\u2605\u2605\u2605 color:${color} "4.9 (247 reviews)" | price (heading font 40px 900 color:${color}) + struck | Afterpay row bg:rgba(${colorRgb},0.08) | stock warning #f59e0b | Add to Cart btn class="btn-cart" (full-width ${color}) | Buy Now | 6 benefits specific to ${niche}
 
-End output after product </section>. Do NOT write features/testimonials/FAQ yet.`;
+EXTRA CSS to include in <style>:
+.cart-badge { display:none; position:absolute; top:2px; right:2px; background:var(--accent); color:#fff; border-radius:50%; width:18px; height:18px; font-size:11px; font-weight:800; align-items:center; justify-content:center; }
+
+CRITICAL HTML STRUCTURE:
+- <nav> must be OUTSIDE and BEFORE the data-page divs (it is always visible across all pages)
+- Wrap the announcement bar INSIDE data-page="home" (it only shows on home)
+- Structure:
+  <body>
+  <nav>...</nav>
+  <div data-page="home" style="display:block">
+    <div class="announcement-bar">...</div>
+    [hero, social proof bar, product section — all inside data-page="home"]
+  (do NOT close data-page="home" div yet — Pass 2 will add more sections inside it)
+
+End output after product </section>. Do NOT close the data-page="home" div. Do NOT write features/testimonials/FAQ yet.`;
 
   const msg1 = await withHeartbeat(25, 58, '🎨 Building layout & CSS...', () =>
     client.messages.create({ model: CLAUDE_MODEL, max_tokens: 6000, system: systemPrompt, messages: [{ role: 'user', content: pass1 }] })
@@ -851,9 +968,16 @@ Add class="anim" to first H2 of each section. Add class="anim anim-delay-1/2/3" 
 
 10. <footer> padding:64px 5% 28px bg:${isLight ? '#f0f0ec' : '#050508'} border-top:${cardBorder}
     <div class="footer-grid"> 4 cols: brand(logo+tagline+social) | Shop | Support | Legal
+    FOOTER links must use hash routing:
+    - Shop column: <a href="#shop" data-nav="shop">All Products</a>, <a href="#shop">New Arrivals</a>, <a href="#shop">Best Sellers</a>
+    - Support: <a href="#contact" data-nav="contact">Contact Us</a>, <a href="#shipping" data-nav="shipping">Shipping Info</a>, <a href="#shipping">Returns</a>
+    - Legal: <a href="#shipping">Shipping Policy</a>, Privacy Policy, Terms of Service
+    All <a> tags: color:var(--muted), text-decoration:none, display:block, margin-bottom:10px
     <div class="footer-bottom">\u00a9 2025 ${storeName_}. ABN: [Your ABN] \U0001f1e6\U0001f1fa | All prices AUD incl. GST</div>
 
-End with </footer> only. No script tags.`;
+End with </footer> then IMMEDIATELY output this exact closing tag:
+</div>
+This closes the data-page="home" div. No script tags.`;
 
   const msg2 = await withHeartbeat(60, 90, '🏗️ Adding features, reviews & footer...', () =>
     client.messages.create({ model: CLAUDE_MODEL, max_tokens: 6000, system: 'Output only HTML starting from <section id="features">. No explanation. No script tags.', messages: [{ role: 'user', content: pass2 }] })
@@ -862,10 +986,63 @@ End with </footer> only. No script tags.`;
   if (!text2 || text2.length < 500) throw new Error('AI generation returned insufficient content — please try again.');
   const part2Raw = text2.replace(/<\/body>\s*<\/html>\s*$/i, '').replace(/<script[\s\S]*?<\/script>/gi, '');
 
-  progress(92, '⚡ Wiring interactivity...');
+  // ── PASS 3: Subpages (shop, about, contact, shipping) ──────────────────────
+  const pass3 = `Generate 4 page sections for a single-page AU ecommerce store. Output ONLY raw HTML, no explanation.
+Store: ${storeName_} | Niche: ${niche} | Color: ${color} | bg: ${bgColor} | surface: ${surfColor}
+All text AU English. All prices AUD.
+
+OUTPUT (in this exact order):
+
+<div data-page="shop" style="display:none">
+  <section style="padding:100px 5% 60px;min-height:100vh;background:var(--bg,${bgColor})">
+    <h1 style="font-family:var(--font-heading,Syne);font-size:clamp(32px,5vw,52px);font-weight:900;color:var(--text);margin-bottom:8px">Shop All</h1>
+    <p style="color:var(--muted);margin-bottom:48px">Free AU shipping on orders over $79 \\u00b7 Afterpay available</p>
+    <!-- 6-card product grid using display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;max-width:1200px;margin:0 auto -->
+    <!-- Each card: background:var(--surface,${surfColor}); border-radius:${cardRadius}; border:${cardBorder}; overflow:hidden -->
+    <!-- Product image: <div style="aspect-ratio:1;background:linear-gradient(135deg,rgba(${colorRgb},0.15),rgba(${colorRgb},0.05));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:48px">EMOJI</div> -->
+    <!-- Card body: h3 product name, description, price in accent + <button class="btn-cart" style="background:var(--accent);color:#fff;border:none;padding:8px 16px;border-radius:6px;font-weight:700;font-size:13px;cursor:pointer">Add</button> -->
+    <!-- Generate 6 product cards relevant to ${niche} -->
+  </section>
+</div>
+
+<div data-page="about" style="display:none">
+  <!-- About page: padding-top:100px for nav clearance, min-height:100vh -->
+  <!-- H1 "About ${storeName_}" -->
+  <!-- Brand story: authentic AU brand story for ${storeName_} in ${niche} space -->
+  <!-- 3 value props grid: Quality, Community, Sustainability (or niche-relevant) -->
+  <!-- AU badge: "Australian owned & operated" -->
+</div>
+
+<div data-page="contact" style="display:none">
+  <!-- Contact page: padding-top:100px, min-height:100vh -->
+  <!-- H1 "Get in Touch" -->
+  <!-- Two-column layout: contact form (Name, Email, Message + Submit) | contact info sidebar -->
+  <!-- Form: onsubmit="alert('Thanks! We reply within 24 hours.');return false;" -->
+  <!-- Info: email, phone (04XX XXX XXX), hours "Mon-Fri 9am-5pm AEST" -->
+  <!-- 5 quick FAQ Q&As different from homepage FAQ -->
+</div>
+
+<div data-page="shipping" style="display:none">
+  <!-- Shipping & Returns page: padding-top:100px, min-height:100vh -->
+  <!-- H1 "Shipping & Returns" -->
+  <!-- AU Shipping table: Standard (3-7 days, free $79+, $7.95 under), Express (1-3 days, $12.95) -->
+  <!-- International: NZ only, 7-14 days, $19.95 -->
+  <!-- Returns: 30-day no-questions-asked, AU Consumer Law -->
+  <!-- Afterpay: available on all orders $35-$2000 -->
+</div>
+
+All HTML with inline styles only (no class dependencies except btn-cart). Use var() CSS props.
+Product images in shop: use gradient div with emoji instead of img tags.`;
+
+  const msg3 = await withHeartbeat(93, 98, '\\ud83d\\udcc4 Building subpages...', () =>
+    client.messages.create({ model: 'claude-haiku-4-5', max_tokens: 5000, messages: [{ role: 'user', content: pass3 }] })
+  );
+  const part3Raw = ((msg3.content[0] as unknown as { text?: string })?.text ?? '').trim();
+
+  progress(98, '\\u26a1 Wiring interactivity...');
 
   const jsWithAnim = buildHardCodedJs().replace('</script>', buildAnimationJs() + '\n</script>');
-  const merged = part1Clean + '\n' + part2Raw + '\n' + jsWithAnim;
+  const merged = part1Clean + '\n' + part2Raw + '\n' + part3Raw + '\n' + jsWithAnim;
   const startIdx = merged.indexOf('<!DOCTYPE');
   const rawHtml = startIdx >= 0 ? merged.slice(startIdx) : merged;
   const finalHtml = postProcessHtml(rawHtml);

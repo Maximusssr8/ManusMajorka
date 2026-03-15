@@ -1128,13 +1128,13 @@ const QUICK_THEMES = {
 const DEVICE_WIDTHS = { desktop: '100%', tablet: '768px', mobile: '375px' } as const;
 
 const GEN_STEPS = [
-  { label: 'Analysing brief', threshold: 15 },
-  { label: 'Applying design direction', threshold: 25 },
-  { label: 'Writing copy', threshold: 40 },
-  { label: 'Building layout & CSS', threshold: 60 },
-  { label: 'Adding features & reviews', threshold: 80 },
-  { label: 'Wiring animations', threshold: 92 },
-  { label: 'Finalising store', threshold: 100 },
+  { label: 'Analysing brief', threshold: 5 },
+  { label: 'Fetching images', threshold: 12 },
+  { label: 'Building layout & CSS', threshold: 25 },
+  { label: 'Writing home page', threshold: 55 },
+  { label: 'Adding features & reviews', threshold: 75 },
+  { label: 'Building subpages', threshold: 93 },
+  { label: 'Finalising store', threshold: 99 },
 ];
 
 interface SiteHistoryItem {
