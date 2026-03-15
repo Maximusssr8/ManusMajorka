@@ -562,7 +562,29 @@ export async function generateFullStore(params: {
   onProgress?: (pct: number, msg: string) => void;
 }): Promise<{ html: string; manifest: string }> {
   const { niche, storeName, targetAudience, vibe, accentColor, price, productData, designDirection = 'default' } = params;
-  const progress = params.onProgress || (() => {});
+  const _progressFn = params.onProgress || (() => {});
+  // Wrap progress so we can do heartbeat ticking during blocking Claude calls
+  const progress = _progressFn;
+
+  // Helper: run a blocking promise while sending progress ticks every 3s
+  async function withHeartbeat<T>(
+    startPct: number, endPct: number, msg: string, fn: () => Promise<T>
+  ): Promise<T> {
+    progress(startPct, msg);
+    let cur = startPct;
+    const timer = setInterval(() => {
+      cur = Math.min(cur + Math.round((endPct - startPct) / 12), endPct - 2);
+      _progressFn(cur, msg);
+    }, 3000);
+    try {
+      const result = await fn();
+      clearInterval(timer);
+      return result;
+    } catch (e) {
+      clearInterval(timer);
+      throw e;
+    }
+  }
   const dir = designDirection !== 'default' ? DESIGN_DIRECTIONS[designDirection as keyof typeof DESIGN_DIRECTIONS] : null;
   const color = accentColor || (dir ? '#d4af37' : '#d4af37');
   const bgColor   = dir?.defaultBg      || '#08080f';
@@ -629,7 +651,7 @@ Price range: ${price || '$49.95'} AUD`;
   const storeName_ = storeName || niche;
   const colorRgb2 = colorRgb; // alias
 
-  progress(10, '\U0001f50d Finding product images...');
+  progress(5, '🔍 Finding product images...');
 
   const client = getAnthropicClient();
   const pdTitle = pd.product_title as string | undefined;
@@ -638,7 +660,7 @@ Price range: ${price || '$49.95'} AUD`;
   const animCss = buildAnimationCss();
   const manifestJson = buildManifest(storeName_, color, vibe || ('Premium ' + niche + ' for Australians'));
 
-  progress(25, '\U0001f3a8 Building layout & styles...');
+  progress(10, '🔍 Finding images...');
 
   const isLight = ['editorial', 'minimal'].includes(designDirection as string);
 
@@ -728,12 +750,12 @@ SOCIAL PROOF BAR — immediately after hero, before product section
 
 End output after product </section>. Do NOT write features/testimonials/FAQ yet.`;
 
-  const msg1 = await client.messages.create({ model: CLAUDE_MODEL, max_tokens: 6000, system: systemPrompt, messages: [{ role: 'user', content: pass1 }] });
+  const msg1 = await withHeartbeat(25, 58, '🎨 Building layout & CSS...', () =>
+    client.messages.create({ model: CLAUDE_MODEL, max_tokens: 6000, system: systemPrompt, messages: [{ role: 'user', content: pass1 }] })
+  );
   const text1 = ((msg1.content[0] as any)?.text as string | undefined)?.trim() || '';
   if (!text1 || text1.length < 500) throw new Error('AI generation returned insufficient content — please try again.');
   const part1Clean = text1.replace(/<\/body>\s*<\/html>\s*$/i, '').trim();
-
-  progress(60, '\U0001f3d7\ufe0f Adding features, reviews & footer...');
 
   const pass2 = `Continue this ${dir?.label || 'dark'} Australian ecommerce store. Output only raw HTML. Start with <section id="features"> immediately.
 
@@ -780,12 +802,14 @@ Add class="anim" to first H2 of each section. Add class="anim anim-delay-1/2/3" 
 
 End with </footer> only. No script tags.`;
 
-  const msg2 = await client.messages.create({ model: CLAUDE_MODEL, max_tokens: 6000, system: 'Output only HTML starting from <section id="features">. No explanation. No script tags.', messages: [{ role: 'user', content: pass2 }] });
+  const msg2 = await withHeartbeat(60, 90, '🏗️ Adding features, reviews & footer...', () =>
+    client.messages.create({ model: CLAUDE_MODEL, max_tokens: 6000, system: 'Output only HTML starting from <section id="features">. No explanation. No script tags.', messages: [{ role: 'user', content: pass2 }] })
+  );
   const text2 = ((msg2.content[0] as any)?.text as string | undefined)?.trim() || '';
   if (!text2 || text2.length < 500) throw new Error('AI generation returned insufficient content — please try again.');
   const part2Raw = text2.replace(/<\/body>\s*<\/html>\s*$/i, '').replace(/<script[\s\S]*?<\/script>/gi, '');
 
-  progress(92, '\u26a1 Wiring interactivity...');
+  progress(92, '⚡ Wiring interactivity...');
 
   const jsWithAnim = buildHardCodedJs().replace('</script>', buildAnimationJs() + '\n</script>');
   const merged = part1Clean + '\n' + part2Raw + '\n' + jsWithAnim;
