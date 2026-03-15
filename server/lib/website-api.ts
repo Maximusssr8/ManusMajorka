@@ -713,23 +713,46 @@ function postProcessHtml(html: string, storeName: string, niche: string, color: 
   html = html.replace(/(<a[^>]*href="#"[^>]*class="nav-logo"[^>]*>)/gi, (m) => m.replace('href="#"', 'href="#home"'));
 
   // 4. INJECT data-page="home" wrapper programmatically
-  // Strategy: find where <nav> ends, inject open div; find first <div data-page="shop" and inject close div before it
+  // Claude rarely generates <nav> or <body> tags — use content landmarks instead
   if (!html.includes('data-page="home"')) {
-    // Insert after closing </nav>
-    const navEnd = html.indexOf('</nav>');
-    if (navEnd !== -1) {
-      html = html.slice(0, navEnd + 6) + '\n<div data-page="home" style="display:block">' + html.slice(navEnd + 6);
+    // Find injection point: prefer end of </style>, else first <section, else after announcement-bar div
+    let homeStart = -1;
+    const styleEnd = html.lastIndexOf('</style>');
+    const firstSection = html.search(/<section[\s>]/i);
+    const announcementDiv = html.search(/<div[^>]*announcement/i);
+
+    if (styleEnd !== -1) homeStart = styleEnd + 8; // right after </style>
+    else if (firstSection !== -1) homeStart = firstSection;
+    else if (announcementDiv !== -1) homeStart = announcementDiv;
+
+    if (homeStart !== -1) {
+      html = html.slice(0, homeStart) + '\n<div data-page="home" style="display:block">' + html.slice(homeStart);
     }
-    // Insert closing div before first subpage OR before </body>
+
+    // Close home div before first subpage OR before </body>
     const shopIdx = html.indexOf('<div data-page="shop"');
     const bodyEnd = html.lastIndexOf('</body>');
-    const insertBefore = shopIdx !== -1 ? shopIdx : bodyEnd;
-    if (insertBefore !== -1) {
-      html = html.slice(0, insertBefore) + '\n</div><!-- /home -->\n' + html.slice(insertBefore);
+    const closeBefore = shopIdx !== -1 ? shopIdx : bodyEnd;
+    if (closeBefore !== -1) {
+      html = html.slice(0, closeBefore) + '</div>\n' + html.slice(closeBefore);
     }
   }
 
-  // 5. Ensure HTML closes properly
+  // 5. Fix unclosed <style> tag — browser treats everything after as CSS (page goes blank)
+  if (html.includes('<style>') && !html.includes('</style>')) {
+    // Find first body-content landmark: <section, <div class="announcement, or <nav
+    const bodyStart = Math.min(
+      ...[
+        html.search(/<section[\s>]/i),
+        html.search(/<div[^>]*class="announcement/i),
+        html.search(/\n<nav[\s>]/i),
+      ].filter(n => n > 0)
+    );
+    if (isFinite(bodyStart) && bodyStart > 0) {
+      html = html.slice(0, bodyStart) + '\n</style>\n</head>\n<body>\n' + html.slice(bodyStart);
+    }
+  }
+  // Ensure HTML closes properly
   if (!html.includes('</body>')) html = html + '\n</body>';
   if (!html.includes('</html>')) html = html + '\n</html>';
 
