@@ -390,38 +390,131 @@ export function registerWebsiteRoutes(app: Application): void {
     }
   });
 
-  // POST /api/website/generate — Full AI HTML generation with Pexels images
+  // POST /api/website/generate — Full AI HTML generation with Pexels images (streaming SSE)
   app.post('/api/website/generate', async (req, res) => {
     try {
       const user = await authenticateRequest(req);
       if (!user) { res.status(401).json({ error: 'Unauthorized' }); return; }
 
       const { niche, storeName, targetAudience, vibe, accentColor, price, productData } = req.body as {
-        niche?: string;
-        storeName?: string;
-        targetAudience?: string;
-        vibe?: string;
-        accentColor?: string;
-        price?: string;
+        niche?: string; storeName?: string; targetAudience?: string;
+        vibe?: string; accentColor?: string; price?: string;
         productData?: Record<string, any>;
       };
-
       if (!niche) { res.status(400).json({ error: 'niche is required.' }); return; }
 
-      const html = await generateFullStore({
-        niche,
-        storeName: storeName || niche,
-        targetAudience,
-        vibe,
-        accentColor,
-        price,
-        productData,
+      const color = accentColor || '#d4af37';
+      const searchQuery = (productData as any)?.product_title || niche;
+
+      // ── Set up SSE streaming ──────────────────────────────────────────────
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      const send = (event: string, data: any) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+
+      // ── 1. Fetch Pexels images ────────────────────────────────────────────
+      send('progress', { pct: 10, msg: '🔍 Finding product images...' });
+      const [heroImages, productPortrait] = await Promise.all([
+        fetchPexelsImages(searchQuery, 5),
+        fetchPexelsPortrait(searchQuery),
+      ]);
+      const heroImg = heroImages[0] || 'https://images.pexels.com/photos/5632399/pexels-photo-5632399.jpeg';
+      const heroImg2 = heroImages[1] || heroImg;
+      const productImg = productPortrait || heroImages[2] || heroImg;
+      const lifestyleImg1 = heroImages[2] || heroImg;
+      const lifestyleImg2 = heroImages[3] || heroImg;
+
+      send('progress', { pct: 25, msg: '✍️ Writing your store...' });
+
+      // ── 2. Build prompt ───────────────────────────────────────────────────
+      const pd = productData || {};
+      const productContext = (pd as any).product_title ? `
+PRODUCT DETAILS:
+- Name: ${(pd as any).product_title}
+- Category: ${(pd as any).category || (pd as any).product_type || niche}
+- Description: ${(pd as any).description || ''}
+- Key features: ${((pd as any).key_features as string[] || []).join(', ')}
+- Target customer: ${(pd as any).target_customer || targetAudience || 'Australian shoppers'}
+- Hero benefit: ${(pd as any).hero_benefit || ''}
+- Suggested headline: ${(pd as any).hero_headline || ''}
+- Price: ${price || `$${(pd as any).price_aud || '49.95'}`} AUD` : `
+PRODUCT: ${niche}
+Target: ${targetAudience || 'Australian shoppers 25-45'}
+Price: ${price || '$49.95'} AUD`;
+
+      const systemPrompt = `You are a senior frontend developer who builds high-converting Australian ecommerce stores. Output ONLY the complete HTML document — start with <!DOCTYPE html> and end with </html>. No explanation, no markdown.
+
+RULES:
+1. All CSS in <style> in <head>. All JS in <script> at bottom of <body>. No external CSS frameworks.
+2. Google Fonts allowed via <link>
+3. Mobile responsive
+4. Use the EXACT Pexels image URLs provided — never use placeholder images
+5. AU English (colour, Afterpay, AusPost, AUD)
+6. Include: sticky nav with blur, FAQ accordion JS, countdown timer JS, add-to-cart button feedback
+7. Dark theme: bg #08080f, surface #0f1018. Premium feel.`;
+
+      const userPrompt = `Build a complete high-converting Australian ecommerce store.
+
+${productContext}
+
+STORE: ${storeName || niche} | Brand color: ${color} | Style: ${vibe || 'modern premium DTC'}
+Fonts: Syne (headings 800/900) + DM Sans (body) from Google Fonts
+
+REAL IMAGES (use these exact URLs):
+- Hero bg: ${heroImg}
+- Hero secondary: ${heroImg2}
+- Product: ${productImg}
+- Lifestyle 1: ${lifestyleImg1}
+- Lifestyle 2: ${lifestyleImg2}
+
+SECTIONS:
+1. Announcement bar — scrolling marquee, brand color bg, "Free AU shipping $79+ | Afterpay | Ships AU warehouse"
+2. Sticky nav — logo left, links center (Product/Features/Reviews/FAQ), Shop Now button right, blur on scroll
+3. Hero — full-height, hero bg image + dark overlay, AU badge, bold H1, subheadline, 2 CTA buttons, 3 trust badges
+4. Product section — 2-col: product image left, info right (name, stars, price, Afterpay row, Add to Cart, benefits list)
+5. Features — 3-col dark cards, emoji + title + description specific to this product
+6. Testimonials — 3-col, 5 stars, specific quotes, AU city + verified badge
+7. FAQ accordion — 5 product-specific questions, expand/collapse JS
+8. CTA strip — gradient, headline, button, countdown timer
+9. Footer — brand story, links, ABN placeholder, "All prices AUD incl. GST"
+
+Design: H1 52-64px, cards border-radius 14px, 1px border rgba(255,255,255,0.08), 80px section padding.
+Output full HTML only.`;
+
+      // ── 3. Stream from Claude ─────────────────────────────────────────────
+      send('progress', { pct: 40, msg: '🎨 Building layout & styles...' });
+
+      const client = getAnthropicClient();
+      const stream = await client.messages.stream({
+        model: 'claude-haiku-4-5',
+        max_tokens: 8000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }],
       });
 
-      res.json({ html });
+      let html = '';
+      let lastProgressPct = 40;
+      for await (const chunk of stream) {
+        if (chunk.type === 'content_block_delta' && (chunk.delta as any).type === 'text_delta') {
+          html += (chunk.delta as any).text;
+          // Send incremental progress based on output size
+          const pct = Math.min(90, 40 + Math.floor((html.length / 7000) * 50));
+          if (pct > lastProgressPct + 5) {
+            lastProgressPct = pct;
+            send('progress', { pct, msg: '⚡ Generating HTML...' });
+          }
+        }
+      }
+
+      // ── 4. Done ───────────────────────────────────────────────────────────
+      const start = html.indexOf('<!DOCTYPE');
+      const finalHtml = start >= 0 ? html.slice(start) : html;
+      send('progress', { pct: 100, msg: '✅ Store ready!' });
+      send('done', { html: finalHtml });
+      res.end();
     } catch (err: any) {
       console.error('[website/generate]', err.message);
-      res.status(500).json({ error: err.message || 'Generation failed.' });
+      try { res.write(`event: error\ndata: ${JSON.stringify({ error: err.message || 'Generation failed.' })}\n\n`); res.end(); } catch {}
     }
   });
 }

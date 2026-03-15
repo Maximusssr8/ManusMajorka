@@ -1309,22 +1309,7 @@ export default function WebsiteGenerator() {
     setDirectHtml(null);
 
     try {
-      // ── Progress ticker (visual feedback while Claude works) ─────────────
-      const progressSteps = [
-        { pct: 10, msg: '🔍 Searching Pexels for product images...' },
-        { pct: 30, msg: '✍️ Writing AU-optimised copy...' },
-        { pct: 55, msg: '🎨 Building your store layout...' },
-        { pct: 75, msg: '⚡ Generating HTML & CSS...' },
-        { pct: 90, msg: '🏗️ Finalising your store...' },
-      ];
-      let stepIdx = 0;
-      const ticker = setInterval(() => {
-        if (stepIdx < progressSteps.length) {
-          setGenProgress(progressSteps[stepIdx].pct);
-          stepIdx++;
-        }
-      }, 3500);
-
+      // ── Stream from /api/website/generate via SSE ─────────────────────
       const response = await fetch('/api/website/generate', {
         method: 'POST',
         headers: {
@@ -1347,21 +1332,44 @@ export default function WebsiteGenerator() {
         }),
       });
 
-      clearInterval(ticker);
-
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
         throw new Error((err as any).error || `Generation failed: ${response.status}`);
       }
 
-      const data = await response.json() as { html: string };
-      if (!data.html) throw new Error('No HTML returned from server.');
+      // Read SSE stream
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let finalHtml = '';
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          for (const line of lines) {
+            if (line.startsWith('event: progress')) continue;
+            if (line.startsWith('data: ')) {
+              try {
+                const payload = JSON.parse(line.slice(6));
+                if (payload.pct !== undefined) setGenProgress(payload.pct);
+                if (payload.html) finalHtml = payload.html;
+                if (payload.error) throw new Error(payload.error);
+              } catch (e: any) {
+                if (e?.message && !e.message.includes('JSON')) throw e;
+              }
+            }
+          }
+        }
+      }
+
+      if (!finalHtml) throw new Error('No HTML returned. Please try again.');
 
       setGenProgress(100);
-
-      // Store the raw HTML directly — no JSON parsing needed
-      setRawResponse(data.html);
-      // Set a minimal generatedData so the copy/deploy tabs still work
+      setRawResponse(finalHtml);
       const minData: GeneratedData = {
         storeName: storeName || niche,
         headline: niche,
@@ -1369,8 +1377,7 @@ export default function WebsiteGenerator() {
         primaryColor: accentColor || '#d4af37',
       };
       setGeneratedData(minData);
-      // Override the preview HTML directly
-      setDirectHtml(data.html);
+      setDirectHtml(finalHtml);
       setActiveTab('preview');
 
       toast.success('Store generated! 🏪');
