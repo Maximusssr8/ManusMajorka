@@ -1333,7 +1333,7 @@ export default function WebsiteGenerator() {
     return buildPremiumStore(premiumTemplateId, generatedData, analysisResult || undefined);
   }, [generatedData, analysisResult, premiumTemplateId, directHtml]);
 
-  const hasOutput = generatedData || rawResponse;
+  const hasOutput = generatedData || rawResponse || directHtml;
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
@@ -2273,11 +2273,11 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                         </div>
                       )}
                     </div>
-                    {generatedData ? (
+                    {(generatedData || directHtml) ? (
                       <div className={`flex-1 overflow-auto ${previewDevice !== 'desktop' ? 'flex justify-center' : ''}`} style={{ background: '#060608', padding: previewDevice !== 'desktop' ? '20px 0' : 0 }}>
                         <div style={previewDevice !== 'desktop' ? { width: previewDevice === 'tablet' ? 768 : 390, flexShrink: 0 } : { width: '100%', height: '100%' }}>
                           <iframe
-                            srcDoc={previewHTML}
+                            srcDoc={previewHTML || directHtml || ''}
                             title="Store Preview"
                             className="border-0"
                             style={{
@@ -2291,7 +2291,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                               border: previewDevice !== 'desktop' ? '2px solid rgba(255,255,255,0.12)' : 'none',
                               boxShadow: previewDevice !== 'desktop' ? '0 8px 40px rgba(0,0,0,0.5)' : 'none',
                             }}
-                            sandbox="allow-same-origin"
+                            sandbox="allow-scripts allow-same-origin allow-popups"
                           />
                         </div>
                         {/* B3 — Headline variants panel */}
