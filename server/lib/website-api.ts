@@ -1057,17 +1057,23 @@ export async function generateFullStore(params: {
   const dirNote     = dir?.promptNote   || 'Modern dark DTC brand aesthetic.';
 
   // ── 1. Fetch real images from Pexels ───────────────────────────────────────
-  const productTitle = productData?.product_title as string || '';
+  const pd = productData || {};
+  const productTitle = (pd.product_title as string) || '';
+  // Extract scraped images from the imported product URL (highest priority)
+  const scrapedProductImgs: string[] = Array.isArray(pd.product_images) ? (pd.product_images as string[]) : [];
+  const scrapedHeroImg    = (pd.hero_image as string | undefined) || scrapedProductImgs[0];
+  const scrapedProductImg = scrapedProductImgs[1] || scrapedHeroImg;
+
   const imgs = await fetchImagesForStore(productTitle, niche);
-  const heroImg     = imgs.hero;
-  const productImg  = imgs.product;
+  // Use scraped images first, fall back to Pexels
+  const heroImg      = scrapedHeroImg    || imgs.hero;
+  const productImg   = scrapedProductImg || imgs.product;
   const lifestyleImg1 = imgs.lifestyle1;
   const lifestyleImg2 = imgs.lifestyle2;
-  const shopImages  = imgs.shopImages;
+  const shopImages   = imgs.shopImages;
   console.log('[website-api] Images →', { hero: heroImg.slice(-30), product: productImg.slice(-30), l1: lifestyleImg1.slice(-30), l2: lifestyleImg2.slice(-30) });
 
   // ── 2. Build product context ──────────────────────────────────────────────
-  const pd = productData || {};
   const productContext = pd.product_title ? `
 PRODUCT DETAILS (use these exactly — do not invent):
 - Name: ${pd.product_title}
@@ -1371,15 +1377,47 @@ This closes the data-page="home" div. No script tags.`;
   // ── PASS 3: About + Contact pages (AI) — shop + shipping are hard-coded ─────
   progress(93, '📄 Building subpages...');
 
-  // Hard-code the shop page with real Pexels images — no AI needed
-  const shopProductNames = (pd.product_title
-    ? [`${pd.product_title}`, `${pd.product_title} — Deluxe`, `${pd.product_title} Bundle`, `${pd.product_title} Gift Set`, `${niche} Essential Kit`, `${niche} Starter Pack`]
-    : [`${niche} Essential`, `${niche} Pro`, `${niche} Bundle`, `${niche} Deluxe Set`, `${niche} Starter Kit`, `${niche} Gift Pack`]
-  );
-  const shopPrices = ['$49.95','$79.95','$99.95','$59.95','$149.95','$39.95'];
-  const shopDescs  = ['Bestseller','Most popular','Great value','Limited edition','Bundle & save','Starter pick'];
+  // Hard-code the shop page — prefer product images from the imported URL, fall back to Pexels
+  const rawProductImgs: string[] = scrapedProductImgs;
+  // Build a pool: product images first (up to 6), then Pexels shop images to fill gaps
+  const shopImagePool: string[] = [...rawProductImgs, ...shopImages]
+    .filter(Boolean)
+    .filter((u, i, arr) => arr.indexOf(u) === i) // deduplicate
+    .slice(0, 6);
+  // Always have 6 slots
+  while (shopImagePool.length < 6) shopImagePool.push(shopImages[shopImagePool.length % shopImages.length] || productImg);
 
-  const shopCards = shopImages.map((imgUrl, i) => `
+  const shopProductNames = (() => {
+    if (pd.product_title) {
+      const t = pd.product_title as string;
+      const colors = (pd.colors as string[] | undefined) || [];
+      const sizes  = (pd.sizes  as string[] | undefined) || [];
+      // Generate meaningful variants from real product data
+      const variants = [
+        t,
+        colors[0] ? `${t} — ${colors[0]}` : `${t} (2-Pack)`,
+        colors[1] ? `${t} — ${colors[1]}` : `${t} Bundle`,
+        sizes.length ? `${t} Gift Set (All Sizes)` : `${t} Deluxe Edition`,
+        `${niche} Starter Kit`,
+        `${niche} Essential Pack`,
+      ];
+      return variants;
+    }
+    return [`${niche} Essential`, `${niche} Pro`, `${niche} Bundle`, `${niche} Deluxe Set`, `${niche} Starter Kit`, `${niche} Gift Pack`];
+  })();
+
+  const basePrice  = parseFloat(String(pd.suggested_price_aud || pd.price_aud || '49.95')) || 49.95;
+  const shopPrices = [
+    `$${basePrice.toFixed(2)}`,
+    `$${(basePrice * 1.3).toFixed(2)}`,
+    `$${(basePrice * 0.85).toFixed(2)}`,
+    `$${(basePrice * 2.1).toFixed(2)}`,
+    `$${(basePrice * 1.6).toFixed(2)}`,
+    `$${(basePrice * 0.7).toFixed(2)}`,
+  ];
+  const shopDescs  = ['Bestseller','Most popular','Great value','Bundle & save','Limited edition','Starter pick'];
+
+  const shopCards = shopImagePool.map((imgUrl, i) => `
     <div style="background:${surfColor};border-radius:${cardRadius};border:${cardBorder};overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 16px 40px rgba(${colorRgb},0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
       <div style="aspect-ratio:1;overflow:hidden;background:#111">
         <img loading="lazy" src="${imgUrl}" alt="${shopProductNames[i] || niche}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.4s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform=''">
