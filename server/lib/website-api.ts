@@ -932,8 +932,9 @@ function postProcessHtml(html: string, storeName: string, niche: string, color: 
   html = html.replace(/(<a[^>]*href="#"[^>]*class="nav-logo"[^>]*>)/gi, (m) => m.replace('href="#"', 'href="#home"'));
 
   // 4. INJECT data-page="home" wrapper programmatically
-  // Claude rarely generates <nav> or <body> tags — use content landmarks instead
-  if (!html.includes('data-page="home"')) {
+  // IMPORTANT: check for the HTML element specifically — NOT just the string, which appears in JS code
+  // e.g. querySelector('[data-page="home"]') would wrongly match a string-only check
+  if (!html.includes('<div data-page="home"')) {
     // Find injection point: prefer end of </style>, else first <section, else after announcement-bar div
     let homeStart = -1;
     const styleEnd = html.lastIndexOf('</style>');
@@ -956,7 +957,7 @@ function postProcessHtml(html: string, storeName: string, niche: string, color: 
     const shopIdx = html.indexOf('<div data-page="shop"');
     const bodyEnd = html.lastIndexOf('</body>');
     const closeBefore = shopIdx !== -1 ? shopIdx : bodyEnd;
-    if (closeBefore !== -1 && html.includes('data-page="home"')) {
+    if (closeBefore !== -1 && html.includes('<div data-page="home"')) {
       // Replace the __home-end__ sentinel (inserted by generateFullStore) with a proper </div>
       // Using a data-attribute sentinel because HTML comment stripper runs later in this function
       if (html.includes('id="__home-end__"')) {
@@ -1587,7 +1588,11 @@ Write all content specific to ${niche} and ${storeName_}. AU English. No placeho
   const msg3 = await withHeartbeat(93, 98, '📄 Building subpages...', () =>
     client.messages.create({ model: 'claude-haiku-4-5', max_tokens: 2500, messages: [{ role: 'user', content: pass3 }] })
   );
-  const part3Raw = hardCodedShop + '\n' + ((msg3.content[0] as unknown as { text?: string })?.text ?? '').trim();
+  const part3Text = ((msg3.content[0] as unknown as { text?: string })?.text ?? '').trim()
+    .replace(/```[\s\S]*?```/g, '')   // strip full fenced code blocks
+    .replace(/^```\w*\n?/gm, '')      // strip opening ``` at line start
+    .replace(/^```\s*$/gm, '');       // strip closing ``` at line start
+  const part3Raw = hardCodedShop + '\n' + part3Text;
 
   progress(98, '\\u26a1 Wiring interactivity...');
 
