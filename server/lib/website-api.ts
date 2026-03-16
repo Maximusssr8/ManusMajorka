@@ -256,7 +256,7 @@ function bestUrl(photo: any): string {
 
 // Multi-query Pexels fetcher: tries specific → simplified → category fallback
 async function fetchImagesForStore(productTitle: string, niche: string): Promise<{
-  hero: string; product: string; lifestyle1: string; lifestyle2: string;
+  hero: string; product: string; lifestyle1: string; lifestyle2: string; shopImages: string[];
 }> {
   const fallback = getNicheFallback(niche);
 
@@ -285,20 +285,36 @@ async function fetchImagesForStore(productTitle: string, niche: string): Promise
 
     const pool = [...heroPhotos, ...nichePhotos];
 
+    // Also fetch 6 shop product images (portrait/square, varied queries)
+    const shopVariants = [
+      nicheWords,
+      `${nicheWords} product`,
+      `${nicheWords} lifestyle`,
+    ];
+    const shopResults = await Promise.all(
+      shopVariants.map(q => pexelsSearch(q, 3, 'square').catch(() => []))
+    );
+    const shopPool = shopResults.flat();
+    const shopImages = shopPool
+      .map(p => bestUrl(p))
+      .filter(Boolean)
+      .slice(0, 6);
+
     const hero      = bestUrl(pool[0])       || fallback.hero;
     const product   = bestUrl(productPhotos[0] || pool[1]) || fallback.product;
     const lifestyle1 = bestUrl(lifestylePhotos[0] || pool[2]) || fallback.lifestyle1;
     const lifestyle2 = bestUrl(lifestylePhotos[1] || pool[3]) || fallback.lifestyle2;
 
-    // Deduplicate: if any slot is same URL as hero, use fallback
+    // Deduplicate
     return {
       hero,
       product:    product    === hero ? fallback.product    : product,
       lifestyle1: lifestyle1 === hero ? fallback.lifestyle1 : lifestyle1,
       lifestyle2: lifestyle2 === hero || lifestyle2 === lifestyle1 ? fallback.lifestyle2 : lifestyle2,
+      shopImages: shopImages.length >= 3 ? shopImages : [fallback.product, fallback.lifestyle1, fallback.lifestyle2, fallback.hero, fallback.lifestyle1, fallback.lifestyle2],
     };
   } catch {
-    return fallback;
+    return { ...fallback, shopImages: [fallback.product, fallback.lifestyle1, fallback.lifestyle2, fallback.hero, fallback.lifestyle1, fallback.lifestyle2] };
   }
 }
 
@@ -1047,6 +1063,7 @@ export async function generateFullStore(params: {
   const productImg  = imgs.product;
   const lifestyleImg1 = imgs.lifestyle1;
   const lifestyleImg2 = imgs.lifestyle2;
+  const shopImages  = imgs.shopImages;
   console.log('[website-api] Images →', { hero: heroImg.slice(-30), product: productImg.slice(-30), l1: lifestyleImg1.slice(-30), l2: lifestyleImg2.slice(-30) });
 
   // ── 2. Build product context ──────────────────────────────────────────────
@@ -1351,58 +1368,77 @@ This closes the data-page="home" div. No script tags.`;
   if (!text2 || text2.length < 500) throw new Error('AI generation returned insufficient content — please try again.');
   const part2Raw = text2.replace(/<\/body>\s*<\/html>\s*$/i, '').replace(/<script[\s\S]*?<\/script>/gi, '');
 
-  // ── PASS 3: Subpages (shop, about, contact, shipping) ──────────────────────
-  const pass3 = `Generate 4 page sections for a single-page AU ecommerce store. Output ONLY raw HTML, no explanation.
-Store: ${storeName_} | Niche: ${niche} | Color: ${color} | bg: ${bgColor} | surface: ${surfColor}
-All text AU English. All prices AUD.
+  // ── PASS 3: About + Contact pages (AI) — shop + shipping are hard-coded ─────
+  progress(93, '📄 Building subpages...');
 
-OUTPUT (in this exact order):
+  // Hard-code the shop page with real Pexels images — no AI needed
+  const shopProductNames = (pd.product_title
+    ? [`${pd.product_title}`, `${pd.product_title} — Deluxe`, `${pd.product_title} Bundle`, `${pd.product_title} Gift Set`, `${niche} Essential Kit`, `${niche} Starter Pack`]
+    : [`${niche} Essential`, `${niche} Pro`, `${niche} Bundle`, `${niche} Deluxe Set`, `${niche} Starter Kit`, `${niche} Gift Pack`]
+  );
+  const shopPrices = ['$49.95','$79.95','$99.95','$59.95','$149.95','$39.95'];
+  const shopDescs  = ['Bestseller','Most popular','Great value','Limited edition','Bundle & save','Starter pick'];
 
+  const shopCards = shopImages.map((imgUrl, i) => `
+    <div style="background:${surfColor};border-radius:${cardRadius};border:${cardBorder};overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 16px 40px rgba(${colorRgb},0.15)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+      <div style="aspect-ratio:1;overflow:hidden;background:#111">
+        <img loading="lazy" src="${imgUrl}" alt="${shopProductNames[i] || niche}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.4s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform=''">
+      </div>
+      <div style="padding:16px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:${color};margin-bottom:6px">${shopDescs[i] || 'Popular'}</div>
+        <h3 style="font-family:var(--font-heading,Syne,sans-serif);font-size:15px;font-weight:700;color:${textColor};margin-bottom:6px;line-height:1.3">${shopProductNames[i] || niche}</h3>
+        <div style="font-size:13px;color:${mutedColor};margin-bottom:14px">Free AU shipping over $79 · Afterpay</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <span style="font-family:var(--font-heading,Syne,sans-serif);font-size:19px;font-weight:900;color:${color}">${shopPrices[i] || '$49.95'} AUD</span>
+          <button class="btn-cart" style="background:${color};color:${isLight ? '#fff' : '#08080f'};border:none;padding:10px 18px;border-radius:${btnRadius};font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap;font-family:var(--font-heading,Syne,sans-serif)">Add to Cart</button>
+        </div>
+      </div>
+    </div>`).join('\n');
+
+  const hardCodedShop = `
 <div data-page="shop" style="display:none">
-  <section style="padding:100px 5% 60px;min-height:100vh;background:var(--bg,${bgColor})">
-    <h1 style="font-family:var(--font-heading,Syne);font-size:clamp(32px,5vw,52px);font-weight:900;color:var(--text);margin-bottom:8px">Shop All</h1>
-    <p style="color:var(--muted);margin-bottom:48px">Free AU shipping on orders over $79 \\u00b7 Afterpay available</p>
-    <!-- 6-card product grid using display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;max-width:1200px;margin:0 auto -->
-    <!-- Each card: background:var(--surface,${surfColor}); border-radius:${cardRadius}; border:${cardBorder}; overflow:hidden -->
-    <!-- Product image: <div style="aspect-ratio:1;background:linear-gradient(135deg,rgba(${colorRgb},0.15),rgba(${colorRgb},0.05));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:48px">EMOJI</div> -->
-    <!-- Card body: h3 product name, description, price in accent + <button class="btn-cart" style="background:var(--accent);color:#fff;border:none;padding:8px 16px;border-radius:6px;font-weight:700;font-size:13px;cursor:pointer">Add</button> -->
-    <!-- Generate 6 product cards relevant to ${niche} -->
+  <section style="padding:100px 5% 80px;min-height:100vh;background:${bgColor}">
+    <div style="max-width:1200px;margin:0 auto">
+      <h1 style="font-family:var(--font-heading,Syne,sans-serif);font-size:clamp(32px,5vw,52px);font-weight:900;color:${textColor};margin-bottom:8px">Shop All</h1>
+      <p style="color:${mutedColor};margin-bottom:48px;font-size:15px">🇦🇺 Free AU shipping on orders over $79 · Afterpay available · 30-day returns</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px">
+        ${shopCards}
+      </div>
+    </div>
+  </section>
+</div>`;
+
+  // AI generates about + contact (small, focused prompt using Haiku)
+  const pass3 = `Generate 2 page sections for ${storeName_} (${niche} store, AU). Output ONLY raw HTML.
+
+<div data-page="about" style="display:none">
+  <section style="padding:100px 5% 80px;min-height:100vh;background:${bgColor}">
+    <div style="max-width:900px;margin:0 auto">
+      [H1 "About ${storeName_}" — Syne font, 48px, 900 weight, color ${textColor}]
+      [2-paragraph brand story for ${storeName_} in the ${niche} space — authentic AU voice, mention Gold Coast/Australia, quality promise]
+      [3-col value grid: 3 values specific to ${niche} — each has emoji, bold title, short description]
+      [AU badge: "🇦🇺 Proudly Australian Owned & Operated"]
+    </div>
   </section>
 </div>
 
-<div data-page="about" style="display:none">
-  <!-- About page: padding-top:100px for nav clearance, min-height:100vh -->
-  <!-- H1 "About ${storeName_}" -->
-  <!-- Brand story: authentic AU brand story for ${storeName_} in ${niche} space -->
-  <!-- 3 value props grid: Quality, Community, Sustainability (or niche-relevant) -->
-  <!-- AU badge: "Australian owned & operated" -->
-</div>
-
 <div data-page="contact" style="display:none">
-  <!-- Contact page: padding-top:100px, min-height:100vh -->
-  <!-- H1 "Get in Touch" -->
-  <!-- Two-column layout: contact form (Name, Email, Message + Submit) | contact info sidebar -->
-  <!-- Form: onsubmit="alert('Thanks! We reply within 24 hours.');return false;" -->
-  <!-- Info: email, phone (04XX XXX XXX), hours "Mon-Fri 9am-5pm AEST" -->
-  <!-- 5 quick FAQ Q&As different from homepage FAQ -->
+  <section style="padding:100px 5% 80px;min-height:100vh;background:${bgColor}">
+    <div style="max-width:800px;margin:0 auto">
+      [H1 "Get in Touch" — Syne font, 48px, 900, color ${textColor}]
+      [Contact form: fields Name/Email/Message + Submit button. Form onsubmit="alert('Thanks! We reply within 24 hours.');return false;"]
+      [Contact details: email support@${storeName_.toLowerCase().replace(/\s+/g,'')}.com.au | phone 0400 000 000 | hours Mon-Fri 9am-5pm AEST]
+      [3 quick FAQs about ${niche}: returns, shipping, Afterpay]
+    </div>
+  </section>
 </div>
 
-<div data-page="shipping" style="display:none">
-  <!-- Shipping & Returns page: padding-top:100px, min-height:100vh -->
-  <!-- H1 "Shipping & Returns" -->
-  <!-- AU Shipping table: Standard (3-7 days, free $79+, $7.95 under), Express (1-3 days, $12.95) -->
-  <!-- International: NZ only, 7-14 days, $19.95 -->
-  <!-- Returns: 30-day no-questions-asked, AU Consumer Law -->
-  <!-- Afterpay: available on all orders $35-$2000 -->
-</div>
+All inline styles. Accent color: ${color}. Surface: ${surfColor}. Text: ${textColor}. Muted: ${mutedColor}. No script tags.`;
 
-All HTML with inline styles only (no class dependencies except btn-cart). Use var() CSS props.
-Product images in shop: use gradient div with emoji instead of img tags.`;
-
-  const msg3 = await withHeartbeat(93, 98, '\\ud83d\\udcc4 Building subpages...', () =>
-    client.messages.create({ model: 'claude-haiku-4-5', max_tokens: 5000, messages: [{ role: 'user', content: pass3 }] })
+  const msg3 = await withHeartbeat(93, 98, '📄 Building subpages...', () =>
+    client.messages.create({ model: 'claude-haiku-4-5', max_tokens: 3000, messages: [{ role: 'user', content: pass3 }] })
   );
-  const part3Raw = ((msg3.content[0] as unknown as { text?: string })?.text ?? '').trim();
+  const part3Raw = hardCodedShop + '\n' + ((msg3.content[0] as unknown as { text?: string })?.text ?? '').trim();
 
   progress(98, '\\u26a1 Wiring interactivity...');
 
