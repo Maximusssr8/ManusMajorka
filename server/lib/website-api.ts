@@ -957,9 +957,13 @@ function postProcessHtml(html: string, storeName: string, niche: string, color: 
     const bodyEnd = html.lastIndexOf('</body>');
     const closeBefore = shopIdx !== -1 ? shopIdx : bodyEnd;
     if (closeBefore !== -1 && html.includes('data-page="home"')) {
-      // generateFullStore() inserts </div><!-- /home --> explicitly — only add here as safety net
-      if (!html.slice(0, closeBefore).includes('<!-- /home -->') && !html.slice(Math.max(0, closeBefore-10), closeBefore).includes('</div>')) {
-        html = html.slice(0, closeBefore) + '</div><!-- /home -->\n' + html.slice(closeBefore);
+      // Replace the __home-end__ sentinel (inserted by generateFullStore) with a proper </div>
+      // Using a data-attribute sentinel because HTML comment stripper runs later in this function
+      if (html.includes('id="__home-end__"')) {
+        html = html.replace(/<div id="__home-end__"[^>]*><\/div>/g, '</div>');
+      } else if (!html.slice(Math.max(0, closeBefore - 10), closeBefore + 1).includes('</div>')) {
+        // Safety net: insert close if not already there
+        html = html.slice(0, closeBefore) + '</div>\n' + html.slice(closeBefore);
       }
     }
   }
@@ -1362,6 +1366,9 @@ End output after product </section>. Do NOT close the data-page="home" div. Do N
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<\/body>\s*<\/html>\s*$/i, '')
+    .replace(/```[\s\S]*?```/g, '')   // strip markdown code blocks
+    .replace(/^```\w*\n?/gm, '')       // strip opening ``` at line start
+    .replace(/^```\s*$/gm, '')          // strip closing ``` at line start
     .trim();
 
   const pass2 = `Continue this ${dir?.label || 'dark'} Australian ecommerce store. Output only raw HTML. Start with <section id="features"> immediately.
@@ -1421,7 +1428,12 @@ This closes the data-page="home" div. No script tags.`;
   );
   const text2 = ((msg2.content[0] as any)?.text as string | undefined)?.trim() || '';
   if (!text2 || text2.length < 500) throw new Error('AI generation returned insufficient content — please try again.');
-  const part2Raw = text2.replace(/<\/body>\s*<\/html>\s*$/i, '').replace(/<script[\s\S]*?<\/script>/gi, '');
+  const part2Raw = text2
+    .replace(/<\/body>\s*<\/html>\s*$/i, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/```[\s\S]*?```/g, '')
+    .replace(/^```\w*\n?/gm, '')
+    .replace(/^```\s*$/gm, '');
 
   // ── PASS 3: About + Contact pages (AI) — shop + shipping are hard-coded ─────
   progress(93, '📄 Building subpages...');
@@ -1584,7 +1596,9 @@ Write all content specific to ${niche} and ${storeName_}. AU English. No placeho
   // Explicitly close home page div before subpages — home content = part1 + part2
   // Without this, shop/about/contact/shipping/toolbar all nest inside home div
   // and disappear when the hash router hides the home page.
-  const merged = fullHead + '\n' + part1Clean + '\n' + part2Raw + '\n</div><!-- /home -->\n' + part3Raw + '\n' + jsWithAnim;
+  // Close home page div BEFORE comments are stripped by postProcessHtml.
+  // Use a data attribute marker (not a comment) so it survives the HTML comment stripper.
+  const merged = fullHead + '\n' + part1Clean + '\n' + part2Raw + '\n<div id="__home-end__" style="display:none"></div>\n' + part3Raw + '\n' + jsWithAnim;
   const rawHtml = merged;
   const finalHtml = postProcessHtml(rawHtml, storeName_, niche, color, colorRgb, surfColor, bgColor, cardRadius);
 
