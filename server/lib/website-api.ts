@@ -692,6 +692,180 @@ document.querySelectorAll('.anim').forEach(function(el) { io.observe(el); });
 </script>`;
 }
 
+// ─── Hard-coded Base CSS Template ────────────────────────────────────────────
+function buildBaseCSS(params: {
+  color: string; colorRgb: string; bgColor: string; surfColor: string;
+  textColor: string; mutedColor: string; cardBorder: string; cardRadius: string;
+  btnRadius: string; headingFont: string; bodyFont: string; googleFontUrl: string;
+  h1Size: string; headingWeight: string; isLight: boolean;
+}): string {
+  const { color, colorRgb, bgColor, surfColor, textColor, mutedColor, cardBorder, cardRadius, btnRadius, headingFont, bodyFont, googleFontUrl, h1Size, headingWeight, isLight } = params;
+  return `<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=${googleFontUrl}&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: '${bodyFont}', sans-serif; background: ${bgColor}; color: ${textColor}; line-height: 1.6; overflow-x: hidden; }
+:root { --bg:${bgColor}; --surface:${surfColor}; --text:${textColor}; --accent:${color}; --muted:${mutedColor}; --border:${cardBorder}; --font-heading:'${headingFont}'; --font-body:'${bodyFont}'; --radius:${cardRadius}; }
+a { text-decoration: none; color: inherit; }
+img { max-width: 100%; display: block; }
+button { cursor: pointer; font-family: inherit; }
+
+/* Announcement bar */
+.announcement-bar { background: ${color}; color: ${isLight ? '#fff' : '#08080f'}; font-weight: 700; font-size: 13px; overflow: hidden; padding: 10px 0; position: relative; }
+.marquee-inner { display: flex; white-space: nowrap; animation: marquee 28s linear infinite; }
+.marquee-text { padding: 0 40px; flex-shrink: 0; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* Nav */
+nav { height: 68px; position: sticky; top: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; backdrop-filter: blur(20px); background: ${isLight ? 'rgba(250,250,250,0.9)' : 'rgba(8,8,15,0.85)'}; border-bottom: 1px solid ${cardBorder}; transition: background 0.3s ease, border-color 0.3s ease; }
+nav.scrolled { background: ${isLight ? 'rgba(250,250,250,0.98)' : 'rgba(8,8,15,0.97)'}; border-color: ${color}40; }
+.nav-logo { font-family: '${headingFont}', sans-serif; font-weight: 900; color: ${color}; font-size: 22px; letter-spacing: -0.02em; }
+.nav-center { display: flex; gap: 36px; align-items: center; }
+.nav-center a { font-size: 14px; font-weight: 500; color: ${mutedColor}; transition: color 0.2s; }
+.nav-center a:hover, .nav-center a.active { color: ${textColor}; }
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.nav-cta { background: ${color}; color: ${isLight ? '#fff' : '#08080f'}; padding: 10px 24px; border-radius: ${btnRadius}; font-weight: 700; font-size: 14px; border: none; transition: opacity 0.2s; }
+.nav-cta:hover { opacity: 0.88; }
+.cart-icon-btn { position: relative; background: none; border: none; font-size: 22px; color: ${textColor}; padding: 8px; }
+.cart-badge { display: none; position: absolute; top: 0; right: 0; background: ${color}; color: ${isLight ? '#fff' : '#08080f'}; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: 800; align-items: center; justify-content: center; }
+
+/* Hamburger */
+#hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; padding: 8px; cursor: pointer; }
+#hamburger span { display: block; width: 24px; height: 2px; background: ${textColor}; border-radius: 2px; transition: all 0.3s; }
+#mobile-menu { display: none; position: fixed; inset: 0; z-index: 9999; background: ${isLight ? 'rgba(250,250,250,0.98)' : 'rgba(8,8,15,0.98)'}; flex-direction: column; align-items: center; justify-content: center; gap: 36px; font-size: 22px; font-family: '${headingFont}', sans-serif; font-weight: 700; }
+#mobile-menu.mobile-open { display: flex; }
+#mobile-menu a { color: ${textColor}; }
+
+/* Hero */
+.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; background-size: cover; background-position: center; padding: 120px 5% 100px; }
+.hero::before { content: ''; position: absolute; inset: 0; background: ${isLight ? 'rgba(255,255,255,0.4)' : 'rgba(8,8,15,0.62)'}; }
+.hero-content { position: relative; z-index: 1; max-width: 760px; text-align: center; }
+.hero-badge { display: inline-block; background: ${color}20; border: 1px solid ${color}55; color: ${color}; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 6px 16px; border-radius: 99px; margin-bottom: 24px; }
+.hero h1 { font-family: '${headingFont}', sans-serif; font-size: ${h1Size}; font-weight: ${headingWeight}; line-height: 1.08; letter-spacing: -0.03em; color: ${isLight ? '#111' : '#fff'}; margin-bottom: 24px; }
+.hero-sub { font-size: 19px; color: ${isLight ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.72)'}; margin-bottom: 40px; line-height: 1.6; max-width: 560px; margin-left: auto; margin-right: auto; }
+.hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px; }
+.btn-primary { background: ${color}; color: ${isLight ? '#fff' : '#08080f'}; padding: 16px 40px; border-radius: ${btnRadius}; font-size: 16px; font-weight: 800; border: none; transition: opacity 0.2s, transform 0.2s; font-family: '${headingFont}', sans-serif; }
+.btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-secondary { background: transparent; color: ${isLight ? '#111' : '#fff'}; padding: 16px 40px; border-radius: ${btnRadius}; font-size: 16px; font-weight: 600; border: 2px solid ${isLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.25)'}; transition: border-color 0.2s; }
+.btn-secondary:hover { border-color: ${color}; color: ${color}; }
+.trust-strip { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; font-size: 13px; color: ${isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.55)'}; }
+.trust-strip span::before { content: '✓ '; color: ${color}; font-weight: 700; }
+
+/* Social proof bar */
+.social-proof { background: ${isLight ? '#f5f3ef' : '#0d0d14'}; border-top: 1px solid ${cardBorder}; border-bottom: 1px solid ${cardBorder}; padding: 20px 5%; display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; }
+.social-proof span { font-size: 13px; font-weight: 600; color: ${mutedColor}; }
+
+/* Product section */
+.product-section { padding: 100px 5%; background: ${surfColor}; }
+.product-section > div { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+.product-image-wrap { position: relative; border-radius: ${cardRadius}; border: ${cardBorder}; overflow: hidden; }
+.product-image-wrap img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.product-badge { position: absolute; top: 16px; left: 16px; background: #ef4444; color: #fff; font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+.product-info h1 { font-family: '${headingFont}', sans-serif; font-size: 28px; font-weight: 800; color: ${textColor}; margin-bottom: 12px; }
+.product-stars { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-size: 14px; color: ${mutedColor}; }
+.product-stars .stars { color: ${color}; font-size: 18px; }
+.product-price { font-family: '${headingFont}', sans-serif; font-size: 40px; font-weight: 900; color: ${color}; margin-bottom: 6px; }
+.product-price-orig { font-size: 18px; color: ${mutedColor}; text-decoration: line-through; margin-bottom: 20px; }
+.afterpay-row { background: rgba(${colorRgb},0.08); border: 1px solid ${color}30; border-radius: 8px; padding: 12px 16px; font-size: 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; color: ${textColor}; }
+.stock-warning { font-size: 13px; color: #f59e0b; margin-bottom: 24px; font-weight: 600; }
+.btn-cart { background: ${color}; color: ${isLight ? '#fff' : '#08080f'}; width: 100%; padding: 18px; border: none; border-radius: ${btnRadius}; font-size: 16px; font-weight: 800; font-family: '${headingFont}', sans-serif; transition: opacity 0.2s; margin-bottom: 12px; }
+.btn-cart:hover { opacity: 0.88; }
+.btn-buy-now { background: ${isLight ? '#1a1a1a' : '#1a1a2a'}; color: #fff; width: 100%; padding: 16px; border: 1px solid ${cardBorder}; border-radius: ${btnRadius}; font-size: 15px; font-weight: 700; transition: opacity 0.2s; margin-bottom: 24px; }
+.product-benefits { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.product-benefits li { font-size: 14px; color: ${mutedColor}; padding-left: 22px; position: relative; }
+.product-benefits li::before { content: '✓'; position: absolute; left: 0; color: ${color}; font-weight: 700; }
+
+/* Features */
+.features-section { padding: 100px 5%; background: ${bgColor}; }
+.section-header { text-align: center; margin-bottom: 64px; }
+.section-header h2 { font-family: '${headingFont}', sans-serif; font-size: clamp(28px,4vw,44px); font-weight: 800; color: ${textColor}; margin-bottom: 16px; }
+.section-header p { font-size: 17px; color: ${mutedColor}; max-width: 520px; margin: 0 auto; }
+.features-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; max-width: 1100px; margin: 0 auto; }
+.feature-card { background: ${surfColor}; border: ${cardBorder}; border-radius: ${cardRadius}; padding: 36px 28px; text-align: center; transition: transform 0.2s, box-shadow 0.2s; }
+.feature-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(${colorRgb},0.12); }
+.feature-icon { font-size: 40px; margin-bottom: 20px; }
+.feature-card h3 { font-family: '${headingFont}', sans-serif; font-size: 18px; font-weight: 700; color: ${textColor}; margin-bottom: 12px; }
+.feature-card p { font-size: 14px; color: ${mutedColor}; line-height: 1.7; }
+
+/* Lifestyle gallery */
+.lifestyle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1000px; margin: 0 auto; padding: 80px 5%; background: ${surfColor}; }
+.lifestyle-grid img { border-radius: ${cardRadius}; width: 100%; aspect-ratio: 16/10; object-fit: cover; }
+
+/* Testimonials */
+.reviews-section { padding: 100px 5%; background: ${bgColor}; }
+.testimonials-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; max-width: 1100px; margin: 0 auto; }
+.testimonial-card { background: ${surfColor}; border: ${cardBorder}; border-top: 3px solid ${color}; border-radius: ${cardRadius}; padding: 28px; }
+.testimonial-stars { color: ${color}; font-size: 16px; margin-bottom: 14px; }
+.testimonial-quote { font-size: 15px; color: ${mutedColor}; font-style: italic; line-height: 1.75; margin-bottom: 20px; }
+.testimonial-author { font-weight: 700; color: ${textColor}; font-size: 14px; }
+.testimonial-city { font-size: 13px; color: ${mutedColor}; margin-top: 2px; }
+.verified { color: ${color}; font-size: 12px; font-weight: 700; margin-top: 8px; display: block; }
+
+/* FAQ */
+.faq-section { padding: 80px 5%; background: ${surfColor}; }
+.faq-section > div { max-width: 760px; margin: 0 auto; }
+.faq-item { background: ${bgColor}; border: ${cardBorder}; border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+.faq-question { padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 700; font-size: 15px; color: ${textColor}; }
+.faq-toggle { color: ${color}; font-size: 22px; font-weight: 400; flex-shrink: 0; margin-left: 16px; }
+.faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+.faq-item.open .faq-answer { max-height: 300px; }
+.faq-answer p { padding: 0 24px 20px; font-size: 14px; color: ${mutedColor}; line-height: 1.75; }
+
+/* CTA section */
+.cta-section { padding: 100px 5%; text-align: center; background: linear-gradient(135deg, ${surfColor}, rgba(${colorRgb},0.12)); }
+.cta-section h2 { font-family: '${headingFont}', sans-serif; font-size: clamp(28px,4vw,44px); font-weight: 800; color: ${textColor}; margin-bottom: 16px; }
+.cta-section p { font-size: 17px; color: ${mutedColor}; margin-bottom: 40px; }
+.countdown-wrap { font-size: 20px; color: ${color}; margin-top: 24px; font-family: '${headingFont}', sans-serif; }
+
+/* Footer */
+footer { padding: 64px 5% 28px; background: ${isLight ? '#f0f0ec' : '#050508'}; border-top: ${cardBorder}; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px; }
+.footer-brand { max-width: 280px; }
+.footer-logo { font-family: '${headingFont}', sans-serif; font-weight: 900; color: ${color}; font-size: 22px; margin-bottom: 12px; }
+.footer-tagline { font-size: 14px; color: ${mutedColor}; line-height: 1.6; margin-bottom: 20px; }
+.footer-col h4 { font-family: '${headingFont}', sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: ${textColor}; margin-bottom: 16px; }
+.footer-col a { display: block; font-size: 14px; color: ${mutedColor}; margin-bottom: 10px; transition: color 0.2s; }
+.footer-col a:hover { color: ${color}; }
+.footer-bottom { border-top: ${cardBorder}; padding-top: 24px; font-size: 13px; color: ${mutedColor}; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+
+/* Animations */
+@keyframes fadeInUp { from { opacity:0; transform:translateY(28px) scale(0.98); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes glowPulse { 0%,100% { box-shadow:0 0 0 0 rgba(${colorRgb},0); } 50% { box-shadow:0 0 20px 4px rgba(${colorRgb},0.3); } }
+.hero-content { animation: fadeInUp 0.9s cubic-bezier(0.22,1,0.36,1) forwards; }
+.hero h1 { animation: fadeInUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.1s both; }
+.hero-sub { animation: fadeInUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.22s both; }
+.hero-buttons { animation: fadeInUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.34s both; }
+.btn-primary { animation: glowPulse 2.8s ease 1.2s infinite; }
+.anim { opacity:0; transform:translateY(24px); transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1); }
+.anim.visible { opacity:1; transform:translateY(0); }
+.anim-delay-1 { transition-delay: 0.08s; }
+.anim-delay-2 { transition-delay: 0.18s; }
+.anim-delay-3 { transition-delay: 0.28s; }
+@media (prefers-reduced-motion: reduce) { .anim, .hero-content, .hero h1, .hero-sub, .hero-buttons { animation: none !important; opacity: 1 !important; transform: none !important; transition: none !important; } }
+
+/* Mobile */
+@media (max-width: 768px) {
+  nav .nav-center, nav .nav-cta { display: none; }
+  #hamburger { display: flex; }
+  .product-section > div { grid-template-columns: 1fr; gap: 32px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .lifestyle-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .hero h1 { font-size: clamp(36px,8vw,52px); }
+  .hero-sub { font-size: 16px; }
+  .social-proof { gap: 20px; justify-content: flex-start; }
+}
+@media (max-width: 480px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  .hero-buttons { flex-direction: column; align-items: center; }
+  .trust-strip { flex-direction: column; align-items: center; gap: 12px; }
+}
+</style>`;
+}
+
 // ─── HTML Post-Processing ─────────────────────────────────────────────────────
 function postProcessHtml(html: string, storeName: string, niche: string, color: string, colorRgb: string, surfColor: string, bgColor: string, cardRadius: string): string {
   // 1. Add loading="lazy" to all images (except first hero image)
@@ -914,20 +1088,107 @@ Price range: ${price || '$49.95'} AUD`;
 
   const isLight = ['editorial', 'minimal'].includes(designDirection as string);
 
-  const systemPrompt = `You are a world-class frontend developer. Output ONLY raw HTML — no markdown, no explanation. Start with <!DOCTYPE html>.
-RULES: All CSS in one <style> block in <head>. No external CSS frameworks. Google Fonts via <link> only. Use exact image URLs given. AU English (colour, Afterpay, AusPost, AUD).
+    // Build the hard-coded CSS + head (no CSS for Claude to write!)
+  const baseCss = buildBaseCSS({ color, colorRgb, bgColor, surfColor, textColor, mutedColor, cardBorder, cardRadius, btnRadius, headingFont, bodyFont, googleFontUrl, h1Size, headingWeight, isLight });
+  const fullHead = `<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+${faviconOgHtml}
+${baseCss}
+</head>
+<body>`;
 
-AUSTRALIAN COPY RULES (enforce strictly):
-- Currency: AUD $ only (never USD)
-- Shipping: "Free AU Shipping on orders $79+" or "Ships from our Sydney warehouse"
-- Trust: "Australian owned & operated" | "ABN registered" | "ACCC compliant"
-- Afterpay: "Pay in 4 interest-free instalments with Afterpay — available on orders $35–$2000"
-- Never mention: "Lower 48 states", "CONUS", "continental US", USD prices
-- Product reviews: use Australian names and cities (Sarah M., Melbourne | Jake T., Brisbane | Emma K., Perth)
-- Date format: DD/MM/YYYY if shown
-- Phone: Australian mobile format if shown (04XX XXX XXX)`;
+  const systemPrompt = `You are writing HTML content sections for an Australian ecommerce store. Output ONLY raw HTML — no <!DOCTYPE>, no <html>, no <head>, no <style>, no <script>. CSS classes are already defined. AU English only.`;
 
-  const pass1 = `Build the first half of an Australian ecommerce store.
+  const pass1 = `Generate the home page content for an Australian ecommerce store. Output raw HTML only — no DOCTYPE, head, style or script tags. CSS is pre-built.
+
+Store: ${storeName_} | Niche: ${niche} | Accent color: ${color}
+${productContext}
+
+Generate these sections IN ORDER, using ONLY these pre-built CSS classes:
+
+1. NAV (always visible, outside data-page div):
+<nav id="main-nav">
+  <a href="#home" class="nav-logo">${storeName_}</a>
+  <div class="nav-center">
+    <a href="#home" data-nav="home">Home</a>
+    <a href="#shop" data-nav="shop">Shop</a>
+    <a href="#about" data-nav="about">About</a>
+    <a href="#contact" data-nav="contact">Contact</a>
+  </div>
+  <div class="nav-right">
+    <button onclick="typeof openCart!=='undefined'&&openCart()" class="cart-icon-btn">🛒<span class="cart-badge">0</span></button>
+    <a href="#shop" class="nav-cta">Shop Now</a>
+    <button id="hamburger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div id="mobile-menu">
+  <a href="#home" data-nav="home">Home</a>
+  <a href="#shop" data-nav="shop">Shop</a>
+  <a href="#about" data-nav="about">About</a>
+  <a href="#contact" data-nav="contact">Contact</a>
+  <a href="#shipping" data-nav="shipping">Shipping</a>
+</div>
+
+2. Open the home page wrapper: <div data-page="home" style="display:block">
+
+3. ANNOUNCEMENT BAR (inside home wrapper):
+<div class="announcement-bar"><div class="marquee-inner"><span class="marquee-text">🔥 Free AU shipping $79+ &nbsp;|&nbsp; ⚡ Afterpay &nbsp;|&nbsp; 🇦🇺 Ships AU warehouse &nbsp;|&nbsp; ✓ 30-day returns</span><span class="marquee-text">🔥 Free AU shipping $79+ &nbsp;|&nbsp; ⚡ Afterpay &nbsp;|&nbsp; 🇦🇺 Ships AU warehouse &nbsp;|&nbsp; ✓ 30-day returns</span><span class="marquee-text">🔥 Free AU shipping $79+ &nbsp;|&nbsp; ⚡ Afterpay &nbsp;|&nbsp; 🇦🇺 Ships AU warehouse &nbsp;|&nbsp; ✓ 30-day returns</span><span class="marquee-text">🔥 Free AU shipping $79+ &nbsp;|&nbsp; ⚡ Afterpay &nbsp;|&nbsp; 🇦🇺 Ships AU warehouse &nbsp;|&nbsp; ✓ 30-day returns</span></div></div>
+
+4. HERO — use class="hero" with inline background-image style:
+<section class="hero" style="background-image: url(${heroImg})">
+  <div class="hero-content">
+    <div class="hero-badge">🇦🇺 Premium Australian ${niche}</div>
+    <h1>[Write a powerful, specific headline for ${niche} — max 8 words, bold promise]</h1>
+    <p class="hero-sub">[Write a compelling subheadline — specific benefit, AU context, 1-2 sentences]</p>
+    <div class="hero-buttons">
+      <a href="#shop" class="btn-primary">Shop Now →</a>
+      <a href="#shop" class="btn-secondary">View All Products</a>
+    </div>
+    <div class="trust-strip">
+      <span>Free AU Shipping $79+</span>
+      <span>30-Day Returns</span>
+      <span>Afterpay Available</span>
+    </div>
+  </div>
+</section>
+
+5. SOCIAL PROOF BAR:
+<div class="social-proof">
+  <span>★ 4.9/5 from 2,400+ Australian customers</span>
+  <span>🇦🇺 Australian owned & operated</span>
+  <span>⚡ Same-day dispatch before 2pm</span>
+  <span>✓ 30-day no-questions returns</span>
+</div>
+
+6. PRODUCT SECTION — use classes: product-section, product-image-wrap, product-info, product-stars, product-price, afterpay-row, stock-warning, btn-cart, btn-buy-now, product-benefits:
+<section class="product-section">
+  <div>
+    <div class="product-image-wrap">
+      <img src="${productImg}" alt="${productData?.product_title || niche}">
+      <div class="product-badge">Best Seller</div>
+    </div>
+    <div class="product-info">
+      <h1>[Product name — specific to ${niche}]</h1>
+      <div class="product-stars"><span class="stars">★★★★★</span> 4.9 (247 reviews)</div>
+      <div class="product-price">${price || '$49.95'} AUD</div>
+      <div class="product-price-orig" style="font-size:16px;color:var(--muted);text-decoration:line-through">[Higher original price]</div>
+      <div class="afterpay-row">💚 Pay in 4 interest-free instalments with <strong>Afterpay</strong> — orders $35–$2,000</div>
+      <div class="stock-warning">⚡ Only 8 left in stock — order soon</div>
+      <button class="btn-cart">Add to Cart 🛒</button>
+      <button class="btn-buy-now">Buy Now</button>
+      <ul class="product-benefits">
+        [6 benefit bullet points specific to ${niche} — be specific, not generic]
+      </ul>
+    </div>
+  </div>
+</section>
+
+Do NOT close the data-page="home" div. Do NOT add any CSS. Just output the HTML above with real content filled in.`;
+
+  const pass1old = `Build the first half of an Australian ecommerce store.
 
 DESIGN DIRECTION: ${dir?.label || 'Default Dark DTC'}
 ${dirNote}
@@ -1017,12 +1278,19 @@ CRITICAL HTML STRUCTURE:
 
 End output after product </section>. Do NOT close the data-page="home" div. Do NOT write features/testimonials/FAQ yet.`;
 
-  const msg1 = await withHeartbeat(25, 58, '🎨 Building layout & CSS...', () =>
-    client.messages.create({ model: CLAUDE_MODEL, max_tokens: 6000, system: systemPrompt, messages: [{ role: 'user', content: pass1 }] })
+  const msg1 = await withHeartbeat(25, 58, '✍️ Writing home page content...', () =>
+    client.messages.create({ model: CLAUDE_MODEL, max_tokens: 4000, system: systemPrompt, messages: [{ role: 'user', content: pass1 }] })
   );
   const text1 = ((msg1.content[0] as any)?.text as string | undefined)?.trim() || '';
-  if (!text1 || text1.length < 500) throw new Error('AI generation returned insufficient content — please try again.');
-  const part1Clean = text1.replace(/<\/body>\s*<\/html>\s*$/i, '').trim();
+  if (!text1 || text1.length < 200) throw new Error('AI generation returned insufficient content — please try again.');
+  // Strip any rogue head/style/script tags Claude might add despite instructions
+  const part1Clean = text1
+    .replace(/<!DOCTYPE[\s\S]*?<body[^>]*>/gi, '')
+    .replace(/<head[\s\S]*?<\/head>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<\/body>\s*<\/html>\s*$/i, '')
+    .trim();
 
   const pass2 = `Continue this ${dir?.label || 'dark'} Australian ecommerce store. Output only raw HTML. Start with <section id="features"> immediately.
 
@@ -1139,9 +1407,9 @@ Product images in shop: use gradient div with emoji instead of img tags.`;
   progress(98, '\\u26a1 Wiring interactivity...');
 
   const jsWithAnim = buildHardCodedJs().replace('</script>', buildAnimationJs() + '\n</script>');
-  const merged = part1Clean + '\n' + part2Raw + '\n' + part3Raw + '\n' + jsWithAnim;
-  const startIdx = merged.indexOf('<!DOCTYPE');
-  const rawHtml = startIdx >= 0 ? merged.slice(startIdx) : merged;
+  // Merge: hard-coded head + Claude content + JS
+  const merged = fullHead + '\n' + part1Clean + '\n' + part2Raw + '\n' + part3Raw + '\n' + jsWithAnim;
+  const rawHtml = merged;
   const finalHtml = postProcessHtml(rawHtml, storeName_, niche, color, colorRgb, surfColor, bgColor, cardRadius);
 
   const sizeKb = Math.round(Buffer.byteLength(finalHtml, 'utf8') / 1024);
