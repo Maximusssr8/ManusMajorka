@@ -1841,11 +1841,11 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
   #majorka-toolbar input[type=color] { width: 26px; height: 26px; border: 1px solid rgba(255,255,255,0.15); background: none; cursor: pointer; border-radius: 4px; padding: 1px; }
   #majorka-toolbar .tb-hint { font-size: 10px; color: rgba(240,237,232,0.25); margin-left: auto; display: flex; gap: 12px; }
   #majorka-toolbar .tb-hint span::before { margin-right: 4px; }
-  .claw-editable { outline: 2px dashed rgba(212,175,55,0.4) !important; cursor: text !important; border-radius: 3px; }
-  .claw-editable:hover { outline-color: #d4af37 !important; background: rgba(212,175,55,0.06) !important; }
-  .claw-editable:focus { outline: 2px solid #d4af37 !important; background: rgba(212,175,55,0.08) !important; }
+  .claw-editable { box-shadow: 0 0 0 2px rgba(212,175,55,0.5) !important; cursor: text !important; border-radius: 3px; transition: box-shadow 0.15s !important; }
+  .claw-editable:hover { box-shadow: 0 0 0 2px #d4af37, 0 0 12px rgba(212,175,55,0.2) !important; background: rgba(212,175,55,0.06) !important; }
+  .claw-editable:focus { box-shadow: 0 0 0 2px #d4af37, 0 0 16px rgba(212,175,55,0.25) !important; background: rgba(212,175,55,0.09) !important; outline: none !important; }
   .claw-img-wrap { position: relative !important; cursor: pointer !important; }
-  .claw-img-wrap::after { content: "📷 Replace"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.55); color: #d4af37; font-size: 13px; font-weight: 700; opacity: 0; transition: opacity 0.2s; pointer-events: none; font-family: sans-serif; border-radius: inherit; }
+  .claw-img-wrap::after { content: "📷 Replace Image"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.55); color: #d4af37; font-size: 13px; font-weight: 700; opacity: 0; transition: opacity 0.2s; pointer-events: none; font-family: sans-serif; border-radius: inherit; z-index: 10; }
   .claw-img-wrap:hover::after { opacity: 1; }
   .claw-img-wrap img { pointer-events: none !important; }
   #ai-tooltip { position: fixed; z-index: 100000; background: rgba(8,10,14,0.97); border: 1px solid rgba(212,175,55,0.35); border-radius: 8px; padding: 5px 6px; display: none; gap: 4px; align-items: center; }
@@ -1890,26 +1890,47 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
     var btn=document.getElementById('tb-edit-btn');
     btn.textContent=editing?'✏️ Editing...':'✏️ Edit Mode';
     btn.classList.toggle('active',editing);
-    editing?clawEnableEdit():clawDisableEdit();
+    if(editing){clawEnableEdit();clawToast('Edit mode ON — click any text to edit · click images to replace');}
+    else{clawDisableEdit();clawToast('Edit mode off');}
+  };
+
+  window.clawToast=function(msg){
+    var t=document.createElement('div');
+    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:100002;background:rgba(8,10,14,0.95);border:1px solid rgba(212,175,55,0.4);border-radius:10px;padding:12px 20px;color:#d4af37;font-size:13px;font-weight:700;font-family:Syne,sans-serif;white-space:nowrap;pointer-events:none;';
+    t.textContent=msg; document.body.appendChild(t);
+    setTimeout(function(){t.style.opacity='0';t.style.transition='opacity 0.4s';setTimeout(function(){t.remove();},400);},2500);
   };
 
   window.clawEnableEdit=function(){
-    var sel='h1,h2,h3,h4,p,.hero-sub,.hero-badge,.btn-primary,.btn-secondary,.btn-cart,.btn-buy-now,.nav-logo,.nav-cta,.trust-strip span,.social-proof span,.product-price,.stock-warning,.feature-card h3,.feature-card p,.testimonial-quote,.testimonial-author,.testimonial-city,.footer-tagline,.countdown-wrap';
-    document.querySelectorAll(sel).forEach(function(el){
-      if(el.querySelector('img'))return;
-      el.contentEditable='true'; el.classList.add('claw-editable'); el.spellcheck=false;
+    var count=0;
+    // Text editing — try each selector individually so one bad selector doesn't block others
+    ['h1','h2','h3','h4','p','.hero-sub','.hero-badge','.btn-primary','.btn-secondary',
+     '.btn-cart','.btn-buy-now','.nav-logo','.nav-cta','.product-price','.product-price-orig',
+     '.stock-warning','.feature-card h3','.feature-card p','.testimonial-quote',
+     '.testimonial-author','.testimonial-city','.footer-tagline','.trust-strip span',
+     '.social-proof span','.afterpay-row','.section-header p'].forEach(function(sel){
+      try{
+        document.querySelectorAll(sel).forEach(function(el){
+          if(el.querySelector('img')||el.isContentEditable)return;
+          el.contentEditable='true'; el.classList.add('claw-editable'); el.spellcheck=false; count++;
+        });
+      }catch(e){}
     });
+    // Image replacement
     document.querySelectorAll('img').forEach(function(img){
       var w=img.parentElement; if(!w||w.classList.contains('claw-img-wrap'))return;
       w.classList.add('claw-img-wrap'); w.style.position='relative';
-      w.addEventListener('click',function(){
-        var inp=document.createElement('input'); inp.type='file'; inp.accept='image/*'; inp.style.display='none';
-        document.body.appendChild(inp);
-        inp.onchange=function(){ var f=inp.files[0]; if(f){var r=new FileReader();r.onload=function(e){img.src=e.target.result;};r.readAsDataURL(f);} inp.remove(); };
-        inp.click();
+      w.addEventListener('click',function(e){
+        if(e.target===img||e.target===w){
+          var inp=document.createElement('input'); inp.type='file'; inp.accept='image/*'; inp.style.display='none';
+          document.body.appendChild(inp);
+          inp.onchange=function(){ var f=inp.files[0]; if(f){var r=new FileReader();r.onload=function(ev){img.src=ev.target.result;};r.readAsDataURL(f);} inp.remove(); };
+          inp.click();
+        }
       });
     });
     document.addEventListener('mouseup',clawSelHandler);
+    console.log('[Majorka Editor] Edit mode: '+count+' elements made editable');
   };
 
   window.clawDisableEdit=function(){
@@ -1984,9 +2005,12 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
     const html = directHtml || previewHTML;
     if (!html) return;
     const toolbar = buildNewTabToolbar();
-    const htmlWithToolbar = html.includes('</body>') ? html.replace(/<\/body>/i, toolbar + '\n</body>') : html + toolbar;
-    const win = window.open('', '_blank');
-    if (win) { win.document.write(htmlWithToolbar); win.document.close(); }
+    const full = html.replace(/<\/body\s*>/i, toolbar + '\n</body>');
+    // Use Blob URL — avoids document.write timing issues, scripts execute reliably
+    const blob = new Blob([full], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 120000); // clean up after 2 min
   }, [directHtml, previewHTML, buildNewTabToolbar]);
 
   const cursorInstructions = `1. Unzip the downloaded file\n2. Open Cursor (cursor.com)\n3. File → Open Folder → select unzipped folder\n4. In Cursor chat: "I have a Shopify theme. Help me customise it for ${storeName || '[store name]'}"\n5. Cursor will read all files and help you build`;
