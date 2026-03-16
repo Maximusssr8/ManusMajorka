@@ -566,9 +566,8 @@ function buildHardCodedJs(): string {
 <script>
 (function() {
 
-// ── 0. Font-ready fade-in ─────────────────────────────────────────────────────
-document.fonts.ready.then(function() { document.documentElement.classList.add('fonts-ready'); });
-setTimeout(function() { document.documentElement.classList.add('fonts-ready'); }, 1500);
+// ── 0. Ensure page is visible (safety net for any render blockers) ───────────
+setTimeout(function() { document.documentElement.style.opacity = '1'; document.documentElement.style.animation = 'none'; }, 2000);
 
 // ── 1. Hash Router ──────────────────────────────────────────────────────────
 function route() {
@@ -747,8 +746,9 @@ function buildBaseCSS(params: {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=${googleFontUrl}&display=swap" rel="stylesheet">
 <style>
-html { opacity: 0; }
-html.fonts-ready { opacity: 1; transition: opacity 0.2s ease; }
+/* Font fade-in — pure CSS, no JS dependency */
+html { animation: clawFadeIn 0.3s 0.3s both; }
+@keyframes clawFadeIn { from { opacity: 0; } to { opacity: 1; } }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body { font-family: '${bodyFont}', sans-serif; background: ${bgColor}; color: ${textColor}; line-height: 1.6; overflow-x: hidden; }
