@@ -1290,6 +1290,14 @@ export default function WebsiteGenerator() {
   const livePreviewNicheTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const livePreviewStoreNameTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
+  // Task 8 — Mobile responsive
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+
   // Task 2 — Template auto-suggest
   const [userPickedTemplate, setUserPickedTemplate] = useState(false);
   const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
@@ -2305,7 +2313,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           {/* Design Template Selector */}
           <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1.5px solid rgba(212,175,55,0.2)', position: 'relative' }}>
             <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}>Design Template</div>
-            <div className="flex flex-col gap-1.5">
+            <div style={isMobile ? { display: 'flex', gap: 8, overflowX: 'auto', flexWrap: 'nowrap', paddingBottom: 4, scrollbarWidth: 'none' } : { display: 'flex', flexDirection: 'column', gap: 6 }}>
               {WEBSITE_TEMPLATES.map((t) => {
                 const isSelected = premiumTemplateId === t.id;
                 const isHovered = hoveredTemplate === t.id;
@@ -3575,6 +3583,42 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           </a>
         </div>
       </Modal>
+
+      {/* ── Maya Contextual Bar ── */}
+      {(() => {
+        const shopPushUrl = shopifyPushResult?.storeUrl || (shopifyShop ? `https://${shopifyShop}` : null);
+        const suggestion = shopifyPushResult?.success && shopPushUrl
+          ? { text: 'View your live store →', href: shopPushUrl, external: true }
+          : directHtml
+            ? { text: `Calculate margin for "${(storeName || niche || 'your store').slice(0, 22)}" →`, href: `/app/profit-check?store=${encodeURIComponent(storeName || niche || '')}`, external: false }
+            : importedProduct
+              ? { text: `Find suppliers for "${(importedProduct.title || '').slice(0, 28)}" →`, href: `/app/suppliers?q=${encodeURIComponent(importedProduct.title || '')}`, external: false }
+              : { text: 'Paste a product URL above to get started', href: null, external: false };
+
+        return (
+          <div style={{
+            height: 44, borderTop: '1px solid rgba(255,255,255,0.07)',
+            background: 'rgba(8,10,14,0.97)', display: 'flex', alignItems: 'center',
+            paddingLeft: 16, paddingRight: 16, gap: 10, flexShrink: 0,
+          }}>
+            <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, flexShrink: 0 }}>🤖</div>
+            <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)', fontFamily: 'DM Sans, sans-serif', marginRight: 4, flexShrink: 0 }}>Maya</span>
+            {suggestion.href ? (
+              <a
+                href={suggestion.href}
+                {...(suggestion.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                style={{ fontSize: 12, color: '#d4af37', fontFamily: 'DM Sans, sans-serif', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
+                onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
+              >
+                {suggestion.text}
+              </a>
+            ) : (
+              <span style={{ fontSize: 12, color: 'rgba(240,237,232,0.4)', fontFamily: 'DM Sans, sans-serif' }}>{suggestion.text}</span>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }
