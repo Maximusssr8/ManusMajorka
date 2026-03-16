@@ -1863,6 +1863,7 @@ All headlines AU English. No clichés. Be specific to the niche.` }],
     try {
       const { text, instruction } = req.body as { text?: string; instruction?: string };
       if (!text || text.length < 2) return res.status(400).json({ error: 'No text provided' });
+      const client = getAnthropicClient();
       const msg = await client.messages.create({
         model: 'claude-haiku-4-5',
         max_tokens: 300,

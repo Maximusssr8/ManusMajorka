@@ -627,7 +627,7 @@ function buildPremiumStore(templateId: string, data: GeneratedData, productData?
   const headline = data.headline || (productData?.hero_headline as string) || 'Built for Australia';
   const subheadline = data.subheadline || (productData?.hero_subheading as string) || 'Quality products delivered to your door.';
   const niche = (productData?.product_type as string) || data.heroImageKeyword || 'lifestyle';
-  const price = (productData?.price as number) ? `$${productData.price}` : '$49.95';
+  const price = (productData?.price as number) ? `$${productData!.price}` : '$49.95';
   const productName = (productData?.product_title as string) || storeName;
   const productDesc = (data.features && data.features.length > 0)
     ? (typeof data.features[0] === 'string' ? data.features[0] : (data.features[0] as any).description)
@@ -1331,17 +1331,18 @@ export default function WebsiteGenerator() {
     return () => clearInterval(interval);
   }, [generating]);
 
-  // Cmd+Enter keyboard shortcut to trigger generation
+  // Cmd+Enter keyboard shortcut — use ref so we don't depend on handleGenerate before it's declared
+  const handleGenerateRef = useRef<(() => void) | null>(null);
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.metaKey && e.key === 'Enter' && !generating && (storeName || niche)) {
         e.preventDefault();
-        handleGenerate();
+        handleGenerateRef.current?.();
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [generating, storeName, niche, handleGenerate]);
+  }, [generating, storeName, niche]);
 
   // Preview HTML (memoised) — passes productData so images/variants are injected
   const previewHTML = useMemo(() => {
@@ -1414,10 +1415,10 @@ export default function WebsiteGenerator() {
           productData: analysisResult
             ? { ...analysisResult, ...(selectedDesc ? { description: selectedDesc } : {}) }
             : (importedProduct ? {
-                product_title: importedProduct.title || importedProduct.name,
+                product_title: importedProduct.title || (importedProduct as any).name,
                 description: selectedDesc || importedProduct.description,
                 price_aud: importedProduct.price,
-                category: importedProduct.category || niche,
+                category: (importedProduct as any).category || niche,
               } : (selectedDesc ? { description: selectedDesc } : undefined)),
         }),
       });
@@ -1513,6 +1514,8 @@ export default function WebsiteGenerator() {
       setGenProgress(0);
     }
   }, [storeName, niche, targetAudience, vibe, accentColor, platform, importedProduct, premiumTemplateId, session, analysisResult, selectedDesc, designDirection]);
+  // Keep ref in sync so keyboard shortcut can call it without circular deps
+  useEffect(() => { handleGenerateRef.current = handleGenerate; }, [handleGenerate]);
 
   // B4 — Theme switcher
   const applyTheme = useCallback((themeKey: string) => {
