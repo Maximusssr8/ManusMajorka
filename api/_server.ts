@@ -21,8 +21,10 @@ import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../
 import { getProductByIdPublic } from "../server/db";
 
 // Run DB migrations on cold start (non-fatal)
-import('../server/lib/migrate-winning-products').then(({ runWinningProductsMigration, runGeneratedStoresMigration }) => {
+import('../server/lib/migrate-winning-products').then(({ runWinningProductsMigration }) => {
   runWinningProductsMigration().catch(console.warn);
+});
+import('../server/migrations/runGeneratedStores').then(({ runGeneratedStoresMigration }) => {
   runGeneratedStoresMigration().catch(console.warn);
 });
 
@@ -102,11 +104,25 @@ app.post("/api/internal/run-stores-migration", async (req: Request, res: Respons
     return;
   }
   try {
-    const { runGeneratedStoresMigration } = await import("../server/lib/migrate-winning-products");
+    const { runGeneratedStoresMigration } = await import("../server/migrations/runGeneratedStores");
     await runGeneratedStoresMigration();
     res.json({ ok: true, message: "generated_stores migration complete" });
   } catch (e: any) {
     res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+app.get("/api/migrations/generated-stores", async (req: Request, res: Response) => {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseKey) { res.json({ exists: false, error: "missing env vars" }); return; }
+  try {
+    const check = await fetch(`${supabaseUrl}/rest/v1/generated_stores?limit=1`, {
+      headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+    });
+    res.json({ exists: check.ok || check.status === 200, status: check.status });
+  } catch (e: any) {
+    res.status(500).json({ exists: false, error: e.message });
   }
 });
 

@@ -462,55 +462,8 @@ export async function seedViaRest(): Promise<void> {
   }
 }
 
-/** Create generated_stores table for Website Generator store history */
+/** @deprecated — moved to server/migrations/runGeneratedStores.ts (REST API approach) */
 export async function runGeneratedStoresMigration(): Promise<void> {
-  const dbUrl = process.env.DATABASE_URL;
-  if (!dbUrl) {
-    console.warn('[migrate] DATABASE_URL not set — skipping generated_stores migration');
-    return;
-  }
-  let sql: ReturnType<typeof import('postgres')> | null = null;
-  try {
-    // Try direct first, then pooler with explicit params (handles URL-encoding edge cases)
-    try {
-      sql = await connectWithFallbacks(dbUrl);
-    } catch {
-      // Fallback: explicit pooler connection config
-      const postgres = (await import('postgres')).default;
-      sql = postgres({
-        host: 'aws-0-ap-southeast-2.pooler.supabase.com',
-        port: 5432,
-        database: 'postgres',
-        user: 'postgres.ievekuazsjbdrltsdksn',
-        password: process.env.DB_PASSWORD || 'Romania1992!Chicken.',
-        ssl: 'require',
-        max: 1,
-        connect_timeout: 10,
-      });
-      await sql`SELECT 1`;
-    }
-    await sql`
-      CREATE TABLE IF NOT EXISTS public.generated_stores (
-        id                uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-        user_id           uuid REFERENCES auth.users(id) ON DELETE CASCADE,
-        store_name        text,
-        niche             text,
-        template          text,
-        blueprint         jsonb,
-        html              text,
-        shopify_product_id text,
-        pushed_at         timestamptz,
-        created_at        timestamptz DEFAULT now()
-      )
-    `;
-    await sql.unsafe(`ALTER TABLE public.generated_stores ENABLE ROW LEVEL SECURITY`);
-    try {
-      await sql`CREATE POLICY "Users own their stores" ON public.generated_stores FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id)`;
-    } catch {}
-    console.log('[migrate] ✅ generated_stores table ready');
-  } catch (e: any) {
-    console.warn('[migrate] generated_stores skipped:', e.message?.slice(0, 120));
-  } finally {
-    if (sql) { try { await (sql as any).end(); } catch {} }
-  }
+  const { runGeneratedStoresMigration: _run } = await import('../migrations/runGeneratedStores');
+  return _run();
 }

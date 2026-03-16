@@ -115,8 +115,10 @@ async function startServer() {
   });
 
   // Run DB migrations (non-fatal — gracefully skips if DB unreachable locally)
-  import('../lib/migrate-winning-products').then(({ runWinningProductsMigration, runGeneratedStoresMigration }) => {
+  import('../lib/migrate-winning-products').then(({ runWinningProductsMigration }) => {
     runWinningProductsMigration().catch(console.warn);
+  });
+  import('../migrations/runGeneratedStores').then(({ runGeneratedStoresMigration }) => {
     runGeneratedStoresMigration().catch(console.warn);
   });
 
@@ -136,7 +138,7 @@ async function startServer() {
     }
   });
 
-  // Generated stores migration endpoint
+  // Generated stores migration + status endpoint
   app.post('/api/internal/run-stores-migration', async (req, res) => {
     const secret = req.headers['x-migration-secret'];
     if (secret !== 'majorka-intel-2026') {
@@ -144,11 +146,25 @@ async function startServer() {
       return;
     }
     try {
-      const { runGeneratedStoresMigration } = await import('../lib/migrate-winning-products');
+      const { runGeneratedStoresMigration } = await import('../migrations/runGeneratedStores');
       await runGeneratedStoresMigration();
       res.json({ ok: true, message: 'generated_stores migration complete' });
     } catch (e: any) {
       res.status(500).json({ ok: false, error: e.message });
+    }
+  });
+
+  app.get('/api/migrations/generated-stores', async (req, res) => {
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseKey) return res.json({ exists: false, error: 'missing env vars' });
+    try {
+      const check = await fetch(`${supabaseUrl}/rest/v1/generated_stores?limit=1`, {
+        headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+      });
+      res.json({ exists: check.ok || check.status === 200, status: check.status });
+    } catch (e: any) {
+      res.status(500).json({ exists: false, error: e.message });
     }
   });
 
