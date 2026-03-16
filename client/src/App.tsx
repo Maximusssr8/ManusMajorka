@@ -23,6 +23,7 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Storefront = lazy(() => import('./pages/Storefront'));
 const AdminLeads = lazy(() => import('./pages/AdminLeads'));
+const StoreBuilder = lazy(() => import('./pages/store-builder/index'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
 const PublicProfitCalculator = lazy(() => import('./pages/PublicProfitCalculator'));
@@ -90,6 +91,7 @@ function Router() {
           <Switch>
             <Route path="/" component={Home} />
             <Route path="/pricing" component={Pricing} />
+            <Route path="/store-builder" component={StoreBuilder} />
             <Route path="/login" component={SignIn} />
             <Route path="/sign-in" component={SignIn} />
             <Route path="/signup">{() => <SignIn />}</Route>

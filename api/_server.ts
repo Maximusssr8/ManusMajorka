@@ -14,6 +14,8 @@ import { appRouter } from "../server/routers";
 import { createContext } from "../server/_core/context";
 import { handleWebhook, registerStripeRoutes } from "../server/lib/stripe";
 import { registerWebsiteRoutes } from "../server/lib/website-api";
+import shopifyRouter from "../server/routes/shopify";
+import storeBuilderRouter from "../server/routes/store-builder";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
 import { getProductByIdPublic } from "../server/db";
 
@@ -41,6 +43,7 @@ app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
+app.use(require('cookie-parser')());
 
 // ── Image proxy — serves CDN images that block cross-origin requests ──────────
 app.get("/api/proxy-image", async (req: Request, res: Response) => {
@@ -109,6 +112,8 @@ registerAutomationRoutes(app);
 registerAffiliateRoutes(app);
 registerStripeRoutes(app);
 registerWebsiteRoutes(app);
+app.use('/api/shopify', shopifyRouter);
+app.use('/api/store-builder', storeBuilderRouter);
 
 // ── Product import with AI Brain ─────────────────────────────────────────────
 app.post("/api/import-product", async (req: Request, res: Response) => {

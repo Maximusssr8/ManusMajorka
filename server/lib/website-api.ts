@@ -1059,7 +1059,7 @@ function postProcessHtml(html: string, storeName: string, niche: string, color: 
 }
 
 // ─── Expand Store Brief (fast Haiku pass) ─────────────────────────────────────
-async function expandStoreBrief(params: {
+export async function expandStoreBrief(params: {
   niche: string;
   storeName: string;
   accentColor: string;
@@ -1075,8 +1075,8 @@ async function expandStoreBrief(params: {
       model: 'claude-haiku-4-5',
       max_tokens: 600,
       temperature: 0.8,
-      system: `You are a conversion copywriter and ecommerce brand strategist specialising in Australian DTC brands. Return ONLY valid JSON — no markdown, no backticks, no explanation.`,
-      messages: [{ role: 'user', content: `Store name: ${params.storeName}\nNiche: ${params.niche}\nDesign: ${params.designDirection || 'modern'}\nAccent: ${params.accentColor}\nProduct: ${productSummary}\n\nReturn JSON:\n{"brandName":"...","tagline":"...","heroHeadline":"...(8-12 words)","heroSubheadline":"...(15-20 words)","problemStatement":"...","uniqueValueProp":"...","keyBenefits":["...","...","..."],"socialProofStats":[{"number":"...","label":"..."},{"number":"...","label":"..."},{"number":"...","label":"..."}],"testimonials":[{"name":"...","location":"AU city","quote":"..."},{"name":"...","location":"AU city","quote":"..."},{"name":"...","location":"AU city","quote":"..."}],"ctaPrimary":"...","ctaSecondary":"...","faqItems":[{"q":"...","a":"..."},{"q":"...","a":"..."},{"q":"...","a":"..."},{"q":"...","a":"..."}],"fontPairing":"Syne + DM Sans"}` }],
+      system: `You are a DTC brand strategist for Australian Shopify stores. Return valid JSON only — no markdown, no backticks.`,
+      messages: [{ role: 'user', content: `Store: ${params.storeName}\nNiche: ${params.niche}\nAccent: ${params.accentColor}\nProduct: ${productSummary}\n\nReturn JSON:\n{"brandName":"...","tagline":"...(6-10 words)","uniqueValueProp":"...(1 sentence)","heroHeadline":"...(8-12 words, specific)","heroSubheadline":"...(15-20 words, benefit-focused)","fontPairing":{"heading":"Syne","body":"DM Sans"},"colourPalette":{"primary":"${params.accentColor}","secondary":"#1a1a2e","accent":"#ffffff"},"testimonials":[{"name":"...","location":"AU city","text":"...(2 sentences)"},{"name":"...","location":"AU city","text":"..."},{"name":"...","location":"AU city","text":"..."}],"faq":[{"q":"...","a":"..."},{"q":"...","a":"..."},{"q":"...","a":"..."}],"stats":[{"value":"12,400+","label":"Happy Customers"},{"value":"4.8★","label":"Avg Rating"},{"value":"98%","label":"Would Recommend"}]}` }],
     });
     const raw = ((msg.content[0] as any)?.text || '').trim()
       .replace(/^```[\w]*\n?/m, '').replace(/\n?```\s*$/m, '').trim();
@@ -1085,26 +1085,22 @@ async function expandStoreBrief(params: {
     return {
       brandName: params.storeName,
       tagline: `Quality ${params.niche} for Australians`,
-      heroHeadline: `The ${params.niche} brand built for Australia`,
-      heroSubheadline: `Premium quality, fast AU shipping, results you can feel.`,
-      problemStatement: `Australians deserve ${params.niche} products that actually work.`,
       uniqueValueProp: `We source and test every product specifically for Australian conditions.`,
-      keyBenefits: ['Free AU shipping on orders $60+', 'Afterpay available', '30-day money back guarantee'],
-      socialProofStats: [{ number: '12,400+', label: 'Happy Customers' }, { number: '4.8★', label: 'Average Rating' }, { number: '98%', label: 'Would Recommend' }],
+      heroHeadline: `The ${params.niche} brand built for Australia`,
+      heroSubheadline: `Premium quality, fast AU shipping, results you can feel from day one.`,
+      fontPairing: { heading: 'Syne', body: 'DM Sans' },
+      colourPalette: { primary: params.accentColor, secondary: '#1a1a2e', accent: '#ffffff' },
       testimonials: [
-        { name: 'Sarah M.', location: 'Sydney', quote: `Finally found ${params.niche} that delivers. Fast shipping and the quality is outstanding.` },
-        { name: 'Jake T.', location: 'Brisbane', quote: `Tried heaps of brands. This one is genuinely different. My whole family uses it now.` },
-        { name: 'Emma K.', location: 'Melbourne', quote: `Super fast delivery and amazing customer service. Will definitely be ordering again.` },
+        { name: 'Sarah M.', location: 'Sydney', text: `Finally found ${params.niche} that delivers. Arrived in 2 days and the quality is outstanding.` },
+        { name: 'Jake T.', location: 'Brisbane', text: `Tried heaps of brands. This one is genuinely different.` },
+        { name: 'Emma K.', location: 'Melbourne', text: `Super fast delivery and amazing customer service.` },
       ],
-      ctaPrimary: 'Shop Now — Free AU Shipping',
-      ctaSecondary: 'See Results',
-      faqItems: [
-        { q: 'How fast is shipping?', a: 'Same-day dispatch for orders before 2pm AEST. 2-5 business days Australia-wide.' },
-        { q: 'Do you offer Afterpay?', a: 'Yes! Pay in 4 interest-free instalments on all orders over $35.' },
-        { q: "What's your return policy?", a: '30-day no-questions-asked returns. Not happy? We\'ll sort it.' },
-        { q: 'Is this right for me?', a: `All our ${params.niche} products are tested for Australian conditions.` },
+      faq: [
+        { q: 'How fast is shipping?', a: 'Same-day dispatch before 2pm AEST. 2-5 business days Australia-wide.' },
+        { q: 'Do you offer Afterpay?', a: 'Yes! Pay in 4 interest-free instalments on orders over $35.' },
+        { q: "What's your return policy?", a: '30-day no-questions-asked returns.' },
       ],
-      fontPairing: 'Syne + DM Sans',
+      stats: [{ value: '12,400+', label: 'Happy Customers' }, { value: '4.8★', label: 'Avg Rating' }, { value: '98%', label: 'Would Recommend' }],
     };
   }
 }
