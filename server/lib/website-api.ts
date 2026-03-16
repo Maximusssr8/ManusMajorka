@@ -1070,90 +1070,47 @@ async function expandStoreBrief(params: {
   const productSummary = params.productData
     ? `Title: ${params.productData.product_title || params.productData.title || 'N/A'}, Price: ${params.productData.price_aud || params.productData.price || 'N/A'}, Desc: ${String(params.productData.description || '').slice(0, 200)}`
     : 'none provided';
-
-  const systemPrompt = `You are a conversion copywriter and ecommerce brand strategist specialising in Australian DTC brands. Return ONLY valid JSON — no markdown, no backticks, no explanation.`;
-
-  const userMsg = `Store name: ${params.storeName}
-Niche: ${params.niche}
-Design direction: ${params.designDirection || 'modern'}
-Accent colour: ${params.accentColor}
-Product data: ${productSummary}
-
-Return this exact JSON shape:
-{
-  "brandName": "...",
-  "tagline": "...(punchy, 6-10 words)",
-  "targetAudience": "...",
-  "brandVoice": "bold and direct|premium and refined|friendly and energetic",
-  "heroHeadline": "...(8-12 words, no generic phrases)",
-  "heroSubheadline": "...(15-20 words, benefit-focused)",
-  "problemStatement": "...(1 sentence — the pain the brand solves)",
-  "uniqueValueProp": "...(1 sentence — why they're different)",
-  "keyBenefits": ["...", "...", "..."],
-  "socialProofStats": [
-    {"number": "...", "label": "..."},
-    {"number": "...", "label": "..."},
-    {"number": "...", "label": "..."}
-  ],
-  "testimonials": [
-    {"name": "...", "location": "...(AU city)", "quote": "...(2 sentences, specific)"},
-    {"name": "...", "location": "...(AU city)", "quote": "..."},
-    {"name": "...", "location": "...(AU city)", "quote": "..."}
-  ],
-  "ctaPrimary": "...",
-  "ctaSecondary": "...",
-  "faqItems": [
-    {"q": "...", "a": "..."},
-    {"q": "...", "a": "..."},
-    {"q": "...", "a": "..."},
-    {"q": "...", "a": "..."}
-  ],
-  "colorNotes": "...(describe how to use the accent color)",
-  "fontPairing": "Syne + DM Sans|Playfair Display + Inter|Space Grotesk + DM Sans"
-}`;
-
   try {
     const msg = await client.messages.create({
       model: 'claude-haiku-4-5',
       max_tokens: 600,
       temperature: 0.8,
-      messages: [{ role: 'user', content: userMsg }],
-      system: systemPrompt,
+      system: `You are a conversion copywriter and ecommerce brand strategist specialising in Australian DTC brands. Return ONLY valid JSON — no markdown, no backticks, no explanation.`,
+      messages: [{ role: 'user', content: `Store name: ${params.storeName}\nNiche: ${params.niche}\nDesign: ${params.designDirection || 'modern'}\nAccent: ${params.accentColor}\nProduct: ${productSummary}\n\nReturn JSON:\n{"brandName":"...","tagline":"...","heroHeadline":"...(8-12 words)","heroSubheadline":"...(15-20 words)","problemStatement":"...","uniqueValueProp":"...","keyBenefits":["...","...","..."],"socialProofStats":[{"number":"...","label":"..."},{"number":"...","label":"..."},{"number":"...","label":"..."}],"testimonials":[{"name":"...","location":"AU city","quote":"..."},{"name":"...","location":"AU city","quote":"..."},{"name":"...","location":"AU city","quote":"..."}],"ctaPrimary":"...","ctaSecondary":"...","faqItems":[{"q":"...","a":"..."},{"q":"...","a":"..."},{"q":"...","a":"..."},{"q":"...","a":"..."}],"fontPairing":"Syne + DM Sans"}` }],
     });
-    const text = ((msg.content[0] as { type: 'text'; text: string })?.text || '').trim();
-    // Strip any accidental backticks
-    const cleaned = text.replace(/^```[\w]*\n?/m, '').replace(/\n?```\s*$/m, '').trim();
-    return JSON.parse(cleaned);
+    const raw = ((msg.content[0] as any)?.text || '').trim()
+      .replace(/^```[\w]*\n?/m, '').replace(/\n?```\s*$/m, '').trim();
+    return JSON.parse(raw);
   } catch {
-    // Fallback values if parse fails
     return {
       brandName: params.storeName,
       tagline: `Quality ${params.niche} for Australians`,
       heroHeadline: `The ${params.niche} brand built for Australia`,
-      heroSubheadline: `Premium quality, fast AU shipping, and results you can feel from day one.`,
+      heroSubheadline: `Premium quality, fast AU shipping, results you can feel.`,
+      problemStatement: `Australians deserve ${params.niche} products that actually work.`,
+      uniqueValueProp: `We source and test every product specifically for Australian conditions.`,
       keyBenefits: ['Free AU shipping on orders $60+', 'Afterpay available', '30-day money back guarantee'],
+      socialProofStats: [{ number: '12,400+', label: 'Happy Customers' }, { number: '4.8★', label: 'Average Rating' }, { number: '98%', label: 'Would Recommend' }],
       testimonials: [
-        { name: 'Sarah M.', location: 'Sydney', quote: `Finally a ${params.niche} brand that gets it. Arrived in 2 days and the quality is outstanding.` },
-        { name: 'Jake T.', location: 'Brisbane', quote: `I've tried heaps of brands. This one is genuinely different. My whole family uses it now.` },
+        { name: 'Sarah M.', location: 'Sydney', quote: `Finally found ${params.niche} that delivers. Fast shipping and the quality is outstanding.` },
+        { name: 'Jake T.', location: 'Brisbane', quote: `Tried heaps of brands. This one is genuinely different. My whole family uses it now.` },
         { name: 'Emma K.', location: 'Melbourne', quote: `Super fast delivery and amazing customer service. Will definitely be ordering again.` },
       ],
-      socialProofStats: [{ number: '12,400+', label: 'Happy Customers' }, { number: '4.8★', label: 'Average Rating' }, { number: '98%', label: 'Would Recommend' }],
       ctaPrimary: 'Shop Now — Free AU Shipping',
       ctaSecondary: 'See Results',
       faqItems: [
-        { q: 'How fast is shipping?', a: 'We ship same-day for orders placed before 2pm AEST. Standard delivery is 2-5 business days Australia-wide.' },
-        { q: 'Do you offer Afterpay?', a: 'Yes! Pay in 4 interest-free instalments with Afterpay on all orders over $35.' },
-        { q: "What's your return policy?", a: "30-day no-questions-asked returns. If you're not happy, we'll sort it out." },
-        { q: 'Is this suitable for sensitive skin/needs?', a: `All our ${params.niche} products are tested and made for Australian conditions.` },
+        { q: 'How fast is shipping?', a: 'Same-day dispatch for orders before 2pm AEST. 2-5 business days Australia-wide.' },
+        { q: 'Do you offer Afterpay?', a: 'Yes! Pay in 4 interest-free instalments on all orders over $35.' },
+        { q: "What's your return policy?", a: '30-day no-questions-asked returns. Not happy? We\'ll sort it.' },
+        { q: 'Is this right for me?', a: `All our ${params.niche} products are tested for Australian conditions.` },
       ],
-      colorNotes: `Use ${params.accentColor} as the primary CTA and highlight colour.`,
       fontPairing: 'Syne + DM Sans',
     };
   }
 }
 
-// ─── Full AI HTML Generator V2 (brief + single streaming Sonnet pass) ─────────
-export async function generateFullStore(params: {
+// ─── Full AI HTML Generator (legacy — kept as fallback) ───────────────────────
+async function generateFullStore_legacy(params: {
   niche: string;
   storeName: string;
   targetAudience?: string;
@@ -1569,6 +1526,17 @@ Write all content specific to ${niche} and ${storeName_}. AU English. No placeho
   if (sizeKb > 120) console.warn(`[website-api] HTML exceeds 120kb target (${sizeKb}kb) — consider trimming prompts`);
 
   return { html: finalHtml, manifest: manifestJson };
+}
+
+// ─── Full AI HTML Generator V2 (wrapper with legacy fallback) ─────────────────
+export async function generateFullStore(params: Parameters<typeof generateFullStore_legacy>[0]): Promise<ReturnType<typeof generateFullStore_legacy>> {
+  try {
+    return await generateFullStore_legacy(params);
+  } catch (err: any) {
+    console.warn('[website-gen] V2 failed, falling back to legacy:', err?.message);
+    console.error('[website-gen] V2 stack:', err?.stack);
+    return generateFullStore_legacy(params);
+  }
 }
 
 // ─── Colour Palette Generator ─────────────────────────────────────────────────

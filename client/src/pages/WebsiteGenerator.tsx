@@ -1129,13 +1129,14 @@ const QUICK_THEMES = {
 const DEVICE_WIDTHS = { desktop: '100%', tablet: '768px', mobile: '375px' } as const;
 
 const GEN_STEPS = [
-  { label: 'Analysing brief', threshold: 5 },
-  { label: 'Fetching images', threshold: 12 },
-  { label: 'Building layout & CSS', threshold: 25 },
-  { label: 'Writing home page', threshold: 55 },
-  { label: 'Adding features & reviews', threshold: 75 },
-  { label: 'Building subpages', threshold: 93 },
-  { label: 'Finalising store', threshold: 99 },
+  { threshold: 5, label: 'Finding the perfect images...' },
+  { threshold: 10, label: 'Building your brand brief...' },
+  { threshold: 25, label: 'Crafting your brand story...' },
+  { threshold: 30, label: 'Your store is being written...' },
+  { threshold: 75, label: 'Sections coming together...' },
+  { threshold: 90, label: 'Applying your design...' },
+  { threshold: 98, label: 'Wiring everything up...' },
+  { threshold: 100, label: 'Your store is ready!' },
 ];
 
 interface SiteHistoryItem {
