@@ -1058,7 +1058,8 @@ export default function Pricing() {
           >
             What's included in each plan?
           </h2>
-          <div style={{ border: `1px solid ${C.border}`, borderRadius: 16, overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <div style={{ border: `1px solid ${C.border}`, borderRadius: 16, overflow: 'hidden', minWidth: 500 }}>
             {/* Header */}
             <div
               style={{
@@ -1166,6 +1167,7 @@ export default function Pricing() {
                 </span>
               </div>
             ))}
+          </div>
           </div>
         </div>
       </section>

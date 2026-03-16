@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Loader2, CheckCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import { markOnboardingStep } from '@/lib/onboarding';
 
 const gold = '#d4af37';
@@ -85,9 +86,16 @@ export default function ShopifyConnect({
       const data = await res.json();
       if (!res.ok) throw new Error((data as any).error || 'Push failed');
       markOnboardingStep('pushed_to_shopify', session?.user?.id).catch(() => {});
+      toast.success('Pushed to Shopify! 🚀');
       onPushComplete(data);
     } catch (e: any) {
-      setError(e.message);
+      const msg = e.message?.includes('No Shopify connection')
+        ? 'Please connect your Shopify store first.'
+        : e.message?.includes('Unauthorized')
+          ? 'Session expired — please sign in again.'
+          : e.message || 'Something went wrong. Please try again.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setPushing(false);
     }

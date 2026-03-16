@@ -1720,7 +1720,7 @@ export default function WebsiteGenerator() {
       // ALTER TABLE generated_stores ENABLE ROW LEVEL SECURITY;
       // CREATE POLICY "Users own their stores" ON generated_stores FOR ALL USING (auth.uid() = user_id);
 
-      toast.success('Store generated!');
+      toast.success('Store generated! 🎉');
       trackWebsiteGenerated({ niche, platform, vibe, market: getStoredMarket() });
       localStorage.setItem('majorka_milestone_site', 'true');
     } catch (err: any) {

@@ -58,7 +58,7 @@ export const requireSubscription = async (
   try {
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
-      .from('subscriptions')
+      .from('user_subscriptions')
       .select('status, plan')
       .eq('user_id', userId)
       .single();

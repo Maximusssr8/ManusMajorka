@@ -58,7 +58,7 @@ export default function StoreBuilder() {
         </span>
 
         {/* Step progress */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
           {STEPS.map((s, i) => {
             const n = i + 1;
             const isActive = step === n;
