@@ -1,19 +1,21 @@
 import { Router, Request } from 'express';
-import { createClient } from '@supabase/supabase-js';
 import { buildAuthUrl, exchangeCode, verifyHmac } from '../lib/shopify';
 import crypto from 'crypto';
 
 const router = Router();
 
+// Lazy Supabase admin client — reads env vars at call time, not module load time
+// Uses VITE_SUPABASE_URL as fallback since that's what's set in Vercel env
 function getSupabaseAdmin() {
-  return createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const { createClient } = require('@supabase/supabase-js');
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error('Supabase env vars not configured (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY)');
+  return createClient(url, key);
 }
 
 function getToken(req: Request): string {
-  return (req.headers.authorization || '').replace('Bearer ', '');
+  return (req.headers.authorization || '').replace('Bearer ', '').trim();
 }
 
 // GET /api/shopify/auth — start OAuth

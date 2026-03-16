@@ -27,6 +27,9 @@ import { registerScrapeRoutes } from '../lib/scrape-product';
 import { registerStripeRoutes } from '../lib/stripe';
 import { registerToolsApi } from '../lib/tools-api';
 import { registerWebsiteRoutes } from '../lib/website-api';
+import cookieParser from 'cookie-parser';
+import shopifyRouter from '../routes/shopify';
+import storeBuilderRouter from '../routes/store-builder';
 import { appRouter } from '../routers';
 import { registerChatRoutes } from './chat';
 import { createContext } from './context';
@@ -148,6 +151,10 @@ async function startServer() {
   registerDemoRoutes(app);
   // Website Generator — Vercel deploy + product analyzer
   registerWebsiteRoutes(app);
+  // Shopify OAuth + Store Builder
+  app.use(cookieParser());
+  app.use('/api/shopify', shopifyRouter);
+  app.use('/api/store-builder', storeBuilderRouter);
   // tRPC API
   app.use(
     '/api/trpc',

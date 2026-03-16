@@ -1,11 +1,15 @@
 import { Router, Request } from 'express';
-import { createClient } from '@supabase/supabase-js';
+
 import { expandStoreBrief } from '../lib/website-api';
 
 const router = Router();
 
 function getSupabaseAdmin() {
-  return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+  const { createClient } = require('@supabase/supabase-js');
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error('Supabase env vars not configured');
+  return createClient(url, key);
 }
 
 function getToken(req: Request): string {

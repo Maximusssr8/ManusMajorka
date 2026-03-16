@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import ProductInput from '@/components/store-builder/ProductInput';
 import BlueprintPreview from '@/components/store-builder/BlueprintPreview';
@@ -14,17 +14,21 @@ export default function StoreBuilder() {
   const [blueprint, setBlueprint] = useState<Record<string, any> | null>(null);
   const [selectedStoreName, setSelectedStoreName] = useState('');
   const [pushResult, setPushResult] = useState<Record<string, any> | null>(null);
+  // Track if we arrived here from Shopify OAuth callback (?connected=true)
+  const [oauthConnected, setOauthConnected] = useState(false);
   const { session } = useAuth();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('connected') === 'true') {
-      const shop = params.get('shop');
-      if (shop) setStep(3);
-      window.history.replaceState({}, '', window.location.pathname);
+      // OAuth callback completed — advance to Connect step and signal ShopifyConnect to show connected state
+      setStep(3);
+      setOauthConnected(true);
+      window.history.replaceState({}, '', '/store-builder');
     }
-    if (params.get('error')) {
-      console.warn('[StoreBuilder] OAuth error:', params.get('error'));
+    const oauthError = params.get('error');
+    if (oauthError) {
+      console.warn('[StoreBuilder] OAuth error:', oauthError);
     }
   }, []);
 
@@ -33,6 +37,7 @@ export default function StoreBuilder() {
     setBlueprint(null);
     setPushResult(null);
     setSelectedStoreName('');
+    setOauthConnected(false);
   };
 
   return (
@@ -98,6 +103,7 @@ export default function StoreBuilder() {
             blueprint={blueprint}
             selectedStoreName={selectedStoreName}
             session={session}
+            initialConnected={oauthConnected}
             onPushComplete={result => { setPushResult(result); setStep(4); }}
             onBack={() => setStep(2)}
           />

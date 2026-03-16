@@ -14,6 +14,7 @@ import { appRouter } from "../server/routers";
 import { createContext } from "../server/_core/context";
 import { handleWebhook, registerStripeRoutes } from "../server/lib/stripe";
 import { registerWebsiteRoutes } from "../server/lib/website-api";
+import cookieParser from "cookie-parser";
 import shopifyRouter from "../server/routes/shopify";
 import storeBuilderRouter from "../server/routes/store-builder";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
@@ -43,7 +44,7 @@ app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
-app.use(require('cookie-parser')());
+app.use(cookieParser());
 
 // ── Image proxy — serves CDN images that block cross-origin requests ──────────
 app.get("/api/proxy-image", async (req: Request, res: Response) => {
