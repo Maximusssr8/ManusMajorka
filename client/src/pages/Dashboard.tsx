@@ -287,97 +287,101 @@ function PersonalisedFeed() {
 const MOST_USED_IDS = ['product-discovery', 'website-generator'];
 const NEW_TOOL_IDS = ['au-trending', 'launch-kit'];
 
-/* ─── Demo data for SalesOverview ─── */
+/* ─── Sales Overview — demo data + Shopify-style layout ─── */
+const UI = "'Inter', 'DM Sans', system-ui, sans-serif";  // Inter for all data/labels
+
 const DEMO_PRODUCTS = [
-  { rank: 1, name: 'EMS Muscle Stimulator Pro', cat: 'Fitness', units: 847, revenue: 38115, trend: 18.4 },
-  { rank: 2, name: 'Whey Protein Isolate 1kg', cat: 'Supplements', units: 612, revenue: 24480, trend: 24.1 },
-  { rank: 3, name: 'Resistance Band Set (5-Pack)', cat: 'Fitness', units: 589, revenue: 17670, trend: 11.2 },
-  { rank: 4, name: 'Creatine Monohydrate 500g', cat: 'Supplements', units: 534, revenue: 16020, trend: 9.8 },
-  { rank: 5, name: 'Ab Roller Wheel Pro', cat: 'Fitness', units: 421, revenue: 12630, trend: 6.3 },
-  { rank: 6, name: 'Collagen Peptides Powder', cat: 'Supplements', units: 398, revenue: 11940, trend: 31.7 },
-  { rank: 7, name: 'Adjustable Dumbbell Set', cat: 'Fitness', units: 287, revenue: 28700, trend: 4.1 },
-  { rank: 8, name: 'Pre-Workout Energy Formula', cat: 'Supplements', units: 261, revenue: 7830, trend: 15.9 },
+  { rank: 1, name: 'EMS Muscle Stimulator Pro', cat: 'Fitness',      emoji: '⚡', units: 847,  revenue: 38_115, trend: 18.4 },
+  { rank: 2, name: 'Whey Protein Isolate 1kg',   cat: 'Supplements',  emoji: '🥛', units: 612,  revenue: 24_480, trend: 24.1 },
+  { rank: 3, name: 'Resistance Band Set 5-Pack',  cat: 'Fitness',      emoji: '🏋️', units: 589,  revenue: 17_670, trend: 11.2 },
+  { rank: 4, name: 'Creatine Monohydrate 500g',   cat: 'Supplements',  emoji: '💊', units: 534,  revenue: 16_020, trend:  9.8 },
+  { rank: 5, name: 'Ab Roller Wheel Pro',          cat: 'Fitness',      emoji: '🔄', units: 421,  revenue: 12_630, trend:  6.3 },
+  { rank: 6, name: 'Collagen Peptides Powder',     cat: 'Supplements',  emoji: '✨', units: 398,  revenue: 11_940, trend: 31.7 },
+  { rank: 7, name: 'Adjustable Dumbbell Set',      cat: 'Fitness',      emoji: '🏆', units: 287,  revenue: 28_700, trend:  4.1 },
+  { rank: 8, name: 'Pre-Workout Energy Formula',   cat: 'Supplements',  emoji: '🔥', units: 261,  revenue:  7_830, trend: 15.9 },
 ];
 
 const DEMO_ORDERS = [
-  { id: '#1842', customer: 'Sarah M.', product: 'EMS Muscle Stimulator Pro', amount: 45, status: 'paid' as const, time: '2m ago' },
-  { id: '#1841', customer: 'Jake T.', product: 'Whey Protein Isolate 1kg', amount: 40, status: 'paid' as const, time: '8m ago' },
-  { id: '#1840', customer: 'Emma K.', product: 'Creatine Monohydrate 500g', amount: 30, status: 'fulfilled' as const, time: '14m ago' },
-  { id: '#1839', customer: 'Liam R.', product: 'Resistance Band Set', amount: 30, status: 'paid' as const, time: '22m ago' },
-  { id: '#1838', customer: 'Olivia S.', product: 'Collagen Peptides Powder', amount: 30, status: 'fulfilled' as const, time: '31m ago' },
+  { id: '#10842', customer: 'Sarah M.',  initials: 'SM', color: '#7c6af5', product: 'EMS Muscle Stimulator Pro',  amount: 44.95, status: 'paid'      as const, time: '2m ago'  },
+  { id: '#10841', customer: 'Jake T.',   initials: 'JT', color: '#10b981', product: 'Whey Protein Isolate 1kg',   amount: 39.90, status: 'paid'      as const, time: '9m ago'  },
+  { id: '#10840', customer: 'Emma K.',   initials: 'EK', color: '#f59e0b', product: 'Creatine Monohydrate 500g',  amount: 29.95, status: 'fulfilled' as const, time: '17m ago' },
+  { id: '#10839', customer: 'Liam R.',   initials: 'LR', color: '#3b82f6', product: 'Resistance Band Set',        amount: 34.95, status: 'paid'      as const, time: '23m ago' },
+  { id: '#10838', customer: 'Olivia S.', initials: 'OS', color: '#ec4899', product: 'Collagen Peptides Powder',   amount: 32.00, status: 'fulfilled' as const, time: '38m ago' },
+  { id: '#10837', customer: 'Noah W.',   initials: 'NW', color: '#14b8a6', product: 'Pre-Workout Energy Formula', amount: 28.50, status: 'pending'   as const, time: '51m ago' },
 ];
 
-const BASE_REVENUES = [1820,2140,1960,2380,2720,1840,1620,2060,2280,2440,2150,1980,2310,2580,2420,2190,1870,2650,2880,2730,2410,2060,1950,2340,2710,2490,2230,1880,2560,2840];
+// Realistic daily revenue — intentionally irregular, AU-market pattern
+const BASE_REVENUES = [
+  1843, 2267, 1914, 2538, 2891, 1762, 1534,
+  2183, 2347, 2619, 2084, 1923, 2476, 2754,
+  2391, 2108, 1884, 2713, 2966, 2637, 2382,
+  1994, 1876, 2418, 2783, 2512, 2249, 1867, 2641, 2918,
+];
 
 function getDemoChartData(range: string) {
   const today = new Date();
   const days = range === 'today' ? 1 : range === '7d' ? 7 : range === '30d' ? 30 : 90;
-  const slice = days <= 30 ? BASE_REVENUES.slice(-Math.min(days, 14)) : BASE_REVENUES;
-  const points: { date: string; revenue: number }[] = [];
-  const count = Math.min(slice.length, 14);
-  for (let i = 0; i < count; i++) {
+  const count = days <= 7 ? 7 : 14;
+  const slice = BASE_REVENUES.slice(-count);
+  return slice.map((rev, i) => {
     const d = new Date(today);
     d.setDate(d.getDate() - (count - 1 - i));
-    points.push({
+    return {
       date: d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' }),
-      revenue: days === 1 ? Math.round(slice[i % slice.length] / 24 * (i + 8)) : slice[i % slice.length],
-    });
-  }
-  return points;
+      revenue: days === 1 ? Math.round(rev / 24 * (i * 1.7 + 4)) : rev,
+    };
+  });
 }
 
 function getDemoKpis(range: string) {
-  const multiplier = range === 'today' ? 1 : range === '7d' ? 7 : range === '30d' ? 30 : 90;
+  const m = range === 'today' ? 1 : range === '7d' ? 7 : range === '30d' ? 30 : 90;
   return {
-    totalRevenue: Math.round(2200 * multiplier),
-    orders: Math.round(48 * multiplier),
-    aov: 45.83,
-    conversionRate: 3.2,
-    revenueChange: 12.4,
-    ordersChange: 8.7,
-    aovChange: 3.2,
-    conversionChange: 1.8,
+    totalRevenue:    Math.round(2263 * m),
+    orders:          Math.round(47  * m),
+    aov:             48.16,
+    convRate:        3.17,
+    revChange:       12.4,
+    ordChange:        8.7,
+    aovChange:        3.2,
+    cvrChange:        1.8,
   };
 }
 
 const RANGE_OPTIONS = [
-  { key: 'today', label: 'Today' },
-  { key: '7d', label: '7 Days' },
-  { key: '30d', label: '30 Days' },
-  { key: '90d', label: '90 Days' },
+  { key: 'today', label: 'Today'   },
+  { key: '7d',   label: '7 days'  },
+  { key: '30d',  label: '30 days' },
+  { key: '90d',  label: '90 days' },
 ] as const;
 
-const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  paid: { bg: 'rgba(34,197,94,0.15)', text: '#22c55e' },
-  fulfilled: { bg: 'rgba(59,130,246,0.15)', text: '#3b82f6' },
-  pending: { bg: 'rgba(234,179,8,0.15)', text: '#eab308' },
-};
+const STATUS_CFG = {
+  paid:      { bg: 'rgba(34,197,94,0.12)',  text: '#22c55e', dot: '#22c55e' },
+  fulfilled: { bg: 'rgba(59,130,246,0.12)', text: '#60a5fa', dot: '#3b82f6' },
+  pending:   { bg: 'rgba(234,179,8,0.12)',  text: '#fbbf24', dot: '#f59e0b' },
+} as const;
 
-const CAT_COLORS: Record<string, { bg: string; text: string }> = {
-  Fitness: { bg: 'rgba(59,130,246,0.15)', text: '#3b82f6' },
-  Supplements: { bg: 'rgba(168,85,247,0.15)', text: '#a855f7' },
+const CAT_CFG: Record<string, { bg: string; text: string }> = {
+  Fitness:     { bg: 'rgba(59,130,246,0.12)',  text: '#60a5fa' },
+  Supplements: { bg: 'rgba(168,85,247,0.12)',  text: '#c084fc' },
 };
 
 function MiniSparkSvg({ data, color = '#22c55e' }: { data: number[]; color?: string }) {
-  const max = Math.max(...data);
-  const min = Math.min(...data);
-  const range = max - min || 1;
-  const w = 60;
-  const h = 20;
-  const points = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * h}`).join(' ');
+  const max = Math.max(...data), min = Math.min(...data), rng = max - min || 1;
+  const W = 52, H = 18;
+  const pts = data.map((v, i) => `${(i / (data.length - 1)) * W},${H - ((v - min) / rng) * H}`).join(' ');
   return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      <polyline points={points} fill="none" stroke={color} strokeWidth="1.5" />
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" />
     </svg>
   );
 }
 
-function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
+function SalesTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: '#18181b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px' }}>
+    <div style={{ background: '#18181b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', fontFamily: UI }}>
       <div style={{ fontSize: 11, color: '#71717a', marginBottom: 2 }}>{label}</div>
-      <div style={{ fontSize: 14, fontWeight: 700, color: '#d4af37' }}>${payload[0].value.toLocaleString()}</div>
+      <div style={{ fontSize: 14, fontWeight: 600, color: '#d4af37' }}>${payload[0].value.toLocaleString()}</div>
     </div>
   );
 }
@@ -390,126 +394,127 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
   const kpis = getDemoKpis(range);
 
   const kpiCards = [
-    { label: 'Total Revenue', value: `$${kpis.totalRevenue.toLocaleString()}`, change: kpis.revenueChange, icon: DollarSign, spark: [2,4,3,5,6,4,7] },
-    { label: 'Orders', value: kpis.orders.toLocaleString(), change: kpis.ordersChange, icon: ShoppingBag, spark: [3,5,4,6,5,7,8] },
-    { label: 'Avg Order Value', value: `$${kpis.aov.toFixed(2)}`, change: kpis.aovChange, icon: TrendingUp, spark: [4,4,5,5,6,5,6] },
-    { label: 'Conversion Rate', value: `${kpis.conversionRate}%`, change: kpis.conversionChange, icon: Percent, spark: [2,3,3,4,3,4,5] },
+    { label: 'Total Revenue', value: `$${kpis.totalRevenue.toLocaleString()}`,  change: kpis.revChange, icon: DollarSign,  spark: [18,22,19,24,28,23,30] },
+    { label: 'Orders',        value: kpis.orders.toLocaleString(),               change: kpis.ordChange, icon: ShoppingBag, spark: [14,18,15,20,17,22,24] },
+    { label: 'Avg Order',     value: `$${kpis.aov.toFixed(2)}`,                  change: kpis.aovChange, icon: TrendingUp,  spark: [44,46,45,47,46,48,49] },
+    { label: 'Conv. Rate',    value: `${kpis.convRate}%`,                         change: kpis.cvrChange, icon: Percent,     spark: [28,30,29,31,30,32,33] },
   ];
 
   return (
-    <div style={{ marginBottom: 32 }}>
-      {/* Demo banner */}
+    <div style={{ marginBottom: 32, fontFamily: UI }}>
+
+      {/* Demo badge — subtle, not obtrusive */}
       {isDemo && !bannerDismissed && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
-          <span style={{ fontSize: 12, color: '#d4af37' }}>Sample data — connect your store to see real analytics</span>
-          <button onClick={() => setBannerDismissed(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
-            <X size={12} style={{ color: '#71717a' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, padding: '6px 12px', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.14)', borderRadius: 8 }}>
+          <span style={{ fontSize: 11, color: 'rgba(212,175,55,0.75)', fontWeight: 500, flex: 1 }}>
+            📊 Showing sample data — orders from your store will appear here automatically
+          </span>
+          <button onClick={() => setBannerDismissed(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', opacity: 0.5 }}>
+            <X size={11} style={{ color: '#a1a1aa' }} />
           </button>
         </div>
       )}
 
-      {/* Section header + date pills */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: '#52525b', fontFamily: 'Syne, sans-serif', margin: 0 }}>
+      {/* Header row */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#52525b', fontFamily: 'Syne, sans-serif' }}>
           Sales Overview
-        </h3>
-        <div style={{ display: 'flex', gap: 4 }}>
+        </span>
+        <div style={{ display: 'flex', gap: 3, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8, padding: 3 }}>
           {RANGE_OPTIONS.map((r) => (
-            <button
-              key={r.key}
-              onClick={() => setRange(r.key)}
-              style={{
-                padding: '4px 12px',
-                borderRadius: 100,
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: 12,
-                fontWeight: 600,
-                background: range === r.key ? '#d4af37' : 'rgba(255,255,255,0.06)',
-                color: range === r.key ? '#080a0e' : '#71717a',
-                transition: 'all 0.15s',
-              }}
-            >
+            <button key={r.key} onClick={() => setRange(r.key)} style={{
+              padding: '4px 11px', borderRadius: 6, border: 'none', cursor: 'pointer',
+              fontSize: 11, fontWeight: 600, fontFamily: UI, letterSpacing: '-0.01em',
+              background: range === r.key ? '#d4af37' : 'transparent',
+              color: range === r.key ? '#080a0e' : '#71717a',
+              transition: 'all 0.12s',
+            }}>
               {r.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Revenue area chart */}
-      <div style={{ background: '#0c0c10', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '20px 16px 12px', marginBottom: 16 }}>
-        <ResponsiveContainer width="100%" height={220}>
-          <AreaChart data={chartData}>
-            <defs>
-              <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#d4af37" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#d4af37" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="date" tick={{ fill: '#52525b', fontSize: 11 }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fill: '#52525b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${(v / 1000).toFixed(1)}k`} />
-            <Tooltip content={<CustomTooltip />} />
-            <Area type="monotone" dataKey="revenue" stroke="#d4af37" strokeWidth={2} fill="url(#goldGrad)" />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-
       {/* KPI row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" style={{ marginBottom: 16 }}>
-        {kpiCards.map((kpi) => (
-          <div key={kpi.label} style={{ background: '#0c0c10', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-              <kpi.icon size={14} style={{ color: '#71717a' }} />
-              <span style={{ fontSize: 11, color: '#71717a', fontWeight: 500 }}>{kpi.label}</span>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" style={{ marginBottom: 12 }}>
+        {kpiCards.map((k) => (
+          <div key={k.label} style={{ background: '#0c0c10', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '14px 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 9 }}>
+              <k.icon size={12} style={{ color: '#52525b' }} />
+              <span style={{ fontSize: 11, color: '#52525b', fontWeight: 500, letterSpacing: '0.01em' }}>{k.label}</span>
             </div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: '#f0ede8', fontFamily: 'Syne, sans-serif', marginBottom: 6 }}>{kpi.value}</div>
+            <div style={{ fontSize: 21, fontWeight: 700, color: '#f0ede8', letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', marginBottom: 8, lineHeight: 1 }}>
+              {k.value}
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 11, fontWeight: 600, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 6px', borderRadius: 4 }}>
-                +{kpi.change}%
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '1px 6px', borderRadius: 4 }}>
+                ↑ {k.change}%
               </span>
-              <MiniSparkSvg data={kpi.spark} />
+              <MiniSparkSvg data={k.spark} color="#22c55e" />
             </div>
           </div>
         ))}
       </div>
 
-      {/* Top Products table */}
-      <div style={{ background: '#0c0c10', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: 20, marginBottom: 16 }}>
-        <h4 className="text-xs font-bold uppercase tracking-widest" style={{ color: '#52525b', fontFamily: 'Syne, sans-serif', margin: '0 0 12px' }}>
-          Top Products
-        </h4>
+      {/* Revenue area chart */}
+      <div style={{ background: '#0c0c10', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '18px 14px 10px', marginBottom: 12 }}>
+        <div style={{ fontSize: 11, fontWeight: 600, color: '#52525b', marginBottom: 12, fontFamily: 'Syne, sans-serif', letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>Revenue</div>
+        <ResponsiveContainer width="100%" height={200}>
+          <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
+            <defs>
+              <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%"  stopColor="#d4af37" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#d4af37" stopOpacity={0.01} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 4" stroke="rgba(255,255,255,0.04)" vertical={false} />
+            <XAxis dataKey="date" tick={{ fill: '#52525b', fontSize: 10, fontFamily: UI }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+            <YAxis tick={{ fill: '#52525b', fontSize: 10, fontFamily: UI }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${(v / 1000).toFixed(1)}k`} />
+            <Tooltip content={<SalesTooltip />} cursor={{ stroke: 'rgba(212,175,55,0.2)', strokeWidth: 1 }} />
+            <Area type="monotone" dataKey="revenue" stroke="#d4af37" strokeWidth={1.8} fill="url(#goldGrad)" dot={false} activeDot={{ r: 3, fill: '#d4af37', strokeWidth: 0 }} />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Top Products */}
+      <div style={{ background: '#0c0c10', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '18px 20px', marginBottom: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#52525b', fontFamily: 'Syne, sans-serif' }}>Top Products</span>
+          <a href="/app/winning-products" style={{ fontSize: 12, color: '#d4af37', textDecoration: 'none', fontWeight: 500 }}>View all →</a>
+        </div>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                {['#', 'Product', 'Category', 'Units', 'Revenue', 'Trend'].map((h) => (
-                  <th key={h} style={{ padding: '8px 12px', textAlign: 'left', color: '#52525b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' as const }}>{h}</th>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                {['#', 'Product', 'Category', 'Units Sold', 'Revenue', 'vs last period'].map((h) => (
+                  <th key={h} style={{ padding: '6px 10px', textAlign: h === 'Units Sold' || h === 'Revenue' ? 'right' as const : 'left' as const, color: '#3f3f46', fontWeight: 600, fontSize: 10, letterSpacing: '0.07em', textTransform: 'uppercase' as const, fontFamily: UI, whiteSpace: 'nowrap' as const }}>
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {DEMO_PRODUCTS.map((p, i) => {
-                const catColor = CAT_COLORS[p.cat] ?? { bg: 'rgba(113,113,122,0.15)', text: '#71717a' };
+                const cc = CAT_CFG[p.cat] ?? { bg: 'rgba(113,113,122,0.12)', text: '#71717a' };
                 return (
-                  <tr key={p.rank} style={{ background: i % 2 === 1 ? 'rgba(255,255,255,0.02)' : 'transparent', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                    <td style={{ padding: '10px 12px', color: '#52525b', fontWeight: 600 }}>{p.rank}</td>
-                    <td style={{ padding: '10px 12px', color: '#f0ede8', fontWeight: 500 }}>{p.name}</td>
-                    <td style={{ padding: '10px 12px' }}>
-                      <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 100, background: catColor.bg, color: catColor.text, fontWeight: 600 }}>{p.cat}</span>
+                  <tr key={p.rank} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                    <td style={{ padding: '9px 10px', color: '#3f3f46', fontSize: 12, fontWeight: 600, fontVariantNumeric: 'tabular-nums', width: 28 }}>{i + 1}</td>
+                    <td style={{ padding: '9px 10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 16, lineHeight: 1 }}>{p.emoji}</span>
+                        <span style={{ fontSize: 13, color: '#e4e4e7', fontWeight: 500, whiteSpace: 'nowrap' as const }}>{p.name}</span>
+                      </div>
                     </td>
-                    <td style={{ padding: '10px 12px', color: '#a1a1aa' }}>{p.units.toLocaleString()}</td>
-                    <td style={{ padding: '10px 12px', color: '#d4af37', fontWeight: 600 }}>${p.revenue.toLocaleString()}</td>
-                    <td style={{ padding: '10px 12px' }}>
-                      <span style={{
-                        fontSize: 11,
-                        fontWeight: 600,
-                        padding: '2px 6px',
-                        borderRadius: 4,
-                        background: p.trend >= 0 ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
-                        color: p.trend >= 0 ? '#22c55e' : '#ef4444',
-                      }}>
-                        {p.trend >= 0 ? '+' : ''}{p.trend}%
+                    <td style={{ padding: '9px 10px' }}>
+                      <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 100, background: cc.bg, color: cc.text, fontWeight: 600 }}>{p.cat}</span>
+                    </td>
+                    <td style={{ padding: '9px 10px', color: '#a1a1aa', fontSize: 13, textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' }}>{p.units.toLocaleString()}</td>
+                    <td style={{ padding: '9px 10px', color: '#d4af37', fontWeight: 600, fontSize: 13, textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' }}>${p.revenue.toLocaleString()}</td>
+                    <td style={{ padding: '9px 10px', textAlign: 'right' as const }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 6px', borderRadius: 4, background: 'rgba(34,197,94,0.1)', color: '#22c55e' }}>
+                        ↑ {p.trend}%
                       </span>
                     </td>
                   </tr>
@@ -520,41 +525,44 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
         </div>
       </div>
 
-      {/* Recent Orders table */}
-      <div style={{ background: '#0c0c10', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <h4 className="text-xs font-bold uppercase tracking-widest" style={{ color: '#52525b', fontFamily: 'Syne, sans-serif', margin: 0 }}>
-            Recent Orders
-          </h4>
-          <a href="#" style={{ fontSize: 12, color: '#d4af37', textDecoration: 'none' }}>View all →</a>
+      {/* Recent Orders */}
+      <div style={{ background: '#0c0c10', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '18px 20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#52525b', fontFamily: 'Syne, sans-serif' }}>Recent Orders</span>
+          <span style={{ fontSize: 11, color: '#52525b' }}>Updated just now</span>
         </div>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                {['Order #', 'Customer', 'Product', 'Amount', 'Status', 'Time'].map((h) => (
-                  <th key={h} style={{ padding: '8px 12px', textAlign: 'left', color: '#52525b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' as const }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {DEMO_ORDERS.map((o, i) => {
-                const sc = STATUS_COLORS[o.status] ?? STATUS_COLORS.pending;
-                return (
-                  <tr key={o.id} style={{ background: i % 2 === 1 ? 'rgba(255,255,255,0.02)' : 'transparent', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                    <td style={{ padding: '10px 12px', color: '#a1a1aa', fontWeight: 500 }}>{o.id}</td>
-                    <td style={{ padding: '10px 12px', color: '#f0ede8' }}>{o.customer}</td>
-                    <td style={{ padding: '10px 12px', color: '#a1a1aa' }}>{o.product}</td>
-                    <td style={{ padding: '10px 12px', color: '#d4af37', fontWeight: 600 }}>${o.amount}</td>
-                    <td style={{ padding: '10px 12px' }}>
-                      <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 100, background: sc.bg, color: sc.text, fontWeight: 600, textTransform: 'capitalize' as const }}>{o.status}</span>
-                    </td>
-                    <td style={{ padding: '10px 12px', color: '#52525b', fontSize: 12 }}>{o.time}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {DEMO_ORDERS.map((o) => {
+            const sc = STATUS_CFG[o.status];
+            return (
+              <div key={o.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 4px', borderRadius: 8, transition: 'background 0.1s' }}
+                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.025)')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
+                {/* Avatar */}
+                <div style={{ width: 30, height: 30, borderRadius: '50%', background: o.color + '22', border: `1px solid ${o.color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: o.color }}>{o.initials}</span>
+                </div>
+                {/* Name + product */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#e4e4e7' }}>{o.customer}</span>
+                    <span style={{ fontSize: 11, color: '#3f3f46', fontWeight: 400 }}>{o.id}</span>
+                  </div>
+                  <span style={{ fontSize: 11, color: '#71717a', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{o.product}</span>
+                </div>
+                {/* Amount */}
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#f0ede8', fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
+                  ${o.amount.toFixed(2)}
+                </span>
+                {/* Status pill */}
+                <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 100, background: sc.bg, color: sc.text, textTransform: 'capitalize' as const, flexShrink: 0 }}>
+                  {o.status}
+                </span>
+                {/* Time */}
+                <span style={{ fontSize: 11, color: '#3f3f46', flexShrink: 0, minWidth: 52, textAlign: 'right' as const }}>{o.time}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
