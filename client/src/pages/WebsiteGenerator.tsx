@@ -92,6 +92,25 @@ const PROGRESS_MESSAGES = [
   '⚡ Almost ready...',
 ];
 
+const PROGRESS_MESSAGES_V2: Record<number, string> = {
+  5: 'Fetching product images...',
+  10: 'Building your brand brief...',
+  15: 'Warming up the AI...',
+  20: 'Writing your store copy...',
+  30: 'Crafting the hero section...',
+  50: 'Designing your layout...',
+  70: 'Adding product pages...',
+  90: 'Finishing touches...',
+  98: 'Assembling final store...',
+  100: 'Your store is ready! 🎉',
+};
+
+function getProgressMessage(progress: number): string {
+  const keys = Object.keys(PROGRESS_MESSAGES_V2).map(Number).sort((a, b) => b - a);
+  for (const k of keys) { if (progress >= k) return PROGRESS_MESSAGES_V2[k]; }
+  return 'Starting...';
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface GeneratedData {
   storeName?: string;
@@ -1265,6 +1284,90 @@ export default function WebsiteGenerator() {
   // Quick-start templates toggle
   const [quickStartOpen, setQuickStartOpen] = useState(false);
 
+  // Task 1 — Live preview
+  const [livePreviewNiche, setLivePreviewNiche] = useState('');
+  const [livePreviewStoreName, setLivePreviewStoreName] = useState('');
+  const livePreviewNicheTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const livePreviewStoreNameTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  // Task 2 — Template auto-suggest
+  const [userPickedTemplate, setUserPickedTemplate] = useState(false);
+  const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
+  const lastAutoMatchedNiche = useRef('');
+
+  // Task 3 — Import auto-fill tracking
+  const [importAutoFilledStore, setImportAutoFilledStore] = useState(false);
+  const [importAutoFilledNiche, setImportAutoFilledNiche] = useState(false);
+
+  // Task 4 — Shopify connect
+  const [shopifyConnected, setShopifyConnected] = useState(false);
+  const [shopifyShop, setShopifyShop] = useState('');
+  const [shopifyPushing, setShopifyPushing] = useState(false);
+  const [shopifyPushResult, setShopifyPushResult] = useState<Record<string, any> | null>(null);
+  const [shopifyDomainInput, setShopifyDomainInput] = useState('');
+  const [showShopifyInput, setShowShopifyInput] = useState(false);
+
+  // Task 5 — Elapsed timer
+  const [elapsedMs, setElapsedMs] = useState(0);
+  const elapsedTimerRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+
+  // Task 7 — Store history (Supabase)
+  const [savedStoreId, setSavedStoreId] = useState<string | null>(null);
+
+  // Task 2C — Auto-suggest template based on niche
+  const NICHE_TEMPLATE_MAP: Record<string, string> = {
+    beauty: 'bloom-beauty', skincare: 'bloom-beauty', cosmetics: 'bloom-beauty',
+    fashion: 'gc-fashion', clothing: 'gc-fashion', apparel: 'gc-fashion', streetwear: 'gc-fashion',
+    tech: 'tech-mono', gadgets: 'tech-mono', electronics: 'tech-mono',
+    outdoor: 'coastal-au', lifestyle: 'coastal-au', sport: 'coastal-au', pets: 'coastal-au',
+    luxury: 'premium-brand', premium: 'premium-brand', jewellery: 'premium-brand',
+  };
+  useEffect(() => {
+    if (!niche.trim() || generating || userPickedTemplate) return;
+    const lower = niche.toLowerCase();
+    let matchedId = '';
+    for (const [key, templateId] of Object.entries(NICHE_TEMPLATE_MAP)) {
+      if (lower.includes(key)) { matchedId = templateId; break; }
+    }
+    if (matchedId && matchedId !== premiumTemplateId && lastAutoMatchedNiche.current !== niche) {
+      setPremiumTemplateId(matchedId);
+      lastAutoMatchedNiche.current = niche;
+      toast.success('Template auto-matched to your niche');
+    }
+  }, [niche, generating, userPickedTemplate, premiumTemplateId]);
+
+  // Task 4B — Check Shopify connection on mount
+  useEffect(() => {
+    if (!session?.access_token) return;
+    fetch('/api/shopify/status', { headers: { Authorization: `Bearer ${session.access_token}` } })
+      .then(r => r.json())
+      .then((d: any) => { if (d.connected) { setShopifyConnected(true); setShopifyShop(d.shop || ''); } })
+      .catch(() => {});
+  }, [session]);
+
+  // Task 4C — Handle OAuth return (?shopify_connected=true)
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    if (p.get('shopify_connected') === 'true') {
+      setShopifyConnected(true);
+      toast.success('Shopify store connected!');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
+  // Task 5 — Elapsed timer while generating
+  useEffect(() => {
+    if (generating) {
+      setElapsedMs(0);
+      elapsedTimerRef.current = setInterval(() => {
+        setElapsedMs(Date.now() - genStartRef.current);
+      }, 1000);
+    } else {
+      if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
+    }
+    return () => { if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current); };
+  }, [generating]);
+
   // Debounced auto-analyze on URL paste (1s debounce)
   useEffect(() => {
     if (!analyzeUrl.trim() || analyzeUrl.length < 10) return;
@@ -1374,14 +1477,76 @@ export default function WebsiteGenerator() {
       if (data.extractionError) throw new Error(data.extractionError);
       const finalTitle = cleanProductTitle(data.productTitle || 'Imported Product');
       setImportedProduct({ title: finalTitle, description: data.description, features: data.bulletPoints, price: data.price, images: data.imageUrls, sourceUrl: importUrl });
-      if (!storeName.trim() && data.brand) setStoreName(data.brand.slice(0, 40));
-      toast.success('Product imported successfully');
+      // Task 3B — Auto-fill store name
+      setImportAutoFilledStore(false);
+      setImportAutoFilledNiche(false);
+      if (!storeName.trim()) {
+        const suggested = data.brand
+          ? `${data.brand} AU`
+          : finalTitle.split(' ').slice(0, 2).join(' ') + ' AU';
+        setStoreName(suggested.slice(0, 40));
+        setImportAutoFilledStore(true);
+      }
+      // Task 3B — Auto-detect niche
+      if (!niche.trim()) {
+        const productText = (finalTitle + ' ' + (data.description || '')).toLowerCase();
+        const nicheDetect: [string, string][] = [
+          ['skincare|moisturiser|serum|cleanser|toner', 'Skincare'],
+          ['supplement|protein|vitamin|collagen|probiotic', 'Health Supplements'],
+          ['gym|workout|fitness|leggings|activewear', 'Fitness'],
+          ['pet|dog|cat|puppy|paw', 'Pet Accessories'],
+          ['tech|gadget|usb|wireless|bluetooth|charger', 'Tech Gadgets'],
+          ['home|kitchen|organis|storage|decor', 'Home & Living'],
+          ['fashion|dress|shirt|shoes|bag|jewel', 'Fashion'],
+          ['baby|toddler|infant|kid|child', 'Baby & Kids'],
+          ['coffee|tea|brew|pour|espresso', 'Coffee & Tea'],
+          ['outdoor|hiking|camping|trail|adventure', 'Outdoor & Adventure'],
+        ];
+        for (const [pattern, detected] of nicheDetect) {
+          if (new RegExp(pattern).test(productText)) {
+            setNiche(detected);
+            setImportAutoFilledNiche(true);
+            break;
+          }
+        }
+      }
+      toast.success(`Imported: ${finalTitle}${data.price ? ` · $${data.price} AUD` : ''}`);
     } catch (err: any) {
       setImportError(err?.message || 'Could not import. Try a different URL or fill in details manually.');
     } finally {
       setImporting(false);
     }
-  }, [importUrl, storeName]);
+  }, [importUrl, storeName, niche]);
+
+  // Task 4D — Push to Shopify
+  const handleShopifyPush = useCallback(async () => {
+    if (!shopifyConnected || !directHtml) return;
+    setShopifyPushing(true);
+    try {
+      const res = await fetch('/api/store-builder/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token || ''}` },
+        body: JSON.stringify({
+          brief: {
+            brandName: storeName || (storeManifest ? JSON.parse(storeManifest)?.brand_name : undefined) || 'My Store',
+            heroHeadline: storeName,
+            tagline: tagline || niche,
+            uniqueValueProp: niche,
+            colourPalette: { primary: accentColor },
+          },
+          selectedStoreName: storeName || 'My Store',
+        }),
+      });
+      const data = await res.json();
+      setShopifyPushResult(data);
+      if (data.success) toast.success('Store pushed to Shopify!');
+      else toast.error('Push completed with some errors');
+    } catch (e: any) {
+      toast.error('Shopify push failed: ' + e.message);
+    } finally {
+      setShopifyPushing(false);
+    }
+  }, [shopifyConnected, directHtml, session, storeName, tagline, niche, accentColor, storeManifest]);
 
   const handleGenerate = useCallback(async () => {
     if (!niche.trim()) { toast.error('Please enter a niche first'); return; }
@@ -1505,7 +1670,45 @@ export default function WebsiteGenerator() {
 
       setActiveTab('preview');
 
-      toast.success('Store generated! 🏪');
+      // Task 7 — Save to Supabase generated_stores
+      setSavedStoreId(null);
+      if (session?.access_token) {
+        try {
+          const { createClient } = await import('@supabase/supabase-js');
+          const sb = createClient(
+            import.meta.env.VITE_SUPABASE_URL,
+            import.meta.env.VITE_SUPABASE_ANON_KEY,
+          );
+          const { data: insertData } = await sb.from('generated_stores').insert({
+            user_id: session.user?.id,
+            store_name: storeName || storeManifest || niche,
+            niche,
+            template_id: premiumTemplateId,
+            html_preview: finalHtml.slice(0, 5000),
+            manifest: storeManifest ? JSON.parse(storeManifest) : null,
+            created_at: new Date().toISOString(),
+          }).select('id').single();
+          if (insertData?.id) setSavedStoreId(insertData.id);
+        } catch (e) {
+          // Non-fatal: don't surface to user
+          console.warn('[store-history] save failed:', e);
+        }
+      }
+      // SQL to create table (run in Supabase SQL editor):
+      // CREATE TABLE IF NOT EXISTS generated_stores (
+      //   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+      //   user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
+      //   store_name text,
+      //   niche text,
+      //   template_id text,
+      //   html_preview text,
+      //   manifest jsonb,
+      //   created_at timestamptz DEFAULT now()
+      // );
+      // ALTER TABLE generated_stores ENABLE ROW LEVEL SECURITY;
+      // CREATE POLICY "Users own their stores" ON generated_stores FOR ALL USING (auth.uid() = user_id);
+
+      toast.success('Store generated!');
       trackWebsiteGenerated({ niche, platform, vibe, market: getStoredMarket() });
       localStorage.setItem('majorka_milestone_site', 'true');
     } catch (err: any) {
@@ -2100,11 +2303,12 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           </div>
 
           {/* Design Template Selector */}
-          <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1.5px solid rgba(212,175,55,0.2)' }}>
+          <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1.5px solid rgba(212,175,55,0.2)', position: 'relative' }}>
             <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}>Design Template</div>
             <div className="flex flex-col gap-1.5">
               {WEBSITE_TEMPLATES.map((t) => {
                 const isSelected = premiumTemplateId === t.id;
+                const isHovered = hoveredTemplate === t.id;
                 const dirMap: Record<string, string> = {
                   'dtc-minimal': 'dark-minimal', 'dropship-bold': 'bold-cta',
                   'premium-brand': 'luxury-editorial', 'coastal-au': 'coastal-lifestyle',
@@ -2112,9 +2316,11 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 };
                 return (
                   <button key={t.id}
-                    onClick={() => { setPremiumTemplateId(t.id); if (dirMap[t.id]) setDesignDirection(dirMap[t.id]); }}
+                    onClick={() => { setPremiumTemplateId(t.id); setUserPickedTemplate(true); if (dirMap[t.id]) setDesignDirection(dirMap[t.id]); }}
+                    onMouseEnter={() => setHoveredTemplate(t.id)}
+                    onMouseLeave={() => setHoveredTemplate(null)}
                     className="w-full rounded-xl text-left transition-all"
-                    style={{ background: isSelected ? 'rgba(212,175,55,0.08)' : 'rgba(255,255,255,0.02)', border: `1.5px solid ${isSelected ? 'rgba(212,175,55,0.5)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    style={{ background: isSelected ? 'rgba(212,175,55,0.08)' : 'rgba(255,255,255,0.02)', border: `1.5px solid ${isSelected ? 'rgba(212,175,55,0.5)' : 'rgba(255,255,255,0.06)'}`, borderLeft: isSelected ? '3px solid #d4af37' : `1.5px solid ${isSelected ? 'rgba(212,175,55,0.5)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ width: 30, height: 30, borderRadius: 8, flexShrink: 0, background: `linear-gradient(135deg, ${t.palette.accent}dd, ${t.palette.accent}88)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}>
                       {t.emoji || '●'}
                     </div>
@@ -2122,11 +2328,44 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       <div style={{ fontSize: 12, fontWeight: 800, color: isSelected ? '#d4af37' : 'rgba(240,237,232,0.85)', fontFamily: 'Syne, sans-serif', marginBottom: 2, lineHeight: 1 }}>{t.name}</div>
                       <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.35)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.3 }}>{t.bestFor || t.description}</div>
                     </div>
+                    {/* Task 2B — Colour palette dots */}
+                    <div style={{ display: 'flex', gap: 3, flexShrink: 0 }}>
+                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: t.palette.bg, border: '1px solid rgba(255,255,255,0.15)' }} />
+                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: t.palette.accent, border: '1px solid rgba(255,255,255,0.15)' }} />
+                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: t.palette.text, border: '1px solid rgba(255,255,255,0.15)' }} />
+                    </div>
                     {isSelected && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#d4af37', flexShrink: 0 }} />}
                   </button>
                 );
               })}
             </div>
+            {/* Task 2D — Hover thumbnail preview */}
+            {hoveredTemplate && (() => {
+              const ht = WEBSITE_TEMPLATES.find(t => t.id === hoveredTemplate);
+              if (!ht) return null;
+              return (
+                <div style={{ position: 'absolute', right: -220, top: 40, width: 200, zIndex: 100, background: '#0c0e12', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', pointerEvents: 'none' }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#f0ede8', fontFamily: 'Syne, sans-serif', marginBottom: 8 }}>{ht.name}</div>
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+                    {[ht.palette.bg, ht.palette.accent, ht.palette.text].map((c, i) => (
+                      <div key={i} style={{ width: 20, height: 20, borderRadius: '50%', background: c, border: '1px solid rgba(255,255,255,0.15)' }} />
+                    ))}
+                  </div>
+                  {/* Mini wireframe */}
+                  <div style={{ borderRadius: 6, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <div style={{ height: 8, background: ht.palette.bg, borderBottom: `1px solid ${ht.palette.accent}40` }} />
+                    <div style={{ height: 32, background: ht.palette.accent + '30', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ fontSize: 8, color: ht.palette.text, fontWeight: 700 }}>HERO</div>
+                    </div>
+                    <div style={{ height: 24, background: ht.palette.bg, display: 'flex', gap: 4, padding: 4, justifyContent: 'center' }}>
+                      {[1, 2, 3].map(n => (
+                        <div key={n} style={{ width: 24, height: 16, background: ht.palette.accent + '20', borderRadius: 2 }} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Product URL Import */}
@@ -2147,6 +2386,18 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                   <button onClick={() => { setImportedProduct(null); setImportUrl(''); }} style={{ color: 'rgba(240,237,232,0.3)', background: 'none', border: 'none', cursor: 'pointer' }}><X size={14} /></button>
                 </div>
                 <div className="text-xs font-semibold" style={{ color: 'rgba(45,202,114,0.75)' }}>✓ Product data imported</div>
+                {/* Task 3D — Feature tags + auto-fill badges */}
+                {importedProduct.features && importedProduct.features.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
+                    {importedProduct.features.slice(0, 2).map((f, i) => (
+                      <span key={i} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,237,232,0.45)' }}>{typeof f === 'string' ? f.slice(0, 50) : f}</span>
+                    ))}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
+                  {importAutoFilledStore && <span style={{ fontSize: 10, color: 'rgba(45,202,114,0.7)', fontWeight: 600 }}>✓ Store name auto-filled</span>}
+                  {importAutoFilledNiche && <span style={{ fontSize: 10, color: 'rgba(45,202,114,0.7)', fontWeight: 600 }}>✓ Niche detected</span>}
+                </div>
               </div>
             ) : (
               <div>
@@ -2156,7 +2407,17 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     {importing ? <Loader2 size={10} className="animate-spin" /> : null}{importing ? '…' : 'Import'}
                   </button>
                 </div>
-                {importError && <div className="text-xs mt-1.5" style={{ color: 'rgba(255,150,100,0.8)' }}>{importError}</div>}
+                {/* Task 3A — Better loading state */}
+                {importing && <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.5)', marginTop: 4, display: 'block' }}>Analyzing product...</span>}
+                {importError && (
+                  <div>
+                    <div className="text-xs mt-1.5" style={{ color: 'rgba(255,150,100,0.8)' }}>{importError}</div>
+                    {/* Task 3C — Supported sources */}
+                    <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)', marginTop: 4 }}>
+                      Supported: AliExpress, Amazon AU, eBay AU, CJDropshipping, DHgate
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -2345,7 +2606,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
             )}
           </div>
 
-          {/* Quick-start Templates */}
+          {/* Quick-start Templates — Task 6 */}
           <div>
             <button
               onClick={() => setQuickStartOpen(!quickStartOpen)}
@@ -2356,26 +2617,33 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
             </button>
             {quickStartOpen && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
-                {[
-                  { emoji: '🏃', label: 'Gym Leggings AU', niche: 'gym wear', storeName: 'FitForm AU', color: '#6366f1' },
-                  { emoji: '🐕', label: 'Pet Accessories', niche: 'pet accessories', storeName: 'PawsAU', color: '#f59e0b' },
-                  { emoji: '💡', label: 'LED Desk Lamp', niche: 'home office tech', storeName: 'LumiDesk AU', color: '#06b6d4' },
-                  { emoji: '💄', label: 'Skincare Bundle', niche: 'skincare', storeName: 'Glow & Go AU', color: '#ec4899' },
-                ].map((t) => (
+                {([
+                  { emoji: '🧍', label: 'Posture Corrector', niche: 'Health', storeName: 'AlignAU', targetAudience: 'AU desk workers 25-45', tagline: 'Stand tall, feel great', price: '49.95', color: '#10b981', templateId: 'bondi-wellness' },
+                  { emoji: '💄', label: 'Glow LED Face Mask', niche: 'Beauty & Skincare', storeName: 'GlowMist AU', targetAudience: 'AU women 20-35', tagline: 'Clinic-grade glow at home', price: '79.95', color: '#ec4899', templateId: 'bloom-beauty' },
+                  { emoji: '🖥', label: 'Monitor Stand', niche: 'Home Office Tech', storeName: 'DeskPro AU', targetAudience: 'AU remote workers', tagline: 'Level up your workspace', price: '59.95', color: '#3b82f6', templateId: 'tech-mono' },
+                  { emoji: '🐕', label: 'Dog Harness', niche: 'Pet Accessories', storeName: 'TrailPaws AU', targetAudience: 'AU dog owners', tagline: 'Built for AU adventures', price: '39.95', color: '#f59e0b', templateId: 'au-pet-collective' },
+                ] as const).map((ex) => (
                   <button
-                    key={t.label}
+                    key={ex.label}
                     onClick={() => {
-                      setNiche(t.niche);
-                      setStoreName(t.storeName);
-                      setAccentColor(t.color);
-                      toast.success(`"${t.label}" loaded — generating…`);
-                      setTimeout(() => handleGenerate(), 300);
+                      setNiche(ex.niche);
+                      setStoreName(ex.storeName);
+                      setAccentColor(ex.color);
+                      setTargetAudience(ex.targetAudience);
+                      setTagline(ex.tagline);
+                      setPriceAUD(ex.price);
+                      setPremiumTemplateId(ex.templateId);
+                      setUserPickedTemplate(false);
+                      setQuickStartOpen(false);
+                      toast.success(`"${ex.label}" example loaded — generating…`);
+                      setTimeout(() => handleGenerate(), 200);
                     }}
-                    style={{ padding: '6px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,237,232,0.7)', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', transition: 'all 0.15s' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = t.color; e.currentTarget.style.color = t.color; }}
+                    style={{ padding: '6px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,237,232,0.7)', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.15s' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = ex.color; e.currentTarget.style.color = ex.color; }}
                     onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(240,237,232,0.7)'; }}
                   >
-                    {t.emoji} {t.label}
+                    {ex.emoji} {ex.label}
+                    <span style={{ fontSize: 9, padding: '1px 5px', borderRadius: 10, background: 'rgba(255,255,255,0.08)', color: 'rgba(240,237,232,0.4)' }}>EXAMPLE</span>
                   </button>
                 ))}
               </div>
@@ -2387,13 +2655,13 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           {/* Store Name */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Store Name</label>
-            <input value={storeName} onChange={(e) => setStoreName(e.target.value)} placeholder="e.g. MaxFit Supplements" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#f0ede8' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
+            <input value={storeName} onChange={(e) => { setStoreName(e.target.value); clearTimeout(livePreviewStoreNameTimer.current); livePreviewStoreNameTimer.current = setTimeout(() => setLivePreviewStoreName(e.target.value), 400); }} placeholder="e.g. MaxFit Supplements" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#f0ede8' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
           </div>
 
           {/* Niche */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Niche <span style={{ color: '#d4af37', fontWeight: 700 }}>*</span></label>
-            <input value={niche} onChange={(e) => setNiche(e.target.value)} list="niche-list" placeholder="e.g. gym clothing" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#f0ede8' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
+            <input value={niche} onChange={(e) => { setNiche(e.target.value); clearTimeout(livePreviewNicheTimer.current); livePreviewNicheTimer.current = setTimeout(() => setLivePreviewNiche(e.target.value), 400); }} list="niche-list" placeholder="e.g. gym clothing" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#f0ede8' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
             <datalist id="niche-list">
               {['Beauty & Skincare','Fitness & Gym','Home & Living','Pet Accessories','Tech Gadgets','Outdoor & Adventure','Women\'s Fashion','Men\'s Fashion','Baby & Kids','Health Supplements','Jewellery','Coffee & Tea'].map(n => (
                 <option key={n} value={n} />
@@ -2584,6 +2852,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               animation: mjk-shimmer 1.5s linear infinite !important;
               background-image: linear-gradient(90deg, #d4af37 0%, #f0c040 25%, #fff5cc 50%, #f0c040 75%, #d4af37 100%) !important;
             }
+            @keyframes mjk-fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
           `}</style>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <button
@@ -2606,6 +2875,58 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
             </button>
             <span style={{ fontSize: 10, color: 'rgba(240,237,232,0.25)', fontFamily: 'Syne, sans-serif' }}>⌘↵ Generate</span>
           </div>
+
+          {/* Task 4E — Shopify Connect / Push */}
+          <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+            {shopifyConnected ? (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: '#22c55e', flex: 1 }}>
+                  <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e' }} />
+                  {shopifyShop || 'Shopify connected'}
+                </div>
+                {hasOutput && (
+                  <button
+                    onClick={handleShopifyPush}
+                    disabled={shopifyPushing}
+                    style={{ padding: '7px 14px', borderRadius: 8, border: '1px solid rgba(34,197,94,0.35)', background: 'rgba(34,197,94,0.08)', color: '#22c55e', fontSize: 11, fontWeight: 700, cursor: shopifyPushing ? 'not-allowed' : 'pointer', fontFamily: 'Syne, sans-serif', display: 'flex', alignItems: 'center', gap: 6, opacity: shopifyPushing ? 0.6 : 1 }}
+                  >
+                    {shopifyPushing ? <Loader2 size={11} className="animate-spin" /> : null}
+                    {shopifyPushing ? 'Pushing...' : '↑ Push to Shopify'}
+                  </button>
+                )}
+              </>
+            ) : (
+              showShopifyInput ? (
+                <div style={{ display: 'flex', gap: 6, width: '100%' }}>
+                  <input
+                    value={shopifyDomainInput}
+                    onChange={(e) => setShopifyDomainInput(e.target.value)}
+                    placeholder="mystore.myshopify.com"
+                    onKeyDown={(e) => { if (e.key === 'Enter') { const d = shopifyDomainInput.trim().replace(/^https?:\/\//, '').replace(/\/$/, ''); if (d.includes('.myshopify.com')) window.location.href = `/api/shopify/auth?shop=${encodeURIComponent(d)}`; } }}
+                    style={{ flex: 1, padding: '7px 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: '#f0ede8', fontSize: 11, outline: 'none' }}
+                  />
+                  <button
+                    onClick={() => { const d = shopifyDomainInput.trim().replace(/^https?:\/\//, '').replace(/\/$/, ''); if (d.includes('.myshopify.com')) window.location.href = `/api/shopify/auth?shop=${encodeURIComponent(d)}`; else toast.error('Enter a valid .myshopify.com domain'); }}
+                    style={{ padding: '7px 12px', borderRadius: 8, border: 'none', background: '#d4af37', color: '#080a0e', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}
+                  >Go</button>
+                  <button onClick={() => setShowShopifyInput(false)} style={{ padding: '7px 8px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'transparent', color: 'rgba(240,237,232,0.4)', fontSize: 11, cursor: 'pointer' }}>✕</button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowShopifyInput(true)}
+                  style={{ width: '100%', padding: '8px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)', color: 'rgba(240,237,232,0.5)', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'Syne, sans-serif', display: 'flex', alignItems: 'center', gap: 6 }}
+                >
+                  🔗 Connect Shopify store
+                </button>
+              )
+            )}
+          </div>
+          {shopifyPushResult && shopifyPushResult.success && (
+            <div style={{ padding: '10px 14px', borderRadius: 8, background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.18)', fontSize: 11 }}>
+              <div style={{ color: '#22c55e', fontWeight: 700, marginBottom: 4 }}>✓ Pushed to Shopify</div>
+              {shopifyPushResult.storeUrl && <a href={shopifyPushResult.storeUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#22c55e', textDecoration: 'none' }}>Open store →</a>}
+            </div>
+          )}
 
           {genError && (
             <div className="text-xs p-3 rounded-lg" style={{ background: 'rgba(255,100,100,0.08)', border: '1px solid rgba(255,100,100,0.2)', color: 'rgba(255,150,150,0.9)' }}>
@@ -2643,6 +2964,16 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     {tab.icon}{tab.label}
                   </button>
                 ))}
+                {hasOutput && genStartTime > 0 && !generating && (
+                  <div style={{ marginLeft: 'auto', fontSize: 10, color: 'rgba(212,175,55,0.6)', fontFamily: 'Syne, sans-serif' }}>
+                    Generated in {Math.round(elapsedMs / 1000)}s
+                  </div>
+                )}
+                {savedStoreId && (
+                  <div style={{ marginLeft: hasOutput && genStartTime > 0 && !generating ? 8 : 'auto', fontSize: 10, color: 'rgba(45,202,114,0.7)', fontFamily: 'Syne, sans-serif' }}>
+                    ✓ Saved
+                  </div>
+                )}
               </div>
 
               <div className="flex-1 overflow-hidden">
@@ -2702,6 +3033,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                               borderRadius: previewDevice !== 'desktop' ? 20 : 0,
                               border: previewDevice !== 'desktop' ? '2px solid rgba(255,255,255,0.12)' : 'none',
                               boxShadow: previewDevice !== 'desktop' ? '0 8px 40px rgba(0,0,0,0.5)' : 'none',
+                              animation: 'mjk-fadeIn 0.4s ease',
                             }}
                             sandbox="allow-scripts allow-same-origin allow-popups"
                             ref={previewIframeRef}
@@ -3069,75 +3401,136 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               </div>
             </>
           ) : (
-            /* ── Empty / Loading state ── */
-            <div className="flex-1 flex flex-col items-center justify-center gap-5 p-8" style={{ border: generating ? '1px solid rgba(212,175,55,0.15)' : 'none', borderRadius: generating ? 16 : 0, animation: generating ? 'mjk-pulse-border 2s ease-in-out infinite' : 'none' }}>
+            /* ── Empty / Loading state — Task 1 + Task 5 ── */
+            <div className="flex-1 flex flex-col items-center justify-center p-8" style={{ overflow: 'auto' }}>
               <style>{`
-                @keyframes mjk-pulse-border { 0%,100% { border-color: rgba(212,175,55,0.1); } 50% { border-color: rgba(212,175,55,0.35); } }
-                @keyframes mjk-spin-circle { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                @keyframes mjk-shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+                @keyframes mjk-fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
               `}</style>
               {generating ? (
-                <div style={{ padding: '32px 24px', maxWidth: 360 }}>
-                  <div style={{ marginBottom: 24, textAlign: 'center' }}>
-                    <div style={{ fontSize: 14, color: '#d4af37', fontFamily: 'Syne, sans-serif', fontWeight: 800 }}>
-                      Building your store...
+                /* Task 5 — Progress overlay */
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: 520, gap: 20 }}>
+                  <div style={{ width: '100%', background: 'rgba(255,255,255,0.03)', borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)' }}>
+                    <div style={{ height: 3, background: 'rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
+                      <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', background: '#d4af37', width: `${genProgress}%`, transition: 'width 0.6s ease', borderRadius: 2 }} />
                     </div>
-                    <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)', marginTop: 6 }}>
-                      Est. time remaining: {genProgress > 0 ? Math.max(1, Math.round(55 * (1 - genProgress / 100))) : '~55'}s
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <AnimatePresence>
-                      {progressSteps.map((step, i) => {
-                        const isCurrent = !step.done && (i === 0 || progressSteps[i - 1]?.done);
-                        return (
-                          <motion.div
-                            key={step.label}
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: step.done ? 1 : isCurrent ? 0.9 : 0.35, y: 0 }}
-                            transition={{ duration: 0.3, delay: step.done ? 0.05 : 0 }}
-                            style={{ display: 'flex', alignItems: 'center', gap: 10 }}
-                          >
-                            <div style={{ width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, background: step.done ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.05)', border: `1.5px solid ${step.done ? '#d4af37' : isCurrent ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.1)'}`, color: step.done ? '#d4af37' : 'rgba(255,255,255,0.3)', position: 'relative' }}>
-                              {step.done ? (
-                                <span style={{ color: '#d4af37' }}>✓</span>
-                              ) : isCurrent ? (
-                                <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid transparent', borderTopColor: '#d4af37', animation: 'mjk-spin-circle 0.8s linear infinite' }} />
-                              ) : (
-                                String(i + 1)
-                              )}
+                    <div style={{ padding: '28px 32px', textAlign: 'center' }}>
+                      <div style={{ fontSize: 32, marginBottom: 12 }}>&#9889;</div>
+                      <div style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: '#f0ede8', marginBottom: 8 }}>{genProgress}%</div>
+                      <div style={{ fontSize: 14, color: 'rgba(240,237,232,0.6)', marginBottom: 20 }}>
+                        {(() => {
+                          const PM: Record<number, string> = { 5: 'Fetching product images...', 10: 'Building your brand brief...', 15: 'Warming up the AI...', 20: 'Writing your store copy...', 30: 'Crafting the hero section...', 50: 'Designing your layout...', 70: 'Adding product pages...', 90: 'Finishing touches...', 98: 'Assembling final store...', 100: 'Your store is ready!' };
+                          const keys = Object.keys(PM).map(Number).sort((a, b) => b - a);
+                          for (const k of keys) { if (genProgress >= k) return PM[k]; }
+                          return 'Starting...';
+                        })()}
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, textAlign: 'left' }}>
+                        {progressSteps.map((step, i) => {
+                          const isCurrent = !step.done && (i === 0 || progressSteps[i - 1]?.done);
+                          return (
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: step.done ? 'rgba(212,175,55,0.06)' : isCurrent ? 'rgba(212,175,55,0.03)' : 'transparent' }}>
+                              <div style={{ width: 16, height: 16, borderRadius: '50%', flexShrink: 0, border: `1.5px solid ${step.done ? '#d4af37' : isCurrent ? 'rgba(212,175,55,0.5)' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: step.done ? '#d4af37' : 'transparent' }}>
+                                {step.done ? '\u2713' : ''}
+                              </div>
+                              <span style={{ fontSize: 12, color: step.done ? '#d4af37' : isCurrent ? 'rgba(240,237,232,0.8)' : 'rgba(240,237,232,0.35)' }}>{step.label}</span>
+                              {isCurrent && <Loader2 size={11} className="animate-spin" style={{ color: '#d4af37', marginLeft: 'auto' }} />}
                             </div>
-                            <span style={{ fontSize: 12, fontWeight: step.done ? 700 : 500, color: step.done ? 'rgba(240,237,232,0.9)' : isCurrent ? '#d4af37' : 'rgba(240,237,232,0.35)' }}>{step.label}</span>
-                          </motion.div>
-                        );
-                      })}
-                    </AnimatePresence>
-                  </div>
-                  <div style={{ height: 3, background: 'rgba(255,255,255,0.06)', borderRadius: 2, marginTop: 24 }}>
-                    <div style={{ height: '100%', background: 'linear-gradient(90deg, #d4af37, #f0c040)', borderRadius: 2, width: genProgress + '%', transition: 'width 0.5s ease' }} />
+                          );
+                        })}
+                      </div>
+                      {genStartTime > 0 && (
+                        <div style={{ marginTop: 16, fontSize: 11, color: 'rgba(240,237,232,0.3)', fontFamily: 'Syne, sans-serif' }}>
+                          Elapsed: {Math.round(elapsedMs / 1000)}s
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ) : (
-                <div className="text-center space-y-5 max-w-xs">
-                  <div style={{ fontSize: 48, lineHeight: 1 }}>⚡</div>
-                  <div>
-                    <div className="text-base font-black mb-1.5" style={{ fontFamily: 'Syne, sans-serif' }}>Your store preview will appear here</div>
-                    <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.35)' }}>
-                      Fill in a niche and hit <strong style={{ color: 'rgba(212,175,55,0.6)' }}>Generate</strong> to build a complete Shopify-ready store.
+                /* Task 1 — Live Skeleton Preview */
+                (() => {
+                  const tpl = WEBSITE_TEMPLATES.find(t => t.id === premiumTemplateId) || WEBSITE_TEMPLATES[0];
+                  const skBg = tpl.palette.bg;
+                  const skAccent = tpl.palette.accent;
+                  const skText = tpl.palette.text;
+                  const skName = livePreviewStoreName || storeName || 'Your Store';
+                  return (
+                    <div style={{ width: '100%', maxWidth: 520, animation: 'mjk-fadeIn 0.4s ease' }}>
+                      <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', background: skBg }}>
+                        <div style={{ height: 28, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px' }}>
+                          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ff5f56' }} />
+                          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ffbd2e' }} />
+                          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#27c93f' }} />
+                          <div style={{ flex: 1, height: 14, borderRadius: 4, background: 'rgba(255,255,255,0.06)', marginLeft: 12 }} />
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px', borderBottom: `1px solid ${skAccent}20` }}>
+                          <div style={{ fontSize: 13, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: skAccent }}>{skName}</div>
+                          <div style={{ display: 'flex', gap: 12 }}>
+                            {['Home', 'Shop', 'About'].map(l => <div key={l} style={{ fontSize: 10, color: skText + '60' }}>{l}</div>)}
+                            <div style={{ padding: '3px 10px', borderRadius: 4, background: skAccent, fontSize: 9, fontWeight: 700, color: skBg }}>Cart</div>
+                          </div>
+                        </div>
+                        <div style={{ padding: '32px 24px', background: `linear-gradient(135deg, ${skBg}, ${skAccent}12)` }}>
+                          <div style={{ width: '75%', height: 18, borderRadius: 4, background: skAccent + '40', marginBottom: 10, position: 'relative', overflow: 'hidden' }}>
+                            <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(90deg, transparent, ${skAccent}30, transparent)`, animation: 'mjk-shimmer 2s ease-in-out infinite' }} />
+                          </div>
+                          <div style={{ width: '55%', height: 10, borderRadius: 3, background: skText + '15', marginBottom: 18 }} />
+                          <div style={{ display: 'flex', gap: 8 }}>
+                            <div style={{ padding: '6px 16px', borderRadius: 6, background: skAccent, fontSize: 9, fontWeight: 700, color: skBg }}>Shop Now</div>
+                            <div style={{ padding: '6px 16px', borderRadius: 6, border: `1px solid ${skAccent}50`, fontSize: 9, color: skAccent }}>Learn More</div>
+                          </div>
+                        </div>
+                        <div style={{ padding: '16px 20px' }}>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: skText + '40', marginBottom: 10, fontFamily: 'Syne, sans-serif', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Products</div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                            {[0, 1, 2].map(idx => (
+                              <div key={idx} style={{ borderRadius: 8, overflow: 'hidden', border: `1px solid ${skText}10` }}>
+                                <div style={{ aspectRatio: '1', background: skText + '08', position: 'relative', overflow: 'hidden' }}>
+                                  <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(90deg, transparent, ${skText}08, transparent)`, animation: `mjk-shimmer 2s ease-in-out ${idx * 0.3}s infinite` }} />
+                                </div>
+                                <div style={{ padding: 8 }}>
+                                  <div style={{ width: '80%', height: 6, borderRadius: 2, background: skText + '15', marginBottom: 4 }} />
+                                  <div style={{ width: '40%', height: 8, borderRadius: 2, background: skAccent + '30' }} />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div style={{ padding: '12px 20px', borderTop: `1px solid ${skText}08` }}>
+                          <div style={{ display: 'flex', gap: 14, justifyContent: 'center' }}>
+                            {[0, 1, 2].map(idx => (
+                              <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <div style={{ width: 20, height: 20, borderRadius: '50%', background: skAccent + '20' }} />
+                                <div>
+                                  <div style={{ width: 40, height: 4, borderRadius: 2, background: skText + '12', marginBottom: 3 }} />
+                                  <div style={{ width: 28, height: 3, borderRadius: 2, background: skText + '08' }} />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 6, justifyContent: 'center', padding: '10px 0 14px' }}>
+                          {[skBg, skAccent, skText].map((c, idx) => (
+                            <div key={idx} style={{ width: 18, height: 18, borderRadius: '50%', background: c, border: '1.5px solid rgba(255,255,255,0.15)' }} />
+                          ))}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'center', marginTop: 16 }}>
+                        <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+                          Fill in a niche and hit <strong style={{ color: 'rgba(212,175,55,0.6)' }}>Generate</strong> to build your store.
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-                    {['🎨 5 design styles', '⚡ ~55s generation', '📱 Mobile ready'].map((chip) => (
-                      <span key={chip} style={{ fontSize: 10, fontWeight: 600, padding: '4px 10px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,237,232,0.4)' }}>{chip}</span>
-                    ))}
-                  </div>
-                </div>
+                  );
+                })()
               )}
             </div>
           )}
         </div>
       </div>
 
-      {/* ── Cursor Modal ── */}
+      {/* ── Cursor Modal ── */}      {/* ── Cursor Modal ── */}
       <Modal open={cursorModal} onClose={() => setCursorModal(false)}>
         <div className="space-y-4">
           <div className="flex items-center gap-3">
