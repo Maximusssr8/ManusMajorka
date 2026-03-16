@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Loader2, CheckCircle } from 'lucide-react';
+import { markOnboardingStep } from '@/lib/onboarding';
 
 const gold = '#d4af37';
 const syne = 'Syne, sans-serif';
@@ -36,6 +37,7 @@ export default function ShopifyConnect({
         if (d.connected) {
           setConnected(true);
           setConnectedShop(d.shop || '');
+          markOnboardingStep('connected_shopify', session?.user?.id).catch(() => {});
         } else if (initialConnected) {
           // OAuth just completed but status API not updated yet — keep showing connected
           setConnected(true);
@@ -82,6 +84,7 @@ export default function ShopifyConnect({
       });
       const data = await res.json();
       if (!res.ok) throw new Error((data as any).error || 'Push failed');
+      markOnboardingStep('pushed_to_shopify', session?.user?.id).catch(() => {});
       onPushComplete(data);
     } catch (e: any) {
       setError(e.message);

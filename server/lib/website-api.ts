@@ -9,6 +9,7 @@
 import type { Application } from 'express';
 import { CLAUDE_MODEL, getAnthropicClient } from './anthropic';
 import { getSupabaseAdmin } from '../_core/supabase';
+import { requireSubscription } from '../middleware/requireSubscription';
 
 // ─── Auth helper ─────────────────────────────────────────────────────────────
 async function authenticateRequest(req: any): Promise<{ userId: string; email: string } | null> {
@@ -1601,7 +1602,7 @@ Output ONLY valid JSON (no markdown):
 // ─── Route Registration ───────────────────────────────────────────────────────
 export function registerWebsiteRoutes(app: Application): void {
   // POST /api/website/deploy-vercel
-  app.post('/api/website/deploy-vercel', async (req, res) => {
+  app.post('/api/website/deploy-vercel', requireSubscription, async (req, res) => {
     try {
       const user = await authenticateRequest(req);
       if (!user) {
@@ -1651,7 +1652,7 @@ export function registerWebsiteRoutes(app: Application): void {
   });
 
   // POST /api/website/generate — delegates to generateFullStore with SSE progress
-  app.post('/api/website/generate', async (req, res) => {
+  app.post('/api/website/generate', requireSubscription, async (req, res) => {
     try {
       const user = await authenticateRequest(req);
       if (!user) { res.status(401).json({ error: 'Unauthorized' }); return; }
@@ -1780,7 +1781,7 @@ All headlines AU English. No clichés. Be specific to the niche.` }],
   });
 
   // POST /api/website/improve-text — AI rewrite for inline editor (used from new tab)
-  app.post('/api/website/improve-text', async (req, res) => {
+  app.post('/api/website/improve-text', requireSubscription, async (req, res) => {
     try {
       const { text, instruction } = req.body as { text?: string; instruction?: string };
       if (!text || text.length < 2) return res.status(400).json({ error: 'No text provided' });

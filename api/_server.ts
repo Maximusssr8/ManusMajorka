@@ -27,6 +27,9 @@ import('../server/lib/migrate-winning-products').then(({ runWinningProductsMigra
 import('../server/migrations/runGeneratedStores').then(({ runGeneratedStoresMigration }) => {
   runGeneratedStoresMigration().catch(console.warn);
 });
+import('../server/migrations/runUserOnboarding').then(({ runUserOnboardingMigration }) => {
+  runUserOnboardingMigration().catch(console.warn);
+});
 
 const app = express();
 

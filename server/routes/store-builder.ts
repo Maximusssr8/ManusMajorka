@@ -1,6 +1,7 @@
 import { Router, Request } from 'express';
 
 import { expandStoreBrief } from '../lib/website-api';
+import { requireSubscription } from '../middleware/requireSubscription';
 
 const router = Router();
 
@@ -61,7 +62,7 @@ router.post('/generate', async (req, res) => {
 });
 
 // POST /api/shopify/push — push blueprint to connected Shopify store
-router.post('/push', async (req, res) => {
+router.post('/push', requireSubscription, async (req, res) => {
   try {
     const supabase = getSupabaseAdmin();
     const { data: { user } } = await supabase.auth.getUser(getToken(req));

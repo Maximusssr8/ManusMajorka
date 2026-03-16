@@ -45,6 +45,7 @@ import {
 import { toast } from 'sonner';
 import { SEO } from '@/components/SEO';
 import { useAuth } from '@/_core/hooks/useAuth';
+import { markOnboardingStep } from '@/lib/onboarding';
 import { supabase } from '@/lib/supabase';
 import UsageCounter from '@/components/UsageCounter';
 import UpgradePromptBanner from '@/components/UpgradePromptBanner';
@@ -2715,6 +2716,44 @@ function CardGrid({
           gap: 18,
         }}
       >
+        {products.length === 0 && !loading && (
+          <div style={{
+            padding: '48px 24px',
+            textAlign: 'center',
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: 16,
+            marginBottom: 24,
+            gridColumn: '1 / -1'
+          }}>
+            <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
+            <p style={{
+              color: 'rgba(240,237,232,0.9)',
+              fontSize: 15,
+              fontWeight: 700,
+              marginBottom: 8,
+              fontFamily: 'Syne, sans-serif'
+            }}>No products found</p>
+            <p style={{ color: 'rgba(240,237,232,0.4)', fontSize: 13, marginBottom: 20 }}>
+              Adjust your filters or check back tomorrow for fresh data
+            </p>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+              {['Posture Corrector', 'LED Face Mask', 'Silk Pillowcase'].map((name) => (
+                <div key={name} style={{
+                  padding: '8px 14px',
+                  background: 'rgba(212,175,55,0.06)',
+                  border: '1px solid rgba(212,175,55,0.2)',
+                  borderRadius: 8,
+                  fontSize: 12,
+                  color: '#d4af37',
+                  fontWeight: 600
+                }}>
+                  {name} →
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {loading
           ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
           : products.map((p, idx) => (
@@ -3095,6 +3134,8 @@ function WinningProducts() {
     } catch {
       setProducts(SEEDED_PRODUCTS);
       setTotal(SEEDED_PRODUCTS.length);
+      // Mark onboarding step
+      markOnboardingStep('scouted_product', userId).catch(() => {});
     } finally {
       setLoading(false);
     }

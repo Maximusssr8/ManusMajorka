@@ -30,6 +30,7 @@ import React, { lazy, useCallback, useEffect, useMemo, useRef, useState, Suspens
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { markOnboardingStep } from '@/lib/onboarding';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 
@@ -1651,6 +1652,9 @@ export default function WebsiteGenerator() {
       setGeneratedData(minData);
       setDirectHtml(finalHtml);
 
+      // Mark onboarding step
+      markOnboardingStep('generated_store', session?.user?.id).catch(() => {});
+
       // B3 — Auto-fetch headline variants
       if (session?.access_token) {
         fetch('/api/website/headline-variants', {
@@ -2826,7 +2830,18 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           </div>
 
           {/* C3 — Recent Sites */}
-          {siteHistory.length > 0 && (
+          {siteHistory.length === 0 ? (
+            <div style={{
+              padding: '16px',
+              background: 'rgba(255,255,255,0.02)',
+              border: '1px solid rgba(255,255,255,0.05)',
+              borderRadius: 10,
+              textAlign: 'center'
+            }}>
+              <p style={{ fontSize: 11, color: 'rgba(240,237,232,0.3)', marginBottom: 8 }}>No stores generated yet</p>
+              <p style={{ fontSize: 10, color: 'rgba(212,175,55,0.5)' }}>Try a quick start example below →</p>
+            </div>
+          ) : (
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 16, marginTop: 8 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(240,237,232,0.3)', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Recent Sites</div>
               {siteHistory.map(item => (

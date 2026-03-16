@@ -121,6 +121,9 @@ async function startServer() {
   import('../migrations/runGeneratedStores').then(({ runGeneratedStoresMigration }) => {
     runGeneratedStoresMigration().catch(console.warn);
   });
+  import('../migrations/runUserOnboarding').then(({ runUserOnboardingMigration }) => {
+    runUserOnboardingMigration().catch(console.warn);
+  });
 
   // One-time intelligence tables migration endpoint
   app.post('/api/internal/run-intel-migration', async (req, res) => {

@@ -1,152 +1,100 @@
 /**
- * OnboardingChecklist — persistent checklist for new users (first week).
+ * OnboardingChecklist — Supabase-backed checklist for new users.
+ * Falls back to localStorage when not authenticated.
  * Disappears after all items are completed or user dismisses it.
  */
 
 import { ArrowRight, CheckCircle2, Circle, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
+import { useAuth } from '@/contexts/AuthContext';
+import { getOnboardingState, type OnboardingStep } from '@/lib/onboarding';
 
-const CHECKLIST_KEY = 'majorka_checklist';
-const DISMISSED_KEY = 'majorka_checklist_dismissed';
+const DISMISSED_KEY = 'majorka_onboarding_v2_dismissed';
 
 interface ChecklistItem {
-  id: string;
+  id: OnboardingStep;
   label: string;
   description: string;
   path: string;
-  checkFn: () => boolean;
 }
 
 const ITEMS: ChecklistItem[] = [
   {
-    id: 'account',
-    label: 'Created your account',
-    description: "You're here — nice one!",
-    path: '/app',
-    checkFn: () => true, // Always done if they're logged in
+    id: 'scouted_product',
+    label: 'Scout your first product',
+    description: 'Find a winning product to sell',
+    path: '/app/winning-products',
   },
   {
-    id: 'product-discovery',
-    label: 'Run Product Discovery',
-    description: 'Find your first winning product',
-    path: '/app/product-discovery',
-    checkFn: () => {
-      try {
-        const raw = localStorage.getItem('majorka_recent_tools');
-        const tools: string[] = raw ? JSON.parse(raw) : [];
-        return tools.includes('product-discovery');
-      } catch {
-        return false;
-      }
-    },
+    id: 'generated_store',
+    label: 'Generate a store',
+    description: 'Build your Shopify store in minutes',
+    path: '/store-builder',
   },
   {
-    id: 'brand-dna',
-    label: 'Generate your Brand DNA',
-    description: 'Define your brand identity and voice',
-    path: '/app/brand-dna',
-    checkFn: () => {
-      try {
-        const raw = localStorage.getItem('majorka_recent_tools');
-        const tools: string[] = raw ? JSON.parse(raw) : [];
-        return tools.includes('brand-dna');
-      } catch {
-        return false;
-      }
-    },
+    id: 'connected_shopify',
+    label: 'Connect Shopify',
+    description: 'Link your Shopify account',
+    path: '/store-builder',
   },
   {
-    id: 'ad-copy',
-    label: 'Create your first ad copy',
-    description: 'Write compelling ad variations',
-    path: '/app/meta-ads',
-    checkFn: () => {
-      try {
-        const raw = localStorage.getItem('majorka_recent_tools');
-        const tools: string[] = raw ? JSON.parse(raw) : [];
-        return tools.includes('copywriter') || tools.includes('meta-ads');
-      } catch {
-        return false;
-      }
-    },
-  },
-  {
-    id: 'website',
-    label: 'Download your website template',
-    description: 'Get your Shopify store files',
-    path: '/app/website-generator',
-    checkFn: () => {
-      try {
-        const raw = localStorage.getItem('majorka_recent_tools');
-        const tools: string[] = raw ? JSON.parse(raw) : [];
-        return tools.includes('website-generator');
-      } catch {
-        return false;
-      }
-    },
+    id: 'pushed_to_shopify',
+    label: 'Launch to Shopify',
+    description: 'Push your store live',
+    path: '/store-builder',
   },
 ];
 
 export default function OnboardingChecklist() {
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
   const [dismissed, setDismissed] = useState(true);
   const [completed, setCompleted] = useState<Set<string>>(new Set());
   const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
-    // Check if dismissed
     if (localStorage.getItem(DISMISSED_KEY)) return;
 
-    // Load completed state
-    const savedCompleted = new Set<string>();
-    try {
-      const raw = localStorage.getItem(CHECKLIST_KEY);
-      if (raw) JSON.parse(raw).forEach((id: string) => savedCompleted.add(id));
-    } catch {}
+    getOnboardingState(user?.id).then((state) => {
+      const done = new Set<string>();
+      for (const [key, val] of Object.entries(state)) {
+        if (val) done.add(key);
+      }
 
-    // Check each item
-    ITEMS.forEach((item) => {
-      if (item.checkFn()) savedCompleted.add(item.id);
+      if (done.size >= ITEMS.length) {
+        localStorage.setItem(DISMISSED_KEY, 'true');
+        return;
+      }
+
+      setCompleted(done);
+      setDismissed(false);
     });
+  }, [user?.id]);
 
-    // If all completed, don't show
-    if (savedCompleted.size >= ITEMS.length) {
-      localStorage.setItem(DISMISSED_KEY, 'true');
-      return;
-    }
-
-    setCompleted(savedCompleted);
-    localStorage.setItem(CHECKLIST_KEY, JSON.stringify(Array.from(savedCompleted)));
-    setDismissed(false);
-  }, []);
-
-  // Check for newly completed items
+  // Poll for changes
   useEffect(() => {
     if (dismissed) return;
     const interval = setInterval(() => {
-      const newCompleted = new Set(completed);
-      let changed = false;
-      ITEMS.forEach((item) => {
-        if (!newCompleted.has(item.id) && item.checkFn()) {
-          newCompleted.add(item.id);
-          changed = true;
+      getOnboardingState(user?.id).then((state) => {
+        const done = new Set<string>();
+        for (const [key, val] of Object.entries(state)) {
+          if (val) done.add(key);
+        }
+        if (done.size > completed.size) {
+          setCompleted(done);
+          if (done.size >= ITEMS.length) {
+            setShowConfetti(true);
+            setTimeout(() => {
+              setDismissed(true);
+              localStorage.setItem(DISMISSED_KEY, 'true');
+            }, 3000);
+          }
         }
       });
-      if (changed) {
-        setCompleted(newCompleted);
-        localStorage.setItem(CHECKLIST_KEY, JSON.stringify(Array.from(newCompleted)));
-        if (newCompleted.size >= ITEMS.length) {
-          setShowConfetti(true);
-          setTimeout(() => {
-            setDismissed(true);
-            localStorage.setItem(DISMISSED_KEY, 'true');
-          }, 3000);
-        }
-      }
     }, 5000);
     return () => clearInterval(interval);
-  }, [dismissed, completed]);
+  }, [dismissed, completed.size, user?.id]);
 
   const handleDismiss = () => {
     setDismissed(true);
@@ -228,7 +176,7 @@ export default function OnboardingChecklist() {
       </div>
 
       {/* Checklist items */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
         {ITEMS.map((item) => {
           const done = completed.has(item.id);
           return (
