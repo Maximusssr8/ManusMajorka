@@ -21,14 +21,23 @@ window.addEventListener('unhandledrejection', (e) => {
   const msg = String(e.reason?.message || e.reason || '');
   if (
     msg.includes('Failed to fetch dynamically imported module') ||
+    msg.includes('Importing a module script failed') ||
     msg.includes('Loading chunk') ||
-    msg.includes('Loading CSS chunk')
+    msg.includes('Loading CSS chunk') ||
+    msg.includes('error loading dynamically imported module') ||
+    msg.includes('Failed to load module script') ||
+    msg.includes('404')
   ) {
     if (!sessionStorage.getItem('chunk_reload_attempted')) {
       sessionStorage.setItem('chunk_reload_attempted', '1');
       window.location.reload();
     }
   }
+});
+
+// Clear the stale-chunk reload flag 3s after load — so future deploys can auto-reload again
+window.addEventListener('load', () => {
+  setTimeout(() => sessionStorage.removeItem('chunk_reload_attempted'), 3000);
 });
 
 // ── Cross-domain OAuth redirect fix ──────────────────────────────────────────
