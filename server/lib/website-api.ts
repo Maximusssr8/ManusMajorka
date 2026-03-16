@@ -486,7 +486,6 @@ function buildFaviconAndOgTags(storeName: string, color: string, niche: string, 
   <meta property="og:site_name" content="${safe(storeName)}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="${ogDataUri}">
-  <link rel="canonical" href="https://your-store-url.com">
   <link rel="manifest" href="manifest.json">
   <script type="application/ld+json">${schemaJson}</script>`;
 }
@@ -579,6 +578,8 @@ function route() {
     a.style.fontWeight = active ? '700' : '';
   });
   window.scrollTo({ top: 0, behavior: 'instant' });
+  // Re-wire cart buttons for newly visible page
+  document.dispatchEvent(new CustomEvent('clawPageChange'));
 }
 window.addEventListener('hashchange', route);
 route();
@@ -680,17 +681,26 @@ window.addToCart = function(name, price, img) {
   openCart();
 };
 
-document.querySelectorAll('.btn-cart').forEach(function(btn) {
-  btn.onclick = function(e) {
-    e.preventDefault();
-    var section = btn.closest('section,[data-page]');
-    var name = (section && section.querySelector('h1,h2,h3')) ? section.querySelector('h1,h2,h3').textContent.trim().slice(0,40) : 'Product';
-    var priceEl = section && section.querySelector('.price,[class*="price"]');
-    var price = priceEl ? priceEl.textContent.replace(/[^0-9.]/g,'') : '49.95';
-    var img = section && section.querySelector('img') ? section.querySelector('img').src : '';
-    window.addToCart(name, price, img);
-  };
-});
+// Wire ALL .btn-cart buttons — runs on DOMContentLoaded AND after page navigation
+function wireCartButtons() {
+  document.querySelectorAll('.btn-cart:not([data-wired])').forEach(function(btn) {
+    btn.setAttribute('data-wired','1');
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      var section = btn.closest('section,[data-page]') || btn.parentElement;
+      var nameEl = section && section.querySelector('h1,h2,h3,[class*="product-info"] h1');
+      var name = nameEl ? nameEl.textContent.trim().slice(0,50) : 'Product';
+      var priceEl = section && (section.querySelector('.product-price') || section.querySelector('[class*="price"]'));
+      var price = priceEl ? priceEl.textContent.replace(/[^0-9.]/g,'') : '49.95';
+      var imgEl = section && section.querySelector('img');
+      var img = imgEl ? imgEl.src : '';
+      window.addToCart(name, price, img);
+    });
+  });
+}
+wireCartButtons();
+// Re-wire after hash navigation (shop page buttons start hidden)
+document.addEventListener('clawPageChange', wireCartButtons);
 
 // ── 7. Mobile Sticky Bar ─────────────────────────────────────────────────────
 (function() {
@@ -1441,7 +1451,7 @@ This closes the data-page="home" div. No script tags.`;
         <div style="font-size:13px;color:${mutedColor};margin-bottom:14px">Free AU shipping over $79 · Afterpay</div>
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
           <span style="font-family:var(--font-heading,Syne,sans-serif);font-size:19px;font-weight:900;color:${color}">${shopPrices[i] || '$49.95'} AUD</span>
-          <button class="btn-cart" style="background:${color};color:${isLight ? '#fff' : '#08080f'};border:none;padding:10px 18px;border-radius:${btnRadius};font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap;font-family:var(--font-heading,Syne,sans-serif)">Add to Cart</button>
+          <button class="btn-cart" onclick="typeof window.addToCart==='function'&&window.addToCart('${shopProductNames[i]?.replace(/'/g,"\\'")||niche}','${shopPrices[i]?.replace('$','')||'49.95'}','${imgUrl}')" style="background:${color};color:${isLight ? '#fff' : '#08080f'};border:none;padding:10px 18px;border-radius:${btnRadius};font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap;font-family:var(--font-heading,Syne,sans-serif)">Add to Cart</button>
         </div>
       </div>
     </div>`).join('\n');
