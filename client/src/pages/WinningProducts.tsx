@@ -1384,10 +1384,8 @@ Be specific, opinionated, use AUD figures.`;
               <Play size={14} />
               Run Ads
             </a>
-            <button
-              onClick={() => {
-                window.location.href = `/app/website-generator?niche=${encodeURIComponent(product.category ?? '')}`;
-              }}
+            <a
+              href={`/store-builder?product=${encodeURIComponent(product.product_title)}&niche=${encodeURIComponent(product.category ?? '')}&price=${product.price_aud ?? ''}`}
               style={{
                 flex: 1,
                 display: 'flex',
@@ -1402,11 +1400,13 @@ Be specific, opinionated, use AUD figures.`;
                 fontSize: 13,
                 fontWeight: 700,
                 cursor: 'pointer',
+                textDecoration: 'none',
               }}
+              title="Build a Shopify store for this product"
             >
               <Store size={14} />
-              Build Store
-            </button>
+              Build Store →
+            </a>
           </div>
         </div>
       </div>
@@ -1701,10 +1701,10 @@ function FullReportModal({
           {/* CTAs */}
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <a
-              href={`/app/suppliers?q=${encodeURIComponent(product.product_title)}`}
+              href={`/store-builder?product=${encodeURIComponent(product.product_title)}&niche=${encodeURIComponent(product.category ?? '')}&price=${product.price_aud ?? ''}`}
               style={{ flex: 1, minWidth: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px 20px', borderRadius: 14, background: C.gold, border: 'none', color: '#000', fontSize: 14, fontWeight: 800, textDecoration: 'none', fontFamily: 'Syne, sans-serif' }}
             >
-              🚀 Start Selling This
+              🚀 Build Store →
             </a>
             <button
               onClick={() => onToggleWatchlist(product)}

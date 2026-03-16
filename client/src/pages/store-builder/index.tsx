@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
 import ProductInput from '@/components/store-builder/ProductInput';
 import BlueprintPreview from '@/components/store-builder/BlueprintPreview';
@@ -18,10 +19,14 @@ export default function StoreBuilder() {
   const [oauthConnected, setOauthConnected] = useState(false);
   const { session } = useAuth();
 
+  // URL params for pre-filling from Winning Products
+  const [urlProduct] = useState(() => new URLSearchParams(window.location.search).get('product') || '');
+  const [urlNiche] = useState(() => new URLSearchParams(window.location.search).get('niche') || '');
+  const [urlPrice] = useState(() => new URLSearchParams(window.location.search).get('price') || '');
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('connected') === 'true') {
-      // OAuth callback completed — advance to Connect step and signal ShopifyConnect to show connected state
       setStep(3);
       setOauthConnected(true);
       window.history.replaceState({}, '', '/store-builder');
@@ -42,6 +47,10 @@ export default function StoreBuilder() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#080a0e', color: '#f0ede8', fontFamily: "'DM Sans', sans-serif" }}>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+        <title>Store Builder — Majorka</title>
+      </Helmet>
       {/* Top bar */}
       <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 18, color: gold, letterSpacing: '-0.02em' }}>
@@ -82,6 +91,9 @@ export default function StoreBuilder() {
         {step === 1 && (
           <ProductInput
             session={session}
+            initialProduct={urlProduct}
+            initialNiche={urlNiche}
+            initialPrice={urlPrice}
             onComplete={(input, bp) => {
               setBlueprint(bp);
               setSelectedStoreName(bp.storeNameOptions?.[0] || input.productName);

@@ -20,6 +20,15 @@ function getToken(req: Request): string {
 // POST /api/store-builder/generate — expand brief + return blueprint
 router.post('/generate', async (req, res) => {
   try {
+    // Rate limit: 10 blueprint generates per hour per user
+    const { rateLimit } = await import('../lib/rate-limit');
+    const token = getToken(req);
+    const userId = token ? (() => { try { return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString()).sub; } catch { return token.slice(0,16); } })() : req.ip;
+    const rl = rateLimit(`store-gen:${userId}`, 10, 60 * 60 * 1000);
+    if (!rl.allowed) {
+      return res.status(429).json({ error: 'rate_limit_exceeded', message: 'Too many requests. Try again in 1 hour.' });
+    }
+
     const { productName, productDescription, niche, pricePoint } = req.body as {
       productName?: string; productDescription?: string; niche?: string; pricePoint?: string;
     };

@@ -611,9 +611,10 @@ export default function Home() {
   return (
     <div style={{ background: C.bg, color: C.text, fontFamily: dm, overflowX: 'hidden', minHeight: '100vh' }}>
       <SEO
-        title="Majorka — AI Product Intelligence for Australian Dropshippers | Find $10k/month Products"
-        description="The #1 AI platform for Australian dropshippers. Find winning products, source AU suppliers, and build profitable Shopify stores. Join 2,400+ AU sellers. Start free."
+        title="Majorka — AI Ecommerce OS for Australian Dropshippers"
+        description="Find winning products, build Shopify stores and launch AU dropshipping campaigns with AI. Trusted by 2,400+ AU sellers."
         path="/"
+        ogImage="/og-image.svg"
       />
       <style>{GLOBAL_STYLES}</style>
 

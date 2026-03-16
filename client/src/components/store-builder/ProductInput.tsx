@@ -11,14 +11,17 @@ const inputStyle: React.CSSProperties = {
   outline: 'none', boxSizing: 'border-box',
 };
 
-export default function ProductInput({ onComplete, session }: {
+export default function ProductInput({ onComplete, session, initialProduct, initialNiche, initialPrice }: {
   onComplete: (input: Record<string, string>, blueprint: Record<string, any>) => void;
   session: any;
+  initialProduct?: string;
+  initialNiche?: string;
+  initialPrice?: string;
 }) {
-  const [productName, setProductName] = useState('');
+  const [productName, setProductName] = useState(initialProduct || '');
   const [description, setDescription] = useState('');
-  const [niche, setNiche] = useState('General');
-  const [pricePoint, setPricePoint] = useState('');
+  const [niche, setNiche] = useState(initialNiche && NICHES.includes(initialNiche) ? initialNiche : 'General');
+  const [pricePoint, setPricePoint] = useState(initialPrice || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 

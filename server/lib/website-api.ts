@@ -10,6 +10,7 @@ import type { Application } from 'express';
 import { CLAUDE_MODEL, getAnthropicClient } from './anthropic';
 import { getSupabaseAdmin } from '../_core/supabase';
 import { requireSubscription } from '../middleware/requireSubscription';
+import { rateLimit } from './rate-limit';
 
 // ─── Auth helper ─────────────────────────────────────────────────────────────
 async function authenticateRequest(req: any): Promise<{ userId: string; email: string } | null> {
@@ -1656,6 +1657,13 @@ export function registerWebsiteRoutes(app: Application): void {
     try {
       const user = await authenticateRequest(req);
       if (!user) { res.status(401).json({ error: 'Unauthorized' }); return; }
+
+      // Rate limit: 10 generates per hour per user
+      const rl = rateLimit(`website-gen:${user.userId}`, 10, 60 * 60 * 1000);
+      if (!rl.allowed) {
+        res.status(429).json({ error: 'rate_limit_exceeded', message: 'Too many generations. Try again in 1 hour.', remaining: 0 });
+        return;
+      }
 
       const { niche, storeName, targetAudience, vibe, accentColor, price, productData, designDirection } = req.body as {
         niche?: string; storeName?: string; targetAudience?: string;

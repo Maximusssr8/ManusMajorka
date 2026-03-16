@@ -19,7 +19,15 @@ function getToken(req: Request): string {
 }
 
 // GET /api/shopify/auth — start OAuth
-router.get('/auth', (req, res) => {
+router.get('/auth', async (req, res) => {
+  // Rate limit: 20 auth attempts per hour per IP
+  const { rateLimit } = await import('../lib/rate-limit');
+  const ip = req.headers['x-forwarded-for']?.toString().split(',')[0].trim() || req.ip || 'unknown';
+  const rl = rateLimit(`shopify-auth:${ip}`, 20, 60 * 60 * 1000);
+  if (!rl.allowed) {
+    return res.status(429).json({ error: 'rate_limit_exceeded', message: 'Too many requests. Try again later.' });
+  }
+
   const shop = req.query.shop as string;
   if (!shop || !shop.endsWith('.myshopify.com')) {
     return res.status(400).json({ error: 'Invalid shop domain — must end in .myshopify.com' });

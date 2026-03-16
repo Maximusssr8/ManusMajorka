@@ -1,11 +1,7 @@
 User-agent: *
 Allow: /
-Allow: /pricing
-Allow: /affiliate
-Allow: /privacy
-Allow: /terms
 Disallow: /app/
-Disallow: /admin/
+Disallow: /store-builder/
 Disallow: /api/
 
 Sitemap: https://www.majorka.io/sitemap.xml
