@@ -947,13 +947,20 @@ function postProcessHtml(html: string, storeName: string, niche: string, color: 
     if (homeStart !== -1) {
       html = html.slice(0, homeStart) + '\n<div data-page="home" style="display:block">' + html.slice(homeStart);
     }
+  }
 
-    // Close home div before first subpage OR before </body>
+  // ALWAYS close home div before shop — whether Claude opened it or we did.
+  // Without this, shop/about/contact/toolbar all end up inside the home div
+  // and disappear when router switches away from home.
+  {
     const shopIdx = html.indexOf('<div data-page="shop"');
     const bodyEnd = html.lastIndexOf('</body>');
     const closeBefore = shopIdx !== -1 ? shopIdx : bodyEnd;
-    if (closeBefore !== -1) {
-      html = html.slice(0, closeBefore) + '</div>\n' + html.slice(closeBefore);
+    if (closeBefore !== -1 && html.includes('data-page="home"')) {
+      // generateFullStore() inserts </div><!-- /home --> explicitly — only add here as safety net
+      if (!html.slice(0, closeBefore).includes('<!-- /home -->') && !html.slice(Math.max(0, closeBefore-10), closeBefore).includes('</div>')) {
+        html = html.slice(0, closeBefore) + '</div><!-- /home -->\n' + html.slice(closeBefore);
+      }
     }
   }
 
@@ -1574,7 +1581,10 @@ Write all content specific to ${niche} and ${storeName_}. AU English. No placeho
 
   const jsWithAnim = buildHardCodedJs().replace('</script>', buildAnimationJs() + '\n</script>');
   // Merge: hard-coded head + Claude content + JS
-  const merged = fullHead + '\n' + part1Clean + '\n' + part2Raw + '\n' + part3Raw + '\n' + jsWithAnim;
+  // Explicitly close home page div before subpages — home content = part1 + part2
+  // Without this, shop/about/contact/shipping/toolbar all nest inside home div
+  // and disappear when the hash router hides the home page.
+  const merged = fullHead + '\n' + part1Clean + '\n' + part2Raw + '\n</div><!-- /home -->\n' + part3Raw + '\n' + jsWithAnim;
   const rawHtml = merged;
   const finalHtml = postProcessHtml(rawHtml, storeName_, niche, color, colorRgb, surfColor, bgColor, cardRadius);
 

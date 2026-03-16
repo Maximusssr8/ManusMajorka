@@ -26,8 +26,9 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import { lazy, useCallback, useEffect, useMemo, useRef, useState, Suspense } from 'react';
+import React, { lazy, useCallback, useEffect, useMemo, useRef, useState, Suspense } from 'react';
 import { useLocation } from 'wouter';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
@@ -1260,6 +1261,8 @@ export default function WebsiteGenerator() {
   const [siteHistory, setSiteHistory] = useState<SiteHistoryItem[]>([]);
   // genStartRef for stale-closure-safe elapsed time
   const genStartRef = useRef(0);
+  // Quick-start templates toggle
+  const [quickStartOpen, setQuickStartOpen] = useState(false);
 
   // Debounced auto-analyze on URL paste (1s debounce)
   useEffect(() => {
@@ -1327,6 +1330,18 @@ export default function WebsiteGenerator() {
     }, 3000);
     return () => clearInterval(interval);
   }, [generating]);
+
+  // Cmd+Enter keyboard shortcut to trigger generation
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.metaKey && e.key === 'Enter' && !generating && (storeName || niche)) {
+        e.preventDefault();
+        handleGenerate();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [generating, storeName, niche, handleGenerate]);
 
   // Preview HTML (memoised) — passes productData so images/variants are injected
   const previewHTML = useMemo(() => {
@@ -1894,6 +1909,11 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
     else{clawDisableEdit();clawToast('Edit mode off');}
   };
 
+  // Re-apply edit indicators when navigating between pages
+  document.addEventListener('clawPageChange', function(){
+    if(editing){ clawEnableEdit(); }
+  });
+
   window.clawToast=function(msg){
     var t=document.createElement('div');
     t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:100002;background:rgba(8,10,14,0.95);border:1px solid rgba(212,175,55,0.4);border-radius:10px;padding:12px 20px;color:#d4af37;font-size:13px;font-weight:700;font-family:Syne,sans-serif;white-space:nowrap;pointer-events:none;';
@@ -2052,57 +2072,56 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
         {/* ── LEFT PANEL ── */}
         <div className="flex-shrink-0 overflow-y-auto p-5 space-y-4 w-full md:w-[400px]" style={{ borderRight: '1px solid rgba(255,255,255,0.07)', borderBottom: '1px solid rgba(255,255,255,0.07)', scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.1) transparent' }}>
 
-          {/* Premium Template Selector */}
+          {/* 3-Step Wizard Indicator */}
+          <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 24, padding: "0 4px" }}>
+            {[
+              { n: 1, label: "Import" },
+              { n: 2, label: "Customize" },
+              { n: 3, label: "Generate" },
+            ].map((s, i) => {
+              const done = (s.n === 1 && !!analysisResult) || (s.n === 2 && !!storeName && !!niche) || (s.n === 3 && !!hasOutput);
+              const active = (s.n === 1 && !analysisResult) || (s.n === 2 && !!analysisResult && !hasOutput) || (s.n === 3 && (generating || !!hasOutput));
+              return (
+                <React.Fragment key={s.n}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, fontFamily: "Syne, sans-serif", background: done ? "#d4af37" : active ? "rgba(212,175,55,0.2)" : "rgba(255,255,255,0.05)", color: done ? "#08080f" : active ? "#d4af37" : "rgba(255,255,255,0.3)", border: `1px solid ${done ? "#d4af37" : active ? "rgba(212,175,55,0.4)" : "rgba(255,255,255,0.08)"}`, transition: "all 0.3s" }}>
+                      {done ? "✓" : s.n}
+                    </div>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: active ? "#d4af37" : "rgba(255,255,255,0.3)", fontFamily: "Syne, sans-serif", textTransform: "uppercase", letterSpacing: "0.06em" }}>{s.label}</span>
+                  </div>
+                  {i < 2 && <div style={{ flex: 1, height: 1, background: done ? "#d4af37" : "rgba(255,255,255,0.06)", marginBottom: 16, transition: "background 0.4s" }} />}
+                </React.Fragment>
+              );
+            })}
+          </div>
+
+          {/* Design Template Selector */}
           <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1.5px solid rgba(212,175,55,0.2)' }}>
             <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}>Design Template</div>
-            <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(3,1fr)' }}>
+            <div className="flex flex-col gap-1.5">
               {WEBSITE_TEMPLATES.map((t) => {
                 const isSelected = premiumTemplateId === t.id;
-                const isDark = t.palette.bg.startsWith('#0') || t.palette.bg.startsWith('#1');
+                const dirMap: Record<string, string> = {
+                  'dtc-minimal': 'dark-minimal', 'dropship-bold': 'bold-cta',
+                  'premium-brand': 'luxury-editorial', 'coastal-au': 'coastal-lifestyle',
+                  'tech-mono': 'tech-minimal', 'bloom-beauty': 'organic-wellness',
+                };
                 return (
-                  <button key={t.id} onClick={() => setPremiumTemplateId(t.id)} className="flex flex-col w-full rounded-lg text-left transition-all overflow-hidden" style={{ background: 'rgba(255,255,255,0.03)', border: `2px solid ${isSelected ? '#d4af37' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer', padding: 0 }}>
-                    <div style={{ height: 68, background: `linear-gradient(135deg, ${t.palette.bg} 0%, ${t.palette.accent}55 100%)`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, position: 'relative' }}>
-                      <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 900, fontSize: 8, letterSpacing: 1.5, textTransform: 'uppercase', color: isDark ? t.palette.accent : t.palette.text, lineHeight: 1 }}>{t.name}</span>
-                      <div style={{ display: 'flex', gap: 3 }}>{[t.palette.bg, t.palette.accent, t.palette.text].map((c, i) => (<div key={i} style={{ width: 7, height: 7, borderRadius: '50%', background: c, border: '1px solid rgba(128,128,128,0.3)' }} />))}</div>
+                  <button key={t.id}
+                    onClick={() => { setPremiumTemplateId(t.id); if (dirMap[t.id]) setDesignDirection(dirMap[t.id]); }}
+                    className="w-full rounded-xl text-left transition-all"
+                    style={{ background: isSelected ? 'rgba(212,175,55,0.08)' : 'rgba(255,255,255,0.02)', border: `1.5px solid ${isSelected ? 'rgba(212,175,55,0.5)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ width: 30, height: 30, borderRadius: 8, flexShrink: 0, background: `linear-gradient(135deg, ${t.palette.accent}dd, ${t.palette.accent}88)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}>
+                      {t.emoji || '●'}
                     </div>
-                    <div style={{ padding: '8px 8px 10px' }}>
-                      <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 10, color: isSelected ? '#d4af37' : '#f0ede8', marginBottom: 3, lineHeight: 1.2 }}>{t.name}</div>
-                      <div style={{ display: 'inline-flex', fontSize: 8, fontWeight: 700, letterSpacing: 0.5, textTransform: 'capitalize', padding: '2px 6px', borderRadius: 3, background: isSelected ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.06)', color: isSelected ? '#d4af37' : 'rgba(240,237,232,0.45)', border: `1px solid ${isSelected ? 'rgba(212,175,55,0.35)' : 'rgba(255,255,255,0.08)'}` }}>{t.category}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: isSelected ? '#d4af37' : 'rgba(240,237,232,0.85)', fontFamily: 'Syne, sans-serif', marginBottom: 2, lineHeight: 1 }}>{t.name}</div>
+                      <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.35)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.3 }}>{t.bestFor || t.description}</div>
                     </div>
+                    {isSelected && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#d4af37', flexShrink: 0 }} />}
                   </button>
                 );
               })}
-            </div>
-          </div>
-
-          {/* AU Store Templates */}
-          <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1.5px solid rgba(255,255,255,0.08)' }}>
-            <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>AU Store Templates</div>
-            <div className="grid grid-cols-2 gap-2">
-              {TEMPLATES.map((t) => (
-                <div
-                  key={t.id}
-                  onClick={() => {
-                    setSelectedTemplate(t.id);
-                    setNiche(t.niche);
-                    setTargetAudience(t.audience);
-                    setVibe(t.vibe);
-                    setAccentColor(t.color);
-                    toast.success(`"${t.name}" loaded`);
-                  }}
-                  style={{
-                    border: selectedTemplate === t.id ? '2px solid #d4af37' : '1px solid rgba(255,255,255,0.08)',
-                    background: selectedTemplate === t.id ? 'rgba(212,175,55,0.08)' : 'rgba(255,255,255,0.03)',
-                    cursor: 'pointer',
-                    borderRadius: 10,
-                    padding: '10px 12px',
-                    transition: 'all 150ms ease',
-                  }}
-                >
-                  <div className="text-xs font-bold" style={{ color: selectedTemplate === t.id ? '#d4af37' : 'rgba(240,237,232,0.8)', fontFamily: 'Syne, sans-serif' }}>{t.emoji} {t.name}</div>
-                  <div className="text-xs mt-0.5" style={{ color: 'rgba(240,237,232,0.35)', fontSize: 10 }}>{t.niche}</div>
-                </div>
-              ))}
             </div>
           </div>
 
@@ -2138,10 +2157,10 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
             )}
           </div>
 
-          {/* Product URL Quality Analyzer */}
-          <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1.5px solid rgba(99,102,241,0.2)' }}>
-            <div className="text-xs font-bold uppercase tracking-widest mb-2.5 flex items-center gap-1.5" style={{ color: 'rgba(99,102,241,0.9)', fontFamily: 'Syne, sans-serif' }}>
-              <Search size={11} /> Analyze Product URL
+          {/* Product URL Quality Analyzer — Hero Input */}
+          <div className="rounded-xl p-4" style={{ background: analysisResult ? 'rgba(212,175,55,0.04)' : 'rgba(255,255,255,0.02)', border: `1.5px solid ${analysisResult ? 'rgba(212,175,55,0.25)' : 'rgba(212,175,55,0.15)'}` }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: '#d4af37', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+              ✦ Step 1: Import a product
             </div>
             <div className="flex gap-1.5 mb-2">
               <input
@@ -2149,20 +2168,44 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 onChange={(e) => setAnalyzeUrl(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAnalyzeProduct(); } }}
                 placeholder="https://aliexpress.com/item/..."
-                className="flex-1 text-xs px-3 py-2 rounded-lg outline-none"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.1)', color: '#f0ede8' }}
+                className="flex-1 text-sm rounded-lg outline-none"
+                style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.1)', color: '#f0ede8' }}
               />
               <button
                 onClick={() => handleAnalyzeProduct()}
                 disabled={analyzing || !analyzeUrl.trim()}
-                className="text-xs font-bold px-3 py-2 rounded-lg flex-shrink-0 flex items-center gap-1 disabled:opacity-50"
-                style={{ background: 'rgba(99,102,241,0.15)', border: '1.5px solid rgba(99,102,241,0.35)', color: 'rgba(99,102,241,0.9)', fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}
+                className="text-xs font-bold px-4 rounded-lg flex-shrink-0 flex items-center gap-1.5 disabled:opacity-50"
+                style={{ background: '#d4af37', border: '1.5px solid #d4af37', color: '#08080f', fontFamily: 'Syne, sans-serif', fontWeight: 800, cursor: 'pointer' }}
               >
-                {analyzing ? <Loader2 size={10} className="animate-spin" /> : <Search size={10} />}
-                {analyzing ? '…' : 'Analyze'}
+                {analyzing ? <Loader2 size={12} className="animate-spin" /> : <Search size={12} />}
+                {analyzing ? 'Analyzing…' : 'Analyze'}
               </button>
             </div>
-            <p className="text-xs" style={{ color: 'rgba(240,237,232,0.25)' }}>Paste a URL — AI scores your product before you build</p>
+            {!analysisResult && <p className="text-xs" style={{ color: 'rgba(240,237,232,0.25)' }}>Paste a URL — AI scores your product before you build</p>}
+
+            {/* Product Summary Card */}
+            {analysisResult && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 10, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(212,175,55,0.15)', marginBottom: 8 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {((analysisResult.product_images as string[]) || []).length > 0 ? (
+                    <img src={proxyImage((analysisResult.product_images as string[])[0])} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                  ) : <span style={{ fontSize: 20 }}>📦</span>}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#f0ede8', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {analysisResult.product_title || analysisResult.suggested_title || 'Product'}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                    <span style={{ fontSize: 10, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: ((analysisResult.overall_score ?? analysisResult.score ?? 0) as number) >= 80 ? 'rgba(74,222,128,0.15)' : 'rgba(245,158,11,0.15)', color: ((analysisResult.overall_score ?? analysisResult.score ?? 0) as number) >= 80 ? '#4ade80' : '#f59e0b', border: `1px solid ${((analysisResult.overall_score ?? analysisResult.score ?? 0) as number) >= 80 ? 'rgba(74,222,128,0.3)' : 'rgba(245,158,11,0.3)'}` }}>
+                      {(analysisResult.overall_score ?? analysisResult.score ?? '?') as number}/100
+                    </span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#4ade80', display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <Check size={9} /> Product imported
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Analysis Result Panel */}
             {analyzeError && (
@@ -2294,6 +2337,43 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     Recommendation: <span style={{ color: '#f0c040' }}>{analysisResult.recommendation}</span>
                   </div>
                 )}
+              </div>
+            )}
+          </div>
+
+          {/* Quick-start Templates */}
+          <div>
+            <button
+              onClick={() => setQuickStartOpen(!quickStartOpen)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(212,175,55,0.7)', fontSize: 11, fontWeight: 700, fontFamily: 'Syne, sans-serif', padding: '4px 0', display: 'flex', alignItems: 'center', gap: 4 }}
+            >
+              <ChevronRight size={11} style={{ transform: quickStartOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
+              Quick start with an example →
+            </button>
+            {quickStartOpen && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                {[
+                  { emoji: '🏃', label: 'Gym Leggings AU', niche: 'gym wear', storeName: 'FitForm AU', color: '#6366f1' },
+                  { emoji: '🐕', label: 'Pet Accessories', niche: 'pet accessories', storeName: 'PawsAU', color: '#f59e0b' },
+                  { emoji: '💡', label: 'LED Desk Lamp', niche: 'home office tech', storeName: 'LumiDesk AU', color: '#06b6d4' },
+                  { emoji: '💄', label: 'Skincare Bundle', niche: 'skincare', storeName: 'Glow & Go AU', color: '#ec4899' },
+                ].map((t) => (
+                  <button
+                    key={t.label}
+                    onClick={() => {
+                      setNiche(t.niche);
+                      setStoreName(t.storeName);
+                      setAccentColor(t.color);
+                      toast.success(`"${t.label}" loaded — generating…`);
+                      setTimeout(() => handleGenerate(), 300);
+                    }}
+                    style={{ padding: '6px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,237,232,0.7)', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', transition: 'all 0.15s' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = t.color; e.currentTarget.style.color = t.color; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(240,237,232,0.7)'; }}
+                  >
+                    {t.emoji} {t.label}
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -2485,18 +2565,43 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
 
           {/* Generate Button */}
-          <button
-            onClick={handleGenerate}
-            disabled={generating}
-            className="w-full py-3.5 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
-            style={{ background: generating ? 'rgba(212,175,55,0.25)' : 'linear-gradient(135deg, #d4af37, #f0c040)', color: '#080a0e', fontFamily: 'Syne, sans-serif', boxShadow: generating ? 'none' : '0 4px 24px rgba(212,175,55,0.35)', cursor: generating ? 'not-allowed' : 'pointer' }}
-          >
-            {generating ? (
-              <><Loader2 size={15} className="animate-spin" />Generating… {genProgress > 0 ? `${genProgress}%` : ''}</>
-            ) : (
-              <><Globe size={15} />{hasOutput ? 'Regenerate' : 'Generate'}</>
-            )}
-          </button>
+          <style>{`
+            @keyframes mjk-shimmer {
+              0% { background-position: -200% 0; }
+              100% { background-position: 200% 0; }
+            }
+            @keyframes mjk-dots {
+              0%, 20% { content: '.'; }
+              40% { content: '..'; }
+              60%, 100% { content: '...'; }
+            }
+            .mjk-gen-btn:not(:disabled):hover {
+              background-size: 200% 100% !important;
+              animation: mjk-shimmer 1.5s linear infinite !important;
+              background-image: linear-gradient(90deg, #d4af37 0%, #f0c040 25%, #fff5cc 50%, #f0c040 75%, #d4af37 100%) !important;
+            }
+          `}</style>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+            <button
+              onClick={handleGenerate}
+              disabled={generating}
+              className="mjk-gen-btn w-full rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
+              style={{ height: 56, background: generating ? 'rgba(212,175,55,0.25)' : 'linear-gradient(135deg, #d4af37, #f0c040)', color: '#080a0e', fontFamily: 'Syne, sans-serif', boxShadow: generating ? 'none' : '0 4px 24px rgba(212,175,55,0.35)', cursor: generating ? 'not-allowed' : 'pointer', border: 'none', fontSize: 14 }}
+            >
+              {generating ? (
+                <>
+                  <Loader2 size={15} className="animate-spin" />
+                  Generating{genProgress > 0 ? ` ${genProgress}%` : ''}
+                  <span style={{ display: 'inline-flex', width: 18, letterSpacing: 1 }}>
+                    <span className="animate-pulse">.</span><span className="animate-pulse" style={{ animationDelay: '0.2s' }}>.</span><span className="animate-pulse" style={{ animationDelay: '0.4s' }}>.</span>
+                  </span>
+                </>
+              ) : (
+                <><Globe size={15} />{hasOutput ? 'Regenerate' : 'Generate'}</>
+              )}
+            </button>
+            <span style={{ fontSize: 10, color: 'rgba(240,237,232,0.25)', fontFamily: 'Syne, sans-serif' }}>⌘↵ Generate</span>
+          </div>
 
           {genError && (
             <div className="text-xs p-3 rounded-lg" style={{ background: 'rgba(255,100,100,0.08)', border: '1px solid rgba(255,100,100,0.2)', color: 'rgba(255,150,150,0.9)' }}>
@@ -2643,23 +2748,18 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       </button>
                     </div>
                     <div className="flex-1 overflow-auto" style={{ scrollbarWidth: 'thin' }}>
-                      {generatedData ? (
-                        <Suspense fallback={<pre className="text-xs p-4" style={{ color: 'rgba(240,237,232,0.7)', fontFamily: 'monospace', background: '#080a0e', minHeight: '100%' }}>{previewHTML}</pre>}>
+                      {(directHtml || rawResponse || generatedData) ? (
+                        <Suspense fallback={<pre className="text-xs p-4" style={{ color: 'rgba(240,237,232,0.7)', fontFamily: 'monospace', background: '#080a0e', minHeight: '100%' }}>{directHtml || rawResponse || previewHTML}</pre>}>
                           <SyntaxHighlighter
-                            language="markup"
+                            language="html"
                             style={vscDarkPlus ?? {}}
-                            customStyle={{ margin: 0, padding: 16, background: '#080a0e', fontSize: 12, lineHeight: 1.6, minHeight: '100%' }}
-                            showLineNumbers
-                            lineNumberStyle={{ color: 'rgba(240,237,232,0.15)', minWidth: 36 }}
+                            customStyle={{ margin: 0, background: 'transparent', fontSize: 12, lineHeight: 1.5, padding: 16, minHeight: '100%' }}
+                            wrapLines
                             wrapLongLines
                           >
-                            {previewHTML}
+                            {directHtml || rawResponse || previewHTML || ''}
                           </SyntaxHighlighter>
                         </Suspense>
-                      ) : rawResponse ? (
-                        <pre className="text-xs p-4" style={{ color: 'rgba(240,237,232,0.7)', fontFamily: 'monospace', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word', background: '#080a0e', minHeight: '100%' }}>
-                          {rawResponse}
-                        </pre>
                       ) : (
                         <div className="flex-1 flex items-center justify-center p-8"><div className="text-sm" style={{ color: 'rgba(240,237,232,0.3)' }}>Generate a store to view its HTML source.</div></div>
                       )}
@@ -2966,40 +3066,66 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
             </>
           ) : (
             /* ── Empty / Loading state ── */
-            <div className="flex-1 flex flex-col items-center justify-center gap-5 p-8">
+            <div className="flex-1 flex flex-col items-center justify-center gap-5 p-8" style={{ border: generating ? '1px solid rgba(212,175,55,0.15)' : 'none', borderRadius: generating ? 16 : 0, animation: generating ? 'mjk-pulse-border 2s ease-in-out infinite' : 'none' }}>
+              <style>{`
+                @keyframes mjk-pulse-border { 0%,100% { border-color: rgba(212,175,55,0.1); } 50% { border-color: rgba(212,175,55,0.35); } }
+                @keyframes mjk-spin-circle { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+              `}</style>
               {generating ? (
-                <div style={{ padding: '32px 24px', maxWidth: 320 }}>
+                <div style={{ padding: '32px 24px', maxWidth: 360 }}>
                   <div style={{ marginBottom: 24, textAlign: 'center' }}>
-                    <div style={{ fontSize: 13, color: '#d4af37', fontFamily: 'Syne, sans-serif', fontWeight: 700 }}>
-                      Building your store... {eta > 0 ? `~${eta}s remaining` : 'almost done'}
+                    <div style={{ fontSize: 14, color: '#d4af37', fontFamily: 'Syne, sans-serif', fontWeight: 800 }}>
+                      Building your store...
+                    </div>
+                    <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)', marginTop: 6 }}>
+                      Est. time remaining: {genProgress > 0 ? Math.max(1, Math.round(55 * (1 - genProgress / 100))) : '~55'}s
                     </div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {progressSteps.map((step, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, opacity: step.done ? 1 : 0.4, transition: 'opacity 0.3s' }}>
-                        <div style={{ width: 20, height: 20, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, background: step.done ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${step.done ? 'rgba(212,175,55,0.5)' : 'rgba(255,255,255,0.1)'}`, color: step.done ? '#d4af37' : 'rgba(255,255,255,0.3)' }}>
-                          {step.done ? '\u2713' : String(i+1)}
-                        </div>
-                        <span style={{ fontSize: 13, color: step.done ? 'rgba(240,237,232,0.9)' : 'rgba(240,237,232,0.4)' }}>{step.label}</span>
-                      </div>
-                    ))}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <AnimatePresence>
+                      {progressSteps.map((step, i) => {
+                        const isCurrent = !step.done && (i === 0 || progressSteps[i - 1]?.done);
+                        return (
+                          <motion.div
+                            key={step.label}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: step.done ? 1 : isCurrent ? 0.9 : 0.35, y: 0 }}
+                            transition={{ duration: 0.3, delay: step.done ? 0.05 : 0 }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 10 }}
+                          >
+                            <div style={{ width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, background: step.done ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.05)', border: `1.5px solid ${step.done ? '#d4af37' : isCurrent ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.1)'}`, color: step.done ? '#d4af37' : 'rgba(255,255,255,0.3)', position: 'relative' }}>
+                              {step.done ? (
+                                <span style={{ color: '#d4af37' }}>✓</span>
+                              ) : isCurrent ? (
+                                <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid transparent', borderTopColor: '#d4af37', animation: 'mjk-spin-circle 0.8s linear infinite' }} />
+                              ) : (
+                                String(i + 1)
+                              )}
+                            </div>
+                            <span style={{ fontSize: 12, fontWeight: step.done ? 700 : 500, color: step.done ? 'rgba(240,237,232,0.9)' : isCurrent ? '#d4af37' : 'rgba(240,237,232,0.35)' }}>{step.label}</span>
+                          </motion.div>
+                        );
+                      })}
+                    </AnimatePresence>
                   </div>
-                  <div style={{ height: 2, background: 'rgba(255,255,255,0.06)', borderRadius: 1, marginTop: 24 }}>
-                    <div style={{ height: '100%', background: '#d4af37', borderRadius: 1, width: genProgress + '%', transition: 'width 0.5s ease' }} />
+                  <div style={{ height: 3, background: 'rgba(255,255,255,0.06)', borderRadius: 2, marginTop: 24 }}>
+                    <div style={{ height: '100%', background: 'linear-gradient(90deg, #d4af37, #f0c040)', borderRadius: 2, width: genProgress + '%', transition: 'width 0.5s ease' }} />
                   </div>
                 </div>
               ) : (
-                <div className="text-center space-y-4 max-w-xs">
-                  <div className="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.1)', border: '1.5px solid rgba(212,175,55,0.2)' }}>
-                    <Globe size={24} style={{ color: 'rgba(212,175,55,0.5)' }} />
-                  </div>
+                <div className="text-center space-y-5 max-w-xs">
+                  <div style={{ fontSize: 48, lineHeight: 1 }}>⚡</div>
                   <div>
-                    <div className="text-base font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>AU Store Generator</div>
+                    <div className="text-base font-black mb-1.5" style={{ fontFamily: 'Syne, sans-serif' }}>Your store preview will appear here</div>
                     <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.35)' }}>
-                      Fill in a niche and hit <strong style={{ color: 'rgba(212,175,55,0.6)' }}>Generate</strong> to build a complete Shopify-ready store with AU copy, hero, features, reviews, and FAQs.
+                      Fill in a niche and hit <strong style={{ color: 'rgba(212,175,55,0.6)' }}>Generate</strong> to build a complete Shopify-ready store.
                     </div>
                   </div>
-                  <div className="text-xs" style={{ color: 'rgba(240,237,232,0.2)' }}>Tip: click an AU Template to auto-fill the form</div>
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+                    {['🎨 5 design styles', '⚡ ~55s generation', '📱 Mobile ready'].map((chip) => (
+                      <span key={chip} style={{ fontSize: 10, fontWeight: 600, padding: '4px 10px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,237,232,0.4)' }}>{chip}</span>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
