@@ -486,7 +486,7 @@ function buildFaviconAndOgTags(storeName: string, color: string, niche: string, 
   <meta property="og:site_name" content="${safe(storeName)}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="${ogDataUri}">
-  <link rel="manifest" href="manifest.json">
+
   <script type="application/ld+json">${schemaJson}</script>`;
 }
 
@@ -565,6 +565,10 @@ function buildHardCodedJs(): string {
   return `
 <script>
 (function() {
+
+// ── 0. Font-ready fade-in ─────────────────────────────────────────────────────
+document.fonts.ready.then(function() { document.documentElement.classList.add('fonts-ready'); });
+setTimeout(function() { document.documentElement.classList.add('fonts-ready'); }, 1500);
 
 // ── 1. Hash Router ──────────────────────────────────────────────────────────
 function route() {
@@ -743,6 +747,8 @@ function buildBaseCSS(params: {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=${googleFontUrl}&display=swap" rel="stylesheet">
 <style>
+html { opacity: 0; }
+html.fonts-ready { opacity: 1; transition: opacity 0.2s ease; }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body { font-family: '${bodyFont}', sans-serif; background: ${bgColor}; color: ${textColor}; line-height: 1.6; overflow-x: hidden; }
@@ -1018,10 +1024,23 @@ function postProcessHtml(html: string, storeName: string, niche: string, color: 
     html = html.replace('href="#shop"', 'href="#about" data-nav="about">About</a>&nbsp;&nbsp;<a href="#shop"');
   }
 
-  // 7. Light minify
+  // 7. Proxy alicdn image URLs through our server (alicdn.com 403s without correct Referer)
+  html = html.replace(/https?:\/\/[a-z0-9-]*\.alicdn\.com[^"'\s)\]>]*/g, (imgUrl) => {
+    return `/api/proxy-image?url=${encodeURIComponent(imgUrl)}`;
+  });
+
+  // 8. Add onerror fallback to all product images so broken ones degrade gracefully
+  const fallbackImg = 'https://images.pexels.com/photos/3735641/pexels-photo-3735641.jpeg?auto=compress&cs=tinysrgb&w=600';
+  html = html.replace(/<img([^>]*)>/gi, (match, attrs) => {
+    if (match.includes('onerror')) return match;
+    if (match.includes('data:image')) return match; // skip inline SVGs/data URIs
+    return `<img${attrs} onerror="this.onerror=null;this.src='${fallbackImg}'">`;
+  });
+
+  // 9. Light minify
   html = html.replace(/\n\s*\n\s*\n/g, '\n\n');
 
-  // 8. Remove HTML comments
+  // 10. Remove HTML comments
   html = html.replace(/<!--(?!\[if)[\s\S]*?-->/gi, '');
 
   return html;
@@ -1391,7 +1410,7 @@ End with </footer> then IMMEDIATELY output this exact closing tag:
 This closes the data-page="home" div. No script tags.`;
 
   const msg2 = await withHeartbeat(60, 90, '🏗️ Adding features, reviews & footer...', () =>
-    client.messages.create({ model: CLAUDE_MODEL, max_tokens: 6000, system: 'Output only HTML starting from <section id="features">. No explanation. No script tags.', messages: [{ role: 'user', content: pass2 }] })
+    client.messages.create({ model: 'claude-haiku-4-5', max_tokens: 4000, system: 'Output only HTML. No explanation. No script tags. No style tags.', messages: [{ role: 'user', content: pass2 }] })
   );
   const text2 = ((msg2.content[0] as any)?.text as string | undefined)?.trim() || '';
   if (!text2 || text2.length < 500) throw new Error('AI generation returned insufficient content — please try again.');
@@ -1470,34 +1489,84 @@ This closes the data-page="home" div. No script tags.`;
 </div>`;
 
   // AI generates about + contact (small, focused prompt using Haiku)
-  const pass3 = `Generate 2 page sections for ${storeName_} (${niche} store, AU). Output ONLY raw HTML.
+  const storeSlug = storeName_.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const pass3 = `Generate 2 detailed page sections for ${storeName_} (${niche} store, AU). Output ONLY raw HTML with inline styles. No DOCTYPE, no head, no style tags, no script tags.
 
+=== ABOUT PAGE ===
 <div data-page="about" style="display:none">
   <section style="padding:100px 5% 80px;min-height:100vh;background:${bgColor}">
     <div style="max-width:900px;margin:0 auto">
-      [H1 "About ${storeName_}" — Syne font, 48px, 900 weight, color ${textColor}]
-      [2-paragraph brand story for ${storeName_} in the ${niche} space — authentic AU voice, mention Gold Coast/Australia, quality promise]
-      [3-col value grid: 3 values specific to ${niche} — each has emoji, bold title, short description]
-      [AU badge: "🇦🇺 Proudly Australian Owned & Operated"]
+      <h1 style="font-family:var(--font-heading,Syne,sans-serif);font-size:clamp(36px,5vw,56px);font-weight:900;color:${textColor};margin-bottom:32px;letter-spacing:-0.03em">About ${storeName_}</h1>
+
+      [WRITE TWO paragraphs (80-100 words each). Style each with: style="font-size:16px;color:${mutedColor};line-height:1.75;margin-bottom:20px;max-width:720px"
+      Para 1: How and why ${storeName_} was founded — passionate Australian founders, specific problem in ${niche} they wanted to solve, Gold Coast based
+      Para 2: What makes ${storeName_} different — quality commitment, customer results, community built around ${niche}]
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin:44px 0">
+        [3 VALUE CARDS — each: <div style="background:${surfColor};border-radius:14px;padding:28px 24px;border:1px solid rgba(255,255,255,0.07)">
+          <div style="font-size:40px;margin-bottom:16px">EMOJI</div>
+          <h3 style="font-family:var(--font-heading,Syne,sans-serif);font-size:17px;font-weight:700;color:${textColor};margin-bottom:10px">VALUE TITLE</h3>
+          <p style="font-size:14px;color:${mutedColor};line-height:1.65">2-sentence specific to ${niche} — not generic buzzwords</p>
+        </div>]
+      </div>
+
+      <div style="background:${surfColor};border-left:4px solid ${color};border-radius:0 12px 12px 0;padding:24px 28px;margin-top:16px">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:${color};margin-bottom:10px">🇦🇺 Australian Owned & Operated</div>
+        <p style="font-size:14px;color:${mutedColor};line-height:1.65">ABN registered · ACCC compliant · 30-day returns under Australian Consumer Law · Ships from our Australian warehouse within 24 hours</p>
+      </div>
     </div>
   </section>
 </div>
 
+=== CONTACT PAGE ===
 <div data-page="contact" style="display:none">
   <section style="padding:100px 5% 80px;min-height:100vh;background:${bgColor}">
-    <div style="max-width:800px;margin:0 auto">
-      [H1 "Get in Touch" — Syne font, 48px, 900, color ${textColor}]
-      [Contact form: fields Name/Email/Message + Submit button. Form onsubmit="alert('Thanks! We reply within 24 hours.');return false;"]
-      [Contact details: email support@${storeName_.toLowerCase().replace(/\s+/g,'')}.com.au | phone 0400 000 000 | hours Mon-Fri 9am-5pm AEST]
-      [3 quick FAQs about ${niche}: returns, shipping, Afterpay]
+    <div style="max-width:820px;margin:0 auto">
+      <h1 style="font-family:var(--font-heading,Syne,sans-serif);font-size:clamp(36px,5vw,56px);font-weight:900;color:${textColor};margin-bottom:12px;letter-spacing:-0.03em">Get in Touch</h1>
+      <p style="color:${mutedColor};font-size:17px;margin-bottom:52px">We reply within 24 hours · Mon–Fri 9am–5pm AEST</p>
+
+      <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:48px">
+        <form onsubmit="var b=this.querySelector('button');b.textContent='✅ Message sent!';b.style.background='#22c55e';return false;" style="display:flex;flex-direction:column;gap:14px">
+          <input type="text" placeholder="Your name" required style="padding:14px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:${surfColor};color:${textColor};font-size:15px;font-family:inherit;outline:none" onfocus="this.style.borderColor='${color}'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+          <input type="email" placeholder="your@email.com.au" required style="padding:14px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:${surfColor};color:${textColor};font-size:15px;font-family:inherit;outline:none" onfocus="this.style.borderColor='${color}'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+          <textarea placeholder="How can we help? Tell us about your order or question..." rows="5" required style="padding:14px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:${surfColor};color:${textColor};font-size:15px;font-family:inherit;resize:vertical;outline:none" onfocus="this.style.borderColor='${color}'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
+          <button type="submit" style="background:${color};color:${isLight ? '#fff' : '#08080f'};border:none;padding:16px;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer;font-family:var(--font-heading,Syne,sans-serif);transition:opacity 0.2s" onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">Send Message →</button>
+        </form>
+
+        <div>
+          <div style="margin-bottom:24px">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:${color};margin-bottom:8px">📧 Email Us</div>
+            <div style="color:${mutedColor};font-size:15px">support@${storeSlug}.com.au</div>
+          </div>
+          <div style="margin-bottom:24px">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:${color};margin-bottom:8px">📱 Call Us</div>
+            <div style="color:${mutedColor};font-size:15px">0400 000 000</div>
+            <div style="font-size:12px;color:${mutedColor};margin-top:4px">Mon–Fri 9am–5pm AEST</div>
+          </div>
+          <div style="margin-bottom:28px">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:${color};margin-bottom:8px">⏱ Response Time</div>
+            <div style="color:${mutedColor};font-size:15px">Within 24 hours guaranteed</div>
+          </div>
+
+          <div style="background:${surfColor};border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.07)">
+            <div style="font-size:13px;font-weight:700;color:${textColor};margin-bottom:16px">Quick Answers</div>
+            [WRITE 3 Q&As specific to ${niche} — different from homepage FAQ. Use:
+            <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.05)">
+              <div style="font-size:13px;font-weight:600;color:${textColor};margin-bottom:5px">Q: [specific question]?</div>
+              <div style="font-size:13px;color:${mutedColor};line-height:1.55">A: [direct answer]</div>
+            </div>]
+            Last Q&A: no border-bottom
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </div>
 
-All inline styles. Accent color: ${color}. Surface: ${surfColor}. Text: ${textColor}. Muted: ${mutedColor}. No script tags.`;
+Write all content specific to ${niche} and ${storeName_}. AU English. No placeholder text allowed.`;
 
   const msg3 = await withHeartbeat(93, 98, '📄 Building subpages...', () =>
-    client.messages.create({ model: 'claude-haiku-4-5', max_tokens: 3000, messages: [{ role: 'user', content: pass3 }] })
+    client.messages.create({ model: 'claude-haiku-4-5', max_tokens: 2500, messages: [{ role: 'user', content: pass3 }] })
   );
   const part3Raw = hardCodedShop + '\n' + ((msg3.content[0] as unknown as { text?: string })?.text ?? '').trim();
 
@@ -1777,6 +1846,35 @@ All headlines AU English. No clichés. Be specific to the niche.` }],
       const message = err instanceof Error ? err.message : 'Text improvement failed.';
       console.error('[website/improve-text]', message);
       res.status(500).json({ error: message });
+    }
+  });
+
+  // GET /api/proxy-image — proxies alicdn/shopify CDN images (adds correct Referer)
+  app.get('/api/proxy-image', async (req, res) => {
+    try {
+      const url = decodeURIComponent((req.query.url as string) || '');
+      if (!url.startsWith('http')) return res.status(400).send('Bad URL');
+      const allowed = ['alicdn.com', 'ae01.alicdn.com', 'ae02.alicdn.com', 'ae03.alicdn.com', 'ae04.alicdn.com', 'ae05.alicdn.com', 'cdn.shopify.com', 'img.alicdn.com'];
+      if (!allowed.some((d) => url.includes(d))) return res.status(403).send('Domain not allowed');
+      const response = await fetch(url, {
+        headers: {
+          'Referer': 'https://www.aliexpress.com/',
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+          'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
+        },
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!response.ok) return res.status(response.status).send('Upstream error');
+      const ct = response.headers.get('content-type') || 'image/jpeg';
+      res.setHeader('Content-Type', ct);
+      res.setHeader('Cache-Control', 'public, max-age=604800');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      const buf = await response.arrayBuffer();
+      res.send(Buffer.from(buf));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'proxy error';
+      console.error('[proxy-image]', msg);
+      res.status(500).send('Proxy error');
     }
   });
 }
