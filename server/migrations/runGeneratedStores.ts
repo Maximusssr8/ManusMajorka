@@ -60,23 +60,17 @@ export async function runGeneratedStoresMigration(): Promise<void> {
       return;
     }
 
-    // RPC not available — check if table already exists via REST
+    // exec_sql RPC not available — check if table already exists
     const check = await fetch(`${supabaseUrl}/rest/v1/generated_stores?limit=1`, {
       headers,
     });
 
     if (check.ok || check.status === 200) {
       console.log('[migration] generated_stores: table already exists ✓');
-    } else if (check.status === 404 || check.status === 406) {
-      // Table doesn't exist and we can't create it via REST DDL
-      // This is non-fatal — feature degrades gracefully (saves are skipped)
-      console.warn(
-        '[migration] generated_stores: table not found and exec_sql RPC unavailable.',
-        'Please run this SQL in Supabase dashboard → SQL Editor:',
-        'CREATE TABLE IF NOT EXISTS public.generated_stores (id uuid DEFAULT gen_random_uuid() PRIMARY KEY, user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE, store_name text, niche text, template text, blueprint jsonb, html text, shopify_product_id text, pushed_at timestamptz, created_at timestamptz DEFAULT now()); ALTER TABLE public.generated_stores ENABLE ROW LEVEL SECURITY;'
-      );
     } else {
-      console.warn('[migration] generated_stores: unexpected status', check.status);
+      // Table doesn't exist — needs manual creation in Supabase dashboard
+      // Store history saves will be skipped (non-fatal) until table exists
+      console.warn('[migration] MANUAL ACTION REQUIRED: Run this SQL in Supabase Dashboard → SQL Editor at https://supabase.com/dashboard/project/ievekuazsjbdrltsdksn/sql/new');
     }
   } catch (err) {
     // Never block startup
