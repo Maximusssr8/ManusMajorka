@@ -1180,3 +1180,51 @@ Render the last 3 items from `siteHistory`:
 
 Note: `setHasOutput_or_activeTab` — use whatever sets the preview tab as active so the iframe appears.
 
+
+---
+
+## Session Log — Store Builder V2
+
+### What shipped
+- Generator V2: `expandStoreBrief()` Haiku call + single Sonnet streaming pass (7000 tokens)
+- Shopify OAuth: full CSRF-protected flow, token stored in `shopify_connections` (Supabase)
+- 4-step wizard replaced by integrated Store Builder UI at `/store-builder`
+- Live preview panel: real-time updates as user types
+- Generation progress overlay: SSE events 5%→100% with status messages
+- Design template switcher: 6 templates (DTC Minimal, Dropship Bold, Premium Brand, Coastal AU, Tech Mono, Bloom Beauty) with hover previews and auto-suggest by niche
+- Product import: AliExpress/Amazon/eBay URL → Haiku extracts product data → auto-fills form
+- Quick start examples: 4 pre-filled example products with one-click generate
+- Shopify connect integrated into main UI: OAuth → push product + theme colours + pages
+- Store history: `generated_stores` table in Supabase, last 3 stores shown with regenerate + push options
+- Maya contextual bar: suggestions update based on flow state (import → generate → push)
+- Mobile responsive: 375px layout, horizontal template scroll, 44px tap targets
+- Smoke test: 31/32 PASS (1 expected 401 auth gate on `/api/website/generate`)
+
+### Tables added to Supabase
+- `shopify_connections` (user_id, shop_domain, access_token)
+- `generated_stores` (user_id, store_name, niche, template, blueprint jsonb, html, shopify_product_id, pushed_at)
+
+### Env vars added to Vercel
+- `SHOPIFY_API_KEY`
+- `SHOPIFY_API_SECRET`
+- `SHOPIFY_REDIRECT_URI`
+- `SHOPIFY_SCOPES`
+
+### Key files
+- `server/lib/shopify.ts` — OAuth client, HMAC verification
+- `server/routes/shopify.ts` — auth, callback, status, disconnect
+- `server/routes/store-builder.ts` — generate blueprint, push to Shopify
+- `server/migrations/runGeneratedStores.ts` — REST API migration
+- `client/src/pages/store-builder/index.tsx` — main UI (live preview, wizard, history)
+
+### Known limitations
+- `exec_sql` RPC not enabled on Supabase project — migrations use REST API check only
+- Supabase DB is IPv6-only, unreachable from local and Vercel directly
+- All DB operations go through Supabase REST API (not direct postgres)
+- `generated_stores` table needs manual creation via Supabase dashboard SQL Editor
+
+### Next priorities (not yet built)
+- Product → Store Builder shortcut from Winning Products cards
+- Shopify sync status dashboard (which products were pushed + when)
+- Store Builder on `/scale` tier — usage limits enforcement
+- A/B template testing (generate same product in 2 templates, compare)
