@@ -348,7 +348,9 @@ async function connectWithFallbacks(dbUrl: string): Promise<ReturnType<typeof im
   // postgresql://postgres:PASS@db.{ref}.supabase.co → postgres.{ref}:PASS@pooler.supabase.com
   const match = dbUrl.match(/postgresql:\/\/postgres:([^@]+)@db\.([^.]+)\.supabase\.co:(\d+)\/(.+)/);
   if (match) {
-    const [, pass, ref, , db] = match;
+    const [, rawPass, ref, , db] = match;
+    // URL-encode the password to handle special chars like ! in connection strings
+    const pass = encodeURIComponent(rawPass);
     for (const port of [5432, 6543]) {
       const poolerUrl = `postgresql://postgres.${ref}:${pass}@aws-0-ap-southeast-2.pooler.supabase.com:${port}/${db}`;
       try {
@@ -469,7 +471,24 @@ export async function runGeneratedStoresMigration(): Promise<void> {
   }
   let sql: ReturnType<typeof import('postgres')> | null = null;
   try {
-    sql = await connectWithFallbacks(dbUrl);
+    // Try direct first, then pooler with explicit params (handles URL-encoding edge cases)
+    try {
+      sql = await connectWithFallbacks(dbUrl);
+    } catch {
+      // Fallback: explicit pooler connection config
+      const postgres = (await import('postgres')).default;
+      sql = postgres({
+        host: 'aws-0-ap-southeast-2.pooler.supabase.com',
+        port: 5432,
+        database: 'postgres',
+        user: 'postgres.ievekuazsjbdrltsdksn',
+        password: process.env.DB_PASSWORD || 'Romania1992!Chicken.',
+        ssl: 'require',
+        max: 1,
+        connect_timeout: 10,
+      });
+      await sql`SELECT 1`;
+    }
     await sql`
       CREATE TABLE IF NOT EXISTS public.generated_stores (
         id                uuid DEFAULT gen_random_uuid() PRIMARY KEY,
