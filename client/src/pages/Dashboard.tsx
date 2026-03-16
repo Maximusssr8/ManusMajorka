@@ -13,8 +13,13 @@ import {
   Star,
   Timer,
   Zap,
+  DollarSign,
+  Percent,
+  TrendingUp,
+  X,
 } from 'lucide-react';
 import React, { createElement, useEffect, useRef, useState } from 'react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import CountUp from 'react-countup';
 import { useInView } from 'react-intersection-observer';
 import { useLocation } from 'wouter';
@@ -281,6 +286,280 @@ function PersonalisedFeed() {
 // "Most used" & "NEW" tool badge helpers
 const MOST_USED_IDS = ['product-discovery', 'website-generator'];
 const NEW_TOOL_IDS = ['au-trending', 'launch-kit'];
+
+/* ─── Demo data for SalesOverview ─── */
+const DEMO_PRODUCTS = [
+  { rank: 1, name: 'EMS Muscle Stimulator Pro', cat: 'Fitness', units: 847, revenue: 38115, trend: 18.4 },
+  { rank: 2, name: 'Whey Protein Isolate 1kg', cat: 'Supplements', units: 612, revenue: 24480, trend: 24.1 },
+  { rank: 3, name: 'Resistance Band Set (5-Pack)', cat: 'Fitness', units: 589, revenue: 17670, trend: 11.2 },
+  { rank: 4, name: 'Creatine Monohydrate 500g', cat: 'Supplements', units: 534, revenue: 16020, trend: 9.8 },
+  { rank: 5, name: 'Ab Roller Wheel Pro', cat: 'Fitness', units: 421, revenue: 12630, trend: 6.3 },
+  { rank: 6, name: 'Collagen Peptides Powder', cat: 'Supplements', units: 398, revenue: 11940, trend: 31.7 },
+  { rank: 7, name: 'Adjustable Dumbbell Set', cat: 'Fitness', units: 287, revenue: 28700, trend: 4.1 },
+  { rank: 8, name: 'Pre-Workout Energy Formula', cat: 'Supplements', units: 261, revenue: 7830, trend: 15.9 },
+];
+
+const DEMO_ORDERS = [
+  { id: '#1842', customer: 'Sarah M.', product: 'EMS Muscle Stimulator Pro', amount: 45, status: 'paid' as const, time: '2m ago' },
+  { id: '#1841', customer: 'Jake T.', product: 'Whey Protein Isolate 1kg', amount: 40, status: 'paid' as const, time: '8m ago' },
+  { id: '#1840', customer: 'Emma K.', product: 'Creatine Monohydrate 500g', amount: 30, status: 'fulfilled' as const, time: '14m ago' },
+  { id: '#1839', customer: 'Liam R.', product: 'Resistance Band Set', amount: 30, status: 'paid' as const, time: '22m ago' },
+  { id: '#1838', customer: 'Olivia S.', product: 'Collagen Peptides Powder', amount: 30, status: 'fulfilled' as const, time: '31m ago' },
+];
+
+const BASE_REVENUES = [1820,2140,1960,2380,2720,1840,1620,2060,2280,2440,2150,1980,2310,2580,2420,2190,1870,2650,2880,2730,2410,2060,1950,2340,2710,2490,2230,1880,2560,2840];
+
+function getDemoChartData(range: string) {
+  const today = new Date();
+  const days = range === 'today' ? 1 : range === '7d' ? 7 : range === '30d' ? 30 : 90;
+  const slice = days <= 30 ? BASE_REVENUES.slice(-Math.min(days, 14)) : BASE_REVENUES;
+  const points: { date: string; revenue: number }[] = [];
+  const count = Math.min(slice.length, 14);
+  for (let i = 0; i < count; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - (count - 1 - i));
+    points.push({
+      date: d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' }),
+      revenue: days === 1 ? Math.round(slice[i % slice.length] / 24 * (i + 8)) : slice[i % slice.length],
+    });
+  }
+  return points;
+}
+
+function getDemoKpis(range: string) {
+  const multiplier = range === 'today' ? 1 : range === '7d' ? 7 : range === '30d' ? 30 : 90;
+  return {
+    totalRevenue: Math.round(2200 * multiplier),
+    orders: Math.round(48 * multiplier),
+    aov: 45.83,
+    conversionRate: 3.2,
+    revenueChange: 12.4,
+    ordersChange: 8.7,
+    aovChange: 3.2,
+    conversionChange: 1.8,
+  };
+}
+
+const RANGE_OPTIONS = [
+  { key: 'today', label: 'Today' },
+  { key: '7d', label: '7 Days' },
+  { key: '30d', label: '30 Days' },
+  { key: '90d', label: '90 Days' },
+] as const;
+
+const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
+  paid: { bg: 'rgba(34,197,94,0.15)', text: '#22c55e' },
+  fulfilled: { bg: 'rgba(59,130,246,0.15)', text: '#3b82f6' },
+  pending: { bg: 'rgba(234,179,8,0.15)', text: '#eab308' },
+};
+
+const CAT_COLORS: Record<string, { bg: string; text: string }> = {
+  Fitness: { bg: 'rgba(59,130,246,0.15)', text: '#3b82f6' },
+  Supplements: { bg: 'rgba(168,85,247,0.15)', text: '#a855f7' },
+};
+
+function MiniSparkSvg({ data, color = '#22c55e' }: { data: number[]; color?: string }) {
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const range = max - min || 1;
+  const w = 60;
+  const h = 20;
+  const points = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * h}`).join(' ');
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
+      <polyline points={points} fill="none" stroke={color} strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{ background: '#18181b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px' }}>
+      <div style={{ fontSize: 11, color: '#71717a', marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: 14, fontWeight: 700, color: '#d4af37' }}>${payload[0].value.toLocaleString()}</div>
+    </div>
+  );
+}
+
+function SalesOverview({ orderCount }: { orderCount: number }) {
+  const [range, setRange] = useState<string>('30d');
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+  const isDemo = orderCount === 0;
+  const chartData = getDemoChartData(range);
+  const kpis = getDemoKpis(range);
+
+  const kpiCards = [
+    { label: 'Total Revenue', value: `$${kpis.totalRevenue.toLocaleString()}`, change: kpis.revenueChange, icon: DollarSign, spark: [2,4,3,5,6,4,7] },
+    { label: 'Orders', value: kpis.orders.toLocaleString(), change: kpis.ordersChange, icon: ShoppingBag, spark: [3,5,4,6,5,7,8] },
+    { label: 'Avg Order Value', value: `$${kpis.aov.toFixed(2)}`, change: kpis.aovChange, icon: TrendingUp, spark: [4,4,5,5,6,5,6] },
+    { label: 'Conversion Rate', value: `${kpis.conversionRate}%`, change: kpis.conversionChange, icon: Percent, spark: [2,3,3,4,3,4,5] },
+  ];
+
+  return (
+    <div style={{ marginBottom: 32 }}>
+      {/* Demo banner */}
+      {isDemo && !bannerDismissed && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
+          <span style={{ fontSize: 12, color: '#d4af37' }}>Sample data — connect your store to see real analytics</span>
+          <button onClick={() => setBannerDismissed(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
+            <X size={12} style={{ color: '#71717a' }} />
+          </button>
+        </div>
+      )}
+
+      {/* Section header + date pills */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: '#52525b', fontFamily: 'Syne, sans-serif', margin: 0 }}>
+          Sales Overview
+        </h3>
+        <div style={{ display: 'flex', gap: 4 }}>
+          {RANGE_OPTIONS.map((r) => (
+            <button
+              key={r.key}
+              onClick={() => setRange(r.key)}
+              style={{
+                padding: '4px 12px',
+                borderRadius: 100,
+                border: 'none',
+                cursor: 'pointer',
+                fontSize: 12,
+                fontWeight: 600,
+                background: range === r.key ? '#d4af37' : 'rgba(255,255,255,0.06)',
+                color: range === r.key ? '#080a0e' : '#71717a',
+                transition: 'all 0.15s',
+              }}
+            >
+              {r.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Revenue area chart */}
+      <div style={{ background: '#0c0c10', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '20px 16px 12px', marginBottom: 16 }}>
+        <ResponsiveContainer width="100%" height={220}>
+          <AreaChart data={chartData}>
+            <defs>
+              <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#d4af37" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#d4af37" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+            <XAxis dataKey="date" tick={{ fill: '#52525b', fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: '#52525b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${(v / 1000).toFixed(1)}k`} />
+            <Tooltip content={<CustomTooltip />} />
+            <Area type="monotone" dataKey="revenue" stroke="#d4af37" strokeWidth={2} fill="url(#goldGrad)" />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* KPI row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" style={{ marginBottom: 16 }}>
+        {kpiCards.map((kpi) => (
+          <div key={kpi.label} style={{ background: '#0c0c10', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+              <kpi.icon size={14} style={{ color: '#71717a' }} />
+              <span style={{ fontSize: 11, color: '#71717a', fontWeight: 500 }}>{kpi.label}</span>
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: '#f0ede8', fontFamily: 'Syne, sans-serif', marginBottom: 6 }}>{kpi.value}</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 6px', borderRadius: 4 }}>
+                +{kpi.change}%
+              </span>
+              <MiniSparkSvg data={kpi.spark} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Top Products table */}
+      <div style={{ background: '#0c0c10', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: 20, marginBottom: 16 }}>
+        <h4 className="text-xs font-bold uppercase tracking-widest" style={{ color: '#52525b', fontFamily: 'Syne, sans-serif', margin: '0 0 12px' }}>
+          Top Products
+        </h4>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                {['#', 'Product', 'Category', 'Units', 'Revenue', 'Trend'].map((h) => (
+                  <th key={h} style={{ padding: '8px 12px', textAlign: 'left', color: '#52525b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' as const }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {DEMO_PRODUCTS.map((p, i) => {
+                const catColor = CAT_COLORS[p.cat] ?? { bg: 'rgba(113,113,122,0.15)', text: '#71717a' };
+                return (
+                  <tr key={p.rank} style={{ background: i % 2 === 1 ? 'rgba(255,255,255,0.02)' : 'transparent', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                    <td style={{ padding: '10px 12px', color: '#52525b', fontWeight: 600 }}>{p.rank}</td>
+                    <td style={{ padding: '10px 12px', color: '#f0ede8', fontWeight: 500 }}>{p.name}</td>
+                    <td style={{ padding: '10px 12px' }}>
+                      <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 100, background: catColor.bg, color: catColor.text, fontWeight: 600 }}>{p.cat}</span>
+                    </td>
+                    <td style={{ padding: '10px 12px', color: '#a1a1aa' }}>{p.units.toLocaleString()}</td>
+                    <td style={{ padding: '10px 12px', color: '#d4af37', fontWeight: 600 }}>${p.revenue.toLocaleString()}</td>
+                    <td style={{ padding: '10px 12px' }}>
+                      <span style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        padding: '2px 6px',
+                        borderRadius: 4,
+                        background: p.trend >= 0 ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
+                        color: p.trend >= 0 ? '#22c55e' : '#ef4444',
+                      }}>
+                        {p.trend >= 0 ? '+' : ''}{p.trend}%
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Recent Orders table */}
+      <div style={{ background: '#0c0c10', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <h4 className="text-xs font-bold uppercase tracking-widest" style={{ color: '#52525b', fontFamily: 'Syne, sans-serif', margin: 0 }}>
+            Recent Orders
+          </h4>
+          <a href="#" style={{ fontSize: 12, color: '#d4af37', textDecoration: 'none' }}>View all →</a>
+        </div>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                {['Order #', 'Customer', 'Product', 'Amount', 'Status', 'Time'].map((h) => (
+                  <th key={h} style={{ padding: '8px 12px', textAlign: 'left', color: '#52525b', fontWeight: 600, fontSize: 11, textTransform: 'uppercase' as const }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {DEMO_ORDERS.map((o, i) => {
+                const sc = STATUS_COLORS[o.status] ?? STATUS_COLORS.pending;
+                return (
+                  <tr key={o.id} style={{ background: i % 2 === 1 ? 'rgba(255,255,255,0.02)' : 'transparent', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                    <td style={{ padding: '10px 12px', color: '#a1a1aa', fontWeight: 500 }}>{o.id}</td>
+                    <td style={{ padding: '10px 12px', color: '#f0ede8' }}>{o.customer}</td>
+                    <td style={{ padding: '10px 12px', color: '#a1a1aa' }}>{o.product}</td>
+                    <td style={{ padding: '10px 12px', color: '#d4af37', fontWeight: 600 }}>${o.amount}</td>
+                    <td style={{ padding: '10px 12px' }}>
+                      <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 100, background: sc.bg, color: sc.text, fontWeight: 600, textTransform: 'capitalize' as const }}>{o.status}</span>
+                    </td>
+                    <td style={{ padding: '10px 12px', color: '#52525b', fontSize: 12 }}>{o.time}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function DashboardHome() {
   const [, setLocation] = useLocation();
@@ -568,6 +847,9 @@ function DashboardHome() {
             sparkIdx={3}
           />
         </div>
+
+        {/* Sales Overview */}
+        <SalesOverview orderCount={orderCount} />
 
         {/* Maya's Daily Recommendation */}
         <DashboardAISuggestion
