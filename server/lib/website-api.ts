@@ -1058,7 +1058,101 @@ function postProcessHtml(html: string, storeName: string, niche: string, color: 
   return html;
 }
 
-// ─── Full AI HTML Generator (2-pass) ──────────────────────────────────────────
+// ─── Expand Store Brief (fast Haiku pass) ─────────────────────────────────────
+async function expandStoreBrief(params: {
+  niche: string;
+  storeName: string;
+  accentColor: string;
+  designDirection?: string;
+  productData?: Record<string, any>;
+}): Promise<Record<string, any>> {
+  const client = getAnthropicClient();
+  const productSummary = params.productData
+    ? `Title: ${params.productData.product_title || params.productData.title || 'N/A'}, Price: ${params.productData.price_aud || params.productData.price || 'N/A'}, Desc: ${String(params.productData.description || '').slice(0, 200)}`
+    : 'none provided';
+
+  const systemPrompt = `You are a conversion copywriter and ecommerce brand strategist specialising in Australian DTC brands. Return ONLY valid JSON — no markdown, no backticks, no explanation.`;
+
+  const userMsg = `Store name: ${params.storeName}
+Niche: ${params.niche}
+Design direction: ${params.designDirection || 'modern'}
+Accent colour: ${params.accentColor}
+Product data: ${productSummary}
+
+Return this exact JSON shape:
+{
+  "brandName": "...",
+  "tagline": "...(punchy, 6-10 words)",
+  "targetAudience": "...",
+  "brandVoice": "bold and direct|premium and refined|friendly and energetic",
+  "heroHeadline": "...(8-12 words, no generic phrases)",
+  "heroSubheadline": "...(15-20 words, benefit-focused)",
+  "problemStatement": "...(1 sentence — the pain the brand solves)",
+  "uniqueValueProp": "...(1 sentence — why they're different)",
+  "keyBenefits": ["...", "...", "..."],
+  "socialProofStats": [
+    {"number": "...", "label": "..."},
+    {"number": "...", "label": "..."},
+    {"number": "...", "label": "..."}
+  ],
+  "testimonials": [
+    {"name": "...", "location": "...(AU city)", "quote": "...(2 sentences, specific)"},
+    {"name": "...", "location": "...(AU city)", "quote": "..."},
+    {"name": "...", "location": "...(AU city)", "quote": "..."}
+  ],
+  "ctaPrimary": "...",
+  "ctaSecondary": "...",
+  "faqItems": [
+    {"q": "...", "a": "..."},
+    {"q": "...", "a": "..."},
+    {"q": "...", "a": "..."},
+    {"q": "...", "a": "..."}
+  ],
+  "colorNotes": "...(describe how to use the accent color)",
+  "fontPairing": "Syne + DM Sans|Playfair Display + Inter|Space Grotesk + DM Sans"
+}`;
+
+  try {
+    const msg = await client.messages.create({
+      model: 'claude-haiku-4-5',
+      max_tokens: 600,
+      temperature: 0.8,
+      messages: [{ role: 'user', content: userMsg }],
+      system: systemPrompt,
+    });
+    const text = ((msg.content[0] as { type: 'text'; text: string })?.text || '').trim();
+    // Strip any accidental backticks
+    const cleaned = text.replace(/^```[\w]*\n?/m, '').replace(/\n?```\s*$/m, '').trim();
+    return JSON.parse(cleaned);
+  } catch {
+    // Fallback values if parse fails
+    return {
+      brandName: params.storeName,
+      tagline: `Quality ${params.niche} for Australians`,
+      heroHeadline: `The ${params.niche} brand built for Australia`,
+      heroSubheadline: `Premium quality, fast AU shipping, and results you can feel from day one.`,
+      keyBenefits: ['Free AU shipping on orders $60+', 'Afterpay available', '30-day money back guarantee'],
+      testimonials: [
+        { name: 'Sarah M.', location: 'Sydney', quote: `Finally a ${params.niche} brand that gets it. Arrived in 2 days and the quality is outstanding.` },
+        { name: 'Jake T.', location: 'Brisbane', quote: `I've tried heaps of brands. This one is genuinely different. My whole family uses it now.` },
+        { name: 'Emma K.', location: 'Melbourne', quote: `Super fast delivery and amazing customer service. Will definitely be ordering again.` },
+      ],
+      socialProofStats: [{ number: '12,400+', label: 'Happy Customers' }, { number: '4.8★', label: 'Average Rating' }, { number: '98%', label: 'Would Recommend' }],
+      ctaPrimary: 'Shop Now — Free AU Shipping',
+      ctaSecondary: 'See Results',
+      faqItems: [
+        { q: 'How fast is shipping?', a: 'We ship same-day for orders placed before 2pm AEST. Standard delivery is 2-5 business days Australia-wide.' },
+        { q: 'Do you offer Afterpay?', a: 'Yes! Pay in 4 interest-free instalments with Afterpay on all orders over $35.' },
+        { q: "What's your return policy?", a: "30-day no-questions-asked returns. If you're not happy, we'll sort it out." },
+        { q: 'Is this suitable for sensitive skin/needs?', a: `All our ${params.niche} products are tested and made for Australian conditions.` },
+      ],
+      colorNotes: `Use ${params.accentColor} as the primary CTA and highlight colour.`,
+      fontPairing: 'Syne + DM Sans',
+    };
+  }
+}
+
+// ─── Full AI HTML Generator V2 (brief + single streaming Sonnet pass) ─────────
 export async function generateFullStore(params: {
   niche: string;
   storeName: string;
@@ -1066,14 +1160,12 @@ export async function generateFullStore(params: {
   vibe?: string;
   accentColor?: string;
   price?: string;
-  productData?: Record<string, any>;
+  productData?: Record<string, unknown>;
   designDirection?: DesignDirection;
   onProgress?: (pct: number, msg: string) => void;
 }): Promise<{ html: string; manifest: string }> {
   const { niche, storeName, targetAudience, vibe, accentColor, price, productData, designDirection = 'default' } = params;
-  const _progressFn = params.onProgress || (() => {});
-  // Wrap progress so we can do heartbeat ticking during blocking Claude calls
-  const progress = _progressFn;
+  const progress = params.onProgress || (() => {});
 
   // Helper: run a blocking promise while sending progress ticks every 3s
   async function withHeartbeat<T>(
@@ -1083,7 +1175,7 @@ export async function generateFullStore(params: {
     let cur = startPct;
     const timer = setInterval(() => {
       cur = Math.min(cur + Math.round((endPct - startPct) / 12), endPct - 2);
-      _progressFn(cur, msg);
+      progress(cur, msg);
     }, 3000);
     try {
       const result = await fn();
@@ -1094,8 +1186,9 @@ export async function generateFullStore(params: {
       throw e;
     }
   }
+
   const dir = designDirection !== 'default' ? DESIGN_DIRECTIONS[designDirection as keyof typeof DESIGN_DIRECTIONS] : null;
-  const color = accentColor || (dir ? '#d4af37' : '#d4af37');
+  const color = accentColor || '#d4af37';
   const bgColor   = dir?.defaultBg      || '#08080f';
   const surfColor = dir?.defaultSurface || '#0f1018';
   const textColor = dir?.defaultText    || '#f2efe9';
@@ -1110,16 +1203,22 @@ export async function generateFullStore(params: {
   const btnRadius   = dir?.btnRadius    || '10px';
   const dirNote     = dir?.promptNote   || 'Modern dark DTC brand aesthetic.';
 
-  // ── 1. Fetch real images from Pexels ───────────────────────────────────────
+  const colorRgb = (function(hex: string) {
+    const c = hex.replace('#', '');
+    return parseInt(c.substring(0,2),16)+','+parseInt(c.substring(2,4),16)+','+parseInt(c.substring(4,6),16);
+  })(color);
+  const storeName_ = storeName || niche;
+  const isLight = ['editorial', 'minimal'].includes(designDirection as string);
+
+  // ── 1. Fetch images ────────────────────────────────────────────────────────
+  progress(5, '🔍 Fetching images...');
   const pd = productData || {};
   const productTitle = sanitizeProductTitle((pd.product_title as string) || '', niche);
-  // Extract scraped images from the imported product URL (highest priority)
   const scrapedProductImgs: string[] = Array.isArray(pd.product_images) ? (pd.product_images as string[]) : [];
   const scrapedHeroImg    = (pd.hero_image as string | undefined) || scrapedProductImgs[0];
   const scrapedProductImg = scrapedProductImgs[1] || scrapedHeroImg;
 
   const imgs = await fetchImagesForStore(productTitle, niche);
-  // Use scraped images first, fall back to Pexels
   const heroImg      = scrapedHeroImg    || imgs.hero;
   const productImg   = scrapedProductImg || imgs.product;
   const lifestyleImg1 = imgs.lifestyle1;
@@ -1127,46 +1226,36 @@ export async function generateFullStore(params: {
   const shopImages   = imgs.shopImages;
   console.log('[website-api] Images →', { hero: heroImg.slice(-30), product: productImg.slice(-30), l1: lifestyleImg1.slice(-30), l2: lifestyleImg2.slice(-30) });
 
-  // ── 2. Build product context ──────────────────────────────────────────────
-  const productContext = pd.product_title ? `
-PRODUCT DETAILS (use these exactly — do not invent):
-- Name: ${sanitizeProductTitle(pd.product_title as string, niche)}
-- Category: ${pd.category || pd.product_type || niche}
-- Description: ${pd.description || ''}
-- Key features: ${(pd.key_features as string[] || []).join(', ')}
-- Target customer: ${pd.target_customer || targetAudience || 'Australian shoppers'}
-- Hero benefit: ${pd.hero_benefit || ''}
-- Suggested headline: ${pd.hero_headline || ''}
-- Suggested subheadline: ${pd.hero_subheading || ''}
-- Price: ${price || `$${pd.price_aud || pd.suggested_price_aud || '49.95'}`} AUD
-- Sizes available: ${(pd.sizes as string[] || []).join(', ') || 'One size'}
-- Colors available: ${(pd.colors as string[] || []).join(', ') || ''}` : `
-PRODUCT: ${niche}
-Target: ${targetAudience || 'Australian shoppers aged 25-45'}
-Price range: ${price || '$49.95'} AUD`;
+  // ── 2. Expand brand brief (fast Haiku) ─────────────────────────────────────
+  progress(10, '📝 Building your brand brief...');
+  const brief = await expandStoreBrief({
+    niche,
+    storeName: storeName_,
+    accentColor: color,
+    designDirection: dir?.label || 'modern',
+    productData: pd,
+  });
+  console.log('[website-api] Brief →', JSON.stringify(brief).slice(0, 200));
 
-  const colorRgb = (function(hex: string) {
-    const c = hex.replace('#', '');
-    return parseInt(c.substring(0,2),16)+','+parseInt(c.substring(2,4),16)+','+parseInt(c.substring(4,6),16);
-  })(color);
-  const storeName_ = storeName || niche;
-  const colorRgb2 = colorRgb; // alias
-
-  progress(5, '🔍 Finding product images...');
-
-  const client = getAnthropicClient();
+  // ── 3. Build head + CSS ────────────────────────────────────────────────────
+  progress(15, '🎨 Crafting your store...');
   const pdTitle = pd.product_title as string | undefined;
   const pdPrice = price || (pd.price_aud ? String(pd.price_aud) : (pd.suggested_price_aud ? String(pd.suggested_price_aud) : undefined));
   const faviconOgHtml = buildFaviconAndOgTags(storeName_, color, niche, pdTitle, pdPrice);
-  const animCss = buildAnimationCss();
-  const manifestJson = buildManifest(storeName_, color, vibe || ('Premium ' + niche + ' for Australians'));
+  const manifestJson = buildManifest(storeName_, color, (brief.tagline as string) || vibe || ('Premium ' + niche + ' for Australians'));
 
-  progress(10, '🔍 Finding images...');
+  let baseCss = buildBaseCSS({ color, colorRgb, bgColor, surfColor, textColor, mutedColor, cardBorder, cardRadius, btnRadius, headingFont, bodyFont, googleFontUrl, h1Size, headingWeight, isLight });
 
-  const isLight = ['editorial', 'minimal'].includes(designDirection as string);
+  // Inject brief font pairing into CSS if available
+  const fontPairing = (brief.fontPairing as string) || '';
+  if (fontPairing.includes(' + ')) {
+    const [briefHeading, briefBody] = fontPairing.split(' + ').map(f => f.trim());
+    if (briefHeading && briefBody) {
+      baseCss = baseCss.replace(`--font-heading:'${headingFont}'`, `--font-heading:'${briefHeading}'`);
+      baseCss = baseCss.replace(`--font-body:'${bodyFont}'`, `--font-body:'${briefBody}'`);
+    }
+  }
 
-    // Build the hard-coded CSS + head (no CSS for Claude to write!)
-  const baseCss = buildBaseCSS({ color, colorRgb, bgColor, surfColor, textColor, mutedColor, cardBorder, cardRadius, btnRadius, headingFont, bodyFont, googleFontUrl, h1Size, headingWeight, isLight });
   const fullHead = `<!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -1177,16 +1266,62 @@ ${baseCss}
 </head>
 <body>`;
 
-  const systemPrompt = `You are writing HTML content sections for an Australian ecommerce store. Output ONLY raw HTML — no <!DOCTYPE>, no <html>, no <head>, no <style>, no <script>. CSS classes are already defined. AU English only.`;
+  // ── 4. Single Sonnet pass (streaming) ──────────────────────────────────────
+  progress(20, '✍️ Generating your store...');
+  const client = getAnthropicClient();
 
-  const pass1 = `Generate the home page content for an Australian ecommerce store. Output raw HTML only — no DOCTYPE, head, style or script tags. CSS is pre-built.
+  const productContext = pd.product_title ? `
+Product: ${sanitizeProductTitle(pd.product_title as string, niche)}
+Category: ${pd.category || pd.product_type || niche}
+Description: ${pd.description || ''}
+Price: ${price || `$${pd.price_aud || pd.suggested_price_aud || '49.95'}`} AUD` : `
+Product: ${niche}
+Price: ${price || '$49.95'} AUD`;
 
-Store: ${storeName_} | Niche: ${niche} | Accent color: ${color}
+  const singlePassSystem = `You are an expert Shopify theme developer and conversion-focused designer.
+Generate a complete, production-ready single-file HTML store.
+
+CRITICAL RULES:
+1. Output ONLY HTML body content — no <!DOCTYPE>, no <html>, no <head>, no <style>, no <script> tags
+2. Use only the CSS classes and variables already defined (--accent, --bg, --surface, --text, --muted, --card-radius, --btn-radius)
+3. Every section must use semantic HTML5 (section, article, nav, footer, header, main)
+4. Include ALL of these sections in order:
+   - Announcement bar (free shipping threshold)
+   - Navigation (logo left, links center, cart icon right)
+   - Hero section (headline, subheadline, CTA buttons, hero image)
+   - Social proof stats bar (3 numbers from brief)
+   - Features/benefits section (3 cards from brief.keyBenefits)
+   - Product highlight section (product name, description, price, Add to Cart)
+   - Testimonials (3 from brief, AU cities, specific quotes)
+   - FAQ accordion (4 items, use class="faq-item", "faq-question", "faq-toggle", "faq-answer")
+   - Footer (logo, links, ABN, AUD pricing, Afterpay badge)
+5. Nav links must use data-nav="home", data-nav="shop", data-nav="about", data-nav="contact"
+6. Cart button must use class="btn-cart"
+7. All prices in AUD format: $X.XX AUD
+8. Include Afterpay copy where relevant
+9. Image tags must use the exact URLs provided — no placeholder.com
+10. DO NOT close the <div data-page="home"> wrapper — it will be closed automatically`;
+
+  const singlePassUser = `BRAND BRIEF:
+${JSON.stringify(brief, null, 2)}
+
+IMAGES:
+- Hero: ${heroImg}
+- Product: ${productImg}
+- Lifestyle 1: ${lifestyleImg1}
+- Lifestyle 2: ${lifestyleImg2}
+
+STORE DETAILS:
+- Store name: ${storeName_}
+- Niche: ${niche}
+- Accent colour: ${color}
+- Design direction: ${dir?.label || 'Modern Dark DTC'} — ${dirNote}
 ${productContext}
 
-Generate these sections IN ORDER, using ONLY these pre-built CSS classes:
+Start your output with EXACTLY:
+<div data-page="home" style="display:block">
 
-1. NAV (always visible, outside data-page div):
+Before data-page="home", output the nav and mobile menu:
 <nav id="main-nav">
   <a href="#home" class="nav-logo">${storeName_}</a>
   <div class="nav-center">
@@ -1196,7 +1331,7 @@ Generate these sections IN ORDER, using ONLY these pre-built CSS classes:
     <a href="#contact" data-nav="contact">Contact</a>
   </div>
   <div class="nav-right">
-    <button onclick="typeof openCart!=='undefined'&&openCart()" class="cart-icon-btn">🛒<span class="cart-badge">0</span></button>
+    <button onclick="typeof openCart!=='undefined'&&openCart()" class="cart-icon-btn">\ud83d\uded2<span class="cart-badge">0</span></button>
     <a href="#shop" class="nav-cta">Shop Now</a>
     <button id="hamburger"><span></span><span></span><span></span></button>
   </div>
@@ -1209,237 +1344,55 @@ Generate these sections IN ORDER, using ONLY these pre-built CSS classes:
   <a href="#shipping" data-nav="shipping">Shipping</a>
 </div>
 
-2. Open the home page wrapper: <div data-page="home" style="display:block">
+Then open: <div data-page="home" style="display:block">
 
-3. ANNOUNCEMENT BAR (inside home wrapper):
-<div class="announcement-bar"><div class="marquee-inner"><span class="marquee-text">🔥 Free AU shipping $79+ &nbsp;|&nbsp; ⚡ Afterpay &nbsp;|&nbsp; 🇦🇺 Ships AU warehouse &nbsp;|&nbsp; ✓ 30-day returns</span><span class="marquee-text">🔥 Free AU shipping $79+ &nbsp;|&nbsp; ⚡ Afterpay &nbsp;|&nbsp; 🇦🇺 Ships AU warehouse &nbsp;|&nbsp; ✓ 30-day returns</span><span class="marquee-text">🔥 Free AU shipping $79+ &nbsp;|&nbsp; ⚡ Afterpay &nbsp;|&nbsp; 🇦🇺 Ships AU warehouse &nbsp;|&nbsp; ✓ 30-day returns</span><span class="marquee-text">🔥 Free AU shipping $79+ &nbsp;|&nbsp; ⚡ Afterpay &nbsp;|&nbsp; 🇦🇺 Ships AU warehouse &nbsp;|&nbsp; ✓ 30-day returns</span></div></div>
+Use the brief JSON for all copy: heroHeadline, heroSubheadline, keyBenefits, testimonials, faqItems, socialProofStats, ctaPrimary, ctaSecondary.
+Use CSS classes: .hero, .hero-content, .hero-badge, .hero-sub, .hero-buttons, .btn-primary, .btn-secondary, .trust-strip, .social-proof, .product-section, .product-image-wrap, .product-info, .product-stars, .product-price, .afterpay-row, .stock-warning, .btn-cart, .btn-buy-now, .product-benefits, .features-section, .section-header, .features-grid, .feature-card, .feature-icon, .lifestyle-grid, .reviews-section, .testimonials-grid, .testimonial-card, .testimonial-stars, .testimonial-quote, .testimonial-author, .testimonial-city, .verified, .faq-section, .faq-item, .faq-question, .faq-toggle, .faq-answer, .cta-section, .countdown-wrap, footer, .footer-grid, .footer-brand, .footer-logo, .footer-tagline, .footer-col, .footer-bottom, .announcement-bar, .marquee-inner, .marquee-text
+Add class="anim" to section headings and class="anim anim-delay-1/2/3" to cards.
+DO NOT close the data-page="home" div — it will be closed automatically.
+End output after </footer>.`;
 
-4. HERO — use class="hero" with inline background-image style:
-<section class="hero" style="background-image: url(${heroImg})">
-  <div class="hero-content">
-    <div class="hero-badge">🇦🇺 Premium Australian ${niche}</div>
-    <h1>[Write a powerful, specific headline for ${niche} — max 8 words, bold promise]</h1>
-    <p class="hero-sub">[Write a compelling subheadline — specific benefit, AU context, 1-2 sentences]</p>
-    <div class="hero-buttons">
-      <a href="#shop" class="btn-primary">Shop Now →</a>
-      <a href="#shop" class="btn-secondary">View All Products</a>
-    </div>
-    <div class="trust-strip">
-      <span>Free AU Shipping $79+</span>
-      <span>30-Day Returns</span>
-      <span>Afterpay Available</span>
-    </div>
-  </div>
-</section>
+  const stream = client.messages.stream({
+    model: CLAUDE_MODEL,
+    max_tokens: 7000,
+    temperature: 0.7,
+    system: singlePassSystem,
+    messages: [{ role: 'user', content: singlePassUser }],
+  });
 
-5. SOCIAL PROOF BAR:
-<div class="social-proof">
-  <span>★ 4.9/5 from 2,400+ Australian customers</span>
-  <span>🇦🇺 Australian owned & operated</span>
-  <span>⚡ Same-day dispatch before 2pm</span>
-  <span>✓ 30-day no-questions returns</span>
-</div>
+  let fullText = '';
+  let lastProgressEmit = 20;
 
-6. PRODUCT SECTION — use classes: product-section, product-image-wrap, product-info, product-stars, product-price, afterpay-row, stock-warning, btn-cart, btn-buy-now, product-benefits:
-<section class="product-section">
-  <div>
-    <div class="product-image-wrap">
-      <img src="${productImg}" alt="${productData?.product_title || niche}">
-      <div class="product-badge">Best Seller</div>
-    </div>
-    <div class="product-info">
-      <h1>[Product name — specific to ${niche}]</h1>
-      <div class="product-stars"><span class="stars">★★★★★</span> 4.9 (247 reviews)</div>
-      <div class="product-price">${price || '$49.95'} AUD</div>
-      <div class="product-price-orig" style="font-size:16px;color:var(--muted);text-decoration:line-through">[Higher original price]</div>
-      <div class="afterpay-row">💚 Pay in 4 interest-free instalments with <strong>Afterpay</strong> — orders $35–$2,000</div>
-      <div class="stock-warning">⚡ Only 8 left in stock — order soon</div>
-      <button class="btn-cart">Add to Cart 🛒</button>
-      <button class="btn-buy-now">Buy Now</button>
-      <ul class="product-benefits">
-        [6 benefit bullet points specific to ${niche} — be specific, not generic]
-      </ul>
-    </div>
-  </div>
-</section>
+  for await (const event of stream) {
+    if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+      fullText += event.delta.text;
+      const approxProgress = Math.min(90, 20 + Math.floor((fullText.length / 42000) * 70));
+      if (approxProgress > lastProgressEmit + 2) {
+        lastProgressEmit = approxProgress;
+        progress(approxProgress, '✍️ Writing your store...');
+      }
+    }
+  }
 
-Do NOT close the data-page="home" div. Do NOT add any CSS. Just output the HTML above with real content filled in.`;
+  const part1 = fullText.trim();
+  if (!part1 || part1.length < 200) throw new Error('AI generation returned insufficient content — please try again.');
 
-  const pass1old = `Build the first half of an Australian ecommerce store.
-
-DESIGN DIRECTION: ${dir?.label || 'Default Dark DTC'}
-${dirNote}
-
-Store: ${storeName_} | Brand color: ${color} | Style: ${vibe || 'match design direction'}
-${productContext}
-
-TYPOGRAPHY:
-- Heading font: ${headingFont} | Body: ${bodyFont}
-- Google Fonts URL: ${googleFontUrl}
-- H1: ${h1Size} weight:${headingWeight} letter-spacing:${dir?.letterSpacing || '-0.03em'}
-
-COLORS: bg:${bgColor} | surface:${surfColor} | text:${textColor} | muted:${mutedColor} | accent:${color}
-
-CRITICAL — inject this :root block at the TOP of the <style> tag:
-:root { --bg: ${bgColor}; --surface: ${surfColor}; --text: ${textColor}; --accent: ${color}; --muted: ${mutedColor}; --border: ${cardBorder}; }
-Reference these throughout: background: var(--bg); color: var(--text); etc.
-
-INJECT in <head> verbatim:
-` + faviconOgHtml + `
-
-INJECT in <style> verbatim (animation system):
-` + animCss + `
-
-CRITICAL MOBILE CSS (@media max-width:768px) — include ALL of:
-nav .nav-center, nav .nav-cta { display:none; }
-#hamburger { display:flex; }
-#mobile-menu { display:none; position:fixed; inset:0; z-index:9999; background:${isLight ? 'rgba(250,250,250,0.98)' : 'rgba(8,8,15,0.98)'}; flex-direction:column; align-items:center; justify-content:center; gap:36px; font-size:22px; }
-#mobile-menu.mobile-open { display:flex; }
-.product-grid,.features-grid,.testimonials-grid,.lifestyle-grid { grid-template-columns:1fr; }
-.footer-grid { grid-template-columns:1fr 1fr; }
-section { padding:64px 5%; }
-
-WRITE CSS for every section class: .announcement-bar, nav, .hero, .product-grid, .product-info, .features-grid, .feature-card, .lifestyle-grid, .testimonials-grid, .testimonial-card, .faq-item, .faq-question, .faq-answer, .faq-toggle, footer, .footer-grid, .footer-bottom
-Card style: border:${cardBorder}; border-radius:${cardRadius};
-Button: border-radius:${btnRadius}; ${dir?.btnStyle || 'background:var(--accent); color:#fff;'}
-
-SECTIONS TO BUILD:
-
-1. ANNOUNCEMENT BAR — bg:${color}, color:${isLight ? '#fff' : '#08080f'}, font-weight:700, 13px
-   .marquee-inner display:flex white-space:nowrap animation:marquee 28s linear infinite
-   Duplicate text 4x: "\U0001f525 Free AU shipping $79+ &nbsp;|&nbsp; \u26a1 Afterpay &nbsp;|&nbsp; \U0001f1e6\U0001f1fa Ships AU warehouse &nbsp;|&nbsp; \u2713 30-day returns"
-
-2. STICKY NAV — height:68px sticky top:0 z-index:1000 backdrop-filter:blur(20px)
-   bg:${isLight ? 'rgba(250,250,250,0.9)' : 'rgba(8,8,15,0.85)'}; border-bottom:${cardBorder}
-   .scrolled: bg:${isLight ? 'rgba(250,250,250,0.98)' : 'rgba(8,8,15,0.97)'}
-   Logo: <a href="#home" style="font-family:${headingFont};font-weight:900;color:${color};text-decoration:none;font-size:22px">${storeName_}</a>
-   .nav-center links: <a href="#home" data-nav="home">Home</a> | <a href="#shop" data-nav="shop">Shop</a> | <a href="#about" data-nav="about">About</a> | <a href="#contact" data-nav="contact">Contact</a>
-   Right side: cart icon button <button onclick="openCart && openCart()" style="position:relative;background:none;border:none;cursor:pointer;color:var(--text);font-size:20px;padding:8px;">\\ud83d\\uded2<span class="cart-badge" style="display:none;position:absolute;top:2px;right:2px;background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;font-size:11px;font-weight:800;align-items:center;justify-content:center;">0</span></button>
-   Then .nav-cta: <a href="#shop" class="nav-cta" style="...">Shop Now</a>
-   id="hamburger" 3-line mobile button (3 spans 24px wide 2px high gap 5px)
-   id="mobile-menu" overlay with links: <a href="#home" data-nav="home">Home</a>, <a href="#shop" data-nav="shop">Shop</a>, <a href="#about" data-nav="about">About</a>, <a href="#contact" data-nav="contact">Contact</a>, <a href="#shipping" data-nav="shipping">Shipping</a>
-
-3. HERO — min-height:100vh bg:url(${heroImg}) center/cover
-   overlay ${isLight ? 'rgba(0,0,0,0.45)' : 'rgba(8,8,15,0.62)'}
-   .hero-content class="hero-content anim" centered z-index:1 max-width:720px text-align:center
-   AU badge bg:${color}22 border:1px solid ${color}55 color:${color} uppercase 11px border-radius:99px
-   H1 ${h1Size} weight:${headingWeight} font-family:${headingFont} color:#fff — specific to ${niche}
-   Subheadline 18px rgba(255,255,255,0.75) — specific benefit
-   Two buttons + trust strip (3 items with checkmarks)
-
-SOCIAL PROOF BAR — immediately after hero, before product section
-- bg: slightly lighter than main bg (${surfColor}), padding: 24px 5%, border-top/bottom: 1px solid ${cardBorder}
-- Single row, centered, flex wrap, gap: 40px
-- Content: "★ 4.9/5 from 2,400+ Australian customers" | "🏆 #1 AU Dropshipping Platform" | "🇦🇺 10,000+ stores built" | "⚡ Ships same day from AU warehouse"
-- Font: 13px, ${mutedColor}, font-weight 600
-- On mobile (@media max-width:768px): 2x2 grid, grid-template-columns: 1fr 1fr, gap: 16px, text-align: center
-
-4. PRODUCT SECTION — padding:100px 5% bg:${surfColor} max-width:1100px margin:0 auto
-   .product-grid 2-col gap:60px
-   LEFT: img card border-radius:${cardRadius} border:${cardBorder} overflow:hidden <img src="${productImg}"> + BEST SELLER badge
-   RIGHT: name (heading font 28px 700) | stars \u2605\u2605\u2605\u2605\u2605 color:${color} "4.9 (247 reviews)" | price (heading font 40px 900 color:${color}) + struck | Afterpay row bg:rgba(${colorRgb},0.08) | stock warning #f59e0b | Add to Cart btn class="btn-cart" (full-width ${color}) | Buy Now | 6 benefits specific to ${niche}
-
-EXTRA CSS to include in <style>:
-.cart-badge { display:none; position:absolute; top:2px; right:2px; background:var(--accent); color:#fff; border-radius:50%; width:18px; height:18px; font-size:11px; font-weight:800; align-items:center; justify-content:center; }
-
-CRITICAL HTML STRUCTURE:
-- <nav> must be OUTSIDE and BEFORE the data-page divs (it is always visible across all pages)
-- Wrap the announcement bar INSIDE data-page="home" (it only shows on home)
-- Structure:
-  <body>
-  <nav>...</nav>
-  <div data-page="home" style="display:block">
-    <div class="announcement-bar">...</div>
-    [hero, social proof bar, product section — all inside data-page="home"]
-  (do NOT close data-page="home" div yet — Pass 2 will add more sections inside it)
-
-End output after product </section>. Do NOT close the data-page="home" div. Do NOT write features/testimonials/FAQ yet.`;
-
-  const msg1 = await withHeartbeat(25, 58, '✍️ Writing home page content...', () =>
-    client.messages.create({ model: CLAUDE_MODEL, max_tokens: 4000, system: systemPrompt, messages: [{ role: 'user', content: pass1 }] })
-  );
-  const text1 = ((msg1.content[0] as any)?.text as string | undefined)?.trim() || '';
-  if (!text1 || text1.length < 200) throw new Error('AI generation returned insufficient content — please try again.');
   // Strip any rogue head/style/script tags Claude might add despite instructions
-  const part1Clean = text1
+  const part1Clean = part1
     .replace(/<!DOCTYPE[\s\S]*?<body[^>]*>/gi, '')
     .replace(/<head[\s\S]*?<\/head>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<\/body>\s*<\/html>\s*$/i, '')
-    .replace(/```[\s\S]*?```/g, '')   // strip markdown code blocks
-    .replace(/^```\w*\n?/gm, '')       // strip opening ``` at line start
-    .replace(/^```\s*$/gm, '')          // strip closing ``` at line start
-    .trim();
-
-  const pass2 = `Continue this ${dir?.label || 'dark'} Australian ecommerce store. Output only raw HTML. Start with <section id="features"> immediately.
-
-Niche: ${niche} | Color: ${color} | bg: ${bgColor} | surface: ${surfColor} | card-border: ${cardBorder} | card-radius: ${cardRadius}
-${productContext}
-Lifestyle images: ${lifestyleImg1} | ${lifestyleImg2}
-
-NOTE: A social proof bar already exists between the hero and product section (from pass 1). Do not duplicate it.
-Add class="anim" to first H2 of each section. Add class="anim anim-delay-1/2/3" to card elements.
-
-5. <section id="features"> padding:100px 5% bg:${bgColor}
-   H2 class="anim" centered heading-font 800. class="features-grid" 3-col.
-   3x <div class="feature-card anim anim-delay-N"> EMOJI icon H3 P — specific to ${niche}
-
-6. <section id="gallery"> padding:80px 5% bg:${surfColor}
-   <div class="lifestyle-grid"> 2-col max-width:1000px margin:0 auto
-   <img src="${lifestyleImg1}" style="border-radius:${cardRadius};width:100%;aspect-ratio:16/10;object-fit:cover">
-   <img src="${lifestyleImg2}" style="border-radius:${cardRadius};width:100%;aspect-ratio:16/10;object-fit:cover">
-
-7. <section id="reviews"> padding:100px 5% bg:${bgColor}
-   H2 class="anim" + p "\u2b50 4.9/5 · 200+ verified AU reviews". class="testimonials-grid" 3-col.
-   3 realistic AU reviews:
-   - Card 1 (5★): Sarah M. from Melbourne — mentions specific product result
-   - Card 2 (5★): Jake T. from Brisbane — mentions fast AU shipping + Afterpay
-   - Card 3 (4★): Emma K. from Perth — mentions value for money, small critique (believable)
-   Each card: <div class="testimonial-card anim anim-delay-N"> stars in accent colour | italic quote | name bold | city muted | "✓ Verified Purchase" badge in accent colour
-
-8. <section id="faq"> padding:80px 5% bg:${surfColor} max-width:760px margin:0 auto
-   H2 class="anim". 6x <div class="faq-item"><div class="faq-question"><span>Q</span><span class="faq-toggle">+</span></div><div class="faq-answer"><p>A</p></div></div>
-   Q1: Shipping — "How long does delivery take?" (answer: 3-7 business days AU wide, same-day dispatch)
-   Q2: Returns — "What's your return policy?" (answer: 30-day no-questions-asked, AU Consumer Law)
-   Q3: Product quality — specific to ${niche}
-   Q4: Payment — "Do you accept Afterpay?" (answer: yes, orders $35–$2000)
-   Q5: Authenticity — specific to ${niche}
-   Q6: Sizing/fit or product-specific question
-
-9. <section id="offer"> padding:100px 5% text-align:center bg:linear-gradient(135deg,${surfColor},rgba(${colorRgb},0.12))
-   H2 class="anim" | p subtext | <button class="btn-primary btn-cart">Shop ${storeName_} Now</button>
-   <p style="font-size:20px;color:${color};margin-top:24px">\u23f0 Offer ends in: <span id="countdown">23:59:59</span></p>
-
-10. <footer> padding:64px 5% 28px bg:${isLight ? '#f0f0ec' : '#050508'} border-top:${cardBorder}
-    <div class="footer-grid"> 4 cols: brand(logo+tagline+social) | Shop | Support | Legal
-    FOOTER links must use hash routing:
-    - Shop column: <a href="#shop" data-nav="shop">All Products</a>, <a href="#shop">New Arrivals</a>, <a href="#shop">Best Sellers</a>
-    - Support: <a href="#contact" data-nav="contact">Contact Us</a>, <a href="#shipping" data-nav="shipping">Shipping Info</a>, <a href="#shipping">Returns</a>
-    - Legal: <a href="#shipping">Shipping Policy</a>, Privacy Policy, Terms of Service
-    All <a> tags: color:var(--muted), text-decoration:none, display:block, margin-bottom:10px
-    <div class="footer-bottom">\u00a9 2025 ${storeName_}. ABN: [Your ABN] \U0001f1e6\U0001f1fa | All prices AUD incl. GST</div>
-
-End with </footer> then IMMEDIATELY output this exact closing tag:
-</div>
-This closes the data-page="home" div. No script tags.`;
-
-  const msg2 = await withHeartbeat(60, 90, '🏗️ Adding features, reviews & footer...', () =>
-    client.messages.create({ model: 'claude-haiku-4-5', max_tokens: 4000, system: 'Output only HTML. No explanation. No script tags. No style tags.', messages: [{ role: 'user', content: pass2 }] })
-  );
-  const text2 = ((msg2.content[0] as any)?.text as string | undefined)?.trim() || '';
-  if (!text2 || text2.length < 500) throw new Error('AI generation returned insufficient content — please try again.');
-  const part2Raw = text2
-    .replace(/<\/body>\s*<\/html>\s*$/i, '')
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/```[\s\S]*?```/g, '')
     .replace(/^```\w*\n?/gm, '')
-    .replace(/^```\s*$/gm, '');
+    .replace(/^```\s*$/gm, '')
+    .trim();
 
-  // ── PASS 3: About + Contact pages (AI) — shop + shipping are hard-coded ─────
-  progress(93, '📄 Building subpages...');
+  // ── 5. Build hard-coded shop page ──────────────────────────────────────────
+  progress(92, '🛒 Building shop page...');
+  // (V2 replaces old pass1/pass2 — shop page below)
 
-  // Hard-code the shop page — prefer product images from the imported URL, fall back to Pexels
   const rawProductImgs: string[] = scrapedProductImgs;
   // Build a pool: product images first (up to 6), then Pexels shop images to fill gaps
   const shopImagePool: string[] = [...rawProductImgs, ...shopImages]
@@ -1508,9 +1461,20 @@ This closes the data-page="home" div. No script tags.`;
   </section>
 </div>`;
 
-  // AI generates about + contact (small, focused prompt using Haiku)
+  // ── 6. Pass 3: About + Contact pages (Haiku, with brief content) ───────────
   const storeSlug = storeName_.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const briefBrandName = (brief.brandName as string) || storeName_;
+  const briefTagline = (brief.tagline as string) || '';
+  const briefProblem = (brief.problemStatement as string) || '';
+  const briefUvp = (brief.uniqueValueProp as string) || '';
+
   const pass3 = `Generate 2 detailed page sections for ${storeName_} (${niche} store, AU). Output ONLY raw HTML with inline styles. No DOCTYPE, no head, no style tags, no script tags.
+
+BRAND CONTEXT (use this for on-brand copy):
+- Brand: ${briefBrandName}
+- Tagline: ${briefTagline}
+- Problem solved: ${briefProblem}
+- Unique value: ${briefUvp}
 
 === ABOUT PAGE ===
 <div data-page="about" style="display:none">
@@ -1592,20 +1556,13 @@ Write all content specific to ${niche} and ${storeName_}. AU English. No placeho
     .replace(/```[\s\S]*?```/g, '')   // strip full fenced code blocks
     .replace(/^```\w*\n?/gm, '')      // strip opening ``` at line start
     .replace(/^```\s*$/gm, '');       // strip closing ``` at line start
-  const part3Raw = hardCodedShop + '\n' + part3Text;
-
-  progress(98, '\\u26a1 Wiring interactivity...');
+  progress(98, '\u26a1 Wiring interactivity...');
 
   const jsWithAnim = buildHardCodedJs().replace('</script>', buildAnimationJs() + '\n</script>');
-  // Merge: hard-coded head + Claude content + JS
-  // Explicitly close home page div before subpages — home content = part1 + part2
-  // Without this, shop/about/contact/shipping/toolbar all nest inside home div
-  // and disappear when the hash router hides the home page.
-  // Close home page div BEFORE comments are stripped by postProcessHtml.
-  // Use a data attribute marker (not a comment) so it survives the HTML comment stripper.
-  const merged = fullHead + '\n' + part1Clean + '\n' + part2Raw + '\n<div id="__home-end__" style="display:none"></div>\n' + part3Raw + '\n' + jsWithAnim;
-  const rawHtml = merged;
-  const finalHtml = postProcessHtml(rawHtml, storeName_, niche, color, colorRgb, surfColor, bgColor, cardRadius);
+
+  // V2 Assembly: fullHead + single pass content + home-end sentinel + shop + subpages + JS
+  const merged = fullHead + '\n' + part1Clean + '\n<div id="__home-end__" style="display:none"></div>\n' + hardCodedShop + '\n' + part3Text + '\n' + jsWithAnim;
+  const finalHtml = postProcessHtml(merged, storeName_, niche, color, colorRgb, surfColor, bgColor, cardRadius);
 
   const sizeKb = Math.round(Buffer.byteLength(finalHtml, 'utf8') / 1024);
   console.log(`[website-api] Generated HTML size: ${sizeKb}kb`);
