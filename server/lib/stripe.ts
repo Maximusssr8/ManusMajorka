@@ -46,10 +46,9 @@ export async function createCheckoutSession(opts: CreateCheckoutOptions): Promis
     payment_method_types: ['card'],
     customer_email: opts.userEmail,
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url:
-      opts.successUrl ?? `${process.env.VITE_APP_URL ?? 'https://majorka.ai'}/app?success=1`,
-    cancel_url:
-      opts.cancelUrl ?? `${process.env.VITE_APP_URL ?? 'https://majorka.ai'}/pricing`,
+    success_url: opts.successUrl ?? 'https://majorka.io/app?upgraded=true',
+    cancel_url: opts.cancelUrl ?? 'https://majorka.io/pricing',
+    client_reference_id: opts.userId,
     metadata: { userId: opts.userId },
     subscription_data: { metadata: { userId: opts.userId } },
   });
@@ -69,7 +68,7 @@ export async function createCustomerPortal(
 
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId,
-    return_url: returnUrl ?? `${process.env.VITE_APP_URL ?? 'https://majorka.ai'}/account`,
+    return_url: returnUrl ?? 'https://majorka.io/app/billing',
   });
   return { url: session.url };
 }
@@ -144,10 +143,10 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session;
-      const userId = session.metadata?.userId;
+      const userId = session.metadata?.userId || session.client_reference_id;
       if (!userId) {
         console.warn('[Stripe] checkout.session.completed: missing userId in metadata');
-        break;
+        return true;
       }
 
       const subscriptionId =
@@ -255,8 +254,8 @@ export function registerStripeRoutes(app: Express) {
         userId: user.id,
         userEmail: user.email,
         priceId,
-        successUrl: successUrl ?? `${req.headers.origin ?? 'https://majorka.ai'}/app?success=1`,
-        cancelUrl: cancelUrl ?? `${req.headers.origin ?? 'https://majorka.ai'}/pricing`,
+        successUrl: successUrl ?? 'https://majorka.io/app?upgraded=true',
+        cancelUrl: cancelUrl ?? 'https://majorka.io/pricing',
       });
       if (!result) return res.status(503).json({ configured: false });
       res.json(result);
@@ -285,7 +284,7 @@ export function registerStripeRoutes(app: Express) {
 
       const result = await createCustomerPortal(
         subStatus.stripeCustomerId,
-        `${req.headers.origin ?? 'https://majorka.ai'}/account`
+        req.body?.returnUrl ?? 'https://majorka.io/app/billing'
       );
       if (!result) return res.status(503).json({ configured: false });
       res.json(result);

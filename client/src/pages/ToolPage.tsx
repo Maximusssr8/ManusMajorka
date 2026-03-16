@@ -56,6 +56,7 @@ const CompetitorSpyPage = lazy(() => import('./CompetitorSpy'));
 const TrendSignals = lazy(() => import('./TrendSignals'));
 const SupplierIntelligence = lazy(() => import('./SupplierIntelligence'));
 const SupplierDirectory = lazy(() => import('./SupplierDirectory'));
+const Billing = lazy(() => import('./Billing'));
 
 // Map stage landing paths to their stage names
 const STAGE_PATHS: Record<string, string> = {
@@ -206,6 +207,7 @@ export default function ToolPage() {
   if (location === '/app/trend-signals') return page(<TrendSignals />);
   if (location === '/app/suppliers') return page(<SupplierDirectory />);
   if (location === '/app/supplier-finder') return page(<SupplierIntelligence />);
+  if (location === '/app/billing') return page(<Billing />);
   if (location === '/app/tiktok') return page(<TikTokSlideshow />);
   if (location === '/app/store/setup') return page(<StoreSetup />);
   if (location === '/app/store/products') return page(<StoreProducts />);

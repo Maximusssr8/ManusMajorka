@@ -10,6 +10,7 @@ import {
   Brain,
   Calculator,
   ChevronDown,
+  CreditCard,
   ChevronRight,
   ClipboardList,
   Eye,
@@ -1085,6 +1086,25 @@ export default function MajorkaAppShell({ children }: Props) {
                     onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                   >
                     <User size={11} /> Account
+                  </button>
+                  <button
+                    onClick={() => {
+                      setLocation('/app/billing');
+                      setUserMenuOpen(false);
+                    }}
+                    className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs transition-all"
+                    style={{
+                      color: '#a1a1aa',
+                      cursor: 'pointer',
+                      background: 'transparent',
+                      border: 'none',
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')
+                    }
+                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <CreditCard size={11} /> Billing
                   </button>
                   <button
                     onClick={() => {

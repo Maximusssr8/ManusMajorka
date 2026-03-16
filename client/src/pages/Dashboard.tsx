@@ -41,6 +41,7 @@ import { allTools, getToolByPath, recordRecentTool, stages } from '@/lib/tools';
 import { trpc } from '@/lib/trpc';
 import { supabase } from '@/lib/supabase';
 import { ONBOARDING_KEY } from '@/pages/Onboarding';
+import { toast } from 'sonner';
 import ToolPage from './ToolPage';
 
 function getGreeting() {
@@ -599,6 +600,31 @@ function DashboardHome() {
       }
     }
   }, [isAuthenticated, profileQuery.isFetched, profileQuery.data, setLocation]);
+
+  // Handle post-upgrade redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('upgraded') === 'true') {
+      toast.success('Welcome to your upgraded plan! You now have full access.');
+      const colors = ['#d4af37', '#f0c040', '#ffffff', '#10b981', '#3b82f6'];
+      const confettiCount = 80;
+      const container = document.createElement('div');
+      container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;';
+      document.body.appendChild(container);
+      for (let i = 0; i < confettiCount; i++) {
+        const el = document.createElement('div');
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const size = Math.random() * 8 + 4;
+        el.style.cssText = `position:absolute;width:${size}px;height:${size}px;background:${color};border-radius:${Math.random() > 0.5 ? '50%' : '2px'};left:${Math.random() * 100}vw;top:-20px;opacity:${Math.random() * 0.8 + 0.2};animation:confetti-fall ${Math.random() * 2 + 1.5}s ease-in ${Math.random() * 0.8}s forwards;`;
+        container.appendChild(el);
+      }
+      const style = document.createElement('style');
+      style.textContent = `@keyframes confetti-fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }`;
+      document.head.appendChild(style);
+      setTimeout(() => { document.body.removeChild(container); document.head.removeChild(style); }, 4000);
+      window.history.replaceState({}, '', '/app');
+    }
+  }, []);
 
   useEffect(() => {
     const today = new Date().toDateString();

@@ -378,6 +378,7 @@ const PLANS = [
     highlight: true,
     badge: 'Most Popular',
     afterpay: true,
+    priceId: 'price_1TBQyECxRnJTAaGBsu1sctuv',
   },
   {
     name: 'Scale',
@@ -394,10 +395,12 @@ const PLANS = [
     ],
     notIncluded: [],
     cta: 'Start Free Trial',
-    ctaHref: '/app',
+    ctaHref: null, // handled via Stripe
     highlight: false,
     badge: null,
     afterpay: true,
+    // TODO: Add VITE_STRIPE_SCALE_PRICE_ID for Scale plan
+    priceId: 'price_1TBQyECxRnJTAaGBsu1sctuv',
   },
 ];
 
@@ -577,7 +580,7 @@ export default function Pricing() {
     return base * 10; // 2 months free
   };
 
-  const handleProCheckout = async () => {
+  const handleProCheckout = async (priceId?: string) => {
     // If Stripe not configured, show friendly message
     if (stripeConfigured === false) {
       toast.info('Payment processing launching soon — join the waitlist to be first in line!');
@@ -599,6 +602,7 @@ export default function Pricing() {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token,
         },
+        body: JSON.stringify({ priceId }),
       });
       const data = (await res.json()) as { url?: string; error?: string; configured?: boolean };
       if (data.url) {
@@ -905,7 +909,7 @@ export default function Pricing() {
                 </Link>
               ) : (
                 <button
-                  onClick={handleProCheckout}
+                  onClick={() => handleProCheckout(plan.priceId)}
                   disabled={checkoutLoading}
                   style={{
                     display: 'block',
