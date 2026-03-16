@@ -1749,4 +1749,24 @@ All headlines AU English. No clichés. Be specific to the niche.` }],
       res.status(500).json({ error: message });
     }
   });
+
+  // POST /api/website/improve-text — AI rewrite for inline editor (used from new tab)
+  app.post('/api/website/improve-text', async (req, res) => {
+    try {
+      const { text, instruction } = req.body as { text?: string; instruction?: string };
+      if (!text || text.length < 2) return res.status(400).json({ error: 'No text provided' });
+      const msg = await client.messages.create({
+        model: 'claude-haiku-4-5',
+        max_tokens: 300,
+        messages: [{ role: 'user', content: instruction || `Rewrite this ecommerce text to be more compelling for Australian shoppers. Return ONLY the rewritten text, nothing else: ${text}` }],
+      });
+      const result = ((msg.content[0] as { type: 'text'; text: string }).text).trim()
+        .replace(/^["']|["']$/g, ''); // strip surrounding quotes
+      res.json({ result });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Text improvement failed.';
+      console.error('[website/improve-text]', message);
+      res.status(500).json({ error: message });
+    }
+  });
 }

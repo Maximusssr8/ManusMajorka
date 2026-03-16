@@ -1817,11 +1817,177 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
     }
   }, [analyzeUrl, session]);
 
+  // ── New-tab editor toolbar injected into the opened HTML ─────────────────
+  const buildNewTabToolbar = useCallback((): string => {
+    const apiOrigin = window.location.origin;
+    return `
+<style id="majorka-toolbar-styles">
+  #majorka-toolbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 99999;
+    background: rgba(8,10,14,0.96); backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(212,175,55,0.25);
+    display: flex; align-items: center; gap: 8px; padding: 9px 16px;
+    font-family: 'Syne', 'DM Sans', sans-serif; box-shadow: 0 2px 24px rgba(0,0,0,0.5);
+  }
+  #majorka-toolbar .tb-brand { color: #d4af37; font-weight: 900; font-size: 13px; margin-right: 4px; white-space: nowrap; }
+  #majorka-toolbar .tb-div { width: 1px; height: 18px; background: rgba(255,255,255,0.1); flex-shrink: 0; }
+  #majorka-toolbar .tb-btn { padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
+  #majorka-toolbar .tb-edit { background: rgba(212,175,55,0.12); border: 1px solid rgba(212,175,55,0.3); color: #d4af37; }
+  #majorka-toolbar .tb-edit.active { background: rgba(212,175,55,0.22); border-color: #d4af37; }
+  #majorka-toolbar .tb-save { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(240,237,232,0.7); }
+  #majorka-toolbar .tb-save:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  #majorka-toolbar .tb-color-wrap { display: flex; align-items: center; gap: 6px; }
+  #majorka-toolbar .tb-color-label { font-size: 11px; color: rgba(240,237,232,0.4); }
+  #majorka-toolbar input[type=color] { width: 26px; height: 26px; border: 1px solid rgba(255,255,255,0.15); background: none; cursor: pointer; border-radius: 4px; padding: 1px; }
+  #majorka-toolbar .tb-hint { font-size: 10px; color: rgba(240,237,232,0.25); margin-left: auto; display: flex; gap: 12px; }
+  #majorka-toolbar .tb-hint span::before { margin-right: 4px; }
+  .claw-editable { outline: 2px dashed rgba(212,175,55,0.4) !important; cursor: text !important; border-radius: 3px; }
+  .claw-editable:hover { outline-color: #d4af37 !important; background: rgba(212,175,55,0.06) !important; }
+  .claw-editable:focus { outline: 2px solid #d4af37 !important; background: rgba(212,175,55,0.08) !important; }
+  .claw-img-wrap { position: relative !important; cursor: pointer !important; }
+  .claw-img-wrap::after { content: "📷 Replace"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.55); color: #d4af37; font-size: 13px; font-weight: 700; opacity: 0; transition: opacity 0.2s; pointer-events: none; font-family: sans-serif; border-radius: inherit; }
+  .claw-img-wrap:hover::after { opacity: 1; }
+  .claw-img-wrap img { pointer-events: none !important; }
+  #ai-tooltip { position: fixed; z-index: 100000; background: rgba(8,10,14,0.97); border: 1px solid rgba(212,175,55,0.35); border-radius: 8px; padding: 5px 6px; display: none; gap: 4px; align-items: center; }
+  #ai-tooltip button { padding: 4px 10px; border-radius: 5px; font-size: 11px; font-weight: 700; background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.2); color: #d4af37; cursor: pointer; font-family: 'Syne', sans-serif; }
+  #ai-tooltip button:hover { background: rgba(212,175,55,0.2); }
+  #ai-spinner { display: none; color: #d4af37; font-size: 11px; padding: 4px 8px; }
+  body { padding-top: 50px !important; }
+</style>
+<div id="majorka-toolbar">
+  <span class="tb-brand">⚡ Majorka Editor</span>
+  <div class="tb-div"></div>
+  <button class="tb-btn tb-edit" id="tb-edit-btn" onclick="clawToggleEdit()">✏️ Edit Mode</button>
+  <div class="tb-div"></div>
+  <div class="tb-color-wrap">
+    <span class="tb-color-label">🎨 Accent</span>
+    <input type="color" id="tb-color" value="#d4af37" oninput="clawChangeColor(this.value)" title="Change accent colour">
+  </div>
+  <div class="tb-div"></div>
+  <button class="tb-btn tb-save" onclick="clawSaveHtml()" title="Download edited HTML file">💾 Save HTML</button>
+  <div class="tb-hint">
+    <span>✏️ Click text to edit</span>
+    <span>📷 Click images to replace</span>
+    <span>✨ Select text for AI rewrite</span>
+    <span>💾 Save when done</span>
+  </div>
+</div>
+<div id="ai-tooltip">
+  <span id="ai-spinner">⏳</span>
+  <button onclick="clawAI('improve')">✨ Improve</button>
+  <button onclick="clawAI('shorten')">✂️ Shorten</button>
+  <button onclick="clawAI('urgent')">🔥 Add Urgency</button>
+  <button onclick="clawAI('au')">🇦🇺 AU Voice</button>
+  <button onclick="document.getElementById('ai-tooltip').style.display='none'" style="background:none;border:none;color:rgba(240,237,232,0.3);font-size:16px;padding:2px 6px;">×</button>
+</div>
+<script>
+(function(){
+  var editing=false, selEl=null, selText='', selTimer;
+  var API='${apiOrigin}';
+
+  window.clawToggleEdit=function(){
+    editing=!editing;
+    var btn=document.getElementById('tb-edit-btn');
+    btn.textContent=editing?'✏️ Editing...':'✏️ Edit Mode';
+    btn.classList.toggle('active',editing);
+    editing?clawEnableEdit():clawDisableEdit();
+  };
+
+  window.clawEnableEdit=function(){
+    var sel='h1,h2,h3,h4,p,.hero-sub,.hero-badge,.btn-primary,.btn-secondary,.btn-cart,.btn-buy-now,.nav-logo,.nav-cta,.trust-strip span,.social-proof span,.product-price,.stock-warning,.feature-card h3,.feature-card p,.testimonial-quote,.testimonial-author,.testimonial-city,.footer-tagline,.countdown-wrap';
+    document.querySelectorAll(sel).forEach(function(el){
+      if(el.querySelector('img'))return;
+      el.contentEditable='true'; el.classList.add('claw-editable'); el.spellcheck=false;
+    });
+    document.querySelectorAll('img').forEach(function(img){
+      var w=img.parentElement; if(!w||w.classList.contains('claw-img-wrap'))return;
+      w.classList.add('claw-img-wrap'); w.style.position='relative';
+      w.addEventListener('click',function(){
+        var inp=document.createElement('input'); inp.type='file'; inp.accept='image/*'; inp.style.display='none';
+        document.body.appendChild(inp);
+        inp.onchange=function(){ var f=inp.files[0]; if(f){var r=new FileReader();r.onload=function(e){img.src=e.target.result;};r.readAsDataURL(f);} inp.remove(); };
+        inp.click();
+      });
+    });
+    document.addEventListener('mouseup',clawSelHandler);
+  };
+
+  window.clawDisableEdit=function(){
+    document.querySelectorAll('.claw-editable').forEach(function(el){el.removeAttribute('contenteditable');el.classList.remove('claw-editable');});
+    document.querySelectorAll('.claw-img-wrap').forEach(function(el){el.classList.remove('claw-img-wrap');});
+    document.getElementById('ai-tooltip').style.display='none';
+    document.removeEventListener('mouseup',clawSelHandler);
+  };
+
+  window.clawSelHandler=function(){
+    clearTimeout(selTimer);
+    selTimer=setTimeout(function(){
+      var s=window.getSelection(); if(!s||s.isCollapsed||s.toString().trim().length<4){document.getElementById('ai-tooltip').style.display='none';return;}
+      selText=s.toString().trim(); selEl=s.anchorNode?s.anchorNode.parentElement:null;
+      var rect=s.getRangeAt(0).getBoundingClientRect();
+      var tip=document.getElementById('ai-tooltip');
+      tip.style.display='flex'; tip.style.top=(rect.top-46+window.scrollY)+'px'; tip.style.left=Math.max(10,rect.left)+'px';
+    },250);
+  };
+
+  window.clawAI=function(type){
+    if(!selEl||!selText)return;
+    var tip=document.getElementById('ai-tooltip'); var spin=document.getElementById('ai-spinner');
+    tip.querySelectorAll('button').forEach(function(b){b.disabled=true;});
+    spin.style.display='block';
+    var prompts={
+      improve:'Rewrite to be more compelling for AU ecommerce. Keep same length. Return ONLY rewritten text: ',
+      shorten:'Cut to half the words, keep key message, AU English. Return ONLY result: ',
+      urgent:'Add urgency and FOMO for AU shoppers. Return ONLY result: ',
+      au:'Rewrite in authentic Australian voice (casual, direct, no US-isms). Return ONLY result: '
+    };
+    fetch(API+'/api/website/improve-text',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text:selText,instruction:prompts[type]+selText})
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.result&&selEl){selEl.textContent=d.result;}
+    })
+    .catch(function(){
+      if(selEl)selEl.style.outline='2px solid #ef4444';
+      setTimeout(function(){if(selEl)selEl.style.outline='';},1500);
+    })
+    .finally(function(){
+      spin.style.display='none';
+      tip.querySelectorAll('button').forEach(function(b){b.disabled=false;});
+      tip.style.display='none';
+      window.getSelection().removeAllRanges();
+    });
+  };
+
+  window.clawChangeColor=function(c){
+    var r=parseInt(c.slice(1,3),16),g=parseInt(c.slice(3,5),16),b=parseInt(c.slice(5,7),16);
+    var s=document.getElementById('claw-clr');
+    if(!s){s=document.createElement('style');s.id='claw-clr';document.head.appendChild(s);}
+    s.textContent=':root{--accent:'+c+' !important;} [style*="#d4af37"]{color:'+c+' !important;}';
+  };
+
+  window.clawSaveHtml=function(){
+    document.querySelectorAll('.claw-editable').forEach(function(el){el.removeAttribute('contenteditable');el.classList.remove('claw-editable');});
+    document.querySelectorAll('.claw-img-wrap').forEach(function(el){el.classList.remove('claw-img-wrap');});
+    document.getElementById('ai-tooltip').style.display='none';
+    var html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+    var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+    a.download='my-store.html'; a.click(); URL.revokeObjectURL(a.href);
+  };
+})();
+</script>`;
+  }, []);
+
   const handleOpenPreviewNewTab = useCallback(() => {
-    if (!previewHTML) return;
+    const html = directHtml || previewHTML;
+    if (!html) return;
+    const toolbar = buildNewTabToolbar();
+    const htmlWithToolbar = html.includes('</body>') ? html.replace(/<\/body>/i, toolbar + '\n</body>') : html + toolbar;
     const win = window.open('', '_blank');
-    if (win) { win.document.write(previewHTML); win.document.close(); }
-  }, [previewHTML]);
+    if (win) { win.document.write(htmlWithToolbar); win.document.close(); }
+  }, [directHtml, previewHTML, buildNewTabToolbar]);
 
   const cursorInstructions = `1. Unzip the downloaded file\n2. Open Cursor (cursor.com)\n3. File → Open Folder → select unzipped folder\n4. In Cursor chat: "I have a Shopify theme. Help me customise it for ${storeName || '[store name]'}"\n5. Cursor will read all files and help you build`;
 
