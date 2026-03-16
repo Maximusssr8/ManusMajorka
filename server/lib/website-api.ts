@@ -255,6 +255,19 @@ function bestUrl(photo: any): string {
 }
 
 // Multi-query Pexels fetcher: tries specific → simplified → category fallback
+function sanitizeProductTitle(raw: string, niche: string): string {
+  if (!raw) return niche;
+  // Strip titles that are just "Product from aliexpress.com" etc.
+  if (/product from (aliexpress|amazon|shopify|ebay|temu|dhgate|alibaba|walmart|wish|taobao)/i.test(raw)) return niche;
+  // Strip trailing domain suffixes: "Great Leggings | AliExpress" or "Leggings - AliExpress.com"
+  let clean = raw
+    .replace(/\s*[|–\-—]+\s*(aliexpress|amazon|ebay|temu|dhgate|shopify|alibaba|taobao)\.?(com)?\s*$/gi, '')
+    .replace(/\s*(aliexpress|amazon|ebay|temu|dhgate)\.com.*/gi, '')
+    .trim();
+  if (!clean || clean.length < 3) return niche;
+  return clean;
+}
+
 async function fetchImagesForStore(productTitle: string, niche: string): Promise<{
   hero: string; product: string; lifestyle1: string; lifestyle2: string; shopImages: string[];
 }> {
@@ -1058,7 +1071,7 @@ export async function generateFullStore(params: {
 
   // ── 1. Fetch real images from Pexels ───────────────────────────────────────
   const pd = productData || {};
-  const productTitle = (pd.product_title as string) || '';
+  const productTitle = sanitizeProductTitle((pd.product_title as string) || '', niche);
   // Extract scraped images from the imported product URL (highest priority)
   const scrapedProductImgs: string[] = Array.isArray(pd.product_images) ? (pd.product_images as string[]) : [];
   const scrapedHeroImg    = (pd.hero_image as string | undefined) || scrapedProductImgs[0];
@@ -1076,7 +1089,7 @@ export async function generateFullStore(params: {
   // ── 2. Build product context ──────────────────────────────────────────────
   const productContext = pd.product_title ? `
 PRODUCT DETAILS (use these exactly — do not invent):
-- Name: ${pd.product_title}
+- Name: ${sanitizeProductTitle(pd.product_title as string, niche)}
 - Category: ${pd.category || pd.product_type || niche}
 - Description: ${pd.description || ''}
 - Key features: ${(pd.key_features as string[] || []).join(', ')}
@@ -1389,7 +1402,7 @@ This closes the data-page="home" div. No script tags.`;
 
   const shopProductNames = (() => {
     if (pd.product_title) {
-      const t = pd.product_title as string;
+      const t = sanitizeProductTitle(pd.product_title as string, niche);
       const colors = (pd.colors as string[] | undefined) || [];
       const sizes  = (pd.sizes  as string[] | undefined) || [];
       // Generate meaningful variants from real product data

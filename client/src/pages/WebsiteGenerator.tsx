@@ -1254,6 +1254,8 @@ export default function WebsiteGenerator() {
   const [eta, setEta] = useState(90);
   // C2 — Device preview
   const [previewDevice, setPreviewDevice] = useState<'desktop'|'tablet'|'mobile'>('desktop');
+  const [editMode, setEditMode] = useState(false);
+  const previewIframeRef = useRef<HTMLIFrameElement>(null);
   // C3 — Site history
   const [siteHistory, setSiteHistory] = useState<SiteHistoryItem[]>([]);
   // genStartRef for stale-closure-safe elapsed time
@@ -1560,6 +1562,101 @@ export default function WebsiteGenerator() {
     URL.revokeObjectURL(url);
     toast.success('ZIP downloaded!');
   }, [generatedData, storeName]);
+
+  // ── Inline Editor ────────────────────────────────────────────────────────────
+  const enableEditMode = useCallback((iframe: HTMLIFrameElement | null) => {
+    if (!iframe?.contentDocument) return;
+    const doc = iframe.contentDocument;
+    if (!doc.getElementById('claw-edit-styles')) {
+      const style = doc.createElement('style');
+      style.id = 'claw-edit-styles';
+      style.textContent = `
+        .claw-editable { outline: 2px dashed rgba(212,175,55,0.45) !important; cursor: text !important; border-radius: 4px; }
+        .claw-editable:hover { outline: 2px solid #d4af37 !important; background: rgba(212,175,55,0.06) !important; }
+        .claw-editable:focus { outline: 2px solid #d4af37 !important; background: rgba(212,175,55,0.08) !important; box-shadow: 0 0 0 4px rgba(212,175,55,0.1); }
+        .claw-img-wrap { position: relative !important; cursor: pointer !important; }
+        .claw-img-wrap::after { content: "📷 Replace Image"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.55); color: #d4af37; font-size: 14px; font-weight: 700; opacity: 0; transition: opacity 0.2s; pointer-events: none; font-family: sans-serif; border-radius: inherit; }
+        .claw-img-wrap:hover::after { opacity: 1; }
+        .claw-img-wrap img { pointer-events: none !important; }
+      `;
+      doc.head.appendChild(style);
+    }
+    const editSel = 'h1, h2, h3, h4, p, .hero-sub, .hero-badge, .btn-primary, .btn-secondary, .btn-cart, .btn-buy-now, .nav-logo, .nav-cta, .trust-strip span, .social-proof span, .product-price, .product-price-orig, .stock-warning, .feature-card h3, .feature-card p, .testimonial-quote, .testimonial-author, .testimonial-city, .footer-tagline, .faq-question span:first-child';
+    try {
+      doc.querySelectorAll<HTMLElement>(editSel).forEach(el => {
+        if (el.querySelector('img')) return; // skip elements containing images
+        el.contentEditable = 'true';
+        el.classList.add('claw-editable');
+        el.spellcheck = false;
+      });
+    } catch (_) { /* ignore selector errors */ }
+    doc.querySelectorAll<HTMLImageElement>('img').forEach(img => {
+      const wrap = img.parentElement as HTMLElement;
+      if (!wrap || wrap.classList.contains('claw-img-wrap')) return;
+      wrap.classList.add('claw-img-wrap');
+      (wrap as HTMLElement).addEventListener('click', () => {
+        const input = doc.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.style.display = 'none';
+        doc.body.appendChild(input);
+        input.onchange = () => {
+          const file = input.files?.[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => { if (e.target?.result) img.src = e.target.result as string; };
+            reader.readAsDataURL(file);
+          }
+          input.remove();
+        };
+        input.click();
+      });
+    });
+  }, []);
+
+  const disableEditMode = useCallback((iframe: HTMLIFrameElement | null) => {
+    if (!iframe?.contentDocument) return;
+    const doc = iframe.contentDocument;
+    doc.getElementById('claw-edit-styles')?.remove();
+    doc.querySelectorAll<HTMLElement>('.claw-editable').forEach(el => {
+      el.removeAttribute('contenteditable');
+      el.classList.remove('claw-editable');
+    });
+    doc.querySelectorAll<HTMLElement>('.claw-img-wrap').forEach(el => {
+      el.classList.remove('claw-img-wrap');
+    });
+  }, []);
+
+  const getEditedHtml = useCallback((): string => {
+    const iframe = previewIframeRef.current;
+    if (!iframe?.contentDocument) return directHtml || rawResponse || '';
+    const doc = iframe.contentDocument;
+    doc.getElementById('claw-edit-styles')?.remove();
+    doc.querySelectorAll<HTMLElement>('.claw-editable').forEach(el => { el.removeAttribute('contenteditable'); el.classList.remove('claw-editable'); });
+    doc.querySelectorAll<HTMLElement>('.claw-img-wrap').forEach(el => { el.classList.remove('claw-img-wrap'); });
+    return '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+  }, [directHtml, rawResponse]);
+
+  const handleToggleEdit = useCallback(() => {
+    const iframe = previewIframeRef.current;
+    if (!editMode) {
+      enableEditMode(iframe);
+      setEditMode(true);
+      toast.success('Edit mode ON — click any text to edit · click images to replace');
+    } else {
+      disableEditMode(iframe);
+      setEditMode(false);
+      toast('Edit mode off');
+    }
+  }, [editMode, enableEditMode, disableEditMode]);
+
+  const handleSaveEdits = useCallback(() => {
+    const html = getEditedHtml();
+    setDirectHtml(html);
+    setEditMode(false);
+    toast.success('Changes saved!');
+  }, [getEditedHtml]);
+  // ─────────────────────────────────────────────────────────────────────────────
 
   const handleDownloadHTML = useCallback(() => {
     if (!generatedData) return;
@@ -2263,13 +2360,29 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                           <button key={d} onClick={() => { setPreviewDevice(d); setMobilePreview(d !== 'desktop'); }} style={{ padding: '4px 10px', fontSize: 11, borderRadius: 6, background: previewDevice === d ? 'rgba(212,175,55,0.15)' : 'transparent', border: `1px solid ${previewDevice === d ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.06)'}`, color: previewDevice === d ? '#d4af37' : 'rgba(240,237,232,0.4)', cursor: 'pointer', fontFamily: 'Syne, sans-serif', fontWeight: 700, textTransform: 'capitalize' as const }}>{d === 'desktop' ? '🖥' : d === 'tablet' ? '📱' : '📲'} {d}</button>
                         ))}
                       </div>
-                      {/* B4 — Theme switcher */}
+                      {/* B4 — Theme switcher + Edit mode */}
                       {directHtml && (
-                        <div className="ml-auto flex items-center gap-1">
+                        <div className="ml-auto flex items-center gap-1 flex-wrap">
                           {(['dark','light','bold','muted'] as const).map(t => (
                             <button key={t} onClick={() => applyTheme(t)} style={{ padding: '5px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: 'Syne, sans-serif', background: activeTheme === t ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${activeTheme === t ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.08)'}`, color: activeTheme === t ? '#d4af37' : 'rgba(240,237,232,0.5)', cursor: 'pointer', textTransform: 'capitalize' as const }}>{t}</button>
                           ))}
                           <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.3)', marginLeft: 4 }}>theme</span>
+                          <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.08)', margin: '0 6px' }} />
+                          <button
+                            onClick={handleToggleEdit}
+                            title="Click text to edit, click images to upload your own"
+                            style={{ padding: '5px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: 'Syne, sans-serif', background: editMode ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.04)', border: `1px solid ${editMode ? '#d4af37' : 'rgba(255,255,255,0.1)'}`, color: editMode ? '#d4af37' : 'rgba(240,237,232,0.5)', cursor: 'pointer' }}
+                          >
+                            ✏️ {editMode ? 'Editing...' : 'Edit'}
+                          </button>
+                          {editMode && (
+                            <button
+                              onClick={handleSaveEdits}
+                              style={{ padding: '5px 12px', borderRadius: 6, fontSize: 11, fontWeight: 800, fontFamily: 'Syne, sans-serif', background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.5)', color: '#d4af37', cursor: 'pointer' }}
+                            >
+                              💾 Save
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -2292,6 +2405,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                               boxShadow: previewDevice !== 'desktop' ? '0 8px 40px rgba(0,0,0,0.5)' : 'none',
                             }}
                             sandbox="allow-scripts allow-same-origin allow-popups"
+                            ref={previewIframeRef}
                           />
                         </div>
                         {/* B3 — Headline variants panel */}
