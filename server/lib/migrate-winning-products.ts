@@ -459,3 +459,39 @@ export async function seedViaRest(): Promise<void> {
     console.warn('[seed] ⚠️ Seed failed:', err.slice(0, 200));
   }
 }
+
+/** Create generated_stores table for Website Generator store history */
+export async function runGeneratedStoresMigration(): Promise<void> {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    console.warn('[migrate] DATABASE_URL not set — skipping generated_stores migration');
+    return;
+  }
+  let sql: ReturnType<typeof import('postgres')> | null = null;
+  try {
+    sql = await connectWithFallbacks(dbUrl);
+    await sql`
+      CREATE TABLE IF NOT EXISTS public.generated_stores (
+        id                uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+        user_id           uuid REFERENCES auth.users(id) ON DELETE CASCADE,
+        store_name        text,
+        niche             text,
+        template          text,
+        blueprint         jsonb,
+        html              text,
+        shopify_product_id text,
+        pushed_at         timestamptz,
+        created_at        timestamptz DEFAULT now()
+      )
+    `;
+    await sql.unsafe(`ALTER TABLE public.generated_stores ENABLE ROW LEVEL SECURITY`);
+    try {
+      await sql`CREATE POLICY "Users own their stores" ON public.generated_stores FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id)`;
+    } catch {}
+    console.log('[migrate] ✅ generated_stores table ready');
+  } catch (e: any) {
+    console.warn('[migrate] generated_stores skipped:', e.message?.slice(0, 120));
+  } finally {
+    if (sql) { try { await (sql as any).end(); } catch {} }
+  }
+}

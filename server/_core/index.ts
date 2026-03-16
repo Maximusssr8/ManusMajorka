@@ -115,9 +115,10 @@ async function startServer() {
   });
 
   // Run DB migrations (non-fatal — gracefully skips if DB unreachable locally)
-  import('../lib/migrate-winning-products').then(({ runWinningProductsMigration }) =>
-    runWinningProductsMigration().catch(console.warn)
-  );
+  import('../lib/migrate-winning-products').then(({ runWinningProductsMigration, runGeneratedStoresMigration }) => {
+    runWinningProductsMigration().catch(console.warn);
+    runGeneratedStoresMigration().catch(console.warn);
+  });
 
   // One-time intelligence tables migration endpoint
   app.post('/api/internal/run-intel-migration', async (req, res) => {

@@ -21,9 +21,10 @@ import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../
 import { getProductByIdPublic } from "../server/db";
 
 // Run DB migrations on cold start (non-fatal)
-import('../server/lib/migrate-winning-products').then(({ runWinningProductsMigration }) =>
-  runWinningProductsMigration().catch(console.warn)
-);
+import('../server/lib/migrate-winning-products').then(({ runWinningProductsMigration, runGeneratedStoresMigration }) => {
+  runWinningProductsMigration().catch(console.warn);
+  runGeneratedStoresMigration().catch(console.warn);
+});
 
 const app = express();
 

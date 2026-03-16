@@ -1092,3 +1092,91 @@ After finishing, print:
 - No Laziness: Find root causes. No temporary fixes. Senior developer standards.
 - Minimal Impact: Changes should only touch what's necessary. Avoid introducing bugs.
 - No hand-holding required: operate autonomously, report results.
+
+---
+
+# CURRENT ACTIVE TASK: WebsiteGenerator Improvements (Tasks 1–7)
+
+You are the senior engineer on Majorka. Read tasks/wg-improvements.md for full spec.
+Implement all 7 tasks. Do not stop. Work in ~/ManusMajorka.
+After completing, run: pnpm run build && npx tsc --noEmit
+Then: git add -A && git commit -m "feat: WebsiteGenerator — live preview, template UX, progress overlay, Shopify connect, quick-start, store history" && git push origin main
+
+---
+
+## TASKS 8 & 9 (also implement these after Tasks 1-7)
+
+### TASK 8 — Mobile Responsiveness Audit (WebsiteGenerator.tsx)
+
+The left sidebar (form) and right preview panel sit side by side.
+At 375px viewport (mobile), this breaks.
+
+Apply these responsive CSS changes using inline styles + JS window width checks:
+
+1. Detect mobile: `const isMobile = typeof window !== 'undefined' && window.innerWidth < 768`
+   Use `useState + useEffect` that listens to window resize and updates `isMobile` boolean.
+
+2. The outer container (flex row with sidebar + preview): on mobile, change to `flexDirection: 'column'`
+
+3. Left sidebar: on mobile, set `overflowX: 'auto'`, `maxHeight: 'none'`, `width: '100%'`
+
+4. Template list: on mobile, wrap with a `div style={{ overflowX: 'auto', display: 'flex', gap: 8, flexWrap: 'nowrap' }}` so templates scroll horizontally.
+   Each template button on mobile gets `flexShrink: 0, width: 180`
+
+5. All input elements already get `minHeight: 44` — verify they all have this.
+
+6. Generate button on mobile: `width: '100%'` and `minHeight: 52`
+
+7. Right preview panel on mobile: `minHeight: 400`, placed below the form
+
+### TASK 9 — Maya AI Suggestions (bottom bar, WebsiteGenerator.tsx)
+
+Find the Maya suggestion area (search for "Maya" or "Find suppliers" in the file).
+Wire it contextually:
+
+```tsx
+// Compute Maya suggestion based on current state:
+const mayaSuggestion = importedProduct
+  ? `Find suppliers for "${importedProduct.title.slice(0,30)}" →`
+  : hasOutput
+    ? `Calculate margin for "${(storeName || niche).slice(0,25)}" →`
+    : 'Paste a product URL to get started';
+
+const mayaLink = importedProduct
+  ? `/app/suppliers?q=${encodeURIComponent(importedProduct.title)}`
+  : hasOutput
+    ? `/app/profit-check?store=${encodeURIComponent(storeName || niche)}`
+    : null;
+```
+
+Replace the static Maya suggestion text with `{mayaSuggestion}` and wrap it in an `<a>` if `mayaLink` is non-null.
+
+Also: after generation completes (directHtml is set), add a second Maya suggestion:
+"Calculate margin for [store name] →" that links to `/app/profit-check`.
+
+### TASK 10 — Recent Stores section
+
+Below the Quick Start section in the left sidebar, add a "Recent Stores" section.
+
+Use the existing `siteHistory` state (already populated from C3 feature).
+Render the last 3 items from `siteHistory`:
+
+```tsx
+{siteHistory.length > 0 && (
+  <div>
+    <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(212,175,55,0.6)', fontFamily: 'Syne, sans-serif', marginBottom: 6 }}>RECENT STORES</div>
+    {siteHistory.slice(0, 3).map(item => (
+      <div key={item.id} style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(240,237,232,0.7)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</div>
+          <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.3)' }}>{new Date(item.timestamp).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</div>
+        </div>
+        <button onClick={() => { setDirectHtml(item.html); setHasOutput_or_activeTab('preview'); }} style={{ fontSize: 10, padding: '3px 8px', borderRadius: 6, background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.2)', color: '#d4af37', cursor: 'pointer' }}>Load</button>
+      </div>
+    ))}
+  </div>
+)}
+```
+
+Note: `setHasOutput_or_activeTab` — use whatever sets the preview tab as active so the iframe appears.
+
