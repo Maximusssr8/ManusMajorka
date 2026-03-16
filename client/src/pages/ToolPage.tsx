@@ -55,6 +55,7 @@ const VideoIntelligence = lazy(() => import('./VideoIntelligence'));
 const CompetitorSpyPage = lazy(() => import('./CompetitorSpy'));
 const TrendSignals = lazy(() => import('./TrendSignals'));
 const SupplierIntelligence = lazy(() => import('./SupplierIntelligence'));
+const SupplierDirectory = lazy(() => import('./SupplierDirectory'));
 
 // Map stage landing paths to their stage names
 const STAGE_PATHS: Record<string, string> = {
@@ -195,6 +196,7 @@ export default function ToolPage() {
   if (location === '/app/ad-spy') return page(<AdSpy />);
   if (location === '/app/winning-products') return page(<WinningProducts />);
   if (location === '/app/profit-calculator') return page(<ProfitCalculator />);
+  if (location === '/app/profit-check') return page(<ProfitCalculator />);
   if (location === '/app/store-spy') return page(<StoreSpy />);
   if (location === '/app/saturation-checker') return page(<SaturationChecker />);
   if (location === '/app/market') return page(<MarketDashboard />);
@@ -202,7 +204,8 @@ export default function ToolPage() {
   if (location === '/app/videos') return page(<VideoIntelligence />);
   if (location === '/app/competitor-spy') return page(<CompetitorSpyPage />);
   if (location === '/app/trend-signals') return page(<TrendSignals />);
-  if (location === '/app/suppliers') return page(<SupplierIntelligence />);
+  if (location === '/app/suppliers') return page(<SupplierDirectory />);
+  if (location === '/app/supplier-finder') return page(<SupplierIntelligence />);
   if (location === '/app/tiktok') return page(<TikTokSlideshow />);
   if (location === '/app/store/setup') return page(<StoreSetup />);
   if (location === '/app/store/products') return page(<StoreProducts />);

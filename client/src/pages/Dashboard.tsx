@@ -776,6 +776,83 @@ function DashboardHome() {
           </div>
         </div>
 
+        {/* ── New User Welcome Banner ── */}
+        {productCount === 0 && !productsQuery.isLoading && (
+          <div
+            style={{
+              background: 'linear-gradient(135deg, rgba(212,175,55,0.06) 0%, rgba(212,175,55,0.02) 100%)',
+              border: '1px solid rgba(212,175,55,0.15)',
+              borderRadius: 16,
+              padding: '24px',
+              marginBottom: 24,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(212,175,55,0.7)', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
+                  Welcome to Majorka
+                </div>
+                <h2 style={{ fontSize: 20, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: '#f0ede8', marginBottom: 8, margin: 0 }}>
+                  Let's find your first winning product
+                </h2>
+                <p style={{ fontSize: 13, color: 'rgba(240,237,232,0.5)', marginTop: 8, marginBottom: 0 }}>
+                  69 winning products tracked · Updated daily · AU-specific data
+                </p>
+              </div>
+              <button
+                onClick={() => setLocation('/app/winning-products')}
+                style={{
+                  padding: '10px 20px',
+                  background: '#d4af37',
+                  color: '#080a0e',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontSize: 13,
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  fontFamily: 'Syne, sans-serif',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                }}
+              >
+                Scout Products →
+              </button>
+            </div>
+
+            {/* 3 featured products */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10, marginTop: 20 }}>
+              {[
+                { title: 'Red Light Therapy Wand', niche: 'Health & Wellness', revenue: '$96K/mo', trend: 'Exploding', score: 88 },
+                { title: 'LED Teeth Whitening Kit', niche: 'Beauty & Skincare', revenue: '$108K/mo', trend: 'Exploding', score: 86 },
+                { title: 'Smart Herb Garden Kit', niche: 'Home & Kitchen', revenue: '$72K/mo', trend: 'Exploding', score: 84 },
+              ].map((p) => (
+                <div
+                  key={p.title}
+                  style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.07)',
+                    borderRadius: 10,
+                    padding: '12px 14px',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => setLocation('/app/winning-products')}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.25)')}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
+                >
+                  <div style={{ fontSize: 10, color: 'rgba(212,175,55,0.7)', fontWeight: 700, marginBottom: 6, fontFamily: 'Syne, sans-serif' }}>
+                    {p.trend}
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#f0ede8', fontFamily: 'Syne, sans-serif', marginBottom: 4 }}>
+                    {p.title}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)', marginBottom: 6 }}>{p.niche}</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#d4af37' }}>{p.revenue}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <OnboardingChecklist />
         <LaunchReadiness userId={user?.id} />
 
