@@ -95,6 +95,21 @@ app.post("/api/internal/run-intel-migration", async (req: Request, res: Response
   }
 });
 
+app.post("/api/internal/run-stores-migration", async (req: Request, res: Response) => {
+  const secret = req.headers["x-migration-secret"];
+  if (secret !== "majorka-intel-2026") {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+  try {
+    const { runGeneratedStoresMigration } = await import("../server/lib/migrate-winning-products");
+    await runGeneratedStoresMigration();
+    res.json({ ok: true, message: "generated_stores migration complete" });
+  } catch (e: any) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
 // Debug: show DB URL prefix (sanitized)
 app.get("/api/internal/db-debug", (req: Request, res: Response) => {
   const secret = req.headers["x-migration-secret"];

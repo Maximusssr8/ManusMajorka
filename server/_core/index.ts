@@ -136,6 +136,22 @@ async function startServer() {
     }
   });
 
+  // Generated stores migration endpoint
+  app.post('/api/internal/run-stores-migration', async (req, res) => {
+    const secret = req.headers['x-migration-secret'];
+    if (secret !== 'majorka-intel-2026') {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
+    try {
+      const { runGeneratedStoresMigration } = await import('../lib/migrate-winning-products');
+      await runGeneratedStoresMigration();
+      res.json({ ok: true, message: 'generated_stores migration complete' });
+    } catch (e: any) {
+      res.status(500).json({ ok: false, error: e.message });
+    }
+  });
+
   // Chat API with streaming and tool calling
   registerChatRoutes(app);
   // Product scraping API
