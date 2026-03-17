@@ -38,7 +38,21 @@ export async function createContext(opts: CreateExpressContextOptions): Promise<
           }
           user = profile ?? null;
         } catch {
-          // DB unavailable — return a synthetic profile so the UI can show user info
+          // DB threw — return a synthetic profile so the UI can show user info
+          user = {
+            id: supabaseUser.id,
+            email: supabaseUser.email ?? null,
+            name: supabaseUser.user_metadata?.full_name ?? supabaseUser.user_metadata?.name ?? null,
+            avatarUrl: supabaseUser.user_metadata?.avatar_url ?? null,
+            role: 'user',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            lastSignedIn: new Date(),
+          } as Profile;
+        }
+        // DB returned undefined (no throw) — still need a synthetic profile so
+        // protectedProcedure doesn't throw UNAUTHORIZED for valid Supabase users
+        if (!user) {
           user = {
             id: supabaseUser.id,
             email: supabaseUser.email ?? null,

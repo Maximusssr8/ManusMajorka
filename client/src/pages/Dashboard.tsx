@@ -591,16 +591,21 @@ function DashboardHome() {
   );
 
   // Redirect to onboarding if not completed
+  // Guard: only redirect if profile explicitly has onboardingCompleted=false.
+  // If profile is null (DB unavailable) or query is loading, do NOT redirect —
+  // that would cause an infinite login loop when DATABASE_URL is missing.
   useEffect(() => {
     if (!isAuthenticated) return;
     const localDone = localStorage.getItem(ONBOARDING_KEY);
-    if (!localDone && profileQuery.isFetched) {
+    if (!localDone && profileQuery.isFetched && !profileQuery.isError) {
       const profile = profileQuery.data as { onboardingCompleted?: boolean } | null | undefined;
-      if (!profile?.onboardingCompleted) {
+      // Only redirect if profile exists AND explicitly says onboarding not done.
+      // null profile = DB unavailable, don't redirect.
+      if (profile !== null && profile !== undefined && profile.onboardingCompleted === false) {
         setLocation('/onboarding');
       }
     }
-  }, [isAuthenticated, profileQuery.isFetched, profileQuery.data, setLocation]);
+  }, [isAuthenticated, profileQuery.isFetched, profileQuery.isError, profileQuery.data, setLocation]);
 
   // Handle post-upgrade redirect
   useEffect(() => {
