@@ -1372,8 +1372,9 @@ async function generateFullStore_legacy(params: {
   const pd = productData || {};
   const productTitle = sanitizeProductTitle((pd.product_title as string) || '', niche);
   const scrapedImages = pd?.product_images as string[] | undefined;
-  const scrapedHeroImg = (pd?.hero_image as string) || scrapedImages?.[0] || '';
-  const scrapedProductImg = scrapedImages?.[1] || '';
+  const directProductImageUrl = (pd?.productImageUrl as string) || (pd?.image_url as string) || '';
+  const scrapedHeroImg = (pd?.hero_image as string) || scrapedImages?.[0] || directProductImageUrl || '';
+  const scrapedProductImg = directProductImageUrl || scrapedImages?.[1] || scrapedImages?.[0] || '';
   const imgs = getUnsplashImages(niche, productTitle);
   const heroImg      = scrapedHeroImg    || imgs.hero;
   const productImg   = scrapedProductImg || imgs.product;
@@ -1404,7 +1405,13 @@ async function generateFullStore_legacy(params: {
   const manifestJson = buildManifest(storeName_, color, (brief.tagline as string) || vibe || ('Premium ' + niche + ' for Australians'));
 
   // ── 4. Extract all brief values with safe fallbacks ────────────────────────
-  const briefBrandName   = String(brief.brandName   || storeName_ || niche);
+  // FIXED: always prefer the user-provided storeName over what Haiku guessed
+  const briefBrandName = String(
+    (storeName_ && storeName_.trim() !== '' && storeName_.trim() !== niche)
+      ? storeName_
+      : (brief.brandName || storeName_ || niche)
+  );
+  console.log(`[website-api] BRAND: briefBrandName="${briefBrandName}" storeName_="${storeName_}" brief.brandName="${brief.brandName}"`);
   const briefTagline     = String(brief.tagline      || `Premium ${niche} for Australians`);
   const briefHeadline    = String(brief.heroHeadline || `The ${niche} brand built for Australia`);
   const briefSubheadline = String(brief.heroSubheadline || `Premium quality. Fast AU shipping. Results from day one.`);
@@ -1455,6 +1462,91 @@ async function generateFullStore_legacy(params: {
   const googleFontsUrl  = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(headingFontName)}:wght@400;700;800;900&family=${encodeURIComponent(bodyFontName)}:wght@400;500;600&display=swap`;
 
   // ── 5. Build the Sonnet prompt ────────────────────────────────────────────────
+  const templateOverride = (() => {
+    if (!dir) return '';
+    const d = designDirection as string;
+
+    if (d === 'luxury') return `
+═══ LUXURY TEMPLATE OVERRIDES ═══
+This is a LUXURY brand. Override the default styling with:
+- BG: #0a0806 (very dark warm black) — surface: #120f0a
+- Use Cormorant Garamond for ALL headings (already loaded via Google Fonts)
+- Heading weight: 300 (ultra-thin) — NOT bold
+- Zero urgency copy — NO "Only X left", NO "Limited time", NO countdown timers
+- NO emoji anywhere in the entire page
+- Section 4 (Trust badges): Remove. Replace with a single centered quote: "${briefUvp}" in italics, Cormorant Garamond, font-size:28px, color:rgba(245,240,232,0.7)
+- Product section bg: #0d0a07 (barely lighter than bg)
+- All buttons: border:1px solid rgba(${colorRgb},0.5); background:transparent; letter-spacing:0.12em; text-transform:uppercase; font-size:12px — NO filled gold buttons
+- Add 120px+ vertical padding between every section (luxury = space)
+- Announcement bar: very subtle — background:rgba(${colorRgb},0.08); color:rgba(245,240,232,0.5); font-size:11px; letter-spacing:3px; NO exclamation marks
+- Copy tone: sophisticated, restrained. "Exceptional." not "Amazing!" No promotional language.
+`;
+
+    if (d === 'brutalist') return `
+═══ DTC/BRUTALIST TEMPLATE OVERRIDES ═══
+This is a HIGH-CONVERSION DTC store. Override the default styling with:
+- BG: #080808 — surface: #111111
+- Announcement bar: VERY prominent — large text, contrasting background
+- Section 4 (Trust badges): Make these MASSIVE — 3 large cards with huge icons
+- Add urgency callout near the CTA: "⚡ Only 7 left — 23 people viewing right now" — red text, bold
+- Product price: display in VERY large font (64px+) — make it dominate
+- Afterpay block: give it its own styled container, teal/mint border
+- Add a "BEFORE / AFTER" text section: 2 columns, contrast what life is like without vs with this product
+- CTA buttons: fill colors, rounded-0 (sharp corners), uppercase, bold
+- Social proof numbers section: put this ABOVE the fold, right after the hero
+- Section 4 position: move to BETWEEN hero and product section
+- Copy: urgent, benefit-forward. "Transform your [pain point] in 30 days or money back"
+`;
+
+    if (d === 'editorial') return `
+═══ COASTAL / EDITORIAL TEMPLATE OVERRIDES ═══
+This is a LIGHT, AIRY, lifestyle brand. Override:
+- Use light backgrounds: hero bg #fafaf8, sections alternate #ffffff / #f4f4f0
+- ALL text: #1a1a1a on light backgrounds — high contrast
+- Use Playfair Display italics for hero headline: font-style:italic
+- Remove the dark overlay on hero — show the full lifestyle image
+- Remove announcement bar urgency — replace with "Free AU shipping on all orders"
+- Trust badges section: light background, thin borders, no icons — just clean text
+- Testimonial cards: white bg, very light border, no left accent border
+- Copy tone: relaxed, warm, lifestyle. "Made for life outdoors." not "SHOP NOW!"
+- CTA buttons: outlined style, no fills — border:2px solid #1a1a1a; background:transparent; color:#1a1a1a
+`;
+
+    if (d === 'saas') return `
+═══ TECH / SAAS TEMPLATE OVERRIDES ═══
+This is a TECH-FORWARD store. Override:
+- BG: #0d1117 (GitHub dark) — surface: #161b22
+- Use Syne for headings, Inter for body
+- Add a SPEC TABLE in the product section — 4-6 technical specs in a grid
+  Format: "Spec Name" | "Value" — alternating rows, monospace font
+- Replace testimonials with a "Compatibility" or "Works with:" section
+- Replace "How it works" steps with technical process steps (more precise language)
+- Stats section: use metrics-focused copy — "99.7% positive", "< 48hr dispatch"
+- Trust badges: include "Australian warehouse", "CE certified" type claims
+- Copy tone: precise, feature-focused, technical. Specs > emotions
+- Code/terminal aesthetic for the "How it works" section: use monospace font for steps
+`;
+
+    if (d === 'minimal') return `
+═══ BLOOM / MINIMAL TEMPLATE OVERRIDES ═══
+This is a SOFT BEAUTY / WELLNESS brand. Override:
+- BG: #fffbf7 (warm cream) — hero bg: #fff8f2
+- Use soft pinks and creams as secondary colors alongside ${color}
+- Playfair Display for headings, Lato for body
+- Add an "Ingredients" or "Key Benefits" section between product and testimonials:
+  3-4 circular icons (emoji) + ingredient/benefit name + one sentence description
+- Testimonial cards: very soft shadows, rounded-2xl, NO left border accent
+- Add a "Before & After" or "Your Routine" section with a gentle step-by-step
+- Copy: gentle, empowering, ingredient-aware. "Clinically formulated for sensitive skin."
+- CTA: soft — "Add to Routine" instead of "Add to Cart"; "Begin Your Journey" not "Buy Now"
+- Section 6 (stats): pastel colors, very soft — not bold gold
+- All borders: very light, almost invisible (rgba(0,0,0,0.06))
+- Add: "Dermatologist tested" "Cruelty free" "Made in Australia" trust badges
+`;
+
+    return '';
+  })();
+
   const singlePassSystem = `You are a world-class Shopify store designer and HTML/CSS developer. Output ONLY valid, complete HTML starting with <!DOCTYPE html>. No markdown. No code fences. No explanation. Make it genuinely beautiful — agency quality.`;
 
   const singlePassUser = `Create a stunning, complete, production-ready HTML storefront. Match the quality of Lovable or Framer websites. This must look like it was built by a $50,000 agency.
@@ -1656,6 +1748,8 @@ Mobile (max-width:768px):
 - Section padding: 60px 24px on mobile
 - Font sizes: reduce by ~15%
 
+${templateOverride}
+
 ═══ OUTPUT RULES ═══
 - Start with <!DOCTYPE html>
 - Minimum 600 lines of well-formatted HTML
@@ -1691,8 +1785,46 @@ Mobile (max-width:768px):
   }
 
   progress(92, '🏗️ Finalising your store...');
-  const finalHtml = postProcessHtml(fullText, storeName_, niche, color, colorRgb, surfColor, bgColor, cardRadius);
-  console.log(`[website-api] Generated HTML size: ${(finalHtml.length / 1024).toFixed(1)}kb`);
+  let workingHtml = fullText;
+
+  // Quality check — retry if output is truncated or missing brand name
+  const isGoodOutput = (html: string) => {
+    return html.length > 3000 &&
+      html.includes('</html>') &&
+      (html.includes(briefBrandName) || briefBrandName === 'My Store');
+  };
+
+  if (!isGoodOutput(workingHtml)) {
+    console.warn(`[website-api] Quality check FAILED — length:${workingHtml.length}, hasClosingTag:${workingHtml.includes('</html>')}, hasBrandName:${workingHtml.includes(briefBrandName)}. Retrying with 9000 tokens...`);
+    progress(93, '🔄 Enhancing quality...');
+
+    try {
+      const retryStream = client.messages.stream({
+        model: CLAUDE_MODEL,
+        max_tokens: 9000,
+        temperature: 0.6,
+        system: singlePassSystem,
+        messages: [{ role: 'user', content: singlePassUser }],
+      });
+
+      let retryText = '';
+      for await (const event of retryStream) {
+        if (event.type === 'content_block_delta' && (event.delta as any).type === 'text_delta') {
+          retryText += (event.delta as any).text;
+        }
+      }
+
+      if (retryText.length > workingHtml.length) {
+        workingHtml = retryText;
+        console.log(`[website-api] Retry succeeded — length:${workingHtml.length}`);
+      }
+    } catch (retryErr) {
+      console.warn('[website-api] Retry failed:', retryErr);
+    }
+  }
+
+  const finalHtml = postProcessHtml(workingHtml, storeName_, niche, color, colorRgb, surfColor, bgColor, cardRadius);
+  console.log(`[website-api] Final HTML size: ${(finalHtml.length / 1024).toFixed(1)}kb`);
 
   progress(100, '✅ Your store is ready!');
   return { html: finalHtml, manifest: manifestJson };
