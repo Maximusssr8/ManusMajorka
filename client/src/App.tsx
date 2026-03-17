@@ -257,6 +257,21 @@ function App() {
     const ref = params.get('ref');
     if (ref) localStorage.setItem('majorka_ref', ref);
   }, []);
+
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        document.dispatchEvent(new CustomEvent('close-modal'));
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        document.dispatchEvent(new CustomEvent('open-command-palette'));
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark" switchable>
