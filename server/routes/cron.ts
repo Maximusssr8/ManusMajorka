@@ -161,9 +161,17 @@ Only output the JSON array. No markdown.`
       source: 'cron',
     }));
 
-    const { error: upsertError } = await supabase
+    let { error: upsertError } = await supabase
       .from('trend_signals')
       .upsert(rows, { onConflict: 'name' });
+
+    // Fallback: if image_url column doesn't exist yet, retry without it
+    if (upsertError?.message?.includes('image_url')) {
+      console.warn('[cron/refresh-trends] image_url column missing, retrying without images');
+      const rowsNoImage = rows.map(({ image_url, ...rest }) => rest);
+      const retry = await supabase.from('trend_signals').upsert(rowsNoImage, { onConflict: 'name' });
+      upsertError = retry.error;
+    }
 
     if (upsertError) {
       console.error('[cron/refresh-trends] upsert error:', upsertError.message);
