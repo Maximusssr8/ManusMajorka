@@ -69,13 +69,21 @@ import App from './App';
 import './index.css';
 
 // Initialise Sentry error tracking — conditional on DSN (works in any env when DSN is set)
-if (import.meta.env.VITE_SENTRY_DSN) {
+const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
+if (SENTRY_DSN) {
   Sentry.init({
-    dsn: import.meta.env.VITE_SENTRY_DSN as string,
-    environment: import.meta.env.MODE,
+    dsn: SENTRY_DSN as string,
+    environment: import.meta.env.MODE || 'production',
     tracesSampleRate: 0.1,
-    replaysSessionSampleRate: 0.05,
-    integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
+    replaysSessionSampleRate: 0.0,
+    replaysOnErrorSampleRate: 0.1,
+    integrations: [
+      Sentry.browserTracingIntegration(),
+    ],
+    beforeSend(event) {
+      if (window.location.hostname === 'localhost') return null;
+      return event;
+    },
   });
 }
 

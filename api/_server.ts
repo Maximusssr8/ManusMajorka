@@ -2,6 +2,18 @@
  * Vercel Serverless Function — wraps the Express app for serverless deployment.
  * All /api/* requests are routed here via vercel.json rewrites.
  */
+import * as Sentry from '@sentry/node';
+
+// Initialize Sentry server-side (Vercel serverless)
+const SENTRY_DSN = process.env.SENTRY_DSN;
+if (SENTRY_DSN) {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'production',
+    tracesSampleRate: 0.05,
+  });
+}
+
 import express, { type Request, type Response } from "express";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerChatRoutes } from "../server/_core/chat";
@@ -101,6 +113,9 @@ app.get("/api/pexels/search", async (req: Request, res: Response) => {
 
 // ── API health check ──────────────────────────────────────────────────────────
 app.get("/api/health", (_req: Request, res: Response) => {
+  const stripeKey = process.env.STRIPE_SECRET_KEY || '';
+  const stripeMode = stripeKey.startsWith('sk_live_') ? 'live' : 'test';
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
   res.json({
     status: 'ok',
     version: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || 'local',
@@ -109,7 +124,14 @@ app.get("/api/health", (_req: Request, res: Response) => {
     tavily: !!process.env.TAVILY_API_KEY,
     firecrawl: !!process.env.FIRECRAWL_API_KEY,
     supabase: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-    stripe: process.env.STRIPE_SECRET_KEY?.startsWith('sk_live_') ? 'live' : 'test',
+    stripe: {
+      configured: !!stripeKey,
+      mode: stripeMode,
+      live_mode: stripeMode === 'live',
+      webhook_configured: webhookSecret.length > 0,
+      webhook_looks_valid: webhookSecret.startsWith('whsec_'),
+    },
+    sentry: !!SENTRY_DSN,
     database: !!process.env.DATABASE_URL,
     ts: new Date().toISOString(),
   });
@@ -377,6 +399,11 @@ app.post("/api/store/checkout", async (req: Request, res: Response) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Sentry error handler — must be before other error handlers
+if (SENTRY_DSN) {
+  app.use(Sentry.expressErrorHandler());
+}
 
 app.use(
   "/api/trpc",
