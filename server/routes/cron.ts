@@ -96,11 +96,12 @@ Only output the JSON array. No markdown.`
     });
 
     const rawText = msg.content[0].type === 'text' ? msg.content[0].text : '[]';
-    // Strip markdown code fences if Claude wrapped the JSON
-    const text = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
+    // Extract JSON array — handles both raw JSON and markdown-fenced responses
+    const jsonMatch = rawText.match(/\[[\s\S]*\]/);
     let products: any[] = [];
     try {
-      products = JSON.parse(text);
+      if (!jsonMatch) throw new Error('No JSON array found');
+      products = JSON.parse(jsonMatch[0]);
     } catch {
       return res.status(500).json({ error: 'Claude parse failed', raw: rawText.slice(0, 200) });
     }
