@@ -19,6 +19,7 @@ import shopifyRouter from "../server/routes/shopify";
 import storeBuilderRouter from "../server/routes/store-builder";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
 import { getProductByIdPublic } from "../server/db";
+import { importProductSchema, validateBody } from "../server/lib/validators";
 
 // Run DB migrations on cold start (non-fatal)
 import('../server/lib/migrate-winning-products').then(({ runWinningProductsMigration }) => {
@@ -157,11 +158,12 @@ app.use('/api/store-builder', storeBuilderRouter);
 
 // ── Product import with AI Brain ─────────────────────────────────────────────
 app.post("/api/import-product", async (req: Request, res: Response) => {
-  const { url } = req.body as { url?: string };
-  if (!url || typeof url !== "string") {
-    res.status(400).json({ error: "url is required" });
+  const validation = validateBody(importProductSchema, req.body);
+  if ('error' in validation) {
+    res.status(400).json({ error: validation.error });
     return;
   }
+  const { url } = validation.data;
   try {
     // Step 1: Scrape the product
     const scraped = await scrapeProductData(url);

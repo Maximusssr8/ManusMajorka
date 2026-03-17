@@ -2,6 +2,7 @@ import { Router, Request } from 'express';
 
 import { expandStoreBrief } from '../lib/website-api';
 import { requireSubscription } from '../middleware/requireSubscription';
+import { storeBuilderSchema, validateBody } from '../lib/validators';
 
 const router = Router();
 
@@ -29,10 +30,9 @@ router.post('/generate', async (req, res) => {
       return res.status(429).json({ error: 'rate_limit_exceeded', message: 'Too many requests. Try again in 1 hour.' });
     }
 
-    const { productName, productDescription, niche, pricePoint } = req.body as {
-      productName?: string; productDescription?: string; niche?: string; pricePoint?: string;
-    };
-    if (!niche) return res.status(400).json({ error: 'niche is required' });
+    const validation = validateBody(storeBuilderSchema, req.body);
+    if ('error' in validation) return res.status(400).json({ error: validation.error });
+    const { productName, productDescription, niche, pricePoint } = validation.data;
 
     const brief = await expandStoreBrief({
       niche,
