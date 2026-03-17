@@ -95,12 +95,14 @@ Only output the JSON array. No markdown.`
       }]
     });
 
-    const text = msg.content[0].type === 'text' ? msg.content[0].text : '[]';
+    const rawText = msg.content[0].type === 'text' ? msg.content[0].text : '[]';
+    // Strip markdown code fences if Claude wrapped the JSON
+    const text = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
     let products: any[] = [];
     try {
       products = JSON.parse(text);
     } catch {
-      return res.status(500).json({ error: 'Claude parse failed', raw: text.slice(0, 200) });
+      return res.status(500).json({ error: 'Claude parse failed', raw: rawText.slice(0, 200) });
     }
 
     if (!Array.isArray(products) || products.length === 0) {
