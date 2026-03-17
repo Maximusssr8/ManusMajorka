@@ -1,198 +1,89 @@
 /**
- * TrendSignals.tsx — Emerging AU Trend Detection Engine
- * Shows live trend signals from Supabase (6h cron refresh) with AU seasonal calendar.
+ * TrendSignals — AU Trending Products dashboard.
+ * Data source: trend_signals Supabase table (cron refreshes every 6h).
+ * Schema: name, niche, estimated_retail_aud, estimated_margin_pct,
+ *         trend_score, dropship_viability_score, trend_reason, refreshed_at
  */
-
 import {
-  AlertCircle,
-  ArrowRight,
-  Calendar,
-  ChevronDown,
-  ChevronUp,
-  ExternalLink,
-  Grid3X3,
-  List,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   RefreshCw,
-  TrendingUp,
-  Zap,
+  Search,
+  Store,
+  Package,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'wouter';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
-import UsageCounter from '@/components/UsageCounter';
-import { SEO } from '@/components/SEO';
-import UpgradePromptBanner from '@/components/UpgradePromptBanner';
+import { useAuth } from '@/contexts/AuthContext';
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 
-interface TrendSignal {
+interface TrendProduct {
   id: string;
-  trend_name: string;
-  category: string;
-  signal_strength: number;
-  stage: 'emerging' | 'rising' | 'peak' | 'declining';
-  why_now: string;
-  opportunity_window: string;
-  est_monthly_revenue_aud: number;
-  sample_products: string[];
-  target_audience: string;
-  entry_difficulty: 'Easy' | 'Medium' | 'Hard';
-  au_seasonal_relevance: string;
-  action: string;
-  detected_at: string;
-  updated_at: string;
+  name: string;
+  niche: string;
+  estimated_retail_aud: number;
+  estimated_margin_pct: number;
+  trend_score: number;
+  dropship_viability_score: number;
+  trend_reason: string;
+  refreshed_at: string;
+  source?: string;
 }
 
-// ── Hardcoded fallback data (March 2025 AU trends from Claude) ───────────────
+type SortField = 'trend_score' | 'estimated_retail_aud' | 'estimated_margin_pct' | 'dropship_viability_score' | 'name';
+type SortDir = 'asc' | 'desc';
 
-const FALLBACK_TRENDS: TrendSignal[] = [
-  {
-    id: '1', trend_name: 'Sustainable Bamboo Home Products', category: 'Home & Garden',
-    signal_strength: 8, stage: 'rising',
-    why_now: 'Australian consumers increasingly prioritize eco-friendly alternatives as awareness of plastic waste grows. Winter season drives home improvement and comfort product purchases.',
-    opportunity_window: 'March–May 2025', est_monthly_revenue_aud: 18500,
-    sample_products: ['Bamboo cutting boards', 'Reusable bamboo straw sets', 'Bamboo storage organizers'],
-    target_audience: 'Eco-conscious women 25–45, affluent suburbs', entry_difficulty: 'Easy',
-    au_seasonal_relevance: 'Autumn nesting season, gift-giving preparation',
-    action: 'Source from verified sustainable suppliers, emphasize carbon footprint reduction in marketing.',
-    detected_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-  },
-  {
-    id: '2', trend_name: 'AI-Powered Fitness Trackers', category: 'Wearables & Tech',
-    signal_strength: 9, stage: 'peak',
-    why_now: 'New Year fitness resolutions extend into Q1, with AI health analytics becoming mainstream. Australian tech adoption accelerates post-summer fitness motivation.',
-    opportunity_window: 'March–June 2025', est_monthly_revenue_aud: 32000,
-    sample_products: ['AI sleep tracking rings', 'Smart health monitoring bands', 'ECG-enabled fitness watches'],
-    target_audience: 'Tech-savvy professionals 28–50, urban metro areas', entry_difficulty: 'Medium',
-    au_seasonal_relevance: 'Autumn wellness focus, winter health preparation',
-    action: 'Partner with fitness influencers, highlight health data privacy features for AU consumers.',
-    detected_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-  },
-  {
-    id: '3', trend_name: 'Pet Wellness Supplements', category: 'Pet Care',
-    signal_strength: 8, stage: 'rising',
-    why_now: 'Australian pet ownership remains at record highs with owners investing heavily in pet health. Seasonal allergies and joint issues peak in autumn driving supplement demand.',
-    opportunity_window: 'March–August 2025', est_monthly_revenue_aud: 24000,
-    sample_products: ['CBD pet treats', 'Joint care supplements for dogs', 'Probiotic pet powders'],
-    target_audience: 'Pet parents 30–55, middle to upper income', entry_difficulty: 'Medium',
-    au_seasonal_relevance: 'Autumn pet health issues, preparation for winter',
-    action: 'Obtain TGA compliance docs, use vet testimonials, focus on natural ingredients in copy.',
-    detected_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-  },
-  {
-    id: '4', trend_name: 'Lab-Grown Diamond Jewellery', category: 'Jewellery & Accessories',
-    signal_strength: 9, stage: 'rising',
-    why_now: 'Younger Australians reject traditional diamonds for ethical reasons; lab-grown diamonds gaining mainstream acceptance. Q1 engagements and gift-giving seasons drive demand.',
-    opportunity_window: 'March–June 2025', est_monthly_revenue_aud: 35000,
-    sample_products: ['Lab-grown solitaire rings', 'Eco-friendly diamond earrings', 'Sustainable engagement ring sets'],
-    target_audience: 'Millennials & Gen Z 22–40, ethical consumers, engaged couples', entry_difficulty: 'Medium',
-    au_seasonal_relevance: 'Engagement season, ethical gifting trend',
-    action: 'Obtain certification docs, emphasize sustainability angle, partner with wedding influencers.',
-    detected_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-  },
-  {
-    id: '5', trend_name: 'Functional Mushroom Beverages', category: 'Food & Beverages',
-    signal_strength: 8, stage: 'peak',
-    why_now: 'Health-conscious Australians adopt adaptogenic beverages; coffee culture meets wellness. Winter months drive warm beverage consumption and immunity focus.',
-    opportunity_window: 'March–June 2025', est_monthly_revenue_aud: 22000,
-    sample_products: ['Reishi mushroom coffee blends', "Lion's mane hot chocolate mixes", 'Cordyceps energy drinks'],
-    target_audience: 'Health-conscious professionals 25–50, wellness enthusiasts', entry_difficulty: 'Easy',
-    au_seasonal_relevance: 'Winter wellness, warm beverage season, immunity focus',
-    action: 'Source premium organic suppliers, create recipe content, target health blogs and podcasts.',
-    detected_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-  },
-  {
-    id: '6', trend_name: 'Portable Cold Plunge Devices', category: 'Health & Fitness',
-    signal_strength: 7, stage: 'emerging',
-    why_now: 'Celebrity wellness trends influence affluent Australians; cold therapy becoming mainstream. Winter season aligns with athlete recovery and wellness focus.',
-    opportunity_window: 'March–August 2025', est_monthly_revenue_aud: 26000,
-    sample_products: ['Portable ice bath tubs', 'Cold plunge inflatable tanks', 'Cryotherapy wearables'],
-    target_audience: 'Affluent health enthusiasts 30–55, athletes, executives', entry_difficulty: 'Medium',
-    au_seasonal_relevance: 'Winter recovery season, athlete off-season training',
-    action: 'Partner with fitness influencers and athletes, provide installation guides, emphasise health benefits.',
-    detected_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-  },
-  {
-    id: '7', trend_name: 'Minimalist Capsule Wardrobe', category: 'Fashion & Apparel',
-    signal_strength: 8, stage: 'rising',
-    why_now: 'Marie Kondo effect continues; Australians embrace minimalism post-summer decluttering. Autumn wardrobe transition naturally drives capsule basics purchases.',
-    opportunity_window: 'March–May 2025', est_monthly_revenue_aud: 23000,
-    sample_products: ['High-quality white basic tees', 'Neutral linen button-ups', 'Versatile neutral cardigans'],
-    target_audience: 'Minimalist professionals 25–50, mid to high income', entry_difficulty: 'Easy',
-    au_seasonal_relevance: 'Autumn wardrobe refresh, minimalism trend',
-    action: 'Highlight quality and durability, bundle sets for capsule building, use Instagram Reels.',
-    detected_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-  },
-  {
-    id: '8', trend_name: 'Smart Garden Irrigation', category: 'Smart Home & Garden',
-    signal_strength: 7, stage: 'emerging',
-    why_now: 'Australian property owners invest in drought-resistant gardening. Autumn planting season combined with water restrictions makes smart irrigation popular.',
-    opportunity_window: 'March–June 2025', est_monthly_revenue_aud: 19500,
-    sample_products: ['WiFi-enabled soil moisture sensors', 'Smart sprinkler controllers', 'Weather-responsive garden systems'],
-    target_audience: 'Homeowners 35–60, suburban and rural areas', entry_difficulty: 'Hard',
-    au_seasonal_relevance: 'Autumn planting, water conservation, drought management',
-    action: 'Partner with local landscapers, emphasize water savings, offer setup guides and installation service.',
-    detected_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-  },
-  {
-    id: '9', trend_name: 'Nootropics & Brain Health', category: 'Health & Wellness',
-    signal_strength: 7, stage: 'rising',
-    why_now: 'Post-COVID workplace stress and focus issues drive demand for brain health products. Australian professionals seek productivity solutions as Q2 workplace demands increase.',
-    opportunity_window: 'March–September 2025', est_monthly_revenue_aud: 21000,
-    sample_products: ['Natural nootropic capsules', "Lion's mane mushroom extracts", 'Adaptogen stress relief blends'],
-    target_audience: 'Professionals 25–45, high-income earners, corporate sector', entry_difficulty: 'Hard',
-    au_seasonal_relevance: 'Autumn productivity push, stress management season',
-    action: 'Ensure TGA compliance, invest in testimonials and clinical backing, target LinkedIn and professional networks.',
-    detected_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-  },
-  {
-    id: '10', trend_name: 'Vintage & Thrifted Fashion', category: 'Fashion & Apparel',
-    signal_strength: 9, stage: 'peak',
-    why_now: 'Gen Z and millennial consumers shift toward sustainable fashion; Australian resale platforms gaining momentum. Autumn wardrobe refresh drives pre-owned fashion shopping.',
-    opportunity_window: 'March–May 2025', est_monthly_revenue_aud: 28000,
-    sample_products: ['90s vintage band tees', 'Designer pre-owned handbags', 'Retro denim jackets'],
-    target_audience: 'Gen Z & millennials 18–35, sustainability-focused', entry_difficulty: 'Easy',
-    au_seasonal_relevance: 'Autumn fashion transition, budget-conscious shopping',
-    action: 'Source from local op-shops and Depop, authenticate designer items, leverage TikTok and Instagram.',
-    detected_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-  },
-];
+// ── Design tokens ─────────────────────────────────────────────────────────────
 
-// ── Seasonal Calendar data ────────────────────────────────────────────────────
+const C = {
+  bg: '#080a0e',
+  surface: 'rgba(255,255,255,0.02)',
+  border: 'rgba(255,255,255,0.07)',
+  borderHover: 'rgba(212,175,55,0.35)',
+  gold: '#d4af37',
+  goldDim: 'rgba(212,175,55,0.6)',
+  text: '#f0ede8',
+  sub: 'rgba(240,237,232,0.55)',
+  muted: 'rgba(240,237,232,0.35)',
+  green: '#10b981',
+  yellow: '#f59e0b',
+  red: '#ef4444',
+};
 
-const AU_SEASONS = [
-  { month: 'Apr', label: 'April', events: ['Easter gifting', 'School holidays', 'Cooler weather', 'Autumn fashion'] },
-  { month: 'May', label: 'May–Jun', events: ["Mother's Day AU", 'Autumn/winter products', 'Comfort home goods'] },
-  { month: 'Jul', label: 'July', events: ['Mid-year sales', 'Winter wellness', 'Hot drinks & warming products'] },
-  { month: 'Aug', label: 'August', events: ["Father's Day AU (1st Sun)", 'Spring prep', 'Outdoor gear'] },
-  { month: 'Sep', label: 'September', events: ['Spring racing carnival', 'Outdoor living', 'BBQ season begins'] },
-  { month: 'Oct', label: 'October', events: ['Spring BBQ', 'Halloween (growing in AU)', 'Summer prep'] },
-  { month: 'Nov', label: 'November', events: ['Black Friday (AU adopting)', 'Christmas prep', 'Summer fashion'] },
-  { month: 'Dec', label: 'December', events: ['Christmas gifting', 'Boxing Day sales', 'Summer essentials'] },
+const ADMIN_EMAILS = ['maximusmajorka@gmail.com'];
+const PAGE_SIZE = 25;
+
+const ALL_NICHES = [
+  'All Niches',
+  'Tech Accessories',
+  'Beauty & Skincare',
+  'Health & Wellness',
+  'Home Decor',
+  'Fashion',
+  'Fitness',
+  'Pets',
+  'Other',
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const STAGE_CONFIG = {
-  emerging: { label: '🌱 Emerging', color: '#10b981', bg: 'rgba(16,185,129,0.15)' },
-  rising:   { label: '📈 Rising',   color: '#3b82f6', bg: 'rgba(59,130,246,0.15)' },
-  peak:     { label: '🔥 Peak',     color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' },
-  declining:{ label: '📉 Declining',color: '#ef4444', bg: 'rgba(239,68,68,0.15)' },
-};
-
-const DIFFICULTY_CONFIG = {
-  Easy:   { color: '#10b981', bg: 'rgba(16,185,129,0.15)' },
-  Medium: { color: '#f59e0b', bg: 'rgba(245,158,11,0.15)' },
-  Hard:   { color: '#ef4444', bg: 'rgba(239,68,68,0.15)' },
-};
-
-function formatRevenue(n: number): string {
-  if (n >= 1000) return `$${(n / 1000).toFixed(0)}k/mo`;
-  return `$${n}/mo`;
+function nicheEmoji(niche: string): string {
+  const map: Record<string, string> = {
+    'Beauty': '💄', 'Skincare': '✨', 'Health': '💊', 'Wellness': '🌿',
+    'Fitness': '💪', 'Home': '🏠', 'Kitchen': '🍳', 'Tech': '📱',
+    'Fashion': '👗', 'Pets': '🐾', 'Baby': '👶', 'Outdoor': '🏕️',
+    'Jewellery': '💎', 'Automotive': '🚗', 'Sports': '⚽',
+  };
+  const key = Object.keys(map).find(k => niche?.includes(k));
+  return key ? map[key] : '📦';
 }
 
 function formatTimeAgo(iso: string): string {
+  if (!iso) return 'never';
   const diff = Date.now() - new Date(iso).getTime();
   const hours = Math.floor(diff / 3600000);
   if (hours < 1) return 'just now';
@@ -200,881 +91,472 @@ function formatTimeAgo(iso: string): string {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
-function nicheEmoji(niche: string): string {
-  const map: Record<string, string> = {
-    'Beauty': '\uD83D\uDC84', 'Skincare': '✨', 'Health': '\uD83D\uDC8A', 'Wellness': '\uD83C\uDF3F',
-    'Fitness': '\uD83D\uDCAA', 'Home': '\uD83C\uDFE0', 'Kitchen': '\uD83C\uDF73', 'Tech': '\uD83D\uDCF1',
-    'Fashion': '\uD83D\uDC57', 'Pets': '\uD83D\uDC3E', 'Pet': '\uD83D\uDC3E', 'Baby': '\uD83D\uDC76',
-    'Outdoor': '\uD83C\uDFD5\uFE0F', 'Jewellery': '\uD83D\uDC8E', 'Automotive': '\uD83D\uDE97', 'Sports': '⚽',
-    'Wearable': '⌚', 'Garden': '\uD83C\uDF31', 'Food': '\uD83C\uDF4E', 'Beverage': '☕',
-  };
-  const key = Object.keys(map).find(k => niche?.includes(k));
-  return key ? map[key] : '\uD83D\uDCE6';
+function isNewProduct(refreshed_at: string): boolean {
+  return Date.now() - new Date(refreshed_at).getTime() < 24 * 3600 * 1000;
 }
 
-// ── Viability Filter (Section 3) ──────────────────────────────────────────────
-
-const EXCLUDED_KEYWORDS = [
-  'TV', 'television', 'laptop', 'refrigerator', 'washing machine',
-  'dishwasher', 'Nintendo', 'PlayStation', 'Xbox', 'console',
-  'microwave', 'oven', 'food', 'alcohol', 'medicine', 'pharmaceutical',
-  'gun', 'weapon',
-];
-
-const PRICE_MIN = 15;
-const PRICE_MAX = 150;
-
-function isViable(product: any): boolean {
-  const name = (product.trend_name || product.name || '').toLowerCase();
-  const price = product.est_monthly_revenue_aud || product.estimated_retail_aud || 0;
-  if (EXCLUDED_KEYWORDS.some(kw => name.includes(kw.toLowerCase()))) return false;
-  if (product.dropship_viability_score && product.dropship_viability_score < 6) return false;
-  return true;
+function trendScoreColor(score: number): string {
+  if (score >= 70) return C.green;
+  if (score >= 40) return C.yellow;
+  return C.red;
 }
 
-// ── Trend Card ────────────────────────────────────────────────────────────────
+// ── Sort icon ─────────────────────────────────────────────────────────────────
 
-function TrendCard({ trend }: { trend: TrendSignal }) {
-  const [expanded, setExpanded] = useState(false);
-  const [, navigate] = useLocation();
-
-  const stage = STAGE_CONFIG[trend.stage] ?? STAGE_CONFIG.emerging;
-  const diff = DIFFICULTY_CONFIG[trend.entry_difficulty] ?? DIFFICULTY_CONFIG.Medium;
-  const signalPct = (trend.signal_strength / 10) * 100;
-
-  return (
-    <div
-      style={{
-        background: '#10131a',
-        border: '1px solid rgba(212,175,55,0.12)',
-        borderRadius: 12,
-        padding: 20,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 14,
-        transition: 'border-color 0.2s',
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.35)')}
-      onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.12)')}
-    >
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
-        <div style={{ flex: 1 }}>
-          <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 16, fontWeight: 700, color: '#f0ede8', margin: 0, lineHeight: 1.3 }}>
-            {trend.trend_name}
-          </h3>
-          <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.45)', marginTop: 4, display: 'block' }}>
-            {trend.category}
-          </span>
-        </div>
-        <div style={{
-          padding: '3px 8px',
-          borderRadius: 20,
-          background: stage.bg,
-          color: stage.color,
-          fontSize: 11,
-          fontWeight: 600,
-          whiteSpace: 'nowrap',
-          flexShrink: 0,
-        }}>
-          {stage.label}
-        </div>
-      </div>
-
-      {/* Signal strength bar */}
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-          <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.45)' }}>Signal Strength</span>
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#d4af37' }}>{trend.signal_strength}/10</span>
-        </div>
-        <div style={{ height: 5, background: 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}>
-          <div style={{ width: `${signalPct}%`, height: '100%', background: '#d4af37', borderRadius: 3 }} />
-        </div>
-      </div>
-
-      {/* Why Now */}
-      <p style={{
-        fontSize: 12,
-        color: 'rgba(240,237,232,0.65)',
-        margin: 0,
-        lineHeight: 1.6,
-        overflow: 'hidden',
-        display: '-webkit-box',
-        WebkitLineClamp: expanded ? undefined : 2,
-        WebkitBoxOrient: 'vertical',
-      } as any}>
-        {trend.why_now}
-      </p>
-
-      {/* Revenue + Opportunity + Difficulty row */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        <div style={{
-          padding: '4px 10px',
-          background: 'rgba(212,175,55,0.1)',
-          border: '1px solid rgba(212,175,55,0.25)',
-          borderRadius: 8,
-          fontSize: 12,
-          fontWeight: 700,
-          color: '#d4af37',
-        }}>
-          {formatRevenue(trend.est_monthly_revenue_aud)}
-        </div>
-        <div style={{
-          padding: '4px 10px',
-          background: 'rgba(255,255,255,0.04)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: 8,
-          fontSize: 11,
-          color: 'rgba(240,237,232,0.5)',
-        }}>
-          {trend.opportunity_window}
-        </div>
-        <div style={{
-          padding: '4px 10px',
-          background: diff.bg,
-          borderRadius: 8,
-          fontSize: 11,
-          fontWeight: 600,
-          color: diff.color,
-        }}>
-          {trend.entry_difficulty}
-        </div>
-      </div>
-
-      {/* Sample Products */}
-      {trend.sample_products && trend.sample_products.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-          {trend.sample_products.slice(0, 3).map((p, i) => (
-            <span key={i} style={{
-              padding: '2px 8px',
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 6,
-              fontSize: 10,
-              color: 'rgba(240,237,232,0.5)',
-            }}>
-              {p}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* Expand / Collapse */}
-      {expanded && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 4 }}>
-          {/* Target Audience */}
-          <div>
-            <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.35)', marginBottom: 3, textTransform: 'uppercase', letterSpacing: 1 }}>Target Audience</div>
-            <div style={{ fontSize: 12, color: 'rgba(240,237,232,0.7)' }}>{trend.target_audience}</div>
-          </div>
-
-          {/* Seasonal Relevance */}
-          {trend.au_seasonal_relevance && (
-            <div>
-              <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.35)', marginBottom: 3, textTransform: 'uppercase', letterSpacing: 1 }}>AU Seasonal Relevance</div>
-              <div style={{ fontSize: 12, color: 'rgba(240,237,232,0.7)' }}>{trend.au_seasonal_relevance}</div>
-            </div>
-          )}
-
-          {/* Action */}
-          <div style={{
-            padding: 14,
-            background: 'rgba(212,175,55,0.1)',
-            border: '1px solid rgba(212,175,55,0.2)',
-            borderRadius: 10,
-          }}>
-            <div style={{ fontSize: 10, color: '#d4af37', marginBottom: 5, textTransform: 'uppercase', letterSpacing: 1, fontWeight: 700 }}>What To Do Now</div>
-            <div style={{ fontSize: 12, color: 'rgba(240,237,232,0.85)', lineHeight: 1.6 }}>{trend.action}</div>
-          </div>
-
-          {/* CTA Buttons */}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button
-              onClick={() => navigate(`/app/winning-products?q=${encodeURIComponent(trend.trend_name)}`)}
-              style={{
-                padding: '7px 14px',
-                background: 'rgba(212,175,55,0.15)',
-                border: '1px solid rgba(212,175,55,0.3)',
-                borderRadius: 8,
-                color: '#d4af37',
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 5,
-              }}
-            >
-              Find Products <ArrowRight size={12} />
-            </button>
-            <button
-              onClick={() => navigate(`/app/supplier-finder?q=${encodeURIComponent(trend.sample_products?.[0] ?? trend.trend_name)}`)}
-              style={{
-                padding: '7px 14px',
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 8,
-                color: 'rgba(240,237,232,0.7)',
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 5,
-              }}
-            >
-              Find Suppliers <ExternalLink size={12} />
-            </button>
-            <button
-              onClick={() => navigate(`/app/website-generator?niche=${encodeURIComponent(trend.category)}`)}
-              style={{
-                padding: '7px 14px',
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 8,
-                color: 'rgba(240,237,232,0.7)',
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 5,
-              }}
-            >
-              Build Store <ArrowRight size={12} />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Expand button */}
-      <button
-        onClick={() => setExpanded(!expanded)}
-        style={{
-          background: 'none',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: 8,
-          color: 'rgba(240,237,232,0.5)',
-          fontSize: 12,
-          cursor: 'pointer',
-          padding: '6px 0',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 5,
-        }}
-      >
-        {expanded ? <><ChevronUp size={14} /> Collapse</> : <><ChevronDown size={14} /> Show full details</>}
-      </button>
-    </div>
-  );
+function SortIcon({ field, sortField, sortDir }: { field: SortField; sortField: SortField; sortDir: SortDir }) {
+  if (field !== sortField) return <ArrowUpDown size={11} style={{ opacity: 0.3, marginLeft: 4 }} />;
+  return sortDir === 'asc'
+    ? <ArrowUp size={11} style={{ color: C.gold, marginLeft: 4 }} />
+    : <ArrowDown size={11} style={{ color: C.gold, marginLeft: 4 }} />;
 }
 
-// ── Trend Alert Teaser ────────────────────────────────────────────────────────
-
-function TrendAlertTeaser({ isPro }: { isPro: boolean }) {
-  const [alertsActive, setAlertsActive] = useState(() => {
-    try { return localStorage.getItem('trend_alerts_active') !== 'false'; } catch { return true; }
-  });
-
-  const handleToggle = () => {
-    try {
-      const next = !alertsActive;
-      setAlertsActive(next);
-      localStorage.setItem('trend_alerts_active', String(next));
-    } catch { /* localStorage unavailable — no-op */ }
-  };
-
-  if (isPro) {
-    return (
-      <div style={{
-        background: 'rgba(34,197,94,0.06)',
-        border: '1px solid rgba(34,197,94,0.2)',
-        borderRadius: 14,
-        padding: '16px 20px',
-        marginBottom: 24,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 16,
-        flexWrap: 'wrap',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 20 }}>✅</span>
-          <div>
-            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 14, color: '#22c55e', marginBottom: 2 }}>Alerts active</div>
-            <div style={{ fontSize: 12, color: 'rgba(240,237,232,0.5)' }}>You'll be notified the moment a trend explodes</div>
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 12, color: 'rgba(240,237,232,0.5)' }}>Notifications</span>
-          <button
-            onClick={handleToggle}
-            style={{
-              width: 44,
-              height: 24,
-              borderRadius: 12,
-              background: alertsActive ? '#22c55e' : 'rgba(255,255,255,0.1)',
-              border: 'none',
-              cursor: 'pointer',
-              position: 'relative',
-              transition: 'background 0.2s',
-            }}
-          >
-            <div style={{
-              width: 18,
-              height: 18,
-              borderRadius: '50%',
-              background: '#fff',
-              position: 'absolute',
-              top: 3,
-              left: alertsActive ? 23 : 3,
-              transition: 'left 0.2s',
-            }} />
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div style={{
-      background: '#10131a',
-      border: '1px solid rgba(212,175,55,0.2)',
-      borderRadius: 14,
-      padding: '24px 20px',
-      marginBottom: 28,
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent, #d4af37, transparent)' }} />
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Zap size={18} color="#d4af37" />
-          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 15, color: '#f0ede8' }}>TREND ALERT SYSTEM</span>
-        </div>
-        <span style={{ fontSize: 11, fontWeight: 700, color: '#d4af37', background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 6, padding: '3px 10px', fontFamily: 'Syne, sans-serif' }}>🔒 PRO</span>
-      </div>
-
-      <p style={{ fontSize: 14, color: 'rgba(240,237,232,0.65)', lineHeight: 1.6, marginBottom: 16 }}>
-        Get notified the <strong style={{ color: '#f0ede8' }}>MOMENT a product starts exploding</strong> — before your competitors know.
-      </p>
-
-      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '12px 16px', marginBottom: 16 }}>
-        <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)', marginBottom: 4 }}>Last alert sent: 2 hours ago</div>
-        <div style={{ fontSize: 13, color: '#f0ede8', fontStyle: 'italic' }}>"Heatless Curl Rods just jumped $8k → $18k/day"</div>
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
-        <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)' }}>Alert channels:</span>
-        {['Push notification', 'Email', 'SMS'].map((ch) => (
-          <span key={ch} style={{ fontSize: 11, color: '#d4af37', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 6, padding: '2px 8px' }}>{ch}</span>
-        ))}
-      </div>
-
-      <a
-        href="/pricing"
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-          background: 'linear-gradient(135deg, #d4af37, #b8941f)',
-          color: '#000',
-          borderRadius: 10,
-          padding: '10px 22px',
-          fontFamily: 'Syne, sans-serif',
-          fontWeight: 800,
-          fontSize: 13,
-          textDecoration: 'none',
-        }}
-      >
-        <Zap size={13} />
-        Unlock Trend Alerts → Upgrade to Pro
-      </a>
-    </div>
-  );
-}
-
-// ── Main Page ─────────────────────────────────────────────────────────────────
-
-type StageFilter = 'all' | 'emerging' | 'rising' | 'peak' | 'declining';
+// ── Main Component ────────────────────────────────────────────────────────────
 
 export default function TrendSignals() {
-  const [trends, setTrends] = useState<TrendSignal[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<StageFilter>('all');
-  const [refreshing, setRefreshing] = useState(false);
-  const [usingFallback, setUsingFallback] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
-  const [page, setPage] = useState(1);
-  const [refreshedAt, setRefreshedAt] = useState<string | null>(null);
   const [, navigate] = useLocation();
-  const PAGE_SIZE = 20;
+  const { session } = useAuth();
+  const userEmail = session?.user?.email || '';
+  const isAdmin = ADMIN_EMAILS.includes(userEmail);
 
-  const currentMonth = new Date().getMonth() + 1; // 1-12
+  const [products, setProducts] = useState<TrendProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [page, setPage] = useState(1);
 
-  const fetchTrends = async () => {
+  // Filters
+  const [search, setSearch] = useState('');
+  const [nicheFilter, setNicheFilter] = useState('All Niches');
+  const [minMargin, setMinMargin] = useState(0);
+  const [minTrend, setMinTrend] = useState(0);
+
+  // Sort
+  const [sortField, setSortField] = useState<SortField>('trend_score');
+  const [sortDir, setSortDir] = useState<SortDir>('desc');
+
+  const latestRefresh = products.reduce((latest, p) => {
+    return !latest || p.refreshed_at > latest ? p.refreshed_at : latest;
+  }, '');
+
+  // ── Fetch ────────────────────────────────────────────────────────────────────
+
+  const fetchProducts = async () => {
+    setLoading(true);
     try {
-      const { data, error: sbError } = await supabase
+      const { data, error } = await supabase
         .from('trend_signals')
         .select('*')
-        .order('signal_strength', { ascending: false });
+        .order('trend_score', { ascending: false });
 
-      if (sbError || !data || data.length === 0) {
-        setTrends(FALLBACK_TRENDS);
-        setUsingFallback(true);
-        setRefreshedAt(new Date().toISOString());
+      if (error) {
+        console.error('[TrendSignals] fetch error:', error.message);
+        setProducts([]);
       } else {
-        const newest = data.reduce((latest: string, t: any) =>
-          (t.updated_at || t.detected_at || '') > latest ? (t.updated_at || t.detected_at || '') : latest, '');
-        const isStale = newest && (Date.now() - new Date(newest).getTime()) > 7 * 24 * 60 * 60 * 1000;
-        if (isStale) {
-          setTrends(FALLBACK_TRENDS);
-          setUsingFallback(true);
-        } else {
-          setTrends(data as TrendSignal[]);
-          setUsingFallback(false);
-        }
-        setRefreshedAt(newest || new Date().toISOString());
+        setProducts(data || []);
       }
-    } catch {
-      setTrends(FALLBACK_TRENDS);
-      setUsingFallback(true);
-      setRefreshedAt(new Date().toISOString());
+    } catch (err) {
+      console.error('[TrendSignals]', err);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchTrends(); }, []);
+  useEffect(() => { fetchProducts(); }, []);
+
+  // ── Admin refresh ─────────────────────────────────────────────────────────────
 
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
       const res = await fetch('/api/cron/refresh-trends');
       const data = await res.json();
-      if (res.ok && data.ok) {
-        toast.success(`Trends refreshed! ${data.count} products found`);
-        setTimeout(() => { fetchTrends(); setRefreshing(false); }, 2000);
+      if (data.ok) {
+        toast.success(`Refreshed ${data.count} products`);
+        await fetchProducts();
       } else {
-        setError(data.error ?? 'Refresh failed');
-        setRefreshing(false);
+        toast.error(data.error || 'Refresh failed');
       }
-    } catch (e: any) {
-      setError(e.message);
+    } catch {
+      toast.error('Refresh failed — check connection');
+    } finally {
       setRefreshing(false);
     }
   };
 
-  // Apply viability filter + stage filter
-  const viableFiltered = trends.filter(isViable);
-  const filtered = filter === 'all' ? viableFiltered : viableFiltered.filter((t) => t.stage === filter);
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  const paginatedProducts = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  // ── Sort toggle ──────────────────────────────────────────────────────────────
 
-  // Stats
-  const emergingCount = trends.filter((t) => t.stage === 'emerging').length;
-  const avgRevenue = trends.length
-    ? Math.round(trends.reduce((s, t) => s + (t.est_monthly_revenue_aud || 0), 0) / trends.length)
-    : 0;
-  const lastUpdated = trends.length
-    ? new Date(trends[0]?.updated_at ?? trends[0]?.detected_at).toLocaleString('en-AU', {
-        day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
-      })
-    : '—';
+  const handleSort = (field: SortField) => {
+    if (field === sortField) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDir('desc');
+    }
+    setPage(1);
+  };
 
-  if (loading) {
-    return (
-      <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#080a0e' }}>
-        <div style={{ textAlign: 'center' }}>
-          <TrendingUp size={32} color="#d4af37" style={{ margin: '0 auto 12px' }} />
-          <p style={{ color: 'rgba(240,237,232,0.5)', fontSize: 14 }}>Scanning AU trends...</p>
-        </div>
-      </div>
-    );
-  }
+  // ── Filter + sort ────────────────────────────────────────────────────────────
+
+  const filtered = useMemo(() => {
+    let list = products.filter(p => {
+      if (search && !p.name?.toLowerCase().includes(search.toLowerCase())) return false;
+      if (nicheFilter !== 'All Niches' && !p.niche?.includes(nicheFilter.split(' ')[0])) return false;
+      if (p.estimated_margin_pct < minMargin) return false;
+      if (p.trend_score < minTrend) return false;
+      return true;
+    });
+
+    list.sort((a, b) => {
+      const aVal = a[sortField] ?? 0;
+      const bVal = b[sortField] ?? 0;
+      if (typeof aVal === 'string') {
+        return sortDir === 'asc' ? aVal.localeCompare(bVal as string) : (bVal as string).localeCompare(aVal);
+      }
+      return sortDir === 'asc' ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number);
+    });
+
+    return list;
+  }, [products, search, nicheFilter, minMargin, minTrend, sortField, sortDir]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  // ── Column header ────────────────────────────────────────────────────────────
+
+  const ColHeader = ({ label, field, style }: { label: string; field?: SortField; style?: React.CSSProperties }) => (
+    <th
+      onClick={field ? () => handleSort(field) : undefined}
+      style={{
+        padding: '10px 12px',
+        textAlign: 'left',
+        fontSize: 10,
+        fontWeight: 800,
+        fontFamily: 'Syne, sans-serif',
+        textTransform: 'uppercase',
+        letterSpacing: '0.08em',
+        color: field === sortField ? C.gold : C.muted,
+        cursor: field ? 'pointer' : 'default',
+        whiteSpace: 'nowrap',
+        background: 'rgba(255,255,255,0.02)',
+        borderBottom: `1px solid ${C.border}`,
+        userSelect: 'none',
+        ...style,
+      }}
+    >
+      <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+        {label}
+        {field && <SortIcon field={field} sortField={sortField} sortDir={sortDir} />}
+      </span>
+    </th>
+  );
+
+  // ── Render ───────────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ minHeight: '100vh', background: '#080a0e', color: '#f0ede8', fontFamily: 'DM Sans, sans-serif', overflowY: 'auto' }}>
-      <SEO
-        title="AU Dropshipping Trend Signals — Emerging Products Before They Peak | Majorka"
-        description="Real-time AU dropshipping trend signals. Discover emerging products with explosive growth potential before they hit mainstream saturation. Updated every 6 hours."
-        path="/app/trend-signals"
-      />
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '24px 16px 80px' }}>
+    <div style={{ padding: '20px 16px', background: C.bg, minHeight: '100vh', fontFamily: 'DM Sans, sans-serif' }}>
 
-        {/* Usage Counter */}
-        <UsageCounter />
-        <UpgradePromptBanner />
-
-        {/* Header */}
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                <TrendingUp size={24} color="#d4af37" />
-                <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 26, fontWeight: 800, margin: 0, color: '#f0ede8' }}>
-                  Trend Signals
-                </h1>
-                <span style={{
-                  padding: '2px 8px',
-                  background: 'rgba(212,175,55,0.15)',
-                  border: '1px solid rgba(212,175,55,0.3)',
-                  borderRadius: 20,
-                  fontSize: 10,
-                  fontWeight: 700,
-                  color: '#d4af37',
-                  textTransform: 'uppercase',
-                  letterSpacing: 1,
-                }}>
-                  Live
-                </span>
-              </div>
-              <p style={{ color: 'rgba(240,237,232,0.5)', fontSize: 14, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                Emerging AU trends before they peak — 6h auto-refresh
-                {refreshedAt && (
-                  <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)' }}>
-                    · Updated {formatTimeAgo(refreshedAt)}
-                  </span>
-                )}
-              </p>
-            </div>
+      {/* ── Page header ── */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+        <div>
+          <h1 style={{ fontSize: 20, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: C.text, marginBottom: 4 }}>
+            Trend Signals
+          </h1>
+          <p style={{ fontSize: 12, color: C.muted }}>
+            {loading ? 'Loading...' : `${filtered.length} products`}
+            {latestRefresh && !loading && (
+              <span style={{ marginLeft: 10, color: C.muted }}>· Updated {formatTimeAgo(latestRefresh)}</span>
+            )}
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {isAdmin && (
             <button
               onClick={handleRefresh}
               disabled={refreshing}
               style={{
-                padding: '9px 18px',
-                background: refreshing ? 'rgba(212,175,55,0.1)' : 'rgba(212,175,55,0.15)',
-                border: '1px solid rgba(212,175,55,0.3)',
-                borderRadius: 10,
-                color: '#d4af37',
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: refreshing ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 7,
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+                background: 'rgba(212,175,55,0.08)', border: `1px solid rgba(212,175,55,0.25)`,
+                color: C.gold, cursor: refreshing ? 'not-allowed' : 'pointer', opacity: refreshing ? 0.7 : 1,
+                fontFamily: 'Syne, sans-serif',
               }}
             >
-              <RefreshCw size={14} style={{ animation: refreshing ? 'spin 1s linear infinite' : undefined }} />
-              {refreshing ? 'Refreshing...' : 'Refresh Now'}
+              <RefreshCw size={12} style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }} />
+              {refreshing ? 'Refreshing...' : 'Refresh Data'}
             </button>
-          </div>
+          )}
         </div>
-
-        {/* Fallback notice */}
-        {usingFallback && (
-          <div style={{
-            padding: '10px 14px',
-            background: 'rgba(245,158,11,0.08)',
-            border: '1px solid rgba(245,158,11,0.2)',
-            borderRadius: 10,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            marginBottom: 24,
-            fontSize: 12,
-            color: 'rgba(245,158,11,0.8)',
-          }}>
-            <Zap size={14} />
-            Showing curated trends — live AI detection activates automatically after first deploy. Refresh to trigger.
-          </div>
-        )}
-
-        {/* Error notice */}
-        {error && (
-          <div style={{
-            padding: '10px 14px',
-            background: 'rgba(239,68,68,0.08)',
-            border: '1px solid rgba(239,68,68,0.2)',
-            borderRadius: 10,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            marginBottom: 24,
-            fontSize: 12,
-            color: 'rgba(239,68,68,0.8)',
-          }}>
-            <AlertCircle size={14} />
-            {error}
-            <button onClick={() => setError(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', fontSize: 16 }}>×</button>
-          </div>
-        )}
-
-        {/* Stats row */}
-        <div className="stats-grid-responsive" style={{ marginBottom: 28 }}>
-          {[
-            { label: 'Trends Tracked', value: trends.length },
-            { label: 'Emerging Now', value: emergingCount },
-            { label: 'Avg Opportunity', value: formatRevenue(avgRevenue) },
-            { label: 'Last Updated', value: lastUpdated },
-          ].map(({ label, value }) => (
-            <div key={label} style={{
-              background: '#10131a',
-              border: '1px solid rgba(212,175,55,0.1)',
-              borderRadius: 12,
-              padding: '16px 20px',
-            }}>
-              <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 1 }}>{label}</div>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: '#d4af37' }}>{value}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Trend Alert Teaser */}
-        <TrendAlertTeaser isPro={false} />
-
-        {/* Stage filter tabs */}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 24 }}>
-          {(['all', 'emerging', 'rising', 'peak', 'declining'] as StageFilter[]).map((stage) => {
-            const active = filter === stage;
-            const config = stage === 'all' ? null : STAGE_CONFIG[stage];
-            const count = stage === 'all' ? trends.length : trends.filter((t) => t.stage === stage).length;
-            return (
-              <button
-                key={stage}
-                onClick={() => setFilter(stage)}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: 8,
-                  border: active
-                    ? `1px solid ${config?.color ?? '#d4af37'}`
-                    : '1px solid rgba(255,255,255,0.08)',
-                  background: active
-                    ? (config?.bg ?? 'rgba(212,175,55,0.15)')
-                    : 'rgba(255,255,255,0.03)',
-                  color: active ? (config?.color ?? '#d4af37') : 'rgba(240,237,232,0.55)',
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 5,
-                }}
-              >
-                {stage === 'all' ? 'All' : config?.label}
-                <span style={{
-                  padding: '1px 6px',
-                  borderRadius: 10,
-                  background: 'rgba(255,255,255,0.08)',
-                  fontSize: 10,
-                }}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* View toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <span style={{ fontSize: 12, color: 'rgba(240,237,232,0.4)' }}>
-            {filtered.length} trend{filtered.length !== 1 ? 's' : ''} found
-          </span>
-          <div style={{ display: 'flex', gap: 4 }}>
-            {([{ mode: 'list' as const, icon: List }, { mode: 'grid' as const, icon: Grid3X3 }]).map(({ mode, icon: Icon }) => (
-              <button key={mode} onClick={() => { setViewMode(mode); setPage(1); }}
-                style={{
-                  padding: '6px 10px', borderRadius: 6, border: 'none', cursor: 'pointer',
-                  background: viewMode === mode ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.04)',
-                  color: viewMode === mode ? '#d4af37' : 'rgba(240,237,232,0.4)',
-                }}>
-                <Icon size={14} />
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Trend cards / list */}
-        {filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 0' }}>
-            <TrendingUp size={36} style={{ marginBottom: 12, opacity: 0.3, color: '#d4af37' }} />
-            <p style={{ color: '#e2e8f0', fontSize: 15, fontWeight: 600, fontFamily: 'Syne, sans-serif', marginBottom: 6 }}>Trend detection running...</p>
-            <p style={{ color: 'rgba(240,237,232,0.4)', fontSize: 13, marginBottom: 20 }}>Check back in a few minutes — trends update every 6 hours</p>
-            <button onClick={() => window.location.reload()} style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', color: '#d4af37', borderRadius: 8, padding: '8px 18px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}>
-              Refresh
-            </button>
-          </div>
-        ) : viewMode === 'list' ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 24 }}>
-            {paginatedProducts.map((trend) => {
-              const stage = STAGE_CONFIG[trend.stage] ?? STAGE_CONFIG.emerging;
-              return (
-                <div key={trend.id} style={{
-                  display: 'flex', alignItems: 'center', gap: 12,
-                  padding: '10px 14px', background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10,
-                  cursor: 'pointer', transition: 'border-color 0.2s',
-                }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.25)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
-                >
-                  {/* Niche emoji thumbnail */}
-                  <div style={{ width: 48, height: 48, borderRadius: 8, background: 'rgba(212,175,55,0.08)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>
-                    {nicheEmoji(trend.category)}
-                  </div>
-
-                  {/* Name + category */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#f0ede8', fontFamily: 'Syne, sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {trend.trend_name}
-                    </div>
-                    <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2 }}>
-                      <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)' }}>{trend.category}</span>
-                      <span style={{ padding: '1px 6px', borderRadius: 10, background: stage.bg, color: stage.color, fontSize: 9, fontWeight: 600 }}>{stage.label}</span>
-                    </div>
-                  </div>
-
-                  {/* Revenue */}
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#d4af37' }}>{formatRevenue(trend.est_monthly_revenue_aud)}</div>
-                    <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)' }}>{trend.entry_difficulty}</div>
-                  </div>
-
-                  {/* Signal bar */}
-                  <div style={{ width: 60, flexShrink: 0 }}>
-                    <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.4)', marginBottom: 3 }}>{trend.signal_strength}/10</div>
-                    <div style={{ height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2 }}>
-                      <div style={{ height: '100%', width: `${(trend.signal_strength / 10) * 100}%`, background: '#d4af37', borderRadius: 2 }} />
-                    </div>
-                  </div>
-
-                  {/* Build Store CTA */}
-                  <button
-                    onClick={() => navigate(`/store-builder?product=${encodeURIComponent(trend.trend_name)}&niche=${encodeURIComponent(trend.category)}`)}
-                    style={{ fontSize: 11, fontWeight: 700, padding: '6px 10px', background: '#d4af37', color: '#080a0e', border: 'none', borderRadius: 7, cursor: 'pointer', flexShrink: 0, fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap' }}
-                  >
-                    Build Store →
-                  </button>
-                </div>
-              );
-            })}
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 20 }}>
-                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-                  style={{ padding: '6px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, color: 'rgba(240,237,232,0.6)', cursor: page === 1 ? 'not-allowed' : 'pointer' }}>
-                  ← Prev
-                </button>
-                <span style={{ padding: '6px 14px', color: 'rgba(240,237,232,0.4)', fontSize: 13 }}>
-                  {page} / {totalPages}
-                </span>
-                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                  style={{ padding: '6px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, color: 'rgba(240,237,232,0.6)', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}>
-                  Next →
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(min(340px, 100%), 1fr))',
-            gap: 16,
-            marginBottom: 48,
-          }}>
-            {paginatedProducts.map((trend) => (
-              <TrendCard key={trend.id} trend={trend} />
-            ))}
-
-            {/* Pagination for grid too */}
-            {totalPages > 1 && (
-              <div style={{ gridColumn: '1/-1', display: 'flex', justifyContent: 'center', gap: 8, marginTop: 12 }}>
-                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-                  style={{ padding: '6px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, color: 'rgba(240,237,232,0.6)', cursor: page === 1 ? 'not-allowed' : 'pointer' }}>
-                  ← Prev
-                </button>
-                <span style={{ padding: '6px 14px', color: 'rgba(240,237,232,0.4)', fontSize: 13 }}>
-                  {page} / {totalPages}
-                </span>
-                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                  style={{ padding: '6px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, color: 'rgba(240,237,232,0.6)', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}>
-                  Next →
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* AU Seasonal Calendar */}
-        <div style={{
-          background: '#10131a',
-          border: '1px solid rgba(212,175,55,0.15)',
-          borderRadius: 16,
-          padding: 28,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-            <Calendar size={20} color="#d4af37" />
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, margin: 0, color: '#f0ede8' }}>
-              AU Seasonal Opportunity Calendar
-            </h2>
-          </div>
-
-          <div style={{ overflowX: 'auto' }}>
-            <div style={{ display: 'flex', gap: 10, minWidth: 800, paddingBottom: 8 }}>
-              {AU_SEASONS.map((season) => {
-                // Determine which months to highlight
-                const monthIndex = ['Apr','May','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(season.month);
-                const seasonMonthNum = [4, 5, 7, 8, 9, 10, 11, 12][monthIndex];
-                const isCurrent = currentMonth === seasonMonthNum || (season.month === 'May' && (currentMonth === 5 || currentMonth === 6));
-
-                return (
-                  <div
-                    key={season.month}
-                    style={{
-                      flex: 1,
-                      minWidth: 110,
-                      background: isCurrent ? 'rgba(212,175,55,0.1)' : 'rgba(255,255,255,0.025)',
-                      border: isCurrent ? '1px solid rgba(212,175,55,0.4)' : '1px solid rgba(255,255,255,0.07)',
-                      borderRadius: 10,
-                      padding: '12px 10px',
-                    }}
-                  >
-                    <div style={{
-                      fontFamily: 'Syne, sans-serif',
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: isCurrent ? '#d4af37' : 'rgba(240,237,232,0.7)',
-                      marginBottom: 10,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 5,
-                    }}>
-                      {season.label}
-                      {isCurrent && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#d4af37', display: 'inline-block' }} />}
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                      {season.events.map((ev, i) => (
-                        <div key={i} style={{
-                          fontSize: 10,
-                          color: 'rgba(240,237,232,0.55)',
-                          padding: '3px 6px',
-                          background: 'rgba(255,255,255,0.04)',
-                          borderRadius: 5,
-                          lineHeight: 1.4,
-                        }}>
-                          {ev}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <p style={{ fontSize: 11, color: 'rgba(240,237,232,0.3)', margin: '16px 0 0', textAlign: 'center' }}>
-            Plan your inventory 6–8 weeks ahead of each seasonal opportunity
-          </p>
-        </div>
-
       </div>
 
-      {/* CSS for spin animation */}
+      {/* ── Filter bar ── */}
+      <div style={{
+        display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap',
+        marginBottom: 16, padding: '12px 14px',
+        background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10,
+      }}>
+        {/* Search */}
+        <div style={{ position: 'relative', flex: '1 1 180px', minWidth: 140 }}>
+          <Search size={12} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: C.muted }} />
+          <input
+            value={search}
+            onChange={e => { setSearch(e.target.value); setPage(1); }}
+            placeholder="Search products..."
+            style={{
+              width: '100%', paddingLeft: 28, paddingRight: 10, paddingTop: 7, paddingBottom: 7,
+              background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`,
+              borderRadius: 7, fontSize: 12, color: C.text, outline: 'none', boxSizing: 'border-box',
+            }}
+          />
+        </div>
+
+        {/* Niche */}
+        <select
+          value={nicheFilter}
+          onChange={e => { setNicheFilter(e.target.value); setPage(1); }}
+          style={{
+            padding: '7px 10px', background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`,
+            borderRadius: 7, fontSize: 12, color: C.text, cursor: 'pointer', flex: '0 0 auto',
+          }}
+        >
+          {ALL_NICHES.map(n => <option key={n} value={n} style={{ background: '#0a0b0d' }}>{n}</option>)}
+        </select>
+
+        {/* Min margin */}
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: C.muted, flex: '0 0 auto' }}>
+          Margin ≥
+          <input
+            type="number" min={0} max={90} value={minMargin}
+            onChange={e => { setMinMargin(Number(e.target.value)); setPage(1); }}
+            style={{
+              width: 52, padding: '5px 7px', background: 'rgba(255,255,255,0.04)',
+              border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, color: C.text, textAlign: 'center',
+            }}
+          />%
+        </label>
+
+        {/* Min trend score */}
+        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: C.muted, flex: '0 0 auto' }}>
+          Trend ≥
+          <input
+            type="number" min={0} max={100} value={minTrend}
+            onChange={e => { setMinTrend(Number(e.target.value)); setPage(1); }}
+            style={{
+              width: 52, padding: '5px 7px', background: 'rgba(255,255,255,0.04)',
+              border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, color: C.text, textAlign: 'center',
+            }}
+          />
+        </label>
+
+        {/* Reset */}
+        {(search || nicheFilter !== 'All Niches' || minMargin > 0 || minTrend > 0) && (
+          <button
+            onClick={() => { setSearch(''); setNicheFilter('All Niches'); setMinMargin(0); setMinTrend(0); setPage(1); }}
+            style={{ padding: '6px 10px', background: 'none', border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 11, color: C.muted, cursor: 'pointer' }}
+          >
+            Reset
+          </button>
+        )}
+      </div>
+
+      {/* ── Table ── */}
+      {loading ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {[...Array(8)].map((_, i) => (
+            <div key={i} style={{ height: 56, background: C.surface, borderRadius: 8, border: `1px solid ${C.border}`, animation: 'pulse 1.5s ease-in-out infinite' }} />
+          ))}
+          <style>{`@keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }`}</style>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px 20px', color: C.muted }}>
+          <div style={{ fontSize: 32, marginBottom: 12 }}>📭</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: C.sub, marginBottom: 8 }}>No products match your filters</div>
+          <div style={{ fontSize: 12 }}>Try adjusting your filters or refreshing the data</div>
+        </div>
+      ) : (
+        <div style={{ overflowX: 'auto', borderRadius: 10, border: `1px solid ${C.border}` }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
+            <thead>
+              <tr>
+                <ColHeader label="#" style={{ width: 40 }} />
+                <ColHeader label="Product" field="name" style={{ minWidth: 200 }} />
+                <ColHeader label="Price (AUD)" field="estimated_retail_aud" style={{ width: 110 }} />
+                <ColHeader label="Margin %" field="estimated_margin_pct" style={{ width: 100 }} />
+                <ColHeader label="Trend" field="trend_score" style={{ width: 90 }} />
+                <ColHeader label="Viability" field="dropship_viability_score" style={{ width: 90 }} />
+                <ColHeader label="Actions" style={{ width: 180 }} />
+              </tr>
+            </thead>
+            <tbody>
+              {paginated.map((p, idx) => {
+                const rank = (page - 1) * PAGE_SIZE + idx + 1;
+                const isNew = isNewProduct(p.refreshed_at);
+                const isTrending = p.trend_score >= 85;
+                return (
+                  <tr
+                    key={p.id || p.name}
+                    style={{ borderBottom: `1px solid ${C.border}`, transition: 'background 0.12s' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(212,175,55,0.03)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    {/* Rank */}
+                    <td style={{ padding: '12px', fontSize: 12, color: C.muted, textAlign: 'center', width: 40 }}>
+                      {rank}
+                    </td>
+
+                    {/* Product + niche */}
+                    <td style={{ padding: '10px 12px', minWidth: 200 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        {/* Thumbnail */}
+                        <div style={{
+                          width: 40, height: 40, borderRadius: 8, flexShrink: 0,
+                          background: 'rgba(212,175,55,0.06)', border: `1px solid ${C.border}`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 18,
+                        }}>
+                          {nicheEmoji(p.niche)}
+                        </div>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap', marginBottom: 3 }}>
+                            <span style={{ fontSize: 13, fontWeight: 700, fontFamily: 'Syne, sans-serif', color: C.text }}>
+                              {p.name}
+                            </span>
+                            {isTrending && (
+                              <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 5px', borderRadius: 4, background: 'rgba(239,68,68,0.12)', color: '#ef4444', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>
+                                🔥 Trending
+                              </span>
+                            )}
+                            {isNew && (
+                              <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 5px', borderRadius: 4, background: 'rgba(16,185,129,0.12)', color: C.green, fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>
+                                New
+                              </span>
+                            )}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 10, color: C.muted, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 4, padding: '1px 6px' }}>
+                              {p.niche}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Price */}
+                    <td style={{ padding: '10px 12px', fontSize: 13, fontWeight: 700, color: C.gold, whiteSpace: 'nowrap' }}>
+                      ${p.estimated_retail_aud?.toFixed(0)} AUD
+                    </td>
+
+                    {/* Margin */}
+                    <td style={{ padding: '10px 12px' }}>
+                      <span style={{
+                        fontSize: 13, fontWeight: 700,
+                        color: p.estimated_margin_pct >= 50 ? C.green : p.estimated_margin_pct >= 30 ? C.yellow : C.red,
+                      }}>
+                        {p.estimated_margin_pct?.toFixed(0)}%
+                      </span>
+                    </td>
+
+                    {/* Trend score */}
+                    <td style={{ padding: '10px 12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 13, fontWeight: 800, color: trendScoreColor(p.trend_score), minWidth: 28 }}>
+                          {p.trend_score}
+                        </span>
+                        <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2, minWidth: 30 }}>
+                          <div style={{ height: '100%', width: `${p.trend_score}%`, background: trendScoreColor(p.trend_score), borderRadius: 2 }} />
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Viability */}
+                    <td style={{ padding: '10px 12px' }}>
+                      <span style={{
+                        fontSize: 13, fontWeight: 700,
+                        color: p.dropship_viability_score >= 8 ? C.green : p.dropship_viability_score >= 6 ? C.yellow : C.muted,
+                      }}>
+                        {p.dropship_viability_score}/10
+                      </span>
+                    </td>
+
+                    {/* Actions */}
+                    <td style={{ padding: '8px 12px' }}>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button
+                          onClick={() => navigate(`/app/store-builder?product=${encodeURIComponent(p.name)}&niche=${encodeURIComponent(p.niche)}&price=${p.estimated_retail_aud}`)}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 4,
+                            padding: '5px 10px', background: C.gold, color: '#080a0e',
+                            border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 800,
+                            cursor: 'pointer', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap',
+                          }}
+                        >
+                          <Store size={10} /> Build Store
+                        </button>
+                        <button
+                          onClick={() => navigate('/app/suppliers')}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 4,
+                            padding: '5px 10px', background: C.surface, color: C.sub,
+                            border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 11, fontWeight: 600,
+                            cursor: 'pointer', whiteSpace: 'nowrap',
+                          }}
+                        >
+                          <Package size={10} /> Supplier
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* ── Pagination ── */}
+      {!loading && totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, marginTop: 20 }}>
+          <button
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+            style={{ padding: '7px 16px', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 7, color: page === 1 ? C.muted : C.sub, cursor: page === 1 ? 'not-allowed' : 'pointer', fontSize: 12 }}
+          >
+            ← Prev
+          </button>
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setPage(i + 1)}
+              style={{
+                width: 32, height: 32, borderRadius: 7, border: `1px solid ${page === i + 1 ? C.gold : C.border}`,
+                background: page === i + 1 ? 'rgba(212,175,55,0.12)' : C.surface,
+                color: page === i + 1 ? C.gold : C.muted,
+                cursor: 'pointer', fontSize: 12, fontWeight: page === i + 1 ? 700 : 400,
+              }}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            style={{ padding: '7px 16px', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 7, color: page === totalPages ? C.muted : C.sub, cursor: page === totalPages ? 'not-allowed' : 'pointer', fontSize: 12 }}
+          >
+            Next →
+          </button>
+        </div>
+      )}
+
+      {/* ── Footer context ── */}
+      {!loading && paginated.length > 0 && (
+        <p style={{ textAlign: 'center', marginTop: 16, fontSize: 11, color: C.muted }}>
+          Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} products
+          {filtered.length !== products.length && ` (filtered from ${products.length})`}
+        </p>
+      )}
+
       <style>{`
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        th:hover { background: rgba(255,255,255,0.03) !important; }
       `}</style>
     </div>
   );
