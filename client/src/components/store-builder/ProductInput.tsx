@@ -1,7 +1,33 @@
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 
-const NICHES = ['Fashion', 'Beauty', 'Tech', 'Home & Garden', 'Fitness', 'Supplements', 'Pet', 'Baby', 'Outdoor', 'General'];
+const NICHES = [
+  'Fashion & Apparel',
+  'Activewear & Gym',
+  'Swimwear & Beach',
+  'Beauty & Skincare',
+  'Hair Care',
+  'Nails & Cosmetics',
+  'Health & Wellness',
+  'Supplements & Nutrition',
+  'Home Decor',
+  'Kitchen & Dining',
+  'Bedroom & Bath',
+  'Baby & Kids',
+  'Toys & Games',
+  'Pets & Animals',
+  'Tech Accessories',
+  'Phone Cases & Protection',
+  'Outdoor & Camping',
+  'Fishing & Hunting',
+  'Surf & Snow',
+  'Automotive & Car Accessories',
+  'Jewellery & Accessories',
+  'Watches',
+  'Art & Prints',
+  'Stationery & Office',
+  'General / Mixed Niche',
+];
 const gold = '#d4af37';
 const syne = 'Syne, sans-serif';
 const inputStyle: React.CSSProperties = {
@@ -20,7 +46,13 @@ export default function ProductInput({ onComplete, session, initialProduct, init
 }) {
   const [productName, setProductName] = useState(initialProduct || '');
   const [description, setDescription] = useState('');
-  const [niche, setNiche] = useState(initialNiche && NICHES.includes(initialNiche) ? initialNiche : 'General');
+  const [niche, setNiche] = useState(() => {
+    if (!initialNiche) return 'General / Mixed Niche';
+    const exact = NICHES.find(n => n === initialNiche);
+    if (exact) return exact;
+    const partial = NICHES.find(n => n.toLowerCase().includes(initialNiche.toLowerCase()));
+    return partial || 'General / Mixed Niche';
+  });
   const [pricePoint, setPricePoint] = useState(initialPrice || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

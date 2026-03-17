@@ -10,12 +10,15 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
+  Grid3X3,
+  List,
   RefreshCw,
   TrendingUp,
   Zap,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
+import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import UsageCounter from '@/components/UsageCounter';
 import { SEO } from '@/components/SEO';
@@ -187,6 +190,46 @@ const DIFFICULTY_CONFIG = {
 function formatRevenue(n: number): string {
   if (n >= 1000) return `$${(n / 1000).toFixed(0)}k/mo`;
   return `$${n}/mo`;
+}
+
+function formatTimeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const hours = Math.floor(diff / 3600000);
+  if (hours < 1) return 'just now';
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
+
+function nicheEmoji(niche: string): string {
+  const map: Record<string, string> = {
+    'Beauty': '\uD83D\uDC84', 'Skincare': '✨', 'Health': '\uD83D\uDC8A', 'Wellness': '\uD83C\uDF3F',
+    'Fitness': '\uD83D\uDCAA', 'Home': '\uD83C\uDFE0', 'Kitchen': '\uD83C\uDF73', 'Tech': '\uD83D\uDCF1',
+    'Fashion': '\uD83D\uDC57', 'Pets': '\uD83D\uDC3E', 'Pet': '\uD83D\uDC3E', 'Baby': '\uD83D\uDC76',
+    'Outdoor': '\uD83C\uDFD5\uFE0F', 'Jewellery': '\uD83D\uDC8E', 'Automotive': '\uD83D\uDE97', 'Sports': '⚽',
+    'Wearable': '⌚', 'Garden': '\uD83C\uDF31', 'Food': '\uD83C\uDF4E', 'Beverage': '☕',
+  };
+  const key = Object.keys(map).find(k => niche?.includes(k));
+  return key ? map[key] : '\uD83D\uDCE6';
+}
+
+// ── Viability Filter (Section 3) ──────────────────────────────────────────────
+
+const EXCLUDED_KEYWORDS = [
+  'TV', 'television', 'laptop', 'refrigerator', 'washing machine',
+  'dishwasher', 'Nintendo', 'PlayStation', 'Xbox', 'console',
+  'microwave', 'oven', 'food', 'alcohol', 'medicine', 'pharmaceutical',
+  'gun', 'weapon',
+];
+
+const PRICE_MIN = 15;
+const PRICE_MAX = 150;
+
+function isViable(product: any): boolean {
+  const name = (product.trend_name || product.name || '').toLowerCase();
+  const price = product.est_monthly_revenue_aud || product.estimated_retail_aud || 0;
+  if (EXCLUDED_KEYWORDS.some(kw => name.includes(kw.toLowerCase()))) return false;
+  if (product.dropship_viability_score && product.dropship_viability_score < 6) return false;
+  return true;
 }
 
 // ── Trend Card ────────────────────────────────────────────────────────────────
@@ -563,6 +606,11 @@ export default function TrendSignals() {
   const [filter, setFilter] = useState<StageFilter>('all');
   const [refreshing, setRefreshing] = useState(false);
   const [usingFallback, setUsingFallback] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [page, setPage] = useState(1);
+  const [refreshedAt, setRefreshedAt] = useState<string | null>(null);
+  const [, navigate] = useLocation();
+  const PAGE_SIZE = 20;
 
   const currentMonth = new Date().getMonth() + 1; // 1-12
 
@@ -574,11 +622,10 @@ export default function TrendSignals() {
         .order('signal_strength', { ascending: false });
 
       if (sbError || !data || data.length === 0) {
-        // Fall back to hardcoded data
         setTrends(FALLBACK_TRENDS);
         setUsingFallback(true);
+        setRefreshedAt(new Date().toISOString());
       } else {
-        // Check if data is stale (older than 7 days) — if so, use fallback
         const newest = data.reduce((latest: string, t: any) =>
           (t.updated_at || t.detected_at || '') > latest ? (t.updated_at || t.detected_at || '') : latest, '');
         const isStale = newest && (Date.now() - new Date(newest).getTime()) > 7 * 24 * 60 * 60 * 1000;
@@ -589,10 +636,12 @@ export default function TrendSignals() {
           setTrends(data as TrendSignal[]);
           setUsingFallback(false);
         }
+        setRefreshedAt(newest || new Date().toISOString());
       }
     } catch {
       setTrends(FALLBACK_TRENDS);
       setUsingFallback(true);
+      setRefreshedAt(new Date().toISOString());
     } finally {
       setLoading(false);
     }
@@ -601,19 +650,13 @@ export default function TrendSignals() {
   useEffect(() => { fetchTrends(); }, []);
 
   const handleRefresh = async () => {
-    const token = (await supabase.auth.getSession()).data.session?.access_token;
-    if (!token) { setError('Sign in to refresh trends'); return; }
-
     setRefreshing(true);
     try {
-      const res = await fetch('/api/trends/refresh', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch('/api/cron/refresh-trends');
       const data = await res.json();
-      if (res.ok) {
-        // Wait a moment then re-fetch
-        setTimeout(() => { fetchTrends(); setRefreshing(false); }, 3000);
+      if (res.ok && data.ok) {
+        toast.success(`Trends refreshed! ${data.count} products found`);
+        setTimeout(() => { fetchTrends(); setRefreshing(false); }, 2000);
       } else {
         setError(data.error ?? 'Refresh failed');
         setRefreshing(false);
@@ -624,7 +667,11 @@ export default function TrendSignals() {
     }
   };
 
-  const filtered = filter === 'all' ? trends : trends.filter((t) => t.stage === filter);
+  // Apply viability filter + stage filter
+  const viableFiltered = trends.filter(isViable);
+  const filtered = filter === 'all' ? viableFiltered : viableFiltered.filter((t) => t.stage === filter);
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paginatedProducts = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   // Stats
   const emergingCount = trends.filter((t) => t.stage === 'emerging').length;
@@ -684,8 +731,13 @@ export default function TrendSignals() {
                   Live
                 </span>
               </div>
-              <p style={{ color: 'rgba(240,237,232,0.5)', fontSize: 14, margin: 0 }}>
+              <p style={{ color: 'rgba(240,237,232,0.5)', fontSize: 14, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
                 Emerging AU trends before they peak — 6h auto-refresh
+                {refreshedAt && (
+                  <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)' }}>
+                    · Updated {formatTimeAgo(refreshedAt)}
+                  </span>
+                )}
               </p>
             </div>
             <button
@@ -815,7 +867,26 @@ export default function TrendSignals() {
           })}
         </div>
 
-        {/* Trend cards grid */}
+        {/* View toggle */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <span style={{ fontSize: 12, color: 'rgba(240,237,232,0.4)' }}>
+            {filtered.length} trend{filtered.length !== 1 ? 's' : ''} found
+          </span>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {([{ mode: 'list' as const, icon: List }, { mode: 'grid' as const, icon: Grid3X3 }]).map(({ mode, icon: Icon }) => (
+              <button key={mode} onClick={() => { setViewMode(mode); setPage(1); }}
+                style={{
+                  padding: '6px 10px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                  background: viewMode === mode ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.04)',
+                  color: viewMode === mode ? '#d4af37' : 'rgba(240,237,232,0.4)',
+                }}>
+                <Icon size={14} />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Trend cards / list */}
         {filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 0' }}>
             <TrendingUp size={36} style={{ marginBottom: 12, opacity: 0.3, color: '#d4af37' }} />
@@ -825,6 +896,78 @@ export default function TrendSignals() {
               Refresh
             </button>
           </div>
+        ) : viewMode === 'list' ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 24 }}>
+            {paginatedProducts.map((trend) => {
+              const stage = STAGE_CONFIG[trend.stage] ?? STAGE_CONFIG.emerging;
+              return (
+                <div key={trend.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '10px 14px', background: 'rgba(255,255,255,0.02)',
+                  border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10,
+                  cursor: 'pointer', transition: 'border-color 0.2s',
+                }}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.25)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
+                >
+                  {/* Niche emoji thumbnail */}
+                  <div style={{ width: 48, height: 48, borderRadius: 8, background: 'rgba(212,175,55,0.08)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>
+                    {nicheEmoji(trend.category)}
+                  </div>
+
+                  {/* Name + category */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#f0ede8', fontFamily: 'Syne, sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {trend.trend_name}
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2 }}>
+                      <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)' }}>{trend.category}</span>
+                      <span style={{ padding: '1px 6px', borderRadius: 10, background: stage.bg, color: stage.color, fontSize: 9, fontWeight: 600 }}>{stage.label}</span>
+                    </div>
+                  </div>
+
+                  {/* Revenue */}
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#d4af37' }}>{formatRevenue(trend.est_monthly_revenue_aud)}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)' }}>{trend.entry_difficulty}</div>
+                  </div>
+
+                  {/* Signal bar */}
+                  <div style={{ width: 60, flexShrink: 0 }}>
+                    <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.4)', marginBottom: 3 }}>{trend.signal_strength}/10</div>
+                    <div style={{ height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2 }}>
+                      <div style={{ height: '100%', width: `${(trend.signal_strength / 10) * 100}%`, background: '#d4af37', borderRadius: 2 }} />
+                    </div>
+                  </div>
+
+                  {/* Build Store CTA */}
+                  <button
+                    onClick={() => navigate(`/store-builder?product=${encodeURIComponent(trend.trend_name)}&niche=${encodeURIComponent(trend.category)}`)}
+                    style={{ fontSize: 11, fontWeight: 700, padding: '6px 10px', background: '#d4af37', color: '#080a0e', border: 'none', borderRadius: 7, cursor: 'pointer', flexShrink: 0, fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap' }}
+                  >
+                    Build Store →
+                  </button>
+                </div>
+              );
+            })}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 20 }}>
+                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+                  style={{ padding: '6px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, color: 'rgba(240,237,232,0.6)', cursor: page === 1 ? 'not-allowed' : 'pointer' }}>
+                  ← Prev
+                </button>
+                <span style={{ padding: '6px 14px', color: 'rgba(240,237,232,0.4)', fontSize: 13 }}>
+                  {page} / {totalPages}
+                </span>
+                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                  style={{ padding: '6px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, color: 'rgba(240,237,232,0.6)', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}>
+                  Next →
+                </button>
+              </div>
+            )}
+          </div>
         ) : (
           <div style={{
             display: 'grid',
@@ -832,9 +975,26 @@ export default function TrendSignals() {
             gap: 16,
             marginBottom: 48,
           }}>
-            {filtered.map((trend) => (
+            {paginatedProducts.map((trend) => (
               <TrendCard key={trend.id} trend={trend} />
             ))}
+
+            {/* Pagination for grid too */}
+            {totalPages > 1 && (
+              <div style={{ gridColumn: '1/-1', display: 'flex', justifyContent: 'center', gap: 8, marginTop: 12 }}>
+                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+                  style={{ padding: '6px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, color: 'rgba(240,237,232,0.6)', cursor: page === 1 ? 'not-allowed' : 'pointer' }}>
+                  ← Prev
+                </button>
+                <span style={{ padding: '6px 14px', color: 'rgba(240,237,232,0.4)', fontSize: 13 }}>
+                  {page} / {totalPages}
+                </span>
+                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                  style={{ padding: '6px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 7, color: 'rgba(240,237,232,0.6)', cursor: page === totalPages ? 'not-allowed' : 'pointer' }}>
+                  Next →
+                </button>
+              </div>
+            )}
           </div>
         )}
 

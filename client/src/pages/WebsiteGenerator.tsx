@@ -106,6 +106,23 @@ const PROGRESS_MESSAGES_V2: Record<number, string> = {
   100: 'Your store is ready! 🎉',
 };
 
+function humanizeError(error: string): string {
+  const map: Record<string, string> = {
+    'subscription_required': 'Upgrade your plan to generate stores',
+    'rate_limit': 'Hourly limit reached — try again in 60 minutes',
+    'timeout': 'Generation timed out — please try again',
+    'timed out': 'Generation timed out — please try again',
+    'unauthorized': 'Please sign in to continue',
+    'Connection lost': 'Connection lost — click Retry to try again',
+    'Failed to fetch': 'Connection lost — click Retry to try again',
+    'No HTML returned': 'Generation returned empty — please retry',
+  };
+  for (const [key, msg] of Object.entries(map)) {
+    if (error?.includes(key)) return msg;
+  }
+  return error || 'Something went wrong — please try again';
+}
+
 function getProgressMessage(progress: number): string {
   const keys = Object.keys(PROGRESS_MESSAGES_V2).map(Number).sort((a, b) => b - a);
   for (const k of keys) { if (progress >= k) return PROGRESS_MESSAGES_V2[k]; }
@@ -1228,6 +1245,8 @@ export default function WebsiteGenerator() {
 
   // Output
   const [generating, setGenerating] = useState(false);
+  const generatingRef = useRef(false);
+  const genTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [genProgress, setGenProgress] = useState(0);
   const [progressMsgIdx, setProgressMsgIdx] = useState(0);
   const [generatedData, setGeneratedData] = useState<GeneratedData | null>(null);
@@ -1559,6 +1578,8 @@ export default function WebsiteGenerator() {
 
   const handleGenerate = useCallback(async () => {
     if (!niche.trim()) { toast.error('Please enter a niche first'); return; }
+    if (generatingRef.current) return; // Prevent double submit
+    generatingRef.current = true;
     setGenerating(true);
     setGenError('');
     setGenProgress(0);
@@ -1570,6 +1591,17 @@ export default function WebsiteGenerator() {
     setProgressSteps(GEN_STEPS.map(s => ({ label: s.label, done: false })));
     setEta(90);
     setHeadlines(null);
+
+    // 90-second timeout
+    if (genTimeoutRef.current) clearTimeout(genTimeoutRef.current);
+    genTimeoutRef.current = setTimeout(() => {
+      if (generatingRef.current) {
+        generatingRef.current = false;
+        setGenerating(false);
+        setGenError('Generation timed out. Please try again.');
+        toast.error('Generation timed out — please try again');
+      }
+    }, 90_000);
 
     try {
       // ── Stream from /api/website/generate via SSE ─────────────────────
@@ -1724,8 +1756,10 @@ export default function WebsiteGenerator() {
       trackWebsiteGenerated({ niche, platform, vibe, market: getStoredMarket() });
       localStorage.setItem('majorka_milestone_site', 'true');
     } catch (err: any) {
-      setGenError(err?.message || 'Generation failed. Please try again.');
+      setGenError(humanizeError(err?.message || 'Generation failed. Please try again.'));
     } finally {
+      if (genTimeoutRef.current) clearTimeout(genTimeoutRef.current);
+      generatingRef.current = false;
       setGenerating(false);
       setGenProgress(0);
     }
@@ -2952,10 +2986,12 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           )}
 
           {genError && (
-            <div className="text-xs p-3 rounded-lg" style={{ background: 'rgba(255,100,100,0.08)', border: '1px solid rgba(255,100,100,0.2)', color: 'rgba(255,150,150,0.9)' }}>
-              {genError}
-              <button onClick={handleGenerate} style={{ marginTop: 12, padding: '10px 20px', borderRadius: 8, background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.3)', color: '#d4af37', cursor: 'pointer', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, display: 'block' }}>
-                ↺ Retry generation
+            <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 13, color: '#ef4444', flex: 1 }}>{genError}</span>
+              <button onClick={() => setGenError('')} style={{ background: 'none', border: 'none', color: 'rgba(239,68,68,0.5)', cursor: 'pointer', fontSize: 16, flexShrink: 0 }}>×</button>
+              <button onClick={handleGenerate}
+                style={{ fontSize: 12, fontWeight: 700, padding: '6px 12px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 7, color: '#ef4444', cursor: 'pointer', flexShrink: 0 }}>
+                Retry →
               </button>
             </div>
           )}

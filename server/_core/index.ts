@@ -191,6 +191,9 @@ async function startServer() {
   app.use(cookieParser());
   app.use('/api/shopify', shopifyRouter);
   app.use('/api/store-builder', storeBuilderRouter);
+  // Cron endpoints (Vercel cron + manual refresh)
+  const cronRouter = (await import('../routes/cron')).default;
+  app.use('/api/cron', cronRouter);
   // tRPC API
   app.use(
     '/api/trpc',
