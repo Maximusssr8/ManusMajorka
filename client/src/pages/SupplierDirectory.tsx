@@ -99,6 +99,14 @@ export default function SupplierDirectory() {
   return (
     <div style={{ padding: '24px', background: C.bg, minHeight: '100vh', color: C.text, fontFamily: 'DM Sans, sans-serif' }}>
       <SEO title="Supplier Directory | Majorka" description="25 AU-vetted dropshipping suppliers with shipping times, quality ratings and AU warehouse badges." path="/app/suppliers" />
+      <style>{`
+        @media (max-width: 640px) {
+          .supplier-cards-grid { grid-template-columns: 1fr !important; }
+          .supplier-filters { gap: 6px !important; }
+          .supplier-sort-row { margin-left: 0 !important; }
+          .supplier-card { padding: 14px !important; }
+        }
+      `}</style>
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: C.text, marginBottom: 6 }}>
@@ -110,7 +118,7 @@ export default function SupplierDirectory() {
       </div>
 
       {/* Filters */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
+      <div className="supplier-filters" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {ALL_NICHES.map(n => (
             <button key={n} style={btnStyle(niche === n)} onClick={() => setNiche(n)}>{n}</button>
@@ -123,7 +131,7 @@ export default function SupplierDirectory() {
               {t === 'print-on-demand' ? 'Print on Demand' : t.charAt(0).toUpperCase() + t.slice(1)}
             </button>
           ))}
-          <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
+          <div className="supplier-sort-row" style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
             <button style={btnStyle(sortBy === 'rating')} onClick={() => setSortBy('rating')}>Rating</button>
             <button style={btnStyle(sortBy === 'shipping')} onClick={() => setSortBy('shipping')}>Fastest AU Shipping</button>
           </div>
@@ -136,10 +144,11 @@ export default function SupplierDirectory() {
       </p>
 
       {/* Supplier cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 14 }}>
+      <div className="supplier-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 14 }}>
         {filtered.map(s => (
           <div
             key={s.id}
+            className="supplier-card"
             style={{
               background: C.card,
               border: `1px solid ${s.au_warehouse ? 'rgba(16,185,129,0.2)' : C.border}`,

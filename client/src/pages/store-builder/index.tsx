@@ -51,8 +51,15 @@ export default function StoreBuilder() {
         <meta name="robots" content="noindex, nofollow" />
         <title>Store Builder — Majorka</title>
       </Helmet>
+      <style>{`
+        @media (max-width: 640px) {
+          .sb-topbar { padding: 12px 16px !important; }
+          .sb-step-label { display: none !important; }
+          .sb-content { padding: 24px 16px 80px !important; }
+        }
+      `}</style>
       {/* Top bar */}
-      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="sb-topbar" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 18, color: gold, letterSpacing: '-0.02em' }}>
           🏪 Store Builder
         </span>
@@ -74,7 +81,7 @@ export default function StoreBuilder() {
                 }}>
                   {isDone ? '✓' : n}
                 </div>
-                <span style={{ fontSize: 12, color: isActive ? gold : '#52525b', display: window.innerWidth < 480 ? 'none' : 'inline' }}>
+                <span className="sb-step-label" style={{ fontSize: 12, color: isActive ? gold : '#52525b', display: window.innerWidth < 480 ? 'none' : 'inline' }}>
                   {s}
                 </span>
                 {i < STEPS.length - 1 && (
@@ -87,7 +94,7 @@ export default function StoreBuilder() {
       </div>
 
       {/* Content */}
-      <div style={{ maxWidth: 680, margin: '0 auto', padding: '40px 24px 80px' }}>
+      <div className="sb-content" style={{ maxWidth: 680, margin: '0 auto', padding: '40px 24px 80px' }}>
         {step === 1 && (
           <ProductInput
             session={session}

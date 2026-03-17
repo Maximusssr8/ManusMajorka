@@ -465,7 +465,7 @@ function SavingsCalculator() {
         </div>
 
         {/* Comparison columns */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 28 }}>
+        <div className="pricing-calc-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 28 }}>
           <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 14, padding: '20px 18px' }}>
             <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 13, color: '#ef4444', marginBottom: 14 }}>Without Majorka</div>
             {[
@@ -636,6 +636,23 @@ export default function Pricing() {
         path="/pricing"
       />
 
+      <style>{`
+        @media (max-width: 640px) {
+          .pricing-hero-title { font-size: 28px !important; line-height: 1.2 !important; }
+          .pricing-hero-sub { font-size: 15px !important; }
+          .pricing-cards-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+          .pricing-section { padding: 48px 16px !important; }
+          .pricing-cta-btn { width: 100% !important; }
+          .pricing-testimonials { grid-template-columns: 1fr !important; gap: 12px !important; }
+          .pricing-trust-badges { flex-wrap: wrap !important; gap: 12px !important; justify-content: center !important; }
+          .pricing-comparison { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
+          .pricing-faq { padding: 0 16px !important; }
+          .pricing-toggle { flex-direction: column !important; gap: 8px !important; }
+          .pricing-calc-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+          .pricing-bottom-cta { padding: 48px 16px !important; }
+        }
+      `}</style>
+
       {/* ── NAV ── */}
       <nav
         style={{
@@ -698,7 +715,7 @@ export default function Pricing() {
       </nav>
 
       {/* ── HERO ── */}
-      <section style={{ padding: '80px 24px 56px', textAlign: 'center' }}>
+      <section className="pricing-section" style={{ padding: '80px 24px 56px', textAlign: 'center' }}>
         <div
           style={{
             display: 'inline-block',
@@ -716,6 +733,7 @@ export default function Pricing() {
           Simple Pricing &middot; All in AUD
         </div>
         <h1
+          className="pricing-hero-title"
           style={{
             fontFamily: syne,
             fontWeight: 900,
@@ -727,6 +745,7 @@ export default function Pricing() {
           Plans that scale with you.
         </h1>
         <p
+          className="pricing-hero-sub"
           style={{
             color: C.secondary,
             fontSize: 18,
@@ -740,6 +759,7 @@ export default function Pricing() {
 
         {/* Monthly / Annual toggle */}
         <div
+          className="pricing-toggle"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -804,7 +824,7 @@ export default function Pricing() {
       <SavingsCalculator />
 
       {/* ── PLAN CARDS ── */}
-      <section style={{ padding: '0 24px 100px' }}>
+      <section className="pricing-section" style={{ padding: '0 24px 100px' }}>
         {/* Social proof strip */}
         <div style={{ marginBottom: 48, textAlign: 'center', maxWidth: 1050, margin: '0 auto', paddingBottom: 48 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 20 }}>
@@ -812,7 +832,7 @@ export default function Pricing() {
             <span style={{ fontSize: 14, fontWeight: 700, color: '#f5f5f5' }}>4.9/5</span>
             <span style={{ fontSize: 13, color: 'rgba(240,237,232,0.4)' }}>from 200+ AU dropshippers</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, maxWidth: 760, margin: '0 auto' }}>
+          <div className="pricing-testimonials" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, maxWidth: 760, margin: '0 auto' }}>
             {[
               { quote: 'Made $4,200 in my first month. The AU data is what makes it different.', name: 'Jordan K.', city: 'Gold Coast, QLD' },
               { quote: 'Got into posture correctors 2 weeks before they went viral. Trend signals actually work.', name: 'Marcus T.', city: 'Melbourne, VIC' },
@@ -825,7 +845,7 @@ export default function Pricing() {
               </div>
             ))}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 20, flexWrap: 'wrap' }}>
+          <div className="pricing-trust-badges" style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 20, flexWrap: 'wrap' }}>
             {['Secure checkout', 'Australian Consumer Law', 'Afterpay coming soon', 'Cancel anytime'].map(badge => (
               <span key={badge} style={{ fontSize: 12, color: 'rgba(240,237,232,0.45)', display: 'flex', alignItems: 'center', gap: 4 }}>{badge}</span>
             ))}
@@ -833,6 +853,7 @@ export default function Pricing() {
         </div>
 
         <div
+          className="pricing-cards-grid"
           style={{
             maxWidth: 1050,
             margin: '0 auto',
@@ -1089,7 +1110,7 @@ export default function Pricing() {
           >
             What's included in each plan?
           </h2>
-          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+          <div className="pricing-comparison" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
           <div style={{ border: `1px solid ${C.border}`, borderRadius: 16, overflow: 'hidden', minWidth: 500 }}>
             {/* Header */}
             <div
@@ -1207,7 +1228,7 @@ export default function Pricing() {
       <EmotionalComparisonTable />
 
       {/* ── FAQ ── */}
-      <section style={{ padding: '0 24px 80px' }}>
+      <section className="pricing-faq" style={{ padding: '0 24px 80px' }}>
         <div style={{ maxWidth: 680, margin: '0 auto' }}>
           <h2
             style={{
@@ -1275,6 +1296,7 @@ export default function Pricing() {
 
       {/* ── BOTTOM CTA ── */}
       <section
+        className="pricing-bottom-cta"
         style={{
           padding: '80px 24px',
           background: `linear-gradient(135deg, rgba(212,175,55,0.10) 0%, rgba(212,175,55,0.03) 60%, ${C.bg} 100%)`,

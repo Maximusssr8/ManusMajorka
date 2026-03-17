@@ -704,7 +704,15 @@ function DashboardHome() {
       className="h-full overflow-auto dashboard-bg"
       style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}
     >
-      <SEO title="Dashboard | Majorka" description="Your Majorka dropshipping dashboard. Track winning products, trend signals, and profit margins for the Australian market." path="/app/dashboard" />
+      <SEO title="Dashboard | Majorka" description="Your Majorka dropshipping dashboard. Track winning products, trend signals, and profit margins for the Australian market." />
+      <style>{`
+        @media (max-width: 640px) {
+          .dash-two-col { flex-direction: column !important; }
+          .dash-two-col > .dash-sidebar { width: 100% !important; }
+          .dash-hero-text { font-size: 20px !important; }
+          .dash-activity-table { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
+        }
+      `}</style>
       {isFreePlan && <TrialBanner />}
       {/* Onboarding personalisation nudge — shown when user skipped onboarding */}
       {!onboardingBannerDismissed &&
@@ -1245,7 +1253,7 @@ function DashboardHome() {
         )}
 
         {/* Two-column */}
-        <div className="flex gap-6 mb-8" style={{ alignItems: 'flex-start' }}>
+        <div className="flex gap-6 mb-8 dash-two-col" style={{ alignItems: 'flex-start' }}>
           <div className="flex-1 min-w-0 space-y-4">
             <div
               className="rounded-xl p-4"
@@ -1363,7 +1371,7 @@ function DashboardHome() {
               )}
             </div>
           </div>
-          <div style={{ width: 280, flexShrink: 0 }} className="space-y-4 hidden md:block">
+          <div style={{ width: 280, flexShrink: 0 }} className="space-y-4 hidden md:block dash-sidebar">
             <div
               className="rounded-xl p-4"
               style={{

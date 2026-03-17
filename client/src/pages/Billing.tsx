@@ -70,8 +70,13 @@ export default function Billing() {
   const periodEnd = sub?.periodEnd ? new Date(sub.periodEnd).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' }) : null;
 
   return (
-    <div style={{ padding: '32px 24px', maxWidth: 640, margin: '0 auto', fontFamily: 'DM Sans, sans-serif' }}>
+    <div className="billing-page" style={{ padding: '32px 24px', maxWidth: 640, margin: '0 auto', fontFamily: 'DM Sans, sans-serif' }}>
       <SEO title="Billing | Majorka" description="Manage your Majorka subscription." path="/app/billing" />
+      <style>{`
+        @media (max-width: 640px) {
+          .billing-page { padding: 20px 16px !important; }
+        }
+      `}</style>
       <h1 style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: C.text, marginBottom: 4 }}>
         Billing & Plan
       </h1>

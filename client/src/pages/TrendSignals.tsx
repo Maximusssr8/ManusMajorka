@@ -292,7 +292,7 @@ export default function TrendSignals() {
       </div>
 
       {/* ── Filter bar ── */}
-      <div style={{
+      <div className="trend-filter-bar" style={{
         display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap',
         marginBottom: 16, padding: '12px 14px',
         background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10,
@@ -673,6 +673,9 @@ export default function TrendSignals() {
         @media (max-width: 640px) {
           .trend-table-wrapper { display: none !important; }
           .trend-cards-mobile { display: flex !important; }
+          .trend-filter-bar { gap: 8px !important; }
+          .trend-filter-bar > * { flex: 1 1 100% !important; min-width: 0 !important; }
+          .trend-filter-bar > label { flex: 1 1 45% !important; }
         }
         @media (min-width: 641px) {
           .trend-cards-mobile { display: none !important; }

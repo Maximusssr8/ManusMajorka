@@ -706,3 +706,30 @@ textarea {
   border: 2px solid #d4af37;
   animation: step-ring-pulse 1.5s ease-out infinite;
 }
+
+/* ── Mobile spacing utilities ── */
+@media (max-width: 640px) {
+  .hide-mobile { display: none !important; }
+  .show-mobile { display: block !important; }
+  .full-width-mobile { width: 100% !important; max-width: 100% !important; }
+  .stack-mobile { flex-direction: column !important; }
+  .center-mobile { text-align: center !important; justify-content: center !important; }
+  .pad-mobile { padding: 16px !important; }
+  .no-pad-x-mobile { padding-left: 12px !important; padding-right: 12px !important; }
+}
+
+/* Ensure tables don't overflow */
+table {
+  max-width: 100%;
+}
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Better tap targets on mobile */
+@media (max-width: 640px) {
+  button, a, [role="button"] {
+    min-height: 44px;
+  }
+}

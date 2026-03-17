@@ -106,6 +106,11 @@ const GLOBAL_STYLES = `
   .urgency-item  { font-size: 11px !important; }
   /* Section horizontal padding */
   section { padding-left: 16px !important; padding-right: 16px !important; }
+  /* Hero CTA buttons stack */
+  .hero-cta-row { flex-direction: column !important; gap: 12px !important; }
+  .hero-cta-row > * { width: 100% !important; text-align: center !important; }
+  /* Feature cards mobile fix */
+  .feature-big { padding: 24px 16px !important; }
 }
 @media (min-width: 769px) { .hide-desktop { display: none !important; } }
 `;
