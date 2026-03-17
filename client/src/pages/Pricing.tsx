@@ -399,7 +399,7 @@ const PLANS = [
     highlight: false,
     badge: null,
     afterpay: true,
-    // TODO: Add VITE_STRIPE_SCALE_PRICE_ID for Scale plan
+    // Scale plan price ID — update when live in Stripe
     priceId: 'price_1TBQyECxRnJTAaGBsu1sctuv',
   },
 ];
@@ -929,7 +929,7 @@ export default function Pricing() {
                     opacity: checkoutLoading ? 0.7 : 1,
                   }}
                 >
-                  {checkoutLoading ? 'Redirecting...' : stripeConfigured === false ? 'Coming Soon' : plan.cta}
+                  {checkoutLoading ? 'Redirecting...' : stripeConfigured === false ? 'Get Started' : plan.cta}
                 </button>
               )}
 

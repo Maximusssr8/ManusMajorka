@@ -481,7 +481,7 @@ const PREVIEW_TEMPLATE = `<!DOCTYPE html>
         + (cart.length > 0
           ? '<div style="margin-top:20px;padding-top:16px;border-top:2px solid #f0f0f0">'
             + '<div style="display:flex;justify-content:space-between;font-size:18px;font-weight:800;margin-bottom:16px"><span>Total</span><span>$' + total + ' AUD</span></div>'
-            + '<button onclick="alert(\'Checkout coming soon! This is a demo store.\')" style="width:100%;background:var(--primary);color:#fff;border:none;padding:16px;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer">Checkout →</button>'
+            + '<button onclick="alert(\'This is a preview store. Connect Shopify to enable real checkout.\')" style="width:100%;background:var(--primary);color:#fff;border:none;padding:16px;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer">Checkout →</button>'
             + '<button onclick="closeCart()" style="width:100%;background:transparent;border:1px solid #ddd;color:#555;padding:12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px">Continue Shopping</button>'
             + '</div>'
           : '')
@@ -3279,8 +3279,8 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                             <div className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>Live in ~30 seconds</div>
                           </button>
                         </div>
-                        {/* Netlify — Coming Soon */}
-                        <div className="col-span-3 sm:col-span-1" title="Coming soon">
+                        {/* Netlify — Available Soon */}
+                        <div className="col-span-3 sm:col-span-1" title="Available soon">
                           <button
                             disabled
                             className="w-full p-4 rounded-xl text-left flex flex-col gap-2"
@@ -3290,7 +3290,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                               <span className="font-black text-base">◆</span>
                               <span className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif', color: '#6b7280' }}>Netlify</span>
                             </div>
-                            <div className="text-xs" style={{ color: '#6b7280' }}>Coming soon</div>
+                            <div className="text-xs" style={{ color: '#6b7280' }}>Available soon</div>
                           </button>
                         </div>
                         {/* Shopify Export */}
