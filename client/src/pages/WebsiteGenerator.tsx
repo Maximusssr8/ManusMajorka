@@ -1427,6 +1427,16 @@ export default function WebsiteGenerator() {
       setNiche(demoNiche);
     }
 
+    // fromTrend — pre-fill from Trend Signals page
+    if (params.get('fromTrend') === 'true') {
+      const priceParam = params.get('price');
+      if (priceParam) setPriceAUD(priceParam);
+      setTimeout(() => {
+        toast.success('Product loaded from Trend Signals — ready to generate!');
+      }, 500);
+      window.history.replaceState({}, '', '/app/store-builder');
+    }
+
     // Maya prefill — check sessionStorage for agentic navigation
     const mayaPrefill = sessionStorage.getItem('maya_prefill_website-generator');
     if (mayaPrefill) {
@@ -2945,21 +2955,25 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
           {/* Generate Button */}
           <style>{`
-            @keyframes mjk-shimmer {
-              0% { background-position: -200% 0; }
-              100% { background-position: 200% 0; }
-            }
-            @keyframes mjk-dots {
-              0%, 20% { content: '.'; }
-              40% { content: '..'; }
-              60%, 100% { content: '...'; }
-            }
-            .mjk-gen-btn:not(:disabled):hover {
-              background-size: 200% 100% !important;
-              animation: mjk-shimmer 1.5s linear infinite !important;
-              background-image: linear-gradient(90deg, #d4af37 0%, #f0c040 25%, #fff5cc 50%, #f0c040 75%, #d4af37 100%) !important;
-            }
             @keyframes mjk-fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+            .mjk-gen-btn:not(:disabled):hover {
+              background: #c9a227 !important;
+              opacity: 1 !important;
+              transform: none !important;
+              box-shadow: 0 4px 24px rgba(212,175,55,0.35) !important;
+              animation: none !important;
+              background-image: none !important;
+            }
+            .mjk-gen-btn:disabled {
+              opacity: 0.6 !important;
+              cursor: not-allowed !important;
+              transform: none !important;
+            }
+            .mjk-gen-btn:active:not(:disabled) {
+              background: #b8911f !important;
+              transform: none !important;
+              animation: none !important;
+            }
           `}</style>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <button

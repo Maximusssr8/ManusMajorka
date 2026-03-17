@@ -2,7 +2,7 @@
  * SupplierDirectory — curated list of AU-friendly dropship & wholesale suppliers.
  * Static data, no API calls, filter by niche + type.
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ExternalLink, Truck, Package } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 
@@ -77,6 +77,18 @@ export default function SupplierDirectory() {
   const [niche, setNiche] = useState('All');
   const [type, setType] = useState('All');
   const [sortBy, setSortBy] = useState<'shipping' | 'rating'>('rating');
+
+  // Auto-select niche from URL params (e.g. from Trend Signals)
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    const nicheParam = p.get('niche');
+    if (nicheParam) {
+      // Match to closest niche button
+      const match = ALL_NICHES.find(n => nicheParam.toLowerCase().includes(n.toLowerCase()));
+      if (match) setNiche(match);
+      window.history.replaceState({}, '', '/app/suppliers');
+    }
+  }, []);
 
   const filtered = SUPPLIERS
     .filter(s => niche === 'All' || s.niche.includes('All') || s.niche.includes(niche))

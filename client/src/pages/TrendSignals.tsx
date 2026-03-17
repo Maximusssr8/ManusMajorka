@@ -457,28 +457,24 @@ export default function TrendSignals() {
                         <div style={{
                           width: 40, height: 40, borderRadius: 8, flexShrink: 0, overflow: 'hidden',
                           background: 'rgba(212,175,55,0.06)', border: `1px solid ${C.border}`,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative',
                         }}>
                           {p.image_url ? (
                             <img
                               src={p.image_url}
                               alt={p.name}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                               onError={(e) => {
-                                const t = e.currentTarget as HTMLImageElement;
-                                t.style.display = 'none';
-                                const parent = t.parentElement;
-                                if (parent && !parent.querySelector('.emoji-fb')) {
-                                  const fb = document.createElement('div');
-                                  fb.className = 'emoji-fb';
-                                  fb.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:18px;';
-                                  fb.textContent = nicheEmoji(p.niche);
-                                  parent.appendChild(fb);
+                                const img = e.currentTarget as HTMLImageElement;
+                                img.style.display = 'none';
+                                const parent = img.parentElement;
+                                if (parent) {
+                                  parent.innerHTML = `<span style="font-size:18px;line-height:1">${nicheEmoji(p.niche)}</span>`;
                                 }
                               }}
                             />
                           ) : (
-                            <span style={{ fontSize: 18 }}>{nicheEmoji(p.niche)}</span>
+                            <span style={{ fontSize: 18, lineHeight: '1' }}>{nicheEmoji(p.niche)}</span>
                           )}
                         </div>
                         <div style={{ minWidth: 0 }}>
@@ -551,7 +547,16 @@ export default function TrendSignals() {
                     <td style={{ padding: '8px 12px' }}>
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button
-                          onClick={() => navigate(`/app/store-builder?product=${encodeURIComponent(p.name)}&niche=${encodeURIComponent(p.niche)}&price=${p.estimated_retail_aud}`)}
+                          onClick={() => {
+                            const params = new URLSearchParams({
+                              product: p.name,
+                              niche: p.niche,
+                              price: String(p.estimated_retail_aud || 49),
+                              description: p.trend_reason || '',
+                              fromTrend: 'true',
+                            });
+                            navigate(`/app/store-builder?${params.toString()}`);
+                          }}
                           style={{
                             display: 'flex', alignItems: 'center', gap: 4,
                             padding: '5px 10px', background: C.gold, color: '#080a0e',
@@ -562,7 +567,7 @@ export default function TrendSignals() {
                           <Store size={10} /> Build Store
                         </button>
                         <button
-                          onClick={() => navigate('/app/suppliers')}
+                          onClick={() => navigate(`/app/suppliers?niche=${encodeURIComponent(p.niche)}`)}
                           style={{
                             display: 'flex', alignItems: 'center', gap: 4,
                             padding: '5px 10px', background: C.surface, color: C.sub,
@@ -612,11 +617,20 @@ export default function TrendSignals() {
                 <span style={{ fontSize: 11, color: C.muted }}>Viability: <strong style={{ color: p.dropship_viability_score >= 8 ? '#10b981' : C.yellow }}>{p.dropship_viability_score}/10</strong></span>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={() => navigate(`/app/store-builder?product=${encodeURIComponent(p.name)}&niche=${encodeURIComponent(p.niche)}`)}
+                <button onClick={() => {
+                    const params = new URLSearchParams({
+                      product: p.name,
+                      niche: p.niche,
+                      price: String(p.estimated_retail_aud || 49),
+                      description: p.trend_reason || '',
+                      fromTrend: 'true',
+                    });
+                    navigate(`/app/store-builder?${params.toString()}`);
+                  }}
                   style={{ flex: 1, padding: '9px', background: C.gold, color: '#080a0e', border: 'none', borderRadius: 7, fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}>
                   Build Store →
                 </button>
-                <button onClick={() => navigate('/app/suppliers')}
+                <button onClick={() => navigate(`/app/suppliers?niche=${encodeURIComponent(p.niche)}`)}
                   style={{ flex: 1, padding: '9px', background: C.surface, color: C.sub, border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 12, cursor: 'pointer' }}>
                   Supplier →
                 </button>

@@ -5,6 +5,38 @@ import { createClient } from '@supabase/supabase-js';
 
 const router = Router();
 
+const NICHE_IMAGE_QUERIES: Record<string, string> = {
+  'Tech Accessories': 'technology,gadgets',
+  'Health & Wellness': 'wellness,health',
+  'Beauty & Skincare': 'skincare,beauty',
+  'Activewear & Gym': 'fitness,gym',
+  'Home Decor': 'interior,homedecor',
+  'Home & Kitchen': 'kitchen,home',
+  'Pets & Animals': 'pets,dog',
+  'Fashion & Apparel': 'fashion,clothing',
+  'Outdoor & Camping': 'outdoor,nature',
+  'Baby & Kids': 'baby,children',
+  'Jewellery & Accessories': 'jewelry,accessories',
+  'Coffee & Beverages': 'coffee,cafe',
+  'Supplements & Nutrition': 'supplements,nutrition',
+  'Electronics': 'electronics,technology',
+  'Sports Equipment': 'sports,equipment',
+  'Travel Accessories': 'travel,luggage',
+  'Garden & Plants': 'garden,plants',
+  'Art & Craft': 'art,craft',
+  'Office & Stationery': 'office,desk',
+  'Food & Gourmet': 'food,gourmet',
+  'Cleaning & Organisation': 'cleaning,minimal',
+  'Automotive': 'car,automotive',
+  'Photography': 'photography,camera',
+  'Music & Audio': 'music,headphones',
+};
+
+function getUnsplashUrl(niche: string): string {
+  const query = NICHE_IMAGE_QUERIES[niche] || niche.toLowerCase().replace(/\s*&\s*/g, ',').replace(/\s+/g, ',');
+  return `https://source.unsplash.com/200x200/?${encodeURIComponent(query)}`;
+}
+
 function getSupabaseAdmin() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
@@ -156,7 +188,7 @@ Only output the JSON array. No markdown.`
       trend_score: p.trend_score,
       dropship_viability_score: p.dropship_viability_score,
       trend_reason: p.trend_reason,
-      image_url: imageUrls[i].status === 'fulfilled' ? imageUrls[i].value : null,
+      image_url: (imageUrls[i].status === 'fulfilled' && imageUrls[i].value) ? imageUrls[i].value : getUnsplashUrl(p.niche || ''),
       refreshed_at: new Date().toISOString(),
       source: 'cron',
     }));
