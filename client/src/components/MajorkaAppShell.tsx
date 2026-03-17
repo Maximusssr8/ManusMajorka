@@ -463,7 +463,7 @@ function PWAInstallBanner() {
 
 export default function MajorkaAppShell({ children }: Props) {
   const [location, setLocation] = useLocation();
-  const { user, isAuthenticated, loading, session } = useAuth();
+  const { user, isAuthenticated, loading, session, isPro, subPlan } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -928,10 +928,29 @@ export default function MajorkaAppShell({ children }: Props) {
               fontFamily: 'Syne, sans-serif',
             }}
           >
-            Upgrade — Unlimited
+            {isPro
+              ? `${subPlan.charAt(0).toUpperCase() + subPlan.slice(1)} Plan · Unlimited AI tools ✓`
+              : 'Upgrade — Unlimited'}
           </button>
         )}
       </div>
+
+      {/* Admin link — only for admin */}
+      {(user?.email === 'maximusmajorka@gmail.com' || session?.user?.email === 'maximusmajorka@gmail.com') && (
+        <div className="px-2 pb-1">
+          <button
+            onClick={() => setLocation('/app/admin')}
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: 8,
+              padding: '7px 10px', borderRadius: 7, border: 'none',
+              background: 'rgba(212,175,55,0.06)', cursor: 'pointer',
+              color: '#d4af37', fontSize: 12, fontWeight: 600,
+            }}
+          >
+            ⚙️ Admin Panel
+          </button>
+        </div>
+      )}
 
       {/* User section */}
       <div
@@ -1008,15 +1027,16 @@ export default function MajorkaAppShell({ children }: Props) {
                   <span
                     className="px-1.5 py-0.5 rounded text-xs flex-shrink-0"
                     style={{
-                      background: 'rgba(212,175,55,0.12)',
-                      color: '#d4af37',
-                      fontSize: 8,
-                      fontWeight: 800,
+                      background: isPro ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.06)',
+                      color: isPro ? '#d4af37' : '#71717a',
                       fontFamily: 'Syne, sans-serif',
+                      fontWeight: 700,
+                      fontSize: 9,
+                      textTransform: 'uppercase' as const,
                       letterSpacing: '0.05em',
                     }}
                   >
-                    PRO
+                    {isPro ? subPlan.charAt(0).toUpperCase() + subPlan.slice(1).toLowerCase() : 'Free'}
                   </span>
                 </div>
                 {(user?.email ?? session?.user?.email) && (

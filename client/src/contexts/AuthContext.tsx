@@ -23,6 +23,9 @@ interface AuthContextValue {
   session: Session | null;
   refresh: () => void;
   logout: () => Promise<void>;
+  subPlan: string;
+  subStatus: string;
+  isPro: boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -30,6 +33,8 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
+  const [subPlan, setSubPlan] = useState<string>('free');
+  const [subStatus, setSubStatus] = useState<string>('inactive');
   const utils = trpc.useUtils();
 
   const meQuery = trpc.auth.me.useQuery(undefined, {
@@ -148,12 +153,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [meQuery.data]);
 
+  // Fetch subscription plan from REST endpoint (not Drizzle)
+  useEffect(() => {
+    if (!session?.access_token) return;
+    fetch('/api/subscription/me', {
+      headers: { Authorization: `Bearer ${session.access_token}` }
+    })
+      .then(r => r.json())
+      .then((d: { plan?: string; status?: string }) => {
+        setSubPlan(d.plan || 'free');
+        setSubStatus(d.status || 'inactive');
+      })
+      .catch(() => {
+        setSubPlan('free');
+        setSubStatus('inactive');
+      });
+  }, [session?.access_token]);
+
   const logout = useCallback(async () => {
     resetUser();
     await supabase.auth.signOut();
     utils.auth.me.setData(undefined, null);
     await utils.auth.me.invalidate();
   }, [utils]);
+
+  const isPro = ['pro', 'builder', 'scale'].includes(subPlan.toLowerCase()) && ['active', 'trialing'].includes(subStatus.toLowerCase());
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -164,6 +188,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       refresh: () => meQuery.refetch(),
       logout,
+      subPlan,
+      subStatus,
+      isPro,
     }),
     [
       session,
@@ -173,6 +200,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       meQuery.isPending,
       meQuery.isFetched,
       logout,
+      subPlan,
+      subStatus,
+      isPro,
     ]
   );
 

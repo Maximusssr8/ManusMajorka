@@ -1202,14 +1202,28 @@ async function generateFullStore_legacy(params: {
   let baseCss = buildBaseCSS({ color, colorRgb, bgColor, surfColor, textColor, mutedColor, cardBorder, cardRadius, btnRadius, headingFont, bodyFont, googleFontUrl, h1Size, headingWeight, isLight });
 
   // Inject brief font pairing into CSS if available
-  const fontPairing = (brief.fontPairing as string) || '';
-  if (fontPairing.includes(' + ')) {
-    const [briefHeading, briefBody] = fontPairing.split(' + ').map(f => f.trim());
-    if (briefHeading && briefBody) {
-      baseCss = baseCss.replace(`--font-heading:'${headingFont}'`, `--font-heading:'${briefHeading}'`);
-      baseCss = baseCss.replace(`--font-body:'${bodyFont}'`, `--font-body:'${briefBody}'`);
-    }
+  const fp = brief.fontPairing;
+  let briefHeadingFont: string | null = null;
+  let briefBodyFont: string | null = null;
+  if (typeof fp === 'string' && fp.includes(' + ')) {
+    const [h, b] = fp.split(' + ').map((f: string) => f.trim());
+    briefHeadingFont = h || null;
+    briefBodyFont = b || null;
+  } else if (fp && typeof fp === 'object' && !Array.isArray(fp)) {
+    const fpObj = fp as { heading?: string; body?: string };
+    briefHeadingFont = fpObj.heading || null;
+    briefBodyFont = fpObj.body || null;
   }
+  if (briefHeadingFont) {
+    baseCss = baseCss.replace(`--font-heading:'${headingFont}'`, `--font-heading:'${briefHeadingFont}'`);
+  }
+  if (briefBodyFont) {
+    baseCss = baseCss.replace(`--font-body:'${bodyFont}'`, `--font-body:'${briefBodyFont}'`);
+  }
+
+  // Type-safe colourPalette extraction
+  const cp = brief.colourPalette;
+  const briefPrimaryColor = typeof cp === 'string' ? cp : (cp as any)?.primary ?? null;
 
   const fullHead = `<!DOCTYPE html>
 <html lang="en-AU">

@@ -222,6 +222,11 @@ async function startServer() {
   // Cron endpoints (Vercel cron + manual refresh)
   const cronRouter = (await import('../routes/cron')).default;
   app.use('/api/cron', cronRouter);
+  // Subscription + Admin
+  const subscriptionRouter = (await import('../routes/subscription')).default;
+  app.use('/api/subscription', subscriptionRouter);
+  const adminApiRouter = (await import('../routes/admin')).default;
+  app.use('/api/admin', adminApiRouter);
   // tRPC API
   app.use(
     '/api/trpc',

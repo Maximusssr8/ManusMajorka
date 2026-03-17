@@ -31,6 +31,7 @@ const Affiliate = lazy(() => import('./pages/Affiliate'));
 const KnowledgeBase = lazy(() => import('./pages/KnowledgeBase'));
 const LearnHub = lazy(() => import('./pages/LearnHub'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+const AdminControlPanel = lazy(() => import('./pages/AdminControlPanel'));
 const AdminSubscribers = lazy(() => import('./pages/AdminSubscribers'));
 const PromoDashboard = lazy(() => import('./pages/PromoDashboard'));
 const ProductReport = lazy(() => import('./pages/ProductReport'));
@@ -146,6 +147,13 @@ function Router() {
               {() => (
                 <ProtectedRoute>
                   <LearnHub />
+                </ProtectedRoute>
+              )}
+            </Route>
+            <Route path="/app/admin">
+              {() => (
+                <ProtectedRoute>
+                  <AdminControlPanel />
                 </ProtectedRoute>
               )}
             </Route>

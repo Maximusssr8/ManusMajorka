@@ -573,11 +573,10 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
 
 function DashboardHome() {
   const [, setLocation] = useLocation();
-  const { user, session, isAuthenticated } = useAuth();
+  const { user, session, isAuthenticated, isPro } = useAuth();
   const { activeProduct } = useActiveProduct();
   const productsQuery = trpc.products.list.useQuery(undefined, { enabled: isAuthenticated });
   const ordersQuery = trpc.storefront.getOrders.useQuery(undefined, { enabled: isAuthenticated });
-  const subscriptionQuery = trpc.subscription.get.useQuery(undefined, { enabled: isAuthenticated });
   const profileQuery = trpc.profile.get.useQuery(undefined, { enabled: isAuthenticated });
 
   const [toolsToday, setToolsToday] = useState(0);
@@ -698,7 +697,7 @@ function DashboardHome() {
         .filter((s) => s.tools.length > 0)
     : stages;
 
-  const isFreePlan = !subscriptionQuery.data || subscriptionQuery.data.plan === 'free';
+  const isFreePlan = !isPro;
 
   return (
     <div

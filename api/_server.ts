@@ -19,6 +19,8 @@ import shopifyRouter from "../server/routes/shopify";
 import storeBuilderRouter from "../server/routes/store-builder";
 import aiRouter from "../server/routes/ai";
 import cronRouter from "../server/routes/cron";
+import subscriptionRouter from "../server/routes/subscription";
+import adminApiRouter from "../server/routes/admin";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
 import { getProductByIdPublic } from "../server/db";
 import { importProductSchema, validateBody } from "../server/lib/validators";
@@ -191,6 +193,8 @@ app.use('/api/shopify', shopifyRouter);
 app.use('/api/store-builder', storeBuilderRouter);
 app.use('/api/ai', aiRouter);
 app.use('/api/cron', cronRouter);
+app.use('/api/subscription', subscriptionRouter);
+app.use('/api/admin', adminApiRouter);
 
 // ── Product import with AI Brain ─────────────────────────────────────────────
 app.post("/api/import-product", async (req: Request, res: Response) => {
