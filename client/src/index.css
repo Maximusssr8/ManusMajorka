@@ -4,8 +4,21 @@ body {
   overflow-x: hidden;
   max-width: 100vw;
 }
+#root {
+  overflow-x: hidden;
+}
 * {
   box-sizing: border-box;
+}
+
+/* Prevent iOS input zoom + ensure tap targets */
+input[type="text"], input[type="email"], input[type="password"],
+input[type="search"], input[type="number"], input[type="url"],
+input[type="tel"], textarea, select {
+  font-size: max(16px, 1em);
+}
+button, [role="button"] {
+  min-height: 44px;
 }
 
 /* ── Mobile base font size ── */
