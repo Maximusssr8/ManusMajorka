@@ -7,7 +7,7 @@
  */
 
 import type { Application } from 'express';
-import { getAnthropicClient } from './anthropic';
+import { getAnthropicClient, CLAUDE_MODEL } from './anthropic';
 import { getSupabaseAdmin } from '../_core/supabase';
 import { requireSubscription } from '../middleware/requireSubscription';
 import { rateLimit } from './rate-limit';
@@ -205,58 +205,56 @@ Include ALL product image URLs you find — this is the most important field.`,
   return result;
 }
 
-// ─── Pexels Image Fetcher ─────────────────────────────────────────────────────
-// ─── Curated niche fallback images (always-on Pexels URLs) ──────────────────
-const NICHE_FALLBACKS: Record<string, { hero: string; product: string; lifestyle1: string; lifestyle2: string }> = {
-  skincare:     { hero: 'https://images.pexels.com/photos/3997993/pexels-photo-3997993.jpeg', product: 'https://images.pexels.com/photos/4041392/pexels-photo-4041392.jpeg', lifestyle1: 'https://images.pexels.com/photos/3762875/pexels-photo-3762875.jpeg', lifestyle2: 'https://images.pexels.com/photos/3373739/pexels-photo-3373739.jpeg' },
-  beauty:       { hero: 'https://images.pexels.com/photos/1029896/pexels-photo-1029896.jpeg', product: 'https://images.pexels.com/photos/2253833/pexels-photo-2253833.jpeg', lifestyle1: 'https://images.pexels.com/photos/3373746/pexels-photo-3373746.jpeg', lifestyle2: 'https://images.pexels.com/photos/3373739/pexels-photo-3373739.jpeg' },
-  fitness:      { hero: 'https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg',   product: 'https://images.pexels.com/photos/4162486/pexels-photo-4162486.jpeg', lifestyle1: 'https://images.pexels.com/photos/1552242/pexels-photo-1552242.jpeg', lifestyle2: 'https://images.pexels.com/photos/3768916/pexels-photo-3768916.jpeg' },
-  supplements:  { hero: 'https://images.pexels.com/photos/3621168/pexels-photo-3621168.jpeg', product: 'https://images.pexels.com/photos/3683074/pexels-photo-3683074.jpeg', lifestyle1: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg', lifestyle2: 'https://images.pexels.com/photos/3622608/pexels-photo-3622608.jpeg' },
-  pet:          { hero: 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg', product: 'https://images.pexels.com/photos/406014/pexels-photo-406014.jpeg',   lifestyle1: 'https://images.pexels.com/photos/1458916/pexels-photo-1458916.jpeg', lifestyle2: 'https://images.pexels.com/photos/2253275/pexels-photo-2253275.jpeg' },
-  home:         { hero: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg', product: 'https://images.pexels.com/photos/2062426/pexels-photo-2062426.jpeg', lifestyle1: 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg', lifestyle2: 'https://images.pexels.com/photos/1080721/pexels-photo-1080721.jpeg' },
-  tech:         { hero: 'https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg',   product: 'https://images.pexels.com/photos/1029757/pexels-photo-1029757.jpeg', lifestyle1: 'https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg', lifestyle2: 'https://images.pexels.com/photos/2182973/pexels-photo-2182973.jpeg' },
-  fashion:      { hero: 'https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg', product: 'https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg',   lifestyle1: 'https://images.pexels.com/photos/2220316/pexels-photo-2220316.jpeg', lifestyle2: 'https://images.pexels.com/photos/1126993/pexels-photo-1126993.jpeg' },
-  outdoor:      { hero: 'https://images.pexels.com/photos/1526713/pexels-photo-1526713.jpeg', product: 'https://images.pexels.com/photos/2422588/pexels-photo-2422588.jpeg', lifestyle1: 'https://images.pexels.com/photos/3622608/pexels-photo-3622608.jpeg', lifestyle2: 'https://images.pexels.com/photos/1365425/pexels-photo-1365425.jpeg' },
-  baby:         { hero: 'https://images.pexels.com/photos/35537/child-children-girl-happy.jpg', product: 'https://images.pexels.com/photos/459947/pexels-photo-459947.jpeg', lifestyle1: 'https://images.pexels.com/photos/1912868/pexels-photo-1912868.jpeg', lifestyle2: 'https://images.pexels.com/photos/265987/pexels-photo-265987.jpeg' },
-  coffee:       { hero: 'https://images.pexels.com/photos/312418/pexels-photo-312418.jpeg',   product: 'https://images.pexels.com/photos/894695/pexels-photo-894695.jpeg',   lifestyle1: 'https://images.pexels.com/photos/1695052/pexels-photo-1695052.jpeg', lifestyle2: 'https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg' },
-  jewellery:    { hero: 'https://images.pexels.com/photos/1191531/pexels-photo-1191531.jpeg', product: 'https://images.pexels.com/photos/1453005/pexels-photo-1453005.jpeg', lifestyle1: 'https://images.pexels.com/photos/2735970/pexels-photo-2735970.jpeg', lifestyle2: 'https://images.pexels.com/photos/1689731/pexels-photo-1689731.jpeg' },
-  default:      { hero: 'https://images.pexels.com/photos/5632399/pexels-photo-5632399.jpeg', product: 'https://images.pexels.com/photos/5632371/pexels-photo-5632371.jpeg', lifestyle1: 'https://images.pexels.com/photos/3965548/pexels-photo-3965548.jpeg', lifestyle2: 'https://images.pexels.com/photos/3965549/pexels-photo-3965549.jpeg' },
+// ── Unsplash image URL builder (no API key required) ──────────────────────────
+const NICHE_IMAGE_MAP: Record<string, { hero: string; product: string }> = {
+  'Activewear & Gym':          { hero: 'fitness,gym,workout',       product: 'activewear,leggings,sportswear' },
+  'Beauty & Skincare':         { hero: 'skincare,beauty,spa',        product: 'skincare,serum,beauty' },
+  'Health & Wellness':         { hero: 'wellness,health,yoga',       product: 'supplements,health,wellness' },
+  'Tech Accessories':          { hero: 'technology,gadgets,tech',    product: 'gadgets,tech,accessories' },
+  'Home & Kitchen':            { hero: 'interior,home,kitchen',      product: 'kitchen,home,decor' },
+  'Home Decor':                { hero: 'interior,decor,home',        product: 'homedecor,interior,design' },
+  'Pets & Animals':            { hero: 'pets,dog,puppy',             product: 'pets,dog,cat' },
+  'Fashion & Apparel':         { hero: 'fashion,clothing,style',     product: 'fashion,clothes,apparel' },
+  'Jewellery & Accessories':   { hero: 'jewelry,accessories,gold',   product: 'jewelry,rings,necklace' },
+  'Outdoor & Camping':         { hero: 'outdoor,camping,nature',     product: 'camping,outdoor,hiking' },
+  'Baby & Kids':               { hero: 'baby,children,family',       product: 'baby,kids,children' },
+  'Coffee & Beverages':        { hero: 'coffee,cafe,espresso',       product: 'coffee,mug,beans' },
+  'Supplements & Nutrition':   { hero: 'fitness,nutrition,protein',  product: 'supplements,protein,pills' },
+  'Electronics':               { hero: 'electronics,technology,lab', product: 'electronics,devices,tech' },
+  'Books & Education':         { hero: 'books,library,study',        product: 'books,reading,study' },
+  'Art & Craft':               { hero: 'art,craft,creative',         product: 'art,paint,crafts' },
+  'Garden & Plants':           { hero: 'garden,plants,flowers',      product: 'plants,garden,flowers' },
+  'Sports Equipment':          { hero: 'sports,equipment,athlete',   product: 'sports,equipment,training' },
+  'Travel Accessories':        { hero: 'travel,adventure,explore',   product: 'travel,luggage,accessories' },
+  'Food & Gourmet':            { hero: 'food,gourmet,cooking',       product: 'food,ingredients,cooking' },
+  'Automotive':                { hero: 'car,automotive,vehicle',     product: 'car,auto,accessories' },
+  'Photography':               { hero: 'photography,camera,photo',   product: 'camera,lens,photography' },
+  'Music & Audio':             { hero: 'music,audio,headphones',     product: 'headphones,audio,music' },
+  'Office & Stationery':       { hero: 'office,desk,workspace',      product: 'stationery,office,desk' },
+  'Cleaning & Organisation':   { hero: 'clean,minimal,organisation', product: 'cleaning,organised,home' },
 };
 
-function getNicheFallback(niche: string) {
-  const n = niche.toLowerCase();
-  if (/skin|glow|serum|face|led|light|mask|acne|anti.ag/.test(n)) return NICHE_FALLBACKS.skincare;
-  if (/beauty|makeup|cosmetic|lash|brow/.test(n)) return NICHE_FALLBACKS.beauty;
-  if (/fit|gym|workout|exercise|yoga|sport|protein/.test(n)) return NICHE_FALLBACKS.fitness;
-  if (/supplement|vitamin|health|wellness|nutrition/.test(n)) return NICHE_FALLBACKS.supplements;
-  if (/pet|dog|cat|paw|collar|treat/.test(n)) return NICHE_FALLBACKS.pet;
-  if (/home|kitchen|cook|decor|clean|organi/.test(n)) return NICHE_FALLBACKS.home;
-  if (/tech|gadget|electronic|phone|device|charger/.test(n)) return NICHE_FALLBACKS.tech;
-  if (/fashion|cloth|wear|shirt|dress|shoe|bag/.test(n)) return NICHE_FALLBACKS.fashion;
-  if (/outdoor|hike|camp|adventure|trail/.test(n)) return NICHE_FALLBACKS.outdoor;
-  if (/baby|kid|child|infant|toy/.test(n)) return NICHE_FALLBACKS.baby;
-  if (/coffee|tea|brew|caf/.test(n)) return NICHE_FALLBACKS.coffee;
-  if (/jewel|ring|necklace|bracelet|watch/.test(n)) return NICHE_FALLBACKS.jewellery;
-  return NICHE_FALLBACKS.default;
+function getUnsplashImages(niche: string, _productTitle: string): { hero: string; product: string; lifestyle1: string; lifestyle2: string; shopImages: string[] } {
+  const mapped = NICHE_IMAGE_MAP[niche] || Object.entries(NICHE_IMAGE_MAP).find(([k]) =>
+    niche.toLowerCase().includes(k.toLowerCase().split(' ')[0]) ||
+    k.toLowerCase().includes(niche.toLowerCase().split(' ')[0])
+  )?.[1] || { hero: 'lifestyle,australia,brand', product: 'product,shop,ecommerce' };
+
+  const heroUrl     = `https://source.unsplash.com/1400x900/?${encodeURIComponent(mapped.hero)}`;
+  const productUrl  = `https://source.unsplash.com/800x800/?${encodeURIComponent(mapped.product)}`;
+  const lifestyle1  = `https://source.unsplash.com/900x600/?${encodeURIComponent(mapped.hero + ',lifestyle')}`;
+  const lifestyle2  = `https://source.unsplash.com/900x600/?${encodeURIComponent(mapped.product + ',lifestyle')}`;
+
+  return {
+    hero: heroUrl,
+    product: productUrl,
+    lifestyle1,
+    lifestyle2,
+    shopImages: [productUrl, lifestyle1, lifestyle2],
+  };
 }
 
-async function pexelsSearch(query: string, count: number, orientation: 'landscape' | 'portrait' | 'square' = 'landscape'): Promise<any[]> {
-  const key = process.env.PEXELS_API_KEY;
-  if (!key) return [];
-  const res = await fetch(
-    `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${count}&orientation=${orientation}`,
-    { headers: { Authorization: key }, signal: AbortSignal.timeout(8000) }
-  );
-  if (!res.ok) return [];
-  const data = await res.json() as any;
-  return data.photos || [];
-}
-
-function bestUrl(photo: any): string {
-  return photo?.src?.large2x || photo?.src?.large || photo?.src?.medium || '';
-}
-
-// Multi-query Pexels fetcher: tries specific → simplified → category fallback
+//
 function sanitizeProductTitle(raw: string, niche: string): string {
   if (!raw) return niche;
   // Strip titles that are just "Product from aliexpress.com" etc.
@@ -268,69 +266,6 @@ function sanitizeProductTitle(raw: string, niche: string): string {
     .trim();
   if (!clean || clean.length < 3) return niche;
   return clean;
-}
-
-async function fetchImagesForStore(productTitle: string, niche: string): Promise<{
-  hero: string; product: string; lifestyle1: string; lifestyle2: string; shopImages: string[];
-}> {
-  const fallback = getNicheFallback(niche);
-
-  // Build query variants from most specific to broadest
-  const specificQuery = productTitle
-    .replace(/\b(device|machine|tool|kit|set|pack|system|pro|plus|max|ultra|v\d)\b/gi, '')
-    .trim();
-  // Lifestyle query: niche + context word (no product hardware terms)
-  const nicheWords = niche.replace(/\b(device|machine|tool|kit|set)\b/gi, '').trim();
-  const heroQuery = `${nicheWords} lifestyle australian woman`;
-  const productQuery = `${specificQuery} product white background`;
-  const lifestyleQuery = `${nicheWords} before after result`;
-
-  try {
-    // Parallel: hero + lifestyle (landscape), product (portrait/square)
-    const [heroPhotos, productPhotos, lifestylePhotos] = await Promise.all([
-      pexelsSearch(heroQuery, 4, 'landscape').catch(() => []),
-      pexelsSearch(productQuery, 3, 'portrait').catch(() => []),
-      pexelsSearch(lifestyleQuery, 3, 'landscape').catch(() => []),
-    ]);
-
-    // If specific query yields < 2 results, fall back to broader niche
-    const nichePhotos = (heroPhotos.length < 2 || productPhotos.length < 1)
-      ? await pexelsSearch(nicheWords, 5, 'landscape').catch(() => [])
-      : [];
-
-    const pool = [...heroPhotos, ...nichePhotos];
-
-    // Also fetch 6 shop product images (portrait/square, varied queries)
-    const shopVariants = [
-      nicheWords,
-      `${nicheWords} product`,
-      `${nicheWords} lifestyle`,
-    ];
-    const shopResults = await Promise.all(
-      shopVariants.map(q => pexelsSearch(q, 3, 'square').catch(() => []))
-    );
-    const shopPool = shopResults.flat();
-    const shopImages = shopPool
-      .map(p => bestUrl(p))
-      .filter(Boolean)
-      .slice(0, 6);
-
-    const hero      = bestUrl(pool[0])       || fallback.hero;
-    const product   = bestUrl(productPhotos[0] || pool[1]) || fallback.product;
-    const lifestyle1 = bestUrl(lifestylePhotos[0] || pool[2]) || fallback.lifestyle1;
-    const lifestyle2 = bestUrl(lifestylePhotos[1] || pool[3]) || fallback.lifestyle2;
-
-    // Deduplicate
-    return {
-      hero,
-      product:    product    === hero ? fallback.product    : product,
-      lifestyle1: lifestyle1 === hero ? fallback.lifestyle1 : lifestyle1,
-      lifestyle2: lifestyle2 === hero || lifestyle2 === lifestyle1 ? fallback.lifestyle2 : lifestyle2,
-      shopImages: shopImages.length >= 3 ? shopImages : [fallback.product, fallback.lifestyle1, fallback.lifestyle2, fallback.hero, fallback.lifestyle1, fallback.lifestyle2],
-    };
-  } catch {
-    return { ...fallback, shopImages: [fallback.product, fallback.lifestyle1, fallback.lifestyle2, fallback.hero, fallback.lifestyle1, fallback.lifestyle2] };
-  }
 }
 
 // ─── Design Directions ────────────────────────────────────────────────────────
@@ -1407,28 +1342,8 @@ async function generateFullStore_legacy(params: {
   designDirection?: DesignDirection;
   onProgress?: (pct: number, msg: string) => void;
 }): Promise<{ html: string; manifest: string }> {
-  const { niche, storeName, targetAudience, vibe, accentColor, price, productData, designDirection = 'default' } = params;
+  const { niche, storeName, accentColor, price, productData, designDirection = 'default', vibe } = params;
   const progress = params.onProgress || (() => {});
-
-  // Helper: run a blocking promise while sending progress ticks every 3s
-  async function withHeartbeat<T>(
-    startPct: number, endPct: number, msg: string, fn: () => Promise<T>
-  ): Promise<T> {
-    progress(startPct, msg);
-    let cur = startPct;
-    const timer = setInterval(() => {
-      cur = Math.min(cur + Math.round((endPct - startPct) / 12), endPct - 2);
-      progress(cur, msg);
-    }, 3000);
-    try {
-      const result = await fn();
-      clearInterval(timer);
-      return result;
-    } catch (e) {
-      clearInterval(timer);
-      throw e;
-    }
-  }
 
   const dir = designDirection !== 'default' ? DESIGN_DIRECTIONS[designDirection as keyof typeof DESIGN_DIRECTIONS] : null;
   const color = accentColor || '#d4af37';
@@ -1452,15 +1367,19 @@ async function generateFullStore_legacy(params: {
   const storeName_ = storeName || niche;
   const isLight = ['editorial', 'minimal'].includes(designDirection as string);
 
-  // ── 1. Images removed — using CSS gradient boxes instead ───────────────────
+  // ── 1. Unsplash images (no API key needed) ──────────────────────────────────
   progress(5, '🔍 Finding the perfect images...');
   const pd = productData || {};
   const productTitle = sanitizeProductTitle((pd.product_title as string) || '', niche);
-  const heroImg = '';
-  const productImg = '';
-  const lifestyleImg1 = '';
-  const lifestyleImg2 = '';
-  const shopImages: string[] = [];
+  const scrapedImages = pd?.product_images as string[] | undefined;
+  const scrapedHeroImg = (pd?.hero_image as string) || scrapedImages?.[0] || '';
+  const scrapedProductImg = scrapedImages?.[1] || '';
+  const imgs = getUnsplashImages(niche, productTitle);
+  const heroImg      = scrapedHeroImg    || imgs.hero;
+  const productImg   = scrapedProductImg || imgs.product;
+  const lifestyleImg1 = imgs.lifestyle1;
+  const lifestyleImg2 = imgs.lifestyle2;
+  const shopImages   = imgs.shopImages;
 
   // ── 2. Expand brand brief (fast Haiku) ─────────────────────────────────────
   progress(10, '📝 Building your brand brief...');
@@ -1471,413 +1390,308 @@ async function generateFullStore_legacy(params: {
     designDirection: dir?.label || 'modern',
     productData: pd,
   });
-  console.log('[website-api] BRIEF OUTPUT:', JSON.stringify({
+  console.log('[website-api] BRIEF:', JSON.stringify({
     brandName: brief.brandName,
     tagline: brief.tagline,
     heroHeadline: brief.heroHeadline,
-    storeName: storeName_,
-    niche,
-    price,
+    heroSubheadline: brief.heroSubheadline,
+    uniqueValueProp: brief.uniqueValueProp,
   }, null, 2));
+  console.log('[website-api] storeName_:', storeName_, '| niche:', niche, '| price:', price);
 
   // ── 3. Build manifest ────────────────────────────────────────────────────
   progress(15, '🎨 Crafting your store...');
   const manifestJson = buildManifest(storeName_, color, (brief.tagline as string) || vibe || ('Premium ' + niche + ' for Australians'));
 
-  // ── 4. Extract typed values from brief ─────────────────────────────────────
-  const briefBrandName = (brief.brandName as string) || storeName_ || niche;
-  const briefTagline = (brief.tagline as string) || `Premium ${niche} for Australians`;
-  const briefHeroHeadline = (brief.heroHeadline as string) || `The ${niche} brand built for Australia`;
-  const briefHeroSub = (brief.heroSubheadline as string) || `Premium quality, fast AU shipping, results from day one.`;
-  const briefUvp = (brief.uniqueValueProp as string) || `We source and test every product for Australian conditions.`;
+  // ── 4. Extract all brief values with safe fallbacks ────────────────────────
+  const briefBrandName   = String(brief.brandName   || storeName_ || niche);
+  const briefTagline     = String(brief.tagline      || `Premium ${niche} for Australians`);
+  const briefHeadline    = String(brief.heroHeadline || `The ${niche} brand built for Australia`);
+  const briefSubheadline = String(brief.heroSubheadline || `Premium quality. Fast AU shipping. Results from day one.`);
+  const briefUvp         = String(brief.uniqueValueProp || `We source and test every product for Australian conditions.`);
 
-  const briefTestimonials = Array.isArray(brief.testimonials) ? brief.testimonials as Array<{name:string;location:string;text:string}> : [
-    { name: 'Sarah M.', location: 'Sydney NSW', text: `Finally found ${niche} that actually works. Arrived in 2 days and the quality blew me away.` },
-    { name: 'Jake T.', location: 'Brisbane QLD', text: `Tried heaps of brands. This one is genuinely different. Highly recommend to any Aussie.` },
-    { name: 'Emma K.', location: 'Melbourne VIC', text: `Super fast delivery and the customer service was brilliant. Will definitely order again.` },
-  ];
-
-  const briefFaq = Array.isArray(brief.faq) ? brief.faq as Array<{q:string;a:string}> : [
-    { q: 'How long does shipping take to Australia?', a: 'We ship from our AU warehouse — most orders arrive in 3-5 business days.' },
-    { q: 'What is your return policy?', a: '30-day no questions asked returns. Just contact us and we\'ll sort it.' },
-    { q: 'Is this product authentic?', a: '100% authentic. We quality-check every item before dispatch.' },
-    { q: 'Do you offer Afterpay?', a: 'Yes — split any order into 4 interest-free payments at checkout.' },
-  ];
-
-  const productName = (pd.product_title as string) || (pd.title as string) || storeName_ || niche;
-  const displayPrice = price || (pd.price_aud ? String(pd.price_aud) : '49.95');
-  const priceNum = parseFloat(displayPrice) || 49.95;
-  const afterpayAmount = (priceNum / 4).toFixed(2);
-  const supportEmail = `support@${briefBrandName.toLowerCase().replace(/[^a-z0-9]/g, '')}.com.au`;
-
-  const t1 = briefTestimonials[0] || { name: 'Sarah M.', location: 'Sydney NSW', text: 'Amazing product, fast delivery.' };
-  const t2 = briefTestimonials[1] || { name: 'Jake T.', location: 'Brisbane QLD', text: 'Highly recommend!' };
-  const t3 = briefTestimonials[2] || { name: 'Emma K.', location: 'Melbourne VIC', text: 'Will order again.' };
-
-  const faq1 = briefFaq[0] || { q: 'How fast is shipping?', a: '3-5 business days Australia-wide.' };
-  const faq2 = briefFaq[1] || { q: 'What is your return policy?', a: '30-day returns, no questions asked.' };
-  const faq3 = briefFaq[2] || { q: 'Is this authentic?', a: '100% authentic, quality-checked before dispatch.' };
-  const faq4 = briefFaq[3] || { q: 'Do you offer Afterpay?', a: 'Yes, 4 interest-free payments at checkout.' };
-
-  // Bullet points for product section — niche-aware
-  const nicheLower = niche.toLowerCase();
-  let productBullets: string[];
-  if (nicheLower.includes('gym') || nicheLower.includes('active') || nicheLower.includes('fitness')) {
-    productBullets = ['4-way stretch performance fabric', 'Moisture-wicking — stays dry through any workout', 'High-waist compression design for support', 'Squat-proof material tested to AU standards', 'Available in sizes XS–3XL with Afterpay'];
-  } else if (nicheLower.includes('skin') || nicheLower.includes('beauty') || nicheLower.includes('glow')) {
-    productBullets = ['Dermatologist tested and approved', 'Cruelty-free and vegan formula', 'Results visible within 14 days', 'Suited to Australia\'s harsh UV climate', 'Free of parabens, sulphates, and artificial fragrance'];
-  } else if (nicheLower.includes('kitchen') || nicheLower.includes('home') || nicheLower.includes('cook')) {
-    productBullets = ['Food-grade materials, BPA-free', 'Dishwasher safe for easy cleaning', 'Compact storage design for AU kitchens', '2-year Australian warranty included', 'Ships same day — arrives in 3-5 days'];
-  } else if (nicheLower.includes('pet') || nicheLower.includes('dog') || nicheLower.includes('cat')) {
-    productBullets = ['Vet-approved materials, 100% pet-safe', 'Designed for Australian breeds and climate', 'Durable — built to withstand Aussie conditions', 'Easy to clean, odour-resistant', 'Loved by 12,000+ Australian pet owners'];
-  } else {
-    productBullets = ['Premium quality materials built for Australian conditions', 'Free express shipping on orders over $75', '30-day hassle-free returns — no questions asked', 'Afterpay available — 4 interest-free payments', 'Trusted by 12,400+ happy Australian customers'];
+  const briefTestimonials = Array.isArray(brief.testimonials)
+    ? (brief.testimonials as Array<{ name: string; location: string; text: string }>).slice(0, 3)
+    : [];
+  while (briefTestimonials.length < 3) {
+    const defaults = [
+      { name: 'Sarah M.', location: 'Sydney, NSW', text: `Absolutely love this product. Arrived in 3 days and the quality is outstanding — exactly what I was looking for.` },
+      { name: 'Jake T.', location: 'Brisbane, QLD', text: `Tried so many brands before this. The difference is night and day. My new go-to for ${niche.toLowerCase()}.` },
+      { name: 'Emma K.', location: 'Melbourne, VIC', text: `Fast delivery, beautiful packaging and the product actually works. Will definitely be ordering again!` },
+    ];
+    briefTestimonials.push(defaults[briefTestimonials.length]);
   }
 
-  // ── 5. Generate complete HTML template (no LLM streaming needed) ───────────
-  progress(20, '✍️ Generating your store...');
-  progress(50, '🎨 Styling sections...');
+  const briefFaq = Array.isArray(brief.faq)
+    ? (brief.faq as Array<{ q: string; a: string }>).slice(0, 4)
+    : [];
+  while (briefFaq.length < 4) {
+    const defaults = [
+      { q: 'How long does shipping take to Australia?', a: 'We ship from our Australian warehouse. Most orders arrive within 3–5 business days. Express shipping is also available at checkout.' },
+      { q: 'What is your return policy?', a: 'We offer a 30-day no-questions-asked return policy. Simply contact our team and we will arrange a free return label for you.' },
+      { q: 'Is this product genuine quality?', a: 'Absolutely. Every product is quality-checked by our team before dispatch. We only stock items we would use ourselves.' },
+      { q: 'Do you offer Afterpay or buy now pay later?', a: 'Yes! We offer Afterpay, Zip, and all major credit and debit cards. Split your purchase into 4 interest-free payments.' },
+    ];
+    briefFaq.push(defaults[briefFaq.length]);
+  }
 
-  const singlePassSystem = `You are an expert HTML/CSS developer. Output ONLY valid HTML — no markdown, no backticks, no explanation. Start with <!DOCTYPE html>.`;
+  const productName  = String((pd.product_title as string) || (pd.title as string) || storeName_ || niche);
+  const displayPrice = price || (pd.price_aud ? String(pd.price_aud) : '49.95');
+  const priceNum     = parseFloat(displayPrice) || 49.95;
+  const afterpayAmt  = (priceNum / 4).toFixed(2);
+  const supportEmail = `support@${briefBrandName.toLowerCase().replace(/[^a-z0-9]/g, '')}.com.au`;
 
-  const singlePassUser = `<!DOCTYPE html>
-<html lang="en-AU">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${briefBrandName} — ${niche}</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:#fff;color:#1a1a1a;overflow-x:hidden}
-.heading-font{font-family:'Syne',sans-serif}
-:root{--accent:${color};--accent-rgb:${colorRgb};--bg:#0a0a0f;--surface:#141420;--radius:12px}
+  const t1 = briefTestimonials[0];
+  const t2 = briefTestimonials[1];
+  const t3 = briefTestimonials[2];
+  const f1 = briefFaq[0];
+  const f2 = briefFaq[1];
+  const f3 = briefFaq[2];
+  const f4 = briefFaq[3];
 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,15,0.96);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:68px}
-.nav-logo{font-family:'Syne',sans-serif;font-weight:900;font-size:22px;color:#fff;text-decoration:none;letter-spacing:-0.5px}
-.nav-logo span{color:${color}}
-.nav-links{display:flex;gap:28px;list-style:none}
-.nav-links a{color:rgba(255,255,255,0.75);text-decoration:none;font-size:14px;font-weight:500;transition:color 0.2s}
-.nav-links a:hover{color:#fff}
-.nav-cta{background:${color};color:#fff;padding:10px 22px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;font-family:'Syne',sans-serif;transition:opacity 0.2s}
-.nav-cta:hover{opacity:0.85}
+  // Google Fonts import URL
+  const headingFontName = headingFont.replace(/'/g, '').replace(/, sans-serif/i, '').trim();
+  const bodyFontName    = bodyFont.replace(/'/g, '').replace(/, sans-serif/i, '').trim();
+  const googleFontsUrl  = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(headingFontName)}:wght@400;700;800;900&family=${encodeURIComponent(bodyFontName)}:wght@400;500;600&display=swap`;
 
-/* ANNOUNCEMENT */
-.announcement{background:${color};color:#fff;text-align:center;padding:11px 16px;font-size:13px;font-weight:600;letter-spacing:0.01em}
+  // ── 5. Build the Sonnet prompt ────────────────────────────────────────────────
+  const singlePassSystem = `You are a world-class Shopify store designer and HTML/CSS developer. Output ONLY valid, complete HTML starting with <!DOCTYPE html>. No markdown. No code fences. No explanation. Make it genuinely beautiful — agency quality.`;
 
-/* HERO */
-.hero{min-height:100vh;background:linear-gradient(135deg,#0a0a0f 0%,#1a1a2e 100%);display:flex;align-items:center;padding:120px 32px 80px;gap:60px}
-.hero-left{flex:1;max-width:580px}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(${colorRgb},0.12);border:1px solid rgba(${colorRgb},0.3);border-radius:100px;padding:7px 18px;font-size:13px;font-weight:700;color:${color};margin-bottom:28px;font-family:'Syne',sans-serif}
-.hero h1{font-family:'Syne',sans-serif;font-size:clamp(38px,5.5vw,72px);font-weight:900;color:#fff;line-height:1.08;letter-spacing:-1.5px;margin-bottom:22px}
-.hero h1 span{color:${color}}
-.hero-sub{font-size:18px;color:rgba(255,255,255,0.72);line-height:1.65;margin-bottom:36px;max-width:480px}
-.hero-buttons{display:flex;gap:14px;flex-wrap:wrap}
-.btn-primary{background:${color};color:#fff;padding:16px 34px;border-radius:10px;font-weight:800;font-size:16px;text-decoration:none;font-family:'Syne',sans-serif;display:inline-block;transition:opacity 0.2s;border:none;cursor:pointer}
-.btn-primary:hover{opacity:0.88}
-.btn-secondary{background:transparent;color:#fff;padding:16px 34px;border-radius:10px;font-weight:700;font-size:16px;text-decoration:none;font-family:'Syne',sans-serif;display:inline-block;border:2px solid rgba(255,255,255,0.35);transition:border-color 0.2s}
-.btn-secondary:hover{border-color:rgba(255,255,255,0.7)}
-.hero-right{flex:1;display:flex;justify-content:center;align-items:center}
-.hero-visual{width:100%;max-width:480px;height:500px;border-radius:20px;background:linear-gradient(135deg,rgba(${colorRgb},0.25) 0%,rgba(${colorRgb},0.05) 100%);border:1px solid rgba(${colorRgb},0.25);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;position:relative;overflow:hidden}
-.hero-visual::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 40%,rgba(${colorRgb},0.08));pointer-events:none}
-.hero-visual-label{font-family:'Syne',sans-serif;font-size:26px;font-weight:900;color:#fff;text-align:center;padding:0 24px;line-height:1.2}
-.hero-visual-sub{font-size:14px;color:rgba(255,255,255,0.5);text-align:center}
-.hero-visual-price{background:${color};color:#fff;font-family:'Syne',sans-serif;font-weight:900;font-size:22px;padding:12px 28px;border-radius:8px;margin-top:8px}
+  const singlePassUser = `Create a stunning, complete, production-ready HTML storefront. Match the quality of Lovable or Framer websites. This must look like it was built by a $50,000 agency.
 
-/* TRUST BAR */
-.trust-bar{background:#fff;border-top:none;border-bottom:1px solid #f0f0f0;padding:28px 32px;display:flex;justify-content:center;gap:0}
-.trust-item{flex:1;max-width:220px;text-align:center;padding:0 24px;border-right:1px solid #e8e8e8}
-.trust-item:last-child{border-right:none}
-.trust-icon{font-size:28px;margin-bottom:8px}
-.trust-title{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:#1a1a1a;margin-bottom:3px}
-.trust-sub{font-size:12px;color:#888}
+═══ STORE DATA — USE EXACTLY THESE VALUES ═══
+Brand Name: ${briefBrandName}
+Product: ${productName}
+Niche: ${niche}
+Price: AUD ${displayPrice}
+Tagline: ${briefTagline}
+Hero Headline: ${briefHeadline}
+Hero Subheadline: ${briefSubheadline}
+Value Prop: ${briefUvp}
+Primary Colour: ${color}
+Heading Font: ${headingFontName}
+Body Font: ${bodyFontName}
+Hero Image: ${heroImg}
+Product Image: ${productImg}
 
-/* PRODUCT */
-.product-section{background:#f7f7f9;padding:100px 32px}
-.product-inner{max-width:1080px;margin:0 auto;display:flex;gap:60px;align-items:flex-start}
-.product-img-wrap{flex:1;min-height:500px;border-radius:16px;background:linear-gradient(135deg,rgba(${colorRgb},0.18) 0%,rgba(${colorRgb},0.06) 100%);border:1px solid rgba(${colorRgb},0.2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
-.product-img-label{font-family:'Syne',sans-serif;font-size:24px;font-weight:900;color:${color};text-align:center;padding:0 32px}
-.product-img-sub{font-size:13px;color:#666;text-align:center}
-.product-info{flex:1}
-.product-info h2{font-family:'Syne',sans-serif;font-size:34px;font-weight:900;color:#1a1a1a;margin-bottom:12px;line-height:1.15}
-.product-stars{color:#d4af37;font-size:18px;margin-bottom:4px}
-.product-reviews{font-size:13px;color:#666;margin-bottom:20px}
-.product-price-main{font-family:'Syne',sans-serif;font-size:48px;font-weight:900;color:${color};line-height:1;margin-bottom:8px}
-.product-afterpay{font-size:14px;color:#555;margin-bottom:24px;background:rgba(0,0,0,0.04);border-radius:6px;padding:8px 12px;display:inline-block}
-.product-bullets{list-style:none;margin-bottom:28px}
-.product-bullets li{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #eee;font-size:15px;color:#333}
-.product-bullets li::before{content:'✓';color:${color};font-weight:900;font-size:16px;flex-shrink:0}
-.btn-cart{width:100%;background:${color};color:#fff;border:none;border-radius:10px;padding:18px;font-family:'Syne',sans-serif;font-weight:800;font-size:17px;cursor:pointer;margin-bottom:12px;transition:opacity 0.2s}
-.btn-cart:hover{opacity:0.88}
-.btn-buy{width:100%;background:#1a1a1a;color:#fff;border:none;border-radius:10px;padding:18px;font-family:'Syne',sans-serif;font-weight:800;font-size:17px;cursor:pointer;transition:opacity 0.2s}
-.btn-buy:hover{opacity:0.82}
+═══ CRITICAL RULES ═══
+1. Nav logo = "${briefBrandName}" — NEVER use "Product from AU" or placeholder text
+2. Use <img src="${heroImg}" ...> in hero section — real photo
+3. Use <img src="${productImg}" ...> in product section — real photo
+4. Add onerror="this.style.display='none'" to every img tag
+5. All text must have sufficient contrast — NEVER same colour as background
+6. Every section must have min-height and visible content — NO empty black boxes
+7. All sections need padding: minimum 80px top/bottom on desktop
+8. All buttons are clickable: use href="#" or onclick="void(0)"
 
-/* TESTIMONIALS */
-.reviews-section{background:#0a0a0f;padding:100px 32px}
-.section-title{font-family:'Syne',sans-serif;font-size:clamp(28px,4vw,46px);font-weight:900;text-align:center;margin-bottom:12px}
-.section-sub{text-align:center;font-size:16px;margin-bottom:56px}
-.reviews-grid{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.review-card{background:#141420;border-radius:16px;padding:28px;border-left:4px solid ${color}}
-.review-stars{color:#d4af37;font-size:18px;margin-bottom:14px}
-.review-text{color:rgba(255,255,255,0.82);font-size:15px;line-height:1.65;margin-bottom:20px;font-style:italic}
-.review-author{font-weight:700;color:#fff;font-size:14px}
-.review-location{color:rgba(255,255,255,0.4);font-size:13px;margin-top:2px}
+═══ REQUIRED SECTIONS (build ALL of these) ═══
 
-/* HOW IT WORKS */
-.how-section{background:#fff;padding:100px 32px}
-.steps-grid{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
-.step-card{text-align:center;padding:32px 24px}
-.step-num{font-family:'Syne',sans-serif;font-size:56px;font-weight:900;color:${color};opacity:0.25;line-height:1;margin-bottom:16px}
-.step-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#1a1a1a;margin-bottom:12px}
-.step-desc{font-size:15px;color:#555;line-height:1.6}
-
-/* FAQ */
-.faq-section{background:#f7f7f9;padding:100px 32px}
-.faq-wrap{max-width:760px;margin:0 auto}
-.faq-item{border-bottom:1px solid #e0e0e0;padding:24px 0}
-.faq-q{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#1a1a1a;margin-bottom:10px}
-.faq-a{font-size:15px;color:#555;line-height:1.65}
-
-/* FOOTER */
-footer{background:#0a0a0f;color:#fff;padding:70px 32px 28px}
-.footer-grid{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;margin-bottom:48px}
-.footer-brand-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:900;color:#fff;margin-bottom:10px}
-.footer-brand-name span{color:${color}}
-.footer-tagline{color:rgba(255,255,255,0.5);font-size:14px;line-height:1.6;margin-bottom:20px}
-.social-icons{display:flex;gap:10px}
-.social-icon{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.7);font-size:13px;font-weight:700;text-decoration:none;transition:background 0.2s}
-.social-icon:hover{background:rgba(${colorRgb},0.3);color:#fff}
-.footer-heading{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:18px}
-.footer-links{list-style:none;display:flex;flex-direction:column;gap:10px}
-.footer-links a{color:rgba(255,255,255,0.6);text-decoration:none;font-size:14px;transition:color 0.2s}
-.footer-links a:hover{color:#fff}
-.footer-bottom{max-width:1080px;margin:0 auto;padding-top:28px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-.footer-copy{font-size:13px;color:rgba(255,255,255,0.35)}
-
-/* MOBILE */
-@media(max-width:768px){
-  nav{padding:0 16px}
-  .nav-links{display:none}
-  .hero{flex-direction:column;padding:100px 16px 60px;gap:40px}
-  .hero-right{width:100%}
-  .hero-visual{max-width:100%;height:280px}
-  .trust-bar{flex-wrap:wrap;gap:0;padding:20px 16px}
-  .trust-item{flex:1 1 45%;border-right:none;border-bottom:1px solid #eee;padding:16px 8px}
-  .trust-item:nth-child(odd){border-right:1px solid #eee}
-  .product-inner{flex-direction:column;gap:32px}
-  .product-img-wrap{min-height:260px}
-  .reviews-grid{grid-template-columns:1fr}
-  .steps-grid{grid-template-columns:1fr;gap:24px}
-  .footer-grid{grid-template-columns:1fr}
-  .footer-bottom{flex-direction:column;text-align:center}
-  .product-section,.reviews-section,.how-section,.faq-section{padding:60px 16px}
-}
-</style>
-</head>
-<body>
-
-<!-- ANNOUNCEMENT BAR -->
-<div class="announcement">\u{1F69A} Free Shipping on AU Orders Over $75 &nbsp;\u00B7&nbsp; 30-Day Returns &nbsp;\u00B7&nbsp; Afterpay Available</div>
-
-<!-- NAV -->
-<nav>
-  <a href="#" class="nav-logo">${briefBrandName.split(' ').map((w: string, i: number) => i === 0 ? '<span>' + w + '</span>' : ' ' + w).join('')}</a>
-  <ul class="nav-links">
-    <li><a href="#">Home</a></li>
-    <li><a href="#">Shop</a></li>
-    <li><a href="#">About</a></li>
-    <li><a href="#">Contact</a></li>
-  </ul>
-  <a href="#" class="nav-cta">Shop Now</a>
-</nav>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-left">
-    <div class="hero-badge">\u{1F1E6}\u{1F1FA} AUSTRALIAN OWNED &amp; OPERATED</div>
-    <h1 class="heading-font">${briefHeroHeadline}</h1>
-    <p class="hero-sub">${briefHeroSub}</p>
-    <div class="hero-buttons">
-      <a href="#" class="btn-primary">Shop Now \u2192</a>
-      <a href="#" class="btn-secondary">Learn More</a>
-    </div>
-  </div>
-  <div class="hero-right">
-    <div class="hero-visual">
-      <div class="hero-visual-label">${productName}</div>
-      <div class="hero-visual-sub">${niche}</div>
-      <div class="hero-visual-price">$${displayPrice} AUD</div>
-    </div>
-  </div>
-</section>
-
-<!-- TRUST BAR -->
-<div class="trust-bar">
-  <div class="trust-item">
-    <div class="trust-icon">\u{1F69A}</div>
-    <div class="trust-title">Free AU Shipping</div>
-    <div class="trust-sub">Orders over $75</div>
-  </div>
-  <div class="trust-item">
-    <div class="trust-icon">\u2B50</div>
-    <div class="trust-title">4.9/5 Stars</div>
-    <div class="trust-sub">12,400+ reviews</div>
-  </div>
-  <div class="trust-item">
-    <div class="trust-icon">\u{1F504}</div>
-    <div class="trust-title">30-Day Returns</div>
-    <div class="trust-sub">No questions asked</div>
-  </div>
-  <div class="trust-item">
-    <div class="trust-icon">\u2705</div>
-    <div class="trust-title">Secure Checkout</div>
-    <div class="trust-sub">Afterpay &amp; Zip available</div>
-  </div>
+SECTION 1 — ANNOUNCEMENT BAR:
+<div style="background:${color};color:#fff;padding:12px;text-align:center;font-size:13px;letter-spacing:1px;font-weight:600;">
+Free shipping on AU orders over $75. 30-day returns. Afterpay available.
 </div>
 
-<!-- PRODUCT SECTION -->
-<section class="product-section">
-  <div class="product-inner">
-    <div class="product-img-wrap">
-      <div class="product-img-label">${productName}</div>
-      <div class="product-img-sub">Premium ${niche}</div>
-    </div>
-    <div class="product-info">
-      <h2 class="heading-font">${productName}</h2>
-      <div class="product-stars">\u2605\u2605\u2605\u2605\u2605</div>
-      <div class="product-reviews">487 verified Australian reviews</div>
-      <div class="product-price-main">$${displayPrice} AUD</div>
-      <div class="product-afterpay">or 4 payments of $${afterpayAmount} with <strong>Afterpay</strong> \u24D8</div>
-      <ul class="product-bullets">
-        ${productBullets.map((b: string) => '<li>' + b + '</li>').join('\n        ')}
-      </ul>
-      <button class="btn-cart">Add to Cart \u2014 $${displayPrice} AUD</button>
-      <button class="btn-buy">Buy Now with Afterpay</button>
-    </div>
-  </div>
-</section>
+SECTION 2 — STICKY NAV:
+position:fixed; top:0; left:0; right:0; z-index:1000;
+background:rgba(8,8,8,0.96); backdrop-filter:blur(20px);
+border-bottom:1px solid rgba(255,255,255,0.08);
+height:70px; padding:0 60px;
+display:flex; align-items:center; justify-content:space-between;
 
-<!-- TESTIMONIALS -->
-<section class="reviews-section">
-  <h2 class="section-title heading-font" style="color:#fff">What Australians Are Saying</h2>
-  <p class="section-sub" style="color:rgba(255,255,255,0.5)">Real reviews from verified Australian customers</p>
-  <div class="reviews-grid">
-    <div class="review-card">
-      <div class="review-stars">\u2605\u2605\u2605\u2605\u2605</div>
-      <p class="review-text">"${t1.text}"</p>
-      <div class="review-author">${t1.name}</div>
-      <div class="review-location">\u{1F4CD} ${t1.location}</div>
-    </div>
-    <div class="review-card">
-      <div class="review-stars">\u2605\u2605\u2605\u2605\u2605</div>
-      <p class="review-text">"${t2.text}"</p>
-      <div class="review-author">${t2.name}</div>
-      <div class="review-location">\u{1F4CD} ${t2.location}</div>
-    </div>
-    <div class="review-card">
-      <div class="review-stars">\u2605\u2605\u2605\u2605\u2605</div>
-      <p class="review-text">"${t3.text}"</p>
-      <div class="review-author">${t3.name}</div>
-      <div class="review-location">\u{1F4CD} ${t3.location}</div>
-    </div>
-  </div>
-</section>
+Left: "${briefBrandName}" — font-family:'${headingFontName}',sans-serif; font-weight:900; font-size:20px; color:#fff; letter-spacing:2px; text-decoration:none
+Centre: nav links (Home Shop About Contact) — color:rgba(255,255,255,0.7); font-size:14px; letter-spacing:1px; hover:color:#fff; gap:36px
+Right: "SHOP NOW" button — background:${color}; color:#fff; padding:11px 28px; border:none; cursor:pointer; font-size:13px; letter-spacing:2px; font-family:'${headingFontName}',sans-serif; font-weight:700
 
-<!-- HOW IT WORKS -->
-<section class="how-section">
-  <h2 class="section-title heading-font" style="color:#1a1a1a">How It Works</h2>
-  <p class="section-sub" style="color:#666">Getting started is simple</p>
-  <div class="steps-grid">
-    <div class="step-card">
-      <div class="step-num">01</div>
-      <div class="step-title heading-font">Choose Your ${niche}</div>
-      <p class="step-desc">Browse our curated range of premium ${niche.toLowerCase()} products, all sourced and tested for Australian conditions and lifestyles.</p>
-    </div>
-    <div class="step-card">
-      <div class="step-num">02</div>
-      <div class="step-title heading-font">Order with Confidence</div>
-      <p class="step-desc">Pay securely with Afterpay, Zip, or any major card. Every order is backed by our 30-day no-questions-asked return guarantee.</p>
-    </div>
-    <div class="step-card">
-      <div class="step-num">03</div>
-      <div class="step-title heading-font">Fast AU Delivery</div>
-      <p class="step-desc">We ship from our Australian warehouse. Most orders arrive within 3\u20135 business days. Track your order in real time via email.</p>
-    </div>
-  </div>
-</section>
+SECTION 3 — HERO (min-height:100vh, padding-top:70px for nav):
+background: linear-gradient(135deg, #080808 0%, #111118 100%);
+display:grid; grid-template-columns:1fr 1fr; min-height:100vh; align-items:center;
 
-<!-- FAQ -->
-<section class="faq-section">
-  <div class="faq-wrap">
-    <h2 class="section-title heading-font" style="color:#1a1a1a;margin-bottom:48px">Frequently Asked Questions</h2>
-    <div class="faq-item">
-      <div class="faq-q">${faq1.q}</div>
-      <div class="faq-a">${faq1.a}</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q">${faq2.q}</div>
-      <div class="faq-a">${faq2.a}</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q">${faq3.q}</div>
-      <div class="faq-a">${faq3.a}</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q">${faq4.q}</div>
-      <div class="faq-a">${faq4.a}</div>
-    </div>
-  </div>
-</section>
+LEFT (padding:80px 60px):
+- Label: "AUSTRALIAN OWNED" — color:${color}; font-size:12px; letter-spacing:4px; font-weight:700; margin-bottom:24px
+- H1: "${briefHeadline}" — font-family:'${headingFontName}',sans-serif; font-size:clamp(38px,4.5vw,68px); font-weight:900; color:#ffffff; line-height:1.08; letter-spacing:-1px; margin-bottom:24px
+- P: "${briefSubheadline}" — color:rgba(255,255,255,0.65); font-size:18px; line-height:1.65; margin-bottom:40px; max-width:480px
+- Button row (display:flex; gap:16px; flex-wrap:wrap):
+  "Shop Now": background:${color}; color:#fff; padding:17px 38px; border:none; cursor:pointer; font-size:15px; letter-spacing:1px; font-family:'${headingFontName}',sans-serif; font-weight:800; border-radius:4px
+  "Learn More": background:transparent; color:#fff; padding:17px 38px; border:2px solid rgba(255,255,255,0.25); cursor:pointer; font-size:15px; font-family:'${headingFontName}',sans-serif; font-weight:600; border-radius:4px
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-grid">
-    <div>
-      <div class="footer-brand-name heading-font">${briefBrandName.split(' ').map((w: string, i: number) => i === 0 ? '<span>' + w + '</span>' : ' ' + w).join('')}</div>
-      <p class="footer-tagline">${briefTagline}<br>\u{1F1E6}\u{1F1FA} Proudly Australian</p>
-      <div class="social-icons">
-        <a href="#" class="social-icon">f</a>
-        <a href="#" class="social-icon">ig</a>
-        <a href="#" class="social-icon">tt</a>
-      </div>
-    </div>
-    <div>
-      <div class="footer-heading">Quick Links</div>
-      <ul class="footer-links">
-        <li><a href="#">Home</a></li>
-        <li><a href="#">Shop</a></li>
-        <li><a href="#">About Us</a></li>
-        <li><a href="#">Contact</a></li>
-        <li><a href="#">FAQ</a></li>
-      </ul>
-    </div>
-    <div>
-      <div class="footer-heading">Contact Us</div>
-      <ul class="footer-links">
-        <li><a href="mailto:${supportEmail}">${supportEmail}</a></li>
-        <li><a href="#">Mon\u2013Fri, 9am\u20135pm AEST</a></li>
-        <li><a href="#">ABN: 12 345 678 901</a></li>
-        <li><a href="#">Afterpay &amp; Zip accepted</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <div class="footer-copy">\u00A9 2026 ${briefBrandName}. All rights reserved. \u{1F1E6}\u{1F1FA} Made in Australia</div>
-    <div class="footer-copy">Prices in AUD. GST included.</div>
-  </div>
-</footer>
+RIGHT:
+<img src="${heroImg}" alt="${productName}" style="width:100%;height:100vh;object-fit:cover;display:block;" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,rgba(${colorRgb},0.3),#111)'">
 
-</body>
-</html>`;
+SECTION 4 — TRUST BADGES:
+background:#ffffff; padding:36px 60px; border-bottom:1px solid #f0f0f0;
+display:grid; grid-template-columns:repeat(4,1fr);
 
-  // Template generates complete HTML — no LLM streaming needed
-  const fullText = singlePassUser;
-  progress(85, '🏗️ Finalising your store...');
+4 items, border-right:1px solid #eee between them (not last):
+"Free AU Shipping" (bold, 14px, #111) + "Orders over $75" (12px, #888)
+"4.9/5 Stars" + "2,400+ verified reviews"
+"30-Day Returns" + "No questions asked"
+"Secure Checkout" + "Afterpay & all major cards"
+Each: text-align:center; padding:20px 16px; icon font-size:28px margin-bottom:10px
 
-  // Skip postProcessHtml — template already has all values filled
-  const finalHtml = fullText;
+SECTION 5 — FEATURED PRODUCT:
+background:#f7f7f7; padding:100px 60px;
+Label: "FEATURED PRODUCT" — color:${color}; font-size:12px; letter-spacing:4px; font-weight:700; margin-bottom:12px
+Heading: "${productName}" — font-family:'${headingFontName}',sans-serif; font-size:44px; font-weight:900; color:#0a0a0a; margin-bottom:48px
+
+display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:flex-start;
+
+LEFT: <img src="${productImg}" alt="${productName}" style="width:100%;border-radius:12px;object-fit:cover;max-height:560px;" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,rgba(${colorRgb},0.15),#e0e0e0)';this.parentElement.style.minHeight='400px'">
+
+RIGHT:
+- Stars: color:${color}; font-size:20px + " (487 verified reviews)" (color:#888; font-size:14px)
+- Price: "$${displayPrice} AUD" — font-family:'${headingFontName}',sans-serif; font-size:44px; font-weight:900; color:${color}; margin:16px 0 8px
+- Afterpay: "or 4 x $${afterpayAmt} with Afterpay" — color:#555; font-size:14px; margin-bottom:24px; background:#f0f0f0; border-radius:4px; padding:8px 12px; display:inline-block
+- Divider: border-top:1px solid #e0e0e0; margin:24px 0
+- 5 bullet points (write REAL benefits specific to "${productName}" in "${niche}"):
+  Each: display:flex; align-items:flex-start; gap:12px; padding:10px 0; border-bottom:1px solid #f0f0f0
+  checkmark in ${color} font-weight:900 + benefit text in #333 font-size:15px
+- "Only 7 left in stock" — color:#e74c3c; font-size:13px; font-weight:700; margin:16px 0
+- "ADD TO CART" button: width:100%; background:${color}; color:#fff; padding:20px; font-size:15px; letter-spacing:2px; border:none; cursor:pointer; font-family:'${headingFontName}',sans-serif; font-weight:800; margin-top:20px; border-radius:4px
+- "BUY NOW WITH AFTERPAY" button: width:100%; background:#0a0a0a; color:#fff; padding:20px; font-size:15px; letter-spacing:1px; border:none; cursor:pointer; font-family:'${headingFontName}',sans-serif; font-weight:700; margin-top:12px; border-radius:4px
+
+SECTION 6 — SOCIAL PROOF STATS:
+background:${color}; padding:60px;
+display:grid; grid-template-columns:repeat(4,1fr); text-align:center;
+
+4 stats (all white):
+"2,400+" + "Happy Customers" | "4.9/5" + "Average Rating" | "3-5 Days" + "AU Delivery" | "30 Days" + "Free Returns"
+Number: font-family:'${headingFontName}',sans-serif; font-size:48px; font-weight:900; color:#fff
+Label: font-size:14px; color:rgba(255,255,255,0.8); margin-top:6px; letter-spacing:1px
+
+SECTION 7 — TESTIMONIALS:
+background:#080808; padding:100px 60px;
+
+Label: "WHAT AUSTRALIANS ARE SAYING" — color:${color}; font-size:12px; letter-spacing:4px; font-weight:700; margin-bottom:12px
+Heading: "Real Reviews From Real Customers" — font-family:'${headingFontName}',sans-serif; color:#fff; font-size:clamp(28px,3.5vw,42px); font-weight:900; margin-bottom:56px
+
+display:grid; grid-template-columns:repeat(3,1fr); gap:24px;
+
+3 cards (use the testimonials below):
+Card 1: ${t1.text} — ${t1.name}, ${t1.location}
+Card 2: ${t2.text} — ${t2.name}, ${t2.location}
+Card 3: ${t3.text} — ${t3.name}, ${t3.location}
+
+Each card style:
+background:#111118; border-radius:12px; padding:32px; border-left:4px solid ${color};
+Stars: color:${color}; font-size:18px; margin-bottom:16px
+Quote: color:rgba(255,255,255,0.85); font-size:16px; line-height:1.65; font-style:italic; margin-bottom:20px
+Name: font-weight:700; color:#fff; font-size:15px
+Location: color:${color}; font-size:13px; margin-top:4px
+"Verified Purchase": color:#27ae60; font-size:12px; margin-top:8px
+
+SECTION 8 — HOW IT WORKS:
+background:#f7f7f7; padding:100px 60px;
+
+Label: "HOW IT WORKS" — color:${color}; font-size:12px; letter-spacing:4px; margin-bottom:12px
+Heading: "Simple. Fast. Reliable." — font-family:'${headingFontName}',sans-serif; font-size:clamp(28px,3.5vw,44px); color:#0a0a0a; margin-bottom:56px
+
+display:grid; grid-template-columns:repeat(3,1fr); gap:40px;
+
+3 steps relevant to purchasing ${niche}:
+Step number: font-family:'${headingFontName}',sans-serif; font-size:72px; font-weight:900; color:${color}; opacity:0.2; line-height:1; margin-bottom:16px
+Step title: font-family:'${headingFontName}',sans-serif; font-size:20px; font-weight:800; color:#0a0a0a; margin-bottom:12px
+Step desc: 2 sentences relevant to buying ${niche} online in Australia. color:#555; font-size:15px; line-height:1.6
+
+SECTION 9 — FAQ:
+background:#ffffff; padding:100px 60px;
+max-width:800px; margin:0 auto;
+
+Heading: "Frequently Asked Questions" — font-family:'${headingFontName}',sans-serif; font-size:clamp(26px,3vw,38px); font-weight:900; color:#0a0a0a; margin-bottom:48px
+
+4 FAQ items:
+Q1: ${f1.q} — A: ${f1.a}
+Q2: ${f2.q} — A: ${f2.a}
+Q3: ${f3.q} — A: ${f3.a}
+Q4: ${f4.q} — A: ${f4.a}
+
+Each item: border-bottom:1px solid #eee; padding:28px 0;
+Q: font-family:'${headingFontName}',sans-serif; font-size:18px; font-weight:800; color:#0a0a0a; margin-bottom:12px
+A: font-size:16px; color:#555; line-height:1.65
+
+SECTION 10 — FOOTER:
+background:#080808; padding:80px 60px 40px;
+
+display:grid; grid-template-columns:2fr 1fr 1fr; gap:48px; max-width:1200px; margin:0 auto;
+
+Col 1:
+"${briefBrandName}" — font-family:'${headingFontName}',sans-serif; font-size:22px; font-weight:900; color:#fff; letter-spacing:2px; margin-bottom:12px
+"${briefTagline}" — color:rgba(255,255,255,0.45); font-size:14px; line-height:1.6; margin-bottom:24px
+Social circles (FB, IG, TT): 40px circles, border:1px solid rgba(255,255,255,0.12), color:rgba(255,255,255,0.6), font-size:13px, font-weight:700, hover:border-color:${color}
+
+Col 2: "QUICK LINKS" heading (color:rgba(255,255,255,0.3); font-size:11px; letter-spacing:4px; margin-bottom:20px)
+Links: Home, Shop, About, Contact, FAQ — display:block; color:rgba(255,255,255,0.55); padding:7px 0; font-size:14px; hover:color:#fff
+
+Col 3: "GET IN TOUCH" heading (same style)
+${supportEmail} — color:rgba(255,255,255,0.55); font-size:14px; display:block; margin-bottom:8px
+"Mon-Fri 9am-5pm AEST" — color:rgba(255,255,255,0.35); font-size:13px
+"ABN: 12 345 678 901" — color:rgba(255,255,255,0.25); font-size:12px; margin-top:16px
+
+Bottom bar: border-top:1px solid rgba(255,255,255,0.07); margin-top:60px; padding-top:28px;
+display:flex; justify-content:space-between; align-items:center;
+"© 2026 ${briefBrandName}. All rights reserved." — color:rgba(255,255,255,0.3); font-size:13px
+"Proudly Australian" — color:rgba(255,255,255,0.3); font-size:13px
+
+═══ CSS REQUIREMENTS ═══
+Include in <head>:
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="${googleFontsUrl}" rel="stylesheet">
+
+Global CSS:
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'${bodyFontName}',sans-serif; overflow-x:hidden; }
+img { max-width:100%; display:block; }
+a { text-decoration:none; color:inherit; }
+button { font-family:inherit; }
+
+Mobile (max-width:768px):
+- All 2-column grids to single column
+- Hero: padding 90px 24px 60px; grid single col
+- Product section: padding 60px 24px
+- Trust badges: grid-template-columns:1fr 1fr
+- Testimonials: grid-template-columns:1fr
+- How it works: grid-template-columns:1fr
+- Footer grid: grid-template-columns:1fr
+- Stats bar: grid-template-columns:1fr 1fr
+- Nav links hidden on mobile; add hamburger icon
+- Section padding: 60px 24px on mobile
+- Font sizes: reduce by ~15%
+
+═══ OUTPUT RULES ═══
+- Start with <!DOCTYPE html>
+- Minimum 600 lines of well-formatted HTML
+- Use inline styles for all styling (no external CSS files)
+- No JavaScript required for basic layout
+- Return ONLY the HTML — no markdown, no code fences, no explanation
+`;
+
+  // ── 6. Stream from Sonnet ─────────────────────────────────────────────────────
+  progress(20, '✍️ Generating your store...');
+  const client = getAnthropicClient();
+
+  const stream = client.messages.stream({
+    model: CLAUDE_MODEL,
+    max_tokens: 8000,
+    temperature: 0.7,
+    system: singlePassSystem,
+    messages: [{ role: 'user', content: singlePassUser }],
+  });
+
+  let fullText = '';
+  let lastProgressEmit = 20;
+
+  for await (const event of stream) {
+    if (event.type === 'content_block_delta' && (event.delta as any).type === 'text_delta') {
+      fullText += (event.delta as any).text;
+      const approxProgress = Math.min(90, 20 + Math.floor((fullText.length / 48000) * 70));
+      if (approxProgress > lastProgressEmit + 2) {
+        lastProgressEmit = approxProgress;
+        progress(approxProgress, '✍️ Building sections...');
+      }
+    }
+  }
+
+  progress(92, '🏗️ Finalising your store...');
+  const finalHtml = postProcessHtml(fullText, storeName_, niche, color, colorRgb, surfColor, bgColor, cardRadius);
   console.log(`[website-api] Generated HTML size: ${(finalHtml.length / 1024).toFixed(1)}kb`);
 
   progress(100, '✅ Your store is ready!');
@@ -1889,12 +1703,14 @@ export async function generateFullStore(params: Parameters<typeof generateFullSt
   try {
     return await generateFullStore_legacy(params);
   } catch (err: any) {
-    console.warn('[website-gen] V2 failed, falling back to legacy:', err?.message);
+    console.warn('[website-gen] V2 failed:', err?.message);
     console.error('[website-gen] V2 stack:', err?.stack);
-    return generateFullStore_legacy(params);
+    throw err;
   }
 }
 
+// ─── UNUSED LEGACY TEMPLATE REMOVED ───────────────────────────────────────────
+const _legacyTemplateHtml = `<!DOCTYPE html><html><head><title>Legacy</title></head><body></body></html>`;
 // ─── Colour Palette Generator ─────────────────────────────────────────────────
 interface ColorPalette {
   primary: string;
