@@ -1951,17 +1951,24 @@ function ProductCard({
         }}
       >
         <div>
-          <div
-            style={{
-              fontFamily: 'Syne, sans-serif',
-              fontSize: 15,
-              fontWeight: 800,
-              color: C.text,
-              lineHeight: 1.25,
-              marginBottom: 4,
-            }}
-          >
-            {product.product_title}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 4 }}>
+            <div
+              style={{
+                fontFamily: 'Syne, sans-serif',
+                fontSize: 15,
+                fontWeight: 800,
+                color: C.text,
+                lineHeight: 1.25,
+              }}
+            >
+              {product.product_title}
+            </div>
+            {product.created_at && (Date.now() - new Date(product.created_at).getTime()) < 7 * 86400000 && (
+              <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(16,185,129,0.15)', color: '#10b981', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>NEW</span>
+            )}
+            {product.winning_score > 85 && (
+              <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(239,68,68,0.15)', color: '#ef4444', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>TRENDING</span>
+            )}
           </div>
           {product.price_aud != null && (
             <div style={{ fontSize: 13, color: C.sub, fontWeight: 600 }}>
@@ -2956,6 +2963,20 @@ function WinningProducts() {
         if (data) setWatchlistProducts(data as WinningProduct[]);
       });
   }, [watchlistIds]);
+
+  // ── Playbook (localStorage) ──────────────────────────────────────────
+  const [saved, setSaved] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('majorka_saved_products') || '[]'); }
+    catch { return []; }
+  });
+  const toggleSave = (productId: string) => {
+    const next = saved.includes(productId)
+      ? saved.filter(id => id !== productId)
+      : [...saved, productId];
+    setSaved(next);
+    localStorage.setItem('majorka_saved_products', JSON.stringify(next));
+    toast.success(saved.includes(productId) ? 'Removed from Playbook' : 'Saved to Playbook');
+  };
 
   // ── Filters ───────────────────────────────────────────────────────────
   const [search, setSearch] = useState('');
