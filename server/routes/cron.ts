@@ -24,6 +24,22 @@ function verifyCronSecret(req: Request): boolean {
   return auth === `Bearer ${secret}`;
 }
 
+async function fetchPexelsImage(query: string): Promise<string | null> {
+  const key = process.env.PEXELS_API_KEY;
+  if (!key) return null;
+  try {
+    const res = await fetch(
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1&orientation=square`,
+      { headers: { Authorization: key } }
+    );
+    if (!res.ok) return null;
+    const data = await res.json() as any;
+    return data.photos?.[0]?.src?.medium ?? null;
+  } catch {
+    return null;
+  }
+}
+
 router.get('/refresh-trends', async (req: Request, res: Response) => {
   if (!verifyCronSecret(req)) {
     return res.status(401).json({ error: 'unauthorized' });
@@ -126,7 +142,13 @@ Only output the JSON array. No markdown.`
     }
 
     const supabase = getSupabaseAdmin();
-    const rows = products.map(p => ({
+
+    // Fetch images for all products in parallel (Pexels free API, ~50 reqs/hr limit)
+    const imageUrls = await Promise.allSettled(
+      products.map(p => fetchPexelsImage(p.image_search_term || p.name))
+    );
+
+    const rows = products.map((p, i) => ({
       name: p.name,
       niche: p.niche,
       estimated_retail_aud: p.estimated_retail_aud,
@@ -134,6 +156,7 @@ Only output the JSON array. No markdown.`
       trend_score: p.trend_score,
       dropship_viability_score: p.dropship_viability_score,
       trend_reason: p.trend_reason,
+      image_url: imageUrls[i].status === 'fulfilled' ? imageUrls[i].value : null,
       refreshed_at: new Date().toISOString(),
       source: 'cron',
     }));

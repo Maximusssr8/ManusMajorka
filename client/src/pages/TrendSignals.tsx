@@ -33,6 +33,7 @@ interface TrendProduct {
   trend_reason: string;
   refreshed_at: string;
   source?: string;
+  image_url?: string | null;
 }
 
 type SortField = 'trend_score' | 'estimated_retail_aud' | 'estimated_margin_pct' | 'dropship_viability_score' | 'name';
@@ -238,7 +239,7 @@ export default function TrendSignals() {
         color: field === sortField ? C.gold : C.muted,
         cursor: field ? 'pointer' : 'default',
         whiteSpace: 'nowrap',
-        background: 'rgba(255,255,255,0.02)',
+        background: '#0c0e14',
         borderBottom: `1px solid ${C.border}`,
         userSelect: 'none',
         ...style,
@@ -312,16 +313,25 @@ export default function TrendSignals() {
         </div>
 
         {/* Niche */}
-        <select
-          value={nicheFilter}
-          onChange={e => { setNicheFilter(e.target.value); setPage(1); }}
-          style={{
-            padding: '7px 10px', background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`,
-            borderRadius: 7, fontSize: 12, color: C.text, cursor: 'pointer', flex: '0 0 auto',
-          }}
-        >
-          {ALL_NICHES.map(n => <option key={n} value={n} style={{ background: '#0a0b0d' }}>{n}</option>)}
-        </select>
+        {(() => {
+          const nicheCounts: Record<string, number> = {};
+          products.forEach(p => {
+            const n = p.niche || 'Other';
+            const matched = ALL_NICHES.find(an => an !== 'All Niches' && n.includes(an.split(' ')[0])) || 'Other';
+            nicheCounts[matched] = (nicheCounts[matched] || 0) + 1;
+          });
+          return (
+            <select value={nicheFilter} onChange={e => { setNicheFilter(e.target.value); setPage(1); }}
+              style={{ padding: '7px 10px', background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 12, color: C.text, cursor: 'pointer', flex: '0 0 auto' }}>
+              <option value="All Niches" style={{ background: '#0a0b0d' }}>All Niches ({products.length})</option>
+              {ALL_NICHES.filter(n => n !== 'All Niches').map(n => (
+                <option key={n} value={n} style={{ background: '#0a0b0d' }}>
+                  {n} {nicheCounts[n] ? `(${nicheCounts[n]})` : ''}
+                </option>
+              ))}
+            </select>
+          );
+        })()}
 
         {/* Min margin */}
         <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: C.muted, flex: '0 0 auto' }}>
@@ -375,9 +385,38 @@ export default function TrendSignals() {
           <div style={{ fontSize: 12 }}>Try adjusting your filters or refreshing the data</div>
         </div>
       ) : (
-        <div style={{ overflowX: 'auto', borderRadius: 10, border: `1px solid ${C.border}` }}>
+        <>
+        {/* Summary bar */}
+        {!loading && (
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '8px 14px', marginBottom: 10,
+            background: 'rgba(255,255,255,0.02)', borderRadius: 8, border: `1px solid ${C.border}`,
+            fontSize: 11, color: C.muted, flexWrap: 'wrap', gap: 8,
+          }}>
+            <span>
+              <strong style={{ color: C.sub }}>{products.length}</strong> products tracked
+              {filtered.length !== products.length && (
+                <span> · <strong style={{ color: C.sub }}>{filtered.length}</strong> matching filters</span>
+              )}
+            </span>
+            {latestRefresh && (
+              <span>
+                Updated <strong style={{ color: C.sub }}>{formatTimeAgo(latestRefresh)}</strong>
+                {' · '}Next refresh in <strong style={{ color: C.sub }}>{
+                  (() => {
+                    const nextHour = 6 - (new Date().getHours() % 6);
+                    return `${nextHour}h`;
+                  })()
+                }</strong>
+              </span>
+            )}
+          </div>
+        )}
+
+        <div className="trend-table-wrapper" style={{ overflowX: 'auto', borderRadius: 10, border: `1px solid ${C.border}` }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
-            <thead>
+            <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
               <tr>
                 <ColHeader label="#" style={{ width: 40 }} />
                 <ColHeader label="Product" field="name" style={{ minWidth: 200 }} />
@@ -397,8 +436,14 @@ export default function TrendSignals() {
                   <tr
                     key={p.id || p.name}
                     style={{ borderBottom: `1px solid ${C.border}`, transition: 'background 0.12s' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(212,175,55,0.03)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = 'rgba(212,175,55,0.03)';
+                      e.currentTarget.style.borderLeft = '2px solid rgba(212,175,55,0.4)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.borderLeft = 'none';
+                    }}
                   >
                     {/* Rank */}
                     <td style={{ padding: '12px', fontSize: 12, color: C.muted, textAlign: 'center', width: 40 }}>
@@ -408,18 +453,43 @@ export default function TrendSignals() {
                     {/* Product + niche */}
                     <td style={{ padding: '10px 12px', minWidth: 200 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        {/* Thumbnail */}
+                        {/* Thumbnail — real image if available, emoji fallback */}
                         <div style={{
-                          width: 40, height: 40, borderRadius: 8, flexShrink: 0,
+                          width: 40, height: 40, borderRadius: 8, flexShrink: 0, overflow: 'hidden',
                           background: 'rgba(212,175,55,0.06)', border: `1px solid ${C.border}`,
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 18,
                         }}>
-                          {nicheEmoji(p.niche)}
+                          {p.image_url ? (
+                            <img
+                              src={p.image_url}
+                              alt={p.name}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              onError={(e) => {
+                                const t = e.currentTarget as HTMLImageElement;
+                                t.style.display = 'none';
+                                const parent = t.parentElement;
+                                if (parent && !parent.querySelector('.emoji-fb')) {
+                                  const fb = document.createElement('div');
+                                  fb.className = 'emoji-fb';
+                                  fb.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:18px;';
+                                  fb.textContent = nicheEmoji(p.niche);
+                                  parent.appendChild(fb);
+                                }
+                              }}
+                            />
+                          ) : (
+                            <span style={{ fontSize: 18 }}>{nicheEmoji(p.niche)}</span>
+                          )}
                         </div>
                         <div style={{ minWidth: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap', marginBottom: 3 }}>
-                            <span style={{ fontSize: 13, fontWeight: 700, fontFamily: 'Syne, sans-serif', color: C.text }}>
+                            <span
+                              title={p.trend_reason || ''}
+                              style={{
+                                fontSize: 13, fontWeight: 700, fontFamily: 'Syne, sans-serif', color: C.text,
+                                cursor: 'help', textDecoration: p.trend_reason ? 'underline dotted rgba(212,175,55,0.3)' : 'none',
+                              }}
+                            >
                               {p.name}
                             </span>
                             {isTrending && (
@@ -457,16 +527,14 @@ export default function TrendSignals() {
                       </span>
                     </td>
 
-                    {/* Trend score */}
-                    <td style={{ padding: '10px 12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span style={{ fontSize: 13, fontWeight: 800, color: trendScoreColor(p.trend_score), minWidth: 28 }}>
-                          {p.trend_score}
-                        </span>
-                        <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2, minWidth: 30 }}>
-                          <div style={{ height: '100%', width: `${p.trend_score}%`, background: trendScoreColor(p.trend_score), borderRadius: 2 }} />
-                        </div>
-                      </div>
+                    {/* Trend score — clean number with colour */}
+                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                      <span style={{
+                        fontSize: 15, fontWeight: 900, fontFamily: 'Syne, sans-serif',
+                        color: trendScoreColor(p.trend_score),
+                      }}>
+                        {p.trend_score}
+                      </span>
                     </td>
 
                     {/* Viability */}
@@ -512,6 +580,51 @@ export default function TrendSignals() {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile card list */}
+        <div className="trend-cards-mobile" style={{ flexDirection: 'column', gap: 10, display: 'none' }}>
+          {paginated.map((p) => (
+            <div key={p.id || p.name} style={{
+              background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 14,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: 'rgba(212,175,55,0.06)' }}>
+                  {p.image_url ? (
+                    <img src={p.image_url} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>
+                      {nicheEmoji(p.niche)}
+                    </div>
+                  )}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, fontFamily: 'Syne, sans-serif', color: C.text, marginBottom: 3 }}>{p.name}</div>
+                  <span style={{ fontSize: 10, color: C.muted, background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`, borderRadius: 4, padding: '1px 6px' }}>{p.niche}</span>
+                </div>
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: C.gold }}>${p.estimated_retail_aud}</div>
+                  <div style={{ fontSize: 11, color: '#10b981' }}>{p.estimated_margin_pct}% margin</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <span style={{ fontSize: 11, color: C.muted }}>Trend: <strong style={{ color: trendScoreColor(p.trend_score) }}>{p.trend_score}/100</strong></span>
+                <span style={{ fontSize: 11, color: C.muted }}>Viability: <strong style={{ color: p.dropship_viability_score >= 8 ? '#10b981' : C.yellow }}>{p.dropship_viability_score}/10</strong></span>
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => navigate(`/app/store-builder?product=${encodeURIComponent(p.name)}&niche=${encodeURIComponent(p.niche)}`)}
+                  style={{ flex: 1, padding: '9px', background: C.gold, color: '#080a0e', border: 'none', borderRadius: 7, fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}>
+                  Build Store →
+                </button>
+                <button onClick={() => navigate('/app/suppliers')}
+                  style={{ flex: 1, padding: '9px', background: C.surface, color: C.sub, border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 12, cursor: 'pointer' }}>
+                  Supplier →
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        </>
       )}
 
       {/* ── Pagination ── */}
@@ -557,6 +670,13 @@ export default function TrendSignals() {
       )}
 
       <style>{`
+        @media (max-width: 640px) {
+          .trend-table-wrapper { display: none !important; }
+          .trend-cards-mobile { display: flex !important; }
+        }
+        @media (min-width: 641px) {
+          .trend-cards-mobile { display: none !important; }
+        }
         @keyframes spin { to { transform: rotate(360deg); } }
         th:hover { background: rgba(255,255,255,0.03) !important; }
       `}</style>

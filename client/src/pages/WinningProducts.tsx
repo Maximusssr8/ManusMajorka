@@ -205,6 +205,33 @@ const SEEDED_PRODUCTS: WinningProduct[] = [
   { id: 'fa5', product_title: 'Sterling Silver Layered Necklace Set', category: 'Fashion & Accessories', platform: 'Shopify', price_aud: 44, sold_count: 14800, winning_score: 72, trend: 'stable', competition_level: 'high', au_relevance: 88, est_daily_revenue_aud: 1100, units_per_day: 25, why_winning: 'Layered jewellery is the #1 AU jewellery trend; gift market is huge at this price.', ad_angle: 'The necklace stack that sells itself on camera. Gold-filled, tarnish-free, $44.', image_url: 'https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=400', tiktok_product_url: null, est_monthly_revenue_aud: 33000, revenue_growth_pct: 18, platforms: ['Shopify', 'TikTok Shop'], scraped_at: new Date().toISOString(), updated_at: new Date().toISOString() },
 ];
 
+// Normalise DB products — fills in default values for nullable fields
+function normaliseProduct(p: any): WinningProduct {
+  return {
+    ...p,
+    product_title: p.product_title || 'Unknown Product',
+    category: p.category || 'General',
+    platform: p.platform || 'TikTok Shop',
+    platforms: p.platforms || [p.platform || 'TikTok Shop'],
+    trend: p.trend ? p.trend.toLowerCase() as Trend : 'stable',
+    competition_level: p.competition_level ? p.competition_level.toLowerCase() as Competition : 'medium',
+    winning_score: p.winning_score ?? 50,
+    au_relevance: p.au_relevance ?? 70,
+    est_daily_revenue_aud: p.est_daily_revenue_aud ?? 0,
+    units_per_day: p.units_per_day ?? 0,
+    sold_count: p.sold_count ?? 0,
+    price_aud: p.price_aud ?? 0,
+    revenue_growth_pct: p.revenue_growth_pct ?? null,
+    est_monthly_revenue_aud: p.est_monthly_revenue_aud ?? null,
+    why_winning: p.why_winning || '',
+    ad_angle: p.ad_angle || '',
+    scraped_at: p.scraped_at || new Date().toISOString(),
+    updated_at: p.updated_at || new Date().toISOString(),
+    image_url: p.image_url || null,
+    tiktok_product_url: p.tiktok_product_url || null,
+  };
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function scoreColor(s: number): string {
@@ -287,6 +314,7 @@ function ScoreBadge({ score }: { score: number }) {
 function TrendBadge({ trend }: { trend: Trend | null }) {
   if (!trend) return null;
   const t = TREND_MAP[trend];
+  if (!t) return null;
   return (
     <span
       style={{
@@ -313,6 +341,7 @@ function TrendBadge({ trend }: { trend: Trend | null }) {
 function CompetitionDot({ level }: { level: Competition | null }) {
   if (!level) return null;
   const m = COMPETITION_MAP[level];
+  if (!m) return null;
   return (
     <span
       style={{
@@ -2327,7 +2356,7 @@ function TrendingNowBar({ products, onSelect }: { products: WinningProduct[]; on
             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(212,175,55,0.18)'; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.goldBg; }}
           >
-            🔥 {p.product_title.length > 30 ? p.product_title.slice(0, 30) + '…' : p.product_title} — <span style={{ color: C.gold, fontWeight: 700 }}>{fmtAUD(p.est_daily_revenue_aud)}/day</span>
+            🔥 {(p.product_title ?? '').length > 30 ? (p.product_title ?? '').slice(0, 30) + '…' : (p.product_title ?? 'Product')} — <span style={{ color: C.gold, fontWeight: 700 }}>{fmtAUD(p.est_daily_revenue_aud)}/day</span>
           </button>
         ))}
       </div>
@@ -3119,7 +3148,7 @@ function WinningProducts() {
       .order('est_daily_revenue_aud', { ascending: false })
       .limit(5);
     if (topData && topData.length > 0) {
-      setTopProducts(topData as WinningProduct[]);
+      setTopProducts((topData as any[]).map(normaliseProduct));
     }
   };
 
@@ -3197,12 +3226,7 @@ function WinningProducts() {
         setTotal(filtered.length);
       } else {
         // Normalise DB values to lowercase to match type definitions
-        const normalise = (p: any): WinningProduct => ({
-          ...p,
-          trend: p.trend ? p.trend.toLowerCase() : null,
-          competition_level: p.competition_level ? p.competition_level.toLowerCase() : null,
-        });
-        const loaded = ((data as any[] | null) ?? []).map(normalise);
+        const loaded = ((data as any[] | null) ?? []).map(normaliseProduct);
         if (loaded.length === 0 && !debouncedSearch && category === 'All' && trend === 'All') {
           setProducts(SEEDED_PRODUCTS);
           setTotal(SEEDED_PRODUCTS.length);
