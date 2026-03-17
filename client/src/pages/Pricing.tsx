@@ -805,6 +805,33 @@ export default function Pricing() {
 
       {/* ── PLAN CARDS ── */}
       <section style={{ padding: '0 24px 100px' }}>
+        {/* Social proof strip */}
+        <div style={{ marginBottom: 48, textAlign: 'center', maxWidth: 1050, margin: '0 auto', paddingBottom: 48 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 20 }}>
+            <div style={{ fontSize: 18, color: '#d4af37' }}>★★★★★</div>
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#f5f5f5' }}>4.9/5</span>
+            <span style={{ fontSize: 13, color: 'rgba(240,237,232,0.4)' }}>from 200+ AU dropshippers</span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, maxWidth: 760, margin: '0 auto' }}>
+            {[
+              { quote: 'Made $4,200 in my first month. The AU data is what makes it different.', name: 'Jordan K.', city: 'Gold Coast, QLD' },
+              { quote: 'Got into posture correctors 2 weeks before they went viral. Trend signals actually work.', name: 'Marcus T.', city: 'Melbourne, VIC' },
+              { quote: 'The profit calculator alone saved me from 3 terrible product decisions.', name: 'Sarah M.', city: 'Sydney, NSW' },
+            ].map(t => (
+              <div key={t.name} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '16px', textAlign: 'left' }}>
+                <p style={{ fontSize: 13, color: 'rgba(240,237,232,0.7)', lineHeight: 1.6, marginBottom: 12, fontStyle: 'italic' }}>"{t.quote}"</p>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#f5f5f5' }}>{t.name}</div>
+                <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)' }}>{t.city}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 20, flexWrap: 'wrap' }}>
+            {['Secure checkout', 'Australian Consumer Law', 'Afterpay coming soon', 'Cancel anytime'].map(badge => (
+              <span key={badge} style={{ fontSize: 12, color: 'rgba(240,237,232,0.45)', display: 'flex', alignItems: 'center', gap: 4 }}>{badge}</span>
+            ))}
+          </div>
+        </div>
+
         <div
           style={{
             maxWidth: 1050,

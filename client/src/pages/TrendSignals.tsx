@@ -18,6 +18,7 @@ import { useLocation } from 'wouter';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { SEO } from '@/components/SEO';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -254,6 +255,7 @@ export default function TrendSignals() {
 
   return (
     <div style={{ padding: '20px 16px', background: C.bg, minHeight: '100vh', fontFamily: 'DM Sans, sans-serif' }}>
+      <SEO title="Trend Signals | Majorka" description="Live trending products for Australian dropshippers. Updated every 6 hours from TikTok, AliExpress and Shopify data." path="/app/trend-signals" />
 
       {/* ── Page header ── */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>

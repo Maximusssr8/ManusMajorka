@@ -2,6 +2,7 @@
  * Billing — current plan, next billing date, manage/upgrade.
  */
 import { CreditCard, ExternalLink, RefreshCw, Star, Zap } from 'lucide-react';
+import { SEO } from '@/components/SEO';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -70,6 +71,7 @@ export default function Billing() {
 
   return (
     <div style={{ padding: '32px 24px', maxWidth: 640, margin: '0 auto', fontFamily: 'DM Sans, sans-serif' }}>
+      <SEO title="Billing | Majorka" description="Manage your Majorka subscription." path="/app/billing" />
       <h1 style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: C.text, marginBottom: 4 }}>
         Billing & Plan
       </h1>

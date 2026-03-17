@@ -171,6 +171,20 @@ async function startServer() {
     }
   });
 
+  // Cache headers for expensive endpoints
+  app.use('/api/winning-products', (req, res, next) => {
+    if (req.method === 'GET') {
+      res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=7200');
+    }
+    next();
+  });
+  app.use('/api/health', (req, res, next) => {
+    if (req.method === 'GET') {
+      res.setHeader('Cache-Control', 'public, s-maxage=30');
+    }
+    next();
+  });
+
   // Chat API with streaming and tool calling
   registerChatRoutes(app);
   // Product scraping API

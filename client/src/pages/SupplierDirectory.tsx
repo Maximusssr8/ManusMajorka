@@ -4,6 +4,7 @@
  */
 import { useState } from 'react';
 import { ExternalLink, Truck, Package } from 'lucide-react';
+import { SEO } from '@/components/SEO';
 
 const C = {
   bg: '#0a0b0d',
@@ -97,6 +98,7 @@ export default function SupplierDirectory() {
 
   return (
     <div style={{ padding: '24px', background: C.bg, minHeight: '100vh', color: C.text, fontFamily: 'DM Sans, sans-serif' }}>
+      <SEO title="Supplier Directory | Majorka" description="25 AU-vetted dropshipping suppliers with shipping times, quality ratings and AU warehouse badges." path="/app/suppliers" />
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: C.text, marginBottom: 6 }}>

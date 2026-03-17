@@ -28,6 +28,7 @@ import { useDocumentTitle } from '@/_core/hooks/useDocumentTitle';
 import { DashboardAISuggestion } from '@/components/DashboardAISuggestion';
 import LaunchReadiness from '@/components/LaunchReadiness';
 import MajorkaAppShell from '@/components/MajorkaAppShell';
+import { SEO } from '@/components/SEO';
 import OnboardingChecklist from '@/components/OnboardingChecklist';
 import OnboardingModal from '@/components/OnboardingModal';
 import { ProductImporter } from '@/components/ProductImporter';
@@ -699,6 +700,7 @@ function DashboardHome() {
       className="h-full overflow-auto dashboard-bg"
       style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}
     >
+      <SEO title="Dashboard | Majorka" description="Your Majorka dropshipping dashboard. Track winning products, trend signals, and profit margins for the Australian market." path="/app/dashboard" />
       {isFreePlan && <TrialBanner />}
       {/* Onboarding personalisation nudge — shown when user skipped onboarding */}
       {!onboardingBannerDismissed &&
@@ -891,8 +893,9 @@ function DashboardHome() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
           <StatCard
             label="Active Products"
-            numericValue={productsQuery.isLoading ? null : productCount}
-            sub={productCount > 0 ? 'Active' : 'Add your first product'}
+            numericValue={productsQuery.isLoading ? null : productCount > 0 ? productCount : null}
+            displayValue={!productsQuery.isLoading && productCount === 0 ? '\u2014' : undefined}
+            sub={productCount > 0 ? 'Active' : 'Start exploring \u2192'}
             subColor={productCount > 0 ? '#10b981' : '#52525b'}
             icon={Package}
             iconColor="#3b82f6"
