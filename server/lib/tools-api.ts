@@ -215,6 +215,12 @@ export function registerToolsApi(app: Application): void {
     try {
       const { category, priceRange, platform } = req.body ?? {};
 
+      // Cache check — 1 hour TTL for same query params
+      const { cache } = await import('./cache');
+      const cacheKey = `winning-products:${category || ''}:${priceRange || ''}:${platform || ''}`;
+      const cached = cache.get(cacheKey);
+      if (cached) return res.json(cached);
+
       // Build search query
       let searchQuery = 'trending dropshipping products Australia 2025';
       if (category) searchQuery += ` ${category}`;
@@ -284,6 +290,7 @@ Rules:
         parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : { products: [] };
       }
 
+      cache.set(cacheKey, parsed, 60 * 60 * 1000); // 1 hour
       res.json(parsed);
     } catch (err: any) {
       console.error('[winning-products] Error:', err.message);

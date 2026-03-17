@@ -75,12 +75,16 @@ app.get("/api/proxy-image", async (req: Request, res: Response) => {
 // ── API health check ──────────────────────────────────────────────────────────
 app.get("/api/health", (_req: Request, res: Response) => {
   res.json({
+    status: 'ok',
+    version: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || 'local',
+    uptime: Math.floor(process.uptime()),
     anthropic: !!process.env.ANTHROPIC_API_KEY,
     tavily: !!process.env.TAVILY_API_KEY,
     firecrawl: !!process.env.FIRECRAWL_API_KEY,
     supabase: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-    stripe: !!process.env.STRIPE_SECRET_KEY,
+    stripe: process.env.STRIPE_SECRET_KEY?.startsWith('sk_live_') ? 'live' : 'test',
     database: !!process.env.DATABASE_URL,
+    ts: new Date().toISOString(),
   });
 });
 
