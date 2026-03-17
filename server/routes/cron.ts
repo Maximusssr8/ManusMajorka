@@ -14,7 +14,13 @@ function getSupabaseAdmin() {
 function verifyCronSecret(req: Request): boolean {
   const auth = req.headers.authorization || '';
   const secret = process.env.CRON_SECRET || '';
-  if (!secret) return true;
+  if (!secret) {
+    // No secret configured — only allow from Vercel cron (checks user-agent) or localhost
+    const userAgent = req.headers['user-agent'] || '';
+    const isVercelCron = userAgent.includes('vercel-cron') || req.headers['x-vercel-cron'] === '1';
+    const isLocal = (req.headers.host || '').includes('localhost');
+    return isVercelCron || isLocal;
+  }
   return auth === `Bearer ${secret}`;
 }
 

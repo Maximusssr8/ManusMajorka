@@ -109,7 +109,13 @@ async function startServer() {
     res.json({ ok: true, count: agentLog.length });
   });
 
-  app.get('/api/agent-log', (_req, res) => {
+  app.get('/api/agent-log', (req, res) => {
+    // Only allow from localhost or with correct origin
+    const origin = req.headers.origin || req.headers.referer || '';
+    const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1') || !origin;
+    if (!isLocal) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
     res.set('Access-Control-Allow-Origin', agentLogOrigin);
     res.json(agentLog);
   });
@@ -128,7 +134,8 @@ async function startServer() {
   // One-time intelligence tables migration endpoint
   app.post('/api/internal/run-intel-migration', async (req, res) => {
     const secret = req.headers['x-migration-secret'];
-    if (secret !== 'majorka-intel-2026') {
+    const migrationSecret = process.env.MIGRATION_SECRET || 'majorka-intel-2026';
+    if (secret !== migrationSecret) {
       res.status(403).json({ error: 'Forbidden' });
       return;
     }
@@ -144,7 +151,8 @@ async function startServer() {
   // Generated stores migration + status endpoint
   app.post('/api/internal/run-stores-migration', async (req, res) => {
     const secret = req.headers['x-migration-secret'];
-    if (secret !== 'majorka-intel-2026') {
+    const migrationSecret = process.env.MIGRATION_SECRET || 'majorka-intel-2026';
+    if (secret !== migrationSecret) {
       res.status(403).json({ error: 'Forbidden' });
       return;
     }
@@ -158,6 +166,12 @@ async function startServer() {
   });
 
   app.get('/api/migrations/generated-stores', async (req, res) => {
+    const secret = req.headers['x-migration-secret'];
+    const migrationSecret = process.env.MIGRATION_SECRET || 'majorka-intel-2026';
+    if (secret !== migrationSecret) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
     const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
     if (!supabaseUrl || !supabaseKey) return res.json({ exists: false, error: 'missing env vars' });

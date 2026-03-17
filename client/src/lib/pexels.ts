@@ -1,11 +1,8 @@
 /**
  * Pexels API integration — free stock photos for Majorka.
- * Reads VITE_PEXELS_API_KEY from env.
+ * Routes through server-side proxy to keep API key secure.
  * All images are free to use per Pexels license, with attribution.
  */
-
-const API_KEY = import.meta.env.VITE_PEXELS_API_KEY as string | undefined;
-const BASE_URL = 'https://api.pexels.com/v1';
 
 export interface PexelsPhoto {
   id: number;
@@ -34,22 +31,16 @@ interface PexelsSearchResponse {
   photos: PexelsPhoto[];
 }
 
-/** Search Pexels for photos by query */
+/** Search Pexels for photos by query (via server proxy) */
 export async function searchPhotos(query: string, perPage: number = 8): Promise<PexelsPhoto[]> {
-  if (!API_KEY) {
-    console.warn('[Pexels] No API key configured');
-    return [];
-  }
   try {
     const params = new URLSearchParams({
       query,
       per_page: String(perPage),
       orientation: 'landscape',
     });
-    const res = await fetch(`${BASE_URL}/search?${params}`, {
-      headers: { Authorization: API_KEY },
-    });
-    if (!res.ok) throw new Error(`Pexels API error: ${res.status}`);
+    const res = await fetch(`/api/pexels/search?${params}`);
+    if (!res.ok) throw new Error(`Pexels proxy error: ${res.status}`);
     const data: PexelsSearchResponse = await res.json();
     return data.photos;
   } catch (err) {
@@ -70,17 +61,14 @@ export async function searchPortraitPhotos(
   query: string,
   perPage: number = 6
 ): Promise<PexelsPhoto[]> {
-  if (!API_KEY) return [];
   try {
     const params = new URLSearchParams({
       query,
       per_page: String(perPage),
       orientation: 'portrait',
     });
-    const res = await fetch(`${BASE_URL}/search?${params}`, {
-      headers: { Authorization: API_KEY },
-    });
-    if (!res.ok) throw new Error(`Pexels API error: ${res.status}`);
+    const res = await fetch(`/api/pexels/search?${params}`);
+    if (!res.ok) throw new Error(`Pexels proxy error: ${res.status}`);
     const data: PexelsSearchResponse = await res.json();
     return data.photos;
   } catch (err) {

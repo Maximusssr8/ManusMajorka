@@ -75,6 +75,28 @@ app.get("/api/proxy-image", async (req: Request, res: Response) => {
   }
 });
 
+// ── Pexels search proxy — keeps API key server-side ─────────────────────────
+app.get("/api/pexels/search", async (req: Request, res: Response) => {
+  const pexelsKey = process.env.PEXELS_API_KEY || process.env.VITE_PEXELS_API_KEY;
+  if (!pexelsKey) { res.status(503).json({ error: "Pexels not configured" }); return; }
+  const query = req.query.query as string;
+  if (!query) { res.status(400).json({ error: "query required" }); return; }
+  const perPage = req.query.per_page || '8';
+  const orientation = req.query.orientation || 'landscape';
+  try {
+    const params = new URLSearchParams({ query, per_page: String(perPage), orientation: String(orientation) });
+    const upstream = await fetch(`https://api.pexels.com/v1/search?${params}`, {
+      headers: { Authorization: pexelsKey },
+    });
+    if (!upstream.ok) { res.status(upstream.status).json({ error: "Pexels API error" }); return; }
+    const data = await upstream.json();
+    res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=7200");
+    res.json(data);
+  } catch {
+    res.status(500).json({ error: "Pexels proxy failed" });
+  }
+});
+
 // ── API health check ──────────────────────────────────────────────────────────
 app.get("/api/health", (_req: Request, res: Response) => {
   res.json({
@@ -94,7 +116,8 @@ app.get("/api/health", (_req: Request, res: Response) => {
 // One-time intelligence tables migration endpoint
 app.post("/api/internal/run-intel-migration", async (req: Request, res: Response) => {
   const secret = req.headers["x-migration-secret"];
-  if (secret !== "majorka-intel-2026") {
+  const migrationSecret = process.env.MIGRATION_SECRET || 'majorka-intel-2026';
+  if (secret !== migrationSecret) {
     res.status(403).json({ error: "Forbidden" });
     return;
   }
@@ -109,7 +132,8 @@ app.post("/api/internal/run-intel-migration", async (req: Request, res: Response
 
 app.post("/api/internal/run-stores-migration", async (req: Request, res: Response) => {
   const secret = req.headers["x-migration-secret"];
-  if (secret !== "majorka-intel-2026") {
+  const migrationSecret = process.env.MIGRATION_SECRET || 'majorka-intel-2026';
+  if (secret !== migrationSecret) {
     res.status(403).json({ error: "Forbidden" });
     return;
   }
@@ -123,6 +147,12 @@ app.post("/api/internal/run-stores-migration", async (req: Request, res: Respons
 });
 
 app.get("/api/migrations/generated-stores", async (req: Request, res: Response) => {
+  const secret = req.headers["x-migration-secret"];
+  const migrationSecret = process.env.MIGRATION_SECRET || 'majorka-intel-2026';
+  if (secret !== migrationSecret) {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
   if (!supabaseUrl || !supabaseKey) { res.json({ exists: false, error: "missing env vars" }); return; }
@@ -134,18 +164,6 @@ app.get("/api/migrations/generated-stores", async (req: Request, res: Response) 
   } catch (e: any) {
     res.status(500).json({ exists: false, error: e.message });
   }
-});
-
-// Debug: show DB URL prefix (sanitized)
-app.get("/api/internal/db-debug", (req: Request, res: Response) => {
-  const secret = req.headers["x-migration-secret"];
-  if (secret !== "majorka-intel-2026") { res.status(403).json({ error: "Forbidden" }); return; }
-  const dbUrl = process.env.DATABASE_URL ?? "";
-  res.json({
-    prefix: dbUrl.slice(0, 60),
-    length: dbUrl.length,
-    supaUrl: (process.env.VITE_SUPABASE_URL ?? "").slice(0, 40),
-  });
 });
 
 // Cache headers for expensive endpoints
@@ -176,6 +194,28 @@ app.use('/api/cron', cronRouter);
 
 // ── Product import with AI Brain ─────────────────────────────────────────────
 app.post("/api/import-product", async (req: Request, res: Response) => {
+  // Auth check — prevent unauthenticated Claude API abuse
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
+    res.status(401).json({ error: 'unauthorized' });
+    return;
+  }
+
+  // Rate limit: 10 imports per hour per user
+  const token = authHeader.replace(/^Bearer\s+/i, '');
+  let userId = 'unknown';
+  try {
+    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    userId = payload.sub || 'unknown';
+  } catch { /* use unknown */ }
+
+  const { rateLimit } = await import('../server/lib/rate-limit');
+  const rl = rateLimit(`import-product:${userId}`, 10, 60 * 60 * 1000);
+  if (!rl.allowed) {
+    res.status(429).json({ error: 'rate_limit', message: 'Too many imports. Try again later.' });
+    return;
+  }
+
   const validation = validateBody(importProductSchema, req.body);
   if ('error' in validation) {
     res.status(400).json({ error: validation.error });
