@@ -7,7 +7,7 @@
  */
 
 import type { Application } from 'express';
-import { CLAUDE_MODEL, getAnthropicClient } from './anthropic';
+import { getAnthropicClient } from './anthropic';
 import { getSupabaseAdmin } from '../_core/supabase';
 import { requireSubscription } from '../middleware/requireSubscription';
 import { rateLimit } from './rate-limit';
@@ -1107,6 +1107,294 @@ export async function expandStoreBrief(params: {
   }
 }
 
+// ─── Deterministic Store Template ──────────────────────────────────────────────
+interface StoreTemplateParams {
+  brandName: string;
+  tagline: string;
+  heroHeadline: string;
+  heroSubheadline: string;
+  uvp: string;
+  ctaPrimary: string;
+  ctaSecondary: string;
+  testimonials: Array<{ name: string; location: string; text: string }>;
+  faqItems: Array<{ q: string; a: string }>;
+  stats: Array<{ value: string; label: string }>;
+  keyBenefits: Array<{ icon: string; title: string; description: string }>;
+  productName: string;
+  displayPrice: string;
+  productDesc: string;
+  heroImg: string;
+  productImg: string;
+  color: string;
+  colorRgb: string;
+  headingFont: string;
+  bodyFont: string;
+  niche: string;
+  storeName_: string;
+}
+
+function buildStoreTemplate(p: StoreTemplateParams): string {
+  const { brandName, tagline, heroHeadline, heroSubheadline, uvp, ctaPrimary, ctaSecondary,
+    testimonials, faqItems, stats, keyBenefits, productName, displayPrice, productDesc,
+    heroImg, productImg, color, colorRgb, headingFont, bodyFont, niche } = p;
+
+  const sectionStyle = `padding:80px 24px;max-width:1100px;margin:0 auto;`;
+  const cardStyle = `background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:32px;`;
+
+  // Compute Afterpay price
+  const priceNum = parseFloat(displayPrice.replace(/[^0-9.]/g, '')) || 49.95;
+  const afterpayPrice = (priceNum / 4).toFixed(2);
+
+  return `
+<nav id="main-nav" style="position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:68px;background:rgba(8,8,15,0.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);">
+  <a href="#" style="font-family:${headingFont};font-size:20px;font-weight:900;color:${color};text-decoration:none;letter-spacing:-0.03em;">${brandName}</a>
+  <div style="display:flex;gap:32px;" class="nav-links">
+    <a href="#" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;font-weight:500;font-family:${bodyFont};">Home</a>
+    <a href="#shop" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;font-weight:500;font-family:${bodyFont};">Shop</a>
+    <a href="#about" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;font-weight:500;font-family:${bodyFont};">About</a>
+    <a href="#contact" style="color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;font-weight:500;font-family:${bodyFont};">Contact</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <button onclick="typeof openCart!=='undefined'&&openCart()" style="background:none;border:none;color:rgba(255,255,255,0.8);font-size:20px;cursor:pointer;position:relative;padding:8px;">\ud83d\uded2<span class="cart-badge" style="position:absolute;top:0;right:0;background:${color};color:#000;font-size:10px;font-weight:700;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;">0</span></button>
+    <a href="#shop" style="background:${color};color:#080808;font-family:${headingFont};font-size:13px;font-weight:800;padding:10px 22px;border-radius:8px;text-decoration:none;white-space:nowrap;">Shop Now</a>
+    <button id="hamburger" onclick="document.getElementById('mobile-menu').style.display=document.getElementById('mobile-menu').style.display==='flex'?'none':'flex'" style="display:none;background:none;border:none;cursor:pointer;flex-direction:column;gap:5px;padding:8px;"><span style="display:block;width:22px;height:2px;background:#fff;"></span><span style="display:block;width:22px;height:2px;background:#fff;"></span><span style="display:block;width:22px;height:2px;background:#fff;"></span></button>
+  </div>
+</nav>
+
+<div id="mobile-menu" style="display:none;position:fixed;top:68px;left:0;right:0;z-index:999;background:rgba(8,8,15,0.98);flex-direction:column;padding:24px;gap:16px;border-bottom:1px solid rgba(255,255,255,0.08);">
+  <a href="#" onclick="document.getElementById('mobile-menu').style.display='none'" style="color:#fff;text-decoration:none;font-size:16px;font-family:${bodyFont};">Home</a>
+  <a href="#shop" onclick="document.getElementById('mobile-menu').style.display='none'" style="color:#fff;text-decoration:none;font-size:16px;font-family:${bodyFont};">Shop</a>
+  <a href="#about" onclick="document.getElementById('mobile-menu').style.display='none'" style="color:#fff;text-decoration:none;font-size:16px;font-family:${bodyFont};">About</a>
+  <a href="#contact" onclick="document.getElementById('mobile-menu').style.display='none'" style="color:#fff;text-decoration:none;font-size:16px;font-family:${bodyFont};">Contact</a>
+</div>
+
+<div data-page="home" style="display:block">
+
+<!-- SECTION 1: ANNOUNCEMENT BAR -->
+<div style="background:${color};color:#080808;text-align:center;padding:11px 16px;font-size:13px;font-weight:700;font-family:${bodyFont};margin-top:68px;">
+  \ud83d\ude9a Free Shipping on AU Orders Over $75 &nbsp;|&nbsp; 30-Day Returns &nbsp;|&nbsp; Afterpay Available
+</div>
+
+<!-- SECTION 2: HERO -->
+<section id="home" style="min-height:100vh;background:linear-gradient(135deg,#080808 0%,#0f0f1a 60%,#14141f 100%);display:flex;align-items:center;padding:0 24px;">
+  <div style="max-width:1100px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;">
+    <div>
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(${colorRgb},0.1);border:1px solid rgba(${colorRgb},0.25);border-radius:100px;padding:6px 16px;margin-bottom:24px;">
+        <span style="font-size:12px;">\ud83c\udde6\ud83c\uddfa</span>
+        <span style="color:${color};font-size:12px;font-weight:700;font-family:${headingFont};text-transform:uppercase;letter-spacing:0.08em;">Australian Owned</span>
+      </div>
+      <h1 style="font-family:${headingFont};font-size:clamp(36px,5vw,68px);font-weight:900;color:#ffffff;line-height:1.08;margin:0 0 20px;letter-spacing:-0.03em;">${heroHeadline}</h1>
+      <p style="font-family:${bodyFont};font-size:18px;color:rgba(255,255,255,0.72);line-height:1.6;margin:0 0 32px;">${heroSubheadline}</p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;">
+        <a href="#shop" style="display:inline-block;background:${color};color:#080808;font-family:${headingFont};font-size:15px;font-weight:800;padding:16px 36px;border-radius:10px;text-decoration:none;white-space:nowrap;">${ctaPrimary} \u2192</a>
+        <a href="#about" style="display:inline-block;background:transparent;color:#fff;font-family:${headingFont};font-size:15px;font-weight:700;padding:16px 36px;border-radius:10px;text-decoration:none;border:1.5px solid rgba(255,255,255,0.25);white-space:nowrap;">${ctaSecondary}</a>
+      </div>
+      <div style="display:flex;gap:24px;margin-top:36px;flex-wrap:wrap;">
+        ${stats.map(s => `<div><div style="font-family:${headingFont};font-size:22px;font-weight:900;color:${color};">${s.value}</div><div style="font-family:${bodyFont};font-size:12px;color:rgba(255,255,255,0.5);">${s.label}</div></div>`).join('')}
+      </div>
+    </div>
+    <div style="position:relative;">
+      <div style="width:100%;min-height:480px;border-radius:24px;background:linear-gradient(135deg,rgba(${colorRgb},0.25) 0%,rgba(${colorRgb},0.08) 50%,#1a1a2e 100%);border:1px solid rgba(${colorRgb},0.2);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;overflow:hidden;position:relative;">
+        ${heroImg && !heroImg.includes('placeholder') ? `<img src="${heroImg}" alt="${productName}" style="width:100%;height:100%;object-fit:cover;border-radius:16px;position:absolute;inset:0;opacity:0.85;" onerror="this.style.display='none'">` : ''}
+        <div style="position:relative;z-index:1;text-align:center;">
+          <div style="font-size:48px;margin-bottom:16px;">\u2728</div>
+          <div style="font-family:${headingFont};font-size:28px;font-weight:900;color:#fff;margin-bottom:8px;">${productName}</div>
+          <div style="font-family:${bodyFont};font-size:16px;color:${color};font-weight:700;">${displayPrice} AUD</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: TRUST BADGES -->
+<section style="background:#fff;padding:40px 24px;">
+  <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0;">
+    ${[
+      { icon: '\ud83d\ude9a', title: 'Free AU Shipping', sub: 'On all orders over $75' },
+      { icon: '\u2b50', title: '4.9/5 Stars', sub: 'Over 3,200 verified reviews' },
+      { icon: '\ud83d\udd04', title: '30-Day Returns', sub: 'No questions asked' },
+      { icon: '\u2705', title: 'Secure Checkout', sub: 'Afterpay & all major cards' },
+    ].map((b, i) => `<div style="text-align:center;padding:24px 16px;${i < 3 ? 'border-right:1px solid #eee;' : ''}">
+      <div style="font-size:32px;margin-bottom:10px;">${b.icon}</div>
+      <div style="font-family:${headingFont};font-size:14px;font-weight:800;color:#080808;margin-bottom:4px;">${b.title}</div>
+      <div style="font-family:${bodyFont};font-size:12px;color:#71717a;">${b.sub}</div>
+    </div>`).join('')}
+  </div>
+</section>
+
+<!-- SECTION 4: PRODUCT SPOTLIGHT -->
+<section id="shop" style="background:#080808;padding:80px 24px;">
+  <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;">
+    <div style="border-radius:20px;overflow:hidden;background:linear-gradient(135deg,rgba(${colorRgb},0.15),#111);min-height:420px;display:flex;align-items:center;justify-content:center;position:relative;">
+      ${productImg && !productImg.includes('placeholder') ? `<img src="${productImg}" alt="${productName}" style="width:100%;height:420px;object-fit:cover;" onerror="this.style.display='none'">` : ''}
+      <div style="text-align:center;padding:40px;position:relative;z-index:1;">
+        <div style="font-size:56px;margin-bottom:16px;">\ud83d\udecd\ufe0f</div>
+        <div style="font-family:${headingFont};color:#fff;font-size:20px;font-weight:700;">${productName}</div>
+      </div>
+    </div>
+    <div>
+      <div style="display:inline-block;background:rgba(${colorRgb},0.12);color:${color};font-family:${headingFont};font-size:11px;font-weight:800;padding:5px 14px;border-radius:100px;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.06em;">Featured Product</div>
+      <h2 style="font-family:${headingFont};font-size:36px;font-weight:900;color:#fff;margin:0 0 12px;line-height:1.15;">${productName}</h2>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+        <span style="color:#fbbf24;font-size:16px;">\u2605\u2605\u2605\u2605\u2605</span>
+        <span style="font-family:${bodyFont};font-size:13px;color:rgba(255,255,255,0.5);">4.9 \u00b7 3,200+ reviews</span>
+      </div>
+      <p style="font-family:${bodyFont};font-size:15px;color:rgba(255,255,255,0.7);line-height:1.65;margin:0 0 24px;">${productDesc}</p>
+      <div style="font-family:${headingFont};font-size:36px;font-weight:900;color:#fff;margin-bottom:6px;">${displayPrice} <span style="font-size:16px;color:rgba(255,255,255,0.4);font-weight:400;">AUD</span></div>
+      <div style="font-family:${bodyFont};font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:24px;">or 4 payments of $${afterpayPrice} with <span style="color:#b2fce4;">Afterpay</span></div>
+      <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+        <button onclick="typeof window.addToCart!=='undefined'&&window.addToCart('${productName.replace(/'/g, "\\'")}','${displayPrice}','')" style="flex:1;min-width:140px;background:${color};color:#080808;font-family:${headingFont};font-size:15px;font-weight:800;padding:16px 24px;border:none;border-radius:10px;cursor:pointer;">Add to Cart</button>
+        <button style="flex:1;min-width:140px;background:rgba(255,255,255,0.08);color:#fff;font-family:${headingFont};font-size:15px;font-weight:700;padding:16px 24px;border:1px solid rgba(255,255,255,0.15);border-radius:10px;cursor:pointer;">Buy Now</button>
+      </div>
+      <div style="font-family:${bodyFont};font-size:12px;color:rgba(255,255,255,0.4);display:flex;gap:16px;flex-wrap:wrap;">
+        <span>\u2713 Free AU shipping over $75</span>
+        <span>\u2713 30-day returns</span>
+        <span>\u2713 In stock</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: BENEFITS/FEATURES -->
+<section id="about" style="background:#0a0a12;padding:80px 24px;">
+  <div style="${sectionStyle}">
+    <div style="text-align:center;margin-bottom:56px;">
+      <div style="display:inline-block;background:rgba(${colorRgb},0.1);color:${color};font-family:${headingFont};font-size:11px;font-weight:800;padding:5px 14px;border-radius:100px;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.06em;">Why Choose Us</div>
+      <h2 style="font-family:${headingFont};font-size:40px;font-weight:900;color:#fff;margin:0 0 16px;">Built different. Built for Australia.</h2>
+      <p style="font-family:${bodyFont};font-size:16px;color:rgba(255,255,255,0.6);max-width:560px;margin:0 auto;">${uvp}</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+      ${keyBenefits.map(b => `<div style="${cardStyle}">
+        <div style="font-size:36px;margin-bottom:16px;">${b.icon}</div>
+        <h3 style="font-family:${headingFont};font-size:18px;font-weight:800;color:#fff;margin:0 0 10px;">${b.title}</h3>
+        <p style="font-family:${bodyFont};font-size:14px;color:rgba(255,255,255,0.6);margin:0;line-height:1.6;">${b.description}</p>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: SOCIAL PROOF MARQUEE -->
+<div style="background:${color};overflow:hidden;padding:14px 0;">
+  <div style="display:flex;gap:48px;animation:marquee 20s linear infinite;white-space:nowrap;">
+    ${['\u2605\u2605\u2605\u2605\u2605 4.9 Rating', '\ud83d\ude9a Free AU Shipping', '30-Day Returns', '\u2705 Afterpay Available', '\ud83c\udde6\ud83c\uddfa Australian Owned', '12,400+ Happy Customers', '\u2605\u2605\u2605\u2605\u2605 4.9 Rating', '\ud83d\ude9a Free AU Shipping', '30-Day Returns', '\u2705 Afterpay Available'].map(t => `<span style="font-family:${headingFont};font-size:13px;font-weight:800;color:#080808;">${t}</span>`).join('')}
+  </div>
+</div>
+<style>@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}</style>
+
+<!-- SECTION 7: TESTIMONIALS -->
+<section style="background:#080808;padding:80px 24px;">
+  <div style="${sectionStyle}">
+    <div style="text-align:center;margin-bottom:56px;">
+      <div style="display:inline-block;background:rgba(${colorRgb},0.1);color:${color};font-family:${headingFont};font-size:11px;font-weight:800;padding:5px 14px;border-radius:100px;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.06em;">Customer Love</div>
+      <h2 style="font-family:${headingFont};font-size:40px;font-weight:900;color:#fff;margin:0;">What Australians are saying</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+      ${testimonials.slice(0, 3).map(t => `<div style="${cardStyle}">
+        <div style="color:#fbbf24;font-size:16px;margin-bottom:14px;">\u2605\u2605\u2605\u2605\u2605</div>
+        <p style="font-family:${bodyFont};font-size:15px;color:rgba(255,255,255,0.82);line-height:1.65;margin:0 0 20px;">"${t.text}"</p>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,${color},#b8941f);display:flex;align-items:center;justify-content:center;font-family:${headingFont};font-size:14px;font-weight:800;color:#080808;">${(t.name || 'A').charAt(0)}</div>
+          <div>
+            <div style="font-family:${headingFont};font-size:13px;font-weight:700;color:#fff;">${t.name}</div>
+            <div style="font-family:${bodyFont};font-size:12px;color:rgba(255,255,255,0.4);">\ud83d\udccd ${t.location}</div>
+          </div>
+          <div style="margin-left:auto;font-family:${bodyFont};font-size:11px;color:rgba(255,255,255,0.3);">\u2713 Verified</div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 8: FAQ -->
+<section id="contact" style="background:#0a0a12;padding:80px 24px;">
+  <div style="max-width:720px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:48px;">
+      <div style="display:inline-block;background:rgba(${colorRgb},0.1);color:${color};font-family:${headingFont};font-size:11px;font-weight:800;padding:5px 14px;border-radius:100px;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.06em;">FAQ</div>
+      <h2 style="font-family:${headingFont};font-size:36px;font-weight:900;color:#fff;margin:0;">Frequently asked questions</h2>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      ${faqItems.map(f => `<div class="faq-item" style="${cardStyle}cursor:pointer;" onclick="var a=this.querySelector('.faq-answer');var t=this.querySelector('.faq-toggle');if(a.style.display==='none'||!a.style.display){a.style.display='block';t.textContent='\u2212'}else{a.style.display='none';t.textContent='+'}">
+        <div class="faq-question" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <span style="font-family:${headingFont};font-size:15px;font-weight:700;color:#fff;">${f.q}</span>
+          <span class="faq-toggle" style="color:${color};font-size:20px;font-weight:300;flex-shrink:0;width:24px;text-align:center;">+</span>
+        </div>
+        <div class="faq-answer" style="display:none;margin-top:14px;font-family:${bodyFont};font-size:14px;color:rgba(255,255,255,0.65);line-height:1.65;">${f.a}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 9: CTA BANNER -->
+<section style="background:linear-gradient(135deg,rgba(${colorRgb},0.18) 0%,rgba(${colorRgb},0.06) 100%);padding:80px 24px;border-top:1px solid rgba(${colorRgb},0.15);border-bottom:1px solid rgba(${colorRgb},0.15);">
+  <div style="max-width:640px;margin:0 auto;text-align:center;">
+    <div style="font-size:48px;margin-bottom:20px;">\ud83d\udecd\ufe0f</div>
+    <h2 style="font-family:${headingFont};font-size:40px;font-weight:900;color:#fff;margin:0 0 16px;">${tagline}</h2>
+    <p style="font-family:${bodyFont};font-size:16px;color:rgba(255,255,255,0.65);margin:0 0 32px;">${uvp}</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <a href="#shop" style="display:inline-block;background:${color};color:#080808;font-family:${headingFont};font-size:16px;font-weight:800;padding:18px 40px;border-radius:10px;text-decoration:none;">Shop Now \u2192</a>
+      <a href="#contact" style="display:inline-block;background:transparent;color:#fff;font-family:${headingFont};font-size:16px;font-weight:700;padding:18px 40px;border-radius:10px;text-decoration:none;border:1.5px solid rgba(255,255,255,0.2);">Learn More</a>
+    </div>
+    <div style="margin-top:24px;font-family:${bodyFont};font-size:13px;color:rgba(255,255,255,0.4);">Free shipping over $75 \u00b7 Afterpay available \u00b7 30-day returns</div>
+  </div>
+</section>
+
+<!-- SECTION 10: FOOTER -->
+<footer style="background:#060606;padding:56px 24px 32px;border-top:1px solid rgba(255,255,255,0.06);">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px;">
+      <div>
+        <div style="font-family:${headingFont};font-size:22px;font-weight:900;color:${color};margin-bottom:14px;">${brandName}</div>
+        <p style="font-family:${bodyFont};font-size:14px;color:rgba(255,255,255,0.5);line-height:1.65;margin:0 0 20px;">${tagline}</p>
+        <div style="font-family:${bodyFont};font-size:12px;color:rgba(255,255,255,0.3);">\ud83c\udde6\ud83c\uddfa All prices in AUD \u00b7 Afterpay available</div>
+      </div>
+      <div>
+        <div style="font-family:${headingFont};font-size:13px;font-weight:800;color:#fff;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.06em;">Shop</div>
+        ${['All Products', 'New Arrivals', 'Best Sellers', 'Sale'].map(l => `<div style="margin-bottom:10px;"><a href="#" style="font-family:${bodyFont};font-size:14px;color:rgba(255,255,255,0.5);text-decoration:none;">${l}</a></div>`).join('')}
+      </div>
+      <div>
+        <div style="font-family:${headingFont};font-size:13px;font-weight:800;color:#fff;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.06em;">Info</div>
+        ${['About Us', 'Shipping', 'Returns', 'Contact'].map(l => `<div style="margin-bottom:10px;"><a href="#" style="font-family:${bodyFont};font-size:14px;color:rgba(255,255,255,0.5);text-decoration:none;">${l}</a></div>`).join('')}
+      </div>
+      <div>
+        <div style="font-family:${headingFont};font-size:13px;font-weight:800;color:#fff;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.06em;">Support</div>
+        ${['FAQ', 'Track Order', 'Size Guide', 'Wholesale'].map(l => `<div style="margin-bottom:10px;"><a href="#" style="font-family:${bodyFont};font-size:14px;color:rgba(255,255,255,0.5);text-decoration:none;">${l}</a></div>`).join('')}
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div style="font-family:${bodyFont};font-size:13px;color:rgba(255,255,255,0.3);">\u00a9 ${new Date().getFullYear()} ${brandName}. All rights reserved. ABN XX XXX XXX XXX</div>
+      <div style="display:flex;gap:20px;">
+        <a href="#" style="font-family:${bodyFont};font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;">Privacy</a>
+        <a href="#" style="font-family:${bodyFont};font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;">Terms</a>
+        <a href="#" style="font-family:${bodyFont};font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;">Shipping</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</div>
+
+<style>
+  @media(max-width:768px){
+    nav .nav-links{display:none!important}
+    #hamburger{display:flex!important}
+    section>div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+    section>div[style*="grid-template-columns:repeat(3"]{grid-template-columns:1fr!important}
+    section>div[style*="grid-template-columns:repeat(4"]{grid-template-columns:1fr 1fr!important}
+    section>div[style*="grid-template-columns:2fr 1fr 1fr 1fr"]{grid-template-columns:1fr 1fr!important}
+    .faq-item{padding:16px!important}
+    section{padding:48px 16px!important}
+  }
+  @media(max-width:480px){
+    section>div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+    section>div[style*="grid-template-columns:2fr 1fr 1fr 1fr"]{grid-template-columns:1fr!important}
+  }
+  html{scroll-behavior:smooth}
+  *{box-sizing:border-box}
+  img{max-width:100%}
+</style>
+`;
+}
+
 // ─── Full AI HTML Generator (legacy — kept as fallback) ───────────────────────
 async function generateFullStore_legacy(params: {
   niche: string;
@@ -1156,7 +1444,6 @@ async function generateFullStore_legacy(params: {
   const cardBorder  = dir?.cardBorder   || '1px solid rgba(255,255,255,0.07)';
   const cardRadius  = dir?.cardRadius   || '16px';
   const btnRadius   = dir?.btnRadius    || '10px';
-  const dirNote     = dir?.promptNote   || 'Modern dark DTC brand aesthetic.';
 
   const colorRgb = (function(hex: string) {
     const c = hex.replace('#', '');
@@ -1235,131 +1522,87 @@ ${baseCss}
 </head>
 <body>`;
 
-  // ── 4. Single Sonnet pass (streaming) ──────────────────────────────────────
-  progress(20, '✍️ Generating your store...');
-  const client = getAnthropicClient();
+  // ── 4. Build store HTML from template ──────────────────────────────────────
+  progress(20, '✍️ Building your store...');
 
-  const productContext = pd.product_title ? `
-Product: ${sanitizeProductTitle(pd.product_title as string, niche)}
-Category: ${pd.category || pd.product_type || niche}
-Description: ${pd.description || ''}
-Price: ${price || `$${pd.price_aud || pd.suggested_price_aud || '49.95'}`} AUD` : `
-Product: ${niche}
-Price: ${price || '$49.95'} AUD`;
+  // Extract all values from brief with safe fallbacks
+  const brandName = (brief.brandName as string) || storeName_ || niche;
+  const tagline = (brief.tagline as string) || `Premium ${niche} for Australians`;
+  const heroHeadline = (brief.heroHeadline as string) || `The ${niche} brand Australians trust`;
+  const heroSubheadline = (brief.heroSubheadline as string) || `Premium quality, fast AU shipping, results from day one.`;
+  const uvp = (brief.uniqueValueProp as string) || `We source every product specifically for Australian conditions.`;
+  const ctaPrimary = (brief.ctaPrimary as string) || 'Shop Now';
+  const ctaSecondary = (brief.ctaSecondary as string) || 'Learn More';
 
-  const singlePassSystem = `You are an expert Shopify theme developer and conversion-focused designer.
-Generate a complete, production-ready single-file HTML store.
+  const testimonials = (brief.testimonials as Array<{ name: string; location: string; text: string }>) || [
+    { name: 'Sarah M.', location: 'Sydney', text: 'Absolutely love this product. Arrived in 2 days and quality is outstanding.' },
+    { name: 'Jake T.', location: 'Brisbane', text: 'Best purchase I have made this year. Highly recommend to anyone.' },
+    { name: 'Emma K.', location: 'Melbourne', text: 'Fast delivery, amazing customer service, will buy again.' },
+  ];
 
-CRITICAL RULES:
-1. Output ONLY HTML body content — no <!DOCTYPE>, no <html>, no <head>, no <style>, no <script> tags
-2. Use only the CSS classes and variables already defined (--accent, --bg, --surface, --text, --muted, --card-radius, --btn-radius)
-3. Every section must use semantic HTML5 (section, article, nav, footer, header, main)
-4. Include ALL of these sections in order:
-   - Announcement bar (free shipping threshold)
-   - Navigation (logo left, links center, cart icon right)
-   - Hero section (headline, subheadline, CTA buttons, hero image)
-   - Social proof stats bar (3 numbers from brief)
-   - Features/benefits section (3 cards from brief.keyBenefits)
-   - Product highlight section (product name, description, price, Add to Cart)
-   - Testimonials (3 from brief, AU cities, specific quotes)
-   - FAQ accordion (4 items, use class="faq-item", "faq-question", "faq-toggle", "faq-answer")
-   - Footer (logo, links, ABN, AUD pricing, Afterpay badge)
-5. Nav links must use data-nav="home", data-nav="shop", data-nav="about", data-nav="contact"
-6. Cart button must use class="btn-cart"
-7. All prices in AUD format: $X.XX AUD
-8. Include Afterpay copy where relevant
-9. Image tags must use the exact URLs provided — no placeholder.com
-10. DO NOT close the <div data-page="home"> wrapper — it will be closed automatically`;
+  const faqItems = (brief.faq as Array<{ q: string; a: string }>) || [
+    { q: 'How fast is shipping?', a: 'Same-day dispatch before 2pm AEST. 2\u20135 business days Australia-wide.' },
+    { q: 'Do you offer Afterpay?', a: 'Yes! Pay in 4 interest-free instalments on orders over $35.' },
+    { q: "What's your return policy?", a: '30-day no-questions-asked returns. We cover return shipping.' },
+    { q: 'Is it available in my state?', a: 'We ship to all Australian states and territories including remote areas.' },
+  ];
 
-  const singlePassUser = `BRAND BRIEF:
-${JSON.stringify(brief, null, 2)}
+  const briefStats = (brief.stats as Array<{ value: string; label: string }>) || [
+    { value: '12,400+', label: 'Happy Customers' },
+    { value: '4.8\u2605', label: 'Average Rating' },
+    { value: '98%', label: 'Would Recommend' },
+  ];
 
-IMAGES:
-- Hero: ${heroImg}
-- Product: ${productImg}
-- Lifestyle 1: ${lifestyleImg1}
-- Lifestyle 2: ${lifestyleImg2}
+  const keyBenefits = (brief.keyBenefits as Array<{ icon: string; title: string; description: string }>) || [
+    { icon: '\u26a1', title: 'Fast Results', description: 'See noticeable results within the first 2 weeks of use.' },
+    { icon: '\ud83c\udde6\ud83c\uddfa', title: 'Made for Australia', description: 'Formulated and tested specifically for the Australian climate.' },
+    { icon: '\u2705', title: 'Backed by Science', description: 'Every product is clinically tested and safety certified.' },
+  ];
 
-STORE DETAILS:
-- Store name: ${storeName_}
-- Niche: ${niche}
-- Accent colour: ${color}
-- Design direction: ${dir?.label || 'Modern Dark DTC'} — ${dirNote}
-${productContext}
+  const templateProductName = (pd.product_title as string) || storeName_ || niche;
+  const templateDisplayPrice = price || (pd.price_aud ? `$${pd.price_aud}` : '$49.95');
+  const templateProductDesc = (pd.description as string) || uvp;
 
-Start your output with EXACTLY:
-<div data-page="home" style="display:block">
+  // Progress updates during template build
+  progress(30, '\ud83c\udfa8 Styling sections...');
+  await new Promise<void>(r => setTimeout(r, 100));
+  progress(50, '\ud83d\udcd0 Building layout...');
+  await new Promise<void>(r => setTimeout(r, 100));
+  progress(70, '\u2728 Adding sections...');
+  await new Promise<void>(r => setTimeout(r, 100));
 
-Before data-page="home", output the nav and mobile menu:
-<nav id="main-nav">
-  <a href="#home" class="nav-logo">${storeName_}</a>
-  <div class="nav-center">
-    <a href="#home" data-nav="home">Home</a>
-    <a href="#shop" data-nav="shop">Shop</a>
-    <a href="#about" data-nav="about">About</a>
-    <a href="#contact" data-nav="contact">Contact</a>
-  </div>
-  <div class="nav-right">
-    <button onclick="typeof openCart!=='undefined'&&openCart()" class="cart-icon-btn">\ud83d\uded2<span class="cart-badge">0</span></button>
-    <a href="#shop" class="nav-cta">Shop Now</a>
-    <button id="hamburger"><span></span><span></span><span></span></button>
-  </div>
-</nav>
-<div id="mobile-menu">
-  <a href="#home" data-nav="home">Home</a>
-  <a href="#shop" data-nav="shop">Shop</a>
-  <a href="#about" data-nav="about">About</a>
-  <a href="#contact" data-nav="contact">Contact</a>
-  <a href="#shipping" data-nav="shipping">Shipping</a>
-</div>
+  const templateHeadingFont = briefHeadingFont || headingFont.replace(/'/g, '');
+  const templateBodyFont = briefBodyFont || bodyFont.replace(/'/g, '');
 
-Then open: <div data-page="home" style="display:block">
-
-Use the brief JSON for all copy: heroHeadline, heroSubheadline, keyBenefits, testimonials, faqItems, socialProofStats, ctaPrimary, ctaSecondary.
-Use CSS classes: .hero, .hero-content, .hero-badge, .hero-sub, .hero-buttons, .btn-primary, .btn-secondary, .trust-strip, .social-proof, .product-section, .product-image-wrap, .product-info, .product-stars, .product-price, .afterpay-row, .stock-warning, .btn-cart, .btn-buy-now, .product-benefits, .features-section, .section-header, .features-grid, .feature-card, .feature-icon, .lifestyle-grid, .reviews-section, .testimonials-grid, .testimonial-card, .testimonial-stars, .testimonial-quote, .testimonial-author, .testimonial-city, .verified, .faq-section, .faq-item, .faq-question, .faq-toggle, .faq-answer, .cta-section, .countdown-wrap, footer, .footer-grid, .footer-brand, .footer-logo, .footer-tagline, .footer-col, .footer-bottom, .announcement-bar, .marquee-inner, .marquee-text
-Add class="anim" to section headings and class="anim anim-delay-1/2/3" to cards.
-DO NOT close the data-page="home" div — it will be closed automatically.
-End output after </footer>.`;
-
-  const stream = client.messages.stream({
-    model: CLAUDE_MODEL,
-    max_tokens: 7000,
-    temperature: 0.7,
-    system: singlePassSystem,
-    messages: [{ role: 'user', content: singlePassUser }],
+  const part1Clean = buildStoreTemplate({
+    brandName,
+    tagline,
+    heroHeadline,
+    heroSubheadline,
+    uvp,
+    ctaPrimary,
+    ctaSecondary,
+    testimonials,
+    faqItems,
+    stats: briefStats,
+    keyBenefits,
+    productName: templateProductName,
+    displayPrice: templateDisplayPrice,
+    productDesc: templateProductDesc,
+    heroImg,
+    productImg,
+    color,
+    colorRgb,
+    headingFont: templateHeadingFont,
+    bodyFont: templateBodyFont,
+    niche,
+    storeName_,
   });
 
-  let fullText = '';
-  let lastProgressEmit = 20;
-
-  for await (const event of stream) {
-    if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-      fullText += event.delta.text;
-      const approxProgress = Math.min(90, 20 + Math.floor((fullText.length / 42000) * 70));
-      if (approxProgress > lastProgressEmit + 2) {
-        lastProgressEmit = approxProgress;
-        progress(approxProgress, '✍️ Writing your store...');
-      }
-    }
-  }
-
-  const part1 = fullText.trim();
-  if (!part1 || part1.length < 200) throw new Error('AI generation returned insufficient content — please try again.');
-
-  // Strip any rogue head/style/script tags Claude might add despite instructions
-  const part1Clean = part1
-    .replace(/<!DOCTYPE[\s\S]*?<body[^>]*>/gi, '')
-    .replace(/<head[\s\S]*?<\/head>/gi, '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<\/body>\s*<\/html>\s*$/i, '')
-    .replace(/```[\s\S]*?```/g, '')
-    .replace(/^```\w*\n?/gm, '')
-    .replace(/^```\s*$/gm, '')
-    .trim();
+  progress(90, '\ud83d\ude80 Finishing touches...');
 
   // ── 5. Build hard-coded shop page ──────────────────────────────────────────
-  progress(92, '🛒 Building shop page...');
+  progress(92, '\ud83d\uded2 Building shop page...');
   // (V2 replaces old pass1/pass2 — shop page below)
 
   const rawProductImgs: string[] = scrapedProductImgs;
@@ -1431,6 +1674,7 @@ End output after </footer>.`;
 </div>`;
 
   // ── 6. Pass 3: About + Contact pages (Haiku, with brief content) ───────────
+  const client = getAnthropicClient();
   const storeSlug = storeName_.toLowerCase().replace(/[^a-z0-9]/g, '');
   const briefBrandName = (brief.brandName as string) || storeName_;
   const briefTagline = (brief.tagline as string) || '';
