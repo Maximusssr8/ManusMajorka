@@ -226,6 +226,35 @@ app.post("/api/import-product", async (req: Request, res: Response) => {
     return;
   }
   const { url } = validation.data;
+
+  // AliExpress blocks server-side fetches — detect early and return helpful message
+  const isAliExpress = /aliexpress\.com/i.test(url);
+  const isTemu = /temu\.com/i.test(url);
+
+  if (isAliExpress) {
+    const aliMatch = url.match(/\/item\/(\d+)/);
+    const productId = aliMatch?.[1];
+    res.status(422).json({
+      success: false,
+      manual: true,
+      platform: 'AliExpress',
+      productId: productId || null,
+      message: 'AliExpress blocks automated import. Use the manual form below — paste the product name, price, and description.',
+      hint: productId ? `AliExpress product ID: ${productId}` : undefined,
+    });
+    return;
+  }
+
+  if (isTemu) {
+    res.status(422).json({
+      success: false,
+      manual: true,
+      platform: 'Temu',
+      message: 'Temu blocks automated import. Paste the product details manually.',
+    });
+    return;
+  }
+
   try {
     // Step 1: Scrape the product
     const scraped = await scrapeProductData(url);
@@ -250,6 +279,34 @@ app.post("/api/import-product", async (req: Request, res: Response) => {
 
 // Stripe routes (checkout-session, customer-portal, subscription-status, webhook)
 // are registered via registerStripeRoutes(app) above
+
+// ── Public trend signals API ──────────────────────────────────────────────
+app.get("/api/trend-signals", async (req: Request, res: Response) => {
+  try {
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
+    const limit = Math.min(parseInt(req.query.limit as string || '50', 10), 100);
+    const sort = req.query.sort as string || 'trend_score';
+    const validSorts = ['trend_score', 'estimated_retail_aud', 'dropship_viability_score', 'refreshed_at'];
+    const sortCol = validSorts.includes(sort) ? sort : 'trend_score';
+
+    const resp = await fetch(
+      `${supabaseUrl}/rest/v1/trend_signals?select=*&order=${sortCol}.desc&limit=${limit}`,
+      { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+    );
+
+    if (!resp.ok) throw new Error(`Supabase error: ${resp.status}`);
+    const rows = await resp.json();
+
+    res.json({
+      products: rows,
+      total: rows.length,
+      refreshed_at: rows[0]?.refreshed_at || null,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message, products: [] });
+  }
+});
 
 // ── Public storefront data API ────────────────────────────────────────────
 app.get("/api/store/:slug", async (req: Request, res: Response) => {

@@ -78,21 +78,27 @@ export default function SupplierDirectory() {
   const [type, setType] = useState('All');
   const [sortBy, setSortBy] = useState<'shipping' | 'rating'>('rating');
 
+  const [searchQuery, setSearchQuery] = useState('');
+
   // Auto-select niche from URL params (e.g. from Trend Signals)
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     const nicheParam = p.get('niche');
+    const productParam = p.get('product');
     if (nicheParam) {
-      // Match to closest niche button
       const match = ALL_NICHES.find(n => nicheParam.toLowerCase().includes(n.toLowerCase()));
       if (match) setNiche(match);
-      window.history.replaceState({}, '', '/app/suppliers');
     }
+    if (productParam) {
+      setSearchQuery(productParam);
+    }
+    window.history.replaceState({}, '', '/app/suppliers');
   }, []);
 
   const filtered = SUPPLIERS
     .filter(s => niche === 'All' || s.niche.includes('All') || s.niche.includes(niche))
     .filter(s => type === 'All' || s.type === type)
+    .filter(s => !searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase()) || s.niche.some(n => n.toLowerCase().includes(searchQuery.toLowerCase())) || s.notes.toLowerCase().includes(searchQuery.toLowerCase()) || s.best_for.some(b => b.toLowerCase().includes(searchQuery.toLowerCase())))
     .sort((a, b) => sortBy === 'rating' ? b.quality_rating - a.quality_rating : a.shipping_days_to_au - b.shipping_days_to_au);
 
   const btnStyle = (active: boolean) => ({
@@ -128,6 +134,15 @@ export default function SupplierDirectory() {
           25 AU-vetted suppliers · Updated March 2026 · Sorted by quality rating
         </p>
       </div>
+
+      {/* Search */}
+      {searchQuery && (
+        <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 12, color: C.muted }}>Searching for:</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: C.gold }}>{searchQuery}</span>
+          <button onClick={() => setSearchQuery('')} style={{ fontSize: 11, color: C.muted, background: 'none', border: `1px solid ${C.border}`, borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}>Clear</button>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="supplier-filters" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>

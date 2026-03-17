@@ -3180,6 +3180,12 @@ function WinningProducts() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
+      if (!supabase) {
+        setProducts(SEEDED_PRODUCTS);
+        setTotal(SEEDED_PRODUCTS.length);
+        setLoading(false);
+        return;
+      }
       let query = supabase.from('winning_products').select('*', { count: 'exact' });
 
       if (debouncedSearch) query = query.ilike('product_title', `%${debouncedSearch}%`);

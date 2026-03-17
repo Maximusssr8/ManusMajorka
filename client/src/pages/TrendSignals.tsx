@@ -567,7 +567,13 @@ export default function TrendSignals() {
                           <Store size={10} /> Build Store
                         </button>
                         <button
-                          onClick={() => navigate(`/app/suppliers?niche=${encodeURIComponent(p.niche)}`)}
+                          onClick={() => {
+                            const sparams = new URLSearchParams({
+                              niche: p.niche,
+                              product: p.name,
+                            });
+                            navigate(`/app/suppliers?${sparams.toString()}`);
+                          }}
                           style={{
                             display: 'flex', alignItems: 'center', gap: 4,
                             padding: '5px 10px', background: C.surface, color: C.sub,
@@ -630,7 +636,13 @@ export default function TrendSignals() {
                   style={{ flex: 1, padding: '9px', background: C.gold, color: '#080a0e', border: 'none', borderRadius: 7, fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}>
                   Build Store →
                 </button>
-                <button onClick={() => navigate(`/app/suppliers?niche=${encodeURIComponent(p.niche)}`)}
+                <button onClick={() => {
+                    const sparams = new URLSearchParams({
+                      niche: p.niche,
+                      product: p.name,
+                    });
+                    navigate(`/app/suppliers?${sparams.toString()}`);
+                  }}
                   style={{ flex: 1, padding: '9px', background: C.surface, color: C.sub, border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 12, cursor: 'pointer' }}>
                   Supplier →
                 </button>

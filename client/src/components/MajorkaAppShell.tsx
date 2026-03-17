@@ -105,10 +105,10 @@ const PHASE_SECTIONS: PhaseSection[] = [
       },
       {
         label: 'Trending Now',
-        path: '/app/winning-products',
+        path: '/app/trend-signals',
         icon: Flame,
         badge: 'HOT',
-        tooltip: "See what's selling right now across AU platforms and social media.",
+        tooltip: "See what's selling right now — 6h AI cron refresh with trend scores.",
       },
       {
         label: 'Market',
@@ -217,7 +217,7 @@ const PHASE_SECTIONS: PhaseSection[] = [
 
 const MOBILE_TABS: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home, exact: true },
-  { label: 'Products', path: '/app/winning-products', icon: TrendingUp },
+  { label: 'Products', path: '/app/trend-signals', icon: TrendingUp },
   { label: 'Maya', path: '/app/ai-chat', icon: MessageSquare },
   { label: 'Tools', path: '/app/product-discovery', icon: Search },
   { label: 'Account', path: '/account', icon: User },

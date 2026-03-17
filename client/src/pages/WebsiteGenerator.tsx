@@ -1510,6 +1510,11 @@ export default function WebsiteGenerator() {
       });
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
+        if (errData.manual) {
+          setImportError(`${errData.platform || 'This site'} blocks automated import. Please use the manual form — enter the product name, price, and description directly.`);
+          setImporting(false);
+          return;
+        }
         throw new Error(errData.error || `Scrape failed: ${response.status}`);
       }
       const data = (await response.json()) as { productTitle: string; description: string; bulletPoints: string[]; price: string; imageUrls: string[]; brand?: string; extractionError?: string; };

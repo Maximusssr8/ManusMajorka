@@ -487,6 +487,25 @@ export function registerScrapeRoutes(app: Application) {
         res.status(400).json({ error: 'url is required' });
         return;
       }
+
+      // AliExpress/Temu block server-side fetches — detect early
+      if (/aliexpress\.com/i.test(url)) {
+        const aliMatch = url.match(/\/item\/(\d+)/);
+        res.status(422).json({
+          success: false, manual: true, platform: 'AliExpress',
+          productId: aliMatch?.[1] || null,
+          error: 'AliExpress blocks automated import. Use the manual form — paste the product name, price, and description.',
+        });
+        return;
+      }
+      if (/temu\.com/i.test(url)) {
+        res.status(422).json({
+          success: false, manual: true, platform: 'Temu',
+          error: 'Temu blocks automated import. Paste the product details manually.',
+        });
+        return;
+      }
+
       const result = await scrapeProductData(url);
 
       // If extraction failed completely, return a user-friendly error
