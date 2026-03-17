@@ -1247,6 +1247,7 @@ export default function WebsiteGenerator() {
   const [generating, setGenerating] = useState(false);
   const generatingRef = useRef(false);
   const genTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const activeReaderRef = useRef<ReadableStreamDefaultReader<Uint8Array> | null>(null);
   const [genProgress, setGenProgress] = useState(0);
   const [progressMsgIdx, setProgressMsgIdx] = useState(0);
   const [generatedData, setGeneratedData] = useState<GeneratedData | null>(null);
@@ -1576,9 +1577,29 @@ export default function WebsiteGenerator() {
     }
   }, [shopifyConnected, directHtml, session, storeName, tagline, niche, accentColor, storeManifest]);
 
+  const killGeneration = useCallback(() => {
+    // Cancel in-flight stream reader
+    try { activeReaderRef.current?.cancel(); } catch {}
+    activeReaderRef.current = null;
+    // Clear timeout
+    if (genTimeoutRef.current) { clearTimeout(genTimeoutRef.current); genTimeoutRef.current = null; }
+    // Reset state
+    generatingRef.current = false;
+    setGenerating(false);
+  }, []);
+
   const handleGenerate = useCallback(async () => {
     if (!niche.trim()) { toast.error('Please enter a niche first'); return; }
-    if (generatingRef.current) return; // Prevent double submit
+    // Hard double-fire guard
+    if (generatingRef.current) {
+      console.log('[generate] blocked — already in progress');
+      return;
+    }
+
+    // Kill any leftover state first
+    killGeneration();
+
+    // Set generating
     generatingRef.current = true;
     setGenerating(true);
     setGenError('');
@@ -1592,13 +1613,11 @@ export default function WebsiteGenerator() {
     setEta(90);
     setHeadlines(null);
 
-    // 90-second timeout
-    if (genTimeoutRef.current) clearTimeout(genTimeoutRef.current);
+    // 90s hard timeout
     genTimeoutRef.current = setTimeout(() => {
       if (generatingRef.current) {
-        generatingRef.current = false;
-        setGenerating(false);
-        setGenError('Generation timed out. Please try again.');
+        killGeneration();
+        setGenError('Generation timed out — please try again.');
         toast.error('Generation timed out — please try again');
       }
     }, 90_000);
@@ -1635,43 +1654,48 @@ export default function WebsiteGenerator() {
         throw new Error((err as any).error || `Generation failed: ${response.status}`);
       }
 
-      // Read SSE stream
       const reader = response.body?.getReader();
+      if (!reader) throw new Error('No response stream');
+      activeReaderRef.current = reader;
+
       const decoder = new TextDecoder();
       let buffer = '';
       let finalHtml = '';
 
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || '';
-          for (const line of lines) {
-            if (line.startsWith('event: progress')) continue;
-            if (line.startsWith('data: ')) {
-              try {
-                const payload = JSON.parse(line.slice(6));
-                if (payload.pct !== undefined) {
-                  setGenProgress(payload.pct);
-                  setProgressSteps(GEN_STEPS.map(s => ({ label: s.label, done: payload.pct >= s.threshold })));
-                  const elapsed = (Date.now() - genStartRef.current) / 1000;
-                  const etaSecs = Math.max(0, Math.round(90 - elapsed));
-                  setEta(etaSecs);
-                }
-                if (payload.html) finalHtml = payload.html;
-                if (payload.manifest) setStoreManifest(payload.manifest);
-                if (payload.error) throw new Error(payload.error);
-              } catch (e: any) {
-                if (e?.message && !e.message.includes('JSON')) throw e;
+      while (true) {
+        // Check if we were killed mid-stream
+        if (!generatingRef.current) break;
+
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('event: progress')) continue;
+          if (line.startsWith('data: ')) {
+            try {
+              const payload = JSON.parse(line.slice(6));
+              if (payload.pct !== undefined) {
+                setGenProgress(payload.pct);
+                setProgressSteps(GEN_STEPS.map(s => ({ label: s.label, done: payload.pct >= s.threshold })));
+                const elapsed = (Date.now() - genStartRef.current) / 1000;
+                setEta(Math.max(0, Math.round(90 - elapsed)));
               }
+              if (payload.html) finalHtml = payload.html;
+              if (payload.manifest) setStoreManifest(payload.manifest);
+              if (payload.error) throw new Error(payload.error);
+            } catch (e: any) {
+              if (e?.message && !e.message.includes('JSON')) throw e;
             }
           }
         }
       }
 
-      if (!finalHtml) throw new Error('No HTML returned. Please try again.');
+      activeReaderRef.current = null;
+      if (!finalHtml) throw new Error('No HTML returned — please try again.');
 
       setGenProgress(100);
       setRawResponse(finalHtml);
@@ -1683,6 +1707,8 @@ export default function WebsiteGenerator() {
       };
       setGeneratedData(minData);
       setDirectHtml(finalHtml);
+      setActiveTab('preview');
+      toast.success('Store generated! 🎉');
 
       // Mark onboarding step
       markOnboardingStep('generated_store', session?.user?.id).catch(() => {});
@@ -1698,21 +1724,20 @@ export default function WebsiteGenerator() {
         }).catch(() => {});
       }
 
-      // C3 — Save to site history
-      const historyItem: SiteHistoryItem = {
+      // Save to history
+      const newItem: SiteHistoryItem = {
         id: Date.now().toString(),
         storeName: storeName || niche,
         niche,
-        direction: designDirection,
-        timestamp: Date.now(),
+        direction: designDirection || 'default',
         html: finalHtml,
+        timestamp: Date.now(),
       };
-      const prevHistory = JSON.parse(localStorage.getItem('majorka_site_history') || '[]');
-      const nextHistory = [historyItem, ...prevHistory].slice(0, 5);
-      localStorage.setItem('majorka_site_history', JSON.stringify(nextHistory));
-      setSiteHistory(nextHistory);
-
-      setActiveTab('preview');
+      setSiteHistory(prev => {
+        const next = [newItem, ...prev.filter(h => h.storeName !== newItem.storeName)].slice(0, 10);
+        localStorage.setItem('majorka_site_history', JSON.stringify(next));
+        return next;
+      });
 
       // Task 7 — Save to Supabase generated_stores
       setSavedStoreId(null);
@@ -1734,38 +1759,29 @@ export default function WebsiteGenerator() {
           }).select('id').single();
           if (insertData?.id) setSavedStoreId(insertData.id);
         } catch (e) {
-          // Non-fatal: don't surface to user
           console.warn('[store-history] save failed:', e);
         }
       }
-      // SQL to create table (run in Supabase SQL editor):
-      // CREATE TABLE IF NOT EXISTS generated_stores (
-      //   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-      //   user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,
-      //   store_name text,
-      //   niche text,
-      //   template_id text,
-      //   html_preview text,
-      //   manifest jsonb,
-      //   created_at timestamptz DEFAULT now()
-      // );
-      // ALTER TABLE generated_stores ENABLE ROW LEVEL SECURITY;
-      // CREATE POLICY "Users own their stores" ON generated_stores FOR ALL USING (auth.uid() = user_id);
 
-      toast.success('Store generated! 🎉');
       trackWebsiteGenerated({ niche, platform, vibe, market: getStoredMarket() });
       localStorage.setItem('majorka_milestone_site', 'true');
     } catch (err: any) {
-      setGenError(humanizeError(err?.message || 'Generation failed. Please try again.'));
+      if (!generatingRef.current) return; // Was killed — ignore error
+      const msg = err?.message || 'Generation failed';
+      const safe = msg.length < 200 && !msg.includes(' at ') ? msg : 'Generation failed — please try again.';
+      setGenError(safe);
+      toast.error(safe);
     } finally {
-      if (genTimeoutRef.current) clearTimeout(genTimeoutRef.current);
-      generatingRef.current = false;
-      setGenerating(false);
-      setGenProgress(0);
+      killGeneration();
     }
-  }, [storeName, niche, targetAudience, vibe, accentColor, platform, importedProduct, premiumTemplateId, session, analysisResult, selectedDesc, designDirection]);
+  }, [niche, storeName, targetAudience, vibe, accentColor, designDirection, importedProduct, analysisResult, selectedDesc, session, killGeneration, platform, premiumTemplateId, storeManifest]);
   // Keep ref in sync so keyboard shortcut can call it without circular deps
   useEffect(() => { handleGenerateRef.current = handleGenerate; }, [handleGenerate]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => { killGeneration(); };
+  }, [killGeneration]);
 
   // B4 — Theme switcher
   const applyTheme = useCallback((themeKey: string) => {
@@ -2879,13 +2895,47 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 16, marginTop: 8 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(240,237,232,0.3)', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Recent Sites</div>
               {siteHistory.map(item => (
-                <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(240,237,232,0.8)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.storeName}</div>
                     <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)' }}>{item.direction} · {new Date(item.timestamp).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</div>
                   </div>
-                  <button onClick={() => { setDirectHtml(item.html); setStoreName(item.storeName); setNiche(item.niche); setActiveTab('preview'); setGeneratedData({ storeName: item.storeName, headline: item.niche, features: [], primaryColor: '#d4af37' }); }} style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.2)', color: '#d4af37', cursor: 'pointer' }}>Load</button>
-                  <button onClick={() => { const next = siteHistory.filter(h => h.id !== item.id); setSiteHistory(next); localStorage.setItem('majorka_site_history', JSON.stringify(next)); }} style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(240,237,232,0.3)', cursor: 'pointer' }}>✕</button>
+                  {/* Load — restore preview */}
+                  <button
+                    onClick={() => {
+                      setDirectHtml(item.html);
+                      setStoreName(item.storeName);
+                      setNiche(item.niche);
+                      setActiveTab('preview');
+                      setGeneratedData({ storeName: item.storeName, headline: item.niche, features: [], primaryColor: '#d4af37' });
+                    }}
+                    style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.2)', color: '#d4af37', cursor: 'pointer', flexShrink: 0 }}
+                  >Load</button>
+                  {/* Edit — restore form inputs, clear preview so user can regenerate */}
+                  <button
+                    onClick={() => {
+                      setStoreName(item.storeName);
+                      setNiche(item.niche);
+                      if (item.direction && item.direction !== 'default') setDesignDirection(item.direction as any);
+                      setDirectHtml(null);
+                      setGeneratedData(null);
+                      setGenError('');
+                      setGenProgress(0);
+                      setActiveTab('preview');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      toast('Loaded into editor — tweak and regenerate ✏️');
+                    }}
+                    style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,237,232,0.6)', cursor: 'pointer', flexShrink: 0 }}
+                  >✏️</button>
+                  {/* Delete */}
+                  <button
+                    onClick={() => {
+                      const next = siteHistory.filter(h => h.id !== item.id);
+                      setSiteHistory(next);
+                      localStorage.setItem('majorka_site_history', JSON.stringify(next));
+                    }}
+                    style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(240,237,232,0.3)', cursor: 'pointer', flexShrink: 0 }}
+                  >✕</button>
                 </div>
               ))}
             </div>
