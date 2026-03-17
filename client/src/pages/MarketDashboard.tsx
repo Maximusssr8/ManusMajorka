@@ -4,6 +4,7 @@
  * Revenue-first, data-dense, no gamification.
  */
 
+import { Helmet } from 'react-helmet-async';
 import {
   BarChart3,
   BookOpen,
@@ -221,6 +222,7 @@ export default function MarketDashboard() {
 
   return (
     <div className="min-h-full" style={{ background: '#080a0e', color: '#e2e8f0' }}>
+      <Helmet><title>Market Intelligence | Majorka</title></Helmet>
       {/* Header */}
       <div
         className="px-6 py-5 border-b"

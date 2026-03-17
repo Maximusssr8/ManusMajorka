@@ -15,7 +15,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { useProduct } from '../contexts/ProductContext';
 
-const MAJORKA_BACKEND = 'https://majorkabackend.vercel.app/api/majorka-test';
+// Uses /api/chat AI endpoint for campaign generation
 
 type AdSet = {
   variation: number;
@@ -146,20 +146,32 @@ export default function AdsStudio() {
       const product = activeProduct
         ? { title: activeProduct.name, description: activeProduct.description || desc }
         : { title: desc, description: desc };
-      const res = await fetch(MAJORKA_BACKEND, {
+      const prompt = `Generate a Meta (Facebook/Instagram) ad campaign for this product. Return ONLY valid JSON, no markdown, no explanation.
+
+Product: ${product.title}
+Description: ${product.description}
+Objective: ${objective}
+Daily budget: $${parseFloat(budget) || 20} AUD
+
+Return this JSON structure:
+{"ad_sets":[{"variation":1,"angle":"Pain Point","hook":"...","primary_text":"...","headline":"...","description":"...","cta":"SHOP_NOW","image_prompt":"...","psychology":"..."},{"variation":2,"angle":"Social Proof","hook":"...","primary_text":"...","headline":"...","description":"...","cta":"SHOP_NOW","image_prompt":"...","psychology":"..."},{"variation":3,"angle":"FOMO/Urgency","hook":"...","primary_text":"...","headline":"...","description":"...","cta":"SHOP_NOW","image_prompt":"...","psychology":"..."}],"video_script":{"hook_3s":"...","body_7s":"...","cta_5s":"...","caption":"..."},"targeting":{"age_range":"...","interests":["..."],"behaviors":["..."],"lookalike_note":"..."},"budget_strategy":{"daily_budget":${parseFloat(budget) || 20},"testing_phase":"...","scaling_trigger":"...","expected_roas":"..."}}
+
+Use AU English. Make hooks punchy and specific to the product. Each ad_set must have a different angle.`;
+
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'generate_meta_campaign',
-          product,
-          objective,
-          budget_daily: parseFloat(budget) || 20,
+          toolName: 'ai-chat',
+          messages: [{ role: 'user', content: prompt }],
+          stream: false,
         }),
       });
-      const data = await res.json();
-      if (!data.ok) throw new Error(data.error || 'Generation failed');
-      setCampaign(data.campaign);
-      if (data.note) setNote(data.note);
+      const data = await res.json() as { reply?: string };
+      if (!data.reply) throw new Error('No response from AI');
+      const cleaned = (data.reply || '').replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
+      const parsed = JSON.parse(cleaned) as Campaign;
+      setCampaign(parsed);
     } catch (e: any) {
       toast.error(e.message);
     } finally {

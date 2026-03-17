@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { Calculator, Share2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -382,6 +383,7 @@ export default function ProfitCalculator() {
         fontFamily: 'DM Sans, sans-serif',
       }}
     >
+      <Helmet><title>Profit Calculator | Majorka</title></Helmet>
       {/* Header */}
       <div
         style={{

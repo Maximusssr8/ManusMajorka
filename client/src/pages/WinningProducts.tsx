@@ -3,6 +3,7 @@
  * No framer-motion, no SVG gauges, no localStorage, no CountUp.
  */
 
+import { Helmet } from 'react-helmet-async';
 import { Component, ErrorInfo, ReactNode } from 'react';
 import {
   BarChart2,

@@ -4,6 +4,7 @@
  * Schema: name, niche, estimated_retail_aud, estimated_margin_pct,
  *         trend_score, dropship_viability_score, trend_reason, refreshed_at
  */
+import { Helmet } from 'react-helmet-async';
 import {
   ArrowDown,
   ArrowUp,

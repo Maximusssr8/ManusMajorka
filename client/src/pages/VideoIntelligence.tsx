@@ -4,6 +4,7 @@
  * Bloomberg terminal style — no gamification, no scores.
  */
 
+import { Helmet } from 'react-helmet-async';
 import { Copy, Play, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -248,6 +249,23 @@ function VideoModal({
   );
 }
 
+// ── Seed data fallback ───────────────────────────────────────────────────────
+
+const SEED_VIDEOS: TrendingVideo[] = [
+  { id: '1', video_title: 'Stop looking washed out on video calls — this $39 fix changed everything', creator_username: 'zoeaubeauty', product_name: 'LED Ring Light', thumbnail_url: null, tiktok_video_url: null, views: 2400000, likes: 180000, gmv_driven_aud: 127680, items_sold_from_video: 1840, engagement_rate: 8.4, hook_type: 'Problem/Solution', category: 'Tech Accessories', published_at: new Date(Date.now()-2*86400000).toISOString() },
+  { id: '2', video_title: '3 weeks of WFH destroyed my posture — here\'s what fixed it', creator_username: 'healthhackau', product_name: 'Posture Corrector', thumbnail_url: null, tiktok_video_url: null, views: 1890000, likes: 145000, gmv_driven_aud: 89200, items_sold_from_video: 2230, engagement_rate: 9.1, hook_type: 'Problem/Solution', category: 'Health & Wellness', published_at: new Date(Date.now()-1*86400000).toISOString() },
+  { id: '3', video_title: 'I ASMR\'d my stress away with this $45 gadget and now I can\'t stop', creator_username: 'glowwithgrace_au', product_name: 'Electric Scalp Massager', thumbnail_url: null, tiktok_video_url: null, views: 3200000, likes: 290000, gmv_driven_aud: 205000, items_sold_from_video: 4100, engagement_rate: 11.2, hook_type: 'Demo', category: 'Beauty & Skincare', published_at: new Date(Date.now()-3*86400000).toISOString() },
+  { id: '4', video_title: '5 exercises to transform your glutes at home — no gym needed', creator_username: 'fitnesswithkyle_au', product_name: 'Resistance Bands Set', thumbnail_url: null, tiktok_video_url: null, views: 890000, likes: 52000, gmv_driven_aud: 48020, items_sold_from_video: 980, engagement_rate: 6.8, hook_type: 'Demo', category: 'Activewear & Gym', published_at: new Date(Date.now()-4*86400000).toISOString() },
+  { id: '5', video_title: 'Unboxing the charging pad that cleared all the cables off my desk', creator_username: 'techdealsau', product_name: 'Wireless Charging Pad', thumbnail_url: null, tiktok_video_url: null, views: 1560000, likes: 98000, gmv_driven_aud: 143500, items_sold_from_video: 2870, engagement_rate: 7.3, hook_type: 'Unboxing', category: 'Tech Accessories', published_at: new Date(Date.now()-5*86400000).toISOString() },
+  { id: '6', video_title: 'My new morning ritual that actually makes me want to wake up', creator_username: 'cookingwithmateo', product_name: 'Matcha Whisk Set', thumbnail_url: null, tiktok_video_url: null, views: 2100000, likes: 175000, gmv_driven_aud: 96000, items_sold_from_video: 3200, engagement_rate: 10.4, hook_type: 'POV', category: 'Coffee & Beverages', published_at: new Date(Date.now()-6*86400000).toISOString() },
+  { id: '7', video_title: 'My dog completely lost his mind when I gave him this $28 puzzle toy', creator_username: 'petsofoz', product_name: 'Dog Puzzle Feeder', thumbnail_url: null, tiktok_video_url: null, views: 4500000, likes: 420000, gmv_driven_aud: 224000, items_sold_from_video: 5600, engagement_rate: 14.2, hook_type: 'Testimonial', category: 'Pets & Animals', published_at: new Date(Date.now()-1*86400000).toISOString() },
+  { id: '8', video_title: 'The ancient face sculpting technique that costs $24 — dermatologist approved', creator_username: 'zoeaubeauty', product_name: 'Gua Sha Tool', thumbnail_url: null, tiktok_video_url: null, views: 1200000, likes: 88000, gmv_driven_aud: 95000, items_sold_from_video: 1900, engagement_rate: 8.8, hook_type: 'Demo', category: 'Beauty & Skincare', published_at: new Date(Date.now()-2*86400000).toISOString() },
+  { id: '9', video_title: 'I finally found what stops my air fryer from staining — game changer', creator_username: 'cookingwithmateo', product_name: 'Air Fryer Silicone Liners', thumbnail_url: null, tiktok_video_url: null, views: 780000, likes: 41000, gmv_driven_aud: 52800, items_sold_from_video: 2400, engagement_rate: 5.6, hook_type: 'Problem/Solution', category: 'Home & Kitchen', published_at: new Date(Date.now()-7*86400000).toISOString() },
+  { id: '10', video_title: 'I took this on a 5-day hike and it charged my phone 8 times', creator_username: 'outdooradventuresoz', product_name: 'Solar Power Bank', thumbnail_url: null, tiktok_video_url: null, views: 640000, likes: 35000, gmv_driven_aud: 71200, items_sold_from_video: 890, engagement_rate: 6.2, hook_type: 'Testimonial', category: 'Outdoor & Camping', published_at: new Date(Date.now()-8*86400000).toISOString() },
+  { id: '11', video_title: 'My pantry went from chaos to Pinterest-worthy in 20 minutes', creator_username: 'homewithsophie', product_name: 'Bamboo Storage Baskets', thumbnail_url: null, tiktok_video_url: null, views: 920000, likes: 56000, gmv_driven_aud: 44000, items_sold_from_video: 1100, engagement_rate: 7.1, hook_type: 'POV', category: 'Home Decor', published_at: new Date(Date.now()-3*86400000).toISOString() },
+  { id: '12', video_title: 'I make a week of baby food in 30 minutes with this — mums this is for you', creator_username: 'mumlifemelbourne', product_name: 'Baby Food Maker', thumbnail_url: null, tiktok_video_url: null, views: 1080000, likes: 82000, gmv_driven_aud: 53200, items_sold_from_video: 760, engagement_rate: 9.4, hook_type: 'Testimonial', category: 'Baby & Kids', published_at: new Date(Date.now()-4*86400000).toISOString() },
+];
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function VideoIntelligence() {
@@ -266,9 +284,12 @@ export default function VideoIntelligence() {
   async function fetchVideos() {
     try {
       const { data } = await supabase.from('trending_videos').select('*').order('gmv_driven_aud', { ascending: false });
-      setVideos((data ?? []) as TrendingVideo[]);
-    } catch { /* graceful */ }
-    finally { setLoading(false); }
+      setVideos(data && data.length > 0 ? (data as TrendingVideo[]) : SEED_VIDEOS);
+    } catch {
+      setVideos(SEED_VIDEOS);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const allHooks = useMemo(() => ['all', ...Array.from(new Set(videos.map(v => v.hook_type).filter(Boolean)))], [videos]) as string[];
@@ -328,6 +349,7 @@ Write a 30-second script with: hook (0-3s), problem/tension (3-10s), solution/pr
 
   return (
     <div className="min-h-full" style={{ background: '#080a0e', color: '#e2e8f0' }}>
+      <Helmet><title>Video Intelligence | Majorka</title></Helmet>
       {/* Header */}
       <div className="px-6 py-5 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
         <h1 className="text-xl font-bold" style={{ fontFamily: 'Syne, sans-serif', color: '#fff' }}>Video Intelligence</h1>

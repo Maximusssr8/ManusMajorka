@@ -202,6 +202,39 @@ Critical rules:
   }
 }
 
+async function extractOGMeta(url: string): Promise<{ title: string; description: string; imageUrl: string; } | null> {
+  const HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
+    'Accept': 'text/html,application/xhtml+xml',
+    'Accept-Language': 'en-AU,en;q=0.9',
+    'Cache-Control': 'no-cache',
+  };
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    const resp = await fetch(url, { headers: HEADERS, signal: controller.signal, redirect: 'follow' });
+    clearTimeout(timeout);
+    if (!resp.ok) return null;
+    const html = await resp.text();
+    const ogTitle = html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i)?.[1]
+                 || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']/i)?.[1]
+                 || html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1] || '';
+    const ogDesc = html.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i)?.[1]
+                || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:description["']/i)?.[1]
+                || html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i)?.[1] || '';
+    const ogImage = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)?.[1]
+                 || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i)?.[1] || '';
+    if (!ogTitle) return null;
+    return {
+      title: ogTitle.trim().slice(0, 200),
+      description: ogDesc.trim().slice(0, 500),
+      imageUrl: ogImage.startsWith('//') ? `https:${ogImage}` : ogImage,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function scrapeProductData(url: string): Promise<ScrapeResult> {
   let rawTitle = '';
   let rawDescription = '';
@@ -212,6 +245,15 @@ export async function scrapeProductData(url: string): Promise<ScrapeResult> {
   let rawColors: string[] = [];
   let rawSizes: string[] = [];
   let rawText = '';
+
+  // Fast path: OG meta tags (reliable, instant)
+  const ogData = await extractOGMeta(url);
+  if (ogData?.title) {
+    rawTitle = ogData.title;
+    rawDescription = ogData.description;
+    if (ogData.imageUrl) rawImageUrls = [ogData.imageUrl];
+    console.log('[scrape] OG meta extracted:', { title: rawTitle.slice(0, 60), hasImage: !!ogData.imageUrl });
+  }
 
   // ── Firecrawl AI extraction (primary) ───────────────────────────────────
   const firecrawlKey = process.env.FIRECRAWL_API_KEY;

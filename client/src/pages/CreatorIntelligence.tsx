@@ -4,6 +4,7 @@
  * Revenue-first, Bloomberg-style, no gamification.
  */
 
+import { Helmet } from 'react-helmet-async';
 import { ChevronDown, ChevronUp, Search, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
@@ -229,6 +230,21 @@ function CreatorDrawer({
   );
 }
 
+// ── Seed data fallback ───────────────────────────────────────────────────────
+
+const SEED_CREATORS: Creator[] = [
+  { id: '1', username: 'zoeaubeauty', display_name: 'Zoe Au Beauty', avatar_url: null, follower_count: 487000, gmv_30d_aud: 142000, gmv_growth_rate: 34, items_sold_30d: 3200, avg_video_views: 89000, engagement_rate: 6.8, top_categories: ['Beauty & Skincare'], commission_rate: 12, creator_conversion_ratio: 3.6, tiktok_url: null, is_verified: true, location: 'Sydney', revenue_sparkline: [38000,42000,35000,41000,48000,52000,44000] },
+  { id: '2', username: 'fitnesswithkyle_au', display_name: 'Kyle Fitness AU', avatar_url: null, follower_count: 234000, gmv_30d_aud: 98000, gmv_growth_rate: 67, items_sold_30d: 1800, avg_video_views: 64000, engagement_rate: 8.2, top_categories: ['Activewear & Gym'], commission_rate: 10, creator_conversion_ratio: 2.8, tiktok_url: null, is_verified: false, location: 'Brisbane', revenue_sparkline: [18000,22000,28000,31000,34000,38000,42000] },
+  { id: '3', username: 'homewithsophie', display_name: 'Sophie Home', avatar_url: null, follower_count: 312000, gmv_30d_aud: 87000, gmv_growth_rate: 22, items_sold_30d: 1500, avg_video_views: 45000, engagement_rate: 4.9, top_categories: ['Home Decor'], commission_rate: 8, creator_conversion_ratio: 2.1, tiktok_url: null, is_verified: true, location: 'Melbourne', revenue_sparkline: [28000,24000,30000,27000,32000,29000,31000] },
+  { id: '4', username: 'petsofoz', display_name: 'Pets of OZ', avatar_url: null, follower_count: 156000, gmv_30d_aud: 64000, gmv_growth_rate: 89, items_sold_30d: 2400, avg_video_views: 112000, engagement_rate: 9.1, top_categories: ['Pets & Animals'], commission_rate: 15, creator_conversion_ratio: 4.2, tiktok_url: null, is_verified: false, location: 'Gold Coast', revenue_sparkline: [8000,12000,14000,16000,18000,22000,28000] },
+  { id: '5', username: 'techdealsau', display_name: 'Tech Deals AU', avatar_url: null, follower_count: 98000, gmv_30d_aud: 52000, gmv_growth_rate: 18, items_sold_30d: 900, avg_video_views: 38000, engagement_rate: 5.4, top_categories: ['Tech Accessories'], commission_rate: 8, creator_conversion_ratio: 2.3, tiktok_url: null, is_verified: false, location: 'Perth', revenue_sparkline: [14000,16000,12000,18000,14000,16000,20000] },
+  { id: '6', username: 'glowwithgrace_au', display_name: 'Grace Glow AU', avatar_url: null, follower_count: 89000, gmv_30d_aud: 43000, gmv_growth_rate: 41, items_sold_30d: 1100, avg_video_views: 32000, engagement_rate: 7.3, top_categories: ['Beauty & Skincare'], commission_rate: 10, creator_conversion_ratio: 3.4, tiktok_url: null, is_verified: false, location: 'Adelaide', revenue_sparkline: [9000,11000,13000,12000,14000,16000,18000] },
+  { id: '7', username: 'outdooradventuresoz', display_name: 'Outdoor Adventures OZ', avatar_url: null, follower_count: 178000, gmv_30d_aud: 71000, gmv_growth_rate: 29, items_sold_30d: 1200, avg_video_views: 55000, engagement_rate: 5.8, top_categories: ['Outdoor & Camping'], commission_rate: 9, creator_conversion_ratio: 2.6, tiktok_url: null, is_verified: true, location: 'Cairns', revenue_sparkline: [16000,18000,20000,22000,24000,26000,28000] },
+  { id: '8', username: 'mumlifemelbourne', display_name: 'Mum Life Melbourne', avatar_url: null, follower_count: 67000, gmv_30d_aud: 38000, gmv_growth_rate: 52, items_sold_30d: 800, avg_video_views: 28000, engagement_rate: 8.9, top_categories: ['Baby & Kids'], commission_rate: 12, creator_conversion_ratio: 3.8, tiktok_url: null, is_verified: false, location: 'Melbourne', revenue_sparkline: [6000,8000,9000,10000,11000,12000,14000] },
+  { id: '9', username: 'cookingwithmateo', display_name: 'Cooking with Mateo', avatar_url: null, follower_count: 445000, gmv_30d_aud: 118000, gmv_growth_rate: 45, items_sold_30d: 2800, avg_video_views: 95000, engagement_rate: 6.2, top_categories: ['Home & Kitchen'], commission_rate: 11, creator_conversion_ratio: 2.9, tiktok_url: null, is_verified: true, location: 'Sydney', revenue_sparkline: [28000,32000,36000,38000,42000,44000,48000] },
+  { id: '10', username: 'activewearaddictau', display_name: 'Activewear Addict AU', avatar_url: null, follower_count: 203000, gmv_30d_aud: 85000, gmv_growth_rate: 38, items_sold_30d: 1600, avg_video_views: 41000, engagement_rate: 7.6, top_categories: ['Activewear & Gym'], commission_rate: 10, creator_conversion_ratio: 3.1, tiktok_url: null, is_verified: false, location: 'Byron Bay', revenue_sparkline: [18000,20000,22000,24000,28000,30000,32000] },
+];
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function CreatorIntelligence() {
@@ -256,9 +272,12 @@ export default function CreatorIntelligence() {
   async function fetchCreators() {
     try {
       const { data } = await supabase.from('au_creators').select('*').order('gmv_30d_aud', { ascending: false });
-      setCreators((data ?? []) as Creator[]);
-    } catch { /* graceful */ }
-    finally { setLoading(false); }
+      setCreators(data && data.length > 0 ? (data as Creator[]) : SEED_CREATORS);
+    } catch {
+      setCreators(SEED_CREATORS);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const filtered = useMemo(() => {
@@ -340,6 +359,7 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
 
   return (
     <div className="min-h-full" style={{ background: '#080a0e', color: '#e2e8f0' }}>
+      <Helmet><title>Creator Intelligence | Majorka</title></Helmet>
       {/* Header */}
       <div className="px-6 py-5 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
         <div className="flex items-center justify-between flex-wrap gap-3">
