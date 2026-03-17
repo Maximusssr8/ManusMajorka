@@ -61,7 +61,7 @@ router.get('/refresh-trends', async (req: Request, res: Response) => {
     const client = new Anthropic();
     const msg = await client.messages.create({
       model: 'claude-haiku-4-5',
-      max_tokens: 3000,
+      max_tokens: 5000,
       messages: [{
         role: 'user',
         content: `You are a product research expert for Australian dropshippers.
@@ -96,12 +96,21 @@ Only output the JSON array. No markdown.`
     });
 
     const rawText = msg.content[0].type === 'text' ? msg.content[0].text : '[]';
-    // Extract JSON array — handles both raw JSON and markdown-fenced responses
-    const jsonMatch = rawText.match(/\[[\s\S]*\]/);
+    // Extract JSON array — handles markdown fences and truncated responses
     let products: any[] = [];
     try {
-      if (!jsonMatch) throw new Error('No JSON array found');
-      products = JSON.parse(jsonMatch[0]);
+      // Try full array match first
+      const arrayMatch = rawText.match(/\[[\s\S]*\]/);
+      if (arrayMatch) {
+        products = JSON.parse(arrayMatch[0]);
+      } else {
+        // Truncated — extract complete objects via regex
+        const objMatches = rawText.matchAll(/\{[^{}]*"name"[^{}]*\}/g);
+        for (const m of objMatches) {
+          try { products.push(JSON.parse(m[0])); } catch { /* skip malformed */ }
+        }
+        if (products.length === 0) throw new Error('No JSON found');
+      }
     } catch {
       return res.status(500).json({ error: 'Claude parse failed', raw: rawText.slice(0, 200) });
     }
