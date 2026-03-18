@@ -1734,41 +1734,60 @@ section { padding: calc(var(--spacing-unit) * 4) 60px; }
 .cta { background: var(--color-primary); color: #000; border: none; padding: 14px 32px; border-radius: var(--border-radius); font-weight: 700; cursor: pointer; }
 --- END TECH ---`;
 
-    if (d.includes('minimal') || d.includes('bloom')) return `
---- BLOOM/MINIMAL TEMPLATE CSS ---
+    if (d.includes('minimal') || d.includes('bloom') || d.includes('beauty')) return `
+--- BLOOM BEAUTY TEMPLATE CSS (copy exactly, extend freely) ---
 :root {
-  --font-heading: '${headingFontName}', serif;
-  --font-body: '${bodyFontName}', sans-serif;
+  --font-heading: 'Cormorant Garamond', serif;
+  --font-body: 'Nunito', sans-serif;
   --color-primary: ${color};
-  --color-bg: #fffbf7;
-  --color-surface: #fff8f2;
-  --color-text: #2d2d2d;
-  --spacing-unit: 1.4rem;
+  --color-accent: #d4af37;
+  --spacing-unit: 1.3rem;
   --border-radius: 20px;
 }
-body { background: var(--color-bg); color: var(--color-text); }
-section { padding: calc(var(--spacing-unit) * 4) 80px; background: var(--color-bg); }
-h1 { font-weight: 400; font-style: italic; }
-.cta { background: var(--color-primary); color: #fff; border: none; padding: 14px 32px; border-radius: 50px; font-weight: 600; cursor: pointer; }
---- END BLOOM ---`;
+body { background: #fdf6f8; color: #4a2c35; }
+header { background: #fdf6f8; padding: calc(var(--spacing-unit)*2); border-bottom: 1px solid rgba(201,107,138,0.12); }
+header h1 { font-size: 2.6rem; color: #c96b8a; font-family: var(--font-heading); }
+.cta { background: linear-gradient(135deg, #c96b8a, #e8a0b4); color: #fff; border: none; padding: 0.9rem 1.8rem; border-radius: var(--border-radius); font-weight: 600; cursor: pointer; }
+.cta:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(201,107,138,0.3); }
+section { padding: calc(var(--spacing-unit)*4) 80px; }
+--- END BLOOM BEAUTY ---`;
 
-    // Default dark
-    return `
---- DEFAULT DARK TEMPLATE CSS ---
+    if (d.includes('mono')) return `
+--- TECH MONO TEMPLATE CSS (copy exactly, extend freely) ---
 :root {
-  --font-heading: '${headingFontName}', sans-serif;
-  --font-body: '${bodyFontName}', sans-serif;
+  --font-heading: 'JetBrains Mono', monospace;
+  --font-body: 'Inter', sans-serif;
   --color-primary: ${color};
-  --color-bg: #080a0e;
-  --color-surface: #0d1117;
-  --color-text: #e8eaf0;
-  --spacing-unit: 1.4rem;
-  --border-radius: 10px;
+  --color-accent: #58a6ff;
+  --spacing-unit: 1rem;
+  --border-radius: 4px;
 }
-body { background: var(--color-bg); color: var(--color-text); }
-section { padding: calc(var(--spacing-unit) * 4) 60px; }
-.cta { background: var(--color-primary); color: #000; border: none; padding: 16px 36px; border-radius: var(--border-radius); font-weight: 800; cursor: pointer; }
---- END DEFAULT ---`;
+body { background: #0a0f1e; color: #e0e6f0; }
+header { background: #0d1117; border-bottom: 1px solid #21262d; padding: calc(var(--spacing-unit)*2) 60px; display: flex; align-items: center; height: 70px; }
+header h1 { font-size: 1.4rem; color: #58a6ff; font-family: var(--font-heading); letter-spacing: 2px; }
+.cta { background: #238636; color: #fff; border: 1px solid #2ea043; padding: 0.8rem 1.6rem; border-radius: var(--border-radius); font-family: var(--font-heading); cursor: pointer; }
+.cta:hover { background: #2ea043; }
+section { padding: calc(var(--spacing-unit)*5) 60px; }
+--- END TECH MONO ---`;
+
+    // Default DTC Minimal
+    return `
+--- DTC MINIMAL TEMPLATE CSS (copy exactly, extend freely) ---
+:root {
+  --font-heading: 'Montserrat', sans-serif;
+  --font-body: 'Roboto', sans-serif;
+  --color-primary: ${color};
+  --color-accent: #d4af37;
+  --spacing-unit: 1rem;
+  --border-radius: 6px;
+}
+body { background: #080808; color: #ffffff; }
+header { background: rgba(8,8,8,0.95); backdrop-filter: blur(20px); padding: 0 60px; height: 70px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+header h1 { font-size: 1.4rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; font-family: var(--font-heading); color: #fff; }
+.cta { background: var(--color-primary); color: #fff; border: none; padding: 0.9rem 1.8rem; border-radius: var(--border-radius); font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+.cta:hover { opacity: 0.9; transform: translateY(-2px); }
+section { padding: calc(var(--spacing-unit)*5) 60px; }
+--- END DTC MINIMAL ---`;
   };
 
   const templateCSSSnippet = getTemplateCSSSnippet(designDirection as string);
@@ -1790,15 +1809,42 @@ ${templateCSSSnippet}
 
 ${templateOverride}
 
-═══ IRONCLAD RULES ═══
-1. store_name from JSON = "${briefBrandName}" — use it EXACTLY in <title>, nav logo, hero, footer copyright
-2. Use all values from the JSON brief above — testimonials, faq, colours, fonts, price, images
-3. Every <img>: onerror="this.onerror=null;this.parentElement.style.background='linear-gradient(135deg,rgba(${colorRgb},0.25),#111)';this.style.display='none'"
-4. Start your CSS from the template snippet above — extend it, don't replace it
-5. Each section: min padding 80px top/bottom (desktop) — NO empty boxes, NO placeholder text
-6. Price "$${displayPrice} AUD" + Afterpay "$${afterpayAmt}" in product section
-7. Google Fonts: load both ${headingFontName} + ${bodyFontName} in <head>
-8. @media(max-width:768px) block at end — single column, padding 60px 20px
+CRITICAL RULES (MUST OBEY ALL):
+
+1. BRAND NAME GUARD: The exact string "${briefBrandName}" MUST appear in:
+   - The <title> tag
+   - The nav/header logo
+   - The <footer> copyright
+   - At least one <h1> or <h2> in the main content
+   Never write "Product from AU", "My Store", "Brand Name" or any placeholder.
+   After drafting, count occurrences. If fewer than 4, fix before output.
+
+2. NO EMPTY SECTIONS: Every <section> must contain visible content.
+   No section with just a background colour and nothing else.
+   Minimum padding: 80px top and bottom on desktop.
+
+3. TEMPLATE CSS: Start your CSS with the EXACT snippet provided above.
+   Keep the font-family, header background, and CTA style from it.
+   You may add more rules on top — do not remove the base rules.
+
+4. CSS VARIABLES: Use these in your :root:
+   --color-primary: ${color};
+   --color-accent: #d4af37;
+   All colour references must use these variables where possible.
+
+5. REAL COPY ONLY: No lorem ipsum. Use the brand brief JSON above.
+   Write benefit-driven bullet points starting with action verbs.
+
+6. COMPLETE OUTPUT: Output the full HTML from <!DOCTYPE html> to </html>.
+   Do not use ellipsis (...) or HTML comments to skip sections.
+
+7. MINIMUM LENGTH: Output must be at least 600 lines of HTML.
+
+8. MOBILE RESPONSIVE: Include @media (max-width: 768px) block.
+   All grid columns stack vertically. Touch targets minimum 44px height.
+
+9. Use all values from JSON brief: testimonials, faq, colours, fonts, price, images
+10. Every <img>: onerror="this.onerror=null;this.parentElement.style.background='linear-gradient(135deg,rgba(${colorRgb},0.25),#111)';this.style.display='none'"
 
 ═══ REQUIRED SECTIONS ═══
 
@@ -2083,27 +2129,51 @@ body { background: var(--bg); color: var(--text); font-family: var(--body-font);
   progress(92, '🏗️ Finalising your store...');
   let workingHtml = fullText;
 
-  // Quality check — retry if output is truncated or missing brand name
-  const isGoodOutput = (html: string) => {
-    const hasBrand = html.includes(briefBrandName) || briefBrandName.length < 3;
-    const hasFooter = html.includes('</footer>') || html.includes('id="footer"') || html.includes('class="footer"');
-    const isLong = html.length > 25000;
-    const hasClose = html.includes('</html>');
-    console.log(`[quality] length:${html.length} hasBrand:${hasBrand} hasFooter:${hasFooter} isLong:${isLong} hasClose:${hasClose}`);
-    if (!hasBrand) console.warn(`[quality] Missing brand name "${briefBrandName}"`);
-    if (!hasFooter) console.warn(`[quality] Missing footer — likely truncated`);
-    if (!isLong) console.warn(`[quality] Too short: ${html.length} chars`);
-    return isLong && hasClose && hasBrand;
+  // ── Quality validator (Nemotron spec) ─────────────────────────────────────
+  const MIN_LENGTH = 20000;
+  const validateGeneration = (html: string, brandName: string) => {
+    const issues: string[] = [];
+
+    if (html.length < MIN_LENGTH) {
+      issues.push(`Too short: ${html.length} chars (min ${MIN_LENGTH})`);
+    }
+
+    const escapedName = brandName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const nameCount = brandName.length >= 3
+      ? (html.match(new RegExp(escapedName, 'gi')) || []).length
+      : 4;
+    if (nameCount < 4) {
+      issues.push(`Brand name "${brandName}" only appears ${nameCount} times (min 4)`);
+    }
+
+    if (!html.includes('</html>')) {
+      issues.push('HTML truncated — missing </html>');
+    }
+
+    const emptySections = (html.match(/<section[^>]*>\s*<\/section>/gi) || []).length;
+    if (emptySections > 0) {
+      issues.push(`${emptySections} empty section(s) found`);
+    }
+
+    const hasFooter = html.includes('</footer>') || /id="footer"|class="footer"/.test(html);
+    if (!hasFooter) {
+      issues.push('Missing footer — likely truncated');
+    }
+
+    return { valid: issues.length === 0, issues };
   };
 
-  if (!isGoodOutput(workingHtml)) {
-    console.warn(`[website-api] Quality check FAILED — length:${workingHtml.length}. Retrying with 16000 tokens...`);
+  const validation = validateGeneration(workingHtml, briefBrandName);
+  console.log(`[quality] length:${workingHtml.length} valid:${validation.valid}`, validation.issues);
+
+  if (!validation.valid) {
+    console.warn('[website-api] Quality FAILED:', validation.issues.join('; '), '— retrying with 18000 tokens...');
     progress(93, '🔄 Enhancing quality...');
 
     try {
       const retryStream = client.messages.stream({
         model: CLAUDE_MODEL,
-        max_tokens: 16000,
+        max_tokens: 18000,
         temperature: 0.6,
         system: singlePassSystem,
         messages: [{ role: 'user', content: singlePassUser }],
@@ -2116,9 +2186,15 @@ body { background: var(--bg); color: var(--text); font-family: var(--body-font);
         }
       }
 
-      if (retryText.length > workingHtml.length) {
+      const retryValidation = validateGeneration(retryText, briefBrandName);
+      console.log(`[quality] retry length:${retryText.length} valid:${retryValidation.valid}`);
+
+      // Use retry if it's better (longer or passes validation)
+      if (retryText.length > workingHtml.length || retryValidation.valid) {
         workingHtml = retryText;
-        console.log(`[website-api] Retry succeeded — length:${workingHtml.length}`);
+        console.log(`[website-api] Using retry output — ${retryValidation.valid ? 'PASSED' : 'still failing but longer'}`);
+      } else {
+        console.log('[website-api] Keeping original — retry was not an improvement');
       }
     } catch (retryErr) {
       console.warn('[website-api] Retry failed:', retryErr);
@@ -2126,7 +2202,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--body-font);
   }
 
   const finalHtml = postProcessHtml(workingHtml, storeName_, niche, color, colorRgb, surfColor, bgColor, cardRadius);
-  console.log(`[website-api] Final HTML size: ${(finalHtml.length / 1024).toFixed(1)}kb`);
+  console.log(`[website-api] Final HTML size: ${(finalHtml.length / 1024).toFixed(1)}kb — valid:${validateGeneration(finalHtml, briefBrandName).valid}`);
 
   progress(100, '✅ Your store is ready!');
   return { html: finalHtml, manifest: manifestJson };
