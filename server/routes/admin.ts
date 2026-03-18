@@ -307,4 +307,101 @@ router.post('/backfill-shops', requireAuth, requireAdmin, async (req: Request, r
   }
 });
 
+// POST /api/admin/seed-real-products
+// Fetches real product images from Pexels for all trend_signals rows
+router.post('/seed-real-products', requireAdmin, async (req: Request, res: Response) => {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  const pexelsKey = process.env.PEXELS_API_KEY || '';
+
+  if (!pexelsKey) {
+    return res.status(500).json({ error: 'PEXELS_API_KEY not configured' });
+  }
+
+  // Fetch all products
+  const productsRes = await fetch(
+    `${supabaseUrl}/rest/v1/trend_signals?select=id,name,niche&limit=200`,
+    { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+  );
+  const products: Array<{ id: string; name: string; niche: string }> = await productsRes.json();
+
+  if (!Array.isArray(products)) {
+    return res.status(500).json({ error: 'Failed to fetch products', raw: products });
+  }
+
+  const results: Array<{ name: string; image_url: string | null; status: string }> = [];
+
+  for (const product of products) {
+    try {
+      // Search Pexels with product name (trim to key words)
+      const searchQuery = product.name
+        .toLowerCase()
+        .replace(/\b(with|and|for|the|a|an|&)\b/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .split(' ')
+        .slice(0, 4)
+        .join(' ');
+
+      const pexelsRes = await fetch(
+        `https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=1&orientation=square`,
+        { headers: { Authorization: pexelsKey } }
+      );
+      const pexelsData: any = await pexelsRes.json();
+      const photo = pexelsData?.photos?.[0];
+
+      if (!photo) {
+        // Fallback: search by niche
+        const nicheRes = await fetch(
+          `https://api.pexels.com/v1/search?query=${encodeURIComponent(product.niche + ' product')}&per_page=1&orientation=square`,
+          { headers: { Authorization: pexelsKey } }
+        );
+        const nicheData: any = await nicheRes.json();
+        const nichePhoto = nicheData?.photos?.[0];
+        if (nichePhoto) {
+          const imageUrl = nichePhoto.src.medium || nichePhoto.src.small;
+          await fetch(`${supabaseUrl}/rest/v1/trend_signals?id=eq.${product.id}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              apikey: supabaseKey,
+              Authorization: `Bearer ${supabaseKey}`,
+            },
+            body: JSON.stringify({ image_url: imageUrl }),
+          });
+          results.push({ name: product.name, image_url: imageUrl, status: 'niche-fallback' });
+        } else {
+          results.push({ name: product.name, image_url: null, status: 'no-image' });
+        }
+      } else {
+        const imageUrl = photo.src.medium || photo.src.small;
+        await fetch(`${supabaseUrl}/rest/v1/trend_signals?id=eq.${product.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
+          },
+          body: JSON.stringify({ image_url: imageUrl }),
+        });
+        results.push({ name: product.name, image_url: imageUrl, status: 'ok' });
+      }
+
+      // 300ms delay to respect rate limits
+      await new Promise(r => setTimeout(r, 300));
+    } catch (err: any) {
+      results.push({ name: product.name, image_url: null, status: `error: ${err.message}` });
+    }
+  }
+
+  const successCount = results.filter(r => r.image_url).length;
+  res.json({
+    success: true,
+    total: products.length,
+    updated: successCount,
+    failed: products.length - successCount,
+    sample: results.slice(0, 5),
+  });
+});
+
 export default router;

@@ -240,10 +240,17 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 }}
               >
                 <div style={{ position: 'relative' }}>
-                  <img src={getProductImage(p.name, 150)} alt={p.name}
-                    style={{ width: '100%', height: 88, objectFit: 'cover', display: 'block' }}
-                    onError={e => { e.currentTarget.src = `https://picsum.photos/seed/fallback-${idx}/150/150`; e.currentTarget.onerror = null; }}
-                  />
+                  {p.image_url ? (
+                    <img src={p.image_url} alt={p.name}
+                      style={{ width: '100%', height: 88, objectFit: 'cover', display: 'block' }}
+                      onError={e => { e.currentTarget.src = getProductImage(p.name, 150); e.currentTarget.onerror = null; }}
+                    />
+                  ) : (
+                    <img src={getProductImage(p.name, 150)} alt={p.name}
+                      style={{ width: '100%', height: 88, objectFit: 'cover', display: 'block' }}
+                      onError={e => { e.currentTarget.onerror = null; }}
+                    />
+                  )}
                   <div style={{
                     position: 'absolute', top: 6, left: 6,
                     width: 22, height: 22, borderRadius: '50%',
@@ -410,13 +417,23 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   {/* Product */}
                   <td style={{ padding: '12px 16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <img
-                        src={getProductImage(p.name, 56)}
-                        alt={p.name}
-                        width={56} height={56}
-                        style={{ borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid #1a1a2e' }}
-                        onError={e => { e.currentTarget.src = `https://picsum.photos/seed/product-fallback/56/56`; e.currentTarget.onerror = null; }}
-                      />
+                      {p.image_url ? (
+                        <img
+                          src={p.image_url}
+                          alt={p.name}
+                          width={56} height={56}
+                          style={{ borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid #1a1a2e' }}
+                          onError={e => { e.currentTarget.src = getProductImage(p.name, 56); e.currentTarget.onerror = null; }}
+                        />
+                      ) : (
+                        <img
+                          src={getProductImage(p.name, 56)}
+                          alt={p.name}
+                          width={56} height={56}
+                          style={{ borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid #1a1a2e' }}
+                          onError={e => { e.currentTarget.onerror = null; }}
+                        />
+                      )}
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontSize: 14, fontWeight: 700, color: '#f0ede8', marginBottom: 4, lineHeight: 1.3 }}>
                           {p.name}
