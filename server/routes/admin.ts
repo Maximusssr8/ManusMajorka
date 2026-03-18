@@ -405,13 +405,13 @@ router.post('/seed-real-products', requireAdmin, async (req: Request, res: Respo
 });
 
 // POST /api/admin/seed-real-images
-// Seeds real AliExpress product images for all trend_signals rows
+// Seeds real TikTok Shop product images for all trend_signals rows via SociaVault
 router.post('/seed-real-images', requireAdmin, async (req: Request, res: Response) => {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-  const rapidApiKey = process.env.RAPIDAPI_KEY || '';
+  const sociavaultKey = process.env.SOCIAVAULT_API_KEY || '';
 
-  if (!rapidApiKey) return res.status(500).json({ error: 'RAPIDAPI_KEY not set' });
+  if (!sociavaultKey) return res.status(500).json({ error: 'SOCIAVAULT_API_KEY not set' });
 
   // Fetch all products
   const productsRes = await fetch(
@@ -433,47 +433,31 @@ router.post('/seed-real-images', requireAdmin, async (req: Request, res: Respons
     await new Promise(r => setTimeout(r, 400));
 
     try {
+      // Build a clean search query from product name
+      const stop = new Set(['with','and','for','the','a','an','of','in','to','set','pack','bundle','usb','led']);
+      const keywords = product.name.toLowerCase().replace(/[&()\-]/g,' ').split(/\s+/)
+        .filter(w => w.length > 2 && !stop.has(w)).slice(0, 4).join(' ');
+
       const apiRes = await fetch(
-        `https://aliexpress-datahub.p.rapidapi.com/item_search_2?q=${encodeURIComponent(product.name)}&page=1&sort=default`,
-        {
-          headers: {
-            'X-RapidAPI-Key': rapidApiKey,
-            'X-RapidAPI-Host': 'aliexpress-datahub.p.rapidapi.com',
-          },
-        }
+        `https://api.sociavault.com/v1/scrape/tiktok-shop/search?query=${encodeURIComponent(keywords)}&limit=1`,
+        { headers: { 'X-Api-Key': sociavaultKey } }
       );
       const data: any = await apiRes.json();
 
-      // Log first product full response
       if (i === 0) {
         firstResponse = data;
         console.log('[seed-real-images] first response:', JSON.stringify(data, null, 2).slice(0, 2000));
       }
 
-      const resultList: any[] =
-        data?.result?.resultList ||
-        data?.result?.items ||
-        data?.resultList ||
-        data?.items ||
-        [];
-
-      const item = resultList[0]?.item || resultList[0] || null;
-      const imageUrl: string | null =
-        item?.image ||
-        item?.productMainImageUrl ||
-        item?.imageUrl ||
-        item?.pic ||
-        item?.picUrl ||
-        null;
+      const productsObj: Record<string, any> = data?.data?.products ?? {};
+      const firstProduct: any = productsObj['0'] ?? Object.values(productsObj)[0] ?? null;
+      const urlList: Record<string, string> = firstProduct?.image?.url_list ?? {};
+      const imageUrl: string | null = urlList['0'] ?? (Object.values(urlList)[0] as string) ?? null;
 
       if (imageUrl) {
         await fetch(`${supabaseUrl}/rest/v1/trend_signals?id=eq.${product.id}`, {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            apikey: supabaseKey,
-            Authorization: `Bearer ${supabaseKey}`,
-          },
+          headers: { 'Content-Type': 'application/json', apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
           body: JSON.stringify({ image_url: imageUrl }),
         });
         updated++;
@@ -493,6 +477,88 @@ router.post('/seed-real-images', requireAdmin, async (req: Request, res: Respons
     failed,
     first_response_keys: firstResponse ? Object.keys(firstResponse) : [],
     first_response_sample: firstResponse ? JSON.stringify(firstResponse).slice(0, 1500) : null,
+  });
+});
+
+// POST /api/admin/seed-tiktok-products
+// Searches 20 TikTok Shop keywords and upserts products into trend_signals
+router.post('/seed-tiktok-products', requireAdmin, async (req: Request, res: Response) => {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  const sociavaultKey = process.env.SOCIAVAULT_API_KEY || '';
+
+  if (!sociavaultKey) return res.status(500).json({ error: 'SOCIAVAULT_API_KEY not set' });
+
+  const KEYWORDS = [
+    'posture corrector','led strip lights','wireless earbuds','resistance bands',
+    'facial serum','gua sha tool','ring light','yoga mat','massage gun',
+    'bluetooth speaker','acne patches','silk pillowcase','dog harness',
+    'wireless charger','magnetic lashes','teeth whitening','hair growth serum',
+    'electric face massager','under eye patches','compression socks',
+  ];
+
+  const results: any[] = [];
+  let firstResponse: any = null;
+  let upserted = 0;
+
+  for (let i = 0; i < KEYWORDS.length; i++) {
+    const keyword = KEYWORDS[i];
+    await new Promise(r => setTimeout(r, 600));
+
+    try {
+      const apiRes = await fetch(
+        `https://api.sociavault.com/v1/scrape/tiktok-shop/search?query=${encodeURIComponent(keyword)}&limit=5`,
+        { headers: { 'X-Api-Key': sociavaultKey } }
+      );
+      const data: any = await apiRes.json();
+      if (i === 0) {
+        firstResponse = data;
+        console.log('[seed-tiktok] first response:', JSON.stringify(data, null, 2).slice(0, 2000));
+      }
+
+      const productsObj: Record<string, any> = data?.data?.products ?? {};
+      for (const p of Object.values(productsObj).slice(0, 3)) {
+        const urlList: Record<string, string> = p?.image?.url_list ?? {};
+        const imageUrl = urlList['0'] ?? (Object.values(urlList)[0] as string) ?? null;
+        const priceUsd = parseFloat(p?.product_price_info?.sale_price_decimal ?? '0');
+
+        if (!p.title || !imageUrl) continue;
+
+        const row = {
+          name: p.title.slice(0, 120),
+          niche: keyword.charAt(0).toUpperCase() + keyword.slice(1),
+          image_url: imageUrl,
+          estimated_retail_aud: priceUsd ? Math.round(priceUsd * 1.55) : null,
+          estimated_margin_pct: 55,
+          trend_score: Math.min(99, 60 + Math.floor(Math.random() * 35)),
+          dropship_viability_score: 75,
+          trend_reason: `Trending on TikTok Shop with ${(p?.sold_info?.sold_count ?? 0).toLocaleString()} sales`,
+          source: 'tiktok_shop',
+        };
+
+        await fetch(`${supabaseUrl}/rest/v1/trend_signals`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Prefer': 'resolution=merge-duplicates',
+            apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}`,
+          },
+          body: JSON.stringify(row),
+        });
+        upserted++;
+        results.push({ keyword, name: row.name, image_url: imageUrl });
+      }
+    } catch (err: any) {
+      console.error(`[seed-tiktok] error for ${keyword}:`, err.message);
+    }
+  }
+
+  res.json({
+    success: true,
+    keywords_searched: KEYWORDS.length,
+    products_upserted: upserted,
+    first_response_sample: firstResponse ? JSON.stringify(firstResponse).slice(0, 2000) : null,
+    sample_results: results.slice(0, 5),
   });
 });
 
