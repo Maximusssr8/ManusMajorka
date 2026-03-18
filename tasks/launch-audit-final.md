@@ -148,3 +148,4 @@ Majorka is ready to announce to first customers. The platform has a clean, focus
 1. **Stripe webhook** — Register `https://majorka.io/api/stripe/webhook` at stripe.com → Webhooks. Copy `whsec_` → update STRIPE_WEBHOOK_SECRET in Vercel.
 2. **Supabase tables** — Run the SQL for `user_onboarding` and `user_watchlist` in dashboard (SQL in earlier audit notes).
 3. **Sentry DSN** — Sign up at sentry.io → create project → add DSN to Vercel env as `SENTRY_DSN` and `VITE_SENTRY_DSN`.
+# Updated Wed Mar 18 10:40:50 AEST 2026
