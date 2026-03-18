@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/lib/supabase';
 
 const TrendSignals = lazy(() => import('./TrendSignals'));
+const FullDatabase = lazy(() => import('./intelligence/FullDatabase'));
 const ProductDiscovery = lazy(() => import('./ProductDiscovery'));
 
 type TabKey = 'trending' | 'database' | 'scout';
@@ -189,7 +190,7 @@ export default function ProductIntelligence() {
         )}
         {tab === 'database' && (
           <Suspense fallback={<div style={{ textAlign: 'center', padding: 60, color: C.muted }}>Loading...</div>}>
-            <TrendSignals />
+            <FullDatabase />
           </Suspense>
         )}
         {tab === 'scout' && (

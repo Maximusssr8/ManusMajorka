@@ -307,28 +307,31 @@ app.post("/api/import-product", async (req: Request, res: Response) => {
 // ── Public trend signals API ──────────────────────────────────────────────
 app.get("/api/trend-signals", async (req: Request, res: Response) => {
   try {
-    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
-    const limit = Math.min(parseInt(req.query.limit as string || '50', 10), 100);
-    const sort = req.query.sort as string || 'trend_score';
-    const validSorts = ['trend_score', 'estimated_retail_aud', 'dropship_viability_score', 'refreshed_at'];
-    const sortCol = validSorts.includes(sort) ? sort : 'trend_score';
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseKey) {
+      res.json([]);
+      return;
+    }
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
-    const resp = await fetch(
-      `${supabaseUrl}/rest/v1/trend_signals?select=*&order=${sortCol}.desc&limit=${limit}`,
-      { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
-    );
+    const { niche, sortBy, sortDir, search, limit = '100' } = req.query as Record<string, string>;
 
-    if (!resp.ok) throw new Error(`Supabase error: ${resp.status}`);
-    const rows = await resp.json();
+    const validSorts = ['est_monthly_revenue_aud', 'growth_rate_pct', 'trend_score', 'dropship_viability_score', 'items_sold_monthly', 'winning_score', 'name', 'estimated_retail_aud'];
+    const col = validSorts.includes(sortBy) ? sortBy : 'winning_score';
+    const asc = sortDir === 'asc';
 
-    res.json({
-      products: rows,
-      total: rows.length,
-      refreshed_at: rows[0]?.refreshed_at || null,
-    });
+    let query = supabaseAdmin.from('trend_signals').select('*').limit(Math.min(200, parseInt(limit) || 100));
+    if (niche && niche !== 'All Niches') query = query.eq('niche', niche);
+    if (search) query = query.ilike('name', `%${search}%`);
+    query = query.order(col, { ascending: asc, nullsFirst: false });
+
+    const { data, error } = await query;
+    if (error) { res.status(500).json({ error: error.message }); return; }
+    res.json(data || []);
   } catch (err: any) {
-    res.status(500).json({ error: err.message, products: [] });
+    res.status(500).json({ error: err.message });
   }
 });
 
