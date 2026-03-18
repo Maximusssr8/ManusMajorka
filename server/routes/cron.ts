@@ -5,91 +5,9 @@ import { createClient } from '@supabase/supabase-js';
 
 const router = Router();
 
-const NICHE_IMAGE_QUERIES: Record<string, string> = {
-  'Tech Accessories': 'technology,gadgets',
-  'Health & Wellness': 'wellness,health',
-  'Beauty & Skincare': 'skincare,beauty',
-  'Activewear & Gym': 'fitness,gym',
-  'Home Decor': 'interior,homedecor',
-  'Home & Kitchen': 'kitchen,home',
-  'Pets & Animals': 'pets,dog',
-  'Fashion & Apparel': 'fashion,clothing',
-  'Outdoor & Camping': 'outdoor,nature',
-  'Baby & Kids': 'baby,children',
-  'Jewellery & Accessories': 'jewelry,accessories',
-  'Coffee & Beverages': 'coffee,cafe',
-  'Supplements & Nutrition': 'supplements,nutrition',
-  'Electronics': 'electronics,technology',
-  'Sports Equipment': 'sports,equipment',
-  'Travel Accessories': 'travel,luggage',
-  'Garden & Plants': 'garden,plants',
-  'Art & Craft': 'art,craft',
-  'Office & Stationery': 'office,desk',
-  'Food & Gourmet': 'food,gourmet',
-  'Cleaning & Organisation': 'cleaning,minimal',
-  'Automotive': 'car,automotive',
-  'Photography': 'photography,camera',
-  'Music & Audio': 'music,headphones',
-};
-
-function getUnsplashUrl(niche: string): string {
-  const query = NICHE_IMAGE_QUERIES[niche] || niche.toLowerCase().replace(/\s*&\s*/g, ',').replace(/\s+/g, ',');
-  return `https://source.unsplash.com/200x200/?${encodeURIComponent(query)}`;
-}
-
-const PRODUCT_IMAGE_MAP: Record<string, string> = {
-  // Tech
-  'led strip': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop',
-  'earbuds': 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=80&h=80&fit=crop',
-  'charging': 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=80&h=80&fit=crop',
-  'phone': 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=80&h=80&fit=crop',
-  'speaker': 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=80&h=80&fit=crop',
-  'gimbal': 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=80&h=80&fit=crop',
-  'ring light': 'https://images.unsplash.com/photo-1558618047-f09c9dc5c58c?w=80&h=80&fit=crop',
-  'desk lamp': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop',
-  // Beauty
-  'serum': 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=80&h=80&fit=crop',
-  'face mask': 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=80&h=80&fit=crop',
-  'eye cream': 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=80&h=80&fit=crop',
-  'eyelash': 'https://images.unsplash.com/photo-1512207736890-6ffed8a84e8d?w=80&h=80&fit=crop',
-  'pimple': 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=80&h=80&fit=crop',
-  'gua sha': 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=80&h=80&fit=crop',
-  // Health
-  'posture': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=80&fit=crop',
-  'resistance band': 'https://images.unsplash.com/photo-1517963628607-235ccdd5476c?w=80&h=80&fit=crop',
-  'yoga': 'https://images.unsplash.com/photo-1601422407692-ec4eeec1d9b3?w=80&h=80&fit=crop',
-  'massage': 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=80&h=80&fit=crop',
-  // Home
-  'diffuser': 'https://images.unsplash.com/photo-1600857062241-98e5dba7f400?w=80&h=80&fit=crop',
-  'organiser': 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=80&h=80&fit=crop',
-  'organizer': 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=80&h=80&fit=crop',
-  // Pets
-  'dog': 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=80&h=80&fit=crop',
-  'cat': 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=80&h=80&fit=crop',
-  // Fashion
-  'jewel': 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=80&h=80&fit=crop',
-  'watch': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=80&h=80&fit=crop',
-};
-
-const NICHE_IMAGE_FALLBACK: Record<string, string> = {
-  'Tech Accessories': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=80&h=80&fit=crop',
-  'Beauty & Skincare': 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=80&h=80&fit=crop',
-  'Health & Wellness': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=80&fit=crop',
-  'Home Decor': 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=80&h=80&fit=crop',
-  'Activewear & Gym': 'https://images.unsplash.com/photo-1517963628607-235ccdd5476c?w=80&h=80&fit=crop',
-  'Pets & Animals': 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=80&h=80&fit=crop',
-  'Fashion & Apparel': 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=80&h=80&fit=crop',
-  'Jewellery & Accessories': 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=80&h=80&fit=crop',
-  'Outdoor & Camping': 'https://images.unsplash.com/photo-1533240332313-0db49b459ad6?w=80&h=80&fit=crop',
-  'Baby & Kids': 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=80&h=80&fit=crop',
-};
-
-function getProductImageUrl(name: string, niche: string): string {
-  const lower = name.toLowerCase();
-  for (const [key, url] of Object.entries(PRODUCT_IMAGE_MAP)) {
-    if (lower.includes(key)) return url;
-  }
-  return NICHE_IMAGE_FALLBACK[niche] || 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=80&h=80&fit=crop';
+function getPicsumUrl(productName: string, size = 80): string {
+  const seed = productName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 40);
+  return `https://picsum.photos/seed/${seed}/${size}/${size}`;
 }
 
 function getSupabaseAdmin() {
@@ -281,7 +199,7 @@ Return ONLY a JSON array of exactly 25 products. No markdown. Each object:
       ad_count_est: p.ad_count_est || Math.floor(Math.random() * 200 + 20),
       image_url: (imageUrls[i].status === 'fulfilled' && imageUrls[i].value)
         ? imageUrls[i].value
-        : getProductImageUrl(p.name || '', p.niche || ''),
+        : getPicsumUrl(p.name || 'product'),
       refreshed_at: new Date().toISOString(),
       source: 'cron',
     }));

@@ -272,4 +272,39 @@ router.post('/backfill-trend-signals', requireAuth, requireAdmin, async (req: Re
   }
 });
 
+// POST /api/admin/backfill-shops — compute items_sold_monthly from revenue/price
+router.post('/backfill-shops', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+    const shopsRes = await fetch(`${supabaseUrl}/rest/v1/shop_intelligence?select=id,est_revenue_aud,avg_unit_price_aud`, {
+      headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` },
+    });
+    const shops: any[] = await shopsRes.json();
+
+    let updated = 0;
+    for (const shop of shops) {
+      const avgPrice = shop.avg_unit_price_aud || 75;
+      const revenue = shop.est_revenue_aud || 50000;
+      const itemsSold = Math.round(revenue / avgPrice);
+
+      await fetch(`${supabaseUrl}/rest/v1/shop_intelligence?id=eq.${shop.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+        body: JSON.stringify({ items_sold_monthly: itemsSold }),
+      });
+      updated++;
+    }
+
+    res.json({ success: true, updated });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

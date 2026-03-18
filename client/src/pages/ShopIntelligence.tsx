@@ -14,6 +14,7 @@ interface Shop {
   revenue_trend: number[];
   growth_rate_pct: number;
   items_sold_est: number;
+  items_sold_monthly: number;
   avg_unit_price_aud: number;
   best_selling_products: { name: string; imageUrl: string }[];
   affiliate_revenue_aud: number;
@@ -30,6 +31,11 @@ function fmtRevenue(n: number) {
   if (n >= 1000) return `$${(n/1000).toFixed(0)}k`;
   return `$${n}`;
 }
+
+const fmtSold = (n: number | null | undefined) => {
+  if (!n || n === 0) return '\u2014';
+  return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
+};
 
 function ShopTypeBadge({ type }: { type: string }) {
   const colors: Record<string, { bg: string; text: string }> = {
@@ -274,7 +280,7 @@ export default function ShopIntelligence() {
               {shop.growth_rate_pct >= 0 ? '↑' : '↓'} {Math.abs(shop.growth_rate_pct)}%
             </div>
 
-            <div style={{ fontSize: 13, color: C.text }}>{(shop.items_sold_est || 0).toLocaleString()}</div>
+            <div style={{ fontSize: 13, color: C.text }}>{fmtSold(shop.items_sold_monthly || shop.items_sold_est)}</div>
 
             <div style={{ fontSize: 13, color: C.text }}>${shop.avg_unit_price_aud}</div>
 
