@@ -1196,6 +1196,11 @@ export default function WebsiteGenerator() {
   // Product import
   const [importUrl, setImportUrl] = useState('');
   const [importing, setImporting] = useState(false);
+  const [fromDatabaseBanner, setFromDatabaseBanner] = useState<{
+    productName: string;
+    niche: string;
+    price: string;
+  } | null>(null);
   const [importedProduct, setImportedProduct] = useState<{
     title: string;
     description?: string;
@@ -1416,11 +1421,9 @@ export default function WebsiteGenerator() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const nicheParam = params.get('niche');
-    const productParam = params.get('product');
     const demoParam = params.get('demo');
 
     if (nicheParam) setNiche(nicheParam);
-    if (productParam) setStoreName(productParam);
 
     if (demoParam) {
       setDemoMode(true);
@@ -1433,13 +1436,50 @@ export default function WebsiteGenerator() {
       setNiche(demoNiche);
     }
 
-    // fromTrend — pre-fill from Trend Signals page
-    if (params.get('fromTrend') === 'true') {
-      const priceParam = params.get('price');
-      if (priceParam) setPriceAUD(priceParam);
+    // fromDatabase or fromTrend — full product context pre-fill
+    const isFromDB = params.get('fromDatabase') === 'true' || params.get('fromTrend') === 'true';
+    if (isFromDB) {
+      const productNameParam = params.get('productName') || params.get('product') || '';
+      const priceParam = params.get('price') || '';
+      const descParam = params.get('description') || '';
+      const imageUrlParam = params.get('imageUrl') || '';
+      const nicheFromParam = params.get('niche') || '';
+
+      if (productNameParam) setProductName(productNameParam);
+      if (priceParam) {
+        setPriceAUD(priceParam);
+        setProductPrice(priceParam);
+      }
+      if (nicheFromParam) setNiche(nicheFromParam);
+      if (imageUrlParam) setProductImageUrl(imageUrlParam);
+      // description goes into the product import fallback state so it's available for generation
+      if (descParam && !storeName) {
+        setImportedProduct(prev => prev ? { ...prev, description: descParam } : {
+          title: productNameParam,
+          description: descParam,
+          features: [],
+          price: priceParam,
+          images: imageUrlParam ? [imageUrlParam] : [],
+          sourceUrl: '',
+        });
+      }
+
+      // Show banner
+      setFromDatabaseBanner({
+        productName: productNameParam,
+        niche: nicheFromParam,
+        price: priceParam,
+      });
+
       setTimeout(() => {
-        toast.success('Product loaded from Trend Signals — ready to generate!');
-      }, 500);
+        const nameInput = document.querySelector<HTMLInputElement>('input[data-field="storeName"]');
+        if (nameInput) {
+          nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          nameInput.focus();
+        }
+        toast.success(`Product loaded — just enter a store name and generate!`);
+      }, 400);
+
       window.history.replaceState({}, '', '/app/website-generator');
     }
 
@@ -1453,7 +1493,6 @@ export default function WebsiteGenerator() {
         if (data.niche) setNiche(data.niche);
         if (data.price) setPriceAUD(String(data.price));
         sessionStorage.removeItem('maya_prefill_website-generator');
-        // Auto-trigger analyze after a short delay
         if (data.productUrl) {
           setTimeout(() => handleAnalyzeProduct(data.productUrl), 800);
         }
@@ -1712,6 +1751,8 @@ export default function WebsiteGenerator() {
                 description: selectedDesc || importedProduct.description,
                 price_aud: importedProduct.price,
                 category: (importedProduct as any).category || niche,
+                hero_image: importedProduct.images?.[0] || productImageUrl || undefined,
+                product_images: importedProduct.images?.length ? importedProduct.images : (productImageUrl ? [productImageUrl] : undefined),
               } : (selectedDesc ? { description: selectedDesc } : undefined)),
         }),
       });
@@ -2809,10 +2850,44 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
 
+          {/* From Database banner */}
+          {fromDatabaseBanner && (
+            <div style={{
+              marginBottom: 4,
+              padding: '12px 16px',
+              borderRadius: 10,
+              background: 'rgba(212,175,55,0.1)',
+              border: '1.5px solid rgba(212,175,55,0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                <span style={{ fontSize: 18, flexShrink: 0 }}>⚡</span>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#d4af37', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    Building store for: {fromDatabaseBanner.productName}
+                  </div>
+                  <div style={{ fontSize: 12, color: 'rgba(212,175,55,0.65)', marginTop: 2 }}>
+                    {fromDatabaseBanner.niche}{fromDatabaseBanner.price ? ` · $${fromDatabaseBanner.price} AUD` : ''}
+                    {' · '}Just enter a store name below and hit Generate
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setFromDatabaseBanner(null)}
+                style={{ flexShrink: 0, background: 'none', border: 'none', color: 'rgba(212,175,55,0.5)', cursor: 'pointer', fontSize: 18, lineHeight: 1, padding: '0 4px' }}
+              >
+                ×
+              </button>
+            </div>
+          )}
+
           {/* Store Name */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Store Name</label>
-            <input value={storeName} onChange={(e) => { setStoreName(e.target.value); clearTimeout(livePreviewStoreNameTimer.current); livePreviewStoreNameTimer.current = setTimeout(() => setLivePreviewStoreName(e.target.value), 400); }} placeholder="e.g. MaxFit Supplements" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#f0ede8' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
+            <input data-field="storeName" value={storeName} onChange={(e) => { setStoreName(e.target.value); clearTimeout(livePreviewStoreNameTimer.current); livePreviewStoreNameTimer.current = setTimeout(() => setLivePreviewStoreName(e.target.value), 400); }} placeholder="e.g. MaxFit Supplements" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#f0ede8' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
           </div>
 
           {/* Niche */}

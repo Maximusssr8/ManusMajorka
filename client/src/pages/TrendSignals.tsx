@@ -550,11 +550,13 @@ export default function TrendSignals() {
                         <button
                           onClick={() => {
                             const params = new URLSearchParams({
-                              product: p.name,
+                              productName: p.name,
                               niche: p.niche,
                               price: String(p.estimated_retail_aud || 49),
                               description: p.trend_reason || '',
-                              fromTrend: 'true',
+                              imageUrl: (p as any).image_url || '',
+                              viability: String((p as any).dropship_viability_score || ''),
+                              fromDatabase: 'true',
                             });
                             window.location.href = `/app/website-generator?${params.toString()}`;
                           }}
@@ -626,11 +628,13 @@ export default function TrendSignals() {
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={() => {
                     const params = new URLSearchParams({
-                      product: p.name,
+                      productName: p.name,
                       niche: p.niche,
                       price: String(p.estimated_retail_aud || 49),
                       description: p.trend_reason || '',
-                      fromTrend: 'true',
+                      imageUrl: (p as any).image_url || '',
+                      viability: String((p as any).dropship_viability_score || ''),
+                      fromDatabase: 'true',
                     });
                     window.location.href = `/app/website-generator?${params.toString()}`;
                   }}

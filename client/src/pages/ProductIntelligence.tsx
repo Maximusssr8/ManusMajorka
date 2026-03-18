@@ -84,7 +84,15 @@ function ProductCard({ product, rank }: { product: TrendProduct; rank: number })
         <div style={{ display: 'flex', gap: 8 }}>
           <button
             onClick={() => {
-              const params = new URLSearchParams({ product: product.name, niche: product.niche, price: String(product.estimated_retail_aud || 49), description: product.trend_reason || '', fromTrend: 'true' });
+              const params = new URLSearchParams({
+                productName: product.name,
+                niche: product.niche,
+                price: String(product.estimated_retail_aud || 49),
+                description: product.trend_reason || '',
+                imageUrl: product.image_url || '',
+                viability: String(product.dropship_viability_score || ''),
+                fromDatabase: 'true',
+              });
               window.location.href = `/app/website-generator?${params}`;
             }}
             style={{ flex: 1, padding: '8px 0', borderRadius: 8, background: C.gold, color: '#080a0e', border: 'none', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}
