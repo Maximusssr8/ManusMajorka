@@ -1417,70 +1417,85 @@ export default function WebsiteGenerator() {
     return () => clearTimeout(timer);
   }, [analyzeUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Auto-fill from URL params (e.g. from Winning Products quick actions or demo links)
+  // Auto-fill from URL params (crash-proof — handles encoded/raw values safely)
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const nicheParam = params.get('niche');
-    const demoParam = params.get('demo');
+    try {
+      const params = new URLSearchParams(window.location.search);
 
-    if (nicheParam) setNiche(nicheParam);
-
-    if (demoParam) {
-      setDemoMode(true);
-      const demoNiches: Record<string, string> = {
-        'beauty-gadgets': 'Beauty & Skincare Gadgets',
-        'fitness': 'Fitness & Wellness',
-        'home-decor': 'Home Decor & Lifestyle',
+      // Helper: safe decode — returns '' on error
+      const sd = (raw: string | null): string => {
+        if (raw === null || raw.trim() === '') return '';
+        try { return decodeURIComponent(raw); } catch { return raw; }
       };
-      const demoNiche = demoNiches[demoParam] || demoParam.replace(/-/g, ' ');
-      setNiche(demoNiche);
-    }
 
-    // fromDatabase or fromTrend — full product context pre-fill
-    const isFromDB = params.get('fromDatabase') === 'true' || params.get('fromTrend') === 'true';
-    if (isFromDB) {
-      const productNameParam = params.get('productName') || params.get('product') || '';
-      const priceParam = params.get('price') || '';
-      const descParam = params.get('description') || '';
-      const imageUrlParam = params.get('imageUrl') || '';
-      const nicheFromParam = params.get('niche') || '';
+      const nicheParam = sd(params.get('niche'));
+      const demoParam = params.get('demo');
 
-      if (productNameParam) setProductName(productNameParam);
-      if (priceParam) {
-        setPriceAUD(priceParam);
-        setProductPrice(priceParam);
-      }
-      if (nicheFromParam) setNiche(nicheFromParam);
-      if (imageUrlParam) setProductImageUrl(imageUrlParam);
-      // description goes into the product import fallback state so it's available for generation
-      if (descParam && !storeName) {
-        setImportedProduct(prev => prev ? { ...prev, description: descParam } : {
-          title: productNameParam,
-          description: descParam,
-          features: [],
-          price: priceParam,
-          images: imageUrlParam ? [imageUrlParam] : [],
-          sourceUrl: '',
-        });
+      if (nicheParam) setNiche(nicheParam);
+
+      if (demoParam) {
+        setDemoMode(true);
+        const demoNiches: Record<string, string> = {
+          'beauty-gadgets': 'Beauty & Skincare Gadgets',
+          'fitness': 'Fitness & Wellness',
+          'home-decor': 'Home Decor & Lifestyle',
+        };
+        const demoNiche = demoNiches[demoParam] || demoParam.replace(/-/g, ' ');
+        setNiche(demoNiche);
       }
 
-      // Show banner
-      setFromDatabaseBanner({
-        productName: productNameParam,
-        niche: nicheFromParam,
-        price: priceParam,
-      });
+      // fromDatabase or fromTrend — full product context pre-fill
+      const isFromDB = params.get('fromDatabase') === 'true' || params.get('fromTrend') === 'true';
+      if (isFromDB) {
+        const productNameParam = sd(params.get('productName') || params.get('product'));
+        const priceParam = params.get('price') || '';
+        const descParam = sd(params.get('description'));
+        const imageUrlParam = sd(params.get('imageUrl'));
+        const nicheFromParam = sd(params.get('niche'));
 
-      setTimeout(() => {
-        const nameInput = document.querySelector<HTMLInputElement>('input[data-field="storeName"]');
-        if (nameInput) {
-          nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          nameInput.focus();
+        if (productNameParam) setProductName(productNameParam);
+
+        if (priceParam !== '') {
+          const num = Number(priceParam);
+          if (!Number.isNaN(num) && isFinite(num)) {
+            setPriceAUD(priceParam);
+            setProductPrice(priceParam);
+          }
         }
-        toast.success(`Product loaded — just enter a store name and generate!`);
-      }, 400);
 
-      window.history.replaceState({}, '', '/app/website-generator');
+        if (nicheFromParam) setNiche(nicheFromParam);
+        if (imageUrlParam) setProductImageUrl(imageUrlParam);
+
+        if (descParam && !storeName) {
+          setImportedProduct(prev => prev ? { ...prev, description: descParam } : {
+            title: productNameParam,
+            description: descParam,
+            features: [],
+            price: priceParam,
+            images: imageUrlParam ? [imageUrlParam] : [],
+            sourceUrl: '',
+          });
+        }
+
+        setFromDatabaseBanner({
+          productName: productNameParam,
+          niche: nicheFromParam,
+          price: priceParam,
+        });
+
+        setTimeout(() => {
+          const nameInput = document.querySelector<HTMLInputElement>('input[data-field="storeName"]');
+          if (nameInput) {
+            nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            nameInput.focus();
+          }
+          toast.success('Product loaded — enter a store name and generate! 🚀');
+        }, 400);
+
+        window.history.replaceState({}, '', '/app/website-generator');
+      }
+    } catch (err) {
+      console.warn('[WebsiteGenerator] Failed to read URL params:', err);
     }
 
     // Maya prefill — check sessionStorage for agentic navigation

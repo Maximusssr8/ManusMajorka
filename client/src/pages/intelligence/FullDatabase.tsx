@@ -170,14 +170,14 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
   function handleBuildStore(p: Product) {
     const params = new URLSearchParams({
-      productName: p.name,
-      niche: p.niche,
+      productName: encodeURIComponent(p.name || ''),
+      niche: encodeURIComponent(p.niche || ''),
       price: String(p.estimated_retail_aud || 49),
-      description: p.trend_reason || '',
-      imageUrl: p.image_url || '',
+      description: encodeURIComponent(p.trend_reason || ''),
+      imageUrl: encodeURIComponent(p.image_url || ''),
       fromDatabase: 'true',
     });
-    window.location.href = `/app/website-generator?${params}`;
+    navigate(`/app/website-generator?${params}`);
   }
 
   function handleFindSupplier(p: Product) {
@@ -331,9 +331,9 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 <button
                   onClick={() => {
                     const params = new URLSearchParams({
-                      productName: product.title,
-                      imageUrl: product.image || '',
-                      price: String(product.price_aud || ''),
+                      productName: encodeURIComponent(product.title || ''),
+                      imageUrl: encodeURIComponent(product.image || ''),
+                      price: String(product.price_aud || 49),
                       fromDatabase: 'true',
                     });
                     navigate(`/app/website-generator?${params}`);
