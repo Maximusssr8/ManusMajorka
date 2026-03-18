@@ -610,18 +610,170 @@ Niche must be one of: Activewear & Gym, Beauty & Skincare, Health & Wellness, Te
           }
         }
 
-        // ZenRows not configured or failed — return manual fallback
+        // STEP 2 — Direct fetch with mobile User-Agent
+        try {
+          console.log('[import] AliExpress — trying direct mobile fetch...');
+          const mobileRes = await fetch(url, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+              'Accept-Language': 'en-AU,en;q=0.9',
+              'Accept-Encoding': 'gzip, deflate, br',
+              'Cache-Control': 'no-cache',
+            },
+            signal: AbortSignal.timeout(10000),
+          });
+          const html = await mobileRes.text();
+
+          const title = html.match(/<meta[^>]+property="og:title"[^>]+content="([^"]+)"/i)?.[1]
+            || html.match(/<meta[^>]+content="([^"]+)"[^>]+property="og:title"/i)?.[1]
+            || html.match(/<title>([^<]+)<\/title>/i)?.[1]?.replace(/\s*[-–|].*$/, '').trim();
+          const image = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/i)?.[1]
+            || html.match(/<meta[^>]+content="([^"]+)"[^>]+property="og:image"/i)?.[1];
+          const description = html.match(/<meta[^>]+property="og:description"[^>]+content="([^"]+)"/i)?.[1]
+            || html.match(/<meta[^>]+content="([^"]+)"[^>]+property="og:description"/i)?.[1];
+          const priceMatch2 = html.match(/["']price["']\s*:\s*["']?(\d+\.?\d*)/i);
+          const rawPrice2 = priceMatch2 ? parseFloat(priceMatch2[1]) : null;
+
+          if (title && title.length > 5 && !title.toLowerCase().includes('aliexpress')) {
+            console.log('[import] Direct mobile fetch success:', title);
+
+            let niche = 'General / Mixed Niche';
+            let targetAudience = 'Australian online shoppers';
+            let priceAUD = rawPrice2 ? Math.round(rawPrice2 * 1.55 * 10) / 10 : 49;
+
+            try {
+              const anthropic = getAnthropicClient();
+              if (anthropic) {
+                const haikuRes = await anthropic.messages.create({
+                  model: 'claude-haiku-4-5-20251001',
+                  max_tokens: 300,
+                  messages: [{
+                    role: 'user',
+                    content: `Product: "${title}". Description: "${description || ''}".
+Return JSON only, no markdown: { "niche": string, "targetAudience": string, "priceAUD": number }
+Niche must be one of: Activewear & Gym, Beauty & Skincare, Health & Wellness, Tech Accessories, Home Decor, Pets & Animals, Fashion & Apparel, Jewellery & Accessories, Outdoor & Camping, Baby & Kids, General / Mixed Niche`
+                  }]
+                });
+                const raw = (haikuRes.content[0] as { type: string; text: string }).text.trim();
+                const jsonStr = raw.replace(/```json\n?|\n?```/g, '').trim();
+                const inferred = JSON.parse(jsonStr);
+                niche = inferred.niche || niche;
+                targetAudience = inferred.targetAudience || targetAudience;
+                if (!rawPrice2 && inferred.priceAUD) priceAUD = inferred.priceAUD;
+              }
+            } catch (haikuErr) {
+              console.warn('[import] Haiku inference failed (mobile path):', haikuErr);
+            }
+
+            res.json({
+              success: true,
+              productName: title,
+              description: description || '',
+              price: priceAUD,
+              imageUrl: image || null,
+              niche,
+              targetAudience,
+              source: 'mobile-fetch',
+            });
+            return;
+          }
+        } catch (mobileErr: any) {
+          console.log('[import] Direct mobile fetch failed:', mobileErr.message);
+        }
+
+        // STEP 3 — Smart manual fallback (not a dead end)
         res.status(422).json({
-          success: false, manual: true, platform: 'AliExpress',
+          success: false,
+          manual: true,
+          platform: 'AliExpress',
           productId: aliMatch?.[1] || null,
-          error: 'AliExpress blocks automated import. Use the manual form — paste the product name, price, and description.',
+          message: 'AliExpress requires manual entry. Copy the product title and price from the page.',
+          tip: 'Copy the product name and price from AliExpress and paste below.',
         });
         return;
       }
       if (/temu\.com/i.test(url)) {
+        // STEP 2 — Direct fetch with mobile User-Agent
+        try {
+          console.log('[import] Temu — trying direct mobile fetch...');
+          const mobileRes = await fetch(url, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+              'Accept-Language': 'en-AU,en;q=0.9',
+              'Accept-Encoding': 'gzip, deflate, br',
+              'Cache-Control': 'no-cache',
+            },
+            signal: AbortSignal.timeout(10000),
+          });
+          const html = await mobileRes.text();
+
+          const title = html.match(/<meta[^>]+property="og:title"[^>]+content="([^"]+)"/i)?.[1]
+            || html.match(/<meta[^>]+content="([^"]+)"[^>]+property="og:title"/i)?.[1]
+            || html.match(/<title>([^<]+)<\/title>/i)?.[1]?.replace(/\s*[-–|].*$/, '').trim();
+          const image = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/i)?.[1]
+            || html.match(/<meta[^>]+content="([^"]+)"[^>]+property="og:image"/i)?.[1];
+          const description = html.match(/<meta[^>]+property="og:description"[^>]+content="([^"]+)"/i)?.[1]
+            || html.match(/<meta[^>]+content="([^"]+)"[^>]+property="og:description"/i)?.[1];
+          const priceMatch = html.match(/["']price["']\s*:\s*["']?(\d+\.?\d*)/i);
+          const rawPrice = priceMatch ? parseFloat(priceMatch[1]) : null;
+
+          if (title && title.length > 5 && !title.toLowerCase().includes('temu')) {
+            console.log('[import] Direct mobile fetch success (Temu):', title);
+
+            let niche = 'General / Mixed Niche';
+            let targetAudience = 'Australian online shoppers';
+            let priceAUD = rawPrice ? Math.round(rawPrice * 1.55 * 10) / 10 : 49;
+
+            try {
+              const anthropic = getAnthropicClient();
+              if (anthropic) {
+                const haikuRes = await anthropic.messages.create({
+                  model: 'claude-haiku-4-5-20251001',
+                  max_tokens: 300,
+                  messages: [{
+                    role: 'user',
+                    content: `Product: "${title}". Description: "${description || ''}".
+Return JSON only, no markdown: { "niche": string, "targetAudience": string, "priceAUD": number }
+Niche must be one of: Activewear & Gym, Beauty & Skincare, Health & Wellness, Tech Accessories, Home Decor, Pets & Animals, Fashion & Apparel, Jewellery & Accessories, Outdoor & Camping, Baby & Kids, General / Mixed Niche`
+                  }]
+                });
+                const raw = (haikuRes.content[0] as { type: string; text: string }).text.trim();
+                const jsonStr = raw.replace(/```json\n?|\n?```/g, '').trim();
+                const inferred = JSON.parse(jsonStr);
+                niche = inferred.niche || niche;
+                targetAudience = inferred.targetAudience || targetAudience;
+                if (!rawPrice && inferred.priceAUD) priceAUD = inferred.priceAUD;
+              }
+            } catch (haikuErr) {
+              console.warn('[import] Haiku inference failed (Temu mobile path):', haikuErr);
+            }
+
+            res.json({
+              success: true,
+              productName: title,
+              description: description || '',
+              price: priceAUD,
+              imageUrl: image || null,
+              niche,
+              targetAudience,
+              source: 'mobile-fetch',
+            });
+            return;
+          }
+        } catch (mobileErr: any) {
+          console.log('[import] Direct mobile fetch failed (Temu):', mobileErr.message);
+        }
+
+        // STEP 3 — Smart manual fallback
         res.status(422).json({
-          success: false, manual: true, platform: 'Temu',
-          error: 'Temu blocks automated import. Paste the product details manually.',
+          success: false,
+          manual: true,
+          platform: 'Temu',
+          productId: null,
+          message: 'Temu requires manual entry. Copy the product title and price from the page.',
+          tip: 'Copy the product name and price from Temu and paste below.',
         });
         return;
       }

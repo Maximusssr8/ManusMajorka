@@ -1216,6 +1216,12 @@ export default function WebsiteGenerator() {
     return null;
   });
   const [importError, setImportError] = useState('');
+  const [manualFallback, setManualFallback] = useState<{
+    platform: string;
+    message: string;
+    tip: string;
+    productId: string | null;
+  } | null>(null);
 
   // Form fields
   const [storeName, setStoreName] = useState('');
@@ -1511,16 +1517,62 @@ export default function WebsiteGenerator() {
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
         if (errData.manual) {
-          setImportError(`${errData.platform || 'This site'} blocks automated import. Please use the manual form — enter the product name, price, and description directly.`);
+          // Smart manual fallback — show amber helper, not red error
+          setImportError('');
+          setManualFallback({
+            platform: errData.platform || 'This site',
+            message: errData.message || `${errData.platform || 'This site'} blocks automated import. Enter details below.`,
+            tip: errData.tip || 'Copy the product name and price and paste below.',
+            productId: errData.productId || null,
+          });
           setImporting(false);
+          setTimeout(() => {
+            const input = document.querySelector<HTMLInputElement>('input[placeholder*="product" i], input[name="productName"], input[data-field="productName"]');
+            if (input) input.focus();
+          }, 200);
           return;
         }
         throw new Error(errData.error || `Scrape failed: ${response.status}`);
       }
       const data = (await response.json()) as { productTitle: string; description: string; bulletPoints: string[]; price: string; imageUrls: string[]; brand?: string; extractionError?: string; };
+      // Handle manual fallback returned with 200 status
+      if ((data as any).manual) {
+        const d = data as any;
+        setImportError('');
+        setManualFallback({
+          platform: d.platform || 'This site',
+          message: d.message || 'Could not auto-import. Enter details below.',
+          tip: d.tip || 'Copy the product details and paste below.',
+          productId: d.productId || null,
+        });
+        setImporting(false);
+        return;
+      }
+      // Handle ZenRows/mobile-fetch success path (different field names from direct scrape)
+      if ((data as any).productName) {
+        const d = data as any;
+        const finalTitle = cleanProductTitle(d.productName || 'Imported Product');
+        setImportedProduct({
+          title: finalTitle,
+          description: d.description || '',
+          features: [],
+          price: String(d.price || ''),
+          images: d.imageUrl ? [d.imageUrl] : [],
+          sourceUrl: importUrl,
+        });
+        setManualFallback(null);
+        if (!storeName.trim()) {
+          setStoreName(finalTitle.split(' ').slice(0, 2).join(' ') + ' AU');
+        }
+        if (d.niche && !niche) setNiche(d.niche);
+        setImporting(false);
+        toast.success('Product imported — ready to generate');
+        return;
+      }
       if (data.extractionError) throw new Error(data.extractionError);
       const finalTitle = cleanProductTitle(data.productTitle || 'Imported Product');
       setImportedProduct({ title: finalTitle, description: data.description, features: data.bulletPoints, price: data.price, images: data.imageUrls, sourceUrl: importUrl });
+      setManualFallback(null);
       // Task 3B — Auto-fill store name
       setImportAutoFilledStore(false);
       setImportAutoFilledNiche(false);
@@ -2479,7 +2531,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
             ) : (
               <div>
                 <div className="flex gap-1.5">
-                  <input value={importUrl} onChange={(e) => setImportUrl(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleImport(); } }} placeholder="Paste product URL (AliExpress, Amazon…)" className="flex-1 text-xs px-3 py-2 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.1)', color: '#f0ede8' }} />
+                  <input value={importUrl} onChange={(e) => { setImportUrl(e.target.value); setManualFallback(null); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleImport(); } }} placeholder="Paste product URL (AliExpress, Amazon…)" className="flex-1 text-xs px-3 py-2 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.1)', color: '#f0ede8' }} />
                   <button onClick={handleImport} disabled={importing || !importUrl.trim()} className="text-xs font-bold px-3 py-2 rounded-lg flex-shrink-0 flex items-center gap-1 disabled:opacity-50" style={{ background: 'rgba(45,202,114,0.12)', border: '1.5px solid rgba(45,202,114,0.35)', color: 'rgba(45,202,114,0.9)', fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}>
                     {importing ? <Loader2 size={10} className="animate-spin" /> : null}{importing ? '…' : 'Import'}
                   </button>
@@ -2493,6 +2545,34 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)', marginTop: 4 }}>
                       Supported: AliExpress, Amazon AU, eBay AU, CJDropshipping, DHgate
                     </div>
+                  </div>
+                )}
+                {/* Manual fallback amber banner */}
+                {manualFallback && !importedProduct && (
+                  <div style={{
+                    marginTop: 12,
+                    padding: '12px 16px',
+                    borderRadius: 8,
+                    background: 'rgba(251,191,36,0.08)',
+                    border: '1px solid rgba(251,191,36,0.25)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 4,
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 14 }}>&#9888;&#65039;</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(251,191,36,0.9)' }}>
+                        Auto-import unavailable — enter details below
+                      </span>
+                    </div>
+                    <p style={{ fontSize: 12, color: 'rgba(240,237,232,0.55)', margin: 0, lineHeight: 1.5 }}>
+                      {manualFallback.message}
+                    </p>
+                    {manualFallback.tip && (
+                      <p style={{ fontSize: 12, color: 'rgba(251,191,36,0.6)', margin: 0 }}>
+                        {manualFallback.tip}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
