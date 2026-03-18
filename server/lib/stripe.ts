@@ -136,6 +136,19 @@ export function constructWebhookEvent(payload: Buffer, signature: string): Strip
   return stripe.webhooks.constructEvent(payload, signature, secret);
 }
 
+// ── Price ID → Plan name mapping ─────────────────────────────────────────────
+function priceIdToPlan(priceId: string | undefined | null): string {
+  if (!priceId) return 'pro';
+  const map: Record<string, string> = {
+    [process.env.STRIPE_PRO_PRICE_ID     ?? '']: 'pro',
+    [process.env.STRIPE_BUILDER_PRICE_ID ?? '']: 'builder',
+    [process.env.STRIPE_SCALE_PRICE_ID   ?? '']: 'scale',
+  };
+  // Remove empty-string key so unknown prices fall through cleanly
+  delete map[''];
+  return map[priceId] ?? 'pro';
+}
+
 export async function handleWebhook(rawBody: Buffer, signature: string): Promise<boolean> {
   const event = constructWebhookEvent(rawBody, signature);
   if (!event) return false;
@@ -143,9 +156,10 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session;
-      const userId = session.metadata?.userId || session.client_reference_id;
+      // Prefer client_reference_id (set at checkout creation), fall back to metadata
+      const userId = session.client_reference_id || session.metadata?.userId;
       if (!userId) {
-        console.warn('[Stripe] checkout.session.completed: missing userId in metadata');
+        console.warn('[Stripe] checkout.session.completed: missing userId — skipping');
         return true;
       }
 
@@ -154,14 +168,19 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
       const customerId =
         typeof session.customer === 'string' ? session.customer : session.customer?.id;
 
+      let plan = 'pro';
       let periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
       if (subscriptionId) {
         try {
           const stripe = getStripe()!;
           const stripeSub = await stripe.subscriptions.retrieve(subscriptionId);
           periodEnd = new Date(stripeSub.current_period_end * 1000);
+          const priceId = stripeSub.items.data[0]?.price?.id;
+          plan = priceIdToPlan(priceId);
+          console.info(`[Stripe] checkout.session.completed: priceId=${priceId} → plan=${plan}`);
         } catch (err) {
-          console.warn('[Stripe] Failed to retrieve subscription:', err);
+          console.warn('[Stripe] Failed to retrieve subscription details:', err);
         }
       }
 
@@ -169,41 +188,48 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
         userId,
         stripeCustomerId: customerId,
         stripeSubscriptionId: subscriptionId,
-        plan: 'pro',
+        plan,
         status: 'active',
         currentPeriodEnd: periodEnd,
       });
 
-      console.info(`[Stripe] Subscription activated for user ${userId}`);
+      console.info(`[Stripe] Subscription activated: user=${userId} plan=${plan}`);
       break;
     }
 
     case 'customer.subscription.updated': {
       const stripeSub = event.data.object as Stripe.Subscription;
       const userId = stripeSub.metadata?.userId;
-      if (!userId) break;
+      if (!userId) {
+        console.warn('[Stripe] subscription.updated: no userId in metadata — skipping');
+        break;
+      }
 
+      const priceId = stripeSub.items.data[0]?.price?.id;
       const periodEnd = new Date(stripeSub.current_period_end * 1000);
-      const status =
-        stripeSub.status === 'active' ? 'active'
-        : stripeSub.status === 'canceled' ? 'cancelled'
-        : 'expired';
+      const isActive = ['active', 'trialing'].includes(stripeSub.status);
+      const status = isActive ? (stripeSub.status === 'trialing' ? 'trialing' : 'active')
+        : stripeSub.status === 'canceled' ? 'cancelled' : 'expired';
+      const plan = isActive ? priceIdToPlan(priceId) : 'free';
 
       await upsertSubscription({
         userId,
         stripeSubscriptionId: stripeSub.id,
-        plan: status === 'active' ? 'pro' : 'free',
+        plan,
         status,
         currentPeriodEnd: periodEnd,
       });
-      console.info(`[Stripe] Subscription updated for user ${userId}: ${status}`);
+      console.info(`[Stripe] Subscription updated: user=${userId} plan=${plan} status=${status}`);
       break;
     }
 
     case 'customer.subscription.deleted': {
       const stripeSub = event.data.object as Stripe.Subscription;
       const userId = stripeSub.metadata?.userId;
-      if (!userId) break;
+      if (!userId) {
+        console.warn('[Stripe] subscription.deleted: no userId in metadata — skipping');
+        break;
+      }
 
       const periodEnd = new Date(stripeSub.current_period_end * 1000);
       await upsertSubscription({
@@ -213,7 +239,7 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
         status: 'cancelled',
         currentPeriodEnd: periodEnd,
       });
-      console.info(`[Stripe] Subscription cancelled for user ${userId}`);
+      console.info(`[Stripe] Subscription cancelled: user=${userId}`);
       break;
     }
 
