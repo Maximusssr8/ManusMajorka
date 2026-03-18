@@ -918,6 +918,14 @@ footer { padding: 64px 5% 28px; background: ${isLight ? '#f0f0ec' : '#050508'}; 
 
 // ─── HTML Post-Processing ─────────────────────────────────────────────────────
 function postProcessHtml(html: string, storeName: string, niche: string, color: string, colorRgb: string, surfColor: string, bgColor: string, cardRadius: string): string {
+  // 0. Fix bad onerror handlers (show invisible/faded broken images)
+  html = html.replace(/onerror="this\.onerror=null;this\.style\.opacity='0\.3'"/gi,
+    `onerror="this.onerror=null;this.style.display='none'"`);
+  html = html.replace(/onerror="this\.style\.opacity='0\.3'"/gi,
+    `onerror="this.style.display='none'"`);
+  html = html.replace(/onerror="this\.style\.opacity=0\.3"/gi,
+    `onerror="this.style.display='none'"`);
+
   // 1. Add loading="lazy" to all images (except first hero image)
   let imgCount = 0;
   html = html.replace(/<img\s/gi, (match) => {
@@ -1615,34 +1623,36 @@ This is a SOFT BEAUTY / WELLNESS brand. Override:
     return '';
   })();
 
-  const singlePassSystem = `You are a world-class Shopify store designer and HTML/CSS developer. Output ONLY valid, complete HTML starting with <!DOCTYPE html>. No markdown. No code fences. No explanation. Make it genuinely beautiful — agency quality.`;
+  const singlePassSystem = `You are the world's best Shopify store designer. You build complete, stunning HTML stores that rival Lovable.dev and Framer in quality and polish. Rules you NEVER break: (1) Output ONLY valid HTML starting with <!DOCTYPE html> — no markdown, no code fences, no commentary. (2) The brand name given to you is sacred — use it exactly in: page title, nav logo, hero section, footer. NEVER write "Product from AU", "Brand Name", or any placeholder. (3) Write minimum 700 lines of clean, production-ready HTML. Every section has real padding (80px+), real content, real design. (4) No empty black boxes — every section must be visible and complete.`;
 
-  const singlePassUser = `Create a stunning, complete, production-ready HTML storefront. Match the quality of Lovable or Framer websites. This must look like it was built by a $50,000 agency.
+  const singlePassUser = `Build a complete, premium HTML store for this brand. Agency quality. Every section filled. No placeholders.
 
-═══ STORE DATA — USE EXACTLY THESE VALUES ═══
-Brand Name: ${briefBrandName}
-Product: ${productName}
-Niche: ${niche}
-Price: AUD ${displayPrice}
-Tagline: ${briefTagline}
-Hero Headline: ${briefHeadline}
-Hero Subheadline: ${briefSubheadline}
-Value Prop: ${briefUvp}
-Primary Colour: ${color}
-Heading Font: ${headingFontName}
-Body Font: ${bodyFontName}
-Hero Image: ${heroImg}
-Product Image: ${productImg}
+BRAND: "${briefBrandName}" ← USE THIS EXACT NAME everywhere (title, nav, hero, footer)
+PRODUCT: ${productName}
+NICHE: ${niche}
+PRICE: AUD $${displayPrice}
+TAGLINE: ${briefTagline}
+HERO HEADLINE: ${briefHeadline}
+HERO SUBHEADLINE: ${briefSubheadline}
+VALUE PROP: ${briefUvp}
+HEADING FONT: ${headingFontName}
+BODY FONT: ${bodyFontName}
+PRIMARY COLOUR: ${color}
+HERO IMAGE URL: ${heroImg}
+PRODUCT IMAGE URL: ${productImg}
 
-═══ CRITICAL RULES ═══
-1. Nav logo = "${briefBrandName}" — NEVER use "Product from AU" or placeholder text
-2. Use <img src="${heroImg}" ...> in hero section — real photo
-3. Use <img src="${productImg}" ...> in product section — real photo
-4. Add onerror="this.style.display='none'" to every img tag
-5. All text must have sufficient contrast — NEVER same colour as background
-6. Every section must have min-height and visible content — NO empty black boxes
-7. All sections need padding: minimum 80px top/bottom on desktop
-8. All buttons are clickable: use href="#" or onclick="void(0)"
+${templateOverride}
+
+═══ IRONCLAD RULES — NEVER BREAK ═══
+1. "${briefBrandName}" must appear in: <title>, nav logo, hero H1 area, footer copyright — exactly as written
+2. NEVER write "Product from AU" or any other placeholder — use the actual data above
+3. Every <img> tag: include onerror="this.onerror=null;this.parentElement.style.background='linear-gradient(135deg,rgba(${colorRgb},0.25),#111)';this.style.display='none'"
+4. NO empty sections — every section has padding:80px 60px and visible content
+5. Price "$${displayPrice} AUD" must appear in product section
+6. Google Fonts <link> in <head> loading ${headingFontName} and ${bodyFontName}
+7. Mobile @media(max-width:768px): all grids → 1 column, padding:60px 20px
+
+═══ REQUIRED SECTIONS ═══
 
 ═══ REQUIRED SECTIONS (build ALL of these) ═══
 
@@ -1816,11 +1826,9 @@ Mobile (max-width:768px):
 - Section padding: 60px 24px on mobile
 - Font sizes: reduce by ~15%
 
-${templateOverride}
-
 ═══ OUTPUT RULES ═══
 - Start with <!DOCTYPE html>
-- Minimum 600 lines of well-formatted HTML
+- Minimum 700 lines of well-formatted HTML
 - Use inline styles for all styling (no external CSS files)
 - No JavaScript required for basic layout
 - Return ONLY the HTML — no markdown, no code fences, no explanation
@@ -1890,8 +1898,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--body-font);
 - Every [FILL THIS] in the scaffold must be replaced with real HTML
 - Minimum 800 lines of HTML
 - Every section must have actual styled content — NO placeholders
-- Images: always include onerror fallback: onerror="this.onerror=null;this.style.opacity='0.3'"
-- The brand name "${briefBrandName}" must appear in: nav logo, hero h1, footer, page title
+- Images: always include onerror fallback: onerror="this.onerror=null;this.parentElement.style.background='linear-gradient(135deg,rgba(${colorRgb},0.25),#111)';this.style.display='none'"
+- The brand name "${briefBrandName}" must appear in: nav logo, hero, footer, page title — use it EXACTLY
 - Price "${displayPrice}" must appear in the product section
 - All fonts must load from the Google Fonts link in <head>
 - Mobile responsive: add a <style> block at the end with @media(max-width:768px) rules
@@ -1904,7 +1912,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--body-font);
 
   const stream = client.messages.stream({
     model: CLAUDE_MODEL,
-    max_tokens: 9000,
+    max_tokens: 16000,
     temperature: 0.65,
     system: singlePassSystem,
     messages: [{ role: 'user', content: singlePassUser }],
@@ -1929,19 +1937,25 @@ body { background: var(--bg); color: var(--text); font-family: var(--body-font);
 
   // Quality check — retry if output is truncated or missing brand name
   const isGoodOutput = (html: string) => {
-    return html.length > 3000 &&
-      html.includes('</html>') &&
-      (html.includes(briefBrandName) || briefBrandName === 'My Store');
+    const hasBrand = html.includes(briefBrandName) || briefBrandName.length < 3;
+    const hasFooter = html.includes('</footer>') || html.includes('id="footer"') || html.includes('class="footer"');
+    const isLong = html.length > 25000;
+    const hasClose = html.includes('</html>');
+    console.log(`[quality] length:${html.length} hasBrand:${hasBrand} hasFooter:${hasFooter} isLong:${isLong} hasClose:${hasClose}`);
+    if (!hasBrand) console.warn(`[quality] Missing brand name "${briefBrandName}"`);
+    if (!hasFooter) console.warn(`[quality] Missing footer — likely truncated`);
+    if (!isLong) console.warn(`[quality] Too short: ${html.length} chars`);
+    return isLong && hasClose && hasBrand;
   };
 
   if (!isGoodOutput(workingHtml)) {
-    console.warn(`[website-api] Quality check FAILED — length:${workingHtml.length}, hasClosingTag:${workingHtml.includes('</html>')}, hasBrandName:${workingHtml.includes(briefBrandName)}. Retrying with 9000 tokens...`);
+    console.warn(`[website-api] Quality check FAILED — length:${workingHtml.length}. Retrying with 16000 tokens...`);
     progress(93, '🔄 Enhancing quality...');
 
     try {
       const retryStream = client.messages.stream({
         model: CLAUDE_MODEL,
-        max_tokens: 10000,
+        max_tokens: 16000,
         temperature: 0.6,
         system: singlePassSystem,
         messages: [{ role: 'user', content: singlePassUser }],
