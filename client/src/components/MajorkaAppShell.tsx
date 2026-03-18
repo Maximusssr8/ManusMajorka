@@ -85,6 +85,7 @@ const NAV_SECTIONS: NavSection[] = [
     label: 'DISCOVER',
     items: [
       { label: 'Product Intelligence', path: '/app/intelligence', icon: Sparkles, badge: 'NEW', tooltip: 'Trending products + full database + AI scout — all in one.' },
+      { label: 'Shop Intelligence', path: '/app/shops', icon: Store, badge: 'PRO', tooltip: 'Discover top performing AU Shopify stores and analyse competitor strategy.' },
       { label: 'Spy Tools', path: '/app/spy', icon: Eye, tooltip: 'Market overview, AU creators, trending video hooks.' },
     ],
   },

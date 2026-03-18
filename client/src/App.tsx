@@ -35,6 +35,7 @@ const AdminControlPanel = lazy(() => import('./pages/AdminControlPanel'));
 const AdminSubscribers = lazy(() => import('./pages/AdminSubscribers'));
 const PromoDashboard = lazy(() => import('./pages/PromoDashboard'));
 const ProductReport = lazy(() => import('./pages/ProductReport'));
+const ShopDetail = lazy(() => import('./pages/ShopDetail'));
 const StoreHealthScore = lazy(() => import('./pages/StoreHealthScore'));
 // SEO landing pages
 const DropshippingAustralia = lazy(() => import('./pages/seo/DropshippingAustralia'));
@@ -220,6 +221,15 @@ function Router() {
             <Route path="/app/growth">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
             <Route path="/app/profit">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
 
+            <Route path="/app/shops/:id">
+              {() => (
+                <ProtectedRoute>
+                  <Suspense fallback={<LoadingFallback />}>
+                    <ShopDetail />
+                  </Suspense>
+                </ProtectedRoute>
+              )}
+            </Route>
             <Route path="/app/store/:subpage">
               {() => (
                 <ProtectedRoute>

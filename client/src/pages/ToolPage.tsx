@@ -61,6 +61,7 @@ const ProductIntelligence = lazy(() => import('./ProductIntelligence'));
 const SpyTools = lazy(() => import('./SpyTools'));
 const GrowthTools = lazy(() => import('./GrowthTools'));
 const ProfitSuppliers = lazy(() => import('./ProfitSuppliers'));
+const ShopIntelligence = lazy(() => import('./ShopIntelligence'));
 
 // Map stage landing paths to their stage names
 const STAGE_PATHS: Record<string, string> = {
@@ -160,6 +161,7 @@ export default function ToolPage() {
   }
 
   // New consolidated pages
+  if (location === '/app/shops') return page(<ShopIntelligence />);
   if (location === '/app/intelligence') return page(<ProductIntelligence />);
   if (location === '/app/spy') return page(<SpyTools />);
   if (location === '/app/growth') return page(<GrowthTools />);

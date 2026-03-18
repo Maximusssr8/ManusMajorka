@@ -217,4 +217,19 @@ Only output the JSON array. No markdown.`
   }
 });
 
+// GET /api/cron/refresh-shops — weekly Sunday regeneration
+router.get('/refresh-shops', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+  try {
+    const supabase = getSupabaseAdmin();
+    await supabase.from('shop_intelligence').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    res.json({ success: true, message: 'Shop data cleared — re-seed via /api/shops/seed' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
