@@ -36,6 +36,7 @@ const AdminSubscribers = lazy(() => import('./pages/AdminSubscribers'));
 const PromoDashboard = lazy(() => import('./pages/PromoDashboard'));
 const ProductReport = lazy(() => import('./pages/ProductReport'));
 const ShopDetail = lazy(() => import('./pages/ShopDetail'));
+const ProductSearch = lazy(() => import('./pages/ProductSearch'));
 const StoreHealthScore = lazy(() => import('./pages/StoreHealthScore'));
 // SEO landing pages
 const DropshippingAustralia = lazy(() => import('./pages/seo/DropshippingAustralia'));
@@ -241,6 +242,13 @@ function Router() {
               {() => (
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              )}
+            </Route>
+            <Route path="/app/product-search">
+              {() => (
+                <ProtectedRoute>
+                  <ProductSearch />
                 </ProtectedRoute>
               )}
             </Route>

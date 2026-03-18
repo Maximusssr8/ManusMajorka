@@ -693,6 +693,58 @@ Niche must be one of: Activewear & Gym, Beauty & Skincare, Health & Wellness, Te
         });
         return;
       }
+      // TikTok Shop via SociaVault product detail API
+      if (/tiktok\.com/i.test(url)) {
+        const sociavaultKey = process.env.SOCIAVAULT_API_KEY || '';
+        if (sociavaultKey) {
+          const productId = url.match(/\/(\d{15,20})/)?.[1]
+            || url.match(/item\/(\d+)/)?.[1]
+            || url.match(/product[_-](\d+)/i)?.[1];
+
+          if (productId) {
+            try {
+              const detailRes = await fetch(
+                `https://api.sociavault.com/v1/scrape/tiktok-shop/product?productId=${productId}`,
+                { headers: { 'X-Api-Key': sociavaultKey } }
+              );
+              const detailData: any = await detailRes.json();
+              console.log('[import] tiktok detail response:', JSON.stringify(detailData).slice(0, 500));
+
+              const p = detailData?.data?.product ?? detailData?.data ?? null;
+              if (p?.title) {
+                const urlListObj: Record<string, string> = p?.images?.[0]?.url_list ?? p?.image?.url_list ?? {};
+                const imageUrl = urlListObj['0'] ?? Object.values(urlListObj)[0] ?? null;
+                const priceUsd = parseFloat(p?.price_info?.sale_price ?? p?.product_price_info?.sale_price_decimal ?? '0');
+
+                res.json({
+                  success: true,
+                  productName: p.title,
+                  description: p.description ?? p.product_description ?? '',
+                  price: priceUsd ? Math.round(priceUsd * 1.55 * 10) / 10 : 49,
+                  imageUrl: imageUrl as string | null,
+                  niche: 'General / Mixed Niche',
+                  targetAudience: 'Australian online shoppers',
+                  source: 'sociavault-tiktok',
+                  platform: 'tiktok_shop',
+                });
+                return;
+              }
+            } catch (err: any) {
+              console.error('[import] TikTok detail error:', err.message);
+            }
+          }
+        }
+
+        // Fallback: try OG meta extraction for TikTok
+        const result = await scrapeProductData(url);
+        if (result.extractionError) {
+          res.status(422).json({ error: result.extractionError, confidence: 'low' });
+          return;
+        }
+        res.json(result);
+        return;
+      }
+
       if (/temu\.com/i.test(url)) {
         // STEP 2 — Direct fetch with mobile User-Agent
         try {

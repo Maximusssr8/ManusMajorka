@@ -229,6 +229,8 @@ async function startServer() {
   app.use('/api/admin', adminApiRouter);
   const shopsRouter = (await import('../routes/shops')).default;
   app.use('/api/shops', shopsRouter);
+  const productsRouter = (await import('../routes/products')).default;
+  app.use('/api/products', productsRouter);
   // tRPC API
   app.use(
     '/api/trpc',

@@ -86,6 +86,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: 'Product Intelligence', path: '/app/intelligence', icon: Sparkles, badge: 'NEW', tooltip: 'Trending products + full database + AI scout — all in one.' },
       { label: 'Shop Intelligence', path: '/app/shops', icon: Store, badge: 'PRO', tooltip: 'Discover top performing AU Shopify stores and analyse competitor strategy.' },
+      { label: 'Product Search', path: '/app/product-search', icon: Search, badge: 'LIVE', tooltip: 'Search TikTok Shop & AliExpress for real trending products.' },
       { label: 'Spy Tools', path: '/app/spy', icon: Eye, tooltip: 'Market overview, AU creators, trending video hooks.' },
     ],
   },
