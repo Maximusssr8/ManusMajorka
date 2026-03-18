@@ -91,6 +91,32 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const [minGrowth, setMinGrowth] = useState<number | null>(null);
   const searchTimer = useRef<ReturnType<typeof setTimeout>>();
 
+  // Live search state
+  const [liveSearch, setLiveSearch] = useState('');
+  const [liveResults, setLiveResults] = useState<any[]>([]);
+  const [liveLoading, setLiveLoading] = useState(false);
+  const [liveSearched, setLiveSearched] = useState(false);
+
+  const handleLiveSearch = async () => {
+    if (!liveSearch.trim()) return;
+    setLiveLoading(true);
+    setLiveSearched(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      const res = await fetch(`/api/products/search?q=${encodeURIComponent(liveSearch)}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      const data = await res.json();
+      setLiveResults(data.results ?? []);
+    } catch (err) {
+      console.error('[live-search]', err);
+      setLiveResults([]);
+    } finally {
+      setLiveLoading(false);
+    }
+  };
+
   // Apply preset filters on mount
   useEffect(() => {
     if (presetFilter === 'trending') {
@@ -195,6 +221,146 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
   return (
     <div style={{ background: '#080a0e', minHeight: '100%' }}>
+
+      {/* === LIVE SEARCH HERO === */}
+      <div style={{
+        padding: '28px 28px 20px',
+        background: 'linear-gradient(180deg, #0d1117 0%, #080a0e 100%)',
+        borderBottom: '1px solid #1a2030',
+      }}>
+        <h2 style={{
+          color: '#e8eaf0', fontSize: 20, fontWeight: 700,
+          fontFamily: 'Syne, sans-serif', margin: '0 0 14px',
+        }}>
+          Search any product
+        </h2>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <input
+            value={liveSearch}
+            onChange={e => setLiveSearch(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleLiveSearch()}
+            placeholder="e.g. creatine gummies, posture corrector, gua sha..."
+            style={{
+              flex: 1, padding: '13px 18px',
+              background: '#1a2030', border: '1px solid #2a3040',
+              borderRadius: 8, color: '#e8eaf0', fontSize: 15, outline: 'none',
+            }}
+          />
+          <button
+            onClick={handleLiveSearch}
+            disabled={liveLoading || !liveSearch.trim()}
+            style={{
+              padding: '13px 24px', background: '#d4af37', color: '#080a0e',
+              border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer',
+              fontSize: 14, fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap',
+              opacity: liveLoading ? 0.7 : 1,
+            }}
+          >
+            {liveLoading ? '...' : 'Search \u2192'}
+          </button>
+        </div>
+        <p style={{ color: '#4b5563', fontSize: 12, marginTop: 8, margin: '8px 0 0' }}>
+          Searches live TikTok Shop &middot; Results appear below
+        </p>
+      </div>
+
+      {/* === LIVE SEARCH RESULTS === */}
+      {liveSearched && (
+        <div style={{ padding: '0 0 8px' }}>
+          <div style={{ padding: '16px 28px 12px', borderBottom: '1px solid #1a2030', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ color: '#6b7280', fontSize: 13 }}>
+              {liveLoading ? 'Searching...' : `${liveResults.length} live results for "${liveSearch}"`}
+            </span>
+            <button
+              onClick={() => { setLiveSearched(false); setLiveResults([]); setLiveSearch(''); }}
+              style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', fontSize: 12 }}
+            >
+              Clear &times;
+            </button>
+          </div>
+
+          {liveLoading && (
+            <div style={{ padding: '8px 28px' }}>
+              {[1,2,3].map(i => (
+                <div key={i} style={{ height: 56, background: '#0d1117', borderRadius: 6, marginBottom: 6, animation: 'pulse 1.5s infinite' }} />
+              ))}
+            </div>
+          )}
+
+          {!liveLoading && liveResults.map((product, idx) => (
+            <div key={product.id || idx} style={{
+              display: 'flex', alignItems: 'center', gap: 12,
+              padding: '12px 28px', borderBottom: '1px solid #111820',
+              transition: 'background 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#0d1117'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+            >
+              {product.image ? (
+                <img src={product.image} width={48} height={48}
+                  style={{ borderRadius: 6, objectFit: 'cover', flexShrink: 0 }}
+                  onError={e => { e.currentTarget.style.display = 'none'; }} />
+              ) : (
+                <div style={{ width: 48, height: 48, borderRadius: 6, background: '#1a2030', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 18 }}>🛍️</div>
+              )}
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ color: '#e8eaf0', fontSize: 13, fontWeight: 500, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {product.title}
+                </p>
+                <span style={{
+                  display: 'inline-block', marginTop: 3, padding: '2px 7px',
+                  background: product.source === 'tiktok_shop' ? '#1a1a2e' : '#1a1a1a',
+                  border: `1px solid ${product.source === 'tiktok_shop' ? '#333366' : '#333'}`,
+                  borderRadius: 4, fontSize: 10, color: product.source === 'tiktok_shop' ? '#8888cc' : '#666',
+                }}>
+                  {product.platform_badge}
+                </span>
+              </div>
+
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <span style={{ color: '#d4af37', fontWeight: 700, fontSize: 15 }}>
+                  ${product.price_aud > 0 ? product.price_aud.toFixed(2) : '\u2014'}
+                </span>
+                {product.sold_count && (
+                  <p style={{ color: '#4b5563', fontSize: 11, margin: '2px 0 0' }}>{product.sold_count}</p>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                <button
+                  onClick={() => {
+                    const params = new URLSearchParams({
+                      productName: product.title,
+                      imageUrl: product.image || '',
+                      price: String(product.price_aud || ''),
+                      fromDatabase: 'true',
+                    });
+                    navigate(`/app/website-generator?${params}`);
+                  }}
+                  style={{
+                    background: '#d4af37', color: '#080a0e', border: 'none',
+                    padding: '7px 14px', borderRadius: 6, fontSize: 12, fontWeight: 700,
+                    cursor: 'pointer', whiteSpace: 'nowrap',
+                  }}
+                >
+                  Build Store &rarr;
+                </button>
+              </div>
+            </div>
+          ))}
+
+          {!liveLoading && liveSearched && liveResults.length === 0 && (
+            <p style={{ color: '#4b5563', padding: '20px 28px', fontSize: 13 }}>No results. Try a different search term.</p>
+          )}
+
+          <div style={{ padding: '16px 28px 4px' }}>
+            <p style={{ color: '#4b5563', fontSize: 12, margin: 0 }}>
+              &darr; Popular with AU dropshippers
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div style={{ padding: '24px 0 16px' }}>

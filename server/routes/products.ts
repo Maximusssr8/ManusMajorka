@@ -138,6 +138,44 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
     }
   }
 
+  // Log search analytics (non-blocking)
+  const userId = (req as any).user?.id ?? null;
+  supabase
+    .from('search_analytics')
+    .insert({ query: cacheKey, results_count: results.length, user_id: userId })
+    .then(() => {})
+    .catch(() => {});
+
+  // Auto-populate trend_signals from popular searches
+  (async () => {
+    try {
+      const { count } = await supabase
+        .from('search_analytics')
+        .select('*', { count: 'exact', head: true })
+        .eq('query', cacheKey)
+        .gte('searched_at', new Date(Date.now() - 86400000).toISOString());
+
+      if ((count ?? 0) >= 3 && results.length > 0) {
+        const top = results[0];
+        await supabase
+          .from('trend_signals')
+          .upsert({
+            name: top.title.slice(0, 120),
+            niche: query.charAt(0).toUpperCase() + query.slice(1),
+            image_url: top.image,
+            estimated_retail_aud: top.price_aud,
+            estimated_margin_pct: 55,
+            trend_score: 75 + Math.min(20, Math.floor((count ?? 3) * 2)),
+            dropship_viability_score: 80,
+            trend_reason: `Popular TikTok Shop search with ${top.sold_count} on top result`,
+            source: 'user_search',
+          }, { onConflict: 'name' });
+      }
+    } catch {
+      // Non-fatal
+    }
+  })();
+
   res.json({ results, total: results.length, query, source: results[0]?.source ?? 'none' });
 });
 

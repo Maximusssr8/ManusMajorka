@@ -593,10 +593,24 @@ Niche must be one of: Activewear & Gym, Beauty & Skincare, Health & Wellness, Te
                 console.warn('[import] Haiku inference failed:', haikuErr);
               }
 
+              const imgs = image ? [image] : [];
               res.json({
                 success: true,
-                productName: title,
+                title,
                 description: description || '',
+                images: imgs,
+                primaryImage: imgs[0] ?? '',
+                price_aud: priceAUD,
+                original_price_aud: priceAUD,
+                sold_count: '',
+                rating: 4.3,
+                source_url: url,
+                platform: 'aliexpress',
+                shipping_estimate: '7-14 days to AU',
+                suggested_retail_price: Math.round(priceAUD * 2.5),
+                estimated_margin: 60,
+                // Legacy fields for WebsiteGenerator compatibility
+                productName: title,
                 price: priceAUD,
                 imageUrl: image || null,
                 niche,
@@ -666,10 +680,24 @@ Niche must be one of: Activewear & Gym, Beauty & Skincare, Health & Wellness, Te
               console.warn('[import] Haiku inference failed (mobile path):', haikuErr);
             }
 
+            const imgs = image ? [image] : [];
             res.json({
               success: true,
-              productName: title,
+              title,
               description: description || '',
+              images: imgs,
+              primaryImage: imgs[0] ?? '',
+              price_aud: priceAUD,
+              original_price_aud: priceAUD,
+              sold_count: '',
+              rating: 4.3,
+              source_url: url,
+              platform: 'aliexpress',
+              shipping_estimate: '7-14 days to AU',
+              suggested_retail_price: Math.round(priceAUD * 2.5),
+              estimated_margin: 60,
+              // Legacy fields
+              productName: title,
               price: priceAUD,
               imageUrl: image || null,
               niche,
@@ -686,10 +714,8 @@ Niche must be one of: Activewear & Gym, Beauty & Skincare, Health & Wellness, Te
         res.status(422).json({
           success: false,
           manual: true,
-          platform: 'AliExpress',
-          productId: aliMatch?.[1] || null,
-          message: 'AliExpress requires manual entry. Copy the product title and price from the page.',
-          tip: 'Copy the product name and price from AliExpress and paste below.',
+          message: 'Paste product details below',
+          tip: 'Copy title and price from the product page',
         });
         return;
       }
@@ -708,29 +734,54 @@ Niche must be one of: Activewear & Gym, Beauty & Skincare, Health & Wellness, Te
                 { headers: { 'X-Api-Key': sociavaultKey } }
               );
               const detailData: any = await detailRes.json();
-              console.log('[import] tiktok detail response:', JSON.stringify(detailData).slice(0, 500));
+              console.log('[import-tiktok] response:', JSON.stringify(detailData).slice(0, 800));
 
               const p = detailData?.data?.product ?? detailData?.data ?? null;
               if (p?.title) {
-                const urlListObj: Record<string, string> = p?.images?.[0]?.url_list ?? p?.image?.url_list ?? {};
-                const imageUrl = urlListObj['0'] ?? Object.values(urlListObj)[0] ?? null;
+                const imgs: string[] = [];
+                const imgObj = p?.images ?? [];
+                for (const img of (Array.isArray(imgObj) ? imgObj : Object.values(imgObj))) {
+                  const ul = (img as any)?.url_list ?? {};
+                  const u = ul['0'] ?? Object.values(ul)[0];
+                  if (u) imgs.push(u as string);
+                }
+                // Also try single image field
+                if (imgs.length === 0) {
+                  const urlListObj: Record<string, string> = p?.image?.url_list ?? {};
+                  const singleImg = urlListObj['0'] ?? Object.values(urlListObj)[0];
+                  if (singleImg) imgs.push(singleImg as string);
+                }
                 const priceUsd = parseFloat(p?.price_info?.sale_price ?? p?.product_price_info?.sale_price_decimal ?? '0');
+                const priceAud = priceUsd ? Math.round(priceUsd * 1.55) : 0;
+                const sold = p?.sold_info?.sold_count ?? 0;
 
                 res.json({
                   success: true,
-                  productName: p.title,
+                  title: p.title,
                   description: p.description ?? p.product_description ?? '',
-                  price: priceUsd ? Math.round(priceUsd * 1.55 * 10) / 10 : 49,
-                  imageUrl: imageUrl as string | null,
+                  images: imgs,
+                  primaryImage: imgs[0] ?? '',
+                  price_aud: priceAud,
+                  original_price_aud: priceAud,
+                  sold_count: sold >= 1000 ? `${(sold / 1000).toFixed(1)}k sold` : `${sold} sold`,
+                  rating: 4.5,
+                  source_url: url,
+                  platform: 'tiktok_shop',
+                  shipping_estimate: '7-14 days to AU',
+                  suggested_retail_price: Math.round(priceAud * 2.5),
+                  estimated_margin: 60,
+                  // Legacy fields for WebsiteGenerator compatibility
+                  productName: p.title,
+                  price: priceAud,
+                  imageUrl: imgs[0] ?? null,
                   niche: 'General / Mixed Niche',
                   targetAudience: 'Australian online shoppers',
                   source: 'sociavault-tiktok',
-                  platform: 'tiktok_shop',
                 });
                 return;
               }
             } catch (err: any) {
-              console.error('[import] TikTok detail error:', err.message);
+              console.error('[import-tiktok]', err.message);
             }
           }
         }
@@ -738,7 +789,12 @@ Niche must be one of: Activewear & Gym, Beauty & Skincare, Health & Wellness, Te
         // Fallback: try OG meta extraction for TikTok
         const result = await scrapeProductData(url);
         if (result.extractionError) {
-          res.status(422).json({ error: result.extractionError, confidence: 'low' });
+          res.status(422).json({
+            success: false,
+            manual: true,
+            message: 'Paste product details below',
+            tip: 'Copy title and price from the product page',
+          });
           return;
         }
         res.json(result);
@@ -802,10 +858,24 @@ Niche must be one of: Activewear & Gym, Beauty & Skincare, Health & Wellness, Te
               console.warn('[import] Haiku inference failed (Temu mobile path):', haikuErr);
             }
 
+            const imgs = image ? [image] : [];
             res.json({
               success: true,
-              productName: title,
+              title,
               description: description || '',
+              images: imgs,
+              primaryImage: imgs[0] ?? '',
+              price_aud: priceAUD,
+              original_price_aud: priceAUD,
+              sold_count: '',
+              rating: 4.0,
+              source_url: url,
+              platform: 'temu',
+              shipping_estimate: '7-14 days to AU',
+              suggested_retail_price: Math.round(priceAUD * 2.5),
+              estimated_margin: 60,
+              // Legacy fields
+              productName: title,
               price: priceAUD,
               imageUrl: image || null,
               niche,
@@ -822,10 +892,8 @@ Niche must be one of: Activewear & Gym, Beauty & Skincare, Health & Wellness, Te
         res.status(422).json({
           success: false,
           manual: true,
-          platform: 'Temu',
-          productId: null,
-          message: 'Temu requires manual entry. Copy the product title and price from the page.',
-          tip: 'Copy the product name and price from Temu and paste below.',
+          message: 'Paste product details below',
+          tip: 'Copy title and price from the product page',
         });
         return;
       }
