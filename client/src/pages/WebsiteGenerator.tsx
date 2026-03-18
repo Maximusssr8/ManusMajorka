@@ -3305,27 +3305,71 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       )}
                     </div>
                     {(generatedData || directHtml) ? (
-                      <div className={`flex-1 overflow-auto ${previewDevice !== 'desktop' ? 'flex justify-center' : ''}`} style={{ background: '#060608', padding: previewDevice !== 'desktop' ? '20px 0' : 0 }}>
-                        <div style={previewDevice !== 'desktop' ? { width: previewDevice === 'tablet' ? 768 : 390, flexShrink: 0 } : { width: '100%', height: '100%' }}>
-                          <iframe
-                            srcDoc={previewHTML || directHtml || ''}
-                            title="Store Preview"
-                            className="border-0"
-                            style={{
-                              width: DEVICE_WIDTHS[previewDevice],
-                              maxWidth: '100%',
-                              margin: '0 auto',
-                              display: 'block',
-                              height: previewDevice === 'mobile' ? 844 : previewDevice === 'tablet' ? 1024 : '100%',
-                              minHeight: 600,
-                              borderRadius: previewDevice !== 'desktop' ? 20 : 0,
-                              border: previewDevice !== 'desktop' ? '2px solid rgba(255,255,255,0.12)' : 'none',
-                              boxShadow: previewDevice !== 'desktop' ? '0 8px 40px rgba(0,0,0,0.5)' : 'none',
-                              animation: 'mjk-fadeIn 0.4s ease',
-                            }}
-                            sandbox="allow-scripts allow-same-origin allow-popups"
-                            ref={previewIframeRef}
-                          />
+                      <div className={`flex-1 overflow-auto ${previewDevice !== 'desktop' ? 'flex justify-center' : ''}`} style={{ background: '#060608', padding: previewDevice !== 'desktop' ? '20px 0' : 0, display: 'flex', flexDirection: 'column' }}>
+                        {/* Quick action bar */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'rgba(0,0,0,0.4)', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+                          <button
+                            onClick={handleOpenPreviewNewTab}
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 6, color: '#d4af37', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}
+                          >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            Full Screen
+                          </button>
+                          <button
+                            onClick={handleDownloadHTML}
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}
+                          >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            Download
+                          </button>
+                          <span style={{ flex: 1 }} />
+                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>
+                            {previewDevice === 'desktop' ? '55% scale' : previewDevice}
+                          </span>
+                        </div>
+                        <div style={previewDevice !== 'desktop'
+                          ? { width: previewDevice === 'tablet' ? 768 : 390, flexShrink: 0, margin: '0 auto' }
+                          : { flex: 1, overflow: 'hidden', position: 'relative' }
+                        }>
+                          {previewDevice === 'desktop' ? (
+                            // Desktop: scaled 55% view showing full 1440px store
+                            <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+                              <iframe
+                                srcDoc={previewHTML || directHtml || ''}
+                                title="Store Preview"
+                                style={{
+                                  width: 1440,
+                                  height: '181.8%', // 100/0.55 = 181.8%
+                                  transform: 'scale(0.55)',
+                                  transformOrigin: 'top left',
+                                  border: 'none',
+                                  pointerEvents: 'none',
+                                  display: 'block',
+                                }}
+                                sandbox="allow-scripts allow-same-origin allow-popups"
+                                ref={previewIframeRef}
+                              />
+                            </div>
+                          ) : (
+                            <iframe
+                              srcDoc={previewHTML || directHtml || ''}
+                              title="Store Preview"
+                              className="border-0"
+                              style={{
+                                width: DEVICE_WIDTHS[previewDevice],
+                                maxWidth: '100%',
+                                margin: '0 auto',
+                                display: 'block',
+                                height: previewDevice === 'mobile' ? 844 : 1024,
+                                borderRadius: 20,
+                                border: '2px solid rgba(255,255,255,0.12)',
+                                boxShadow: '0 8px 40px rgba(0,0,0,0.5)',
+                                animation: 'mjk-fadeIn 0.4s ease',
+                              }}
+                              sandbox="allow-scripts allow-same-origin allow-popups"
+                              ref={previewIframeRef}
+                            />
+                          )}
                         </div>
                         {/* B3 — Headline variants panel */}
                         {headlines && directHtml && (

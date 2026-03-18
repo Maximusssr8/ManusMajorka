@@ -11,6 +11,7 @@ import { getAnthropicClient, CLAUDE_MODEL } from './anthropic';
 import { getSupabaseAdmin } from '../_core/supabase';
 import { requireSubscription } from '../middleware/requireSubscription';
 import { rateLimit } from './rate-limit';
+import { getTemplateHeroPhoto, getProductPhoto, buildUnsplashUrl } from './templatePhotos';
 
 // ─── Auth helper ─────────────────────────────────────────────────────────────
 async function authenticateRequest(req: any): Promise<{ userId: string; email: string } | null> {
@@ -1452,11 +1453,17 @@ async function generateFullStore_legacy(params: {
   const scrapedHeroImg = (pd?.hero_image as string) || scrapedImages?.[0] || directProductImageUrl || '';
   const scrapedProductImg = directProductImageUrl || scrapedImages?.[1] || scrapedImages?.[0] || '';
   const imgs = getUnsplashImages(niche, productTitle);
-  const heroImg      = scrapedHeroImg    || imgs.hero;
-  const productImg   = scrapedProductImg || imgs.product;
+  // Use template-specific curated photos as fallback (more relevant than random niche photos)
+  const templateHeroPhotoId = getTemplateHeroPhoto(designDirection as string, niche);
+  const templateProductPhotoId = getProductPhoto(niche);
+  const templateHeroUrl = buildUnsplashUrl(templateHeroPhotoId, 1400, 900);
+  const templateProductUrl = buildUnsplashUrl(templateProductPhotoId, 800, 800);
+  const heroImg      = scrapedHeroImg    || templateHeroUrl || imgs.hero;
+  const productImg   = scrapedProductImg || templateProductUrl || imgs.product;
   const lifestyleImg1 = imgs.lifestyle1;
   const lifestyleImg2 = imgs.lifestyle2;
   const shopImages   = imgs.shopImages;
+  console.log(`[website-api] heroImg: ${heroImg.slice(0, 80)} | productImg: ${productImg.slice(0, 80)}`);
 
   // ── 2. Expand brand brief (fast Haiku) ─────────────────────────────────────
   progress(10, '📝 Building your brand brief...');
