@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Route, Switch, useLocation } from 'wouter';
 import { Toaster } from '@/components/ui/sonner';
 import AlmostWonModal from '@/components/AlmostWonModal';
@@ -76,9 +76,37 @@ function LoadingFallback() {
   );
 }
 
+
+// Gold loading bar on route change
+const LOADING_BAR_CSS = `
+  .page-loading-bar {
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: #d4af37; z-index: 99999;
+    animation: loadingBar 0.5s ease forwards;
+    pointer-events: none;
+  }
+  @keyframes loadingBar {
+    0% { width: 0%; opacity: 1; }
+    60% { width: 80%; opacity: 1; }
+    100% { width: 100%; opacity: 0; }
+  }
+`;
+
 function Router() {
   const [location] = useLocation();
+  const [showBar, setShowBar] = useState(false);
+  const barTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    setShowBar(true);
+    if (barTimerRef.current) clearTimeout(barTimerRef.current);
+    barTimerRef.current = setTimeout(() => setShowBar(false), 600);
+    return () => { if (barTimerRef.current) clearTimeout(barTimerRef.current); };
+  }, [location]);
+
   return (
+    <>
+      <style>{LOADING_BAR_CSS}</style>
+      {showBar && <div className="page-loading-bar" key={location + '-bar'} />}
     <Suspense fallback={<LoadingFallback />}>
       <AnimatePresence mode="wait">
         <motion.div
@@ -171,6 +199,27 @@ function Router() {
                 </ProtectedRoute>
               )}
             </Route>
+
+            {/* Redirects for consolidated pages */}
+            <Route path="/app/trend-signals">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
+            <Route path="/app/winning-products">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
+            <Route path="/app/product-discovery">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
+            <Route path="/app/market">{() => { window.location.replace('/app/spy'); return null; }}</Route>
+            <Route path="/app/creators">{() => { window.location.replace('/app/spy'); return null; }}</Route>
+            <Route path="/app/videos">{() => { window.location.replace('/app/spy'); return null; }}</Route>
+            <Route path="/app/meta-ads">{() => { window.location.replace('/app/growth'); return null; }}</Route>
+            <Route path="/app/copywriter">{() => { window.location.replace('/app/growth'); return null; }}</Route>
+            <Route path="/app/brand-dna">{() => { window.location.replace('/app/growth'); return null; }}</Route>
+            <Route path="/app/suppliers">{() => { window.location.replace('/app/profit'); return null; }}</Route>
+            <Route path="/app/profit-calculator">{() => { window.location.replace('/app/profit'); return null; }}</Route>
+            <Route path="/app/profit-check">{() => { window.location.replace('/app/profit'); return null; }}</Route>
+
+            {/* New consolidated routes */}
+            <Route path="/app/intelligence">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+            <Route path="/app/spy">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+            <Route path="/app/growth">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+            <Route path="/app/profit">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+
             <Route path="/app/store/:subpage">
               {() => (
                 <ProtectedRoute>
@@ -178,14 +227,14 @@ function Router() {
                 </ProtectedRoute>
               )}
             </Route>
-            <Route path="/app/:tool">
+            <Route path="/app/product-hub/:id">
               {() => (
                 <ProtectedRoute>
                   <Dashboard />
                 </ProtectedRoute>
               )}
             </Route>
-            <Route path="/app/product-hub/:id">
+            <Route path="/app/:tool">
               {() => (
                 <ProtectedRoute>
                   <Dashboard />
@@ -207,6 +256,7 @@ function Router() {
         </motion.div>
       </AnimatePresence>
     </Suspense>
+    </>
   );
 }
 

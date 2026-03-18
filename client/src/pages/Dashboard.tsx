@@ -989,7 +989,7 @@ function DashboardHome() {
         {/* Personalised Product Feed */}
         <PersonalisedFeed />
 
-        {/* Quick Actions */}
+        {/* Quick Action Cards */}
         <div className="mb-8">
           <div
             className="text-xs font-bold uppercase tracking-widest mb-3"
@@ -998,75 +998,20 @@ function DashboardHome() {
             Quick Actions
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {(
-              [
-                {
-                  label: 'Winning Products',
-                  path: '/app/winning-products',
-                  icon: ShoppingBag,
-                  color: '#10b981',
-                  desc: 'AU trending products',
-                },
-                {
-                  label: 'Ask Maya',
-                  path: '/app/ai-chat',
-                  icon: MessageSquare,
-                  color: '#d4af37',
-                  desc: 'AI market intelligence',
-                },
-                {
-                  label: 'Supplier Search',
-                  path: '/app/suppliers',
-                  icon: Package,
-                  color: '#7c6af5',
-                  desc: 'Source AU-ready products',
-                },
-                {
-                  label: 'Store Health',
-                  path: '/store-health',
-                  icon: Star,
-                  color: '#f59e0b',
-                  desc: 'Free health score',
-                },
-              ] as const
-            ).map(({ label, path, icon: Icon, color, desc }) => (
-              <button
-                key={path}
-                onClick={() => setLocation(path)}
-                className="flex flex-col rounded-xl p-4 transition-all text-left"
-                style={{
-                  background: '#0c0c10',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = `${color}50`;
-                  e.currentTarget.style.background = `${color}08`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
-                  e.currentTarget.style.background = '#0c0c10';
-                }}
-              >
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
-                  style={{ background: `${color}12` }}
-                >
-                  <Icon size={15} style={{ color }} />
-                </div>
-                <span
-                  className="text-sm font-bold block mb-0.5"
-                  style={{ color: '#f5f5f5', fontFamily: 'Syne, sans-serif' }}
-                >
-                  {label}
-                </span>
-                <span
-                  className="text-xs"
-                  style={{ color: '#52525b' }}
-                >
-                  {desc}
-                </span>
-              </button>
+            {[
+              { icon: '🔍', title: 'Discover', desc: 'Find your next product', link: '/app/intelligence', cta: 'Scout Now' },
+              { icon: '⚡', title: 'Build', desc: 'Generate a store in 60s', link: '/app/website-generator', cta: 'Build Now' },
+              { icon: '💰', title: 'Analyse', desc: 'Check your margins', link: '/app/profit', cta: 'Calculate' },
+              { icon: '🚀', title: 'Launch', desc: 'Push to Shopify', link: '/app/website-generator', cta: 'Connect' },
+            ].map(card => (
+              <a key={card.title} href={card.link} style={{ textDecoration: 'none', background: '#111118', border: '1px solid #1e1e1e', borderRadius: 12, padding: '16px', display: 'block', transition: 'border-color 0.2s' }}
+                onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.borderColor = '#d4af37')}
+                onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.borderColor = '#1e1e1e')}>
+                <div style={{ fontSize: 28, marginBottom: 8 }}>{card.icon}</div>
+                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#f0ede8', fontSize: 15, marginBottom: 4 }}>{card.title}</div>
+                <div style={{ color: 'rgba(240,237,232,0.5)', fontSize: 12, marginBottom: 12 }}>{card.desc}</div>
+                <div style={{ color: '#d4af37', fontSize: 12, fontWeight: 700 }}>{card.cta} →</div>
+              </a>
             ))}
           </div>
         </div>

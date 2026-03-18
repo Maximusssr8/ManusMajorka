@@ -19,16 +19,16 @@ const GOALS = [
     id: 'find-product',
     label: 'Find a winning product to sell',
     icon: Search,
-    path: '/app/product-discovery',
+    path: '/app/intelligence',
   },
-  { id: 'build-brand', label: 'Build my brand identity', icon: Palette, path: '/app/brand-dna' },
+  { id: 'build-brand', label: 'Build my brand identity', icon: Palette, path: '/app/growth' },
   {
     id: 'create-store',
     label: 'Create my Shopify store',
     icon: Globe,
     path: '/app/website-generator',
   },
-  { id: 'write-ads', label: 'Write my first ad campaign', icon: Megaphone, path: '/app/meta-ads' },
+  { id: 'write-ads', label: 'Write my first ad campaign', icon: Megaphone, path: '/app/growth' },
   { id: 'explore', label: 'Just explore', icon: Compass, path: '/app' },
 ];
 

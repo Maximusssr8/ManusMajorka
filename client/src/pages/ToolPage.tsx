@@ -57,6 +57,10 @@ const TrendSignals = lazy(() => import('./TrendSignals'));
 const SupplierIntelligence = lazy(() => import('./SupplierIntelligence'));
 const SupplierDirectory = lazy(() => import('./SupplierDirectory'));
 const Billing = lazy(() => import('./Billing'));
+const ProductIntelligence = lazy(() => import('./ProductIntelligence'));
+const SpyTools = lazy(() => import('./SpyTools'));
+const GrowthTools = lazy(() => import('./GrowthTools'));
+const ProfitSuppliers = lazy(() => import('./ProfitSuppliers'));
 
 // Map stage landing paths to their stage names
 const STAGE_PATHS: Record<string, string> = {
@@ -154,6 +158,12 @@ export default function ToolPage() {
     const SettingsProfile = lazy(() => import('./SettingsProfile'));
     return page(<SettingsProfile />);
   }
+
+  // New consolidated pages
+  if (location === '/app/intelligence') return page(<ProductIntelligence />);
+  if (location === '/app/spy') return page(<SpyTools />);
+  if (location === '/app/growth') return page(<GrowthTools />);
+  if (location === '/app/profit') return page(<ProfitSuppliers />);
 
   // Route dedicated tool pages
   if (location === '/app/website-generator') return page(<WebsiteGenerator />);

@@ -7,12 +7,14 @@ import {
   Activity,
   ArrowUpRight,
   BarChart3,
+  BookOpen,
   Brain,
   Calculator,
   ChevronDown,
   CreditCard,
   ChevronRight,
   ClipboardList,
+  DollarSign,
   Eye,
   Flame,
   Globe,
@@ -28,6 +30,7 @@ import {
   Search,
   Settings,
   Shield,
+  Sparkles,
   Store,
   TrendingUp,
   User,
@@ -65,155 +68,50 @@ interface PhaseSection {
   items: NavItem[];
 }
 
-// ── Phase-based nav structure ─────────────────────────────────────────────────
+// ── Nav structure — 6-section sidebar ─────────────────────────────────────────
 
-const TOP_ITEMS: NavItem[] = [
+interface NavSection {
+  label?: string;
+  items: NavItem[];
+}
+
+const NAV_SECTIONS: NavSection[] = [
   {
-    label: 'Home',
-    path: '/app',
-    exact: true,
-    icon: Home,
-    tooltip: 'Your Majorka dashboard — overview of all tools and recent activity.',
+    items: [
+      { label: 'Home', path: '/app', exact: true, icon: Home },
+    ],
   },
   {
-    label: 'My Playbook',
-    path: '/app/history',
-    icon: ClipboardList,
-    tooltip: 'View and revisit your saved tool outputs and session history.',
-  },
-];
-
-const PHASE_SECTIONS: PhaseSection[] = [
-  {
-    id: 'discover',
-    phaseNum: 1,
     label: 'DISCOVER',
-    color: '#10b981',
     items: [
-      {
-        label: 'Product Scout',
-        path: '/app/product-discovery',
-        icon: Search,
-        tooltip: 'AI finds trending, profitable products for the Australian market.',
-      },
-      {
-        label: 'Trend Signals',
-        path: '/app/trend-signals',
-        icon: TrendingUp,
-        badge: 'NEW',
-        tooltip: 'Emerging AU trends before they peak — 6h AI cron refresh.',
-      },
-      {
-        label: 'Trending Now',
-        path: '/app/trend-signals',
-        icon: Flame,
-        badge: 'HOT',
-        tooltip: "See what's selling right now — 6h AI cron refresh with trend scores.",
-      },
-      {
-        label: 'Market',
-        path: '/app/market',
-        icon: BarChart3,
-        tooltip: 'AU market overview — trending categories, top creators, hot products.',
-      },
-      {
-        label: 'Creators',
-        path: '/app/creators',
-        icon: Users,
-        tooltip: 'Find AU TikTok creators to partner with for product promotions.',
-      },
-      {
-        label: 'Videos',
-        path: '/app/videos',
-        icon: Play,
-        tooltip: 'Top-performing AU product videos driving real sales.',
-      },
-      {
-        label: 'Suppliers',
-        path: '/app/suppliers',
-        icon: Package,
-        tooltip: 'Find AU-ready suppliers for any product — AliExpress, Alibaba, CJ Dropshipping.',
-      },
-      {
-        label: 'Profit Check',
-        path: '/app/profit-calculator',
-        icon: Calculator,
-        tooltip: 'Calculate real margins including AU shipping, GST, and ad costs.',
-      },
-      {
-        label: 'Academy',
-        path: '/app/learn',
-        icon: GraduationCap,
-        tooltip: '20 lessons from zero to $10K/month — free lessons included.',
-      },
+      { label: 'Product Intelligence', path: '/app/intelligence', icon: Sparkles, badge: 'NEW', tooltip: 'Trending products + full database + AI scout — all in one.' },
+      { label: 'Spy Tools', path: '/app/spy', icon: Eye, tooltip: 'Market overview, AU creators, trending video hooks.' },
     ],
   },
   {
-    id: 'build',
-    phaseNum: 2,
     label: 'BUILD',
-    color: '#7c6af5',
     items: [
-      {
-        label: 'Store Builder',
-        path: '/app/website-generator',
-        icon: Globe,
-        tooltip: 'Generate a complete Shopify store layout and copy in minutes.',
-      },
-      {
-        label: 'Brand DNA',
-        path: '/app/brand-dna',
-        icon: Brain,
-        tooltip: 'Define your brand name, tone, colours, and identity in one step.',
-      },
-      {
-        label: 'Copy Studio',
-        path: '/app/copywriter',
-        icon: PenTool,
-        tooltip: 'Write high-converting product copy and email sequences with AI.',
-      },
-      {
-        label: 'Ad Studio',
-        path: '/app/meta-ads',
-        icon: Megaphone,
-        tooltip: 'Create Meta and TikTok ad creatives, hooks, and full ad packs.',
-      },
+      { label: 'Store Builder', path: '/app/website-generator', icon: Globe, badge: 'AI', tooltip: 'Generate a complete Shopify-ready store in 60 seconds.' },
+      { label: 'Growth Tools', path: '/app/growth', icon: Zap, tooltip: 'Ad Studio, Copy Studio, and Brand DNA — one place.' },
     ],
   },
   {
-    id: 'spy',
-    phaseNum: 3,
-    label: 'SPY',
-    color: '#f59e0b',
+    label: 'MANAGE',
     items: [
-      {
-        label: 'Competitor Intel',
-        path: '/app/store-spy',
-        icon: Eye,
-        tooltip: 'Reverse-engineer competitor stores, ads, and pricing strategies.',
-      },
-      {
-        label: 'Competitor Spy',
-        path: '/app/competitor-spy',
-        icon: Eye,
-        tooltip: 'Research any TikTok Shop competitor — products, strategy, how to beat them.',
-      },
-      {
-        label: 'Market Saturation',
-        path: '/app/saturation-checker',
-        icon: Activity,
-        tooltip: 'Check how crowded a niche is before you invest time and money.',
-      },
-      {
-        label: 'Store Health',
-        path: '/store-health',
-        icon: Activity,
-        badge: 'FREE',
-        tooltip: 'Free public tool — AI-powered health score for any Shopify store.',
-      },
+      { label: 'Profit & Suppliers', path: '/app/profit', icon: DollarSign, tooltip: 'Profit calculator + AU supplier directory.' },
+      { label: 'Academy', path: '/app/learn', icon: BookOpen, tooltip: 'Learn dropshipping for the AU market.' },
+    ],
+  },
+  {
+    label: 'ACCOUNT',
+    items: [
+      { label: 'Settings & Billing', path: '/app/billing', icon: Settings, tooltip: 'Account settings, plan, and billing.' },
     ],
   },
 ];
+
+// Legacy constants kept for compatibility
+const PHASE_SECTIONS: PhaseSection[] = [];
 
 const MOBILE_TABS: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home, exact: true },
@@ -719,238 +617,44 @@ export default function MajorkaAppShell({ children }: Props) {
         data-tour="sidebar-nav"
         style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}
       >
-        {/* Top items: Home + Playbook */}
-        <div className="mb-2">{TOP_ITEMS.map((item) => navItem(item))}</div>
-
-        {/* Phase divider */}
-        <div className="mb-1" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }} />
-
-        {/* Phase sections */}
-        {PHASE_SECTIONS.map((phase) => (
-          <div key={phase.id} className="mb-1">
-            {/* Phase header — collapsible */}
-            <button
-              onClick={() => togglePhase(phase.id)}
-              className="w-full flex items-center gap-2 px-2 py-1.5 transition-all"
-              style={{
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-              }}
-            >
-              {/* Phase badge */}
-              <div
-                className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{ background: `${phase.color}20`, border: `1px solid ${phase.color}40` }}
-              >
-                <span
-                  style={{
-                    fontSize: 8,
-                    fontWeight: 800,
-                    color: phase.color,
-                    fontFamily: 'Syne, sans-serif',
-                  }}
-                >
-                  {phase.phaseNum}
-                </span>
-              </div>
-              <span
-                className="flex-1 text-left uppercase"
-                style={{
-                  fontSize: 11,
-                  fontWeight: 500,
-                  letterSpacing: '0.08em',
-                  color: '#6b7280',
-                  fontFamily: "'DM Sans', sans-serif",
-                }}
-              >
-                PHASE {phase.phaseNum} · {phase.label}
-              </span>
-              {phaseOpen[phase.id] ? (
-                <ChevronDown size={10} style={{ color: '#3f3f46', flexShrink: 0 }} />
-              ) : (
-                <ChevronRight size={10} style={{ color: '#3f3f46', flexShrink: 0 }} />
-              )}
-            </button>
-
-            {/* Phase items */}
-            {phaseOpen[phase.id] && (
-              <div className="pl-1">{phase.items.map((item) => navItem(item))}</div>
+        {/* Nav sections */}
+        {NAV_SECTIONS.map((section, si) => (
+          <div key={si} className="mb-1">
+            {section.label && (
+              <>
+                {si > 0 && <div className="mt-1 mb-1" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }} />}
+                <div className="px-3 py-1.5">
+                  <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', color: '#52525b', fontFamily: 'Syne, sans-serif' }}>
+                    {section.label}
+                  </span>
+                </div>
+              </>
             )}
+            {section.items.map((item) => navItem(item))}
           </div>
         ))}
 
-        {/* Divider */}
-        <div className="my-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }} />
-
-        {/* Ask Majorka AI — gold gradient full-width button */}
-        <div className="px-1 mb-1">
-          <button
-            onClick={() => handleNavClick('/app/ai-chat')}
-            className="w-full flex items-center gap-2 px-3 py-2 font-semibold text-sm transition-all"
-            style={{
-              borderRadius: 8,
-              background: isActive('/app/ai-chat')
-                ? 'linear-gradient(90deg, #d4af37, #b8960c)'
-                : 'linear-gradient(90deg, #d4af37cc, #b8960ccc)',
-              color: '#0a0a0a',
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: 'DM Sans, sans-serif',
-              boxShadow: '0 2px 8px rgba(212,175,55,0.2)',
-            }}
-            title="Chat with Majorka AI — your dedicated ecommerce strategist"
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.background = 'linear-gradient(90deg, #d4af37, #b8960c)')
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = isActive('/app/ai-chat')
-                ? 'linear-gradient(90deg, #d4af37, #b8960c)'
-                : 'linear-gradient(90deg, #d4af37cc, #b8960ccc)')
-            }
-          >
-            <MessageSquare size={14} style={{ flexShrink: 0 }} />
-            <span className="flex-1 text-left">Ask Majorka AI</span>
-          </button>
-        </div>
-
-        {/* Knowledge Base */}
-        {navItem({
-          label: 'Knowledge Base',
-          path: '/app/knowledge-base',
-          icon: GraduationCap,
-          tooltip: 'Browse guides, tutorials, and resources for AU dropshippers.',
-        })}
-
-        {/* Admin — only visible to maximusmajorka@gmail.com */}
-        {user?.email === 'maximusmajorka@gmail.com' &&
+        {/* Admin — only visible to admin */}
+        {(user?.email === 'maximusmajorka@gmail.com' || session?.user?.email === 'maximusmajorka@gmail.com') &&
           navItem({
             label: 'Admin',
-            path: '/admin',
+            path: '/app/admin',
             icon: Shield,
             tooltip: 'Admin panel — user management, stats, quick actions.',
           })}
       </div>
 
-      {/* Market selector */}
+      {/* AU flag + region */}
       <div
-        className="flex-shrink-0 px-2.5 py-2"
+        className="flex-shrink-0 px-3 py-2 flex items-center gap-2"
         style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
       >
-        <MarketSelector />
+        <span style={{ fontSize: 14 }}>🇦🇺</span>
+        <span style={{ fontSize: 11, color: '#52525b', fontWeight: 500 }}>Australia</span>
       </div>
 
-      {/* Beginner Mode toggle */}
-      <div
-        className="flex-shrink-0 px-3 py-2 flex items-center justify-between"
-        style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}
-      >
-        <span
-          className="text-xs"
-          style={{ color: '#52525b', fontFamily: 'DM Sans, sans-serif' }}
-          title="Simplifies tool names and adds helpful tooltips for new users"
-        >
-          Beginner Mode
-        </span>
-        <button
-          onClick={toggleBeginnerMode}
-          aria-label="Toggle Beginner Mode"
-          className="relative flex-shrink-0"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-        >
-          <div
-            style={{
-              width: 32,
-              height: 18,
-              borderRadius: 9,
-              background: isBeginnerMode ? 'rgba(212,175,55,0.6)' : 'rgba(255,255,255,0.1)',
-              transition: 'background 0.2s',
-              position: 'relative',
-            }}
-          >
-            <div
-              style={{
-                width: 12,
-                height: 12,
-                borderRadius: '50%',
-                background: isBeginnerMode ? '#d4af37' : '#52525b',
-                position: 'absolute',
-                top: 3,
-                left: isBeginnerMode ? 17 : 3,
-                transition: 'left 0.2s, background 0.2s',
-              }}
-            />
-          </div>
-        </button>
-      </div>
-
-      {/* Usage meter — mini progress bar */}
-      <div
-        className="flex-shrink-0 px-3 py-2"
-        style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
-      >
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs" style={{ color: '#52525b', fontFamily: 'DM Sans, sans-serif' }}>
-            {usageCount} / {DAILY_LIMIT} credits today
-          </span>
-          <Zap size={10} style={{ color: usagePercent > 80 ? '#ef4444' : '#d4af37' }} />
-        </div>
-        <div
-          className="w-full rounded-full overflow-hidden"
-          style={{ height: 4, background: 'rgba(255,255,255,0.06)' }}
-          title={`${usageCount} of ${DAILY_LIMIT} daily credits used`}
-        >
-          <div
-            className="h-full rounded-full transition-all duration-500"
-            style={{
-              width: `${usagePercent}%`,
-              background:
-                usagePercent > 80
-                  ? 'linear-gradient(90deg, #ef4444, #dc2626)'
-                  : 'linear-gradient(90deg, #d4af37, #f0c040)',
-            }}
-          />
-        </div>
-        {usagePercent > 80 && (
-          <p className="text-xs mt-1" style={{ color: '#ef4444', fontSize: 9.5 }}>
-            Running low — upgrade for more
-          </p>
-        )}
-        {usagePercent > 60 && (
-          <button
-            onClick={() => setLocation('/pricing')}
-            className="upgrade-pulse cta-shimmer w-full mt-2 text-xs font-bold py-1.5 rounded-lg"
-            style={{
-              background: 'linear-gradient(135deg, #d4af37, #b8941f)',
-              color: '#000',
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: 'Syne, sans-serif',
-            }}
-          >
-            {isPro
-              ? `${subPlan.charAt(0).toUpperCase() + subPlan.slice(1)} Plan · Unlimited AI tools ✓`
-              : 'Upgrade — Unlimited'}
-          </button>
-        )}
-      </div>
-
-      {/* Admin link — only for admin */}
-      {(user?.email === 'maximusmajorka@gmail.com' || session?.user?.email === 'maximusmajorka@gmail.com') && (
-        <div className="px-2 pb-1">
-          <button
-            onClick={() => setLocation('/app/admin')}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', gap: 8,
-              padding: '7px 10px', borderRadius: 7, border: 'none',
-              background: 'rgba(212,175,55,0.06)', cursor: 'pointer',
-              color: '#d4af37', fontSize: 12, fontWeight: 600,
-            }}
-          >
-            ⚙️ Admin Panel
-          </button>
-        </div>
-      )}
+      {/* Divider */}
+      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} />
 
       {/* User section */}
       <div
