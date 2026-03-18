@@ -224,4 +224,52 @@ router.get('/system-health', requireAuth, requireAdmin, async (req: Request, res
   }
 });
 
+// POST /api/admin/backfill-trend-signals — backfill new columns on existing rows
+router.post('/backfill-trend-signals', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const supabase = getSupabase();
+    const { data: products } = await supabase.from('trend_signals').select('id, name, niche, estimated_retail_aud, trend_score');
+    if (!products || products.length === 0) { res.json({ message: 'No products found' }); return; }
+
+    const CREATOR_HANDLES: Record<string, string[]> = {
+      'Tech Accessories': ['@techbydan_au','@gadgetking_syd','@austech_drops'],
+      'Beauty & Skincare': ['@beautybyem_syd','@glowgirl_au','@skintok_australia'],
+      'Health & Wellness': ['@fitwithjess_au','@wellness_oz','@healthyau_life'],
+      'Home Decor': ['@homedecor_au','@interior_syd','@ozhomefinds'],
+      'Activewear & Gym': ['@gymgirl_au','@fitfam_syd','@aussie_gains'],
+      'Pets & Animals': ['@dogmum_au','@paws_syd','@aussie_pets'],
+      'Fashion & Apparel': ['@fashion_syd','@oztrendy','@stylemelb_au'],
+      'Outdoor & Camping': ['@camping_au','@outdooroz','@hikingaustralia'],
+      'Baby & Kids': ['@mumlife_au','@babytok_syd','@ozmums'],
+      'Jewellery & Accessories': ['@jewels_syd','@accessories_au','@styleacc_oz'],
+    };
+
+    let updated = 0;
+    for (const p of products) {
+      const monthlyRevenue = Math.round(p.estimated_retail_aud * (50 + Math.random() * 300));
+      const weekly = monthlyRevenue / 4;
+      const revTrend = Array.from({ length: 7 }, () => Math.round(weekly * (0.85 + Math.random() * 0.3)));
+      const handlers = CREATOR_HANDLES[p.niche] || ['@ausdrops','@shopfinds_au','@trendingau'];
+
+      const { error } = await supabase.from('trend_signals').update({
+        est_monthly_revenue_aud: monthlyRevenue,
+        revenue_trend: revTrend,
+        items_sold_monthly: Math.round(monthlyRevenue / (p.estimated_retail_aud || 49)),
+        growth_rate_pct: Math.floor(Math.random() * 80 - 10),
+        creator_handles: handlers,
+        avg_unit_price_aud: p.estimated_retail_aud,
+        saturation_score: Math.floor(Math.random() * 5 + 4),
+        winning_score: Math.floor(p.trend_score * 0.85 + Math.random() * 15),
+        ad_count_est: Math.floor(Math.random() * 200 + 20),
+      }).eq('id', p.id);
+
+      if (!error) updated++;
+    }
+
+    res.json({ success: true, updated, total: products.length });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

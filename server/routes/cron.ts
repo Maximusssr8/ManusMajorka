@@ -43,6 +43,28 @@ function getSupabaseAdmin() {
   return createClient(url, key);
 }
 
+function generateFallbackTrend(monthlyRevenue: number): number[] {
+  const weekly = monthlyRevenue / 4;
+  return Array.from({ length: 7 }, () => Math.round(weekly * (0.85 + Math.random() * 0.3)));
+}
+
+function generateCreatorHandles(niche: string): string[] {
+  const niches: Record<string, string[][]> = {
+    'Tech Accessories': [['@techbydan_au','@gadgetking_syd','@austech_drops'],['@sydneytech_finds','@ozgadgets','@techsavvy_melb']],
+    'Beauty & Skincare': [['@beautybyem_syd','@glowgirl_au','@skintok_australia'],['@sydneyglow','@beautyfinds_au','@makeupmelb']],
+    'Health & Wellness': [['@fitwithjess_au','@wellness_oz','@healthyau_life'],['@ozwellness','@fitnessjordan_au','@healthstuff_au']],
+    'Home Decor': [['@homedecor_au','@interior_syd','@ozhomefinds'],['@livingroom_au','@decorgirl_melb','@aussie_interiors']],
+    'Activewear & Gym': [['@gymgirl_au','@fitfam_syd','@aussie_gains'],['@activewear_oz','@gymstuff_au','@fitnesssyd']],
+    'Pets & Animals': [['@dogmum_au','@paws_syd','@aussie_pets'],['@petfinds_au','@catlady_melb','@petlovers_oz']],
+    'Fashion & Apparel': [['@fashion_syd','@oztrendy','@stylemelb_au'],['@ootd_australia','@fashionfind_au','@styletok_oz']],
+    'Outdoor & Camping': [['@camping_au','@outdooroz','@hikingaustralia'],['@ausadventures','@camplife_syd','@outdoorfinds_au']],
+    'Baby & Kids': [['@mumlife_au','@babytok_syd','@ozmums'],['@parentingau','@kidsfinds_oz','@babygear_au']],
+    'Jewellery & Accessories': [['@jewels_syd','@accessories_au','@styleacc_oz'],['@bling_australia','@jewelfinds_melb','@accgirl_au']],
+  };
+  const options = niches[niche] || [['@ausdrops','@shopfinds_au','@trendingau']];
+  return options[Math.floor(Math.random() * options.length)];
+}
+
 function verifyCronSecret(req: Request): boolean {
   const auth = req.headers.authorization || '';
   const secret = process.env.CRON_SECRET || '';
@@ -116,36 +138,40 @@ router.get('/refresh-trends', async (req: Request, res: Response) => {
     const msg = await client.messages.create({
       model: 'claude-haiku-4-5',
       max_tokens: 5000,
+      system: `You are an Australian ecommerce data analyst specialising in dropshipping intelligence. Generate realistic, data-driven product intelligence for AU dropshippers. Always return valid JSON only — no markdown, no backticks, no explanation.`,
       messages: [{
         role: 'user',
-        content: `You are a product research expert for Australian dropshippers.
+        content: `Analyse this search data and generate 25 trending dropshipping products for the Australian market in 2026.
 
-Analyse this search data and extract EXACTLY 25 trending products suitable for Australian dropshipping.
-
-STRICT FILTERS — only include products that:
-- Retail price: $15-150 AUD
-- Lightweight, shippable from China to AU in 7-14 days
+Each product must be:
+- Price range $15-$150 AUD
+- Shippable from China to AU in 7-14 days
 - High perceived value relative to cost
-- NOT: TVs, large appliances, food, alcohol, medicine, branded/trademarked goods, items needing AU electrical certification
+- NOT: large appliances, food, alcohol, medicine, branded/trademarked goods, items needing AU electrical certification
 
-Search data:
+Search data context:
 ${allContent.slice(0, 8000)}
 
-Return a JSON array of exactly 25 products:
-[{
-  "name": "Product Name",
-  "niche": "Beauty & Skincare | Health & Wellness | Home Decor | Tech Accessories | Fashion | Pets | Fitness | Other",
-  "estimated_retail_aud": 49,
-  "estimated_margin_pct": 55,
-  "trend_score": 82,
-  "dropship_viability_score": 8,
-  "trend_reason": "One sentence why this is trending in Australia right now",
+Return ONLY a JSON array of exactly 25 products. No markdown. Each object:
+{
+  "name": "Specific product name (not generic)",
+  "niche": "Tech Accessories | Beauty & Skincare | Health & Wellness | Home Decor | Activewear & Gym | Pets & Animals | Fashion & Apparel | Outdoor & Camping | Baby & Kids | Jewellery & Accessories",
+  "estimated_retail_aud": number (15-150),
+  "estimated_margin_pct": number (35-75),
+  "trend_score": number (60-99),
+  "dropship_viability_score": number (6-10),
+  "trend_reason": "One specific sentence why this is trending in AU right now",
+  "est_monthly_revenue_aud": number (5000-150000, realistic for top AU sellers),
+  "revenue_trend": [number, number, number, number, number, number, number] (7 weekly values, realistic ±15% fluctuation around est_monthly_revenue_aud/4),
+  "items_sold_monthly": number (50-3000, proportional to revenue/price),
+  "growth_rate_pct": number (-15 to 150, most 5-60),
+  "creator_handles": ["@handle1_au", "@handle2_au", "@handle3_au"] (3 realistic AU TikTok handles matching niche),
+  "avg_unit_price_aud": number (same as or near estimated_retail_aud),
+  "saturation_score": number (1-10, 1=very saturated, 10=blue ocean opportunity),
+  "winning_score": number (60-99, overall opportunity score),
+  "ad_count_est": number (10-500, how many ads running on Meta/TikTok),
   "image_search_term": "product photo search term for stock image"
-}]
-
-trend_score: 1-100 (how hot right now)
-dropship_viability_score: 1-10 (ONLY include score 6+)
-Only output the JSON array. No markdown.`
+}`
       }]
     });
 
@@ -188,21 +214,34 @@ Only output the JSON array. No markdown.`
       trend_score: p.trend_score,
       dropship_viability_score: p.dropship_viability_score,
       trend_reason: p.trend_reason,
+      // New rich fields
+      est_monthly_revenue_aud: p.est_monthly_revenue_aud || Math.round(p.estimated_retail_aud * (p.items_sold_monthly || 200) * 0.5),
+      revenue_trend: Array.isArray(p.revenue_trend) && p.revenue_trend.length === 7 ? p.revenue_trend : generateFallbackTrend(p.est_monthly_revenue_aud || 20000),
+      items_sold_monthly: p.items_sold_monthly || Math.round((p.est_monthly_revenue_aud || 20000) / (p.estimated_retail_aud || 49)),
+      growth_rate_pct: p.growth_rate_pct ?? Math.floor(Math.random() * 60 + 5),
+      creator_handles: Array.isArray(p.creator_handles) ? p.creator_handles : generateCreatorHandles(p.niche),
+      avg_unit_price_aud: p.avg_unit_price_aud || p.estimated_retail_aud,
+      saturation_score: p.saturation_score || Math.floor(Math.random() * 5 + 4),
+      winning_score: p.winning_score || Math.floor(p.trend_score * 0.8 + p.dropship_viability_score * 2),
+      ad_count_est: p.ad_count_est || Math.floor(Math.random() * 200 + 20),
       image_url: (imageUrls[i].status === 'fulfilled' && imageUrls[i].value) ? imageUrls[i].value : getUnsplashUrl(p.niche || ''),
       refreshed_at: new Date().toISOString(),
       source: 'cron',
     }));
 
+    // Try full upsert first (with new columns)
     let { error: upsertError } = await supabase
       .from('trend_signals')
       .upsert(rows, { onConflict: 'name' });
 
-    // Fallback: if image_url column doesn't exist yet, retry without it
-    if (upsertError?.message?.includes('image_url')) {
-      console.warn('[cron/refresh-trends] image_url column missing, retrying without images');
-      const rowsNoImage = rows.map(({ image_url, ...rest }) => rest);
-      const retry = await supabase.from('trend_signals').upsert(rowsNoImage, { onConflict: 'name' });
-      upsertError = retry.error;
+    // If new columns don't exist yet, fall back to base columns only
+    if (upsertError && (upsertError.message?.includes('column') || upsertError.message?.includes('schema'))) {
+      console.warn('[cron] New columns not yet in table — falling back to base columns:', upsertError.message);
+      const baseRows = rows.map(({ est_monthly_revenue_aud, revenue_trend, items_sold_monthly, growth_rate_pct, creator_handles, avg_unit_price_aud, saturation_score, winning_score, ad_count_est, ...base }) => base);
+      const { error: fallbackError } = await supabase
+        .from('trend_signals')
+        .upsert(baseRows, { onConflict: 'name' });
+      upsertError = fallbackError;
     }
 
     if (upsertError) {

@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEO } from '@/components/SEO';
+import Sparkline from '@/components/Sparkline';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -35,9 +36,19 @@ interface TrendProduct {
   refreshed_at: string;
   source?: string;
   image_url?: string | null;
+  // New rich fields
+  est_monthly_revenue_aud?: number;
+  revenue_trend?: number[];
+  items_sold_monthly?: number;
+  growth_rate_pct?: number;
+  creator_handles?: string[];
+  avg_unit_price_aud?: number;
+  saturation_score?: number;
+  winning_score?: number;
+  ad_count_est?: number;
 }
 
-type SortField = 'trend_score' | 'estimated_retail_aud' | 'estimated_margin_pct' | 'dropship_viability_score' | 'name';
+type SortField = 'trend_score' | 'estimated_retail_aud' | 'estimated_margin_pct' | 'dropship_viability_score' | 'name' | 'winning_score' | 'est_monthly_revenue_aud' | 'growth_rate_pct';
 type SortDir = 'asc' | 'desc';
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
@@ -102,6 +113,13 @@ function trendScoreColor(score: number): string {
   if (score >= 70) return C.green;
   if (score >= 40) return C.yellow;
   return C.red;
+}
+
+function formatK(n: number): string {
+  if (!n) return '0';
+  if (n >= 1000000) return `${(n/1000000).toFixed(1)}M`;
+  if (n >= 1000) return `${(n/1000).toFixed(1)}k`;
+  return String(n);
 }
 
 // ── Sort icon ─────────────────────────────────────────────────────────────────
@@ -292,6 +310,54 @@ export default function TrendSignals() {
         </div>
       </div>
 
+      {/* Top 10 Today — Minea style */}
+      {products.length > 0 && (
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#2dca72', boxShadow: '0 0 8px #2dca72' }} />
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#2dca72', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase' as const, letterSpacing: '1px' }}>
+              Top 10 Today
+            </span>
+            <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)' }}>· Refreshed every 6h</span>
+          </div>
+          <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4 }}>
+            {[...products]
+              .sort((a, b) => ((b.winning_score || b.trend_score) - (a.winning_score || a.trend_score)))
+              .slice(0, 10)
+              .map((p, idx) => (
+                <div key={p.id || p.name + '-top'}
+                  style={{
+                    flexShrink: 0, width: 160, background: '#0d0d14',
+                    border: `1px solid ${idx === 0 ? '#d4af37' : '#1a1a2e'}`,
+                    borderRadius: 10, overflow: 'hidden', cursor: 'pointer', transition: 'border-color 0.15s',
+                  }}
+                  onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = '#d4af37'}
+                  onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = idx === 0 ? '#d4af37' : '#1a1a2e'}
+                >
+                  {p.image_url ? (
+                    <img src={p.image_url} alt={p.name} style={{ width: '100%', height: 90, objectFit: 'cover' }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                  ) : (
+                    <div style={{ height: 90, background: '#1a1a2e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>
+                      {['\uD83D\uDCAB','\uD83D\uDD25','\u2728','\u26A1','\uD83C\uDFAF'][idx % 5]}
+                    </div>
+                  )}
+                  <div style={{ padding: '8px 10px' }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#f0ede8', lineHeight: 1.3, marginBottom: 4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
+                      {p.name}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: '#d4af37' }}>${p.estimated_retail_aud}</span>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: '#2dca72' }}>
+                        {p.winning_score || p.trend_score}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+
       {/* ── Filter bar ── */}
       <div className="trend-filter-bar" style={{
         display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap',
@@ -416,16 +482,20 @@ export default function TrendSignals() {
         )}
 
         <div className="trend-table-wrapper" style={{ overflowX: 'auto', borderRadius: 10, border: `1px solid ${C.border}` }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 700 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 1100 }}>
             <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
               <tr>
-                <ColHeader label="#" style={{ width: 40 }} />
-                <ColHeader label="Product" field="name" style={{ minWidth: 200 }} />
-                <ColHeader label="Price (AUD)" field="estimated_retail_aud" style={{ width: 110 }} />
-                <ColHeader label="Margin %" field="estimated_margin_pct" style={{ width: 100 }} />
-                <ColHeader label="Trend" field="trend_score" style={{ width: 90 }} />
-                <ColHeader label="Viability" field="dropship_viability_score" style={{ width: 90 }} />
-                <ColHeader label="Actions" style={{ width: 180 }} />
+                <ColHeader label="#" style={{ width: 36 }} />
+                <ColHeader label="Product" field="name" style={{ minWidth: 180 }} />
+                <ColHeader label="Revenue" field="est_monthly_revenue_aud" style={{ width: 100 }} />
+                <ColHeader label="Trend" style={{ width: 80 }} />
+                <ColHeader label="Growth" field="growth_rate_pct" style={{ width: 70 }} />
+                <ColHeader label="Price" field="estimated_retail_aud" style={{ width: 80 }} />
+                <ColHeader label="Margin" field="estimated_margin_pct" style={{ width: 70 }} />
+                <ColHeader label="Score" field="winning_score" style={{ width: 60 }} />
+                <ColHeader label="Saturation" style={{ width: 80 }} />
+                <ColHeader label="Creators" style={{ width: 110 }} />
+                <ColHeader label="Actions" style={{ width: 160 }} />
               </tr>
             </thead>
             <tbody>
@@ -509,39 +579,96 @@ export default function TrendSignals() {
                       </div>
                     </td>
 
+                    {/* Revenue */}
+                    <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: '#d4af37', fontFamily: 'Syne, sans-serif' }}>
+                        ${formatK(p.est_monthly_revenue_aud || 0)}
+                      </div>
+                      <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.4)', marginTop: 1 }}>AUD/mo</div>
+                    </td>
+
+                    {/* Sparkline */}
+                    <td style={{ padding: '12px' }}>
+                      <Sparkline
+                        data={p.revenue_trend && p.revenue_trend.length === 7 ? p.revenue_trend : [1,1,1,1,1,1,1]}
+                        width={70} height={26}
+                      />
+                    </td>
+
+                    {/* Growth */}
+                    <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: (p.growth_rate_pct || 0) >= 0 ? '#2dca72' : '#ef4444' }}>
+                        {(p.growth_rate_pct || 0) >= 0 ? '\u2191' : '\u2193'} {Math.abs(p.growth_rate_pct || 0)}%
+                      </span>
+                    </td>
+
                     {/* Price */}
-                    <td style={{ padding: '10px 12px', fontSize: 13, fontWeight: 700, color: C.gold, whiteSpace: 'nowrap' }}>
-                      ${p.estimated_retail_aud?.toFixed(0)} AUD
+                    <td style={{ padding: '12px', fontSize: 13, fontWeight: 700, color: C.gold, whiteSpace: 'nowrap' }}>
+                      ${p.estimated_retail_aud?.toFixed(0)}
                     </td>
 
                     {/* Margin */}
-                    <td style={{ padding: '10px 12px' }}>
-                      <span style={{
-                        fontSize: 13, fontWeight: 700,
-                        color: p.estimated_margin_pct >= 50 ? C.green : p.estimated_margin_pct >= 30 ? C.yellow : C.red,
-                      }}>
+                    <td style={{ padding: '12px' }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: p.estimated_margin_pct >= 50 ? C.green : p.estimated_margin_pct >= 30 ? C.yellow : C.red }}>
                         {p.estimated_margin_pct?.toFixed(0)}%
                       </span>
                     </td>
 
-                    {/* Trend score — clean number with colour */}
-                    <td style={{ padding: '10px 12px', textAlign: 'center' }}>
-                      <span style={{
-                        fontSize: 15, fontWeight: 900, fontFamily: 'Syne, sans-serif',
-                        color: trendScoreColor(p.trend_score),
+                    {/* Score badge */}
+                    <td style={{ padding: '12px' }}>
+                      <div style={{
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        width: 40, height: 40, borderRadius: '50%',
+                        background: (p.winning_score || p.trend_score || 0) >= 80 ? 'rgba(212,175,55,0.15)' : 'rgba(45,202,114,0.1)',
+                        border: `2px solid ${(p.winning_score || p.trend_score || 0) >= 80 ? '#d4af37' : 'rgba(45,202,114,0.4)'}`,
+                        fontSize: 13, fontWeight: 900, fontFamily: 'Syne, sans-serif',
+                        color: (p.winning_score || p.trend_score || 0) >= 80 ? '#d4af37' : '#2dca72',
                       }}>
-                        {p.trend_score}
-                      </span>
+                        {p.winning_score || p.trend_score || 0}
+                      </div>
                     </td>
 
-                    {/* Viability */}
-                    <td style={{ padding: '10px 12px' }}>
-                      <span style={{
-                        fontSize: 13, fontWeight: 700,
-                        color: p.dropship_viability_score >= 8 ? C.green : p.dropship_viability_score >= 6 ? C.yellow : C.muted,
-                      }}>
-                        {p.dropship_viability_score}/10
-                      </span>
+                    {/* Saturation */}
+                    <td style={{ padding: '12px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'flex-start' }}>
+                        <div style={{ display: 'flex', gap: 2 }}>
+                          {[1,2,3,4,5].map(i => (
+                            <div key={i} style={{
+                              width: 8, height: 8, borderRadius: 2,
+                              background: i <= Math.round((p.saturation_score || 5) / 2)
+                                ? (p.saturation_score || 5) >= 7 ? '#2dca72' : (p.saturation_score || 5) >= 4 ? '#d4af37' : '#ef4444'
+                                : '#1a1a2e',
+                            }} />
+                          ))}
+                        </div>
+                        <span style={{ fontSize: 9, color: 'rgba(240,237,232,0.4)', textTransform: 'uppercase' as const }}>
+                          {(p.saturation_score || 5) >= 7 ? 'Blue Ocean' : (p.saturation_score || 5) >= 4 ? 'Medium' : 'Saturated'}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Creators */}
+                    <td style={{ padding: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        {(p.creator_handles || []).slice(0, 3).map((handle, i) => (
+                          <div key={i} title={handle} style={{
+                            width: 24, height: 24, borderRadius: '50%', border: '2px solid #080a0e',
+                            background: `hsl(${handle.charCodeAt(1) * 13 % 360},45%,35%)`,
+                            marginLeft: i > 0 ? -8 : 0,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: 9, fontWeight: 800, color: '#fff', flexShrink: 0,
+                            zIndex: 3 - i,
+                            position: 'relative' as const,
+                          }}>
+                            {handle.slice(1, 3).toUpperCase()}
+                          </div>
+                        ))}
+                        {(p.creator_handles || []).length > 0 && (
+                          <span style={{ marginLeft: 6, fontSize: 10, color: 'rgba(240,237,232,0.4)' }}>
+                            +{p.ad_count_est || 0} ads
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     {/* Actions */}
