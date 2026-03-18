@@ -6,33 +6,50 @@ interface SparklineProps {
   strokeWidth?: number;
 }
 
-export default function Sparkline({ data, width = 80, height = 30, color = '#d4af37', strokeWidth = 1.5 }: SparklineProps) {
+export default function Sparkline({ data, width = 80, height = 32, color = '#d4af37', strokeWidth = 1.5 }: SparklineProps) {
   if (!data || data.length < 2) return null;
+
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
-  const pad = strokeWidth;
-  const innerH = height - pad * 2;
-  const innerW = width - pad * 2;
 
   const points = data.map((val, i) => {
-    const x = pad + (i / (data.length - 1)) * innerW;
-    const y = pad + innerH - ((val - min) / range) * innerH;
-    return `${x},${y}`;
+    const x = (i / (data.length - 1)) * width;
+    const y = height - ((val - min) / range) * (height - 4) - 2;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
   }).join(' ');
 
-  const isUp = data[data.length - 1] >= data[0];
-  const lineColor = color === '#d4af37' ? color : (isUp ? '#2dca72' : '#ef4444');
+  const lastVal = data[data.length - 1];
+  const lastY = height - ((lastVal - min) / range) * (height - 4) - 2;
+
+  const gradId = `grad-${color.replace('#', '')}`;
+  const areaPoints = `0,${height} ${points} ${width},${height}`;
 
   return (
     <svg width={width} height={height} style={{ overflow: 'visible', display: 'block' }}>
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.2" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <polygon
+        points={areaPoints}
+        fill={`url(#${gradId})`}
+      />
       <polyline
         points={points}
         fill="none"
-        stroke={lineColor}
+        stroke={color}
         strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+      <circle
+        cx={width}
+        cy={lastY}
+        r="2.5"
+        fill={color}
       />
     </svg>
   );

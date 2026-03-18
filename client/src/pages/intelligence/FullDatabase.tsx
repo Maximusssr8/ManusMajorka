@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
 import Sparkline from '@/components/Sparkline';
 
@@ -74,7 +75,12 @@ function CreatorAvatars({ handles }: { handles: string[] }) {
 const NICHES = ['All Niches', 'Tech Accessories', 'Beauty & Skincare', 'Health & Wellness', 'Home Decor', 'Activewear & Gym', 'Pets & Animals', 'Fashion & Apparel', 'Outdoor & Camping', 'Baby & Kids', 'Jewellery & Accessories'];
 
 // ── Main Component ────────────────────────────────────────────────────────────
-export default function FullDatabase() {
+interface FullDatabaseProps {
+  presetFilter?: 'trending' | 'all';
+}
+
+export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps) {
+  const [, navigate] = useLocation();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -83,7 +89,17 @@ export default function FullDatabase() {
   const [sortDir, setSortDir] = useState<'desc' | 'asc'>('desc');
   const [total, setTotal] = useState(0);
   const [refreshedAt, setRefreshedAt] = useState<string>('');
+  const [minGrowth, setMinGrowth] = useState<number | null>(null);
   const searchTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  // Apply preset filters on mount
+  useEffect(() => {
+    if (presetFilter === 'trending') {
+      setSortBy('growth_rate_pct');
+      setSortDir('desc');
+      setMinGrowth(0);
+    }
+  }, [presetFilter]);
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
@@ -146,6 +162,14 @@ export default function FullDatabase() {
   // Top 10 by winning score
   const top10 = [...products].sort((a, b) => ((b.winning_score || b.trend_score || 0) - (a.winning_score || a.trend_score || 0))).slice(0, 10);
 
+  // Apply client-side filters
+  const filtered = products.filter(p => {
+    if (search.trim() && !p.name.toLowerCase().includes(search.toLowerCase()) && !p.niche.toLowerCase().includes(search.toLowerCase())) return false;
+    if (minGrowth !== null && (p.growth_rate_pct || 0) < minGrowth) return false;
+    if (presetFilter === 'trending' && (p.trend_score || 0) < 70) return false;
+    return true;
+  });
+
   const timeAgo = refreshedAt
     ? (() => {
         const diff = Date.now() - new Date(refreshedAt).getTime();
@@ -173,10 +197,13 @@ export default function FullDatabase() {
       {/* Header */}
       <div style={{ padding: '24px 0 16px' }}>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: '#f0ede8', fontFamily: 'Syne, sans-serif' }}>
-          Product Intelligence
+          {presetFilter === 'trending' ? 'Trending Today' : 'Product Intelligence'}
         </h1>
         <p style={{ margin: '4px 0 0', fontSize: 13, color: 'rgba(240,237,232,0.45)' }}>
-          {total} products tracked · Updated {timeAgo}
+          {presetFilter === 'trending'
+            ? `${filtered.length} trending products · Updated ${timeAgo}`
+            : `${total} products tracked · Updated ${timeAgo}`
+          }
         </p>
       </div>
 
@@ -296,6 +323,30 @@ export default function FullDatabase() {
         </button>
       </div>
 
+      {/* Majorka moat — found a winner? */}
+      <div style={{
+        marginBottom: 14,
+        padding: '11px 18px',
+        background: 'linear-gradient(135deg, rgba(212,175,55,0.07), rgba(212,175,55,0.03))',
+        border: '1px solid rgba(212,175,55,0.22)',
+        borderRadius: 8,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+      }}>
+        <span style={{ color: '#d4af37', fontSize: 13, fontWeight: 500, lineHeight: 1.4 }}>
+          ⚡ Found a winner? Build a complete Shopify store in 60 seconds — only on Majorka
+        </span>
+        <button
+          onClick={() => navigate('/app/website-generator')}
+          style={{
+            background: '#d4af37', color: '#080a0e', border: 'none',
+            padding: '8px 16px', borderRadius: 6, fontSize: 12, fontWeight: 700,
+            cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'Syne, sans-serif', flexShrink: 0,
+          }}
+        >
+          Try Store Builder →
+        </button>
+      </div>
+
       {/* Table */}
       <div style={{ background: '#0d0d14', border: '1px solid #1a1a2e', borderRadius: 12, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
@@ -332,13 +383,13 @@ export default function FullDatabase() {
                   Loading products...
                 </td>
               </tr>
-            ) : products.length === 0 ? (
+            ) : filtered.length === 0 ? (
               <tr>
                 <td colSpan={9} style={{ padding: '60px', textAlign: 'center', color: 'rgba(240,237,232,0.4)' }}>
                   No products found.
                 </td>
               </tr>
-            ) : products.map((p, idx) => {
+            ) : filtered.map((p, idx) => {
               const score = p.winning_score || p.trend_score || 0;
               const scoreColor = score >= 80 ? '#27ae60' : score >= 60 ? '#f39c12' : '#e74c3c';
               const growth = p.growth_rate_pct || 0;
@@ -480,7 +531,7 @@ export default function FullDatabase() {
 
       {/* Footer */}
       <div style={{ padding: '12px 0', fontSize: 12, color: 'rgba(240,237,232,0.3)', textAlign: 'center' }}>
-        {products.length} products · Majorka AU Market Intelligence
+        {filtered.length} products · Majorka AU Market Intelligence
       </div>
     </div>
   );

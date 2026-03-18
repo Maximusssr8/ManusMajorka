@@ -169,24 +169,9 @@ export default function ProductIntelligence() {
 
       <div style={{ padding: '0 24px 60px', maxWidth: 1200, margin: '0 auto' }}>
         {tab === 'trending' && (
-          <div>
-            {showBanner && (
-              <div style={{ background: C.gold, borderRadius: 10, padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-                <span style={{ color: '#080a0e', fontWeight: 700, fontSize: 14 }}>Found a winner? Build your store in 60 seconds</span>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <a href="/app/website-generator" style={{ color: '#080a0e', fontSize: 13, fontWeight: 800, textDecoration: 'none', border: '1px solid rgba(0,0,0,0.3)', borderRadius: 6, padding: '4px 12px' }}>Build Store</a>
-                  <button onClick={() => { setShowBanner(false); localStorage.setItem('majorka_dismiss_build_banner', '1'); }} style={{ background: 'none', border: 'none', color: 'rgba(0,0,0,0.5)', cursor: 'pointer', fontSize: 16 }}>x</button>
-                </div>
-              </div>
-            )}
-            {loading ? (
-              <div style={{ textAlign: 'center', padding: 60, color: C.muted }}>Loading products...</div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
-                {products.map((p, i) => <ProductCard key={p.id || p.name} product={p} rank={i + 1} />)}
-              </div>
-            )}
-          </div>
+          <Suspense fallback={<div style={{ textAlign: 'center', padding: 60, color: C.muted }}>Loading...</div>}>
+            <FullDatabase presetFilter="trending" />
+          </Suspense>
         )}
         {tab === 'database' && (
           <Suspense fallback={<div style={{ textAlign: 'center', padding: 60, color: C.muted }}>Loading...</div>}>
