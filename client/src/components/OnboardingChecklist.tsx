@@ -30,19 +30,19 @@ const ITEMS: ChecklistItem[] = [
     id: 'generated_store',
     label: 'Generate a store',
     description: 'Build your Shopify store in minutes',
-    path: '/store-builder',
+    path: '/app/website-generator',
   },
   {
     id: 'connected_shopify',
     label: 'Connect Shopify',
     description: 'Link your Shopify account',
-    path: '/store-builder',
+    path: '/app/website-generator',
   },
   {
     id: 'pushed_to_shopify',
     label: 'Launch to Shopify',
     description: 'Push your store live',
-    path: '/store-builder',
+    path: '/app/website-generator',
   },
 ];
 

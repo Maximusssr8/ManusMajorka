@@ -537,9 +537,80 @@ export function registerScrapeRoutes(app: Application) {
         return;
       }
 
-      // AliExpress/Temu block server-side fetches — detect early
+      // AliExpress: try ZenRows first, fall back to manual
       if (/aliexpress\.com/i.test(url)) {
+        const zenRowsKey = process.env.ZENROWS_API_KEY;
         const aliMatch = url.match(/\/item\/(\d+)/);
+
+        if (zenRowsKey) {
+          try {
+            console.log('[import] AliExpress detected — trying ZenRows...');
+            const zenRes = await fetch(
+              `https://api.zenrows.com/v1/?apikey=${zenRowsKey}&url=${encodeURIComponent(url)}&js_render=true&premium_proxy=true`,
+              { signal: AbortSignal.timeout(15000) }
+            );
+            const html = await zenRes.text();
+
+            // Extract OG meta tags
+            const title = html.match(/<meta[^>]+property="og:title"[^>]+content="([^"]+)"/i)?.[1]
+              || html.match(/<meta[^>]+content="([^"]+)"[^>]+property="og:title"/i)?.[1];
+            const description = html.match(/<meta[^>]+property="og:description"[^>]+content="([^"]+)"/i)?.[1]
+              || html.match(/<meta[^>]+content="([^"]+)"[^>]+property="og:description"/i)?.[1];
+            const image = html.match(/<meta[^>]+property="og:image"[^>]+content="([^"]+)"/i)?.[1]
+              || html.match(/<meta[^>]+content="([^"]+)"[^>]+property="og:image"/i)?.[1];
+            const priceMatch = html.match(/["']price["']\s*:\s*["']?(\d+\.?\d*)/i);
+            const rawPrice = priceMatch ? parseFloat(priceMatch[1]) : null;
+
+            if (title && title.length > 3) {
+              console.log('[import] ZenRows success:', title);
+
+              // Use Haiku to infer niche + audience
+              let niche = 'General / Mixed Niche';
+              let targetAudience = 'Australian online shoppers';
+              let priceAUD = rawPrice ? Math.round(rawPrice * 1.55 * 10) / 10 : 49;
+
+              try {
+                const anthropic = getAnthropicClient();
+                if (anthropic) {
+                  const haikuRes = await anthropic.messages.create({
+                    model: 'claude-haiku-4-5-20251001',
+                    max_tokens: 300,
+                    messages: [{
+                      role: 'user',
+                      content: `Product: "${title}". Description: "${description || ''}".
+Return JSON only, no markdown: { "niche": string, "targetAudience": string, "priceAUD": number }
+Niche must be one of: Activewear & Gym, Beauty & Skincare, Health & Wellness, Tech Accessories, Home Decor, Pets & Animals, Fashion & Apparel, Jewellery & Accessories, Outdoor & Camping, Baby & Kids, General / Mixed Niche`
+                    }]
+                  });
+                  const raw = (haikuRes.content[0] as { type: string; text: string }).text.trim();
+                  const jsonStr = raw.replace(/```json\n?|\n?```/g, '').trim();
+                  const inferred = JSON.parse(jsonStr);
+                  niche = inferred.niche || niche;
+                  targetAudience = inferred.targetAudience || targetAudience;
+                  if (!rawPrice && inferred.priceAUD) priceAUD = inferred.priceAUD;
+                }
+              } catch (haikuErr) {
+                console.warn('[import] Haiku inference failed:', haikuErr);
+              }
+
+              res.json({
+                success: true,
+                productName: title,
+                description: description || '',
+                price: priceAUD,
+                imageUrl: image || null,
+                niche,
+                targetAudience,
+                source: 'zenrows',
+              });
+              return;
+            }
+          } catch (err: any) {
+            console.log('[import] ZenRows failed:', err.message);
+          }
+        }
+
+        // ZenRows not configured or failed — return manual fallback
         res.status(422).json({
           success: false, manual: true, platform: 'AliExpress',
           productId: aliMatch?.[1] || null,

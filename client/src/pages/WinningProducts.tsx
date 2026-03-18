@@ -1474,7 +1474,7 @@ Be specific, opinionated, use AUD figures.`;
               Run Ads
             </a>
             <a
-              href={`/store-builder?product=${encodeURIComponent(product.product_title)}&niche=${encodeURIComponent(product.category ?? '')}&price=${product.price_aud ?? ''}`}
+              href={`/app/website-generator?product=${encodeURIComponent(product.product_title)}&niche=${encodeURIComponent(product.category ?? '')}&price=${product.price_aud ?? ''}`}
               style={{
                 flex: 1,
                 display: 'flex',
@@ -1790,7 +1790,7 @@ function FullReportModal({
           {/* CTAs */}
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <a
-              href={`/store-builder?product=${encodeURIComponent(product.product_title)}&niche=${encodeURIComponent(product.category ?? '')}&price=${product.price_aud ?? ''}`}
+              href={`/app/website-generator?product=${encodeURIComponent(product.product_title)}&niche=${encodeURIComponent(product.category ?? '')}&price=${product.price_aud ?? ''}`}
               style={{ flex: 1, minWidth: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px 20px', borderRadius: 14, background: C.gold, border: 'none', color: '#000', fontSize: 14, fontWeight: 800, textDecoration: 'none', fontFamily: 'Syne, sans-serif' }}
             >
               🚀 Build Store →

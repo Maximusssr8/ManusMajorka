@@ -556,7 +556,7 @@ export default function TrendSignals() {
                               description: p.trend_reason || '',
                               fromTrend: 'true',
                             });
-                            navigate(`/app/store-builder?${params.toString()}`);
+                            window.location.href = `/app/website-generator?${params.toString()}`;
                           }}
                           style={{
                             display: 'flex', alignItems: 'center', gap: 4,
@@ -632,7 +632,7 @@ export default function TrendSignals() {
                       description: p.trend_reason || '',
                       fromTrend: 'true',
                     });
-                    navigate(`/app/store-builder?${params.toString()}`);
+                    window.location.href = `/app/website-generator?${params.toString()}`;
                   }}
                   style={{ flex: 1, padding: '9px', background: C.gold, color: '#080a0e', border: 'none', borderRadius: 7, fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}>
                   Build Store →

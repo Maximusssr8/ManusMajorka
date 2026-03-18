@@ -1434,7 +1434,7 @@ export default function WebsiteGenerator() {
       setTimeout(() => {
         toast.success('Product loaded from Trend Signals — ready to generate!');
       }, 500);
-      window.history.replaceState({}, '', '/app/store-builder');
+      window.history.replaceState({}, '', '/app/website-generator');
     }
 
     // Maya prefill — check sessionStorage for agentic navigation
