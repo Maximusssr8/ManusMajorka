@@ -404,4 +404,96 @@ router.post('/seed-real-products', requireAdmin, async (req: Request, res: Respo
   });
 });
 
+// POST /api/admin/seed-real-images
+// Seeds real AliExpress product images for all trend_signals rows
+router.post('/seed-real-images', requireAdmin, async (req: Request, res: Response) => {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  const rapidApiKey = process.env.RAPIDAPI_KEY || '';
+
+  if (!rapidApiKey) return res.status(500).json({ error: 'RAPIDAPI_KEY not set' });
+
+  // Fetch all products
+  const productsRes = await fetch(
+    `${supabaseUrl}/rest/v1/trend_signals?select=id,name,niche&limit=300`,
+    { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` } }
+  );
+  const products: Array<{ id: string; name: string; niche: string }> = await productsRes.json();
+
+  if (!Array.isArray(products)) {
+    return res.status(500).json({ error: 'Failed to fetch products', raw: products });
+  }
+
+  let updated = 0;
+  let failed = 0;
+  let firstResponse: any = null;
+
+  for (let i = 0; i < products.length; i++) {
+    const product = products[i];
+    await new Promise(r => setTimeout(r, 400));
+
+    try {
+      const apiRes = await fetch(
+        `https://aliexpress-datahub.p.rapidapi.com/item_search_2?q=${encodeURIComponent(product.name)}&page=1&sort=default`,
+        {
+          headers: {
+            'X-RapidAPI-Key': rapidApiKey,
+            'X-RapidAPI-Host': 'aliexpress-datahub.p.rapidapi.com',
+          },
+        }
+      );
+      const data: any = await apiRes.json();
+
+      // Log first product full response
+      if (i === 0) {
+        firstResponse = data;
+        console.log('[seed-real-images] first response:', JSON.stringify(data, null, 2).slice(0, 2000));
+      }
+
+      const resultList: any[] =
+        data?.result?.resultList ||
+        data?.result?.items ||
+        data?.resultList ||
+        data?.items ||
+        [];
+
+      const item = resultList[0]?.item || resultList[0] || null;
+      const imageUrl: string | null =
+        item?.image ||
+        item?.productMainImageUrl ||
+        item?.imageUrl ||
+        item?.pic ||
+        item?.picUrl ||
+        null;
+
+      if (imageUrl) {
+        await fetch(`${supabaseUrl}/rest/v1/trend_signals?id=eq.${product.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
+          },
+          body: JSON.stringify({ image_url: imageUrl }),
+        });
+        updated++;
+      } else {
+        failed++;
+      }
+    } catch (err: any) {
+      console.error(`[seed-real-images] error for ${product.name}:`, err.message);
+      failed++;
+    }
+  }
+
+  res.json({
+    success: true,
+    total: products.length,
+    updated,
+    failed,
+    first_response_keys: firstResponse ? Object.keys(firstResponse) : [],
+    first_response_sample: firstResponse ? JSON.stringify(firstResponse).slice(0, 1500) : null,
+  });
+});
+
 export default router;

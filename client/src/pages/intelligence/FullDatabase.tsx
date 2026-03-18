@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
 import Sparkline from '@/components/Sparkline';
-import { getProductImage } from '../../utils/images';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface Product {
@@ -243,13 +242,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   {p.image_url ? (
                     <img src={p.image_url} alt={p.name}
                       style={{ width: '100%', height: 88, objectFit: 'cover', display: 'block' }}
-                      onError={e => { e.currentTarget.src = getProductImage(p.name, 150); e.currentTarget.onerror = null; }}
+                      onError={e => { e.currentTarget.style.display = 'none'; }}
                     />
                   ) : (
-                    <img src={getProductImage(p.name, 150)} alt={p.name}
-                      style={{ width: '100%', height: 88, objectFit: 'cover', display: 'block' }}
-                      onError={e => { e.currentTarget.onerror = null; }}
-                    />
+                    <div style={{ width: '100%', height: 88, background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🛍️</div>
                   )}
                   <div style={{
                     position: 'absolute', top: 6, left: 6,
@@ -422,17 +418,18 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                           src={p.image_url}
                           alt={p.name}
                           width={56} height={56}
-                          style={{ borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid #1a1a2e' }}
-                          onError={e => { e.currentTarget.src = getProductImage(p.name, 56); e.currentTarget.onerror = null; }}
+                          style={{ borderRadius: 8, objectFit: 'cover', flexShrink: 0, background: '#1a1a1a' }}
+                          onError={e => { e.currentTarget.style.display = 'none'; }}
                         />
                       ) : (
-                        <img
-                          src={getProductImage(p.name, 56)}
-                          alt={p.name}
-                          width={56} height={56}
-                          style={{ borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid #1a1a2e' }}
-                          onError={e => { e.currentTarget.onerror = null; }}
-                        />
+                        <div style={{
+                          width: 56, height: 56, borderRadius: '8px',
+                          background: '#1a1a1a', border: '1px solid #333',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: '20px', flexShrink: 0,
+                        }}>
+                          🛍️
+                        </div>
                       )}
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontSize: 14, fontWeight: 700, color: '#f0ede8', marginBottom: 4, lineHeight: 1.3 }}>

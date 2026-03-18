@@ -11,7 +11,6 @@ const SUPABASE_ANON_KEY =
 const DEMO_PRODUCTS = [
   {
     rank: 1,
-    image: 'https://picsum.photos/seed/led-face-mask/88/88',
     name: 'LED Light Therapy Face Mask Pro',
     category: 'Health & Beauty',
     platform: 'TikTok Shop AU',
@@ -26,7 +25,6 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 2,
-    image: 'https://picsum.photos/seed/led-light-therapy/88/88',
     name: 'Heatless Curl Ribbon Rods Set',
     category: 'Health & Beauty',
     platform: 'TikTok Shop AU',
@@ -41,7 +39,6 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 3,
-    image: 'https://picsum.photos/seed/heatless-curl-rods/88/88',
     name: 'Cordless Auto Hair Curler Waver',
     category: 'Health & Beauty',
     platform: 'TikTok Shop AU',
@@ -56,7 +53,6 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 4,
-    image: 'https://picsum.photos/seed/quencher-tumbler/88/88',
     name: 'Stanley Dupe 40oz Quencher Tumbler',
     category: 'Home & Kitchen',
     platform: 'TikTok Shop AU',
@@ -71,7 +67,6 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 5,
-    image: 'https://picsum.photos/seed/dog-lick-mat/88/88',
     name: 'Dog Lick Mat Slow Feeder',
     category: 'Pet',
     platform: 'TikTok Shop AU',
@@ -86,7 +81,6 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 6,
-    image: 'https://picsum.photos/seed/booty-resistance-bands/88/88',
     name: 'Booty Resistance Bands Set 5 Levels',
     category: 'Fitness',
     platform: 'TikTok Shop AU',
@@ -122,7 +116,7 @@ interface SupabaseProduct {
 
 interface DisplayProduct {
   rank: number;
-  image: string;
+  image?: string;
   name: string;
   category: string;
   platform: string;
@@ -610,22 +604,15 @@ export default function ProductIntelligencePreview() {
                           width: 44,
                           height: 44,
                           borderRadius: 8,
-                          overflow: 'hidden',
                           flexShrink: 0,
-                          outline: '1px solid rgba(255,255,255,0.1)',
-                          outlineOffset: 0,
-                          background: 'rgba(255,255,255,0.05)',
+                          background: '#1a1a1a',
+                          border: '1px solid #333',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '18px',
                         }}>
-                          {product.image ? (
-                            <img
-                              src={product.image}
-                              alt={product.name}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                            />
-                          ) : (
-                            <div style={{ width: '100%', height: '100%', background: 'rgba(255,255,255,0.05)' }} />
-                          )}
+                          🛍️
                         </div>
                         <div style={{ minWidth: 0, flex: 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
@@ -837,14 +824,7 @@ export default function ProductIntelligencePreview() {
                   borderRadius: 14,
                   padding: 20,
                 }}>
-                  {first.image && (
-                    <img
-                      src={first.image}
-                      alt={first.name}
-                      style={{ width: '100%', height: 180, objectFit: 'cover', borderRadius: 10, marginBottom: 14, display: 'block' }}
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                    />
-                  )}
+                  <div style={{ width: '100%', height: 180, borderRadius: 10, marginBottom: 14, background: '#1a1a1a', border: '1px solid #333', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '48px' }}>🛍️</div>
                   <span className="pip-trend-EXPLODING" style={{
                     fontSize: 10,
                     padding: '3px 10px',

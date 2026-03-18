@@ -41,8 +41,7 @@ function timeSince(date: Date): string {
 }
 
 function ProductCard({ product, rank }: { product: TrendProduct; rank: number }) {
-  const nicheQuery = (product.niche || 'product').toLowerCase().replace(/\s*&\s*/g, ',').replace(/\s+/g, '-');
-  const imgSrc = product.image_url || `https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&h=280&fit=crop&q=80`;
+  const imgSrc = product.image_url || null;
 
   return (
     <div
@@ -54,7 +53,11 @@ function ProductCard({ product, rank }: { product: TrendProduct; rank: number })
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = C.border; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}
     >
       <div style={{ position: 'relative', height: 180, background: 'linear-gradient(135deg, #1a1a2e, #111118)', overflow: 'hidden' }}>
-        <img src={imgSrc} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+        {imgSrc ? (
+          <img src={imgSrc} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+        ) : (
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '48px' }}>🛍️</div>
+        )}
         {rank <= 3 && (
           <div style={{ position: 'absolute', top: 10, left: 10, background: rank === 1 ? '#f59e0b' : rank === 2 ? '#9ca3af' : '#cd7c2f', borderRadius: 6, padding: '3px 8px', fontSize: 11, fontWeight: 700, color: '#fff' }}>
             #{rank} Today

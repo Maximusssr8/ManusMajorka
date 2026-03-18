@@ -5,11 +5,6 @@ import { createClient } from '@supabase/supabase-js';
 
 const router = Router();
 
-function getPicsumUrl(productName: string, size = 80): string {
-  const seed = productName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 40);
-  return `https://picsum.photos/seed/${seed}/${size}/${size}`;
-}
-
 function getSupabaseAdmin() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
@@ -199,7 +194,7 @@ Return ONLY a JSON array of exactly 25 products. No markdown. Each object:
       ad_count_est: p.ad_count_est || Math.floor(Math.random() * 200 + 20),
       image_url: (imageUrls[i].status === 'fulfilled' && imageUrls[i].value)
         ? imageUrls[i].value
-        : getPicsumUrl(p.name || 'product'),
+        : null,
       refreshed_at: new Date().toISOString(),
       source: 'cron',
     }));
