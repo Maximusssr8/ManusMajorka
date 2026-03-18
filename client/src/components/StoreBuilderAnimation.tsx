@@ -459,15 +459,19 @@ export default function StoreBuilderAnimation() {
                               animation: 'sba-shimmer 2.5s ease-in-out infinite',
                               zIndex: 0,
                             }} />
-                            <img
-                              src="https://images.unsplash.com/photo-1583241800698-e8ab01830a24?w=400&h=280&fit=crop&crop=center&q=85"
-                              style={{
-                                width: '100%', height: 140, objectFit: 'cover',
+                            <div style={{
+                                width: '100%', height: 140,
                                 borderRadius: 6, position: 'relative', zIndex: 1,
-                                boxShadow: '0 0 40px rgba(100,149,237,0.15)',
-                              }}
-                              onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                            />
+                                background: 'linear-gradient(135deg, #0d1117 0%, #141b24 50%, #0d1117 100%)',
+                                border: '1px solid rgba(212,175,55,0.1)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8,
+                              }}>
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                                  <rect x="2" y="3" width="20" height="14" rx="2" stroke="#d4af37" strokeOpacity="0.35" strokeWidth="1.5"/>
+                                  <path d="M8 21h8M12 17v4" stroke="#d4af37" strokeOpacity="0.35" strokeWidth="1.5" strokeLinecap="round"/>
+                                </svg>
+                                <span style={{ color: 'rgba(212,175,55,0.4)', fontSize: 10, letterSpacing: '0.12em', fontFamily: 'Syne, sans-serif' }}>PRODUCT</span>
+                              </div>
                           </motion.div>
                         )}
                       </AnimatePresence>

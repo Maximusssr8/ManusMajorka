@@ -11,7 +11,7 @@ const SUPABASE_ANON_KEY =
 const DEMO_PRODUCTS = [
   {
     rank: 1,
-    image: 'https://images.pexels.com/photos/3985300/pexels-photo-3985300.jpeg?auto=compress&cs=tinysrgb&w=88',
+    image: 'https://picsum.photos/seed/led-face-mask/88/88',
     name: 'LED Light Therapy Face Mask Pro',
     category: 'Health & Beauty',
     platform: 'TikTok Shop AU',
@@ -26,7 +26,7 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 2,
-    image: 'https://images.pexels.com/photos/3993316/pexels-photo-3993316.jpeg?auto=compress&cs=tinysrgb&w=88',
+    image: 'https://picsum.photos/seed/led-light-therapy/88/88',
     name: 'Heatless Curl Ribbon Rods Set',
     category: 'Health & Beauty',
     platform: 'TikTok Shop AU',
@@ -41,7 +41,7 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 3,
-    image: 'https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=88',
+    image: 'https://picsum.photos/seed/heatless-curl-rods/88/88',
     name: 'Cordless Auto Hair Curler Waver',
     category: 'Health & Beauty',
     platform: 'TikTok Shop AU',
@@ -56,7 +56,7 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 4,
-    image: 'https://images.pexels.com/photos/1000084/pexels-photo-1000084.jpeg?auto=compress&cs=tinysrgb&w=88',
+    image: 'https://picsum.photos/seed/quencher-tumbler/88/88',
     name: 'Stanley Dupe 40oz Quencher Tumbler',
     category: 'Home & Kitchen',
     platform: 'TikTok Shop AU',
@@ -71,7 +71,7 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 5,
-    image: 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=88',
+    image: 'https://picsum.photos/seed/dog-lick-mat/88/88',
     name: 'Dog Lick Mat Slow Feeder',
     category: 'Pet',
     platform: 'TikTok Shop AU',
@@ -86,7 +86,7 @@ const DEMO_PRODUCTS = [
   },
   {
     rank: 6,
-    image: 'https://images.pexels.com/photos/3768916/pexels-photo-3768916.jpeg?auto=compress&cs=tinysrgb&w=88',
+    image: 'https://picsum.photos/seed/booty-resistance-bands/88/88',
     name: 'Booty Resistance Bands Set 5 Levels',
     category: 'Fitness',
     platform: 'TikTok Shop AU',
