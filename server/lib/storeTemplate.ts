@@ -1,16 +1,137 @@
 import type { StorePlan } from './website-api';
 
-function esc(s: string): string {
-  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function esc(s: string | number | undefined | null): string {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function stars(n = 5): string {
-  return '\u2605'.repeat(Math.min(5, Math.max(0, n)));
+  return '★'.repeat(Math.min(5, Math.max(0, Math.round(n))));
 }
 
 function colorRgb(hex: string): string {
-  const c = (hex || '#d4af37').replace('#','');
-  return `${parseInt(c.slice(0,2),16)},${parseInt(c.slice(2,4),16)},${parseInt(c.slice(4,6),16)}`;
+  const c = (hex || '#d4af37').replace('#', '');
+  const r = parseInt(c.slice(0, 2), 16) || 212;
+  const g = parseInt(c.slice(2, 4), 16) || 175;
+  const b = parseInt(c.slice(4, 6), 16) || 55;
+  return `${r},${g},${b}`;
+}
+
+function getTemplateCSS(template: string, primaryColour: string, accentColour: string, headingFont: string, bodyFont: string): string {
+  const t = (template || '').toLowerCase();
+
+  if (t.includes('luxury')) {
+    return `:root {
+  --font-heading: '${headingFont}', serif;
+  --font-body: '${bodyFont}', sans-serif;
+  --color-primary: ${primaryColour};
+  --color-accent: ${accentColour};
+  --color-bg: #0a0806;
+  --color-surface: #120f0a;
+  --color-text: #f5f0e8;
+  --color-muted: rgba(245,240,232,0.5);
+  --border-radius: 4px;
+}
+.nav { background: rgba(10,8,6,0.97) !important; }
+.nav-logo, .nav-links a, .hero-headline, .hero-sub { color: var(--color-text) !important; }
+.btn-primary { background: transparent !important; border: 1px solid rgba(${colorRgb(primaryColour)},0.5) !important; color: ${primaryColour} !important; letter-spacing: 0.12em; text-transform: uppercase; font-size: 12px !important; }
+.hero-headline { font-weight: 300 !important; }
+.announcement { background: rgba(${colorRgb(primaryColour)},0.08) !important; color: rgba(245,240,232,0.5) !important; letter-spacing: 3px; font-size: 11px !important; }
+.testimonial-card { background: #120f0a !important; border-left-color: rgba(${colorRgb(primaryColour)},0.3) !important; }`;
+  }
+
+  if (t.includes('bloom') || t.includes('beauty') || t.includes('minimal')) {
+    return `:root {
+  --font-heading: 'Cormorant Garamond', serif;
+  --font-body: 'Nunito', sans-serif;
+  --color-primary: #c96b8a;
+  --color-accent: ${accentColour};
+  --color-bg: #fdf6f8;
+  --color-surface: #fff8f9;
+  --color-text: #4a2c35;
+  --color-muted: rgba(74,44,53,0.6);
+  --border-radius: 20px;
+}
+body { background: #fdf6f8 !important; color: #4a2c35 !important; }
+.nav { background: #fdf6f8 !important; border-bottom: 1px solid rgba(201,107,138,0.12) !important; }
+.nav-logo, .nav-links a { color: #4a2c35 !important; }
+.hero { background: #fdf6f8 !important; }
+.hero-headline, .hero-badge { color: #4a2c35 !important; }
+.hero-headline { font-style: italic; font-weight: 400 !important; }
+.hero-sub { color: rgba(74,44,53,0.6) !important; }
+.btn-primary { background: linear-gradient(135deg,#c96b8a,#e8a0b4) !important; color: #fff !important; }
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(201,107,138,0.3) !important; }
+.btn-outline { border-color: #c96b8a !important; color: #c96b8a !important; }
+.testimonials { background: #fff8f9 !important; }
+.testimonials-heading { color: #4a2c35 !important; }
+.testimonial-card { background: #fff !important; border-left-color: #c96b8a !important; }
+.testimonial-text, .testimonial-name { color: #4a2c35 !important; }`;
+  }
+
+  if (t.includes('tech') || t.includes('mono') || t.includes('saas')) {
+    return `:root {
+  --font-heading: 'JetBrains Mono', monospace;
+  --font-body: 'Inter', sans-serif;
+  --color-primary: #238636;
+  --color-accent: #58a6ff;
+  --color-bg: #0a0f1e;
+  --color-surface: #0d1117;
+  --color-text: #e0e6f0;
+  --color-muted: rgba(224,230,240,0.6);
+  --border-radius: 4px;
+}
+body { background: #0a0f1e !important; color: #e0e6f0 !important; }
+.nav { background: rgba(13,17,23,0.97) !important; }
+.nav-logo { color: #58a6ff !important; letter-spacing: 2px; }
+.nav-links a { color: rgba(224,230,240,0.7) !important; }
+.hero { background: #0a0f1e !important; }
+.hero-headline { color: #e0e6f0 !important; font-weight: 700 !important; }
+.btn-primary { background: #238636 !important; border: 1px solid #2ea043 !important; color: #fff !important; }
+.btn-primary:hover { background: #2ea043 !important; }
+.announcement { background: #238636 !important; }
+.testimonials { background: #0d1117 !important; }
+.testimonial-card { background: #161b22 !important; border-left-color: #58a6ff !important; }`;
+  }
+
+  if (t.includes('coastal') || t.includes('editorial')) {
+    return `:root {
+  --font-heading: 'Cormorant Garamond', serif;
+  --font-body: 'Lato', sans-serif;
+  --color-primary: ${primaryColour};
+  --color-accent: ${accentColour};
+  --color-bg: #fafaf8;
+  --color-surface: #ffffff;
+  --color-text: #1a1a1a;
+  --color-muted: rgba(26,26,26,0.55);
+  --border-radius: 12px;
+}
+body { background: #fafaf8 !important; color: #1a1a1a !important; }
+.nav { background: #fff !important; border-bottom: 1px solid rgba(0,0,0,0.07) !important; }
+.nav-logo, .nav-links a { color: #1a1a1a !important; }
+.hero { background: #fafaf8 !important; }
+.hero-headline { color: #1a1a1a !important; font-style: italic; font-weight: 400 !important; }
+.hero-sub { color: rgba(26,26,26,0.55) !important; }
+.btn-primary { background: transparent !important; border: 2px solid #1a1a1a !important; color: #1a1a1a !important; }
+.btn-primary:hover { background: #1a1a1a !important; color: #fff !important; }
+.btn-outline { border-color: rgba(26,26,26,0.3) !important; color: rgba(26,26,26,0.6) !important; }
+.announcement { background: #1a1a1a !important; }
+.testimonials { background: #f4f4f0 !important; }
+.testimonials-heading { color: #1a1a1a !important; }
+.testimonial-card { background: #fff !important; border-left-color: ${primaryColour} !important; }
+.testimonial-text, .testimonial-name { color: #1a1a1a !important; }`;
+  }
+
+  // Default dark DTC
+  return `:root {
+  --font-heading: '${headingFont}', sans-serif;
+  --font-body: '${bodyFont}', sans-serif;
+  --color-primary: ${primaryColour};
+  --color-accent: ${accentColour};
+  --color-bg: #080808;
+  --color-surface: #111111;
+  --color-text: #ffffff;
+  --color-muted: rgba(255,255,255,0.6);
+  --border-radius: 6px;
+}`;
 }
 
 export function buildStoreHTML(plan: StorePlan): string {
@@ -23,322 +144,347 @@ export function buildStoreHTML(plan: StorePlan): string {
     template, niche, supportEmail,
   } = plan;
 
-  const t = (template || '').toLowerCase();
   const rgb = colorRgb(primaryColour);
+  const templateCSS = getTemplateCSS(template, primaryColour, accentColour, headingFontName, bodyFontName);
+  const googleFontsUrl = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(headingFontName).replace(/%20/g, '+')}:wght@300;400;600;700;900&family=${encodeURIComponent(bodyFontName).replace(/%20/g, '+')}:wght@300;400;500;600&display=swap`;
 
-  // Template-driven CSS vars
-  const isLuxury = t.includes('luxury');
-  const isBloomy = t.includes('bloom') || t.includes('beauty') || t.includes('minimal');
-  const isTech = t.includes('tech') || t.includes('mono') || t.includes('saas');
-  const isCoastal = t.includes('coastal') || t.includes('editorial');
+  const bullets = (productBullets || []).slice(0, 5).map(b =>
+    `<li>${esc(b)}</li>`).join('\n      ');
 
-  let bgColor = '#080808';
-  let surfaceColor = '#111111';
-  let textColor = '#ffffff';
-  let mutedColor = 'rgba(255,255,255,0.6)';
-  let sectionBg = '#f7f7f7';
-  let sectionText = '#0a0a0a';
-  let cardBg = '#111118';
-  let cardBorder = `4px solid ${primaryColour}`;
-  let btnStyle = `background:${primaryColour};color:#fff;border:none`;
-  let btnOutlineStyle = `background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.3)`;
-  let h1Weight = '900';
-  let h1Italic = '';
-  let navBg = 'rgba(8,8,8,0.96)';
-  let navTextColor = '#ffffff';
-  let announceBg = primaryColour;
-  let announceText = '#ffffff';
+  const testimonialCards = (testimonials || []).slice(0, 3).map(t => `
+      <div class="testimonial-card">
+        <div class="testimonial-stars">${stars(t.rating)}</div>
+        <p class="testimonial-text">"${esc(t.text)}"</p>
+        <div class="testimonial-name">${esc(t.name)}</div>
+        <div class="testimonial-location">${esc(t.location)}</div>
+        <div class="testimonial-verified">✓ Verified Purchase</div>
+      </div>`).join('');
 
-  if (isLuxury) {
-    bgColor = '#0a0806'; surfaceColor = '#120f0a'; textColor = '#f5f0e8';
-    mutedColor = 'rgba(245,240,232,0.5)'; sectionBg = '#0d0a07'; sectionText = '#f5f0e8';
-    cardBg = '#120f0a'; cardBorder = `1px solid rgba(${rgb},0.2)`;
-    btnStyle = `background:transparent;color:${primaryColour};border:1px solid rgba(${rgb},0.5)`;
-    btnOutlineStyle = `background:transparent;color:rgba(245,240,232,0.6);border:1px solid rgba(245,240,232,0.2)`;
-    h1Weight = '300';
-    announceBg = `rgba(${rgb},0.08)`; announceText = `rgba(245,240,232,0.5)`;
-    navBg = 'rgba(10,8,6,0.97)'; navTextColor = '#f5f0e8';
-  } else if (isBloomy) {
-    bgColor = '#fdf6f8'; surfaceColor = '#fff8f9'; textColor = '#4a2c35';
-    mutedColor = 'rgba(74,44,53,0.6)'; sectionBg = '#fff'; sectionText = '#4a2c35';
-    cardBg = '#fff'; cardBorder = `1px solid rgba(201,107,138,0.15)`;
-    btnStyle = `background:linear-gradient(135deg,#c96b8a,#e8a0b4);color:#fff;border:none`;
-    btnOutlineStyle = `background:transparent;color:#c96b8a;border:2px solid #c96b8a`;
-    h1Weight = '400'; h1Italic = 'font-style:italic;';
-    navBg = '#fdf6f8'; navTextColor = '#4a2c35';
-    announceBg = '#c96b8a'; announceText = '#fff';
-  } else if (isTech) {
-    bgColor = '#0a0f1e'; surfaceColor = '#0d1117'; textColor = '#e0e6f0';
-    mutedColor = 'rgba(224,230,240,0.6)'; sectionBg = '#0d1117'; sectionText = '#e0e6f0';
-    cardBg = '#161b22'; cardBorder = '1px solid #30363d';
-    btnStyle = 'background:#238636;color:#fff;border:1px solid #2ea043';
-    btnOutlineStyle = 'background:transparent;color:#58a6ff;border:1px solid #58a6ff';
-    h1Weight = '700';
-    navBg = 'rgba(13,17,23,0.97)'; navTextColor = '#e0e6f0';
-    announceBg = '#238636'; announceText = '#fff';
-  } else if (isCoastal) {
-    bgColor = '#fafaf8'; surfaceColor = '#ffffff'; textColor = '#1a1a1a';
-    mutedColor = 'rgba(26,26,26,0.55)'; sectionBg = '#f4f4f0'; sectionText = '#1a1a1a';
-    cardBg = '#ffffff'; cardBorder = '1px solid rgba(0,0,0,0.08)';
-    btnStyle = 'background:transparent;color:#1a1a1a;border:2px solid #1a1a1a';
-    btnOutlineStyle = 'background:transparent;color:rgba(26,26,26,0.55);border:2px solid rgba(26,26,26,0.2)';
-    h1Weight = '400'; h1Italic = 'font-style:italic;';
-    navBg = '#fff'; navTextColor = '#1a1a1a';
-    announceBg = '#1a1a1a'; announceText = '#fff';
-  }
-
-  const googleFontsUrl = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(headingFontName).replace(/%20/g,'+')}:wght@300;400;600;700;900&family=${encodeURIComponent(bodyFontName).replace(/%20/g,'+')}:wght@300;400;500;600&display=swap`;
-
-  // Determine contrast color for text on section backgrounds
-  const sectionBorderColor = (sectionText === '#ffffff' || sectionText === '#f5f0e8' || sectionText === '#e0e6f0') ? '255,255,255' : '0,0,0';
-
-  const bulletRows = (productBullets || []).slice(0, 5).map(b => `
-        <div style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid rgba(${sectionBorderColor},0.08)">
-          <span style="color:${primaryColour};font-size:18px;font-weight:900;line-height:1.4;flex-shrink:0">\u2713</span>
-          <span style="font-size:15px;line-height:1.55;color:${sectionText}">${esc(b)}</span>
-        </div>`).join('');
-
-  const testimonialCards = (testimonials || []).slice(0, 3).map(ti => `
-        <div style="background:${cardBg};border-radius:14px;padding:32px;border-left:${cardBorder};box-shadow:0 2px 20px rgba(0,0,0,0.12)">
-          <div style="color:${accentColour};font-size:20px;margin-bottom:14px">${stars(ti.rating)}</div>
-          <p style="color:${textColor};font-size:16px;line-height:1.65;font-style:italic;margin-bottom:20px;opacity:0.9">"${esc(ti.text)}"</p>
-          <div style="font-weight:700;color:${textColor};font-size:15px">${esc(ti.name)}</div>
-          <div style="color:${primaryColour};font-size:13px;margin-top:3px">${esc(ti.location)}</div>
-          <div style="color:#27ae60;font-size:11px;margin-top:6px;font-weight:600">\u2713 Verified Purchase</div>
-        </div>`).join('');
-
-  const faqBorderColor = (sectionText === '#1a1a1a' || sectionText === '#0a0a0a' || sectionText === '#4a2c35') ? '0,0,0' : '255,255,255';
-
-  const faqRows = (faqItems || []).slice(0, 4).map(f => `
-        <div style="border-bottom:1px solid rgba(${faqBorderColor},0.1);padding:28px 0">
-          <h3 style="font-family:'${headingFontName}',sans-serif;font-size:18px;font-weight:700;color:${textColor};margin-bottom:12px">${esc(f.q)}</h3>
-          <p style="font-size:15px;color:${mutedColor};line-height:1.65">${esc(f.a)}</p>
-        </div>`).join('');
+  const faqItems_ = (faqItems || []).slice(0, 4).map(f => `
+      <div class="faq-item">
+        <div class="faq-q">${esc(f.q)}</div>
+        <div class="faq-a">${esc(f.a)}</div>
+      </div>`).join('');
 
   const howSteps = (howItWorks || []).slice(0, 3).map(h => `
-        <div style="text-align:center;padding:20px">
-          <div style="font-family:'${headingFontName}',sans-serif;font-size:72px;font-weight:900;color:${primaryColour};opacity:0.2;line-height:1;margin-bottom:16px">${esc(h.step)}</div>
-          <h3 style="font-family:'${headingFontName}',sans-serif;font-size:20px;font-weight:800;color:${sectionText};margin-bottom:12px">${esc(h.title)}</h3>
-          <p style="font-size:15px;color:${mutedColor};line-height:1.6;max-width:280px;margin:0 auto">${esc(h.description)}</p>
-        </div>`).join('');
+      <div class="how-step">
+        <div class="how-number">${esc(h.step)}</div>
+        <div class="how-title">${esc(h.title)}</div>
+        <p class="how-desc">${esc(h.description)}</p>
+      </div>`).join('');
 
-  const imgOnError = `this.onerror=null;this.parentElement.style.background='linear-gradient(135deg,rgba(${rgb},0.25),${surfaceColor})';this.style.display='none'`;
-
-  const navLinks = ['Home','Shop','About','Contact'].map(l =>
-    `<a href="#" style="font-size:14px;color:${navTextColor};opacity:0.7;letter-spacing:1px;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">${l}</a>`
-  ).join('');
-
-  const trustBadges = [
-    ['\ud83d\ude9a', 'Free AU Shipping', 'Orders over $75'],
-    ['\u2b50', '4.9/5 Stars', '2,400+ verified reviews'],
-    ['\ud83d\udd04', '30-Day Returns', 'No questions asked'],
-    ['\ud83d\udd12', 'Secure Checkout', 'Afterpay & all cards'],
-  ].map((b, i) => `
-    <div style="padding:20px 16px${i < 3 ? ';border-right:1px solid #eee' : ''}">
-      <div style="font-size:28px;margin-bottom:10px">${b[0]}</div>
-      <div style="font-weight:700;font-size:14px;color:#111;margin-bottom:4px">${b[1]}</div>
-      <div style="font-size:12px;color:#888">${b[2]}</div>
-    </div>`).join('');
-
-  const statsItems = [['2,400+','Happy Customers'],['4.9/5','Average Rating'],['3-5 Days','AU Delivery'],['30 Days','Free Returns']].map(s => `
-    <div>
-      <div style="font-family:'${headingFontName}',sans-serif;font-size:clamp(32px,4vw,48px);font-weight:900;color:#fff">${s[0]}</div>
-      <div style="font-size:14px;color:rgba(255,255,255,0.8);margin-top:6px;letter-spacing:1px">${s[1]}</div>
-    </div>`).join('');
-
-  const footerLinks = ['Home','Shop','About','Contact','FAQ'].map(l =>
-    `<a href="#" style="display:block;color:rgba(255,255,255,0.5);padding:7px 0;font-size:14px;transition:color .2s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">${l}</a>`
-  ).join('');
-
-  const socialIcons = ['FB','IG','TT'].map(s =>
-    `<div style="width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.5);font-size:11px;font-weight:700;cursor:pointer">${s}</div>`
-  ).join('');
+  const onerror = `this.onerror=null;this.parentElement.style.background='linear-gradient(135deg,rgba(${rgb},0.25),#111)';this.style.display='none'`;
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>${esc(storeName)} \u2014 ${esc(niche)} for Australia</title>
-<meta name="description" content="${esc(tagline)}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="${googleFontsUrl}" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:${bgColor};color:${textColor};font-family:'${bodyFontName}',sans-serif;line-height:1.6;overflow-x:hidden}
-img{max-width:100%;display:block}
-a{text-decoration:none;color:inherit}
-button,a.btn{font-family:'${bodyFontName}',sans-serif;cursor:pointer;transition:all .2s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
-.fade-up{animation:fadeUp .6s ease both}
-@media(max-width:768px){
-  .hero-grid{grid-template-columns:1fr!important}
-  .hero-img-col{display:none!important}
-  .product-grid{grid-template-columns:1fr!important}
-  .trust-grid{grid-template-columns:1fr 1fr!important}
-  .testimonials-grid{grid-template-columns:1fr!important}
-  .how-grid{grid-template-columns:1fr!important}
-  .stats-grid{grid-template-columns:1fr 1fr!important}
-  .footer-grid{grid-template-columns:1fr!important;gap:32px!important}
-  .desktop-nav{display:none!important}
-  .hero-left{padding:80px 24px 48px!important}
-  .section-pad{padding:60px 24px!important}
-  .product-right{padding:32px 24px!important}
-  .faq-inner{padding:60px 24px!important}
-  h1{font-size:clamp(32px,8vw,52px)!important}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${esc(storeName)} — ${esc(tagline)}</title>
+  <meta name="description" content="${esc(heroSubheadline)}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="${googleFontsUrl}" rel="stylesheet">
+  <style>
+  ${templateCSS}
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font-body, 'DM Sans', sans-serif); background: var(--color-bg, #080808); color: var(--color-text, #fff); }
+  img { max-width: 100%; height: auto; }
+  a { text-decoration: none; }
+
+  /* ANNOUNCEMENT BAR */
+  .announcement { background: var(--color-primary); color: #fff; text-align: center; padding: 12px; font-size: 13px; letter-spacing: 1px; font-weight: 600; }
+
+  /* NAV */
+  .nav { position: sticky; top: 0; z-index: 999; background: rgba(10,10,10,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 0 60px; height: 70px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .nav-logo { font-family: var(--font-heading, 'Syne', sans-serif); font-size: 20px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #fff; }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a { color: rgba(255,255,255,0.7); font-size: 14px; letter-spacing: 1px; transition: color 0.2s; }
+  .nav-links a:hover { color: #fff; }
+  .nav-cta { background: var(--color-primary); color: #fff; padding: 10px 24px; border: none; cursor: pointer; font-size: 13px; letter-spacing: 1px; border-radius: var(--border-radius, 6px); font-family: var(--font-body, sans-serif); }
+
+  /* HERO */
+  .hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; background: var(--color-bg, #080808); }
+  .hero-content { padding: 120px 60px; display: flex; flex-direction: column; justify-content: center; }
+  .hero-badge { color: var(--color-accent, #d4af37); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 20px; font-weight: 700; }
+  .hero-headline { font-family: var(--font-heading, 'Syne', sans-serif); font-size: clamp(36px,5vw,68px); font-weight: 700; color: #fff; line-height: 1.1; margin-bottom: 20px; }
+  .hero-sub { color: rgba(255,255,255,0.65); font-size: 18px; line-height: 1.65; margin-bottom: 40px; max-width: 480px; }
+  .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
+  .btn-primary { background: var(--color-primary); color: #fff; padding: 18px 40px; border: none; cursor: pointer; font-size: 15px; letter-spacing: 1px; border-radius: var(--border-radius, 6px); font-family: var(--font-body, sans-serif); transition: opacity 0.2s; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-outline { background: transparent; color: #fff; padding: 18px 40px; border: 2px solid rgba(255,255,255,0.3); cursor: pointer; font-size: 15px; letter-spacing: 1px; border-radius: var(--border-radius, 6px); font-family: var(--font-body, sans-serif); transition: border-color 0.2s; }
+  .btn-outline:hover { border-color: #fff; }
+  .hero-image { overflow: hidden; }
+  .hero-image img { width: 100%; height: 100vh; object-fit: cover; }
+
+  /* TRUST BADGES */
+  .trust { background: #fff; padding: 40px 60px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+  .trust-item { text-align: center; padding: 20px; border-right: 1px solid #eee; }
+  .trust-item:last-child { border-right: none; }
+  .trust-icon { font-size: 28px; margin-bottom: 8px; }
+  .trust-title { font-weight: 700; font-size: 14px; color: #1a1a1a; margin-bottom: 4px; }
+  .trust-sub { font-size: 12px; color: #666; }
+
+  /* PRODUCT */
+  .product { background: #f5f5f5; padding: 100px 60px; }
+  .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; max-width: 1200px; margin: 0 auto; }
+  .product-image img { width: 100%; border-radius: 12px; object-fit: cover; aspect-ratio: 1; }
+  .product-info { padding: 20px 0; }
+  .product-name { font-family: var(--font-heading, 'Syne', sans-serif); font-size: 36px; font-weight: 700; color: #1a1a1a; margin-bottom: 12px; }
+  .product-stars { color: var(--color-accent, #d4af37); font-size: 18px; margin-bottom: 8px; }
+  .product-reviews { color: #666; font-size: 14px; }
+  .product-price { font-family: var(--font-heading, 'Syne', sans-serif); font-size: 48px; font-weight: 700; color: var(--color-primary); margin: 16px 0 4px; }
+  .product-afterpay { color: #666; font-size: 14px; margin-bottom: 24px; }
+  .product-bullets { list-style: none; margin-bottom: 24px; }
+  .product-bullets li { padding: 8px 0; color: #333; font-size: 15px; display: flex; align-items: flex-start; gap: 8px; border-bottom: 1px solid #eee; }
+  .product-bullets li::before { content: "✓"; color: var(--color-primary); font-weight: 700; flex-shrink: 0; }
+  .product-bullets li:last-child { border-bottom: none; }
+  .product-urgency { color: #e74c3c; font-size: 13px; font-weight: 700; margin: 16px 0 8px; }
+  .btn-cart { width: 100%; background: var(--color-primary); color: #fff; padding: 20px; border: none; cursor: pointer; font-size: 15px; font-weight: 600; letter-spacing: 1px; border-radius: var(--border-radius, 6px); margin-bottom: 12px; font-family: var(--font-body, sans-serif); }
+  .btn-buynow { width: 100%; background: #1a1a1a; color: #fff; padding: 20px; border: none; cursor: pointer; font-size: 15px; letter-spacing: 1px; border-radius: var(--border-radius, 6px); font-family: var(--font-body, sans-serif); }
+
+  /* STATS */
+  .stats { background: var(--color-primary); padding: 60px; display: grid; grid-template-columns: repeat(4, 1fr); }
+  .stat { text-align: center; color: #fff; padding: 20px; border-right: 1px solid rgba(255,255,255,0.2); }
+  .stat:last-child { border-right: none; }
+  .stat-number { font-family: var(--font-heading, 'Syne', sans-serif); font-size: 48px; font-weight: 700; margin-bottom: 8px; }
+  .stat-label { font-size: 14px; opacity: 0.85; letter-spacing: 1px; }
+
+  /* TESTIMONIALS */
+  .testimonials { background: #0a0a0a; padding: 100px 60px; }
+  .testimonials-header { text-align: center; margin-bottom: 60px; }
+  .testimonials-label { color: var(--color-accent, #d4af37); font-size: 11px; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
+  .testimonials-heading { font-family: var(--font-heading, 'Syne', sans-serif); font-size: clamp(26px,3vw,40px); font-weight: 700; color: #fff; }
+  .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
+  .testimonial-card { background: #141414; border-left: 4px solid var(--color-accent, #d4af37); border-radius: 8px; padding: 32px; }
+  .testimonial-stars { color: var(--color-accent, #d4af37); font-size: 18px; margin-bottom: 16px; }
+  .testimonial-text { color: rgba(255,255,255,0.85); font-size: 15px; line-height: 1.7; font-style: italic; margin-bottom: 20px; }
+  .testimonial-name { color: #fff; font-weight: 600; font-size: 14px; }
+  .testimonial-location { color: rgba(255,255,255,0.4); font-size: 13px; }
+  .testimonial-verified { color: #27ae60; font-size: 12px; margin-top: 4px; font-weight: 600; }
+
+  /* HOW IT WORKS */
+  .how { background: #f5f5f5; padding: 100px 60px; }
+  .how-header { text-align: center; margin-bottom: 60px; }
+  .how-label { color: var(--color-primary); font-size: 11px; letter-spacing: 4px; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
+  .how-heading { font-family: var(--font-heading, 'Syne', sans-serif); font-size: clamp(26px,3vw,42px); font-weight: 700; color: #1a1a1a; }
+  .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; max-width: 1000px; margin: 0 auto; }
+  .how-step { text-align: center; padding: 20px; }
+  .how-number { font-family: var(--font-heading, 'Syne', sans-serif); font-size: 72px; font-weight: 900; color: var(--color-primary); opacity: 0.2; line-height: 1; margin-bottom: 8px; }
+  .how-title { font-family: var(--font-heading, 'Syne', sans-serif); font-weight: 700; font-size: 18px; color: #1a1a1a; margin-bottom: 12px; }
+  .how-desc { color: #555; font-size: 15px; line-height: 1.6; }
+
+  /* FAQ */
+  .faq { background: #fff; padding: 100px 60px; }
+  .faq-inner { max-width: 800px; margin: 0 auto; }
+  .faq-heading { text-align: center; font-family: var(--font-heading, 'Syne', sans-serif); font-size: clamp(26px,3vw,38px); font-weight: 700; color: #1a1a1a; margin-bottom: 60px; }
+  .faq-item { border-bottom: 1px solid #eee; padding: 24px 0; }
+  .faq-q { font-family: var(--font-heading, 'Syne', sans-serif); font-weight: 700; font-size: 16px; color: #1a1a1a; margin-bottom: 12px; }
+  .faq-a { color: #555; font-size: 15px; line-height: 1.7; }
+
+  /* FOOTER */
+  .footer { background: #080808; color: #fff; padding: 80px 60px 40px; }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 60px; margin-bottom: 60px; max-width: 1200px; margin-left: auto; margin-right: auto; }
+  .footer-brand { font-family: var(--font-heading, 'Syne', sans-serif); font-size: 22px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; color: #fff; }
+  .footer-tagline { color: rgba(255,255,255,0.4); font-size: 14px; line-height: 1.65; margin-bottom: 24px; max-width: 300px; }
+  .footer-heading { font-weight: 700; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 20px; color: rgba(255,255,255,0.3); }
+  .footer-links { list-style: none; }
+  .footer-links li { margin-bottom: 12px; }
+  .footer-links a { color: rgba(255,255,255,0.5); font-size: 14px; transition: color 0.2s; }
+  .footer-links a:hover { color: #fff; }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,0.07); padding-top: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; max-width: 1200px; margin: 0 auto; }
+  .footer-copy { color: rgba(255,255,255,0.3); font-size: 13px; }
+  .footer-au { color: var(--color-accent, #d4af37); font-size: 13px; }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    .nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; }
+    .hero-content { padding: 60px 24px; order: 2; }
+    .hero-image { order: 1; height: 50vh; }
+    .hero-image img { height: 50vh; }
+    .hero-headline { font-size: 36px !important; }
+    .trust { grid-template-columns: repeat(2, 1fr); padding: 40px 24px; }
+    .product { padding: 60px 24px; }
+    .product-grid { grid-template-columns: 1fr; gap: 40px; }
+    .stats { grid-template-columns: repeat(2, 1fr); padding: 40px 24px; }
+    .testimonials { padding: 60px 24px; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .how { padding: 60px 24px; }
+    .how-grid { grid-template-columns: 1fr; }
+    .faq { padding: 60px 24px; }
+    .footer { padding: 60px 24px 40px; }
+    .footer-grid { grid-template-columns: 1fr; gap: 40px; }
+    .footer-bottom { flex-direction: column; text-align: center; }
+  }
+  </style>
 </head>
 <body>
 
-<!-- ANNOUNCEMENT BAR -->
-<div style="background:${announceBg};color:${announceText};padding:11px 24px;text-align:center;font-size:13px;letter-spacing:1px;font-weight:600;position:relative;z-index:1001">
-  \ud83d\ude9a Free Shipping on AU Orders Over $75 &nbsp;|&nbsp; Afterpay Available &nbsp;|&nbsp; 30-Day Returns
-</div>
-
-<!-- NAVIGATION -->
-<nav style="position:sticky;top:0;z-index:1000;background:${navBg};backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(128,128,128,0.1);height:70px;padding:0 60px;display:flex;align-items:center;justify-content:space-between">
-  <a href="#" style="font-family:'${headingFontName}',sans-serif;font-size:20px;font-weight:900;color:${navTextColor};letter-spacing:3px;text-transform:uppercase">${esc(storeName)}</a>
-  <div class="desktop-nav" style="display:flex;gap:36px">
-    ${navLinks}
+  <!-- ANNOUNCEMENT BAR -->
+  <div class="announcement">
+    🚚 Free Shipping on AU Orders Over $75 &nbsp;|&nbsp; Afterpay Available &nbsp;|&nbsp; 30-Day Returns
   </div>
-  <button style="${btnStyle};padding:11px 28px;border-radius:6px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:'${headingFontName}',sans-serif">
-    ${esc(heroCTA || 'Shop Now')}
-  </button>
-</nav>
 
-<!-- HERO -->
-<section style="background:${bgColor};min-height:100vh;display:grid;grid-template-columns:1fr 1fr;align-items:center" class="hero-grid">
-  <div class="hero-left" style="padding:100px 60px 80px">
-    <div style="display:inline-block;background:rgba(${rgb},0.12);color:${primaryColour};font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;padding:6px 14px;border-radius:4px;margin-bottom:24px">
-      \ud83c\udde6\ud83c\uddfa PROUDLY AUSTRALIAN
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-logo">${esc(storeName)}</div>
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="#">Shop</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
     </div>
-    <h1 style="font-family:'${headingFontName}',sans-serif;font-size:clamp(38px,4.5vw,68px);font-weight:${h1Weight};${h1Italic}color:${textColor};line-height:1.08;letter-spacing:-1px;margin-bottom:24px">
-      ${esc(heroHeadline)}
-    </h1>
-    <p style="font-size:18px;color:${mutedColor};line-height:1.65;margin-bottom:40px;max-width:480px">
-      ${esc(heroSubheadline)}
-    </p>
-    <div style="display:flex;gap:14px;flex-wrap:wrap">
-      <button style="${btnStyle};padding:16px 36px;border-radius:6px;font-size:15px;font-weight:800;letter-spacing:1px;font-family:'${headingFontName}',sans-serif">
-        ${esc(heroCTA || 'Shop Now')}
-      </button>
-      <button style="${btnOutlineStyle};padding:16px 36px;border-radius:6px;font-size:15px;font-weight:600;font-family:'${headingFontName}',sans-serif">
-        Learn More
-      </button>
-    </div>
-  </div>
-  <div class="hero-img-col" style="height:100vh;overflow:hidden">
-    <img src="${heroImageUrl}" alt="${esc(storeName)}" style="width:100%;height:100%;object-fit:cover" onerror="${imgOnError}">
-  </div>
-</section>
+    <button class="nav-cta">${esc(heroCTA || 'Shop Now')}</button>
+  </nav>
 
-<!-- TRUST BADGES -->
-<div style="background:#ffffff;border-bottom:1px solid #f0f0f0;padding:32px 60px" class="section-pad">
-  <div class="trust-grid" style="display:grid;grid-template-columns:repeat(4,1fr);text-align:center">
-    ${trustBadges}
-  </div>
-</div>
-
-<!-- FEATURED PRODUCT -->
-<section style="background:${sectionBg};padding:100px 60px" class="section-pad">
-  <div style="text-align:center;margin-bottom:56px">
-    <div style="color:${primaryColour};font-size:11px;letter-spacing:4px;font-weight:700;text-transform:uppercase;margin-bottom:10px">FEATURED PRODUCT</div>
-    <h2 style="font-family:'${headingFontName}',sans-serif;font-size:clamp(28px,3.5vw,44px);font-weight:900;color:${sectionText}">${esc(productName)}</h2>
-  </div>
-  <div class="product-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:flex-start;max-width:1200px;margin:0 auto">
-    <div style="border-radius:14px;overflow:hidden;position:relative;min-height:400px;background:${surfaceColor}">
-      <img src="${productImageUrl}" alt="${esc(productName)}" style="width:100%;border-radius:14px;object-fit:cover;max-height:560px" onerror="${imgOnError}">
-    </div>
-    <div class="product-right" style="padding:8px 0">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <span style="color:${accentColour};font-size:20px">${stars(5)}</span>
-        <span style="color:${mutedColor};font-size:14px">(487 verified reviews)</span>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">🇦🇺 Proudly Australian</div>
+      <h1 class="hero-headline">${esc(heroHeadline)}</h1>
+      <p class="hero-sub">${esc(heroSubheadline)}</p>
+      <div class="hero-buttons">
+        <button class="btn-primary">${esc(heroCTA || 'Shop Now')}</button>
+        <button class="btn-outline">Learn More</button>
       </div>
-      <div style="font-family:'${headingFontName}',sans-serif;font-size:48px;font-weight:900;color:${primaryColour};margin-bottom:8px">$${price} <span style="font-size:22px;font-weight:400">AUD</span></div>
-      <div style="background:rgba(0,0,0,0.05);border-radius:6px;padding:8px 14px;display:inline-block;margin-bottom:24px;font-size:14px;color:${mutedColor}">
-        or 4 \u00d7 <strong>$${afterpayPrice}</strong> with Afterpay
-      </div>
-      <div style="border-top:1px solid rgba(128,128,128,0.15);padding-top:20px;margin-bottom:4px">
-        <p style="font-size:15px;line-height:1.65;color:${mutedColor};margin-bottom:20px">${esc(productDescription)}</p>
-        ${bulletRows}
-      </div>
-      <div style="color:#e74c3c;font-size:13px;font-weight:700;margin:18px 0 8px">\u26a1 Only 7 left in stock \u2014 order soon</div>
-      <button style="${btnStyle};width:100%;padding:18px;font-size:15px;letter-spacing:2px;text-transform:uppercase;font-weight:800;border-radius:8px;margin-top:16px;font-family:'${headingFontName}',sans-serif">
-        ADD TO CART
-      </button>
-      <button style="background:#0a0a0a;color:#fff;border:none;width:100%;padding:18px;font-size:14px;letter-spacing:1px;font-weight:700;border-radius:8px;margin-top:10px;cursor:pointer;font-family:'${headingFontName}',sans-serif">
-        BUY NOW WITH AFTERPAY
-      </button>
     </div>
-  </div>
-</section>
+    <div class="hero-image">
+      <img src="${heroImageUrl}" alt="${esc(storeName)}" onerror="${onerror}">
+    </div>
+  </section>
 
-<!-- STATS BAR -->
-<section style="background:${primaryColour};padding:60px" class="section-pad">
-  <div class="stats-grid" style="display:grid;grid-template-columns:repeat(4,1fr);text-align:center;max-width:1000px;margin:0 auto">
-    ${statsItems}
-  </div>
-</section>
+  <!-- TRUST BADGES -->
+  <section class="trust">
+    <div class="trust-item">
+      <div class="trust-icon">🚚</div>
+      <div class="trust-title">Free AU Shipping</div>
+      <div class="trust-sub">Orders over $75</div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">⭐</div>
+      <div class="trust-title">4.9/5 Stars</div>
+      <div class="trust-sub">2,400+ verified reviews</div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">🔄</div>
+      <div class="trust-title">30-Day Returns</div>
+      <div class="trust-sub">No questions asked</div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">🔒</div>
+      <div class="trust-title">Secure Checkout</div>
+      <div class="trust-sub">Afterpay &amp; all cards</div>
+    </div>
+  </section>
 
-<!-- TESTIMONIALS -->
-<section style="background:${bgColor};padding:100px 60px" class="section-pad">
-  <div style="text-align:center;margin-bottom:56px">
-    <div style="color:${primaryColour};font-size:11px;letter-spacing:4px;font-weight:700;text-transform:uppercase;margin-bottom:10px">WHAT AUSTRALIANS SAY</div>
-    <h2 style="font-family:'${headingFontName}',sans-serif;font-size:clamp(26px,3vw,40px);font-weight:900;color:${textColor}">Real Reviews From Real Customers</h2>
-  </div>
-  <div class="testimonials-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1100px;margin:0 auto">
-    ${testimonialCards}
-  </div>
-</section>
-
-<!-- HOW IT WORKS -->
-<section style="background:${sectionBg};padding:100px 60px" class="section-pad">
-  <div style="text-align:center;margin-bottom:56px">
-    <div style="color:${primaryColour};font-size:11px;letter-spacing:4px;font-weight:700;text-transform:uppercase;margin-bottom:10px">HOW IT WORKS</div>
-    <h2 style="font-family:'${headingFontName}',sans-serif;font-size:clamp(26px,3vw,42px);font-weight:900;color:${sectionText}">Simple. Fast. Reliable.</h2>
-  </div>
-  <div class="how-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:40px;max-width:900px;margin:0 auto">
-    ${howSteps}
-  </div>
-</section>
-
-<!-- FAQ -->
-<section style="background:${bgColor};padding:100px 60px" class="section-pad">
-  <div class="faq-inner" style="max-width:760px;margin:0 auto">
+  <!-- FEATURED PRODUCT -->
+  <section class="product">
     <div style="text-align:center;margin-bottom:48px">
-      <h2 style="font-family:'${headingFontName}',sans-serif;font-size:clamp(26px,3vw,38px);font-weight:900;color:${textColor}">Frequently Asked Questions</h2>
+      <div style="color:var(--color-primary);font-size:11px;letter-spacing:4px;font-weight:700;text-transform:uppercase;margin-bottom:10px">FEATURED PRODUCT</div>
     </div>
-    ${faqRows}
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer style="background:#080808;padding:80px 60px 40px" class="section-pad">
-  <div class="footer-grid" style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;max-width:1200px;margin:0 auto">
-    <div>
-      <div style="font-family:'${headingFontName}',sans-serif;font-size:22px;font-weight:900;color:#fff;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px">${esc(storeName)}</div>
-      <p style="color:rgba(255,255,255,0.4);font-size:14px;line-height:1.65;margin-bottom:24px;max-width:300px">${esc(tagline)}</p>
-      <div style="display:flex;gap:10px">
-        ${socialIcons}
+    <div class="product-grid">
+      <div class="product-image">
+        <img src="${productImageUrl}" alt="${esc(productName)}" onerror="${onerror}">
+      </div>
+      <div class="product-info">
+        <h2 class="product-name">${esc(productName)}</h2>
+        <div class="product-stars">★★★★★</div>
+        <div class="product-reviews">487 verified reviews</div>
+        <div class="product-price">$${price} <span style="font-size:22px;font-weight:400">AUD</span></div>
+        <div class="product-afterpay">or 4 × <strong>$${afterpayPrice}</strong> with Afterpay</div>
+        <p style="font-size:15px;line-height:1.65;color:#555;margin-bottom:20px">${esc(productDescription)}</p>
+        <ul class="product-bullets">
+          ${bullets}
+        </ul>
+        <div class="product-urgency">⚡ Only 7 left in stock — order soon</div>
+        <button class="btn-cart">ADD TO CART</button>
+        <button class="btn-buynow">BUY NOW WITH AFTERPAY</button>
       </div>
     </div>
-    <div>
-      <div style="color:rgba(255,255,255,0.3);font-size:11px;letter-spacing:4px;font-weight:700;margin-bottom:20px;text-transform:uppercase">Quick Links</div>
-      ${footerLinks}
+  </section>
+
+  <!-- STATS BAR -->
+  <section class="stats">
+    <div class="stat">
+      <div class="stat-number">2,400+</div>
+      <div class="stat-label">Happy Customers</div>
     </div>
-    <div>
-      <div style="color:rgba(255,255,255,0.3);font-size:11px;letter-spacing:4px;font-weight:700;margin-bottom:20px;text-transform:uppercase">Get In Touch</div>
-      <a href="mailto:${esc(supportEmail)}" style="display:block;color:rgba(255,255,255,0.5);font-size:14px;margin-bottom:8px">${esc(supportEmail)}</a>
-      <div style="color:rgba(255,255,255,0.3);font-size:13px">Mon\u2013Fri 9am\u20135pm AEST</div>
-      <div style="color:rgba(255,255,255,0.2);font-size:12px;margin-top:16px">ABN: 12 345 678 901</div>
+    <div class="stat">
+      <div class="stat-number">4.9/5</div>
+      <div class="stat-label">Average Rating</div>
     </div>
-  </div>
-  <div style="border-top:1px solid rgba(255,255,255,0.07);margin-top:60px;padding-top:28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-    <span style="color:rgba(255,255,255,0.3);font-size:13px">\u00a9 2026 ${esc(storeName)}. All rights reserved.</span>
-    <span style="color:rgba(255,255,255,0.3);font-size:13px">Proudly Australian \ud83c\udde6\ud83c\uddfa</span>
-  </div>
-</footer>
+    <div class="stat">
+      <div class="stat-number">3-5 Days</div>
+      <div class="stat-label">AU Delivery</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number">30 Days</div>
+      <div class="stat-label">Free Returns</div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials">
+    <div class="testimonials-header">
+      <div class="testimonials-label">WHAT AUSTRALIANS SAY</div>
+      <h2 class="testimonials-heading">Real Reviews From Real Customers</h2>
+    </div>
+    <div class="testimonials-grid">
+      ${testimonialCards}
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how">
+    <div class="how-header">
+      <div class="how-label">HOW IT WORKS</div>
+      <h2 class="how-heading">Simple. Fast. Reliable.</h2>
+    </div>
+    <div class="how-grid">
+      ${howSteps}
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <div class="faq-inner">
+      <h2 class="faq-heading">Frequently Asked Questions</h2>
+      ${faqItems_}
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">${esc(storeName)}</div>
+        <p class="footer-tagline">${esc(tagline)}</p>
+      </div>
+      <div>
+        <div class="footer-heading">Quick Links</div>
+        <ul class="footer-links">
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Shop</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-heading">Get In Touch</div>
+        <a href="mailto:${esc(supportEmail)}" style="display:block;color:rgba(255,255,255,0.5);font-size:14px;margin-bottom:8px">${esc(supportEmail)}</a>
+        <div style="color:rgba(255,255,255,0.3);font-size:13px">Mon–Fri 9am–5pm AEST</div>
+        <div style="color:rgba(255,255,255,0.2);font-size:12px;margin-top:12px">ABN: 12 345 678 901</div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2026 ${esc(storeName)}. All rights reserved.</span>
+      <span class="footer-au">Proudly Australian 🇦🇺</span>
+    </div>
+  </footer>
 
 </body>
 </html>`;
