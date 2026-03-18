@@ -1556,6 +1556,20 @@ export default function WebsiteGenerator() {
 
   const hasOutput = generatedData || rawResponse || directHtml;
 
+  // Write HTML into preview iframe via doc.write so Google Fonts load correctly
+  useEffect(() => {
+    const html = previewHTML || directHtml || '';
+    if (!html || !previewIframeRef.current) return;
+    const iframe = previewIframeRef.current;
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!doc) return;
+      doc.open();
+      doc.write(html);
+      doc.close();
+    } catch { /* cross-origin guard */ }
+  }, [previewHTML, directHtml]);
+
   // ── Handlers ──────────────────────────────────────────────────────────────
 
   const handleImport = useCallback(async () => {
@@ -3350,7 +3364,6 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                             // Desktop: scaled 55% view showing full 1440px store
                             <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
                               <iframe
-                                srcDoc={previewHTML || directHtml || ''}
                                 title="Store Preview"
                                 style={{
                                   width: 1440,
@@ -3367,7 +3380,6 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                             </div>
                           ) : (
                             <iframe
-                              srcDoc={previewHTML || directHtml || ''}
                               title="Store Preview"
                               className="border-0"
                               style={{

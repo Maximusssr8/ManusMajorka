@@ -1618,7 +1618,7 @@ async function generateFullStore_legacy(params: {
   const isLight = ['editorial', 'minimal'].includes(designDirection as string);
 
   // ── 1. Unsplash images (no API key needed) ──────────────────────────────────
-  progress(5, '🔍 Finding the perfect images...');
+  progress(5, '🖼️ Fetching images...');
   const pd = productData || {};
   const productTitle = sanitizeProductTitle((pd.product_title as string) || '', niche);
   const scrapedImages = pd?.product_images as string[] | undefined;
@@ -1639,7 +1639,7 @@ async function generateFullStore_legacy(params: {
   console.log(`[website-api] heroImg: ${heroImg.slice(0, 80)} | productImg: ${productImg.slice(0, 80)}`);
 
   // ── 2. Expand brand brief (fast Haiku) ─────────────────────────────────────
-  progress(10, '📝 Building your brand brief...');
+  progress(20, '📝 Generating brand plan...');
   const brief = await expandStoreBrief({
     niche,
     storeName: storeName_,
@@ -1717,7 +1717,7 @@ async function generateFullStore_legacy(params: {
   const bodyFontName    = bodyFont.replace(/'/g, '').replace(/, sans-serif/i, '').trim();
 
   // ── 5. Two-stage generation: Haiku JSON plan → fixed TypeScript HTML renderer ─
-  progress(15, '📋 Planning your store content...');
+  progress(40, '📋 Planning store sections...');
   let storePlan: StorePlan;
   try {
     storePlan = await planStore({
@@ -1778,14 +1778,14 @@ async function generateFullStore_legacy(params: {
   }
 
   // ── 6. Render HTML from plan using fixed template ────────────────────────────
-  progress(30, '🎨 Rendering your store...');
+  progress(60, '🏗️ Building store structure...');
   const { buildStoreHTML } = await import('./storeTemplate');
   const generatedHtml = buildStoreHTML(storePlan);
   console.log(`[website-api] Template rendered: ${(generatedHtml.length / 1024).toFixed(1)}kb`);
-  progress(80, '✅ Store rendered...');
+  progress(80, '🎨 Applying design system...');
 
   // ── 7. Apply postProcessing ────────────────────────────────────────────────
-  progress(90, '🏗️ Finalising...');
+  progress(90, '✨ Finalising...');
   const finalHtml = postProcessHtml(generatedHtml, storeName_, niche, color, colorRgb, surfColor, bgColor, cardRadius);
   console.log(`[website-api] Final HTML size: ${(finalHtml.length / 1024).toFixed(1)}kb`);
 
