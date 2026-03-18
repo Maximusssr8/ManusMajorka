@@ -205,52 +205,120 @@ Include ALL product image URLs you find — this is the most important field.`,
   return result;
 }
 
-// ── Unsplash image URL builder (no API key required) ──────────────────────────
-const NICHE_IMAGE_MAP: Record<string, { hero: string; product: string }> = {
-  'Activewear & Gym':          { hero: 'fitness,gym,workout',       product: 'activewear,leggings,sportswear' },
-  'Beauty & Skincare':         { hero: 'skincare,beauty,spa',        product: 'skincare,serum,beauty' },
-  'Health & Wellness':         { hero: 'wellness,health,yoga',       product: 'supplements,health,wellness' },
-  'Tech Accessories':          { hero: 'technology,gadgets,tech',    product: 'gadgets,tech,accessories' },
-  'Home & Kitchen':            { hero: 'interior,home,kitchen',      product: 'kitchen,home,decor' },
-  'Home Decor':                { hero: 'interior,decor,home',        product: 'homedecor,interior,design' },
-  'Pets & Animals':            { hero: 'pets,dog,puppy',             product: 'pets,dog,cat' },
-  'Fashion & Apparel':         { hero: 'fashion,clothing,style',     product: 'fashion,clothes,apparel' },
-  'Jewellery & Accessories':   { hero: 'jewelry,accessories,gold',   product: 'jewelry,rings,necklace' },
-  'Outdoor & Camping':         { hero: 'outdoor,camping,nature',     product: 'camping,outdoor,hiking' },
-  'Baby & Kids':               { hero: 'baby,children,family',       product: 'baby,kids,children' },
-  'Coffee & Beverages':        { hero: 'coffee,cafe,espresso',       product: 'coffee,mug,beans' },
-  'Supplements & Nutrition':   { hero: 'fitness,nutrition,protein',  product: 'supplements,protein,pills' },
-  'Electronics':               { hero: 'electronics,technology,lab', product: 'electronics,devices,tech' },
-  'Books & Education':         { hero: 'books,library,study',        product: 'books,reading,study' },
-  'Art & Craft':               { hero: 'art,craft,creative',         product: 'art,paint,crafts' },
-  'Garden & Plants':           { hero: 'garden,plants,flowers',      product: 'plants,garden,flowers' },
-  'Sports Equipment':          { hero: 'sports,equipment,athlete',   product: 'sports,equipment,training' },
-  'Travel Accessories':        { hero: 'travel,adventure,explore',   product: 'travel,luggage,accessories' },
-  'Food & Gourmet':            { hero: 'food,gourmet,cooking',       product: 'food,ingredients,cooking' },
-  'Automotive':                { hero: 'car,automotive,vehicle',     product: 'car,auto,accessories' },
-  'Photography':               { hero: 'photography,camera,photo',   product: 'camera,lens,photography' },
-  'Music & Audio':             { hero: 'music,audio,headphones',     product: 'headphones,audio,music' },
-  'Office & Stationery':       { hero: 'office,desk,workspace',      product: 'stationery,office,desk' },
-  'Cleaning & Organisation':   { hero: 'clean,minimal,organisation', product: 'cleaning,organised,home' },
+// ── Curated Unsplash photo IDs — direct CDN, always load, never redirect ──
+const NICHE_PHOTOS: Record<string, { hero: string[]; product: string[] }> = {
+  'Activewear & Gym': {
+    hero:    ['1571019614242-c5c5dee9f50b','1544367567-0f2fcb009e0b','1583454110551-21f2fa2afe61'],
+    product: ['1556816290-c4c5905ac2b8','1521805492803-d37a11abb7a0','1535131211921-70bdb0b79ff0'],
+  },
+  'Beauty & Skincare': {
+    hero:    ['1556228578-8c89e6adf883','1614806687397-71b4f8f07b24','1571781926291-c477ebfd024b'],
+    product: ['1522335789203-aabd1fc54bc9','1596462502278-27bfdc403348','1598440947619-2c35fc9aa908'],
+  },
+  'Health & Wellness': {
+    hero:    ['1498837167922-ddd27525d352','1506126613408-eca07ce68773','1540420773420-3366772f4999'],
+    product: ['1511688878353-3a2f5be94cd7','1505253149613-112d21d9f6a9','1526206472073-8b00c73d75b2'],
+  },
+  'Home & Kitchen': {
+    hero:    ['1556909114-f6e7ad7d3136','1556909172-54557c7e4fb7','1565183928294-7063f23ce0f8'],
+    product: ['1585515320310-259814833e62','1556909114-f6e7ad7d3136','1631907670305-d92ca2a1ed0a'],
+  },
+  'Home Decor': {
+    hero:    ['1555041469-db61b0f11e79','1616486338812-3dadae4b4ace','1618220179428-22790b461013'],
+    product: ['1555041469-db61b0f11e79','1616046229478-9901369df64b','1617104664537-f9b5ba7e88e7'],
+  },
+  'Tech Accessories': {
+    hero:    ['1518770660439-4636190af475','1526374965328-7f61d4dc18c5','1581091226825-a6a2a5aee158'],
+    product: ['1523275335684-37898b6baf30','1505740420928-5e560c06d30e','1583394838336-acd977736f90'],
+  },
+  'Pets & Animals': {
+    hero:    ['1543466835-00a7907e9de1','1548199973-03cce0bbc87b','1587300003388-59208cc962cb'],
+    product: ['1587300003388-59208cc962cb','1517423440428-a5a00ad493e8','1450778869180-41d0601e046e'],
+  },
+  'Fashion & Apparel': {
+    hero:    ['1445205170230-053b83016050','1490481651871-ab68de25d43d','1539109136881-3be0616acf4b'],
+    product: ['1512436991641-6745cdb1723f','1483985988355-763728e1e661','1469334031218-e382a71b716b'],
+  },
+  'Jewellery & Accessories': {
+    hero:    ['1535632066927-ab7c9ab60908','1611591437281-460bfbe1220a','1602173574767-37599522d148'],
+    product: ['1535632066927-ab7c9ab60908','1573408301185-9521e7d27b55','1617038260897-41a533bb3cb0'],
+  },
+  'Outdoor & Camping': {
+    hero:    ['1506905925346-21bda4d32df4','1504851149312-7a075b496cc7','1485965120184-e220f721d03d'],
+    product: ['1504851149312-7a075b496cc7','1542556398-f0d86bc1cc6d','1471623817197-1bb60b28ef1e'],
+  },
+  'Baby & Kids': {
+    hero:    ['1515488042361-ee00e0ddd4e4','1622290291468-a28f7a7dc6a8','1503454537195-1dcabb73ffb9'],
+    product: ['1515488042361-ee00e0ddd4e4','1598699925248-dd11f79888b4','1524676527574-6e7f2b1148a7'],
+  },
+  'Coffee & Beverages': {
+    hero:    ['1495474472287-4d71bcdd2085','1509042239860-f550ce710b93','1447933601403-0c6688de566e'],
+    product: ['1509042239860-f550ce710b93','1442512595331-8f22a6098b4f','1461023058943-07fcbe16d735'],
+  },
+  'Supplements & Nutrition': {
+    hero:    ['1490645935967-10de6ba17061','1571019614242-c5c5dee9f50b','1543699565-681bccf5c3af'],
+    product: ['1584308666744-d0f966efed6a','1505253149613-112d21d9f6a9','1526206472073-8b00c73d75b2'],
+  },
+  'Electronics': {
+    hero:    ['1518770660439-4636190af475','1550009158-9ebf69173e03','1498049794561-7780e7231661'],
+    product: ['1607082348824-0a96f2a4b9da','1496181133206-80ce9b88a853','1585771724684-38269d6639fd'],
+  },
+  'Office & Stationery': {
+    hero:    ['1497032628192-86f99bcd76bc','1486312338219-ce68d2c6f44d','1484480974693-6ca0a78fb36b'],
+    product: ['1456735190827-d1262f71b8a3','1588345921523-c2dcdb7f1e88','1497032628192-86f99bcd76bc'],
+  },
+  'Garden & Plants': {
+    hero:    ['1416879595882-3373a0480b5b','1466692476868-adc745f3e0b8','1558618666-fcd25c85cd64'],
+    product: ['1416879595882-3373a0480b5b','1462275646964-a0e3386b89fa','1518531933037-91b2f5f229cc'],
+  },
+  'Sports Equipment': {
+    hero:    ['1461896836878-5bd68e4a6eb6','1517836357463-d25dfeac3438','1571008887538-b36bb32f4571'],
+    product: ['1517836357463-d25dfeac3438','1584735935682-2f6b18b07b69','1549060279-7e168fcee0c2'],
+  },
+  'Travel Accessories': {
+    hero:    ['1476514525535-07fb3b4ae5f1','1528360983277-13d401cdc186','1436491865332-7a61a109cc05'],
+    product: ['1553025934-b3e6e0be5451','1469854523086-cc02fe5d8800','1503220317375-aaad93e3734f'],
+  },
 };
 
-function getUnsplashImages(niche: string, _productTitle: string): { hero: string; product: string; lifestyle1: string; lifestyle2: string; shopImages: string[] } {
-  const mapped = NICHE_IMAGE_MAP[niche] || Object.entries(NICHE_IMAGE_MAP).find(([k]) =>
+const FALLBACK_PHOTOS = {
+  hero:    ['1441986300917-64674bd600d8','1560472354-b33ff0ad5a3b','1556742049-0cfed4f6a45d'],
+  product: ['1542291026-7eec264c27ff','1491553895911-0055eca6402d','1556742049-0cfed4f6a45d'],
+};
+
+function pickPhoto(arr: string[]): string {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function getUnsplashImages(niche: string, _productTitle: string): {
+  hero: string; product: string; lifestyle1: string; lifestyle2: string; shopImages: string[];
+} {
+  const key = Object.keys(NICHE_PHOTOS).find(k =>
     niche.toLowerCase().includes(k.toLowerCase().split(' ')[0]) ||
     k.toLowerCase().includes(niche.toLowerCase().split(' ')[0])
-  )?.[1] || { hero: 'lifestyle,australia,brand', product: 'product,shop,ecommerce' };
+  ) || '';
+  const photos = NICHE_PHOTOS[key] || FALLBACK_PHOTOS;
 
-  const heroUrl     = `https://source.unsplash.com/1400x900/?${encodeURIComponent(mapped.hero)}`;
-  const productUrl  = `https://source.unsplash.com/800x800/?${encodeURIComponent(mapped.product)}`;
-  const lifestyle1  = `https://source.unsplash.com/900x600/?${encodeURIComponent(mapped.hero + ',lifestyle')}`;
-  const lifestyle2  = `https://source.unsplash.com/900x600/?${encodeURIComponent(mapped.product + ',lifestyle')}`;
+  const mkUrl = (id: string, w: number, h: number) =>
+    `https://images.unsplash.com/photo-${id}?w=${w}&h=${h}&fit=crop&q=85&auto=format`;
+
+  const heroId    = pickPhoto(photos.hero);
+  const filteredProduct = photos.product.filter(id => id !== heroId);
+  const productId = pickPhoto(filteredProduct.length > 0 ? filteredProduct : photos.product);
+  const filteredHero = photos.hero.filter(id => id !== heroId);
+  const life1Id   = pickPhoto(filteredHero.length > 0 ? filteredHero : photos.hero);
+  const life2Id   = pickPhoto(photos.product);
 
   return {
-    hero: heroUrl,
-    product: productUrl,
-    lifestyle1,
-    lifestyle2,
-    shopImages: [productUrl, lifestyle1, lifestyle2],
+    hero:       mkUrl(heroId,    1400, 900),
+    product:    mkUrl(productId,  800, 800),
+    lifestyle1: mkUrl(life1Id,    900, 600),
+    lifestyle2: mkUrl(life2Id,    900, 600),
+    shopImages: [
+      mkUrl(productId, 600, 600),
+      mkUrl(life1Id,   600, 600),
+      mkUrl(life2Id,   600, 600),
+    ],
   };
 }
 
@@ -1756,6 +1824,78 @@ ${templateOverride}
 - Use inline styles for all styling (no external CSS files)
 - No JavaScript required for basic layout
 - Return ONLY the HTML — no markdown, no code fences, no explanation
+
+═══ HTML SCAFFOLD — EXTEND THIS, DO NOT REPLACE ═══
+Start your output with EXACTLY this structure, then fill each section:
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${briefBrandName} — ${niche} for Australia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=${headingFontName.replace(/ /g,'+')}:wght@300;400;600;700;900&family=${bodyFontName.replace(/ /g,'+')}:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --accent: ${color};
+  --bg: ${bgColor};
+  --surface: ${surfColor};
+  --text: #f2efe9;
+  --muted: rgba(242,239,233,0.55);
+  --heading-font: '${headingFontName}', sans-serif;
+  --body-font: '${bodyFontName}', sans-serif;
+  --radius: ${cardRadius};
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--body-font); line-height: 1.6; }
+</style>
+</head>
+<body>
+<!-- SECTION 1: Announcement Bar -->
+[FILL THIS]
+
+<!-- SECTION 2: Sticky Nav with "${briefBrandName}" logo -->
+[FILL THIS]
+
+<!-- SECTION 3: Hero (min-height:100vh, split layout) -->
+[FILL THIS]
+
+<!-- SECTION 4: Trust Badges (4 columns) -->
+[FILL THIS]
+
+<!-- SECTION 5: Featured Product "${productName}" at $${displayPrice} AUD -->
+[FILL THIS]
+
+<!-- SECTION 6: Stats Bar (gold background) -->
+[FILL THIS]
+
+<!-- SECTION 7: 3 Testimonials -->
+[FILL THIS]
+
+<!-- SECTION 8: How It Works (3 steps) -->
+[FILL THIS]
+
+<!-- SECTION 9: FAQ (4 items) -->
+[FILL THIS]
+
+<!-- SECTION 10: Footer with "${briefBrandName}" -->
+[FILL THIS]
+
+</body>
+</html>
+
+═══ FINAL OUTPUT RULES ═══
+- Output ONLY the complete HTML. No markdown. No explanation. No code fences.
+- Every [FILL THIS] in the scaffold must be replaced with real HTML
+- Minimum 800 lines of HTML
+- Every section must have actual styled content — NO placeholders
+- Images: always include onerror fallback: onerror="this.onerror=null;this.style.opacity='0.3'"
+- The brand name "${briefBrandName}" must appear in: nav logo, hero h1, footer, page title
+- Price "${displayPrice}" must appear in the product section
+- All fonts must load from the Google Fonts link in <head>
+- Mobile responsive: add a <style> block at the end with @media(max-width:768px) rules
+- Cart: add a global floating cart icon that opens an order summary panel
 `;
 
   // ── 6. Stream from Sonnet ─────────────────────────────────────────────────────
@@ -1764,8 +1904,8 @@ ${templateOverride}
 
   const stream = client.messages.stream({
     model: CLAUDE_MODEL,
-    max_tokens: 8000,
-    temperature: 0.7,
+    max_tokens: 9000,
+    temperature: 0.65,
     system: singlePassSystem,
     messages: [{ role: 'user', content: singlePassUser }],
   });
@@ -1801,7 +1941,7 @@ ${templateOverride}
     try {
       const retryStream = client.messages.stream({
         model: CLAUDE_MODEL,
-        max_tokens: 9000,
+        max_tokens: 10000,
         temperature: 0.6,
         system: singlePassSystem,
         messages: [{ role: 'user', content: singlePassUser }],

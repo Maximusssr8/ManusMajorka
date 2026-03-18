@@ -2746,6 +2746,26 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
             </datalist>
           </div>
 
+          {/* Design Direction — moved up for prominence */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Design Direction</label>
+            <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+              {[
+                { id: 'default', emoji: '✦', label: 'Dark DTC' },
+                { id: 'luxury',  emoji: '✦', label: 'Luxury' },
+                { id: 'brutalist', emoji: '⬛', label: 'Brutalist' },
+                { id: 'editorial', emoji: '📰', label: 'Editorial' },
+                { id: 'saas', emoji: '⚡', label: 'SaaS' },
+                { id: 'minimal', emoji: '○', label: 'Minimal' },
+              ].map((d) => (
+                <button key={d.id} onClick={() => setDesignDirection(d.id)} style={{ padding: '8px 6px', borderRadius: 8, background: designDirection === d.id ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.03)', border: `1.5px solid ${designDirection === d.id ? 'rgba(212,175,55,0.5)' : 'rgba(255,255,255,0.07)'}`, color: designDirection === d.id ? '#d4af37' : 'rgba(240,237,232,0.45)', fontFamily: 'Syne, sans-serif', fontSize: 11, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>
+                  <div style={{ fontSize: 14, marginBottom: 3 }}>{d.emoji}</div>
+                  {d.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Target Audience */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Target Audience</label>
@@ -2764,26 +2784,6 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: 'rgba(240,237,232,0.3)' }}>$</span>
               <input value={priceAUD} onChange={(e) => setPriceAUD(e.target.value)} placeholder="e.g. 59.99" className="w-full text-sm py-2.5 rounded-lg outline-none" style={{ paddingLeft: 22, paddingRight: 12, background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#f0ede8' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')} onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; const num = parseFloat(priceAUD.replace(/[^0-9.]/g, '')); if (!isNaN(num)) setPriceAUD(num.toFixed(2)); }} />
             </div>
-            </div>
-          </div>
-
-          {/* Vibe Toggle */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Design Direction</label>
-            <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-              {[
-                { id: 'default', emoji: '✦', label: 'Dark DTC' },
-                { id: 'luxury',  emoji: '✦', label: 'Luxury' },
-                { id: 'brutalist', emoji: '⬛', label: 'Brutalist' },
-                { id: 'editorial', emoji: '📰', label: 'Editorial' },
-                { id: 'saas', emoji: '⚡', label: 'SaaS' },
-                { id: 'minimal', emoji: '○', label: 'Minimal' },
-              ].map((d) => (
-                <button key={d.id} onClick={() => setDesignDirection(d.id)} style={{ padding: '8px 6px', borderRadius: 8, background: designDirection === d.id ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.03)', border: `1.5px solid ${designDirection === d.id ? 'rgba(212,175,55,0.5)' : 'rgba(255,255,255,0.07)'}`, color: designDirection === d.id ? '#d4af37' : 'rgba(240,237,232,0.45)', fontFamily: 'Syne, sans-serif', fontSize: 11, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>
-                  <div style={{ fontSize: 14, marginBottom: 3 }}>{d.emoji}</div>
-                  {d.label}
-                </button>
-              ))}
             </div>
           </div>
 
@@ -3113,6 +3113,11 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       <button onClick={handleOpenPreviewNewTab} className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)', color: '#d4af37', fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}>
                         <ExternalLink size={11} /> Open in new tab
                       </button>
+                      {directHtml && (
+                        <button onClick={handleDownloadHTML} className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', color: '#d4af37', fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}>
+                          <Download size={11} /> Download HTML
+                        </button>
+                      )}
                       <div className="flex items-center gap-1">
                         {(['desktop','tablet','mobile'] as const).map(d => (
                           <button key={d} onClick={() => { setPreviewDevice(d); setMobilePreview(d !== 'desktop'); }} style={{ padding: '4px 10px', fontSize: 11, borderRadius: 6, background: previewDevice === d ? 'rgba(212,175,55,0.15)' : 'transparent', border: `1px solid ${previewDevice === d ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.06)'}`, color: previewDevice === d ? '#d4af37' : 'rgba(240,237,232,0.4)', cursor: 'pointer', fontFamily: 'Syne, sans-serif', fontWeight: 700, textTransform: 'capitalize' as const }}>{d === 'desktop' ? '🖥' : d === 'tablet' ? '📱' : '📲'} {d}</button>
