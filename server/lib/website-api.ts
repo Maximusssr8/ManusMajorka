@@ -1630,34 +1630,175 @@ This is a SOFT BEAUTY / WELLNESS brand. Override:
     return '';
   })();
 
+  // ── Nemotron prompt engineering: JSON brief + CSS snippet ─────────────────
+  const brandBriefJson = JSON.stringify({
+    store_name: briefBrandName,
+    tagline: briefTagline,
+    hero_headline: briefHeadline,
+    hero_subheadline: briefSubheadline,
+    value_prop: briefUvp,
+    font_pairing: { heading: headingFontName, body: bodyFontName },
+    colour_palette: {
+      primary: color,
+      secondary: '#1a1a1a',
+      background: bgColor,
+      accent: '#d4af37',
+    },
+    testimonials: briefTestimonials.map(t => ({ name: t.name, location: t.location, text: t.text, rating: 5 })),
+    faq: briefFaq.map(f => ({ q: f.q, a: f.a })),
+    niche,
+    price_aud: displayPrice,
+    product_name: productName,
+    hero_image_url: heroImg,
+    product_image_url: productImg,
+    template: designDirection,
+    afterpay_instalment: afterpayAmt,
+    support_email: supportEmail,
+  }, null, 2);
+
+  const getTemplateCSSSnippet = (dir: string): string => {
+    const d = dir.toLowerCase();
+
+    if (d.includes('luxury')) return `
+--- LUXURY TEMPLATE CSS ---
+:root {
+  --font-heading: '${headingFontName}', serif;
+  --font-body: '${bodyFontName}', sans-serif;
+  --color-primary: ${color};
+  --color-bg: #0a0806;
+  --color-surface: #120f0a;
+  --color-text: #f5f0e8;
+  --spacing-unit: 1.5rem;
+  --border-radius: 4px;
+}
+body { background: var(--color-bg); color: var(--color-text); }
+section { padding: calc(var(--spacing-unit) * 6) 80px; }
+h1,h2,h3 { font-family: var(--font-heading); font-weight: 300; letter-spacing: 0.04em; }
+.cta { background: transparent; border: 1px solid rgba(${colorRgb},0.5); color: var(--color-primary); padding: 14px 36px; letter-spacing: 0.12em; text-transform: uppercase; font-size: 12px; cursor: pointer; transition: all .3s; }
+.cta:hover { background: rgba(${colorRgb},0.08); }
+--- END LUXURY ---`;
+
+    if (d.includes('brutalist') || d.includes('dtc')) return `
+--- DTC/BRUTALIST TEMPLATE CSS ---
+:root {
+  --font-heading: '${headingFontName}', sans-serif;
+  --font-body: '${bodyFontName}', sans-serif;
+  --color-primary: ${color};
+  --color-bg: #080808;
+  --color-surface: #111;
+  --color-text: #fff;
+  --spacing-unit: 1.2rem;
+  --border-radius: 4px;
+}
+body { background: var(--color-bg); color: var(--color-text); }
+section { padding: calc(var(--spacing-unit) * 5) 60px; }
+h1 { font-size: clamp(44px,6vw,80px); font-weight: 900; letter-spacing: -2px; }
+.cta { background: var(--color-primary); color: #000; border: none; padding: 18px 40px; font-weight: 900; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border-radius: 0; }
+.urgency { color: #ef4444; font-weight: 700; font-size: 13px; }
+--- END DTC ---`;
+
+    if (d.includes('editorial') || d.includes('coastal')) return `
+--- COASTAL/EDITORIAL TEMPLATE CSS ---
+:root {
+  --font-heading: '${headingFontName}', serif;
+  --font-body: '${bodyFontName}', sans-serif;
+  --color-primary: ${color};
+  --color-bg: #fafaf8;
+  --color-surface: #fff;
+  --color-text: #1a1a1a;
+  --spacing-unit: 1.4rem;
+  --border-radius: 12px;
+}
+body { background: var(--color-bg); color: var(--color-text); }
+section { padding: calc(var(--spacing-unit) * 4) 80px; background: var(--color-bg); }
+h1 { font-style: italic; font-weight: 400; }
+.cta { background: transparent; border: 2px solid #1a1a1a; color: #1a1a1a; padding: 14px 32px; border-radius: var(--border-radius); cursor: pointer; transition: all .2s; }
+.cta:hover { background: #1a1a1a; color: #fff; }
+--- END COASTAL ---`;
+
+    if (d.includes('saas') || d.includes('tech')) return `
+--- TECH/SAAS TEMPLATE CSS ---
+:root {
+  --font-heading: '${headingFontName}', sans-serif;
+  --font-body: '${bodyFontName}', monospace;
+  --color-primary: ${color};
+  --color-bg: #0d1117;
+  --color-surface: #161b22;
+  --color-text: #e6edf3;
+  --spacing-unit: 1.3rem;
+  --border-radius: 6px;
+}
+body { background: var(--color-bg); color: var(--color-text); }
+section { padding: calc(var(--spacing-unit) * 4) 60px; }
+.spec-table { font-family: monospace; font-size: 13px; }
+.cta { background: var(--color-primary); color: #000; border: none; padding: 14px 32px; border-radius: var(--border-radius); font-weight: 700; cursor: pointer; }
+--- END TECH ---`;
+
+    if (d.includes('minimal') || d.includes('bloom')) return `
+--- BLOOM/MINIMAL TEMPLATE CSS ---
+:root {
+  --font-heading: '${headingFontName}', serif;
+  --font-body: '${bodyFontName}', sans-serif;
+  --color-primary: ${color};
+  --color-bg: #fffbf7;
+  --color-surface: #fff8f2;
+  --color-text: #2d2d2d;
+  --spacing-unit: 1.4rem;
+  --border-radius: 20px;
+}
+body { background: var(--color-bg); color: var(--color-text); }
+section { padding: calc(var(--spacing-unit) * 4) 80px; background: var(--color-bg); }
+h1 { font-weight: 400; font-style: italic; }
+.cta { background: var(--color-primary); color: #fff; border: none; padding: 14px 32px; border-radius: 50px; font-weight: 600; cursor: pointer; }
+--- END BLOOM ---`;
+
+    // Default dark
+    return `
+--- DEFAULT DARK TEMPLATE CSS ---
+:root {
+  --font-heading: '${headingFontName}', sans-serif;
+  --font-body: '${bodyFontName}', sans-serif;
+  --color-primary: ${color};
+  --color-bg: #080a0e;
+  --color-surface: #0d1117;
+  --color-text: #e8eaf0;
+  --spacing-unit: 1.4rem;
+  --border-radius: 10px;
+}
+body { background: var(--color-bg); color: var(--color-text); }
+section { padding: calc(var(--spacing-unit) * 4) 60px; }
+.cta { background: var(--color-primary); color: #000; border: none; padding: 16px 36px; border-radius: var(--border-radius); font-weight: 800; cursor: pointer; }
+--- END DEFAULT ---`;
+  };
+
+  const templateCSSSnippet = getTemplateCSSSnippet(designDirection as string);
+
   const singlePassSystem = `You are the world's best Shopify store designer. You build complete, stunning HTML stores that rival Lovable.dev and Framer in quality and polish. Rules you NEVER break: (1) Output ONLY valid HTML starting with <!DOCTYPE html> — no markdown, no code fences, no commentary. (2) The brand name given to you is sacred — use it exactly in: page title, nav logo, hero section, footer. NEVER write "Product from AU", "Brand Name", or any placeholder. (3) Write minimum 700 lines of clean, production-ready HTML. Every section has real padding (80px+), real content, real design. (4) No empty black boxes — every section must be visible and complete.`;
 
   const singlePassUser = `Build a complete, premium HTML store for this brand. Agency quality. Every section filled. No placeholders.
 
-BRAND: "${briefBrandName}" ← USE THIS EXACT NAME everywhere (title, nav, hero, footer)
-PRODUCT: ${productName}
-NICHE: ${niche}
-PRICE: AUD $${displayPrice}
-TAGLINE: ${briefTagline}
-HERO HEADLINE: ${briefHeadline}
-HERO SUBHEADLINE: ${briefSubheadline}
-VALUE PROP: ${briefUvp}
-HEADING FONT: ${headingFontName}
-BODY FONT: ${bodyFontName}
-PRIMARY COLOUR: ${color}
-HERO IMAGE URL: ${heroImg}
-PRODUCT IMAGE URL: ${productImg}
+Brand Brief (JSON):
+\`\`\`json
+${brandBriefJson}
+\`\`\`
+
+Design Template: ${designDirection}
+Niche: ${niche}
+Price: AUD $${displayPrice}
+
+${templateCSSSnippet}
 
 ${templateOverride}
 
-═══ IRONCLAD RULES — NEVER BREAK ═══
-1. "${briefBrandName}" must appear in: <title>, nav logo, hero H1 area, footer copyright — exactly as written
-2. NEVER write "Product from AU" or any other placeholder — use the actual data above
-3. Every <img> tag: include onerror="this.onerror=null;this.parentElement.style.background='linear-gradient(135deg,rgba(${colorRgb},0.25),#111)';this.style.display='none'"
-4. NO empty sections — every section has padding:80px 60px and visible content
-5. Price "$${displayPrice} AUD" must appear in product section
-6. Google Fonts <link> in <head> loading ${headingFontName} and ${bodyFontName}
-7. Mobile @media(max-width:768px): all grids → 1 column, padding:60px 20px
+═══ IRONCLAD RULES ═══
+1. store_name from JSON = "${briefBrandName}" — use it EXACTLY in <title>, nav logo, hero, footer copyright
+2. Use all values from the JSON brief above — testimonials, faq, colours, fonts, price, images
+3. Every <img>: onerror="this.onerror=null;this.parentElement.style.background='linear-gradient(135deg,rgba(${colorRgb},0.25),#111)';this.style.display='none'"
+4. Start your CSS from the template snippet above — extend it, don't replace it
+5. Each section: min padding 80px top/bottom (desktop) — NO empty boxes, NO placeholder text
+6. Price "$${displayPrice} AUD" + Afterpay "$${afterpayAmt}" in product section
+7. Google Fonts: load both ${headingFontName} + ${bodyFontName} in <head>
+8. @media(max-width:768px) block at end — single column, padding 60px 20px
 
 ═══ REQUIRED SECTIONS ═══
 
