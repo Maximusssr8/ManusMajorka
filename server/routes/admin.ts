@@ -615,4 +615,37 @@ router.post('/enrich-products', requireAuth, requireAdmin, async (req: Request, 
   res.json({ enriched, total: products.length, results });
 });
 
+
+// GET /api/admin/setup-supplier-tables — returns SQL for aliexpress_products + trend_signals columns
+router.get('/setup-supplier-tables', requireAuth, requireAdmin, (req: Request, res: Response) => {
+  const sql = `
+-- Run in Supabase SQL Editor: https://supabase.com/dashboard/project/ievekuazsjbdrltsdksn/sql/new
+
+-- 1. New columns on trend_signals
+ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS social_buzz_score NUMERIC DEFAULT 0;
+ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS aliexpress_url TEXT;
+ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS supplier_name TEXT DEFAULT 'AliExpress';
+ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS au_shipping_days TEXT DEFAULT '7-14 days';
+
+-- 2. aliexpress_products cache table
+CREATE TABLE IF NOT EXISTS aliexpress_products (
+  id                    BIGSERIAL PRIMARY KEY,
+  aliexpress_product_id BIGINT UNIQUE NOT NULL,
+  niche                 TEXT NOT NULL,
+  title                 TEXT NOT NULL,
+  price_usd             NUMERIC(10,2),
+  price_aud             NUMERIC(10,2),
+  image_url             TEXT,
+  product_url           TEXT,
+  seller_rating         NUMERIC(3,2),
+  orders_count          INT,
+  stock_qty             INT,
+  au_shipping_days      TEXT,
+  fetched_at            TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_ae_products_niche ON aliexpress_products(niche);
+`.trim();
+  res.json({ sql, message: 'Copy this SQL and run it in the Supabase SQL editor' });
+});
+
 export default router;
