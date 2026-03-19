@@ -137,6 +137,7 @@ export function buildStoreHTML(plan: StorePlan): string {
     heroImageUrl, productImageUrl,
     primaryColour, accentColour, headingFontName, bodyFontName,
     template, niche, supportEmail,
+    supplierUrl, supplierName,
   } = plan;
 
   const tk = getTokens(template, primaryColour, accentColour);
@@ -496,6 +497,9 @@ details[open]>.faq-q::after{transform:rotate(45deg)}
     <span class="footer-copy">© 2026 ${esc(storeName)}. All rights reserved.</span>
     <span class="footer-au">Proudly Australian 🇦🇺</span>
   </div>
+  ${supplierUrl || supplierName ? `<div style="text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.04)">
+    <span style="color:rgba(255,255,255,.22);font-size:11px;">Fulfilled by ${esc(supplierName || 'trusted AU supplier')} · Dropship ready · <a href="${esc(supplierUrl || '#')}" target="_blank" rel="noopener noreferrer" style="color:rgba(255,255,255,.22);text-decoration:underline;text-underline-offset:3px;">Manage fulfilment →</a></span>
+  </div>` : ''}
 </footer>
 
 <!-- CART MODAL -->

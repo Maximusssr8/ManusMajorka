@@ -1936,6 +1936,7 @@ export default function WebsiteGenerator() {
                 hero_image: importedProduct.images?.[0] || undefined,
                 product_images: importedProduct.images?.length ? importedProduct.images : undefined,
               } : (selectedDesc ? { description: selectedDesc } : undefined)),
+          ...(urlSupplierUrl ? { supplierUrl: urlSupplierUrl, supplierName: urlSupplierName } : {}),
         }),
       });
 

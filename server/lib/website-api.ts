@@ -1147,6 +1147,8 @@ export interface StorePlan {
   headingFontName: string;
   bodyFontName: string;
   supportEmail: string;
+  supplierUrl?: string;
+  supplierName?: string;
 }
 
 // ─── planStore(): Haiku JSON plan for two-stage generation ───────────────────
@@ -1594,8 +1596,10 @@ async function generateFullStore_legacy(params: {
   productData?: Record<string, unknown>;
   designDirection?: DesignDirection;
   onProgress?: (pct: number, msg: string) => void;
+  supplierUrl?: string;
+  supplierName?: string;
 }): Promise<{ html: string; manifest: string }> {
-  const { niche, storeName, accentColor, price, productData, vibe } = params;
+  const { niche, storeName, accentColor, price, productData, vibe, supplierUrl, supplierName } = params;
   const progress = params.onProgress || (() => {});
 
   // Auto-select template from niche if not provided or default
@@ -1823,6 +1827,9 @@ async function generateFullStore_legacy(params: {
 
   // ── 7. Render HTML from plan using fixed template ────────────────────────────
   progress(60, '🏗️ Building store structure...');
+  // Inject supplier attribution if provided
+  if (supplierUrl) storePlan.supplierUrl = supplierUrl;
+  if (supplierName) storePlan.supplierName = supplierName;
   const { buildStoreHTML } = await import('./storeTemplate');
   const generatedHtml = buildStoreHTML(storePlan);
   console.log(`[website-api] Template rendered: ${(generatedHtml.length / 1024).toFixed(1)}kb`);
@@ -1979,10 +1986,11 @@ export function registerWebsiteRoutes(app: Application): void {
         return;
       }
 
-      const { niche, storeName, targetAudience, vibe, accentColor, price, productData, designDirection } = req.body as {
+      const { niche, storeName, targetAudience, vibe, accentColor, price, productData, designDirection, supplierUrl, supplierName } = req.body as {
         niche?: string; storeName?: string; targetAudience?: string;
         vibe?: string; accentColor?: string; price?: string;
         productData?: Record<string, any>; designDirection?: string;
+        supplierUrl?: string; supplierName?: string;
       };
       if (!niche) { res.status(400).json({ error: 'niche is required.' }); return; }
 
@@ -2005,6 +2013,8 @@ export function registerWebsiteRoutes(app: Application): void {
         productData,
         designDirection: (designDirection as any) || 'default',
         onProgress: (pct, msg) => send('progress', { pct, msg }),
+        supplierUrl,
+        supplierName,
       });
 
       send('done', { html: result.html, manifest: result.manifest });

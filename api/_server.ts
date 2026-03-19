@@ -333,7 +333,18 @@ app.get("/api/trend-signals", async (req: Request, res: Response) => {
 
     const { data, error } = await query;
     if (error) { res.status(500).json({ error: error.message }); return; }
-    res.json(data || []);
+
+    // Normalise critical fields — log missing so we can fix in DB
+    const rows = (data || []).map((p: any) => {
+      const missing: string[] = [];
+      if (!p.estimated_retail_aud) { p.estimated_retail_aud = 49; missing.push('price'); }
+      if (!p.image_url) missing.push('image_url');
+      if (!p.niche) { p.niche = 'General'; missing.push('niche'); }
+      if (missing.length) console.log('[trend-signals] missing fields for', p.id, p.name, '→', missing.join(', '));
+      return p;
+    });
+
+    res.json(rows);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
