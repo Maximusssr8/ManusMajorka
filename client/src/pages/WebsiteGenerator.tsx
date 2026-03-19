@@ -2184,68 +2184,93 @@ export default function WebsiteGenerator() {
   }, []);
 
   const installFloatingToolbar = useCallback((iframe: HTMLIFrameElement | null) => {
-    if (!iframe?.contentDocument) return;
-    const doc = iframe.contentDocument;
-    if (doc.getElementById('majorka-toolbar')) return; // already installed
+    const doc = iframe?.contentDocument || iframe?.contentWindow?.document;
+    if (!doc) return;
+    doc.getElementById('majorka-floating-toolbar')?.remove();
 
     const toolbar = doc.createElement('div');
-    toolbar.id = 'majorka-toolbar';
+    toolbar.id = 'majorka-floating-toolbar';
     toolbar.style.cssText = `
-      display: none; position: absolute; z-index: 99999; background: #1a1a1a;
-      border: 1px solid #d4af37; border-radius: 8px; padding: 6px 10px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.5); align-items: center; gap: 6px;
-      font-family: sans-serif; font-size: 12px; color: #fff;
+      position: absolute; z-index: 9999;
+      background: rgba(8,10,14,0.97); border: 1px solid #d4af37;
+      border-radius: 8px; padding: 8px 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      display: none; font-family: system-ui, sans-serif; font-size: 13px;
+      gap: 4px; align-items: center; flex-wrap: wrap;
     `;
 
-    const makeBtn = (label: string, cmd: string) => {
+    const btn = (title: string, html: string, onClick: () => void) => {
       const b = doc.createElement('button');
-      b.textContent = label;
-      b.style.cssText = 'padding:3px 8px;background:#2a2a2a;border:1px solid #444;border-radius:4px;color:#fff;cursor:pointer;font-size:12px;';
-      b.onmousedown = (e) => { e.preventDefault(); doc.execCommand(cmd, false); };
+      b.title = title; b.innerHTML = html;
+      b.style.cssText = `margin:0 2px; padding:4px 8px; border:1px solid #333;
+        background:#1a1a1a; color:#fff; cursor:pointer; border-radius:4px; font-size:12px;`;
+      b.onmouseenter = () => { b.style.background = '#d4af3722'; };
+      b.onmouseleave = () => { b.style.background = '#1a1a1a'; };
+      b.onclick = (e) => { e.preventDefault(); onClick(); };
       return b;
     };
-    toolbar.appendChild(makeBtn('B', 'bold'));
-    toolbar.appendChild(makeBtn('I', 'italic'));
-    toolbar.appendChild(makeBtn('U', 'underline'));
+    const sep = () => {
+      const s = doc.createElement('span');
+      s.style.cssText = 'border-left:1px solid #333; height:20px; margin:0 4px;';
+      return s;
+    };
 
+    toolbar.appendChild(btn('Bold', '<b>B</b>', () => doc.execCommand('bold', false)));
+    toolbar.appendChild(btn('Italic', '<i>I</i>', () => doc.execCommand('italic', false)));
+    toolbar.appendChild(sep());
+
+    // Font size
+    const sizeSelect = doc.createElement('select');
+    sizeSelect.style.cssText = 'margin:0 4px; background:#1a1a1a; color:#fff; border:1px solid #333; border-radius:4px; padding:2px 4px;';
+    (['Small','Normal','Large','X-Large','Huge'] as const).forEach((label, i) => {
+      const opt = doc.createElement('option');
+      opt.value = String(i + 2); opt.textContent = label;
+      if (i === 1) opt.selected = true;
+      sizeSelect.appendChild(opt);
+    });
+    sizeSelect.onchange = () => doc.execCommand('fontSize', false, sizeSelect.value);
+    toolbar.appendChild(sizeSelect);
+
+    // Text color
+    const fgLabel = doc.createElement('span');
+    fgLabel.textContent = 'A'; fgLabel.style.cssText = 'color:#fff; font-size:12px; margin-left:4px;';
+    const fgColor = doc.createElement('input');
+    fgColor.type = 'color'; fgColor.title = 'Text colour'; fgColor.value = '#ffffff';
+    fgColor.style.cssText = 'width:24px; height:24px; padding:0; margin:0 2px; border:none; background:none; cursor:pointer;';
+    fgColor.onchange = (e) => doc.execCommand('foreColor', false, (e.target as HTMLInputElement).value);
+    toolbar.appendChild(fgLabel); toolbar.appendChild(fgColor);
+    toolbar.appendChild(sep());
+
+    toolbar.appendChild(btn('Undo (Ctrl+Z)', '↶', () => doc.execCommand('undo', false)));
+    toolbar.appendChild(btn('Redo (Ctrl+Y)', '↷', () => doc.execCommand('redo', false)));
+    toolbar.appendChild(sep());
+
+    // Image URL input (shows when clicking an image)
     const imgInput = doc.createElement('input');
-    imgInput.type = 'text';
-    imgInput.placeholder = 'Paste image URL and press Enter...';
+    imgInput.type = 'text'; imgInput.placeholder = 'Paste image URL, press Enter…';
     imgInput.id = 'majorka-img-url-input';
-    imgInput.style.cssText = `
-      display: none; margin-left: 8px; padding: 4px 8px;
-      width: 220px; border: 1px solid #d4af37; border-radius: 4px;
-      background: #1a1a1a; color: #fff; font-size: 12px;
-    `;
+    imgInput.style.cssText = `display:none; margin-left:4px; padding:4px 8px;
+      width:220px; border:1px solid #d4af37; border-radius:4px;
+      background:#1a1a1a; color:#fff; font-size:12px;`;
     toolbar.appendChild(imgInput);
-    doc.body.appendChild(toolbar);
 
+    doc.body.appendChild(toolbar);
     let currentImg: HTMLImageElement | null = null;
 
     const showAt = (rect: DOMRect, forImage = false) => {
       imgInput.style.display = forImage ? 'block' : 'none';
       toolbar.style.display = 'flex';
       const scrollY = doc.documentElement.scrollTop || doc.body.scrollTop;
-      const scrollX = doc.documentElement.scrollLeft || doc.body.scrollLeft;
       let top = rect.bottom + scrollY + 6;
-      let left = rect.left + scrollX;
-      if (left + 500 > doc.documentElement.clientWidth) {
-        left = Math.max(0, doc.documentElement.clientWidth - 520);
-      }
-      toolbar.style.top = `${top}px`;
-      toolbar.style.left = `${left}px`;
+      let left = rect.left + (doc.documentElement.scrollLeft || doc.body.scrollLeft);
+      if (left + 520 > doc.documentElement.clientWidth) left = Math.max(0, doc.documentElement.clientWidth - 530);
+      toolbar.style.top = `${top}px`; toolbar.style.left = `${left}px`;
     };
-
-    const hide = () => {
-      toolbar.style.display = 'none';
-      currentImg = null;
-      imgInput.value = '';
-    };
+    const hide = () => { toolbar.style.display = 'none'; currentImg = null; imgInput.value = ''; };
 
     imgInput.onkeydown = (e) => {
       if (e.key === 'Enter' && currentImg && imgInput.value.startsWith('http')) {
-        currentImg.src = imgInput.value;
-        hide();
+        currentImg.src = imgInput.value; hide();
       }
     };
 
@@ -2255,13 +2280,9 @@ export default function WebsiteGenerator() {
       if ((target as HTMLImageElement).tagName === 'IMG') {
         currentImg = target as HTMLImageElement;
         imgInput.value = currentImg.src;
-        showAt(target.getBoundingClientRect(), true);
-        return;
+        showAt(target.getBoundingClientRect(), true); return;
       }
-      if ((target as HTMLElement).isContentEditable) {
-        showAt(target.getBoundingClientRect(), false);
-        return;
-      }
+      if ((target as HTMLElement).isContentEditable) { showAt(target.getBoundingClientRect(), false); return; }
       hide();
     });
 
@@ -2276,6 +2297,7 @@ export default function WebsiteGenerator() {
     const doc = iframe.contentDocument;
     doc.getElementById('claw-edit-styles')?.remove();
     doc.getElementById('majorka-toolbar')?.remove();
+    doc.getElementById('majorka-floating-toolbar')?.remove();
     doc.querySelectorAll<HTMLElement>('.claw-editable').forEach(el => {
       el.removeAttribute('contenteditable');
       el.classList.remove('claw-editable');

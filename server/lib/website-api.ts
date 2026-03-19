@@ -12,6 +12,7 @@ import { getSupabaseAdmin } from '../_core/supabase';
 import { requireSubscription } from '../middleware/requireSubscription';
 import { rateLimit } from './rate-limit';
 import { getTemplateHeroPhoto, getProductPhoto, buildUnsplashUrl } from './templatePhotos';
+import { getHighResPexelsUrl } from './imageUtils';
 
 // ─── Auth helper ─────────────────────────────────────────────────────────────
 async function authenticateRequest(req: any): Promise<{ userId: string; email: string } | null> {
@@ -1778,10 +1779,12 @@ async function generateFullStore_legacy(params: {
     };
   }
 
-  // ── 6. Force product image through — never let Unsplash override user's product photo ──
-  if (heroImg) { storePlan.heroImageUrl = heroImg; storePlan.productImageUrl = heroImg; }
-  if (productImg) storePlan.productImageUrl = productImg;
-  console.log(`[website-api] Final images — hero:${(storePlan.heroImageUrl || '').slice(0,60)} product:${(storePlan.productImageUrl || '').slice(0,60)}`);
+  // ── 6. Force product image through — strip Pexels w/h params for max resolution ──
+  const heroImgFinal = getHighResPexelsUrl(heroImg);
+  const productImgFinal = getHighResPexelsUrl(productImg);
+  if (heroImgFinal) { storePlan.heroImageUrl = heroImgFinal; storePlan.productImageUrl = heroImgFinal; }
+  if (productImgFinal) storePlan.productImageUrl = productImgFinal;
+  console.log(`[website-api] Final images — hero:${(storePlan.heroImageUrl || '').slice(0,80)} product:${(storePlan.productImageUrl || '').slice(0,80)}`);
 
   // ── 7. Render HTML from plan using fixed template ────────────────────────────
   progress(60, '🏗️ Building store structure...');
