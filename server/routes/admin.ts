@@ -650,7 +650,23 @@ CREATE INDEX IF NOT EXISTS idx_ae_products_niche ON aliexpress_products(niche);
 
 
 // POST /api/admin/run-supplier-migration — runs DDL for supplier tables (one-shot, admin only)
-router.post('/run-supplier-migration', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+router.post('/run-supplier-migration', async (req: Request, res: Response) => {
+  // Accept service role key OR admin JWT
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace('Bearer ', '').trim();
+  const serviceKey = process.env.SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  if (token !== serviceKey) {
+    // Fall back to user auth check
+    const { requireAuth: ra } = await import('../middleware/requireAuth');
+    // Check user auth inline
+    try {
+      const { authenticateRequest } = await import('../lib/auth');
+      const user = await authenticateRequest(req);
+      if (!user || user.email !== 'maximusmajorka@gmail.com') {
+        res.status(403).json({ error: 'Admin only' }); return;
+      }
+    } catch { res.status(401).json({ error: 'Unauthorized' }); return; }
+  }
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) { res.status(500).json({ error: 'DATABASE_URL not set in Vercel env' }); return; }
 
