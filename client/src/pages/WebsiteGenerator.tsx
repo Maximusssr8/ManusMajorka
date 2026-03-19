@@ -1572,6 +1572,26 @@ export default function WebsiteGenerator() {
 
   const hasOutput = generatedData || rawResponse || directHtml;
 
+  // ── tryPexelsFallback: replace broken/bad hero image via server proxy ────────
+  const tryPexelsFallback = useCallback(async (iframe: HTMLIFrameElement, query: string) => {
+    try {
+      const resp = await fetch('/api/images/pexels-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query }),
+      });
+      if (!resp.ok) return;
+      const { urls } = await resp.json() as { urls?: string[] };
+      if (!urls?.length) return;
+      const doc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!doc) return;
+      const heroImg = doc.querySelector('.hero__img-wrap img') as HTMLImageElement | null;
+      if (heroImg) { heroImg.src = urls[0]; console.log('[pexels-fallback] Swapped hero to:', urls[0].slice(0, 60)); }
+    } catch (e) {
+      console.warn('[pexels-fallback] Failed:', e);
+    }
+  }, []);
+
   // ── enhanceHeroImage: canvas-based collage/watermark detection ──────────────
   const enhanceHeroImage = useCallback((iframe: HTMLIFrameElement) => {
     const doc = iframe.contentDocument || iframe.contentWindow?.document;
@@ -1671,12 +1691,23 @@ export default function WebsiteGenerator() {
       doc.open();
       doc.write(html.replace('<head>', `<head>${csp}`));
       doc.close();
-      // Run hero image enhancement 600ms after render (fonts + images need time to load)
+      // 600ms after render: enhance hero + wire onerror fallback
       setTimeout(() => {
-        if (previewIframeRef.current) enhanceHeroImage(previewIframeRef.current);
+        const iframe = previewIframeRef.current;
+        if (!iframe) return;
+        enhanceHeroImage(iframe);
+        // Wire onerror on hero image → Pexels fallback
+        const heroImg = iframe.contentDocument?.querySelector('.hero__img-wrap img') as HTMLImageElement | null;
+        if (heroImg && !heroImg.dataset.pexelsFallbackWired) {
+          heroImg.dataset.pexelsFallbackWired = '1';
+          heroImg.onerror = () => {
+            console.log('[hero-onerror] Image failed, trying Pexels fallback for:', storeName || niche);
+            tryPexelsFallback(iframe, storeName || niche || 'product lifestyle');
+          };
+        }
       }, 600);
     } catch { /* cross-origin guard */ }
-  }, [previewHTML, directHtml, enhanceHeroImage]);
+  }, [previewHTML, directHtml, enhanceHeroImage, tryPexelsFallback, storeName, niche]);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 

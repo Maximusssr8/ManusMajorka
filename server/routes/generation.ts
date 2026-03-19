@@ -287,4 +287,35 @@ CREATE POLICY "Service role full access" ON generation_jobs USING (true) WITH CH
       res.status(500).json({ error: err.message });
     }
   });
+
+  // ── POST /api/images/pexels-search ────────────────────────────────────────────
+  // Client-side fallback: if hero image fails to load, fetch alternative from Pexels
+  app.post('/api/images/pexels-search', async (req, res) => {
+    try {
+      const { query } = req.body as { query?: string };
+      if (!query) { res.status(400).json({ error: 'query required' }); return; }
+
+      const apiKey = process.env.PEXELS_API_KEY || '';
+      if (!apiKey) { res.status(503).json({ error: 'Pexels not configured' }); return; }
+
+      const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=3&orientation=landscape`;
+      const resp = await fetch(url, {
+        headers: {
+          Authorization: apiKey,
+          'User-Agent': 'Majorka/1.0',
+        },
+      });
+
+      if (!resp.ok) {
+        res.status(502).json({ error: `Pexels returned ${resp.status}` }); return;
+      }
+
+      const data = await resp.json() as { photos?: Array<{ src: { original: string; large2x: string } }> };
+      const urls = (data.photos || []).map(p => p.src.large2x || p.src.original);
+      res.json({ urls });
+    } catch (err: any) {
+      console.error('[pexels-search]', err.message);
+      res.status(500).json({ error: 'Pexels search failed' });
+    }
+  });
 }

@@ -213,6 +213,27 @@ details>summary::-webkit-details-marker{display:none}
 @keyframes shimmer{0%,100%{opacity:.6}50%{opacity:1}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
+/* ── Premium lift ───────────────────────── */
+html{scroll-behavior:smooth}
+.hero__img-wrap img,.product-img-wrap img,.t-card,.trust-item,.how-step{
+  border-radius:var(--radius);
+  transition:transform .18s var(--ease),box-shadow .18s var(--ease);
+}
+.t-card:hover,.trust-item:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 24px rgba(0,0,0,.15);
+}
+.btn-p,.btn-o,.btn-cart,.btn-now,.nav-cta{
+  transition:transform .15s var(--ease),box-shadow .15s var(--ease),opacity .15s,filter .15s;
+}
+.btn-p:hover,.btn-cart:hover,.nav-cta:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 16px rgba(0,0,0,.25);
+}
+.btn-o:hover,.btn-now:hover{transform:translateY(-1px)}
+.faq-item{transition:background .15s}
+.faq-item:hover{background:rgba(255,255,255,.02)}
+
 /* ── Base ───────────────────────────────── */
 body{font-family:var(--font-b);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
