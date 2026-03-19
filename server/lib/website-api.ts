@@ -1214,7 +1214,8 @@ RULES:
 - price must be ${priceNum} (number, not string)
 - afterpayPrice must be ${(priceNum / 4).toFixed(2)} (number, not string)
 - ALL text must be ${niche} and AU market specific
-- Zero lorem ipsum`;
+- Zero lorem ipsum
+- Do NOT include heroImageUrl or productImageUrl in your JSON — they are injected by the system after your response`;
 
   const client = getAnthropicClient();
   const response = await client.messages.create({

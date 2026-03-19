@@ -205,18 +205,20 @@ export function buildStoreHTML(plan: StorePlan): string {
   .nav-cta { background: var(--color-primary); color: #fff; padding: 10px 24px; border: none; cursor: pointer; font-size: 13px; letter-spacing: 1px; border-radius: var(--border-radius, 6px); font-family: var(--font-body, sans-serif); }
 
   /* HERO */
-  .hero { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; background: var(--color-bg, #080808); }
-  .hero-content { padding: 120px 60px; display: flex; flex-direction: column; justify-content: center; }
-  .hero-badge { color: var(--color-accent, #d4af37); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 20px; font-weight: 700; }
-  .hero-headline { font-family: var(--font-heading, 'Syne', sans-serif); font-size: clamp(36px,5vw,68px); font-weight: 700; color: #fff; line-height: 1.1; margin-bottom: 20px; }
-  .hero-sub { color: rgba(255,255,255,0.65); font-size: 18px; line-height: 1.65; margin-bottom: 40px; max-width: 480px; }
+  /* HERO — premium flex layout */
+  .hero { min-height: 100vh; display: flex; align-items: center; gap: 2rem; padding: 0 4rem; background: var(--color-bg, #080808); position: relative; overflow: hidden; }
+  .hero__text { flex: 1 1 45%; max-width: 520px; color: var(--color-text, #ffffff); z-index: 1; }
+  .hero__text h1 { font-family: var(--font-heading, 'Syne', sans-serif); font-size: clamp(2.2rem, 5vw, 3.5rem); line-height: 1.15; margin: 0 0 1.2rem; font-weight: 800; letter-spacing: -0.5px; }
+  .hero__text p { font-size: clamp(1rem, 2vw, 1.125rem); line-height: 1.7; margin-bottom: 2rem; opacity: 0.8; }
+  .hero__badge { color: var(--color-accent, #d4af37); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 20px; font-weight: 700; display: block; }
+  .hero__image { flex: 1 1 55%; height: 100vh; position: relative; overflow: hidden; }
+  .hero__image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hero__image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,0.3) 0%, transparent 60%); pointer-events: none; }
   .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
   .btn-primary { background: var(--color-primary); color: #fff; padding: 18px 40px; border: none; cursor: pointer; font-size: 15px; letter-spacing: 1px; border-radius: var(--border-radius, 6px); font-family: var(--font-body, sans-serif); transition: opacity 0.2s; }
   .btn-primary:hover { opacity: 0.9; }
   .btn-outline { background: transparent; color: #fff; padding: 18px 40px; border: 2px solid rgba(255,255,255,0.3); cursor: pointer; font-size: 15px; letter-spacing: 1px; border-radius: var(--border-radius, 6px); font-family: var(--font-body, sans-serif); transition: border-color 0.2s; }
   .btn-outline:hover { border-color: #fff; }
-  .hero-image { overflow: hidden; }
-  .hero-image img { width: 100%; height: 100vh; object-fit: cover; }
 
   /* TRUST BADGES */
   .trust { background: #fff; padding: 40px 60px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
@@ -301,11 +303,10 @@ export function buildStoreHTML(plan: StorePlan): string {
   @media (max-width: 768px) {
     .nav { padding: 0 20px; }
     .nav-links { display: none; }
-    .hero { grid-template-columns: 1fr; }
-    .hero-content { padding: 60px 24px; order: 2; }
-    .hero-image { order: 1; height: 50vh; }
-    .hero-image img { height: 50vh; }
-    .hero-headline { font-size: 36px !important; }
+    .hero { flex-direction: column; padding: 2rem; gap: 0; }
+    .hero__text { flex: 1 1 auto; max-width: none; padding: 3rem 0 2rem; text-align: center; }
+    .hero__image { flex: 1 1 auto; width: 100%; height: 50vh; }
+    .hero__image::after { display: none; }
     .trust { grid-template-columns: repeat(2, 1fr); padding: 40px 24px; }
     .product { padding: 60px 24px; }
     .product-grid { grid-template-columns: 1fr; gap: 40px; }
@@ -319,9 +320,59 @@ export function buildStoreHTML(plan: StorePlan): string {
     .footer-grid { grid-template-columns: 1fr; gap: 40px; }
     .footer-bottom { flex-direction: column; text-align: center; }
   }
+
+  /* ── Per-template CSS variable overrides ─────────────────────── */
+  body.template-dtc-minimal, body.template-dtc-dark, body.template-default {
+    --color-primary: #d4af37;
+    --color-bg: #080808;
+    --color-text: #ffffff;
+    --color-bg-alt: #111111;
+    --font-heading: 'Syne', sans-serif;
+    --border-radius: 4px;
+  }
+  body.template-dropship-bold, body.template-bold {
+    --color-primary: #ff6b35;
+    --color-bg: #0a0a0a;
+    --color-text: #ffffff;
+    --color-bg-alt: #1a1a1a;
+    --font-heading: 'Bebas Neue', cursive;
+    --border-radius: 8px;
+  }
+  body.template-premium-brand, body.template-luxury {
+    --color-primary: #c9a84c;
+    --color-bg: #0d0d0d;
+    --color-text: #f5f0e8;
+    --color-bg-alt: #141414;
+    --font-heading: 'Playfair Display', serif;
+    --border-radius: 2px;
+  }
+  body.template-coastal-au, body.template-coastal {
+    --color-primary: #2a9d8f;
+    --color-bg: #f8f5f0;
+    --color-text: #2c3e35;
+    --color-bg-alt: #e8f4f1;
+    --font-heading: 'Montserrat', sans-serif;
+    --border-radius: 12px;
+  }
+  body.template-tech-mono, body.template-tech {
+    --color-primary: #58a6ff;
+    --color-bg: #0a0f1e;
+    --color-text: #e0e6f0;
+    --color-bg-alt: #0d1117;
+    --font-heading: 'JetBrains Mono', monospace;
+    --border-radius: 4px;
+  }
+  body.template-bloom-beauty, body.template-bloom, body.template-minimal {
+    --color-primary: #c96b8a;
+    --color-bg: #fdf6f8;
+    --color-text: #4a2c35;
+    --color-bg-alt: #fff0f5;
+    --font-heading: 'Cormorant Garamond', serif;
+    --border-radius: 20px;
+  }
   </style>
 </head>
-<body>
+<body class="template-${(template || 'default').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}">
 
   <!-- ANNOUNCEMENT BAR -->
   <div class="announcement">
@@ -342,17 +393,17 @@ export function buildStoreHTML(plan: StorePlan): string {
 
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-content">
-      <div class="hero-badge">🇦🇺 Proudly Australian</div>
-      <h1 class="hero-headline">${esc(heroHeadline)}</h1>
-      <p class="hero-sub">${esc(heroSubheadline)}</p>
+    <div class="hero__text">
+      <span class="hero__badge">🇦🇺 Proudly Australian</span>
+      <h1>${esc(heroHeadline)}</h1>
+      <p>${esc(heroSubheadline)}</p>
       <div class="hero-buttons">
         <button class="btn-primary">${esc(heroCTA || 'Shop Now')}</button>
         <button class="btn-outline">Learn More</button>
       </div>
     </div>
-    <div class="hero-image">
-      <img src="${heroImageUrl}" alt="${esc(storeName)}" onerror="${onerror}">
+    <div class="hero__image">
+      <img src="${heroImageUrl || productImageUrl}" alt="${esc(storeName)}" onerror="${onerror}">
     </div>
   </section>
 
