@@ -487,18 +487,100 @@ details[open]>.faq-q::after{transform:rotate(45deg)}
   </div>
 </footer>
 
+<!-- CART MODAL -->
+<div id="cart-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.72);align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:40px;max-width:440px;width:90%;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.3);">
+    <button onclick="document.getElementById('cart-modal').style.display='none'" style="position:absolute;top:14px;right:18px;background:none;border:none;font-size:26px;cursor:pointer;color:#888;line-height:1;">×</button>
+    <p style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#999;margin-bottom:8px;font-weight:700;">Quick Add</p>
+    <h2 id="modal-product-name" style="font-size:20px;font-weight:700;color:#111;margin-bottom:10px;line-height:1.3;"></h2>
+    <div id="modal-price" style="font-size:30px;font-weight:700;color:var(--primary,#d4af37);margin-bottom:4px;"></div>
+    <div id="modal-afterpay" style="font-size:13px;color:#888;margin-bottom:24px;"></div>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:26px;">
+      <button onclick="changeQty(-1)" style="width:38px;height:38px;border:1px solid #ddd;background:#f5f5f5;border-radius:8px;font-size:20px;cursor:pointer;line-height:1;">−</button>
+      <span id="qty-display" style="font-size:18px;font-weight:600;min-width:20px;text-align:center;">1</span>
+      <button onclick="changeQty(1)" style="width:38px;height:38px;border:1px solid #ddd;background:#f5f5f5;border-radius:8px;font-size:20px;cursor:pointer;line-height:1;">+</button>
+    </div>
+    <button onclick="handleCheckout('afterpay')" style="width:100%;padding:16px;background:#b2fce4;color:#000;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;transition:filter .15s;" onmouseover="this.style.filter='brightness(0.95)'" onmouseout="this.style.filter=''">
+      🛍️ Checkout with Afterpay
+    </button>
+    <button onclick="handleCheckout('card')" style="width:100%;padding:16px;background:var(--primary,#111);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:filter .15s;" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter=''">
+      💳 Pay with Card
+    </button>
+    <p style="text-align:center;font-size:12px;color:#bbb;margin-top:16px;">🔒 Secure checkout · Free AU shipping over $75</p>
+  </div>
+</div>
+
 <script>
-// Scroll reveal
+// ── Scroll reveal ────────────────────────────────────────
 const obs = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
 }, { threshold: 0.12 });
 document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
-// FAQ accordion close others
+// ── FAQ accordion ────────────────────────────────────────
 document.querySelectorAll('details.faq-item').forEach(d => {
   d.addEventListener('toggle', () => {
     if (d.open) document.querySelectorAll('details.faq-item').forEach(other => { if (other !== d) other.open = false; });
   });
+});
+
+// ── Nav smooth scroll ────────────────────────────────────
+document.querySelectorAll('.nav-links a, .nav-cta').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    const text = (this.textContent || '').trim().toLowerCase();
+    const map = {
+      'home':    () => window.scrollTo({ top: 0, behavior: 'smooth' }),
+      'shop':    () => document.querySelector('.product')?.scrollIntoView({ behavior: 'smooth' }),
+      'about':   () => document.querySelector('.how')?.scrollIntoView({ behavior: 'smooth' }),
+      'contact': () => document.querySelector('.footer, footer')?.scrollIntoView({ behavior: 'smooth' }),
+      'faq':     () => document.querySelector('.faq')?.scrollIntoView({ behavior: 'smooth' }),
+    };
+    const action = Object.entries(map).find(([k]) => text.includes(k));
+    if (action) action[1]();
+    else document.querySelector('.product')?.scrollIntoView({ behavior: 'smooth' }); // default: Shop Now
+  });
+});
+
+// ── Cart modal ───────────────────────────────────────────
+let cartQty = 1;
+const _pName = document.querySelector('.product-name, h2.product-name')?.textContent?.trim() || '${esc(productName)}';
+const _pPrice = parseFloat('${price}') || 49.95;
+
+function updateModal() {
+  const total = (_pPrice * cartQty).toFixed(2);
+  const ap = (_pPrice / 4).toFixed(2);
+  document.getElementById('modal-product-name').textContent = _pName;
+  document.getElementById('modal-price').textContent = '$' + total + ' AUD';
+  document.getElementById('modal-afterpay').textContent = 'or 4 × $' + ap + ' fortnightly with Afterpay';
+  document.getElementById('qty-display').textContent = String(cartQty);
+}
+
+function openCart() {
+  cartQty = 1;
+  updateModal();
+  document.getElementById('cart-modal').style.display = 'flex';
+}
+
+function changeQty(delta) {
+  cartQty = Math.max(1, Math.min(10, cartQty + delta));
+  updateModal();
+}
+
+function handleCheckout(method) {
+  const modal = document.getElementById('cart-modal');
+  modal.innerHTML = '<div style="color:#fff;font-size:18px;font-weight:600;text-align:center;padding:40px;">✅ Redirecting to checkout...<br><span style="font-size:13px;opacity:.7;margin-top:8px;display:block;">This store is a demo generated by Majorka</span></div>';
+  setTimeout(() => { modal.style.display = 'none'; }, 2500);
+}
+
+// Close on backdrop click
+document.getElementById('cart-modal').addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none';
+});
+
+// Wire all CTA buttons
+document.querySelectorAll('.btn-cart, .btn-p, .btn-now, .nav-cta, .btn-primary, .btn-buynow').forEach(btn => {
+  btn.addEventListener('click', openCart);
 });
 </script>
 </body>
