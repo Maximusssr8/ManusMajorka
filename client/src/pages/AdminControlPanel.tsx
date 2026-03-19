@@ -345,6 +345,7 @@ function SubscriptionsTab() {
 function HealthTab() {
   const [health, setHealth] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [enriching, setEnriching] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -387,9 +388,49 @@ function HealthTab() {
           </div>
         ))}
       </div>
-      <button onClick={load} style={{ padding: '9px 20px', background: C.goldBg, border: `1px solid rgba(212,175,55,0.2)`, borderRadius: 8, color: C.gold, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-        Run All Checks
-      </button>
+      <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap' as const }}>
+        <button onClick={load} style={{ padding: '9px 20px', background: C.goldBg, border: `1px solid rgba(212,175,55,0.2)`, borderRadius: 8, color: C.gold, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+          Run All Checks
+        </button>
+        <button
+          onClick={async () => {
+            try {
+              setEnriching(true);
+              const res = await fetch('/api/admin/enrich-products', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+              });
+              const data = await res.json();
+              alert(`Done! Enriched: ${data.enriched}, Total: ${data.total}`);
+            } catch (e: any) {
+              alert('Error: ' + e.message);
+            } finally {
+              setEnriching(false);
+            }
+          }}
+          disabled={enriching}
+          style={{ marginLeft: 8, padding: '9px 16px', background: '#d4af37', color: '#000', border: 'none', borderRadius: 6, cursor: enriching ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: enriching ? 0.7 : 1 }}
+        >
+          {enriching ? 'Enriching…' : '⚡ Enrich Products'}
+        </button>
+        <button
+          onClick={async () => {
+            try {
+              const res = await fetch('/api/admin/run-supplier-migration', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+              });
+              const data = await res.json();
+              alert(JSON.stringify(data, null, 2));
+            } catch (e: any) {
+              alert('Error: ' + e.message);
+            }
+          }}
+          style={{ marginLeft: 8, padding: '9px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #444', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
+        >
+          🔧 Run Migration
+        </button>
+      </div>
     </div>
   );
 }
