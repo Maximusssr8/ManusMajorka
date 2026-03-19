@@ -565,14 +565,31 @@ router.post('/enrich-products', requireAuth, requireAdmin, async (req: Request, 
 
   const { limit = 20 } = req.body || {};
 
+  // Column existence check — if aliexpress_url doesn't exist yet, surface a clear error
+  const { data: colCheck, error: colErr } = await supabase
+    .from('trend_signals')
+    .select('aliexpress_url, supplier_name')
+    .limit(1);
+  console.log('[enrich] Column check:', colCheck, colErr?.message || 'OK');
+  if (colErr) {
+    res.status(500).json({
+      error: 'aliexpress_url column missing — run 🔧 Run Migration first',
+      detail: colErr.message,
+      enriched: 0,
+      total: 0,
+    });
+    return;
+  }
+
   const { data: products, error } = await supabase
     .from('trend_signals')
     .select('id, name, niche')
     .is('aliexpress_url', null)
     .limit(Math.min(50, Number(limit) || 20));
 
-  if (error) { res.status(500).json({ error: error.message }); return; }
-  if (!products?.length) { res.json({ enriched: 0, total: 0, message: 'All products already enriched' }); return; }
+  console.log('[enrich] Starting enrichment, found products:', products?.length, '| error:', error?.message || 'none');
+  if (error) { res.status(500).json({ error: error.message, enriched: 0, total: 0 }); return; }
+  if (!products?.length) { res.json({ enriched: 0, total: 0, message: 'All products already enriched ✅' }); return; }
 
   let enriched = 0;
   const results: { name: string; url: string | null; buzz: number }[] = [];
@@ -606,7 +623,12 @@ router.post('/enrich-products', requireAuth, requireAdmin, async (req: Request, 
     }
   }
 
-  res.json({ enriched, total: products.length, results });
+  res.json({
+    enriched,
+    total: products.length,
+    message: `Enriched ${enriched} of ${products.length} products`,
+    results,
+  });
 });
 
 
