@@ -114,5 +114,38 @@ export function getTemplateForNiche(niche: string): string {
 }
 
 export function getPalette(template: string): TemplatePalette {
-  return TEMPLATE_PALETTES[template.toLowerCase()] ?? TEMPLATE_PALETTES['default'];
+  // Normalise: lowercase, spaces→dashes, strip special chars
+  const key = (template || '')
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+
+  // Alias map — handles all UI label variants
+  const aliases: Record<string, string> = {
+    'dtc-minimal': 'dtc-minimal',
+    'dark-dtc': 'dtc-minimal',
+    'dtc': 'dtc-minimal',
+    'default': 'dtc-minimal',
+    'dropship-bold': 'dropship-bold',
+    'bold': 'dropship-bold',
+    'brutalist': 'dropship-bold',
+    'dropship': 'dropship-bold',
+    'premium-brand': 'premium-brand',
+    'premium': 'premium-brand',
+    'luxury': 'luxury',
+    'coastal-au': 'coastal-au',
+    'coastal': 'coastal-au',
+    'editorial': 'coastal-au',
+    'tech-mono': 'tech-mono',
+    'tech': 'tech-mono',
+    'saas': 'tech-mono',
+    'mono': 'tech-mono',
+    'bloom-beauty': 'bloom-beauty',
+    'bloom': 'bloom-beauty',
+    'beauty': 'bloom-beauty',
+    'minimal': 'bloom-beauty',
+  };
+
+  const resolved = aliases[key] || key;
+  return TEMPLATE_PALETTES[resolved] ?? TEMPLATE_PALETTES['dtc-minimal'];
 }

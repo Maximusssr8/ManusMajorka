@@ -115,7 +115,7 @@ export async function analyzeProductUrl(url: string): Promise<Record<string, unk
   // Use Claude Haiku to extract deep product intelligence
   const client = getAnthropicClient();
   const message = await client.messages.create({
-    model: 'claude-haiku-4-5',
+    model: 'claude-haiku-4-5-20251001',
     max_tokens: 2000,
     messages: [
       {
@@ -1088,7 +1088,7 @@ export async function expandStoreBrief(params: {
     : 'none provided';
   try {
     const msg = await client.messages.create({
-      model: 'claude-haiku-4-5',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 600,
       temperature: 0.8,
       system: `You are a DTC brand strategist for Australian Shopify stores. Return valid JSON only — no markdown, no backticks.`,
@@ -1865,7 +1865,7 @@ Output ONLY valid JSON (no markdown):
 }`;
 
   const msg = await client.messages.create({
-    model: 'claude-haiku-4-5',
+    model: 'claude-haiku-4-5-20251001',
     max_tokens: 300,
     messages: [{ role: 'user', content: prompt }],
   });
@@ -2023,7 +2023,7 @@ export function registerWebsiteRoutes(app: Application): void {
 
       const client = getAnthropicClient();
       const msg = await client.messages.create({
-        model: 'claude-haiku-4-5',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 600,
         messages: [{ role: 'user', content: `Rewrite this product description for an Australian ecommerce store in 3 styles.
 Product/niche: ${niche || 'general'}
@@ -2052,7 +2052,7 @@ Output ONLY JSON:
       const { niche, storeName, productData } = req.body as { niche?: string; storeName?: string; productData?: Record<string, unknown> };
       const client = getAnthropicClient();
       const msg = await client.messages.create({
-        model: 'claude-haiku-4-5',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 300,
         messages: [{ role: 'user', content: `Generate 3 hero headline variants for an Australian ecommerce store.
 Niche: ${niche} | Store: ${storeName || niche}
@@ -2082,7 +2082,7 @@ All headlines AU English. No clichés. Be specific to the niche.` }],
       if (!text || text.length < 2) return res.status(400).json({ error: 'No text provided' });
       const client = getAnthropicClient();
       const msg = await client.messages.create({
-        model: 'claude-haiku-4-5',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 300,
         messages: [{ role: 'user', content: instruction || `Rewrite this ecommerce text to be more compelling for Australian shoppers. Return ONLY the rewritten text, nothing else: ${text}` }],
       });
