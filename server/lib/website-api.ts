@@ -1652,13 +1652,36 @@ async function generateFullStore_legacy(params: {
 
   // ── 2. Expand brand brief (fast Haiku) ─────────────────────────────────────
   progress(20, '📝 Generating brand plan...');
-  const brief = await expandStoreBrief({
-    niche,
-    storeName: storeName_,
-    accentColor: color,
-    designDirection: dir?.label || 'modern',
-    productData: pd,
-  });
+  console.log('[brand-plan] Starting expandStoreBrief:', { storeName: storeName_, niche, designDirection });
+  let brief: Record<string, any>;
+  try {
+    brief = await Promise.race([
+      expandStoreBrief({ niche, storeName: storeName_, accentColor: color, designDirection, productData: pd }),
+      new Promise<never>((_, rej) => setTimeout(() => rej(new Error('expandStoreBrief timeout 20s')), 20000)),
+    ]);
+    console.log('[brand-plan] expandStoreBrief OK:', brief.brandName);
+  } catch (briefErr: any) {
+    console.error('[brand-plan] expandStoreBrief FAILED:', briefErr.message);
+    brief = {
+      brandName: storeName_, tagline: `Premium ${niche} for Australians`,
+      uniqueValueProp: `Quality ${niche} with fast AU delivery.`,
+      heroHeadline: `The ${niche} brand built for Australia`,
+      heroSubheadline: `Premium quality. Fast AU shipping. Results from day one.`,
+      fontPairing: { heading: headingFontName, body: bodyFontName },
+      colourPalette: { primary: color },
+      testimonials: [
+        { name: 'Sarah M.', location: 'Sydney, NSW', text: `Love this product. Fast delivery and amazing quality!` },
+        { name: 'Jake T.', location: 'Brisbane, QLD', text: `Best ${niche} I've found. Will definitely reorder.` },
+        { name: 'Emma K.', location: 'Melbourne, VIC', text: `Super fast shipping and works exactly as described.` },
+      ],
+      faq: [
+        { q: 'How fast is shipping?', a: 'Same-day dispatch before 2pm AEST. 2-5 business days Australia-wide.' },
+        { q: 'Do you offer Afterpay?', a: 'Yes! Pay in 4 interest-free instalments on orders over $35.' },
+        { q: "What's your return policy?", a: '30-day no-questions-asked returns.' },
+      ],
+      stats: [{ value: '2,400+', label: 'Happy Customers' }, { value: '4.9★', label: 'Avg Rating' }, { value: '98%', label: 'Would Recommend' }],
+    };
+  }
   console.log('[website-api] BRIEF:', JSON.stringify({
     brandName: brief.brandName,
     tagline: brief.tagline,
@@ -1730,19 +1753,23 @@ async function generateFullStore_legacy(params: {
   progress(40, '📋 Planning store sections...');
   let storePlan: StorePlan;
   try {
-    storePlan = await planStore({
-      niche,
-      storeName: storeName_,
-      price: displayPrice,
-      accentColor: color,
-      designDirection: designDirection as string,
-      productData: pd,
-      heroImageUrl: heroImg,
-      productImageUrl: productImg,
-      headingFontName,
-      bodyFontName,
-    });
-    console.log('[website-api] Plan generated:', { storeName: storePlan.storeName, heroHeadline: storePlan.heroHeadline });
+    console.log('[plan-store] Starting planStore:', { storeName: storeName_, niche, designDirection, displayPrice });
+    storePlan = await Promise.race([
+      planStore({
+        niche,
+        storeName: storeName_,
+        price: displayPrice,
+        accentColor: color,
+        designDirection: designDirection as string,
+        productData: pd,
+        heroImageUrl: heroImg,
+        productImageUrl: productImg,
+        headingFontName,
+        bodyFontName,
+      }),
+      new Promise<never>((_, rej) => setTimeout(() => rej(new Error('planStore timeout 22s')), 22000)),
+    ]);
+    console.log('[plan-store] planStore OK:', { storeName: storePlan.storeName, heroHeadline: storePlan.heroHeadline });
   } catch (planErr: any) {
     console.error('[website-api] planStore failed, falling back to brief:', planErr.message);
     storePlan = {
