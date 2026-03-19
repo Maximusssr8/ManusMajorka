@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { requireAuth } from '../middleware/requireAuth';
 import { createClient } from '@supabase/supabase-js';
+import { findSupplierLinks, findTrendingBuzz } from '../lib/tavilySupplier';
 
 const router = Router();
 
@@ -560,6 +561,58 @@ router.post('/seed-tiktok-products', requireAdmin, async (req: Request, res: Res
     first_response_sample: firstResponse ? JSON.stringify(firstResponse).slice(0, 2000) : null,
     sample_results: results.slice(0, 5),
   });
+});
+
+// POST /api/admin/enrich-products — Tavily supplier links + buzz scores for trend_signals
+router.post('/enrich-products', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+  const supabaseKey = process.env.SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
+  const { limit = 20 } = req.body || {};
+
+  const { data: products, error } = await supabase
+    .from('trend_signals')
+    .select('id, name, niche')
+    .is('aliexpress_url', null)
+    .limit(Math.min(50, Number(limit) || 20));
+
+  if (error) { res.status(500).json({ error: error.message }); return; }
+  if (!products?.length) { res.json({ enriched: 0, total: 0, message: 'All products already enriched' }); return; }
+
+  let enriched = 0;
+  const results: { name: string; url: string | null; buzz: number }[] = [];
+
+  for (const product of products) {
+    try {
+      const [links, buzz] = await Promise.all([
+        findSupplierLinks(product.name),
+        findTrendingBuzz(product.name),
+      ]);
+
+      const bestLink = links[0]?.url || null;
+      const supplierName = bestLink?.includes('banggood') ? 'Banggood' : 'AliExpress';
+
+      await supabase
+        .from('trend_signals')
+        .update({
+          aliexpress_url: bestLink,
+          supplier_name: supplierName,
+          social_buzz_score: parseFloat(buzz.toFixed(4)),
+        })
+        .eq('id', product.id);
+
+      results.push({ name: product.name, url: bestLink, buzz: parseFloat(buzz.toFixed(4)) });
+      enriched++;
+      console.log(`[enrich] ${product.name} → url:${bestLink?.slice(0, 60) || 'none'} buzz:${buzz.toFixed(3)}`);
+      // Rate-limit Tavily calls
+      await new Promise(r => setTimeout(r, 500));
+    } catch (err: any) {
+      console.error('[enrich]', product.name, err.message);
+    }
+  }
+
+  res.json({ enriched, total: products.length, results });
 });
 
 export default router;

@@ -538,22 +538,23 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 SCORE <SortIcon col="winning_score" />
               </th>
               <th style={{ ...thStyle, width: 100 }}>CREATORS</th>
+              <th style={{ ...thStyle, width: 90 }}>SUPPLIER</th>
               <th style={{ ...thStyle, width: 160 }}>ACTIONS</th>
             </tr>
             <tr>
-              <td colSpan={9} style={{ height: 1, background: '#1a1a2e', padding: 0 }} />
+              <td colSpan={10} style={{ height: 1, background: '#1a1a2e', padding: 0 }} />
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={9} style={{ padding: '60px', textAlign: 'center', color: 'rgba(240,237,232,0.4)' }}>
+                <td colSpan={10} style={{ padding: '60px', textAlign: 'center', color: 'rgba(240,237,232,0.4)' }}>
                   Loading products...
                 </td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={9} style={{ padding: '60px', textAlign: 'center', color: 'rgba(240,237,232,0.4)' }}>
+                <td colSpan={10} style={{ padding: '60px', textAlign: 'center', color: 'rgba(240,237,232,0.4)' }}>
                   No products found.
                 </td>
               </tr>
@@ -676,6 +677,19 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                       <div style={{ fontSize: 9, color: 'rgba(240,237,232,0.3)', marginTop: 4, textAlign: 'center' }}>
                         +{p.ad_count_est} ads
                       </div>
+                    )}
+                  </td>
+
+                  {/* Supplier */}
+                  <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                    {(p as any).aliexpress_url ? (
+                      <a href={(p as any).aliexpress_url} target="_blank" rel="noopener noreferrer"
+                        style={{ color: '#d4af37', fontSize: 11, fontWeight: 700, textDecoration: 'none', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap' }}
+                        onClick={e => e.stopPropagation()}>
+                        View Source →
+                      </a>
+                    ) : (
+                      <span style={{ color: 'rgba(240,237,232,0.2)', fontSize: 11 }}>Pending</span>
                     )}
                   </td>
 

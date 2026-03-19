@@ -495,6 +495,7 @@ export default function TrendSignals() {
                 <ColHeader label="Score" field="winning_score" style={{ width: 60 }} />
                 <ColHeader label="Saturation" style={{ width: 80 }} />
                 <ColHeader label="Creators" style={{ width: 110 }} />
+                <ColHeader label="Supplier" style={{ width: 85 }} />
                 <ColHeader label="Actions" style={{ width: 160 }} />
               </tr>
             </thead>
@@ -669,6 +670,19 @@ export default function TrendSignals() {
                           </span>
                         )}
                       </div>
+                    </td>
+
+                    {/* Supplier */}
+                    <td style={{ padding: '8px 12px', textAlign: 'center' }}>
+                      {(p as any).aliexpress_url ? (
+                        <a href={(p as any).aliexpress_url} target="_blank" rel="noopener noreferrer"
+                          style={{ color: C.gold, fontSize: 11, fontWeight: 700, textDecoration: 'none', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap' }}
+                          onClick={e => e.stopPropagation()}>
+                          View Source →
+                        </a>
+                      ) : (
+                        <span style={{ color: C.muted, fontSize: 11, opacity: 0.5 }}>Pending</span>
+                      )}
                     </td>
 
                     {/* Actions */}
