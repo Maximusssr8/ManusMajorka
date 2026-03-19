@@ -1572,6 +1572,93 @@ export default function WebsiteGenerator() {
 
   const hasOutput = generatedData || rawResponse || directHtml;
 
+  // ── enhanceHeroImage: canvas-based collage/watermark detection ──────────────
+  const enhanceHeroImage = useCallback((iframe: HTMLIFrameElement) => {
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!doc) return;
+    const img = doc.querySelector('.hero__img-wrap img') as HTMLImageElement | null;
+    if (!img) return;
+    img.crossOrigin = 'anonymous';
+
+    const processImage = () => {
+      try {
+        const canvas = doc.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        canvas.width = img.naturalWidth || 800;
+        canvas.height = img.naturalHeight || 800;
+        ctx.drawImage(img, 0, 0);
+
+        // Collage detection: sample 5×5 grid, check colour variance
+        const gridSize = 5;
+        const cellW = Math.ceil(canvas.width / gridSize);
+        const cellH = Math.ceil(canvas.height / gridSize);
+        const samples: number[][] = [];
+        for (let gy = 0; gy < gridSize; gy++) {
+          for (let gx = 0; gx < gridSize; gx++) {
+            const x0 = gx * cellW, y0 = gy * cellH;
+            const w = Math.min(cellW, canvas.width - x0);
+            const h = Math.min(cellH, canvas.height - y0);
+            if (w <= 0 || h <= 0) continue;
+            const data = ctx.getImageData(x0, y0, w, h).data;
+            let r = 0, g = 0, b = 0, cnt = 0;
+            for (let i = 0; i < data.length; i += 4) { r += data[i]; g += data[i+1]; b += data[i+2]; cnt++; }
+            if (cnt > 0) samples.push([r/cnt, g/cnt, b/cnt]);
+          }
+        }
+        const mean = samples.reduce((a, c) => [a[0]+c[0], a[1]+c[1], a[2]+c[2]], [0,0,0]).map(v => v / samples.length);
+        const std = Math.sqrt(samples.reduce((s, c) => s + Math.pow(c[0]-mean[0],2) + Math.pow(c[1]-mean[1],2) + Math.pow(c[2]-mean[2],2), 0) / (samples.length * 3));
+        const IS_COLLAGE = std > 15;
+
+        // Watermark detection: bottom 12% of image, check low variance (solid strip)
+        const wmH = Math.round(canvas.height * 0.12);
+        if (wmH > 0) {
+          const wmData = ctx.getImageData(0, canvas.height - wmH, canvas.width, wmH).data;
+          let sumR=0,sumG=0,sumB=0;
+          for (let i=0;i<wmData.length;i+=4) { sumR+=wmData[i]; sumG+=wmData[i+1]; sumB+=wmData[i+2]; }
+          const len = wmData.length/4;
+          const avgR=sumR/len, avgG=sumG/len, avgB=sumB/len;
+          let variance=0;
+          for (let i=0;i<wmData.length;i+=4) { variance+=Math.pow(wmData[i]-avgR,2)+Math.pow(wmData[i+1]-avgG,2)+Math.pow(wmData[i+2]-avgB,2); }
+          variance/=(len*3);
+          const IS_WATERMARK = variance < 400;
+
+          if (IS_COLLAGE) {
+            // Crop centre 50%×50% of collage image
+            const cropW = Math.round(canvas.width * 0.5);
+            const cropH = Math.round(canvas.height * 0.5);
+            const cropX = Math.round((canvas.width - cropW) / 2);
+            const cropped = doc.createElement('canvas');
+            const cctx = cropped.getContext('2d');
+            if (cctx) {
+              cropped.width = cropW; cropped.height = cropH;
+              cctx.drawImage(canvas, cropX, 0, cropW, cropH, 0, 0, cropW, cropH);
+              img.src = cropped.toDataURL('image/jpeg', 0.92);
+              console.log('[hero-enhance] Collage detected — cropped to centre');
+            }
+          } else if (IS_WATERMARK) {
+            // Paint fade-to-black gradient over bottom strip
+            const grad = ctx.createLinearGradient(0, canvas.height - wmH, 0, canvas.height);
+            grad.addColorStop(0, 'rgba(0,0,0,0.0)');
+            grad.addColorStop(1, 'rgba(0,0,0,0.55)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, canvas.height - wmH, canvas.width, wmH);
+            img.src = canvas.toDataURL('image/jpeg', 0.92);
+            console.log('[hero-enhance] Watermark detected — gradient overlay applied');
+          }
+        }
+      } catch (e) {
+        console.warn('[hero-enhance] Canvas error:', e);
+      }
+    };
+
+    if (img.complete && img.naturalWidth > 0) {
+      processImage();
+    } else {
+      img.onload = processImage;
+    }
+  }, []);
+
   // Write HTML into preview iframe with CSP so Google Fonts load correctly
   useEffect(() => {
     const html = previewHTML || directHtml || '';
@@ -1584,8 +1671,12 @@ export default function WebsiteGenerator() {
       doc.open();
       doc.write(html.replace('<head>', `<head>${csp}`));
       doc.close();
+      // Run hero image enhancement 600ms after render (fonts + images need time to load)
+      setTimeout(() => {
+        if (previewIframeRef.current) enhanceHeroImage(previewIframeRef.current);
+      }, 600);
     } catch { /* cross-origin guard */ }
-  }, [previewHTML, directHtml]);
+  }, [previewHTML, directHtml, enhanceHeroImage]);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
