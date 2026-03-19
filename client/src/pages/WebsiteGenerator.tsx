@@ -1458,25 +1458,25 @@ export default function WebsiteGenerator() {
 
       // fromDatabase or fromTrend — full product context pre-fill (Effect 1)
       if (fromDatabase) {
+        // Set niche (main component state)
         if (urlNiche) setNiche(urlNiche);
-        if (urlPrice) { setPriceAUD(String(urlPrice)); setProductPrice(String(urlPrice)); }
-        if (urlImageUrl) setProductImageUrl(urlImageUrl);
+        // Set price — main component only has priceAUD (string)
+        if (urlPrice) setPriceAUD(String(urlPrice));
 
         // Auto-set store name from product name if not already set
         if (urlProductName && (!storeName || storeName.trim() === '')) {
           setStoreName(urlProductName.split(' ').slice(0, 3).join(' ') + ' AU');
         }
 
-        if (urlDescription || urlProductName) {
-          setImportedProduct(prev => prev ? { ...prev, description: urlDescription || prev.description } : {
-            title: urlProductName,
-            description: urlDescription,
-            features: [],
-            price: String(urlPrice),
-            images: urlImageUrl ? [urlImageUrl] : [],
-            sourceUrl: '',
-          });
-        }
+        // Set imported product — this is how image + product data flows into the generator
+        setImportedProduct({
+          title: urlProductName,
+          description: urlDescription || '',
+          features: [],
+          price: String(urlPrice || 49),
+          images: urlImageUrl ? [urlImageUrl] : [],
+          sourceUrl: '',
+        });
 
         setFromDatabaseBanner({ productName: urlProductName, niche: urlNiche, price: String(urlPrice) });
         toast.success(`⚡ Building store for: ${urlProductName}`);
@@ -1753,7 +1753,7 @@ export default function WebsiteGenerator() {
         productName: storeName || niche,
         price: Number(priceAUD) || 49,
         niche,
-        imageUrl: productImageUrl || undefined,
+        imageUrl: importedProduct?.images?.[0] || undefined,
         description: importedProduct?.description || selectedDesc || undefined,
       });
     }
@@ -1807,8 +1807,8 @@ export default function WebsiteGenerator() {
                 description: selectedDesc || importedProduct.description,
                 price_aud: importedProduct.price,
                 category: (importedProduct as any).category || niche,
-                hero_image: importedProduct.images?.[0] || productImageUrl || undefined,
-                product_images: importedProduct.images?.length ? importedProduct.images : (productImageUrl ? [productImageUrl] : undefined),
+                hero_image: importedProduct.images?.[0] || undefined,
+                product_images: importedProduct.images?.length ? importedProduct.images : undefined,
               } : (selectedDesc ? { description: selectedDesc } : undefined)),
         }),
       });
@@ -1951,6 +1951,7 @@ export default function WebsiteGenerator() {
     imageUrl?: string;
     description?: string;
   }) => {
+    console.log('[auto-gen] Triggering with:', params);
     if (!params.niche.trim()) { toast.error('Niche is required'); return; }
     if (generatingRef.current) return;
 
