@@ -648,4 +648,60 @@ CREATE INDEX IF NOT EXISTS idx_ae_products_niche ON aliexpress_products(niche);
   res.json({ sql, message: 'Copy this SQL and run it in the Supabase SQL editor' });
 });
 
+
+// POST /api/admin/run-supplier-migration — runs DDL for supplier tables (one-shot, admin only)
+router.post('/run-supplier-migration', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) { res.status(500).json({ error: 'DATABASE_URL not set in Vercel env' }); return; }
+
+  const steps: string[] = [];
+  let failed = false;
+
+  try {
+    const { default: postgres } = await import('postgres');
+    const sql = postgres(dbUrl, { ssl: 'require', connect_timeout: 10, max: 1 });
+
+    const run = async (label: string, query: string) => {
+      try {
+        await sql.unsafe(query);
+        steps.push(`✅ ${label}`);
+      } catch (e: any) {
+        // IF NOT EXISTS means these are safe to re-run; log but continue
+        if (e.message?.includes('already exists')) {
+          steps.push(`⏭ ${label} (already exists)`);
+        } else {
+          steps.push(`❌ ${label}: ${e.message}`);
+          failed = true;
+        }
+      }
+    };
+
+    await run('social_buzz_score', `ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS social_buzz_score NUMERIC DEFAULT 0`);
+    await run('aliexpress_url', `ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS aliexpress_url TEXT`);
+    await run('supplier_name', `ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS supplier_name TEXT DEFAULT 'AliExpress'`);
+    await run('au_shipping_days', `ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS au_shipping_days TEXT DEFAULT '7-14 days'`);
+    await run('aliexpress_products table', `CREATE TABLE IF NOT EXISTS aliexpress_products (
+      id BIGSERIAL PRIMARY KEY,
+      aliexpress_product_id BIGINT UNIQUE NOT NULL,
+      niche TEXT NOT NULL,
+      title TEXT NOT NULL,
+      price_usd NUMERIC(10,2),
+      price_aud NUMERIC(10,2),
+      image_url TEXT,
+      product_url TEXT,
+      seller_rating NUMERIC(3,2),
+      orders_count INT,
+      stock_qty INT,
+      au_shipping_days TEXT,
+      fetched_at TIMESTAMPTZ DEFAULT now()
+    )`);
+    await run('idx_ae_products_niche', `CREATE INDEX IF NOT EXISTS idx_ae_products_niche ON aliexpress_products(niche)`);
+
+    await sql.end();
+    res.json({ ok: !failed, steps });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message, steps });
+  }
+});
+
 export default router;
