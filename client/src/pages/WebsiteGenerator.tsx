@@ -1270,6 +1270,7 @@ export default function WebsiteGenerator() {
 
   // Preview
   const [mobilePreview, setMobilePreview] = useState(false);
+  const [mobilePanel, setMobilePanel] = useState<'form'|'preview'>('form');
 
   // Code tab
   const [activeFile, setActiveFile] = useState<string | null>(null);
@@ -1986,6 +1987,7 @@ export default function WebsiteGenerator() {
 
       setGenProgress(100);
       setRawResponse(finalHtml);
+      setMobilePanel('preview'); // auto-switch to preview on mobile
       const minData: GeneratedData = {
         storeName: storeName || niche,
         headline: niche,
@@ -2855,10 +2857,21 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
         </div>
       </div>
 
+      {/* Mobile panel toggle */}
+      <div className="flex md:hidden border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#0a0c10' }}>
+        {(['form','preview'] as const).map((p) => (
+          <button key={p} onClick={() => setMobilePanel(p)}
+            className="flex-1 py-2.5 text-xs font-bold uppercase tracking-wider transition-all"
+            style={{ color: mobilePanel === p ? '#d4af37' : 'rgba(240,237,232,0.35)', borderBottom: `2px solid ${mobilePanel === p ? '#d4af37' : 'transparent'}`, fontFamily: 'Syne, sans-serif', background: 'transparent', cursor: 'pointer' }}>
+            {p === 'form' ? '⚙️ Configure' : '👁 Preview'}
+          </button>
+        ))}
+      </div>
+
       {/* Body */}
       <div className="flex-1 overflow-auto flex flex-col md:flex-row">
         {/* ── LEFT PANEL ── */}
-        <div className="flex-shrink-0 overflow-y-auto p-5 space-y-4 w-full md:w-[400px]" style={{ borderRight: '1px solid rgba(255,255,255,0.07)', borderBottom: '1px solid rgba(255,255,255,0.07)', scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.1) transparent' }}>
+        <div className={`flex-shrink-0 overflow-y-auto p-5 space-y-4 w-full md:w-[400px] ${mobilePanel === 'preview' ? 'hidden md:block' : ''}`} style={{ borderRight: '1px solid rgba(255,255,255,0.07)', borderBottom: '1px solid rgba(255,255,255,0.07)', scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.1) transparent' }}>
 
           {/* 3-Step Wizard Indicator */}
           <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 24, padding: "0 4px" }}>
@@ -3598,7 +3611,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
         </div>
 
         {/* ── RIGHT PANEL ── */}
-        <div className="flex-1 flex flex-col overflow-hidden min-h-[600px] md:min-h-0">
+        <div className={`flex-1 flex flex-col overflow-hidden min-h-[60vh] md:min-h-0 ${mobilePanel === 'form' ? 'hidden md:flex' : ''}`}>
           {hasOutput ? (
             <>
               {/* Tab bar */}
@@ -3699,11 +3712,11 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                             {previewDevice}
                           </span>
                         </div>
-                        {/* Full-size scrollable preview — no scaling */}
+                        {/* Full-size scrollable preview — responsive height on mobile */}
                         <div style={{
-                          width: previewDevice === 'mobile' ? 390 : previewDevice === 'tablet' ? 768 : '100%',
-                          height: '70vh',
-                          minHeight: 600,
+                          width: previewDevice === 'mobile' ? Math.min(390, window.innerWidth - 16) : previewDevice === 'tablet' ? 768 : '100%',
+                          height: window.innerWidth < 768 ? '75vh' : '70vh',
+                          minHeight: window.innerWidth < 768 ? 400 : 500,
                           margin: previewDevice !== 'desktop' ? '0 auto' : undefined,
                           border: '1px solid rgba(255,255,255,0.07)',
                           borderRadius: previewDevice !== 'desktop' ? 20 : 0,
