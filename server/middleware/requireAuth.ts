@@ -26,10 +26,16 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction): vo
     return;
   }
   try {
-    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    const parts = token.split('.');
+    if (parts.length !== 3) { res.status(401).json({ error: 'invalid token' }); return; }
+    // base64url → base64 (add padding, replace url-safe chars)
+    const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(parts[1].length / 4) * 4, '=');
+    const payload = JSON.parse(Buffer.from(b64, 'base64').toString('utf8'));
+    // Supabase puts email at top-level OR inside user_metadata
+    const email: string = payload.email || payload.user_metadata?.email || '';
     req.user = {
       userId: payload.sub || '',
-      email: payload.email || '',
+      email,
       sub: payload.sub || '',
     };
     if (!req.user.userId) {

@@ -396,12 +396,8 @@ function HealthTab() {
           onClick={async () => {
             try {
               setEnriching(true);
-              const res = await fetch('/api/admin/enrich-products', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-              });
-              const data = await res.json();
-              alert(`Done! Enriched: ${data.enriched}, Total: ${data.total}`);
+              const data = await apiCall('/enrich-products', { method: 'POST' });
+              alert(`${data.message || 'Done!'}\nEnriched: ${data.enriched ?? '?'} / Total: ${data.total ?? '?'}\n${data.error ? 'Error: ' + data.error : ''}`);
             } catch (e: any) {
               alert('Error: ' + e.message);
             } finally {
@@ -416,11 +412,7 @@ function HealthTab() {
         <button
           onClick={async () => {
             try {
-              const res = await fetch('/api/admin/run-supplier-migration', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-              });
-              const data = await res.json();
+              const data = await apiCall('/run-supplier-migration', { method: 'POST' });
               alert(JSON.stringify(data, null, 2));
             } catch (e: any) {
               alert('Error: ' + e.message);

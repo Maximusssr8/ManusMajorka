@@ -565,6 +565,9 @@ router.post('/enrich-products', requireAuth, requireAdmin, async (req: Request, 
 
   const { limit = 20 } = req.body || {};
 
+  console.log('[enrich] req.user:', (req as any).user);
+  console.log('[enrich] auth header:', req.headers.authorization?.slice(0, 30));
+
   // Column existence check — if aliexpress_url doesn't exist yet, surface a clear error
   const { data: colCheck, error: colErr } = await supabase
     .from('trend_signals')
