@@ -1572,7 +1572,7 @@ export default function WebsiteGenerator() {
 
   const hasOutput = generatedData || rawResponse || directHtml;
 
-  // Write HTML into preview iframe via doc.write so Google Fonts load correctly
+  // Write HTML into preview iframe with CSP so Google Fonts load correctly
   useEffect(() => {
     const html = previewHTML || directHtml || '';
     if (!html || !previewIframeRef.current) return;
@@ -1580,8 +1580,9 @@ export default function WebsiteGenerator() {
     try {
       const doc = iframe.contentDocument || iframe.contentWindow?.document;
       if (!doc) return;
+      const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: http:; script-src 'self' 'unsafe-inline';">`;
       doc.open();
-      doc.write(html);
+      doc.write(html.replace('<head>', `<head>${csp}`));
       doc.close();
     } catch { /* cross-origin guard */ }
   }, [previewHTML, directHtml]);
@@ -3501,50 +3502,33 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                           </button>
                           <span style={{ flex: 1 }} />
                           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>
-                            {previewDevice === 'desktop' ? '55% scale' : previewDevice}
+                            {previewDevice}
                           </span>
                         </div>
-                        <div style={previewDevice !== 'desktop'
-                          ? { width: previewDevice === 'tablet' ? 768 : 390, flexShrink: 0, margin: '0 auto' }
-                          : { flex: 1, overflow: 'hidden', position: 'relative' }
-                        }>
-                          {previewDevice === 'desktop' ? (
-                            // Desktop: scaled 55% view showing full 1440px store
-                            <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-                              <iframe
-                                title="Store Preview"
-                                style={{
-                                  width: 1440,
-                                  height: '181.8%', // 100/0.55 = 181.8%
-                                  transform: 'scale(0.55)',
-                                  transformOrigin: 'top left',
-                                  border: 'none',
-                                  pointerEvents: 'none',
-                                  display: 'block',
-                                }}
-                                sandbox="allow-scripts allow-same-origin allow-popups"
-                                ref={previewIframeRef}
-                              />
-                            </div>
-                          ) : (
-                            <iframe
-                              title="Store Preview"
-                              className="border-0"
-                              style={{
-                                width: DEVICE_WIDTHS[previewDevice],
-                                maxWidth: '100%',
-                                margin: '0 auto',
-                                display: 'block',
-                                height: previewDevice === 'mobile' ? 844 : 1024,
-                                borderRadius: 20,
-                                border: '2px solid rgba(255,255,255,0.12)',
-                                boxShadow: '0 8px 40px rgba(0,0,0,0.5)',
-                                animation: 'mjk-fadeIn 0.4s ease',
-                              }}
-                              sandbox="allow-scripts allow-same-origin allow-popups"
-                              ref={previewIframeRef}
-                            />
-                          )}
+                        {/* Full-size scrollable preview — no scaling */}
+                        <div style={{
+                          width: previewDevice === 'mobile' ? 390 : previewDevice === 'tablet' ? 768 : '100%',
+                          height: '70vh',
+                          minHeight: 600,
+                          margin: previewDevice !== 'desktop' ? '0 auto' : undefined,
+                          border: '1px solid rgba(255,255,255,0.07)',
+                          borderRadius: previewDevice !== 'desktop' ? 20 : 0,
+                          overflow: 'hidden',
+                          background: '#080808',
+                          flexShrink: 0,
+                        }}>
+                          <iframe
+                            title="Store Preview"
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              border: 'none',
+                              borderRadius: previewDevice !== 'desktop' ? 20 : 0,
+                              display: 'block',
+                            }}
+                            sandbox="allow-scripts allow-same-origin allow-popups"
+                            ref={previewIframeRef}
+                          />
                         </div>
                         {/* B3 — Headline variants panel */}
                         {headlines && directHtml && (

@@ -152,7 +152,7 @@ export function buildStoreHTML(plan: StorePlan): string {
     `<li>${esc(b)}</li>`).join('\n      ');
 
   const testimonialCards = (testimonials || []).slice(0, 3).map(t => `
-      <div class="testimonial-card">
+      <div class="testimonial-card card">
         <div class="testimonial-stars">${stars(t.rating)}</div>
         <p class="testimonial-text">"${esc(t.text)}"</p>
         <div class="testimonial-name">${esc(t.name)}</div>
@@ -192,6 +192,18 @@ export function buildStoreHTML(plan: StorePlan): string {
   body { font-family: var(--font-body, 'DM Sans', sans-serif); background: var(--color-bg, #080808); color: var(--color-text, #fff); }
   img { max-width: 100%; height: auto; }
   a { text-decoration: none; }
+
+  /* ── Global utilities ───────────────── */
+  :root {
+    --space: 1rem;
+    --font-size-xl: clamp(2rem, 5vw, 3.5rem);
+    --font-size-lg: clamp(1.5rem, 3vw, 2.2rem);
+    --font-size-base: clamp(1rem, 2vw, 1.125rem);
+  }
+  .container { width: 90%; max-width: 1200px; margin: 0 auto; padding: 0 var(--space); }
+  .card { background: var(--color-bg, #fff); border-radius: var(--border-radius, 8px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.15s ease, box-shadow 0.15s ease; }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+  .section--alt { background: var(--color-bg-alt, #111111); }
 
   /* ANNOUNCEMENT BAR */
   .announcement { background: var(--color-primary); color: #fff; text-align: center; padding: 12px; font-size: 13px; letter-spacing: 1px; font-weight: 600; }
@@ -409,6 +421,7 @@ export function buildStoreHTML(plan: StorePlan): string {
 
   <!-- TRUST BADGES -->
   <section class="trust">
+    <div class="container">
     <div class="trust-item">
       <div class="trust-icon">🚚</div>
       <div class="trust-title">Free AU Shipping</div>
@@ -429,10 +442,12 @@ export function buildStoreHTML(plan: StorePlan): string {
       <div class="trust-title">Secure Checkout</div>
       <div class="trust-sub">Afterpay &amp; all cards</div>
     </div>
+    </div>
   </section>
 
   <!-- FEATURED PRODUCT -->
-  <section class="product">
+  <section class="product section--alt">
+    <div class="container">
     <div style="text-align:center;margin-bottom:48px">
       <div style="color:var(--color-primary);font-size:11px;letter-spacing:4px;font-weight:700;text-transform:uppercase;margin-bottom:10px">FEATURED PRODUCT</div>
     </div>
@@ -454,6 +469,7 @@ export function buildStoreHTML(plan: StorePlan): string {
         <button class="btn-cart">ADD TO CART</button>
         <button class="btn-buynow">BUY NOW WITH AFTERPAY</button>
       </div>
+    </div>
     </div>
   </section>
 
@@ -483,9 +499,9 @@ export function buildStoreHTML(plan: StorePlan): string {
       <div class="testimonials-label">WHAT AUSTRALIANS SAY</div>
       <h2 class="testimonials-heading">Real Reviews From Real Customers</h2>
     </div>
-    <div class="testimonials-grid">
+    <div class="container"><div class="testimonials-grid">
       ${testimonialCards}
-    </div>
+    </div></div>
   </section>
 
   <!-- HOW IT WORKS -->
@@ -494,9 +510,9 @@ export function buildStoreHTML(plan: StorePlan): string {
       <div class="how-label">HOW IT WORKS</div>
       <h2 class="how-heading">Simple. Fast. Reliable.</h2>
     </div>
-    <div class="how-grid">
+    <div class="container"><div class="how-grid">
       ${howSteps}
-    </div>
+    </div></div>
   </section>
 
   <!-- FAQ -->

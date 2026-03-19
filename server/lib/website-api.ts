@@ -1778,7 +1778,12 @@ async function generateFullStore_legacy(params: {
     };
   }
 
-  // ── 6. Render HTML from plan using fixed template ────────────────────────────
+  // ── 6. Force product image through — never let Unsplash override user's product photo ──
+  if (heroImg) { storePlan.heroImageUrl = heroImg; storePlan.productImageUrl = heroImg; }
+  if (productImg) storePlan.productImageUrl = productImg;
+  console.log(`[website-api] Final images — hero:${(storePlan.heroImageUrl || '').slice(0,60)} product:${(storePlan.productImageUrl || '').slice(0,60)}`);
+
+  // ── 7. Render HTML from plan using fixed template ────────────────────────────
   progress(60, '🏗️ Building store structure...');
   const { buildStoreHTML } = await import('./storeTemplate');
   const generatedHtml = buildStoreHTML(storePlan);
