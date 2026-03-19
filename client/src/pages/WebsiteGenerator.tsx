@@ -1739,6 +1739,17 @@ export default function WebsiteGenerator() {
       console.log('[generate] blocked — already in progress');
       return;
     }
+    // Delegate to handleGenerateWithParams for explicit value passing (avoids stale closure)
+    if (handleGenerateWithParamsRef.current) {
+      return handleGenerateWithParamsRef.current({
+        storeName: storeName || productName || niche,
+        productName: productName || storeName || niche,
+        price: Number(priceAUD) || 49,
+        niche,
+        imageUrl: productImageUrl || undefined,
+        description: importedProduct?.description || selectedDesc || undefined,
+      });
+    }
 
     // Kill any leftover state first
     killGeneration();
@@ -3007,14 +3018,14 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
 
-          {/* From Database banner */}
-          {fromDatabaseBanner && (
+          {/* From Database banner — shows immediately on arrival from Intelligence */}
+          {(fromDatabaseBanner || (urlParams.fromDatabase && urlParams.productName)) && (
             <div style={{
               marginBottom: 4,
               padding: '12px 16px',
               borderRadius: 10,
-              background: 'rgba(212,175,55,0.1)',
-              border: '1.5px solid rgba(212,175,55,0.35)',
+              background: 'rgba(212,175,55,0.08)',
+              border: '1px solid rgba(212,175,55,0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -3024,11 +3035,12 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 <span style={{ fontSize: 18, flexShrink: 0 }}>⚡</span>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#d4af37', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    Building store for: {fromDatabaseBanner.productName}
+                    Building store for: <strong>{fromDatabaseBanner?.productName || urlParams.productName}</strong>
                   </div>
                   <div style={{ fontSize: 12, color: 'rgba(212,175,55,0.65)', marginTop: 2 }}>
-                    {fromDatabaseBanner.niche}{fromDatabaseBanner.price ? ` · $${fromDatabaseBanner.price} AUD` : ''}
-                    {' · '}Just enter a store name below and hit Generate
+                    {fromDatabaseBanner?.niche || urlParams.niche}
+                    {(fromDatabaseBanner?.price || urlParams.price) ? ` · $${fromDatabaseBanner?.price || urlParams.price} AUD` : ''}
+                    {' · '}Auto-generating your store…
                   </div>
                 </div>
               </div>
