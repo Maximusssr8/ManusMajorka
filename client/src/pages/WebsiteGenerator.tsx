@@ -60,6 +60,7 @@ import { SaveToProduct } from '@/components/SaveToProduct';
 import { getStoredMarket } from '@/contexts/MarketContext';
 import { useProduct } from '@/contexts/ProductContext';
 import { useActiveProduct } from '@/hooks/useActiveProduct';
+import { useStoreBuilderParams } from '@/hooks/useStoreBuilderParams';
 import { trackWebsiteGenerated } from '@/lib/analytics';
 import { proxyImage } from '@/lib/imageProxy';
 import { WEBSITE_TEMPLATES } from '@/lib/website-templates';
@@ -1417,6 +1418,10 @@ export default function WebsiteGenerator() {
     return () => clearTimeout(timer);
   }, [analyzeUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── URL params — read ONCE via hook (parsed before URL is cleaned) ─────────
+  const urlParams = useStoreBuilderParams();
+  const hasAutoTriggered = useRef(false);
+
   // Auto-fill from URL params (crash-proof — handles encoded/raw values safely)
   useEffect(() => {
     try {
@@ -1444,54 +1449,33 @@ export default function WebsiteGenerator() {
         setNiche(demoNiche);
       }
 
-      // fromDatabase or fromTrend — full product context pre-fill
-      const isFromDB = params.get('fromDatabase') === 'true' || params.get('fromTrend') === 'true';
-      if (isFromDB) {
-        const productNameParam = sd(params.get('productName') || params.get('product'));
-        const priceParam = params.get('price') || '';
-        const descParam = sd(params.get('description'));
-        const imageUrlParam = sd(params.get('imageUrl'));
-        const nicheFromParam = sd(params.get('niche'));
+      // fromDatabase or fromTrend — full product context pre-fill (Effect 1)
+      if (urlParams.fromDatabase) {
+        const { productName: pn, price: pr, niche: ni, imageUrl: img, description: desc } = urlParams;
 
-        if (productNameParam) setProductName(productNameParam);
+        if (pn) setProductName(pn);
+        if (pr) { setPriceAUD(String(pr)); setProductPrice(String(pr)); }
+        if (ni) setNiche(ni);
+        if (img) setProductImageUrl(img);
 
-        if (priceParam !== '') {
-          const num = Number(priceParam);
-          if (!Number.isNaN(num) && isFinite(num)) {
-            setPriceAUD(priceParam);
-            setProductPrice(priceParam);
-          }
+        // Auto-set store name from product name if not already set
+        if (pn && (!storeName || storeName.trim() === '')) {
+          setStoreName(pn.split(' ').slice(0, 3).join(' ') + ' AU');
         }
 
-        if (nicheFromParam) setNiche(nicheFromParam);
-        if (imageUrlParam) setProductImageUrl(imageUrlParam);
-
-        if (descParam && !storeName) {
-          setImportedProduct(prev => prev ? { ...prev, description: descParam } : {
-            title: productNameParam,
-            description: descParam,
+        if (desc) {
+          setImportedProduct(prev => prev ? { ...prev, description: desc } : {
+            title: pn,
+            description: desc,
             features: [],
-            price: priceParam,
-            images: imageUrlParam ? [imageUrlParam] : [],
+            price: String(pr),
+            images: img ? [img] : [],
             sourceUrl: '',
           });
         }
 
-        setFromDatabaseBanner({
-          productName: productNameParam,
-          niche: nicheFromParam,
-          price: priceParam,
-        });
-
-        setTimeout(() => {
-          const nameInput = document.querySelector<HTMLInputElement>('input[data-field="storeName"]');
-          if (nameInput) {
-            nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            nameInput.focus();
-          }
-          toast.success('Product loaded — enter a store name and generate! 🚀');
-        }, 400);
-
+        setFromDatabaseBanner({ productName: pn, niche: ni, price: String(pr) });
+        toast.success(`⚡ Building store for: ${pn}`);
         window.history.replaceState({}, '', '/app/website-generator');
       }
     } catch (err) {
@@ -1525,6 +1509,30 @@ export default function WebsiteGenerator() {
     } catch { /* ignore */ }
   }, []);
 
+  // EFFECT 2 — Auto-trigger generation once state has settled (fromDatabase flow)
+  // Runs every time productName/niche/storeName update, but fires generation exactly once
+  useEffect(() => {
+    if (!urlParams.fromDatabase) return;
+    if (hasAutoTriggered.current) return;
+    if (!productName || !niche) return; // wait until state is settled
+
+    hasAutoTriggered.current = true;
+
+    // Small debounce to ensure all setState calls from Effect 1 have flushed
+    const timer = setTimeout(() => {
+      handleGenerateWithParamsRef.current?.({
+        storeName: storeName || productName,
+        productName,
+        price: Number(priceAUD) || urlParams.price,
+        niche,
+        imageUrl: urlParams.imageUrl,
+        description: urlParams.description,
+      });
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [productName, niche, storeName, priceAUD, urlParams.fromDatabase]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Progress message cycling
   useEffect(() => {
     if (!generating) { setProgressMsgIdx(0); return; }
@@ -1536,6 +1544,7 @@ export default function WebsiteGenerator() {
 
   // Cmd+Enter keyboard shortcut — use ref so we don't depend on handleGenerate before it's declared
   const handleGenerateRef = useRef<(() => void) | null>(null);
+  const handleGenerateWithParamsRef = useRef<((p: { storeName: string; productName: string; price: number; niche: string; imageUrl?: string; description?: string }) => void) | null>(null);
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.metaKey && e.key === 'Enter' && !generating && (storeName || niche)) {
@@ -1914,6 +1923,125 @@ export default function WebsiteGenerator() {
   }, [niche, storeName, targetAudience, vibe, accentColor, designDirection, importedProduct, analysisResult, selectedDesc, session, killGeneration, platform, premiumTemplateId, storeManifest]);
   // Keep ref in sync so keyboard shortcut can call it without circular deps
   useEffect(() => { handleGenerateRef.current = handleGenerate; }, [handleGenerate]);
+
+  // handleGenerateWithParams — accepts explicit values so auto-trigger doesn't read stale state
+  const handleGenerateWithParams = useCallback(async (params: {
+    storeName: string;
+    productName: string;
+    price: number;
+    niche: string;
+    imageUrl?: string;
+    description?: string;
+  }) => {
+    if (!params.niche.trim()) { toast.error('Niche is required'); return; }
+    if (generatingRef.current) return;
+
+    killGeneration();
+    generatingRef.current = true;
+    setGenerating(true);
+    setGenError('');
+    setGenProgress(0);
+    setParseWarning(false);
+    setDirectHtml(null);
+    setStoreManifest(null);
+    setGenStartTime(Date.now());
+    genStartRef.current = Date.now();
+    setProgressSteps(GEN_STEPS.map(s => ({ label: s.label, done: false })));
+    setEta(90);
+    setHeadlines(null);
+
+    genTimeoutRef.current = setTimeout(() => {
+      if (generatingRef.current) {
+        killGeneration();
+        setGenError('Generation timed out — please try again.');
+        toast.error('Generation timed out');
+      }
+    }, 90_000);
+
+    try {
+      const productData: Record<string, unknown> = {};
+      if (params.description) productData.description = params.description;
+      if (params.imageUrl) { productData.hero_image = params.imageUrl; productData.product_images = [params.imageUrl]; }
+      if (params.productName) productData.product_title = params.productName;
+      if (params.price) productData.price_aud = params.price;
+
+      const response = await fetch('/api/website/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({
+          niche: params.niche,
+          storeName: params.storeName || params.productName,
+          accentColor: accentColor || undefined,
+          designDirection: designDirection !== 'default' ? designDirection : undefined,
+          price: `$${params.price}`,
+          productData: Object.keys(productData).length ? productData : undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error((err as any).error || `Generation failed: ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No response stream');
+      activeReaderRef.current = reader;
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let finalHtml = '';
+
+      while (true) {
+        if (!generatingRef.current) break;
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('event: progress')) continue;
+          if (line.startsWith('data: ')) {
+            try {
+              const payload = JSON.parse(line.slice(6));
+              if (payload.pct !== undefined) {
+                setGenProgress(payload.pct);
+                setProgressSteps(GEN_STEPS.map(s => ({ label: s.label, done: payload.pct >= s.threshold })));
+                if (payload.msg) toast(payload.msg, { id: 'gen-progress', duration: 2000 });
+              }
+              if (payload.html) {
+                finalHtml = payload.html;
+                setDirectHtml(payload.html);
+                if (payload.manifest) setStoreManifest(payload.manifest);
+                setGenProgress(100);
+                setProgressSteps(GEN_STEPS.map(s => ({ label: s.label, done: true })));
+                toast.success('🚀 Store generated!');
+                const elapsed = ((Date.now() - genStartRef.current) / 1000).toFixed(1);
+                console.log(`[gen] Done in ${elapsed}s — ${finalHtml.length} chars`);
+              }
+              if (payload.error) throw new Error(payload.error);
+            } catch (parseErr) {
+              if ((parseErr as Error).message?.startsWith('Generation failed') || (parseErr as Error).message?.startsWith('No ')) throw parseErr;
+            }
+          }
+        }
+      }
+    } catch (err: any) {
+      if (generatingRef.current) {
+        setGenError(err.message || 'Generation failed');
+        toast.error(err.message || 'Generation failed');
+      }
+    } finally {
+      killGeneration();
+    }
+  }, [accentColor, designDirection, session, killGeneration]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep handleGenerateWithParams ref in sync for auto-trigger effect
+  useEffect(() => { handleGenerateWithParamsRef.current = handleGenerateWithParams; }, [handleGenerateWithParams]);
 
   // Cleanup on unmount
   useEffect(() => {
