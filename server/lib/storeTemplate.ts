@@ -210,7 +210,7 @@ export function buildStoreHTML(plan: StorePlan): string {
 
   /* NAV */
   .nav { position: sticky; top: 0; z-index: 999; background: rgba(10,10,10,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 0 60px; height: 70px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); }
-  .nav-logo { font-family: var(--font-heading, 'Syne', sans-serif); font-size: 20px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #fff; }
+  .nav-logo { font-family: var(--font-heading, 'Syne', sans-serif); font-size: clamp(14px, 1.5vw, 20px); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #fff; overflow: visible; white-space: nowrap; flex-shrink: 1; min-width: 0; }
   .nav-links { display: flex; gap: 32px; }
   .nav-links a { color: rgba(255,255,255,0.7); font-size: 14px; letter-spacing: 1px; transition: color 0.2s; }
   .nav-links a:hover { color: #fff; }
@@ -223,8 +223,8 @@ export function buildStoreHTML(plan: StorePlan): string {
   .hero__text h1 { font-family: var(--font-heading, 'Syne', sans-serif); font-size: clamp(2.2rem, 5vw, 3.5rem); line-height: 1.15; margin: 0 0 1.2rem; font-weight: 800; letter-spacing: -0.5px; }
   .hero__text p { font-size: clamp(1rem, 2vw, 1.125rem); line-height: 1.7; margin-bottom: 2rem; opacity: 0.8; }
   .hero__badge { color: var(--color-accent, #d4af37); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 20px; font-weight: 700; display: block; }
-  .hero__image { flex: 1 1 55%; height: 100vh; position: relative; overflow: hidden; }
-  .hero__image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hero__image { flex: 1 1 55%; height: 100vh; overflow: hidden; position: relative; }
+  .hero__image img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; background: #0a0a0a; }
   .hero__image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,0.3) 0%, transparent 60%); pointer-events: none; }
   .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
   .btn-primary { background: var(--color-primary); color: #fff; padding: 18px 40px; border: none; cursor: pointer; font-size: 15px; letter-spacing: 1px; border-radius: var(--border-radius, 6px); font-family: var(--font-body, sans-serif); transition: opacity 0.2s; }
@@ -233,8 +233,8 @@ export function buildStoreHTML(plan: StorePlan): string {
   .btn-outline:hover { border-color: #fff; }
 
   /* TRUST BADGES */
-  .trust { background: #fff; padding: 40px 60px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
-  .trust-item { text-align: center; padding: 20px; border-right: 1px solid #eee; }
+  .trust { background: #fff; padding: 50px 60px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; width: 100%; }
+  .trust-item { min-width: 0; text-align: center; padding: 20px; border-right: 1px solid #eee; transition: transform 0.15s ease, box-shadow 0.15s ease; }
   .trust-item:last-child { border-right: none; }
   .trust-icon { font-size: 28px; margin-bottom: 8px; }
   .trust-title { font-weight: 700; font-size: 14px; color: #1a1a1a; margin-bottom: 4px; }
@@ -310,6 +310,17 @@ export function buildStoreHTML(plan: StorePlan): string {
   .footer-bottom { border-top: 1px solid rgba(255,255,255,0.07); padding-top: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; max-width: 1200px; margin: 0 auto; }
   .footer-copy { color: rgba(255,255,255,0.3); font-size: 13px; }
   .footer-au { color: var(--color-accent, #d4af37); font-size: 13px; }
+
+
+  /* Hero→trust gradient transition */
+  .hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 100px; pointer-events: none; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.15)); z-index: 1; }
+
+  /* Section inner wrapper */
+  .section-inner { width: 90%; max-width: 1200px; margin: 0 auto; }
+
+  /* Card hover effect */
+  .testimonial-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+  .testimonial-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
 
   /* MOBILE */
   @media (max-width: 768px) {

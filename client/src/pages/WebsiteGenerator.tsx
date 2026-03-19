@@ -2183,10 +2183,99 @@ export default function WebsiteGenerator() {
     });
   }, []);
 
+  const installFloatingToolbar = useCallback((iframe: HTMLIFrameElement | null) => {
+    if (!iframe?.contentDocument) return;
+    const doc = iframe.contentDocument;
+    if (doc.getElementById('majorka-toolbar')) return; // already installed
+
+    const toolbar = doc.createElement('div');
+    toolbar.id = 'majorka-toolbar';
+    toolbar.style.cssText = `
+      display: none; position: absolute; z-index: 99999; background: #1a1a1a;
+      border: 1px solid #d4af37; border-radius: 8px; padding: 6px 10px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5); align-items: center; gap: 6px;
+      font-family: sans-serif; font-size: 12px; color: #fff;
+    `;
+
+    const makeBtn = (label: string, cmd: string) => {
+      const b = doc.createElement('button');
+      b.textContent = label;
+      b.style.cssText = 'padding:3px 8px;background:#2a2a2a;border:1px solid #444;border-radius:4px;color:#fff;cursor:pointer;font-size:12px;';
+      b.onmousedown = (e) => { e.preventDefault(); doc.execCommand(cmd, false); };
+      return b;
+    };
+    toolbar.appendChild(makeBtn('B', 'bold'));
+    toolbar.appendChild(makeBtn('I', 'italic'));
+    toolbar.appendChild(makeBtn('U', 'underline'));
+
+    const imgInput = doc.createElement('input');
+    imgInput.type = 'text';
+    imgInput.placeholder = 'Paste image URL and press Enter...';
+    imgInput.id = 'majorka-img-url-input';
+    imgInput.style.cssText = `
+      display: none; margin-left: 8px; padding: 4px 8px;
+      width: 220px; border: 1px solid #d4af37; border-radius: 4px;
+      background: #1a1a1a; color: #fff; font-size: 12px;
+    `;
+    toolbar.appendChild(imgInput);
+    doc.body.appendChild(toolbar);
+
+    let currentImg: HTMLImageElement | null = null;
+
+    const showAt = (rect: DOMRect, forImage = false) => {
+      imgInput.style.display = forImage ? 'block' : 'none';
+      toolbar.style.display = 'flex';
+      const scrollY = doc.documentElement.scrollTop || doc.body.scrollTop;
+      const scrollX = doc.documentElement.scrollLeft || doc.body.scrollLeft;
+      let top = rect.bottom + scrollY + 6;
+      let left = rect.left + scrollX;
+      if (left + 500 > doc.documentElement.clientWidth) {
+        left = Math.max(0, doc.documentElement.clientWidth - 520);
+      }
+      toolbar.style.top = `${top}px`;
+      toolbar.style.left = `${left}px`;
+    };
+
+    const hide = () => {
+      toolbar.style.display = 'none';
+      currentImg = null;
+      imgInput.value = '';
+    };
+
+    imgInput.onkeydown = (e) => {
+      if (e.key === 'Enter' && currentImg && imgInput.value.startsWith('http')) {
+        currentImg.src = imgInput.value;
+        hide();
+      }
+    };
+
+    doc.addEventListener('click', (e) => {
+      const target = e.target as Element;
+      if (toolbar.contains(target)) return;
+      if ((target as HTMLImageElement).tagName === 'IMG') {
+        currentImg = target as HTMLImageElement;
+        imgInput.value = currentImg.src;
+        showAt(target.getBoundingClientRect(), true);
+        return;
+      }
+      if ((target as HTMLElement).isContentEditable) {
+        showAt(target.getBoundingClientRect(), false);
+        return;
+      }
+      hide();
+    });
+
+    doc.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && !e.shiftKey && e.key === 'z') { e.preventDefault(); doc.execCommand('undo', false); }
+      if (e.ctrlKey && e.key === 'y') { e.preventDefault(); doc.execCommand('redo', false); }
+    });
+  }, []);
+
   const disableEditMode = useCallback((iframe: HTMLIFrameElement | null) => {
     if (!iframe?.contentDocument) return;
     const doc = iframe.contentDocument;
     doc.getElementById('claw-edit-styles')?.remove();
+    doc.getElementById('majorka-toolbar')?.remove();
     doc.querySelectorAll<HTMLElement>('.claw-editable').forEach(el => {
       el.removeAttribute('contenteditable');
       el.classList.remove('claw-editable');
@@ -2210,6 +2299,7 @@ export default function WebsiteGenerator() {
     const iframe = previewIframeRef.current;
     if (!editMode) {
       enableEditMode(iframe);
+      installFloatingToolbar(iframe);
       setEditMode(true);
       toast.success('Edit mode ON — click any text to edit · click images to replace');
     } else {
@@ -2217,7 +2307,7 @@ export default function WebsiteGenerator() {
       setEditMode(false);
       toast('Edit mode off');
     }
-  }, [editMode, enableEditMode, disableEditMode]);
+  }, [editMode, enableEditMode, disableEditMode, installFloatingToolbar]);
 
   const handleSaveEdits = useCallback(() => {
     const html = getEditedHtml();
