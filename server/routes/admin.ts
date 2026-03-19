@@ -627,10 +627,11 @@ router.post('/enrich-products', async (req: Request, res: Response) => {
       const bestLink = links[0]?.url || null;
       const supplierName = bestLink?.includes('banggood') ? 'Banggood' : 'AliExpress';
 
+      // Use 'not_found' sentinel when Tavily has no URL — prevents infinite re-processing
       await supabase
         .from('trend_signals')
         .update({
-          aliexpress_url: bestLink,
+          aliexpress_url: bestLink || 'not_found',
           supplier_name: supplierName,
           social_buzz_score: parseFloat(buzz.toFixed(4)),
         })
