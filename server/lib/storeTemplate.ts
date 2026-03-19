@@ -218,14 +218,17 @@ export function buildStoreHTML(plan: StorePlan): string {
 
   /* HERO */
   /* HERO — premium flex layout */
-  .hero { min-height: 100vh; display: flex; align-items: center; gap: 2rem; padding: 0 4rem; background: var(--color-bg, #080808); position: relative; overflow: hidden; }
-  .hero__text { flex: 1 1 45%; max-width: 520px; color: var(--color-text, #ffffff); z-index: 1; }
-  .hero__text h1 { font-family: var(--font-heading, 'Syne', sans-serif); font-size: clamp(2.2rem, 5vw, 3.5rem); line-height: 1.15; margin: 0 0 1.2rem; font-weight: 800; letter-spacing: -0.5px; }
-  .hero__text p { font-size: clamp(1rem, 2vw, 1.125rem); line-height: 1.7; margin-bottom: 2rem; opacity: 0.8; }
-  .hero__badge { color: var(--color-accent, #d4af37); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 20px; font-weight: 700; display: block; }
-  .hero__image { flex: 1 1 55%; height: 100vh; overflow: hidden; position: relative; }
+  /* P1 FIX: height not min-height so align-items:center works; image height:100% relative to parent */
+  .hero { height: 100vh; display: flex; align-items: center; background: var(--color-bg, #080808); position: relative; overflow: hidden; }
+  .hero__text { flex: 0 0 45%; max-width: 520px; color: var(--color-text, #ffffff); z-index: 1; padding: 0 4rem; display: flex; flex-direction: column; justify-content: center; }
+  .hero__text h1 { font-family: var(--font-heading, 'Syne', sans-serif); font-size: clamp(2.2rem, 5vw, 3.5rem); line-height: 1.1; margin: 0 0 1.2rem; font-weight: 800; letter-spacing: -0.5px; color: var(--color-text, #fff); }
+  .hero__text p { font-size: clamp(0.95rem, 2vw, 1.1rem); line-height: 1.7; margin-bottom: 2rem; opacity: 0.75; }
+  .hero__badge { color: var(--color-accent, #d4af37); font-size: 11px; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 18px; font-weight: 700; display: block; }
+  .hero__image { flex: 1 1 55%; height: 100%; overflow: hidden; position: relative; }
   .hero__image img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; background: #0a0a0a; }
-  .hero__image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,0.3) 0%, transparent 60%); pointer-events: none; }
+  /* P2 FIX: gradient overlay from left to mask watermarks + blend with text column */
+  .hero__image::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to right, var(--color-bg, #080808) 0%, rgba(8,8,8,0.4) 20%, transparent 50%); }
+  .hero__image::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.5) 100%); }
   .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
   .btn-primary { background: var(--color-primary); color: #fff; padding: 18px 40px; border: none; cursor: pointer; font-size: 15px; letter-spacing: 1px; border-radius: var(--border-radius, 6px); font-family: var(--font-body, sans-serif); transition: opacity 0.2s; }
   .btn-primary:hover { opacity: 0.9; }
@@ -326,10 +329,10 @@ export function buildStoreHTML(plan: StorePlan): string {
   @media (max-width: 768px) {
     .nav { padding: 0 20px; }
     .nav-links { display: none; }
-    .hero { flex-direction: column; padding: 2rem; gap: 0; }
-    .hero__text { flex: 1 1 auto; max-width: none; padding: 3rem 0 2rem; text-align: center; }
+    .hero { flex-direction: column; height: auto; min-height: 100vh; }
+    .hero__text { flex: 0 0 auto; max-width: none; padding: 3rem 2rem 2rem; text-align: center; width: 100%; }
     .hero__image { flex: 1 1 auto; width: 100%; height: 50vh; }
-    .hero__image::after { display: none; }
+    .hero__image::before, .hero__image::after { display: none; }
     .trust { grid-template-columns: repeat(2, 1fr); padding: 40px 24px; }
     .product { padding: 60px 24px; }
     .product-grid { grid-template-columns: 1fr; gap: 40px; }

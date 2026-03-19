@@ -13,6 +13,7 @@ import { requireSubscription } from '../middleware/requireSubscription';
 import { rateLimit } from './rate-limit';
 import { getTemplateHeroPhoto, getProductPhoto, buildUnsplashUrl } from './templatePhotos';
 import { getHighResPexelsUrl } from './imageUtils';
+import { getPalette, getTemplateForNiche } from './templatePalettes';
 
 // ─── Auth helper ─────────────────────────────────────────────────────────────
 async function authenticateRequest(req: any): Promise<{ userId: string; email: string } | null> {
@@ -1594,30 +1595,39 @@ async function generateFullStore_legacy(params: {
   designDirection?: DesignDirection;
   onProgress?: (pct: number, msg: string) => void;
 }): Promise<{ html: string; manifest: string }> {
-  const { niche, storeName, accentColor, price, productData, designDirection = 'default', vibe } = params;
+  const { niche, storeName, accentColor, price, productData, vibe } = params;
   const progress = params.onProgress || (() => {});
 
-  const dir = designDirection !== 'default' ? DESIGN_DIRECTIONS[designDirection as keyof typeof DESIGN_DIRECTIONS] : null;
-  const color = accentColor || '#d4af37';
-  const bgColor   = dir?.defaultBg      || '#08080f';
-  const surfColor = dir?.defaultSurface || '#0f1018';
-  const textColor = dir?.defaultText    || '#f2efe9';
-  const mutedColor= dir?.defaultMuted   || 'rgba(242,239,233,0.55)';
-  const headingFont = dir?.headingFont  || "'Syne', sans-serif";
-  const bodyFont    = dir?.bodyFont     || "'DM Sans', sans-serif";
-  const googleFontUrl = dir?.googleFonts || 'Syne:wght@400;700;800;900&family=DM+Sans:wght@400;500';
-  const h1Size      = dir?.h1Size       || 'clamp(44px,7vw,72px)';
-  const headingWeight = dir?.headingWeight || '900';
-  const cardBorder  = dir?.cardBorder   || '1px solid rgba(255,255,255,0.07)';
-  const cardRadius  = dir?.cardRadius   || '16px';
-  const btnRadius   = dir?.btnRadius    || '10px';
+  // Auto-select template from niche if not provided or default
+  const rawDirection = params.designDirection || 'default';
+  const designDirection = (rawDirection === 'default' || !rawDirection)
+    ? getTemplateForNiche(niche)
+    : rawDirection;
+
+  // Palette is fully determined by template — no user colour needed
+  const palette = getPalette(designDirection);
+  const color   = palette.primary;
+  const bgColor   = palette.bg;
+  const surfColor = palette.bgAlt;
+  const textColor = palette.text;
+  const mutedColor= palette.muted;
+  const headingFontName = palette.headingFont;
+  const bodyFontName    = palette.bodyFont;
+  const headingFont = `'${headingFontName}', sans-serif`;
+  const bodyFont    = `'${bodyFontName}', sans-serif`;
+  const googleFontUrl = `${headingFontName.replace(/ /g,'+')}:wght@300;400;600;700;900&family=${bodyFontName.replace(/ /g,'+')}:wght@300;400;500;600`;
+  const h1Size      = 'clamp(2.2rem, 5vw, 3.5rem)';
+  const headingWeight = '800';
+  const cardBorder  = `1px solid ${palette.border}`;
+  const cardRadius  = palette.borderRadius;
+  const btnRadius   = palette.borderRadius;
 
   const colorRgb = (function(hex: string) {
-    const c = hex.replace('#', '');
+    const c = (hex || '#d4af37').replace('#', '');
     return parseInt(c.substring(0,2),16)+','+parseInt(c.substring(2,4),16)+','+parseInt(c.substring(4,6),16);
   })(color);
   const storeName_ = storeName || niche;
-  const isLight = ['editorial', 'minimal'].includes(designDirection as string);
+  const isLight = ['coastal-au', 'coastal', 'bloom-beauty', 'bloom', 'minimal'].includes(designDirection);
 
   // ── 1. Unsplash images (no API key needed) ──────────────────────────────────
   progress(5, '🖼️ Fetching images...');
@@ -1714,9 +1724,7 @@ async function generateFullStore_legacy(params: {
   const f3 = briefFaq[2];
   const f4 = briefFaq[3];
 
-  // Font name extraction for planStore
-  const headingFontName = headingFont.replace(/'/g, '').replace(/, sans-serif/i, '').trim();
-  const bodyFontName    = bodyFont.replace(/'/g, '').replace(/, sans-serif/i, '').trim();
+  // headingFontName / bodyFontName already declared from palette above
 
   // ── 5. Two-stage generation: Haiku JSON plan → fixed TypeScript HTML renderer ─
   progress(40, '📋 Planning store sections...');

@@ -3232,47 +3232,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
             </div>
           </div>
 
-          {/* Colour Picker */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Brand Colour</label>
-            <div className="flex items-center gap-3">
-              <label className="relative cursor-pointer flex-shrink-0">
-                <div className="w-9 h-9 rounded-lg" style={{ background: accentColor, border: '2px solid rgba(255,255,255,0.15)', boxShadow: `0 4px 12px ${accentColor}44` }} />
-                <input type="color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
-              </label>
-              <span className="text-sm font-mono" style={{ color: 'rgba(240,237,232,0.5)' }}>{accentColor}</span>
-              <button
-                onClick={async () => {
-                  if (!niche.trim()) { toast.error('Enter a niche first'); return; }
-                  setPaletteLoading(true);
-                  try {
-                    const res = await fetch('/api/website/palette', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json', ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}) },
-                      body: JSON.stringify({ niche, brandColor: accentColor, direction: designDirection !== 'default' ? designDirection : undefined }),
-                    });
-                    if (!res.ok) throw new Error('Failed');
-                    const data = await res.json();
-                    setPalette(data);
-                  } catch { toast.error('Palette generation failed'); }
-                  finally { setPaletteLoading(false); }
-                }}
-                disabled={paletteLoading}
-                style={{ marginLeft: 'auto', padding: '6px 12px', borderRadius: 8, background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)', color: '#d4af37', fontSize: 11, fontWeight: 700, fontFamily: 'Syne, sans-serif', cursor: paletteLoading ? 'not-allowed' : 'pointer', opacity: paletteLoading ? 0.6 : 1 }}
-              >
-                {paletteLoading ? '...' : '🎨 Generate Palette'}
-              </button>
-            </div>
-            {palette && (
-              <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                {palette.swatches.map((s: string, i: number) => (
-                  <button key={i} onClick={() => setAccentColor(s)} title={s}
-                    style={{ width: 28, height: 28, borderRadius: 6, background: s, border: accentColor === s ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', flexShrink: 0 }} />
-                ))}
-                {palette.rationale && <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)', marginLeft: 4 }}>{palette.rationale}</span>}
-              </div>
-            )}
-          </div>
+          {/* Brand colour is auto-determined by template — no picker needed */}
 
           {/* Platform */}
           <div>
