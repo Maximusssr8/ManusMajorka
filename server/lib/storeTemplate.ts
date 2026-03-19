@@ -220,12 +220,21 @@ details>summary::-webkit-details-marker{display:none}
 html{scroll-behavior:smooth}
 .hero__img-wrap img,.product-img-wrap img,.t-card,.trust-item,.how-step{
   border-radius:var(--radius);
-  transition:transform .18s var(--ease),box-shadow .18s var(--ease);
+  will-change:transform,box-shadow;
+  transition:transform .25s ease,box-shadow .25s ease;
+}
+/* Antigravity multi-layer resting shadow */
+.t-card,.trust-item{
+  box-shadow:0 2px 4px rgba(0,0,0,.08),0 8px 16px rgba(0,0,0,.06),0 24px 40px rgba(0,0,0,.04);
 }
 .t-card:hover,.trust-item:hover{
-  transform:translateY(-3px);
-  box-shadow:0 8px 24px rgba(0,0,0,.15);
+  transform:translateY(-6px);
+  box-shadow:0 4px 8px rgba(0,0,0,.12),0 12px 24px rgba(0,0,0,.09),0 30px 48px rgba(0,0,0,.06);
 }
+/* Staggered entrance for testimonial cards */
+.t-card:nth-child(1){animation-delay:0s}
+.t-card:nth-child(2){animation-delay:.12s}
+.t-card:nth-child(3){animation-delay:.24s}
 .btn-p,.btn-o,.btn-cart,.btn-now,.nav-cta{
   transition:transform .15s var(--ease),box-shadow .15s var(--ease),opacity .15s,filter .15s;
 }
@@ -319,8 +328,7 @@ body{font-family:var(--font-b);background:var(--bg);color:var(--text);-webkit-fo
 .section-label{color:var(--primary);font-size:10.5px;letter-spacing:4px;font-weight:700;text-transform:uppercase;margin-bottom:10px;text-align:center}
 .section-heading{font-family:var(--font-h);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;color:${isLight?tk.trustText:tk.text};text-align:center;margin-bottom:52px}
 .t-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;max-width:1200px;margin:0 auto}
-.t-card{background:${tk.testimonialCard};border-left:3px solid ${tk.testimonialBorder};border-radius:var(--radius);padding:28px;animation:fadeUp .5s var(--ease) both;transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
-.t-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.12)}
+.t-card{background:${tk.testimonialCard};border-left:3px solid ${tk.testimonialBorder};border-radius:var(--radius);padding:28px;animation:fadeUp .5s var(--ease) both}
 .t-stars{color:var(--primary);font-size:16px;margin-bottom:14px}
 .t-text{color:${tk.testimonialText};font-size:14.5px;line-height:1.7;font-style:italic;margin-bottom:18px}
 .t-name{font-weight:700;font-size:13.5px;color:${tk.testimonialText}}

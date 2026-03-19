@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { requireAuth } from '../middleware/requireAuth';
+import { requireAdmin as requireAdminMiddleware } from '../middleware/requireAdmin';
 import { createClient } from '@supabase/supabase-js';
 import { findSupplierLinks, findTrendingBuzz } from '../lib/tavilySupplier';
 
@@ -11,15 +12,8 @@ function getSupabase() {
   return createClient(url, key);
 }
 
-// Admin middleware
-function requireAdmin(req: Request, res: Response, next: Function) {
-  const email = (req as any).user?.email || '';
-  if (email !== 'maximusmajorka@gmail.com') {
-    res.status(403).json({ error: 'Admin access required' });
-    return;
-  }
-  next();
-}
+// Admin middleware — delegates to shared requireAdmin middleware
+const requireAdmin = requireAdminMiddleware;
 
 // GET /api/admin/users — list all users with subscription info
 router.get('/users', requireAuth, requireAdmin, async (req: Request, res: Response) => {
@@ -656,16 +650,11 @@ router.post('/run-supplier-migration', async (req: Request, res: Response) => {
   const token = authHeader.replace('Bearer ', '').trim();
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
   if (token !== serviceKey) {
-    // Fall back to user auth check
-    const { requireAuth: ra } = await import('../middleware/requireAuth');
-    // Check user auth inline
-    try {
-      const { authenticateRequest } = await import('../lib/auth');
-      const user = await authenticateRequest(req);
-      if (!user || user.email !== 'maximusmajorka@gmail.com') {
-        res.status(403).json({ error: 'Admin only' }); return;
-      }
-    } catch { res.status(401).json({ error: 'Unauthorized' }); return; }
+    // Service role key not matched — check user is admin via requireAdmin middleware pattern
+    const email: string = (req as any).user?.email || '';
+    if (email !== 'maximusmajorka@gmail.com') {
+      res.status(403).json({ error: 'Admin only' }); return;
+    }
   }
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) { res.status(500).json({ error: 'DATABASE_URL not set in Vercel env' }); return; }

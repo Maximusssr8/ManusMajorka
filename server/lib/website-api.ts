@@ -1654,15 +1654,39 @@ async function generateFullStore_legacy(params: {
   const shopImages   = imgs.shopImages;
   console.log(`[website-api] heroImg: ${heroImg.slice(0, 80)} | productImg: ${productImg.slice(0, 80)}`);
 
-  // ── 2. Expand brand brief (fast Haiku) ─────────────────────────────────────
+  // ── 2. Expand brand brief + plan store IN PARALLEL (cuts worst-case from 42s to 22s) ─
   progress(20, '📝 Generating brand plan...');
-  console.log('[brand-plan] Starting expandStoreBrief:', { storeName: storeName_, niche, designDirection });
+  console.log('[brand-plan] Starting expandStoreBrief + planStore in parallel:', { storeName: storeName_, niche, designDirection });
+
+  // Fire both Haiku calls concurrently — planStore uses niche/product context; brief enriches it after
+  const briefRace = Promise.race([
+    expandStoreBrief({ niche, storeName: storeName_, accentColor: color, designDirection, productData: pd }),
+    new Promise<never>((_, rej) => setTimeout(() => rej(new Error('expandStoreBrief timeout 20s')), 20000)),
+  ]);
+  const planRace = Promise.race([
+    planStore({
+      niche,
+      storeName: storeName_,
+      price: displayPrice,
+      accentColor: color,
+      designDirection: designDirection as string,
+      productData: pd,
+      heroImageUrl: heroImg,
+      productImageUrl: productImg,
+      headingFontName,
+      bodyFontName,
+    }),
+    new Promise<never>((_, rej) => setTimeout(() => rej(new Error('planStore timeout 22s')), 22000)),
+  ]);
+
+  progress(30, '⚡ Running AI generation in parallel...');
+  const [briefResult, planResult] = await Promise.allSettled([briefRace, planRace]);
+  console.log('[parallel] brief:', briefResult.status, '| plan:', planResult.status);
+
   let brief: Record<string, any>;
   try {
-    brief = await Promise.race([
-      expandStoreBrief({ niche, storeName: storeName_, accentColor: color, designDirection, productData: pd }),
-      new Promise<never>((_, rej) => setTimeout(() => rej(new Error('expandStoreBrief timeout 20s')), 20000)),
-    ]);
+    if (briefResult.status === 'rejected') throw briefResult.reason;
+    brief = briefResult.value as Record<string, any>;
     console.log('[brand-plan] expandStoreBrief OK:', brief.brandName);
   } catch (briefErr: any) {
     console.error('[brand-plan] expandStoreBrief FAILED:', briefErr.message);
@@ -1753,27 +1777,13 @@ async function generateFullStore_legacy(params: {
 
   // headingFontName / bodyFontName already declared from palette above
 
-  // ── 5. Two-stage generation: Haiku JSON plan → fixed TypeScript HTML renderer ─
-  progress(40, '📋 Planning store sections...');
+  // ── 5. Use parallel planStore result (already settled above) ─────────────────
+  progress(55, '📋 Assembling store plan...');
   let storePlan: StorePlan;
   try {
-    console.log('[plan-store] Starting planStore:', { storeName: storeName_, niche, designDirection, displayPrice });
-    storePlan = await Promise.race([
-      planStore({
-        niche,
-        storeName: storeName_,
-        price: displayPrice,
-        accentColor: color,
-        designDirection: designDirection as string,
-        productData: pd,
-        heroImageUrl: heroImg,
-        productImageUrl: productImg,
-        headingFontName,
-        bodyFontName,
-      }),
-      new Promise<never>((_, rej) => setTimeout(() => rej(new Error('planStore timeout 22s')), 22000)),
-    ]);
-    console.log('[plan-store] planStore OK:', { storeName: storePlan.storeName, heroHeadline: storePlan.heroHeadline });
+    if (planResult.status === 'rejected') throw planResult.reason;
+    storePlan = planResult.value as StorePlan;
+    console.log('[plan-store] planStore OK (parallel):', { storeName: storePlan.storeName, heroHeadline: storePlan.heroHeadline });
   } catch (planErr: any) {
     console.error('[website-api] planStore failed, falling back to brief:', planErr.message);
     storePlan = {
