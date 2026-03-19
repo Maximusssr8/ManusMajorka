@@ -682,14 +682,14 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
                   {/* Supplier */}
                   <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                    {(p as any).aliexpress_url ? (
+                    {(p as any).aliexpress_url && (p as any).aliexpress_url !== 'not_found' ? (
                       <a href={(p as any).aliexpress_url} target="_blank" rel="noopener noreferrer"
                         style={{ color: '#d4af37', fontSize: 11, fontWeight: 700, textDecoration: 'none', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap' }}
                         onClick={e => e.stopPropagation()}>
                         View Source →
                       </a>
                     ) : (
-                      <span style={{ color: 'rgba(240,237,232,0.2)', fontSize: 11 }}>Pending</span>
+                      <span style={{ color: 'rgba(240,237,232,0.2)', fontSize: 11 }}>—</span>
                     )}
                   </td>
 

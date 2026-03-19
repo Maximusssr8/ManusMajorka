@@ -656,6 +656,79 @@ router.post('/enrich-products', async (req: Request, res: Response) => {
 });
 
 
+// POST /api/admin/scrape-aliexpress — scrape real data from 39 products with AliExpress URLs
+router.post('/scrape-aliexpress', async (req: Request, res: Response) => {
+  // Accept service role key OR admin JWT (same pattern as enrich-products)
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
+  const isServiceKey = serviceKey && token === serviceKey;
+  if (!isServiceKey) {
+    try {
+      const parts = token.split('.');
+      const b64 = parts[1]?.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil((parts[1]?.length || 0) / 4) * 4, '=');
+      const payload = JSON.parse(Buffer.from(b64, 'base64').toString('utf8'));
+      const email: string = payload.email || payload.user_metadata?.email || '';
+      if (email !== 'maximusmajorka@gmail.com') { res.status(403).json({ error: 'Admin only' }); return; }
+    } catch { res.status(401).json({ error: 'unauthorized' }); return; }
+  }
+
+  const { scrapeAliExpressProduct } = await import('../lib/scrapeAliExpressProduct');
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
+  const { limit = 5 } = req.body || {};
+
+  // Get products with real AliExpress URLs (not null, not not_found)
+  const { data: products, error } = await supabase
+    .from('trend_signals')
+    .select('id, name, aliexpress_url, image_url')
+    .not('aliexpress_url', 'is', null)
+    .neq('aliexpress_url', 'not_found')
+    .limit(Math.min(20, Number(limit) || 5));
+
+  if (error) { res.status(500).json({ error: error.message }); return; }
+  if (!products?.length) { res.json({ scraped: 0, total: 0, message: 'No products with AliExpress URLs found' }); return; }
+
+  console.log('[scrape-ae] Starting scrape for', products.length, 'products');
+  const results: { name: string; success: boolean; title: string | null; priceUsd: number | null; imageCount: number }[] = [];
+  let scraped = 0;
+
+  for (const product of products) {
+    try {
+      const data = await scrapeAliExpressProduct(product.aliexpress_url);
+      if (data) {
+        const updates: Record<string, any> = {};
+        // Update title if we got a better one
+        if (data.title && data.title.length > 5) updates.name = data.title.slice(0, 200);
+        // Update image with first real AliExpress image (better quality than Pexels for product accuracy)
+        if (data.images[0]) updates.image_url = data.images[0];
+        // Store price, rating, orders
+        if (data.priceUsd) updates.price_usd = data.priceUsd;
+        if (data.rating) updates.rating = data.rating;
+        if (data.orders) updates.orders_count = data.orders;
+
+        if (Object.keys(updates).length) {
+          await supabase.from('trend_signals').update(updates).eq('id', product.id);
+        }
+        results.push({ name: product.name, success: true, title: data.title, priceUsd: data.priceUsd, imageCount: data.images.length });
+        scraped++;
+      } else {
+        results.push({ name: product.name, success: false, title: null, priceUsd: null, imageCount: 0 });
+      }
+      // ZenRows rate limit: ~2 req/s on premium — 2s gap is safe
+      await new Promise(r => setTimeout(r, 2000));
+    } catch (err: any) {
+      console.error('[scrape-ae] Error for', product.name, err.message);
+      results.push({ name: product.name, success: false, title: null, priceUsd: null, imageCount: 0 });
+    }
+  }
+
+  res.json({ scraped, total: products.length, message: `Scraped ${scraped} of ${products.length} products`, results });
+});
+
+
 // GET /api/admin/setup-supplier-tables — returns SQL for aliexpress_products + trend_signals columns
 router.get('/setup-supplier-tables', requireAuth, requireAdmin, (req: Request, res: Response) => {
   const sql = `

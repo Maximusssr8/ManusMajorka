@@ -674,14 +674,14 @@ export default function TrendSignals() {
 
                     {/* Supplier */}
                     <td style={{ padding: '8px 12px', textAlign: 'center' }}>
-                      {(p as any).aliexpress_url ? (
+                      {(p as any).aliexpress_url && (p as any).aliexpress_url !== 'not_found' ? (
                         <a href={(p as any).aliexpress_url} target="_blank" rel="noopener noreferrer"
                           style={{ color: C.gold, fontSize: 11, fontWeight: 700, textDecoration: 'none', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap' }}
                           onClick={e => e.stopPropagation()}>
                           View Source →
                         </a>
                       ) : (
-                        <span style={{ color: C.muted, fontSize: 11, opacity: 0.5 }}>Pending</span>
+                        <span style={{ color: C.muted, fontSize: 11, opacity: 0.5 }}>—</span>
                       )}
                     </td>
 

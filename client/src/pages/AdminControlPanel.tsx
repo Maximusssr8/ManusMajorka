@@ -422,6 +422,21 @@ function HealthTab() {
         >
           🔧 Run Migration
         </button>
+        <button
+          onClick={async () => {
+            const n = prompt('How many products to scrape? (max 20, default 5)', '5');
+            if (n === null) return;
+            try {
+              const data = await apiCall('/scrape-aliexpress', { method: 'POST', body: JSON.stringify({ limit: parseInt(n) || 5 }) });
+              alert(`${data.message || 'Done!'}\n\n${data.results?.map((r: any) => `${r.success ? '✅' : '❌'} ${r.name.slice(0,35)} | $${r.priceUsd ?? '?'} | ${r.imageCount} imgs`).join('\n') || JSON.stringify(data)}`);
+            } catch (e: any) {
+              alert('Error: ' + e.message);
+            }
+          }}
+          style={{ marginLeft: 8, padding: '9px 16px', background: '#1a1a1a', color: '#7dd3fc', border: '1px solid #1e3a5f', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
+        >
+          🔍 Scrape AliExpress
+        </button>
       </div>
     </div>
   );
