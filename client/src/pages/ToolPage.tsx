@@ -136,6 +136,7 @@ export default function ToolPage() {
     '/app/suppliers',
     '/app/saturation-checker',
     '/app/website-generator',
+    '/app/store-builder',
     '/app/profit-calculator',
   ]);
 
@@ -168,7 +169,7 @@ export default function ToolPage() {
   if (location === '/app/profit') return page(<ProfitSuppliers />);
 
   // Route dedicated tool pages
-  if (location === '/app/website-generator') return page(<WebsiteGenerator />);
+  if (location === '/app/website-generator' || location === '/app/store-builder') return page(<WebsiteGenerator />);
   if (location === '/app/meta-ads') return page(<MetaAdsPack />);
   if (location === '/app/brand-dna') return page(<BrandDNA />);
   if (location === '/app/market-intel') return page(<MarketIntelligence />);

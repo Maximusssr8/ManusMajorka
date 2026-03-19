@@ -1389,7 +1389,10 @@ Be specific, opinionated, use AUD figures.`;
                 🎯 Generate Meta Ads
               </button>
               <button
-                onClick={() => { window.location.href = `/app/website-generator?productName=${encodeURIComponent(product.product_title)}&niche=${encodeURIComponent(product.category ?? '')}&price=${product.price_aud ?? ''}&imageUrl=${encodeURIComponent(product.image_url || '')}&fromDatabase=true`; }}
+                onClick={() => {
+                  const p = new URLSearchParams({ productName: product.product_title || '', niche: product.category || '', price: String(product.price_aud || 49), imageUrl: product.image_url || '', fromDatabase: 'true' });
+                  window.location.href = `/app/store-builder?${p}`;
+                }}
                 style={{ flex: '1 1 100px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '9px 12px', borderRadius: 10, background: C.goldBg, border: `1px solid ${C.goldBorder}`, color: C.gold, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
               >
                 🏪 Build Store
@@ -1474,7 +1477,7 @@ Be specific, opinionated, use AUD figures.`;
               Run Ads
             </a>
             <a
-              href={`/app/website-generator?productName=${encodeURIComponent(product.product_title)}&niche=${encodeURIComponent(product.category ?? '')}&price=${product.price_aud ?? ''}&imageUrl=${encodeURIComponent(product.image_url || '')}&fromDatabase=true`}
+              href={`/app/store-builder?${new URLSearchParams({ productName: product.product_title || '', niche: product.category || '', price: String(product.price_aud || 49), imageUrl: product.image_url || '', fromDatabase: 'true' })}`}
               style={{
                 flex: 1,
                 display: 'flex',
@@ -1790,7 +1793,7 @@ function FullReportModal({
           {/* CTAs */}
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <a
-              href={`/app/website-generator?productName=${encodeURIComponent(product.product_title)}&niche=${encodeURIComponent(product.category ?? '')}&price=${product.price_aud ?? ''}&imageUrl=${encodeURIComponent(product.image_url || '')}&fromDatabase=true`}
+              href={`/app/store-builder?${new URLSearchParams({ productName: product.product_title || '', niche: product.category || '', price: String(product.price_aud || 49), imageUrl: product.image_url || '', fromDatabase: 'true' })}`}
               style={{ flex: 1, minWidth: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '14px 20px', borderRadius: 14, background: C.gold, border: 'none', color: '#000', fontSize: 14, fontWeight: 800, textDecoration: 'none', fontFamily: 'Syne, sans-serif' }}
             >
               🚀 Build Store →

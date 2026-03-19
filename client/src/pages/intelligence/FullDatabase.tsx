@@ -170,14 +170,14 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
   function handleBuildStore(p: Product) {
     const params = new URLSearchParams({
-      productName: encodeURIComponent(p.name || ''),
-      niche: encodeURIComponent(p.niche || ''),
+      productName: p.name || '',
+      niche: p.niche || '',
       price: String(p.estimated_retail_aud || 49),
-      description: encodeURIComponent(p.trend_reason || ''),
-      imageUrl: encodeURIComponent(p.image_url || ''),
+      description: p.trend_reason || '',
+      imageUrl: p.image_url || '',
       fromDatabase: 'true',
     });
-    navigate(`/app/website-generator?${params}`);
+    navigate(`/app/store-builder?${params}`);
   }
 
   function handleFindSupplier(p: Product) {
@@ -502,7 +502,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           ⚡ Found a winner? Build a complete Shopify store in 60 seconds — only on Majorka
         </span>
         <button
-          onClick={() => navigate('/app/website-generator')}
+          onClick={() => navigate('/app/store-builder')}
           style={{
             background: '#d4af37', color: '#080a0e', border: 'none',
             padding: '8px 16px', borderRadius: 6, fontSize: 12, fontWeight: 700,

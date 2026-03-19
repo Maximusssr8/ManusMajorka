@@ -677,14 +677,14 @@ export default function TrendSignals() {
                         <button
                           onClick={() => {
                             const params = new URLSearchParams({
-                              productName: encodeURIComponent(p.name || ''),
-                              niche: encodeURIComponent(p.niche || ''),
+                              productName: p.name || '',
+                              niche: p.niche || '',
                               price: String(p.estimated_retail_aud || 49),
-                              description: encodeURIComponent(p.trend_reason || ''),
-                              imageUrl: encodeURIComponent((p as any).image_url || ''),
+                              description: p.trend_reason || '',
+                              imageUrl: (p as any).image_url || '',
                               fromDatabase: 'true',
                             });
-                            navigate(`/app/website-generator?${params.toString()}`);
+                            navigate(`/app/store-builder?${params.toString()}`);
                           }}
                           style={{
                             display: 'flex', alignItems: 'center', gap: 4,
@@ -754,14 +754,14 @@ export default function TrendSignals() {
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={() => {
                     const params = new URLSearchParams({
-                      productName: encodeURIComponent(p.name || ''),
-                      niche: encodeURIComponent(p.niche || ''),
+                      productName: p.name || '',
+                      niche: p.niche || '',
                       price: String(p.estimated_retail_aud || 49),
-                      description: encodeURIComponent(p.trend_reason || ''),
-                      imageUrl: encodeURIComponent((p as any).image_url || ''),
+                      description: p.trend_reason || '',
+                      imageUrl: (p as any).image_url || '',
                       fromDatabase: 'true',
                     });
-                    navigate(`/app/website-generator?${params.toString()}`);
+                    navigate(`/app/store-builder?${params.toString()}`);
                   }}
                   style={{ flex: 1, padding: '9px', background: C.gold, color: '#080a0e', border: 'none', borderRadius: 7, fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}>
                   Build Store →

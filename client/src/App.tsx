@@ -205,7 +205,7 @@ function Router() {
             {/* Redirects for consolidated pages */}
             <Route path="/app/trend-signals">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/winning-products">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
-            <Route path="/app/store-builder">{() => { window.location.replace('/app/website-generator' + window.location.search); return null; }}</Route>
+            {/* Both routes render WebsiteGenerator — ToolPage handles both via location check */}
             <Route path="/app/product-discovery">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/market">{() => { window.location.replace('/app/spy'); return null; }}</Route>
             <Route path="/app/creators">{() => { window.location.replace('/app/spy'); return null; }}</Route>
