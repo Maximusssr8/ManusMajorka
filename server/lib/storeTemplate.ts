@@ -157,10 +157,10 @@ export function buildStoreHTML(plan: StorePlan): string {
       </div>
     </div>`).join('');
 
-  const faqHtml = (faqItems||[]).slice(0,4).map(f=>`
-    <details class="faq-item">
+  const faqHtml = (faqItems||[]).slice(0,4).map((f,i)=>`
+    <details class="faq-item"${i===0?' open':''}>
       <summary class="faq-q">${esc(f.q)}</summary>
-      <p class="faq-a">${esc(f.a)}</p>
+      <div class="faq-a">${esc(f.a)}</div>
     </details>`).join('');
 
   const howHtml = (howItWorks||[]).slice(0,3).map(h=>`
@@ -339,6 +339,9 @@ body{font-family:var(--font-b);background:var(--bg);color:var(--text);-webkit-fo
 .faq-q{font-family:var(--font-h);font-size:15.5px;font-weight:700;color:${tk.faqText};padding:22px 0 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
 .faq-q::after{content:"＋";font-size:18px;color:var(--primary);transition:transform .25s var(--ease);flex-shrink:0}
 details[open]>.faq-q::after{transform:rotate(45deg)}
+.faq-a{padding:0 0 20px;color:${isLight?'rgba(0,0,0,.55)':'rgba(255,255,255,.55)'};font-size:14.5px;line-height:1.75;animation:faqFade .2s var(--ease)}
+@keyframes faqFade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+details[open]>.faq-q::after{transform:rotate(45deg)}
 .faq-a{font-size:14.5px;line-height:1.75;color:${isLight?'rgba(0,0,0,.55)':'rgba(255,255,255,.55)'};padding-bottom:22px}
 
 /* ── Footer ─────────────────────────────── */
@@ -381,7 +384,7 @@ details[open]>.faq-q::after{transform:rotate(45deg)}
 </head>
 <body>
 
-<div class="announce">🚚 Free AU Shipping Over $75 &nbsp;·&nbsp; Afterpay Available &nbsp;·&nbsp; 30-Day Returns</div>
+<div class="announce">🚚 Free AU Shipping Over $75 &nbsp;·&nbsp; Afterpay Available &nbsp;·&nbsp; Sale ends in: <span id="cdown" style="font-weight:900;letter-spacing:1px;"></span></div>
 
 <nav class="nav">
   <div class="nav-logo">${esc(storeName)}</div>
@@ -579,9 +582,60 @@ document.getElementById('cart-modal').addEventListener('click', function(e) {
 });
 
 // Wire all CTA buttons
-document.querySelectorAll('.btn-cart, .btn-p, .btn-now, .nav-cta, .btn-primary, .btn-buynow').forEach(btn => {
+document.querySelectorAll('.btn-cart, .btn-p, .btn-now, .btn-primary, .btn-buynow').forEach(btn => {
   btn.addEventListener('click', openCart);
 });
+// Nav CTA (Shop Now) → scroll to product, not open cart
+document.querySelectorAll('.nav-cta').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.querySelector('.product')?.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+
+<!-- STICKY MOBILE BUY BAR -->
+<div id="sticky-buy" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--primary,#111);padding:14px 20px;z-index:998;align-items:center;justify-content:space-between;box-shadow:0 -4px 20px rgba(0,0,0,.3);">
+  <div>
+    <div style="color:#fff;font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw;" id="sticky-name"></div>
+    <div style="color:rgba(255,255,255,.75);font-size:12px;margin-top:1px;" id="sticky-price"></div>
+  </div>
+  <button onclick="openCart()" style="background:#fff;color:var(--primary,#111);border:none;padding:11px 22px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;flex-shrink:0;transition:filter .15s;" onmouseover="this.style.filter='brightness(.95)'" onmouseout="this.style.filter=''">Buy Now</button>
+</div>
+
+<script>
+// Countdown to midnight AEST
+(function() {
+  function updateCountdown() {
+    var now = new Date();
+    var aest = new Date(now.toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }));
+    var midnight = new Date(aest); midnight.setHours(24,0,0,0);
+    var diff = midnight - aest;
+    var h = Math.floor(diff/3600000);
+    var m = Math.floor((diff%3600000)/60000);
+    var s = Math.floor((diff%60000)/1000);
+    var el = document.getElementById('cdown');
+    if (el) el.textContent = h + 'h ' + (m<10?'0':'')+m + 'm ' + (s<10?'0':'')+s + 's';
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+})();
+
+// Sticky bar
+(function() {
+  var bar = document.getElementById('sticky-buy');
+  var sn = document.getElementById('sticky-name');
+  var sp = document.getElementById('sticky-price');
+  if (sn) sn.textContent = _pName;
+  if (sp) sp.textContent = '$' + _pPrice.toFixed(2) + ' AUD';
+  if (window.innerWidth < 768) {
+    var hero = document.querySelector('.hero');
+    window.addEventListener('scroll', function() {
+      var rect = hero ? hero.getBoundingClientRect() : null;
+      bar.style.display = (!rect || rect.bottom < 0) ? 'flex' : 'none';
+    }, { passive: true });
+  }
+})();
 </script>
 </body>
 </html>`;
