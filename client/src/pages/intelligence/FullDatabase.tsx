@@ -176,6 +176,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       description: p.trend_reason || '',
       imageUrl: p.image_url || '',
       fromDatabase: 'true',
+      supplierUrl: (p as any).aliexpress_url || (p as any).source_url || '',
+      supplierName: (p as any).supplier_name || 'AliExpress',
     });
     navigate(`/app/store-builder?${params}`);
   }

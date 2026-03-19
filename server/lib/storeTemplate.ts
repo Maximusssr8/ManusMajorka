@@ -143,6 +143,8 @@ export function buildStoreHTML(plan: StorePlan): string {
   const rgb = colorRgb(tk.primary);
   const isLight = ['coastal','bloom','beauty','minimal'].some(x => (template||'').toLowerCase().includes(x));
   const onerror = `this.onerror=null;this.parentElement.style.background='linear-gradient(135deg,rgba(${rgb},0.25),${tk.surface})';this.style.display='none'`;
+  // Debug log for Vercel
+  console.log('[store-template] heroImageUrl:', heroImageUrl?.slice(0,80), '| productImageUrl:', productImageUrl?.slice(0,80));
 
   const googleFontsUrl = `https://fonts.googleapis.com/css2?family=${tk.googleFonts}&display=swap`;
 
@@ -405,7 +407,13 @@ details[open]>.faq-q::after{transform:rotate(45deg)}
     </div>
   </div>
   <div class="hero__img-wrap">
-    <img src="${heroImageUrl || productImageUrl}" alt="${esc(storeName)}" onerror="${onerror}">
+    <img src="${heroImageUrl || productImageUrl}"
+      alt="${esc(storeName)}"
+      crossorigin="anonymous"
+      style="opacity:0;transition:opacity .35s ease;width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:${tk.surface}"
+      onload="this.style.opacity='1'"
+      onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,${tk.primary} 0%,${tk.surface} 100%)';var fb=document.createElement('div');fb.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center;';fb.innerHTML='<div style=\'text-align:center;color:rgba(255,255,255,0.25)\'><div style=\'font-size:56px;margin-bottom:12px\'>📦</div><div style=\'font-size:12px;letter-spacing:3px;text-transform:uppercase\'>Product Image</div></div>';this.parentElement.appendChild(fb);"
+    >
   </div>
 </section>
 
@@ -607,15 +615,23 @@ document.querySelectorAll('.nav-cta').forEach(btn => {
 // Countdown to midnight AEST
 (function() {
   function updateCountdown() {
-    var now = new Date();
-    var aest = new Date(now.toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }));
-    var midnight = new Date(aest); midnight.setHours(24,0,0,0);
-    var diff = midnight - aest;
-    var h = Math.floor(diff/3600000);
-    var m = Math.floor((diff%3600000)/60000);
-    var s = Math.floor((diff%60000)/1000);
-    var el = document.getElementById('cdown');
-    if (el) el.textContent = h + 'h ' + (m<10?'0':'')+m + 'm ' + (s<10?'0':'')+s + 's';
+    try {
+      var now = new Date();
+      var utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+      var aestMs = utcMs + (10 * 3600000);
+      var aest = new Date(aestMs);
+      var midnight = new Date(aest); midnight.setHours(24,0,0,0);
+      var diff = midnight.getTime() - aest.getTime();
+      if (diff < 0 || isNaN(diff)) { diff = 86400000; }
+      var h = Math.floor(diff/3600000);
+      var m = Math.floor((diff%3600000)/60000);
+      var s = Math.floor((diff%60000)/1000);
+      var el = document.getElementById('cdown');
+      if (el) el.textContent = h + 'h ' + (m<10?'0':'')+m + 'm ' + (s<10?'0':'')+s + 's';
+    } catch(e) {
+      var el = document.getElementById('cdown');
+      if (el) el.closest('.announce') && (el.closest('.announce').style.display='none');
+    }
   }
   updateCountdown();
   setInterval(updateCountdown, 1000);

@@ -12,6 +12,8 @@ export interface StoreBuilderParams {
   imageUrl: string;
   description: string;
   fromDatabase: boolean;
+  supplierUrl: string;
+  supplierName: string;
 }
 
 function sd(raw: string | null): string {
@@ -34,6 +36,8 @@ export function useStoreBuilderParams(): StoreBuilderParams {
       imageUrl: sd(params.get('imageUrl')),
       description: sd(params.get('description')),
       fromDatabase,
+      supplierUrl: sd(params.get('supplierUrl')),
+      supplierName: sd(params.get('supplierName')) || 'AliExpress',
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 }

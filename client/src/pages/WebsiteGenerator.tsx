@@ -1427,6 +1427,8 @@ export default function WebsiteGenerator() {
     imageUrl: urlImageUrl,
     description: urlDescription,
     fromDatabase,
+    supplierUrl: urlSupplierUrl,
+    supplierName: urlSupplierName,
   } = useStoreBuilderParams();
   const hasAutoTriggered = useRef(false);
 
@@ -3306,6 +3308,25 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               >
                 ×
               </button>
+            </div>
+          )}
+
+          {/* Supplier panel — shows when arriving from Intelligence with supplier URL */}
+          {urlSupplierUrl && (
+            <div style={{ background: '#0a0a0a', border: '1px solid #1e1e1e', borderRadius: 8, padding: 16, marginBottom: 4 }}>
+              <div style={{ fontSize: 10, letterSpacing: '2px', color: 'rgba(240,237,232,0.3)', marginBottom: 8, fontFamily: 'Syne, sans-serif', fontWeight: 700, textTransform: 'uppercase' as const }}>
+                Supplier &amp; Fulfilment
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                <div>
+                  <div style={{ color: '#f0ede8', fontSize: 14, fontWeight: 600 }}>{urlSupplierName || 'AliExpress'}</div>
+                  <div style={{ color: 'rgba(240,237,232,0.35)', fontSize: 12, marginTop: 2 }}>Source · dropship · fulfil orders</div>
+                </div>
+                <a href={urlSupplierUrl} target="_blank" rel="noopener noreferrer"
+                  style={{ background: '#d4af37', color: '#080a0e', padding: '7px 14px', borderRadius: 6, fontSize: 11, fontWeight: 700, textDecoration: 'none', letterSpacing: '0.5px', whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
+                  View Supplier →
+                </a>
+              </div>
             </div>
           )}
 
