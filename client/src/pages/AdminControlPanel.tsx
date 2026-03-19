@@ -346,6 +346,7 @@ function HealthTab() {
   const [health, setHealth] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [enriching, setEnriching] = useState(false);
+  const [scrapingReal, setScrapingReal] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -436,6 +437,28 @@ function HealthTab() {
           style={{ marginLeft: 8, padding: '9px 16px', background: '#1a1a1a', color: '#7dd3fc', border: '1px solid #1e3a5f', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
         >
           🔍 Scrape AliExpress
+        </button>
+        <button
+          onClick={async () => {
+            try {
+              setScrapingReal(true);
+              // apiCall already parses JSON — no .json() needed
+              const data = await apiCall('/scrape-real-data', { method: 'POST' });
+              if (data.sql) {
+                alert(`Run this SQL in Supabase first:\n\n${data.sql}`);
+              } else {
+                alert(`${data.message || 'Done!'}\nScraped: ${data.scraped ?? '?'} / ${data.total ?? '?'} products`);
+              }
+            } catch (e: any) {
+              alert('Error: ' + e.message);
+            } finally {
+              setScrapingReal(false);
+            }
+          }}
+          disabled={scrapingReal}
+          style={{ marginLeft: 8, padding: '9px 16px', background: '#2a9d8f', color: '#fff', border: 'none', borderRadius: 6, cursor: scrapingReal ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: scrapingReal ? 0.7 : 1 }}
+        >
+          {scrapingReal ? 'Scraping…' : '🔍 Scrape Real Data'}
         </button>
       </div>
     </div>

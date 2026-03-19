@@ -729,6 +729,90 @@ router.post('/scrape-aliexpress', async (req: Request, res: Response) => {
 });
 
 
+// POST /api/admin/scrape-real-data — scrape real AliExpress data, track with real_data_scraped column
+router.post('/scrape-real-data', async (req: Request, res: Response) => {
+  // Inline auth: accept service role key OR admin JWT
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+  if (!token) { res.status(401).json({ error: 'No token' }); return; }
+
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
+  const isServiceKey = serviceKey && token === serviceKey;
+  if (!isServiceKey) {
+    try {
+      const parts = token.split('.');
+      const b64 = parts[1]?.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil((parts[1]?.length || 0) / 4) * 4, '=');
+      const payload = JSON.parse(Buffer.from(b64, 'base64').toString('utf8'));
+      const email: string = payload.email || payload.user_metadata?.email || '';
+      if (email !== 'maximusmajorka@gmail.com') { res.status(403).json({ error: 'Admin only' }); return; }
+    } catch { res.status(401).json({ error: 'Invalid token' }); return; }
+  }
+
+  const { scrapeAliExpressProduct } = await import('../lib/scrapeAliExpressProduct');
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
+  // Get unscraped products with real AliExpress URLs
+  const { data: products, error } = await supabase
+    .from('trend_signals')
+    .select('id, name, aliexpress_url')
+    .not('aliexpress_url', 'is', null)
+    .neq('aliexpress_url', 'not_found')
+    .or('real_data_scraped.is.null,real_data_scraped.eq.false')
+    .limit(10);
+
+  if (error) {
+    // Column might not exist yet — tell Max to run the SQL
+    if (error.message.includes('real_data_scraped')) {
+      res.status(500).json({
+        error: 'real_data_scraped column missing',
+        sql: 'ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS real_data_scraped BOOLEAN DEFAULT false; ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS scrape_images TEXT[] DEFAULT \'{}\';',
+      });
+      return;
+    }
+    res.status(500).json({ error: error.message }); return;
+  }
+
+  if (!products?.length) {
+    res.json({ scraped: 0, total: 0, message: 'All products scraped ✅' }); return;
+  }
+
+  console.log('[scrape-real] Starting for', products.length, 'products');
+  let scraped = 0;
+
+  for (const product of products) {
+    try {
+      const data = await scrapeAliExpressProduct(product.aliexpress_url);
+
+      if (data && (data.images.length > 0 || data.title)) {
+        const updates: Record<string, any> = {
+          real_data_scraped: true,
+          scrape_images: data.images,
+        };
+        if (data.title && data.title.length > 5) updates.name = data.title.slice(0, 200);
+        if (data.images[0]) updates.image_url = data.images[0];
+        if (data.priceUsd) updates.estimated_retail_aud = Math.round(data.priceUsd * 1.55 * 100) / 100;
+
+        await supabase.from('trend_signals').update(updates).eq('id', product.id);
+        scraped++;
+        console.log(`[scrape-real] ✅ ${product.name} → ${data.images[0]?.slice(0, 50) || 'no img'} | $${data.priceUsd}`);
+      } else {
+        // Mark attempted so we don't retry endlessly
+        await supabase.from('trend_signals').update({ real_data_scraped: true }).eq('id', product.id);
+        console.log(`[scrape-real] ❌ ${product.name} → no data returned`);
+      }
+
+      await new Promise(r => setTimeout(r, 1000));
+    } catch (err: any) {
+      console.error('[scrape-real]', product.name, err.message);
+    }
+  }
+
+  res.json({ scraped, total: products.length, message: `Scraped ${scraped} of ${products.length} products` });
+});
+
+
 // GET /api/admin/setup-supplier-tables — returns SQL for aliexpress_products + trend_signals columns
 router.get('/setup-supplier-tables', requireAuth, requireAdmin, (req: Request, res: Response) => {
   const sql = `
