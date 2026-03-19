@@ -1419,7 +1419,14 @@ export default function WebsiteGenerator() {
   }, [analyzeUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── URL params — read ONCE via hook (parsed before URL is cleaned) ─────────
-  const urlParams = useStoreBuilderParams();
+  const {
+    productName: urlProductName,
+    price: urlPrice,
+    niche: urlNiche,
+    imageUrl: urlImageUrl,
+    description: urlDescription,
+    fromDatabase,
+  } = useStoreBuilderParams();
   const hasAutoTriggered = useRef(false);
 
   // Auto-fill from URL params (crash-proof — handles encoded/raw values safely)
@@ -1450,33 +1457,30 @@ export default function WebsiteGenerator() {
       }
 
       // fromDatabase or fromTrend — full product context pre-fill (Effect 1)
-      if (urlParams.fromDatabase) {
-        const { productName: pn, price: pr, niche: ni, imageUrl: img, description: desc } = urlParams;
-
-        if (pn) setProductName(pn);
-        if (pr) { setPriceAUD(String(pr)); setProductPrice(String(pr)); }
-        if (ni) setNiche(ni);
-        if (img) setProductImageUrl(img);
+      if (fromDatabase) {
+        if (urlNiche) setNiche(urlNiche);
+        if (urlPrice) { setPriceAUD(String(urlPrice)); setProductPrice(String(urlPrice)); }
+        if (urlImageUrl) setProductImageUrl(urlImageUrl);
 
         // Auto-set store name from product name if not already set
-        if (pn && (!storeName || storeName.trim() === '')) {
-          setStoreName(pn.split(' ').slice(0, 3).join(' ') + ' AU');
+        if (urlProductName && (!storeName || storeName.trim() === '')) {
+          setStoreName(urlProductName.split(' ').slice(0, 3).join(' ') + ' AU');
         }
 
-        if (desc) {
-          setImportedProduct(prev => prev ? { ...prev, description: desc } : {
-            title: pn,
-            description: desc,
+        if (urlDescription || urlProductName) {
+          setImportedProduct(prev => prev ? { ...prev, description: urlDescription || prev.description } : {
+            title: urlProductName,
+            description: urlDescription,
             features: [],
-            price: String(pr),
-            images: img ? [img] : [],
+            price: String(urlPrice),
+            images: urlImageUrl ? [urlImageUrl] : [],
             sourceUrl: '',
           });
         }
 
-        setFromDatabaseBanner({ productName: pn, niche: ni, price: String(pr) });
-        toast.success(`⚡ Building store for: ${pn}`);
-        window.history.replaceState({}, '', '/app/website-generator');
+        setFromDatabaseBanner({ productName: urlProductName, niche: urlNiche, price: String(urlPrice) });
+        toast.success(`⚡ Building store for: ${urlProductName}`);
+        window.history.replaceState({}, '', '/app/store-builder');
       }
     } catch (err) {
       console.warn('[WebsiteGenerator] Failed to read URL params:', err);
@@ -1510,28 +1514,31 @@ export default function WebsiteGenerator() {
   }, []);
 
   // EFFECT 2 — Auto-trigger generation once state has settled (fromDatabase flow)
-  // Runs every time productName/niche/storeName update, but fires generation exactly once
+  // Waits for niche to be set (Effect 1), then fires exactly once
   useEffect(() => {
-    if (!urlParams.fromDatabase) return;
+    if (!fromDatabase) return;
     if (hasAutoTriggered.current) return;
-    if (!productName || !niche) return; // wait until state is settled
+    if (!urlNiche && !niche) return; // wait until at least niche is known
 
     hasAutoTriggered.current = true;
+
+    const resolvedNiche = niche || urlNiche;
+    const resolvedStoreName = storeName || urlProductName;
 
     // Small debounce to ensure all setState calls from Effect 1 have flushed
     const timer = setTimeout(() => {
       handleGenerateWithParamsRef.current?.({
-        storeName: storeName || productName,
-        productName,
-        price: Number(priceAUD) || urlParams.price,
-        niche,
-        imageUrl: urlParams.imageUrl,
-        description: urlParams.description,
+        storeName: resolvedStoreName,
+        productName: urlProductName,
+        price: Number(priceAUD) || urlPrice,
+        niche: resolvedNiche,
+        imageUrl: urlImageUrl,
+        description: urlDescription,
       });
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [productName, niche, storeName, priceAUD, urlParams.fromDatabase]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [niche, storeName, priceAUD, fromDatabase]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Progress message cycling
   useEffect(() => {
@@ -1742,8 +1749,8 @@ export default function WebsiteGenerator() {
     // Delegate to handleGenerateWithParams for explicit value passing (avoids stale closure)
     if (handleGenerateWithParamsRef.current) {
       return handleGenerateWithParamsRef.current({
-        storeName: storeName || productName || niche,
-        productName: productName || storeName || niche,
+        storeName: storeName || niche,
+        productName: storeName || niche,
         price: Number(priceAUD) || 49,
         niche,
         imageUrl: productImageUrl || undefined,
@@ -3019,7 +3026,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
 
           {/* From Database banner — shows immediately on arrival from Intelligence */}
-          {(fromDatabaseBanner || (urlParams.fromDatabase && urlParams.productName)) && (
+          {(fromDatabaseBanner || (fromDatabase && urlProductName)) && (
             <div style={{
               marginBottom: 4,
               padding: '12px 16px',
@@ -3035,11 +3042,11 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 <span style={{ fontSize: 18, flexShrink: 0 }}>⚡</span>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#d4af37', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    Building store for: <strong>{fromDatabaseBanner?.productName || urlParams.productName}</strong>
+                    Building store for: <strong>{fromDatabaseBanner?.productName || urlProductName}</strong>
                   </div>
                   <div style={{ fontSize: 12, color: 'rgba(212,175,55,0.65)', marginTop: 2 }}>
-                    {fromDatabaseBanner?.niche || urlParams.niche}
-                    {(fromDatabaseBanner?.price || urlParams.price) ? ` · $${fromDatabaseBanner?.price || urlParams.price} AUD` : ''}
+                    {fromDatabaseBanner?.niche || urlNiche}
+                    {(fromDatabaseBanner?.price || urlPrice) ? ` · $${fromDatabaseBanner?.price || urlPrice} AUD` : ''}
                     {' · '}Auto-generating your store…
                   </div>
                 </div>
