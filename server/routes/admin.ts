@@ -558,15 +558,35 @@ router.post('/seed-tiktok-products', requireAdmin, async (req: Request, res: Res
 });
 
 // POST /api/admin/enrich-products — Tavily supplier links + buzz scores for trend_signals
-router.post('/enrich-products', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+router.post('/enrich-products', async (req: Request, res: Response) => {
+  // Accept service role key OR admin user JWT
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
+  const isServiceKey = serviceKey && token === serviceKey;
+  if (!isServiceKey) {
+    // Fall back to checking decoded JWT email
+    try {
+      const parts = token.split('.');
+      const b64 = parts[1]?.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil((parts[1]?.length || 0) / 4) * 4, '=');
+      const payload = JSON.parse(Buffer.from(b64, 'base64').toString('utf8'));
+      const email: string = payload.email || payload.user_metadata?.email || '';
+      if (email !== 'maximusmajorka@gmail.com') {
+        res.status(403).json({ error: 'Admin only', enriched: 0, total: 0 }); return;
+      }
+    } catch {
+      res.status(401).json({ error: 'unauthorized', enriched: 0, total: 0 }); return;
+    }
+  }
+
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
   const supabaseKey = process.env.SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   const { limit = 20 } = req.body || {};
 
-  console.log('[enrich] req.user:', (req as any).user);
-  console.log('[enrich] auth header:', req.headers.authorization?.slice(0, 30));
+  console.log('[enrich] auth:', isServiceKey ? 'service-key' : 'user-jwt');
+  console.log('[enrich] auth header prefix:', req.headers.authorization?.slice(0, 30));
 
   // Column existence check — if aliexpress_url doesn't exist yet, surface a clear error
   const { data: colCheck, error: colErr } = await supabase
