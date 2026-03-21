@@ -310,6 +310,41 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
   });
 });
 
+// ── GET /api/products/detail/:productId — AliExpress product detail for Store Builder ───
+router.get('/detail/:productId', async (req: Request, res: Response) => {
+  const { productId } = req.params;
+  if (!/^\d+$/.test(productId)) { res.status(400).json({ error: 'Invalid product ID' }); return; }
+  try {
+    const { getProductDetail } = await import('../lib/aliexpress');
+    const detail = await getProductDetail(productId);
+    if (!detail) { res.status(404).json({ error: 'Product not found' }); return; }
+
+    const images: string[] = [];
+    if (detail.image_urls) images.push(...detail.image_urls.split(';').filter(Boolean));
+    if (detail.main_image && !images.includes(detail.main_image)) images.unshift(detail.main_image);
+
+    const priceRaw = detail.sku_price_list?.[0]?.sku_price?.price
+      || detail.sku_info?.sku_price
+      || detail.min_price
+      || '0';
+
+    res.json({
+      id: detail.product_id || productId,
+      name: detail.subject || detail.title || '',
+      description: detail.product_description || detail.description || '',
+      images,
+      price_aud: Math.round(parseFloat(priceRaw) * 1.55),
+      aliexpress_url: `https://www.aliexpress.com/item/${productId}.html`,
+      shipping_au: detail.logistics_info || '7-14 days to AU',
+      rating: parseFloat(detail.average_star || detail.avg_evaluation_rating || '0'),
+      orders: detail.total_transaction_cnt || detail.total_available_stock || 0,
+    });
+  } catch (err: any) {
+    const notAuthed = err.message.includes('ALIEXPRESS_ACCESS_TOKEN');
+    res.status(notAuthed ? 401 : 500).json({ error: err.message });
+  }
+});
+
 // ── GET /api/products/aliexpress/search?q=earbuds&niche=fitness&limit=20 ─────
 router.get('/aliexpress/search', requireAuth, async (req: Request, res: Response) => {
   const q = String(req.query.q || '').trim();

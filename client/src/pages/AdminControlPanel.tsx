@@ -347,6 +347,7 @@ function HealthTab() {
   const [loading, setLoading] = useState(true);
   const [enriching, setEnriching] = useState(false);
   const [scrapingReal, setScrapingReal] = useState(false);
+  const [refreshingAE, setRefreshingAE] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -472,6 +473,40 @@ function HealthTab() {
           style={{ marginLeft: 8, padding: '9px 16px', background: '#2a9d8f', color: '#fff', border: 'none', borderRadius: 6, cursor: scrapingReal ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: scrapingReal ? 0.7 : 1 }}
         >
           {scrapingReal ? 'Scraping…' : '🔍 Scrape Real Data'}
+        </button>
+        <button
+          onClick={async () => {
+            try {
+              setRefreshingAE(true);
+              const data = await apiCall('/refresh-from-aliexpress', { method: 'POST' });
+              if (data.error && data.authUrl) {
+                alert(`❌ Not authorized yet!\n\nVisit to authorize:\n${data.authUrl}`);
+              } else {
+                alert(`✅ Refreshed ${data.refreshed} products from AliExpress API across ${data.niches} niches!`);
+              }
+            } catch (e: any) {
+              alert('Error: ' + e.message);
+            } finally {
+              setRefreshingAE(false);
+            }
+          }}
+          disabled={refreshingAE}
+          style={{ marginLeft: 8, padding: '9px 16px', background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 6, cursor: refreshingAE ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: refreshingAE ? 0.7 : 1 }}
+        >
+          {refreshingAE ? 'Refreshing…' : '🔴 Refresh from AliExpress'}
+        </button>
+        <button
+          onClick={async () => {
+            try {
+              const data = await apiCall('/aliexpress-status');
+              alert(`AliExpress Status:\n\nApp Key: ${data.appKey}\nApp Secret: ${data.appSecret}\nAccess Token: ${data.accessToken}\n\n${data.authorized ? '✅ Ready to use!' : `❌ Not authorized.\n\nVisit: ${data.authUrl}`}`);
+            } catch (e: any) {
+              alert('Error: ' + e.message);
+            }
+          }}
+          style={{ marginLeft: 8, padding: '9px 16px', background: '#1a1a1a', color: '#f39c12', border: '1px solid #5a3a00', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
+        >
+          🛒 AliExpress Status
         </button>
       </div>
     </div>

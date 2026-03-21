@@ -995,63 +995,84 @@ router.post('/refresh-from-aliexpress', async (req: Request, res: Response) => {
     return;
   }
 
-  const niches = [
-    'fitness', 'beauty', 'tech', 'home', 'pets',
-    'fashion', 'outdoor', 'kitchen', 'wellness', 'baby',
-  ];
+  const niches = ['fitness', 'beauty', 'tech', 'home', 'pets', 'fashion', 'outdoor', 'kitchen', 'baby', 'jewellery'];
   const { getTrendingProducts } = await import('../lib/aliexpress');
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
   const { createClient } = await import('@supabase/supabase-js');
   const supabase = createClient(supabaseUrl, serviceKey);
 
-  const results: Record<string, any> = {};
-  let totalUpserted = 0;
-  let totalFailed = 0;
+  let total = 0;
 
   for (const niche of niches) {
     try {
-      const products = await getTrendingProducts(niche, 10);
-      const rows = products.map((p: any) => ({
-        name: (p.product_title || '').slice(0, 200),
-        niche: niche.charAt(0).toUpperCase() + niche.slice(1),
-        image_url: p.product_main_image_url || '',
-        aliexpress_url: p.product_detail_url || '',
-        supplier_name: 'AliExpress',
-        estimated_retail_aud: Math.round(parseFloat(p.target_sale_price || '0') * 1.55 * 100) / 100,
-        orders_count: parseInt(p.lastest_volume || '0'),
-        winning_score: Math.min(95, 60 + Math.floor(Math.log10(Math.max(1, parseInt(p.lastest_volume || '1'))) * 12)),
-        trend_score: 70,
-        growth_pct: 15,
-        source: 'aliexpress_api',
-        real_data_scraped: true,
-      })).filter((r: any) => r.name.length > 3);
+      const products = await getTrendingProducts(niche, 19);
 
-      const { error } = await supabase
-        .from('trend_signals')
-        .upsert(rows, { onConflict: 'name' });
+      for (const p of products) {
+        const priceAud = Math.round(parseFloat((p as any).target_sale_price || (p as any).sale_price || '0') * 1.55);
 
-      if (error) {
-        results[niche] = { error: error.message };
-        totalFailed++;
-      } else {
-        results[niche] = { upserted: rows.length };
-        totalUpserted += rows.length;
+        await supabase.from('trend_signals').upsert({
+          name: ((p as any).product_title || '').slice(0, 200),
+          niche,
+          image_url: (p as any).product_main_image_url || '',
+          estimated_retail_aud: priceAud || 49,
+          aliexpress_url: (p as any).product_detail_url || '',
+          supplier_name: 'AliExpress',
+          orders_count: parseInt((p as any).lastest_volume || '0'),
+          winning_score: Math.min(100, Math.round(parseInt((p as any).lastest_volume || '0') / 100)),
+          trend_score: 70,
+          growth_pct: 15,
+          real_data_scraped: true,
+          source: 'aliexpress_api',
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'name' });
+        total++;
       }
 
-      // Throttle between niches to avoid rate limiting
+      console.log(`[ae-refresh] ${niche}: ${products.length} products`);
       await new Promise(r => setTimeout(r, 500));
     } catch (err: any) {
-      results[niche] = { error: err.message };
-      totalFailed++;
+      console.error(`[ae-refresh] ${niche} failed:`, err.message);
     }
   }
 
-  res.json({
-    ok: totalFailed === 0,
-    totalUpserted,
-    totalFailed,
-    niches: results,
-  });
+  res.json({ refreshed: total, niches: niches.length });
+});
+
+// ── POST /api/admin/run-aliexpress-migration — add missing trend_signals columns ──
+router.post('/run-aliexpress-migration', async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace('Bearer ', '');
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
+  if (token !== serviceKey) { res.status(403).json({ error: 'Admin only' }); return; }
+
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) { res.status(500).json({ error: 'DATABASE_URL not set' }); return; }
+
+  const steps: { name: string; ok: boolean; error?: string }[] = [];
+  const failed: string[] = [];
+
+  async function run(name: string, sql: string) {
+    try {
+      const { default: postgres } = await import('postgres');
+      const sqlClient = postgres(dbUrl!, { ssl: 'require', connect_timeout: 10, max: 1 });
+      await sqlClient.unsafe(sql);
+      await sqlClient.end();
+      steps.push({ name, ok: true });
+      console.log(`[ae-migration] ✅ ${name}`);
+    } catch (err: any) {
+      steps.push({ name, ok: false, error: err.message });
+      failed.push(name);
+      console.error(`[ae-migration] ❌ ${name}:`, err.message);
+    }
+  }
+
+  await run('source column', `ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS source TEXT DEFAULT 'manual'`);
+  await run('orders_count column', `ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS orders_count INT DEFAULT 0`);
+  await run('updated_at column', `ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT now()`);
+  await run('aliexpress_url column', `ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS aliexpress_url TEXT`);
+  await run('supplier_name column', `ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS supplier_name TEXT DEFAULT 'AliExpress'`);
+
+  res.json({ ok: failed.length === 0, steps, failed });
 });
 
 // ── GET /api/admin/aliexpress-status — check AliExpress integration health ────
