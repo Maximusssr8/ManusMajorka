@@ -673,7 +673,7 @@ router.post('/scrape-aliexpress', async (req: Request, res: Response) => {
     } catch { res.status(401).json({ error: 'unauthorized' }); return; }
   }
 
-  const { scrapeAliExpressProduct } = await import('../lib/scrapeAliExpressProduct');
+  const { scrapeAliExpressWithApify } = await import('../lib/apifyAliExpress');
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
   const supabase = createClient(supabaseUrl, supabaseKey);
@@ -697,7 +697,7 @@ router.post('/scrape-aliexpress', async (req: Request, res: Response) => {
 
   for (const product of products) {
     try {
-      const data = await scrapeAliExpressProduct(product.aliexpress_url);
+      const data = await scrapeAliExpressWithApify(product.aliexpress_url);
       if (data) {
         const updates: Record<string, any> = {};
         // Update title if we got a better one
@@ -748,7 +748,7 @@ router.post('/scrape-real-data', async (req: Request, res: Response) => {
     } catch { res.status(401).json({ error: 'Invalid token' }); return; }
   }
 
-  const { scrapeAliExpressProduct } = await import('../lib/scrapeAliExpressProduct');
+  const { scrapeAliExpressWithApify } = await import('../lib/apifyAliExpress');
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
   const supabase = createClient(supabaseUrl, supabaseKey);
@@ -783,7 +783,7 @@ router.post('/scrape-real-data', async (req: Request, res: Response) => {
 
   for (const product of products) {
     try {
-      const data = await scrapeAliExpressProduct(product.aliexpress_url);
+      const data = await scrapeAliExpressWithApify(product.aliexpress_url);
 
       if (data && (data.images.length > 0 || data.title)) {
         const updates: Record<string, any> = {

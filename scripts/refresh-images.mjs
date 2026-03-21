@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://ievekuazsjbdrltsdksn.supabase.co';
 const SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlldmVrdWF6c2piZHJsdHNka3NuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjAyMTQ0MCwiZXhwIjoyMDg3NTk3NDQwfQ.VTbTM5BCyAq843T1z1DRpkPI-0X7ZkAoD6K2q3sVX9Q';
-const PEXELS_KEY = 'EZjK9XGsizihc0Kr0mTGiQoglCY5kGQfOQ3QIKOLLODImTaxlg5ztpFB';
+const PEXELS_KEY = 'process.env.PEXELS_API_KEY';
 
 const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 
