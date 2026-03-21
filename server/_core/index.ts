@@ -230,7 +230,8 @@ async function startServer() {
   const shopsRouter = (await import('../routes/shops')).default;
   app.use('/api/shops', shopsRouter);
   const productsRouter = (await import('../routes/products')).default;
-  app.use('/api/products', productsRouter);
+  app.use('/api/products', productsRouter)
+  const { default: aliexpressRouter } = await import('../routes/aliexpress');;
   const { registerGenerationRoutes } = await import('../routes/generation');
   registerGenerationRoutes(app);
   // tRPC API

@@ -281,4 +281,110 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
   });
 });
 
+// ── GET /api/products/aliexpress/search?q=wireless+earbuds&limit=20 ──────────
+router.get('/aliexpress/search', requireAuth, async (req: Request, res: Response) => {
+  const q = String(req.query.q || '').trim();
+  const limit = Math.min(50, Number(req.query.limit) || 20);
+  const page = Number(req.query.page) || 1;
+  const sort = String(req.query.sort || 'LAST_VOLUME_DESC');
+  if (!q) { res.status(400).json({ error: 'q is required' }); return; }
+
+  try {
+    const { searchProducts } = await import('../lib/aliexpress');
+    const products = await searchProducts(q, { pageSize: limit, pageNo: page, sortBy: sort });
+    res.json({ products, total: products.length, query: q, source: 'aliexpress' });
+  } catch (err: any) {
+    console.error('[ae-search]', err.message);
+    res.status(500).json({ error: err.message, products: [] });
+  }
+});
+
+// ── GET /api/products/aliexpress/trending?niche=fitness&limit=20 ─────────────
+router.get('/aliexpress/trending', requireAuth, async (req: Request, res: Response) => {
+  const niche = String(req.query.niche || 'fitness');
+  const limit = Math.min(50, Number(req.query.limit) || 20);
+  try {
+    const { getTrendingProducts } = await import('../lib/aliexpress');
+    const products = await getTrendingProducts(niche, limit);
+    res.json({ products, total: products.length, niche });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message, products: [] });
+  }
+});
+
+// ── GET /api/products/aliexpress/:productId — full product detail ─────────────
+router.get('/aliexpress/:productId', requireAuth, async (req: Request, res: Response) => {
+  const { productId } = req.params;
+  try {
+    const { getProductDetail, getShippingInfo } = await import('../lib/aliexpress');
+    const [detail, shipping] = await Promise.all([
+      getProductDetail(productId),
+      getShippingInfo(productId),
+    ]);
+    if (!detail) { res.status(404).json({ error: 'Product not found' }); return; }
+    res.json({ product: detail, shipping });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /api/products/aliexpress/import — import AliExpress product to trend_signals ──
+router.post('/aliexpress/import', requireAuth, async (req: Request, res: Response) => {
+  const { productId, niche } = req.body || {};
+  if (!productId) { res.status(400).json({ error: 'productId required' }); return; }
+
+  try {
+    const { getProductDetail } = await import('../lib/aliexpress');
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const detail = await getProductDetail(productId);
+    if (!detail) { res.status(404).json({ error: 'Product not found on AliExpress' }); return; }
+
+    const imageUrl = detail.image_urls?.split(';')[0] || '';
+    const priceAud = parseFloat(detail.sku_price_list?.[0]?.sku_price?.price || '0') * 1.55;
+
+    const { error } = await supabase.from('trend_signals').upsert({
+      name: detail.subject?.slice(0, 200),
+      niche: niche || 'General',
+      image_url: imageUrl,
+      aliexpress_url: `https://www.aliexpress.com/item/${productId}.html`,
+      supplier_name: 'AliExpress',
+      estimated_retail_aud: Math.round(priceAud * 100) / 100,
+      winning_score: 70,
+      trend_score: 70,
+      growth_pct: 10,
+      source: 'aliexpress_import',
+      real_data_scraped: true,
+    }, { onConflict: 'name' });
+
+    if (error) { res.status(500).json({ error: error.message }); return; }
+    res.json({ success: true, product: { id: productId, name: detail.subject, imageUrl, priceAud } });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/products/aliexpress-test — quick API connectivity check ──────────
+router.get('/aliexpress-test', async (req: Request, res: Response) => {
+  try {
+    const { searchProducts } = await import('../lib/aliexpress');
+    const products = await searchProducts('wireless earbuds', { pageSize: 3 });
+    res.json({
+      ok: products.length > 0,
+      count: products.length,
+      sample: products[0] ? {
+        id: (products[0] as any).product_id,
+        title: (products[0] as any).product_title?.slice(0, 60),
+        price: (products[0] as any).target_sale_price,
+        image: (products[0] as any).product_main_image_url?.slice(0, 80),
+      } : null,
+    });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 export default router;
