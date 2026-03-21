@@ -941,25 +941,24 @@ router.post('/run-user-tables-migration', async (req: Request, res: Response) =>
       catch (e: any) { steps.push(`❌ ${label}: ${e.message}`); failed = true; }
     };
 
+    // No FK to auth.users — avoids postgres role permission issue; RLS enforces user isolation
     await run('user_onboarding table', `
       CREATE TABLE IF NOT EXISTS user_onboarding (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_id UUID UNIQUE NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+        user_id UUID UNIQUE NOT NULL,
         completed_steps TEXT[] DEFAULT '{}',
         current_step TEXT DEFAULT 'welcome',
         completed_at TIMESTAMPTZ,
         created_at TIMESTAMPTZ DEFAULT now(),
         updated_at TIMESTAMPTZ DEFAULT now()
       )`);
-    await run('user_onboarding RLS', `ALTER TABLE user_onboarding ENABLE ROW LEVEL SECURITY`);
-    await run('user_onboarding policy select', `CREATE POLICY IF NOT EXISTS "users_own_onboarding_select" ON user_onboarding FOR SELECT USING (auth.uid() = user_id)`);
-    await run('user_onboarding policy insert', `CREATE POLICY IF NOT EXISTS "users_own_onboarding_insert" ON user_onboarding FOR INSERT WITH CHECK (auth.uid() = user_id)`);
-    await run('user_onboarding policy update', `CREATE POLICY IF NOT EXISTS "users_own_onboarding_update" ON user_onboarding FOR UPDATE USING (auth.uid() = user_id)`);
+    await run('user_onboarding RLS enable', `ALTER TABLE user_onboarding ENABLE ROW LEVEL SECURITY`);
+    await run('user_onboarding policy', `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='user_onboarding' AND policyname='users_own_onboarding') THEN CREATE POLICY users_own_onboarding ON user_onboarding USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id); END IF; END $$`);
 
     await run('user_watchlist table', `
       CREATE TABLE IF NOT EXISTS user_watchlist (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL,
         product_id TEXT NOT NULL,
         product_name TEXT,
         product_image TEXT,
@@ -968,11 +967,11 @@ router.post('/run-user-tables-migration', async (req: Request, res: Response) =>
         added_at TIMESTAMPTZ DEFAULT now(),
         UNIQUE(user_id, product_id)
       )`);
-    await run('user_watchlist RLS', `ALTER TABLE user_watchlist ENABLE ROW LEVEL SECURITY`);
-    await run('user_watchlist policy select', `CREATE POLICY IF NOT EXISTS "users_own_watchlist_select" ON user_watchlist FOR SELECT USING (auth.uid() = user_id)`);
-    await run('user_watchlist policy insert', `CREATE POLICY IF NOT EXISTS "users_own_watchlist_insert" ON user_watchlist FOR INSERT WITH CHECK (auth.uid() = user_id)`);
-    await run('user_watchlist policy delete', `CREATE POLICY IF NOT EXISTS "users_own_watchlist_delete" ON user_watchlist FOR DELETE USING (auth.uid() = user_id)`);
+    await run('user_watchlist RLS enable', `ALTER TABLE user_watchlist ENABLE ROW LEVEL SECURITY`);
+    await run('user_watchlist policy', `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='user_watchlist' AND policyname='users_own_watchlist') THEN CREATE POLICY users_own_watchlist ON user_watchlist USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id); END IF; END $$`);
     await run('idx_watchlist_user', `CREATE INDEX IF NOT EXISTS idx_user_watchlist_user_id ON user_watchlist(user_id)`);
+    await run('trend_signals real_data_scraped', `ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS real_data_scraped BOOLEAN DEFAULT false`);
+    await run('trend_signals scrape_images', `ALTER TABLE trend_signals ADD COLUMN IF NOT EXISTS scrape_images TEXT[] DEFAULT '{}'`);
 
     await sql.end();
     res.json({ ok: !failed, steps });
