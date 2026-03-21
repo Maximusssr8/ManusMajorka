@@ -912,4 +912,73 @@ router.post('/run-supplier-migration', async (req: Request, res: Response) => {
   }
 });
 
+// POST /api/admin/run-user-tables-migration — creates user_onboarding + user_watchlist via postgres
+router.post('/run-user-tables-migration', async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
+  const isServiceKey = serviceKey && token === serviceKey;
+  if (!isServiceKey) {
+    try {
+      const parts = token.split('.');
+      const b64 = parts[1]?.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil((parts[1]?.length || 0) / 4) * 4, '=');
+      const payload = JSON.parse(Buffer.from(b64, 'base64').toString('utf8'));
+      const email: string = payload.email || payload.user_metadata?.email || '';
+      if (email !== 'maximusmajorka@gmail.com') { res.status(403).json({ error: 'Admin only' }); return; }
+    } catch { res.status(401).json({ error: 'unauthorized' }); return; }
+  }
+
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) { res.status(500).json({ error: 'DATABASE_URL not set in Vercel env' }); return; }
+
+  const steps: string[] = [];
+  let failed = false;
+  try {
+    const { default: postgres } = await import('postgres');
+    const sql = postgres(dbUrl, { ssl: 'require', connect_timeout: 10, max: 1 });
+    const run = async (label: string, query: string) => {
+      try { await sql.unsafe(query); steps.push(`✅ ${label}`); }
+      catch (e: any) { steps.push(`❌ ${label}: ${e.message}`); failed = true; }
+    };
+
+    await run('user_onboarding table', `
+      CREATE TABLE IF NOT EXISTS user_onboarding (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID UNIQUE NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+        completed_steps TEXT[] DEFAULT '{}',
+        current_step TEXT DEFAULT 'welcome',
+        completed_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ DEFAULT now(),
+        updated_at TIMESTAMPTZ DEFAULT now()
+      )`);
+    await run('user_onboarding RLS', `ALTER TABLE user_onboarding ENABLE ROW LEVEL SECURITY`);
+    await run('user_onboarding policy select', `CREATE POLICY IF NOT EXISTS "users_own_onboarding_select" ON user_onboarding FOR SELECT USING (auth.uid() = user_id)`);
+    await run('user_onboarding policy insert', `CREATE POLICY IF NOT EXISTS "users_own_onboarding_insert" ON user_onboarding FOR INSERT WITH CHECK (auth.uid() = user_id)`);
+    await run('user_onboarding policy update', `CREATE POLICY IF NOT EXISTS "users_own_onboarding_update" ON user_onboarding FOR UPDATE USING (auth.uid() = user_id)`);
+
+    await run('user_watchlist table', `
+      CREATE TABLE IF NOT EXISTS user_watchlist (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+        product_id TEXT NOT NULL,
+        product_name TEXT,
+        product_image TEXT,
+        niche TEXT,
+        price_aud NUMERIC(10,2),
+        added_at TIMESTAMPTZ DEFAULT now(),
+        UNIQUE(user_id, product_id)
+      )`);
+    await run('user_watchlist RLS', `ALTER TABLE user_watchlist ENABLE ROW LEVEL SECURITY`);
+    await run('user_watchlist policy select', `CREATE POLICY IF NOT EXISTS "users_own_watchlist_select" ON user_watchlist FOR SELECT USING (auth.uid() = user_id)`);
+    await run('user_watchlist policy insert', `CREATE POLICY IF NOT EXISTS "users_own_watchlist_insert" ON user_watchlist FOR INSERT WITH CHECK (auth.uid() = user_id)`);
+    await run('user_watchlist policy delete', `CREATE POLICY IF NOT EXISTS "users_own_watchlist_delete" ON user_watchlist FOR DELETE USING (auth.uid() = user_id)`);
+    await run('idx_watchlist_user', `CREATE INDEX IF NOT EXISTS idx_user_watchlist_user_id ON user_watchlist(user_id)`);
+
+    await sql.end();
+    res.json({ ok: !failed, steps });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message, steps });
+  }
+});
+
 export default router;

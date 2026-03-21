@@ -402,7 +402,7 @@ const PREVIEW_TEMPLATE = `<!DOCTYPE html>
         <a href="mailto:hello@{storeNameSlug}.com.au">Contact Us</a>
       </div>
     </div>
-    <div class="footer-bottom">&copy; 2025 {storeName}. All rights reserved. ABN: XX XXX XXX XXX | 🇦🇺 Australian Business</div>
+    <div class="footer-bottom">&copy; ${new Date().getFullYear()} {storeName}. All rights reserved. 🇦🇺 Australian Owned &amp; Operated</div>
   </footer>
 
   <script>

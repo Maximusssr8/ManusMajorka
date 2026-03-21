@@ -421,7 +421,20 @@ function HealthTab() {
           }}
           style={{ marginLeft: 8, padding: '9px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #444', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
         >
-          🔧 Run Migration
+          🔧 Supplier Migration
+        </button>
+        <button
+          onClick={async () => {
+            try {
+              const data = await apiCall('/run-user-tables-migration', { method: 'POST' });
+              alert(JSON.stringify(data, null, 2));
+            } catch (e: any) {
+              alert('Error: ' + e.message);
+            }
+          }}
+          style={{ marginLeft: 8, padding: '9px 16px', background: '#1a1a1a', color: '#a78bfa', border: '1px solid #3b1f6b', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}
+        >
+          🗃️ User Tables
         </button>
         <button
           onClick={async () => {

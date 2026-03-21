@@ -72,6 +72,36 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
 
+// ── Security headers (production) ────────────────────────────────────────────
+app.use((_req, res, next) => {
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
+// ── POST /api/images/pexels-search — website generator image fallback ─────────
+app.post("/api/images/pexels-search", async (req: Request, res: Response) => {
+  const pexelsKey = process.env.PEXELS_API_KEY || process.env.VITE_PEXELS_API_KEY;
+  if (!pexelsKey) { res.status(503).json({ error: "Pexels not configured", urls: [] }); return; }
+  const { query = '', perPage = 5 } = req.body || {};
+  if (!query) { res.status(400).json({ error: "query required", urls: [] }); return; }
+  try {
+    const r = await fetch(
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${Math.min(10, Number(perPage) || 5)}&orientation=landscape`,
+      { headers: { Authorization: pexelsKey, 'User-Agent': 'Majorka/1.0' } }
+    );
+    if (!r.ok) { res.status(r.status).json({ error: 'Pexels error', urls: [] }); return; }
+    const data = await r.json() as { photos: { src: { large2x: string; large: string } }[] };
+    const urls = (data.photos || []).map((p) => p.src.large2x || p.src.large);
+    res.json({ urls });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message, urls: [] });
+  }
+});
+
 // ── Image proxy — serves CDN images that block cross-origin requests ──────────
 app.get("/api/proxy-image", async (req: Request, res: Response) => {
   const url = req.query.url as string;

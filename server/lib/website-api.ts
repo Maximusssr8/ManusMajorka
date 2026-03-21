@@ -1551,7 +1551,7 @@ function buildStoreTemplate(p: StoreTemplateParams): string {
       </div>
     </div>
     <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-      <div style="font-family:${bodyFont};font-size:13px;color:rgba(255,255,255,0.3);">\u00a9 ${new Date().getFullYear()} ${brandName}. All rights reserved. ABN XX XXX XXX XXX</div>
+      <div style="font-family:${bodyFont};font-size:13px;color:rgba(255,255,255,0.3);">\u00a9 ${new Date().getFullYear()} ${brandName}. All rights reserved. \ud83c\udde6\ud83c\uddfa Australian Owned &amp; Operated</div>
       <div style="display:flex;gap:20px;">
         <a href="#" style="font-family:${bodyFont};font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;">Privacy</a>
         <a href="#" style="font-family:${bodyFont};font-size:13px;color:rgba(255,255,255,0.35);text-decoration:none;">Terms</a>
