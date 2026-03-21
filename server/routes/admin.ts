@@ -980,4 +980,90 @@ router.post('/run-user-tables-migration', async (req: Request, res: Response) =>
   }
 });
 
+// ── POST /api/admin/refresh-from-aliexpress — populate trend_signals from live AliExpress API ──
+router.post('/refresh-from-aliexpress', async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace('Bearer ', '');
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
+  if (token !== serviceKey) { res.status(403).json({ error: 'Admin only' }); return; }
+
+  if (!process.env.ALIEXPRESS_ACCESS_TOKEN) {
+    res.status(400).json({
+      error: 'ALIEXPRESS_ACCESS_TOKEN not set. Authorize at /api/aliexpress/auth first.',
+      authUrl: `${process.env.VITE_APP_URL || 'https://www.majorka.io'}/api/aliexpress/auth`,
+    });
+    return;
+  }
+
+  const niches = [
+    'fitness', 'beauty', 'tech', 'home', 'pets',
+    'fashion', 'outdoor', 'kitchen', 'wellness', 'baby',
+  ];
+  const { getTrendingProducts } = await import('../lib/aliexpress');
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+  const { createClient } = await import('@supabase/supabase-js');
+  const supabase = createClient(supabaseUrl, serviceKey);
+
+  const results: Record<string, any> = {};
+  let totalUpserted = 0;
+  let totalFailed = 0;
+
+  for (const niche of niches) {
+    try {
+      const products = await getTrendingProducts(niche, 10);
+      const rows = products.map((p: any) => ({
+        name: (p.product_title || '').slice(0, 200),
+        niche: niche.charAt(0).toUpperCase() + niche.slice(1),
+        image_url: p.product_main_image_url || '',
+        aliexpress_url: p.product_detail_url || '',
+        supplier_name: 'AliExpress',
+        estimated_retail_aud: Math.round(parseFloat(p.target_sale_price || '0') * 1.55 * 100) / 100,
+        orders_count: parseInt(p.lastest_volume || '0'),
+        winning_score: Math.min(95, 60 + Math.floor(Math.log10(Math.max(1, parseInt(p.lastest_volume || '1'))) * 12)),
+        trend_score: 70,
+        growth_pct: 15,
+        source: 'aliexpress_api',
+        real_data_scraped: true,
+      })).filter((r: any) => r.name.length > 3);
+
+      const { error } = await supabase
+        .from('trend_signals')
+        .upsert(rows, { onConflict: 'name' });
+
+      if (error) {
+        results[niche] = { error: error.message };
+        totalFailed++;
+      } else {
+        results[niche] = { upserted: rows.length };
+        totalUpserted += rows.length;
+      }
+
+      // Throttle between niches to avoid rate limiting
+      await new Promise(r => setTimeout(r, 500));
+    } catch (err: any) {
+      results[niche] = { error: err.message };
+      totalFailed++;
+    }
+  }
+
+  res.json({
+    ok: totalFailed === 0,
+    totalUpserted,
+    totalFailed,
+    niches: results,
+  });
+});
+
+// ── GET /api/admin/aliexpress-status — check AliExpress integration health ────
+router.get('/aliexpress-status', async (_req: Request, res: Response) => {
+  const { isAuthorized } = await import('../lib/aliexpress');
+  res.json({
+    authorized: isAuthorized(),
+    appKey: process.env.ALIEXPRESS_APP_KEY ? '✅ set' : '❌ missing',
+    appSecret: process.env.ALIEXPRESS_APP_SECRET ? '✅ set' : '❌ missing',
+    accessToken: process.env.ALIEXPRESS_ACCESS_TOKEN ? '✅ set' : '❌ missing (visit /api/aliexpress/auth)',
+    authUrl: `${process.env.VITE_APP_URL || 'https://www.majorka.io'}/api/aliexpress/auth`,
+  });
+});
+
 export default router;

@@ -262,7 +262,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           </button>
         </div>
         <p style={{ color: '#4b5563', fontSize: 12, marginTop: 8, margin: '8px 0 0' }}>
-          Searches live TikTok Shop &middot; Results appear below
+          Searches live AliExpress · TikTok Shop · Majorka DB &mdash; real products, real prices
         </p>
       </div>
 

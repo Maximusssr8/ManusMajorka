@@ -221,7 +221,36 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
     }
   }
 
-  // SOURCE 3: Pexels-backed AliExpress results (always has images for any query)
+  // SOURCE 3: AliExpress live API (when access token is set)
+  if (results.length < 8 && process.env.ALIEXPRESS_ACCESS_TOKEN) {
+    try {
+      const { searchProducts: aeSearch } = await import('../lib/aliexpress');
+      const aeProducts = await aeSearch(query, { pageSize: 10, shipToCountry: 'AU', currency: 'AUD' });
+      console.log(`[products/search] AliExpress API returned: ${aeProducts.length}`);
+      const existingTitles = new Set(results.map(r => r.title.toLowerCase()));
+      for (const p of aeProducts) {
+        const priceUsd = parseFloat((p as any).target_sale_price || (p as any).sale_price || '0');
+        const title = (p as any).product_title || '';
+        if (!title || existingTitles.has(title.toLowerCase())) continue;
+        existingTitles.add(title.toLowerCase());
+        results.push({
+          id: (p as any).product_id,
+          title: title.slice(0, 120),
+          image: (p as any).product_main_image_url || '',
+          price_aud: Math.round(priceUsd * 1.55 * 100) / 100,
+          sold_count: `${(p as any).lastest_volume || 0} sold`,
+          rating: parseFloat((p as any).evaluate_rate || '0') / 20,
+          source: 'aliexpress_api',
+          product_url: (p as any).product_detail_url || '',
+          platform_badge: '🛒 AliExpress',
+        });
+      }
+    } catch (err: any) {
+      console.error('[products/search] AliExpress API error:', err.message);
+    }
+  }
+
+  // SOURCE 4: Pexels-backed AliExpress results (always has images for any query)
   if (results.length < 5) {
     try {
       const pexResults = await pexelsFallback(query);
@@ -281,21 +310,49 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
   });
 });
 
-// ── GET /api/products/aliexpress/search?q=wireless+earbuds&limit=20 ──────────
+// ── GET /api/products/aliexpress/search?q=earbuds&niche=fitness&limit=20 ─────
 router.get('/aliexpress/search', requireAuth, async (req: Request, res: Response) => {
   const q = String(req.query.q || '').trim();
+  const niche = String(req.query.niche || '').trim();
   const limit = Math.min(50, Number(req.query.limit) || 20);
   const page = Number(req.query.page) || 1;
-  const sort = String(req.query.sort || 'LAST_VOLUME_DESC');
-  if (!q) { res.status(400).json({ error: 'q is required' }); return; }
+
+  if (!q && !niche) { res.status(400).json({ error: 'q or niche is required', products: [] }); return; }
 
   try {
-    const { searchProducts } = await import('../lib/aliexpress');
-    const products = await searchProducts(q, { pageSize: limit, pageNo: page, sortBy: sort });
-    res.json({ products, total: products.length, query: q, source: 'aliexpress' });
+    const { searchProducts, getTrendingProducts } = await import('../lib/aliexpress');
+    const raw = q
+      ? await searchProducts(q, { pageSize: limit, pageNo: page, shipToCountry: 'AU', currency: 'AUD' })
+      : await getTrendingProducts(niche, limit);
+
+    // Transform to Majorka format
+    const products = raw.map((p: any) => ({
+      id: p.product_id,
+      name: p.product_title,
+      image_url: p.product_main_image_url,
+      images: p.product_image_urls?.string || [],
+      price_usd: parseFloat(p.target_sale_price || p.sale_price || '0'),
+      price_aud: Math.round(parseFloat(p.target_sale_price || p.sale_price || '0') * 1.55),
+      original_price_aud: Math.round(parseFloat(p.original_price || '0') * 1.55),
+      discount_pct: p.discount || 0,
+      orders_count: parseInt(p.lastest_volume || '0'),
+      rating: parseFloat(p.evaluate_rate || '0') / 20, // 0-100 → 0-5
+      shop_url: p.product_detail_url,
+      aliexpress_url: p.product_detail_url,
+      niche: niche || 'general',
+      shipping_au: 'Ships to AU',
+      source: 'aliexpress_api',
+    }));
+
+    res.json({ products, total: products.length, page, query: q || niche });
   } catch (err: any) {
     console.error('[ae-search]', err.message);
-    res.status(500).json({ error: err.message, products: [] });
+    const notAuthed = err.message.includes('ALIEXPRESS_ACCESS_TOKEN');
+    res.status(notAuthed ? 401 : 500).json({
+      error: err.message,
+      products: [],
+      authUrl: notAuthed ? `${process.env.VITE_APP_URL || 'https://www.majorka.io'}/api/aliexpress/auth` : undefined,
+    });
   }
 });
 
