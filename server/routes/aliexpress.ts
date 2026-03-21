@@ -14,38 +14,78 @@ import { createClient } from '@supabase/supabase-js';
 
 const router = Router();
 
-const REDIRECT_URI = `${process.env.VITE_APP_URL || 'https://www.majorka.io'}/api/aliexpress/callback`;
+// Always use exact callback URL (no www to keep consistent)
+const REDIRECT_URI = 'https://majorka.io/api/aliexpress/callback';
 
 // ── GET /api/aliexpress/auth — start OAuth flow ────────────────────────────────
 router.get('/auth', async (_req: Request, res: Response) => {
+  const appKey = process.env.ALIEXPRESS_APP_KEY || '530110';
+  console.log('[ae-auth] app_key from env:', process.env.ALIEXPRESS_APP_KEY);
+  console.log('[ae-auth] using app_key:', appKey);
+  console.log('[ae-auth] redirect_uri:', REDIRECT_URI);
+
   const { getAuthUrl } = await import('../lib/aliexpress');
   const url = getAuthUrl(REDIRECT_URI);
+  console.log('[ae-auth] redirecting to:', url);
   res.redirect(url);
 });
 
 // ── GET /api/aliexpress/callback — exchange code for token ─────────────────────
 router.get('/callback', async (req: Request, res: Response) => {
   const code = String(req.query.code || '');
+  const error = String(req.query.error || '');
+  if (error) {
+    console.error('[ae-callback] OAuth error:', error, req.query.error_description);
+    res.status(400).send(`OAuth error: ${error} — ${req.query.error_description || ''}`);
+    return;
+  }
   if (!code) { res.status(400).send('Missing code parameter'); return; }
 
   try {
     const { exchangeCodeForToken } = await import('../lib/aliexpress');
     const token = await exchangeCodeForToken(code, REDIRECT_URI);
 
-    // Store tokens — in production update Vercel env vars via API
-    // For now store in memory + log for manual Vercel update
+    // Store tokens in process env immediately
     process.env.ALIEXPRESS_ACCESS_TOKEN = token.access_token;
     process.env.ALIEXPRESS_REFRESH_TOKEN = token.refresh_token;
 
-    const expiresAt = new Date(token.expire_time).toISOString();
-    console.log('[aliexpress-oauth] ✅ Access token obtained');
-    console.log('[aliexpress-oauth] Expires:', expiresAt);
-    console.log('[aliexpress-oauth] Access token:', token.access_token.slice(0, 20) + '...');
-    console.log('[aliexpress-oauth] Refresh token:', token.refresh_token.slice(0, 20) + '...');
-    console.log('[aliexpress-oauth] User ID:', token.user_id);
-    console.log('[aliexpress-oauth] ACTION REQUIRED: Add to Vercel:');
-    console.log(`  ALIEXPRESS_ACCESS_TOKEN=${token.access_token}`);
-    console.log(`  ALIEXPRESS_REFRESH_TOKEN=${token.refresh_token}`);
+    const expiresAt = token.expire_time ? new Date(token.expire_time).toISOString() : 'unknown';
+    console.log('[aliexpress-oauth] ✅ Access token obtained, user:', token.user_id);
+    console.log('[aliexpress-oauth] expires:', expiresAt);
+
+    // Auto-save to Vercel env vars so token survives redeployment
+    const vercelToken = process.env.VERCEL_TOKEN;
+    const vercelProjectId = 'prj_fuP0FKGoarPrEv1U2s9pdEWCCHk9';
+    if (vercelToken) {
+      try {
+        for (const [key, value] of [
+          ['ALIEXPRESS_ACCESS_TOKEN', token.access_token],
+          ['ALIEXPRESS_REFRESH_TOKEN', token.refresh_token],
+        ]) {
+          const res2 = await fetch(`https://api.vercel.com/v9/projects/${vercelProjectId}/env`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${vercelToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key, value, type: 'encrypted', target: ['production', 'preview', 'development'] }),
+          });
+          if (!res2.ok) {
+            // Try PATCH if already exists
+            const existing = await fetch(`https://api.vercel.com/v9/projects/${vercelProjectId}/env`, {
+              headers: { 'Authorization': `Bearer ${vercelToken}` }
+            }).then(r => r.json()).then((d: any) => d.envs?.find((e: any) => e.key === key));
+            if (existing?.id) {
+              await fetch(`https://api.vercel.com/v9/projects/${vercelProjectId}/env/${existing.id}`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `Bearer ${vercelToken}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ value }),
+              });
+            }
+          }
+        }
+        console.log('[aliexpress-oauth] ✅ Tokens saved to Vercel env vars');
+      } catch (e: any) {
+        console.error('[aliexpress-oauth] Failed to auto-save to Vercel:', e.message);
+      }
+    }
 
     res.send(`
       <html><body style="font-family:sans-serif;background:#080a0e;color:#fff;padding:40px">

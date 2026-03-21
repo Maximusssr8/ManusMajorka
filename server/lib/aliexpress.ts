@@ -68,8 +68,13 @@ async function callAPI(method: string, extra: Record<string, string> = {}, requi
 // ── OAuth Helpers ──────────────────────────────────────────────────────────────
 
 export function getAuthUrl(redirectUri: string): string {
-  const { appKey } = getCredentials();
-  return `${OAUTH_URL}/authorize?response_type=code&client_id=${appKey}&redirect_uri=${encodeURIComponent(redirectUri)}&sp=ae&view=web`;
+  // Hardcoded fallback so OAuth works even if env var isn't loaded at module init time
+  const appKey = process.env.ALIEXPRESS_APP_KEY || '530110';
+  console.log('[ae-auth] app_key:', appKey);
+  console.log('[ae-auth] redirect_uri:', redirectUri);
+  const url = `${OAUTH_URL}/authorize?response_type=code&force_auth=true&client_id=${appKey}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+  console.log('[ae-auth] OAuth URL:', url);
+  return url;
 }
 
 export async function exchangeCodeForToken(code: string, redirectUri: string): Promise<{
@@ -79,25 +84,42 @@ export async function exchangeCodeForToken(code: string, redirectUri: string): P
   refresh_token_valid_time: number;
   user_id: string;
 }> {
-  const { appKey, appSecret } = getCredentials();
-  const params = buildParams('aliexpress.system.oauth.token.get', {
-    code,
-    grant_type: 'authorization_code',
-  });
+  const appKey = process.env.ALIEXPRESS_APP_KEY || '530110';
+  const appSecret = process.env.ALIEXPRESS_APP_SECRET || '8aHJr5hI76XIqvtKDKc5b1h6FfTytp75';
 
-  const body = new URLSearchParams(params).toString();
-  const res = await fetch(API_URL, {
+  console.log('[ae-token] exchanging code, app_key:', appKey);
+
+  // AliExpress token endpoint — POST to oauth.aliexpress.com/token
+  const body = new URLSearchParams({
+    grant_type: 'authorization_code',
+    code,
+    client_id: appKey,
+    client_secret: appSecret,
+    redirect_uri: redirectUri,
+  }).toString();
+
+  const res = await fetch(`${OAUTH_URL}/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body,
     signal: AbortSignal.timeout(15000),
   });
-  const data = await res.json();
-  if (data?.error_response) throw new Error(data.error_response.msg);
 
-  const result = data?.aliexpress_system_oauth_token_get_response;
-  if (!result) throw new Error('No token in response: ' + JSON.stringify(data).slice(0, 200));
-  return result;
+  const raw = await res.text();
+  console.log('[ae-token] response status:', res.status);
+  console.log('[ae-token] response body:', raw.slice(0, 300));
+
+  let data: any;
+  try { data = JSON.parse(raw); } catch { throw new Error('Non-JSON token response: ' + raw.slice(0, 200)); }
+
+  // Handle both OAuth2 standard format and AliExpress TOP format
+  if (data.access_token) return data;
+  if (data?.aliexpress_system_oauth_token_get_response) return data.aliexpress_system_oauth_token_get_response;
+  if (data?.error || data?.error_response) {
+    const msg = data.error_description || data.error || data?.error_response?.msg || JSON.stringify(data);
+    throw new Error(msg);
+  }
+  throw new Error('Unexpected token response: ' + JSON.stringify(data).slice(0, 300));
 }
 
 export async function refreshAccessToken(refreshToken: string): Promise<{ access_token: string; expire_time: number }> {
