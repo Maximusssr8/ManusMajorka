@@ -250,22 +250,22 @@ function PersonalisedFeed() {
 
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.03)',
-      border: '1px solid rgba(255,255,255,0.07)',
+      background: 'white',
+      border: '1px solid #F0F0F0',
       borderRadius: 16, padding: 20, marginBottom: 24
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 15, fontWeight: 700, color: '#f0ede8', margin: 0 }}>
+        <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 15, fontWeight: 700, color: '#0A0A0A', margin: 0 }}>
           {userNiche ? `🔥 Top Products in ${userNiche}` : '🔥 Today\'s Top Revenue Products'}
         </h3>
         <a href="/app/winning-products" style={{ fontSize: 12, color: '#6366F1', textDecoration: 'none' }}>View all →</a>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {products.map((p, i) => (
-          <div key={String(p.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: 'rgba(255,255,255,0.02)', borderRadius: 8 }}>
-            <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)', width: 20 }}>#{i+1}</span>
+          <div key={String(p.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: '#FAFAFA', borderRadius: 8 }}>
+            <span style={{ fontSize: 11, color: '#6B7280', width: 20 }}>#{i+1}</span>
             {p.image_url ? <img src={String(p.image_url)} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: 'cover' }} /> : null}
-            <span style={{ flex: 1, fontSize: 13, color: '#f0ede8', fontWeight: 500 }}>{String(p.product_title ?? '')}</span>
+            <span style={{ flex: 1, fontSize: 13, color: '#111111', fontWeight: 500 }}>{String(p.product_title ?? '')}</span>
             <span style={{ fontSize: 13, fontWeight: 700, color: '#6366F1' }}>
               ${Math.round((Number(p.est_daily_revenue_aud) || 0) * 30 / 1000)}k/mo
             </span>
@@ -277,7 +277,7 @@ function PersonalisedFeed() {
       </div>
       {!userNiche && (
         <div style={{ marginTop: 12, padding: '10px 14px', background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 10 }}>
-          <span style={{ fontSize: 12, color: 'rgba(240,237,232,0.6)' }}>
+          <span style={{ fontSize: 12, color: '#6B7280' }}>
             💡 Set your niche in <a href="/app/settings" style={{ color: '#6366F1' }}>Settings</a> to see personalised product recommendations
           </span>
         </div>
@@ -613,7 +613,7 @@ function DashboardHome() {
           <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 800, fontSize: 26, color: '#0A0A0A', marginBottom: 4 }}>
             {getGreeting()}, {firstName} <span role="img" aria-label="wave">👋</span>
           </div>
-          <div style={{ fontSize: 13, color: '#9CA3AF' }}>{formatDate()} &middot; {plan === 'free' ? 'Free Plan' : plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan'}</div>
+          <div style={{ fontSize: 13, color: '#6B7280' }}>{formatDate()} &middot; {plan === 'free' ? 'Free Plan' : plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan'}</div>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {plan === 'free' && (
@@ -647,13 +647,13 @@ function DashboardHome() {
               onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#F0F0F0'; }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' as const, color: '#9CA3AF' }}>{card.label}</span>
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' as const, color: '#6B7280' }}>{card.label}</span>
                 <div style={{ width: 34, height: 34, borderRadius: 9, background: `${card.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <card.icon size={16} color={card.color} />
                 </div>
               </div>
               <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 800, fontSize: 30, color: '#0A0A0A', lineHeight: 1, marginBottom: 8 }}>{card.value}</div>
-              <div style={{ fontSize: 12, color: card.positive ? '#10B981' : '#EF4444' }}>&uarr; {card.delta}</div>
+              <div style={{ fontSize: 12, color: card.positive ? '#059669' : '#EF4444' }}>&uarr; {card.delta}</div>
             </div>
           ))}
         </div>
@@ -666,7 +666,7 @@ function DashboardHome() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div>
                 <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#0A0A0A' }}>Revenue Trend</div>
-                <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 2 }}>Est. weekly opportunity (AU market)</div>
+                <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>Est. weekly opportunity (AU market)</div>
               </div>
               <span style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Bricolage Grotesque, sans-serif', color: '#6366F1' }}>$28.4k</span>
             </div>
@@ -679,7 +679,7 @@ function DashboardHome() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
-                <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#9CA3AF' }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#6B7280' }} axisLine={false} tickLine={false} />
                 <YAxis hide />
                 <Tooltip contentStyle={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12 }} formatter={(v: any) => [`$${(v / 1000).toFixed(1)}k`, 'Revenue']} />
                 <Area type="monotone" dataKey="rev" stroke="#6366F1" strokeWidth={2.5} fill="url(#indigo-grad)" dot={{ fill: '#6366F1', r: 3 }} activeDot={{ r: 5 }} />
@@ -751,7 +751,7 @@ function DashboardHome() {
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 14, fontWeight: 600, color: '#0A0A0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
-                        <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 2 }}>{margin}% margin &middot; {p.niche ?? 'General'}</div>
+                        <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{margin}% margin &middot; {p.niche ?? 'General'}</div>
                       </div>
                       <div style={{ textAlign: 'right' as const, flexShrink: 0 }}>
                         <div style={{ fontSize: 14, fontWeight: 700, color: '#0A0A0A' }}>${(revenue / 1000).toFixed(1)}k/mo</div>
@@ -782,7 +782,7 @@ function DashboardHome() {
         <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#0A0A0A' }}>Your Tools</div>
-            <span style={{ fontSize: 12, color: '#9CA3AF' }}>20+ AI tools</span>
+            <span style={{ fontSize: 12, color: '#6B7280' }}>20+ AI tools</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 10 }}>
             {([

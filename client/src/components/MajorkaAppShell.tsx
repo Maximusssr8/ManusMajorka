@@ -500,7 +500,7 @@ export default function MajorkaAppShell({ children }: Props) {
           style={{
             borderRadius: 8,
             background: active ? '#EEF2FF' : 'transparent',
-            color: active ? '#6366F1' : '#6B7280',
+            color: active ? '#6366F1' : '#374151',
             fontFamily: 'DM Sans, sans-serif',
             border: 'none',
             cursor: 'pointer',
@@ -523,7 +523,7 @@ export default function MajorkaAppShell({ children }: Props) {
           onMouseLeave={(e) => {
             if (!active) {
               (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-              (e.currentTarget as HTMLButtonElement).style.color = '#6B7280';
+              (e.currentTarget as HTMLButtonElement).style.color = '#374151';
             }
           }}
         >
@@ -1170,7 +1170,7 @@ export default function MajorkaAppShell({ children }: Props) {
                   style={{
                     gap: 3,
                     padding: '4px 12px',
-                    color: active ? '#6366F1' : 'rgba(107,114,128,0.8)',
+                    color: active ? '#6366F1' : '#374151',
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',

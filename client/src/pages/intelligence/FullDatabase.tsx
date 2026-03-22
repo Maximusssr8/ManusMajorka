@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
 import Sparkline from '@/components/Sparkline';
@@ -41,6 +41,95 @@ function formatUnits(n: number | undefined | null): string {
 }
 
 const AVATAR_COLORS = ['#6c5ce7', '#00b894', '#e17055', '#0984e3', '#fd79a8'];
+
+// ── Supplier URL helpers ──────────────────────────────────────────────────────
+function getSupplierUrl(product: any): string {
+  if (product.supplier_url && product.supplier_url.startsWith('http')) {
+    return product.supplier_url;
+  }
+  if (product.aliexpress_url && product.aliexpress_url.startsWith('http')) {
+    return product.aliexpress_url;
+  }
+  const q = encodeURIComponent(product.name || product.title || '');
+  return `https://www.aliexpress.com/wholesale?SearchText=${q}&shipCountry=au`;
+}
+
+function getTikTokUrl(product: any): string {
+  const q = encodeURIComponent(product.name || product.title || '');
+  return `https://www.tiktok.com/search?q=${q}`;
+}
+
+function getAlibabaUrl(product: any): string {
+  const q = encodeURIComponent(product.name || product.title || '');
+  return `https://www.alibaba.com/trade/search?SearchText=${q}`;
+}
+
+// ── Supplier Dropdown ─────────────────────────────────────────────────────────
+function SupplierDropdown({ product }: { product: any }) {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const options = [
+    { icon: '🛒', label: 'AliExpress Supplier', url: getSupplierUrl(product), color: '#E63F00' },
+    { icon: '🎵', label: 'TikTok Shop',          url: getTikTokUrl(product),    color: '#111' },
+    { icon: '🏭', label: 'Search Alibaba',        url: getAlibabaUrl(product),   color: '#F57C00' },
+  ];
+
+  return (
+    <div ref={ref} style={{ position: 'relative' as const }}>
+      <button
+        onClick={e => { e.stopPropagation(); setOpen(o => !o); }}
+        style={{
+          height: 32, padding: '0 12px', borderRadius: 6, border: '1px solid #E5E7EB',
+          background: 'white', color: '#374151', fontSize: 12, fontWeight: 600,
+          cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+          transition: 'all 150ms',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.color = '#6366F1'; }}
+        onMouseLeave={e => { if (!open) { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.color = '#374151'; } }}
+      >
+        🛒 Supplier <span style={{ fontSize: 10 }}>▾</span>
+      </button>
+      {open && (
+        <div style={{
+          position: 'absolute' as const, top: '100%', left: 0, marginTop: 4,
+          background: 'white', border: '1px solid #E5E7EB', borderRadius: 10,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 999,
+          minWidth: 200, overflow: 'hidden',
+        }}>
+          {options.map(opt => (
+            <a
+              key={opt.label}
+              href={opt.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '10px 14px', textDecoration: 'none',
+                color: '#111111', fontSize: 13, fontWeight: 500,
+                transition: 'background 120ms',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = '#F5F3FF')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+            >
+              <span style={{ fontSize: 16 }}>{opt.icon}</span>
+              <span>{opt.label}</span>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ── Shimmer keyframes injected once ───────────────────────────────────────────
 const shimmerCss = `
@@ -343,7 +432,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     fontWeight: 600,
     textTransform: 'uppercase',
     letterSpacing: '0.06em',
-    color: '#9CA3AF',
+    color: '#374151',
     textAlign: 'left',
     cursor: 'pointer',
     whiteSpace: 'nowrap',
@@ -391,7 +480,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             {liveLoading ? '...' : 'Search →'}
           </button>
         </div>
-        <p style={{ color: '#9CA3AF', fontSize: 12, marginTop: 8, margin: '8px 0 0' }}>
+        <p style={{ color: '#6B7280', fontSize: 12, marginTop: 8, margin: '8px 0 0' }}>
           Searches live AliExpress · TikTok Shop · Majorka DB &mdash; real products, real prices
         </p>
       </div>
@@ -455,7 +544,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   ${product.price_aud > 0 ? product.price_aud.toFixed(2) : '—'}
                 </span>
                 {product.sold_count && (
-                  <p style={{ color: '#9CA3AF', fontSize: 11, margin: '2px 0 0' }}>{product.sold_count}</p>
+                  <p style={{ color: '#6B7280', fontSize: 11, margin: '2px 0 0' }}>{product.sold_count}</p>
                 )}
               </div>
 
@@ -490,11 +579,11 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           ))}
 
           {!liveLoading && liveSearched && liveResults.length === 0 && (
-            <p style={{ color: '#9CA3AF', padding: '20px 28px', fontSize: 13 }}>No results. Try a different search term.</p>
+            <p style={{ color: '#374151', padding: '20px 28px', fontSize: 13 }}>No results. Try a different search term.</p>
           )}
 
           <div style={{ padding: '16px 28px 4px' }}>
-            <p style={{ color: '#9CA3AF', fontSize: 12, margin: 0 }}>
+            <p style={{ color: '#6B7280', fontSize: 12, margin: 0 }}>
               &darr; Popular with AU dropshippers
             </p>
           </div>
@@ -518,11 +607,11 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       {top10.length > 0 && (
         <div style={{ marginBottom: 24, padding: '0 28px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981', boxShadow: '0 0 6px #10B981', flexShrink: 0 }} />
-            <span style={{ fontSize: 11, fontWeight: 800, color: '#10B981', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '1.2px' }}>
+            <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#059669', boxShadow: '0 0 6px #059669', flexShrink: 0 }} />
+            <span style={{ fontSize: 11, fontWeight: 800, color: '#059669', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '1.2px' }}>
               Today's Top 10
             </span>
-            <span style={{ fontSize: 11, color: '#9CA3AF' }}>· Refreshed every 6h</span>
+            <span style={{ fontSize: 11, color: '#6B7280' }}>· Refreshed every 6h</span>
           </div>
           <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4 }}>
             {top10.map((p, idx) => (
@@ -578,7 +667,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     <span style={{ fontSize: 12, fontWeight: 800, color: '#6366F1' }}>
                       {formatRevenue(p.est_monthly_revenue_aud)}
                     </span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: (p.growth_rate_pct || 0) >= 0 ? '#10B981' : '#EF4444' }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: (p.growth_rate_pct || 0) >= 0 ? '#059669' : '#EF4444' }}>
                       {(p.growth_rate_pct || 0) >= 0 ? '↑' : '↓'}{Math.abs(p.growth_rate_pct || 0)}%
                     </span>
                   </div>
@@ -615,11 +704,11 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 onMouseLeave={e => (e.currentTarget.style.borderColor = '#F0F0F0')}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' as const, color: '#9CA3AF' }}>{card.label}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' as const, color: '#6B7280' }}>{card.label}</span>
                   <span style={{ fontSize: 20 }}>{card.icon}</span>
                 </div>
                 <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 28, color: '#111111', lineHeight: 1, marginBottom: 8 }}>{card.value}</div>
-                <div style={{ fontSize: 12, color: card.positive ? '#10B981' : '#EF4444', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div style={{ fontSize: 12, color: card.positive ? '#059669' : '#EF4444', display: 'flex', alignItems: 'center', gap: 4 }}>
                   {card.positive ? '↑' : '↓'} {card.trend}
                 </div>
               </div>
@@ -774,12 +863,12 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               } else if (score >= 65) {
                 scoreBg = '#FFFFFF'; scoreBorder = '#6366F1'; scoreColor = '#6366F1';
               } else {
-                scoreBg = '#FFFFFF'; scoreBorder = '#D1D5DB'; scoreColor = '#9CA3AF';
+                scoreBg = '#FFFFFF'; scoreBorder = '#D1D5DB'; scoreColor = '#6B7280';
               }
 
               // Margin color
               let marginColor: string;
-              if (marginPct > 50) { marginColor = '#10B981'; }
+              if (marginPct > 50) { marginColor = '#059669'; }
               else if (marginPct >= 30) { marginColor = '#F59E0B'; }
               else { marginColor = '#EF4444'; }
 
@@ -793,7 +882,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   onMouseLeave={() => setHoveredRow(null)}
                 >
                   {/* Rank */}
-                  <td style={{ padding: '14px 8px 14px 20px', fontSize: 13, color: '#9CA3AF', textAlign: 'center', fontWeight: 600 }}>
+                  <td style={{ padding: '14px 8px 14px 20px', fontSize: 13, color: '#6B7280', textAlign: 'center', fontWeight: 600 }}>
                     {idx + 1}
                   </td>
 
@@ -847,10 +936,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
                   {/* Revenue */}
                   <td style={{ padding: '12px 20px' }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#10B981', lineHeight: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#059669', lineHeight: 1 }}>
                       {estRevenue > 0 ? formatRevenue(estRevenue) : '—'}
                     </div>
-                    <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 3 }}>est/month</div>
+                    <div style={{ fontSize: 11, color: '#6B7280', marginTop: 3 }}>est/month</div>
                   </td>
 
                   {/* Orders */}
@@ -858,7 +947,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     <div style={{ fontSize: 14, color: '#6B7280' }}>
                       {orders > 0 ? orders.toLocaleString() : formatUnits(p.items_sold_monthly)}
                     </div>
-                    <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 2 }}>orders</div>
+                    <div style={{ fontSize: 10, color: '#6B7280', marginTop: 2 }}>orders</div>
                   </td>
 
                   {/* Margin */}
@@ -873,7 +962,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     <Sparkline
                       data={(p.revenue_trend && p.revenue_trend.length === 7) ? p.revenue_trend : [1, 1, 1, 1, 1, 1, 1]}
                       width={78} height={32}
-                      color={growth > 0 ? '#10B981' : '#EF4444'}
+                      color={growth > 0 ? '#059669' : '#EF4444'}
                     />
                   </td>
 
@@ -894,7 +983,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   <td className="db-col-hide-mobile" style={{ padding: '12px 20px' }}>
                     <CreatorAvatars handles={p.creator_handles || []} />
                     {(p.ad_count_est || 0) > 0 && (
-                      <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 4, textAlign: 'center' }}>
+                      <div style={{ fontSize: 9, color: '#6B7280', marginTop: 4, textAlign: 'center' }}>
                         +{p.ad_count_est} ads
                       </div>
                     )}
@@ -935,16 +1024,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                       >
                         🎬 Ads
                       </button>
-                      <button onClick={() => handleFindSupplier(p)}
-                        style={{
-                          height: 32,
-                          background: '#FFFFFF', color: '#374151',
-                          border: '1px solid #E5E7EB',
-                          padding: '0 10px', borderRadius: 6, fontSize: 12, cursor: 'pointer',
-                          whiteSpace: 'nowrap',
-                        }}>
-                        Supplier
-                      </button>
+                      <SupplierDropdown product={p} />
                     </div>
                   </td>
                 </tr>
@@ -955,7 +1035,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       </div>
 
       {/* Footer */}
-      <div style={{ padding: '12px 28px', fontSize: 12, color: '#9CA3AF', textAlign: 'center' }}>
+      <div style={{ padding: '12px 28px', fontSize: 12, color: '#6B7280', textAlign: 'center' }}>
         {sorted.length} products · Majorka AU Market Intelligence
       </div>
 
