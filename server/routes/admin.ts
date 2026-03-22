@@ -1018,7 +1018,7 @@ router.post('/refresh-from-aliexpress', async (req: Request, res: Response) => {
           orders_count: p.orders_count,
           winning_score: Math.min(100, Math.round(p.orders_count / 100)),
           trend_score: 70,
-          growth_pct: 15,
+          growth_rate_pct: 15,
           real_data_scraped: true,
           source: 'rapidapi_datahub',
           updated_at: new Date().toISOString(),
@@ -1122,7 +1122,7 @@ router.post('/refresh-db-rapidapi', async (req: Request, res: Response) => {
           supplier_name: p.supplier_name || 'AliExpress',
           winning_score: Math.min(100, Math.round((p.orders_count || 0) / 50)),
           trend_score: 70,
-          growth_pct: 15,
+          growth_rate_pct: 15,
           real_data_scraped: true,
           source: 'rapidapi_datahub',
         });
