@@ -7,12 +7,10 @@ import {
   Users,
   Zap,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Marquee from 'react-fast-marquee';
 import { useInView } from 'react-intersection-observer';
 import { Link } from 'wouter';
-import LiveDemoWidget from '@/components/LiveDemoWidget';
-import StoreBuilderAnimation from '@/components/StoreBuilderAnimation';
 import ProductIntelligencePreview from '@/components/ProductIntelligencePreview';
 import { SEO } from '@/components/SEO';
 // SocialProofTicker removed — felt cheap/spammy
@@ -142,14 +140,6 @@ const syne = 'Syne, sans-serif';
 const dm = "'DM Sans', sans-serif";
 
 // ── Data ──────────────────────────────────────────────────────────────────────
-
-const AVATARS = [
-  { initials: 'JM', bg: '#6366F1', color: '#000' },
-  { initials: 'ST', bg: '#4F46E5', color: '#000' },
-  { initials: 'ML', bg: '#374151', color: '#e5e7eb' },
-  { initials: 'PK', bg: '#6366F1', color: '#000' },
-  { initials: 'TB', bg: '#4b5563', color: '#f9fafb' },
-];
 
 const STATS_BASE = [
   { key: 'sellers', end: 2400, suffix: '+', prefix: '', label: 'Active Sellers', icon: Users, live: true, tickEvery: 30000, tickBy: 1 },
@@ -489,62 +479,6 @@ function WeeklyWinnersSection() {
   );
 }
 
-// ── Live Counter Badge ─────────────────────────────────────────────────────────
-
-function LiveCounterBadge() {
-  const [count, setCount] = useState(2412);
-  useEffect(() => {
-    const tick = () => {
-      const delay = 5000 + Math.random() * 3000;
-      const timer = setTimeout(() => {
-        setCount((prev) => prev + (Math.random() > 0.4 ? 1 : -1) * Math.ceil(Math.random() * 2));
-        tick();
-      }, delay);
-      return timer;
-    };
-    const t = tick();
-    return () => clearTimeout(t);
-  }, []);
-
-  return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.18)', borderRadius: 100, padding: '6px 16px', marginTop: 16, marginBottom: 8 }}>
-      <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e', display: 'inline-block', animation: 'live-dot 1.5s ease-in-out infinite', flexShrink: 0 }} />
-      <span style={{ fontSize: 11, fontWeight: 700, color: '#22c55e', letterSpacing: '0.06em', textTransform: 'uppercase', fontFamily: syne }}>LIVE</span>
-      <span style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>{count.toLocaleString()} sellers online right now</span>
-    </div>
-  );
-}
-
-// ── Urgency Strip ─────────────────────────────────────────────────────────────
-
-function UrgencyStrip() {
-  const [lastFound, setLastFound] = useState(() => Math.floor(Math.random() * 4) + 1);
-  const [refreshHours, setRefreshHours] = useState(5);
-  const [refreshMins, setRefreshMins] = useState(47);
-
-  useEffect(() => {
-    const foundTimer = setInterval(() => setLastFound((p) => p + 1), 60000);
-    const refreshTimer = setInterval(() => {
-      setRefreshMins((m) => {
-        if (m === 0) { setRefreshHours((h) => Math.max(0, h - 1)); return 59; }
-        return m - 1;
-      });
-    }, 60000);
-    return () => { clearInterval(foundTimer); clearInterval(refreshTimer); };
-  }, []);
-
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '6px 20px', flexWrap: 'wrap', marginTop: 16, justifyContent: 'flex-start' }}>
-      {[
-        `⚡ 47 sellers joined today`,
-        `🔥 Last product found: ${lastFound} minute${lastFound !== 1 ? 's' : ''} ago`,
-        `📦 Next data refresh: ${refreshHours}h ${String(refreshMins).padStart(2, '0')}m`,
-      ].map((item) => (
-        <span key={item} className="urgency-item" style={{ fontSize: 12, color: 'rgba(99,102,241,0.7)', fontWeight: 500 }}>{item}</span>
-      ))}
-    </div>
-  );
-}
 
 // ── Floating CTA ──────────────────────────────────────────────────────────────
 
@@ -598,11 +532,24 @@ export default function Home() {
   const [hoveredPricing, setHoveredPricing] = useState<number | null>(null);
   const [billingAnnual, setBillingAnnual] = useState(false);
   const [navShadow, setNavShadow] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mockupRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const onScroll = () => setNavShadow(window.scrollY > 50);
+    const onScroll = () => setNavShadow(window.scrollY > 80);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (mockupRef.current) {
+        const scrollY = window.scrollY;
+        mockupRef.current.style.transform = `perspective(1200px) rotateX(${Math.max(0, 4 - scrollY * 0.01)}deg) translateY(${scrollY * -0.15}px)`;
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -661,145 +608,152 @@ export default function Home() {
       <style>{GLOBAL_STYLES}</style>
 
       {/* ═══ NAV ═══════════════════════════════════════════════════════════ */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(8,10,14,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(99,102,241,0.08)', boxShadow: navShadow ? "0 4px 24px rgba(0,0,0,0.4)" : "none", transition: "box-shadow 0.3s" }}>
-        <div className="nav-inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 34, height: 34, borderRadius: 8, background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 17, color: '#000' }}>M</div>
-            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 17, letterSpacing: '0.08em' }}>MAJORKA</span>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(250,250,250,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(229,231,235,0.8)', boxShadow: navShadow ? '0 1px 12px rgba(0,0,0,0.08)' : 'none', transition: 'box-shadow 0.3s' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 max(calc((100vw - 1200px) / 2), 24px)', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* Left: wordmark */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 24, height: 24, borderRadius: 6, background: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: '#fff' }}>M</div>
+            <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 16, color: '#111827' }}>MAJORKA</span>
           </div>
-          <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-            {[['#features', 'Features'], ['#pricing', 'Pricing'], ['#faq', 'FAQ']].map(([href, label]) => (
-              <a key={href} href={href} style={{ color: '#9ca3af', textDecoration: 'none', fontSize: 14, fontWeight: 400, fontFamily: dm, transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = C.gold)} onMouseLeave={(e) => (e.currentTarget.style.color = '#9ca3af')}>{label}</a>
+          {/* Center: nav links */}
+          <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+            {[['#features', 'Features'], ['#pricing', 'Pricing'], ['/dropshipping-australia', 'Blog'], ['/docs', 'Docs']].map(([href, label]) => (
+              <a key={label} href={href} style={{ color: '#374151', textDecoration: 'none', fontSize: 14, padding: '0 4px', margin: '0 12px', transition: 'color 150ms' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#6366F1')} onMouseLeave={(e) => (e.currentTarget.style.color = '#374151')}>{label}</a>
             ))}
-            <Link href="/sign-in" style={{ color: '#9ca3af', textDecoration: 'none', fontSize: 14, fontWeight: 400, fontFamily: dm, transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = C.gold)} onMouseLeave={(e) => (e.currentTarget.style.color = '#9ca3af')}>Sign In</Link>
           </div>
-          <Link href="/app" style={{ background: '#6366F1', color: '#080a0e', borderRadius: 20, padding: '8px 20px', fontFamily: syne, fontWeight: 600, fontSize: 14, textDecoration: 'none', display: 'inline-block', border: 'none', minHeight: 36 }}>
-            Start Free
-          </Link>
+          {/* Right: auth */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Link href="/sign-in" className="hide-mobile" style={{ color: '#374151', textDecoration: 'none', fontSize: 14 }}>Log in</Link>
+            <Link href="/app" style={{ background: '#6366F1', color: '#fff', borderRadius: 8, padding: '8px 18px', fontWeight: 600, fontSize: 14, textDecoration: 'none', display: 'inline-block' }}>
+              Start Free →
+            </Link>
+            {/* Mobile hamburger */}
+            <button className="hide-desktop" onClick={() => setMobileMenuOpen(prev => !prev)} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#374151', padding: '4px 0', lineHeight: 1 }}>☰</button>
+          </div>
         </div>
+        {/* Mobile drawer */}
+        {mobileMenuOpen && (
+          <div className="hide-desktop" style={{ borderTop: '1px solid #E5E7EB', background: 'rgba(250,250,250,0.95)', padding: '12px 24px', display: 'flex', flexDirection: 'column', gap: 0 }}>
+            {[['#features', 'Features'], ['#pricing', 'Pricing'], ['/dropshipping-australia', 'Blog'], ['/docs', 'Docs']].map(([href, label]) => (
+              <a key={label} href={href} onClick={() => setMobileMenuOpen(false)} style={{ color: '#374151', textDecoration: 'none', fontSize: 15, padding: '12px 0', borderBottom: '1px solid #F3F4F6' }}>{label}</a>
+            ))}
+          </div>
+        )}
       </nav>
 
       {/* ═══ HERO ══════════════════════════════════════════════════════════ */}
-      <section className="hero-section" style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', padding: '100px 24px 80px', overflow: 'hidden' }}>
+      <section style={{ position: 'relative', paddingTop: 120, paddingBottom: 80, textAlign: 'center', overflow: 'hidden', background: '#FAFAFA' }}>
         {/* Gradient mesh blobs */}
-        <div className="gradient-blob" style={{ width:500, height:500, top:"-10%", left:"-5%", background:"rgba(99,102,241,0.10)", animation:"blob-drift-1 8s ease-in-out infinite", zIndex:0 }} />
-        <div className="gradient-blob" style={{ width:400, height:400, top:"20%", right:"-8%", background:"rgba(139,92,246,0.09)", animation:"blob-drift-2 10s ease-in-out infinite", zIndex:0 }} />
-        <div className="gradient-blob" style={{ width:350, height:350, bottom:"-5%", left:"30%", background:"rgba(6,182,212,0.07)", animation:"blob-drift-3 12s ease-in-out infinite", zIndex:0 }} />
-        <div className="particle-grid" style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '70%', background: 'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 70%)', zIndex: 0, pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', top: '50%', left: '50%', width: 900, height: 900, marginTop: -450, marginLeft: -450, background: 'conic-gradient(from 0deg, transparent, rgba(99,102,241,0.025), transparent, rgba(99,102,241,0.015), transparent, rgba(99,102,241,0.02), transparent)', animation: 'ray-rotate 40s linear infinite', borderRadius: '50%', zIndex: 0, pointerEvents: 'none' }} />
-        <div className="horizon-line" />
+        <div className="gradient-blob" style={{ width: 600, height: 600, top: -100, left: -100, background: 'rgba(99,102,241,0.07)', animation: 'blob-drift-1 8s ease-in-out infinite' }} />
+        <div className="gradient-blob" style={{ width: 500, height: 500, top: 50, right: -150, background: 'rgba(139,92,246,0.06)', animation: 'blob-drift-2 10s ease-in-out infinite' }} />
+        <div className="gradient-blob" style={{ width: 400, height: 400, bottom: -50, left: '30%', background: 'rgba(6,182,212,0.05)', animation: 'blob-drift-3 12s ease-in-out infinite' }} />
 
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: 1200, width: '100%', margin: '0 auto', display: 'flex', alignItems: 'center', gap: 'clamp(32px, 6vw, 80px)', flexWrap: 'wrap' }}>
-          {/* Left */}
-          <div style={{ flex: '1 1 360px', minWidth: 0 }}>
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: C.goldDim, border: `1px solid ${C.goldBorder}`, borderRadius: 100, padding: '6px 18px', marginBottom: 28 }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: C.green, animation: 'pulse-ring 2s ease-in-out infinite' }} />
-              <span style={{ fontSize: 12, fontWeight: 600, color: C.gold, letterSpacing: '0.03em' }}>Built for Serious Sellers</span>
-            </motion.div>
-
-            <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(2rem, 6.5vw, 5rem)', lineHeight: 1.08, letterSpacing: '-0.03em', marginBottom: 24, color: C.text }}>
-              <span style={{ display: 'block' }}>
-                <motion.span initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04, duration: 0.45, ease: 'easeOut' }} style={{ display: 'inline-block', marginRight: '0.25em' }}>The</motion.span>
-                <motion.span initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08, duration: 0.45, ease: 'easeOut' }} className="gold-text" style={{ display: 'inline-block' }}>AI Ecommerce OS</motion.span>
-              </span>
-              <span style={{ display: 'block' }}>
-                {['Built', 'for', 'Serious', 'Sellers.'].map((w, i) => (
-                  <motion.span key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 + i * 0.08, duration: 0.45, ease: 'easeOut' }} style={{ display: 'inline-block', marginRight: '0.25em' }}>{w}</motion.span>
-                ))}
-              </span>
-            </h1>
-
-            <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55, duration: 0.5 }} style={{ fontSize: 'clamp(15px, 2vw, 18px)', color: C.secondary, lineHeight: 1.65, marginBottom: 36, maxWidth: 480 }}>
-              20+ AI tools for product research, store building, ads, and scaling. One platform. Your unfair advantage.
-            </motion.p>
-
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.68, duration: 0.5 }} style={{ marginBottom: 20 }}>
-              <Link
-                href="/sign-in"
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, padding: '14px 36px', fontFamily: syne, fontWeight: 800, fontSize: 16, textDecoration: 'none', minHeight: 52, minWidth: 200, position: 'relative', overflow: 'hidden', transition: 'transform 0.2s' }}
-                className="btn-shimmer"
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.transform = ''; }}
-              >
-                Start for Free →
-              </Link>
-            </motion.div>
-
-            <LiveCounterBadge />
-
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} style={{ fontSize: 12, color: C.muted, marginBottom: 12 }}>
-              No credit card · Free forever plan · Cancel anytime
-            </motion.p>
-
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }} style={{ marginBottom: 16 }}>
-              <Link
-                href="/store-health"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, borderRadius: 10, padding: '9px 20px', fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 13, textDecoration: 'none', color: C.gold, border: `1px solid rgba(99,102,241,0.25)`, background: 'rgba(99,102,241,0.07)', transition: 'background 0.2s' }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(99,102,241,0.14)'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(99,102,241,0.07)'; }}
-              >
-                🏥 Get Your Free Store Health Score →
-              </Link>
-            </motion.div>
-
-            <UrgencyStrip />
-
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.92, duration: 0.5 }} style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex' }}>
-                {AVATARS.map((av, i) => (
-                  <div key={i} style={{ width: 34, height: 34, borderRadius: '50%', background: av.bg, border: '2px solid #080a0e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 11, color: av.color, marginLeft: i === 0 ? 0 : -10, zIndex: AVATARS.length - i, position: 'relative', flexShrink: 0 }}>
-                    {av.initials}
-                  </div>
-                ))}
-              </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Join 2,847 sellers worldwide</div>
-                <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>🇦🇺 🇺🇸 🇬🇧 🇪🇺 🌏</div>
-              </div>
-            </motion.div>
+        {/* Inner content */}
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 720, margin: '0 auto', padding: '0 24px' }}>
+          {/* Pill badge */}
+          <div style={{ opacity: 0, animation: 'fadeIn 0.4s ease 0.1s both' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid #E5E7EB', background: 'white', color: '#6B7280', fontSize: 13, padding: '6px 14px', borderRadius: 999, marginBottom: 24 }}>
+              ✦ Built exclusively for Australian Dropshippers
+            </span>
           </div>
 
-          {/* Right: Store builder animation */}
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4, duration: 0.7, ease: 'easeOut' }}
-            className="hero-widget"
-            style={{ flex: '1 1 400px', minWidth: 0 }}
-          >
-            <div style={{ position:"relative", minHeight:320 }}>
-              <StoreBuilderAnimation />
-              {/* Floating card 1 */}
-              <div style={{
-                position:"absolute", top:-20, left:-30, background:"rgba(13,17,23,0.85)",
-                backdropFilter:"blur(8px)", WebkitBackdropFilter:"blur(8px)",
-                border:"1px solid rgba(99,102,241,0.25)", borderRadius:14, padding:"14px 18px",
-                minWidth:200, transform:"rotate(-3deg)",
-                animation:"float 4s ease-in-out infinite", zIndex:10,
-                boxShadow:"0 8px 32px rgba(0,0,0,0.4)",
-              }}>
-                <div style={{ fontSize:9, fontWeight:700, color:"#22c55e", letterSpacing:"0.08em", marginBottom:6 }}>🔥 TRENDING NOW</div>
-                <div style={{ fontSize:13, fontWeight:700, color:"#f5f5f5", fontFamily:"Syne, sans-serif", marginBottom:4 }}>Posture Corrector Pro</div>
-                <div style={{ fontSize:18, fontWeight:900, color:"#6366F1", fontFamily:"Syne, sans-serif" }}>$48,200<span style={{fontSize:11,color:"#94949e"}}>/mo</span></div>
-                <div style={{ fontSize:10, color:"#94949e", marginTop:2 }}>1,847 orders · 67% margin</div>
-              </div>
-              {/* Floating card 2 */}
-              <div style={{
-                position:"absolute", bottom:-16, right:-20, background:"rgba(13,17,23,0.85)",
-                backdropFilter:"blur(8px)", WebkitBackdropFilter:"blur(8px)",
-                border:"1px solid rgba(99,102,241,0.3)", borderRadius:14, padding:"14px 18px",
-                minWidth:190, transform:"rotate(2deg)",
-                animation:"float 5s ease-in-out 1s infinite", zIndex:10,
-                boxShadow:"0 8px 32px rgba(0,0,0,0.4)",
-              }}>
-                <div style={{ fontSize:9, fontWeight:700, color:"#6366F1", letterSpacing:"0.08em", marginBottom:6 }}>⚡ VIRAL TIKTOK</div>
-                <div style={{ fontSize:13, fontWeight:700, color:"#f5f5f5", fontFamily:"Syne, sans-serif", marginBottom:4 }}>LED Face Mask Pro</div>
-                <div style={{ fontSize:18, fontWeight:900, color:"#6366F1", fontFamily:"Syne, sans-serif" }}>$31,500<span style={{fontSize:11,color:"#94949e"}}>/mo</span></div>
-                <div style={{ fontSize:10, color:"#94949e", marginTop:2 }}>963 orders · 72% margin</div>
+          {/* H1 */}
+          <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 'clamp(40px, 8vw, 72px)', lineHeight: 1.1, letterSpacing: '-0.03em', margin: '0 0 0', opacity: 0, animation: 'fadeInUp 0.5s ease 0.2s both' }}>
+            The <span style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI Operating System</span>
+            <br />
+            <span style={{ color: '#0A0A0A' }}>for Ecommerce Winners.</span>
+          </h1>
+
+          {/* Subheading */}
+          <p style={{ fontSize: 18, color: '#6B7280', maxWidth: 520, margin: '20px auto 0', lineHeight: 1.6, fontFamily: dm, opacity: 0, animation: 'fadeInUp 0.5s ease 0.3s both' }}>
+            Find winning products, build a Shopify store in 60 seconds, and spy on competitors — all built for the AU market.
+          </p>
+
+          {/* CTA row */}
+          <div className="hero-cta-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 36, opacity: 0, animation: 'fadeInUp 0.5s ease 0.4s both' }}>
+            <Link href="/app" style={{ background: '#6366F1', color: 'white', height: 48, padding: '0 28px', borderRadius: 10, fontWeight: 600, fontSize: 15, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', transition: 'background 150ms, transform 150ms' }} onMouseEnter={(e) => { e.currentTarget.style.background = '#4F46E5'; e.currentTarget.style.transform = 'scale(1.02)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = '#6366F1'; e.currentTarget.style.transform = 'scale(1)'; }}>
+              Start for Free →
+            </Link>
+            <button onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })} style={{ background: 'transparent', color: '#374151', height: 48, padding: '0 24px', borderRadius: 10, border: '1px solid #E5E7EB', fontSize: 15, cursor: 'pointer', transition: 'background 150ms' }} onMouseEnter={(e) => (e.currentTarget.style.background = '#F9FAFB')} onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}>
+              Watch a Demo ↓
+            </button>
+          </div>
+
+          {/* Social proof */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 24, opacity: 0, animation: 'fadeIn 0.5s ease 0.5s both' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {[
+                { initials: 'JM', bg: '#6366F1' },
+                { initials: 'SR', bg: '#8B5CF6' },
+                { initials: 'AK', bg: '#0891B2' },
+                { initials: 'BT', bg: '#059669' },
+                { initials: 'LP', bg: '#D97706' },
+              ].map((av, i) => (
+                <div key={av.initials} style={{ width: 32, height: 32, borderRadius: '50%', background: av.bg, border: '2px solid white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: 'white', marginLeft: i === 0 ? 0 : -8, zIndex: 5 - i, position: 'relative' }}>
+                  {av.initials}
+                </div>
+              ))}
+            </div>
+            <span style={{ fontSize: 13, color: '#6B7280', marginLeft: 12 }}>★★★★★ Trusted by 500+ AU dropshippers</span>
+          </div>
+        </div>
+
+        {/* Browser mockup */}
+        <div id="demo" style={{ marginTop: 80, padding: '0 24px', opacity: 0, animation: 'fadeInUp 0.7s ease 0.6s both' }}>
+          <div ref={mockupRef} style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid #E5E7EB', boxShadow: '0 40px 80px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)', transform: 'perspective(1200px) rotateX(4deg)', maxWidth: 900, margin: '0 auto' }}>
+            {/* Browser title bar */}
+            <div style={{ height: 44, background: '#F3F4F6', display: 'flex', alignItems: 'center', padding: '0 16px', gap: 8 }}>
+              <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#EF4444' }} />
+              <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#F59E0B' }} />
+              <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#22C55E' }} />
+              <div style={{ flex: 1, margin: '0 12px', height: 28, background: 'white', border: '1px solid #E5E7EB', borderRadius: 6, display: 'flex', alignItems: 'center', padding: '0 12px', fontSize: 12, color: '#6B7280', fontFamily: 'monospace' }}>
+                🔒 app.majorka.io/dashboard
               </div>
             </div>
-          </motion.div>
+            {/* Browser content */}
+            <div style={{ background: 'white' }}>
+              {/* Mini header */}
+              <div style={{ background: '#FAFAFA', borderBottom: '1px solid #E5E7EB', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontWeight: 600, fontSize: 14, color: '#111827' }}>Product Intelligence</span>
+                <span style={{ fontSize: 12, color: '#6B7280' }}>🇦🇺 AU Market · Live Data</span>
+              </div>
+              {/* Table */}
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ background: '#F9FAFB' }}>
+                    {['Product', 'Revenue/mo', 'Orders', 'Margin', 'Score', ''].map((h) => (
+                      <th key={h} style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#9CA3AF', padding: '8px 20px', textAlign: 'left', fontWeight: 600 }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { product: 'Air Fryer 11-in-1', revenue: '$8,700', orders: '48 orders', margin: '58%', score: 75 },
+                    { product: 'LED Strip Lights', revenue: '$24,200', orders: '312 orders', margin: '61%', score: 82 },
+                    { product: 'Smart Watch GPS', revenue: '$5,400', orders: '49 orders', margin: '44%', score: 68 },
+                  ].map((row) => {
+                    const scoreBg = row.score >= 80 ? '#EEF2FF' : row.score >= 65 ? '#F3E8FF' : '#F9FAFB';
+                    const scoreColor = row.score >= 80 ? '#6366F1' : row.score >= 65 ? '#7C3AED' : '#6B7280';
+                    const scoreBorder = row.score >= 80 ? '#C7D2FE' : row.score >= 65 ? '#DDD6FE' : '#E5E7EB';
+                    return (
+                      <tr key={row.product} style={{ borderBottom: '1px solid #F3F4F6', fontSize: 13, color: '#374151' }} onMouseEnter={(e) => (e.currentTarget.style.background = '#F5F3FF')} onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}>
+                        <td style={{ padding: '10px 20px', fontWeight: 500 }}>{row.product}</td>
+                        <td style={{ padding: '10px 20px', fontWeight: 600 }}>{row.revenue}</td>
+                        <td style={{ padding: '10px 20px' }}>{row.orders}</td>
+                        <td style={{ padding: '10px 20px' }}>{row.margin}</td>
+                        <td style={{ padding: '10px 20px' }}>
+                          <span style={{ background: scoreBg, color: scoreColor, border: `1px solid ${scoreBorder}`, fontWeight: 700, borderRadius: 6, padding: '3px 8px', fontSize: 12 }}>{row.score}</span>
+                        </td>
+                        <td style={{ padding: '10px 20px' }}>
+                          <button style={{ fontSize: 11, padding: '4px 10px', background: '#6366F1', color: 'white', borderRadius: 6, border: 'none', cursor: 'pointer', fontWeight: 500 }}>Build Store →</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </section>
 
