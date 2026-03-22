@@ -500,4 +500,31 @@ router.get('/aliexpress-test', async (req: Request, res: Response) => {
   }
 });
 
+// ── GET /api/products/ad-creatives?product=NAME&price=49 ────────────────────
+router.get("/ad-creatives", async (req: Request, res: Response) => {
+  const product = String(req.query.product || "").trim();
+  const price = Number(req.query.price) || 49;
+  if (!product) { res.status(400).json({ error: "product required" }); return; }
+  try {
+    const { findAdCreatives } = await import("../lib/findAdCreatives");
+    const result = await findAdCreatives(product);
+    res.json({ product, price, ...result });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── POST /api/products/generate-ad-copy ─────────────────────────────────────
+router.post("/generate-ad-copy", requireAuth, async (req: Request, res: Response) => {
+  const { product, price } = req.body || {};
+  if (!product) { res.status(400).json({ error: "product required" }); return; }
+  try {
+    const { generateAdCopy } = await import("../lib/findAdCreatives");
+    const copy = await generateAdCopy(String(product), Number(price) || 49);
+    res.json({ product, ...copy });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

@@ -1080,17 +1080,17 @@ router.post('/refresh-db-rapidapi', async (req: Request, res: Response) => {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
   if (token !== serviceKey) { res.status(403).json({ error: 'Admin only' }); return; }
 
-  const NICHES = [
-    { keyword: 'gym fitness equipment australia', niche: 'Fitness & Gym' },
-    { keyword: 'skincare beauty serum australia', niche: 'Beauty & Skincare' },
-    { keyword: 'phone accessories gadgets wireless', niche: 'Tech Accessories' },
-    { keyword: 'home decor organisation storage', niche: 'Home & Decor' },
-    { keyword: 'pet accessories dog cat', niche: 'Pet Supplies' },
-    { keyword: 'outdoor camping survival gear', niche: 'Outdoor & Camping' },
-    { keyword: 'kitchen gadgets cooking tools', niche: 'Kitchen & Cooking' },
-    { keyword: 'baby products kids toys', niche: 'Baby & Kids' },
-    { keyword: 'jewellery accessories women rings', niche: 'Jewellery' },
-    { keyword: 'car accessories auto phone mount', niche: 'Car Accessories' },
+  const OPPORTUNITY_SEARCHES = [
+    { keyword: "trending viral products 2026", label: "Viral Right Now" },
+    { keyword: "best selling dropship australia 2026", label: "AU Best Sellers" },
+    { keyword: "high profit margin products", label: "High Margin" },
+    { keyword: "tiktok viral products shop", label: "TikTok Trending" },
+    { keyword: "posture corrector back pain australia", label: "Health & Wellness" },
+    { keyword: "led lighting home decoration", label: "Home Upgrade" },
+    { keyword: "phone accessories wireless", label: "Tech Accessories" },
+    { keyword: "gym workout equipment home", label: "Fitness" },
+    { keyword: "pet grooming accessories dog", label: "Pet Products" },
+    { keyword: "kitchen gadgets cooking tools", label: "Kitchen" },
   ];
 
   const { searchAliExpressProducts } = await import('../lib/aliexpressDataHub');
@@ -1101,7 +1101,7 @@ router.post('/refresh-db-rapidapi', async (req: Request, res: Response) => {
   let total = 0;
   const results: { niche: string; count?: number; error?: string }[] = [];
 
-  for (const { keyword, niche } of NICHES) {
+  for (const { keyword, label: niche } of OPPORTUNITY_SEARCHES) {
     try {
       const products = await searchAliExpressProducts(keyword, {
         limit: 19,

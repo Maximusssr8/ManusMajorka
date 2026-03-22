@@ -70,9 +70,6 @@ function CreatorAvatars({ handles }: { handles: string[] }) {
   );
 }
 
-// ── NICHES ────────────────────────────────────────────────────────────────────
-const NICHES = ['All Niches', 'Tech Accessories', 'Beauty & Skincare', 'Health & Wellness', 'Home Decor', 'Activewear & Gym', 'Pets & Animals', 'Fashion & Apparel', 'Outdoor & Camping', 'Baby & Kids', 'Jewellery & Accessories'];
-
 // ── Main Component ────────────────────────────────────────────────────────────
 interface FullDatabaseProps {
   presetFilter?: 'trending' | 'all';
@@ -97,6 +94,12 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const [liveLoading, setLiveLoading] = useState(false);
   const [liveSearched, setLiveSearched] = useState(false);
 
+  // New state for opportunity filters, sorting, ads modal
+  const [opportunityFilter, setOpportunityFilter] = useState<string>("All");
+  const [sortMode, setSortMode] = useState<string>("revenue");
+  const [adsModal, setAdsModal] = useState<{ product: any; creatives: any; adCopy: any; loading: boolean; copyLoading: boolean } | null>(null);
+  const [lastRefreshed, setLastRefreshed] = useState<string>("");
+
   const handleLiveSearch = async (queryOverride?: string) => {
     const query = queryOverride ?? liveSearch;
     if (!query.trim()) return;
@@ -106,7 +109,6 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData?.session?.access_token;
 
-      // Try DataHub (real AliExpress) first, fall back to existing search
       const [datahubRes, searchRes] = await Promise.allSettled([
         fetch(`/api/products/datahub/search?q=${encodeURIComponent(query)}&limit=20`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -119,7 +121,6 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       const datahubProducts: any[] = datahubRes.status === 'fulfilled' ? (datahubRes.value.products ?? []) : [];
       const searchResults: any[] = searchRes.status === 'fulfilled' ? (searchRes.value.results ?? []) : [];
 
-      // Normalise both to same shape
       const normalised = [
         ...datahubProducts.map((p: any) => ({
           id: p.id,
@@ -134,7 +135,6 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           aliexpress_url: p.aliexpress_url,
           supplier_name: p.supplier_name,
         })),
-        // Merge non-duplicate search results
         ...searchResults
           .filter((r: any) => !datahubProducts.some((d: any) => d.name?.toLowerCase() === r.title?.toLowerCase()))
           .slice(0, 5),
@@ -177,7 +177,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       const rows: Product[] = Array.isArray(data) ? data : (data.products || data.data || []);
       setProducts(rows);
       setTotal(rows.length);
-      if (rows[0]?.refreshed_at) setRefreshedAt(rows[0].refreshed_at);
+      if (rows[0]?.refreshed_at) {
+        setRefreshedAt(rows[0].refreshed_at);
+        setLastRefreshed(rows[0].refreshed_at);
+      }
     } catch (err) {
       console.error('[FullDatabase] load error:', err);
       setProducts([]);
@@ -218,18 +221,55 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     window.location.href = `/app/profit?niche=${encodeURIComponent(p.niche)}&product=${encodeURIComponent(p.name)}`;
   }
 
+  // Opportunity tags helper
+  const getOpportunityTags = (product: Product) => {
+    const tags: { label: string; color: string; bg: string }[] = [];
+    const orders = (product as any).orders_count || 0;
+    const price = product.estimated_retail_aud || 0;
+    const nicheStr = (product.niche || "").toLowerCase();
+    if (orders > 1000) tags.push({ label: "🔥 TRENDING", color: "#ff6b35", bg: "rgba(255,107,53,0.1)" });
+    if (price > 30) tags.push({ label: "💰 HIGH MARGIN", color: "#d4af37", bg: "rgba(212,175,55,0.1)" });
+    if (nicheStr.includes("tiktok") || nicheStr.includes("viral")) tags.push({ label: "⚡ VIRAL", color: "#a78bfa", bg: "rgba(167,139,250,0.1)" });
+    tags.push({ label: "🇦🇺 AU DEMAND", color: "#34d399", bg: "rgba(52,211,153,0.1)" });
+    return tags;
+  };
+
   // Top 10 by winning score — only products with revenue data
   const top10 = [...products]
     .filter(p => (p.est_monthly_revenue_aud || 0) > 0)
     .sort((a, b) => ((b.est_monthly_revenue_aud || 0) - (a.est_monthly_revenue_aud || 0)))
     .slice(0, 10);
 
-  // Apply client-side filters
+  // Apply client-side filters with opportunity filter
   const filtered = products.filter(p => {
-    if (search.trim() && !p.name.toLowerCase().includes(search.toLowerCase()) && !p.niche.toLowerCase().includes(search.toLowerCase())) return false;
+    const orders = (p as any).orders_count || 0;
+    const price = p.estimated_retail_aud || 0;
+    const nicheStr = (p.niche || "").toLowerCase();
+    if (search.trim() && !p.name?.toLowerCase().includes(search.toLowerCase())) return false;
     if (minGrowth !== null && (p.growth_rate_pct || 0) < minGrowth) return false;
     if (presetFilter === 'trending' && (p.trend_score || 0) < 70) return false;
+    if (opportunityFilter === "🔥 Viral") return orders > 1000;
+    if (opportunityFilter === "💰 High Margin") return price > 30;
+    if (opportunityFilter === "🇦🇺 AU Best Sellers") return nicheStr.includes("au best") || nicheStr.includes("au sellers");
+    if (opportunityFilter === "⚡ TikTok") return nicheStr.includes("tiktok") || nicheStr.includes("viral");
+    if (opportunityFilter === "New Today") {
+      const d = new Date((p as any).updated_at || 0);
+      return Date.now() - d.getTime() < 86400000;
+    }
     return true;
+  });
+
+  // Apply sort mode
+  const sorted = [...filtered].sort((a, b) => {
+    const aOrders = (a as any).orders_count || 0;
+    const bOrders = (b as any).orders_count || 0;
+    const aPrice = a.estimated_retail_aud || 0;
+    const bPrice = b.estimated_retail_aud || 0;
+    if (sortMode === "revenue") return (bOrders * bPrice) - (aOrders * aPrice);
+    if (sortMode === "orders") return bOrders - aOrders;
+    if (sortMode === "margin") return bPrice - aPrice;
+    if (sortMode === "newest") return new Date((b as any).updated_at || 0).getTime() - new Date((a as any).updated_at || 0).getTime();
+    return (b.winning_score || 0) - (a.winning_score || 0);
   });
 
   const timeAgo = refreshedAt
@@ -281,7 +321,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             }}
           />
           <button
-            onClick={handleLiveSearch}
+            onClick={() => handleLiveSearch()}
             disabled={liveLoading || !liveSearch.trim()}
             style={{
               padding: '13px 24px', background: '#d4af37', color: '#080a0e',
@@ -290,7 +330,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               opacity: liveLoading ? 0.7 : 1,
             }}
           >
-            {liveLoading ? '...' : 'Search \u2192'}
+            {liveLoading ? '...' : 'Search →'}
           </button>
         </div>
         <p style={{ color: '#4b5563', fontSize: 12, marginTop: 8, margin: '8px 0 0' }}>
@@ -354,7 +394,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
                 <span style={{ color: '#d4af37', fontWeight: 700, fontSize: 15 }}>
-                  ${product.price_aud > 0 ? product.price_aud.toFixed(2) : '\u2014'}
+                  ${product.price_aud > 0 ? product.price_aud.toFixed(2) : '—'}
                 </span>
                 {product.sold_count && (
                   <p style={{ color: '#4b5563', fontSize: 11, margin: '2px 0 0' }}>{product.sold_count}</p>
@@ -410,7 +450,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         </h1>
         <p style={{ margin: '4px 0 0', fontSize: 13, color: 'rgba(240,237,232,0.45)' }}>
           {presetFilter === 'trending'
-            ? `${filtered.length} trending products · Updated ${timeAgo}`
+            ? `${sorted.length} trending products · Updated ${timeAgo}`
             : `${total} products tracked · Updated ${timeAgo}`
           }
         </p>
@@ -489,11 +529,32 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         </div>
       )}
 
+      {/* === OPPORTUNITY FILTER BAR === */}
+      <div style={{ display: "flex", gap: 8, padding: "16px 28px 12px", flexWrap: "wrap", borderBottom: "1px solid #1a2030" }}>
+        {["All", "🔥 Viral", "💰 High Margin", "🇦🇺 AU Best Sellers", "⚡ TikTok", "New Today"].map(f => (
+          <button key={f} onClick={() => setOpportunityFilter(f)}
+            style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", border: opportunityFilter === f ? "none" : "1px solid #2a3040",
+              background: opportunityFilter === f ? "#d4af37" : "#1a2030", color: opportunityFilter === f ? "#080a0e" : "#6b7280" }}>
+            {f}
+          </button>
+        ))}
+        <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+          {[{ id: "revenue", label: "Est. Revenue ↓" }, { id: "orders", label: "Orders ↓" }, { id: "margin", label: "Margin ↓" }, { id: "newest", label: "Newest" }].map(s => (
+            <button key={s.id} onClick={() => setSortMode(s.id)}
+              style={{ padding: "6px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer",
+                border: sortMode === s.id ? "none" : "1px solid #2a3040",
+                background: sortMode === s.id ? "#1a2030" : "transparent", color: sortMode === s.id ? "#d4af37" : "#4b5563" }}>
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Filter Bar */}
       <div style={{
         display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center',
         padding: '14px 16px', background: '#0d0d14',
-        borderRadius: 10, marginBottom: 16,
+        borderRadius: 10, marginBottom: 16, marginTop: 16,
         border: '1px solid #1a1a2e',
       }}>
         <input
@@ -506,19 +567,6 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             color: '#f0ede8', fontSize: 13, outline: 'none',
           }}
         />
-        <select value={niche} onChange={e => setNiche(e.target.value)}
-          style={{ padding: '8px 12px', borderRadius: 7, background: '#0a0a12', border: '1px solid #1a1a2e', color: '#f0ede8', fontSize: 13, cursor: 'pointer' }}>
-          {NICHES.map(n => <option key={n}>{n}</option>)}
-        </select>
-        <select value={sortBy} onChange={e => { setSortBy(e.target.value); setSortDir('desc'); }}
-          style={{ padding: '8px 12px', borderRadius: 7, background: '#0a0a12', border: '1px solid #1a1a2e', color: '#f0ede8', fontSize: 13, cursor: 'pointer' }}>
-          <option value="winning_score">Sort: Winning Score ↓</option>
-          <option value="est_monthly_revenue_aud">Sort: Revenue ↓</option>
-          <option value="growth_rate_pct">Sort: Growth Rate ↓</option>
-          <option value="trend_score">Sort: Trend Score ↓</option>
-          <option value="dropship_viability_score">Sort: Viability ↓</option>
-          <option value="items_sold_monthly">Sort: Items Sold ↓</option>
-        </select>
         <button onClick={() => loadProducts()}
           style={{
             marginLeft: 'auto', padding: '8px 18px', borderRadius: 7,
@@ -563,45 +611,44 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               <th style={{ ...thStyle, width: 300 }} onClick={() => toggleSort('name')}>
                 PRODUCT <SortIcon col="name" />
               </th>
-              <th style={{ ...thStyle, width: 140 }} onClick={() => toggleSort('est_monthly_revenue_aud')}>
+              <th style={{ ...thStyle, width: 120 }} onClick={() => toggleSort('est_monthly_revenue_aud')}>
                 EST. REVENUE <SortIcon col="est_monthly_revenue_aud" />
               </th>
+              <th style={{ ...thStyle, width: 80 }}>ORDERS</th>
+              <th style={{ ...thStyle, width: 70 }}>MARGIN</th>
               <th style={{ ...thStyle, width: 90 }}>TREND</th>
-              <th style={{ ...thStyle, width: 100 }} onClick={() => toggleSort('growth_rate_pct')}>
-                GROWTH <SortIcon col="growth_rate_pct" />
-              </th>
-              <th style={{ ...thStyle, width: 90 }} onClick={() => toggleSort('items_sold_monthly')}>
-                SOLD/MO <SortIcon col="items_sold_monthly" />
-              </th>
               <th style={{ ...thStyle, width: 80, textAlign: 'center' }} onClick={() => toggleSort('winning_score')}>
                 SCORE <SortIcon col="winning_score" />
               </th>
               <th style={{ ...thStyle, width: 100 }}>CREATORS</th>
-              <th style={{ ...thStyle, width: 90 }}>SUPPLIER</th>
-              <th style={{ ...thStyle, width: 160 }}>ACTIONS</th>
+              <th style={{ ...thStyle, width: 200 }}>ACTIONS</th>
             </tr>
             <tr>
-              <td colSpan={10} style={{ height: 1, background: '#1a1a2e', padding: 0 }} />
+              <td colSpan={9} style={{ height: 1, background: '#1a1a2e', padding: 0 }} />
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={10} style={{ padding: '60px', textAlign: 'center', color: 'rgba(240,237,232,0.4)' }}>
+                <td colSpan={9} style={{ padding: '60px', textAlign: 'center', color: 'rgba(240,237,232,0.4)' }}>
                   Loading products...
                 </td>
               </tr>
-            ) : filtered.length === 0 ? (
+            ) : sorted.length === 0 ? (
               <tr>
-                <td colSpan={10} style={{ padding: '60px', textAlign: 'center', color: 'rgba(240,237,232,0.4)' }}>
+                <td colSpan={9} style={{ padding: '60px', textAlign: 'center', color: 'rgba(240,237,232,0.4)' }}>
                   No products found.
                 </td>
               </tr>
-            ) : filtered.map((p, idx) => {
+            ) : sorted.map((p, idx) => {
               const score = p.winning_score || p.trend_score || 0;
               const scoreColor = score >= 80 ? '#27ae60' : score >= 60 ? '#f39c12' : '#e74c3c';
               const growth = p.growth_rate_pct || 0;
-              const growthColor = growth > 20 ? '#27ae60' : growth > 0 ? '#f39c12' : '#e74c3c';
+              const orders = (p as any).orders_count || p.items_sold_monthly || 0;
+              const price = p.estimated_retail_aud || 0;
+              const estRevenue = orders > 0 && price > 0 ? Math.round((orders * price * 0.3) / 100) * 100 : p.est_monthly_revenue_aud || 0;
+              const marginPct = price > 0 ? Math.round((price - price / 3) / price * 100) : 0;
+              const tags = getOpportunityTags(p);
 
               return (
                 <tr key={p.id || p.name}
@@ -642,22 +689,21 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontSize: 14, fontWeight: 700, color: '#f0ede8', marginBottom: 4, lineHeight: 1.3 }}>
                           {p.name}
-                          {(p.trend_score || 0) > 85 && (
-                            <span style={{
-                              marginLeft: 6, fontSize: 10, background: 'rgba(212,175,55,0.12)',
-                              color: '#d4af37', border: '1px solid rgba(212,175,55,0.3)',
-                              borderRadius: 4, padding: '1px 5px',
-                            }}>HOT</span>
-                          )}
+                        </div>
+                        {/* Opportunity tags */}
+                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 3 }}>
+                          {tags.slice(0, 3).map(tag => (
+                            <span key={tag.label} style={{
+                              fontSize: 9, padding: '2px 6px', borderRadius: 4,
+                              background: tag.bg, color: tag.color, fontWeight: 700,
+                            }}>{tag.label}</span>
+                          ))}
                         </div>
                         <div style={{
                           fontSize: 11, color: '#d4af37', background: 'rgba(212,175,55,0.08)',
-                          borderRadius: 4, padding: '2px 7px', display: 'inline-block', marginBottom: 3,
+                          borderRadius: 4, padding: '2px 7px', display: 'inline-block',
                         }}>
                           {p.niche}
-                        </div>
-                        <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)' }}>
-                          ${p.estimated_retail_aud} · {p.estimated_margin_pct}% margin
                         </div>
                       </div>
                     </div>
@@ -665,10 +711,25 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
                   {/* Revenue */}
                   <td style={{ padding: '12px 16px' }}>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: '#d4af37', fontFamily: 'Syne, sans-serif', lineHeight: 1 }}>
-                      {formatRevenue(p.est_monthly_revenue_aud)}
+                    <div style={{ fontSize: 18, fontWeight: 800, color: '#d4af37', fontFamily: 'Syne, sans-serif', lineHeight: 1 }}>
+                      {estRevenue > 0 ? `$${Math.round(estRevenue / 100) * 100 > 0 ? Math.round(estRevenue / 100) * 100 : estRevenue}` : formatRevenue(p.est_monthly_revenue_aud)}
                     </div>
                     <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)', marginTop: 3 }}>est/month</div>
+                  </td>
+
+                  {/* Orders */}
+                  <td style={{ padding: '12px 16px' }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#f0ede8' }}>
+                      {orders > 0 ? orders.toLocaleString() : formatUnits(p.items_sold_monthly)}
+                    </div>
+                    <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.35)', marginTop: 2 }}>orders</div>
+                  </td>
+
+                  {/* Margin */}
+                  <td style={{ padding: '12px 16px' }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: marginPct > 50 ? '#27ae60' : '#f39c12' }}>
+                      ~{marginPct}%
+                    </div>
                   </td>
 
                   {/* Sparkline */}
@@ -678,22 +739,6 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                       width={78} height={32}
                       color={growth > 0 ? '#27ae60' : '#e74c3c'}
                     />
-                  </td>
-
-                  {/* Growth */}
-                  <td style={{ padding: '12px 16px' }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: growthColor }}>
-                      {growth >= 0 ? '↑' : '↓'} {Math.abs(growth).toFixed(1)}%
-                    </div>
-                    <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.35)', marginTop: 2 }}>30 days</div>
-                  </td>
-
-                  {/* Sold/mo */}
-                  <td style={{ padding: '12px 16px' }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#f0ede8' }}>
-                      {formatUnits(p.items_sold_monthly)}
-                    </div>
-                    <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.35)', marginTop: 2 }}>units/mo</div>
                   </td>
 
                   {/* Score */}
@@ -719,22 +764,9 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     )}
                   </td>
 
-                  {/* Supplier */}
-                  <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                    {(p as any).aliexpress_url && (p as any).aliexpress_url !== 'not_found' ? (
-                      <a href={(p as any).aliexpress_url} target="_blank" rel="noopener noreferrer"
-                        style={{ color: '#d4af37', fontSize: 11, fontWeight: 700, textDecoration: 'none', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap' }}
-                        onClick={e => e.stopPropagation()}>
-                        View Source →
-                      </a>
-                    ) : (
-                      <span style={{ color: 'rgba(240,237,232,0.2)', fontSize: 11 }}>—</span>
-                    )}
-                  </td>
-
                   {/* Actions */}
                   <td style={{ padding: '12px 16px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                       <button onClick={() => handleBuildStore(p)}
                         style={{
                           background: '#d4af37', color: '#080a0e', border: 'none',
@@ -743,11 +775,26 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         }}>
                         Build Store
                       </button>
+                      <button
+                        onClick={async () => {
+                          setAdsModal({ product: p, creatives: null, adCopy: null, loading: true, copyLoading: false });
+                          try {
+                            const res = await fetch(`/api/products/ad-creatives?product=${encodeURIComponent(p.name)}&price=${p.estimated_retail_aud || 49}`);
+                            const data = await res.json();
+                            setAdsModal(prev => prev ? { ...prev, creatives: data, loading: false } : null);
+                          } catch {
+                            setAdsModal(prev => prev ? { ...prev, loading: false } : null);
+                          }
+                        }}
+                        style={{ padding: "6px 12px", background: "#1a2030", border: "1px solid #2a3040", borderRadius: 6, color: "#a78bfa", fontSize: 12, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}
+                      >
+                        🎬 Ads
+                      </button>
                       <button onClick={() => handleFindSupplier(p)}
                         style={{
                           background: 'transparent', color: '#d4af37',
                           border: '1px solid rgba(212,175,55,0.3)',
-                          padding: '8px 14px', borderRadius: 6, fontSize: 12, cursor: 'pointer',
+                          padding: '6px 12px', borderRadius: 6, fontSize: 12, cursor: 'pointer',
                           whiteSpace: 'nowrap',
                         }}>
                         Supplier
@@ -763,8 +810,96 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
       {/* Footer */}
       <div style={{ padding: '12px 0', fontSize: 12, color: 'rgba(240,237,232,0.3)', textAlign: 'center' }}>
-        {filtered.length} products · Majorka AU Market Intelligence
+        {sorted.length} products · Majorka AU Market Intelligence
       </div>
+
+      {/* === ADS MODAL === */}
+      {adsModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+          onClick={e => { if (e.target === e.currentTarget) setAdsModal(null); }}>
+          <div style={{ background: "#0d1117", border: "1px solid #1a2030", borderRadius: 12, width: "100%", maxWidth: 600, maxHeight: "80vh", overflow: "auto", padding: 28 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <h3 style={{ color: "#e8eaf0", margin: 0, fontFamily: "Syne, sans-serif", fontSize: 18 }}>🎬 Ad Creatives for {adsModal.product?.name?.slice(0, 50)}</h3>
+              <button onClick={() => setAdsModal(null)} style={{ background: "none", border: "none", color: "#6b7280", cursor: "pointer", fontSize: 20 }}>×</button>
+            </div>
+
+            {adsModal.loading && <p style={{ color: "#6b7280" }}>Searching for ad examples...</p>}
+
+            {!adsModal.loading && adsModal.creatives && (
+              <>
+                {adsModal.creatives.tiktokVideos?.length > 0 && (
+                  <div style={{ marginBottom: 20 }}>
+                    <h4 style={{ color: "#d4af37", fontSize: 13, margin: "0 0 10px" }}>📱 TikTok Videos</h4>
+                    {adsModal.creatives.tiktokVideos.map((v: any, i: number) => (
+                      <a key={i} href={v.url} target="_blank" rel="noopener noreferrer"
+                        style={{ display: "block", padding: "10px 12px", background: "#1a2030", borderRadius: 8, marginBottom: 8, color: "#e8eaf0", textDecoration: "none", fontSize: 12 }}>
+                        <div style={{ fontWeight: 600, marginBottom: 4 }}>{v.title}</div>
+                        <div style={{ color: "#6b7280" }}>{v.snippet}</div>
+                      </a>
+                    ))}
+                  </div>
+                )}
+
+                {adsModal.creatives.adInsights?.length > 0 && (
+                  <div style={{ marginBottom: 20 }}>
+                    <h4 style={{ color: "#d4af37", fontSize: 13, margin: "0 0 10px" }}>💡 Winning Ad Hooks</h4>
+                    {adsModal.creatives.adInsights.map((a: any, i: number) => (
+                      <div key={i} style={{ padding: "10px 12px", background: "#1a2030", borderRadius: 8, marginBottom: 8, fontSize: 12 }}>
+                        <div style={{ color: "#e8eaf0", fontWeight: 600, marginBottom: 4 }}>{a.hook}</div>
+                        <div style={{ color: "#6b7280" }}>{a.copy}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            {adsModal.adCopy && (
+              <div style={{ marginTop: 16 }}>
+                <h4 style={{ color: "#d4af37", fontSize: 13, margin: "0 0 12px" }}>✍️ AI-Generated Ad Copy</h4>
+                {[
+                  { label: "TikTok Hook (3s)", value: adsModal.adCopy.tiktokHook, emoji: "📱" },
+                  { label: "Facebook Ad", value: adsModal.adCopy.facebookAd, emoji: "📘" },
+                  { label: "Instagram Caption", value: adsModal.adCopy.instagramCaption, emoji: "📸" },
+                  { label: "Email Subject", value: adsModal.adCopy.emailSubject, emoji: "📧" },
+                ].map(({ label, value, emoji }) => value ? (
+                  <div key={label} style={{ marginBottom: 12, background: "#1a2030", borderRadius: 8, padding: 12 }}>
+                    <div style={{ color: "#6b7280", fontSize: 11, marginBottom: 6 }}>{emoji} {label}</div>
+                    <div style={{ color: "#e8eaf0", fontSize: 13, lineHeight: 1.5 }}>{value}</div>
+                    <button onClick={() => navigator.clipboard?.writeText(value)}
+                      style={{ marginTop: 8, padding: "4px 10px", background: "transparent", border: "1px solid #2a3040", borderRadius: 4, color: "#6b7280", fontSize: 11, cursor: "pointer" }}>
+                      Copy
+                    </button>
+                  </div>
+                ) : null)}
+              </div>
+            )}
+
+            <button
+              onClick={async () => {
+                if (!adsModal) return;
+                setAdsModal(prev => prev ? { ...prev, copyLoading: true } : null);
+                try {
+                  const { data: sessionData } = await supabase.auth.getSession();
+                  const token = sessionData?.session?.access_token;
+                  const res = await fetch("/api/products/generate-ad-copy", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                    body: JSON.stringify({ product: adsModal.product?.name, price: adsModal.product?.estimated_retail_aud }),
+                  });
+                  const data = await res.json();
+                  setAdsModal(prev => prev ? { ...prev, adCopy: data, copyLoading: false } : null);
+                } catch (err) {
+                  setAdsModal(prev => prev ? { ...prev, copyLoading: false } : null);
+                }
+              }}
+              disabled={adsModal.copyLoading}
+              style={{ width: "100%", padding: "12px", background: "#d4af37", color: "#080a0e", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 14, marginTop: 8 }}>
+              {adsModal.copyLoading ? "Generating..." : "✨ Generate AI Ad Copy"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
