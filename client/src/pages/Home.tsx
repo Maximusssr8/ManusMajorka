@@ -1,9 +1,14 @@
 import { motion } from 'framer-motion';
 import {
   BarChart2,
+  BarChart3,
   DollarSign,
+  Eye,
+  Globe,
+  Megaphone,
   Package,
   Search,
+  TrendingUp,
   Users,
   Zap,
 } from 'lucide-react';
@@ -109,9 +114,23 @@ const GLOBAL_STYLES = `
   .hero-cta-row > * { width: 100% !important; text-align: center !important; }
   /* Feature cards mobile fix */
   .feature-big { padding: 24px 16px !important; }
+  /* Bento grid mobile */
+  .bento-grid { grid-template-columns: 1fr !important; }
+  .bento-grid > * { grid-column: auto !important; grid-row: auto !important; }
+  /* How it works mobile */
+  .hiw-steps { flex-direction: column !important; align-items: center !important; }
+  .hiw-steps > * { max-width: 320px !important; }
+  /* Demo spy grid mobile */
+  .spy-grid { grid-template-columns: 1fr !important; }
 }
 @media (min-width: 769px) { .hide-desktop { display: none !important; } }
 
+@keyframes blobFloat {
+  from { transform: translateY(0px); }
+  to { transform: translateY(-20px); }
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes blob-drift-1 { 0%,100%{transform:translate(0,0) scale(1);} 33%{transform:translate(60px,-40px) scale(1.1);} 66%{transform:translate(-40px,30px) scale(0.95);} }
 @keyframes blob-drift-2 { 0%,100%{transform:translate(0,0) scale(1);} 33%{transform:translate(-50px,60px) scale(1.05);} 66%{transform:translate(70px,-30px) scale(0.98);} }
 @keyframes blob-drift-3 { 0%,100%{transform:translate(0,0) scale(1);} 33%{transform:translate(40px,50px) scale(0.92);} 66%{transform:translate(-60px,-40px) scale(1.08);} }
@@ -527,6 +546,388 @@ function FloatingCTA() {
   );
 }
 
+// ── Bento Features ────────────────────────────────────────────────────────────
+const BENTO_CARDS = [
+  {
+    key: 'A', Icon: TrendingUp, title: 'Product Intelligence',
+    desc: 'Discover the exact products trending in the AU market right now. Real revenue data, supplier links, and competitor analysis — updated daily.',
+    gridColumn: '1 / 3', gridRow: '1 / 2',
+  },
+  {
+    key: 'B', Icon: Zap, title: 'AI Store Builder',
+    desc: 'Describe your niche. Majorka builds your entire Shopify store in 60 seconds — theme, products, copy, everything.',
+    gridColumn: '3 / 4', gridRow: '1 / 3',
+  },
+  {
+    key: 'C', Icon: Eye, title: 'Competitor Spy',
+    desc: "See exactly which ads your rivals are running, what products they push, and how their stores are converting.",
+    gridColumn: '1 / 2', gridRow: '2 / 3',
+  },
+  {
+    key: 'D', Icon: BarChart3, title: 'Market Intelligence',
+    desc: 'Real-time AU market data. Know what is selling, where demand is spiking, and which niches are about to blow up.',
+    gridColumn: '2 / 3', gridRow: '2 / 3',
+  },
+  {
+    key: 'E', Icon: DollarSign, title: 'Profit Calculator',
+    desc: 'Enter your product cost and ad spend, get exact margins, ROAS targets, and break-even CPA — before you spend a dollar.',
+    gridColumn: '1 / 2', gridRow: '3 / 4',
+  },
+  {
+    key: 'F', title: '\u{1F1E6}\u{1F1FA} AU-First Data',
+    desc: 'Every signal, trend, and supplier link is filtered for the Australian market. No US noise. Just AU opportunities.',
+    gridColumn: '2 / 3', gridRow: '3 / 4',
+  },
+  {
+    key: 'G', Icon: Megaphone, title: 'Ad Intelligence',
+    desc: 'Find winning ad creatives across Meta and TikTok. See spend estimates, engagement, and hook formulas that work in AU.',
+    gridColumn: '3 / 4', gridRow: '3 / 4',
+  },
+];
+
+function BentoFeaturesSection() {
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  const [progressWidth, setProgressWidth] = useState(0);
+  const progressRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = gridRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setVisible(true); obs.disconnect(); }
+    }, { threshold: 0.1 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const el = progressRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setTimeout(() => setProgressWidth(72), 300); obs.disconnect(); }
+    }, { threshold: 0.2 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const brico = "'Bricolage Grotesque', sans-serif";
+
+  const cardBase: React.CSSProperties = {
+    background: 'white', border: '1px solid #E5E7EB', borderRadius: 16, padding: 32,
+    transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1)', cursor: 'default',
+  };
+
+  const handleEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    el.style.transform = 'translateY(-3px)';
+    el.style.boxShadow = '0 12px 32px rgba(0,0,0,0.08)';
+    el.style.borderColor = 'rgba(99,102,241,0.25)';
+  };
+  const handleLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    el.style.transform = '';
+    el.style.boxShadow = '';
+    el.style.borderColor = '#E5E7EB';
+  };
+
+  return (
+    <section id="features" style={{ padding: '100px 24px', background: '#FAFAFA' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 56 }}>
+          <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(28px,5vw,48px)', color: '#0A0A0A' }}>Everything you need to win</h2>
+          <p style={{ fontSize: 17, color: '#6B7280', maxWidth: 560, margin: '12px auto 0' }}>One platform. Every tool an AU dropshipper actually needs.</p>
+        </div>
+
+        <div ref={gridRef} className="bento-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gridTemplateRows: 'auto auto auto', gap: 20 }}>
+          {BENTO_CARDS.map((card, index) => {
+            const IconComp = card.Icon;
+            return (
+              <div
+                key={card.key}
+                style={{
+                  ...cardBase,
+                  gridColumn: card.gridColumn,
+                  gridRow: card.gridRow,
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? 'translateY(0)' : 'translateY(24px)',
+                  transition: `opacity 500ms ease ${index * 60}ms, transform 500ms ease ${index * 60}ms, box-shadow 200ms, border-color 200ms`,
+                }}
+                onMouseEnter={handleEnter}
+                onMouseLeave={handleLeave}
+              >
+                {/* Icon */}
+                <div style={{ width: 40, height: 40, background: '#EEF2FF', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                  {IconComp ? <IconComp size={20} color="#6366F1" /> : <span style={{ fontSize: 18 }}>{'\u{1F1E6}\u{1F1FA}'}</span>}
+                </div>
+                <h3 style={{ fontFamily: brico, fontWeight: 700, fontSize: 20, color: '#0A0A0A', marginBottom: 8 }}>{card.title}</h3>
+                <p style={{ fontSize: 15, color: '#6B7280', lineHeight: 1.65 }}>{card.desc}</p>
+
+                {/* Card A — mini table */}
+                {card.key === 'A' && (
+                  <div style={{ marginTop: 20, border: '1px solid #F3F4F6', borderRadius: 10, overflow: 'hidden' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 0 }}>
+                      <div style={{ background: '#F9FAFB', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: '#9CA3AF', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Product</div>
+                      <div style={{ background: '#F9FAFB', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Revenue</div>
+                      <div style={{ background: '#F9FAFB', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Score</div>
+                      <div style={{ padding: '10px 16px', fontSize: 13, color: '#374151', borderTop: '1px solid #F3F4F6' }}>Air Fryer 11-in-1</div>
+                      <div style={{ padding: '10px 16px', fontSize: 13, color: '#374151', borderTop: '1px solid #F3F4F6' }}>$8.7k/mo</div>
+                      <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6' }}>
+                        <span style={{ background: '#F3E8FF', color: '#7C3AED', border: '1px solid #DDD6FE', borderRadius: 5, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>75</span>
+                      </div>
+                      <div style={{ padding: '10px 16px', fontSize: 13, color: '#374151', borderTop: '1px solid #F3F4F6' }}>LED Strip Lights</div>
+                      <div style={{ padding: '10px 16px', fontSize: 13, color: '#374151', borderTop: '1px solid #F3F4F6' }}>$24.2k/mo</div>
+                      <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6' }}>
+                        <span style={{ background: '#EEF2FF', color: '#6366F1', border: '1px solid #C7D2FE', borderRadius: 5, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>82</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Card B — progress checklist */}
+                {card.key === 'B' && (
+                  <div ref={progressRef} style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {[
+                      { done: true, text: 'Niche identified: Pet accessories' },
+                      { done: true, text: 'Shopify store created' },
+                      { done: true, text: 'Hero product imported' },
+                      { done: false, spinning: true, text: 'Generating product descriptions...' },
+                      { done: false, text: 'Setting up payment gateway' },
+                      { done: false, text: 'Publishing store' },
+                    ].map((item, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+                        <span style={{ fontSize: 14, color: item.done ? '#10B981' : (item as any).spinning ? '#6366F1' : '#D1D5DB' }}>
+                          {item.done ? '\u2705' : (item as any).spinning ? '\u27F3' : '\u2610'}
+                        </span>
+                        <span style={{ color: item.done ? '#374151' : (item as any).spinning ? '#6366F1' : '#9CA3AF' }}>{item.text}</span>
+                      </div>
+                    ))}
+                    <div style={{ marginTop: 12 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 12, color: '#9CA3AF' }}>
+                        <span>Building store...</span><span>72%</span>
+                      </div>
+                      <div style={{ height: 6, background: '#F3F4F6', borderRadius: 999 }}>
+                        <div style={{ height: '100%', width: `${progressWidth}%`, background: 'linear-gradient(90deg, #6366F1, #8B5CF6)', borderRadius: 999, transition: 'width 1.5s ease' }} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── How It Works ──────────────────────────────────────────────────────────────
+function HowItWorksSection() {
+  const brico = "'Bricolage Grotesque', sans-serif";
+  const steps = [
+    { Icon: Search, title: 'Find a Winner', desc: 'Browse trending AU products with real revenue data and supplier links.' },
+    { Icon: Zap, title: 'Build Your Store', desc: 'Describe your niche. AI builds your entire Shopify store in under 60 seconds.' },
+    { Icon: TrendingUp, title: 'Launch & Scale', desc: 'Run spy tools, monitor competitors, and optimise with the profit calculator.' },
+  ];
+
+  return (
+    <section style={{ background: '#FAFAFA', padding: '100px 24px' }}>
+      <div style={{ maxWidth: 900, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center', marginBottom: 64 }}>
+          <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(28px,5vw,44px)', color: '#0A0A0A' }}>How it works</h2>
+          <p style={{ fontSize: 16, color: '#6B7280', marginTop: 12 }}>From zero to first sale — faster than you think.</p>
+        </div>
+
+        <div className="hiw-steps" style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', gap: 0, position: 'relative' }}>
+          {/* Connector line */}
+          <div className="hide-mobile" style={{ position: 'absolute', top: 28, left: '16.67%', right: '16.67%', height: 1, borderTop: '1px dashed #E5E7EB', zIndex: 0 }} />
+
+          {steps.map((step, i) => {
+            const StepIcon = step.Icon;
+            return (
+              <div key={i} style={{ flex: 1, textAlign: 'center', padding: '0 24px', position: 'relative' }}>
+                {/* Big background number */}
+                <div style={{ position: 'absolute', top: -16, left: '50%', transform: 'translateX(-50%)', fontSize: 72, fontWeight: 900, color: '#F3F4F6', lineHeight: 1, userSelect: 'none', zIndex: 0 }}>
+                  0{i + 1}
+                </div>
+                {/* Icon circle */}
+                <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EEF2FF', border: '2px solid #C7D2FE', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', position: 'relative', zIndex: 1 }}>
+                  <StepIcon size={24} color="#6366F1" />
+                </div>
+                <h3 style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#0A0A0A', marginBottom: 8 }}>{step.title}</h3>
+                <p style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.6, maxWidth: 220, margin: '0 auto' }}>{step.desc}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Demo Section ──────────────────────────────────────────────────────────────
+const DEMO_PRODUCTS = [
+  { rank: 1, product: 'Posture Corrector Pro', revenue: '$41,200', orders: '528', margin: '62%', score: 91 },
+  { rank: 2, product: 'LED Strip Lights RGB', revenue: '$24,200', orders: '312', margin: '61%', score: 82 },
+  { rank: 3, product: 'Air Fryer 11-in-1', revenue: '$8,700', orders: '48', margin: '58%', score: 75 },
+  { rank: 4, product: 'Smart Watch GPS', revenue: '$5,400', orders: '49', margin: '44%', score: 68 },
+  { rank: 5, product: 'Resistance Band Set', revenue: '$3,100', orders: '38', margin: '31%', score: 54 },
+];
+
+function getScoreStyle(score: number) {
+  if (score >= 80) return { background: 'rgba(99,102,241,0.2)', color: '#A5B4FC', border: '1px solid rgba(99,102,241,0.3)' };
+  if (score >= 65) return { background: 'rgba(139,92,246,0.15)', color: '#C4B5FD', border: '1px solid rgba(139,92,246,0.25)' };
+  return { background: 'rgba(107,114,128,0.15)', color: '#9CA3AF', border: '1px solid rgba(107,114,128,0.2)' };
+}
+
+function DemoSection() {
+  const [activeTab, setActiveTab] = useState<'products' | 'builder' | 'spy'>('products');
+  const brico = "'Bricolage Grotesque', sans-serif";
+
+  const tabs: { key: typeof activeTab; label: string }[] = [
+    { key: 'products', label: 'Product Intelligence' },
+    { key: 'builder', label: 'Store Builder' },
+    { key: 'spy', label: 'Spy Tools' },
+  ];
+
+  return (
+    <section style={{ background: '#0A0A0A', padding: '120px 24px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ textAlign: 'center' }}>
+          <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(28px,5vw,48px)', color: 'white' }}>See it in action</h2>
+          <p style={{ fontSize: 17, color: '#A1A1AA', maxWidth: 560, margin: '12px auto 48px' }}>Watch Majorka find a winning product and build a store in 60 seconds.</p>
+        </div>
+
+        {/* Tab row */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+          <div style={{ display: 'inline-flex', background: '#111113', border: '1px solid #27272A', borderRadius: 10, padding: 4 }}>
+            {tabs.map(tab => (
+              <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+                style={{
+                  padding: '8px 20px', borderRadius: 7, fontSize: 14, cursor: 'pointer', border: 'none', transition: 'all 150ms',
+                  background: activeTab === tab.key ? 'white' : 'transparent',
+                  color: activeTab === tab.key ? '#111827' : '#6B7280',
+                  fontWeight: activeTab === tab.key ? 600 : 500,
+                  boxShadow: activeTab === tab.key ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                }}
+              >{tab.label}</button>
+            ))}
+          </div>
+        </div>
+
+        {/* Content */}
+        <div style={{ background: '#111113', border: '1px solid #27272A', borderRadius: 20, overflow: 'hidden' }}>
+          {/* Tab 1: Products */}
+          {activeTab === 'products' && (
+            <div>
+              <div style={{ background: '#0F0F11', padding: '12px 20px', borderBottom: '1px solid #1F1F23', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontWeight: 600, fontSize: 14, color: 'white' }}>Product Intelligence</span>
+                <span style={{ fontSize: 12, color: '#6B7280' }}>{'\u{1F1E6}\u{1F1FA}'} AU Market · Live Data</span>
+              </div>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 640 }}>
+                  <thead>
+                    <tr style={{ background: '#0F0F11' }}>
+                      {['#', 'Product', 'Revenue/mo', 'Orders', 'Margin', 'Score', ''].map(h => (
+                        <th key={h} style={{ padding: '10px 20px', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6B7280', textAlign: 'left', fontWeight: 600 }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {DEMO_PRODUCTS.map(row => {
+                      const ss = getScoreStyle(row.score);
+                      return (
+                        <tr key={row.rank} style={{ borderBottom: '1px solid #1F1F23', fontSize: 13, color: '#E5E7EB' }}
+                          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
+                          onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                        >
+                          <td style={{ padding: '12px 20px', color: '#6B7280' }}>{row.rank}</td>
+                          <td style={{ padding: '12px 20px', fontWeight: 500 }}>{row.product}</td>
+                          <td style={{ padding: '12px 20px' }}>{row.revenue}</td>
+                          <td style={{ padding: '12px 20px' }}>{row.orders}</td>
+                          <td style={{ padding: '12px 20px' }}>{row.margin}</td>
+                          <td style={{ padding: '12px 20px' }}>
+                            <span style={{ ...ss, borderRadius: 5, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>{row.score}</span>
+                          </td>
+                          <td style={{ padding: '12px 20px' }}>
+                            <button style={{ background: 'rgba(99,102,241,0.15)', color: '#A5B4FC', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 6, fontSize: 11, padding: '4px 10px', cursor: 'pointer' }}
+                              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.25)')}
+                              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.15)')}
+                            >Build Store</button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Tab 2: Builder */}
+          {activeTab === 'builder' && (
+            <div style={{ padding: 32 }}>
+              <div style={{ maxWidth: 480, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {[
+                  { done: true, text: 'Niche identified: Pet accessories' },
+                  { done: true, text: 'Shopify store created' },
+                  { done: true, text: 'Hero product imported (AliExpress)' },
+                  { done: true, text: 'Store theme applied' },
+                  { done: false, spinning: true, text: 'Generating product descriptions...' },
+                  { done: false, text: 'Setting up payment gateway' },
+                  { done: false, text: 'Publishing store' },
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: (item as any).spinning ? 'rgba(99,102,241,0.08)' : 'transparent', borderRadius: 8, border: (item as any).spinning ? '1px solid rgba(99,102,241,0.2)' : 'none' }}>
+                    <span style={{ fontSize: 18, minWidth: 24, color: item.done ? '#10B981' : (item as any).spinning ? '#6366F1' : '#374151' }}>
+                      {item.done ? '\u2705' : (item as any).spinning ? '\u27F3' : '\u25CB'}
+                    </span>
+                    <span style={{ fontSize: 14, color: item.done ? '#E5E7EB' : (item as any).spinning ? '#A5B4FC' : '#6B7280' }}>{item.text}</span>
+                  </div>
+                ))}
+                <div style={{ marginTop: 8, padding: '0 16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 12, color: '#6B7280' }}>
+                    <span>Building store...</span><span style={{ color: '#A5B4FC' }}>65%</span>
+                  </div>
+                  <div style={{ height: 8, background: '#1F1F23', borderRadius: 999 }}>
+                    <div style={{ height: '100%', width: '65%', background: 'linear-gradient(90deg, #6366F1, #8B5CF6)', borderRadius: 999 }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tab 3: Spy Tools */}
+          {activeTab === 'spy' && (
+            <div style={{ padding: 24 }}>
+              <div className="spy-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                {[
+                  { platform: 'Meta Ad', product: 'Neck Massager Pro', spend: '~$2,400/day' },
+                  { platform: 'TikTok Ad', product: 'LED Ring Light Kit', spend: '~$1,800/day' },
+                  { platform: 'Meta Ad', product: 'Posture Corrector Band', spend: '~$3,100/day' },
+                  { platform: 'TikTok Ad', product: 'Wireless Earbuds Pro', spend: '~$950/day' },
+                ].map((ad, i) => (
+                  <div key={i} style={{ background: '#1A1A1E', border: '1px solid #27272A', borderRadius: 12, padding: 16 }}>
+                    <span style={{ background: 'rgba(59,130,246,0.15)', color: '#93C5FD', fontSize: 11, padding: '3px 8px', borderRadius: 4, display: 'inline-block', marginBottom: 12 }}>
+                      {'\u{1F3AF}'} {ad.platform} · Active
+                    </span>
+                    <div style={{ height: 120, borderRadius: 8, background: 'linear-gradient(135deg, #1F2937, #374151)', marginBottom: 12 }} />
+                    <div style={{ fontWeight: 600, color: '#E5E7EB', fontSize: 14, marginBottom: 4 }}>{ad.product}</div>
+                    <div style={{ fontSize: 13, color: '#22C55E', marginBottom: 12 }}>Spend: {ad.spend}</div>
+                    <button style={{ background: 'transparent', color: '#A5B4FC', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 6, fontSize: 12, padding: '6px 12px', cursor: 'pointer' }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.1)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >View Ad →</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ── Main Home ─────────────────────────────────────────────────────────────────
 export default function Home() {
   const [hoveredPricing, setHoveredPricing] = useState<number | null>(null);
@@ -644,9 +1045,9 @@ export default function Home() {
       {/* ═══ HERO ══════════════════════════════════════════════════════════ */}
       <section style={{ position: 'relative', paddingTop: 120, paddingBottom: 80, textAlign: 'center', overflow: 'hidden', background: '#FAFAFA' }}>
         {/* Gradient mesh blobs */}
-        <div className="gradient-blob" style={{ width: 600, height: 600, top: -100, left: -100, background: 'rgba(99,102,241,0.07)', animation: 'blob-drift-1 8s ease-in-out infinite' }} />
-        <div className="gradient-blob" style={{ width: 500, height: 500, top: 50, right: -150, background: 'rgba(139,92,246,0.06)', animation: 'blob-drift-2 10s ease-in-out infinite' }} />
-        <div className="gradient-blob" style={{ width: 400, height: 400, bottom: -50, left: '30%', background: 'rgba(6,182,212,0.05)', animation: 'blob-drift-3 12s ease-in-out infinite' }} />
+        <div style={{ position: 'absolute', top: -200, left: -300, width: 600, height: 600, background: 'radial-gradient(circle, rgba(99,102,241,0.12), transparent 70%)', animation: 'blobFloat 8s ease-in-out infinite alternate', animationDelay: '0s', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'absolute', top: 100, right: -200, width: 500, height: 500, background: 'radial-gradient(circle, rgba(139,92,246,0.10), transparent 70%)', animation: 'blobFloat 8s ease-in-out infinite alternate', animationDelay: '2s', pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'absolute', bottom: -100, left: '40%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(6,182,212,0.08), transparent 70%)', animation: 'blobFloat 8s ease-in-out infinite alternate', animationDelay: '4s', pointerEvents: 'none', zIndex: 0 }} />
 
         {/* Inner content */}
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 720, margin: '0 auto', padding: '0 24px' }}>
@@ -756,6 +1157,30 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ═══ TRUST BAR ════════════════════════════════════════════════════ */}
+      <div style={{ padding: '48px 24px', borderTop: '1px solid #F3F4F6', borderBottom: '1px solid #F3F4F6', background: '#FAFAFA' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 32 }}>
+            <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
+            <span style={{ fontSize: 13, color: '#9CA3AF', fontWeight: 500, whiteSpace: 'nowrap', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              Powering stores across Australia
+            </span>
+            <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 48, flexWrap: 'wrap' }}>
+            {['Shopify', 'AliExpress', 'TikTok Shop', 'Meta Ads', 'Google Ads', 'Australia Post'].map(name => (
+              <div key={name}
+                style={{ fontSize: 15, fontWeight: 700, color: '#374151', opacity: 0.35, filter: 'grayscale(1)', transition: 'opacity 200ms', letterSpacing: name === 'Australia Post' ? '-0.02em' : '0', cursor: 'default', userSelect: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = '0.65')}
+                onMouseLeave={e => (e.currentTarget.style.opacity = '0.35')}
+              >
+                {name}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* ═══ STATS ═════════════════════════════════════════════════════════ */}
       <StatsBar />
@@ -990,64 +1415,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ FEATURES — 3 big ══════════════════════════════════════════════ */}
-      <section id="features" style={{ padding: '100px 24px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <motion.div variants={scaleIn} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} style={{ textAlign: 'center', marginBottom: 64 }}>
-            <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.6rem, 4.5vw, 3rem)', lineHeight: 1.15, letterSpacing: '-0.025em', marginBottom: 16, color: C.text }}>
-              Everything you need to <span className="gold-text">go from idea to income</span>
-            </h2>
-            <p style={{ fontSize: 'clamp(15px, 2vw, 17px)', color: C.secondary, maxWidth: 520, margin: '0 auto' }}>
-              20+ AI-powered tools. Three core capabilities that change how you build a business.
-            </p>
-          </motion.div>
+      {/* ═══ FEATURES — BENTO GRID ═══════════════════════════════════════ */}
+      <BentoFeaturesSection />
 
-          <div className="grid-1-mobile" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24, maxWidth: 1100, margin: '0 auto' }}>
-            {BIG_FEATURES.map((feat, i) => {
-              const Icon = feat.Icon;
-              return (
-                <motion.div
-                  key={i}
-                  className="feature-big"
-                  variants={fadeUp}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, amount: 0.15 }}
-                  transition={{ delay: i * 0.12, duration: 0.5, ease: 'easeOut' }}
-                  style={{
-                    background: C.elevated,
-                    border: `1px solid ${C.border}`,
-                    borderRadius: 20,
-                    padding: '36px 28px',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    transition: 'border-color 0.3s, transform 0.3s',
-                    ...(i === 0 ? { gridColumn: '1 / -1' } : {}),
-                  }}
-                >
-                  {/* Accent top bar */}
-                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: feat.accent, opacity: 0.7 }} />
+      {/* ═══ HOW IT WORKS ════════════════════════════════════════════════ */}
+      <HowItWorksSection />
 
-                  {/* Icon */}
-                  <div style={{ width: 52, height: 52, borderRadius: 14, background: `${feat.accent}15`, border: `1px solid ${feat.accent}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 22 }}>
-                    <Icon size={22} color={feat.accent} strokeWidth={2} />
-                  </div>
-
-                  <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1rem, 2vw, 1.25rem)', color: C.text, marginBottom: 6, lineHeight: 1.3 }}>{feat.title}</h3>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: feat.accent, fontFamily: syne, marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{feat.sub}</div>
-                  <p style={{ fontSize: 14, color: C.secondary, lineHeight: 1.7, marginBottom: 20 }}>{feat.desc}</p>
-
-                  {/* Proof metric */}
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: `${feat.accent}0d`, border: `1px solid ${feat.accent}25`, borderRadius: 100, padding: '4px 12px' }}>
-                    <div style={{ width: 5, height: 5, borderRadius: '50%', background: feat.accent }} />
-                    <span style={{ fontSize: 11, fontWeight: 600, color: feat.accent }}>{feat.stat}</span>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      {/* ═══ DEMO ════════════════════════════════════════════════════════ */}
+      <DemoSection />
 
       {/* ═══ TESTIMONIALS — 6 AU sellers ══════════════════════════════════ */}
       <section style={{ padding: '100px 24px', background: C.card, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
