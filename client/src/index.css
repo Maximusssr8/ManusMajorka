@@ -80,41 +80,41 @@
   --sidebar-ring: #d4d4d8;
 }
 
-/* ── 21Dev Dark Theme ── */
+/* ── Majorka Dark Theme — Modern Gradient ── */
 .dark {
   --radius: 0.625rem;
-  --background: #0a0a0a;
-  --foreground: #fafafa;
-  --card: #0a0a0a;
-  --card-foreground: #fafafa;
-  --popover: #0a0a0a;
-  --popover-foreground: #fafafa;
-  --primary: #fafafa;
-  --primary-foreground: #18181b;
-  --secondary: #27272a;
-  --secondary-foreground: #fafafa;
-  --muted: #18181b;
-  --muted-foreground: #a1a1aa;
-  --accent: #18181b;
-  --accent-foreground: #fafafa;
+  --background: #06060a;
+  --foreground: #f0f0f5;
+  --card: #0e0e14;
+  --card-foreground: #f0f0f5;
+  --popover: #0e0e14;
+  --popover-foreground: #f0f0f5;
+  --primary: #8b5cf6;
+  --primary-foreground: #ffffff;
+  --secondary: #1a1a24;
+  --secondary-foreground: #f0f0f5;
+  --muted: #151520;
+  --muted-foreground: #8b8b9e;
+  --accent: #151520;
+  --accent-foreground: #f0f0f5;
   --destructive: #7f1d1d;
   --destructive-foreground: #ef4444;
-  --border: #27272a;
-  --input: #27272a;
-  --ring: #52525b;
-  --chart-1: #1d4ed8;
+  --border: rgba(139,92,246,0.12);
+  --input: rgba(139,92,246,0.15);
+  --ring: #7c3aed;
+  --chart-1: #8b5cf6;
   --chart-2: #10b981;
-  --chart-3: #f59e0b;
-  --chart-4: #8b5cf6;
-  --chart-5: #f43f5e;
-  --sidebar: #171717;
-  --sidebar-foreground: #fafafa;
-  --sidebar-primary: #1d4ed8;
-  --sidebar-primary-foreground: #fafafa;
-  --sidebar-accent: #262626;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: #27272a;
-  --sidebar-ring: #52525b;
+  --chart-3: #3b82f6;
+  --chart-4: #a855f7;
+  --chart-5: #06b6d4;
+  --sidebar: #0a0a10;
+  --sidebar-foreground: #f0f0f5;
+  --sidebar-primary: #8b5cf6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #151520;
+  --sidebar-accent-foreground: #f0f0f5;
+  --sidebar-border: rgba(139,92,246,0.1);
+  --sidebar-ring: #7c3aed;
 }
 
 @layer base {
@@ -237,20 +237,24 @@
 
 /* ── Standardised Button Colours ── */
 
-.btn-gold {
-  background: linear-gradient(135deg, #d4af37, #f0c040);
-  color: #080a0e;
+/* Legacy alias — maps to new primary gradient */
+.btn-gold,
+.btn-primary {
+  background: linear-gradient(135deg, #7c3aed, #3b82f6);
+  color: #ffffff;
   font-family: 'Syne', sans-serif;
   font-weight: 800;
   border: none;
-  box-shadow: 0 4px 20px rgba(212,175,55,0.3);
+  box-shadow: 0 4px 20px rgba(139,92,246,0.3);
   transition: all 0.2s;
 }
-.btn-gold:hover:not(:disabled) {
-  box-shadow: 0 6px 28px rgba(212,175,55,0.4);
+.btn-gold:hover:not(:disabled),
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 6px 28px rgba(139,92,246,0.45);
   transform: translateY(-1px);
 }
-.btn-gold:disabled {
+.btn-gold:disabled,
+.btn-primary:disabled {
   opacity: 0.5;
   box-shadow: none;
   cursor: not-allowed;
@@ -295,6 +299,77 @@
 .btn-green:hover:not(:disabled) {
   box-shadow: 0 6px 28px rgba(45,202,114,0.4);
   transform: translateY(-1px);
+}
+
+/* ── Gradient Utilities ── */
+
+.gradient-text {
+  background: linear-gradient(135deg, #a855f7, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-border {
+  position: relative;
+  background: #0e0e14;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(139,92,246,0.4), rgba(59,130,246,0.2));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.glow-card {
+  transition: box-shadow 0.3s, border-color 0.3s;
+}
+.glow-card:hover {
+  box-shadow: 0 0 30px rgba(139,92,246,0.15), 0 0 60px rgba(139,92,246,0.05);
+  border-color: rgba(139,92,246,0.3) !important;
+}
+
+/* ── New Keyframes ── */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(139,92,246,0.2); }
+  50% { box-shadow: 0 0 40px rgba(139,92,246,0.4), 0 0 80px rgba(139,92,246,0.1); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes typing-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
 }
 
 /* ── Scrollbar styling ── */

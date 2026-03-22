@@ -157,12 +157,12 @@ export default function MajorkaAppShell({ children }: Props) {
           className="w-full flex items-center gap-2 px-3 py-1.5 text-sm transition-all relative"
           style={{
             borderRadius: 6,
-            background: active ? "rgba(212,175,55,0.08)" : "transparent",
+            background: active ? "rgba(139,92,246,0.08)" : "transparent",
             color: active ? "#f5f5f5" : "#a1a1aa",
             fontFamily: "DM Sans, sans-serif",
             border: "none",
             cursor: "pointer",
-            borderLeft: active ? "2px solid #f59e0b" : "2px solid transparent",
+            borderLeft: active ? "2px solid #8b5cf6" : "2px solid transparent",
             paddingLeft: active ? 10 : 12,
           }}
           onMouseEnter={e => {
@@ -187,7 +187,7 @@ export default function MajorkaAppShell({ children }: Props) {
             {item.path === "/app/my-products" && productCount > 0 && (
               <span
                 className="ml-1 px-1.5 py-0.5 rounded-full"
-                style={{ background: "rgba(212,175,55,0.15)", color: "#f59e0b", fontSize: 9, fontWeight: 700 }}
+                style={{ background: "rgba(139,92,246,0.15)", color: "#8b5cf6", fontSize: 9, fontWeight: 700 }}
               >
                 {productCount}
               </span>
@@ -203,7 +203,7 @@ export default function MajorkaAppShell({ children }: Props) {
       {/* Logo */}
       <div
         className="flex items-center gap-2.5 px-3 py-3 flex-shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+        style={{ borderBottom: "1px solid rgba(139,92,246,0.08)" }}
       >
         <button
           onClick={() => setLocation("/app")}
@@ -212,7 +212,7 @@ export default function MajorkaAppShell({ children }: Props) {
         >
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0"
-            style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", color: "#0a0a0a", fontFamily: "Syne, sans-serif" }}
+            style={{ background: "linear-gradient(135deg, #7c3aed, #3b82f6)", color: "#0a0a0a", fontFamily: "Syne, sans-serif" }}
           >
             M
           </div>
@@ -235,7 +235,7 @@ export default function MajorkaAppShell({ children }: Props) {
             <div
               className="px-3 pb-1 font-bold uppercase"
               style={{
-                color: "#3f3f46",
+                color: "#5a5a6e",
                 fontFamily: "Syne, sans-serif",
                 fontSize: 10,
                 letterSpacing: "0.12em",
@@ -249,7 +249,7 @@ export default function MajorkaAppShell({ children }: Props) {
         ))}
 
         {/* Divider + bottom items */}
-        <div className="mt-4 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="mt-4 pt-3" style={{ borderTop: "1px solid rgba(139,92,246,0.08)" }}>
           {BOTTOM_ITEMS.map(item => navItem(item))}
         </div>
       </div>
@@ -257,7 +257,7 @@ export default function MajorkaAppShell({ children }: Props) {
       {/* User section */}
       <div
         className="flex-shrink-0 px-2 py-2"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+        style={{ borderTop: "1px solid rgba(139,92,246,0.08)" }}
         ref={userMenuRef}
       >
         {loading ? (
@@ -295,7 +295,7 @@ export default function MajorkaAppShell({ children }: Props) {
               ) : (
                 <div
                   className="w-7 h-7 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", color: "#0a0a0a", fontFamily: "Syne, sans-serif" }}
+                  style={{ background: "linear-gradient(135deg, #7c3aed, #3b82f6)", color: "#0a0a0a", fontFamily: "Syne, sans-serif" }}
                 >
                   {(user?.name ?? user?.email ?? session?.user?.email ?? "M").charAt(0).toUpperCase()}
                 </div>
@@ -379,7 +379,7 @@ export default function MajorkaAppShell({ children }: Props) {
             className="w-full text-xs font-bold px-3 py-2 transition-all"
             style={{
               borderRadius: 8,
-              background: "linear-gradient(135deg, #f59e0b, #d97706)",
+              background: "linear-gradient(135deg, #7c3aed, #3b82f6)",
               color: "#0a0a0a",
               fontFamily: "Syne, sans-serif",
               cursor: "pointer",
@@ -409,8 +409,8 @@ export default function MajorkaAppShell({ children }: Props) {
         className={`flex-shrink-0 flex flex-col relative z-50 ${mobileOpen ? "fixed inset-y-0 left-0" : "hidden lg:flex"}`}
         style={{
           width: 220,
-          background: "#0d0d0d",
-          borderRight: "1px solid rgba(255,255,255,0.06)",
+          background: "#0a0a10",
+          borderRight: "1px solid rgba(139,92,246,0.08)",
         }}
       >
         {mobileOpen && (
@@ -430,7 +430,7 @@ export default function MajorkaAppShell({ children }: Props) {
         {/* Mobile top bar */}
         <div
           className="flex items-center gap-3 px-4 border-b flex-shrink-0 lg:hidden"
-          style={{ background: "#0d0d0d", borderColor: "rgba(255,255,255,0.06)", height: 48 }}
+          style={{ background: "#0a0a10", borderColor: "rgba(255,255,255,0.06)", height: 48 }}
         >
           <button
             onClick={() => setMobileOpen(true)}
@@ -442,7 +442,7 @@ export default function MajorkaAppShell({ children }: Props) {
           <div className="flex items-center gap-2">
             <div
               className="w-6 h-6 rounded-md flex items-center justify-center font-black text-xs"
-              style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)", color: "#0a0a0a", fontFamily: "Syne, sans-serif" }}
+              style={{ background: "linear-gradient(135deg, #7c3aed, #3b82f6)", color: "#0a0a0a", fontFamily: "Syne, sans-serif" }}
             >
               M
             </div>
@@ -460,7 +460,7 @@ export default function MajorkaAppShell({ children }: Props) {
         {/* Mobile bottom tab bar */}
         <div
           className="fixed bottom-0 left-0 right-0 z-40 lg:hidden"
-          style={{ background: "#0d0d0d", borderTop: "1px solid rgba(255,255,255,0.06)" }}
+          style={{ background: "#0a0a10", borderTop: "1px solid rgba(139,92,246,0.08)" }}
         >
           <div className="flex items-center justify-around py-2">
             {MOBILE_TABS.map((tab) => {
@@ -471,7 +471,7 @@ export default function MajorkaAppShell({ children }: Props) {
                   key={tab.label}
                   onClick={() => setLocation(tab.path)}
                   className="flex flex-col items-center gap-0.5 px-3 py-1 transition-colors"
-                  style={{ color: active ? "#f59e0b" : "rgba(161,161,170,0.6)", background: "none", border: "none", cursor: "pointer" }}
+                  style={{ color: active ? "#8b5cf6" : "rgba(161,161,170,0.6)", background: "none", border: "none", cursor: "pointer" }}
                 >
                   <Icon size={17} />
                   <span style={{ fontSize: 9, fontFamily: "Syne, sans-serif", fontWeight: active ? 700 : 500 }}>{tab.label}</span>

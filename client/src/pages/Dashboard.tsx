@@ -34,7 +34,7 @@ const TOOL_CATEGORY_CARDS = [
   {
     label: "Copy",
     icon: PenTool,
-    color: "#f59e0b",
+    color: "#8b5cf6",
     tools: ["Copywriter", "Email Sequences", "Ad Copy"],
     path: "/app/copywriter",
   },
@@ -174,7 +174,7 @@ function DashboardHome() {
   return (
     <div
       className="h-full overflow-auto"
-      style={{ background: "#0a0a0a", scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.1) transparent" }}
+      style={{ background: "#06060a", scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.1) transparent" }}
     >
       <div className="max-w-5xl mx-auto px-6 py-8">
 
@@ -199,7 +199,7 @@ function DashboardHome() {
           {/* Active Products */}
           <div
             className="rounded-xl p-4"
-            style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+            style={{ background: "#0e0e14", border: "1px solid rgba(139,92,246,0.1)", borderTop: "2px solid #8b5cf6" }}
           >
             <div className="flex items-center gap-1.5 mb-3">
               <Package size={12} style={{ color: "#a1a1aa" }} />
@@ -217,7 +217,7 @@ function DashboardHome() {
           {/* Tools Used Today */}
           <div
             className="rounded-xl p-4"
-            style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+            style={{ background: "#0e0e14", border: "1px solid rgba(139,92,246,0.1)", borderTop: "2px solid #8b5cf6" }}
           >
             <div className="flex items-center gap-1.5 mb-3">
               <Zap size={12} style={{ color: "#a1a1aa" }} />
@@ -237,7 +237,7 @@ function DashboardHome() {
           {/* AI Requests */}
           <div
             className="rounded-xl p-4"
-            style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+            style={{ background: "#0e0e14", border: "1px solid rgba(139,92,246,0.1)", borderTop: "2px solid #8b5cf6" }}
           >
             <div className="flex items-center gap-1.5 mb-3">
               <MessageSquare size={12} style={{ color: "#a1a1aa" }} />
@@ -257,7 +257,7 @@ function DashboardHome() {
           {/* Est. Revenue Potential */}
           <div
             className="rounded-xl p-4"
-            style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+            style={{ background: "#0e0e14", border: "1px solid rgba(139,92,246,0.1)", borderTop: "2px solid #8b5cf6" }}
           >
             <div className="flex items-center gap-1.5 mb-3">
               <BarChart2 size={12} style={{ color: "#a1a1aa" }} />
@@ -283,25 +283,25 @@ function DashboardHome() {
               onClick={() => setLocation(path)}
               className="text-left rounded-xl p-4 transition-all"
               style={{
-                background: "#111111",
-                border: "1px solid rgba(255,255,255,0.08)",
+                background: "#0e0e14",
+                border: "1px solid rgba(139,92,246,0.1)",
                 cursor: "pointer",
                 minHeight: 80,
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(245,158,11,0.4)";
-                (e.currentTarget as HTMLButtonElement).style.background = "rgba(245,158,11,0.04)";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(139,92,246,0.4)";
+                (e.currentTarget as HTMLButtonElement).style.background = "rgba(139,92,246,0.04)";
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.08)";
-                (e.currentTarget as HTMLButtonElement).style.background = "#111111";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(139,92,246,0.1)";
+                (e.currentTarget as HTMLButtonElement).style.background = "#0e0e14";
               }}
             >
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center mb-2"
-                style={{ background: "rgba(245,158,11,0.12)" }}
+                style={{ background: "rgba(139,92,246,0.12)" }}
               >
-                <Icon size={15} style={{ color: "#f59e0b" }} />
+                <Icon size={15} style={{ color: "#8b5cf6" }} />
               </div>
               <div className="text-sm font-bold mb-0.5" style={{ fontFamily: "Syne, sans-serif", color: "#f5f5f5" }}>
                 {label}
@@ -318,7 +318,7 @@ function DashboardHome() {
             {/* Active Product card */}
             <div
               className="rounded-xl p-4"
-              style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+              style={{ background: "#0e0e14", border: "1px solid rgba(139,92,246,0.1)" }}
             >
               <div
                 className="text-xs font-bold uppercase tracking-widest mb-3"
@@ -334,7 +334,7 @@ function DashboardHome() {
                     </span>
                     <span
                       className="text-xs px-2 py-0.5 rounded-full"
-                      style={{ background: "rgba(245,158,11,0.12)", color: "#f59e0b" }}
+                      style={{ background: "rgba(139,92,246,0.12)", color: "#8b5cf6" }}
                     >
                       {activeProduct.niche}
                     </span>
@@ -352,7 +352,7 @@ function DashboardHome() {
                   <button
                     onClick={() => setLocation("/app/product-discovery")}
                     className="flex items-center gap-1.5 text-xs font-bold transition-all"
-                    style={{ color: "#f59e0b", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                    style={{ color: "#8b5cf6", background: "none", border: "none", cursor: "pointer", padding: 0 }}
                     onMouseEnter={e => (e.currentTarget.style.opacity = "0.8")}
                     onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
                   >
@@ -367,7 +367,7 @@ function DashboardHome() {
             {/* Recent Activity */}
             <div
               className="rounded-xl p-4"
-              style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+              style={{ background: "#0e0e14", border: "1px solid rgba(139,92,246,0.1)" }}
             >
               <div
                 className="text-xs font-bold uppercase tracking-widest mb-3"
@@ -381,7 +381,7 @@ function DashboardHome() {
                   <button
                     onClick={() => setLocation("/app/product-discovery")}
                     className="underline"
-                    style={{ background: "none", border: "none", cursor: "pointer", color: "#f59e0b", padding: 0, fontSize: "inherit" }}
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "#8b5cf6", padding: 0, fontSize: "inherit" }}
                   >
                     →
                   </button>
@@ -395,9 +395,9 @@ function DashboardHome() {
                     >
                       <div
                         className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
-                        style={{ background: "rgba(245,158,11,0.1)" }}
+                        style={{ background: "rgba(139,92,246,0.1)" }}
                       >
-                        <span style={{ fontSize: 9, color: "#f59e0b" }}>●</span>
+                        <span style={{ fontSize: 9, color: "#8b5cf6" }}>●</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-xs font-medium truncate" style={{ color: "#f5f5f5", fontFamily: "DM Sans, sans-serif" }}>
@@ -420,16 +420,16 @@ function DashboardHome() {
             <div
               className="rounded-xl p-4"
               style={{
-                background: "#111111",
+                background: "#0e0e14",
                 border: "1px solid",
-                borderImage: "linear-gradient(135deg, rgba(245,158,11,0.5), rgba(245,158,11,0.1)) 1",
-                outline: "1px solid rgba(245,158,11,0.15)",
+                borderImage: "linear-gradient(135deg, rgba(139,92,246,0.5), rgba(139,92,246,0.1)) 1",
+                outline: "1px solid rgba(139,92,246,0.15)",
                 outlineOffset: -1,
               }}
             >
               <div className="flex items-center gap-1.5 mb-2">
-                <Star size={12} style={{ color: "#f59e0b" }} />
-                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#f59e0b", fontFamily: "Syne, sans-serif" }}>
+                <Star size={12} style={{ color: "#8b5cf6" }} />
+                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#8b5cf6", fontFamily: "Syne, sans-serif" }}>
                   Launch Kit
                 </span>
               </div>
@@ -443,8 +443,8 @@ function DashboardHome() {
                 onClick={() => setLocation("/app/launch-kit")}
                 className="w-full flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-lg transition-all"
                 style={{
-                  background: "linear-gradient(135deg, #f59e0b, #d97706)",
-                  color: "#0a0a0a",
+                  background: "linear-gradient(135deg, #8b5cf6, #3b82f6)",
+                  color: "#ffffff",
                   border: "none",
                   cursor: "pointer",
                   fontFamily: "Syne, sans-serif",
@@ -459,7 +459,7 @@ function DashboardHome() {
             {/* Workflow stepper */}
             <div
               className="rounded-xl p-4"
-              style={{ background: "#111111", border: "1px solid rgba(255,255,255,0.08)" }}
+              style={{ background: "#0e0e14", border: "1px solid rgba(139,92,246,0.1)" }}
             >
               <div
                 className="text-xs font-bold uppercase tracking-widest mb-3"
@@ -475,7 +475,7 @@ function DashboardHome() {
                         className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
                         style={{
                           background: idx === 0 ? "#10b981" : "rgba(255,255,255,0.06)",
-                          color: idx === 0 ? "#0a0a0a" : "#52525b",
+                          color: idx === 0 ? "#06060a" : "#52525b",
                           fontSize: 9,
                           fontFamily: "'DM Mono', monospace",
                         }}
@@ -513,8 +513,8 @@ function DashboardHome() {
               onClick={() => setLocation(path)}
               className="text-left rounded-xl p-4 transition-all"
               style={{
-                background: "#111111",
-                border: "1px solid rgba(255,255,255,0.08)",
+                background: "#0e0e14",
+                border: "1px solid rgba(139,92,246,0.1)",
                 cursor: "pointer",
               }}
               onMouseEnter={e => {
@@ -522,8 +522,8 @@ function DashboardHome() {
                 (e.currentTarget as HTMLButtonElement).style.background = `${color}08`;
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.08)";
-                (e.currentTarget as HTMLButtonElement).style.background = "#111111";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(139,92,246,0.1)";
+                (e.currentTarget as HTMLButtonElement).style.background = "#0e0e14";
               }}
             >
               <div className="flex items-center gap-2 mb-2">
