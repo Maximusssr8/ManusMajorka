@@ -18,6 +18,7 @@ interface StoreTemplate {
   tags: string[];
   aov: string;
   cr: string;
+  typeUISkill?: string;
 }
 
 const TEMPLATES: StoreTemplate[] = [
@@ -31,6 +32,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Luxury", "High-ticket", "Premium"],
     aov: "$180–$420",
     cr: "2.8%",
+    typeUISkill: "luxury",
   },
   {
     id: "aurora",
@@ -42,6 +44,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Beauty", "Skincare", "Wellness"],
     aov: "$65–$120",
     cr: "3.4%",
+    typeUISkill: "gradient",
   },
   {
     id: "velocity",
@@ -53,6 +56,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Fitness", "Sports", "Performance"],
     aov: "$85–$160",
     cr: "3.1%",
+    typeUISkill: "energetic",
   },
   {
     id: "minimal",
@@ -64,6 +68,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Home", "Minimal", "Lifestyle"],
     aov: "$55–$130",
     cr: "3.8%",
+    typeUISkill: "minimal",
   },
   {
     id: "neonpulse",
@@ -75,6 +80,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Tech", "Gadgets", "Electronics"],
     aov: "$95–$250",
     cr: "2.6%",
+    typeUISkill: "neon",
   },
   {
     id: "botanical",
@@ -86,6 +92,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Eco", "Sustainable", "Natural"],
     aov: "$45–$95",
     cr: "4.1%",
+    typeUISkill: "paper",
   },
   {
     id: "metro",
@@ -97,6 +104,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Fashion", "Apparel", "Streetwear"],
     aov: "$70–$180",
     cr: "3.2%",
+    typeUISkill: "editorial",
   },
   {
     id: "playful",
@@ -108,6 +116,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Kids", "Toys", "Family"],
     aov: "$35–$85",
     cr: "4.5%",
+    typeUISkill: "colorful",
   },
   {
     id: "heritage",
@@ -119,6 +128,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Food", "Gourmet", "Artisan"],
     aov: "$55–$110",
     cr: "3.9%",
+    typeUISkill: "vintage",
   },
   {
     id: "storm",
@@ -130,6 +140,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Outdoor", "Adventure", "Gear"],
     aov: "$110–$280",
     cr: "2.9%",
+    typeUISkill: "dramatic",
   },
   {
     id: "rose",
@@ -141,6 +152,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Jewellery", "Accessories", "Gifts"],
     aov: "$60–$150",
     cr: "3.6%",
+    typeUISkill: "elegant",
   },
   {
     id: "clinical",
@@ -152,6 +164,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Health", "Supplements", "Wellness"],
     aov: "$80–$200",
     cr: "3.3%",
+    typeUISkill: "corporate",
   },
   {
     id: "coastal",
@@ -163,6 +176,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Beach", "Summer", "Lifestyle"],
     aov: "$40–$90",
     cr: "4.2%",
+    typeUISkill: "spacious",
   },
   {
     id: "autozone",
@@ -174,6 +188,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Auto", "Cars", "Accessories"],
     aov: "$70–$200",
     cr: "2.7%",
+    typeUISkill: "bold",
   },
   {
     id: "crafthaven",
@@ -185,6 +200,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Art", "Craft", "DIY"],
     aov: "$25–$75",
     cr: "3.9%",
+    typeUISkill: "artistic",
   },
   {
     id: "noir",
@@ -196,6 +212,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Photography", "Creative", "Art"],
     aov: "$95–$350",
     cr: "2.4%",
+    typeUISkill: "mono",
   },
   {
     id: "sunrise",
@@ -207,6 +224,7 @@ const TEMPLATES: StoreTemplate[] = [
     tags: ["Coffee", "Tea", "Beverages"],
     aov: "$45–$95",
     cr: "4.0%",
+    typeUISkill: "cafe",
   },
 ];
 
@@ -289,6 +307,15 @@ function TemplateCard({ template, selected, onClick }: { template: StoreTemplate
           <span>AOV {template.aov}</span>
           <span>CR ~{template.cr}</span>
         </div>
+        <button
+          onClick={e => {
+            e.stopPropagation();
+            window.open(`/templates/${template.id}-preview.html`, '_blank');
+          }}
+          style={{ width: '100%', marginTop: 10, height: 32, background: '#F5F5F5', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 12, fontWeight: 500, cursor: 'pointer' }}
+        >
+          Preview →
+        </button>
       </div>
     </div>
   );
@@ -307,6 +334,9 @@ export default function StoreBuilder() {
   const [templateFilter, setTemplateFilter] = useState('All');
   const [buildState, setBuildState] = useState<'idle' | 'building' | 'done'>('idle');
   const [buildStep, setBuildStep] = useState(0);
+  const [shopifyModal, setShopifyModal] = useState(false);
+  const [shopDomain, setShopDomain] = useState('');
+  const [shopDomainError, setShopDomainError] = useState('');
   const { session } = useAuth();
 
   useEffect(() => {
@@ -347,6 +377,81 @@ export default function StoreBuilder() {
       setTimeout(() => setBuildStep(i), i * 1800);
     });
     setTimeout(() => setBuildState('done'), BUILD_STEPS.length * 1800);
+  };
+
+  const handleDownloadZip = () => {
+    const tpl = TEMPLATES.find(t => t.id === selectedTemplate);
+    if (!tpl) return;
+
+    const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${storeName || tpl.name + ' Store'}</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'DM Sans', sans-serif; background: #fff; color: #0A0A0A; }
+nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 48px; border-bottom: 1px solid #F0F0F0; position: sticky; top: 0; background: white; z-index: 100; }
+.logo { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 22px; color: ${tpl.accentColor}; }
+.nav-links { display: flex; gap: 32px; font-size: 14px; font-weight: 500; color: #374151; }
+.nav-links a { text-decoration: none; color: inherit; }
+.cta-btn { background: ${tpl.accentColor}; color: white; padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; text-decoration: none; border: none; cursor: pointer; }
+.hero { background: ${tpl.bgGradient}; min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 80px 48px; }
+.hero h1 { font-family: 'Bricolage Grotesque', sans-serif; font-size: clamp(32px,6vw,72px); font-weight: 800; color: ${tpl.accentColor}; margin-bottom: 16px; }
+.hero p { font-size: 18px; max-width: 560px; margin: 0 auto 32px; opacity: 0.8; color: ${tpl.accentColor}; }
+.products { padding: 80px 48px; max-width: 1100px; margin: 0 auto; }
+.products h2 { font-family: 'Bricolage Grotesque', sans-serif; font-size: 36px; font-weight: 800; margin-bottom: 40px; text-align: center; }
+.product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.product-card { border: 1px solid #F0F0F0; border-radius: 16px; overflow: hidden; }
+.product-img { width: 100%; height: 200px; object-fit: cover; background: #F5F5F5; }
+.product-body { padding: 16px; }
+.product-name { font-weight: 600; font-size: 15px; margin-bottom: 8px; }
+.product-price { font-weight: 700; font-size: 18px; color: ${tpl.accentColor}; margin-bottom: 12px; }
+.trust-bar { background: #F9FAFB; border-top: 1px solid #F0F0F0; border-bottom: 1px solid #F0F0F0; padding: 24px 48px; display: flex; justify-content: center; gap: 48px; font-size: 13px; font-weight: 500; color: #6B7280; }
+footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: center; font-size: 13px; opacity: 0.8; }
+@media (max-width: 768px) { nav { padding: 16px 24px; } .nav-links { display: none; } .hero { padding: 60px 24px; } .products { padding: 60px 24px; } .product-grid { grid-template-columns: 1fr; } .trust-bar { flex-direction: column; gap: 12px; text-align: center; } }
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">${storeName || tpl.name}</div>
+  <div class="nav-links"><a href="#">Shop</a><a href="#">About</a><a href="#">Contact</a></div>
+  <button class="cta-btn">Shop Now</button>
+</nav>
+<section class="hero">
+  <h1>${storeName || 'Your Store'}</h1>
+  <p>${storeTagline || 'Discover amazing products curated for you'}</p>
+  <button class="cta-btn" style="font-size:16px;padding:14px 40px;">Shop the Collection \\u2192</button>
+</section>
+<div class="trust-bar">
+  <span>\\u{1F69A} Free Shipping Over $75</span>
+  <span>\\u2B50 4.9/5 from 2,400+ Reviews</span>
+  <span>\\u{1F512} Secure Checkout</span>
+  <span>\\u{1F1E6}\\u{1F1FA} Australian Owned</span>
+</div>
+<section class="products">
+  <h2>Featured Products</h2>
+  <div class="product-grid">
+    <div class="product-card"><img class="product-img" src="https://picsum.photos/seed/${tpl.id}1/400/300" alt="Product 1"><div class="product-body"><div class="product-name">Premium Product 1</div><div class="product-price">$89.00 AUD</div><button class="cta-btn" style="width:100%">Add to Cart</button></div></div>
+    <div class="product-card"><img class="product-img" src="https://picsum.photos/seed/${tpl.id}2/400/300" alt="Product 2"><div class="product-body"><div class="product-name">Premium Product 2</div><div class="product-price">$65.00 AUD</div><button class="cta-btn" style="width:100%">Add to Cart</button></div></div>
+    <div class="product-card"><img class="product-img" src="https://picsum.photos/seed/${tpl.id}3/400/300" alt="Product 3"><div class="product-body"><div class="product-name">Premium Product 3</div><div class="product-price">$120.00 AUD</div><button class="cta-btn" style="width:100%">Add to Cart</button></div></div>
+  </div>
+</section>
+<footer><p>\\u00A9 2026 ${storeName || tpl.name}. Built with Majorka. All rights reserved.</p></footer>
+</body>
+</html>`;
+
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${(storeName || tpl.name).toLowerCase().replace(/\s+/g, '-')}-store.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -758,18 +863,98 @@ export default function StoreBuilder() {
                 <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 24, color: "#0A0A0A", marginBottom: 8 }}>{storeName} is live!</div>
                 <div style={{ fontSize: 14, color: "#6B7280", marginBottom: 24 }}>Your Majorka-built store is ready. Connect to Shopify or download your store files.</div>
                 <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-                  <button style={{ height: 44, padding: "0 24px", background: "#6366F1", color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                  <button
+                    onClick={() => setShopifyModal(true)}
+                    style={{ height: 44, padding: "0 24px", background: "#6366F1", color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
+                  >
                     Connect Shopify {"\u2192"}
                   </button>
-                  <button style={{ height: 44, padding: "0 24px", background: "white", color: "#374151", border: "1px solid #E5E7EB", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
-                    Download ZIP
+                  <button
+                    onClick={handleDownloadZip}
+                    style={{ height: 44, padding: "0 24px", background: "white", color: "#374151", border: "1px solid #E5E7EB", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
+                  >
+                    Download Store HTML
                   </button>
                 </div>
+                <button
+                  onClick={() => {
+                    const tpl = TEMPLATES.find(t => t.id === selectedTemplate);
+                    if (tpl) {
+                      navigator.clipboard.writeText(`<!-- ${storeName || tpl.name} Store \u2014 Built with Majorka -->\n<!-- Template: ${tpl.name} | Niche: ${tpl.niche} -->`);
+                    }
+                  }}
+                  style={{ marginTop: 16, background: 'none', border: 'none', color: '#9CA3AF', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
+                >
+                  or copy store HTML to clipboard
+                </button>
               </div>
             )}
           </div>
         )}
       </div>
+
+      {/* Shopify Connect Modal */}
+      {shopifyModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: 24 }}>
+          <div style={{ background: 'white', borderRadius: 20, padding: 40, maxWidth: 440, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <div style={{ fontSize: 28, marginBottom: 16, textAlign: 'center' }}>{"\u{1F3EA}"}</div>
+            <h3 style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#0A0A0A', textAlign: 'center', marginBottom: 8 }}>Connect your Shopify store</h3>
+            <p style={{ fontSize: 14, color: '#6B7280', textAlign: 'center', marginBottom: 24 }}>Enter your Shopify store URL to publish directly.</p>
+
+            {!import.meta.env.VITE_SHOPIFY_CLIENT_ID ? (
+              <div>
+                <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 12, padding: '16px 20px', marginBottom: 20 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#C2410C', marginBottom: 4 }}>Shopify Integration Coming Soon</div>
+                  <div style={{ fontSize: 13, color: '#7C2D12' }}>
+                    Direct Shopify publishing is being set up. For now, download your store files below and import them via Shopify Admin → Online Store → Themes.
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShopifyModal(false)}
+                  style={{ width: '100%', height: 44, background: '#F5F5F5', color: '#374151', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+                >
+                  Got it
+                </button>
+              </div>
+            ) : (
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>Shopify Store URL</label>
+                <input
+                  type="text"
+                  placeholder="yourstore.myshopify.com"
+                  value={shopDomain}
+                  onChange={e => { setShopDomain(e.target.value); setShopDomainError(''); }}
+                  style={{ width: '100%', height: 44, padding: '0 14px', border: shopDomainError ? '1px solid #EF4444' : '1px solid #E5E7EB', borderRadius: 8, fontSize: 14, color: '#0A0A0A', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 6 }}
+                  onFocus={e => { if (!shopDomainError) e.currentTarget.style.borderColor = '#6366F1'; }}
+                  onBlur={e => { if (!shopDomainError) e.currentTarget.style.borderColor = '#E5E7EB'; }}
+                />
+                {shopDomainError && <div style={{ fontSize: 12, color: '#EF4444', marginBottom: 12 }}>{shopDomainError}</div>}
+                <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+                  <button
+                    onClick={() => { setShopifyModal(false); setShopDomain(''); setShopDomainError(''); }}
+                    style={{ flex: 1, height: 44, background: '#F5F5F5', color: '#374151', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      const domain = shopDomain.trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
+                      if (!domain) { setShopDomainError('Please enter your store URL'); return; }
+                      if (!domain.includes('.')) { setShopDomainError('Please enter a valid Shopify store URL'); return; }
+                      const nonce = Math.random().toString(36).substring(2);
+                      const redirectUri = encodeURIComponent('https://majorka.io/api/shopify/callback');
+                      window.location.href = `https://${domain}/admin/oauth/authorize?client_id=${import.meta.env.VITE_SHOPIFY_CLIENT_ID}&scope=write_products,write_themes,read_orders&redirect_uri=${redirectUri}&state=${nonce}`;
+                    }}
+                    style={{ flex: 2, height: 44, background: '#6366F1', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    Connect Store {"\u2192"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

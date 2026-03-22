@@ -1243,3 +1243,46 @@ Note: `setHasOutput_or_activeTab` — use whatever sets the preview tab as activ
 - Shopify sync status dashboard (which products were pushed + when)
 - Store Builder on `/scale` tier — usage limits enforcement
 - A/B template testing (generate same product in 2 templates, compare)
+
+## TypeUI Design Skills — Always Read Before Building UI
+
+53 design system skills are installed at `.claude/skills/design-system/[skill].md`
+
+**When to use:** Before building any new page or component, read the relevant skill file.
+**Fallback:** If no skill matches, use `clean` as the default.
+
+### Full Skill Inventory
+
+| Category | Skills |
+|---|---|
+| Modern & Minimal | clean, contemporary, flat, minimal, modern, mono, refined, shadcn, simple, sleek |
+| Bold & Expressive | bold, brutalism, colorful, dramatic, energetic, expressive, neobrutalism, vibrant |
+| Creative & Artistic | artistic, cafe, cosmic, creative, doodle, editorial, fantasy, friendly, publication, storytelling |
+| Professional | corporate, elegant, enterprise, luxury, material, premium, professional |
+| Morphism & Effects | claymorphism, glassmorphism, gradient, neon, neumorphism, skeumorphism |
+| Retro | dithered, paper, retro, vintage |
+| Layout | bento, levels, perspective, spacious |
+| Themed | agentic, futuristic, pacman, tetris |
+
+### Template to Skill Mappings
+
+| Template | Skill | Use for |
+|---|---|---|
+| Prestige | luxury | High-ticket dark luxury UI |
+| Aurora | gradient | Beauty/skincare soft gradients |
+| Velocity | energetic | Sports/fitness bold UI |
+| Minimal | minimal | Clean whitespace editorial |
+| Neon Pulse | neon | Tech gadgets dark neon |
+| Botanical | paper | Eco/natural artisanal |
+| Metro | editorial | Fashion magazine layout |
+| Playful | colorful | Kids/family bright UI |
+| Heritage | vintage | Food/gourmet warm tones |
+| Storm | dramatic | Outdoor/adventure bold |
+| Rose | elegant | Jewellery/accessories |
+| Clinical | corporate | Health/wellness clinical |
+| Coastal | spacious | Beach/summer airy |
+| Noir | mono | Photography dark editorial |
+| Sunrise | cafe | Coffee/beverages warm |
+
+### Majorka Own UI
+Always use `majorka-design-system/SKILL.md` — #6366F1 indigo, Bricolage Grotesque headings.

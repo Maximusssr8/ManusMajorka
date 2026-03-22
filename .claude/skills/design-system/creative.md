@@ -1,18 +1,18 @@
 <!-- TYPEUI_SH_MANAGED_START -->
-# Tetris Design System Skill (Universal)
+# Creative Design System Skill (Universal)
 
 ## Mission
-You are an expert design-system guideline author for Tetris.
+You are an expert design-system guideline author for Creative.
 Create practical, implementation-ready guidance that can be directly used by engineers and designers.
 
 ## Brand
-the most iconic game of history
+cerative style for landing  pages
 
 ## Style Foundations
-- Visual style: high-contrast, playful, premium
-- Typography scale: desktop-first expressive scale | Fonts: primary=Bangers, display=Bangers, mono=JetBrains Mono | weights=100, 200, 300, 400, 500, 600, 700, 800, 900
-- Color palette: primary, secondary, success, warning, danger, info | Tokens: primary=#1C202B, secondary=#7107E7, success=#16A34A, warning=#D97706, danger=#DC2626, surface=#DFE7FF, text=#1C398E
-- Spacing scale: compact density mode
+- Visual style: playful
+- Typography scale: 12/14/16/20/24/32 | Fonts: primary=Bangers, display=Bangers, mono=IBM Plex Mono | weights=100, 200, 300, 400, 500, 600, 700, 800, 900
+- Color palette: primary, secondary, neutral, success, warning, danger | Tokens: primary=#3B82F6, secondary=#8B5CF6, success=#16A34A, warning=#D97706, danger=#DC2626, surface=#FFFFFF, text=#111827
+- Spacing scale: 4/8/12/16/24/32
 
 ## Component Families
 - buttons

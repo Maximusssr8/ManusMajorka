@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glow Studio — Beauty Store</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'DM Sans', sans-serif; background: #fdf4ff; color: #1a1a2e; }
+nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 48px; background: white; border-bottom: 1px solid #fce7f3; }
+.logo { font-family: 'DM Serif Display', serif; font-size: 22px; color: #BE185D; }
+.nav-links { display: flex; gap: 28px; font-size: 14px; color: #6B7280; }
+.nav-links a { text-decoration: none; color: inherit; }
+.btn-pink { background: linear-gradient(135deg, #EC4899, #BE185D); color: white; padding: 10px 24px; border-radius: 100px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; }
+.hero { background: linear-gradient(135deg, #fdf4ff 0%, #fce7f3 50%, #fce7f3 100%); padding: 80px 48px; text-align: center; }
+.hero-badge { display: inline-block; background: #fce7f3; color: #BE185D; font-size: 12px; font-weight: 600; padding: 6px 16px; border-radius: 100px; margin-bottom: 20px; border: 1px solid #fbcfe8; }
+.hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(36px,6vw,64px); color: #1a1a2e; margin-bottom: 16px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.15; }
+.hero p { font-size: 16px; color: #6B7280; max-width: 480px; margin: 0 auto 32px; line-height: 1.7; }
+.hero-btns { display: flex; gap: 12px; justify-content: center; }
+.btn-outline { background: transparent; color: #BE185D; border: 1px solid #EC4899; padding: 10px 24px; border-radius: 100px; font-weight: 600; font-size: 14px; cursor: pointer; }
+.products { padding: 80px 48px; max-width: 1100px; margin: 0 auto; }
+.products h2 { font-family: 'DM Serif Display', serif; font-size: 40px; text-align: center; margin-bottom: 48px; color: #1a1a2e; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.product-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 20px rgba(236,72,153,0.06); border: 1px solid #fce7f3; }
+.product-img { width: 100%; height: 220px; object-fit: cover; background: #fdf4ff; }
+.product-body { padding: 20px; }
+.product-tag { font-size: 11px; color: #EC4899; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.product-name { font-weight: 600; font-size: 15px; margin-bottom: 8px; color: #1a1a2e; }
+.product-price { font-weight: 700; font-size: 18px; color: #BE185D; margin-bottom: 14px; }
+.trust-bar { background: white; border-top: 1px solid #fce7f3; border-bottom: 1px solid #fce7f3; padding: 28px 48px; display: flex; justify-content: center; gap: 48px; font-size: 13px; color: #6B7280; }
+footer { background: #1a1a2e; color: rgba(255,255,255,0.6); padding: 40px 48px; text-align: center; font-size: 13px; }
+@media (max-width: 768px) { nav { padding: 16px 24px; } .hero { padding: 60px 24px; } .products { padding: 60px 24px; } .grid { grid-template-columns: 1fr; } .trust-bar { padding: 24px; flex-direction: column; gap: 12px; text-align: center; } footer { padding: 32px 24px; } }
+</style>
+</head>
+<body>
+<nav><div class="logo">Glow Studio</div><div class="nav-links"><a href="#">Shop</a><a href="#">Routines</a><a href="#">About</a></div><button class="btn-pink">Shop Now</button></nav>
+<section class="hero"><div class="hero-badge">&#10024; New arrivals every week</div><h1>Your skin's new best friend.</h1><p>Science-backed skincare tools and serums curated for the Australian climate and lifestyle.</p><div class="hero-btns"><button class="btn-pink" style="font-size:15px;padding:14px 36px">Shop the Collection</button><button class="btn-outline">Learn More</button></div></section>
+<section class="products"><h2>Bestsellers</h2><div class="grid"><div class="product-card"><img class="product-img" src="https://picsum.photos/seed/aurora1/400/300" alt="Roller"><div class="product-body"><div class="product-tag">Bestseller</div><div class="product-name">Rose Quartz Roller</div><div class="product-price">$65.00 AUD</div><button class="btn-pink" style="width:100%;border-radius:8px">Add to Cart</button></div></div><div class="product-card"><img class="product-img" src="https://picsum.photos/seed/aurora2/400/300" alt="Serum"><div class="product-body"><div class="product-tag">Top Rated</div><div class="product-name">Vitamin C Serum</div><div class="product-price">$85.00 AUD</div><button class="btn-pink" style="width:100%;border-radius:8px">Add to Cart</button></div></div><div class="product-card"><img class="product-img" src="https://picsum.photos/seed/aurora3/400/300" alt="Gua Sha"><div class="product-body"><div class="product-tag">New</div><div class="product-name">Gua Sha Tool</div><div class="product-price">$45.00 AUD</div><button class="btn-pink" style="width:100%;border-radius:8px">Add to Cart</button></div></div></div></section>
+<div class="trust-bar"><span>&#x1F69A; Free shipping $75+</span><span>&#x2B50; 4.9 stars (2.4k reviews)</span><span>&#x1F33F; Clean ingredients</span><span>&#x1F1E6;&#x1F1FA; AU owned</span></div>
+<footer><p>&copy; 2026 Glow Studio. Made in Australia with love.</p></footer>
+</body></html>

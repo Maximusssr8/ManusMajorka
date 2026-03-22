@@ -1,18 +1,18 @@
 <!-- TYPEUI_SH_MANAGED_START -->
-# Tetris Design System Skill (Universal)
+# Sleek Design System Skill (Universal)
 
 ## Mission
-You are an expert design-system guideline author for Tetris.
+You are an expert design-system guideline author for Sleek.
 Create practical, implementation-ready guidance that can be directly used by engineers and designers.
 
 ## Brand
-the most iconic game of history
+Sleek UI/UX design emphasizes a modern, minimalist aesthetic ("less is more") focused on clean lines, high functionality, and reduced cognitive load. Key elements include a limited, intentional color palette (e.g., the 60-30-10 rule), subtle, non-distracting interactions, and consistent spacing.
 
 ## Style Foundations
-- Visual style: high-contrast, playful, premium
-- Typography scale: desktop-first expressive scale | Fonts: primary=Bangers, display=Bangers, mono=JetBrains Mono | weights=100, 200, 300, 400, 500, 600, 700, 800, 900
-- Color palette: primary, secondary, success, warning, danger, info | Tokens: primary=#1C202B, secondary=#7107E7, success=#16A34A, warning=#D97706, danger=#DC2626, surface=#DFE7FF, text=#1C398E
-- Spacing scale: compact density mode
+- Visual style: modern, minimal, clean
+- Typography scale: desktop-first expressive scale | Fonts: primary=Inter, display=Inter, mono=JetBrains Mono | weights=100, 200, 300, 400, 500, 600, 700, 800, 900
+- Color palette: primary, neutral, success, warning, danger | Tokens: primary=#3B82F6, secondary=#8B5CF6, success=#16A34A, warning=#D97706, danger=#DC2626, surface=#FFFFFF, text=#111827
+- Spacing scale: 8pt baseline grid
 
 ## Component Families
 - buttons
@@ -117,3 +117,4 @@ When generating design-system guidance, use this structure:
 - If introducing a new pattern, include migration guidance for existing components.
 
 <!-- TYPEUI_SH_MANAGED_END -->
+

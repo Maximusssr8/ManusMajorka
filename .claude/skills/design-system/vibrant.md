@@ -1,18 +1,18 @@
 <!-- TYPEUI_SH_MANAGED_START -->
-# Tetris Design System Skill (Universal)
+# Vibrant Design System Skill (Universal)
 
 ## Mission
-You are an expert design-system guideline author for Tetris.
+You are an expert design-system guideline author for Vibrant.
 Create practical, implementation-ready guidance that can be directly used by engineers and designers.
 
 ## Brand
-the most iconic game of history
+Vibrant style 
 
 ## Style Foundations
-- Visual style: high-contrast, playful, premium
-- Typography scale: desktop-first expressive scale | Fonts: primary=Bangers, display=Bangers, mono=JetBrains Mono | weights=100, 200, 300, 400, 500, 600, 700, 800, 900
-- Color palette: primary, secondary, success, warning, danger, info | Tokens: primary=#1C202B, secondary=#7107E7, success=#16A34A, warning=#D97706, danger=#DC2626, surface=#DFE7FF, text=#1C398E
-- Spacing scale: compact density mode
+- Visual style: modern, clean, bold, playful
+- Typography scale: 14/16/18/24/32/40 | Fonts: primary=Noto Sans, display=Fascinate, mono=Fira Code | weights=100, 200, 300, 400, 500, 600, 700, 800, 900
+- Color palette: primary, secondary, neutral, success | Tokens: primary=#7C61D4, secondary=#EAAE87, success=#16A34A, warning=#D97706, danger=#DC2626, surface=#FFFFFF, text=#2F281D
+- Spacing scale: 2/4/8/12/16/24/32/48
 
 ## Component Families
 - buttons
@@ -60,7 +60,7 @@ the most iconic game of history
 - data visualization wrappers
 
 ## Accessibility
-WCAG 2.2 AA, keyboard-first interactions, visible focus states
+WCAG 2.2 AA, keyboard-first interactions, visible focus states, screen-reader tested labels, reduced-motion support, 44px+ touch targets, high-contrast support
 
 ## Writing Tone
 concise, confident, helpful

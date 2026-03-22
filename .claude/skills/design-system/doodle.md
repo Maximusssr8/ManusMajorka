@@ -1,20 +1,24 @@
 <!-- TYPEUI_SH_MANAGED_START -->
-# Tetris Design System Skill (Universal)
+# Hand Drawn Design System Skill (Universal)
 
 ## Mission
-You are an expert design-system guideline author for Tetris.
+
+You are an expert design-system guideline author for Hand Drawn.
 Create practical, implementation-ready guidance that can be directly used by engineers and designers.
 
 ## Brand
-the most iconic game of history
+
+a creative, playful, and informal style that utilizes doodles, sketches, handwritten fonts, and imperfect lines to foster emotional connection and a raw, artistic feel
 
 ## Style Foundations
-- Visual style: high-contrast, playful, premium
-- Typography scale: desktop-first expressive scale | Fonts: primary=Bangers, display=Bangers, mono=JetBrains Mono | weights=100, 200, 300, 400, 500, 600, 700, 800, 900
-- Color palette: primary, secondary, success, warning, danger, info | Tokens: primary=#1C202B, secondary=#7107E7, success=#16A34A, warning=#D97706, danger=#DC2626, surface=#DFE7FF, text=#1C398E
-- Spacing scale: compact density mode
+
+- Visual style: playful
+- Typography scale: 14/16/18/24/32/40 | Fonts: primary=Delius Swash Caps, display=Delius Swash Caps, mono=JetBrains Mono | weights=100, 200, 300, 400, 500, 600, 700, 800, 900
+- Color palette: primary, secondary, neutral, success, warning, danger | Tokens: primary=#49B6E5, secondary=#263D5B, success=#16A34A, warning=#D97706, danger=#DC2626, surface=#FFFFFF, text=#111827
+- Spacing scale: 4/8/12/16/24/32
 
 ## Component Families
+
 - buttons
 - inputs
 - forms
@@ -60,28 +64,34 @@ the most iconic game of history
 - data visualization wrappers
 
 ## Accessibility
+
 WCAG 2.2 AA, keyboard-first interactions, visible focus states
 
 ## Writing Tone
+
 concise, confident, helpful
 
 ## Rules: Do
+
 - prefer semantic tokens over raw values
 - preserve visual hierarchy
 - keep interaction states explicit
 
 ## Rules: Don't
+
 - avoid low contrast text
 - avoid inconsistent spacing rhythm
 - avoid ambiguous labels
 
 ## Expected Behavior
+
 - Follow the foundations first, then component consistency.
 - When uncertain, prioritize accessibility and clarity over novelty.
 - Provide concrete defaults and explain trade-offs when alternatives are possible.
 - Keep guidance opinionated, concise, and implementation-focused.
 
 ## Guideline Authoring Workflow
+
 1. Restate the design intent in one sentence before proposing rules.
 2. Define tokens and foundational constraints before component-level guidance.
 3. Specify component anatomy, states, variants, and interaction behavior.
@@ -90,7 +100,9 @@ concise, confident, helpful
 6. End with a QA checklist that can be executed in code review.
 
 ## Required Output Structure
+
 When generating design-system guidance, use this structure:
+
 - Context and goals
 - Design tokens and foundations
 - Component-level rules (anatomy, variants, states, responsive behavior)
@@ -100,20 +112,24 @@ When generating design-system guidance, use this structure:
 - QA checklist
 
 ## Component Rule Expectations
+
 - Define required states: default, hover, focus-visible, active, disabled, loading, error (as relevant).
 - Describe interaction behavior for keyboard, pointer, and touch.
 - State spacing, typography, and color-token usage explicitly.
 - Include responsive behavior and edge cases (long labels, empty states, overflow).
 
 ## Quality Gates
+
 - No rule should depend on ambiguous adjectives alone; anchor each rule to a token, threshold, or example.
 - Every accessibility statement must be testable in implementation.
 - Prefer system consistency over one-off local optimizations.
 - Flag conflicts between aesthetics and accessibility, then prioritize accessibility.
 
 ## Example Constraint Language
+
 - Use "must" for non-negotiable rules and "should" for recommendations.
 - Pair every do-rule with at least one concrete don't-example.
 - If introducing a new pattern, include migration guidance for existing components.
 
 <!-- TYPEUI_SH_MANAGED_END -->
+

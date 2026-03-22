@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maison Luxe — Premium Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Jost', sans-serif; background: #0D0D0D; color: #F5F0E8; }
+nav { display: flex; justify-content: space-between; align-items: center; padding: 24px 60px; border-bottom: 1px solid rgba(212,175,55,0.2); }
+.logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; letter-spacing: 0.15em; color: #D4AF37; }
+.nav-links { display: flex; gap: 36px; font-size: 12px; letter-spacing: 0.1em; color: rgba(245,240,232,0.6); text-transform: uppercase; }
+.nav-links a { text-decoration: none; color: inherit; }
+.hero { min-height: 80vh; background: linear-gradient(135deg, #0D0D0D 40%, #1A1A2E 100%); display: flex; align-items: center; padding: 0 60px; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; right: -100px; top: 50%; transform: translateY(-50%); width: 600px; height: 600px; border-radius: 50%; border: 1px solid rgba(212,175,55,0.1); }
+.hero-content { max-width: 580px; position: relative; z-index: 1; }
+.hero-eyebrow { font-size: 11px; letter-spacing: 0.2em; color: #D4AF37; text-transform: uppercase; margin-bottom: 20px; }
+.hero-content h1 { font-family: 'Cormorant Garamond', serif; font-size: 72px; line-height: 1.05; font-weight: 300; margin-bottom: 24px; }
+.hero-content p { font-size: 15px; color: rgba(245,240,232,0.6); line-height: 1.8; max-width: 420px; margin-bottom: 40px; }
+.btn-gold { display: inline-block; padding: 14px 40px; background: #D4AF37; color: #0D0D0D; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; border: none; cursor: pointer; }
+.products { padding: 100px 60px; max-width: 1200px; margin: 0 auto; }
+.section-label { font-size: 11px; letter-spacing: 0.2em; color: #D4AF37; text-transform: uppercase; margin-bottom: 12px; }
+.products h2 { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300; margin-bottom: 60px; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.product-card { }
+.product-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; filter: brightness(0.9); }
+.product-info { padding: 16px 0; border-top: 1px solid rgba(212,175,55,0.2); margin-top: 16px; }
+.product-name { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 400; color: #F5F0E8; margin-bottom: 6px; }
+.product-price { font-size: 13px; color: #D4AF37; letter-spacing: 0.05em; }
+.trust-bar { border-top: 1px solid rgba(212,175,55,0.15); padding: 40px 60px; display: flex; gap: 60px; max-width: 1200px; margin: 0 auto; }
+.trust-item strong { display: block; font-size: 13px; color: #D4AF37; font-weight: 500; margin-bottom: 3px; letter-spacing: 0.05em; }
+.trust-item span { font-size: 12px; color: rgba(245,240,232,0.5); }
+footer { border-top: 1px solid rgba(212,175,55,0.15); padding: 40px 60px; display: flex; justify-content: space-between; font-size: 11px; color: rgba(245,240,232,0.3); letter-spacing: 0.05em; }
+@media (max-width: 768px) { nav,footer { padding: 16px 24px; } .hero { padding: 60px 24px; min-height: 70vh; } .hero-content h1 { font-size: 48px; } .products { padding: 60px 24px; } .grid { grid-template-columns: 1fr; } .trust-bar { padding: 32px 24px; flex-direction: column; gap: 20px; } }
+</style>
+</head>
+<body>
+<nav><div class="logo">MAISON LUXE</div><div class="nav-links"><a href="#">Collections</a><a href="#">Atelier</a><a href="#">Maison</a></div><div style="font-size:11px;letter-spacing:0.1em;color:rgba(245,240,232,0.4)">Cart (0)</div></nav>
+<section class="hero"><div class="hero-content"><div class="hero-eyebrow">New Collection — Winter 2026</div><h1>Crafted for those who know.</h1><p>Objects of enduring beauty. Each piece selected with precision, made to last generations.</p><button class="btn-gold">Explore Collection</button></div></section>
+<section class="products"><div class="section-label">Featured</div><h2>Curated Selection</h2><div class="grid"><div class="product-card"><img class="product-img" src="https://picsum.photos/seed/prestige1/400/533" alt="Scarf"><div class="product-info"><div class="product-name">Premium Silk Scarf</div><div class="product-price">$240.00 AUD</div></div></div><div class="product-card"><img class="product-img" src="https://picsum.photos/seed/prestige2/400/533" alt="Watch"><div class="product-info"><div class="product-name">Gold Watch Strap</div><div class="product-price">$185.00 AUD</div></div></div><div class="product-card"><img class="product-img" src="https://picsum.photos/seed/prestige3/400/533" alt="Wallet"><div class="product-info"><div class="product-name">Leather Card Holder</div><div class="product-price">$120.00 AUD</div></div></div></div></section>
+<div class="trust-bar"><div class="trust-item"><strong>Complimentary Shipping</strong><span>On all orders over $150</span></div><div class="trust-item"><strong>Certificate of Authenticity</strong><span>Every piece verified</span></div><div class="trust-item"><strong>30-Day Returns</strong><span>No questions asked</span></div><div class="trust-item"><strong>Australian Curated</strong><span>Gold Coast, Australia</span></div></div>
+<footer><div>&copy; 2026 Maison Luxe. All rights reserved.</div><div>Privacy Policy &middot; Terms &middot; Shipping</div></footer>
+</body></html>

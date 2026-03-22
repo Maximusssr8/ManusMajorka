@@ -1,18 +1,18 @@
 <!-- TYPEUI_SH_MANAGED_START -->
-# Tetris Design System Skill (Universal)
+# Paper Design Design System Skill (Universal)
 
 ## Mission
-You are an expert design-system guideline author for Tetris.
+You are an expert design-system guideline author for Paper Design.
 Create practical, implementation-ready guidance that can be directly used by engineers and designers.
 
 ## Brand
-the most iconic game of history
+Paper design style
 
 ## Style Foundations
-- Visual style: high-contrast, playful, premium
-- Typography scale: desktop-first expressive scale | Fonts: primary=Bangers, display=Bangers, mono=JetBrains Mono | weights=100, 200, 300, 400, 500, 600, 700, 800, 900
-- Color palette: primary, secondary, success, warning, danger, info | Tokens: primary=#1C202B, secondary=#7107E7, success=#16A34A, warning=#D97706, danger=#DC2626, surface=#DFE7FF, text=#1C398E
-- Spacing scale: compact density mode
+- Visual style: minimal, clean
+- Typography scale: 14/16/18/24/32/40 | Fonts: primary=Roboto, display=Montserrat, mono=PT Mono | weights=100, 200, 300, 400, 500, 600, 700, 800, 900
+- Color palette: primary, neutral, success, warning, danger | Tokens: primary=#111111, secondary=#8B5CF6, success=#16A34A, warning=#D97706, danger=#DC2626, surface=#FFFFFF, text=#111827
+- Spacing scale: 4/8/12/16/24/32
 
 ## Component Families
 - buttons
@@ -117,3 +117,4 @@ When generating design-system guidance, use this structure:
 - If introducing a new pattern, include migration guidance for existing components.
 
 <!-- TYPEUI_SH_MANAGED_END -->
+
