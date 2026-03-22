@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
 import ProductInput from '@/components/store-builder/ProductInput';
@@ -7,6 +7,7 @@ import ShopifyConnect from '@/components/store-builder/ShopifyConnect';
 import PushSuccess from '@/components/store-builder/PushSuccess';
 
 const STEPS = ['Product', 'Blueprint', 'Connect', 'Success'] as const;
+const STEPS_DISPLAY = ['Choose Niche', 'Select Product', 'Customise', 'Launch'];
 const gold = '#6366F1';
 const syne = 'Syne, sans-serif';
 
@@ -95,6 +96,43 @@ export default function StoreBuilder() {
 
       {/* Content */}
       <div className="sb-content" style={{ maxWidth: 680, margin: '0 auto', padding: '40px 24px 80px' }}>
+
+        {/* Step indicator */}
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 40 }}>
+          {STEPS_DISPLAY.map((stepLabel, i) => (
+            <React.Fragment key={i}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, minWidth: 80 }}>
+                <div style={{
+                  width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: i <= (step - 1) ? '#6366F1' : '#F3F4F6',
+                  color: i <= (step - 1) ? 'white' : '#9CA3AF',
+                  fontSize: 14, fontWeight: 700,
+                  boxShadow: i === (step - 1) ? '0 0 0 4px rgba(99,102,241,0.15)' : 'none',
+                  transition: 'all 200ms',
+                }}>
+                  {i < (step - 1) ? '✓' : i + 1}
+                </div>
+                <span style={{
+                  fontSize: 12,
+                  fontWeight: i === (step - 1) ? 600 : 400,
+                  color: i <= (step - 1) ? '#6366F1' : '#9CA3AF',
+                  whiteSpace: 'nowrap',
+                }}>
+                  {stepLabel}
+                </span>
+              </div>
+              {i < STEPS_DISPLAY.length - 1 && (
+                <div style={{
+                  flex: 1, height: 2,
+                  background: i < (step - 1) ? '#6366F1' : '#F3F4F6',
+                  transition: 'background 300ms',
+                  marginBottom: 28,
+                }} />
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+
         {step === 1 && (
           <ProductInput
             session={session}
