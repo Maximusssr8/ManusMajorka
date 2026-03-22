@@ -1,7 +1,22 @@
-# Store Builder V2 — Implementation Task
+# Majorka — Claude Code Instructions
 
 You are the senior engineer on Majorka. Implement everything below without stopping or asking questions.
 Work in ~/ManusMajorka. Use --dangerously-skip-permissions is already set.
+
+## ⚡ Design System — READ FIRST
+
+**Before building any UI component, page, or style change**, read:
+`.claude/skills/majorka-design-system/SKILL.md`
+
+Follow the Majorka design system exactly:
+- Primary accent: `#6366F1` (indigo) — NEVER use `#d4af37` (old gold)
+- Sidebar: white/light mode with indigo active states
+- Fonts: Bricolage Grotesque (display) + Geist/DM Sans (UI)
+- All buttons: scale(1.02) hover, scale(0.97) active, 150ms transition
+- Score badges: indigo/violet/grey tier system (not orange/gold)
+- Dark mode: `html.dark` class-based, `localStorage` key `majorka-theme`
+
+---
 
 ## OVERVIEW
 3 parts: (1) Generator rewrite in server/lib/website-api.ts, (2) Shopify OAuth backend, (3) 4-step wizard frontend.
