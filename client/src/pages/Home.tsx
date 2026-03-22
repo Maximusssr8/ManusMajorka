@@ -60,7 +60,7 @@ const GLOBAL_STYLES = `
   background-clip: text;
 }
 .particle-grid {
-  background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(99,102,241,0.06) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 .horizon-line {
@@ -72,9 +72,9 @@ const GLOBAL_STYLES = `
 .social-icon-btn {
   display: flex; align-items: center; justify-content: center;
   width: 36px; height: 36px; border-radius: 8px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  color: #94949e; text-decoration: none; font-size: 14px; font-weight: 700;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  color: #6B7280; text-decoration: none; font-size: 14px; font-weight: 700;
   transition: border-color 0.2s, color 0.2s, background 0.2s;
 }
 .social-icon-btn:hover { border-color: rgba(99,102,241,0.35); color: #6366F1; background: rgba(99,102,241,0.06); }
@@ -139,23 +139,23 @@ const GLOBAL_STYLES = `
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const C = {
-  bg: '#080a0e',
-  card: '#0d1117',
-  elevated: '#131620',
-  border: 'rgba(255,255,255,0.06)',
+  bg: '#FAFAFA',
+  card: '#FFFFFF',
+  elevated: '#F9FAFB',
+  border: '#E5E7EB',
   borderHover: 'rgba(99,102,241,0.25)',
-  text: '#f5f5f5',
-  secondary: '#94949e',
-  muted: '#52525b',
+  text: '#0A0A0A',
+  secondary: '#6B7280',
+  muted: '#9CA3AF',
   gold: '#6366F1',
   goldLight: '#A5B4FC',
   goldDim: 'rgba(99,102,241,0.08)',
-  goldBorder: 'rgba(99,102,241,0.25)',
-  green: '#22c55e',
-  red: '#ef4444',
+  goldBorder: 'rgba(99,102,241,0.2)',
+  green: '#10B981',
+  red: '#EF4444',
 };
 
-const syne = 'Syne, sans-serif';
+const syne = "'Bricolage Grotesque', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 // ── Data ──────────────────────────────────────────────────────────────────────
@@ -249,9 +249,9 @@ function SocialProofCounter() {
   }, []);
   if (count === null) return null;
   return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 100, padding: '6px 18px' }}>
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 100, padding: '6px 18px' }}>
       <div style={{ width: 8, height: 8, borderRadius: '50%', background: C.green, animation: 'pulse-ring 2s ease-in-out infinite' }} />
-      <span style={{ fontSize: 13, fontWeight: 600, color: C.green }}>Join {count.toLocaleString()}+ sellers worldwide using Majorka</span>
+      <span style={{ fontSize: 13, fontWeight: 600, color: '#059669' }}>Join {count.toLocaleString()}+ sellers worldwide using Majorka</span>
     </div>
   );
 }
@@ -282,14 +282,14 @@ function StatsBar() {
   };
 
   return (
-    <section ref={ref as React.RefCallback<HTMLElement>} style={{ background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '64px 24px', overflowX: 'hidden' }}>
+    <section ref={ref as React.RefCallback<HTMLElement>} style={{ background: '#F9FAFB', borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB', padding: '64px 24px', overflowX: 'hidden' }}>
       <div className="grid-2-mobile" style={{ maxWidth: 960, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, textAlign: 'center' }}>
         {STATS_BASE.map((stat, i) => {
           const Icon = stat.icon;
           const currentVal = liveValues[stat.key] ?? stat.end;
           return (
             <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }} transition={{ delay: i * 0.1, duration: 0.5, ease: 'easeOut' }} style={{ padding: '16px 8px', position: 'relative' }}>
-              {i < STATS_BASE.length - 1 && <div style={{ position: 'absolute', right: 0, top: '20%', bottom: '20%', width: 1, background: 'rgba(255,255,255,0.06)' }} className="hide-mobile" />}
+              {i < STATS_BASE.length - 1 && <div style={{ position: 'absolute', right: 0, top: '20%', bottom: '20%', width: 1, background: '#E5E7EB' }} className="hide-mobile" />}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, borderRadius: 10, background: C.goldDim, border: `1px solid ${C.goldBorder}`, margin: '0 auto 12px', position: 'relative' }}>
                 <Icon size={18} color={C.gold} />
                 {stat.live && <div style={{ position: 'absolute', top: -3, right: -3, width: 8, height: 8, borderRadius: '50%', background: C.green, animation: 'pulse-ring 2s ease-in-out infinite' }} />}
@@ -357,22 +357,22 @@ function EmailCapture() {
   }
 
   return (
-    <div style={{ background: C.elevated, border: `1px solid ${C.border}`, borderRadius: 20, padding: '48px 32px', maxWidth: 560, margin: '0 auto', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
+    <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 20, padding: '48px 32px', maxWidth: 560, margin: '0 auto', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
       <div style={{ textAlign: 'center', marginBottom: 28 }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: C.goldDim, border: `1px solid ${C.goldBorder}`, borderRadius: 100, padding: '5px 14px', marginBottom: 16 }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 100, padding: '5px 14px', marginBottom: 16 }}>
           <span style={{ fontSize: 11, fontWeight: 600, color: C.gold }}>FREE PRODUCT GUIDE</span>
         </div>
-        <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 22, color: C.text, marginBottom: 8 }}>Get the Product Research Playbook</h3>
-        <p style={{ color: C.secondary, fontSize: 14, lineHeight: 1.6 }}>How top sellers find $10K/mo products + weekly trending product alerts. Free, no spam.</p>
+        <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 22, color: '#0A0A0A', marginBottom: 8 }}>Get the Product Research Playbook</h3>
+        <p style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.6 }}>How top sellers find $10K/mo products + weekly trending product alerts. Free, no spam.</p>
       </div>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <input type="text" placeholder="First name (optional)" value={name} onChange={(e) => setName(e.target.value)} style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 16px', color: C.text, fontSize: 14, fontFamily: dm, outline: 'none', minHeight: 48 }} />
-        <input type="email" placeholder="Your email address" required value={email} onChange={(e) => setEmail(e.target.value)} style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 16px', color: C.text, fontSize: 14, fontFamily: dm, outline: 'none', minHeight: 48 }} />
-        <button type="submit" disabled={status === 'loading'} style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', borderRadius: 10, padding: '14px 20px', fontFamily: syne, fontWeight: 800, fontSize: 15, border: 'none', cursor: status === 'loading' ? 'wait' : 'pointer', opacity: status === 'loading' ? 0.7 : 1, transition: 'opacity 0.2s', minHeight: 48 }}>
+        <input type="text" placeholder="First name (optional)" value={name} onChange={(e) => setName(e.target.value)} style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 10, padding: '12px 16px', color: '#0A0A0A', fontSize: 14, fontFamily: dm, outline: 'none', minHeight: 48 }} />
+        <input type="email" placeholder="Your email address" required value={email} onChange={(e) => setEmail(e.target.value)} style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 10, padding: '12px 16px', color: '#0A0A0A', fontSize: 14, fontFamily: dm, outline: 'none', minHeight: 48 }} />
+        <button type="submit" disabled={status === 'loading'} style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#fff', borderRadius: 10, padding: '14px 20px', fontFamily: syne, fontWeight: 800, fontSize: 15, border: 'none', cursor: status === 'loading' ? 'wait' : 'pointer', opacity: status === 'loading' ? 0.7 : 1, transition: 'opacity 0.2s', minHeight: 48 }}>
           {status === 'loading' ? 'Sending...' : 'Send Me the Guide'}
         </button>
         {status === 'error' && <p style={{ color: C.red, fontSize: 13, textAlign: 'center' }}>{errMsg}</p>}
-        <p style={{ fontSize: 11, color: C.muted, textAlign: 'center' }}>Unsubscribe anytime. We respect your privacy.</p>
+        <p style={{ fontSize: 11, color: '#9CA3AF', textAlign: 'center' }}>Unsubscribe anytime. We respect your privacy.</p>
       </form>
     </div>
   );
@@ -1160,238 +1160,13 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ═══ STATS ═════════════════════════════════════════════════════════ */}
-      <StatsBar />
+      {/* Stats, Weekly Winners, and Product Intelligence Preview removed — replaced by new light sections above */}
 
-      {/* ═══ WEEKLY WINNERS EMAIL CAPTURE ══════════════════════════════════ */}
-      <WeeklyWinnersSection />
+      {/* Trusted By section removed — redundant with Trust Bar above */}
 
-      {/* ═══ PRODUCT INTELLIGENCE PREVIEW ══════════════════════════════════ */}
-      <ProductIntelligencePreview />
+      {/* Logo Strip removed — redundant with Trust Bar above */}
 
-      {/* ═══ TRUSTED BY ════════════════════════════════════════════════════ */}
-      <section style={{ padding: '36px 24px', background: C.bg, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: C.muted, textTransform: 'uppercase', marginBottom: 20 }}>
-            Trusted by 2,400+ Australian dropshippers
-          </p>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
-            {['Shopify Partners', 'TikTok Shop AU', 'AliExpress', 'Australia Post'].map((logo) => (
-              <span key={logo} style={{
-                background: '#1a1d21',
-                border: '1px solid #374151',
-                borderRadius: 100,
-                padding: '6px 16px',
-                fontSize: 13,
-                fontWeight: 600,
-                fontFamily: dm,
-                color: '#f5f5f5',
-                whiteSpace: 'nowrap',
-                letterSpacing: '0.01em',
-              }}>
-                {logo}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ LOGO STRIP ════════════════════════════════════════════════════ */}
-      <section style={{ background: C.card, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}`, padding: '48px 0' }}>
-        <p style={{ textAlign: 'center', fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: C.muted, marginBottom: 28, textTransform: 'uppercase' }}>
-          Built for the platforms sellers use worldwide
-        </p>
-        <div style={{ position: 'relative' }}>
-          <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 100, background: `linear-gradient(to right, ${C.card}, transparent)`, zIndex: 1, pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 100, background: `linear-gradient(to left, ${C.card}, transparent)`, zIndex: 1, pointerEvents: 'none' }} />
-          <Marquee speed={28} gradient={false}>
-            {[...LOGO_STRIP, ...LOGO_STRIP].map((name, i) => (
-              <div key={i} style={{ padding: '10px 40px', fontSize: 14, fontWeight: 700, fontFamily: syne, color: C.secondary, whiteSpace: 'nowrap', borderRight: `1px solid ${C.border}` }}>
-                {name}
-              </div>
-            ))}
-          </Marquee>
-        </div>
-      </section>
-
-      {/* ═══ MEET MAYA — AI AGENT SHOWCASE ═══════════════════════════════ */}
-      <section style={{ padding: '100px 0', position: 'relative', overflow: 'hidden' }}>
-        {/* Background glow */}
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(99,102,241,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
-        {/* Dot grid */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(99,102,241,0.08) 1px, transparent 1px)', backgroundSize: '32px 32px', pointerEvents: 'none', maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)' }} />
-
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', position: 'relative' }}>
-
-          {/* ── Section label ── */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: 20, padding: '6px 16px' }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#6366F1', display: 'inline-block', boxShadow: '0 0 8px #6366F1' }} />
-              <span style={{ color: '#6366F1', fontSize: 12, fontWeight: 700, fontFamily: syne, letterSpacing: '0.1em', textTransform: 'uppercase' }}>AI Co-Pilot</span>
-            </div>
-          </div>
-
-          {/* ── Headline ── */}
-          <div style={{ textAlign: 'center', marginBottom: 72 }}>
-            <h2 style={{ fontFamily: syne, fontSize: 'clamp(36px, 5.5vw, 60px)', fontWeight: 800, color: '#f5f5f5', lineHeight: 1.05, letterSpacing: '-0.03em', margin: '0 0 20px' }}>
-              Meet Maya — she doesn't<br />just answer. She <span style={{ color: '#6366F1' }}>acts.</span>
-            </h2>
-            <p style={{ color: '#71717a', fontSize: 18, maxWidth: 520, margin: '0 auto', fontFamily: dm, lineHeight: 1.6 }}>
-              One message. Maya researches your niche, finds suppliers, builds your store, and writes your ads — all in under 3 minutes.
-            </p>
-          </div>
-
-          {/* ── Split layout ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1.1fr)', gap: 48, alignItems: 'center' }}>
-
-            {/* LEFT — capabilities */}
-            <div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 40 }}>
-                {[
-                  { icon: '🔍', label: 'Market Intelligence', desc: 'Scans TikTok Shop, Amazon AU & AliExpress for what\'s actually selling right now.' },
-                  { icon: '🏪', label: 'Store Builder', desc: 'Generates a full Shopify store from a competitor URL or product idea in 60 seconds.' },
-                  { icon: '🎯', label: 'Ad Creative Engine', desc: 'Writes Meta + TikTok hooks, scripts, and targeting briefs — AU-specific, high-converting.' },
-                  { icon: '📦', label: 'Supplier Finder', desc: 'Compares AliExpress, CJDropshipping & AU local suppliers with landed cost estimates.' },
-                ].map((item) => (
-                  <div key={item.label} style={{ display: 'flex', gap: 16, padding: '18px 20px', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, transition: 'border-color 0.2s' }}
-                    onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)')}
-                    onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
-                  >
-                    <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
-                      {item.icon}
-                    </div>
-                    <div>
-                      <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 15, color: '#f5f5f5', marginBottom: 4 }}>{item.label}</div>
-                      <div style={{ fontSize: 13, color: '#71717a', lineHeight: 1.5, fontFamily: dm }}>{item.desc}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <Link href="/app/chat" style={{
-                display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 28px',
-                background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
-                borderRadius: 14, color: '#080a0e', fontFamily: syne, fontWeight: 800,
-                fontSize: 15, textDecoration: 'none', boxShadow: '0 8px 32px rgba(99,102,241,0.35)',
-              }}>
-                Talk to Maya → <span style={{ opacity: 0.7, fontSize: 12 }}>Free</span>
-              </Link>
-            </div>
-
-            {/* RIGHT — chat window */}
-            <div style={{ position: 'relative' }}>
-              {/* Glow behind card */}
-              <div style={{ position: 'absolute', inset: -20, background: 'radial-gradient(ellipse at center, rgba(99,102,241,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
-
-              <div style={{
-                position: 'relative',
-                background: 'rgba(10,12,20,0.9)',
-                border: '1px solid rgba(99,102,241,0.2)',
-                borderRadius: 24,
-                overflow: 'hidden',
-                backdropFilter: 'blur(20px)',
-                boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(99,102,241,0.1) inset',
-              }}>
-                {/* Title bar — macOS style */}
-                <div style={{ padding: '14px 18px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.02)' }}>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    {['#ff5f57','#febc2e','#28c840'].map(c => <div key={c} style={{ width: 11, height: 11, borderRadius: '50%', background: c }} />)}
-                  </div>
-                  <div style={{ flex: 1, textAlign: 'center', fontSize: 12, color: '#52525b', fontFamily: dm, fontWeight: 600 }}>Maya — AI Co-Pilot</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', display: 'inline-block', boxShadow: '0 0 6px #22c55e' }} />
-                    <span style={{ fontSize: 11, color: '#22c55e', fontFamily: dm, fontWeight: 600 }}>Online</span>
-                  </div>
-                </div>
-
-                {/* Messages */}
-                <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 20, minHeight: 360 }}>
-
-                  {/* Maya greeting */}
-                  <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1 0%, #92711a 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 13, color: '#080a0e', flexShrink: 0, boxShadow: '0 4px 12px rgba(99,102,241,0.4)' }}>M</div>
-                    <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px 16px 16px 16px', padding: '12px 16px', maxWidth: '85%' }}>
-                      <p style={{ color: '#d1d5db', fontSize: 14, margin: 0, lineHeight: 1.6, fontFamily: dm }}>
-                        Hey 👋 I'm Maya. Tell me what you want to sell and I'll handle everything — research, suppliers, store, ads. What's the niche?
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* User message */}
-                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <div style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(99,102,241,0.08))', border: '1px solid rgba(99,102,241,0.25)', borderRadius: '16px 4px 16px 16px', padding: '12px 16px', maxWidth: '80%' }}>
-                      <p style={{ color: '#f5f5f5', fontSize: 14, margin: 0, fontFamily: dm }}>LED face masks for the AU market</p>
-                    </div>
-                  </div>
-
-                  {/* Maya action response */}
-                  <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1 0%, #92711a 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 13, color: '#080a0e', flexShrink: 0, boxShadow: '0 4px 12px rgba(99,102,241,0.4)' }}>M</div>
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                      <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px 16px 16px 16px', padding: '12px 16px' }}>
-                        <p style={{ color: '#d1d5db', fontSize: 14, margin: 0, lineHeight: 1.6, fontFamily: dm }}>
-                          Solid pick. <strong style={{ color: '#f5f5f5' }}>Low competition</strong> in AU right now — 23 stores vs 340K searches/mo. Top sellers averaging <strong style={{ color: '#6366F1' }}>$2,800/day</strong>. Running full workflow now ↓
-                        </p>
-                      </div>
-
-                      {/* Workflow card */}
-                      <div style={{ background: 'rgba(99,102,241,0.04)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 14, padding: '16px 18px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 14 }}>
-                          <span style={{ fontSize: 12, fontWeight: 800, color: '#6366F1', fontFamily: syne, letterSpacing: '0.05em' }}>⚡ WORKFLOW RUNNING</span>
-                          <span style={{ fontSize: 10, color: '#52525b', fontFamily: dm }}>3 of 4 complete</span>
-                        </div>
-                        {[
-                          { done: true, label: 'Market scan', detail: 'Score 82/100 — high opportunity' },
-                          { done: true, label: 'Supplier match', detail: 'CJDropshipping · $19 landed AU' },
-                          { done: true, label: 'Ad angles', detail: '3 hooks written — TikTok + Meta' },
-                          { done: false, label: 'Store build', detail: 'Generating…' },
-                        ].map((step) => (
-                          <div key={step.label} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                            <div style={{ width: 20, height: 20, borderRadius: '50%', background: step.done ? 'rgba(34,197,94,0.15)' : 'rgba(99,102,241,0.1)', border: `1px solid ${step.done ? 'rgba(34,197,94,0.4)' : 'rgba(99,102,241,0.3)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, flexShrink: 0 }}>
-                              {step.done ? <span style={{ color: '#22c55e' }}>✓</span> : <span style={{ color: '#6366F1' }}>◌</span>}
-                            </div>
-                            <div style={{ flex: 1 }}>
-                              <span style={{ fontSize: 13, fontWeight: 600, color: step.done ? '#e5e7eb' : '#71717a', fontFamily: dm }}>{step.label}</span>
-                              <span style={{ fontSize: 11, color: '#52525b', fontFamily: dm, marginLeft: 8 }}>— {step.detail}</span>
-                            </div>
-                          </div>
-                        ))}
-                        <button style={{ marginTop: 6, width: '100%', background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#080a0e', border: 'none', borderRadius: 10, padding: '11px 16px', fontWeight: 800, fontSize: 13, cursor: 'pointer', fontFamily: syne, letterSpacing: '0.02em' }}>
-                          Open Store Preview →
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Input bar */}
-                <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: 10, background: 'rgba(255,255,255,0.01)' }}>
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '0 14px', gap: 8 }}>
-                    <input readOnly placeholder="Message Maya…" style={{ flex: 1, background: 'transparent', border: 'none', padding: '11px 0', color: '#52525b', fontSize: 14, outline: 'none', fontFamily: dm }} />
-                    <span style={{ fontSize: 11, color: '#3f3f46', fontFamily: dm }}>⌘↵</span>
-                  </div>
-                  <button style={{ background: 'linear-gradient(135deg, #6366F1, #4F46E5)', border: 'none', borderRadius: 12, width: 42, height: 42, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 14px rgba(99,102,241,0.4)', fontSize: 16 }}>→</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ── Bottom stat strip ── */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 1, marginTop: 64, background: 'rgba(255,255,255,0.05)', borderRadius: 20, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
-            {[
-              { value: '< 3 min', label: 'Idea to live store' },
-              { value: '50+', label: 'AI tools chained' },
-              { value: '$0', label: 'Extra subscriptions' },
-              { value: '24/7', label: 'Always running' },
-            ].map((stat) => (
-              <div key={stat.label} style={{ padding: '28px 24px', background: 'rgba(255,255,255,0.02)', textAlign: 'center' }}>
-                <div style={{ fontFamily: syne, fontSize: 28, fontWeight: 800, color: '#6366F1', marginBottom: 6 }}>{stat.value}</div>
-                <div style={{ fontSize: 13, color: '#52525b', fontFamily: dm }}>{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Meet Maya section removed — dark theme incompatible with light landing page */}
 
       {/* ═══ FEATURES — BENTO GRID ═══════════════════════════════════════ */}
       <BentoFeaturesSection />
@@ -1403,16 +1178,16 @@ export default function Home() {
       <DemoSection />
 
       {/* ═══ TESTIMONIALS — 6 AU sellers ══════════════════════════════════ */}
-      <section style={{ padding: '100px 24px', background: C.card, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+      <section style={{ padding: '100px 24px', background: '#FFFFFF', borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} style={{ textAlign: 'center', marginBottom: 56 }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: C.goldDim, border: `1px solid ${C.goldBorder}`, borderRadius: 100, padding: '5px 14px', marginBottom: 16 }}>
               <span style={{ fontSize: 12, fontWeight: 700, color: C.gold, fontFamily: syne }}>WHAT SELLERS ARE SAYING</span>
             </div>
-            <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.6rem, 4.5vw, 3rem)', letterSpacing: '-0.025em', color: C.text }}>
+            <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.6rem, 4.5vw, 3rem)', letterSpacing: '-0.025em', color: '#0A0A0A' }}>
               Real results. Real Australian sellers.
             </h2>
-            <p style={{ color: C.secondary, fontSize: 16, marginTop: 12 }}>Join 2,400+ sellers already winning with Majorka.</p>
+            <p style={{ color: '#6B7280', fontSize: 16, marginTop: 12 }}>Join 2,400+ sellers already winning with Majorka.</p>
           </motion.div>
 
           <div className="grid-1-mobile" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
@@ -1424,21 +1199,21 @@ export default function Home() {
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.1 }}
                 transition={{ delay: (i % 3) * 0.1, duration: 0.5, ease: 'easeOut' }}
-                style={{ position: 'relative', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '28px 24px', overflow: 'hidden', backdropFilter: 'blur(8px)' }}
+                style={{ position: 'relative', background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 18, padding: '28px 24px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
               >
-                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: C.gold, boxShadow: '4px 0 20px rgba(99,102,241,0.2)', borderRadius: '18px 0 0 18px' }} />
+                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: C.gold, borderRadius: '18px 0 0 18px' }} />
                 <div style={{ paddingLeft: 6 }}>
                   <div style={{ color: C.gold, fontSize: 13, letterSpacing: 2, marginBottom: 12 }}>{'★'.repeat(t.stars)}</div>
-                  <p style={{ fontSize: 15, color: '#e2e8f0', lineHeight: 1.65, marginBottom: 20, fontStyle: 'italic' }}>&ldquo;{t.quote}&rdquo;</p>
+                  <p style={{ fontSize: 15, color: '#374151', lineHeight: 1.65, marginBottom: 20, fontStyle: 'italic' }}>&ldquo;{t.quote}&rdquo;</p>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: C.goldDim, border: `1px solid ${C.goldBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 11, color: C.gold, flexShrink: 0 }}>
+                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#EEF2FF', border: '1px solid #C7D2FE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 11, color: C.gold, flexShrink: 0 }}>
                       {t.name.split(' ').map((n) => n[0]).join('')}
                     </div>
                     <div>
-                      <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 13, color: C.text }}>{t.name} {t.flag}</div>
-                      <div style={{ fontSize: 11, color: C.muted }}>{t.city}</div>
+                      <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 13, color: '#0A0A0A' }}>{t.name} {t.flag}</div>
+                      <div style={{ fontSize: 11, color: '#9CA3AF' }}>{t.city}</div>
                     </div>
-                    <div style={{ marginLeft: 'auto', background: C.goldDim, border: `1px solid ${C.goldBorder}`, borderRadius: 100, padding: '2px 8px', fontSize: 10, fontWeight: 700, color: C.gold, fontFamily: syne, flexShrink: 0 }}>{t.plan}</div>
+                    <div style={{ marginLeft: 'auto', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 100, padding: '2px 8px', fontSize: 10, fontWeight: 700, color: C.gold, fontFamily: syne, flexShrink: 0 }}>{t.plan}</div>
                   </div>
                 </div>
               </motion.div>
@@ -1448,7 +1223,7 @@ export default function Home() {
       </section>
 
       {/* ═══ TRUST BADGES ══════════════════════════════════════════════════ */}
-      <section style={{ padding: '32px 24px', background: C.bg, borderBottom: `1px solid ${C.border}` }}>
+      <section style={{ padding: '32px 24px', background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '12px 32px' }}>
           {[
             { icon: '🔒', label: 'SSL Encrypted' },
@@ -1456,10 +1231,10 @@ export default function Home() {
             { icon: '💳', label: 'Cancel Anytime' },
             { icon: '🤝', label: '7-Day Money Back' },
           ].map((badge, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, color: C.muted, fontSize: 13, fontWeight: 500 }}>
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, color: '#6B7280', fontSize: 13, fontWeight: 500 }}>
               <span style={{ fontSize: 16 }}>{badge.icon}</span>
               <span>{badge.label}</span>
-              {i < 3 && <span style={{ color: C.border, paddingLeft: 20, display: 'none' }} className="hide-mobile">|</span>}
+              {i < 3 && <span style={{ color: '#E5E7EB', paddingLeft: 20, display: 'none' }} className="hide-mobile">|</span>}
             </div>
           ))}
         </div>
@@ -1592,7 +1367,7 @@ export default function Home() {
       </section>
 
       {/* ═══ EMAIL CAPTURE ═════════════════════════════════════════════════ */}
-      <section id="guide" style={{ padding: '80px 24px', background: C.card, borderTop: `1px solid ${C.border}`, borderBottom: `1px solid ${C.border}` }}>
+      <section id="guide" style={{ padding: '80px 24px', background: '#FAFAFA', borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} style={{ textAlign: 'center', marginBottom: 40 }}>
             <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.4rem, 3.5vw, 2.2rem)', letterSpacing: '-0.025em', marginBottom: 12 }}>Free resources. No catch.</h2>
