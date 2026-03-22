@@ -301,7 +301,7 @@ export default function MarketDashboard() {
             ) : (
               <table className="w-full">
                 <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
                     {['#', 'Product', 'Category', 'Rev/day', 'Score', 'Trend'].map((h) => (
                       <th key={h} className="text-left px-4 py-2.5 text-xs font-medium" style={{ color: '#475569' }}>{h}</th>
                     ))}
