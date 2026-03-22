@@ -632,10 +632,10 @@ function DashboardHome() {
       </div>
 
       {/* ── Widget grid ──────────────────────────────────────────── */}
-      <div style={{ padding: '28px 32px', maxWidth: 1400, margin: '0 auto' }}>
+      <div style={{ padding: 'clamp(16px, 3vw, 32px)', maxWidth: 1400, margin: '0 auto' }}>
 
         {/* Row 1: 4 stat cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 20 }}>
+        <div className="stats-grid-responsive" style={{ gap: 16, marginBottom: 20 }}>
           {([
             { label: 'Products Found', value: '192', delta: '+12 this week', icon: Package, positive: true, color: '#6366F1' },
             { label: 'Est. Best Revenue', value: '$41.2k', delta: 'Posture Corrector', icon: TrendingUp, positive: true, color: '#10B981' },
@@ -659,7 +659,7 @@ function DashboardHome() {
         </div>
 
         {/* Row 2: Wide chart + Quick actions */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 20 }}>
+        <div className="chart-insight-grid">
 
           {/* Revenue trend chart */}
           <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px 28px' }}>
@@ -714,7 +714,7 @@ function DashboardHome() {
         </div>
 
         {/* Row 3: Top products table + AI tip card */}
-        <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: 16, marginBottom: 20 }}>
+        <div className="products-ai-grid">
 
           {/* Top products */}
           <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, overflow: 'hidden' }}>
@@ -784,7 +784,7 @@ function DashboardHome() {
             <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#0A0A0A' }}>Your Tools</div>
             <span style={{ fontSize: 12, color: '#9CA3AF' }}>20+ AI tools</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 10 }}>
             {([
               { icon: Search, label: 'Product Intel', path: '/app/intelligence/database', color: '#6366F1' },
               { icon: Globe, label: 'Store Builder', path: '/app/store-builder', color: '#8B5CF6' },
@@ -821,6 +821,13 @@ function DashboardHome() {
         @media (max-width: 768px) {
           .dashboard-stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
         }
+        .stats-grid-responsive { display: grid; grid-template-columns: repeat(4, 1fr); }
+        @media (max-width: 900px) { .stats-grid-responsive { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 480px) { .stats-grid-responsive { grid-template-columns: 1fr; } }
+        .chart-insight-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px; }
+        @media (max-width: 900px) { .chart-insight-grid { grid-template-columns: 1fr; } }
+        .products-ai-grid { display: grid; grid-template-columns: 3fr 1fr; gap: 16px; margin-bottom: 20px; }
+        @media (max-width: 900px) { .products-ai-grid { grid-template-columns: 1fr; } }
       `}</style>
     </div>
   );

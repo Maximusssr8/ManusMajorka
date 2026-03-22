@@ -122,6 +122,8 @@ const GLOBAL_STYLES = `
   .hiw-steps > * { max-width: 320px !important; }
   /* Demo spy grid mobile */
   .spy-grid { grid-template-columns: 1fr !important; }
+  /* Footer grid mobile */
+  .footer-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important; gap: 32px !important; }
 }
 @media (min-width: 769px) { .hide-desktop { display: none !important; } }
 
@@ -1098,7 +1100,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)" }} onClick={onClose} />
-      <div style={{ position: "relative", background: "white", borderRadius: 20, width: "100%", maxWidth: 520, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 40px 80px rgba(0,0,0,0.2)" }}>
+      <div style={{ position: "relative", background: "white", borderRadius: 20, width: "100%", maxWidth: "min(520px, calc(100vw - 32px))", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 40px 80px rgba(0,0,0,0.2)" }}>
         <button onClick={onClose} style={{ position: "absolute", top: 16, right: 16, width: 32, height: 32, borderRadius: "50%", border: "none", background: "#F5F5F5", cursor: "pointer", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>×</button>
         <div style={{ display: "flex", gap: 6, padding: "24px 28px 0" }}>
           {STEPS.map((_, i) => (

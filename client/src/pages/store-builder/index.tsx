@@ -461,12 +461,18 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
         <title>Store Builder AI — Majorka</title>
       </Helmet>
       <style>{`
+        .customise-grid > *:last-child { }
         @media (max-width: 640px) {
           .sb-topbar { padding: 12px 16px !important; }
           .sb-step-label { display: none !important; }
           .sb-content { padding: 24px 16px 80px !important; }
           .sb-template-grid { grid-template-columns: 1fr !important; }
           .sb-customise-grid { grid-template-columns: 1fr !important; }
+          .customise-grid { grid-template-columns: 1fr !important; }
+          .customise-grid > *:last-child { display: none !important; }
+          .sb-launch-grid { grid-template-columns: 1fr !important; }
+          .sb-step4-inner { padding: 16px !important; }
+          .sb-step-label { font-size: 10px !important; max-width: 60px !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
         }
       `}</style>
 
@@ -521,7 +527,7 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
                 }}>
                   {i < currentStep ? '\u2713' : i + 1}
                 </div>
-                <span style={{
+                <span className="sb-step-label" style={{
                   fontSize: 12,
                   fontWeight: i === currentStep ? 600 : 400,
                   color: i <= currentStep ? '#6366F1' : '#9CA3AF',
@@ -561,7 +567,7 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
                 placeholder="Search templates..."
                 value={templateSearch}
                 onChange={e => setTemplateSearch(e.target.value)}
-                style={{ height: 38, padding: "0 14px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 14, color: "#374151", background: "white", outline: "none", minWidth: 200, flex: "0 0 auto" }}
+                style={{ height: 38, padding: "0 14px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 14, color: "#374151", background: "white", outline: "none", minWidth: 'min(200px, 100%)', flex: "0 0 auto" }}
                 onFocus={e => (e.currentTarget.style.borderColor = "#6366F1")}
                 onBlur={e => (e.currentTarget.style.borderColor = "#E5E7EB")}
               />
@@ -684,7 +690,7 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
 
         {/* ── Step 3: Customise Your Store ── */}
         {currentStep === 2 && (
-          <div className="sb-customise-grid" style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 32, alignItems: "flex-start" }}>
+          <div className="sb-customise-grid customise-grid" style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 32, alignItems: "flex-start" }}>
             {/* Left: Form */}
             <div>
               <button onClick={() => setCurrentStep(1)} style={{ fontSize: 13, color: "#6B7280", background: "none", border: "none", cursor: "pointer", marginBottom: 20, display: "flex", alignItems: "center", gap: 4 }}>{"\u2190"} Back</button>
@@ -780,7 +786,7 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
 
         {/* ── Step 4: Connect & Launch ── */}
         {currentStep === 3 && (
-          <div style={{ maxWidth: 600, margin: "0 auto" }}>
+          <div className="sb-step4-inner" style={{ maxWidth: 600, margin: "0 auto" }}>
             <div style={{ marginBottom: 32, textAlign: "center" }}>
               <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 28, color: "#0A0A0A", marginBottom: 8 }}>
                 {buildState === "done" ? "Your store is ready! \u{1F389}" : "Connect & Launch"}
@@ -811,7 +817,7 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
                 </div>
 
                 {/* Launch options */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
+                <div className="sb-launch-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
                   <div style={{ padding: "20px", border: "2px solid #6366F1", borderRadius: 12, textAlign: "center", background: "#EEF2FF" }}>
                     <div style={{ fontSize: 28, marginBottom: 8 }}>{"\u{1F3EA}"}</div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: "#0A0A0A", marginBottom: 4 }}>Connect Shopify</div>

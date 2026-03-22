@@ -605,7 +605,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           { label: 'Score 70+ (Hot)', value: trendingCount.toString(), trend: 'Top performers', positive: true, icon: '🔥' },
         ];
         return (
-          <div className="stat-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, padding: '16px 28px 0', background: '#FFFFFF' }}>
+          <div className="stat-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 16, padding: '16px 28px 0', background: '#FFFFFF' }}>
             {STAT_CARDS.map((card, i) => (
               <div key={i} style={{
                 background: 'white', border: '1px solid #F0F0F0', borderRadius: 12,
@@ -672,6 +672,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             width: 260, padding: '8px 12px', borderRadius: 7,
             background: '#F9FAFB', border: '1px solid #E5E7EB',
             color: '#111111', fontSize: 13, outline: 'none',
+            minWidth: 'min(200px, 100%)',
           }}
         />
         <button onClick={() => loadProducts()}
@@ -724,7 +725,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               <th style={{ ...thStyle, width: 80, textAlign: 'center' }} onClick={() => toggleSort('winning_score')}>
                 SCORE <SortIcon col="winning_score" />
               </th>
-              <th style={{ ...thStyle, width: 100 }}>CREATORS</th>
+              <th className="db-col-hide-mobile" style={{ ...thStyle, width: 100 }}>CREATORS</th>
               <th style={{ ...thStyle, width: 200 }}>ACTIONS</th>
             </tr>
             <tr>
@@ -890,7 +891,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   </td>
 
                   {/* Creators */}
-                  <td style={{ padding: '12px 20px' }}>
+                  <td className="db-col-hide-mobile" style={{ padding: '12px 20px' }}>
                     <CreatorAvatars handles={p.creator_handles || []} />
                     {(p.ad_count_est || 0) > 0 && (
                       <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 4, textAlign: 'center' }}>
