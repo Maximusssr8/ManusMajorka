@@ -268,6 +268,7 @@ function Router() {
             <Route path="/demo-dashboard" component={PromoDashboard} />
             <Route path="/privacy">{() => <LegalPage title="Privacy Policy" slug="privacy" />}</Route>
             <Route path="/terms">{() => <LegalPage title="Terms of Service" slug="terms" />}</Route>
+            <Route path="/cookies">{() => <LegalPage title="Cookie Policy" slug="cookie-policy" />}</Route>
             <Route path="/refund-policy">{() => <LegalPage title="Refund Policy" slug="refund-policy" />}</Route>
             <Route path="/404" component={NotFound} />
             <Route component={NotFound} />
@@ -296,6 +297,14 @@ function LegalPage({ title, slug }: { title: string; slug: string }) {
       'Majorka provides AI-generated content for informational purposes. We do not guarantee specific business outcomes.',
       'Australian Consumer Law applies. Nothing in these terms limits your rights under the Competition and Consumer Act 2010.',
       'We may suspend accounts that breach these terms. For disputes, contact hello@majorka.io before seeking legal remedies.',
+    ],
+    'cookie-policy': [
+      'Majorka uses cookies and similar technologies to provide, protect, and improve our service.',
+      'Essential cookies: Required for core functionality — authentication, session management, and security. These cannot be disabled.',
+      'Analytics cookies: We use PostHog to understand how users interact with our platform. This data helps us improve the product. You may opt out via your browser settings.',
+      'We do not use advertising cookies or sell cookie data to third parties.',
+      'By continuing to use Majorka, you consent to our use of cookies as described in this policy.',
+      'For questions about our cookie practices, contact hello@majorka.io.',
     ],
     'refund-policy': [
       'We offer a 7-day money-back guarantee on your first subscription payment if you are not satisfied with Majorka.',

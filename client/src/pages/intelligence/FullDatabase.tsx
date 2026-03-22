@@ -985,8 +985,13 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                       </svg>
                     </div>
                     <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 20, color: '#111111', marginBottom: 8 }}>No products found</div>
-                    <div style={{ fontSize: 14, color: '#6B7280', marginBottom: 20 }}>Try a different filter or refresh the product database</div>
-                    <button onClick={() => loadProducts()} style={{ height: 36, padding: '0 20px', background: '#6366F1', color: 'white', borderRadius: 8, border: 'none', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>Refresh Products</button>
+                    <div style={{ fontSize: 14, color: '#6B7280', marginBottom: 20 }}>Try clearing your filters or search query</div>
+                    <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+                      {search && (
+                        <button onClick={() => setSearch('')} style={{ height: 36, padding: '0 20px', background: 'white', color: '#6366F1', borderRadius: 8, border: '1px solid #6366F1', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>Clear Search</button>
+                      )}
+                      <button onClick={() => loadProducts()} style={{ height: 36, padding: '0 20px', background: '#6366F1', color: 'white', borderRadius: 8, border: 'none', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>Refresh Products</button>
+                    </div>
                   </div>
                 </td>
               </tr>

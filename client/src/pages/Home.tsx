@@ -1619,42 +1619,62 @@ export default function Home() {
               </div>
               <p style={{ fontSize: 14, lineHeight: 1.7, color: '#6B7280', maxWidth: 240, marginBottom: 24 }}>The AI OS for AU ecommerce. Find winners, build stores, scale fast.</p>
               <div style={{ display: 'flex', gap: 12 }}>
-                {['𝕏', 'in', 'TT'].map((icon, i) => (
-                  <div key={i} style={{ width: 36, height: 36, borderRadius: 8, border: '1px solid #27272A', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#6B7280', transition: '150ms' }}
+                {[
+                  { icon: '𝕏', href: 'https://twitter.com/majorkaio' },
+                  { icon: 'in', href: 'https://linkedin.com/company/majorka' },
+                  { icon: 'TT', href: 'https://tiktok.com/@majorkaio' },
+                ].map(({ icon, href }) => (
+                  <a key={icon} href={href} target="_blank" rel="noopener noreferrer" style={{ width: 36, height: 36, borderRadius: 8, border: '1px solid #27272A', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#6B7280', transition: '150ms', textDecoration: 'none' }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.color = '#6366F1'; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = '#27272A'; e.currentTarget.style.color = '#6B7280'; }}
-                  >{icon}</div>
+                  >{icon}</a>
                 ))}
               </div>
             </div>
             {/* Col 2: Product */}
             <div>
               <h4 style={{ fontSize: 13, fontWeight: 700, color: 'white', marginBottom: 16, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Product</h4>
-              {['Features', 'Pricing', 'Store Builder', 'Product Intelligence', 'Competitor Spy'].map(link => (
-                <a key={link} href="#" style={{ display: 'block', fontSize: 14, color: '#6B7280', marginBottom: 10, textDecoration: 'none', transition: 'color 150ms' }}
+              {[
+                { label: 'Features', href: '/#features' },
+                { label: 'Pricing', href: '/pricing' },
+                { label: 'Store Builder', href: '/store-builder' },
+                { label: 'Product Intelligence', href: '/app/intelligence' },
+                { label: 'Competitor Spy', href: '/app/spy' },
+              ].map(link => (
+                <a key={link.label} href={link.href} style={{ display: 'block', fontSize: 14, color: '#6B7280', marginBottom: 10, textDecoration: 'none', transition: 'color 150ms' }}
                   onMouseEnter={e => (e.currentTarget.style.color = 'white')}
                   onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
-                >{link}</a>
+                >{link.label}</a>
               ))}
             </div>
             {/* Col 3: Company */}
             <div>
               <h4 style={{ fontSize: 13, fontWeight: 700, color: 'white', marginBottom: 16, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Company</h4>
-              {['About', 'Blog', 'Careers', 'Contact', 'Affiliate'].map(link => (
-                <a key={link} href="#" style={{ display: 'block', fontSize: 14, color: '#6B7280', marginBottom: 10, textDecoration: 'none', transition: 'color 150ms' }}
+              {[
+                { label: 'About', href: '#' },
+                { label: 'Academy', href: '/app/learn' },
+                { label: 'Affiliate', href: '/app/affiliate' },
+                { label: 'Contact', href: 'mailto:hello@majorka.io' },
+              ].map(link => (
+                <a key={link.label} href={link.href} style={{ display: 'block', fontSize: 14, color: '#6B7280', marginBottom: 10, textDecoration: 'none', transition: 'color 150ms' }}
                   onMouseEnter={e => (e.currentTarget.style.color = 'white')}
                   onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
-                >{link}</a>
+                >{link.label}</a>
               ))}
             </div>
             {/* Col 4: Legal */}
             <div>
               <h4 style={{ fontSize: 13, fontWeight: 700, color: 'white', marginBottom: 16, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Legal</h4>
-              {['Privacy Policy', 'Terms of Service', 'Cookie Policy', 'Refund Policy'].map(link => (
-                <a key={link} href="#" style={{ display: 'block', fontSize: 14, color: '#6B7280', marginBottom: 10, textDecoration: 'none', transition: 'color 150ms' }}
+              {[
+                { label: 'Privacy Policy', href: '/privacy' },
+                { label: 'Terms of Service', href: '/terms' },
+                { label: 'Cookie Policy', href: '/cookies' },
+                { label: 'Refund Policy', href: '/refund-policy' },
+              ].map(link => (
+                <a key={link.label} href={link.href} style={{ display: 'block', fontSize: 14, color: '#6B7280', marginBottom: 10, textDecoration: 'none', transition: 'color 150ms' }}
                   onMouseEnter={e => (e.currentTarget.style.color = 'white')}
                   onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
-                >{link}</a>
+                >{link.label}</a>
               ))}
             </div>
           </div>

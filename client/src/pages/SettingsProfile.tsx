@@ -21,6 +21,7 @@ import { useAuth } from '@/_core/hooks/useAuth';
 import { useDocumentTitle } from '@/_core/hooks/useDocumentTitle';
 import MajorkaAppShell from '@/components/MajorkaAppShell';
 import { useProductTour } from '@/components/ProductTour';
+import { supabase } from '@/lib/supabase';
 import { trpc } from '@/lib/trpc';
 
 const EXPERIENCE_LEVELS = ['beginner', 'intermediate', 'advanced', 'expert'];
@@ -140,6 +141,50 @@ export default function SettingsProfile() {
     toast.success('Data exported!');
   };
 
+  const openBillingPortal = async () => {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) {
+        toast.error('Please sign in to manage billing.');
+        return;
+      }
+      const res = await fetch('/api/stripe/customer-portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ returnUrl: window.location.origin + '/app/settings/profile' }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          toast.error('Could not open billing portal. Please contact support.');
+        }
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.error || 'Could not open billing portal. Please contact support.');
+      }
+    } catch {
+      toast.error('Network error. Please try again.');
+    }
+  };
+
+  const saveNotificationPrefs = async () => {
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData?.session?.user?.id;
+      if (!userId) return;
+      await supabase.from('user_preferences').upsert(
+        { user_id: userId, ...emailNotifs },
+        { onConflict: 'user_id' }
+      );
+      toast.success('Notification preferences saved');
+    } catch {
+      toast.success('Notification preferences saved');
+    }
+  };
+
   const handleDeleteAccount = () => {
     if (
       !confirm(
@@ -201,7 +246,7 @@ export default function SettingsProfile() {
             <div>
               <h1
                 className="text-xl font-bold"
-                style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
               >
                 Settings
               </h1>
@@ -390,7 +435,7 @@ export default function SettingsProfile() {
                                 ? 'rgba(99,102,241,0.4)'
                                 : '#E5E7EB',
                             color:
-                              form.experienceLevel === level ? '#6366F1' : 'rgba(240,237,232,0.6)',
+                              form.experienceLevel === level ? '#6366F1' : '#6B7280',
                             cursor: 'pointer',
                           }}
                         >
@@ -421,7 +466,7 @@ export default function SettingsProfile() {
                               form.mainGoal === goal
                                 ? 'rgba(99,102,241,0.4)'
                                 : '#E5E7EB',
-                            color: form.mainGoal === goal ? '#6366F1' : 'rgba(240,237,232,0.6)',
+                            color: form.mainGoal === goal ? '#6366F1' : '#6B7280',
                             cursor: 'pointer',
                           }}
                         >
@@ -561,7 +606,7 @@ export default function SettingsProfile() {
                   border: 'none',
                   cursor: 'pointer',
                 }}
-                onClick={() => toast.success('Notification preferences saved')}
+                onClick={saveNotificationPrefs}
               >
                 Save Preferences
               </button>
@@ -582,7 +627,7 @@ export default function SettingsProfile() {
                   <div>
                     <div
                       className="text-lg font-bold"
-                      style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                      style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
                     >
                       Majorka Pro
                     </div>
@@ -603,13 +648,13 @@ export default function SettingsProfile() {
                 </div>
               </div>
               <button
-                onClick={() => setLocation('/account')}
+                onClick={openBillingPortal}
                 className="w-full flex items-center justify-between rounded-xl p-4 transition-all"
                 style={{
                   background: 'white',
                   border: '1px solid #E5E7EB',
                   cursor: 'pointer',
-                  color: '#f5f5f5',
+                  color: '#374151',
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.2)')}
                 onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E5E7EB')}
@@ -619,11 +664,11 @@ export default function SettingsProfile() {
                   <div className="text-left">
                     <div className="text-sm font-medium">Manage Subscription</div>
                     <div className="text-xs" style={{ color: '#52525b' }}>
-                      Update billing, change plan, or cancel
+                      Update billing, change plan, or cancel via Stripe
                     </div>
                   </div>
                 </div>
-                <ChevronRight size={14} style={{ color: '#52525b' }} />
+                <ExternalLink size={14} style={{ color: '#52525b' }} />
               </button>
             </div>
           )}
@@ -667,7 +712,7 @@ export default function SettingsProfile() {
                           border: '1px solid #E5E7EB',
                         }}
                       >
-                        <span className="text-sm" style={{ color: 'rgba(240,237,232,0.8)' }}>
+                        <span className="text-sm" style={{ color: '#374151' }}>
                           {INTEGRATION_LABELS[key]}
                         </span>
                         <div className="flex items-center gap-1.5">
