@@ -97,18 +97,50 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const [liveLoading, setLiveLoading] = useState(false);
   const [liveSearched, setLiveSearched] = useState(false);
 
-  const handleLiveSearch = async () => {
-    if (!liveSearch.trim()) return;
+  const handleLiveSearch = async (queryOverride?: string) => {
+    const query = queryOverride ?? liveSearch;
+    if (!query.trim()) return;
     setLiveLoading(true);
     setLiveSearched(true);
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData?.session?.access_token;
-      const res = await fetch(`/api/products/search?q=${encodeURIComponent(liveSearch)}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      const data = await res.json();
-      setLiveResults(data.results ?? []);
+
+      // Try DataHub (real AliExpress) first, fall back to existing search
+      const [datahubRes, searchRes] = await Promise.allSettled([
+        fetch(`/api/products/datahub/search?q=${encodeURIComponent(query)}&limit=20`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }).then(r => r.json()),
+        fetch(`/api/products/search?q=${encodeURIComponent(query)}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }).then(r => r.json()),
+      ]);
+
+      const datahubProducts: any[] = datahubRes.status === 'fulfilled' ? (datahubRes.value.products ?? []) : [];
+      const searchResults: any[] = searchRes.status === 'fulfilled' ? (searchRes.value.results ?? []) : [];
+
+      // Normalise both to same shape
+      const normalised = [
+        ...datahubProducts.map((p: any) => ({
+          id: p.id,
+          title: p.name,
+          image: p.image_url,
+          price_aud: p.price_aud,
+          sold_count: p.orders_count ? `${(p.orders_count).toLocaleString()} sold` : '',
+          rating: p.rating,
+          source: 'aliexpress_datahub',
+          product_url: p.aliexpress_url,
+          platform_badge: '🛒 AliExpress',
+          aliexpress_url: p.aliexpress_url,
+          supplier_name: p.supplier_name,
+        })),
+        // Merge non-duplicate search results
+        ...searchResults
+          .filter((r: any) => !datahubProducts.some((d: any) => d.name?.toLowerCase() === r.title?.toLowerCase()))
+          .slice(0, 5),
+      ];
+
+      setLiveResults(normalised);
     } catch (err) {
       console.error('[live-search]', err);
       setLiveResults([]);
@@ -312,11 +344,11 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 </p>
                 <span style={{
                   display: 'inline-block', marginTop: 3, padding: '2px 7px',
-                  background: product.source === 'tiktok_shop' ? '#1a1a2e' : '#1a1a1a',
-                  border: `1px solid ${product.source === 'tiktok_shop' ? '#333366' : '#333'}`,
-                  borderRadius: 4, fontSize: 10, color: product.source === 'tiktok_shop' ? '#8888cc' : '#666',
+                  background: product.source === 'tiktok_shop' ? '#1a1a2e' : product.source === 'aliexpress_datahub' ? '#1a200a' : '#1a1a1a',
+                  border: `1px solid ${product.source === 'tiktok_shop' ? '#333366' : product.source === 'aliexpress_datahub' ? '#2a4010' : '#333'}`,
+                  borderRadius: 4, fontSize: 10, color: product.source === 'tiktok_shop' ? '#8888cc' : product.source === 'aliexpress_datahub' ? '#7ab040' : '#666',
                 }}>
-                  {product.platform_badge}
+                  {product.platform_badge || (product.source === 'aliexpress_datahub' ? '🛒 AliExpress' : product.source)}
                 </span>
               </div>
 
@@ -330,13 +362,20 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               </div>
 
               <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                {product.aliexpress_url && (
+                  <a href={product.aliexpress_url} target="_blank" rel="noopener noreferrer"
+                    style={{ padding: '7px 10px', background: '#1a2030', border: '1px solid #2a3040', borderRadius: 6, fontSize: 11, color: '#6b7280', textDecoration: 'none', whiteSpace: 'nowrap' }}
+                  >View ↗</a>
+                )}
                 <button
                   onClick={() => {
                     const params = new URLSearchParams({
                       productName: encodeURIComponent(product.title || ''),
                       imageUrl: encodeURIComponent(product.image || ''),
                       price: String(product.price_aud || 49),
-                      fromDatabase: 'true',
+                      supplierUrl: encodeURIComponent(product.aliexpress_url || product.product_url || ''),
+                      supplierName: encodeURIComponent(product.supplier_name || 'AliExpress'),
+                      fromDatabase: 'false',
                     });
                     navigate(`/app/website-generator?${params}`);
                   }}
@@ -346,7 +385,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     cursor: 'pointer', whiteSpace: 'nowrap',
                   }}
                 >
-                  Build Store &rarr;
+                  Build Store →
                 </button>
               </div>
             </div>

@@ -1073,6 +1073,75 @@ router.post('/run-aliexpress-migration', async (req: Request, res: Response) => 
   res.json({ ok: failed.length === 0, steps, failed });
 });
 
+// ── POST /api/admin/refresh-db-rapidapi — bulk-populate trend_signals via RapidAPI DataHub ──
+router.post('/refresh-db-rapidapi', async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace('Bearer ', '');
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || '';
+  if (token !== serviceKey) { res.status(403).json({ error: 'Admin only' }); return; }
+
+  const NICHES = [
+    { keyword: 'gym fitness equipment australia', niche: 'Fitness & Gym' },
+    { keyword: 'skincare beauty serum australia', niche: 'Beauty & Skincare' },
+    { keyword: 'phone accessories gadgets wireless', niche: 'Tech Accessories' },
+    { keyword: 'home decor organisation storage', niche: 'Home & Decor' },
+    { keyword: 'pet accessories dog cat', niche: 'Pet Supplies' },
+    { keyword: 'outdoor camping survival gear', niche: 'Outdoor & Camping' },
+    { keyword: 'kitchen gadgets cooking tools', niche: 'Kitchen & Cooking' },
+    { keyword: 'baby products kids toys', niche: 'Baby & Kids' },
+    { keyword: 'jewellery accessories women rings', niche: 'Jewellery' },
+    { keyword: 'car accessories auto phone mount', niche: 'Car Accessories' },
+  ];
+
+  const { searchAliExpressProducts } = await import('../lib/aliexpressDataHub');
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+  const { createClient } = await import('@supabase/supabase-js');
+  const supabase = createClient(supabaseUrl, serviceKey);
+
+  let total = 0;
+  const results: { niche: string; count?: number; error?: string }[] = [];
+
+  for (const { keyword, niche } of NICHES) {
+    try {
+      const products = await searchAliExpressProducts(keyword, {
+        limit: 19,
+        sort: 'total_tranpro_desc',
+        shipTo: 'AU',
+      });
+
+      for (const p of products) {
+        if (!p.name || !p.image_url) continue;
+
+        await supabase.from('trend_signals').upsert({
+          name: p.name.slice(0, 200),
+          niche,
+          image_url: p.image_url,
+          estimated_retail_aud: p.price_aud || 49,
+          aliexpress_url: p.aliexpress_url,
+          supplier_name: p.supplier_name || 'AliExpress',
+          winning_score: Math.min(100, Math.round((p.orders_count || 0) / 50)),
+          trend_score: 70,
+          growth_pct: 15,
+          real_data_scraped: true,
+          source: 'rapidapi_datahub',
+          orders_count: p.orders_count || 0,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'name' });
+        total++;
+      }
+
+      results.push({ niche, count: products.length });
+      console.log(`[refresh-db-rapidapi] ${niche}: ${products.length} products`);
+      await new Promise(r => setTimeout(r, 500));
+    } catch (err: any) {
+      console.error(`[refresh-db-rapidapi] ${niche} failed:`, err.message);
+      results.push({ niche, error: err.message });
+    }
+  }
+
+  res.json({ total, results });
+});
+
 // ── GET /api/admin/aliexpress-status — check AliExpress integration health ────
 router.get('/aliexpress-status', async (_req: Request, res: Response) => {
   const { isAuthorized } = await import('../lib/aliexpress');

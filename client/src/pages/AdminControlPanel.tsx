@@ -348,6 +348,7 @@ function HealthTab() {
   const [enriching, setEnriching] = useState(false);
   const [scrapingReal, setScrapingReal] = useState(false);
   const [refreshingAE, setRefreshingAE] = useState(false);
+  const [refreshingRapid, setRefreshingRapid] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -498,8 +499,26 @@ function HealthTab() {
         <button
           onClick={async () => {
             try {
+              setRefreshingRapid(true);
+              const data = await apiCall('/refresh-db-rapidapi', { method: 'POST' });
+              const summary = (data.results || []).map((r: any) => `${r.niche}: ${r.count ?? 0} ${r.error ? '❌' : '✅'}`).join('\n');
+              alert(`✅ Refreshed ${data.total} products via RapidAPI!\n\n${summary}`);
+            } catch (e: any) {
+              alert('Error: ' + e.message);
+            } finally {
+              setRefreshingRapid(false);
+            }
+          }}
+          disabled={refreshingRapid}
+          style={{ marginLeft: 8, padding: '9px 16px', background: '#e67e22', color: '#fff', border: 'none', borderRadius: 6, cursor: refreshingRapid ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 13, opacity: refreshingRapid ? 0.7 : 1 }}
+        >
+          {refreshingRapid ? 'Refreshing…' : '⚡ Refresh DB (RapidAPI)'}
+        </button>
+        <button
+          onClick={async () => {
+            try {
               const data = await apiCall('/aliexpress-status');
-              alert(`AliExpress Status:\n\nApp Key: ${data.appKey}\nApp Secret: ${data.appSecret}\nAccess Token: ${data.accessToken}\n\n${data.authorized ? '✅ Ready to use!' : `❌ Not authorized.\n\nVisit: ${data.authUrl}`}`);
+              alert(`AliExpress Status:\n\nApp Key: ${data.appKey}\nApp Secret: ${data.appSecret}\n\n${data.authorized ? '✅ API Ready!' : '⚠️ Check credentials'}`);
             } catch (e: any) {
               alert('Error: ' + e.message);
             }
