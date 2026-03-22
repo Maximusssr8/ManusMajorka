@@ -44,26 +44,33 @@ const AVATAR_COLORS = ['#6c5ce7', '#00b894', '#e17055', '#0984e3', '#fd79a8'];
 
 // ── Subcomponents ─────────────────────────────────────────────────────────────
 function CreatorAvatars({ handles }: { handles: string[] }) {
+  if (!handles || handles.length === 0) {
+    return <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.2)' }}>—</span>;
+  }
+  // Last element is the "+N creators" count string
+  const countTag = handles.find(h => h.startsWith('+'));
+  const realHandles = handles.filter(h => h.startsWith('@'));
+  const count = countTag ? parseInt(countTag.replace(/\D/g, '')) : 0;
   return (
     <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column', gap: 4 }}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        {handles.slice(0, 3).map((h, i) => (
+        {realHandles.slice(0, 3).map((h, i) => (
           <div key={i} title={h} style={{
-            width: 26, height: 26, borderRadius: '50%',
+            width: 24, height: 24, borderRadius: '50%',
             background: AVATAR_COLORS[i % AVATAR_COLORS.length],
             border: '2px solid #0d0d14',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 9, color: '#fff', fontWeight: 800,
-            marginLeft: i > 0 ? -8 : 0,
+            fontSize: 8, color: '#fff', fontWeight: 800,
+            marginLeft: i > 0 ? -7 : 0,
             position: 'relative', zIndex: 3 - i,
           }}>
             {h.replace('@', '').slice(0, 2).toUpperCase()}
           </div>
         ))}
       </div>
-      {handles[0] && (
-        <span style={{ fontSize: 9, color: 'rgba(240,237,232,0.35)', maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {handles[0]}
+      {count > 0 && (
+        <span style={{ fontSize: 9, color: '#d4af37', fontWeight: 700 }}>
+          {count >= 1000 ? `${(count/1000).toFixed(1)}k` : count} creators
         </span>
       )}
     </div>
@@ -642,12 +649,18 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               </tr>
             ) : sorted.map((p, idx) => {
               const score = p.winning_score || p.trend_score || 0;
-              const scoreColor = score >= 80 ? '#27ae60' : score >= 60 ? '#f39c12' : '#e74c3c';
+              const scoreColor = score >= 80 ? '#27ae60' : score >= 65 ? '#f39c12' : '#e74c3c';
               const growth = p.growth_rate_pct || 0;
               const orders = (p as any).orders_count || p.items_sold_monthly || 0;
               const price = p.estimated_retail_aud || 0;
-              const estRevenue = orders > 0 && price > 0 ? Math.round((orders * price * 0.3) / 100) * 100 : p.est_monthly_revenue_aud || 0;
-              const marginPct = price > 0 ? Math.round((price - price / 3) / price * 100) : 0;
+              // Use stored margin from DB; fall back to a simple estimate only if truly missing
+              const marginPct = p.estimated_margin_pct != null
+                ? Math.max(0, Math.min(99, p.estimated_margin_pct))
+                : (price > 0 ? Math.round((price - (p.avg_unit_price_aud || price / 3)) / price * 100) : 0);
+              // Use stored revenue; fall back to orders × retail as last resort
+              const estRevenue = p.est_monthly_revenue_aud && p.est_monthly_revenue_aud > 0
+                ? p.est_monthly_revenue_aud
+                : (orders > 0 && price > 0 ? Math.round(orders * price / 100) * 100 : 0);
               const tags = getOpportunityTags(p);
 
               return (
@@ -712,7 +725,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   {/* Revenue */}
                   <td style={{ padding: '12px 16px' }}>
                     <div style={{ fontSize: 18, fontWeight: 800, color: '#d4af37', fontFamily: 'Syne, sans-serif', lineHeight: 1 }}>
-                      {estRevenue > 0 ? `$${Math.round(estRevenue / 100) * 100 > 0 ? Math.round(estRevenue / 100) * 100 : estRevenue}` : formatRevenue(p.est_monthly_revenue_aud)}
+                      {estRevenue > 0 ? formatRevenue(estRevenue) : '—'}
                     </div>
                     <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)', marginTop: 3 }}>est/month</div>
                   </td>
@@ -727,7 +740,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
                   {/* Margin */}
                   <td style={{ padding: '12px 16px' }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: marginPct > 50 ? '#27ae60' : '#f39c12' }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: marginPct >= 55 ? '#27ae60' : marginPct >= 35 ? '#f39c12' : '#e74c3c' }}>
                       ~{marginPct}%
                     </div>
                   </td>
