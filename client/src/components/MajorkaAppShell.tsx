@@ -500,29 +500,30 @@ export default function MajorkaAppShell({ children }: Props) {
           style={{
             borderRadius: 8,
             background: active ? '#EEF2FF' : 'transparent',
-            color: active ? '#6366F1' : 'var(--sidebar-nav-color, #374151)',
+            color: active ? '#6366F1' : '#6B7280',
             fontFamily: 'DM Sans, sans-serif',
             border: 'none',
             cursor: 'pointer',
-            borderLeft: active ? '3px solid #6366F1' : '3px solid transparent',
-            paddingLeft: active ? 9 : 12,
+            position: 'relative' as const,
+            paddingLeft: 12,
             paddingRight: 12,
-            paddingTop: 6,
-            paddingBottom: 6,
-            // On mobile: 56px touch targets for menu items
+            paddingTop: 8,
+            paddingBottom: 8,
+            fontSize: 14,
             minHeight: 36,
             fontWeight: active ? 600 : 400,
+            transition: 'all 150ms',
           }}
           onMouseEnter={(e) => {
             if (!active) {
-              (e.currentTarget as HTMLButtonElement).style.background = '#F5F3FF';
-              (e.currentTarget as HTMLButtonElement).style.color = '#6366F1';
+              (e.currentTarget as HTMLButtonElement).style.background = '#F5F5F5';
+              (e.currentTarget as HTMLButtonElement).style.color = '#111111';
             }
           }}
           onMouseLeave={(e) => {
             if (!active) {
               (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-              (e.currentTarget as HTMLButtonElement).style.color = 'var(--sidebar-nav-color, #374151)';
+              (e.currentTarget as HTMLButtonElement).style.color = '#6B7280';
             }
           }}
         >
@@ -551,8 +552,7 @@ export default function MajorkaAppShell({ children }: Props) {
           </span>
           {active && (
             <div
-              className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-              style={{ background: '#6366F1' }}
+              style={{ position: 'absolute', left: 0, top: '20%', bottom: '20%', width: 3, background: '#6366F1', borderRadius: '0 4px 4px 0' }}
             />
           )}
         </button>
@@ -564,8 +564,8 @@ export default function MajorkaAppShell({ children }: Props) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div
-        className="flex items-center gap-2.5 px-3 py-3 flex-shrink-0"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+        className="flex items-center gap-2.5 px-3 flex-shrink-0"
+        style={{ borderBottom: '1px solid #F0F0F0', height: 64 }}
       >
         <button
           onClick={() => setLocation('/app')}
@@ -647,9 +647,9 @@ export default function MajorkaAppShell({ children }: Props) {
           <div key={si} className="mb-1">
             {section.label && (
               <>
-                {si > 0 && <div className="mt-1 mb-1" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }} />}
-                <div className="px-3 py-1.5">
-                  <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', color: '#52525b', fontFamily: 'Syne, sans-serif' }}>
+                {si > 0 && <div style={{ borderTop: '1px solid #F0F0F0', margin: '4px 0' }} />}
+                <div style={{ margin: '20px 12px 4px' }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#9CA3AF', textTransform: 'uppercase' as const, fontFamily: 'Syne, sans-serif' }}>
                     {section.label}
                   </span>
                 </div>
@@ -672,19 +672,16 @@ export default function MajorkaAppShell({ children }: Props) {
       {/* AU flag + region */}
       <div
         className="flex-shrink-0 px-3 py-2 flex items-center gap-2"
-        style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ borderTop: '1px solid #F0F0F0' }}
       >
         <span style={{ fontSize: 14 }}>🇦🇺</span>
-        <span style={{ fontSize: 11, color: '#52525b', fontWeight: 500 }}>Australia</span>
+        <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 500 }}>Australia</span>
       </div>
-
-      {/* Divider */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} />
 
       {/* User section */}
       <div
         className="flex-shrink-0 px-2 py-2"
-        style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ borderTop: '1px solid #F0F0F0' }}
         ref={userMenuRef}
       >
         {loading ? (
@@ -729,15 +726,19 @@ export default function MajorkaAppShell({ children }: Props) {
                 <img
                   src={user.avatarUrl}
                   alt={user.name ?? 'User'}
-                  className="w-7 h-7 rounded-full flex-shrink-0 object-cover"
+                  className="rounded-full flex-shrink-0 object-cover"
+                  style={{ width: 32, height: 32 }}
                 />
               ) : (
                 <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0"
+                  className="rounded-full flex items-center justify-center font-black flex-shrink-0"
                   style={{
-                    background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                    color: '#0a0a0a',
+                    width: 32, height: 32,
+                    background: '#EEF2FF',
+                    color: '#6366F1',
                     fontFamily: 'Syne, sans-serif',
+                    fontWeight: 700,
+                    fontSize: 13,
                   }}
                 >
                   {(user?.name ?? user?.email ?? session?.user?.email ?? 'M')
@@ -748,21 +749,23 @@ export default function MajorkaAppShell({ children }: Props) {
               <div className="flex-1 text-left overflow-hidden">
                 <div className="flex items-center gap-1.5">
                   <span
-                    className="text-xs font-bold truncate"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                    className="truncate"
+                    style={{ fontFamily: 'DM Sans, sans-serif', color: '#111111', fontWeight: 600, fontSize: 14 }}
                   >
                     {user?.name ?? session?.user?.user_metadata?.full_name ?? 'User'}
                   </span>
                   <span
-                    className="px-1.5 py-0.5 rounded text-xs flex-shrink-0"
+                    className="flex-shrink-0"
                     style={{
-                      background: isPro ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.06)',
-                      color: isPro ? '#6366F1' : '#71717a',
+                      background: isPro ? '#6366F1' : 'rgba(0,0,0,0.06)',
+                      color: isPro ? 'white' : '#71717a',
                       fontFamily: 'Syne, sans-serif',
                       fontWeight: 700,
-                      fontSize: 9,
+                      fontSize: 10,
                       textTransform: 'uppercase' as const,
                       letterSpacing: '0.05em',
+                      padding: '2px 8px',
+                      borderRadius: 4,
                     }}
                   >
                     {isPro ? subPlan.charAt(0).toUpperCase() + subPlan.slice(1).toLowerCase() : 'Free'}
@@ -771,7 +774,7 @@ export default function MajorkaAppShell({ children }: Props) {
                 {(user?.email ?? session?.user?.email) && (
                   <div
                     className="truncate"
-                    style={{ color: '#52525b', fontSize: 10, fontFamily: 'DM Sans, sans-serif' }}
+                    style={{ color: '#9CA3AF', fontSize: 12, fontFamily: 'DM Sans, sans-serif', overflow: 'hidden', textOverflow: 'ellipsis' }}
                   >
                     {user?.email ?? session?.user?.email}
                   </div>
@@ -1104,6 +1107,38 @@ export default function MajorkaAppShell({ children }: Props) {
               <Search size={14} />
             </button>
             <NotificationBell />
+          </div>
+        </div>
+
+        {/* Desktop top header bar */}
+        <div
+          className="hidden lg:flex items-center justify-between px-6 flex-shrink-0"
+          style={{ height: 56, background: 'white', borderBottom: '1px solid #F0F0F0' }}
+        >
+          <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 18, fontWeight: 700, color: '#111111' }}>
+            {(() => {
+              const allItems = NAV_SECTIONS.flatMap(s => s.items);
+              const current = allItems.find(item => isActive(item.path, item.exact));
+              return current?.label || 'Dashboard';
+            })()}
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button
+              onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
+              title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+              style={{ width: 36, height: 36, borderRadius: '50%', border: '1px solid #F0F0F0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', transition: 'background 150ms' }}
+              onMouseEnter={e => (e.currentTarget.style.background = '#F5F5F5')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'white')}
+            >
+              {theme === 'light' ? createElement(Moon, { size: 16 }) : createElement(Sun, { size: 16 })}
+            </button>
+            <NotificationBell />
+            <div
+              style={{ width: 36, height: 36, borderRadius: '50%', background: '#EEF2FF', color: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}
+              onClick={() => setLocation('/account')}
+            >
+              {(user?.name ?? user?.email ?? session?.user?.email ?? 'M').charAt(0).toUpperCase()}
+            </div>
           </div>
         </div>
 

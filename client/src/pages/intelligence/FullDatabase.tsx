@@ -589,6 +589,42 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         </div>
       )}
 
+      {/* === STAT CARDS === */}
+      {products.length > 0 && (() => {
+        const totalProducts = products.length;
+        const avgRevenue = products.length > 0 ? Math.round(products.reduce((s, p) => s + (p.est_monthly_revenue_aud || 0), 0) / products.length) : 0;
+        const highMarginCount = products.filter(p => (p.estimated_margin_pct || 0) >= 40).length;
+        const trendingCount = products.filter(p => (p.winning_score || 0) >= 80).length;
+        const STAT_CARDS = [
+          { label: 'Total Products', value: totalProducts.toString(), trend: '+12 today', positive: true, icon: '📦' },
+          { label: 'Avg Est. Revenue', value: `$${(avgRevenue / 1000).toFixed(1)}k`, trend: '+8% this week', positive: true, icon: '💰' },
+          { label: 'High Margin (40%+)', value: highMarginCount.toString(), trend: `${totalProducts > 0 ? Math.round(highMarginCount / totalProducts * 100) : 0}% of total`, positive: true, icon: '📈' },
+          { label: 'Score 80+ (Hot)', value: trendingCount.toString(), trend: 'Top performers', positive: true, icon: '🔥' },
+        ];
+        return (
+          <div className="stat-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, padding: '16px 28px 0', background: '#FFFFFF' }}>
+            {STAT_CARDS.map((card, i) => (
+              <div key={i} style={{
+                background: 'white', border: '1px solid #F0F0F0', borderRadius: 12,
+                padding: '20px 24px', cursor: 'default', transition: 'border-color 200ms',
+              }}
+                onMouseEnter={e => (e.currentTarget.style.borderColor = '#6366F1')}
+                onMouseLeave={e => (e.currentTarget.style.borderColor = '#F0F0F0')}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' as const, color: '#9CA3AF' }}>{card.label}</span>
+                  <span style={{ fontSize: 20 }}>{card.icon}</span>
+                </div>
+                <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 28, color: '#111111', lineHeight: 1, marginBottom: 8 }}>{card.value}</div>
+                <div style={{ fontSize: 12, color: card.positive ? '#10B981' : '#EF4444', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  {card.positive ? '↑' : '↓'} {card.trend}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
+
       {/* === OPPORTUNITY FILTER BAR === */}
       <div style={{ display: 'flex', gap: 8, padding: '16px 28px 12px', flexWrap: 'wrap', alignItems: 'center', borderBottom: '1px solid #E5E7EB', background: '#FFFFFF' }}>
         {['All', '🔥 Viral', '💰 High Margin', '🇦🇺 AU Best Sellers', '⚡ TikTok', 'New Today'].map(f => (

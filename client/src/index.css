@@ -781,6 +781,9 @@ html.dark, [data-theme="dark"] {
   .steps-row { flex-direction: column !important; }
   .steps-connector { display: none !important; }
   .pricing-grid { grid-template-columns: 1fr !important; }
+  .footer-grid { grid-template-columns: 1fr 1fr !important; }
+  .stat-cards-grid { grid-template-columns: 1fr 1fr !important; }
+  .grid-1-mobile { grid-template-columns: 1fr !important; }
 }
 
 @media (max-width: 390px) {

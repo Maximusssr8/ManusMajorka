@@ -930,8 +930,8 @@ function DemoSection() {
 
 // ── Main Home ─────────────────────────────────────────────────────────────────
 export default function Home() {
-  const [hoveredPricing, setHoveredPricing] = useState<number | null>(null);
-  const [billingAnnual, setBillingAnnual] = useState(false);
+  const [annual, setAnnual] = useState(false);
+  const pricingCardsRef = useRef<HTMLDivElement>(null);
   const [navShadow, setNavShadow] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mockupRef = useRef<HTMLDivElement>(null);
@@ -953,50 +953,28 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const isAU = tz.startsWith('Australia');
-  const isEU = tz.startsWith('Europe');
-  const isUK = tz === 'Europe/London';
-  const priceBuilder = isAU ? "A$99" : isUK ? "£49" : isEU ? "€55" : "$59";
-  const priceScale = isAU ? "A$199" : isUK ? "£99" : isEU ? "€115" : "$119";
-  const priceCurrency = isAU ? 'AUD/mo' : isUK ? 'GBP/mo' : isEU ? 'EUR/mo' : 'USD/mo';
-
-  const PRICING = [
-    {
-      name: 'Starter',
-      price: '$0',
-      period: 'forever free',
-      description: 'Get started with essential AI tools.',
-      features: ['5 AI credits/day', 'Core tools access', 'Website Generator', 'Basic Copywriter', 'Multi-currency defaults'],
-      highlight: false,
-      cta: 'Start Free',
-      href: '/app',
-      afterpay: false,
-    },
-    {
-      name: 'Builder',
-      price: billingAnnual ? (isAU ? "A$79" : isUK ? "£39" : isEU ? "€44" : "$47") : priceBuilder,
-      period: priceCurrency,
-      description: 'Everything you need to run a winning ecommerce business.',
-      features: ['Unlimited AI credits', 'All 20+ tools', 'Full Launch Kit', 'Meta + TikTok Ads Pack', 'Email Sequences', 'Priority support'],
-      highlight: true,
-      badge: 'Most Popular',
-      cta: 'Start Free Trial',
-      href: '/pricing',
-      afterpay: true,
-    },
-    {
-      name: 'Scale',
-      price: billingAnnual ? (isAU ? "A$159" : isUK ? "£79" : isEU ? "€92" : "$95") : priceScale,
-      period: priceCurrency,
-      description: 'For serious operators who need full control.',
-      features: ['Everything in Builder', 'Priority AI (faster)', 'API access', 'White-label export', 'Dedicated account manager'],
-      highlight: false,
-      cta: 'Start Free Trial',
-      href: '/pricing',
-      afterpay: true,
-    },
-  ];
+  // Pricing intersection observer for stagger animation
+  useEffect(() => {
+    const el = pricingCardsRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          const cards = el.querySelectorAll<HTMLElement>('[data-pricing-card]');
+          cards.forEach((card, i) => {
+            setTimeout(() => {
+              card.style.opacity = '1';
+              card.style.transform = 'translateY(0)';
+            }, i * 80);
+          });
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div style={{ background: C.bg, color: C.text, fontFamily: dm, overflowX: 'hidden', minHeight: '100vh' }}>
@@ -1488,104 +1466,117 @@ export default function Home() {
       </section>
 
       {/* ═══ PRICING ═══════════════════════════════════════════════════════ */}
-      <section id="pricing" style={{ padding: '100px 24px', background: C.bg, borderBottom: `1px solid ${C.border}` }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} style={{ textAlign: 'center', marginBottom: 48 }}>
-            <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.6rem, 4.5vw, 3rem)', letterSpacing: '-0.025em', marginBottom: 12 }}>
-              Simple pricing. No surprises.
-            </h2>
-            <p style={{ color: C.secondary, fontSize: 16, maxWidth: 460, margin: '0 auto 12px' }}>
-              One platform replacing 6 tools at a fraction of the cost.
-            </p>
-            {/* Annual/monthly toggle */}
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:12, margin:"20px auto 8px" }}>
-              <span style={{ fontSize:13, color: billingAnnual ? "#94949e" : "#f5f5f5", fontWeight: billingAnnual ? 400 : 600 }}>Monthly</span>
-              <button onClick={() => setBillingAnnual(b => !b)} style={{
-                width:44, height:24, borderRadius:12, border:"none", cursor:"pointer", position:"relative",
-                background: billingAnnual ? "#6366F1" : "rgba(255,255,255,0.12)",
-                transition:"background 0.3s",
-              }}>
-                <div style={{
-                  position:"absolute", top:2, left: billingAnnual ? 22 : 2, width:20, height:20,
-                  borderRadius:"50%", background:"#fff", transition:"left 0.3s",
-                }} />
-              </button>
-              <span style={{ fontSize:13, color: billingAnnual ? "#f5f5f5" : "#94949e", fontWeight: billingAnnual ? 600 : 400 }}>
-                Annual <span style={{ background:"rgba(99,102,241,0.2)", color:"#6366F1", borderRadius:4, padding:"1px 6px", fontSize:11, fontWeight:700 }}>Save 20%</span>
-              </span>
-            </div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 100, padding: '5px 16px', marginBottom: 8 }}>
-              <span style={{ fontSize: 14 }}>🔥</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#ef4444' }}>47 sellers joined this week</span>
-            </div>
-            <div style={{ fontSize: 12, color: C.muted, marginBottom: 8 }}>Free plan: 10 searches/day · No credit card required.</div>
-            {isAU && (
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: C.goldDim, border: `1px solid ${C.goldBorder}`, borderRadius: 100, padding: '5px 14px' }}>
-                <span>🇦🇺</span>
-                <span style={{ fontSize: 12, color: C.gold, fontWeight: 600 }}>Prices in AUD · Afterpay & Zip available</span>
-              </div>
-            )}
-            {isUK && (
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: C.goldDim, border: `1px solid ${C.goldBorder}`, borderRadius: 100, padding: '5px 14px' }}>
-                <span>🇬🇧</span>
-                <span style={{ fontSize: 12, color: C.gold, fontWeight: 600 }}>Prices in GBP · Klarna available</span>
-              </div>
-            )}
-          </motion.div>
+      <section id="pricing" style={{ padding: '100px 24px', background: '#FAFAFA' }}>
+        <div style={{ maxWidth: 1060, margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 'clamp(1.6rem, 4.5vw, 3rem)', letterSpacing: '-0.025em', marginBottom: 12, color: '#0A0A0A' }}>
+            Simple pricing. No surprises.
+          </h2>
+          <p style={{ color: '#6B7280', fontSize: 16, maxWidth: 460, margin: '0 auto 24px' }}>
+            One platform replacing 6 tools at a fraction of the cost.
+          </p>
 
-          <div className="grid-1-mobile" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-            {PRICING.map((plan, i) => (
-              <motion.div
-                key={i}
-                variants={fadeUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.1 }}
-                transition={{ delay: i * 0.1, duration: 0.5, ease: 'easeOut' }}
-                onMouseEnter={() => setHoveredPricing(i)}
-                onMouseLeave={() => setHoveredPricing(null)}
-                style={{ background: plan.highlight ? C.elevated : C.card, border: `2px solid ${plan.highlight ? "#6366F1" : hoveredPricing === i ? C.borderHover : C.border}`, borderRadius: 18, padding: '28px 24px', position: 'relative', boxShadow: plan.highlight ? "0 0 0 2px #6366F1, 0 20px 40px rgba(99,102,241,0.20)" : 'none', transition: 'border-color 0.3s, box-shadow 0.3s' }}
-              >
-                {plan.badge && (
-                  <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', borderRadius: 100, padding: '3px 14px', fontSize: 11, fontWeight: 800, fontFamily: syne, whiteSpace: 'nowrap' }}>
-                    {plan.badge}
+          {/* Toggle */}
+          <div style={{ display: 'inline-flex', alignItems: 'center', background: '#F5F5F5', borderRadius: 999, padding: 4, marginBottom: 48 }}>
+            <button onClick={() => setAnnual(false)} style={{ padding: '7px 20px', borderRadius: 999, border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: annual ? 400 : 600, background: annual ? 'transparent' : 'white', color: annual ? '#6B7280' : '#111111', boxShadow: annual ? 'none' : '0 1px 3px rgba(0,0,0,0.1)', transition: 'all 150ms' }}>Monthly</button>
+            <button onClick={() => setAnnual(true)} style={{ padding: '7px 20px', borderRadius: 999, border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: annual ? 600 : 400, background: annual ? 'white' : 'transparent', color: annual ? '#111111' : '#6B7280', boxShadow: annual ? '0 1px 3px rgba(0,0,0,0.1)' : 'none', transition: 'all 150ms', display: 'flex', alignItems: 'center', gap: 8 }}>
+              Annual <span style={{ background: '#D1FAE5', color: '#059669', fontSize: 11, fontWeight: 700, padding: '2px 7px', borderRadius: 999 }}>Save 20%</span>
+            </button>
+          </div>
+
+          {/* Cards */}
+          <div ref={pricingCardsRef} className="grid-1-mobile" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, textAlign: 'left' }}>
+            {/* Free */}
+            <div data-pricing-card style={{ opacity: 0, transform: 'translateY(20px)', transition: 'opacity 400ms, transform 400ms', background: 'white', border: '1px solid #E5E7EB', borderRadius: 20, padding: 32 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: '#6B7280', marginBottom: 16 }}>Free</div>
+              <div style={{ marginBottom: 4 }}>
+                <span style={{ fontSize: 56, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', lineHeight: 1 }}>$0</span>
+                <span style={{ fontSize: 16, color: '#6B7280', marginLeft: 4 }}>/month</span>
+              </div>
+              <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 24 }}>Get started with essential tools.</p>
+              <div style={{ height: 1, background: '#F3F4F6', margin: '24px 0' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[
+                  { text: '10 product searches/day', on: true },
+                  { text: 'Basic store builder (1 store)', on: true },
+                  { text: 'AU market filters', on: true },
+                  { text: 'Product Intelligence', on: false },
+                  { text: 'Competitor Spy Tools', on: false },
+                  { text: 'Priority support', on: false },
+                ].map(f => (
+                  <div key={f.text} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#374151' }}>
+                    <span style={{ color: f.on ? '#6366F1' : '#D1D5DB', fontSize: 16, fontWeight: 700 }}>{f.on ? '✓' : '—'}</span>
+                    <span style={{ color: f.on ? '#374151' : '#9CA3AF' }}>{f.text}</span>
                   </div>
-                )}
-                <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 17, marginBottom: 4, color: plan.highlight ? C.gold : C.text }}>{plan.name}</div>
-                <p style={{ fontSize: 12, color: C.muted, marginBottom: 16 }}>{plan.description}</p>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 20 }}>
-                  <span style={{ fontFamily: syne, fontWeight: 900, fontSize: 38, color: C.text }}>{plan.price}</span>
-                  <span style={{ color: C.muted, fontSize: 13 }}>/{plan.period}</span>
-                </div>
-                <Link href={plan.href} style={{ display: 'flex', textAlign: 'center', alignItems: 'center', justifyContent: 'center', background: plan.highlight ? `linear-gradient(135deg, ${C.gold}, #4F46E5)` : 'rgba(255,255,255,0.04)', color: plan.highlight ? '#000' : C.text, border: plan.highlight ? 'none' : `1px solid ${C.border}`, borderRadius: 9, padding: '11px 16px', fontFamily: syne, fontWeight: 700, fontSize: 14, textDecoration: 'none', transition: 'opacity 0.2s', marginBottom: 20, minHeight: 44 }}>
-                  {plan.cta}
-                </Link>
-                {plan.afterpay && (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 14, fontSize: 11, color: C.secondary }}>
-                    {isAU && (
-                      <><span style={{ background: '#b2fce4', color: '#000', borderRadius: 4, padding: '2px 5px', fontSize: 10, fontWeight: 800 }}>Afterpay</span>
-                      <span>&</span>
-                      <span style={{ background: '#7b61ff', color: '#fff', borderRadius: 4, padding: '2px 5px', fontSize: 10, fontWeight: 800 }}>Zip</span></>
-                    )}
-                    {(isUK || (isEU && !isUK)) && <span style={{ background: '#ffb3c7', color: '#000', borderRadius: 4, padding: '2px 5px', fontSize: 10, fontWeight: 800 }}>Klarna</span>}
-                    {!isAU && !isUK && !isEU && (
-                      <><span style={{ background: '#b2fce4', color: '#000', borderRadius: 4, padding: '2px 5px', fontSize: 10, fontWeight: 800 }}>Afterpay</span>
-                      <span>&</span>
-                      <span style={{ background: '#ffb3c7', color: '#000', borderRadius: 4, padding: '2px 5px', fontSize: 10, fontWeight: 800 }}>Klarna</span></>
-                    )}
-                    <span>available</span>
+                ))}
+              </div>
+              <Link href="/app" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 44, borderRadius: 10, fontWeight: 600, fontSize: 15, width: '100%', cursor: 'pointer', transition: 'all 150ms', marginTop: 28, background: 'white', border: '1px solid #E5E7EB', color: '#374151', textDecoration: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.background = '#F9FAFB')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'white')}
+              >Start Free</Link>
+            </div>
+
+            {/* Builder — Most Popular */}
+            <div data-pricing-card style={{ opacity: 0, transform: 'translateY(20px)', transition: 'opacity 400ms, transform 400ms', background: 'white', border: '2px solid #6366F1', borderRadius: 20, padding: 32, boxShadow: '0 0 0 4px rgba(99,102,241,0.08), 0 24px 48px rgba(99,102,241,0.12)', position: 'relative' }}>
+              <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: '#6366F1', color: 'white', fontSize: 12, fontWeight: 700, padding: '5px 16px', borderRadius: 999, whiteSpace: 'nowrap' }}>⭐ Most Popular</div>
+              <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: '#6B7280', marginBottom: 16 }}>Builder</div>
+              <div style={{ marginBottom: 4 }}>
+                <span style={{ fontSize: 56, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', lineHeight: 1 }}>${annual ? 79 : 99}</span>
+                <span style={{ fontSize: 16, color: '#6B7280', marginLeft: 4 }}>/month</span>
+              </div>
+              {annual && <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 4 }}>billed ${79 * 12} annually</div>}
+              <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 24 }}>Everything you need to run a winning store.</p>
+              <div style={{ height: 1, background: '#F3F4F6', margin: '24px 0' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[
+                  { text: 'Unlimited product searches', on: true },
+                  { text: 'AI store builder (unlimited)', on: true },
+                  { text: 'Full Product Intelligence', on: true },
+                  { text: 'Market trend data', on: true },
+                  { text: 'Email support', on: true },
+                  { text: 'Competitor Spy Tools', on: false },
+                ].map(f => (
+                  <div key={f.text} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#374151' }}>
+                    <span style={{ color: f.on ? '#6366F1' : '#D1D5DB', fontSize: 16, fontWeight: 700 }}>{f.on ? '✓' : '—'}</span>
+                    <span style={{ color: f.on ? '#374151' : '#9CA3AF' }}>{f.text}</span>
                   </div>
-                )}
-                <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 16 }} />
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 9 }}>
-                  {plan.features.map((f) => (
-                    <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 9, fontSize: 13, color: C.secondary }}>
-                      <span style={{ color: C.green, fontWeight: 700, fontSize: 12, flexShrink: 0 }}>✓</span>{f}
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
+                ))}
+              </div>
+              <Link href="/pricing" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 44, borderRadius: 10, fontWeight: 600, fontSize: 15, width: '100%', cursor: 'pointer', transition: 'all 150ms', marginTop: 28, background: '#6366F1', color: 'white', border: 'none', textDecoration: 'none', boxShadow: '0 4px 12px rgba(99,102,241,0.3)' }}
+                onMouseEnter={e => (e.currentTarget.style.background = '#4F46E5')}
+                onMouseLeave={e => (e.currentTarget.style.background = '#6366F1')}
+              >Start Free Trial</Link>
+            </div>
+
+            {/* Scale */}
+            <div data-pricing-card style={{ opacity: 0, transform: 'translateY(20px)', transition: 'opacity 400ms, transform 400ms', background: 'white', border: '1px solid #E5E7EB', borderRadius: 20, padding: 32 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: '#6B7280', marginBottom: 16 }}>Scale</div>
+              <div style={{ marginBottom: 4 }}>
+                <span style={{ fontSize: 56, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', lineHeight: 1 }}>${annual ? 159 : 199}</span>
+                <span style={{ fontSize: 16, color: '#6B7280', marginLeft: 4 }}>/month</span>
+              </div>
+              {annual && <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 4 }}>billed ${159 * 12} annually</div>}
+              <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 24 }}>For serious operators who need full control.</p>
+              <div style={{ height: 1, background: '#F3F4F6', margin: '24px 0' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[
+                  { text: 'Everything in Builder', on: true },
+                  { text: 'Competitor Spy Tools', on: true },
+                  { text: 'Shop Intelligence', on: true },
+                  { text: 'API access', on: true },
+                  { text: 'Priority support', on: true },
+                  { text: 'Custom reporting', on: true },
+                ].map(f => (
+                  <div key={f.text} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#374151' }}>
+                    <span style={{ color: f.on ? '#6366F1' : '#D1D5DB', fontSize: 16, fontWeight: 700 }}>{f.on ? '✓' : '—'}</span>
+                    <span style={{ color: f.on ? '#374151' : '#9CA3AF' }}>{f.text}</span>
+                  </div>
+                ))}
+              </div>
+              <Link href="/pricing" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 44, borderRadius: 10, fontWeight: 600, fontSize: 15, width: '100%', cursor: 'pointer', transition: 'all 150ms', marginTop: 28, background: '#0A0A0A', color: 'white', border: 'none', textDecoration: 'none' }}
+                onMouseEnter={e => (e.currentTarget.style.background = '#1A1A1A')}
+                onMouseLeave={e => (e.currentTarget.style.background = '#0A0A0A')}
+              >Start Free Trial</Link>
+            </div>
           </div>
         </div>
       </section>
@@ -1644,83 +1635,59 @@ export default function Home() {
       <FloatingCTA />
 
       {/* ═══ FOOTER ════════════════════════════════════════════════════════ */}
-      <footer style={{ background: C.card, position: 'relative' }}>
-        <div style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(99,102,241,0.35) 30%, rgba(99,102,241,0.6) 50%, rgba(99,102,241,0.35) 70%, transparent)' }} />
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '56px 24px 40px' }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 48, justifyContent: 'space-between', marginBottom: 48 }}>
-            {/* Brand */}
-            <div style={{ maxWidth: 260 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                <div style={{ width: 32, height: 32, borderRadius: 7, background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 16, color: '#000' }}>M</div>
-                <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 16, letterSpacing: '0.08em' }}>MAJORKA</span>
+      <footer style={{ background: '#0A0A0A', padding: '80px 24px 40px', color: '#6B7280' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 48, marginBottom: 64 }}>
+            {/* Col 1: Brand */}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                <div style={{ width: 32, height: 32, background: '#6366F1', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: 16 }}>M</div>
+                <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 18, color: 'white' }}>Majorka</span>
               </div>
-              <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.65, marginBottom: 16 }}>The AI Ecommerce Operating System built for serious sellers worldwide. From idea to income.</p>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: C.goldDim, border: `1px solid ${C.goldBorder}`, borderRadius: 100, padding: '4px 12px', marginBottom: 20 }}>
-                <span style={{ fontSize: 13 }}>🇦🇺</span>
-                <span style={{ fontSize: 11, color: C.gold, fontWeight: 600 }}>Built in Australia</span>
-              </div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <a href="https://twitter.com/majorkaai" target="_blank" rel="noopener noreferrer" className="social-icon-btn" title="X / Twitter">𝕏</a>
-                <a href="https://instagram.com/majorkaai" target="_blank" rel="noopener noreferrer" className="social-icon-btn" title="Instagram">📸</a>
-                <a href="https://tiktok.com/@majorkaai" target="_blank" rel="noopener noreferrer" className="social-icon-btn" title="TikTok">♪</a>
-                <a href="https://discord.gg/majorka" target="_blank" rel="noopener noreferrer" className="social-icon-btn" title="Discord">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z" /></svg>
-                </a>
+              <p style={{ fontSize: 14, lineHeight: 1.7, color: '#6B7280', maxWidth: 240, marginBottom: 24 }}>The AI OS for AU ecommerce. Find winners, build stores, scale fast.</p>
+              <div style={{ display: 'flex', gap: 12 }}>
+                {['𝕏', 'in', 'TT'].map((icon, i) => (
+                  <div key={i} style={{ width: 36, height: 36, borderRadius: 8, border: '1px solid #27272A', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#6B7280', transition: '150ms' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.color = '#6366F1'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#27272A'; e.currentTarget.style.color = '#6B7280'; }}
+                  >{icon}</div>
+                ))}
               </div>
             </div>
-            {/* Links */}
-            <div style={{ display: 'flex', gap: 48, flexWrap: 'wrap' }}>
-              <div>
-                <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 11, color: C.secondary, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Product</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <Link href="/app/winning-products" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Winning Products</Link>
-                  <Link href="/app/suppliers" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Suppliers</Link>
-                  <Link href="/app/trend-signals" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Trend Signals</Link>
-                  <a href="#features" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Features</a>
-                  <a href="#pricing" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Pricing</a>
-                </div>
-              </div>
-              <div>
-                <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 11, color: C.secondary, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Company</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <a href="#features" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>About</a>
-                  <Link href="/dropshipping-australia" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Blog</Link>
-                  <Link href="/app/affiliate" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Affiliate</Link>
-                  <Link href="/sign-in" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Sign In</Link>
-                </div>
-              </div>
-              <div>
-                <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 11, color: C.secondary, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Legal</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <a href="/privacy" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Privacy</a>
-                  <a href="/terms" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Terms</a>
-                  <a href="/refund-policy" style={{ color: C.muted, textDecoration: 'none', fontSize: 13 }}>Refund Policy</a>
-                </div>
-              </div>
-              <div>
-                <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 11, color: C.secondary, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.1em' }}>📚 Resources</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  <Link href="/dropshipping-australia" style={{ color: C.muted, textDecoration: 'none', fontSize: 13, transition: 'color 0.2s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = C.gold; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = C.muted; }}>Dropshipping in Australia Guide</Link>
-                  <Link href="/tiktok-shop-australia" style={{ color: C.muted, textDecoration: 'none', fontSize: 13, transition: 'color 0.2s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = C.gold; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = C.muted; }}>TikTok Shop Australia 2025</Link>
-                  <Link href="/winning-products-australia" style={{ color: C.muted, textDecoration: 'none', fontSize: 13, transition: 'color 0.2s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = C.gold; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = C.muted; }}>Top 47 Winning Products AU</Link>
-                  <Link href="/store-health" style={{ color: C.muted, textDecoration: 'none', fontSize: 13, transition: 'color 0.2s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = C.gold; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = C.muted; }}>Free Store Health Score</Link>
-                  <Link href="/pricing" style={{ color: C.muted, textDecoration: 'none', fontSize: 13, transition: 'color 0.2s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = C.gold; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = C.muted; }}>Pricing</Link>
-                </div>
-              </div>
+            {/* Col 2: Product */}
+            <div>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: 'white', marginBottom: 16, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Product</h4>
+              {['Features', 'Pricing', 'Store Builder', 'Product Intelligence', 'Competitor Spy'].map(link => (
+                <a key={link} href="#" style={{ display: 'block', fontSize: 14, color: '#6B7280', marginBottom: 10, textDecoration: 'none', transition: 'color 150ms' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = 'white')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
+                >{link}</a>
+              ))}
+            </div>
+            {/* Col 3: Company */}
+            <div>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: 'white', marginBottom: 16, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Company</h4>
+              {['About', 'Blog', 'Careers', 'Contact', 'Affiliate'].map(link => (
+                <a key={link} href="#" style={{ display: 'block', fontSize: 14, color: '#6B7280', marginBottom: 10, textDecoration: 'none', transition: 'color 150ms' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = 'white')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
+                >{link}</a>
+              ))}
+            </div>
+            {/* Col 4: Legal */}
+            <div>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: 'white', marginBottom: 16, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Legal</h4>
+              {['Privacy Policy', 'Terms of Service', 'Cookie Policy', 'Refund Policy'].map(link => (
+                <a key={link} href="#" style={{ display: 'block', fontSize: 14, color: '#6B7280', marginBottom: 10, textDecoration: 'none', transition: 'color 150ms' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = 'white')}
+                  onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
+                >{link}</a>
+              ))}
             </div>
           </div>
-          <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-              <p style={{ color: C.muted, fontSize: 12 }}>© 2026 Majorka. Built for AU dropshippers.</p>
-              <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
-                <a href="/privacy" style={{ color: C.muted, fontSize: 12, textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = C.gold; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = C.muted; }}>Privacy</a>
-                <a href="/terms" style={{ color: C.muted, fontSize: 12, textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = C.gold; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = C.muted; }}>Terms</a>
-                <a href="mailto:hello@majorka.io" style={{ color: C.muted, fontSize: 12, textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={(e) => { (e.target as HTMLElement).style.color = C.gold; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.color = C.muted; }}>Contact</a>
-              </div>
-            </div>
-            <div style={{ textAlign: 'center', fontSize: 12, color: C.muted }}>
-              Made in Gold Coast, Australia 🇦🇺
-            </div>
+          <div style={{ borderTop: '1px solid #1F1F23', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+            <span style={{ fontSize: 13, color: '#4B4B57' }}>© 2026 Majorka Pty Ltd · Made in Gold Coast, Australia 🇦🇺</span>
+            <span style={{ fontSize: 13, color: '#4B4B57' }}>🇦🇺 Australian Owned & Operated</span>
           </div>
         </div>
       </footer>
