@@ -996,7 +996,7 @@ router.post('/refresh-from-aliexpress', async (req: Request, res: Response) => {
   }
 
   const niches = ['fitness', 'beauty', 'tech', 'home', 'pets', 'fashion', 'outdoor', 'kitchen', 'baby', 'jewellery'];
-  const { getTrendingProducts } = await import('../lib/aliexpress');
+  const { getTrendingByNiche } = await import('../lib/aliexpressDataHub');
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
   const { createClient } = await import('@supabase/supabase-js');
   const supabase = createClient(supabaseUrl, serviceKey);
@@ -1005,31 +1005,29 @@ router.post('/refresh-from-aliexpress', async (req: Request, res: Response) => {
 
   for (const niche of niches) {
     try {
-      const products = await getTrendingProducts(niche, 19);
+      const products = await getTrendingByNiche(niche, 19);
 
       for (const p of products) {
-        const priceAud = Math.round(parseFloat((p as any).target_sale_price || (p as any).sale_price || '0') * 1.55);
-
         await supabase.from('trend_signals').upsert({
-          name: ((p as any).product_title || '').slice(0, 200),
+          name: p.name.slice(0, 200),
           niche,
-          image_url: (p as any).product_main_image_url || '',
-          estimated_retail_aud: priceAud || 49,
-          aliexpress_url: (p as any).product_detail_url || '',
-          supplier_name: 'AliExpress',
-          orders_count: parseInt((p as any).lastest_volume || '0'),
-          winning_score: Math.min(100, Math.round(parseInt((p as any).lastest_volume || '0') / 100)),
+          image_url: p.image_url,
+          estimated_retail_aud: p.price_aud || 49,
+          aliexpress_url: p.aliexpress_url,
+          supplier_name: p.supplier_name || 'AliExpress',
+          orders_count: p.orders_count,
+          winning_score: Math.min(100, Math.round(p.orders_count / 100)),
           trend_score: 70,
           growth_pct: 15,
           real_data_scraped: true,
-          source: 'aliexpress_api',
+          source: 'rapidapi_datahub',
           updated_at: new Date().toISOString(),
         }, { onConflict: 'name' });
         total++;
       }
 
       console.log(`[ae-refresh] ${niche}: ${products.length} products`);
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise(r => setTimeout(r, 300));
     } catch (err: any) {
       console.error(`[ae-refresh] ${niche} failed:`, err.message);
     }

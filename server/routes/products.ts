@@ -221,32 +221,30 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
     }
   }
 
-  // SOURCE 3: AliExpress live API (when access token is set)
-  if (results.length < 8 && process.env.ALIEXPRESS_ACCESS_TOKEN) {
+  // SOURCE 3: AliExpress DataHub via RapidAPI (real products, no OAuth needed)
+  if (results.length < 8 && process.env.RAPIDAPI_KEY) {
     try {
-      const { searchProducts: aeSearch } = await import('../lib/aliexpress');
-      const aeProducts = await aeSearch(query, { pageSize: 10, shipToCountry: 'AU', currency: 'AUD' });
-      console.log(`[products/search] AliExpress API returned: ${aeProducts.length}`);
+      const { searchAliExpressProducts } = await import('../lib/aliexpressDataHub');
+      const dhProducts = await searchAliExpressProducts(query, { limit: 10 });
+      console.log(`[products/search] DataHub returned: ${dhProducts.length}`);
       const existingTitles = new Set(results.map(r => r.title.toLowerCase()));
-      for (const p of aeProducts) {
-        const priceUsd = parseFloat((p as any).target_sale_price || (p as any).sale_price || '0');
-        const title = (p as any).product_title || '';
-        if (!title || existingTitles.has(title.toLowerCase())) continue;
-        existingTitles.add(title.toLowerCase());
+      for (const p of dhProducts) {
+        if (!p.name || existingTitles.has(p.name.toLowerCase())) continue;
+        existingTitles.add(p.name.toLowerCase());
         results.push({
-          id: (p as any).product_id,
-          title: title.slice(0, 120),
-          image: (p as any).product_main_image_url || '',
-          price_aud: Math.round(priceUsd * 1.55 * 100) / 100,
-          sold_count: `${(p as any).lastest_volume || 0} sold`,
-          rating: parseFloat((p as any).evaluate_rate || '0') / 20,
-          source: 'aliexpress_api',
-          product_url: (p as any).product_detail_url || '',
+          id: p.id,
+          title: p.name,
+          image: p.image_url,
+          price_aud: p.price_aud,
+          sold_count: p.orders_count ? `${p.orders_count.toLocaleString()} sold` : '',
+          rating: p.rating,
+          source: 'aliexpress_datahub',
+          product_url: p.aliexpress_url,
           platform_badge: '🛒 AliExpress',
         });
       }
     } catch (err: any) {
-      console.error('[products/search] AliExpress API error:', err.message);
+      console.error('[products/search] DataHub error:', err.message);
     }
   }
 
@@ -310,38 +308,61 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
   });
 });
 
+// ── GET /api/products/datahub/test — RapidAPI DataHub connectivity check ─────
+router.get('/datahub/test', async (_req: Request, res: Response) => {
+  try {
+    const { testConnection } = await import('../lib/aliexpressDataHub');
+    const result = await testConnection();
+    res.json({ source: 'rapidapi_datahub', ...result });
+  } catch (err: any) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+// ── GET /api/products/datahub/search?q=earbuds&limit=20 ──────────────────────
+router.get('/datahub/search', requireAuth, async (req: Request, res: Response) => {
+  const q = String(req.query.q || '').trim();
+  const niche = String(req.query.niche || '').trim();
+  const limit = Math.min(50, Number(req.query.limit) || 20);
+  const page = Number(req.query.page) || 1;
+
+  if (!q && !niche) { res.status(400).json({ error: 'q or niche required', products: [] }); return; }
+
+  try {
+    const { searchAliExpressProducts, getTrendingByNiche } = await import('../lib/aliexpressDataHub');
+    const products = q
+      ? await searchAliExpressProducts(q, { limit, page })
+      : await getTrendingByNiche(niche, limit);
+    res.json({ products, total: products.length, query: q || niche, source: 'rapidapi_datahub' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message, products: [] });
+  }
+});
+
+// ── GET /api/products/datahub/trending?niche=fitness&limit=20 ────────────────
+router.get('/datahub/trending', requireAuth, async (req: Request, res: Response) => {
+  const niche = String(req.query.niche || 'fitness');
+  const limit = Math.min(50, Number(req.query.limit) || 20);
+  try {
+    const { getTrendingByNiche } = await import('../lib/aliexpressDataHub');
+    const products = await getTrendingByNiche(niche, limit);
+    res.json({ products, total: products.length, niche, source: 'rapidapi_datahub' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message, products: [] });
+  }
+});
+
 // ── GET /api/products/detail/:productId — AliExpress product detail for Store Builder ───
 router.get('/detail/:productId', async (req: Request, res: Response) => {
   const { productId } = req.params;
   if (!/^\d+$/.test(productId)) { res.status(400).json({ error: 'Invalid product ID' }); return; }
   try {
-    const { getProductDetail } = await import('../lib/aliexpress');
-    const detail = await getProductDetail(productId);
+    const { getAliExpressProductDetail } = await import('../lib/aliexpressDataHub');
+    const detail = await getAliExpressProductDetail(productId);
     if (!detail) { res.status(404).json({ error: 'Product not found' }); return; }
-
-    const images: string[] = [];
-    if (detail.image_urls) images.push(...detail.image_urls.split(';').filter(Boolean));
-    if (detail.main_image && !images.includes(detail.main_image)) images.unshift(detail.main_image);
-
-    const priceRaw = detail.sku_price_list?.[0]?.sku_price?.price
-      || detail.sku_info?.sku_price
-      || detail.min_price
-      || '0';
-
-    res.json({
-      id: detail.product_id || productId,
-      name: detail.subject || detail.title || '',
-      description: detail.product_description || detail.description || '',
-      images,
-      price_aud: Math.round(parseFloat(priceRaw) * 1.55),
-      aliexpress_url: `https://www.aliexpress.com/item/${productId}.html`,
-      shipping_au: detail.logistics_info || '7-14 days to AU',
-      rating: parseFloat(detail.average_star || detail.avg_evaluation_rating || '0'),
-      orders: detail.total_transaction_cnt || detail.total_available_stock || 0,
-    });
+    res.json(detail);
   } catch (err: any) {
-    const notAuthed = err.message.includes('ALIEXPRESS_ACCESS_TOKEN');
-    res.status(notAuthed ? 401 : 500).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
