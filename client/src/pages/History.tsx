@@ -162,7 +162,7 @@ export default function History() {
                   color: '#f5f5f5',
                   fontFamily: 'DM Sans, sans-serif',
                 }}
-                onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.3)')}
+                onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.3)')}
                 onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.06)')}
               />
             </div>
@@ -200,9 +200,9 @@ export default function History() {
           <div className="text-center py-16">
             <div
               className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 mx-auto"
-              style={{ background: 'rgba(212,175,55,0.08)' }}
+              style={{ background: 'rgba(99,102,241,0.08)' }}
             >
-              <Clock size={24} style={{ color: '#d4af37', opacity: 0.4 }} />
+              <Clock size={24} style={{ color: '#6366F1', opacity: 0.4 }} />
             </div>
             <h2
               className="text-base font-bold mb-2"
@@ -217,7 +217,7 @@ export default function History() {
               onClick={() => setLocation('/app/product-discovery')}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold"
               style={{
-                background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+                background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                 color: '#060608',
                 border: 'none',
                 cursor: 'pointer',
@@ -260,12 +260,12 @@ export default function History() {
                       >
                         <div
                           className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                          style={{ background: 'rgba(212,175,55,0.08)' }}
+                          style={{ background: 'rgba(99,102,241,0.08)' }}
                         >
                           {tool ? (
-                            createElement(tool.icon, { size: 13, style: { color: '#d4af37' } })
+                            createElement(tool.icon, { size: 13, style: { color: '#6366F1' } })
                           ) : (
-                            <Clock size={13} style={{ color: '#d4af37' }} />
+                            <Clock size={13} style={{ color: '#6366F1' }} />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -293,8 +293,8 @@ export default function History() {
                             onClick={() => setLocation(tool.path)}
                             className="opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1 rounded text-xs flex-shrink-0"
                             style={{
-                              color: '#d4af37',
-                              background: 'rgba(212,175,55,0.08)',
+                              color: '#6366F1',
+                              background: 'rgba(99,102,241,0.08)',
                               border: 'none',
                               cursor: 'pointer',
                             }}

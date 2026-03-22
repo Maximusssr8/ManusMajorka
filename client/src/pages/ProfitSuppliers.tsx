@@ -6,7 +6,7 @@ const SupplierDirectory = lazy(() => import('./SupplierDirectory'));
 
 type TabKey = 'profit' | 'suppliers';
 
-const C = { bg: '#080a0e', surface: '#111118', border: '#1e1e1e', gold: '#d4af37', text: '#f0ede8', muted: 'rgba(240,237,232,0.5)' };
+const C = { bg: '#080a0e', surface: '#111118', border: '#1e1e1e', gold: '#6366F1', text: '#f0ede8', muted: 'rgba(240,237,232,0.5)' };
 
 export default function ProfitSuppliers() {
   const [tab, setTab] = useState<TabKey>('profit');

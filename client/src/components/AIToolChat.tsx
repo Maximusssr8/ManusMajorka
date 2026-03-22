@@ -262,7 +262,7 @@ export default function AIToolChat({
         <div className="flex items-center gap-3">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: 'rgba(212,175,55,0.15)', color: '#d4af37' }}
+            style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1' }}
           >
             {toolIcon}
           </div>
@@ -302,9 +302,9 @@ export default function AIToolChat({
                 <div className="flex flex-col items-center justify-center text-center py-16">
                   <div
                     className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-                    style={{ background: 'rgba(212,175,55,0.08)' }}
+                    style={{ background: 'rgba(99,102,241,0.08)' }}
                   >
-                    <Sparkles className="w-7 h-7" style={{ color: '#d4af37', opacity: 0.4 }} />
+                    <Sparkles className="w-7 h-7" style={{ color: '#6366F1', opacity: 0.4 }} />
                   </div>
                   <p className="text-sm text-muted-foreground max-w-sm mb-6">
                     {toolDescription}. Start by describing what you need.
@@ -325,9 +325,9 @@ export default function AIToolChat({
                           }}
                           className="text-left text-xs px-4 py-2.5 rounded-xl border transition-all hover:border-yellow-500/40 hover:bg-yellow-500/5"
                           style={{
-                            borderColor: 'rgba(212,175,55,0.2)',
-                            color: 'rgba(212,175,55,0.75)',
-                            background: 'rgba(212,175,55,0.03)',
+                            borderColor: 'rgba(99,102,241,0.2)',
+                            color: 'rgba(99,102,241,0.75)',
+                            background: 'rgba(99,102,241,0.03)',
                           }}
                         >
                           {prompt}
@@ -346,9 +346,9 @@ export default function AIToolChat({
                   {msg.role === 'assistant' && (
                     <div
                       className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center"
-                      style={{ background: 'rgba(212,175,55,0.1)' }}
+                      style={{ background: 'rgba(99,102,241,0.1)' }}
                     >
-                      <Sparkles className="w-3.5 h-3.5" style={{ color: '#d4af37' }} />
+                      <Sparkles className="w-3.5 h-3.5" style={{ color: '#6366F1' }} />
                     </div>
                   )}
                   <div
@@ -359,7 +359,7 @@ export default function AIToolChat({
                       msg.role === 'user'
                         ? {
                             background: '#1a1600',
-                            border: '1px solid rgba(212,175,55,0.3)',
+                            border: '1px solid rgba(99,102,241,0.3)',
                             color: '#f0ede8',
                           }
                         : msg.isError
@@ -388,9 +388,9 @@ export default function AIToolChat({
                 <div className="flex gap-3 justify-start">
                   <div
                     className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center"
-                    style={{ background: 'rgba(212,175,55,0.1)' }}
+                    style={{ background: 'rgba(99,102,241,0.1)' }}
                   >
-                    <Sparkles className="w-3.5 h-3.5" style={{ color: '#d4af37' }} />
+                    <Sparkles className="w-3.5 h-3.5" style={{ color: '#6366F1' }} />
                   </div>
                   <div
                     className="rounded-lg px-4 py-3"
@@ -400,7 +400,7 @@ export default function AIToolChat({
                       {/* Pulsing gold dot */}
                       <span
                         className="inline-block w-2 h-2 rounded-full animate-pulse"
-                        style={{ background: '#d4af37', boxShadow: '0 0 6px #d4af37' }}
+                        style={{ background: '#6366F1', boxShadow: '0 0 6px #6366F1' }}
                       />
                       <span className="text-sm text-muted-foreground">
                         {TOOL_LOADING_MESSAGES[toolId] ?? 'Generating...'}
@@ -441,7 +441,7 @@ export default function AIToolChat({
                             onClick={() => (window.location.href = '/app/website-generator')}
                             className="text-xs font-bold px-4 py-2 rounded-xl"
                             style={{
-                              background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+                              background: 'linear-gradient(135deg, #6366F1, #f0c040)',
                               color: '#080a0e',
                               cursor: 'pointer',
                             }}
@@ -456,9 +456,9 @@ export default function AIToolChat({
                             }}
                             className="text-xs font-bold px-4 py-2 rounded-xl"
                             style={{
-                              background: 'rgba(212,175,55,0.1)',
-                              border: '1px solid rgba(212,175,55,0.25)',
-                              color: '#d4af37',
+                              background: 'rgba(99,102,241,0.1)',
+                              border: '1px solid rgba(99,102,241,0.25)',
+                              color: '#6366F1',
                               cursor: 'pointer',
                             }}
                           >
@@ -475,15 +475,15 @@ export default function AIToolChat({
                             ? 'rgba(45,202,114,0.12)'
                             : verdict === 'NO-GO'
                               ? 'rgba(224,92,122,0.12)'
-                              : 'rgba(212,175,55,0.12)',
+                              : 'rgba(99,102,241,0.12)',
                         color:
                           verdict === 'GO'
                             ? '#2dca72'
                             : verdict === 'NO-GO'
                               ? '#e05c7a'
-                              : '#d4af37',
+                              : '#6366F1',
                         fontFamily: 'Syne, sans-serif',
-                        border: `1px solid ${verdict === 'GO' ? 'rgba(45,202,114,0.25)' : verdict === 'NO-GO' ? 'rgba(224,92,122,0.25)' : 'rgba(212,175,55,0.25)'}`,
+                        border: `1px solid ${verdict === 'GO' ? 'rgba(45,202,114,0.25)' : verdict === 'NO-GO' ? 'rgba(224,92,122,0.25)' : 'rgba(99,102,241,0.25)'}`,
                       }}
                     >
                       {verdict}
@@ -553,7 +553,7 @@ export default function AIToolChat({
                   size="icon"
                   className="h-9 w-9 rounded-lg"
                   style={{
-                    background: 'linear-gradient(135deg, #d4af37, #c09a28)',
+                    background: 'linear-gradient(135deg, #6366F1, #c09a28)',
                     color: '#080a0e',
                     border: 'none',
                   }}
@@ -601,7 +601,7 @@ export default function AIToolChat({
                 <button
                   onClick={() => setShowPreview(!showPreview)}
                   className="text-xs px-2 py-1 rounded hover:bg-white/5 transition-colors"
-                  style={{ color: '#d4af37' }}
+                  style={{ color: '#6366F1' }}
                 >
                   {showPreview ? 'Code' : 'Preview'}
                 </button>
@@ -635,7 +635,7 @@ export default function AIToolChat({
                   className="flex-1 gap-2 text-xs"
                   onClick={() => copyToClipboard(generatedHTML)}
                   variant="outline"
-                  style={{ borderColor: 'rgba(212,175,55,0.3)', color: '#d4af37' }}
+                  style={{ borderColor: 'rgba(99,102,241,0.3)', color: '#6366F1' }}
                 >
                   <Copy className="w-3 h-3" /> Copy
                 </Button>
@@ -644,7 +644,7 @@ export default function AIToolChat({
                   className="flex-1 gap-2 text-xs"
                   onClick={downloadHTML}
                   style={{
-                    background: 'linear-gradient(135deg, #d4af37, #c09a28)',
+                    background: 'linear-gradient(135deg, #6366F1, #c09a28)',
                     color: '#080a0e',
                   }}
                 >

@@ -109,7 +109,7 @@ export default function SocialProofTicker() {
             background: 'rgba(12,14,20,0.95)',
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
-            border: '1px solid rgba(212,175,55,0.2)',
+            border: '1px solid rgba(99,102,241,0.2)',
             borderLeft: '3px solid #4ade80',
             borderRadius: 10,
             padding: '12px 14px',

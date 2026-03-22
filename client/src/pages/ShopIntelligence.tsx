@@ -24,7 +24,7 @@ interface Shop {
 
 const NICHES = ['All Niches', 'Activewear & Gym', 'Beauty & Skincare', 'Health & Wellness', 'Tech Accessories', 'Home Decor', 'Pets & Animals', 'Fashion & Apparel', 'Jewellery & Accessories', 'Outdoor & Camping', 'Baby & Kids', 'Coffee & Beverages', 'Supplements & Nutrition', 'Electronics', 'Office & Stationery', 'Garden & Plants', 'Sports Equipment', 'Travel Accessories', 'Food & Gourmet', 'Automotive', 'Home & Kitchen'];
 
-const C = { bg: '#080a0e', surface: '#0d0d14', border: '#1a1a2e', gold: '#d4af37', text: '#f0ede8', muted: 'rgba(240,237,232,0.5)' };
+const C = { bg: '#080a0e', surface: '#0d0d14', border: '#1a1a2e', gold: '#6366F1', text: '#f0ede8', muted: 'rgba(240,237,232,0.5)' };
 
 function fmtRevenue(n: number) {
   if (n >= 1000000) return `$${(n/1000000).toFixed(1)}M`;
@@ -39,7 +39,7 @@ const fmtSold = (n: number | null | undefined) => {
 
 function ShopTypeBadge({ type }: { type: string }) {
   const colors: Record<string, { bg: string; text: string }> = {
-    'dropship': { bg: 'rgba(212,175,55,0.12)', text: '#d4af37' },
+    'dropship': { bg: 'rgba(99,102,241,0.12)', text: '#6366F1' },
     'brand': { bg: 'rgba(45,202,114,0.12)', text: '#2dca72' },
     'print-on-demand': { bg: 'rgba(99,102,241,0.12)', text: '#a5b4fc' },
   };
@@ -242,7 +242,7 @@ export default function ShopIntelligence() {
         ) : shops.map((shop, idx) => (
           <div key={shop.id}
             style={{ display: 'grid', gridTemplateColumns: '40px 1fr 130px 110px 80px 90px 90px 100px 90px', padding: '14px 16px', gap: 12, borderBottom: `1px solid ${C.border}`, alignItems: 'center', cursor: 'pointer', transition: 'border-left 0.15s', borderLeft: '3px solid transparent' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderLeft = `3px solid ${C.gold}`; (e.currentTarget as HTMLDivElement).style.background = 'rgba(212,175,55,0.03)'; }}
+            onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderLeft = `3px solid ${C.gold}`; (e.currentTarget as HTMLDivElement).style.background = 'rgba(99,102,241,0.03)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderLeft = '3px solid transparent'; (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
             onClick={() => navigate(`/app/shops/${shop.id}`)}
           >
@@ -286,7 +286,7 @@ export default function ShopIntelligence() {
 
             <button
               onClick={e => { e.stopPropagation(); navigate(`/app/shops/${shop.id}`); }}
-              style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(212,175,55,0.1)', border: `1px solid rgba(212,175,55,0.25)`, color: C.gold, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap' }}
+              style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(99,102,241,0.1)', border: `1px solid rgba(99,102,241,0.25)`, color: C.gold, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap' }}
             >
               Analyse →
             </button>
@@ -299,7 +299,7 @@ export default function ShopIntelligence() {
         <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 20 }}>
           {Array.from({ length: Math.min(pages, 5) }, (_, i) => i + 1).map(p => (
             <button key={p} onClick={() => fetchShops(p)}
-              style={{ width: 36, height: 36, borderRadius: 8, border: `1px solid ${page === p ? C.gold : C.border}`, background: page === p ? 'rgba(212,175,55,0.1)' : 'transparent', color: page === p ? C.gold : C.muted, fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
+              style={{ width: 36, height: 36, borderRadius: 8, border: `1px solid ${page === p ? C.gold : C.border}`, background: page === p ? 'rgba(99,102,241,0.1)' : 'transparent', color: page === p ? C.gold : C.muted, fontWeight: 700, cursor: 'pointer', fontSize: 13 }}>
               {p}
             </button>
           ))}

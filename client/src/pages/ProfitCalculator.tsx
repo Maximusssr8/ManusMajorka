@@ -277,7 +277,7 @@ export default function ProfitCalculator() {
 
   const sliderStyle: React.CSSProperties = {
     flex: 1,
-    accentColor: '#d4af37',
+    accentColor: '#6366F1',
     height: 6,
     cursor: 'pointer',
   };
@@ -399,13 +399,13 @@ export default function ProfitCalculator() {
             width: 48,
             height: 48,
             borderRadius: 12,
-            background: 'rgba(212,175,55,0.1)',
+            background: 'rgba(99,102,241,0.1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Calculator size={24} color="#d4af37" />
+          <Calculator size={24} color="#6366F1" />
         </div>
         <div>
           <h1
@@ -774,8 +774,8 @@ export default function ProfitCalculator() {
           <div
             style={{
               ...cardStyle,
-              background: 'rgba(212,175,55,0.04)',
-              borderColor: 'rgba(212,175,55,0.18)',
+              background: 'rgba(99,102,241,0.04)',
+              borderColor: 'rgba(99,102,241,0.18)',
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
@@ -784,7 +784,7 @@ export default function ProfitCalculator() {
                   fontFamily: 'Syne, sans-serif',
                   fontSize: 14,
                   fontWeight: 700,
-                  color: '#d4af37',
+                  color: '#6366F1',
                   margin: 0,
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
@@ -818,17 +818,17 @@ export default function ProfitCalculator() {
                   fontFamily: 'DM Sans, sans-serif',
                   fontSize: 12,
                   fontWeight: 600,
-                  color: '#d4af37',
-                  background: 'rgba(212,175,55,0.08)',
-                  border: '1px solid rgba(212,175,55,0.2)',
+                  color: '#6366F1',
+                  background: 'rgba(99,102,241,0.08)',
+                  border: '1px solid rgba(99,102,241,0.2)',
                   borderRadius: 8,
                   padding: '6px 12px',
                   cursor: 'pointer',
                   transition: 'background 0.2s',
                   flexShrink: 0,
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.15)')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.08)')}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.15)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.08)')}
               >
                 <Share2 size={12} />
                 Share Results
@@ -874,19 +874,19 @@ export default function ProfitCalculator() {
           width: 18px;
           height: 18px;
           border-radius: 50%;
-          background: #d4af37;
+          background: #6366F1;
           cursor: pointer;
           border: 2px solid #060608;
-          box-shadow: 0 0 8px rgba(212,175,55,0.3);
+          box-shadow: 0 0 8px rgba(99,102,241,0.3);
         }
         input[type="range"]::-moz-range-thumb {
           width: 18px;
           height: 18px;
           border-radius: 50%;
-          background: #d4af37;
+          background: #6366F1;
           cursor: pointer;
           border: 2px solid #060608;
-          box-shadow: 0 0 8px rgba(212,175,55,0.3);
+          box-shadow: 0 0 8px rgba(99,102,241,0.3);
         }
       `}</style>
     </div>

@@ -74,9 +74,9 @@ function CopyBtn({ text }: { text: string }) {
       onClick={handleCopy}
       className="p-1.5 rounded-lg transition-all duration-150 flex-shrink-0"
       style={{
-        background: copied ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.05)',
-        border: `1px solid ${copied ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.1)'}`,
-        color: copied ? '#d4af37' : 'rgba(240,237,232,0.4)',
+        background: copied ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.05)',
+        border: `1px solid ${copied ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.1)'}`,
+        color: copied ? '#6366F1' : 'rgba(240,237,232,0.4)',
       }}
       title="Copy to clipboard"
     >
@@ -822,7 +822,7 @@ Generate a full competitive intelligence report as JSON.`;
                   {
                     label: 'Sweet Spot',
                     value: result.pricingIntelligence.sweetSpot,
-                    color: '#d4af37',
+                    color: '#6366F1',
                   },
                 ].map(({ label, value, color }) => (
                   <div
@@ -902,7 +902,7 @@ Generate a full competitive intelligence report as JSON.`;
             </SectionCard>
 
             {/* Strategic Recommendations & Entry */}
-            <SectionCard title="Strategy & Entry Plan" accent="#d4af37">
+            <SectionCard title="Strategy & Entry Plan" accent="#6366F1">
               <div className="mb-4">
                 <span
                   className="text-xs font-semibold uppercase tracking-wider block mb-3"
@@ -916,13 +916,13 @@ Generate a full competitive intelligence report as JSON.`;
                       key={i}
                       className="flex items-start gap-3 px-4 py-3 rounded-xl"
                       style={{
-                        background: 'rgba(212,175,55,0.05)',
-                        border: '1px solid rgba(212,175,55,0.12)',
+                        background: 'rgba(99,102,241,0.05)',
+                        border: '1px solid rgba(99,102,241,0.12)',
                       }}
                     >
                       <span
                         className="text-xs font-black flex-shrink-0 mt-0.5"
-                        style={{ color: 'rgba(212,175,55,0.5)' }}
+                        style={{ color: 'rgba(99,102,241,0.5)' }}
                       >
                         {String(i + 1).padStart(2, '0')}
                       </span>
@@ -958,8 +958,8 @@ Generate a full competitive intelligence report as JSON.`;
                 <div
                   className="flex items-start gap-3 px-4 py-3 rounded-xl"
                   style={{
-                    background: 'rgba(212,175,55,0.08)',
-                    border: '1px solid rgba(212,175,55,0.2)',
+                    background: 'rgba(99,102,241,0.08)',
+                    border: '1px solid rgba(99,102,241,0.2)',
                   }}
                 >
                   <p className="text-sm leading-relaxed flex-1" style={{ color: '#f0ede8' }}>

@@ -51,8 +51,8 @@ const ANGLE_COLORS: Record<string, string> = {
   'Pain Point': 'border-red-800/50 bg-red-900/10',
   'Social Proof': 'border-emerald-800/50 bg-emerald-900/10',
   'FOMO/Urgency': 'border-orange-800/50 bg-orange-900/10',
-  Curiosity: 'border-[#d4af37]/30 bg-[#d4af37]/5',
-  Transformation: 'border-[#d4af37]/20 bg-[#d4af37]/5',
+  Curiosity: 'border-[#6366F1]/30 bg-[#6366F1]/5',
+  Transformation: 'border-[#6366F1]/20 bg-[#6366F1]/5',
 };
 
 function AdCard({ ad }: { ad: AdSet }) {
@@ -198,7 +198,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
           <div>
             <Label className="text-neutral-300 mb-2 block text-sm">Product</Label>
             {activeProduct && (
-              <div className="mb-2 text-xs text-[#d4af37] bg-[#d4af37]/10 border border-[#d4af37]/20 px-3 py-2 rounded-lg">
+              <div className="mb-2 text-xs text-[#6366F1] bg-[#6366F1]/10 border border-[#6366F1]/20 px-3 py-2 rounded-lg">
                 Active: {activeProduct.name}
               </div>
             )}
@@ -207,7 +207,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
               onChange={(e) => setProductDesc(e.target.value)}
               placeholder="Describe your product..."
               rows={4}
-              className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm resize-none focus:outline-none focus:border-[#d4af37]"
+              className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm resize-none focus:outline-none focus:border-[#6366F1]"
             />
           </div>
           <div>
@@ -221,7 +221,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
                 <button
                   key={val}
                   onClick={() => setObjective(val)}
-                  className={`py-2 rounded-lg text-xs font-medium transition-colors ${objective === val ? 'bg-[#d4af37] text-black' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
+                  className={`py-2 rounded-lg text-xs font-medium transition-colors ${objective === val ? 'bg-[#6366F1] text-black' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
                 >
                   {label}
                 </button>
@@ -244,7 +244,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
             onClick={generate}
             disabled={loading}
             className="w-full text-black font-semibold py-2.5"
-            style={{ background: '#d4af37' }}
+            style={{ background: '#6366F1' }}
           >
             {loading ? (
               <>
@@ -264,7 +264,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
       <div className="flex-1 overflow-y-auto p-6">
         {loading && (
           <div className="flex flex-col items-center justify-center h-64 text-center">
-            <div className="w-12 h-12 border-2 border-[#d4af37]/30 border-t-[#d4af37] rounded-full animate-spin mb-4" />
+            <div className="w-12 h-12 border-2 border-[#6366F1]/30 border-t-[#6366F1] rounded-full animate-spin mb-4" />
             <p className="text-white font-medium">Generating your ad campaign...</p>
             <p className="text-neutral-400 text-sm mt-1">Creating 3 unique creative variations</p>
           </div>
@@ -286,8 +286,8 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
               className="w-full rounded-2xl overflow-hidden"
               style={{
                 background: '#1c1e21',
-                border: '1px solid #d4af37',
-                boxShadow: '0 0 24px rgba(212,175,55,0.12)',
+                border: '1px solid #6366F1',
+                boxShadow: '0 0 24px rgba(99,102,241,0.12)',
                 maxWidth: 360,
               }}
             >
@@ -295,7 +295,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
               <div className="flex items-center gap-3 p-4">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0"
-                  style={{ background: '#d4af37', color: '#000', fontFamily: 'Syne, sans-serif' }}
+                  style={{ background: '#6366F1', color: '#000', fontFamily: 'Syne, sans-serif' }}
                 >
                   M
                 </div>
@@ -316,7 +316,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
               <div className="px-4 pb-3">
                 <p className="text-sm text-neutral-200 leading-relaxed">
                   Tired of paying too much? This{' '}
-                  <span className="text-[#d4af37] font-semibold">limited-time deal</span> ships
+                  <span className="text-[#6366F1] font-semibold">limited-time deal</span> ships
                   free to Australia. Join 10,000+ happy customers. 🇦🇺
                 </p>
               </div>
@@ -331,9 +331,9 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
               >
                 <div
                   className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)' }}
+                  style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)' }}
                 >
-                  <ImageIcon className="w-6 h-6 text-[#d4af37] opacity-60" />
+                  <ImageIcon className="w-6 h-6 text-[#6366F1] opacity-60" />
                 </div>
                 <span className="text-xs text-neutral-500">AI-generated product image</span>
               </div>
@@ -360,7 +360,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
                 <button
                   className="flex-shrink-0 text-xs font-bold px-4 py-2 rounded-lg"
                   style={{
-                    background: '#d4af37',
+                    background: '#6366F1',
                     color: '#000',
                     cursor: 'default',
                     fontFamily: 'Syne, sans-serif',

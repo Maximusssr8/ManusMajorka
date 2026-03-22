@@ -26,7 +26,7 @@ function BlurredName() {
     <span
       style={{
         display: 'inline-block',
-        background: 'rgba(212,175,55,0.12)',
+        background: 'rgba(99,102,241,0.12)',
         borderRadius: 6,
         padding: '4px 16px',
         color: 'transparent',
@@ -36,7 +36,7 @@ function BlurredName() {
         fontWeight: 700,
         fontFamily: 'Syne, sans-serif',
         letterSpacing: '0.04em',
-        border: '1px solid rgba(212,175,55,0.25)',
+        border: '1px solid rgba(99,102,241,0.25)',
       }}
     >
       ████████████████
@@ -79,8 +79,8 @@ export default function AlmostWonModal() {
           50% { transform: scale(1.08) rotate(3deg); }
         }
         @keyframes almost-won-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(212,175,55,0.35); }
-          50% { box-shadow: 0 0 0 12px rgba(212,175,55,0); }
+          0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.35); }
+          50% { box-shadow: 0 0 0 12px rgba(99,102,241,0); }
         }
       `}</style>
 
@@ -105,13 +105,13 @@ export default function AlmostWonModal() {
           onClick={(e) => e.stopPropagation()}
           style={{
             background: 'linear-gradient(160deg, #0d0f15, #0a0c10)',
-            border: '1px solid rgba(212,175,55,0.3)',
+            border: '1px solid rgba(99,102,241,0.3)',
             borderRadius: 20,
             padding: '40px 36px',
             maxWidth: 480,
             width: '100%',
             textAlign: 'center',
-            boxShadow: '0 24px 80px rgba(0,0,0,0.7), 0 0 60px rgba(212,175,55,0.08)',
+            boxShadow: '0 24px 80px rgba(0,0,0,0.7), 0 0 60px rgba(99,102,241,0.08)',
             animation: 'almost-won-in 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards',
           }}
         >
@@ -147,8 +147,8 @@ export default function AlmostWonModal() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: 16,
-              background: 'rgba(212,175,55,0.08)',
-              border: '1px solid rgba(212,175,55,0.2)',
+              background: 'rgba(99,102,241,0.08)',
+              border: '1px solid rgba(99,102,241,0.2)',
               borderRadius: 12,
               padding: '10px 20px',
               margin: '12px 0 16px',
@@ -160,7 +160,7 @@ export default function AlmostWonModal() {
                   fontFamily: 'JetBrains Mono, monospace',
                   fontSize: 22,
                   fontWeight: 800,
-                  color: '#d4af37',
+                  color: '#6366F1',
                 }}
               >
                 {data.score}/100
@@ -169,7 +169,7 @@ export default function AlmostWonModal() {
                 Win Score
               </div>
             </div>
-            <div style={{ width: 1, height: 36, background: 'rgba(212,175,55,0.2)' }} />
+            <div style={{ width: 1, height: 36, background: 'rgba(99,102,241,0.2)' }} />
             <div>
               <div
                 style={{
@@ -202,7 +202,7 @@ export default function AlmostWonModal() {
             }}
           >
             This product has been validated against{' '}
-            <span style={{ color: '#d4af37', fontWeight: 700 }}>40+ AU market signals</span>.
+            <span style={{ color: '#6366F1', fontWeight: 700 }}>40+ AU market signals</span>.
             It's ready to sell — but your daily limit has been reached.
           </p>
 
@@ -213,7 +213,7 @@ export default function AlmostWonModal() {
               width: '100%',
               padding: '16px 24px',
               borderRadius: 12,
-              background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+              background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
               border: 'none',
               color: '#000',
               fontFamily: 'Syne, sans-serif',

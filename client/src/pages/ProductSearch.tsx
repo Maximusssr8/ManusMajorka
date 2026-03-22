@@ -5,7 +5,7 @@ import { useAuth } from '@/_core/hooks/useAuth';
 
 const C = {
   bg: '#080a0e', card: '#0d1117', border: '#1a2030',
-  gold: '#d4af37', text: '#e8eaf0', muted: '#6b7280', red: '#ef4444',
+  gold: '#6366F1', text: '#e8eaf0', muted: '#6b7280', red: '#ef4444',
 };
 
 export default function ProductSearch() {

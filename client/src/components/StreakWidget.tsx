@@ -11,9 +11,9 @@ const C = {
   text: '#f5f5f5',
   secondary: '#94949e',
   muted: '#52525b',
-  gold: '#d4af37',
-  goldDim: 'rgba(212,175,55,0.10)',
-  goldBorder: 'rgba(212,175,55,0.25)',
+  gold: '#6366F1',
+  goldDim: 'rgba(99,102,241,0.10)',
+  goldBorder: 'rgba(99,102,241,0.25)',
   green: '#22c55e',
 };
 
@@ -148,7 +148,7 @@ export default function StreakWidget() {
               padding: '40px 48px',
               textAlign: 'center',
               maxWidth: 340,
-              boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(212,175,55,0.15)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(99,102,241,0.15)',
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -173,7 +173,7 @@ export default function StreakWidget() {
             <button
               onClick={() => setPopup(null)}
               style={{
-                background: `linear-gradient(135deg, ${C.gold}, #b8941f)`,
+                background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`,
                 color: '#000',
                 border: 'none',
                 borderRadius: 10,

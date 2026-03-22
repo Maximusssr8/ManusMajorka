@@ -446,19 +446,19 @@ export default function KnowledgeBase() {
         style={{
           width: 240,
           background: 'var(--surface-1, #0d1117)',
-          borderRight: '1px solid var(--surface-border, rgba(212,175,55,0.12))',
+          borderRight: '1px solid var(--surface-border, rgba(99,102,241,0.12))',
         }}
       >
         {/* Header */}
         <div
           className="flex items-center gap-2.5 px-4 py-4"
-          style={{ borderBottom: '1px solid var(--surface-border, rgba(212,175,55,0.12))' }}
+          style={{ borderBottom: '1px solid var(--surface-border, rgba(99,102,241,0.12))' }}
         >
           <div
             className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: 'rgba(212,175,55,0.12)' }}
+            style={{ background: 'rgba(99,102,241,0.12)' }}
           >
-            <BookOpen size={14} style={{ color: '#d4af37' }} />
+            <BookOpen size={14} style={{ color: '#6366F1' }} />
           </div>
           <span
             className="font-bold text-sm uppercase tracking-widest"
@@ -490,11 +490,11 @@ export default function KnowledgeBase() {
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left mb-0.5 transition-all"
                 style={{
                   borderRadius: 8,
-                  background: active ? 'rgba(212,175,55,0.08)' : 'transparent',
+                  background: active ? 'rgba(99,102,241,0.08)' : 'transparent',
                   color: active ? '#f5f5f5' : '#71717a',
                   border: 'none',
                   cursor: 'pointer',
-                  borderLeft: active ? '2px solid #d4af37' : '2px solid transparent',
+                  borderLeft: active ? '2px solid #6366F1' : '2px solid transparent',
                   paddingLeft: active ? 10 : 12,
                   fontFamily: 'DM Sans, sans-serif',
                   fontWeight: active ? 600 : 400,
@@ -517,7 +517,7 @@ export default function KnowledgeBase() {
                   size={12}
                   style={{
                     flexShrink: 0,
-                    color: active ? '#d4af37' : 'transparent',
+                    color: active ? '#6366F1' : 'transparent',
                     transition: 'color 0.15s',
                   }}
                 />
@@ -539,7 +539,7 @@ export default function KnowledgeBase() {
               className="w-full px-3 py-2 text-sm rounded-lg"
               style={{
                 background: 'var(--surface-1, #0d1117)',
-                border: '1px solid var(--surface-border, rgba(212,175,55,0.12))',
+                border: '1px solid var(--surface-border, rgba(99,102,241,0.12))',
                 color: '#f5f5f5',
                 fontFamily: 'DM Sans, sans-serif',
               }}
@@ -557,13 +557,13 @@ export default function KnowledgeBase() {
             <div className="flex items-center gap-2 mb-3">
               <div
                 className="w-6 h-6 rounded-md flex items-center justify-center"
-                style={{ background: 'rgba(212,175,55,0.12)' }}
+                style={{ background: 'rgba(99,102,241,0.12)' }}
               >
-                <BookOpen size={12} style={{ color: '#d4af37' }} />
+                <BookOpen size={12} style={{ color: '#6366F1' }} />
               </div>
               <span
                 className="text-xs uppercase tracking-widest font-bold"
-                style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif', fontSize: 10 }}
+                style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif', fontSize: 10 }}
               >
                 Knowledge Base
               </span>
@@ -576,7 +576,7 @@ export default function KnowledgeBase() {
             </h1>
             <div
               className="w-12 h-0.5 rounded-full"
-              style={{ background: 'linear-gradient(90deg, #d4af37, transparent)' }}
+              style={{ background: 'linear-gradient(90deg, #6366F1, transparent)' }}
             />
           </div>
 
@@ -592,8 +592,8 @@ export default function KnowledgeBase() {
           <div
             className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl"
             style={{
-              background: 'rgba(212,175,55,0.06)',
-              border: '1px solid rgba(212,175,55,0.15)',
+              background: 'rgba(99,102,241,0.06)',
+              border: '1px solid rgba(99,102,241,0.15)',
             }}
           >
             <div>
@@ -611,7 +611,7 @@ export default function KnowledgeBase() {
               onClick={() => handleAskAI(activeSection.aiQuery)}
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold flex-shrink-0 sm:ml-4 transition-all w-full sm:w-auto justify-center"
               style={{
-                background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+                background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                 color: '#080a0e',
                 border: 'none',
                 cursor: 'pointer',
@@ -822,9 +822,9 @@ function MarkdownTable({ lines }: { lines: string[] }) {
                 key={ci}
                 className="text-left px-3 py-2 text-xs font-bold uppercase tracking-wide"
                 style={{
-                  background: 'rgba(212,175,55,0.06)',
-                  color: '#d4af37',
-                  borderBottom: '1px solid rgba(212,175,55,0.15)',
+                  background: 'rgba(99,102,241,0.06)',
+                  color: '#6366F1',
+                  borderBottom: '1px solid rgba(99,102,241,0.15)',
                   fontFamily: 'Syne, sans-serif',
                   fontSize: 10,
                   letterSpacing: '0.1em',
@@ -912,8 +912,8 @@ function InlineMarkdown({ text }: { text: string }) {
           key={key++}
           className="px-1.5 py-0.5 rounded text-xs"
           style={{
-            background: 'rgba(212,175,55,0.1)',
-            color: '#d4af37',
+            background: 'rgba(99,102,241,0.1)',
+            color: '#6366F1',
             fontFamily: 'DM Mono, monospace',
           }}
         >

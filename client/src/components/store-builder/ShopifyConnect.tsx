@@ -3,7 +3,7 @@ import { Loader2, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { markOnboardingStep } from '@/lib/onboarding';
 
-const gold = '#d4af37';
+const gold = '#6366F1';
 const syne = 'Syne, sans-serif';
 
 export default function ShopifyConnect({
@@ -187,7 +187,7 @@ export default function ShopifyConnect({
           disabled={!connected || pushing}
           style={{
             flex: 2, padding: 14, borderRadius: 8, border: 'none',
-            background: connected ? gold : 'rgba(212,175,55,0.15)',
+            background: connected ? gold : 'rgba(99,102,241,0.15)',
             color: connected ? '#080a0e' : '#52525b',
             cursor: connected && !pushing ? 'pointer' : 'not-allowed',
             fontFamily: syne, fontWeight: 700, fontSize: 15,

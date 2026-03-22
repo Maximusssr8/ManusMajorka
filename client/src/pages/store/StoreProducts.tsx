@@ -46,7 +46,7 @@ export default function StoreProducts() {
         <Button
           onClick={() => navigate('/app/store/setup')}
           className="text-black font-semibold"
-          style={{ background: '#d4af37' }}
+          style={{ background: '#6366F1' }}
         >
           Set Up My Store
         </Button>
@@ -133,7 +133,7 @@ export default function StoreProducts() {
             <button
               onClick={() => navigate('/app/my-products')}
               className="underline"
-              style={{ color: '#d4af37' }}
+              style={{ color: '#6366F1' }}
             >
               My Products
             </button>{' '}
@@ -154,7 +154,7 @@ export default function StoreProducts() {
                 style={{
                   background: 'rgba(255,255,255,0.02)',
                   border: published
-                    ? '1px solid rgba(212,175,55,0.3)'
+                    ? '1px solid rgba(99,102,241,0.3)'
                     : '1px solid rgba(255,255,255,0.07)',
                 }}
               >

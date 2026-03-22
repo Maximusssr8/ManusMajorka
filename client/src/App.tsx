@@ -53,7 +53,7 @@ function LoadingFallback() {
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg animate-pulse"
           style={{
-            background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+            background: 'linear-gradient(135deg, #6366F1, #f0c040)',
             color: '#080a0e',
             fontFamily: 'Syne, sans-serif',
           }}
@@ -66,7 +66,7 @@ function LoadingFallback() {
               key={i}
               className="w-1.5 h-1.5 rounded-full animate-bounce"
               style={{
-                background: '#d4af37',
+                background: '#6366F1',
                 opacity: 0.6,
                 animationDelay: `${i * 0.15}s`,
               }}
@@ -83,7 +83,7 @@ function LoadingFallback() {
 const LOADING_BAR_CSS = `
   .page-loading-bar {
     position: fixed; top: 0; left: 0; height: 2px;
-    background: #d4af37; z-index: 99999;
+    background: #6366F1; z-index: 99999;
     animation: loadingBar 0.5s ease forwards;
     pointer-events: none;
   }
@@ -310,16 +310,16 @@ function LegalPage({ title, slug }: { title: string; slug: string }) {
   return (
     <div style={{ minHeight: '100vh', background: '#080a0e', color: '#f2efe9', fontFamily: 'DM Sans, sans-serif', padding: '80px 24px' }}>
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
-        <a href="/" style={{ color: '#d4af37', fontSize: 13, textDecoration: 'none', display: 'inline-block', marginBottom: 32 }}>← Back to Majorka</a>
+        <a href="/" style={{ color: '#6366F1', fontSize: 13, textDecoration: 'none', display: 'inline-block', marginBottom: 32 }}>← Back to Majorka</a>
         <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 36, fontWeight: 800, marginBottom: 8, color: '#f2efe9' }}>{title}</h1>
         <p style={{ fontSize: 13, color: '#52525b', marginBottom: 48 }}>Last updated: March 2025 · Majorka Pty Ltd · Gold Coast, QLD, Australia</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {paragraphs.map((p, i) => (
-            <p key={i} style={{ fontSize: 15, lineHeight: 1.8, color: '#a1a1aa', borderLeft: '2px solid rgba(212,175,55,0.2)', paddingLeft: 20 }}>{p}</p>
+            <p key={i} style={{ fontSize: 15, lineHeight: 1.8, color: '#a1a1aa', borderLeft: '2px solid rgba(99,102,241,0.2)', paddingLeft: 20 }}>{p}</p>
           ))}
         </div>
-        <div style={{ marginTop: 60, padding: '24px', background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 12 }}>
-          <p style={{ fontSize: 14, color: '#71717a' }}>Questions? Email us at <a href="mailto:hello@majorka.io" style={{ color: '#d4af37' }}>hello@majorka.io</a></p>
+        <div style={{ marginTop: 60, padding: '24px', background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 12 }}>
+          <p style={{ fontSize: 14, color: '#71717a' }}>Questions? Email us at <a href="mailto:hello@majorka.io" style={{ color: '#6366F1' }}>hello@majorka.io</a></p>
         </div>
       </div>
     </div>

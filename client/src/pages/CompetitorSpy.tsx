@@ -212,7 +212,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
           <h3
             key={i}
             className="text-sm font-semibold mt-5 mb-2 first:mt-0"
-            style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+            style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
           >
             {section.replace('## ', '')}
           </h3>
@@ -229,9 +229,9 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               if (match) {
                 return (
                   <div key={j} className="flex gap-2 text-sm" style={{ color: '#e2e8f0', fontFamily: 'DM Sans, sans-serif' }}>
-                    <span style={{ color: '#d4af37', flexShrink: 0 }}>·</span>
+                    <span style={{ color: '#6366F1', flexShrink: 0 }}>·</span>
                     <span>
-                      <span className="font-semibold" style={{ color: '#d4af37' }}>{match[1]}</span>
+                      <span className="font-semibold" style={{ color: '#6366F1' }}>{match[1]}</span>
                       <span style={{ color: '#94a3b8' }}>{match[2]}</span>
                     </span>
                   </div>
@@ -298,7 +298,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                       onClick={() => { setQuery(w.query); inputRef.current?.focus(); }}
                       className="flex-1 text-left text-xs px-2 py-1.5 rounded transition-colors truncate"
                       style={{ color: '#94a3b8' }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = '#d4af37')}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = '#6366F1')}
                       onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
                     >
                       {w.query}
@@ -343,9 +343,9 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 type="submit"
                 disabled={loading || !query.trim()}
                 className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-40"
-                style={{ background: 'rgba(212,175,55,0.2)', color: '#d4af37', border: '1px solid rgba(212,175,55,0.35)' }}
-                onMouseEnter={(e) => !loading && (e.currentTarget.style.background = 'rgba(212,175,55,0.3)')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.2)')}
+                style={{ background: 'rgba(99,102,241,0.2)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.35)' }}
+                onMouseEnter={(e) => !loading && (e.currentTarget.style.background = 'rgba(99,102,241,0.3)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.2)')}
               >
                 {loading ? <Loader2 size={15} className="animate-spin" /> : 'Analyse →'}
               </button>
@@ -379,20 +379,20 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}
             >
               <div className="flex justify-center mb-4">
-                <Eye size={28} style={{ color: '#d4af37' }} className="animate-pulse" />
+                <Eye size={28} style={{ color: '#6366F1' }} className="animate-pulse" />
               </div>
-              <p className="text-sm font-medium mb-2" style={{ color: '#e2e8f0' }}>Researching: <span style={{ color: '#d4af37' }}>"{query}"</span></p>
+              <p className="text-sm font-medium mb-2" style={{ color: '#e2e8f0' }}>Researching: <span style={{ color: '#6366F1' }}>"{query}"</span></p>
               <div className="space-y-2 max-w-xs mx-auto">
                 {PROGRESS_STEPS.map((step, i) => (
                   <div key={step} className="flex items-center gap-3">
                     <div
                       className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center text-xs"
                       style={{
-                        background: i <= progressStep ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${i <= progressStep ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                        background: i <= progressStep ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${i <= progressStep ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.08)'}`,
                       }}
                     >
-                      {i < progressStep ? '✓' : i === progressStep ? <Loader2 size={10} className="animate-spin" style={{ color: '#d4af37' }} /> : ''}
+                      {i < progressStep ? '✓' : i === progressStep ? <Loader2 size={10} className="animate-spin" style={{ color: '#6366F1' }} /> : ''}
                     </div>
                     <span className="text-xs text-left" style={{ color: i <= progressStep ? '#94a3b8' : '#334155' }}>{step}</span>
                   </div>
@@ -410,7 +410,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
               >
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>Analysis: <span style={{ color: '#d4af37' }}>{result.query}</span></p>
+                  <p className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>Analysis: <span style={{ color: '#6366F1' }}>{result.query}</span></p>
                   <p className="text-xs mt-0.5" style={{ color: '#475569' }}>
                     {new Date(result.timestamp).toLocaleString('en-AU', { timeZone: 'Australia/Brisbane' })}
                   </p>
@@ -420,9 +420,9 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                     <button
                       onClick={() => void saveToWatchlist()}
                       className="text-xs px-3 py-1.5 rounded-lg transition-colors"
-                      style={{ background: 'rgba(212,175,55,0.1)', color: '#d4af37', border: '1px solid rgba(212,175,55,0.25)' }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.2)')}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.1)')}
+                      style={{ background: 'rgba(99,102,241,0.1)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.25)' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.2)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.1)')}
                     >
                       + Save to Watchlist
                     </button>

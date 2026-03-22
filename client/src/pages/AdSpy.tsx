@@ -236,9 +236,9 @@ function AdCard({
           <span
             className="text-xs font-bold px-2.5 py-0.5 rounded-lg"
             style={{
-              background: 'rgba(212,175,55,0.1)',
-              color: '#d4af37',
-              border: '1px solid rgba(212,175,55,0.25)',
+              background: 'rgba(99,102,241,0.1)',
+              color: '#6366F1',
+              border: '1px solid rgba(99,102,241,0.25)',
             }}
           >
             {ad.cta}
@@ -303,9 +303,9 @@ function AdCard({
           onClick={handleAnalyse}
           className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all"
           style={{
-            background: 'rgba(212,175,55,0.1)',
-            border: '1px solid rgba(212,175,55,0.25)',
-            color: '#d4af37',
+            background: 'rgba(99,102,241,0.1)',
+            border: '1px solid rgba(99,102,241,0.25)',
+            color: '#6366F1',
             cursor: 'pointer',
           }}
         >
@@ -446,9 +446,9 @@ function AdSpyContent() {
       {activeProduct && (
         <div
           className="flex items-center gap-3 mx-5 mt-3 px-4 py-2.5 rounded-lg flex-shrink-0"
-          style={{ background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.18)' }}
+          style={{ background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.18)' }}
         >
-          <Package size={13} style={{ color: '#d4af37' }} />
+          <Package size={13} style={{ color: '#6366F1' }} />
           <span className="text-xs flex-1" style={{ color: 'rgba(240,237,232,0.6)' }}>
             Using:{' '}
             <span className="font-bold" style={{ color: '#f0ede8' }}>
@@ -463,9 +463,9 @@ function AdSpyContent() {
             }
             className="text-xs font-bold px-2.5 py-1 rounded-lg transition-all"
             style={{
-              background: 'rgba(212,175,55,0.12)',
-              color: '#d4af37',
-              border: '1px solid rgba(212,175,55,0.28)',
+              background: 'rgba(99,102,241,0.12)',
+              color: '#6366F1',
+              border: '1px solid rgba(99,102,241,0.28)',
               cursor: 'pointer',
             }}
           >

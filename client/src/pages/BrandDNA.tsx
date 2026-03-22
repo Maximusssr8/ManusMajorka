@@ -66,9 +66,9 @@ function CopyBtn({ text }: { text: string }) {
       onClick={handleCopy}
       className="p-1.5 rounded-lg transition-all duration-150 flex-shrink-0"
       style={{
-        background: copied ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.05)',
-        border: `1px solid ${copied ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.1)'}`,
-        color: copied ? '#d4af37' : 'rgba(240,237,232,0.4)',
+        background: copied ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.05)',
+        border: `1px solid ${copied ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.1)'}`,
+        color: copied ? '#6366F1' : 'rgba(240,237,232,0.4)',
       }}
       title="Copy to clipboard"
     >
@@ -80,7 +80,7 @@ function CopyBtn({ text }: { text: string }) {
 // ─── Section Card ─────────────────────────────────────────────────────────────
 function SectionCard({
   title,
-  accent = '#d4af37',
+  accent = '#6366F1',
   children,
   defaultOpen = true,
 }: {
@@ -118,7 +118,7 @@ function SectionCard({
 }
 
 // ─── Tag Pill ─────────────────────────────────────────────────────────────────
-function TagPill({ text, accent = '#d4af37' }: { text: string; accent?: string }) {
+function TagPill({ text, accent = '#6366F1' }: { text: string; accent?: string }) {
   return (
     <span
       className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
@@ -320,11 +320,11 @@ Generate a comprehensive brand identity document as JSON.`;
             <div className="flex items-center gap-2 mb-1">
               <div
                 className="w-1.5 h-1.5 rounded-full animate-pulse"
-                style={{ background: '#d4af37' }}
+                style={{ background: '#6366F1' }}
               />
               <span
                 className="text-xs font-semibold uppercase tracking-widest"
-                style={{ color: 'rgba(212,175,55,0.6)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: 'rgba(99,102,241,0.6)', fontFamily: 'Syne, sans-serif' }}
               >
                 Brand Strategy
               </span>
@@ -359,7 +359,7 @@ Generate a comprehensive brand identity document as JSON.`;
                   border: '1px solid rgba(255,255,255,0.1)',
                   color: '#f0ede8',
                 }}
-                onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.5)')}
+                onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
                 onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
               />
             </div>
@@ -381,7 +381,7 @@ Generate a comprehensive brand identity document as JSON.`;
                   border: '1px solid rgba(255,255,255,0.1)',
                   color: '#f0ede8',
                 }}
-                onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.5)')}
+                onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
                 onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
               />
             </div>
@@ -403,7 +403,7 @@ Generate a comprehensive brand identity document as JSON.`;
                   border: '1px solid rgba(255,255,255,0.1)',
                   color: '#f0ede8',
                 }}
-                onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.5)')}
+                onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
                 onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
               />
             </div>
@@ -426,7 +426,7 @@ Generate a comprehensive brand identity document as JSON.`;
                   border: '1px solid rgba(255,255,255,0.1)',
                   color: '#f0ede8',
                 }}
-                onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.5)')}
+                onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
                 onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
               />
             </div>
@@ -448,7 +448,7 @@ Generate a comprehensive brand identity document as JSON.`;
                   border: '1px solid rgba(255,255,255,0.1)',
                   color: '#f0ede8',
                 }}
-                onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.5)')}
+                onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
                 onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
               />
             </div>
@@ -463,10 +463,10 @@ Generate a comprehensive brand identity document as JSON.`;
               style={{
                 fontFamily: 'Syne, sans-serif',
                 background: isGenerating
-                  ? 'rgba(212,175,55,0.15)'
-                  : 'linear-gradient(135deg, #d4af37 0%, #b8941f 100%)',
-                color: isGenerating ? '#d4af37' : '#0a0b0d',
-                border: isGenerating ? '1px solid rgba(212,175,55,0.3)' : 'none',
+                  ? 'rgba(99,102,241,0.15)'
+                  : 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
+                color: isGenerating ? '#6366F1' : '#0a0b0d',
+                border: isGenerating ? '1px solid rgba(99,102,241,0.3)' : 'none',
                 opacity: !brandName.trim() || !productType.trim() ? 0.4 : 1,
                 cursor: !brandName.trim() || !productType.trim() ? 'not-allowed' : 'pointer',
               }}
@@ -509,8 +509,8 @@ Generate a comprehensive brand identity document as JSON.`;
               <div
                 className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
                 style={{
-                  background: 'rgba(212,175,55,0.1)',
-                  border: '1px solid rgba(212,175,55,0.2)',
+                  background: 'rgba(99,102,241,0.1)',
+                  border: '1px solid rgba(99,102,241,0.2)',
                 }}
               >
                 <span className="text-3xl">🧬</span>
@@ -560,19 +560,19 @@ Generate a comprehensive brand identity document as JSON.`;
               <div className="relative w-16 h-16 mb-6">
                 <div
                   className="absolute inset-0 rounded-full animate-ping"
-                  style={{ background: 'rgba(212,175,55,0.2)' }}
+                  style={{ background: 'rgba(99,102,241,0.2)' }}
                 />
                 <div
                   className="relative w-16 h-16 rounded-full flex items-center justify-center"
                   style={{
-                    background: 'rgba(212,175,55,0.1)',
-                    border: '1px solid rgba(212,175,55,0.3)',
+                    background: 'rgba(99,102,241,0.1)',
+                    border: '1px solid rgba(99,102,241,0.3)',
                   }}
                 >
-                  <Sparkles size={24} style={{ color: '#d4af37' }} className="animate-pulse" />
+                  <Sparkles size={24} style={{ color: '#6366F1' }} className="animate-pulse" />
                 </div>
               </div>
-              <p className="text-sm font-semibold" style={{ color: '#d4af37' }}>
+              <p className="text-sm font-semibold" style={{ color: '#6366F1' }}>
                 Analysing brand identity...
               </p>
               <p className="text-xs mt-1" style={{ color: 'rgba(240,237,232,0.3)' }}>
@@ -589,10 +589,10 @@ Generate a comprehensive brand identity document as JSON.`;
                 style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#d4af37' }} />
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#6366F1' }} />
                   <span
                     className="text-xs font-semibold uppercase tracking-widest"
-                    style={{ color: 'rgba(212,175,55,0.6)', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: 'rgba(99,102,241,0.6)', fontFamily: 'Syne, sans-serif' }}
                   >
                     Brand DNA Report
                   </span>
@@ -615,7 +615,7 @@ Generate a comprehensive brand identity document as JSON.`;
               </div>
 
               {/* Brand Personality */}
-              <SectionCard title="Brand Personality" accent="#d4af37">
+              <SectionCard title="Brand Personality" accent="#6366F1">
                 <TextRow label="Archetype" value={result.brandPersonality.archetype} />
                 <TextRow label="Tone of Voice" value={result.brandPersonality.toneOfVoice} />
                 <div className="pt-3">
@@ -627,7 +627,7 @@ Generate a comprehensive brand identity document as JSON.`;
                   </span>
                   <div className="flex flex-wrap gap-2">
                     {result.brandPersonality.traits.map((t) => (
-                      <TagPill key={t} text={t} accent="#d4af37" />
+                      <TagPill key={t} text={t} accent="#6366F1" />
                     ))}
                   </div>
                 </div>
@@ -640,7 +640,7 @@ Generate a comprehensive brand identity document as JSON.`;
                   </span>
                   <div className="flex flex-wrap gap-2">
                     {result.coreValues.map((v) => (
-                      <TagPill key={v} text={v} accent="#b8941f" />
+                      <TagPill key={v} text={v} accent="#4F46E5" />
                     ))}
                   </div>
                 </div>
@@ -814,7 +814,7 @@ Generate a comprehensive brand identity document as JSON.`;
                   <div className="space-y-2">
                     {result.visualIdentity.colorPalette.map((color) => {
                       const hexMatch = color.match(/#[0-9A-Fa-f]{3,6}/);
-                      const hex = hexMatch ? hexMatch[0] : '#d4af37';
+                      const hex = hexMatch ? hexMatch[0] : '#6366F1';
                       return (
                         <div key={color} className="flex items-center gap-3">
                           <div

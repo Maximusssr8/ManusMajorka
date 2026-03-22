@@ -24,7 +24,7 @@ interface MapData {
 }
 
 const COLORS = [
-  '#d4af37',
+  '#6366F1',
   '#9c5fff',
   '#2dca72',
   '#ff6b6b',
@@ -149,7 +149,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
       >
         <div className="p-5 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
           <div className="flex items-center gap-2 mb-1">
-            <Map className="w-4 h-4" style={{ color: '#d4af37' }} />
+            <Map className="w-4 h-4" style={{ color: '#6366F1' }} />
             <h1
               className="font-black text-sm"
               style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
@@ -233,8 +233,8 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
             className="w-full font-black"
             style={{
               background: loading
-                ? 'rgba(212,175,55,0.3)'
-                : 'linear-gradient(135deg, #d4af37, #c09a28)',
+                ? 'rgba(99,102,241,0.3)'
+                : 'linear-gradient(135deg, #6366F1, #c09a28)',
               color: '#080a0e',
               fontFamily: 'Syne, sans-serif',
             }}
@@ -265,9 +265,9 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                   onClick={() => setNiche(ex)}
                   className="w-full text-left text-xs px-3 py-2 rounded-lg border transition-colors"
                   style={{
-                    borderColor: 'rgba(212,175,55,0.2)',
-                    color: 'rgba(212,175,55,0.8)',
-                    background: 'rgba(212,175,55,0.04)',
+                    borderColor: 'rgba(99,102,241,0.2)',
+                    color: 'rgba(99,102,241,0.8)',
+                    background: 'rgba(99,102,241,0.04)',
                   }}
                 >
                   {ex}
@@ -285,9 +285,9 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
             <div className="text-center">
               <div
                 className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                style={{ background: 'rgba(212,175,55,0.08)' }}
+                style={{ background: 'rgba(99,102,241,0.08)' }}
               >
-                <Map className="w-8 h-8" style={{ color: '#d4af37', opacity: 0.4 }} />
+                <Map className="w-8 h-8" style={{ color: '#6366F1', opacity: 0.4 }} />
               </div>
               <p
                 className="text-sm font-bold mb-1"
@@ -305,7 +305,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
         {loading && (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3" style={{ color: '#d4af37' }} />
+              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3" style={{ color: '#6366F1' }} />
               <p className="text-sm" style={{ color: 'rgba(240,237,232,0.5)' }}>
                 Researching market positioning…
               </p>
@@ -583,7 +583,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                         className="flex items-start gap-2 text-xs"
                         style={{ color: 'rgba(240,237,232,0.7)' }}
                       >
-                        <span style={{ color: '#d4af37', flexShrink: 0 }}>→</span>
+                        <span style={{ color: '#6366F1', flexShrink: 0 }}>→</span>
                         {ins}
                       </li>
                     ))}

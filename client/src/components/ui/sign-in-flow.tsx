@@ -187,13 +187,13 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
           className="absolute inset-0"
           style={{
             background:
-              'radial-gradient(ellipse at 30% 50%, rgba(212,175,55,0.08) 0%, transparent 70%)',
+              'radial-gradient(ellipse at 30% 50%, rgba(99,102,241,0.08) 0%, transparent 70%)',
           }}
         />
         <div
           className="absolute inset-0"
           style={{
-            background: 'linear-gradient(135deg, rgba(212,175,55,0.03) 0%, transparent 60%)',
+            background: 'linear-gradient(135deg, rgba(99,102,241,0.03) 0%, transparent 60%)',
           }}
         />
 
@@ -202,7 +202,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
           <div className="flex items-center gap-2.5 mb-16">
             <div
               className="w-9 h-9 rounded-lg flex items-center justify-center"
-              style={{ background: '#d4af37' }}
+              style={{ background: '#6366F1' }}
             >
               <span
                 className="text-black font-bold text-sm"
@@ -226,7 +226,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
           >
             Your AI ecommerce
             <br />
-            <span style={{ color: '#d4af37' }}>operating system.</span>
+            <span style={{ color: '#6366F1' }}>operating system.</span>
           </h2>
           <p className="text-base mb-8" style={{ color: 'rgba(255,255,255,0.5)', lineHeight: 1.7 }}>
             50+ AI tools built specifically for Australian sellers. Research, build, launch, and
@@ -239,9 +239,9 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
               <div key={i} className="flex items-start gap-3">
                 <div
                   className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                  style={{ background: 'rgba(212,175,55,0.15)' }}
+                  style={{ background: 'rgba(99,102,241,0.15)' }}
                 >
-                  <svg width="10" height="10" viewBox="0 0 20 20" fill="#d4af37">
+                  <svg width="10" height="10" viewBox="0 0 20 20" fill="#6366F1">
                     <path
                       fillRule="evenodd"
                       d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -270,7 +270,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                 }}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <Icon size={13} style={{ color: '#d4af37' }} />
+                  <Icon size={13} style={{ color: '#6366F1' }} />
                   <span
                     className="text-lg font-bold"
                     style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
@@ -295,7 +295,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
             className="absolute inset-0"
             style={{
               background:
-                'radial-gradient(ellipse at 50% 60%, rgba(212,175,55,0.08) 0%, transparent 60%)',
+                'radial-gradient(ellipse at 50% 60%, rgba(99,102,241,0.08) 0%, transparent 60%)',
             }}
           />
         </div>
@@ -304,7 +304,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
         <div className="lg:hidden mb-8 flex items-center gap-2">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: '#d4af37' }}
+            style={{ background: '#6366F1' }}
           >
             <span
               className="text-black font-bold text-sm"
@@ -416,7 +416,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                         border: '1px solid rgba(255,255,255,0.1)',
                         color: '#f5f5f5',
                       }}
-                      onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.4)')}
+                      onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.4)')}
                       onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
                       required
                     />
@@ -441,7 +441,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                           border: '1px solid rgba(255,255,255,0.1)',
                           color: '#f5f5f5',
                         }}
-                        onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.4)')}
+                        onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.4)')}
                         onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
                         required
                         minLength={8}
@@ -486,7 +486,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                         checked={agreedToTerms}
                         onChange={(e) => setAgreedToTerms(e.target.checked)}
                         className="mt-0.5 rounded"
-                        style={{ accentColor: '#d4af37' }}
+                        style={{ accentColor: '#6366F1' }}
                       />
                       <span
                         className="text-xs leading-relaxed"
@@ -530,7 +530,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                     disabled={loading || (mode === 'signup' && !agreedToTerms)}
                     className="w-full rounded-xl py-3.5 font-semibold text-sm transition-all disabled:opacity-50"
                     style={{
-                      background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+                      background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                       color: '#080a0e',
                       border: 'none',
                       cursor: loading ? 'wait' : 'pointer',
@@ -560,7 +560,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                           background: 'none',
                           border: 'none',
                           cursor: 'pointer',
-                          color: '#d4af37',
+                          color: '#6366F1',
                         }}
                       >
                         Sign in
@@ -579,7 +579,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                           background: 'none',
                           border: 'none',
                           cursor: 'pointer',
-                          color: '#d4af37',
+                          color: '#6366F1',
                         }}
                       >
                         Create an account
@@ -615,8 +615,8 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                   <div
                     className="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
                     style={{
-                      background: 'rgba(212,175,55,0.12)',
-                      border: '1px solid rgba(212,175,55,0.25)',
+                      background: 'rgba(99,102,241,0.12)',
+                      border: '1px solid rgba(99,102,241,0.25)',
                     }}
                   >
                     <svg
@@ -624,7 +624,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                       className="h-7 w-7"
                       viewBox="0 0 24 24"
                       fill="none"
-                      stroke="#d4af37"
+                      stroke="#6366F1"
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -680,7 +680,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                 >
                   <div
                     className="mx-auto w-16 h-16 rounded-full flex items-center justify-center"
-                    style={{ background: '#d4af37' }}
+                    style={{ background: '#6366F1' }}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -704,7 +704,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                   onClick={onSuccess}
                   className="w-full rounded-xl font-semibold py-3.5 text-sm text-black transition-colors"
                   style={{
-                    background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+                    background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                     border: 'none',
                     cursor: 'pointer',
                     fontFamily: 'Syne, sans-serif',

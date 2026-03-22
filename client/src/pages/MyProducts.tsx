@@ -34,7 +34,7 @@ interface Product {
 const statusColors: Record<string, { bg: string; text: string; label: string }> = {
   research: { bg: 'rgba(0,180,216,0.12)', text: '#00b4d8', label: 'Research' },
   validate: { bg: 'rgba(124,106,245,0.12)', text: '#7c6af5', label: 'Validate' },
-  build: { bg: 'rgba(212,175,55,0.12)', text: '#d4af37', label: 'Build' },
+  build: { bg: 'rgba(99,102,241,0.12)', text: '#6366F1', label: 'Build' },
   launch: { bg: 'rgba(255,100,100,0.12)', text: '#ff6b6b', label: 'Launch' },
   optimize: { bg: 'rgba(45,202,114,0.12)', text: '#2dca72', label: 'Optimize' },
   scale: { bg: 'rgba(244,114,182,0.12)', text: '#f472b6', label: 'Scale' },
@@ -248,9 +248,9 @@ export default function MyProducts() {
               onClick={() => setSortByScore((s) => !s)}
               className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all"
               style={{
-                background: sortByScore ? 'rgba(212,175,55,0.12)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${sortByScore ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.08)'}`,
-                color: sortByScore ? '#d4af37' : 'rgba(240,237,232,0.55)',
+                background: sortByScore ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${sortByScore ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                color: sortByScore ? '#6366F1' : 'rgba(240,237,232,0.55)',
                 cursor: 'pointer',
               }}
             >
@@ -264,7 +264,7 @@ export default function MyProducts() {
               }}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all"
               style={{
-                background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+                background: 'linear-gradient(135deg, #6366F1, #f0c040)',
                 color: '#080a0e',
                 fontFamily: 'Syne, sans-serif',
                 cursor: 'pointer',
@@ -336,7 +336,7 @@ export default function MyProducts() {
                     color: '#f0ede8',
                   }}
                   onKeyDown={(e) => e.key === 'Enter' && handleImport()}
-                  onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')}
+                  onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')}
                   onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
                 />
                 <button
@@ -344,7 +344,7 @@ export default function MyProducts() {
                   disabled={importing || !importUrl.trim()}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
                   style={{
-                    background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+                    background: 'linear-gradient(135deg, #6366F1, #f0c040)',
                     color: '#080a0e',
                     fontFamily: 'Syne, sans-serif',
                     cursor: importing ? 'not-allowed' : 'pointer',
@@ -405,7 +405,7 @@ export default function MyProducts() {
                       {importedProduct.productTitle || 'Product'}
                     </div>
                     {importedProduct.price && (
-                      <div className="text-xs font-bold" style={{ color: '#d4af37' }}>
+                      <div className="text-xs font-bold" style={{ color: '#6366F1' }}>
                         {importedProduct.price}
                       </div>
                     )}
@@ -451,7 +451,7 @@ export default function MyProducts() {
                     disabled={isSubmitting}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all disabled:opacity-60"
                     style={{
-                      background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+                      background: 'linear-gradient(135deg, #6366F1, #f0c040)',
                       color: '#080a0e',
                       fontFamily: 'Syne, sans-serif',
                       cursor: isSubmitting ? 'not-allowed' : 'pointer',
@@ -528,7 +528,7 @@ export default function MyProducts() {
                       border: '1.5px solid rgba(255,255,255,0.08)',
                       color: '#f0ede8',
                     }}
-                    onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')}
+                    onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')}
                     onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
                   />
                 </div>
@@ -539,7 +539,7 @@ export default function MyProducts() {
               disabled={isSubmitting}
               className="px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-60"
               style={{
-                background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+                background: 'linear-gradient(135deg, #6366F1, #f0c040)',
                 color: '#080a0e',
                 fontFamily: 'Syne, sans-serif',
                 cursor: isSubmitting ? 'not-allowed' : 'pointer',
@@ -569,7 +569,7 @@ export default function MyProducts() {
           </div>
         ) : isLoading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 size={24} className="animate-spin" style={{ color: '#d4af37' }} />
+            <Loader2 size={24} className="animate-spin" style={{ color: '#6366F1' }} />
           </div>
         ) : !products?.length ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
@@ -669,7 +669,7 @@ export default function MyProducts() {
                         target="_blank"
                         rel="noopener"
                         className="text-xs flex items-center gap-1 hover:underline"
-                        style={{ color: '#d4af37' }}
+                        style={{ color: '#6366F1' }}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <ExternalLink size={10} /> View Product
@@ -681,9 +681,9 @@ export default function MyProducts() {
                       {activeProduct?.id === p.id ? (
                         <span
                           className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg font-bold"
-                          style={{ color: '#d4af37' }}
+                          style={{ color: '#6366F1' }}
                         >
-                          <Star size={10} fill="#d4af37" />
+                          <Star size={10} fill="#6366F1" />
                           Active
                         </span>
                       ) : (

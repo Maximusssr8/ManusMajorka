@@ -83,7 +83,7 @@ export default function UsageCounter({ count: countProp }: UsageCounterProps) {
   const pct = Math.min((count / DAILY_LIMIT) * 100, 100);
   const atLimit = count >= DAILY_LIMIT;
   const warning = count >= 8 && !atLimit;
-  const barColor = atLimit || warning ? '#ef4444' : '#d4af37';
+  const barColor = atLimit || warning ? '#ef4444' : '#6366F1';
   const barColorEnd = atLimit || warning ? '#f87171' : '#f0c840';
 
   return (
@@ -101,8 +101,8 @@ export default function UsageCounter({ count: countProp }: UsageCounterProps) {
 
       <div
         style={{
-          background: 'rgba(212,175,55,0.04)',
-          border: '1px solid rgba(212,175,55,0.15)',
+          background: 'rgba(99,102,241,0.04)',
+          border: '1px solid rgba(99,102,241,0.15)',
           borderRadius: 12,
           padding: '14px 18px',
           marginBottom: 20,
@@ -115,7 +115,7 @@ export default function UsageCounter({ count: countProp }: UsageCounterProps) {
         {/* Row 1 — label + PRO badge */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ color: '#d4af37', fontSize: 13, fontWeight: 700, letterSpacing: '0.03em' }}>
+            <span style={{ color: '#6366F1', fontSize: 13, fontWeight: 700, letterSpacing: '0.03em' }}>
               ◈
             </span>
             <span
@@ -136,7 +136,7 @@ export default function UsageCounter({ count: countProp }: UsageCounterProps) {
           <button
             onClick={() => setLocation('/pricing')}
             style={{
-              background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+              background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
               color: '#000',
               border: 'none',
               borderRadius: 20,
@@ -183,7 +183,7 @@ export default function UsageCounter({ count: countProp }: UsageCounterProps) {
               fontFamily: 'JetBrains Mono, monospace',
               fontSize: 12,
               fontWeight: 700,
-              color: atLimit ? '#ef4444' : warning ? '#ef4444' : '#d4af37',
+              color: atLimit ? '#ef4444' : warning ? '#ef4444' : '#6366F1',
               whiteSpace: 'nowrap',
               flexShrink: 0,
             }}
@@ -213,7 +213,7 @@ export default function UsageCounter({ count: countProp }: UsageCounterProps) {
                 padding: 0,
                 fontSize: 12,
                 fontWeight: 700,
-                color: '#d4af37',
+                color: '#6366F1',
                 cursor: 'pointer',
                 textDecoration: 'underline',
                 textUnderlineOffset: 3,

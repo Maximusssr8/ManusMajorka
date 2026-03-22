@@ -43,13 +43,13 @@ const GLOBAL_STYLES = `
 @keyframes float-cta { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
 .btn-shimmer {
-  background: linear-gradient(90deg, #b8941f 0%, #d4af37 25%, #f5d98a 50%, #d4af37 75%, #b8941f 100%);
+  background: linear-gradient(90deg, #4F46E5 0%, #6366F1 25%, #A5B4FC 50%, #6366F1 75%, #4F46E5 100%);
   background-size: 200% 100%;
   animation: shimmer-btn 3s linear infinite;
   color: #000;
 }
 .gold-text {
-  background: linear-gradient(135deg, #d4af37, #f5d98a, #d4af37);
+  background: linear-gradient(135deg, #6366F1, #A5B4FC, #6366F1);
   background-size: 200% 200%;
   animation: gradient-x 5s ease infinite;
   -webkit-background-clip: text;
@@ -62,7 +62,7 @@ const GLOBAL_STYLES = `
 }
 .horizon-line {
   position: absolute; left: 0; right: 0; top: 60%; height: 1px;
-  background: linear-gradient(to right, transparent, rgba(212,175,55,0.18) 30%, rgba(212,175,55,0.35) 50%, rgba(212,175,55,0.18) 70%, transparent);
+  background: linear-gradient(to right, transparent, rgba(99,102,241,0.18) 30%, rgba(99,102,241,0.35) 50%, rgba(99,102,241,0.18) 70%, transparent);
   animation: horizon-glow 6s ease-in-out infinite;
   pointer-events: none;
 }
@@ -74,8 +74,8 @@ const GLOBAL_STYLES = `
   color: #94949e; text-decoration: none; font-size: 14px; font-weight: 700;
   transition: border-color 0.2s, color 0.2s, background 0.2s;
 }
-.social-icon-btn:hover { border-color: rgba(212,175,55,0.35); color: #d4af37; background: rgba(212,175,55,0.06); }
-.feature-big:hover { border-color: rgba(212,175,55,0.25) !important; transform: translateY(-3px); }
+.social-icon-btn:hover { border-color: rgba(99,102,241,0.35); color: #6366F1; background: rgba(99,102,241,0.06); }
+.feature-big:hover { border-color: rgba(99,102,241,0.25) !important; transform: translateY(-3px); }
 
 @media (max-width: 768px) {
   .hide-mobile   { display: none !important; }
@@ -126,14 +126,14 @@ const C = {
   card: '#0d1117',
   elevated: '#131620',
   border: 'rgba(255,255,255,0.06)',
-  borderHover: 'rgba(212,175,55,0.25)',
+  borderHover: 'rgba(99,102,241,0.25)',
   text: '#f5f5f5',
   secondary: '#94949e',
   muted: '#52525b',
-  gold: '#d4af37',
-  goldLight: '#f5d98a',
-  goldDim: 'rgba(212,175,55,0.08)',
-  goldBorder: 'rgba(212,175,55,0.25)',
+  gold: '#6366F1',
+  goldLight: '#A5B4FC',
+  goldDim: 'rgba(99,102,241,0.08)',
+  goldBorder: 'rgba(99,102,241,0.25)',
   green: '#22c55e',
   red: '#ef4444',
 };
@@ -144,10 +144,10 @@ const dm = "'DM Sans', sans-serif";
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const AVATARS = [
-  { initials: 'JM', bg: '#d4af37', color: '#000' },
-  { initials: 'ST', bg: '#b8941f', color: '#000' },
+  { initials: 'JM', bg: '#6366F1', color: '#000' },
+  { initials: 'ST', bg: '#4F46E5', color: '#000' },
   { initials: 'ML', bg: '#374151', color: '#e5e7eb' },
-  { initials: 'PK', bg: '#d4af37', color: '#000' },
+  { initials: 'PK', bg: '#6366F1', color: '#000' },
   { initials: 'TB', bg: '#4b5563', color: '#f9fafb' },
 ];
 
@@ -172,7 +172,7 @@ const BIG_FEATURES = [
     title: 'Validate margins before you spend a cent',
     sub: 'Real AUD numbers',
     desc: 'Enter your buy price, sell price, and market. Maya calculates net margin, break-even CPA, and ad budget — with AU shipping, GST, and platform fees built in.',
-    accent: '#d4af37',
+    accent: '#6366F1',
     stat: '98% AU market accuracy',
   },
   {
@@ -196,7 +196,7 @@ const BIG_FEATURES = [
     title: 'Know your margins before you spend a cent',
     sub: 'AUD-native profit calculator',
     desc: 'Full AU cost stack: AliExpress price, AusPost rates, Shopify fees, GST, and ad CPA. Enter your numbers, get your real take-home margin — with break-even ROAS built in.',
-    accent: '#d4af37',
+    accent: '#6366F1',
     stat: 'GST + AusPost included',
   },
   {
@@ -359,7 +359,7 @@ function EmailCapture() {
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <input type="text" placeholder="First name (optional)" value={name} onChange={(e) => setName(e.target.value)} style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 16px', color: C.text, fontSize: 14, fontFamily: dm, outline: 'none', minHeight: 48 }} />
         <input type="email" placeholder="Your email address" required value={email} onChange={(e) => setEmail(e.target.value)} style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 16px', color: C.text, fontSize: 14, fontFamily: dm, outline: 'none', minHeight: 48 }} />
-        <button type="submit" disabled={status === 'loading'} style={{ background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: '#000', borderRadius: 10, padding: '14px 20px', fontFamily: syne, fontWeight: 800, fontSize: 15, border: 'none', cursor: status === 'loading' ? 'wait' : 'pointer', opacity: status === 'loading' ? 0.7 : 1, transition: 'opacity 0.2s', minHeight: 48 }}>
+        <button type="submit" disabled={status === 'loading'} style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', borderRadius: 10, padding: '14px 20px', fontFamily: syne, fontWeight: 800, fontSize: 15, border: 'none', cursor: status === 'loading' ? 'wait' : 'pointer', opacity: status === 'loading' ? 0.7 : 1, transition: 'opacity 0.2s', minHeight: 48 }}>
           {status === 'loading' ? 'Sending...' : 'Send Me the Guide'}
         </button>
         {status === 'error' && <p style={{ color: C.red, fontSize: 13, textAlign: 'center' }}>{errMsg}</p>}
@@ -471,7 +471,7 @@ function WeeklyWinnersSection() {
               <button
                 type="submit"
                 disabled={status === 'loading'}
-                style={{ flex: '0 0 auto', background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: '#000', borderRadius: 12, padding: '14px 28px', fontFamily: syne, fontWeight: 800, fontSize: 15, border: 'none', cursor: status === 'loading' ? 'wait' : 'pointer', opacity: status === 'loading' ? 0.7 : 1, whiteSpace: 'nowrap', minHeight: 52 }}
+                style={{ flex: '0 0 auto', background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', borderRadius: 12, padding: '14px 28px', fontFamily: syne, fontWeight: 800, fontSize: 15, border: 'none', cursor: status === 'loading' ? 'wait' : 'pointer', opacity: status === 'loading' ? 0.7 : 1, whiteSpace: 'nowrap', minHeight: 52 }}
               >
                 {status === 'loading' ? 'Sending...' : 'Get Free Weekly Report →'}
               </button>
@@ -540,7 +540,7 @@ function UrgencyStrip() {
         `🔥 Last product found: ${lastFound} minute${lastFound !== 1 ? 's' : ''} ago`,
         `📦 Next data refresh: ${refreshHours}h ${String(refreshMins).padStart(2, '0')}m`,
       ].map((item) => (
-        <span key={item} className="urgency-item" style={{ fontSize: 12, color: 'rgba(212,175,55,0.7)', fontWeight: 500 }}>{item}</span>
+        <span key={item} className="urgency-item" style={{ fontSize: 12, color: 'rgba(99,102,241,0.7)', fontWeight: 500 }}>{item}</span>
       ))}
     </div>
   );
@@ -585,7 +585,7 @@ function FloatingCTA() {
         <span className="hide-mobile">🔥 Join 2,400+ AU sellers · Find your first winner →</span>
         <span className="hide-desktop">Find your winner →</span>
       </span>
-      <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: '#000', borderRadius: 10, padding: '10px 22px', fontFamily: syne, fontWeight: 800, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
+      <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', borderRadius: 10, padding: '10px 22px', fontFamily: syne, fontWeight: 800, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
         Start Free
       </Link>
       <button onClick={dismiss} style={{ background: 'none', border: 'none', color: C.secondary, cursor: 'pointer', fontSize: 18, flexShrink: 0, padding: '4px 6px' }}>×</button>
@@ -661,10 +661,10 @@ export default function Home() {
       <style>{GLOBAL_STYLES}</style>
 
       {/* ═══ NAV ═══════════════════════════════════════════════════════════ */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(8,10,14,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(212,175,55,0.08)', boxShadow: navShadow ? "0 4px 24px rgba(0,0,0,0.4)" : "none", transition: "box-shadow 0.3s" }}>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(8,10,14,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(99,102,241,0.08)', boxShadow: navShadow ? "0 4px 24px rgba(0,0,0,0.4)" : "none", transition: "box-shadow 0.3s" }}>
         <div className="nav-inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 34, height: 34, borderRadius: 8, background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 17, color: '#000' }}>M</div>
+            <div style={{ width: 34, height: 34, borderRadius: 8, background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 17, color: '#000' }}>M</div>
             <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 17, letterSpacing: '0.08em' }}>MAJORKA</span>
           </div>
           <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
@@ -673,7 +673,7 @@ export default function Home() {
             ))}
             <Link href="/sign-in" style={{ color: '#9ca3af', textDecoration: 'none', fontSize: 14, fontWeight: 400, fontFamily: dm, transition: 'color 0.2s' }} onMouseEnter={(e) => (e.currentTarget.style.color = C.gold)} onMouseLeave={(e) => (e.currentTarget.style.color = '#9ca3af')}>Sign In</Link>
           </div>
-          <Link href="/app" style={{ background: '#d4af37', color: '#080a0e', borderRadius: 20, padding: '8px 20px', fontFamily: syne, fontWeight: 600, fontSize: 14, textDecoration: 'none', display: 'inline-block', border: 'none', minHeight: 36 }}>
+          <Link href="/app" style={{ background: '#6366F1', color: '#080a0e', borderRadius: 20, padding: '8px 20px', fontFamily: syne, fontWeight: 600, fontSize: 14, textDecoration: 'none', display: 'inline-block', border: 'none', minHeight: 36 }}>
             Start Free
           </Link>
         </div>
@@ -686,8 +686,8 @@ export default function Home() {
         <div className="gradient-blob" style={{ width:400, height:400, top:"20%", right:"-8%", background:"rgba(139,92,246,0.09)", animation:"blob-drift-2 10s ease-in-out infinite", zIndex:0 }} />
         <div className="gradient-blob" style={{ width:350, height:350, bottom:"-5%", left:"30%", background:"rgba(6,182,212,0.07)", animation:"blob-drift-3 12s ease-in-out infinite", zIndex:0 }} />
         <div className="particle-grid" style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '70%', background: 'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212,175,55,0.12) 0%, transparent 70%)', zIndex: 0, pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', top: '50%', left: '50%', width: 900, height: 900, marginTop: -450, marginLeft: -450, background: 'conic-gradient(from 0deg, transparent, rgba(212,175,55,0.025), transparent, rgba(212,175,55,0.015), transparent, rgba(212,175,55,0.02), transparent)', animation: 'ray-rotate 40s linear infinite', borderRadius: '50%', zIndex: 0, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '70%', background: 'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 70%)', zIndex: 0, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '50%', left: '50%', width: 900, height: 900, marginTop: -450, marginLeft: -450, background: 'conic-gradient(from 0deg, transparent, rgba(99,102,241,0.025), transparent, rgba(99,102,241,0.015), transparent, rgba(99,102,241,0.02), transparent)', animation: 'ray-rotate 40s linear infinite', borderRadius: '50%', zIndex: 0, pointerEvents: 'none' }} />
         <div className="horizon-line" />
 
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 1200, width: '100%', margin: '0 auto', display: 'flex', alignItems: 'center', gap: 'clamp(32px, 6vw, 80px)', flexWrap: 'wrap' }}>
@@ -735,9 +735,9 @@ export default function Home() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.85 }} style={{ marginBottom: 16 }}>
               <Link
                 href="/store-health"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, borderRadius: 10, padding: '9px 20px', fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 13, textDecoration: 'none', color: C.gold, border: `1px solid rgba(212,175,55,0.25)`, background: 'rgba(212,175,55,0.07)', transition: 'background 0.2s' }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.14)'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.07)'; }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, borderRadius: 10, padding: '9px 20px', fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 13, textDecoration: 'none', color: C.gold, border: `1px solid rgba(99,102,241,0.25)`, background: 'rgba(99,102,241,0.07)', transition: 'background 0.2s' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(99,102,241,0.14)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(99,102,241,0.07)'; }}
               >
                 🏥 Get Your Free Store Health Score →
               </Link>
@@ -774,14 +774,14 @@ export default function Home() {
               <div style={{
                 position:"absolute", top:-20, left:-30, background:"rgba(13,17,23,0.85)",
                 backdropFilter:"blur(8px)", WebkitBackdropFilter:"blur(8px)",
-                border:"1px solid rgba(212,175,55,0.25)", borderRadius:14, padding:"14px 18px",
+                border:"1px solid rgba(99,102,241,0.25)", borderRadius:14, padding:"14px 18px",
                 minWidth:200, transform:"rotate(-3deg)",
                 animation:"float 4s ease-in-out infinite", zIndex:10,
                 boxShadow:"0 8px 32px rgba(0,0,0,0.4)",
               }}>
                 <div style={{ fontSize:9, fontWeight:700, color:"#22c55e", letterSpacing:"0.08em", marginBottom:6 }}>🔥 TRENDING NOW</div>
                 <div style={{ fontSize:13, fontWeight:700, color:"#f5f5f5", fontFamily:"Syne, sans-serif", marginBottom:4 }}>Posture Corrector Pro</div>
-                <div style={{ fontSize:18, fontWeight:900, color:"#d4af37", fontFamily:"Syne, sans-serif" }}>$48,200<span style={{fontSize:11,color:"#94949e"}}>/mo</span></div>
+                <div style={{ fontSize:18, fontWeight:900, color:"#6366F1", fontFamily:"Syne, sans-serif" }}>$48,200<span style={{fontSize:11,color:"#94949e"}}>/mo</span></div>
                 <div style={{ fontSize:10, color:"#94949e", marginTop:2 }}>1,847 orders · 67% margin</div>
               </div>
               {/* Floating card 2 */}
@@ -795,7 +795,7 @@ export default function Home() {
               }}>
                 <div style={{ fontSize:9, fontWeight:700, color:"#6366F1", letterSpacing:"0.08em", marginBottom:6 }}>⚡ VIRAL TIKTOK</div>
                 <div style={{ fontSize:13, fontWeight:700, color:"#f5f5f5", fontFamily:"Syne, sans-serif", marginBottom:4 }}>LED Face Mask Pro</div>
-                <div style={{ fontSize:18, fontWeight:900, color:"#d4af37", fontFamily:"Syne, sans-serif" }}>$31,500<span style={{fontSize:11,color:"#94949e"}}>/mo</span></div>
+                <div style={{ fontSize:18, fontWeight:900, color:"#6366F1", fontFamily:"Syne, sans-serif" }}>$31,500<span style={{fontSize:11,color:"#94949e"}}>/mo</span></div>
                 <div style={{ fontSize:10, color:"#94949e", marginTop:2 }}>963 orders · 72% margin</div>
               </div>
             </div>
@@ -860,24 +860,24 @@ export default function Home() {
       {/* ═══ MEET MAYA — AI AGENT SHOWCASE ═══════════════════════════════ */}
       <section style={{ padding: '100px 0', position: 'relative', overflow: 'hidden' }}>
         {/* Background glow */}
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(212,175,55,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(99,102,241,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
         {/* Dot grid */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(212,175,55,0.08) 1px, transparent 1px)', backgroundSize: '32px 32px', pointerEvents: 'none', maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(99,102,241,0.08) 1px, transparent 1px)', backgroundSize: '32px 32px', pointerEvents: 'none', maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%)' }} />
 
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', position: 'relative' }}>
 
           {/* ── Section label ── */}
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 20, padding: '6px 16px' }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#d4af37', display: 'inline-block', boxShadow: '0 0 8px #d4af37' }} />
-              <span style={{ color: '#d4af37', fontSize: 12, fontWeight: 700, fontFamily: syne, letterSpacing: '0.1em', textTransform: 'uppercase' }}>AI Co-Pilot</span>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: 20, padding: '6px 16px' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#6366F1', display: 'inline-block', boxShadow: '0 0 8px #6366F1' }} />
+              <span style={{ color: '#6366F1', fontSize: 12, fontWeight: 700, fontFamily: syne, letterSpacing: '0.1em', textTransform: 'uppercase' }}>AI Co-Pilot</span>
             </div>
           </div>
 
           {/* ── Headline ── */}
           <div style={{ textAlign: 'center', marginBottom: 72 }}>
             <h2 style={{ fontFamily: syne, fontSize: 'clamp(36px, 5.5vw, 60px)', fontWeight: 800, color: '#f5f5f5', lineHeight: 1.05, letterSpacing: '-0.03em', margin: '0 0 20px' }}>
-              Meet Maya — she doesn't<br />just answer. She <span style={{ color: '#d4af37' }}>acts.</span>
+              Meet Maya — she doesn't<br />just answer. She <span style={{ color: '#6366F1' }}>acts.</span>
             </h2>
             <p style={{ color: '#71717a', fontSize: 18, maxWidth: 520, margin: '0 auto', fontFamily: dm, lineHeight: 1.6 }}>
               One message. Maya researches your niche, finds suppliers, builds your store, and writes your ads — all in under 3 minutes.
@@ -897,10 +897,10 @@ export default function Home() {
                   { icon: '📦', label: 'Supplier Finder', desc: 'Compares AliExpress, CJDropshipping & AU local suppliers with landed cost estimates.' },
                 ].map((item) => (
                   <div key={item.label} style={{ display: 'flex', gap: 16, padding: '18px 20px', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, transition: 'border-color 0.2s' }}
-                    onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.3)')}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.3)')}
                     onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
                   >
-                    <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
                       {item.icon}
                     </div>
                     <div>
@@ -913,9 +913,9 @@ export default function Home() {
 
               <Link href="/app/chat" style={{
                 display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 28px',
-                background: 'linear-gradient(135deg, #d4af37 0%, #b8941f 100%)',
+                background: 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
                 borderRadius: 14, color: '#080a0e', fontFamily: syne, fontWeight: 800,
-                fontSize: 15, textDecoration: 'none', boxShadow: '0 8px 32px rgba(212,175,55,0.35)',
+                fontSize: 15, textDecoration: 'none', boxShadow: '0 8px 32px rgba(99,102,241,0.35)',
               }}>
                 Talk to Maya → <span style={{ opacity: 0.7, fontSize: 12 }}>Free</span>
               </Link>
@@ -924,16 +924,16 @@ export default function Home() {
             {/* RIGHT — chat window */}
             <div style={{ position: 'relative' }}>
               {/* Glow behind card */}
-              <div style={{ position: 'absolute', inset: -20, background: 'radial-gradient(ellipse at center, rgba(212,175,55,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', inset: -20, background: 'radial-gradient(ellipse at center, rgba(99,102,241,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
               <div style={{
                 position: 'relative',
                 background: 'rgba(10,12,20,0.9)',
-                border: '1px solid rgba(212,175,55,0.2)',
+                border: '1px solid rgba(99,102,241,0.2)',
                 borderRadius: 24,
                 overflow: 'hidden',
                 backdropFilter: 'blur(20px)',
-                boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,175,55,0.1) inset',
+                boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(99,102,241,0.1) inset',
               }}>
                 {/* Title bar — macOS style */}
                 <div style={{ padding: '14px 18px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.02)' }}>
@@ -952,7 +952,7 @@ export default function Home() {
 
                   {/* Maya greeting */}
                   <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #d4af37 0%, #92711a 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 13, color: '#080a0e', flexShrink: 0, boxShadow: '0 4px 12px rgba(212,175,55,0.4)' }}>M</div>
+                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1 0%, #92711a 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 13, color: '#080a0e', flexShrink: 0, boxShadow: '0 4px 12px rgba(99,102,241,0.4)' }}>M</div>
                     <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px 16px 16px 16px', padding: '12px 16px', maxWidth: '85%' }}>
                       <p style={{ color: '#d1d5db', fontSize: 14, margin: 0, lineHeight: 1.6, fontFamily: dm }}>
                         Hey 👋 I'm Maya. Tell me what you want to sell and I'll handle everything — research, suppliers, store, ads. What's the niche?
@@ -962,25 +962,25 @@ export default function Home() {
 
                   {/* User message */}
                   <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <div style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.08))', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '16px 4px 16px 16px', padding: '12px 16px', maxWidth: '80%' }}>
+                    <div style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(99,102,241,0.08))', border: '1px solid rgba(99,102,241,0.25)', borderRadius: '16px 4px 16px 16px', padding: '12px 16px', maxWidth: '80%' }}>
                       <p style={{ color: '#f5f5f5', fontSize: 14, margin: 0, fontFamily: dm }}>LED face masks for the AU market</p>
                     </div>
                   </div>
 
                   {/* Maya action response */}
                   <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #d4af37 0%, #92711a 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 13, color: '#080a0e', flexShrink: 0, boxShadow: '0 4px 12px rgba(212,175,55,0.4)' }}>M</div>
+                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1 0%, #92711a 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 13, color: '#080a0e', flexShrink: 0, boxShadow: '0 4px 12px rgba(99,102,241,0.4)' }}>M</div>
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
                       <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px 16px 16px 16px', padding: '12px 16px' }}>
                         <p style={{ color: '#d1d5db', fontSize: 14, margin: 0, lineHeight: 1.6, fontFamily: dm }}>
-                          Solid pick. <strong style={{ color: '#f5f5f5' }}>Low competition</strong> in AU right now — 23 stores vs 340K searches/mo. Top sellers averaging <strong style={{ color: '#d4af37' }}>$2,800/day</strong>. Running full workflow now ↓
+                          Solid pick. <strong style={{ color: '#f5f5f5' }}>Low competition</strong> in AU right now — 23 stores vs 340K searches/mo. Top sellers averaging <strong style={{ color: '#6366F1' }}>$2,800/day</strong>. Running full workflow now ↓
                         </p>
                       </div>
 
                       {/* Workflow card */}
-                      <div style={{ background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 14, padding: '16px 18px' }}>
+                      <div style={{ background: 'rgba(99,102,241,0.04)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 14, padding: '16px 18px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 14 }}>
-                          <span style={{ fontSize: 12, fontWeight: 800, color: '#d4af37', fontFamily: syne, letterSpacing: '0.05em' }}>⚡ WORKFLOW RUNNING</span>
+                          <span style={{ fontSize: 12, fontWeight: 800, color: '#6366F1', fontFamily: syne, letterSpacing: '0.05em' }}>⚡ WORKFLOW RUNNING</span>
                           <span style={{ fontSize: 10, color: '#52525b', fontFamily: dm }}>3 of 4 complete</span>
                         </div>
                         {[
@@ -990,8 +990,8 @@ export default function Home() {
                           { done: false, label: 'Store build', detail: 'Generating…' },
                         ].map((step) => (
                           <div key={step.label} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                            <div style={{ width: 20, height: 20, borderRadius: '50%', background: step.done ? 'rgba(34,197,94,0.15)' : 'rgba(212,175,55,0.1)', border: `1px solid ${step.done ? 'rgba(34,197,94,0.4)' : 'rgba(212,175,55,0.3)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, flexShrink: 0 }}>
-                              {step.done ? <span style={{ color: '#22c55e' }}>✓</span> : <span style={{ color: '#d4af37' }}>◌</span>}
+                            <div style={{ width: 20, height: 20, borderRadius: '50%', background: step.done ? 'rgba(34,197,94,0.15)' : 'rgba(99,102,241,0.1)', border: `1px solid ${step.done ? 'rgba(34,197,94,0.4)' : 'rgba(99,102,241,0.3)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, flexShrink: 0 }}>
+                              {step.done ? <span style={{ color: '#22c55e' }}>✓</span> : <span style={{ color: '#6366F1' }}>◌</span>}
                             </div>
                             <div style={{ flex: 1 }}>
                               <span style={{ fontSize: 13, fontWeight: 600, color: step.done ? '#e5e7eb' : '#71717a', fontFamily: dm }}>{step.label}</span>
@@ -999,7 +999,7 @@ export default function Home() {
                             </div>
                           </div>
                         ))}
-                        <button style={{ marginTop: 6, width: '100%', background: 'linear-gradient(135deg, #d4af37, #b8941f)', color: '#080a0e', border: 'none', borderRadius: 10, padding: '11px 16px', fontWeight: 800, fontSize: 13, cursor: 'pointer', fontFamily: syne, letterSpacing: '0.02em' }}>
+                        <button style={{ marginTop: 6, width: '100%', background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#080a0e', border: 'none', borderRadius: 10, padding: '11px 16px', fontWeight: 800, fontSize: 13, cursor: 'pointer', fontFamily: syne, letterSpacing: '0.02em' }}>
                           Open Store Preview →
                         </button>
                       </div>
@@ -1013,7 +1013,7 @@ export default function Home() {
                     <input readOnly placeholder="Message Maya…" style={{ flex: 1, background: 'transparent', border: 'none', padding: '11px 0', color: '#52525b', fontSize: 14, outline: 'none', fontFamily: dm }} />
                     <span style={{ fontSize: 11, color: '#3f3f46', fontFamily: dm }}>⌘↵</span>
                   </div>
-                  <button style={{ background: 'linear-gradient(135deg, #d4af37, #b8941f)', border: 'none', borderRadius: 12, width: 42, height: 42, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 14px rgba(212,175,55,0.4)', fontSize: 16 }}>→</button>
+                  <button style={{ background: 'linear-gradient(135deg, #6366F1, #4F46E5)', border: 'none', borderRadius: 12, width: 42, height: 42, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 14px rgba(99,102,241,0.4)', fontSize: 16 }}>→</button>
                 </div>
               </div>
             </div>
@@ -1028,7 +1028,7 @@ export default function Home() {
               { value: '24/7', label: 'Always running' },
             ].map((stat) => (
               <div key={stat.label} style={{ padding: '28px 24px', background: 'rgba(255,255,255,0.02)', textAlign: 'center' }}>
-                <div style={{ fontFamily: syne, fontSize: 28, fontWeight: 800, color: '#d4af37', marginBottom: 6 }}>{stat.value}</div>
+                <div style={{ fontFamily: syne, fontSize: 28, fontWeight: 800, color: '#6366F1', marginBottom: 6 }}>{stat.value}</div>
                 <div style={{ fontSize: 13, color: '#52525b', fontFamily: dm }}>{stat.label}</div>
               </div>
             ))}
@@ -1119,7 +1119,7 @@ export default function Home() {
                 transition={{ delay: (i % 3) * 0.1, duration: 0.5, ease: 'easeOut' }}
                 style={{ position: 'relative', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '28px 24px', overflow: 'hidden', backdropFilter: 'blur(8px)' }}
               >
-                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: C.gold, boxShadow: '4px 0 20px rgba(212,175,55,0.2)', borderRadius: '18px 0 0 18px' }} />
+                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: C.gold, boxShadow: '4px 0 20px rgba(99,102,241,0.2)', borderRadius: '18px 0 0 18px' }} />
                 <div style={{ paddingLeft: 6 }}>
                   <div style={{ color: C.gold, fontSize: 13, letterSpacing: 2, marginBottom: 12 }}>{'★'.repeat(t.stars)}</div>
                   <p style={{ fontSize: 15, color: '#e2e8f0', lineHeight: 1.65, marginBottom: 20, fontStyle: 'italic' }}>&ldquo;{t.quote}&rdquo;</p>
@@ -1218,7 +1218,7 @@ export default function Home() {
                 style={{ background: plan.highlight ? C.elevated : C.card, border: `2px solid ${plan.highlight ? "#6366F1" : hoveredPricing === i ? C.borderHover : C.border}`, borderRadius: 18, padding: '28px 24px', position: 'relative', boxShadow: plan.highlight ? "0 0 0 2px #6366F1, 0 20px 40px rgba(99,102,241,0.20)" : 'none', transition: 'border-color 0.3s, box-shadow 0.3s' }}
               >
                 {plan.badge && (
-                  <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: '#000', borderRadius: 100, padding: '3px 14px', fontSize: 11, fontWeight: 800, fontFamily: syne, whiteSpace: 'nowrap' }}>
+                  <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', borderRadius: 100, padding: '3px 14px', fontSize: 11, fontWeight: 800, fontFamily: syne, whiteSpace: 'nowrap' }}>
                     {plan.badge}
                   </div>
                 )}
@@ -1228,7 +1228,7 @@ export default function Home() {
                   <span style={{ fontFamily: syne, fontWeight: 900, fontSize: 38, color: C.text }}>{plan.price}</span>
                   <span style={{ color: C.muted, fontSize: 13 }}>/{plan.period}</span>
                 </div>
-                <Link href={plan.href} style={{ display: 'flex', textAlign: 'center', alignItems: 'center', justifyContent: 'center', background: plan.highlight ? `linear-gradient(135deg, ${C.gold}, #b8941f)` : 'rgba(255,255,255,0.04)', color: plan.highlight ? '#000' : C.text, border: plan.highlight ? 'none' : `1px solid ${C.border}`, borderRadius: 9, padding: '11px 16px', fontFamily: syne, fontWeight: 700, fontSize: 14, textDecoration: 'none', transition: 'opacity 0.2s', marginBottom: 20, minHeight: 44 }}>
+                <Link href={plan.href} style={{ display: 'flex', textAlign: 'center', alignItems: 'center', justifyContent: 'center', background: plan.highlight ? `linear-gradient(135deg, ${C.gold}, #4F46E5)` : 'rgba(255,255,255,0.04)', color: plan.highlight ? '#000' : C.text, border: plan.highlight ? 'none' : `1px solid ${C.border}`, borderRadius: 9, padding: '11px 16px', fontFamily: syne, fontWeight: 700, fontSize: 14, textDecoration: 'none', transition: 'opacity 0.2s', marginBottom: 20, minHeight: 44 }}>
                   {plan.cta}
                 </Link>
                 {plan.afterpay && (
@@ -1284,7 +1284,7 @@ export default function Home() {
 
       {/* ═══ FINAL CTA ═════════════════════════════════════════════════════ */}
       <section style={{ position: 'relative', padding: '120px 24px', textAlign: 'center', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '50%', left: '50%', width: 900, height: 500, marginTop: -250, marginLeft: -450, background: 'radial-gradient(ellipse, rgba(212,175,55,0.07) 0%, transparent 70%)', animation: 'gold-pulse 4s ease-in-out infinite', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '50%', left: '50%', width: 900, height: 500, marginTop: -250, marginLeft: -450, background: 'radial-gradient(ellipse, rgba(99,102,241,0.07) 0%, transparent 70%)', animation: 'gold-pulse 4s ease-in-out infinite', pointerEvents: 'none' }} />
         <div className="particle-grid" style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }} />
 
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 640, margin: '0 auto' }}>
@@ -1298,10 +1298,10 @@ export default function Home() {
             <div className="stack-mobile" style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 28 }}>
               <Link
                 href="/sign-in"
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 14, padding: '18px 52px', fontFamily: syne, fontWeight: 800, fontSize: 'clamp(15px, 2vw, 18px)', textDecoration: 'none', boxShadow: `0 0 60px rgba(212,175,55,0.35), 0 4px 24px rgba(0,0,0,0.3)`, minHeight: 56, minWidth: 200, transition: 'transform 0.2s, box-shadow 0.2s' }}
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 14, padding: '18px 52px', fontFamily: syne, fontWeight: 800, fontSize: 'clamp(15px, 2vw, 18px)', textDecoration: 'none', boxShadow: `0 0 60px rgba(99,102,241,0.35), 0 4px 24px rgba(0,0,0,0.3)`, minHeight: 56, minWidth: 200, transition: 'transform 0.2s, box-shadow 0.2s' }}
                 className="btn-shimmer"
-                onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = 'translateY(-3px)'; el.style.boxShadow = '0 0 80px rgba(212,175,55,0.5), 0 8px 32px rgba(0,0,0,0.4)'; }}
-                onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = ''; el.style.boxShadow = '0 0 60px rgba(212,175,55,0.35), 0 4px 24px rgba(0,0,0,0.3)'; }}
+                onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = 'translateY(-3px)'; el.style.boxShadow = '0 0 80px rgba(99,102,241,0.5), 0 8px 32px rgba(0,0,0,0.4)'; }}
+                onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = ''; el.style.boxShadow = '0 0 60px rgba(99,102,241,0.35), 0 4px 24px rgba(0,0,0,0.3)'; }}
               >
                 Get Started Free →
               </Link>
@@ -1316,13 +1316,13 @@ export default function Home() {
 
       {/* ═══ FOOTER ════════════════════════════════════════════════════════ */}
       <footer style={{ background: C.card, position: 'relative' }}>
-        <div style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(212,175,55,0.35) 30%, rgba(212,175,55,0.6) 50%, rgba(212,175,55,0.35) 70%, transparent)' }} />
+        <div style={{ height: 1, background: 'linear-gradient(to right, transparent, rgba(99,102,241,0.35) 30%, rgba(99,102,241,0.6) 50%, rgba(99,102,241,0.35) 70%, transparent)' }} />
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '56px 24px 40px' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 48, justifyContent: 'space-between', marginBottom: 48 }}>
             {/* Brand */}
             <div style={{ maxWidth: 260 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                <div style={{ width: 32, height: 32, borderRadius: 7, background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 16, color: '#000' }}>M</div>
+                <div style={{ width: 32, height: 32, borderRadius: 7, background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 16, color: '#000' }}>M</div>
                 <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 16, letterSpacing: '0.08em' }}>MAJORKA</span>
               </div>
               <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.65, marginBottom: 16 }}>The AI Ecommerce Operating System built for serious sellers worldwide. From idea to income.</p>

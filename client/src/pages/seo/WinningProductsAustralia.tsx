@@ -15,9 +15,9 @@ const C = {
   text: '#f5f5f5',
   secondary: '#94949e',
   muted: '#52525b',
-  gold: '#d4af37',
-  goldDim: 'rgba(212,175,55,0.08)',
-  goldBorder: 'rgba(212,175,55,0.2)',
+  gold: '#6366F1',
+  goldDim: 'rgba(99,102,241,0.08)',
+  goldBorder: 'rgba(99,102,241,0.2)',
 };
 
 const syne = 'Syne, sans-serif';
@@ -121,12 +121,12 @@ export default function WinningProductsAustralia() {
       <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(8,10,14,0.92)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            <div style={{ width: 30, height: 30, borderRadius: 7, background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 15, color: '#000' }}>M</div>
+            <div style={{ width: 30, height: 30, borderRadius: 7, background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 15, color: '#000' }}>M</div>
             <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 15, color: C.text, letterSpacing: '0.06em' }}>MAJORKA</span>
           </Link>
           <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
             <Link href="/pricing" style={{ color: C.secondary, fontSize: 13, textDecoration: 'none', fontFamily: syne, fontWeight: 600 }}>Pricing</Link>
-            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: '#000', fontFamily: syne, fontWeight: 700, fontSize: 13, padding: '8px 18px', borderRadius: 8, textDecoration: 'none' }}>Start Free →</Link>
+            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', fontFamily: syne, fontWeight: 700, fontSize: 13, padding: '8px 18px', borderRadius: 8, textDecoration: 'none' }}>Start Free →</Link>
           </div>
         </div>
       </nav>
@@ -139,13 +139,13 @@ export default function WinningProductsAustralia() {
             🏆 Updated Weekly · Real AU Revenue Data
           </div>
           <h1 style={{ fontFamily: syne, fontWeight: 900, fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 20 }}>
-            The 47 Best <span style={{ background: `linear-gradient(135deg, ${C.gold}, #f5d98a)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Dropshipping Products</span><br />in Australia Right Now
+            The 47 Best <span style={{ background: `linear-gradient(135deg, ${C.gold}, #A5B4FC)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Dropshipping Products</span><br />in Australia Right Now
           </h1>
           <p style={{ color: C.secondary, fontSize: 'clamp(15px, 2vw, 18px)', maxWidth: 660, margin: '0 auto 36px', lineHeight: 1.65 }}>
             Every product on this list has been <strong style={{ color: C.text }}>verified by Majorka's AI</strong> against live AU marketplace data — TikTok Shop AU, Amazon AU, eBay AU, and AliExpress AU. Revenue estimates, margins, and AU-specific supplier availability are updated weekly.
           </p>
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 16, padding: '16px 40px', borderRadius: 12, textDecoration: 'none', boxShadow: `0 0 40px rgba(212,175,55,0.3)` }}>
+            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 16, padding: '16px 40px', borderRadius: 12, textDecoration: 'none', boxShadow: `0 0 40px rgba(99,102,241,0.3)` }}>
               Get Live Product Data Free →
             </Link>
             <Link href="/dropshipping-australia" style={{ background: 'transparent', color: C.text, fontFamily: syne, fontWeight: 600, fontSize: 15, padding: '16px 30px', borderRadius: 12, textDecoration: 'none', border: `1px solid ${C.border}` }}>
@@ -182,7 +182,7 @@ export default function WinningProductsAustralia() {
                     <td style={{ padding: '13px 14px', color: '#4ade80' }}>{p.margin}</td>
                     <td style={{ padding: '13px 14px', color: C.text }}>{p.trend}</td>
                     <td style={{ padding: '13px 14px' }}>
-                      <span style={{ background: p.auSpecific === 'No — universal' ? 'rgba(255,255,255,0.05)' : 'rgba(212,175,55,0.1)', color: p.auSpecific === 'No — universal' ? C.muted : C.gold, fontSize: 11, padding: '3px 8px', borderRadius: 6, fontWeight: 600 }}>
+                      <span style={{ background: p.auSpecific === 'No — universal' ? 'rgba(255,255,255,0.05)' : 'rgba(99,102,241,0.1)', color: p.auSpecific === 'No — universal' ? C.muted : C.gold, fontSize: 11, padding: '3px 8px', borderRadius: 6, fontWeight: 600 }}>
                         {p.auSpecific === 'No — universal' ? 'Universal' : 'AU-Specific'}
                       </span>
                     </td>
@@ -196,7 +196,7 @@ export default function WinningProductsAustralia() {
               <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 14, color: C.text, marginBottom: 4 }}>Want all 47 products with daily-updated revenue data?</div>
               <div style={{ color: C.secondary, fontSize: 13 }}>Create a free Majorka account — includes 10 product searches/day, live trend data, and AU supplier matching.</div>
             </div>
-            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: '#000', fontFamily: syne, fontWeight: 700, fontSize: 13, padding: '12px 24px', borderRadius: 10, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', fontFamily: syne, fontWeight: 700, fontSize: 13, padding: '12px 24px', borderRadius: 10, textDecoration: 'none', whiteSpace: 'nowrap' }}>
               See All 47 Free →
             </Link>
           </div>
@@ -309,7 +309,7 @@ export default function WinningProductsAustralia() {
           <p style={{ color: C.secondary, fontSize: 16, marginBottom: 36, maxWidth: 520, margin: '0 auto 36px' }}>
             Majorka updates its winning products database every 6 hours. Get live access to all 47 products — plus hundreds more — with a free account.
           </p>
-          <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 17, padding: '18px 48px', borderRadius: 14, textDecoration: 'none', display: 'inline-block', boxShadow: `0 0 50px rgba(212,175,55,0.35)` }}>
+          <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 17, padding: '18px 48px', borderRadius: 14, textDecoration: 'none', display: 'inline-block', boxShadow: `0 0 50px rgba(99,102,241,0.35)` }}>
             Get Live Product Data Free →
           </Link>
           <p style={{ color: C.muted, fontSize: 12, marginTop: 14 }}>Free tier · 10 searches/day · No credit card · Cancel anytime</p>

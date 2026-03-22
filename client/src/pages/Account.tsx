@@ -142,7 +142,7 @@ export default function Account() {
         className="fixed inset-0 pointer-events-none z-0"
         style={{
           background:
-            'radial-gradient(ellipse 600px 400px at 10% 10%, rgba(212,175,55,0.05) 0%, transparent 60%)',
+            'radial-gradient(ellipse 600px 400px at 10% 10%, rgba(99,102,241,0.05) 0%, transparent 60%)',
         }}
       />
 
@@ -163,7 +163,7 @@ export default function Account() {
             <div
               className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm"
               style={{
-                background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+                background: 'linear-gradient(135deg, #6366F1, #f0c040)',
                 color: '#080a0e',
                 fontFamily: 'Syne, sans-serif',
               }}
@@ -205,8 +205,8 @@ export default function Account() {
             <div
               className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg flex-shrink-0"
               style={{
-                background: 'rgba(212,175,55,0.15)',
-                color: '#d4af37',
+                background: 'rgba(99,102,241,0.15)',
+                color: '#6366F1',
                 fontFamily: 'Syne, sans-serif',
               }}
             >
@@ -228,7 +228,7 @@ export default function Account() {
           className="rounded-2xl border overflow-hidden mb-5"
           style={{
             background: 'rgba(255,255,255,0.025)',
-            borderColor: isActive ? 'rgba(212,175,55,0.25)' : 'rgba(255,255,255,0.07)',
+            borderColor: isActive ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.07)',
           }}
         >
           {/* Header */}
@@ -237,7 +237,7 @@ export default function Account() {
             style={{ borderColor: 'rgba(255,255,255,0.06)' }}
           >
             <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4" style={{ color: '#d4af37' }} />
+              <Shield className="w-4 h-4" style={{ color: '#6366F1' }} />
               <span className="font-bold text-sm" style={{ fontFamily: 'Syne, sans-serif' }}>
                 Subscription
               </span>
@@ -344,11 +344,11 @@ export default function Account() {
                 disabled={checkoutLoading}
                 onClick={handleStripeCheckout}
                 style={{
-                  background: 'linear-gradient(135deg, #d4af37, #c09a28)',
+                  background: 'linear-gradient(135deg, #6366F1, #c09a28)',
                   color: '#080a0e',
                   fontFamily: 'Syne, sans-serif',
                   fontWeight: 800,
-                  boxShadow: '0 4px 18px rgba(212,175,55,0.3)',
+                  boxShadow: '0 4px 18px rgba(99,102,241,0.3)',
                 }}
               >
                 {checkoutLoading ? (
@@ -409,7 +409,7 @@ export default function Account() {
           style={{ background: 'rgba(255,255,255,0.015)', borderColor: 'rgba(255,255,255,0.06)' }}
         >
           <p className="flex items-start gap-2">
-            <Calendar className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#d4af37' }} />
+            <Calendar className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#6366F1' }} />
             Subscriptions are billed monthly. Cancel anytime — you'll retain access until the end of
             your current billing period. For billing support, contact us at{' '}
             <a

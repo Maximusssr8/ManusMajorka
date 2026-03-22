@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import Sparkline from '@/components/Sparkline';
 import { useLocation, useParams } from 'wouter';
 
-const C = { bg: '#080a0e', surface: '#0d0d14', border: '#1a1a2e', gold: '#d4af37', text: '#f0ede8', muted: 'rgba(240,237,232,0.5)' };
+const C = { bg: '#080a0e', surface: '#0d0d14', border: '#1a1a2e', gold: '#6366F1', text: '#f0ede8', muted: 'rgba(240,237,232,0.5)' };
 
 interface ShopDetailData {
   id: string;
@@ -92,7 +92,7 @@ export default function ShopDetail() {
                 <div style={{ fontSize: 24, fontWeight: 900, fontFamily: 'Syne, sans-serif', color: C.text }}>{shop.shop_name}</div>
                 <div style={{ fontSize: 13, color: C.muted, marginTop: 2 }}>{shop.shop_domain}</div>
                 <div style={{ display: 'flex', gap: 8, marginTop: 6, alignItems: 'center' }}>
-                  <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: 'rgba(212,175,55,0.1)', color: C.gold }}>{shop.niche}</span>
+                  <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: 'rgba(99,102,241,0.1)', color: C.gold }}>{shop.niche}</span>
                   <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.06)', color: C.muted, textTransform: 'uppercase' }}>{shop.shop_type}</span>
                   <span style={{ fontSize: 12, color: C.muted }}>Est. {shop.founded_year}</span>
                 </div>
@@ -149,7 +149,7 @@ export default function ShopDetail() {
             <div style={{ fontSize: 15, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: C.text, marginBottom: 12 }}>AI Store Analysis</div>
             {!analysis ? (
               <button onClick={generateAnalysis} disabled={analysing}
-                style={{ width: '100%', padding: '12px', borderRadius: 10, background: 'rgba(212,175,55,0.1)', border: `1px solid rgba(212,175,55,0.25)`, color: C.gold, fontSize: 14, fontWeight: 700, cursor: analysing ? 'not-allowed' : 'pointer', fontFamily: 'Syne, sans-serif' }}>
+                style={{ width: '100%', padding: '12px', borderRadius: 10, background: 'rgba(99,102,241,0.1)', border: `1px solid rgba(99,102,241,0.25)`, color: C.gold, fontSize: 14, fontWeight: 700, cursor: analysing ? 'not-allowed' : 'pointer', fontFamily: 'Syne, sans-serif' }}>
                 {analysing ? 'Analysing...' : 'Generate Analysis'}
               </button>
             ) : (
@@ -170,7 +170,7 @@ export default function ShopDetail() {
                     </div>
                   ))}
                 </div>
-                <div style={{ background: 'rgba(212,175,55,0.06)', border: `1px solid rgba(212,175,55,0.2)`, borderRadius: 10, padding: 14 }}>
+                <div style={{ background: 'rgba(99,102,241,0.06)', border: `1px solid rgba(99,102,241,0.2)`, borderRadius: 10, padding: 14 }}>
                   <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: C.gold, marginBottom: 6 }}>Your Competing Angle</div>
                   <div style={{ fontSize: 13, color: C.text }}>{analysis.competing_angle}</div>
                 </div>
@@ -196,7 +196,7 @@ export default function ShopDetail() {
                 {shop.similar_shops.map(s => (
                   <div key={s.id} onClick={() => navigate(`/app/shops/${s.id}`)}
                     style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#0a0a12', borderRadius: 10, cursor: 'pointer', border: `1px solid ${C.border}` }}
-                    onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(212,175,55,0.3)'}
+                    onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(99,102,241,0.3)'}
                     onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = C.border}>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>{s.shop_name}</div>

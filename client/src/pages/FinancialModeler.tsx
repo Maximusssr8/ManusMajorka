@@ -248,7 +248,7 @@ export default function FinancialModeler() {
                 className="block text-xs font-bold uppercase tracking-wider mb-1.5"
                 style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
               >
-                {label} {required && <span style={{ color: '#d4af37' }}>*</span>}
+                {label} {required && <span style={{ color: '#6366F1' }}>*</span>}
               </label>
               <input
                 type="number"
@@ -345,7 +345,7 @@ export default function FinancialModeler() {
                   {
                     label: 'Break-even Days',
                     value: `${result.breakEvenDays}d`,
-                    color: '#d4af37',
+                    color: '#6366F1',
                     icon: DollarSign,
                   },
                 ].map(({ label, value, color, icon: Icon }) => (
@@ -382,7 +382,7 @@ export default function FinancialModeler() {
                 >
                   <div
                     className="text-xs font-black uppercase tracking-widest"
-                    style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
                   >
                     Monthly P&L Statement
                   </div>
@@ -468,7 +468,7 @@ export default function FinancialModeler() {
                           <span style={{ color: f.profit >= 0 ? '#2dca72' : '#ff6b6b' }}>
                             P: ${f.profit.toLocaleString()}
                           </span>
-                          <span style={{ color: f.cumulative >= 0 ? '#d4af37' : '#ff6b6b' }}>
+                          <span style={{ color: f.cumulative >= 0 ? '#6366F1' : '#ff6b6b' }}>
                             Σ ${f.cumulative.toLocaleString()}
                           </span>
                         </div>

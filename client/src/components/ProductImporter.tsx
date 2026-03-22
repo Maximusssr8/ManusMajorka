@@ -451,9 +451,9 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
         {result.intelligence && (
           <div
             className="mt-3 p-3 rounded-lg border"
-            style={{ background: 'rgba(212,175,55,0.05)', borderColor: 'rgba(212,175,55,0.2)' }}
+            style={{ background: 'rgba(99,102,241,0.05)', borderColor: 'rgba(99,102,241,0.2)' }}
           >
-            <div className="text-xs font-medium mb-2" style={{ color: '#d4af37' }}>
+            <div className="text-xs font-medium mb-2" style={{ color: '#6366F1' }}>
               🧠 AI Product Intelligence
             </div>
             <div className="space-y-1">

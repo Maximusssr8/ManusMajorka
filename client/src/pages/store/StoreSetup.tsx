@@ -165,7 +165,7 @@ export default function StoreSetup() {
             </div>
             <div className="bg-neutral-800 rounded-lg p-6 border border-neutral-700">
               <div className="flex items-center gap-3 mb-4">
-                <CreditCard className="w-6 h-6 text-[#d4af37]" />
+                <CreditCard className="w-6 h-6 text-[#6366F1]" />
                 <span className="text-white font-medium">Stripe Payments</span>
               </div>
               <p className="text-neutral-400 text-sm mb-4">
@@ -223,7 +223,7 @@ export default function StoreSetup() {
                 href="https://business.facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#d4af37] text-sm hover:underline"
+                className="text-[#6366F1] text-sm hover:underline"
               >
                 How to find your Meta IDs →
               </a>
@@ -245,7 +245,7 @@ export default function StoreSetup() {
               </div>
               <div className="flex justify-between">
                 <span className="text-neutral-400">Store URL</span>
-                <span className="text-[#d4af37] text-sm">/store/{form.storeSlug}</span>
+                <span className="text-[#6366F1] text-sm">/store/{form.storeSlug}</span>
               </div>
               {form.metaPixelId && (
                 <div className="flex justify-between">
@@ -258,7 +258,7 @@ export default function StoreSetup() {
               onClick={handleLaunch}
               disabled={createStore.isPending}
               className="w-full py-3 text-lg font-semibold text-black"
-              style={{ background: '#d4af37' }}
+              style={{ background: '#6366F1' }}
             >
               {createStore.isPending ? 'Launching...' : '🚀 Launch My Store'}
             </Button>
@@ -281,7 +281,7 @@ export default function StoreSetup() {
               onClick={() => setStep((s) => s + 1)}
               disabled={!canProceed()}
               className="text-black font-semibold"
-              style={{ background: '#d4af37' }}
+              style={{ background: '#6366F1' }}
             >
               Continue
               <ArrowRight className="w-4 h-4 ml-2" />

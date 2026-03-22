@@ -107,7 +107,7 @@ const PLATFORM_COLOURS: Record<string, string> = {
 };
 
 function PlatformPill({ platform }: { platform: string }) {
-  const color = PLATFORM_COLOURS[platform] ?? '#d4af37';
+  const color = PLATFORM_COLOURS[platform] ?? '#6366F1';
   return (
     <span
       className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
@@ -128,7 +128,7 @@ function PlatformPill({ platform }: { platform: string }) {
 function StarRating({ rating }: { rating: number }) {
   const filled = Math.round(rating);
   return (
-    <span className="text-xs" style={{ color: '#d4af37' }}>
+    <span className="text-xs" style={{ color: '#6366F1' }}>
       {'★'.repeat(filled)}{'☆'.repeat(5 - filled)}
       <span style={{ color: 'rgba(240,237,232,0.4)', marginLeft: 4 }}>{rating.toFixed(1)}</span>
     </span>
@@ -293,9 +293,9 @@ export default function SupplierIntelligence() {
           <div className="flex items-center gap-3 mb-4">
             <div
               className="w-9 h-9 rounded-lg flex items-center justify-center"
-              style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.2)' }}
+              style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)' }}
             >
-              <Package className="w-4 h-4" style={{ color: '#d4af37' }} />
+              <Package className="w-4 h-4" style={{ color: '#6366F1' }} />
             </div>
             <div>
               <h1
@@ -344,7 +344,7 @@ export default function SupplierIntelligence() {
               disabled={!query.trim() || loading}
               className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-opacity disabled:opacity-40"
               style={{
-                background: '#d4af37',
+                background: '#6366F1',
                 color: '#080a0e',
                 fontFamily: 'Syne, sans-serif',
               }}
@@ -370,18 +370,18 @@ export default function SupplierIntelligence() {
           {loading && (
             <div
               className="flex items-center gap-3 px-5 py-4 rounded-xl"
-              style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)' }}
+              style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}
             >
               <div className="flex gap-1">
                 {[0, 1, 2].map((i) => (
                   <div
                     key={i}
                     className="w-1.5 h-1.5 rounded-full animate-bounce"
-                    style={{ background: '#d4af37', animationDelay: `${i * 0.15}s` }}
+                    style={{ background: '#6366F1', animationDelay: `${i * 0.15}s` }}
                   />
                 ))}
               </div>
-              <span className="text-sm" style={{ color: '#d4af37' }}>
+              <span className="text-sm" style={{ color: '#6366F1' }}>
                 Searching AliExpress, Alibaba, CJ Dropshipping...
               </span>
             </div>
@@ -391,19 +391,19 @@ export default function SupplierIntelligence() {
           {topSupplier && !loading && (
             <div
               className="rounded-xl p-5"
-              style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)' }}
+              style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)' }}
             >
               <div className="flex items-center gap-2 mb-3">
-                <TrendingUp className="w-4 h-4" style={{ color: '#d4af37' }} />
+                <TrendingUp className="w-4 h-4" style={{ color: '#6366F1' }} />
                 <span
                   className="text-sm font-semibold"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#d4af37' }}
+                  style={{ fontFamily: 'Syne, sans-serif', color: '#6366F1' }}
                 >
                   Profit Snapshot — {currentQuery}
                 </span>
                 <span
                   className="text-xs px-2 py-0.5 rounded"
-                  style={{ background: 'rgba(212,175,55,0.15)', color: '#d4af37' }}
+                  style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1' }}
                 >
                   Top supplier: {topSupplier.supplier_name}
                 </span>
@@ -413,7 +413,7 @@ export default function SupplierIntelligence() {
                 style={{ color: 'rgba(240,237,232,0.6)' }}
               >
                 If you sell <strong style={{ color: '#f0ede8' }}>{currentQuery}</strong> at{' '}
-                <strong style={{ color: '#d4af37' }}>{fmt(snapSellPrice)}</strong>:
+                <strong style={{ color: '#6366F1' }}>{fmt(snapSellPrice)}</strong>:
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
@@ -485,7 +485,7 @@ export default function SupplierIntelligence() {
                 const isSaved = savedIds.has(`${i}`);
                 const isSaving = savingId === `${i}`;
                 const profitColor =
-                  s.profit_margin_pct >= 60 ? '#10b981' : s.profit_margin_pct >= 40 ? '#d4af37' : '#f87171';
+                  s.profit_margin_pct >= 60 ? '#10b981' : s.profit_margin_pct >= 40 ? '#6366F1' : '#f87171';
                 return (
                   <div
                     key={i}
@@ -497,7 +497,7 @@ export default function SupplierIntelligence() {
                       background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)',
                     }}
                     onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.background = 'rgba(212,175,55,0.04)';
+                      (e.currentTarget as HTMLElement).style.background = 'rgba(99,102,241,0.04)';
                     }}
                     onMouseLeave={(e) => {
                       (e.currentTarget as HTMLElement).style.background =
@@ -540,7 +540,7 @@ export default function SupplierIntelligence() {
                     {/* Days */}
                     <span
                       style={{
-                        color: s.shipping_days_to_au <= 10 ? '#10b981' : s.shipping_days_to_au <= 15 ? '#d4af37' : 'rgba(240,237,232,0.5)',
+                        color: s.shipping_days_to_au <= 10 ? '#10b981' : s.shipping_days_to_au <= 15 ? '#6366F1' : 'rgba(240,237,232,0.5)',
                       }}
                     >
                       {s.shipping_days_to_au}d
@@ -567,7 +567,7 @@ export default function SupplierIntelligence() {
                         style={{ color: 'rgba(240,237,232,0.5)' }}
                         title="Visit Supplier"
                         onMouseEnter={(e) => {
-                          (e.currentTarget as HTMLElement).style.color = '#d4af37';
+                          (e.currentTarget as HTMLElement).style.color = '#6366F1';
                         }}
                         onMouseLeave={(e) => {
                           (e.currentTarget as HTMLElement).style.color = 'rgba(240,237,232,0.5)';
@@ -616,13 +616,13 @@ export default function SupplierIntelligence() {
                         disabled={isSaved || isSaving}
                         className="p-1.5 rounded transition-colors"
                         style={{
-                          color: isSaved ? '#d4af37' : 'rgba(240,237,232,0.5)',
+                          color: isSaved ? '#6366F1' : 'rgba(240,237,232,0.5)',
                           opacity: isSaving ? 0.5 : 1,
                         }}
                         title={isSaved ? 'Saved' : 'Save Supplier'}
                         onMouseEnter={(e) => {
                           if (!isSaved)
-                            (e.currentTarget as HTMLElement).style.color = '#d4af37';
+                            (e.currentTarget as HTMLElement).style.color = '#6366F1';
                         }}
                         onMouseLeave={(e) => {
                           if (!isSaved)
@@ -721,7 +721,7 @@ export default function SupplierIntelligence() {
             {savedCount > 0 && (
               <span
                 className="text-xs px-1.5 py-0.5 rounded"
-                style={{ background: 'rgba(212,175,55,0.15)', color: '#d4af37' }}
+                style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1' }}
               >
                 {savedCount}
               </span>
@@ -762,8 +762,8 @@ export default function SupplierIntelligence() {
                     border: '1px solid rgba(255,255,255,0.05)',
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.color = '#d4af37';
-                    (e.currentTarget as HTMLElement).style.borderColor = 'rgba(212,175,55,0.3)';
+                    (e.currentTarget as HTMLElement).style.color = '#6366F1';
+                    (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99,102,241,0.3)';
                   }}
                   onMouseLeave={(e) => {
                     (e.currentTarget as HTMLElement).style.color = 'rgba(240,237,232,0.55)';
@@ -780,11 +780,11 @@ export default function SupplierIntelligence() {
         {/* Quick tips */}
         <div
           className="rounded-xl p-3 mt-auto"
-          style={{ background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.1)' }}
+          style={{ background: 'rgba(99,102,241,0.04)', border: '1px solid rgba(99,102,241,0.1)' }}
         >
           <div
             className="text-xs font-semibold mb-2"
-            style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+            style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
           >
             💡 Pro Tips
           </div>

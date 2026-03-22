@@ -30,21 +30,21 @@ const SCORE_STYLES = `
   to   { width: var(--target-width); }
 }
 @keyframes score-pulse {
-  0%, 100% { text-shadow: 0 0 20px rgba(212,175,55,0.3); }
-  50%       { text-shadow: 0 0 40px rgba(212,175,55,0.6); }
+  0%, 100% { text-shadow: 0 0 20px rgba(99,102,241,0.3); }
+  50%       { text-shadow: 0 0 40px rgba(99,102,241,0.6); }
 }
 `;
 
 function getScoreColor(score: number, inverted = false): string {
   const effective = inverted ? 100 - score : score;
   if (effective >= 70) return '#22c55e';
-  if (effective >= 50) return '#d4af37';
+  if (effective >= 50) return '#6366F1';
   return '#ef4444';
 }
 
 function getVerdict(score: number): { label: string; color: string; dot: string } {
   if (score >= 70) return { label: 'Strong Buy', color: '#22c55e', dot: '🟢' };
-  if (score >= 50) return { label: 'Test First', color: '#d4af37', dot: '🟡' };
+  if (score >= 50) return { label: 'Test First', color: '#6366F1', dot: '🟡' };
   return { label: 'Skip', color: '#ef4444', dot: '🔴' };
 }
 
@@ -230,13 +230,13 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
   if (loading) {
     return (
       <div style={{
-        background: 'rgba(212,175,55,0.03)',
-        border: '1px solid rgba(212,175,55,0.15)',
+        background: 'rgba(99,102,241,0.03)',
+        border: '1px solid rgba(99,102,241,0.15)',
         borderRadius: 14, padding: '16px 20px', marginTop: 16,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-          <RefreshCw size={12} color="#d4af37" style={{ animation: 'spin 1s linear infinite' }} />
-          <span style={{ fontSize: 11, color: '#d4af37', fontWeight: 700, fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <RefreshCw size={12} color="#6366F1" style={{ animation: 'spin 1s linear infinite' }} />
+          <span style={{ fontSize: 11, color: '#6366F1', fontWeight: 700, fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             Scoring Opportunity...
           </span>
         </div>
@@ -257,8 +257,8 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
       style={{
-        background: 'rgba(212,175,55,0.03)',
-        border: '1px solid rgba(212,175,55,0.2)',
+        background: 'rgba(99,102,241,0.03)',
+        border: '1px solid rgba(99,102,241,0.2)',
         borderRadius: 14,
         padding: '18px 20px',
         marginTop: 20,
@@ -269,12 +269,12 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
       <style>{SCORE_STYLES}</style>
 
       {/* Gold top border accent */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent, #d4af37, transparent)' }} />
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent, #6366F1, transparent)' }} />
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
-          <div style={{ fontSize: 10, fontWeight: 700, color: '#d4af37', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#6366F1', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 }}>
             AI Opportunity Score
           </div>
           {score.productName && (
@@ -287,7 +287,7 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
         <div style={{ textAlign: 'center' }}>
           <div style={{
             fontFamily: 'Syne, sans-serif', fontWeight: 900,
-            fontSize: 36, color: '#d4af37', lineHeight: 1,
+            fontSize: 36, color: '#6366F1', lineHeight: 1,
             animation: 'score-pulse 3s ease-in-out infinite',
           }}>
             <CountUp start={0} end={score.overall} duration={1.8} delay={0.2} />

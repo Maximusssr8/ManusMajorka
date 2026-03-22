@@ -111,8 +111,8 @@ export default function OnboardingChecklist() {
     <div
       className="rounded-xl p-4 mb-8 relative overflow-hidden"
       style={{
-        background: 'rgba(212,175,55,0.03)',
-        border: '1px solid rgba(212,175,55,0.12)',
+        background: 'rgba(99,102,241,0.03)',
+        border: '1px solid rgba(99,102,241,0.12)',
       }}
     >
       {/* Confetti effect */}
@@ -123,7 +123,7 @@ export default function OnboardingChecklist() {
           </span>
           <span
             className="text-sm font-bold"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#d4af37' }}
+            style={{ fontFamily: 'Syne, sans-serif', color: '#6366F1' }}
           >
             You're a power user!
           </span>
@@ -144,7 +144,7 @@ export default function OnboardingChecklist() {
           </h3>
           <span
             className="text-xs px-2 py-0.5 rounded-full"
-            style={{ background: 'rgba(212,175,55,0.1)', color: '#d4af37' }}
+            style={{ background: 'rgba(99,102,241,0.1)', color: '#6366F1' }}
           >
             {completedCount}/{totalCount} complete
           </span>
@@ -170,7 +170,7 @@ export default function OnboardingChecklist() {
             background:
               progress === 100
                 ? 'linear-gradient(90deg, #10b981, #2dca72)'
-                : 'linear-gradient(90deg, #d4af37, #f0c040)',
+                : 'linear-gradient(90deg, #6366F1, #f0c040)',
           }}
         />
       </div>
@@ -191,7 +191,7 @@ export default function OnboardingChecklist() {
                 opacity: done ? 0.7 : 1,
               }}
               onMouseEnter={(e) => {
-                if (!done) e.currentTarget.style.borderColor = 'rgba(212,175,55,0.25)';
+                if (!done) e.currentTarget.style.borderColor = 'rgba(99,102,241,0.25)';
               }}
               onMouseLeave={(e) => {
                 if (!done) e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';

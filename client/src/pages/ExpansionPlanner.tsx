@@ -118,11 +118,11 @@ export default function ExpansionPlanner() {
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center"
             style={{
-              background: 'rgba(212,175,55,0.12)',
-              border: '1px solid rgba(212,175,55,0.3)',
+              background: 'rgba(99,102,241,0.12)',
+              border: '1px solid rgba(99,102,241,0.3)',
             }}
           >
-            <Globe size={15} style={{ color: '#d4af37' }} />
+            <Globe size={15} style={{ color: '#6366F1' }} />
           </div>
           <div>
             <div className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
@@ -173,7 +173,7 @@ export default function ExpansionPlanner() {
               className="block text-xs font-bold uppercase tracking-wider mb-1.5"
               style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
             >
-              {label} {req && <span style={{ color: '#d4af37' }}>*</span>}
+              {label} {req && <span style={{ color: '#6366F1' }}>*</span>}
             </label>
             <input
               value={value}
@@ -185,7 +185,7 @@ export default function ExpansionPlanner() {
                 border: '1.5px solid rgba(255,255,255,0.08)',
                 color: '#f0ede8',
               }}
-              onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')}
               onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
             />
           </div>
@@ -197,11 +197,11 @@ export default function ExpansionPlanner() {
           className="w-full py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
           style={{
             background: generating
-              ? 'rgba(212,175,55,0.25)'
-              : 'linear-gradient(135deg, #d4af37, #f0c040)',
+              ? 'rgba(99,102,241,0.25)'
+              : 'linear-gradient(135deg, #6366F1, #f0c040)',
             color: '#080a0e',
             fontFamily: 'Syne, sans-serif',
-            boxShadow: generating ? 'none' : '0 4px 20px rgba(212,175,55,0.3)',
+            boxShadow: generating ? 'none' : '0 4px 20px rgba(99,102,241,0.3)',
             cursor: generating ? 'not-allowed' : 'pointer',
           }}
         >
@@ -246,8 +246,8 @@ export default function ExpansionPlanner() {
             <div
               className="rounded-xl p-4"
               style={{
-                background: 'rgba(212,175,55,0.06)',
-                border: '1px solid rgba(212,175,55,0.2)',
+                background: 'rgba(99,102,241,0.06)',
+                border: '1px solid rgba(99,102,241,0.2)',
               }}
             >
               <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.7)' }}>
@@ -271,7 +271,7 @@ export default function ExpansionPlanner() {
                     style={{ borderColor: 'rgba(255,255,255,0.07)' }}
                   >
                     <div className="flex items-center gap-2">
-                      <MapPin size={14} style={{ color: '#d4af37' }} />
+                      <MapPin size={14} style={{ color: '#6366F1' }} />
                       <span
                         className="text-sm font-black"
                         style={{ fontFamily: 'Syne, sans-serif' }}
@@ -340,7 +340,7 @@ export default function ExpansionPlanner() {
                       <div className="flex-1">
                         <div
                           className="text-xs font-bold mb-1"
-                          style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+                          style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
                         >
                           Entry Strategy
                         </div>
@@ -414,7 +414,7 @@ export default function ExpansionPlanner() {
                 <Loader2
                   size={32}
                   className="animate-spin mx-auto mb-4"
-                  style={{ color: '#d4af37' }}
+                  style={{ color: '#6366F1' }}
                 />
                 <div className="text-sm font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
                   Planning your expansion…

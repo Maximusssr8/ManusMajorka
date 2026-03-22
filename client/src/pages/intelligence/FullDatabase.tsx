@@ -69,7 +69,7 @@ function CreatorAvatars({ handles }: { handles: string[] }) {
         ))}
       </div>
       {count > 0 && (
-        <span style={{ fontSize: 9, color: '#d4af37', fontWeight: 700 }}>
+        <span style={{ fontSize: 9, color: '#6366F1', fontWeight: 700 }}>
           {count >= 1000 ? `${(count/1000).toFixed(1)}k` : count} creators
         </span>
       )}
@@ -235,7 +235,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     const price = product.estimated_retail_aud || 0;
     const nicheStr = (product.niche || "").toLowerCase();
     if (orders > 1000) tags.push({ label: "🔥 TRENDING", color: "#ff6b35", bg: "rgba(255,107,53,0.1)" });
-    if (price > 30) tags.push({ label: "💰 HIGH MARGIN", color: "#d4af37", bg: "rgba(212,175,55,0.1)" });
+    if (price > 30) tags.push({ label: "💰 HIGH MARGIN", color: "#6366F1", bg: "rgba(99,102,241,0.1)" });
     if (nicheStr.includes("tiktok") || nicheStr.includes("viral")) tags.push({ label: "⚡ VIRAL", color: "#a78bfa", bg: "rgba(167,139,250,0.1)" });
     tags.push({ label: "🇦🇺 AU DEMAND", color: "#34d399", bg: "rgba(52,211,153,0.1)" });
     return tags;
@@ -331,7 +331,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             onClick={() => handleLiveSearch()}
             disabled={liveLoading || !liveSearch.trim()}
             style={{
-              padding: '13px 24px', background: '#d4af37', color: '#080a0e',
+              padding: '13px 24px', background: '#6366F1', color: '#080a0e',
               border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer',
               fontSize: 14, fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap',
               opacity: liveLoading ? 0.7 : 1,
@@ -400,7 +400,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               </div>
 
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                <span style={{ color: '#d4af37', fontWeight: 700, fontSize: 15 }}>
+                <span style={{ color: '#6366F1', fontWeight: 700, fontSize: 15 }}>
                   ${product.price_aud > 0 ? product.price_aud.toFixed(2) : '—'}
                 </span>
                 {product.sold_count && (
@@ -427,7 +427,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     navigate(`/app/website-generator?${params}`);
                   }}
                   style={{
-                    background: '#d4af37', color: '#080a0e', border: 'none',
+                    background: '#6366F1', color: '#080a0e', border: 'none',
                     padding: '7px 14px', borderRadius: 6, fontSize: 12, fontWeight: 700,
                     cursor: 'pointer', whiteSpace: 'nowrap',
                   }}
@@ -480,15 +480,15 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 title={`Build store for ${p.name}`}
                 style={{
                   flexShrink: 0, width: 150, background: '#0d0d14', cursor: 'pointer',
-                  border: `1.5px solid ${idx === 0 ? '#d4af37' : '#1a1a2e'}`,
+                  border: `1.5px solid ${idx === 0 ? '#6366F1' : '#1a1a2e'}`,
                   borderRadius: 10, overflow: 'hidden', transition: 'border-color 0.15s, transform 0.15s',
                 }}
                 onMouseEnter={e => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = '#d4af37';
+                  (e.currentTarget as HTMLDivElement).style.borderColor = '#6366F1';
                   (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
                 }}
                 onMouseLeave={e => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = idx === 0 ? '#d4af37' : '#1a1a2e';
+                  (e.currentTarget as HTMLDivElement).style.borderColor = idx === 0 ? '#6366F1' : '#1a1a2e';
                   (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
                 }}
               >
@@ -504,7 +504,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   <div style={{
                     position: 'absolute', top: 6, left: 6,
                     width: 22, height: 22, borderRadius: '50%',
-                    background: idx < 3 ? '#d4af37' : '#1a1a2e',
+                    background: idx < 3 ? '#6366F1' : '#1a1a2e',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 10, fontWeight: 900,
                     color: idx < 3 ? '#080a0e' : 'rgba(240,237,232,0.6)',
@@ -522,7 +522,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     {p.name}
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: '#d4af37' }}>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: '#6366F1' }}>
                       {formatRevenue(p.est_monthly_revenue_aud)}
                     </span>
                     <span style={{ fontSize: 10, fontWeight: 700, color: (p.growth_rate_pct || 0) >= 0 ? '#2dca72' : '#ef4444' }}>
@@ -541,7 +541,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         {["All", "🔥 Viral", "💰 High Margin", "🇦🇺 AU Best Sellers", "⚡ TikTok", "New Today"].map(f => (
           <button key={f} onClick={() => setOpportunityFilter(f)}
             style={{ padding: "6px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", border: opportunityFilter === f ? "none" : "1px solid #2a3040",
-              background: opportunityFilter === f ? "#d4af37" : "#1a2030", color: opportunityFilter === f ? "#080a0e" : "#6b7280" }}>
+              background: opportunityFilter === f ? "#6366F1" : "#1a2030", color: opportunityFilter === f ? "#080a0e" : "#6b7280" }}>
             {f}
           </button>
         ))}
@@ -550,7 +550,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             <button key={s.id} onClick={() => setSortMode(s.id)}
               style={{ padding: "6px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: "pointer",
                 border: sortMode === s.id ? "none" : "1px solid #2a3040",
-                background: sortMode === s.id ? "#1a2030" : "transparent", color: sortMode === s.id ? "#d4af37" : "#4b5563" }}>
+                background: sortMode === s.id ? "#1a2030" : "transparent", color: sortMode === s.id ? "#6366F1" : "#4b5563" }}>
               {s.label}
             </button>
           ))}
@@ -577,8 +577,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         <button onClick={() => loadProducts()}
           style={{
             marginLeft: 'auto', padding: '8px 18px', borderRadius: 7,
-            background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)',
-            color: '#d4af37', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+            background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)',
+            color: '#6366F1', fontSize: 13, fontWeight: 700, cursor: 'pointer',
             fontFamily: 'Syne, sans-serif',
           }}>
           ↻ Refresh
@@ -589,18 +589,18 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       <div style={{
         marginBottom: 14,
         padding: '11px 18px',
-        background: 'linear-gradient(135deg, rgba(212,175,55,0.07), rgba(212,175,55,0.03))',
-        border: '1px solid rgba(212,175,55,0.22)',
+        background: 'linear-gradient(135deg, rgba(99,102,241,0.07), rgba(99,102,241,0.03))',
+        border: '1px solid rgba(99,102,241,0.22)',
         borderRadius: 8,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
       }}>
-        <span style={{ color: '#d4af37', fontSize: 13, fontWeight: 500, lineHeight: 1.4 }}>
+        <span style={{ color: '#6366F1', fontSize: 13, fontWeight: 500, lineHeight: 1.4 }}>
           ⚡ Found a winner? Build a complete Shopify store in 60 seconds — only on Majorka
         </span>
         <button
           onClick={() => navigate('/app/store-builder')}
           style={{
-            background: '#d4af37', color: '#080a0e', border: 'none',
+            background: '#6366F1', color: '#080a0e', border: 'none',
             padding: '8px 16px', borderRadius: 6, fontSize: 12, fontWeight: 700,
             cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'Syne, sans-serif', flexShrink: 0,
           }}
@@ -713,7 +713,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                           ))}
                         </div>
                         <div style={{
-                          fontSize: 11, color: '#d4af37', background: 'rgba(212,175,55,0.08)',
+                          fontSize: 11, color: '#6366F1', background: 'rgba(99,102,241,0.08)',
                           borderRadius: 4, padding: '2px 7px', display: 'inline-block',
                         }}>
                           {p.niche}
@@ -724,7 +724,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
                   {/* Revenue */}
                   <td style={{ padding: '12px 16px' }}>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: '#d4af37', fontFamily: 'Syne, sans-serif', lineHeight: 1 }}>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: '#6366F1', fontFamily: 'Syne, sans-serif', lineHeight: 1 }}>
                       {estRevenue > 0 ? formatRevenue(estRevenue) : '—'}
                     </div>
                     <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)', marginTop: 3 }}>est/month</div>
@@ -782,7 +782,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                       <button onClick={() => handleBuildStore(p)}
                         style={{
-                          background: '#d4af37', color: '#080a0e', border: 'none',
+                          background: '#6366F1', color: '#080a0e', border: 'none',
                           padding: '8px 14px', borderRadius: 6, fontSize: 12, fontWeight: 700,
                           cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'Syne, sans-serif',
                         }}>
@@ -805,8 +805,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                       </button>
                       <button onClick={() => handleFindSupplier(p)}
                         style={{
-                          background: 'transparent', color: '#d4af37',
-                          border: '1px solid rgba(212,175,55,0.3)',
+                          background: 'transparent', color: '#6366F1',
+                          border: '1px solid rgba(99,102,241,0.3)',
                           padding: '6px 12px', borderRadius: 6, fontSize: 12, cursor: 'pointer',
                           whiteSpace: 'nowrap',
                         }}>
@@ -842,7 +842,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               <>
                 {adsModal.creatives.tiktokVideos?.length > 0 && (
                   <div style={{ marginBottom: 20 }}>
-                    <h4 style={{ color: "#d4af37", fontSize: 13, margin: "0 0 10px" }}>📱 TikTok Videos</h4>
+                    <h4 style={{ color: "#6366F1", fontSize: 13, margin: "0 0 10px" }}>📱 TikTok Videos</h4>
                     {adsModal.creatives.tiktokVideos.map((v: any, i: number) => (
                       <a key={i} href={v.url} target="_blank" rel="noopener noreferrer"
                         style={{ display: "block", padding: "10px 12px", background: "#1a2030", borderRadius: 8, marginBottom: 8, color: "#e8eaf0", textDecoration: "none", fontSize: 12 }}>
@@ -855,7 +855,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
                 {adsModal.creatives.adInsights?.length > 0 && (
                   <div style={{ marginBottom: 20 }}>
-                    <h4 style={{ color: "#d4af37", fontSize: 13, margin: "0 0 10px" }}>💡 Winning Ad Hooks</h4>
+                    <h4 style={{ color: "#6366F1", fontSize: 13, margin: "0 0 10px" }}>💡 Winning Ad Hooks</h4>
                     {adsModal.creatives.adInsights.map((a: any, i: number) => (
                       <div key={i} style={{ padding: "10px 12px", background: "#1a2030", borderRadius: 8, marginBottom: 8, fontSize: 12 }}>
                         <div style={{ color: "#e8eaf0", fontWeight: 600, marginBottom: 4 }}>{a.hook}</div>
@@ -869,7 +869,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
             {adsModal.adCopy && (
               <div style={{ marginTop: 16 }}>
-                <h4 style={{ color: "#d4af37", fontSize: 13, margin: "0 0 12px" }}>✍️ AI-Generated Ad Copy</h4>
+                <h4 style={{ color: "#6366F1", fontSize: 13, margin: "0 0 12px" }}>✍️ AI-Generated Ad Copy</h4>
                 {[
                   { label: "TikTok Hook (3s)", value: adsModal.adCopy.tiktokHook, emoji: "📱" },
                   { label: "Facebook Ad", value: adsModal.adCopy.facebookAd, emoji: "📘" },
@@ -907,7 +907,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 }
               }}
               disabled={adsModal.copyLoading}
-              style={{ width: "100%", padding: "12px", background: "#d4af37", color: "#080a0e", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 14, marginTop: 8 }}>
+              style={{ width: "100%", padding: "12px", background: "#6366F1", color: "#080a0e", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 14, marginTop: 8 }}>
               {adsModal.copyLoading ? "Generating..." : "✨ Generate AI Ad Copy"}
             </button>
           </div>

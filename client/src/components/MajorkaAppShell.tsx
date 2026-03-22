@@ -24,6 +24,8 @@ import {
   Megaphone,
   Menu,
   MessageSquare,
+  Moon,
+  Sun,
   Package,
   PenTool,
   Play,
@@ -185,8 +187,8 @@ function NotificationBell() {
           width: 32,
           height: 32,
           borderRadius: 8,
-          background: open ? 'rgba(212,175,55,0.1)' : 'rgba(255,255,255,0.05)',
-          border: open ? '1px solid rgba(212,175,55,0.3)' : '1px solid rgba(255,255,255,0.06)',
+          background: open ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.05)',
+          border: open ? '1px solid rgba(99,102,241,0.3)' : '1px solid rgba(255,255,255,0.06)',
           color: '#a1a1aa',
           cursor: 'pointer',
           display: 'flex',
@@ -240,7 +242,7 @@ function NotificationBell() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
             <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: '#f5f5f5' }}>Notifications</span>
             {unread > 0 && (
-              <button onClick={markAllRead} style={{ fontSize: 11, color: '#d4af37', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
+              <button onClick={markAllRead} style={{ fontSize: 11, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
                 Mark all read
               </button>
             )}
@@ -253,10 +255,10 @@ function NotificationBell() {
                 display: 'flex',
                 gap: 10,
                 alignItems: 'flex-start',
-                background: readIds.has(n.id) ? 'transparent' : 'rgba(212,175,55,0.03)',
+                background: readIds.has(n.id) ? 'transparent' : 'rgba(99,102,241,0.03)',
               }}>
                 {!readIds.has(n.id) && (
-                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#d4af37', flexShrink: 0, marginTop: 5 }} />
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#6366F1', flexShrink: 0, marginTop: 5 }} />
                 )}
                 <p style={{ fontSize: 12, color: readIds.has(n.id) ? '#52525b' : '#a1a1aa', lineHeight: 1.5, margin: 0, fontFamily: 'DM Sans, sans-serif', paddingLeft: readIds.has(n.id) ? 16 : 0 }}>
                   {n.text}
@@ -350,11 +352,11 @@ function PWAInstallBanner() {
   if (!show) return null;
 
   return (
-    <div style={{ position: 'fixed', bottom: 72, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: '#131620', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 14, padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', maxWidth: 380, width: 'calc(100% - 32px)' }}>
-      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, #d4af37, #b8941f)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Syne, sans-serif', fontWeight: 900, fontSize: 15, color: '#000', flexShrink: 0 }}>M</div>
+    <div style={{ position: 'fixed', bottom: 72, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: '#131620', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 14, padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', maxWidth: 380, width: 'calc(100% - 32px)' }}>
+      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, #6366F1, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Syne, sans-serif', fontWeight: 900, fontSize: 15, color: '#000', flexShrink: 0 }}>M</div>
       <p style={{ flex: 1, fontSize: 13, color: '#e2e8f0', lineHeight: 1.4, margin: 0 }}>Install Majorka as an app for faster access</p>
       <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-        <button onClick={handleInstall} style={{ background: 'linear-gradient(135deg, #d4af37, #b8941f)', color: '#000', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 700, fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}>Install</button>
+        <button onClick={handleInstall} style={{ background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#000', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 700, fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}>Install</button>
         <button onClick={handleDismiss} style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>Later</button>
       </div>
     </div>
@@ -366,6 +368,17 @@ export default function MajorkaAppShell({ children }: Props) {
   const { user, isAuthenticated, loading, session, isPro, subPlan } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('majorka-theme') as 'light' | 'dark') || 'light';
+    }
+    return 'light';
+  });
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('majorka-theme', theme);
+  }, [theme]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [phaseOpen, setPhaseOpen] = useState<Record<string, boolean>>(getDefaultPhaseState);
@@ -486,35 +499,36 @@ export default function MajorkaAppShell({ children }: Props) {
           className="w-full flex items-center gap-2 text-sm transition-all relative"
           style={{
             borderRadius: 8,
-            background: active ? 'rgba(212,175,55,0.08)' : 'transparent',
-            color: active ? '#f5f5f5' : '#a1a1aa',
+            background: active ? '#EEF2FF' : 'transparent',
+            color: active ? '#6366F1' : 'var(--sidebar-nav-color, #374151)',
             fontFamily: 'DM Sans, sans-serif',
             border: 'none',
             cursor: 'pointer',
-            borderLeft: active ? '2px solid #d4af37' : '2px solid transparent',
-            paddingLeft: active ? 10 : 12,
+            borderLeft: active ? '3px solid #6366F1' : '3px solid transparent',
+            paddingLeft: active ? 9 : 12,
             paddingRight: 12,
             paddingTop: 6,
             paddingBottom: 6,
             // On mobile: 56px touch targets for menu items
             minHeight: 36,
+            fontWeight: active ? 600 : 400,
           }}
           onMouseEnter={(e) => {
             if (!active) {
-              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)';
-              (e.currentTarget as HTMLButtonElement).style.color = '#f5f5f5';
+              (e.currentTarget as HTMLButtonElement).style.background = '#F5F3FF';
+              (e.currentTarget as HTMLButtonElement).style.color = '#6366F1';
             }
           }}
           onMouseLeave={(e) => {
             if (!active) {
               (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-              (e.currentTarget as HTMLButtonElement).style.color = '#a1a1aa';
+              (e.currentTarget as HTMLButtonElement).style.color = 'var(--sidebar-nav-color, #374151)';
             }
           }}
         >
           {createElement(item.icon, {
             size: 14,
-            style: { flexShrink: 0, opacity: active ? 1 : 0.8, color: active ? '#d4af37' : undefined },
+            style: { flexShrink: 0, opacity: active ? 1 : 0.8, color: active ? '#6366F1' : undefined },
           })}
           <span className="flex-1 text-left truncate text-sm">
             {displayLabel}
@@ -525,8 +539,8 @@ export default function MajorkaAppShell({ children }: Props) {
                   background:
                     item.path === '/app/learn' && badge !== 'HOT'
                       ? 'rgba(34,197,94,0.12)'
-                      : 'rgba(212,175,55,0.15)',
-                  color: item.path === '/app/learn' && badge !== 'HOT' ? '#4ade80' : '#d4af37',
+                      : 'rgba(99,102,241,0.15)',
+                  color: item.path === '/app/learn' && badge !== 'HOT' ? '#4ade80' : '#6366F1',
                   fontSize: 9,
                   fontWeight: 700,
                 }}
@@ -538,7 +552,7 @@ export default function MajorkaAppShell({ children }: Props) {
           {active && (
             <div
               className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-              style={{ background: '#d4af37' }}
+              style={{ background: '#6366F1' }}
             />
           )}
         </button>
@@ -561,7 +575,7 @@ export default function MajorkaAppShell({ children }: Props) {
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0"
             style={{
-              background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+              background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
               color: '#0a0a0a',
               fontFamily: 'Syne, sans-serif',
             }}
@@ -570,10 +584,19 @@ export default function MajorkaAppShell({ children }: Props) {
           </div>
           <span
             className="font-bold text-sm uppercase tracking-widest"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5', letterSpacing: '0.12em' }}
+            style={{ fontFamily: 'Syne, sans-serif', color: 'var(--sidebar-text, #111827)', letterSpacing: '0.12em' }}
           >
             MAJORKA
           </span>
+        </button>
+        <button
+          onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
+          title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', padding: 4, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'color 0.2s', minHeight: 28 }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#6366F1')}
+          onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
+        >
+          {theme === 'light' ? createElement(Moon, { size: 14 }) : createElement(Sun, { size: 14 })}
         </button>
         <NotificationBell />
       </div>
@@ -588,14 +611,14 @@ export default function MajorkaAppShell({ children }: Props) {
           className="w-full flex items-center gap-2 px-3 py-2 text-xs transition-all"
           style={{
             borderRadius: 8,
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.06)',
-            color: '#52525b',
+            background: 'var(--search-bg, #F9FAFB)',
+            border: '1px solid var(--sidebar-border, #E5E7EB)',
+            color: '#6B7280',
             cursor: 'pointer',
             fontFamily: 'DM Sans, sans-serif',
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.2)')}
-          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)')}
+          onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#6366F1')}
+          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--sidebar-border, #E5E7EB)')}
         >
           <Search size={12} />
           <span className="flex-1 text-left">Search tools...</span>
@@ -712,7 +735,7 @@ export default function MajorkaAppShell({ children }: Props) {
                 <div
                   className="w-7 h-7 rounded-full flex items-center justify-center font-black text-xs flex-shrink-0"
                   style={{
-                    background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+                    background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                     color: '#0a0a0a',
                     fontFamily: 'Syne, sans-serif',
                   }}
@@ -733,8 +756,8 @@ export default function MajorkaAppShell({ children }: Props) {
                   <span
                     className="px-1.5 py-0.5 rounded text-xs flex-shrink-0"
                     style={{
-                      background: isPro ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.06)',
-                      color: isPro ? '#d4af37' : '#71717a',
+                      background: isPro ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.06)',
+                      color: isPro ? '#6366F1' : '#71717a',
                       fontFamily: 'Syne, sans-serif',
                       fontWeight: 700,
                       fontSize: 9,
@@ -862,7 +885,7 @@ export default function MajorkaAppShell({ children }: Props) {
             className="w-full text-xs font-bold px-3 py-2 transition-all"
             style={{
               borderRadius: 8,
-              background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+              background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
               color: '#0a0a0a',
               fontFamily: 'Syne, sans-serif',
               cursor: 'pointer',
@@ -952,15 +975,15 @@ export default function MajorkaAppShell({ children }: Props) {
                       color: '#f5f5f5',
                     }}
                     onMouseEnter={(e) =>
-                      (e.currentTarget.style.background = 'rgba(212,175,55,0.06)')
+                      (e.currentTarget.style.background = 'rgba(99,102,241,0.06)')
                     }
                     onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                   >
                     <div
                       className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                      style={{ background: 'rgba(212,175,55,0.1)' }}
+                      style={{ background: 'rgba(99,102,241,0.1)' }}
                     >
-                      {createElement(tool.icon, { size: 12, style: { color: '#d4af37' } })}
+                      {createElement(tool.icon, { size: 12, style: { color: '#6366F1' } })}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div
@@ -1005,8 +1028,8 @@ export default function MajorkaAppShell({ children }: Props) {
         className={`flex-shrink-0 flex flex-col z-50 fixed inset-y-0 left-0 transition-transform duration-300 ease-in-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:inset-auto lg:translate-x-0`}
         style={{
           width: 240,
-          background: '#0a0a0e',
-          borderRight: '1px solid rgba(255,255,255,0.05)',
+          background: 'var(--sidebar-bg, #FFFFFF)',
+          borderRight: '1px solid var(--sidebar-border, #E5E7EB)',
         }}
       >
         {mobileOpen && (
@@ -1031,7 +1054,7 @@ export default function MajorkaAppShell({ children }: Props) {
         {/* Mobile top bar */}
         <div
           className="flex items-center gap-3 px-4 border-b flex-shrink-0 lg:hidden"
-          style={{ background: '#0a0a0e', borderColor: 'rgba(255,255,255,0.06)', height: 48 }}
+          style={{ background: 'var(--sidebar-bg, #FFFFFF)', borderColor: 'var(--sidebar-border, #E5E7EB)', height: 48 }}
         >
           <button
             onClick={() => setMobileOpen(true)}
@@ -1050,7 +1073,7 @@ export default function MajorkaAppShell({ children }: Props) {
             <div
               className="w-6 h-6 rounded-md flex items-center justify-center font-black text-xs"
               style={{
-                background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+                background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                 color: '#0a0a0a',
                 fontFamily: 'Syne, sans-serif',
               }}
@@ -1104,7 +1127,7 @@ export default function MajorkaAppShell({ children }: Props) {
                   style={{
                     gap: 3,
                     padding: '4px 12px',
-                    color: active ? '#d4af37' : 'rgba(107,114,128,0.8)',
+                    color: active ? '#6366F1' : 'rgba(107,114,128,0.8)',
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',

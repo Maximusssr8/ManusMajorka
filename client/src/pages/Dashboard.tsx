@@ -155,7 +155,7 @@ function StatCard({
           >
             <Icon
               size={10}
-              className="group-hover:text-[#d4af37] transition-colors"
+              className="group-hover:text-[#6366F1] transition-colors"
               style={{ color: iconColor }}
             />
           </div>
@@ -168,7 +168,7 @@ function StatCard({
 
       <div
         className="font-bold mb-1"
-        style={{ fontFamily: 'Syne, sans-serif', color: '#d4af37', letterSpacing: '-0.02em', fontSize: 28, fontWeight: 700 }}
+        style={{ fontFamily: 'Syne, sans-serif', color: '#6366F1', letterSpacing: '-0.02em', fontSize: 28, fontWeight: 700 }}
       >
         {displayValue ??
           (numericValue !== null && inView ? (
@@ -194,8 +194,8 @@ function SellersJoinedBadge() {
         display: 'inline-flex',
         alignItems: 'center',
         gap: 6,
-        background: 'rgba(212,175,55,0.07)',
-        border: '1px solid rgba(212,175,55,0.18)',
+        background: 'rgba(99,102,241,0.07)',
+        border: '1px solid rgba(99,102,241,0.18)',
         borderRadius: 100,
         padding: '4px 12px',
       }}
@@ -209,7 +209,7 @@ function SellersJoinedBadge() {
           boxShadow: '0 0 6px #22c55e',
         }}
       />
-      <span style={{ fontSize: 12, color: '#d4af37', fontWeight: 600 }}>
+      <span style={{ fontSize: 12, color: '#6366F1', fontWeight: 600 }}>
         Growing community of sellers worldwide
       </span>
     </div>
@@ -257,7 +257,7 @@ function PersonalisedFeed() {
         <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 15, fontWeight: 700, color: '#f0ede8', margin: 0 }}>
           {userNiche ? `🔥 Top Products in ${userNiche}` : '🔥 Today\'s Top Revenue Products'}
         </h3>
-        <a href="/app/winning-products" style={{ fontSize: 12, color: '#d4af37', textDecoration: 'none' }}>View all →</a>
+        <a href="/app/winning-products" style={{ fontSize: 12, color: '#6366F1', textDecoration: 'none' }}>View all →</a>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {products.map((p, i) => (
@@ -265,7 +265,7 @@ function PersonalisedFeed() {
             <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)', width: 20 }}>#{i+1}</span>
             {p.image_url ? <img src={String(p.image_url)} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: 'cover' }} /> : null}
             <span style={{ flex: 1, fontSize: 13, color: '#f0ede8', fontWeight: 500 }}>{String(p.product_title ?? '')}</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#d4af37' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#6366F1' }}>
               ${Math.round((Number(p.est_daily_revenue_aud) || 0) * 30 / 1000)}k/mo
             </span>
             <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 12, background: p.trend === 'exploding' ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.15)', color: p.trend === 'exploding' ? '#ef4444' : '#22c55e' }}>
@@ -275,9 +275,9 @@ function PersonalisedFeed() {
         ))}
       </div>
       {!userNiche && (
-        <div style={{ marginTop: 12, padding: '10px 14px', background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 10 }}>
+        <div style={{ marginTop: 12, padding: '10px 14px', background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 10 }}>
           <span style={{ fontSize: 12, color: 'rgba(240,237,232,0.6)' }}>
-            💡 Set your niche in <a href="/app/settings" style={{ color: '#d4af37' }}>Settings</a> to see personalised product recommendations
+            💡 Set your niche in <a href="/app/settings" style={{ color: '#6366F1' }}>Settings</a> to see personalised product recommendations
           </span>
         </div>
       )}
@@ -383,7 +383,7 @@ function SalesTooltip({ active, payload, label }: { active?: boolean; payload?: 
   return (
     <div style={{ background: '#18181b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', fontFamily: UI }}>
       <div style={{ fontSize: 11, color: '#71717a', marginBottom: 2 }}>{label}</div>
-      <div style={{ fontSize: 14, fontWeight: 600, color: '#d4af37' }}>${payload[0].value.toLocaleString()}</div>
+      <div style={{ fontSize: 14, fontWeight: 600, color: '#6366F1' }}>${payload[0].value.toLocaleString()}</div>
     </div>
   );
 }
@@ -407,8 +407,8 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
 
       {/* Demo badge — subtle, not obtrusive */}
       {isDemo && !bannerDismissed && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, padding: '6px 12px', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.14)', borderRadius: 8 }}>
-          <span style={{ fontSize: 11, color: 'rgba(212,175,55,0.75)', fontWeight: 500, flex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14, padding: '6px 12px', background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.14)', borderRadius: 8 }}>
+          <span style={{ fontSize: 11, color: 'rgba(99,102,241,0.75)', fontWeight: 500, flex: 1 }}>
             📊 Showing sample data — orders from your store will appear here automatically
           </span>
           <button onClick={() => setBannerDismissed(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', opacity: 0.5 }}>
@@ -427,7 +427,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
             <button key={r.key} onClick={() => setRange(r.key)} style={{
               padding: '4px 11px', borderRadius: 6, border: 'none', cursor: 'pointer',
               fontSize: 11, fontWeight: 600, fontFamily: UI, letterSpacing: '-0.01em',
-              background: range === r.key ? '#d4af37' : 'transparent',
+              background: range === r.key ? '#6366F1' : 'transparent',
               color: range === r.key ? '#080a0e' : '#71717a',
               transition: 'all 0.12s',
             }}>
@@ -465,15 +465,15 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
           <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
             <defs>
               <linearGradient id="goldGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%"  stopColor="#d4af37" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="#d4af37" stopOpacity={0.01} />
+                <stop offset="5%"  stopColor="#6366F1" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#6366F1" stopOpacity={0.01} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 4" stroke="rgba(255,255,255,0.04)" vertical={false} />
             <XAxis dataKey="date" tick={{ fill: '#52525b', fontSize: 10, fontFamily: UI }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
             <YAxis tick={{ fill: '#52525b', fontSize: 10, fontFamily: UI }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${(v / 1000).toFixed(1)}k`} />
-            <Tooltip content={<SalesTooltip />} cursor={{ stroke: 'rgba(212,175,55,0.2)', strokeWidth: 1 }} />
-            <Area type="monotone" dataKey="revenue" stroke="#d4af37" strokeWidth={1.8} fill="url(#goldGrad)" dot={false} activeDot={{ r: 3, fill: '#d4af37', strokeWidth: 0 }} />
+            <Tooltip content={<SalesTooltip />} cursor={{ stroke: 'rgba(99,102,241,0.2)', strokeWidth: 1 }} />
+            <Area type="monotone" dataKey="revenue" stroke="#6366F1" strokeWidth={1.8} fill="url(#goldGrad)" dot={false} activeDot={{ r: 3, fill: '#6366F1', strokeWidth: 0 }} />
           </AreaChart>
         </ResponsiveContainer>
       </div>
@@ -482,7 +482,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       <div style={{ background: '#0c0c10', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '18px 20px', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#52525b', fontFamily: 'Syne, sans-serif' }}>Top Products</span>
-          <a href="/app/winning-products" style={{ fontSize: 12, color: '#d4af37', textDecoration: 'none', fontWeight: 500 }}>View all →</a>
+          <a href="/app/winning-products" style={{ fontSize: 12, color: '#6366F1', textDecoration: 'none', fontWeight: 500 }}>View all →</a>
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -513,7 +513,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
                       <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 100, background: cc.bg, color: cc.text, fontWeight: 600 }}>{p.cat}</span>
                     </td>
                     <td style={{ padding: '9px 10px', color: '#a1a1aa', fontSize: 13, textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' }}>{p.units.toLocaleString()}</td>
-                    <td style={{ padding: '9px 10px', color: '#d4af37', fontWeight: 600, fontSize: 13, textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' }}>${p.revenue.toLocaleString()}</td>
+                    <td style={{ padding: '9px 10px', color: '#6366F1', fontWeight: 600, fontSize: 13, textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' }}>${p.revenue.toLocaleString()}</td>
                     <td style={{ padding: '9px 10px', textAlign: 'right' as const }}>
                       <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 6px', borderRadius: 4, background: 'rgba(34,197,94,0.1)', color: '#22c55e' }}>
                         ↑ {p.trend}%
@@ -611,7 +611,7 @@ function DashboardHome() {
     const params = new URLSearchParams(window.location.search);
     if (params.get('upgraded') === 'true') {
       toast.success('Welcome to your upgraded plan! You now have full access.');
-      const colors = ['#d4af37', '#f0c040', '#ffffff', '#10b981', '#3b82f6'];
+      const colors = ['#6366F1', '#f0c040', '#ffffff', '#10b981', '#3b82f6'];
       const confettiCount = 80;
       const container = document.createElement('div');
       container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;';
@@ -723,11 +723,11 @@ function DashboardHome() {
           <div
             className="flex items-center justify-between px-4 sm:px-6 py-3"
             style={{
-              background: 'rgba(212,175,55,0.07)',
-              borderBottom: '1px solid rgba(212,175,55,0.18)',
+              background: 'rgba(99,102,241,0.07)',
+              borderBottom: '1px solid rgba(99,102,241,0.18)',
             }}
           >
-            <span className="text-sm" style={{ color: '#d4af37' }}>
+            <span className="text-sm" style={{ color: '#6366F1' }}>
               ✨ Personalise Majorka to your business →
             </span>
             <div className="flex items-center gap-3">
@@ -735,7 +735,7 @@ function DashboardHome() {
                 onClick={() => setLocation('/onboarding')}
                 className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
                 style={{
-                  background: '#d4af37',
+                  background: '#6366F1',
                   color: '#080a0e',
                   cursor: 'pointer',
                   border: 'none',
@@ -801,14 +801,14 @@ function DashboardHome() {
                 onClick={() => setLocation('/app/ai-chat')}
                 className="cta-shimmer flex items-center gap-2 px-4 py-2 rounded-lg transition-all text-sm font-bold"
                 style={{
-                  background: 'rgba(212,175,55,0.08)',
-                  border: '1px solid rgba(212,175,55,0.2)',
-                  color: '#d4af37',
+                  background: 'rgba(99,102,241,0.08)',
+                  border: '1px solid rgba(99,102,241,0.2)',
+                  color: '#6366F1',
                   cursor: 'pointer',
                   fontFamily: 'Syne, sans-serif',
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.15)')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.08)')}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.15)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.08)')}
               >
                 <MessageSquare size={14} /> Ask AI
               </button>
@@ -820,8 +820,8 @@ function DashboardHome() {
         {productCount === 0 && !productsQuery.isLoading && (
           <div
             style={{
-              background: 'linear-gradient(135deg, rgba(212,175,55,0.06) 0%, rgba(212,175,55,0.02) 100%)',
-              border: '1px solid rgba(212,175,55,0.15)',
+              background: 'linear-gradient(135deg, rgba(99,102,241,0.06) 0%, rgba(99,102,241,0.02) 100%)',
+              border: '1px solid rgba(99,102,241,0.15)',
               borderRadius: 16,
               padding: '24px',
               marginBottom: 24,
@@ -829,7 +829,7 @@ function DashboardHome() {
           >
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(212,175,55,0.7)', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(99,102,241,0.7)', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
                   Welcome to Majorka
                 </div>
                 <h2 style={{ fontSize: 20, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: '#f0ede8', marginBottom: 8, margin: 0 }}>
@@ -843,7 +843,7 @@ function DashboardHome() {
                 onClick={() => setLocation('/app/winning-products')}
                 style={{
                   padding: '10px 20px',
-                  background: '#d4af37',
+                  background: '#6366F1',
                   color: '#080a0e',
                   border: 'none',
                   borderRadius: 8,
@@ -876,17 +876,17 @@ function DashboardHome() {
                     cursor: 'pointer',
                   }}
                   onClick={() => setLocation('/app/winning-products')}
-                  onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.25)')}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.25)')}
                   onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)')}
                 >
-                  <div style={{ fontSize: 10, color: 'rgba(212,175,55,0.7)', fontWeight: 700, marginBottom: 6, fontFamily: 'Syne, sans-serif' }}>
+                  <div style={{ fontSize: 10, color: 'rgba(99,102,241,0.7)', fontWeight: 700, marginBottom: 6, fontFamily: 'Syne, sans-serif' }}>
                     {p.trend}
                   </div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#f0ede8', fontFamily: 'Syne, sans-serif', marginBottom: 4 }}>
                     {p.title}
                   </div>
                   <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)', marginBottom: 6 }}>{p.niche}</div>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#d4af37' }}>{p.revenue}</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#6366F1' }}>{p.revenue}</div>
                 </div>
               ))}
             </div>
@@ -924,8 +924,8 @@ function DashboardHome() {
             }
             subColor={toolsToday > 0 ? '#10b981' : '#52525b'}
             icon={Zap}
-            iconColor="#d4af37"
-            iconBg="rgba(212,175,55,0.1)"
+            iconColor="#6366F1"
+            iconBg="rgba(99,102,241,0.1)"
             sparkIdx={1}
           />
           <StatCard
@@ -1005,12 +1005,12 @@ function DashboardHome() {
               { icon: '🚀', title: 'Launch', desc: 'Push to Shopify', link: '/app/website-generator', cta: 'Connect' },
             ].map(card => (
               <a key={card.title} href={card.link} style={{ textDecoration: 'none', background: '#111118', border: '1px solid #1e1e1e', borderRadius: 12, padding: '16px', display: 'block', transition: 'border-color 0.2s' }}
-                onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.borderColor = '#d4af37')}
+                onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.borderColor = '#6366F1')}
                 onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.borderColor = '#1e1e1e')}>
                 <div style={{ fontSize: 28, marginBottom: 8 }}>{card.icon}</div>
                 <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#f0ede8', fontSize: 15, marginBottom: 4 }}>{card.title}</div>
                 <div style={{ color: 'rgba(240,237,232,0.5)', fontSize: 12, marginBottom: 12 }}>{card.desc}</div>
-                <div style={{ color: '#d4af37', fontSize: 12, fontWeight: 700 }}>{card.cta} →</div>
+                <div style={{ color: '#6366F1', fontSize: 12, fontWeight: 700 }}>{card.cta} →</div>
               </a>
             ))}
           </div>
@@ -1052,7 +1052,7 @@ function DashboardHome() {
                           transform: 'translateX(-50%)',
                           zIndex: 50,
                           background: '#1a1a24',
-                          border: '1px solid rgba(212,175,55,0.2)',
+                          border: '1px solid rgba(99,102,241,0.2)',
                           borderRadius: 8,
                           padding: '6px 10px',
                           whiteSpace: 'nowrap',
@@ -1069,8 +1069,8 @@ function DashboardHome() {
                             width: 8,
                             height: 8,
                             background: '#1a1a24',
-                            borderRight: '1px solid rgba(212,175,55,0.2)',
-                            borderBottom: '1px solid rgba(212,175,55,0.2)',
+                            borderRight: '1px solid rgba(99,102,241,0.2)',
+                            borderBottom: '1px solid rgba(99,102,241,0.2)',
                             rotate: '45deg',
                           }}
                         />
@@ -1081,10 +1081,10 @@ function DashboardHome() {
                       className="w-full text-left rounded-xl p-4 transition-all"
                       style={{
                         background: '#0c0c10',
-                        border: `1px solid ${isHovered ? 'rgba(212,175,55,0.35)' : 'rgba(212,175,55,0.1)'}`,
+                        border: `1px solid ${isHovered ? 'rgba(99,102,241,0.35)' : 'rgba(99,102,241,0.1)'}`,
                         cursor: 'pointer',
                         transform: isHovered ? 'translateY(-4px)' : 'none',
-                        boxShadow: isHovered ? '0 8px 24px rgba(212,175,55,0.1)' : 'none',
+                        boxShadow: isHovered ? '0 8px 24px rgba(99,102,241,0.1)' : 'none',
                         transition: 'all 0.2s ease',
                       }}
                     >
@@ -1095,8 +1095,8 @@ function DashboardHome() {
                             style={{
                               fontSize: 9,
                               fontWeight: 700,
-                              background: 'rgba(212,175,55,0.12)',
-                              color: '#d4af37',
+                              background: 'rgba(99,102,241,0.12)',
+                              color: '#6366F1',
                               borderRadius: 4,
                               padding: '2px 6px',
                               letterSpacing: '0.03em',
@@ -1123,12 +1123,12 @@ function DashboardHome() {
                       <div
                         className="w-9 h-9 rounded-lg flex items-center justify-center mb-3"
                         style={{
-                          background: 'rgba(212,175,55,0.08)',
-                          filter: isHovered ? 'drop-shadow(0 0 8px #d4af37)' : 'none',
+                          background: 'rgba(99,102,241,0.08)',
+                          filter: isHovered ? 'drop-shadow(0 0 8px #6366F1)' : 'none',
                           transition: 'filter 0.2s ease',
                         }}
                       >
-                        {createElement(tool.icon, { size: 16, style: { color: '#d4af37' } })}
+                        {createElement(tool.icon, { size: 16, style: { color: '#6366F1' } })}
                       </div>
                       <div
                         className="text-sm font-bold mb-0.5"
@@ -1141,7 +1141,7 @@ function DashboardHome() {
                       </div>
                       <div
                         className="flex items-center gap-1 text-xs font-bold"
-                        style={{ color: '#d4af37' }}
+                        style={{ color: '#6366F1' }}
                       >
                         Try it <ArrowRight size={10} />
                       </div>
@@ -1184,9 +1184,9 @@ function DashboardHome() {
                 >
                   <div
                     className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'rgba(212,175,55,0.08)' }}
+                    style={{ background: 'rgba(99,102,241,0.08)' }}
                   >
-                    {createElement(tool.icon, { size: 12, style: { color: '#d4af37' } })}
+                    {createElement(tool.icon, { size: 12, style: { color: '#6366F1' } })}
                   </div>
                   <span className="text-xs font-medium truncate" style={{ color: '#f5f5f5' }}>
                     {tool.label}
@@ -1221,7 +1221,7 @@ function DashboardHome() {
                     </span>
                     <span
                       className="text-xs px-2 py-0.5 rounded-full"
-                      style={{ background: 'rgba(212,175,55,0.1)', color: '#d4af37' }}
+                      style={{ background: 'rgba(99,102,241,0.1)', color: '#6366F1' }}
                     >
                       {activeProduct.niche}
                     </span>
@@ -1234,7 +1234,7 @@ function DashboardHome() {
                     onClick={() => setLocation('/app/product-discovery')}
                     className="flex items-center gap-1.5 text-xs font-bold"
                     style={{
-                      color: '#d4af37',
+                      color: '#6366F1',
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
@@ -1264,7 +1264,7 @@ function DashboardHome() {
                     onClick={() => setLocation('/app/history')}
                     className="text-xs flex items-center gap-1"
                     style={{
-                      color: '#d4af37',
+                      color: '#6366F1',
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
@@ -1284,7 +1284,7 @@ function DashboardHome() {
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
-                      color: '#d4af37',
+                      color: '#6366F1',
                       padding: 0,
                       fontSize: 'inherit',
                     }}
@@ -1300,7 +1300,7 @@ function DashboardHome() {
                         className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0"
                         style={{ background: 'rgba(245,158,11,0.1)' }}
                       >
-                        <span style={{ fontSize: 9, color: '#d4af37' }}>&#x25CF;</span>
+                        <span style={{ fontSize: 9, color: '#6366F1' }}>&#x25CF;</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-xs font-medium truncate" style={{ color: '#f5f5f5' }}>
@@ -1320,15 +1320,15 @@ function DashboardHome() {
             <div
               className="rounded-xl p-4"
               style={{
-                background: 'rgba(212,175,55,0.03)',
-                border: '1px solid rgba(212,175,55,0.15)',
+                background: 'rgba(99,102,241,0.03)',
+                border: '1px solid rgba(99,102,241,0.15)',
               }}
             >
               <div className="flex items-center gap-1.5 mb-2">
-                <Star size={12} style={{ color: '#d4af37' }} />
+                <Star size={12} style={{ color: '#6366F1' }} />
                 <span
                   className="text-xs font-bold uppercase tracking-widest"
-                  style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
                 >
                   Launch Kit
                 </span>
@@ -1346,7 +1346,7 @@ function DashboardHome() {
                 onClick={() => setLocation('/app/launch-kit')}
                 className="w-full flex items-center justify-center gap-1.5 text-xs font-bold py-2 rounded-lg"
                 style={{
-                  background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+                  background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                   color: '#060608',
                   border: 'none',
                   cursor: 'pointer',
@@ -1422,7 +1422,7 @@ function DashboardHome() {
                 color: '#f5f5f5',
                 width: 160,
               }}
-              onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.3)')}
+              onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.3)')}
               onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.06)')}
             />
           </div>
@@ -1489,8 +1489,8 @@ function DashboardHome() {
                             <span
                               className="px-1.5 py-0.5 rounded text-xs"
                               style={{
-                                background: 'rgba(212,175,55,0.15)',
-                                color: '#d4af37',
+                                background: 'rgba(99,102,241,0.15)',
+                                color: '#6366F1',
                                 fontSize: 9,
                                 fontWeight: 700,
                               }}

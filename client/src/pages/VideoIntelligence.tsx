@@ -28,7 +28,7 @@ function QuickActions({
   const actions = [
     { label: 'Generate Ads', path: `/app/meta-ads?product=${pt}&category=${cat}`, color: '#a78bfa' },
     { label: 'Build Store', path: `/app/website-generator?niche=${cat}&product=${pt}`, color: '#34d399' },
-    { label: 'Check Profit', path: `/app/profit-calculator`, color: '#d4af37' },
+    { label: 'Check Profit', path: `/app/profit-calculator`, color: '#6366F1' },
     { label: 'Find Creators', path: `/app/creators?category=${cat}`, color: '#38bdf8' },
   ];
   return (
@@ -201,14 +201,14 @@ function VideoModal({
             ].map((m) => (
               <div key={m.label} className="rounded-lg p-2.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <p className="text-xs mb-0.5" style={{ color: '#64748b' }}>{m.label}</p>
-                <p className="text-sm font-semibold truncate" style={{ color: m.gold ? '#d4af37' : '#e2e8f0' }}>{m.value}</p>
+                <p className="text-sm font-semibold truncate" style={{ color: m.gold ? '#6366F1' : '#e2e8f0' }}>{m.value}</p>
               </div>
             ))}
           </div>
 
           {/* Why it works */}
-          <div className="rounded-lg p-3 mb-4" style={{ background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.15)' }}>
-            <p className="text-xs font-semibold mb-1" style={{ color: '#d4af37' }}>Why this video works</p>
+          <div className="rounded-lg p-3 mb-4" style={{ background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)' }}>
+            <p className="text-xs font-semibold mb-1" style={{ color: '#6366F1' }}>Why this video works</p>
             <p className="text-xs" style={{ color: '#94a3b8', lineHeight: '1.6' }}>
               {video.hook_type === 'POV' && 'POV hooks place the viewer inside the experience — creates instant relatability and drives saves/shares as people tag friends.'}
               {video.hook_type === 'Problem/Solution' && 'Leads with a pain point the AU audience already feels, then positions the product as the obvious solution — high purchase intent.'}
@@ -236,9 +236,9 @@ function VideoModal({
             <button
               onClick={() => onGenerateScript(video)}
               className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors"
-              style={{ background: 'rgba(212,175,55,0.15)', color: '#d4af37', border: '1px solid rgba(212,175,55,0.3)' }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.25)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.15)')}
+              style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.3)' }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.25)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.15)')}
             >
               Generate Script →
             </button>
@@ -372,8 +372,8 @@ Write a 30-second script with: hook (0-3s), problem/tension (3-10s), solution/pr
                   onClick={() => setHookFilter(h)}
                   className="w-full text-left text-sm px-3 py-1.5 rounded-lg transition-colors"
                   style={{
-                    background: hookFilter === h ? 'rgba(212,175,55,0.12)' : 'transparent',
-                    color: hookFilter === h ? '#d4af37' : '#94a3b8',
+                    background: hookFilter === h ? 'rgba(99,102,241,0.12)' : 'transparent',
+                    color: hookFilter === h ? '#6366F1' : '#94a3b8',
                   }}
                 >
                   {h === 'all' ? 'All Types' : h}
@@ -392,8 +392,8 @@ Write a 30-second script with: hook (0-3s), problem/tension (3-10s), solution/pr
                   onClick={() => setCategoryFilter(c)}
                   className="w-full text-left text-sm px-3 py-1.5 rounded-lg transition-colors"
                   style={{
-                    background: categoryFilter === c ? 'rgba(212,175,55,0.12)' : 'transparent',
-                    color: categoryFilter === c ? '#d4af37' : '#94a3b8',
+                    background: categoryFilter === c ? 'rgba(99,102,241,0.12)' : 'transparent',
+                    color: categoryFilter === c ? '#6366F1' : '#94a3b8',
                   }}
                 >
                   {c === 'all' ? 'All Categories' : c}
@@ -412,8 +412,8 @@ Write a 30-second script with: hook (0-3s), problem/tension (3-10s), solution/pr
                   onClick={() => setMinGmv(g)}
                   className="w-full text-left text-sm px-3 py-1.5 rounded-lg transition-colors"
                   style={{
-                    background: minGmv === g ? 'rgba(212,175,55,0.12)' : 'transparent',
-                    color: minGmv === g ? '#d4af37' : '#94a3b8',
+                    background: minGmv === g ? 'rgba(99,102,241,0.12)' : 'transparent',
+                    color: minGmv === g ? '#6366F1' : '#94a3b8',
                   }}
                 >
                   {g === 0 ? 'Any' : `$${(g / 1000).toFixed(0)}k+`}
@@ -433,9 +433,9 @@ Write a 30-second script with: hook (0-3s), problem/tension (3-10s), solution/pr
                 onClick={() => setTab(t.key)}
                 className="flex-shrink-0 text-sm px-4 py-2 rounded-lg transition-colors font-medium"
                 style={{
-                  background: tab === t.key ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.04)',
-                  color: tab === t.key ? '#d4af37' : '#94a3b8',
-                  border: tab === t.key ? '1px solid rgba(212,175,55,0.3)' : '1px solid rgba(255,255,255,0.07)',
+                  background: tab === t.key ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.04)',
+                  color: tab === t.key ? '#6366F1' : '#94a3b8',
+                  border: tab === t.key ? '1px solid rgba(99,102,241,0.3)' : '1px solid rgba(255,255,255,0.07)',
                 }}
               >
                 {t.label}
@@ -505,7 +505,7 @@ Write a 30-second script with: hook (0-3s), problem/tension (3-10s), solution/pr
                       {/* GMV — primary metric */}
                       <div>
                         <p className="text-xs" style={{ color: '#64748b' }}>GMV driven</p>
-                        <p className="text-base font-bold" style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}>
+                        <p className="text-base font-bold" style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}>
                           {fmtAUD(v.gmv_driven_aud)}
                         </p>
                       </div>
@@ -529,10 +529,10 @@ Write a 30-second script with: hook (0-3s), problem/tension (3-10s), solution/pr
       {(scriptLoading || scriptText) && (
         <div
           className="fixed bottom-6 right-6 max-w-md rounded-xl p-5 shadow-2xl overflow-y-auto"
-          style={{ background: '#0f1117', border: '1px solid rgba(212,175,55,0.3)', zIndex: 60, maxHeight: '60vh' }}
+          style={{ background: '#0f1117', border: '1px solid rgba(99,102,241,0.3)', zIndex: 60, maxHeight: '60vh' }}
         >
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold" style={{ color: '#d4af37' }}>Generated Script</p>
+            <p className="text-sm font-semibold" style={{ color: '#6366F1' }}>Generated Script</p>
             <button onClick={() => setScriptText('')} style={{ color: '#64748b' }}><X size={15} /></button>
           </div>
           {scriptLoading ? (

@@ -106,14 +106,14 @@ function MayaActionCard({ action }: { action: any }) {
     return (
       <div
         style={{
-          background: 'rgba(212,175,55,0.06)',
-          border: '1px solid rgba(212,175,55,0.25)',
+          background: 'rgba(99,102,241,0.06)',
+          border: '1px solid rgba(99,102,241,0.25)',
           borderRadius: 12,
           padding: '14px 16px',
           marginTop: 8,
         }}
       >
-        <div style={{ color: '#d4af37', fontSize: 12, fontWeight: 700, marginBottom: 10 }}>
+        <div style={{ color: '#6366F1', fontSize: 12, fontWeight: 700, marginBottom: 10 }}>
           ⚡ WORKFLOW — {action.steps?.length ?? 0} tools
         </div>
         {(action.steps ?? []).map((step: any, i: number) => (
@@ -121,7 +121,7 @@ function MayaActionCard({ action }: { action: any }) {
             key={i}
             style={{ fontSize: 13, color: '#a1a1aa', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}
           >
-            <span style={{ color: '#d4af37' }}>{i + 1}.</span>
+            <span style={{ color: '#6366F1' }}>{i + 1}.</span>
             {TOOL_LABELS[step.tool] || step.tool}
           </div>
         ))}
@@ -138,7 +138,7 @@ function MayaActionCard({ action }: { action: any }) {
           }}
           style={{
             marginTop: 10,
-            background: '#d4af37',
+            background: '#6366F1',
             color: '#080a0e',
             border: 'none',
             borderRadius: 8,
@@ -166,8 +166,8 @@ function MayaActionCard({ action }: { action: any }) {
         display: 'flex',
         alignItems: 'center',
         gap: 10,
-        background: 'rgba(212,175,55,0.06)',
-        border: '1px solid rgba(212,175,55,0.25)',
+        background: 'rgba(99,102,241,0.06)',
+        border: '1px solid rgba(99,102,241,0.25)',
         borderRadius: 10,
         padding: '10px 14px',
         marginTop: 8,
@@ -176,17 +176,17 @@ function MayaActionCard({ action }: { action: any }) {
         textAlign: 'left',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'rgba(212,175,55,0.12)';
-        e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)';
+        e.currentTarget.style.background = 'rgba(99,102,241,0.12)';
+        e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'rgba(212,175,55,0.06)';
-        e.currentTarget.style.borderColor = 'rgba(212,175,55,0.25)';
+        e.currentTarget.style.background = 'rgba(99,102,241,0.06)';
+        e.currentTarget.style.borderColor = 'rgba(99,102,241,0.25)';
       }}
     >
-      <span style={{ fontSize: 16, color: '#d4af37' }}>→</span>
+      <span style={{ fontSize: 16, color: '#6366F1' }}>→</span>
       <div>
-        <div style={{ color: '#d4af37', fontWeight: 700, fontSize: 13, fontFamily: 'Syne, sans-serif' }}>
+        <div style={{ color: '#6366F1', fontWeight: 700, fontSize: 13, fontFamily: 'Syne, sans-serif' }}>
           {TOOL_LABELS[tool] || tool}
         </div>
         {params.productUrl && (
@@ -221,8 +221,8 @@ function ActionCard({ title, context, cta, path }: { title: string; context: str
       href={path}
       style={{
         display: 'block',
-        background: 'rgba(212,175,55,0.06)',
-        border: '1px solid rgba(212,175,55,0.2)',
+        background: 'rgba(99,102,241,0.06)',
+        border: '1px solid rgba(99,102,241,0.2)',
         borderRadius: 8,
         padding: '12px 16px',
         marginBottom: 8,
@@ -231,17 +231,17 @@ function ActionCard({ title, context, cta, path }: { title: string; context: str
         transition: 'all 0.15s',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'rgba(212,175,55,0.12)';
-        e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)';
+        e.currentTarget.style.background = 'rgba(99,102,241,0.12)';
+        e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'rgba(212,175,55,0.06)';
-        e.currentTarget.style.borderColor = 'rgba(212,175,55,0.2)';
+        e.currentTarget.style.background = 'rgba(99,102,241,0.06)';
+        e.currentTarget.style.borderColor = 'rgba(99,102,241,0.2)';
       }}
     >
       <div style={{ color: '#fff', fontWeight: 600, fontSize: 14, fontFamily: 'Syne, sans-serif' }}>{title}</div>
       <div style={{ color: '#9ca3af', fontSize: 12, marginTop: 4, lineHeight: 1.4 }}>{context}</div>
-      <div style={{ color: '#d4af37', fontSize: 12, marginTop: 8, fontWeight: 500 }}>{cta} →</div>
+      <div style={{ color: '#6366F1', fontSize: 12, marginTop: 8, fontWeight: 500 }}>{cta} →</div>
     </a>
   );
 }
@@ -479,7 +479,7 @@ export default function AIChat() {
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm"
             style={{
-              background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+              background: 'linear-gradient(135deg, #6366F1, #f0c040)',
               color: '#080a0e',
               fontFamily: 'Syne, sans-serif',
             }}
@@ -504,14 +504,14 @@ export default function AIChat() {
             <div
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg"
               style={{
-                background: 'rgba(212,175,55,0.1)',
-                border: '1px solid rgba(212,175,55,0.25)',
+                background: 'rgba(99,102,241,0.1)',
+                border: '1px solid rgba(99,102,241,0.25)',
               }}
             >
-              <Package size={11} style={{ color: '#d4af37' }} />
+              <Package size={11} style={{ color: '#6366F1' }} />
               <span
                 className="text-xs font-bold"
-                style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
               >
                 {activeProduct.name}
               </span>
@@ -519,8 +519,8 @@ export default function AIChat() {
                 <span
                   className="text-xs px-1.5 py-0.5 rounded"
                   style={{
-                    background: 'rgba(212,175,55,0.15)',
-                    color: 'rgba(212,175,55,0.7)',
+                    background: 'rgba(99,102,241,0.15)',
+                    color: 'rgba(99,102,241,0.7)',
                     fontSize: 9,
                   }}
                 >
@@ -557,11 +557,11 @@ export default function AIChat() {
             {session && messages.length > 0 && (
               <div
                 className="flex items-center gap-2 text-xs mb-1"
-                style={{ color: 'rgba(212,175,55,0.5)' }}
+                style={{ color: 'rgba(99,102,241,0.5)' }}
               >
                 <span
                   className="w-1.5 h-1.5 rounded-full animate-pulse"
-                  style={{ background: '#d4af37', flexShrink: 0 }}
+                  style={{ background: '#6366F1', flexShrink: 0 }}
                 />
                 <span style={{ fontFamily: 'DM Sans, sans-serif' }}>
                   Maya is using your conversation history
@@ -575,7 +575,7 @@ export default function AIChat() {
                     width: 56,
                     height: 56,
                     borderRadius: 16,
-                    background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+                    background: 'linear-gradient(135deg, #6366F1, #f0c040)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -610,17 +610,17 @@ export default function AIChat() {
                         onClick={() => void handleSend(card.label)}
                         className="text-left rounded-xl border p-3 transition-all"
                         style={{
-                          borderColor: 'rgba(212,175,55,0.15)',
-                          background: 'rgba(212,175,55,0.03)',
+                          borderColor: 'rgba(99,102,241,0.15)',
+                          background: 'rgba(99,102,241,0.03)',
                           cursor: 'pointer',
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = 'rgba(212,175,55,0.35)';
-                          e.currentTarget.style.background = 'rgba(212,175,55,0.07)';
+                          e.currentTarget.style.borderColor = 'rgba(99,102,241,0.35)';
+                          e.currentTarget.style.background = 'rgba(99,102,241,0.07)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = 'rgba(212,175,55,0.15)';
-                          e.currentTarget.style.background = 'rgba(212,175,55,0.03)';
+                          e.currentTarget.style.borderColor = 'rgba(99,102,241,0.15)';
+                          e.currentTarget.style.background = 'rgba(99,102,241,0.03)';
                         }}
                       >
                         <div style={{ fontSize: 20, marginBottom: 6 }}>{card.emoji}</div>
@@ -648,16 +648,16 @@ export default function AIChat() {
                       onClick={() => void handleSend(prompt)}
                       className="text-left text-xs px-4 py-2.5 rounded-lg border transition-all"
                       style={{
-                        borderColor: 'rgba(212,175,55,0.18)',
-                        color: 'rgba(212,175,55,0.7)',
-                        background: 'rgba(212,175,55,0.04)',
+                        borderColor: 'rgba(99,102,241,0.18)',
+                        color: 'rgba(99,102,241,0.7)',
+                        background: 'rgba(99,102,241,0.04)',
                         cursor: 'pointer',
                       }}
                       onMouseEnter={(e) =>
-                        (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.35)')
+                        (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.35)')
                       }
                       onMouseLeave={(e) =>
-                        (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.18)')
+                        (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.18)')
                       }
                     >
                       {prompt}
@@ -675,9 +675,9 @@ export default function AIChat() {
                 {msg.role === 'assistant' && (
                   <div
                     className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center"
-                    style={{ background: 'rgba(212,175,55,0.12)', flexShrink: 0 }}
+                    style={{ background: 'rgba(99,102,241,0.12)', flexShrink: 0 }}
                   >
-                    <Sparkles className="w-3.5 h-3.5" style={{ color: '#d4af37' }} />
+                    <Sparkles className="w-3.5 h-3.5" style={{ color: '#6366F1' }} />
                   </div>
                 )}
 
@@ -687,7 +687,7 @@ export default function AIChat() {
                     msg.role === 'user'
                       ? {
                           background: '#1a1600',
-                          border: '1px solid rgba(212,175,55,0.3)',
+                          border: '1px solid rgba(99,102,241,0.3)',
                           color: '#f0ede8',
                         }
                       : msg.isError
@@ -710,9 +710,9 @@ export default function AIChat() {
                         onClick={handleRetry}
                         className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg flex-shrink-0 transition-all"
                         style={{
-                          background: 'rgba(212,175,55,0.12)',
-                          border: '1px solid rgba(212,175,55,0.3)',
-                          color: '#d4af37',
+                          background: 'rgba(99,102,241,0.12)',
+                          border: '1px solid rgba(99,102,241,0.3)',
+                          color: '#6366F1',
                           cursor: 'pointer',
                           fontFamily: 'Syne, sans-serif',
                           fontWeight: 700,
@@ -772,7 +772,7 @@ export default function AIChat() {
                                       gap: 5,
                                       fontSize: 11,
                                       fontWeight: 700,
-                                      color: '#d4af37',
+                                      color: '#6366F1',
                                       textDecoration: 'none',
                                       fontFamily: 'Syne, sans-serif',
                                     }}
@@ -793,7 +793,7 @@ export default function AIChat() {
                   <div
                     className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center font-black text-xs"
                     style={{
-                      background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+                      background: 'linear-gradient(135deg, #6366F1, #f0c040)',
                       color: '#080a0e',
                       fontFamily: 'Syne, sans-serif',
                       flexShrink: 0,
@@ -818,14 +818,14 @@ export default function AIChat() {
                   <div
                     className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-full w-fit ml-10"
                     style={{
-                      color: '#d4af37',
-                      background: 'rgba(212,175,55,0.1)',
-                      border: '1px solid rgba(212,175,55,0.2)',
+                      color: '#6366F1',
+                      background: 'rgba(99,102,241,0.1)',
+                      border: '1px solid rgba(99,102,241,0.2)',
                     }}
                   >
                     <div
                       className="w-2 h-2 rounded-full animate-pulse"
-                      style={{ background: '#d4af37' }}
+                      style={{ background: '#6366F1' }}
                     />
                     <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13 }}>
                       {toolStatus}
@@ -842,9 +842,9 @@ export default function AIChat() {
                 <div className="flex gap-3 justify-start">
                   <div
                     className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center"
-                    style={{ background: 'rgba(212,175,55,0.12)' }}
+                    style={{ background: 'rgba(99,102,241,0.12)' }}
                   >
-                    <Sparkles className="w-3.5 h-3.5" style={{ color: '#d4af37' }} />
+                    <Sparkles className="w-3.5 h-3.5" style={{ color: '#6366F1' }} />
                   </div>
                   <div
                     className="rounded-lg px-4 py-3"
@@ -856,7 +856,7 @@ export default function AIChat() {
                           key={i}
                           className="w-2 h-2 rounded-full animate-bounce"
                           style={{
-                            background: '#d4af37',
+                            background: '#6366F1',
                             animationDelay: `${i * 0.15}s`,
                             animationDuration: '0.6s',
                           }}
@@ -896,9 +896,9 @@ export default function AIChat() {
                   style={{
                     padding: '5px 10px',
                     borderRadius: 20,
-                    background: 'rgba(212,175,55,0.07)',
-                    border: '1px solid rgba(212,175,55,0.2)',
-                    color: 'rgba(212,175,55,0.8)',
+                    background: 'rgba(99,102,241,0.07)',
+                    border: '1px solid rgba(99,102,241,0.2)',
+                    color: 'rgba(99,102,241,0.8)',
                     fontSize: 11,
                     fontWeight: 500,
                     cursor: 'pointer',
@@ -907,12 +907,12 @@ export default function AIChat() {
                     transition: 'border-color 0.15s',
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(212,175,55,0.5)';
-                    e.currentTarget.style.background = 'rgba(212,175,55,0.12)';
+                    e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)';
+                    e.currentTarget.style.background = 'rgba(99,102,241,0.12)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(212,175,55,0.2)';
-                    e.currentTarget.style.background = 'rgba(212,175,55,0.07)';
+                    e.currentTarget.style.borderColor = 'rgba(99,102,241,0.2)';
+                    e.currentTarget.style.background = 'rgba(99,102,241,0.07)';
                   }}
                 >
                   {chip}
@@ -959,7 +959,7 @@ export default function AIChat() {
               className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 disabled:opacity-30 transition-all"
               style={{
                 background: input.trim()
-                  ? 'linear-gradient(135deg, #d4af37, #c09a28)'
+                  ? 'linear-gradient(135deg, #6366F1, #c09a28)'
                   : 'rgba(255,255,255,0.06)',
                 color: input.trim() ? '#080a0e' : 'rgba(240,237,232,0.3)',
                 cursor: 'pointer',

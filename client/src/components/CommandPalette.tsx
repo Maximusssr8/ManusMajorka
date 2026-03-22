@@ -92,9 +92,9 @@ export default function CommandPalette() {
                 >
                   <div
                     className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'rgba(212,175,55,0.1)' }}
+                    style={{ background: 'rgba(99,102,241,0.1)' }}
                   >
-                    {createElement(a.icon, { size: 12, style: { color: '#d4af37' } })}
+                    {createElement(a.icon, { size: 12, style: { color: '#6366F1' } })}
                   </div>
                   <span className="flex-1">{a.label}</span>
                   <ArrowUpRight size={12} style={{ color: '#52525b' }} />

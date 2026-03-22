@@ -37,7 +37,7 @@ export default function UpgradeModalB({
         className="relative w-full max-w-md mx-4 rounded-2xl overflow-hidden"
         style={{
           background: '#0f1115',
-          border: '1px solid rgba(212,175,55,0.15)',
+          border: '1px solid rgba(99,102,241,0.15)',
           boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
         }}
       >
@@ -57,7 +57,7 @@ export default function UpgradeModalB({
 
         <div className="p-6 text-center">
           <div className="text-4xl mb-3">
-            <Coffee size={40} style={{ color: '#d4af37', margin: '0 auto' }} />
+            <Coffee size={40} style={{ color: '#6366F1', margin: '0 auto' }} />
           </div>
           <h2
             className="text-xl font-black mb-2"
@@ -66,7 +66,7 @@ export default function UpgradeModalB({
             Less than your morning coffee
           </h2>
           <p className="text-sm mb-1" style={{ color: 'rgba(240,237,232,0.5)' }}>
-            For <span style={{ color: '#d4af37', fontWeight: 700 }}>$1.63/day</span>, get an entire
+            For <span style={{ color: '#6366F1', fontWeight: 700 }}>$1.63/day</span>, get an entire
             AI ecommerce team working for you.
           </p>
 
@@ -74,8 +74,8 @@ export default function UpgradeModalB({
           <div
             className="mt-5 rounded-xl p-4"
             style={{
-              background: 'rgba(212,175,55,0.04)',
-              border: '1px solid rgba(212,175,55,0.12)',
+              background: 'rgba(99,102,241,0.04)',
+              border: '1px solid rgba(99,102,241,0.12)',
             }}
           >
             <div className="flex items-center justify-between mb-3">
@@ -102,17 +102,17 @@ export default function UpgradeModalB({
                 ~$150/task
               </span>
             </div>
-            <div className="h-px my-2" style={{ background: 'rgba(212,175,55,0.2)' }} />
+            <div className="h-px my-2" style={{ background: 'rgba(99,102,241,0.2)' }} />
             <div className="flex items-center justify-between">
               <span
                 className="text-xs font-bold"
-                style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
               >
                 Majorka Builder
               </span>
               <span
                 className="text-lg font-black"
-                style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
               >
                 $1.63/day
               </span>
@@ -122,7 +122,7 @@ export default function UpgradeModalB({
           {/* Social proof */}
           <div className="flex items-center justify-center gap-1 mt-4 mb-5">
             {[1, 2, 3, 4, 5].map((i) => (
-              <Star key={i} size={12} fill="#d4af37" style={{ color: '#d4af37' }} />
+              <Star key={i} size={12} fill="#6366F1" style={{ color: '#6366F1' }} />
             ))}
             <span className="text-xs ml-1" style={{ color: 'rgba(240,237,232,0.4)' }}>
               Used by AU sellers daily
@@ -134,12 +134,12 @@ export default function UpgradeModalB({
             onClick={() => handleUpgrade('builder')}
             className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all mb-2"
             style={{
-              background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+              background: 'linear-gradient(135deg, #6366F1, #f0c040)',
               color: '#080a0e',
               fontFamily: 'Syne, sans-serif',
               cursor: 'pointer',
               border: 'none',
-              boxShadow: '0 4px 24px rgba(212,175,55,0.3)',
+              boxShadow: '0 4px 24px rgba(99,102,241,0.3)',
             }}
           >
             Get Builder — $49/mo <ArrowRight size={14} />

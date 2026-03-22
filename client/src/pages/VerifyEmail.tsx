@@ -40,7 +40,7 @@ export default function VerifyEmail() {
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse at 50% 50%, rgba(212,175,55,0.06) 0%, transparent 60%)',
+            'radial-gradient(ellipse at 50% 50%, rgba(99,102,241,0.06) 0%, transparent 60%)',
         }}
       />
 
@@ -53,7 +53,7 @@ export default function VerifyEmail() {
         <div className="flex items-center justify-center gap-2 mb-4">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: '#d4af37' }}
+            style={{ background: '#6366F1' }}
           >
             <span
               className="text-black font-bold text-sm"
@@ -71,14 +71,14 @@ export default function VerifyEmail() {
         <div className="py-4">
           <div
             className="mx-auto w-20 h-20 rounded-full flex items-center justify-center"
-            style={{ background: 'rgba(212,175,55,0.1)', border: '2px solid rgba(212,175,55,0.2)' }}
+            style={{ background: 'rgba(99,102,241,0.1)', border: '2px solid rgba(99,102,241,0.2)' }}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-9 w-9"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="#d4af37"
+              stroke="#6366F1"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -99,7 +99,7 @@ export default function VerifyEmail() {
           {email ? (
             <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
               We sent a verification link to{' '}
-              <span className="font-medium" style={{ color: '#d4af37' }}>
+              <span className="font-medium" style={{ color: '#6366F1' }}>
                 {email}
               </span>
             </p>
@@ -121,19 +121,19 @@ export default function VerifyEmail() {
             className="flex items-center gap-2 text-xs"
             style={{ color: 'rgba(255,255,255,0.5)' }}
           >
-            <span style={{ color: '#d4af37' }}>1.</span> Open the email from Majorka
+            <span style={{ color: '#6366F1' }}>1.</span> Open the email from Majorka
           </div>
           <div
             className="flex items-center gap-2 text-xs"
             style={{ color: 'rgba(255,255,255,0.5)' }}
           >
-            <span style={{ color: '#d4af37' }}>2.</span> Click the verification link
+            <span style={{ color: '#6366F1' }}>2.</span> Click the verification link
           </div>
           <div
             className="flex items-center gap-2 text-xs"
             style={{ color: 'rgba(255,255,255,0.5)' }}
           >
-            <span style={{ color: '#d4af37' }}>3.</span> You'll be taken to your dashboard
+            <span style={{ color: '#6366F1' }}>3.</span> You'll be taken to your dashboard
           </div>
         </div>
 
@@ -144,7 +144,7 @@ export default function VerifyEmail() {
               onClick={handleResend}
               disabled={resending}
               className="text-sm font-medium transition-colors disabled:opacity-50"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#d4af37' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6366F1' }}
             >
               {resending ? 'Sending...' : "Didn't receive it? Resend"}
             </button>

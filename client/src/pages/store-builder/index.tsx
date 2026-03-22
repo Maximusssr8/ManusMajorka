@@ -7,7 +7,7 @@ import ShopifyConnect from '@/components/store-builder/ShopifyConnect';
 import PushSuccess from '@/components/store-builder/PushSuccess';
 
 const STEPS = ['Product', 'Blueprint', 'Connect', 'Success'] as const;
-const gold = '#d4af37';
+const gold = '#6366F1';
 const syne = 'Syne, sans-serif';
 
 export default function StoreBuilder() {
@@ -75,7 +75,7 @@ export default function StoreBuilder() {
                 <div style={{
                   width: 28, height: 28, borderRadius: '50%',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: isActive ? gold : isDone ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.06)',
+                  background: isActive ? gold : isDone ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.06)',
                   color: isActive ? '#080a0e' : isDone ? gold : '#52525b',
                   fontSize: 11, fontWeight: 700, flexShrink: 0,
                 }}>

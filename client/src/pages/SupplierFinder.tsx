@@ -79,12 +79,12 @@ function CopyBtn({ text }: { text: string }) {
 
 const RELIABILITY_COLORS: Record<string, string> = {
   High: '#2dca72',
-  Medium: '#d4af37',
+  Medium: '#6366F1',
   Low: '#e05c7a',
 };
 const PLATFORM_COLORS: Record<string, string> = {
   Alibaba: '#e05c7a',
-  AliExpress: '#d4af37',
+  AliExpress: '#6366F1',
   DHgate: '#4ab8f5',
   '1688': '#9c5fff',
   Faire: '#2dca72',
@@ -94,7 +94,7 @@ const PLATFORM_COLORS: Record<string, string> = {
 function SupplierCard({ supplier }: { supplier: Supplier }) {
   const [tab, setTab] = useState<'overview' | 'search' | 'contact'>('overview');
   const pc = PLATFORM_COLORS[supplier.platform] || '#4ab8f5';
-  const rc = RELIABILITY_COLORS[supplier.reliability] || '#d4af37';
+  const rc = RELIABILITY_COLORS[supplier.reliability] || '#6366F1';
 
   return (
     <div
@@ -636,13 +636,13 @@ export default function SupplierFinder() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(212,175,55,0.04)',
-                    border: '1px solid rgba(212,175,55,0.12)',
+                    background: 'rgba(99,102,241,0.04)',
+                    border: '1px solid rgba(99,102,241,0.12)',
                   }}
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
                   >
                     Negotiation Tips
                   </div>
@@ -652,7 +652,7 @@ export default function SupplierFinder() {
                       className="text-xs flex items-start gap-1.5 mb-1.5"
                       style={{ color: 'rgba(240,237,232,0.7)' }}
                     >
-                      <span style={{ color: '#d4af37', flexShrink: 0 }}>{i + 1}.</span>
+                      <span style={{ color: '#6366F1', flexShrink: 0 }}>{i + 1}.</span>
                       {tip}
                     </div>
                   ))}

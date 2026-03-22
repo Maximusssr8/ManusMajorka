@@ -92,10 +92,10 @@ const C = {
   bg: '#080a0e',
   card: 'rgba(255,255,255,0.03)',
   cardHover: 'rgba(255,255,255,0.06)',
-  gold: '#d4af37',
+  gold: '#6366F1',
   goldHover: '#e5c24a',
-  goldBg: 'rgba(212,175,55,0.08)',
-  goldBorder: 'rgba(212,175,55,0.2)',
+  goldBg: 'rgba(99,102,241,0.08)',
+  goldBorder: 'rgba(99,102,241,0.2)',
   text: '#f5f5f5',
   sub: '#a1a1aa',
   muted: '#52525b',
@@ -434,7 +434,7 @@ function HeroStatsBar({
           key={s.label}
           style={{
             background: s.highlight
-              ? 'linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.04) 100%)'
+              ? 'linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(99,102,241,0.04) 100%)'
               : C.glass,
             border: `1px solid ${s.highlight ? C.goldBorder : C.border}`,
             borderRadius: 16,
@@ -1904,7 +1904,7 @@ function ProductCard({
         display: 'flex',
         flexDirection: 'column',
         transition: 'border-color 0.2s, box-shadow 0.2s',
-        boxShadow: hovered ? '0 0 24px rgba(212,175,55,0.08)' : 'none',
+        boxShadow: hovered ? '0 0 24px rgba(99,102,241,0.08)' : 'none',
         position: 'relative',
       }}
     >
@@ -2158,7 +2158,7 @@ function ProductCard({
               <button
                 onClick={() => onToggleCompare(product)}
                 title={inCompare ? 'Remove from compare' : 'Add to compare'}
-                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '7px 10px', borderRadius: 9, background: inCompare ? 'rgba(212,175,55,0.12)' : C.glass, border: `1px solid ${inCompare ? C.goldBorder : C.border}`, color: inCompare ? C.gold : C.sub, fontSize: 11, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, padding: '7px 10px', borderRadius: 9, background: inCompare ? 'rgba(99,102,241,0.12)' : C.glass, border: `1px solid ${inCompare ? C.goldBorder : C.border}`, color: inCompare ? C.gold : C.sub, fontSize: 11, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
               >
                 {inCompare ? <CheckSquare size={11} /> : <Square size={11} />}
                 Compare
@@ -2357,7 +2357,7 @@ function TrendingNowBar({ products, onSelect }: { products: WinningProduct[]; on
               color: C.text, fontSize: 12, fontWeight: 600, cursor: 'pointer',
               whiteSpace: 'nowrap', transition: 'background 0.15s',
             }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(212,175,55,0.18)'; }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(99,102,241,0.18)'; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = C.goldBg; }}
           >
             🔥 {(p.product_title ?? '').length > 30 ? (p.product_title ?? '').slice(0, 30) + '…' : (p.product_title ?? 'Product')} — <span style={{ color: C.gold, fontWeight: 700 }}>{fmtAUD(p.est_daily_revenue_aud)}/day</span>
@@ -2840,11 +2840,11 @@ function CardGrid({
               {['Posture Corrector', 'LED Face Mask', 'Silk Pillowcase'].map((name) => (
                 <div key={name} style={{
                   padding: '8px 14px',
-                  background: 'rgba(212,175,55,0.06)',
-                  border: '1px solid rgba(212,175,55,0.2)',
+                  background: 'rgba(99,102,241,0.06)',
+                  border: '1px solid rgba(99,102,241,0.2)',
                   borderRadius: 8,
                   fontSize: 12,
-                  color: '#d4af37',
+                  color: '#6366F1',
                   fontWeight: 600
                 }}>
                   {name} →
@@ -3330,7 +3330,7 @@ function WinningProducts() {
   const showExportLockedToast = () => {
     toast('🔒 Export to CSV is a Pro feature. Upgrade to export unlimited products to Shopify, Google Sheets, or CSV.', {
       duration: 5000,
-      style: { background: '#0d0f15', border: '1px solid rgba(212,175,55,0.3)', color: '#f5f5f5', fontSize: 13 },
+      style: { background: '#0d0f15', border: '1px solid rgba(99,102,241,0.3)', color: '#f5f5f5', fontSize: 13 },
       action: { label: 'Upgrade Now →', onClick: () => window.location.assign('/pricing') },
     });
   };
@@ -3556,8 +3556,8 @@ function WinningProducts() {
               flexDirection: 'column',
               gap: 4,
               padding: '10px 16px',
-              background: 'rgba(212,175,55,0.04)',
-              border: '1px solid rgba(212,175,55,0.2)',
+              background: 'rgba(99,102,241,0.04)',
+              border: '1px solid rgba(99,102,241,0.2)',
               borderRadius: 12,
               marginBottom: 16,
               fontSize: 12,
@@ -3579,7 +3579,7 @@ function WinningProducts() {
                     background: 'none',
                     border: 'none',
                     padding: 0,
-                    color: '#d4af37',
+                    color: '#6366F1',
                     cursor: 'pointer',
                     fontSize: 12,
                     fontWeight: 700,
@@ -3773,7 +3773,7 @@ function WinningProducts() {
                   </span>
                   <div style={{ display: 'flex', gap: 4 }}>
                     {['TikTok Shop', 'AliExpress', 'Alibaba', 'Amazon AU'].map((src) => (
-                      <span key={src} style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: 'rgba(212,175,55,0.12)', color: C.gold, border: `1px solid ${C.goldBorder}` }}>
+                      <span key={src} style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: 'rgba(99,102,241,0.12)', color: C.gold, border: `1px solid ${C.goldBorder}` }}>
                         {src === 'TikTok Shop' ? 'TT' : src === 'AliExpress' ? 'Ali' : src === 'Alibaba' ? 'Baba' : 'Amz'}
                       </span>
                     ))}
@@ -3787,7 +3787,7 @@ function WinningProducts() {
                     <Search size={32} style={{ color: C.muted, marginBottom: 12, opacity: 0.5 }} />
                     <p style={{ color: C.text, fontSize: 14, fontWeight: 600, marginBottom: 6, fontFamily: 'Syne, sans-serif' }}>No products found</p>
                     <p style={{ color: C.sub, fontSize: 13, marginBottom: 16 }}>Try a different category or search term</p>
-                    <button onClick={() => setSearchResults(null)} style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', color: '#d4af37', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}>
+                    <button onClick={() => setSearchResults(null)} style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)', color: '#6366F1', borderRadius: 8, padding: '8px 16px', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}>
                       ← Clear Search
                     </button>
                   </div>
@@ -3954,12 +3954,12 @@ function WinningProducts() {
                           </span>
                           <button
                             onClick={() => window.location.assign('/pricing')}
-                            style={{ background: '#d4af37', color: '#000', border: 'none', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer', alignSelf: 'flex-start' }}
+                            style={{ background: '#6366F1', color: '#000', border: 'none', borderRadius: 8, padding: '6px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer', alignSelf: 'flex-start' }}
                           >
                             Upgrade Now →
                           </button>
                         </div>,
-                        { duration: 5000, style: { background: '#0d0f15', border: '1px solid rgba(212,175,55,0.3)', color: '#f5f5f5' } }
+                        { duration: 5000, style: { background: '#0d0f15', border: '1px solid rgba(99,102,241,0.3)', color: '#f5f5f5' } }
                       );
                       return;
                     }
@@ -4333,7 +4333,7 @@ function WinningProducts() {
             display: 'flex',
             alignItems: 'center',
             gap: 16,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 40px rgba(212,175,55,0.1)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 40px rgba(99,102,241,0.1)',
           }}
         >
           <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>
@@ -4419,7 +4419,7 @@ class WPErrorBoundary extends Component<{ children: ReactNode }, { hasError: boo
           style={{
             padding: 40,
             textAlign: 'center',
-            color: '#d4af37',
+            color: '#6366F1',
             fontFamily: 'Syne, sans-serif',
             minHeight: '100vh',
             background: '#080a0e',
@@ -4442,7 +4442,7 @@ class WPErrorBoundary extends Component<{ children: ReactNode }, { hasError: boo
               window.location.reload();
             }}
             style={{
-              background: '#d4af37',
+              background: '#6366F1',
               color: '#080a0e',
               border: 'none',
               borderRadius: 8,

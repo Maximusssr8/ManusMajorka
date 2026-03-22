@@ -513,7 +513,7 @@ export default function CopywriterTool() {
                 ))}
               </CopySection>
 
-              <CopySection title="Email Subject Lines" accent="#d4af37">
+              <CopySection title="Email Subject Lines" accent="#6366F1">
                 {result.emailSubjectLines.map((s, i) => (
                   <CopyItem key={i} label={`Subject ${i + 1}`} text={s} />
                 ))}

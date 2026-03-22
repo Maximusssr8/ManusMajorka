@@ -16,15 +16,15 @@ export default function TrialBanner({ className }: TrialBannerProps) {
     <div
       className={`flex items-center justify-between gap-3 px-4 py-2.5 ${className ?? ''}`}
       style={{
-        background: 'linear-gradient(90deg, rgba(212,175,55,0.08) 0%, rgba(212,175,55,0.04) 100%)',
-        borderBottom: '1px solid rgba(212,175,55,0.15)',
+        background: 'linear-gradient(90deg, rgba(99,102,241,0.08) 0%, rgba(99,102,241,0.04) 100%)',
+        borderBottom: '1px solid rgba(99,102,241,0.15)',
         fontFamily: 'DM Sans, sans-serif',
       }}
     >
       <div className="flex items-center gap-2 text-xs" style={{ color: 'rgba(240,237,232,0.7)' }}>
-        <Zap size={13} style={{ color: '#d4af37' }} />
+        <Zap size={13} style={{ color: '#6366F1' }} />
         <span>
-          You&apos;re on the <strong style={{ color: '#d4af37' }}>Free plan</strong>
+          You&apos;re on the <strong style={{ color: '#6366F1' }}>Free plan</strong>
           {' · '}5 AI tools/day
           {' · '}Upgrade for unlimited access
         </span>
@@ -34,7 +34,7 @@ export default function TrialBanner({ className }: TrialBannerProps) {
         onClick={() => trackUpgradeClicked({ source: 'trial_banner', plan: 'free' })}
         className="text-xs font-bold px-3 py-1 rounded-lg flex-shrink-0 transition-all"
         style={{
-          background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+          background: 'linear-gradient(135deg, #6366F1, #f0c040)',
           color: '#080a0e',
           textDecoration: 'none',
           fontFamily: 'Syne, sans-serif',

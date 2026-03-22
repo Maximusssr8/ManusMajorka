@@ -49,7 +49,7 @@ const goals = [
     id: 'build-store',
     label: 'Build my store',
     icon: Rocket,
-    color: '#d4af37',
+    color: '#6366F1',
     path: '/app/website-generator',
   },
   {
@@ -233,7 +233,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
             className="h-full transition-all duration-500"
             style={{
               width: `${progress}%`,
-              background: 'linear-gradient(90deg, #d4af37, #f0c040)',
+              background: 'linear-gradient(90deg, #6366F1, #f0c040)',
             }}
           />
         </div>
@@ -263,9 +263,9 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     style={{
                       background:
                         selectedLevel === level.id
-                          ? 'rgba(212,175,55,0.12)'
+                          ? 'rgba(99,102,241,0.12)'
                           : 'rgba(255,255,255,0.03)',
-                      border: `1.5px solid ${selectedLevel === level.id ? 'rgba(212,175,55,0.4)' : 'rgba(255,255,255,0.07)'}`,
+                      border: `1.5px solid ${selectedLevel === level.id ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.07)'}`,
                       cursor: 'pointer',
                     }}
                   >
@@ -275,7 +275,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                         className="text-xs font-bold"
                         style={{
                           fontFamily: 'Syne, sans-serif',
-                          color: selectedLevel === level.id ? '#d4af37' : '#f0ede8',
+                          color: selectedLevel === level.id ? '#6366F1' : '#f0ede8',
                         }}
                       >
                         {level.label}
@@ -302,7 +302,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
                 style={{
                   background: selectedLevel
-                    ? 'linear-gradient(135deg, #d4af37, #f0c040)'
+                    ? 'linear-gradient(135deg, #6366F1, #f0c040)'
                     : 'rgba(255,255,255,0.06)',
                   color: selectedLevel ? '#080a0e' : 'rgba(240,237,232,0.3)',
                   fontFamily: 'Syne, sans-serif',
@@ -395,7 +395,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
                   style={{
                     background: selectedGoal
-                      ? 'linear-gradient(135deg, #d4af37, #f0c040)'
+                      ? 'linear-gradient(135deg, #6366F1, #f0c040)'
                       : 'rgba(255,255,255,0.06)',
                     color: selectedGoal ? '#080a0e' : 'rgba(240,237,232,0.3)',
                     fontFamily: 'Syne, sans-serif',
@@ -525,7 +525,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                       border: `1.5px solid ${importError ? 'rgba(224,92,122,0.5)' : 'rgba(255,255,255,0.08)'}`,
                       color: '#f0ede8',
                     }}
-                    onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.45)')}
+                    onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')}
                     onBlur={(e) =>
                       (e.target.style.borderColor = importError
                         ? 'rgba(224,92,122,0.5)'
@@ -537,7 +537,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     disabled={importing || !importUrl.trim()}
                     className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-50"
                     style={{
-                      background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+                      background: 'linear-gradient(135deg, #6366F1, #f0c040)',
                       color: '#080a0e',
                       fontFamily: 'Syne, sans-serif',
                       cursor: importing || !importUrl.trim() ? 'not-allowed' : 'pointer',
@@ -642,9 +642,9 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 style={{
                   background:
                     s === step
-                      ? '#d4af37'
+                      ? '#6366F1'
                       : s < step
-                        ? 'rgba(212,175,55,0.4)'
+                        ? 'rgba(99,102,241,0.4)'
                         : 'rgba(255,255,255,0.15)',
                   width: s === step ? 16 : 6,
                 }}

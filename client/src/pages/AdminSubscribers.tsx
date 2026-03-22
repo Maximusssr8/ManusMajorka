@@ -91,7 +91,7 @@ export default function AdminSubscribers() {
       <div className="mb-8">
         <h1
           className="text-2xl font-bold mb-1"
-          style={{ fontFamily: 'Syne, sans-serif', color: '#d4af37' }}
+          style={{ fontFamily: 'Syne, sans-serif', color: '#6366F1' }}
         >
           Subscribers
         </h1>
@@ -114,9 +114,9 @@ export default function AdminSubscribers() {
           >
             <div
               className="w-9 h-9 rounded-lg flex items-center justify-center"
-              style={{ background: 'rgba(212,175,55,0.15)' }}
+              style={{ background: 'rgba(99,102,241,0.15)' }}
             >
-              <Icon size={16} style={{ color: '#d4af37' }} />
+              <Icon size={16} style={{ color: '#6366F1' }} />
             </div>
             <div>
               <div className="text-xl font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
@@ -153,7 +153,7 @@ export default function AdminSubscribers() {
         <button
           onClick={exportCsv}
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
-          style={{ background: 'rgba(212,175,55,0.15)', color: '#d4af37', border: '1px solid rgba(212,175,55,0.3)' }}
+          style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.3)' }}
         >
           <Download size={14} />
           Export CSV
@@ -167,7 +167,7 @@ export default function AdminSubscribers() {
       >
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <Loader2 size={20} className="animate-spin" style={{ color: '#d4af37' }} />
+            <Loader2 size={20} className="animate-spin" style={{ color: '#6366F1' }} />
           </div>
         ) : error ? (
           <div className="text-center py-12 text-sm" style={{ color: 'rgba(240,237,232,0.5)' }}>
@@ -206,7 +206,7 @@ export default function AdminSubscribers() {
                   <td className="px-4 py-3">
                     <span
                       className="px-2 py-0.5 rounded text-xs font-medium"
-                      style={{ background: 'rgba(212,175,55,0.12)', color: '#d4af37' }}
+                      style={{ background: 'rgba(99,102,241,0.12)', color: '#6366F1' }}
                     >
                       {s.source}
                     </span>

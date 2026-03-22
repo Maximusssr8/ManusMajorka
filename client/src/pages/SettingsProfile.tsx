@@ -156,7 +156,7 @@ export default function SettingsProfile() {
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm animate-pulse"
           style={{
-            background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+            background: 'linear-gradient(135deg, #6366F1, #f0c040)',
             color: '#0a0b0d',
             fontFamily: 'Syne, sans-serif',
           }}
@@ -168,7 +168,7 @@ export default function SettingsProfile() {
   }
 
   const inputClass =
-    'w-full rounded-lg px-4 py-3 text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#d4af37]/50 transition-colors';
+    'w-full rounded-lg px-4 py-3 text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#6366F1]/50 transition-colors';
   const sectionCard = 'rounded-xl p-5' as const;
   const sectionCardStyle = { background: '#0c0c10', border: '1px solid rgba(255,255,255,0.06)' };
 
@@ -222,9 +222,9 @@ export default function SettingsProfile() {
                   onClick={() => setActiveTab(tab.id)}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all"
                   style={{
-                    background: active ? 'rgba(212,175,55,0.08)' : 'transparent',
-                    color: active ? '#d4af37' : '#71717a',
-                    border: active ? '1px solid rgba(212,175,55,0.2)' : '1px solid transparent',
+                    background: active ? 'rgba(99,102,241,0.08)' : 'transparent',
+                    color: active ? '#6366F1' : '#71717a',
+                    border: active ? '1px solid rgba(99,102,241,0.2)' : '1px solid transparent',
                     cursor: 'pointer',
                     fontFamily: 'DM Sans, sans-serif',
                   }}
@@ -255,7 +255,7 @@ export default function SettingsProfile() {
                   <div>
                     <label
                       className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-                      style={{ color: 'rgba(212,175,55,0.7)' }}
+                      style={{ color: 'rgba(99,102,241,0.7)' }}
                     >
                       Name
                     </label>
@@ -269,7 +269,7 @@ export default function SettingsProfile() {
                   <div>
                     <label
                       className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-                      style={{ color: 'rgba(212,175,55,0.7)' }}
+                      style={{ color: 'rgba(99,102,241,0.7)' }}
                     >
                       Email
                     </label>
@@ -294,7 +294,7 @@ export default function SettingsProfile() {
                   <div>
                     <label
                       className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-                      style={{ color: 'rgba(212,175,55,0.7)' }}
+                      style={{ color: 'rgba(99,102,241,0.7)' }}
                     >
                       Business Name
                     </label>
@@ -309,7 +309,7 @@ export default function SettingsProfile() {
                   <div>
                     <label
                       className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-                      style={{ color: 'rgba(212,175,55,0.7)' }}
+                      style={{ color: 'rgba(99,102,241,0.7)' }}
                     >
                       Target Niche
                     </label>
@@ -324,7 +324,7 @@ export default function SettingsProfile() {
                   <div>
                     <label
                       className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-                      style={{ color: 'rgba(212,175,55,0.7)' }}
+                      style={{ color: 'rgba(99,102,241,0.7)' }}
                     >
                       Monthly Revenue
                     </label>
@@ -344,7 +344,7 @@ export default function SettingsProfile() {
                   <div>
                     <label
                       className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-                      style={{ color: 'rgba(212,175,55,0.7)' }}
+                      style={{ color: 'rgba(99,102,241,0.7)' }}
                     >
                       Country
                     </label>
@@ -370,7 +370,7 @@ export default function SettingsProfile() {
                   <div>
                     <label
                       className="block text-xs font-bold uppercase tracking-wider mb-2"
-                      style={{ color: 'rgba(212,175,55,0.7)' }}
+                      style={{ color: 'rgba(99,102,241,0.7)' }}
                     >
                       Experience Level
                     </label>
@@ -383,14 +383,14 @@ export default function SettingsProfile() {
                           style={{
                             background:
                               form.experienceLevel === level
-                                ? 'rgba(212,175,55,0.15)'
+                                ? 'rgba(99,102,241,0.15)'
                                 : 'rgba(255,255,255,0.03)',
                             borderColor:
                               form.experienceLevel === level
-                                ? 'rgba(212,175,55,0.4)'
+                                ? 'rgba(99,102,241,0.4)'
                                 : 'rgba(255,255,255,0.1)',
                             color:
-                              form.experienceLevel === level ? '#d4af37' : 'rgba(240,237,232,0.6)',
+                              form.experienceLevel === level ? '#6366F1' : 'rgba(240,237,232,0.6)',
                             cursor: 'pointer',
                           }}
                         >
@@ -402,7 +402,7 @@ export default function SettingsProfile() {
                   <div>
                     <label
                       className="block text-xs font-bold uppercase tracking-wider mb-2"
-                      style={{ color: 'rgba(212,175,55,0.7)' }}
+                      style={{ color: 'rgba(99,102,241,0.7)' }}
                     >
                       Main Goal
                     </label>
@@ -415,13 +415,13 @@ export default function SettingsProfile() {
                           style={{
                             background:
                               form.mainGoal === goal
-                                ? 'rgba(212,175,55,0.15)'
+                                ? 'rgba(99,102,241,0.15)'
                                 : 'rgba(255,255,255,0.03)',
                             borderColor:
                               form.mainGoal === goal
-                                ? 'rgba(212,175,55,0.4)'
+                                ? 'rgba(99,102,241,0.4)'
                                 : 'rgba(255,255,255,0.1)',
-                            color: form.mainGoal === goal ? '#d4af37' : 'rgba(240,237,232,0.6)',
+                            color: form.mainGoal === goal ? '#6366F1' : 'rgba(240,237,232,0.6)',
                             cursor: 'pointer',
                           }}
                         >
@@ -457,9 +457,9 @@ export default function SettingsProfile() {
                     }}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all"
                     style={{
-                      background: 'rgba(212,175,55,0.08)',
-                      border: '1px solid rgba(212,175,55,0.2)',
-                      color: '#d4af37',
+                      background: 'rgba(99,102,241,0.08)',
+                      border: '1px solid rgba(99,102,241,0.2)',
+                      color: '#6366F1',
                       cursor: 'pointer',
                     }}
                   >
@@ -473,7 +473,7 @@ export default function SettingsProfile() {
                 disabled={saving}
                 className="w-full rounded-lg py-3 font-bold text-sm transition-all disabled:opacity-50"
                 style={{
-                  background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+                  background: 'linear-gradient(135deg, #6366F1, #f0c040)',
                   color: '#0a0b0d',
                   fontFamily: 'Syne, sans-serif',
                   border: 'none',
@@ -535,7 +535,7 @@ export default function SettingsProfile() {
                       className="w-10 h-5 rounded-full transition-all relative flex-shrink-0"
                       style={{
                         background: emailNotifs[key]
-                          ? 'rgba(212,175,55,0.3)'
+                          ? 'rgba(99,102,241,0.3)'
                           : 'rgba(255,255,255,0.1)',
                         border: 'none',
                         cursor: 'pointer',
@@ -544,7 +544,7 @@ export default function SettingsProfile() {
                       <div
                         className="absolute top-0.5 w-4 h-4 rounded-full transition-all"
                         style={{
-                          background: emailNotifs[key] ? '#d4af37' : '#52525b',
+                          background: emailNotifs[key] ? '#6366F1' : '#52525b',
                           left: emailNotifs[key] ? 22 : 2,
                         }}
                       />
@@ -555,7 +555,7 @@ export default function SettingsProfile() {
               <button
                 className="mt-4 w-full rounded-lg py-3 font-bold text-sm"
                 style={{
-                  background: 'linear-gradient(135deg, #d4af37, #f0c040)',
+                  background: 'linear-gradient(135deg, #6366F1, #f0c040)',
                   color: '#0a0b0d',
                   fontFamily: 'Syne, sans-serif',
                   border: 'none',
@@ -611,11 +611,11 @@ export default function SettingsProfile() {
                   cursor: 'pointer',
                   color: '#f5f5f5',
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.2)')}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.2)')}
                 onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)')}
               >
                 <div className="flex items-center gap-3">
-                  <CreditCard size={16} style={{ color: '#d4af37' }} />
+                  <CreditCard size={16} style={{ color: '#6366F1' }} />
                   <div className="text-left">
                     <div className="text-sm font-medium">Manage Subscription</div>
                     <div className="text-xs" style={{ color: '#52525b' }}>
@@ -705,9 +705,9 @@ export default function SettingsProfile() {
                   onClick={handleExportData}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all"
                   style={{
-                    background: 'rgba(212,175,55,0.08)',
-                    border: '1px solid rgba(212,175,55,0.2)',
-                    color: '#d4af37',
+                    background: 'rgba(99,102,241,0.08)',
+                    border: '1px solid rgba(99,102,241,0.2)',
+                    color: '#6366F1',
                     cursor: 'pointer',
                   }}
                 >

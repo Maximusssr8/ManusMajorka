@@ -76,12 +76,12 @@ function CopyBtn({ text, label }: { text: string; label?: string }) {
 
 const COMPETITION_COLORS: Record<string, string> = {
   Low: '#2dca72',
-  Medium: '#d4af37',
+  Medium: '#6366F1',
   High: '#e05c7a',
 };
 const INTENT_COLORS: Record<string, string> = {
   Transactional: '#2dca72',
-  Commercial: '#d4af37',
+  Commercial: '#6366F1',
   Informational: '#4ab8f5',
   Navigational: '#9c5fff',
 };
@@ -481,7 +481,7 @@ export default function KeywordMiner() {
                               kw.opportunity >= 70
                                 ? '#2dca72'
                                 : kw.opportunity >= 50
-                                  ? '#d4af37'
+                                  ? '#6366F1'
                                   : '#e05c7a',
                             fontFamily: 'Syne, sans-serif',
                             minWidth: '28px',
@@ -501,13 +501,13 @@ export default function KeywordMiner() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: 'rgba(212,175,55,0.05)',
-                  border: '1px solid rgba(212,175,55,0.15)',
+                  background: 'rgba(99,102,241,0.05)',
+                  border: '1px solid rgba(99,102,241,0.15)',
                 }}
               >
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-2"
-                  style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
                 >
                   Top Opportunity
                 </div>
@@ -569,7 +569,7 @@ export default function KeywordMiner() {
                         className="text-xs flex items-start gap-1.5"
                         style={{ color: 'rgba(240,237,232,0.65)' }}
                       >
-                        <span style={{ color: '#d4af37', flexShrink: 0 }}>→</span>
+                        <span style={{ color: '#6366F1', flexShrink: 0 }}>→</span>
                         {ag}
                       </div>
                     ))}

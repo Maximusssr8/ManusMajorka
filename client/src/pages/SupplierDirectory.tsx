@@ -10,7 +10,7 @@ const C = {
   bg: '#0a0b0d',
   surface: 'rgba(255,255,255,0.03)',
   border: 'rgba(255,255,255,0.08)',
-  gold: '#d4af37',
+  gold: '#6366F1',
   text: '#f0ede8',
   muted: 'rgba(240,237,232,0.4)',
   sub: 'rgba(240,237,232,0.6)',
@@ -109,7 +109,7 @@ export default function SupplierDirectory() {
     fontFamily: 'Syne, sans-serif',
     cursor: 'pointer' as const,
     border: `1px solid ${active ? C.gold : C.border}`,
-    background: active ? 'rgba(212,175,55,0.12)' : C.surface,
+    background: active ? 'rgba(99,102,241,0.12)' : C.surface,
     color: active ? C.gold : C.muted,
     transition: 'all 0.15s',
   });
@@ -187,7 +187,7 @@ export default function SupplierDirectory() {
             {/* Badges */}
             <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
               {s.beginner_friendly && (
-                <span style={{ fontSize: 9, fontWeight: 800, padding: '3px 7px', borderRadius: 4, background: 'rgba(212,175,55,0.15)', color: C.gold, fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                <span style={{ fontSize: 9, fontWeight: 800, padding: '3px 7px', borderRadius: 4, background: 'rgba(99,102,241,0.15)', color: C.gold, fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   Beginner Friendly
                 </span>
               )}
@@ -246,13 +246,13 @@ export default function SupplierDirectory() {
                 textDecoration: 'none',
                 padding: '6px 12px',
                 borderRadius: 7,
-                background: 'rgba(212,175,55,0.08)',
-                border: '1px solid rgba(212,175,55,0.2)',
+                background: 'rgba(99,102,241,0.08)',
+                border: '1px solid rgba(99,102,241,0.2)',
                 fontFamily: 'Syne, sans-serif',
                 transition: 'all 0.15s',
               }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(212,175,55,0.15)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(212,175,55,0.08)')}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.15)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.08)')}
             >
               Visit {s.name} <ExternalLink size={11} />
             </a>

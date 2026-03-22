@@ -89,7 +89,7 @@ function CopyBtn({ text }: { text: string }) {
 
 const COMPETITION_COLORS: Record<string, string> = {
   Low: '#2dca72',
-  Medium: '#d4af37',
+  Medium: '#6366F1',
   High: '#e05c7a',
 };
 const TREND_ICONS: Record<string, string> = {
@@ -102,7 +102,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
   const [expanded, setExpanded] = useState(index === 0);
   const [photos, setPhotos] = useState<string[]>([]);
   const { setProduct } = useActiveProduct();
-  const cc = COMPETITION_COLORS[product.competitionLevel] || '#d4af37';
+  const cc = COMPETITION_COLORS[product.competitionLevel] || '#6366F1';
 
   useEffect(() => {
     searchPhotos(product.name, 3)
@@ -128,10 +128,10 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
               product.score >= 75
                 ? 'rgba(45,202,114,0.15)'
                 : product.score >= 50
-                  ? 'rgba(212,175,55,0.15)'
+                  ? 'rgba(99,102,241,0.15)'
                   : 'rgba(224,92,122,0.15)',
-            color: product.score >= 75 ? '#2dca72' : product.score >= 50 ? '#d4af37' : '#e05c7a',
-            border: `1px solid ${product.score >= 75 ? 'rgba(45,202,114,0.3)' : product.score >= 50 ? 'rgba(212,175,55,0.3)' : 'rgba(224,92,122,0.3)'}`,
+            color: product.score >= 75 ? '#2dca72' : product.score >= 50 ? '#6366F1' : '#e05c7a',
+            border: `1px solid ${product.score >= 75 ? 'rgba(45,202,114,0.3)' : product.score >= 50 ? 'rgba(99,102,241,0.3)' : 'rgba(224,92,122,0.3)'}`,
             fontFamily: 'Syne, sans-serif',
           }}
         >
@@ -163,7 +163,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
                   ? '#2dca72'
                   : product.trendDirection === 'Declining'
                     ? '#e05c7a'
-                    : '#d4af37',
+                    : '#6366F1',
             }}
           >
             {TREND_ICONS[product.trendDirection]} {product.trendDirection}
@@ -230,13 +230,13 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
           <div
             className="p-3 rounded-xl"
             style={{
-              background: 'rgba(212,175,55,0.04)',
-              border: '1px solid rgba(212,175,55,0.12)',
+              background: 'rgba(99,102,241,0.04)',
+              border: '1px solid rgba(99,102,241,0.12)',
             }}
           >
             <div
               className="text-xs font-bold uppercase tracking-wider mb-1"
-              style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
             >
               Why Now
             </div>
@@ -654,15 +654,15 @@ export default function ProductDiscovery() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: 'rgba(212,175,55,0.06)',
-                  border: '1px solid rgba(212,175,55,0.2)',
+                  background: 'rgba(99,102,241,0.06)',
+                  border: '1px solid rgba(99,102,241,0.2)',
                 }}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <Star size={12} style={{ color: '#d4af37' }} />
+                  <Star size={12} style={{ color: '#6366F1' }} />
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
                   >
                     Top Pick
                   </div>

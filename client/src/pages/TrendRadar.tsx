@@ -84,7 +84,7 @@ function CopyBtn({ text }: { text: string }) {
 const MOMENTUM_CONFIG: Record<string, { color: string; icon: React.ReactNode; bg: string }> = {
   Exploding: { color: '#e05c7a', icon: <TrendingUp size={11} />, bg: 'rgba(224,92,122,0.1)' },
   Rising: { color: '#2dca72', icon: <TrendingUp size={11} />, bg: 'rgba(45,202,114,0.1)' },
-  Stable: { color: '#d4af37', icon: <Minus size={11} />, bg: 'rgba(212,175,55,0.1)' },
+  Stable: { color: '#6366F1', icon: <Minus size={11} />, bg: 'rgba(99,102,241,0.1)' },
   Declining: {
     color: 'rgba(240,237,232,0.3)',
     icon: <TrendingDown size={11} />,
@@ -94,7 +94,7 @@ const MOMENTUM_CONFIG: Record<string, { color: string; icon: React.ReactNode; bg
 
 const POTENTIAL_COLORS: Record<string, string> = {
   High: '#2dca72',
-  Medium: '#d4af37',
+  Medium: '#6366F1',
   Low: '#e05c7a',
 };
 
@@ -584,13 +584,13 @@ export default function TrendRadar() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: 'rgba(212,175,55,0.05)',
-                  border: '1px solid rgba(212,175,55,0.15)',
+                  background: 'rgba(99,102,241,0.05)',
+                  border: '1px solid rgba(99,102,241,0.15)',
                 }}
               >
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-2"
-                  style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
                 >
                   Actionable Insight
                 </div>

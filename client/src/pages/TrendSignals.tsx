@@ -57,9 +57,9 @@ const C = {
   bg: '#080a0e',
   surface: 'rgba(255,255,255,0.02)',
   border: 'rgba(255,255,255,0.07)',
-  borderHover: 'rgba(212,175,55,0.35)',
-  gold: '#d4af37',
-  goldDim: 'rgba(212,175,55,0.6)',
+  borderHover: 'rgba(99,102,241,0.35)',
+  gold: '#6366F1',
+  goldDim: 'rgba(99,102,241,0.6)',
   text: '#f0ede8',
   sub: 'rgba(240,237,232,0.55)',
   muted: 'rgba(240,237,232,0.35)',
@@ -298,7 +298,7 @@ export default function TrendSignals() {
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
                 padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700,
-                background: 'rgba(212,175,55,0.08)', border: `1px solid rgba(212,175,55,0.25)`,
+                background: 'rgba(99,102,241,0.08)', border: `1px solid rgba(99,102,241,0.25)`,
                 color: C.gold, cursor: refreshing ? 'not-allowed' : 'pointer', opacity: refreshing ? 0.7 : 1,
                 fontFamily: 'Syne, sans-serif',
               }}
@@ -328,11 +328,11 @@ export default function TrendSignals() {
                 <div key={p.id || p.name + '-top'}
                   style={{
                     flexShrink: 0, width: 160, background: '#0d0d14',
-                    border: `1px solid ${idx === 0 ? '#d4af37' : '#1a1a2e'}`,
+                    border: `1px solid ${idx === 0 ? '#6366F1' : '#1a1a2e'}`,
                     borderRadius: 10, overflow: 'hidden', cursor: 'pointer', transition: 'border-color 0.15s',
                   }}
-                  onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = '#d4af37'}
-                  onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = idx === 0 ? '#d4af37' : '#1a1a2e'}
+                  onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = '#6366F1'}
+                  onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = idx === 0 ? '#6366F1' : '#1a1a2e'}
                 >
                   {p.image_url ? (
                     <img src={p.image_url} alt={p.name} style={{ width: '100%', height: 90, objectFit: 'cover' }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
@@ -346,7 +346,7 @@ export default function TrendSignals() {
                       {p.name}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: '#d4af37' }}>${p.estimated_retail_aud}</span>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: '#6366F1' }}>${p.estimated_retail_aud}</span>
                       <span style={{ fontSize: 10, fontWeight: 700, color: '#2dca72' }}>
                         {p.winning_score || p.trend_score}
                       </span>
@@ -509,8 +509,8 @@ export default function TrendSignals() {
                     key={p.id || p.name}
                     style={{ borderBottom: `1px solid ${C.border}`, transition: 'background 0.12s' }}
                     onMouseEnter={e => {
-                      e.currentTarget.style.background = 'rgba(212,175,55,0.03)';
-                      e.currentTarget.style.borderLeft = '2px solid rgba(212,175,55,0.4)';
+                      e.currentTarget.style.background = 'rgba(99,102,241,0.03)';
+                      e.currentTarget.style.borderLeft = '2px solid rgba(99,102,241,0.4)';
                     }}
                     onMouseLeave={e => {
                       e.currentTarget.style.background = 'transparent';
@@ -528,7 +528,7 @@ export default function TrendSignals() {
                         {/* Thumbnail — real image if available, emoji fallback */}
                         <div style={{
                           width: 40, height: 40, borderRadius: 8, flexShrink: 0, overflow: 'hidden',
-                          background: 'rgba(212,175,55,0.06)', border: `1px solid ${C.border}`,
+                          background: 'rgba(99,102,241,0.06)', border: `1px solid ${C.border}`,
                           display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative',
                         }}>
                           {p.image_url ? (
@@ -555,7 +555,7 @@ export default function TrendSignals() {
                               title={p.trend_reason || ''}
                               style={{
                                 fontSize: 13, fontWeight: 700, fontFamily: 'Syne, sans-serif', color: C.text,
-                                cursor: 'help', textDecoration: p.trend_reason ? 'underline dotted rgba(212,175,55,0.3)' : 'none',
+                                cursor: 'help', textDecoration: p.trend_reason ? 'underline dotted rgba(99,102,241,0.3)' : 'none',
                               }}
                             >
                               {p.name}
@@ -582,7 +582,7 @@ export default function TrendSignals() {
 
                     {/* Revenue */}
                     <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: '#d4af37', fontFamily: 'Syne, sans-serif' }}>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: '#6366F1', fontFamily: 'Syne, sans-serif' }}>
                         ${formatK(p.est_monthly_revenue_aud || 0)}
                       </div>
                       <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.4)', marginTop: 1 }}>AUD/mo</div>
@@ -620,10 +620,10 @@ export default function TrendSignals() {
                       <div style={{
                         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                         width: 40, height: 40, borderRadius: '50%',
-                        background: (p.winning_score || p.trend_score || 0) >= 80 ? 'rgba(212,175,55,0.15)' : 'rgba(45,202,114,0.1)',
-                        border: `2px solid ${(p.winning_score || p.trend_score || 0) >= 80 ? '#d4af37' : 'rgba(45,202,114,0.4)'}`,
+                        background: (p.winning_score || p.trend_score || 0) >= 80 ? 'rgba(99,102,241,0.15)' : 'rgba(45,202,114,0.1)',
+                        border: `2px solid ${(p.winning_score || p.trend_score || 0) >= 80 ? '#6366F1' : 'rgba(45,202,114,0.4)'}`,
                         fontSize: 13, fontWeight: 900, fontFamily: 'Syne, sans-serif',
-                        color: (p.winning_score || p.trend_score || 0) >= 80 ? '#d4af37' : '#2dca72',
+                        color: (p.winning_score || p.trend_score || 0) >= 80 ? '#6366F1' : '#2dca72',
                       }}>
                         {p.winning_score || p.trend_score || 0}
                       </div>
@@ -637,7 +637,7 @@ export default function TrendSignals() {
                             <div key={i} style={{
                               width: 8, height: 8, borderRadius: 2,
                               background: i <= Math.round((p.saturation_score || 5) / 2)
-                                ? (p.saturation_score || 5) >= 7 ? '#2dca72' : (p.saturation_score || 5) >= 4 ? '#d4af37' : '#ef4444'
+                                ? (p.saturation_score || 5) >= 7 ? '#2dca72' : (p.saturation_score || 5) >= 4 ? '#6366F1' : '#ef4444'
                                 : '#1a1a2e',
                             }} />
                           ))}
@@ -744,7 +744,7 @@ export default function TrendSignals() {
               background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: 14,
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                <div style={{ width: 48, height: 48, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: 'rgba(212,175,55,0.06)' }}>
+                <div style={{ width: 48, height: 48, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: 'rgba(99,102,241,0.06)' }}>
                   {p.image_url ? (
                     <img src={p.image_url} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
@@ -817,7 +817,7 @@ export default function TrendSignals() {
               onClick={() => setPage(i + 1)}
               style={{
                 width: 32, height: 32, borderRadius: 7, border: `1px solid ${page === i + 1 ? C.gold : C.border}`,
-                background: page === i + 1 ? 'rgba(212,175,55,0.12)' : C.surface,
+                background: page === i + 1 ? 'rgba(99,102,241,0.12)' : C.surface,
                 color: page === i + 1 ? C.gold : C.muted,
                 cursor: 'pointer', fontSize: 12, fontWeight: page === i + 1 ? 700 : 400,
               }}

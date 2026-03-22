@@ -9,7 +9,7 @@ const ProductDiscovery = lazy(() => import('./ProductDiscovery'));
 
 type TabKey = 'trending' | 'database' | 'scout';
 
-const C = { bg: '#080a0e', surface: '#111118', border: '#1e1e1e', gold: '#d4af37', text: '#f0ede8', muted: 'rgba(240,237,232,0.5)' };
+const C = { bg: '#080a0e', surface: '#111118', border: '#1e1e1e', gold: '#6366F1', text: '#f0ede8', muted: 'rgba(240,237,232,0.5)' };
 
 interface TrendProduct {
   id?: string;
@@ -71,7 +71,7 @@ function ProductCard({ product, rank }: { product: TrendProduct; rank: number })
         <div style={{ marginBottom: 8 }}>
           <span style={{ fontSize: 14, fontWeight: 700, color: C.text, display: 'block', marginBottom: 6, fontFamily: 'Syne, sans-serif' }}>{product.name}</span>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: 'rgba(212,175,55,0.12)', color: C.gold, border: '1px solid rgba(212,175,55,0.2)' }}>{product.niche}</span>
+            <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: 'rgba(99,102,241,0.12)', color: C.gold, border: '1px solid rgba(99,102,241,0.2)' }}>{product.niche}</span>
             <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 20, background: 'rgba(239,68,68,0.12)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)' }}>Trending</span>
           </div>
         </div>

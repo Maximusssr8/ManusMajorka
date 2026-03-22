@@ -469,7 +469,7 @@ function renderMarkdown(text: string): React.ReactNode[] {
 function difficultyStyle(d: string): { bg: string; color: string } {
   if (d === 'Beginner') return { bg: 'rgba(34,197,94,0.1)', color: '#4ade80' };
   if (d === 'Advanced') return { bg: 'rgba(239,68,68,0.1)', color: '#f87171' };
-  return { bg: 'rgba(212,175,55,0.1)', color: '#d4af37' };
+  return { bg: 'rgba(99,102,241,0.1)', color: '#6366F1' };
 }
 
 function getLessonByTrack(lessonId: string): { track: Track; index: number } | null {
@@ -494,7 +494,7 @@ function CircularRing({ percent }: { percent: number }) {
         cy={20}
         r={r}
         fill="none"
-        stroke="#d4af37"
+        stroke="#6366F1"
         strokeWidth={3}
         strokeDasharray={circ}
         strokeDashoffset={offset}
@@ -508,7 +508,7 @@ function CircularRing({ percent }: { percent: number }) {
 
 // ── Confetti (CSS-only) ───────────────────────────────────────────────────────
 
-const CONFETTI_COLORS = ['#d4af37', '#f0c040', '#22c55e', '#a855f7', '#3b82f6', '#f59e0b'];
+const CONFETTI_COLORS = ['#6366F1', '#f0c040', '#22c55e', '#a855f7', '#3b82f6', '#f59e0b'];
 
 function ConfettiBurst({ active }: { active: boolean }) {
   const pieces = useMemo(
@@ -565,13 +565,13 @@ function Toast({ message, visible }: { message: string; visible: boolean }) {
           className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[250] px-6 py-3 rounded-2xl flex items-center gap-3"
           style={{
             background: 'linear-gradient(135deg, rgba(20,20,24,0.98), rgba(28,28,36,0.98))',
-            border: '1px solid rgba(212,175,55,0.4)',
-            boxShadow: '0 8px 32px rgba(212,175,55,0.15), 0 2px 8px rgba(0,0,0,0.4)',
+            border: '1px solid rgba(99,102,241,0.4)',
+            boxShadow: '0 8px 32px rgba(99,102,241,0.15), 0 2px 8px rgba(0,0,0,0.4)',
             backdropFilter: 'blur(16px)',
             fontFamily: 'Syne, sans-serif',
           }}
         >
-          <Trophy size={18} style={{ color: '#d4af37', flexShrink: 0 }} />
+          <Trophy size={18} style={{ color: '#6366F1', flexShrink: 0 }} />
           <span className="text-sm font-bold text-white whitespace-nowrap">{message}</span>
         </motion.div>
       )}
@@ -637,7 +637,7 @@ function PlaylistDrawer({
               style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}
             >
               <div className="flex items-center gap-2">
-                <ListOrdered size={16} style={{ color: '#d4af37' }} />
+                <ListOrdered size={16} style={{ color: '#6366F1' }} />
                 <h3
                   className="font-bold text-white text-sm"
                   style={{ fontFamily: 'Syne, sans-serif' }}
@@ -647,7 +647,7 @@ function PlaylistDrawer({
                 {playlist.length > 0 && (
                   <span
                     className="px-2 py-0.5 rounded-full text-xs font-bold"
-                    style={{ background: 'rgba(212,175,55,0.15)', color: '#d4af37' }}
+                    style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1' }}
                   >
                     {playlist.length}
                   </span>
@@ -708,7 +708,7 @@ function PlaylistDrawer({
                       }}
                       onMouseEnter={(e) =>
                         ((e.currentTarget as HTMLDivElement).style.borderColor =
-                          'rgba(212,175,55,0.15)')
+                          'rgba(99,102,241,0.15)')
                       }
                       onMouseLeave={(e) =>
                         ((e.currentTarget as HTMLDivElement).style.borderColor =
@@ -740,18 +740,18 @@ function PlaylistDrawer({
                         title="Open lesson"
                         className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all"
                         style={{
-                          background: 'rgba(212,175,55,0.1)',
+                          background: 'rgba(99,102,241,0.1)',
                           border: 'none',
                           cursor: 'pointer',
-                          color: '#d4af37',
+                          color: '#6366F1',
                         }}
                         onMouseEnter={(e) =>
                           ((e.currentTarget as HTMLButtonElement).style.background =
-                            'rgba(212,175,55,0.2)')
+                            'rgba(99,102,241,0.2)')
                         }
                         onMouseLeave={(e) =>
                           ((e.currentTarget as HTMLButtonElement).style.background =
-                            'rgba(212,175,55,0.1)')
+                            'rgba(99,102,241,0.1)')
                         }
                       >
                         <Play size={10} />
@@ -796,7 +796,7 @@ function PlaylistDrawer({
                   }}
                   className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all"
                   style={{
-                    background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+                    background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                     color: '#0a0a0a',
                     border: 'none',
                     cursor: 'pointer',
@@ -941,7 +941,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
           maxHeight: '90vh',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: '0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(212,175,55,0.08)',
+          boxShadow: '0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(99,102,241,0.08)',
         }}
       >
         {/* Reading progress bar */}
@@ -953,7 +953,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
             className="h-full transition-all duration-200"
             style={{
               width: `${readProgress}%`,
-              background: 'linear-gradient(90deg, #d4af37, #f0c040)',
+              background: 'linear-gradient(90deg, #6366F1, #f0c040)',
             }}
           />
         </div>
@@ -1085,9 +1085,9 @@ Start with a brief intro paragraph, then dive straight into the content.`;
                   title="Save key takeaways to My Playbook"
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={{
-                    background: saved ? 'rgba(212,175,55,0.1)' : 'rgba(255,255,255,0.05)',
-                    color: saved ? '#d4af37' : '#71717a',
-                    border: `1px solid ${saved ? 'rgba(212,175,55,0.2)' : 'transparent'}`,
+                    background: saved ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.05)',
+                    color: saved ? '#6366F1' : '#71717a',
+                    border: `1px solid ${saved ? 'rgba(99,102,241,0.2)' : 'transparent'}`,
                     cursor: 'pointer',
                   }}
                   onMouseEnter={(e) => {
@@ -1112,7 +1112,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
                   );
                 }}
                 className="text-xs font-medium transition-opacity"
-                style={{ color: '#d4af37', background: 'none', border: 'none', cursor: 'pointer' }}
+                style={{ color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer' }}
                 onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '0.7')}
                 onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '1')}
               >
@@ -1131,12 +1131,12 @@ Start with a brief intro paragraph, then dive straight into the content.`;
             style={{
               background: isCompleted
                 ? 'rgba(34,197,94,0.12)'
-                : 'linear-gradient(135deg, #d4af37, #b8941f)',
+                : 'linear-gradient(135deg, #6366F1, #4F46E5)',
               color: isCompleted ? '#4ade80' : '#0a0a0a',
               border: isCompleted ? '1px solid rgba(34,197,94,0.25)' : 'none',
               cursor: 'pointer',
               fontFamily: 'Syne, sans-serif',
-              boxShadow: isCompleted ? 'none' : '0 4px 16px rgba(212,175,55,0.25)',
+              boxShadow: isCompleted ? 'none' : '0 4px 16px rgba(99,102,241,0.25)',
             }}
             onMouseEnter={(e) => {
               if (!isCompleted) (e.currentTarget as HTMLButtonElement).style.opacity = '0.9';
@@ -1166,11 +1166,11 @@ function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }
           <div
             className="w-14 h-14 rounded-2xl flex items-center justify-center"
             style={{
-              background: 'rgba(212,175,55,0.08)',
-              border: '1px solid rgba(212,175,55,0.2)',
+              background: 'rgba(99,102,241,0.08)',
+              border: '1px solid rgba(99,102,241,0.2)',
             }}
           >
-            <Lock size={22} style={{ color: '#d4af37' }} />
+            <Lock size={22} style={{ color: '#6366F1' }} />
           </div>
           <DialogTitle
             className="text-xl font-bold text-white"
@@ -1188,12 +1188,12 @@ function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }
             }}
             className="w-full py-3 rounded-xl font-bold text-sm transition-all"
             style={{
-              background: 'linear-gradient(135deg, #d4af37, #b8941f)',
+              background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
               color: '#0a0a0a',
               border: 'none',
               cursor: 'pointer',
               fontFamily: 'Syne, sans-serif',
-              boxShadow: '0 4px 20px rgba(212,175,55,0.3)',
+              boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
             }}
             onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '0.9')}
             onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '1')}
@@ -1239,11 +1239,11 @@ function TrackCard({
       layout
       className="rounded-2xl overflow-hidden cursor-pointer"
       style={{
-        background: isOpen ? 'rgba(212,175,55,0.04)' : 'rgba(255,255,255,0.025)',
-        border: isOpen ? '1px solid rgba(212,175,55,0.25)' : '1px solid rgba(255,255,255,0.07)',
+        background: isOpen ? 'rgba(99,102,241,0.04)' : 'rgba(255,255,255,0.025)',
+        border: isOpen ? '1px solid rgba(99,102,241,0.25)' : '1px solid rgba(255,255,255,0.07)',
         backdropFilter: 'blur(12px)',
         boxShadow: isOpen
-          ? '0 0 40px rgba(212,175,55,0.06), 0 4px 24px rgba(0,0,0,0.3)'
+          ? '0 0 40px rgba(99,102,241,0.06), 0 4px 24px rgba(0,0,0,0.3)'
           : '0 2px 12px rgba(0,0,0,0.2)',
         transition: 'border-color 200ms ease, box-shadow 200ms ease, background 200ms ease',
       }}
@@ -1265,9 +1265,9 @@ function TrackCard({
                 <span
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold flex-shrink-0"
                   style={{
-                    background: 'rgba(212,175,55,0.15)',
-                    color: '#d4af37',
-                    border: '1px solid rgba(212,175,55,0.25)',
+                    background: 'rgba(99,102,241,0.15)',
+                    color: '#6366F1',
+                    border: '1px solid rgba(99,102,241,0.25)',
                   }}
                 >
                   <Trophy size={10} />
@@ -1288,7 +1288,7 @@ function TrackCard({
               {completedInTrack > 0 && (
                 <span
                   className="px-2 py-0.5 rounded-full text-xs font-bold"
-                  style={{ background: 'rgba(212,175,55,0.1)', color: '#d4af37' }}
+                  style={{ background: 'rgba(99,102,241,0.1)', color: '#6366F1' }}
                 >
                   {completedInTrack}/{track.lessons.length} done
                 </span>
@@ -1310,7 +1310,7 @@ function TrackCard({
             style={{
               background: trackComplete
                 ? 'linear-gradient(90deg, #4ade80, #22c55e)'
-                : 'linear-gradient(90deg, #d4af37, #f0c040)',
+                : 'linear-gradient(90deg, #6366F1, #f0c040)',
             }}
           />
         </div>
@@ -1324,9 +1324,9 @@ function TrackCard({
             }}
             className="mt-3 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
             style={{
-              background: hasStarted ? 'rgba(212,175,55,0.1)' : 'rgba(255,255,255,0.04)',
-              color: hasStarted ? '#d4af37' : '#71717a',
-              border: `1px solid ${hasStarted ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.07)'}`,
+              background: hasStarted ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.04)',
+              color: hasStarted ? '#6366F1' : '#71717a',
+              border: `1px solid ${hasStarted ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.07)'}`,
               cursor: 'pointer',
               fontFamily: 'Syne, sans-serif',
             }}
@@ -1379,7 +1379,7 @@ function TrackCard({
                       el.style.background = 'rgba(255,255,255,0.03)';
                       el.style.borderLeftColor = isCompleted
                         ? 'rgba(34,197,94,0.4)'
-                        : 'rgba(212,175,55,0.4)';
+                        : 'rgba(99,102,241,0.4)';
                     }}
                     onMouseLeave={(e) => {
                       const el = e.currentTarget as HTMLDivElement;
@@ -1400,7 +1400,7 @@ function TrackCard({
                       {isCompleted ? (
                         <CheckCircle2 size={15} style={{ color: '#4ade80' }} />
                       ) : lesson.free ? (
-                        <BookOpen size={15} style={{ color: '#d4af37' }} />
+                        <BookOpen size={15} style={{ color: '#6366F1' }} />
                       ) : (
                         <Lock size={14} style={{ color: '#3f3f46' }} />
                       )}
@@ -1450,11 +1450,11 @@ function TrackCard({
                           className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 transition-all opacity-0 group-hover:opacity-100"
                           style={{
                             background: inPlaylist
-                              ? 'rgba(212,175,55,0.15)'
+                              ? 'rgba(99,102,241,0.15)'
                               : 'rgba(255,255,255,0.06)',
                             border: 'none',
                             cursor: 'pointer',
-                            color: inPlaylist ? '#d4af37' : '#71717a',
+                            color: inPlaylist ? '#6366F1' : '#71717a',
                           }}
                           onMouseEnter={(e) =>
                             ((e.currentTarget as HTMLButtonElement).style.opacity = '1')
@@ -1637,7 +1637,7 @@ export default function LearnHub() {
               className="text-4xl md:text-5xl font-black leading-tight"
               style={{
                 fontFamily: 'Syne, sans-serif',
-                background: 'linear-gradient(135deg, #d4af37 20%, #f5d98a 60%, #d4af37 100%)',
+                background: 'linear-gradient(135deg, #6366F1 20%, #A5B4FC 60%, #6366F1 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -1666,7 +1666,7 @@ export default function LearnHub() {
                 fontWeight: 600,
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(212,175,55,0.25)';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(99,102,241,0.25)';
                 (e.currentTarget as HTMLButtonElement).style.color = '#f5f5f5';
               }}
               onMouseLeave={(e) => {
@@ -1679,7 +1679,7 @@ export default function LearnHub() {
               {playlist.length > 0 && (
                 <span
                   className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center text-xs font-black"
-                  style={{ background: '#d4af37', color: '#0a0a0a', fontSize: 9 }}
+                  style={{ background: '#6366F1', color: '#0a0a0a', fontSize: 9 }}
                 >
                   {playlist.length}
                 </span>
@@ -1700,7 +1700,7 @@ export default function LearnHub() {
                   <CircularRing percent={overallPercent} />
                   <span
                     className="absolute text-xs font-black"
-                    style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
                   >
                     {overallPercent}%
                   </span>
@@ -1737,7 +1737,7 @@ export default function LearnHub() {
               color: '#f5f5f5',
               fontFamily: 'DM Sans, sans-serif',
             }}
-            onFocus={(e) => (e.target.style.borderColor = 'rgba(212,175,55,0.4)')}
+            onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.4)')}
             onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
           />
 
@@ -1748,7 +1748,7 @@ export default function LearnHub() {
           >
             {DIFF_PILLS.map((pill) => {
               const active = diffFilter === pill;
-              const col = pill === 'All' ? '#d4af37' : difficultyStyle(pill).color;
+              const col = pill === 'All' ? '#6366F1' : difficultyStyle(pill).color;
               return (
                 <button
                   key={pill}
@@ -1757,7 +1757,7 @@ export default function LearnHub() {
                   style={{
                     background: active
                       ? pill === 'All'
-                        ? 'rgba(212,175,55,0.15)'
+                        ? 'rgba(99,102,241,0.15)'
                         : `${difficultyStyle(pill).bg}`
                       : 'rgba(255,255,255,0.04)',
                     color: active ? col : '#52525b',

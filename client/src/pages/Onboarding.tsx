@@ -91,9 +91,9 @@ const PLATFORMS = ['Shopify', 'WooCommerce', 'eBay AU', 'Amazon', 'Other'];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const GOLD = '#d4af37';
-const GOLD_DIM = 'rgba(212,175,55,0.18)';
-const GOLD_BORDER = 'rgba(212,175,55,0.4)';
+const GOLD = '#6366F1';
+const GOLD_DIM = 'rgba(99,102,241,0.18)';
+const GOLD_BORDER = 'rgba(99,102,241,0.4)';
 const DIM_BG = 'rgba(255,255,255,0.03)';
 const DIM_BORDER = 'rgba(255,255,255,0.08)';
 
@@ -122,7 +122,7 @@ function ProgressDots({ current, total }: { current: number; total: number }) {
                 background: active
                   ? GOLD
                   : done
-                    ? 'rgba(212,175,55,0.5)'
+                    ? 'rgba(99,102,241,0.5)'
                     : 'rgba(255,255,255,0.15)',
               }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
@@ -344,7 +344,7 @@ export default function Onboarding() {
       style={{
         background: '#080a0e',
         backgroundImage:
-          'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212,175,55,0.06) 0%, transparent 70%)',
+          'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(99,102,241,0.06) 0%, transparent 70%)',
       }}
     >
       {/* ── Top bar ─────────────────────────────────────────────────────── */}
@@ -474,7 +474,7 @@ export default function Onboarding() {
                   className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
                   style={{
                     background: name.trim()
-                      ? `linear-gradient(135deg, ${GOLD}, #b8941f)`
+                      ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
                       : 'rgba(255,255,255,0.06)',
                     color: name.trim() ? '#080a0e' : 'rgba(255,255,255,0.3)',
                     fontFamily: 'Syne, sans-serif',
@@ -601,7 +601,7 @@ export default function Onboarding() {
                     style={{
                       background:
                         niche || customNiche.trim()
-                          ? `linear-gradient(135deg, ${GOLD}, #b8941f)`
+                          ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
                           : 'rgba(255,255,255,0.06)',
                       color: niche || customNiche.trim() ? '#080a0e' : 'rgba(255,255,255,0.3)',
                       fontFamily: 'Syne, sans-serif',
@@ -708,7 +708,7 @@ export default function Onboarding() {
                     className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
                     style={{
                       background: experience
-                        ? `linear-gradient(135deg, ${GOLD}, #b8941f)`
+                        ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
                         : 'rgba(255,255,255,0.06)',
                       color: experience ? '#080a0e' : 'rgba(255,255,255,0.3)',
                       fontFamily: 'Syne, sans-serif',
@@ -807,7 +807,7 @@ export default function Onboarding() {
                     className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
                     style={{
                       background: goal
-                        ? `linear-gradient(135deg, ${GOLD}, #b8941f)`
+                        ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
                         : 'rgba(255,255,255,0.06)',
                       color: goal ? '#080a0e' : 'rgba(255,255,255,0.3)',
                       fontFamily: 'Syne, sans-serif',
@@ -955,13 +955,13 @@ export default function Onboarding() {
                     className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-40"
                     style={{
                       background: storeType
-                        ? `linear-gradient(135deg, ${GOLD}, #b8941f)`
+                        ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
                         : 'rgba(255,255,255,0.06)',
                       color: storeType ? '#080a0e' : 'rgba(255,255,255,0.3)',
                       fontFamily: 'Syne, sans-serif',
                       cursor: storeType ? 'pointer' : 'not-allowed',
                       border: 'none',
-                      boxShadow: storeType ? '0 8px 24px rgba(212,175,55,0.2)' : 'none',
+                      boxShadow: storeType ? '0 8px 24px rgba(99,102,241,0.2)' : 'none',
                     }}
                   >
                     Finish Setup <ChevronRight size={15} />
@@ -1012,7 +1012,7 @@ export default function Onboarding() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: 0.4 }}
                   style={{
-                    background: 'rgba(212,175,55,0.05)',
+                    background: 'rgba(99,102,241,0.05)',
                     border: `1.5px solid ${GOLD_BORDER}`,
                     borderRadius: 16,
                     padding: '20px 24px',
@@ -1074,12 +1074,12 @@ export default function Onboarding() {
                     onClick={() => navigate('/app')}
                     className="w-full flex items-center justify-center gap-2 py-4 rounded-xl text-sm font-bold transition-all"
                     style={{
-                      background: `linear-gradient(135deg, ${GOLD}, #b8941f)`,
+                      background: `linear-gradient(135deg, ${GOLD}, #4F46E5)`,
                       color: '#080a0e',
                       fontFamily: 'Syne, sans-serif',
                       cursor: 'pointer',
                       border: 'none',
-                      boxShadow: '0 8px 32px rgba(212,175,55,0.25)',
+                      boxShadow: '0 8px 32px rgba(99,102,241,0.25)',
                     }}
                   >
                     Go to Dashboard <ArrowRight size={15} />

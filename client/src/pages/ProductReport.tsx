@@ -18,9 +18,9 @@ const C = {
   text: '#f5f5f5',
   secondary: '#94949e',
   muted: '#52525b',
-  gold: '#d4af37',
-  goldDim: 'rgba(212,175,55,0.08)',
-  goldBorder: 'rgba(212,175,55,0.25)',
+  gold: '#6366F1',
+  goldDim: 'rgba(99,102,241,0.08)',
+  goldBorder: 'rgba(99,102,241,0.25)',
   green: '#22c55e',
   red: '#ef4444',
 };
@@ -62,7 +62,7 @@ function ScoreBar({ score }: { score: number }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
       <div style={{ flex: 1, height: 8, background: 'rgba(255,255,255,0.08)', borderRadius: 4, overflow: 'hidden' }}>
-        <div style={{ width: `${score}%`, height: '100%', background: `linear-gradient(90deg, ${C.gold}, #f5d98a)`, borderRadius: 4, transition: 'width 0.8s ease' }} />
+        <div style={{ width: `${score}%`, height: '100%', background: `linear-gradient(90deg, ${C.gold}, #A5B4FC)`, borderRadius: 4, transition: 'width 0.8s ease' }} />
       </div>
       <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 16, color: C.gold, flexShrink: 0 }}>{score}/100</span>
     </div>
@@ -127,7 +127,7 @@ export default function ProductReport() {
     return (
       <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ width: 40, height: 40, borderRadius: 10, background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 20, color: '#000', margin: '0 auto 16px', animation: 'pulse 1.5s ease-in-out infinite' }}>M</div>
+          <div style={{ width: 40, height: 40, borderRadius: 10, background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 20, color: '#000', margin: '0 auto 16px', animation: 'pulse 1.5s ease-in-out infinite' }}>M</div>
           <p style={{ color: C.secondary, fontSize: 14 }}>Loading product intelligence...</p>
         </div>
       </div>
@@ -141,7 +141,7 @@ export default function ProductReport() {
           <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
           <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 28, marginBottom: 12 }}>Product not found</h1>
           <p style={{ color: C.secondary, marginBottom: 28 }}>This product report may have expired or doesn't exist yet.</p>
-          <Link href="/app/winning-products" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: '#000', borderRadius: 12, padding: '12px 28px', fontFamily: syne, fontWeight: 800, fontSize: 14, textDecoration: 'none' }}>
+          <Link href="/app/winning-products" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', borderRadius: 12, padding: '12px 28px', fontFamily: syne, fontWeight: 800, fontSize: 14, textDecoration: 'none' }}>
             Browse Winning Products →
           </Link>
         </div>
@@ -167,7 +167,7 @@ export default function ProductReport() {
       <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(8,10,14,0.9)', backdropFilter: 'blur(20px)', borderBottom: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: 800, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
-            <div style={{ width: 30, height: 30, borderRadius: 7, background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 15, color: '#000' }}>M</div>
+            <div style={{ width: 30, height: 30, borderRadius: 7, background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 15, color: '#000' }}>M</div>
             <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 15, letterSpacing: '0.08em', color: C.text }}>MAJORKA</span>
           </Link>
           <span style={{ fontSize: 12, color: C.secondary }}>🇦🇺 AU Market Intelligence</span>
@@ -243,7 +243,7 @@ export default function ProductReport() {
 
         {/* Ad angle */}
         {product.ad_angle && (
-          <div style={{ background: 'rgba(212,175,55,0.04)', border: `1px solid ${C.goldBorder}`, borderRadius: 16, padding: '24px 20px', marginBottom: 28 }}>
+          <div style={{ background: 'rgba(99,102,241,0.04)', border: `1px solid ${C.goldBorder}`, borderRadius: 16, padding: '24px 20px', marginBottom: 28 }}>
             <h3 style={{ fontFamily: syne, fontWeight: 700, fontSize: 14, color: C.gold, marginBottom: 12 }}>🎯 Winning Ad Angle</h3>
             <p style={{ fontSize: 14, color: C.text, lineHeight: 1.7, fontStyle: 'italic' }}>"{product.ad_angle}"</p>
           </div>
@@ -251,11 +251,11 @@ export default function ProductReport() {
 
         {/* Divider + upsell */}
         <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 28, marginBottom: 24 }}>
-          <div style={{ background: 'rgba(212,175,55,0.06)', border: `1px solid ${C.goldBorder}`, borderRadius: 16, padding: '24px 20px', textAlign: 'center', marginBottom: 20 }}>
+          <div style={{ background: 'rgba(99,102,241,0.06)', border: `1px solid ${C.goldBorder}`, borderRadius: 16, padding: '24px 20px', textAlign: 'center', marginBottom: 20 }}>
             <div style={{ fontSize: 20, marginBottom: 8 }}>🔒</div>
             <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 16, color: C.text, marginBottom: 8 }}>Full supplier data, competitor analysis, and 40+ more products like this →</h3>
             <p style={{ color: C.secondary, fontSize: 13, marginBottom: 20 }}>Get access to real-time AU market intelligence. Free plan available.</p>
-            <Link href="/sign-in" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: '#000', borderRadius: 12, padding: '14px 32px', fontFamily: syne, fontWeight: 800, fontSize: 15, textDecoration: 'none' }}>
+            <Link href="/sign-in" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', borderRadius: 12, padding: '14px 32px', fontFamily: syne, fontWeight: 800, fontSize: 15, textDecoration: 'none' }}>
               Find More Winners on Majorka — Free →
             </Link>
           </div>

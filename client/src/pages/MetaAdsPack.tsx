@@ -72,7 +72,7 @@ function CopyBtn({ text, label = 'Copy' }: { text: string; label?: string }) {
 }
 
 const ANGLE_COLORS = [
-  { accent: '#d4af37', bg: 'rgba(212,175,55,0.06)', border: 'rgba(212,175,55,0.2)' },
+  { accent: '#6366F1', bg: 'rgba(99,102,241,0.06)', border: 'rgba(99,102,241,0.2)' },
   { accent: '#9c5fff', bg: 'rgba(156,95,255,0.06)', border: 'rgba(156,95,255,0.2)' },
   { accent: '#2dca72', bg: 'rgba(45,202,114,0.06)', border: 'rgba(45,202,114,0.2)' },
   { accent: '#e05c7a', bg: 'rgba(224,92,122,0.06)', border: 'rgba(224,92,122,0.2)' },
@@ -439,9 +439,9 @@ export default function MetaAdsPack() {
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)' }}
+          style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)' }}
         >
-          <Zap size={15} style={{ color: '#d4af37' }} />
+          <Zap size={15} style={{ color: '#6366F1' }} />
         </div>
         <div className="flex-1 min-w-0">
           <div
@@ -460,9 +460,9 @@ export default function MetaAdsPack() {
               onClick={copyAllPack}
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
               style={{
-                background: 'rgba(212,175,55,0.1)',
-                border: '1px solid rgba(212,175,55,0.25)',
-                color: 'rgba(212,175,55,0.9)',
+                background: 'rgba(99,102,241,0.1)',
+                border: '1px solid rgba(99,102,241,0.25)',
+                color: 'rgba(99,102,241,0.9)',
                 fontFamily: 'Syne, sans-serif',
                 cursor: 'pointer',
               }}
@@ -512,9 +512,9 @@ export default function MetaAdsPack() {
                 disabled={importing || !importUrl.trim()}
                 className="px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1 flex-shrink-0 disabled:opacity-50"
                 style={{
-                  background: 'rgba(212,175,55,0.15)',
-                  border: '1px solid rgba(212,175,55,0.3)',
-                  color: '#d4af37',
+                  background: 'rgba(99,102,241,0.15)',
+                  border: '1px solid rgba(99,102,241,0.3)',
+                  color: '#6366F1',
                   cursor: 'pointer',
                 }}
               >
@@ -653,7 +653,7 @@ export default function MetaAdsPack() {
             disabled={isLoading}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all"
             style={{
-              background: isLoading ? 'rgba(212,175,55,0.3)' : '#d4af37',
+              background: isLoading ? 'rgba(99,102,241,0.3)' : '#6366F1',
               color: '#080a0e',
               fontFamily: 'Syne, sans-serif',
               cursor: isLoading ? 'not-allowed' : 'pointer',
@@ -691,11 +691,11 @@ export default function MetaAdsPack() {
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center"
                 style={{
-                  background: 'rgba(212,175,55,0.1)',
-                  border: '1px solid rgba(212,175,55,0.2)',
+                  background: 'rgba(99,102,241,0.1)',
+                  border: '1px solid rgba(99,102,241,0.2)',
                 }}
               >
-                <Zap size={24} style={{ color: '#d4af37' }} className="animate-pulse" />
+                <Zap size={24} style={{ color: '#6366F1' }} className="animate-pulse" />
               </div>
               <div className="text-center">
                 <div
@@ -713,7 +713,7 @@ export default function MetaAdsPack() {
                   <div
                     key={i}
                     className="w-2 h-2 rounded-full animate-bounce"
-                    style={{ background: '#d4af37', animationDelay: `${i * 0.15}s` }}
+                    style={{ background: '#6366F1', animationDelay: `${i * 0.15}s` }}
                   />
                 ))}
               </div>
@@ -725,11 +725,11 @@ export default function MetaAdsPack() {
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center"
                 style={{
-                  background: 'rgba(212,175,55,0.08)',
-                  border: '1px solid rgba(212,175,55,0.15)',
+                  background: 'rgba(99,102,241,0.08)',
+                  border: '1px solid rgba(99,102,241,0.15)',
                 }}
               >
-                <Zap size={24} style={{ color: '#d4af37' }} />
+                <Zap size={24} style={{ color: '#6366F1' }} />
               </div>
               <div className="text-center max-w-sm">
                 <div
@@ -740,7 +740,7 @@ export default function MetaAdsPack() {
                 </div>
                 <div className="text-sm mb-4" style={{ color: 'rgba(240,237,232,0.4)' }}>
                   Enter your product details on the left and hit{' '}
-                  <span style={{ color: '#d4af37' }}>Generate Ads Pack</span> to get 5 creative
+                  <span style={{ color: '#6366F1' }}>Generate Ads Pack</span> to get 5 creative
                   angles with full copy.
                 </div>
                 <div className="space-y-2 text-left max-w-xs mx-auto">
@@ -762,8 +762,8 @@ export default function MetaAdsPack() {
                       <span
                         className="w-5 h-5 rounded-lg flex items-center justify-center text-xs font-black flex-shrink-0"
                         style={{
-                          background: 'rgba(212,175,55,0.15)',
-                          color: '#d4af37',
+                          background: 'rgba(99,102,241,0.15)',
+                          color: '#6366F1',
                           fontFamily: 'Syne, sans-serif',
                         }}
                       >
@@ -783,14 +783,14 @@ export default function MetaAdsPack() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: 'rgba(212,175,55,0.06)',
-                  border: '1px solid rgba(212,175,55,0.15)',
+                  background: 'rgba(99,102,241,0.06)',
+                  border: '1px solid rgba(99,102,241,0.15)',
                 }}
               >
                 <div className="flex items-center justify-between mb-1">
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
                   >
                     Product Summary
                   </div>
@@ -880,7 +880,7 @@ export default function MetaAdsPack() {
                         style={{
                           background: checkedSteps.has(i)
                             ? 'rgba(45,202,114,0.2)'
-                            : 'rgba(212,175,55,0.15)',
+                            : 'rgba(99,102,241,0.15)',
                           border: `1px solid ${checkedSteps.has(i) ? 'rgba(45,202,114,0.4)' : 'transparent'}`,
                         }}
                       >
@@ -889,7 +889,7 @@ export default function MetaAdsPack() {
                         ) : (
                           <span
                             style={{
-                              color: '#d4af37',
+                              color: '#6366F1',
                               fontFamily: 'Syne, sans-serif',
                               fontSize: '10px',
                               fontWeight: 900,
@@ -956,7 +956,7 @@ export default function MetaAdsPack() {
                         className="text-xs flex items-center gap-2"
                         style={{ color: 'rgba(240,237,232,0.65)' }}
                       >
-                        <span style={{ color: '#d4af37' }}>•</span>
+                        <span style={{ color: '#6366F1' }}>•</span>
                         {kpi}
                       </div>
                     ))}

@@ -74,13 +74,13 @@ function CopyBtn({ text }: { text: string }) {
 
 const THREAT_COLORS: Record<string, string> = {
   Low: '#2dca72',
-  Medium: '#d4af37',
+  Medium: '#6366F1',
   High: '#e05c7a',
 };
 
 function CompetitorCard({ competitor, index }: { competitor: Competitor; index: number }) {
   const [expanded, setExpanded] = useState(index === 0);
-  const tc = THREAT_COLORS[competitor.threatLevel] || '#d4af37';
+  const tc = THREAT_COLORS[competitor.threatLevel] || '#6366F1';
   return (
     <div
       className="rounded-2xl overflow-hidden"
@@ -218,13 +218,13 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
           <div
             className="p-3 rounded-xl"
             style={{
-              background: 'rgba(212,175,55,0.04)',
-              border: '1px solid rgba(212,175,55,0.1)',
+              background: 'rgba(99,102,241,0.04)',
+              border: '1px solid rgba(99,102,241,0.1)',
             }}
           >
             <div
               className="text-xs font-bold uppercase tracking-wider mb-1"
-              style={{ color: '#d4af37', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
             >
               Key Differentiator
             </div>

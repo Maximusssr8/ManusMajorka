@@ -1,6 +1,6 @@
 import { CheckCircle, XCircle, ExternalLink } from 'lucide-react';
 
-const gold = '#d4af37';
+const gold = '#6366F1';
 const syne = 'Syne, sans-serif';
 
 const STEP_LABELS = [

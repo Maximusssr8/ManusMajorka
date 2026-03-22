@@ -143,7 +143,7 @@ function CreatorDrawer({
           <div className="flex items-start gap-4">
             <div
               className="w-16 h-16 rounded-full flex-shrink-0 bg-cover bg-center"
-              style={{ backgroundImage: creator.avatar_url ? `url(${creator.avatar_url})` : undefined, background: creator.avatar_url ? undefined : 'rgba(212,175,55,0.2)' }}
+              style={{ backgroundImage: creator.avatar_url ? `url(${creator.avatar_url})` : undefined, background: creator.avatar_url ? undefined : 'rgba(99,102,241,0.2)' }}
             />
             <div>
               <div className="flex items-center gap-1.5">
@@ -156,7 +156,7 @@ function CreatorDrawer({
               {creator.location && <p className="text-xs mt-0.5" style={{ color: '#475569' }}>{creator.location}</p>}
               {creator.tiktok_url && (
                 <a href={creator.tiktok_url} target="_blank" rel="noopener noreferrer"
-                  className="text-xs mt-1 inline-block" style={{ color: '#d4af37' }}>
+                  className="text-xs mt-1 inline-block" style={{ color: '#6366F1' }}>
                   View TikTok →
                 </a>
               )}
@@ -169,7 +169,7 @@ function CreatorDrawer({
             {sparkData.length > 1 ? (
               <ResponsiveContainer width="100%" height={80}>
                 <LineChart data={sparkData.map((v) => ({ v }))}>
-                  <Line type="monotone" dataKey="v" stroke="#d4af37" dot={false} strokeWidth={2} />
+                  <Line type="monotone" dataKey="v" stroke="#6366F1" dot={false} strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
@@ -191,7 +191,7 @@ function CreatorDrawer({
             ].map((m) => (
               <div key={m.label} className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <p className="text-xs" style={{ color: '#64748b' }}>{m.label}</p>
-                <p className="text-base font-semibold mt-0.5" style={{ color: m.highlight ? '#d4af37' : '#e2e8f0', fontFamily: 'Syne, sans-serif' }}>
+                <p className="text-base font-semibold mt-0.5" style={{ color: m.highlight ? '#6366F1' : '#e2e8f0', fontFamily: 'Syne, sans-serif' }}>
                   {m.value}
                 </p>
               </div>
@@ -203,7 +203,7 @@ function CreatorDrawer({
             <p className="text-xs mb-2" style={{ color: '#64748b' }}>Top Categories</p>
             <div className="flex flex-wrap gap-1.5">
               {(creator.top_categories ?? []).map((c) => (
-                <span key={c} className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(212,175,55,0.1)', color: '#d4af37', border: '1px solid rgba(212,175,55,0.2)' }}>{c}</span>
+                <span key={c} className="text-xs px-2.5 py-1 rounded-full" style={{ background: 'rgba(99,102,241,0.1)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.2)' }}>{c}</span>
               ))}
             </div>
           </div>
@@ -218,9 +218,9 @@ function CreatorDrawer({
           <button
             onClick={() => onOutreach(creator)}
             className="w-full py-3 rounded-xl text-sm font-semibold transition-colors"
-            style={{ background: 'rgba(212,175,55,0.15)', color: '#d4af37', border: '1px solid rgba(212,175,55,0.3)' }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.25)')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.15)')}
+            style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.3)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.25)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.15)')}
           >
             Generate Outreach Pitch →
           </button>
@@ -308,7 +308,7 @@ export default function CreatorIntelligence() {
 
   function SortIcon({ col }: { col: SortKey }) {
     if (sortKey !== col) return <span style={{ color: '#334155' }}>↕</span>;
-    return sortDir === 'desc' ? <ChevronDown size={12} style={{ color: '#d4af37' }} /> : <ChevronUp size={12} style={{ color: '#d4af37' }} />;
+    return sortDir === 'desc' ? <ChevronDown size={12} style={{ color: '#6366F1' }} /> : <ChevronUp size={12} style={{ color: '#6366F1' }} />;
   }
 
   async function handleOutreach(creator: Creator) {
@@ -370,15 +370,15 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
           {/* Stats bar */}
           <div className="flex items-center gap-6 text-sm">
             <div className="text-center">
-              <p className="font-semibold" style={{ color: '#d4af37' }}>{creators.length}</p>
+              <p className="font-semibold" style={{ color: '#6366F1' }}>{creators.length}</p>
               <p className="text-xs" style={{ color: '#64748b' }}>Total</p>
             </div>
             <div className="text-center">
-              <p className="font-semibold" style={{ color: '#d4af37' }}>{fmtAUD(avgGmv)}</p>
+              <p className="font-semibold" style={{ color: '#6366F1' }}>{fmtAUD(avgGmv)}</p>
               <p className="text-xs" style={{ color: '#64748b' }}>Avg GMV</p>
             </div>
             <div className="text-center">
-              <p className="font-semibold" style={{ color: '#d4af37' }}>{topEngagement.toFixed(1)}%</p>
+              <p className="font-semibold" style={{ color: '#6366F1' }}>{topEngagement.toFixed(1)}%</p>
               <p className="text-xs" style={{ color: '#64748b' }}>Top Eng.</p>
             </div>
           </div>
@@ -399,8 +399,8 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
                 onClick={() => setFilter(f.key)}
                 className="w-full text-left text-sm px-3 py-2 rounded-lg transition-colors"
                 style={{
-                  background: filter === f.key ? 'rgba(212,175,55,0.12)' : 'transparent',
-                  color: filter === f.key ? '#d4af37' : '#94a3b8',
+                  background: filter === f.key ? 'rgba(99,102,241,0.12)' : 'transparent',
+                  color: filter === f.key ? '#6366F1' : '#94a3b8',
                   fontFamily: 'DM Sans, sans-serif',
                 }}
               >
@@ -420,9 +420,9 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
                 onClick={() => setFilter(f.key)}
                 className="flex-shrink-0 text-xs px-3 py-1.5 rounded-full transition-colors"
                 style={{
-                  background: filter === f.key ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.05)',
-                  color: filter === f.key ? '#d4af37' : '#94a3b8',
-                  border: filter === f.key ? '1px solid rgba(212,175,55,0.3)' : '1px solid rgba(255,255,255,0.08)',
+                  background: filter === f.key ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.05)',
+                  color: filter === f.key ? '#6366F1' : '#94a3b8',
+                  border: filter === f.key ? '1px solid rgba(99,102,241,0.3)' : '1px solid rgba(255,255,255,0.08)',
                 }}
               >
                 {f.label}
@@ -499,7 +499,7 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
                             <span className="text-xs w-5 text-center font-mono flex-shrink-0" style={{ color: '#475569' }}>{i + 1}</span>
                             <div
                               className="w-8 h-8 rounded-full flex-shrink-0 bg-cover bg-center"
-                              style={{ backgroundImage: c.avatar_url ? `url(${c.avatar_url})` : undefined, background: c.avatar_url ? undefined : 'rgba(212,175,55,0.2)', minWidth: 32 }}
+                              style={{ backgroundImage: c.avatar_url ? `url(${c.avatar_url})` : undefined, background: c.avatar_url ? undefined : 'rgba(99,102,241,0.2)', minWidth: 32 }}
                             />
                             <div className="min-w-0">
                               <p className="text-sm font-medium truncate flex items-center gap-1" style={{ color: '#e2e8f0' }}>
@@ -513,7 +513,7 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
                         {/* Followers */}
                         <td className="px-4 py-3 text-sm" style={{ color: '#94a3b8' }}>{fmtNum(c.follower_count)}</td>
                         {/* GMV */}
-                        <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#d4af37' }}>{fmtAUD(c.gmv_30d_aud)}</td>
+                        <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#6366F1' }}>{fmtAUD(c.gmv_30d_aud)}</td>
                         {/* Growth */}
                         <td className="px-4 py-3 text-sm font-medium" style={{ color: c.gmv_growth_rate >= 0 ? '#22c55e' : '#ef4444' }}>
                           {c.gmv_growth_rate >= 0 ? '+' : ''}{c.gmv_growth_rate?.toFixed(1)}%
@@ -530,7 +530,7 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-1">
                             {(c.top_categories ?? []).slice(0, 2).map((cat) => (
-                              <span key={cat} className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(212,175,55,0.08)', color: '#d4af37' }}>{cat}</span>
+                              <span key={cat} className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(99,102,241,0.08)', color: '#6366F1' }}>{cat}</span>
                             ))}
                           </div>
                         </td>
@@ -540,7 +540,7 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
                             onClick={(e) => { e.stopPropagation(); setSelected(c); }}
                             className="text-xs px-3 py-1.5 rounded-lg transition-colors"
                             style={{ background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)' }}
-                            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(212,175,55,0.12)')}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.12)')}
                             onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
                           >
                             View
@@ -564,10 +564,10 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
       {(outreachLoading || outreachText) && selected && (
         <div
           className="fixed bottom-6 right-6 max-w-md rounded-xl p-5 shadow-2xl"
-          style={{ background: '#0f1117', border: '1px solid rgba(212,175,55,0.3)', zIndex: 60 }}
+          style={{ background: '#0f1117', border: '1px solid rgba(99,102,241,0.3)', zIndex: 60 }}
         >
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold" style={{ color: '#d4af37' }}>Outreach Pitch</p>
+            <p className="text-sm font-semibold" style={{ color: '#6366F1' }}>Outreach Pitch</p>
             <button onClick={() => setOutreachText('')} style={{ color: '#64748b' }}><X size={15} /></button>
           </div>
           {outreachLoading ? (

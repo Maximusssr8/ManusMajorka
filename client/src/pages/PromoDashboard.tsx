@@ -290,7 +290,7 @@ export default function PromoDashboard() {
           position: fixed;
           top: -200px; right: -200px;
           width: 600px; height: 600px;
-          background: radial-gradient(circle, rgba(212,175,55,0.06) 0%, transparent 65%);
+          background: radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 65%);
           pointer-events: none;
           z-index: 0;
         }
@@ -308,7 +308,7 @@ export default function PromoDashboard() {
           width: 256px;
           min-width: 256px;
           background: linear-gradient(180deg, #0d0f17 0%, #090b12 100%);
-          border-right: 1px solid rgba(212,175,55,0.12);
+          border-right: 1px solid rgba(99,102,241,0.12);
           display: flex;
           flex-direction: column;
           padding: 0;
@@ -327,7 +327,7 @@ export default function PromoDashboard() {
           position: absolute;
           bottom: 0; left: 18px; right: 18px;
           height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(212,175,55,0.3), transparent);
+          background: linear-gradient(90deg, transparent, rgba(99,102,241,0.3), transparent);
         }
 
         .sidebar-logo-mark {
@@ -340,7 +340,7 @@ export default function PromoDashboard() {
           width: 38px;
           height: 38px;
           border-radius: 10px;
-          background: linear-gradient(135deg, #d4af37, #c9a227);
+          background: linear-gradient(135deg, #6366F1, #c9a227);
           color: #080a0e;
           display: flex;
           align-items: center;
@@ -348,7 +348,7 @@ export default function PromoDashboard() {
           font-family: 'Syne', sans-serif;
           font-weight: 900;
           font-size: 18px;
-          box-shadow: 0 4px 20px rgba(212,175,55,0.35), 0 0 0 1px rgba(212,175,55,0.2);
+          box-shadow: 0 4px 20px rgba(99,102,241,0.35), 0 0 0 1px rgba(99,102,241,0.2);
           flex-shrink: 0;
           position: relative;
         }
@@ -371,8 +371,8 @@ export default function PromoDashboard() {
         /* User profile card */
         .sidebar-profile {
           margin: 14px 14px 0;
-          background: rgba(212,175,55,0.04);
-          border: 1px solid rgba(212,175,55,0.1);
+          background: rgba(99,102,241,0.04);
+          border: 1px solid rgba(99,102,241,0.1);
           border-radius: 10px;
           padding: 12px 13px;
           display: flex;
@@ -384,7 +384,7 @@ export default function PromoDashboard() {
           width: 34px;
           height: 34px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #d4af37 0%, #9d7e20 100%);
+          background: linear-gradient(135deg, #6366F1 0%, #9d7e20 100%);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -393,7 +393,7 @@ export default function PromoDashboard() {
           font-size: 13px;
           color: #080a0e;
           flex-shrink: 0;
-          box-shadow: 0 0 0 2px rgba(212,175,55,0.3);
+          box-shadow: 0 0 0 2px rgba(99,102,241,0.3);
         }
 
         .profile-info { flex: 1; min-width: 0; }
@@ -412,7 +412,7 @@ export default function PromoDashboard() {
           align-items: center;
           gap: 4px;
           font-size: 10px;
-          color: #d4af37;
+          color: #6366F1;
           font-weight: 500;
           margin-top: 1px;
         }
@@ -425,8 +425,8 @@ export default function PromoDashboard() {
         /* Live revenue mini-card */
         .sidebar-live-revenue {
           margin: 12px 14px 0;
-          background: rgba(212,175,55,0.06);
-          border: 1px solid rgba(212,175,55,0.15);
+          background: rgba(99,102,241,0.06);
+          border: 1px solid rgba(99,102,241,0.15);
           border-radius: 10px;
           padding: 11px 13px;
           position: relative;
@@ -438,7 +438,7 @@ export default function PromoDashboard() {
           position: absolute;
           top: 0; left: 0; right: 0;
           height: 2px;
-          background: linear-gradient(90deg, #d4af37, #f0c84a, #d4af37);
+          background: linear-gradient(90deg, #6366F1, #f0c84a, #6366F1);
           background-size: 200% 100%;
           animation: shimmer-bar 2.5s linear infinite;
         }
@@ -461,7 +461,7 @@ export default function PromoDashboard() {
           font-family: 'Syne', sans-serif;
           font-weight: 800;
           font-size: 22px;
-          color: #d4af37;
+          color: #6366F1;
           letter-spacing: -0.8px;
           line-height: 1;
           margin-bottom: 4px;
@@ -515,9 +515,9 @@ export default function PromoDashboard() {
 
         .nav-item.active {
           color: #fff;
-          background: rgba(212,175,55,0.1);
+          background: rgba(99,102,241,0.1);
           font-weight: 500;
-          box-shadow: inset 0 0 0 1px rgba(212,175,55,0.15);
+          box-shadow: inset 0 0 0 1px rgba(99,102,241,0.15);
         }
 
         .nav-item.active::before {
@@ -525,9 +525,9 @@ export default function PromoDashboard() {
           position: absolute;
           left: 0; top: 25%; bottom: 25%;
           width: 3px;
-          background: #d4af37;
+          background: #6366F1;
           border-radius: 0 2px 2px 0;
-          box-shadow: 0 0 8px rgba(212,175,55,0.6);
+          box-shadow: 0 0 8px rgba(99,102,241,0.6);
         }
 
         .nav-item:not(.active):hover {
@@ -549,7 +549,7 @@ export default function PromoDashboard() {
         }
 
         .nav-item.active .nav-icon-wrap {
-          background: rgba(212,175,55,0.15);
+          background: rgba(99,102,241,0.15);
         }
 
         .nav-label { flex: 1; }
@@ -559,9 +559,9 @@ export default function PromoDashboard() {
           font-weight: 600;
           padding: 2px 7px;
           border-radius: 20px;
-          background: rgba(212,175,55,0.12);
-          color: #d4af37;
-          border: 1px solid rgba(212,175,55,0.2);
+          background: rgba(99,102,241,0.12);
+          color: #6366F1;
+          border: 1px solid rgba(99,102,241,0.2);
         }
 
         .nav-badge.new-badge {
@@ -580,7 +580,7 @@ export default function PromoDashboard() {
           content: '';
           display: block;
           height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent);
+          background: linear-gradient(90deg, transparent, rgba(99,102,241,0.2), transparent);
           margin-bottom: 12px;
           margin-top: -1px;
         }
@@ -615,7 +615,7 @@ export default function PromoDashboard() {
           color: #fff;
         }
 
-        .qs-value.gold { color: #d4af37; }
+        .qs-value.gold { color: #6366F1; }
         .qs-value.green { color: #4ade80; }
 
         .store-live-row {
@@ -721,7 +721,7 @@ export default function PromoDashboard() {
           justify-content: space-between;
           padding: 14px 16px;
           background: #0c0e14;
-          border-bottom: 1px solid rgba(212,175,55,0.1);
+          border-bottom: 1px solid rgba(99,102,241,0.1);
           position: relative;
           z-index: 10;
         }
@@ -734,7 +734,7 @@ export default function PromoDashboard() {
 
         .hamburger {
           background: none;
-          border: 1px solid rgba(212,175,55,0.2);
+          border: 1px solid rgba(99,102,241,0.2);
           border-radius: 7px;
           width: 36px;
           height: 36px;
@@ -751,7 +751,7 @@ export default function PromoDashboard() {
           display: block;
           width: 16px;
           height: 1.5px;
-          background: #d4af37;
+          background: #6366F1;
           border-radius: 2px;
         }
 
@@ -770,7 +770,7 @@ export default function PromoDashboard() {
           right: -100px;
           width: 400px;
           height: 400px;
-          background: radial-gradient(circle, rgba(212,175,55,0.03) 0%, transparent 70%);
+          background: radial-gradient(circle, rgba(99,102,241,0.03) 0%, transparent 70%);
           pointer-events: none;
           z-index: 0;
         }
@@ -778,7 +778,7 @@ export default function PromoDashboard() {
         /* ── Header ── */
         .header {
           padding: 18px 28px;
-          border-bottom: 1px solid rgba(212,175,55,0.1);
+          border-bottom: 1px solid rgba(99,102,241,0.1);
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -799,7 +799,7 @@ export default function PromoDashboard() {
         }
 
         .header-greeting .glyph {
-          color: rgba(212,175,55,0.55);
+          color: rgba(99,102,241,0.55);
           margin-right: 8px;
           font-size: 18px;
         }
@@ -807,7 +807,7 @@ export default function PromoDashboard() {
         .header-date {
           font-family: 'JetBrains Mono', monospace;
           font-size: 11px;
-          color: rgba(212,175,55,0.35);
+          color: rgba(99,102,241,0.35);
           margin-top: 4px;
           letter-spacing: 0.5px;
         }
@@ -840,7 +840,7 @@ export default function PromoDashboard() {
         .last-order {
           font-family: 'JetBrains Mono', monospace;
           font-size: 11px;
-          color: rgba(212,175,55,0.55);
+          color: rgba(99,102,241,0.55);
           letter-spacing: 0.3px;
         }
 
@@ -857,7 +857,7 @@ export default function PromoDashboard() {
           width: 14px;
           height: 14px;
           border-radius: 50%;
-          background: #d4af37;
+          background: #6366F1;
           color: #080a0e;
           font-family: 'JetBrains Mono', monospace;
           font-size: 8px;
@@ -873,7 +873,7 @@ export default function PromoDashboard() {
           overflow-y: auto;
           padding: 22px 28px 80px;
           scrollbar-width: thin;
-          scrollbar-color: rgba(212,175,55,0.07) transparent;
+          scrollbar-color: rgba(99,102,241,0.07) transparent;
           position: relative;
           z-index: 2;
         }
@@ -888,7 +888,7 @@ export default function PromoDashboard() {
 
         .stat-card {
           background: rgba(12,14,20,0.9);
-          border: 1px solid rgba(212,175,55,0.12);
+          border: 1px solid rgba(99,102,241,0.12);
           border-radius: 12px;
           padding: 20px 22px;
           position: relative;
@@ -900,8 +900,8 @@ export default function PromoDashboard() {
           position: absolute;
           top: -1px; left: -1px;
           width: 14px; height: 14px;
-          border-top: 2px solid rgba(212,175,55,0.6);
-          border-left: 2px solid rgba(212,175,55,0.6);
+          border-top: 2px solid rgba(99,102,241,0.6);
+          border-left: 2px solid rgba(99,102,241,0.6);
           border-radius: 2px 0 0 0;
         }
 
@@ -910,14 +910,14 @@ export default function PromoDashboard() {
           position: absolute;
           bottom: -1px; right: -1px;
           width: 14px; height: 14px;
-          border-bottom: 2px solid rgba(212,175,55,0.6);
-          border-right: 2px solid rgba(212,175,55,0.6);
+          border-bottom: 2px solid rgba(99,102,241,0.6);
+          border-right: 2px solid rgba(99,102,241,0.6);
           border-radius: 0 0 2px 0;
         }
 
-        .stat-card.top-gold { border-top: 2px solid #d4af37; }
+        .stat-card.top-gold { border-top: 2px solid #6366F1; }
         .stat-card.top-green { border-top: 2px solid #4ade80; }
-        .stat-card.top-cyan { border-top: 2px solid #d4af37; }
+        .stat-card.top-cyan { border-top: 2px solid #6366F1; }
         .stat-card.top-purple { border-top: 2px solid #9d7e20; }
 
         .stat-card.flash {
@@ -926,7 +926,7 @@ export default function PromoDashboard() {
 
         @keyframes card-flash {
           0% { box-shadow: none; }
-          20% { box-shadow: 0 0 40px rgba(212,175,55,0.3); }
+          20% { box-shadow: 0 0 40px rgba(99,102,241,0.3); }
           100% { box-shadow: none; }
         }
 
@@ -950,9 +950,9 @@ export default function PromoDashboard() {
         }
 
         .stat-value.gold {
-          color: #d4af37;
+          color: #6366F1;
           font-size: 42px;
-          text-shadow: 0 0 30px rgba(212,175,55,0.4);
+          text-shadow: 0 0 30px rgba(99,102,241,0.4);
         }
         .stat-value.green { color: #4ade80; font-size: 40px; }
         .stat-value.white { color: #ffffff; }
@@ -982,14 +982,14 @@ export default function PromoDashboard() {
 
         .stat-divider {
           height: 1px;
-          background: rgba(212,175,55,0.07);
+          background: rgba(99,102,241,0.07);
           margin: 8px 0;
         }
 
         .stat-secondary {
           font-family: 'JetBrains Mono', monospace;
           font-size: 9px;
-          color: rgba(212,175,55,0.35);
+          color: rgba(99,102,241,0.35);
           letter-spacing: 0.3px;
         }
 
@@ -1014,7 +1014,7 @@ export default function PromoDashboard() {
           font-family: 'JetBrains Mono', monospace;
           font-size: 10px;
           font-weight: 500;
-          color: rgba(212,175,55,0.45);
+          color: rgba(99,102,241,0.45);
           margin-bottom: 16px;
           text-transform: uppercase;
           letter-spacing: 2px;
@@ -1025,21 +1025,21 @@ export default function PromoDashboard() {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #d4af37;
+          background: #6366F1;
           margin-left: 8px;
           vertical-align: middle;
           animation: pulse-cyan 1.5s ease-in-out infinite;
         }
 
         @keyframes pulse-cyan {
-          0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(212,175,55,0.45); }
-          50% { opacity: 0.6; box-shadow: 0 0 0 4px rgba(212,175,55,0); }
+          0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(99,102,241,0.45); }
+          50% { opacity: 0.6; box-shadow: 0 0 0 4px rgba(99,102,241,0); }
         }
 
         /* ── Revenue Chart ── */
         .chart-section {
           background: rgba(5,8,16,0.8);
-          border: 1px solid rgba(212,175,55,0.1);
+          border: 1px solid rgba(99,102,241,0.1);
           border-radius: 10px;
           padding: 18px;
           margin-bottom: 16px;
@@ -1051,8 +1051,8 @@ export default function PromoDashboard() {
           position: absolute;
           top: -1px; left: -1px;
           width: 12px; height: 12px;
-          border-top: 2px solid #d4af37;
-          border-left: 2px solid #d4af37;
+          border-top: 2px solid #6366F1;
+          border-left: 2px solid #6366F1;
           border-radius: 1px 0 0 0;
         }
 
@@ -1061,8 +1061,8 @@ export default function PromoDashboard() {
           position: absolute;
           bottom: -1px; right: -1px;
           width: 12px; height: 12px;
-          border-bottom: 2px solid #d4af37;
-          border-right: 2px solid #d4af37;
+          border-bottom: 2px solid #6366F1;
+          border-right: 2px solid #6366F1;
           border-radius: 0 0 1px 0;
         }
 
@@ -1087,7 +1087,7 @@ export default function PromoDashboard() {
         /* ── Orders Feed ── */
         .feed-section {
           background: rgba(5,8,16,0.8);
-          border: 1px solid rgba(212,175,55,0.1);
+          border: 1px solid rgba(99,102,241,0.1);
           border-radius: 10px;
           padding: 18px;
           position: relative;
@@ -1098,8 +1098,8 @@ export default function PromoDashboard() {
           position: absolute;
           top: -1px; left: -1px;
           width: 12px; height: 12px;
-          border-top: 2px solid #d4af37;
-          border-left: 2px solid #d4af37;
+          border-top: 2px solid #6366F1;
+          border-left: 2px solid #6366F1;
           border-radius: 1px 0 0 0;
         }
 
@@ -1108,8 +1108,8 @@ export default function PromoDashboard() {
           position: absolute;
           bottom: -1px; right: -1px;
           width: 12px; height: 12px;
-          border-bottom: 2px solid #d4af37;
-          border-right: 2px solid #d4af37;
+          border-bottom: 2px solid #6366F1;
+          border-right: 2px solid #6366F1;
           border-radius: 0 0 1px 0;
         }
 
@@ -1125,13 +1125,13 @@ export default function PromoDashboard() {
           gap: 10px;
           align-items: center;
           padding: 9px 6px;
-          border-bottom: 1px solid rgba(212,175,55,0.04);
+          border-bottom: 1px solid rgba(99,102,241,0.04);
           font-size: 12px;
           transition: background 0.2s;
         }
 
         .order-row:hover {
-          background: rgba(212,175,55,0.03);
+          background: rgba(99,102,241,0.03);
         }
 
         .order-row:last-child { border-bottom: none; }
@@ -1152,7 +1152,7 @@ export default function PromoDashboard() {
         }
 
         .order-glyph {
-          color: #d4af37;
+          color: #6366F1;
           font-size: 11px;
           opacity: 0.7;
           flex-shrink: 0;
@@ -1161,7 +1161,7 @@ export default function PromoDashboard() {
         .order-id {
           font-family: 'JetBrains Mono', monospace;
           font-size: 10px;
-          color: rgba(212,175,55,0.55);
+          color: rgba(99,102,241,0.55);
         }
 
         .order-middle {
@@ -1179,7 +1179,7 @@ export default function PromoDashboard() {
         .order-location {
           font-family: 'JetBrains Mono', monospace;
           font-size: 9px;
-          color: rgba(212,175,55,0.35);
+          color: rgba(99,102,241,0.35);
           white-space: nowrap;
           margin-top: 1px;
         }
@@ -1192,7 +1192,7 @@ export default function PromoDashboard() {
         .order-price {
           font-family: 'JetBrains Mono', monospace;
           font-size: 11px;
-          color: #d4af37;
+          color: #6366F1;
           font-weight: 600;
         }
 
@@ -1206,7 +1206,7 @@ export default function PromoDashboard() {
         /* ── Top Products Table ── */
         .products-section {
           background: rgba(5,8,16,0.8);
-          border: 1px solid rgba(212,175,55,0.1);
+          border: 1px solid rgba(99,102,241,0.1);
           border-radius: 10px;
           padding: 18px;
           position: relative;
@@ -1217,8 +1217,8 @@ export default function PromoDashboard() {
           position: absolute;
           top: -1px; left: -1px;
           width: 12px; height: 12px;
-          border-top: 2px solid #d4af37;
-          border-left: 2px solid #d4af37;
+          border-top: 2px solid #6366F1;
+          border-left: 2px solid #6366F1;
           border-radius: 1px 0 0 0;
         }
 
@@ -1227,8 +1227,8 @@ export default function PromoDashboard() {
           position: absolute;
           bottom: -1px; right: -1px;
           width: 12px; height: 12px;
-          border-bottom: 2px solid #d4af37;
-          border-right: 2px solid #d4af37;
+          border-bottom: 2px solid #6366F1;
+          border-right: 2px solid #6366F1;
           border-radius: 0 0 1px 0;
         }
 
@@ -1243,18 +1243,18 @@ export default function PromoDashboard() {
           font-family: 'JetBrains Mono', monospace;
           font-size: 9px;
           font-weight: 500;
-          color: rgba(212,175,55,0.45);
+          color: rgba(99,102,241,0.45);
           letter-spacing: 1px;
           text-transform: uppercase;
           padding: 0 0 10px;
-          border-bottom: 1px solid rgba(212,175,55,0.07);
+          border-bottom: 1px solid rgba(99,102,241,0.07);
         }
 
         .products-table th:not(:first-child) { text-align: right; }
 
         .products-table td {
           padding: 9px 0;
-          border-bottom: 1px solid rgba(212,175,55,0.03);
+          border-bottom: 1px solid rgba(99,102,241,0.03);
           color: rgba(255,255,255,0.7);
           vertical-align: middle;
         }
@@ -1263,7 +1263,7 @@ export default function PromoDashboard() {
         .products-table tr:last-child td { border-bottom: none; }
 
         .products-table tr:nth-child(even) td {
-          background: rgba(212,175,55,0.02);
+          background: rgba(99,102,241,0.02);
         }
 
         .prod-name {
@@ -1293,9 +1293,9 @@ export default function PromoDashboard() {
         }
 
         .margin-cyan {
-          background: rgba(212,175,55,0.07);
-          border: 1px solid rgba(212,175,55,0.18);
-          color: #d4af37;
+          background: rgba(99,102,241,0.07);
+          border: 1px solid rgba(99,102,241,0.18);
+          color: #6366F1;
         }
 
         .margin-amber {
@@ -1308,7 +1308,7 @@ export default function PromoDashboard() {
           display: inline-block;
           height: 11px;
           width: 40px;
-          background: linear-gradient(90deg, rgba(212,175,55,0.03) 25%, rgba(212,175,55,0.1) 50%, rgba(212,175,55,0.03) 75%);
+          background: linear-gradient(90deg, rgba(99,102,241,0.03) 25%, rgba(99,102,241,0.1) 50%, rgba(99,102,241,0.03) 75%);
           background-size: 200% 100%;
           border-radius: 3px;
           animation: shimmer 1.5s infinite;
@@ -1333,14 +1333,14 @@ export default function PromoDashboard() {
 
         .toast {
           background: rgba(5,8,16,0.95);
-          border: 1px solid rgba(212,175,55,0.18);
-          border-left: 3px solid #d4af37;
+          border: 1px solid rgba(99,102,241,0.18);
+          border-left: 3px solid #6366F1;
           border-radius: 8px;
           padding: 12px 16px;
           font-size: 12.5px;
           font-weight: 500;
           color: #e8eaed;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(212,175,55,0.04);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 20px rgba(99,102,241,0.04);
           backdrop-filter: blur(10px);
           animation: toast-in 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
           max-width: 300px;
@@ -1350,7 +1350,7 @@ export default function PromoDashboard() {
         }
 
         .toast-icon {
-          color: #d4af37;
+          color: #6366F1;
           font-size: 14px;
           margin-top: 1px;
           flex-shrink: 0;
@@ -1365,7 +1365,7 @@ export default function PromoDashboard() {
 
         .toast-price {
           font-family: 'JetBrains Mono', monospace;
-          color: #d4af37;
+          color: #6366F1;
           font-weight: 600;
           font-size: 13px;
           margin-top: 2px;
@@ -1388,8 +1388,8 @@ export default function PromoDashboard() {
           left: 0;
           right: 0;
           height: 34px;
-          background: rgba(212,175,55,0.05);
-          border-top: 1px solid rgba(212,175,55,0.1);
+          background: rgba(99,102,241,0.05);
+          border-top: 1px solid rgba(99,102,241,0.1);
           overflow: hidden;
           display: flex;
           align-items: center;
@@ -1405,12 +1405,12 @@ export default function PromoDashboard() {
         .ticker-text {
           font-family: 'JetBrains Mono', monospace;
           font-size: 11px;
-          color: rgba(212,175,55,0.55);
+          color: rgba(99,102,241,0.55);
           padding-right: 80px;
           letter-spacing: 0.5px;
         }
 
-        .ticker-text .gold { color: #d4af37; font-weight: 600; }
+        .ticker-text .gold { color: #6366F1; font-weight: 600; }
         .ticker-text .green { color: #4ade80; }
 
         @keyframes ticker-scroll {
@@ -1581,7 +1581,7 @@ export default function PromoDashboard() {
                   </div>
                   <div className="sparkline">
                     {[40, 55, 35, 65, 50, 80, 70].map((h, i) => (
-                      <div key={i} className="spark-bar" style={{ height: `${h}%`, background: '#d4af37' }} />
+                      <div key={i} className="spark-bar" style={{ height: `${h}%`, background: '#6366F1' }} />
                     ))}
                   </div>
                   <div className="stat-divider" />
@@ -1613,7 +1613,7 @@ export default function PromoDashboard() {
                   </div>
                   <div className="sparkline">
                     {[30, 45, 40, 55, 50, 65, 75].map((h, i) => (
-                      <div key={i} className="spark-bar" style={{ height: `${h}%`, background: '#d4af37' }} />
+                      <div key={i} className="spark-bar" style={{ height: `${h}%`, background: '#6366F1' }} />
                     ))}
                   </div>
                   <div className="stat-divider" />
@@ -1644,12 +1644,12 @@ export default function PromoDashboard() {
                   <svg className="chart-svg" viewBox="0 0 840 120" preserveAspectRatio="none">
                     <defs>
                       <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="rgba(212,175,55,0.55)" />
-                        <stop offset="100%" stopColor="rgba(212,175,55,0.12)" />
+                        <stop offset="0%" stopColor="rgba(99,102,241,0.55)" />
+                        <stop offset="100%" stopColor="rgba(99,102,241,0.12)" />
                       </linearGradient>
                       <linearGradient id="barGradCurrent" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#d4af37" />
-                        <stop offset="100%" stopColor="rgba(212,175,55,0.5)" />
+                        <stop offset="0%" stopColor="#6366F1" />
+                        <stop offset="100%" stopColor="rgba(99,102,241,0.5)" />
                       </linearGradient>
                       <filter id="peakGlow">
                         <feGaussianBlur stdDeviation="2" result="blur" />
@@ -1687,7 +1687,7 @@ export default function PromoDashboard() {
                               y={100 - barH - 5}
                               textAnchor="middle"
                               fontSize="7"
-                              fill="#d4af37"
+                              fill="#6366F1"
                               fontFamily="JetBrains Mono, monospace"
                               filter="url(#peakGlow)"
                             >
@@ -1709,7 +1709,7 @@ export default function PromoDashboard() {
                               y="118"
                               textAnchor="middle"
                               fontSize="8"
-                              fill="rgba(212,175,55,0.25)"
+                              fill="rgba(99,102,241,0.25)"
                               fontFamily="JetBrains Mono, monospace"
                             >
                               {hour === 0 ? '12am' : hour < 12 ? `${hour}am` : hour === 12 ? '12pm' : `${hour - 12}pm`}
@@ -1768,14 +1768,14 @@ export default function PromoDashboard() {
                           <td className="prod-name" title={p.name}>{p.name}</td>
                           <td>
                             {p.units !== null ? (
-                              <span style={{ fontFamily: 'JetBrains Mono, monospace', color: '#d4af37', fontSize: 11 }}>{p.units}</span>
+                              <span style={{ fontFamily: 'JetBrains Mono, monospace', color: '#6366F1', fontSize: 11 }}>{p.units}</span>
                             ) : (
                               <span className="skeleton" />
                             )}
                           </td>
                           <td>
                             {p.revenue !== null ? (
-                              <span style={{ fontFamily: 'JetBrains Mono, monospace', color: '#d4af37', fontWeight: 600, fontSize: 11 }}>${fmt(p.revenue)}</span>
+                              <span style={{ fontFamily: 'JetBrains Mono, monospace', color: '#6366F1', fontWeight: 600, fontSize: 11 }}>${fmt(p.revenue)}</span>
                             ) : (
                               <span className="skeleton" />
                             )}
