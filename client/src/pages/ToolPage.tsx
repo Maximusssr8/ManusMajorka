@@ -10,6 +10,7 @@ import { getToolByPath, stages } from '@/lib/tools';
 
 // Lazy-load all tool page components for code splitting
 const WebsiteGenerator = lazy(() => import('./WebsiteGenerator'));
+const NewStoreBuilder = lazy(() => import('./store-builder/index'));
 const MetaAdsPack = lazy(() => import('./MetaAdsPack'));
 const BrandDNA = lazy(() => import('./BrandDNA'));
 const MarketIntelligence = lazy(() => import('./MarketIntelligence'));
@@ -169,7 +170,8 @@ export default function ToolPage() {
   if (location === '/app/profit') return page(<ProfitSuppliers />);
 
   // Route dedicated tool pages
-  if (location === '/app/website-generator' || location === '/app/store-builder') return page(<WebsiteGenerator />);
+  if (location === '/app/website-generator') return page(<WebsiteGenerator />);
+  if (location === '/app/store-builder') return <Suspense fallback={<div style={{ padding: 48, textAlign: 'center', color: '#9CA3AF' }}>Loading...</div>}><NewStoreBuilder /></Suspense>;
   if (location === '/app/meta-ads') return page(<MetaAdsPack />);
   if (location === '/app/brand-dna') return page(<BrandDNA />);
   if (location === '/app/market-intel') return page(<MarketIntelligence />);

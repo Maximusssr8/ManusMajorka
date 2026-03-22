@@ -95,7 +95,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: 'BUILD',
     items: [
-      { label: 'Store Builder', path: '/app/website-generator', icon: Globe, badge: 'AI', tooltip: 'Generate a complete Shopify-ready store in 60 seconds.' },
+      { label: 'Store Builder', path: '/app/store-builder', icon: Globe, badge: 'AI', tooltip: 'Build a complete Shopify-ready store in 60 seconds with 17 templates.' },
       { label: 'Growth Tools', path: '/app/growth', icon: Zap, tooltip: 'Ad Studio, Copy Studio, and Brand DNA — one place.' },
     ],
   },
