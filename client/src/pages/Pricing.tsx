@@ -76,7 +76,7 @@ const COMPETITOR_TOOLS = [
   { name: 'SaleHoo (Suppliers)', cost: 27 },
 ];
 const TOTAL_COMPETITOR = COMPETITOR_TOOLS.reduce((s, t) => s + t.cost, 0);
-const MAJORKA_PRICE = 79;
+const MAJORKA_PRICE = 99;
 const SAVINGS_MO = TOTAL_COMPETITOR - MAJORKA_PRICE;
 const SAVINGS_YR = SAVINGS_MO * 12;
 
@@ -360,7 +360,7 @@ const PLANS = [
   },
   {
     name: 'Builder',
-    price: '$49',
+    price: '$99',
     period: 'AUD/mo',
     description: 'Everything you need to run a winning AU ecommerce business.',
     features: [
@@ -382,7 +382,7 @@ const PLANS = [
   },
   {
     name: 'Scale',
-    price: '$149',
+    price: '$199',
     period: 'AUD/mo',
     description: 'For serious operators who need full control and priority AI.',
     features: [
@@ -409,7 +409,7 @@ function SavingsCalculator() {
   const [adSpend, setAdSpend] = useState(2000);
   const wastedSpend = Math.round(adSpend * 0.35);
   const savings = Math.round(wastedSpend * 0.9);
-  const paybackDays = Math.round(79 / (savings / 30));
+  const paybackDays = Math.round(99 / (savings / 30));
   const fmt = (n: number) => `$${n.toLocaleString('en-AU')}`;
 
   return (
@@ -493,7 +493,7 @@ function SavingsCalculator() {
             💰 Majorka Pro pays for itself in {paybackDays} day{paybackDays !== 1 ? 's' : ''}
           </div>
           <div style={{ fontSize: 13, color: '#94949e' }}>
-            ($79/mo vs {fmt(wastedSpend)} in wasted ad spend)
+            ($99/mo vs {fmt(wastedSpend)} in wasted ad spend)
           </div>
         </div>
 
@@ -631,7 +631,7 @@ export default function Pricing() {
     >
       <SEO
         title="Pricing — Majorka AI Ecommerce OS"
-        description="Start free, upgrade when ready. Builder $49/mo AUD. Scale $149/mo AUD. No lock-in."
+        description="Start free, upgrade when ready. Builder $99/mo AUD. Scale $199/mo AUD. No lock-in."
         path="/pricing"
       />
 

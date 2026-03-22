@@ -340,7 +340,7 @@ export default function Affiliate() {
             <li>$25 account credit per successful signup (friend must stay 7+ days)</li>
             <li>30% recurring commission on all paid subscriptions — for life</li>
             <li>Cash payouts via PayPal or bank transfer at minimum $50 AUD</li>
-            <li>Commission applies to all paid plans ($49 and $149 AUD/mo)</li>
+            <li>Commission applies to all paid plans ($99 and $199 AUD/mo)</li>
             <li>No cap on referrals or earnings</li>
             <li>Friends get 14 days free when they use your link</li>
           </ul>

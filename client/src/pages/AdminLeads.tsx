@@ -98,7 +98,7 @@ export default function AdminLeads() {
           messages: [
             {
               role: 'user',
-              content: `You are a growth hacker for Majorka, an AI ecommerce OS for Australian dropshippers. Price: $49/mo Builder, $149/mo Scale.
+              content: `You are a growth hacker for Majorka, an AI ecommerce OS for Australian dropshippers. Price: $99/mo Builder, $199/mo Scale.
 
 Lead database (${leads.length} total users):
 ${leadSummary || 'No leads yet — generate outreach based on target audience'}
