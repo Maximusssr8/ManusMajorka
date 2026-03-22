@@ -378,7 +378,7 @@ const PLANS = [
     highlight: true,
     badge: 'Most Popular',
     afterpay: true,
-    priceId: 'price_1TBQyECxRnJTAaGBsu1sctuv',
+    plan: 'builder',  // server maps 'builder' → STRIPE_BUILDER_PRICE_ID env var
   },
   {
     name: 'Scale',
@@ -399,8 +399,7 @@ const PLANS = [
     highlight: false,
     badge: null,
     afterpay: true,
-    // Scale plan price ID — update when live in Stripe
-    priceId: 'price_1TBQyECxRnJTAaGBsu1sctuv',
+    plan: 'scale',  // server maps 'scale' → STRIPE_SCALE_PRICE_ID env var
   },
 ];
 
@@ -580,7 +579,7 @@ export default function Pricing() {
     return base * 10; // 2 months free
   };
 
-  const handleProCheckout = async (priceId?: string) => {
+  const handleProCheckout = async (plan?: string) => {
     // If Stripe not configured, show friendly message
     if (stripeConfigured === false) {
       toast.info('Payment processing launching soon — join the waitlist to be first in line!');
@@ -602,7 +601,7 @@ export default function Pricing() {
           'Content-Type': 'application/json',
           Authorization: 'Bearer ' + token,
         },
-        body: JSON.stringify({ priceId }),
+        body: JSON.stringify({ plan: plan ?? 'builder' }),
       });
       const data = (await res.json()) as { url?: string; error?: string; configured?: boolean };
       if (data.url) {
@@ -957,7 +956,7 @@ export default function Pricing() {
                 </Link>
               ) : (
                 <button
-                  onClick={() => handleProCheckout(plan.priceId)}
+                  onClick={() => handleProCheckout((plan as any).plan)}
                   disabled={checkoutLoading}
                   style={{
                     display: 'block',

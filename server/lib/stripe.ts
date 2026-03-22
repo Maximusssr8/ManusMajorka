@@ -24,12 +24,25 @@ export function isStripeConfigured(): boolean {
   return !!process.env.STRIPE_SECRET_KEY;
 }
 
+// ── Plan → live Price ID mapping ──────────────────────────────────────────────
+
+export function planToPriceId(plan: string): string | null {
+  const map: Record<string, string | undefined> = {
+    pro:     process.env.STRIPE_PRO_PRICE_ID,
+    builder: process.env.STRIPE_BUILDER_PRICE_ID,
+    scale:   process.env.STRIPE_SCALE_PRICE_ID,
+  };
+  return map[plan.toLowerCase()] ?? process.env.STRIPE_PRO_PRICE_ID ?? null;
+}
+
 // ── Checkout session ──────────────────────────────────────────────────────────
 
 export interface CreateCheckoutOptions {
   userId: string;
   userEmail?: string;
+  /** Either a Stripe price ID (price_...) or a plan name (pro/builder/scale) */
   priceId?: string;
+  plan?: string;
   successUrl?: string;
   cancelUrl?: string;
 }
@@ -38,21 +51,56 @@ export async function createCheckoutSession(opts: CreateCheckoutOptions): Promis
   const stripe = getStripe();
   if (!stripe) return null;
 
-  const priceId = opts.priceId ?? process.env.STRIPE_PRO_PRICE_ID;
+  // Resolve price ID: accept plan name or direct price ID; plan name takes priority
+  let priceId: string | null = null;
+  if (opts.plan) {
+    priceId = planToPriceId(opts.plan);
+  } else if (opts.priceId?.startsWith('price_')) {
+    priceId = opts.priceId;
+  } else if (opts.priceId) {
+    // Treat non-price_ value as a plan name fallback
+    priceId = planToPriceId(opts.priceId) ?? opts.priceId;
+  }
+  priceId = priceId ?? process.env.STRIPE_PRO_PRICE_ID ?? null;
   if (!priceId) return null;
 
-  const session = await stripe.checkout.sessions.create({
+  // Look up existing Stripe customer by email to avoid duplicates
+  let customerId: string | undefined;
+  if (opts.userEmail) {
+    try {
+      const existing = await stripe.customers.list({ email: opts.userEmail, limit: 1 });
+      if (existing.data.length > 0) {
+        customerId = existing.data[0].id;
+      } else {
+        const created = await stripe.customers.create({
+          email: opts.userEmail,
+          metadata: { userId: opts.userId },
+        });
+        customerId = created.id;
+      }
+    } catch (err) {
+      console.warn('[Stripe] Customer lookup failed, proceeding without customer ID:', err);
+    }
+  }
+
+  const sessionParams: Stripe.Checkout.SessionCreateParams = {
     mode: 'subscription',
     payment_method_types: ['card'],
-    customer_email: opts.userEmail,
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: opts.successUrl ?? 'https://majorka.io/app?upgraded=true',
+    success_url: opts.successUrl ?? 'https://majorka.io/dashboard?upgraded=true',
     cancel_url: opts.cancelUrl ?? 'https://majorka.io/pricing',
     client_reference_id: opts.userId,
     metadata: { userId: opts.userId },
     subscription_data: { metadata: { userId: opts.userId } },
-  });
+  };
 
+  if (customerId) {
+    sessionParams.customer = customerId;
+  } else if (opts.userEmail) {
+    sessionParams.customer_email = opts.userEmail;
+  }
+
+  const session = await stripe.checkout.sessions.create(sessionParams);
   if (!session.url) throw new Error('Stripe did not return a checkout URL');
   return { url: session.url };
 }
@@ -246,9 +294,27 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
     case 'invoice.payment_failed': {
       const invoice = event.data.object as Stripe.Invoice;
       const subId =
-        typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+        typeof invoice.subscription === 'string' ? invoice.subscription : (invoice.subscription as any)?.id;
       if (!subId) break;
-      console.warn(`[Stripe] Payment failed for subscription ${subId}`);
+
+      // Look up userId from the subscription metadata
+      try {
+        const stripe = getStripe()!;
+        const stripeSub = await stripe.subscriptions.retrieve(subId);
+        const userId = stripeSub.metadata?.userId;
+        if (userId) {
+          const sb = getSupabaseAdmin();
+          await sb.from('user_subscriptions').update({
+            status: 'past_due',
+            updated_at: new Date().toISOString(),
+          }).eq('user_id', userId);
+          console.warn(`[Stripe] Payment failed → past_due for user=${userId} sub=${subId}`);
+        } else {
+          console.warn(`[Stripe] invoice.payment_failed: no userId in subscription metadata for ${subId}`);
+        }
+      } catch (err) {
+        console.error('[Stripe] invoice.payment_failed handler error:', err);
+      }
       break;
     }
 
@@ -275,12 +341,13 @@ export function registerStripeRoutes(app: Express) {
       const { data: { user }, error } = await getSupabaseAdmin().auth.getUser(token);
       if (error || !user) return res.status(401).json({ error: 'Unauthorized' });
 
-      const { priceId, successUrl, cancelUrl } = req.body ?? {};
+      const { priceId, plan, successUrl, cancelUrl } = req.body ?? {};
       const result = await createCheckoutSession({
         userId: user.id,
         userEmail: user.email,
         priceId,
-        successUrl: successUrl ?? 'https://majorka.io/app?upgraded=true',
+        plan,  // plan name (builder/scale) takes priority over raw priceId
+        successUrl: successUrl ?? 'https://majorka.io/dashboard?upgraded=true',
         cancelUrl: cancelUrl ?? 'https://majorka.io/pricing',
       });
       if (!result) return res.status(503).json({ configured: false });
@@ -342,18 +409,6 @@ export function registerStripeRoutes(app: Express) {
     }
   });
 
-  // POST /api/stripe/webhook
-  app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-    const signature = req.headers['stripe-signature'];
-    if (!signature || typeof signature !== 'string') {
-      return res.status(400).json({ error: 'Missing Stripe signature header' });
-    }
-    try {
-      await handleWebhook(req.body as Buffer, signature);
-      res.json({ received: true });
-    } catch (err: any) {
-      console.error('[Stripe webhook] Error:', err.message);
-      res.status(400).json({ error: err.message });
-    }
-  });
+  // NOTE: POST /api/stripe/webhook is registered BEFORE express.json() in api/_server.ts
+  // with express.raw() middleware. Do NOT re-register it here.
 }
