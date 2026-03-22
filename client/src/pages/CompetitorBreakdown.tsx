@@ -61,9 +61,9 @@ function CopyBtn({ text }: { text: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? 'rgba(45,202,114,0.1)' : 'rgba(255,255,255,0.05)',
-        border: `1px solid ${copied ? 'rgba(45,202,114,0.3)' : 'rgba(255,255,255,0.08)'}`,
-        color: copied ? 'rgba(45,202,114,0.8)' : 'rgba(240,237,232,0.4)',
+        background: copied ? 'rgba(45,202,114,0.1)' : '#F9FAFB',
+        border: `1px solid ${copied ? 'rgba(45,202,114,0.3)' : '#E5E7EB'}`,
+        color: copied ? 'rgba(45,202,114,0.8)' : '#9CA3AF',
         cursor: 'pointer',
       }}
     >
@@ -84,7 +84,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
   return (
     <div
       className="rounded-2xl overflow-hidden"
-      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid #E5E7EB' }}
+      style={{ background: '#FFFFFF', border: '1px solid #E5E7EB' }}
     >
       <button
         onClick={() => setExpanded(!expanded)}
@@ -108,7 +108,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
           >
             {competitor.name}
           </div>
-          <div className="text-xs mt-0.5" style={{ color: 'rgba(240,237,232,0.4)' }}>
+          <div className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
             {competitor.priceRange} · {competitor.estimatedMonthlyRevenue}/mo
           </div>
         </div>
@@ -120,15 +120,15 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
             {competitor.threatLevel} Threat
           </span>
           {expanded ? (
-            <ChevronUp size={13} style={{ color: 'rgba(240,237,232,0.3)' }} />
+            <ChevronUp size={13} style={{ color: '#D1D5DB' }} />
           ) : (
-            <ChevronDown size={13} style={{ color: 'rgba(240,237,232,0.3)' }} />
+            <ChevronDown size={13} style={{ color: '#D1D5DB' }} />
           )}
         </div>
       </button>
       {expanded && (
         <div className="px-4 pb-4 space-y-3">
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
+          <div style={{ height: 1, background: '#F0F0F0' }} />
           <div className="grid grid-cols-2 gap-3">
             <div
               className="p-3 rounded-xl"
@@ -148,7 +148,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
                   <div
                     key={i}
                     className="text-xs flex items-start gap-1.5"
-                    style={{ color: 'rgba(240,237,232,0.7)' }}
+                    style={{ color: '#374151' }}
                   >
                     <span style={{ color: '#2dca72', flexShrink: 0 }}>+</span>
                     {s}
@@ -174,7 +174,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
                   <div
                     key={i}
                     className="text-xs flex items-start gap-1.5"
-                    style={{ color: 'rgba(240,237,232,0.7)' }}
+                    style={{ color: '#374151' }}
                   >
                     <span style={{ color: '#e05c7a', flexShrink: 0 }}>−</span>
                     {w}
@@ -184,21 +184,21 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 rounded-xl" style={{ background: 'rgba(0,0,0,0.2)' }}>
+            <div className="p-3 rounded-xl" style={{ background: '#F9FAFB' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
               >
                 Target Audience
               </div>
-              <div className="text-xs" style={{ color: 'rgba(240,237,232,0.7)' }}>
+              <div className="text-xs" style={{ color: '#374151' }}>
                 {competitor.targetAudience}
               </div>
             </div>
-            <div className="p-3 rounded-xl" style={{ background: 'rgba(0,0,0,0.2)' }}>
+            <div className="p-3 rounded-xl" style={{ background: '#F9FAFB' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
               >
                 Marketing Channels
               </div>
@@ -228,7 +228,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
             >
               Key Differentiator
             </div>
-            <div className="text-xs" style={{ color: 'rgba(240,237,232,0.75)' }}>
+            <div className="text-xs" style={{ color: '#374151' }}>
               {competitor.keyDifferentiator}
             </div>
           </div>
@@ -328,7 +328,7 @@ export default function CompetitorBreakdown() {
           >
             Competitor Breakdown
           </div>
-          <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+          <div className="text-xs" style={{ color: '#9CA3AF' }}>
             Deep competitive intelligence · Opportunity gaps · Entry strategy
           </div>
         </div>
@@ -340,9 +340,9 @@ export default function CompetitorBreakdown() {
             }}
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: 'rgba(240,237,232,0.5)',
+              background: '#F9FAFB',
+              border: '1px solid #E5E7EB',
+              color: '#6B7280',
               cursor: 'pointer',
             }}
           >
@@ -365,7 +365,7 @@ export default function CompetitorBreakdown() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6B7280', fontFamily: 'Syne, sans-serif' }}
               >
                 Product / Niche *
               </label>
@@ -381,7 +381,7 @@ export default function CompetitorBreakdown() {
                 placeholder="e.g. Posture corrector, Yoga mats…"
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: 'rgba(255,255,255,0.04)',
+                  background: '#F9FAFB',
                   border: '1px solid rgba(255,255,255,0.1)',
                   color: '#0A0A0A',
                 }}
@@ -390,7 +390,7 @@ export default function CompetitorBreakdown() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6B7280', fontFamily: 'Syne, sans-serif' }}
               >
                 Competitor URLs (optional)
               </label>
@@ -401,12 +401,12 @@ export default function CompetitorBreakdown() {
                 rows={4}
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none resize-none"
                 style={{
-                  background: 'rgba(255,255,255,0.04)',
+                  background: '#F9FAFB',
                   border: '1px solid rgba(255,255,255,0.1)',
                   color: '#0A0A0A',
                 }}
               />
-              <div className="text-xs mt-1" style={{ color: 'rgba(240,237,232,0.28)' }}>
+              <div className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
                 We'll scrape and analyse these pages
               </div>
             </div>
@@ -464,7 +464,7 @@ export default function CompetitorBreakdown() {
                 <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>
                   Analysing competitors…
                 </div>
-                <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+                <div className="text-xs" style={{ color: '#9CA3AF' }}>
                   Scanning market data and competitor profiles
                 </div>
               </div>
@@ -489,7 +489,7 @@ export default function CompetitorBreakdown() {
                   </div>
                   <CopyBtn text={result.marketSummary} />
                 </div>
-                <div className="text-sm leading-relaxed" style={{ color: 'rgba(240,237,232,0.8)' }}>
+                <div className="text-sm leading-relaxed" style={{ color: '#374151' }}>
                   {result.marketSummary}
                 </div>
               </div>
@@ -497,7 +497,7 @@ export default function CompetitorBreakdown() {
               <div>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-3"
-                  style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
                 >
                   {result.competitors.length} Competitors Analysed
                 </div>
@@ -529,7 +529,7 @@ export default function CompetitorBreakdown() {
                     <div
                       key={i}
                       className="flex items-start gap-2 text-xs"
-                      style={{ color: 'rgba(240,237,232,0.75)' }}
+                      style={{ color: '#374151' }}
                     >
                       <span
                         className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 mt-0.5 font-black text-xs"
@@ -551,19 +551,19 @@ export default function CompetitorBreakdown() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
+                    background: '#F9FAFB',
                     border: '1px solid #E5E7EB',
                   }}
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
                   >
                     Entry Strategy
                   </div>
                   <div
                     className="text-xs leading-relaxed"
-                    style={{ color: 'rgba(240,237,232,0.7)' }}
+                    style={{ color: '#374151' }}
                   >
                     {result.entryStrategy}
                   </div>
@@ -571,19 +571,19 @@ export default function CompetitorBreakdown() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
+                    background: '#F9FAFB',
                     border: '1px solid #E5E7EB',
                   }}
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
                   >
                     Pricing Intel
                   </div>
                   <div
                     className="text-xs leading-relaxed"
-                    style={{ color: 'rgba(240,237,232,0.7)' }}
+                    style={{ color: '#374151' }}
                   >
                     {result.pricingIntel}
                   </div>
@@ -604,7 +604,7 @@ export default function CompetitorBreakdown() {
                 </div>
                 <div
                   className="text-xs max-w-xs leading-relaxed"
-                  style={{ color: 'rgba(240,237,232,0.35)' }}
+                  style={{ color: '#9CA3AF' }}
                 >
                   Enter a product or niche to get a full competitive intelligence report with
                   opportunity gaps and entry strategy.

@@ -59,9 +59,9 @@ function CopyBtn({ text, label = 'Copy' }: { text: string; label?: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? 'rgba(45,202,114,0.1)' : 'rgba(0,0,0,0.04)',
+        background: copied ? 'rgba(45,202,114,0.1)' : '#F9FAFB',
         border: `1px solid ${copied ? 'rgba(45,202,114,0.3)' : '#E5E7EB'}`,
-        color: copied ? 'rgba(45,202,114,0.8)' : 'rgba(240,237,232,0.45)',
+        color: copied ? 'rgba(45,202,114,0.8)' : '#6B7280',
         cursor: 'pointer',
       }}
     >
@@ -113,7 +113,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
           >
             {angle.angle}
           </div>
-          <div className="text-xs mt-0.5 truncate" style={{ color: 'rgba(240,237,232,0.45)' }}>
+          <div className="text-xs mt-0.5 truncate" style={{ color: '#6B7280' }}>
             {angle.hook}
           </div>
         </div>
@@ -121,8 +121,8 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
           <span
             className="text-xs px-2 py-0.5 rounded-full font-semibold"
             style={{
-              background: 'rgba(0,0,0,0.04)',
-              color: 'rgba(240,237,232,0.45)',
+              background: '#F9FAFB',
+              color: '#6B7280',
               fontFamily: 'Syne, sans-serif',
             }}
           >
@@ -130,15 +130,15 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
           </span>
           <CopyBtn text={allCopy} label="Copy All" />
           {expanded ? (
-            <ChevronUp size={14} style={{ color: 'rgba(240,237,232,0.3)' }} />
+            <ChevronUp size={14} style={{ color: '#9CA3AF' }} />
           ) : (
-            <ChevronDown size={14} style={{ color: 'rgba(240,237,232,0.3)' }} />
+            <ChevronDown size={14} style={{ color: '#9CA3AF' }} />
           )}
         </div>
       </div>
       {expanded && (
         <div className="px-4 pb-4 space-y-4">
-          <div style={{ height: 1, background: 'rgba(0,0,0,0.04)' }} />
+          <div style={{ height: 1, background: '#F9FAFB' }} />
           <div>
             <div className="flex items-center justify-between mb-2">
               <div
@@ -152,8 +152,8 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
             <div
               className="text-sm p-3 rounded-xl leading-relaxed"
               style={{
-                background: 'rgba(0,0,0,0.2)',
-                color: 'rgba(240,237,232,0.85)',
+                background: '#F9FAFB',
+                color: '#374151',
                 border: '1px solid #E5E7EB',
               }}
             >
@@ -173,7 +173,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
                   <div className="flex items-center justify-between mb-1.5">
                     <span
                       className="text-xs font-semibold"
-                      style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                      style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
                     >
                       {i === 0 ? 'Long-form (150–300 words)' : 'Short-form (50–80 words)'}
                     </span>
@@ -182,8 +182,8 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
                   <div
                     className="text-xs p-3 rounded-xl leading-relaxed"
                     style={{
-                      background: 'rgba(0,0,0,0.2)',
-                      color: 'rgba(240,237,232,0.75)',
+                      background: '#F9FAFB',
+                      color: '#374151',
                       border: '1px solid #E5E7EB',
                       whiteSpace: 'pre-wrap',
                     }}
@@ -210,7 +210,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
                   key={i}
                   className="flex items-center gap-2 p-2.5 rounded-lg"
                   style={{
-                    background: 'rgba(0,0,0,0.15)',
+                    background: '#F9FAFB',
                     border: '1px solid #E5E7EB',
                   }}
                 >
@@ -220,7 +220,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
                   >
                     {i + 1}
                   </span>
-                  <span className="text-xs flex-1" style={{ color: 'rgba(240,237,232,0.8)' }}>
+                  <span className="text-xs flex-1" style={{ color: '#374151' }}>
                     {h}
                   </span>
                   <CopyBtn text={h} />
@@ -239,8 +239,8 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
               <div
                 className="text-xs p-3 rounded-xl leading-relaxed"
                 style={{
-                  background: 'rgba(0,0,0,0.15)',
-                  color: 'rgba(240,237,232,0.65)',
+                  background: '#F9FAFB',
+                  color: '#374151',
                   border: '1px solid #E5E7EB',
                 }}
               >
@@ -257,8 +257,8 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
               <div
                 className="text-xs p-3 rounded-xl leading-relaxed"
                 style={{
-                  background: 'rgba(0,0,0,0.15)',
-                  color: 'rgba(240,237,232,0.65)',
+                  background: '#F9FAFB',
+                  color: '#374151',
                   border: '1px solid #E5E7EB',
                 }}
               >
@@ -450,7 +450,7 @@ export default function MetaAdsPack() {
           >
             Meta Ads Pack
           </div>
-          <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+          <div className="text-xs" style={{ color: '#9CA3AF' }}>
             5 creative angles · Primary texts · Headlines · 48-hr launch plan
           </div>
         </div>
@@ -484,13 +484,13 @@ export default function MetaAdsPack() {
           <div
             className="rounded-xl p-3"
             style={{
-              background: 'rgba(0,0,0,0.02)',
+              background: '#FAFAFA',
               border: '1px solid #E5E7EB',
             }}
           >
             <div
               className="text-xs font-bold uppercase tracking-widest mb-2"
-              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
             >
               Import from URL
             </div>
@@ -502,7 +502,7 @@ export default function MetaAdsPack() {
                 placeholder="Paste AliExpress / Amazon URL…"
                 className="flex-1 text-xs px-2.5 py-2 rounded-lg outline-none"
                 style={{
-                  background: 'rgba(0,0,0,0.03)',
+                  background: '#F9FAFB',
                   border: '1px solid #E5E7EB',
                   color: '#0A0A0A',
                 }}
@@ -527,7 +527,7 @@ export default function MetaAdsPack() {
           <div>
             <div
               className="text-xs font-bold uppercase tracking-widest mb-3"
-              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
             >
               Product Details
             </div>
@@ -535,7 +535,7 @@ export default function MetaAdsPack() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#6B7280', fontFamily: 'Syne, sans-serif' }}
                 >
                   Product Name *
                 </label>
@@ -551,7 +551,7 @@ export default function MetaAdsPack() {
                   placeholder="e.g. Posture Corrector Belt"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{
-                    background: 'rgba(0,0,0,0.03)',
+                    background: '#F9FAFB',
                     border: '1px solid #E5E7EB',
                     color: '#0A0A0A',
                   }}
@@ -560,7 +560,7 @@ export default function MetaAdsPack() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#6B7280', fontFamily: 'Syne, sans-serif' }}
                 >
                   Sell Price (AUD)
                 </label>
@@ -570,7 +570,7 @@ export default function MetaAdsPack() {
                   placeholder="e.g. 49.99"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{
-                    background: 'rgba(0,0,0,0.03)',
+                    background: '#F9FAFB',
                     border: '1px solid #E5E7EB',
                     color: '#0A0A0A',
                   }}
@@ -579,7 +579,7 @@ export default function MetaAdsPack() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#6B7280', fontFamily: 'Syne, sans-serif' }}
                 >
                   Product Description
                 </label>
@@ -590,7 +590,7 @@ export default function MetaAdsPack() {
                   rows={4}
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none resize-none"
                   style={{
-                    background: 'rgba(0,0,0,0.03)',
+                    background: '#F9FAFB',
                     border: '1px solid #E5E7EB',
                     color: '#0A0A0A',
                   }}
@@ -602,7 +602,7 @@ export default function MetaAdsPack() {
           <div>
             <div
               className="text-xs font-bold uppercase tracking-widest mb-3"
-              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
             >
               Campaign Settings
             </div>
@@ -610,7 +610,7 @@ export default function MetaAdsPack() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#6B7280', fontFamily: 'Syne, sans-serif' }}
                 >
                   Target Audience
                 </label>
@@ -620,7 +620,7 @@ export default function MetaAdsPack() {
                   placeholder="e.g. Women 25-45, back pain sufferers"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{
-                    background: 'rgba(0,0,0,0.03)',
+                    background: '#F9FAFB',
                     border: '1px solid #E5E7EB',
                     color: '#0A0A0A',
                   }}
@@ -629,7 +629,7 @@ export default function MetaAdsPack() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#6B7280', fontFamily: 'Syne, sans-serif' }}
                 >
                   Daily Budget (AUD)
                 </label>
@@ -639,7 +639,7 @@ export default function MetaAdsPack() {
                   placeholder="e.g. 50"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{
-                    background: 'rgba(0,0,0,0.03)',
+                    background: '#F9FAFB',
                     border: '1px solid #E5E7EB',
                     color: '#0A0A0A',
                   }}
@@ -704,7 +704,7 @@ export default function MetaAdsPack() {
                 >
                   Generating your Meta Ads Pack…
                 </div>
-                <div className="text-sm" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                <div className="text-sm" style={{ color: '#9CA3AF' }}>
                   Creating 5 creative angles, primary texts, headlines, and 48-hour launch plan
                 </div>
               </div>
@@ -738,7 +738,7 @@ export default function MetaAdsPack() {
                 >
                   Your Meta Ads Pack will appear here
                 </div>
-                <div className="text-sm mb-4" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                <div className="text-sm mb-4" style={{ color: '#9CA3AF' }}>
                   Enter your product details on the left and hit{' '}
                   <span style={{ color: '#6366F1' }}>Generate Ads Pack</span> to get 5 creative
                   angles with full copy.
@@ -754,9 +754,9 @@ export default function MetaAdsPack() {
                       key={i}
                       className="flex items-center gap-3 text-xs p-3 rounded-xl"
                       style={{
-                        background: 'rgba(0,0,0,0.02)',
+                        background: '#FAFAFA',
                         border: '1px solid #E5E7EB',
-                        color: 'rgba(240,237,232,0.5)',
+                        color: '#6B7280',
                       }}
                     >
                       <span
@@ -796,7 +796,7 @@ export default function MetaAdsPack() {
                   </div>
                   <CopyBtn text={pack.productSummary} />
                 </div>
-                <div className="text-sm" style={{ color: 'rgba(240,237,232,0.8)' }}>
+                <div className="text-sm" style={{ color: '#374151' }}>
                   {pack.productSummary}
                 </div>
               </div>
@@ -806,7 +806,7 @@ export default function MetaAdsPack() {
                 <div className="flex items-center justify-between mb-3">
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
                   >
                     Creative Angles
                   </div>
@@ -817,9 +817,9 @@ export default function MetaAdsPack() {
                     }}
                     className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg"
                     style={{
-                      background: 'rgba(0,0,0,0.03)',
+                      background: '#F9FAFB',
                       border: '1px solid #E5E7EB',
-                      color: 'rgba(240,237,232,0.4)',
+                      color: '#9CA3AF',
                       cursor: 'pointer',
                     }}
                   >
@@ -837,19 +837,19 @@ export default function MetaAdsPack() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: 'rgba(0,0,0,0.02)',
+                  background: '#FAFAFA',
                   border: '1px solid #E5E7EB',
                 }}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
                   >
                     ⏱ 48-Hour Launch Plan
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs" style={{ color: 'rgba(240,237,232,0.3)' }}>
+                    <span className="text-xs" style={{ color: '#9CA3AF' }}>
                       {checkedSteps.size}/{pack.plan48h.length} done
                     </span>
                     <CopyBtn text={pack.plan48h.join('\n')} label="Copy Plan" />
@@ -870,7 +870,7 @@ export default function MetaAdsPack() {
                       style={{
                         background: checkedSteps.has(i)
                           ? 'rgba(45,202,114,0.06)'
-                          : 'rgba(0,0,0,0.2)',
+                          : '#F9FAFB',
                         border: `1px solid ${checkedSteps.has(i) ? 'rgba(45,202,114,0.2)' : 'transparent'}`,
                         cursor: 'pointer',
                       }}
@@ -902,8 +902,8 @@ export default function MetaAdsPack() {
                       <span
                         style={{
                           color: checkedSteps.has(i)
-                            ? 'rgba(240,237,232,0.35)'
-                            : 'rgba(240,237,232,0.7)',
+                            ? '#9CA3AF'
+                            : '#374151',
                           textDecoration: checkedSteps.has(i) ? 'line-through' : 'none',
                         }}
                       >
@@ -919,19 +919,19 @@ export default function MetaAdsPack() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(0,0,0,0.02)',
+                    background: '#FAFAFA',
                     border: '1px solid #E5E7EB',
                   }}
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
                   >
                     💰 Budget Split
                   </div>
                   <div
                     className="text-xs leading-relaxed"
-                    style={{ color: 'rgba(240,237,232,0.65)' }}
+                    style={{ color: '#374151' }}
                   >
                     {pack.budgetSplit}
                   </div>
@@ -939,13 +939,13 @@ export default function MetaAdsPack() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(0,0,0,0.02)',
+                    background: '#FAFAFA',
                     border: '1px solid #E5E7EB',
                   }}
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
                   >
                     📊 KPIs to Track
                   </div>
@@ -954,7 +954,7 @@ export default function MetaAdsPack() {
                       <div
                         key={i}
                         className="text-xs flex items-center gap-2"
-                        style={{ color: 'rgba(240,237,232,0.65)' }}
+                        style={{ color: '#374151' }}
                       >
                         <span style={{ color: '#6366F1' }}>•</span>
                         {kpi}

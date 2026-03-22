@@ -95,7 +95,7 @@ const GLOBAL_STYLES = `
   /* Hero animation wrapper: show on mobile but no float animation */
   .hero-widget   { animation: none !important; width: 100% !important; flex: 0 0 auto !important; }
   /* Nav: compact on mobile */
-  .nav-inner     { height: 56px !important; padding: 0 16px !important; overflow: hidden !important; }
+  .nav-inner     { height: 64px !important; padding: 0 24px !important; }
   /* Weekly winners: show only first 2 cards */
   .weekly-card:nth-child(n+3) { display: none !important; }
   /* Weekly form: stack vertically */

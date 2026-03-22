@@ -4,8 +4,8 @@ import { Search, Loader2, ExternalLink, Store } from 'lucide-react';
 import { useAuth } from '@/_core/hooks/useAuth';
 
 const C = {
-  bg: '#080a0e', card: '#0d1117', border: '#1a2030',
-  gold: '#6366F1', text: '#e8eaf0', muted: '#6b7280', red: '#ef4444',
+  bg: '#FAFAFA', card: '#FFFFFF', border: '#F0F0F0',
+  gold: '#6366F1', text: '#0A0A0A', muted: '#6B7280', red: '#ef4444',
 };
 
 export default function ProductSearch() {
@@ -139,7 +139,7 @@ export default function ProductSearch() {
                   }}
                 >
                   {/* Product image */}
-                  <div style={{ position: 'relative', paddingTop: '75%', background: '#111' }}>
+                  <div style={{ position: 'relative', paddingTop: '75%', background: '#F3F4F6' }}>
                     {product.image ? (
                       <img
                         src={product.image}
@@ -152,7 +152,7 @@ export default function ProductSearch() {
                     )}
                     <span style={{
                       position: 'absolute', top: 8, left: 8,
-                      background: 'rgba(0,0,0,0.7)', color: C.text,
+                      background: 'rgba(0,0,0,0.55)', color: '#ffffff',
                       fontSize: 11, padding: '3px 8px', borderRadius: 4,
                     }}>
                       {product.platform_badge}

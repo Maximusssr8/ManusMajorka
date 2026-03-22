@@ -55,14 +55,14 @@ type SortDir = 'asc' | 'desc';
 
 const C = {
   bg: '#FAFAFA',
-  surface: 'rgba(255,255,255,0.02)',
-  border: 'rgba(255,255,255,0.07)',
+  surface: '#FFFFFF',
+  border: '#F0F0F0',
   borderHover: 'rgba(99,102,241,0.35)',
   gold: '#6366F1',
   goldDim: 'rgba(99,102,241,0.6)',
   text: '#0A0A0A',
-  sub: 'rgba(240,237,232,0.55)',
-  muted: 'rgba(240,237,232,0.35)',
+  sub: '#6B7280',
+  muted: '#9CA3AF',
   green: '#10b981',
   yellow: '#f59e0b',
   red: '#ef4444',
@@ -318,7 +318,7 @@ export default function TrendSignals() {
             <span style={{ fontSize: 13, fontWeight: 700, color: '#2dca72', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase' as const, letterSpacing: '1px' }}>
               Top 10 Today
             </span>
-            <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)' }}>· Refreshed every 6h</span>
+            <span style={{ fontSize: 11, color: '#9CA3AF' }}>· Refreshed every 6h</span>
           </div>
           <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4 }}>
             {[...products]
@@ -328,16 +328,16 @@ export default function TrendSignals() {
                 <div key={p.id || p.name + '-top'}
                   style={{
                     flexShrink: 0, width: 160, background: 'white',
-                    border: `1px solid ${idx === 0 ? '#6366F1' : '#1a1a2e'}`,
+                    border: `1px solid ${idx === 0 ? '#6366F1' : '#E5E7EB'}`,
                     borderRadius: 10, overflow: 'hidden', cursor: 'pointer', transition: 'border-color 0.15s',
                   }}
                   onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = '#6366F1'}
-                  onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = idx === 0 ? '#6366F1' : '#1a1a2e'}
+                  onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = idx === 0 ? '#6366F1' : '#E5E7EB'}
                 >
                   {p.image_url ? (
                     <img src={p.image_url} alt={p.name} style={{ width: '100%', height: 90, objectFit: 'cover' }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                   ) : (
-                    <div style={{ height: 90, background: '#1a1a2e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>
+                    <div style={{ height: 90, background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>
                       {['\uD83D\uDCAB','\uD83D\uDD25','\u2728','\u26A1','\uD83C\uDFAF'][idx % 5]}
                     </div>
                   )}
@@ -373,7 +373,7 @@ export default function TrendSignals() {
             placeholder="Search products..."
             style={{
               width: '100%', paddingLeft: 28, paddingRight: 10, paddingTop: 7, paddingBottom: 7,
-              background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`,
+              background: '#F9FAFB', border: `1px solid ${C.border}`,
               borderRadius: 7, fontSize: 12, color: C.text, outline: 'none', boxSizing: 'border-box',
             }}
           />
@@ -389,7 +389,7 @@ export default function TrendSignals() {
           });
           return (
             <select value={nicheFilter} onChange={e => { setNicheFilter(e.target.value); setPage(1); }}
-              style={{ padding: '7px 10px', background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 12, color: C.text, cursor: 'pointer', flex: '0 0 auto' }}>
+              style={{ padding: '7px 10px', background: '#F9FAFB', border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 12, color: C.text, cursor: 'pointer', flex: '0 0 auto' }}>
               <option value="All Niches" style={{ background: 'white' }}>All Niches ({products.length})</option>
               {ALL_NICHES.filter(n => n !== 'All Niches').map(n => (
                 <option key={n} value={n} style={{ background: 'white' }}>
@@ -407,7 +407,7 @@ export default function TrendSignals() {
             type="number" min={0} max={90} value={minMargin}
             onChange={e => { setMinMargin(Number(e.target.value)); setPage(1); }}
             style={{
-              width: 52, padding: '5px 7px', background: 'rgba(255,255,255,0.04)',
+              width: 52, padding: '5px 7px', background: '#F9FAFB',
               border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, color: C.text, textAlign: 'center',
             }}
           />%
@@ -420,7 +420,7 @@ export default function TrendSignals() {
             type="number" min={0} max={100} value={minTrend}
             onChange={e => { setMinTrend(Number(e.target.value)); setPage(1); }}
             style={{
-              width: 52, padding: '5px 7px', background: 'rgba(255,255,255,0.04)',
+              width: 52, padding: '5px 7px', background: '#F9FAFB',
               border: `1px solid ${C.border}`, borderRadius: 6, fontSize: 12, color: C.text, textAlign: 'center',
             }}
           />
@@ -458,7 +458,7 @@ export default function TrendSignals() {
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '8px 14px', marginBottom: 10,
-            background: 'rgba(255,255,255,0.02)', borderRadius: 8, border: `1px solid ${C.border}`,
+            background: '#FFFFFF', borderRadius: 8, border: `1px solid ${C.border}`,
             fontSize: 11, color: C.muted, flexWrap: 'wrap', gap: 8,
           }}>
             <span>
@@ -509,7 +509,7 @@ export default function TrendSignals() {
                     key={p.id || p.name}
                     style={{ borderBottom: `1px solid ${C.border}`, transition: 'background 0.12s' }}
                     onMouseEnter={e => {
-                      e.currentTarget.style.background = 'rgba(99,102,241,0.03)';
+                      e.currentTarget.style.background = 'rgba(99,102,241,0.04)';
                       e.currentTarget.style.borderLeft = '2px solid rgba(99,102,241,0.4)';
                     }}
                     onMouseLeave={e => {
@@ -572,7 +572,7 @@ export default function TrendSignals() {
                             )}
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ fontSize: 10, color: C.muted, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 4, padding: '1px 6px' }}>
+                            <span style={{ fontSize: 10, color: C.muted, background: '#F9FAFB', border: `1px solid ${C.border}`, borderRadius: 4, padding: '1px 6px' }}>
                               {p.niche}
                             </span>
                           </div>
@@ -585,7 +585,7 @@ export default function TrendSignals() {
                       <div style={{ fontSize: 15, fontWeight: 800, color: '#6366F1', fontFamily: 'Syne, sans-serif' }}>
                         ${formatK(p.est_monthly_revenue_aud || 0)}
                       </div>
-                      <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.4)', marginTop: 1 }}>AUD/mo</div>
+                      <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 1 }}>AUD/mo</div>
                     </td>
 
                     {/* Sparkline */}
@@ -638,11 +638,11 @@ export default function TrendSignals() {
                               width: 8, height: 8, borderRadius: 2,
                               background: i <= Math.round((p.saturation_score || 5) / 2)
                                 ? (p.saturation_score || 5) >= 7 ? '#2dca72' : (p.saturation_score || 5) >= 4 ? '#6366F1' : '#ef4444'
-                                : '#1a1a2e',
+                                : '#E5E7EB',
                             }} />
                           ))}
                         </div>
-                        <span style={{ fontSize: 9, color: 'rgba(240,237,232,0.4)', textTransform: 'uppercase' as const }}>
+                        <span style={{ fontSize: 9, color: '#9CA3AF', textTransform: 'uppercase' as const }}>
                           {(p.saturation_score || 5) >= 7 ? 'Blue Ocean' : (p.saturation_score || 5) >= 4 ? 'Medium' : 'Saturated'}
                         </span>
                       </div>
@@ -653,7 +653,7 @@ export default function TrendSignals() {
                       <div style={{ display: 'flex', alignItems: 'center' }}>
                         {(p.creator_handles || []).slice(0, 3).map((handle, i) => (
                           <div key={i} title={handle} style={{
-                            width: 24, height: 24, borderRadius: '50%', border: '2px solid #080a0e',
+                            width: 24, height: 24, borderRadius: '50%', border: '2px solid #FFFFFF',
                             background: `hsl(${handle.charCodeAt(1) * 13 % 360},45%,35%)`,
                             marginLeft: i > 0 ? -8 : 0,
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -665,7 +665,7 @@ export default function TrendSignals() {
                           </div>
                         ))}
                         {(p.creator_handles || []).length > 0 && (
-                          <span style={{ marginLeft: 6, fontSize: 10, color: 'rgba(240,237,232,0.4)' }}>
+                          <span style={{ marginLeft: 6, fontSize: 10, color: '#9CA3AF' }}>
                             +{p.ad_count_est || 0} ads
                           </span>
                         )}
@@ -704,7 +704,7 @@ export default function TrendSignals() {
                           }}
                           style={{
                             display: 'flex', alignItems: 'center', gap: 4,
-                            padding: '5px 10px', background: C.gold, color: '#080a0e',
+                            padding: '5px 10px', background: C.gold, color: '#FFFFFF',
                             border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 800,
                             cursor: 'pointer', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap',
                           }}
@@ -756,7 +756,7 @@ export default function TrendSignals() {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, fontFamily: 'Syne, sans-serif', color: C.text, marginBottom: 3 }}>{p.name}</div>
-                  <span style={{ fontSize: 10, color: C.muted, background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`, borderRadius: 4, padding: '1px 6px' }}>{p.niche}</span>
+                  <span style={{ fontSize: 10, color: C.muted, background: '#F9FAFB', border: `1px solid ${C.border}`, borderRadius: 4, padding: '1px 6px' }}>{p.niche}</span>
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
                   <div style={{ fontSize: 14, fontWeight: 800, color: C.gold }}>${p.estimated_retail_aud}</div>
@@ -781,7 +781,7 @@ export default function TrendSignals() {
                     });
                     navigate(`/app/store-builder?${params.toString()}`);
                   }}
-                  style={{ flex: 1, padding: '9px', background: C.gold, color: '#080a0e', border: 'none', borderRadius: 7, fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}>
+                  style={{ flex: 1, padding: '9px', background: C.gold, color: '#FFFFFF', border: 'none', borderRadius: 7, fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}>
                   Build Store →
                 </button>
                 <button onClick={() => {
@@ -791,7 +791,7 @@ export default function TrendSignals() {
                     });
                     navigate(`/app/suppliers?${sparams.toString()}`);
                   }}
-                  style={{ flex: 1, padding: '9px', background: C.surface, color: C.sub, border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 12, cursor: 'pointer' }}>
+                  style={{ flex: 1, padding: '9px', background: '#F9FAFB', color: C.sub, border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 12, cursor: 'pointer' }}>
                   Supplier →
                 </button>
               </div>
@@ -855,7 +855,7 @@ export default function TrendSignals() {
           .trend-cards-mobile { display: none !important; }
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        th:hover { background: rgba(255,255,255,0.03) !important; }
+        th:hover { background: #F9FAFB !important; }
       `}</style>
     </div>
   );

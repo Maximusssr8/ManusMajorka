@@ -127,12 +127,12 @@ function CreatorDrawer({
       <div
         ref={drawerRef}
         className="w-full max-w-md h-full overflow-y-auto flex flex-col"
-        style={{ background: 'white', borderLeft: '1px solid rgba(255,255,255,0.08)' }}
+        style={{ background: 'white', borderLeft: '1px solid #F0F0F0' }}
       >
         {/* Drawer header */}
         <div
           className="sticky top-0 flex items-center justify-between px-5 py-4"
-          style={{ background: 'white', borderBottom: '1px solid rgba(255,255,255,0.06)', zIndex: 10 }}
+          style={{ background: 'white', borderBottom: '1px solid #F0F0F0', zIndex: 10 }}
         >
           <p className="text-sm font-semibold" style={{ color: '#0A0A0A' }}>Creator Profile</p>
           <button onClick={onClose} style={{ color: '#64748b' }}><X size={18} /></button>
@@ -164,7 +164,7 @@ function CreatorDrawer({
           </div>
 
           {/* Revenue chart */}
-          <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}>
+          <div className="rounded-xl p-4" style={{ background: '#FFFFFF', border: '1px solid #F0F0F0' }}>
             <p className="text-xs mb-3" style={{ color: '#64748b' }}>8-week GMV trend</p>
             {sparkData.length > 1 ? (
               <ResponsiveContainer width="100%" height={80}>
@@ -189,9 +189,9 @@ function CreatorDrawer({
               { label: 'Items Sold', value: fmtNum(creator.items_sold_30d), highlight: false },
               { label: 'Commission', value: `${creator.commission_rate}%`, highlight: false },
             ].map((m) => (
-              <div key={m.label} className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}>
+              <div key={m.label} className="rounded-lg p-3" style={{ background: '#FFFFFF', border: '1px solid #F0F0F0' }}>
                 <p className="text-xs" style={{ color: '#64748b' }}>{m.label}</p>
-                <p className="text-base font-semibold mt-0.5" style={{ color: m.highlight ? '#6366F1' : '#e2e8f0', fontFamily: 'Syne, sans-serif' }}>
+                <p className="text-base font-semibold mt-0.5" style={{ color: m.highlight ? '#6366F1' : '#0A0A0A', fontFamily: 'Syne, sans-serif' }}>
                   {m.value}
                 </p>
               </div>
@@ -307,7 +307,7 @@ export default function CreatorIntelligence() {
   }
 
   function SortIcon({ col }: { col: SortKey }) {
-    if (sortKey !== col) return <span style={{ color: '#334155' }}>↕</span>;
+    if (sortKey !== col) return <span style={{ color: '#9CA3AF' }}>↕</span>;
     return sortDir === 'desc' ? <ChevronDown size={12} style={{ color: '#6366F1' }} /> : <ChevronUp size={12} style={{ color: '#6366F1' }} />;
   }
 
@@ -364,7 +364,7 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
       <div className="px-6 py-5 border-b" style={{ borderColor: '#E5E7EB' }}>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-xl font-bold" style={{ fontFamily: 'Syne, sans-serif', color: '#fff' }}>Creator Intelligence</h1>
+            <h1 className="text-xl font-bold" style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}>Creator Intelligence</h1>
             <p className="text-sm mt-0.5" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>AU TikTok creators driving product sales</p>
           </div>
           {/* Stats bar */}
@@ -400,7 +400,7 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
                 className="w-full text-left text-sm px-3 py-2 rounded-lg transition-colors"
                 style={{
                   background: filter === f.key ? 'rgba(99,102,241,0.12)' : 'transparent',
-                  color: filter === f.key ? '#6366F1' : '#94a3b8',
+                  color: filter === f.key ? '#6366F1' : '#6B7280',
                   fontFamily: 'DM Sans, sans-serif',
                 }}
               >
@@ -420,9 +420,9 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
                 onClick={() => setFilter(f.key)}
                 className="flex-shrink-0 text-xs px-3 py-1.5 rounded-full transition-colors"
                 style={{
-                  background: filter === f.key ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.05)',
-                  color: filter === f.key ? '#6366F1' : '#94a3b8',
-                  border: filter === f.key ? '1px solid rgba(99,102,241,0.3)' : '1px solid rgba(255,255,255,0.08)',
+                  background: filter === f.key ? 'rgba(99,102,241,0.1)' : '#F5F5F5',
+                  color: filter === f.key ? '#6366F1' : '#6B7280',
+                  border: filter === f.key ? '1px solid rgba(99,102,241,0.3)' : '1px solid #E5E7EB',
                 }}
               >
                 {f.label}
@@ -440,8 +440,8 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm"
               style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
+                background: '#FFFFFF',
+                border: '1px solid #E5E7EB',
                 color: '#0A0A0A',
                 outline: 'none',
                 fontFamily: 'DM Sans, sans-serif',
@@ -454,7 +454,7 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
             <div className="overflow-x-auto">
               <table className="w-full min-w-[700px]">
                 <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
+                  <tr style={{ borderBottom: '1px solid #F0F0F0', background: '#F9FAFB' }}>
                     {COLS.map((col) => (
                       <th
                         key={col.key as string}
@@ -488,8 +488,8 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
                       <tr
                         key={c.id}
                         className="cursor-pointer transition-colors"
-                        style={{ borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
+                        style={{ borderBottom: i < filtered.length - 1 ? '1px solid #F0F0F0' : 'none' }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = '#F5F5FF')}
                         onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                         onClick={() => setSelected(c)}
                       >
@@ -539,9 +539,9 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
                           <button
                             onClick={(e) => { e.stopPropagation(); setSelected(c); }}
                             className="text-xs px-3 py-1.5 rounded-lg transition-colors"
-                            style={{ background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)' }}
-                            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.12)')}
-                            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
+                            style={{ background: '#F5F5F5', color: '#6B7280', border: '1px solid #E5E7EB' }}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.1)')}
+                            onMouseLeave={(e) => (e.currentTarget.style.background = '#F5F5F5')}
                           >
                             View
                           </button>
@@ -554,7 +554,7 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
             </div>
           </div>
 
-          <p className="text-xs mt-3" style={{ color: '#334155' }}>
+          <p className="text-xs mt-3" style={{ color: '#9CA3AF' }}>
             {filtered.length} of {creators.length} creators shown
           </p>
         </div>

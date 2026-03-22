@@ -84,7 +84,7 @@ function ProfitGauge({ value, color }: { value: number; color: string }) {
         <path
           d={bgPath}
           fill="none"
-          stroke="rgba(255,255,255,0.06)"
+          stroke="#F0F0F0"
           strokeWidth={10}
           strokeLinecap="round"
         />
@@ -115,15 +115,15 @@ function ProfitGauge({ value, color }: { value: number; color: string }) {
           x={cx}
           y={cy + 26}
           textAnchor="middle"
-          fill="rgba(255,255,255,0.3)"
+          fill="#9CA3AF"
           fontSize={10}
           fontFamily="DM Sans, sans-serif"
         >
           net margin
         </text>
         {/* Min/Max labels */}
-        <text x={22} y={106} fill="rgba(255,255,255,0.25)" fontSize={9} fontFamily="DM Sans, sans-serif">0%</text>
-        <text x={126} y={106} fill="rgba(255,255,255,0.25)" fontSize={9} fontFamily="DM Sans, sans-serif">100%</text>
+        <text x={22} y={106} fill="#9CA3AF" fontSize={9} fontFamily="DM Sans, sans-serif">0%</text>
+        <text x={126} y={106} fill="#9CA3AF" fontSize={9} fontFamily="DM Sans, sans-serif">100%</text>
       </svg>
     </div>
   );
@@ -249,8 +249,8 @@ export default function ProfitCalculator() {
 
   // ── Shared styles ───────────────────────────────────────────────────────
   const cardStyle: React.CSSProperties = {
-    background: 'white',
-    border: '1px solid rgba(255,255,255,0.06)',
+    background: '#FFFFFF',
+    border: '1px solid #F0F0F0',
     borderRadius: 16,
     padding: '24px',
   };
@@ -265,10 +265,10 @@ export default function ProfitCalculator() {
 
   const numberInputStyle: React.CSSProperties = {
     fontFamily: 'DM Sans, sans-serif',
-    background: '#15151a',
-    border: '1px solid rgba(255,255,255,0.08)',
+    background: '#FFFFFF',
+    border: '1px solid #F3F4F6',
     borderRadius: 8,
-    color: '#f5f5f5',
+    color: '#0A0A0A',
     padding: '8px 12px',
     width: 90,
     fontSize: 14,
@@ -352,7 +352,7 @@ export default function ProfitCalculator() {
           fontFamily: 'Syne, sans-serif',
           fontSize: 28,
           fontWeight: 700,
-          color: '#f5f5f5',
+          color: '#0A0A0A',
           lineHeight: 1.2,
         }}
       >
@@ -413,7 +413,7 @@ export default function ProfitCalculator() {
               fontFamily: 'Syne, sans-serif',
               fontSize: 28,
               fontWeight: 700,
-              color: '#f5f5f5',
+              color: '#0A0A0A',
               margin: 0,
             }}
           >
@@ -451,7 +451,7 @@ export default function ProfitCalculator() {
                 fontFamily: 'Syne, sans-serif',
                 fontSize: 18,
                 fontWeight: 600,
-                color: '#f5f5f5',
+                color: '#0A0A0A',
                 margin: '0 0 24px',
               }}
             >
@@ -486,10 +486,10 @@ export default function ProfitCalculator() {
                   style={{
                     flex: 1,
                     fontFamily: 'DM Sans, sans-serif',
-                    background: '#15151a',
-                    border: '1px solid rgba(255,255,255,0.08)',
+                    background: '#FFFFFF',
+                    border: '1px solid #F3F4F6',
                     borderRadius: 8,
-                    color: '#f5f5f5',
+                    color: '#0A0A0A',
                     padding: '10px 12px',
                     fontSize: 14,
                     outline: 'none',
@@ -548,9 +548,9 @@ export default function ProfitCalculator() {
                 style={{
                   fontFamily: 'DM Sans, sans-serif',
                   fontSize: 14,
-                  color: '#f5f5f5',
-                  background: '#15151a',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#0A0A0A',
+                  background: '#FFFFFF',
+                  border: '1px solid #F3F4F6',
                   borderRadius: 8,
                   padding: '10px 14px',
                   display: 'flex',
@@ -687,7 +687,7 @@ export default function ProfitCalculator() {
                 fontFamily: 'Syne, sans-serif',
                 fontSize: 16,
                 fontWeight: 600,
-                color: '#f5f5f5',
+                color: '#0A0A0A',
                 margin: '0 0 16px',
               }}
             >
@@ -715,7 +715,7 @@ export default function ProfitCalculator() {
                           fontSize: 12,
                           textTransform: 'uppercase',
                           letterSpacing: '0.05em',
-                          borderBottom: '1px solid rgba(255,255,255,0.06)',
+                          borderBottom: '1px solid #F0F0F0',
                         }}
                       >
                         {h}
@@ -729,8 +729,8 @@ export default function ProfitCalculator() {
                       <td
                         style={{
                           padding: '12px',
-                          color: '#f5f5f5',
-                          borderBottom: '1px solid rgba(255,255,255,0.04)',
+                          color: '#0A0A0A',
+                          borderBottom: '1px solid #F9FAFB',
                         }}
                       >
                         {row.orders.toLocaleString()}
@@ -738,8 +738,8 @@ export default function ProfitCalculator() {
                       <td
                         style={{
                           padding: '12px',
-                          color: '#f5f5f5',
-                          borderBottom: '1px solid rgba(255,255,255,0.04)',
+                          color: '#0A0A0A',
+                          borderBottom: '1px solid #F9FAFB',
                         }}
                       >
                         {fmt(row.revenue)}
@@ -748,7 +748,7 @@ export default function ProfitCalculator() {
                         style={{
                           padding: '12px',
                           color: '#a1a1aa',
-                          borderBottom: '1px solid rgba(255,255,255,0.04)',
+                          borderBottom: '1px solid #F9FAFB',
                         }}
                       >
                         {fmt(row.costs)}
@@ -758,7 +758,7 @@ export default function ProfitCalculator() {
                           padding: '12px',
                           color: row.profit >= 0 ? '#22c55e' : '#ef4444',
                           fontWeight: 600,
-                          borderBottom: '1px solid rgba(255,255,255,0.04)',
+                          borderBottom: '1px solid #F9FAFB',
                         }}
                       >
                         {fmt(row.profit)}
@@ -838,7 +838,7 @@ export default function ProfitCalculator() {
               style={{
                 fontFamily: 'DM Sans, sans-serif',
                 fontSize: 13,
-                color: 'rgba(245,245,245,0.75)',
+                color: '#6B7280',
                 margin: 0,
                 lineHeight: 1.7,
               }}
@@ -863,7 +863,7 @@ export default function ProfitCalculator() {
         input[type="range"] {
           -webkit-appearance: none;
           appearance: none;
-          background: #1e1e24;
+          background: #E5E7EB;
           border-radius: 4px;
           height: 6px;
           outline: none;
@@ -876,7 +876,7 @@ export default function ProfitCalculator() {
           border-radius: 50%;
           background: #6366F1;
           cursor: pointer;
-          border: 2px solid #060608;
+          border: 2px solid #FFFFFF;
           box-shadow: 0 0 8px rgba(99,102,241,0.3);
         }
         input[type="range"]::-moz-range-thumb {
@@ -885,7 +885,7 @@ export default function ProfitCalculator() {
           border-radius: 50%;
           background: #6366F1;
           cursor: pointer;
-          border: 2px solid #060608;
+          border: 2px solid #FFFFFF;
           box-shadow: 0 0 8px rgba(99,102,241,0.3);
         }
       `}</style>

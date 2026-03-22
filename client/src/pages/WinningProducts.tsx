@@ -89,23 +89,25 @@ interface WinningProduct {
 // ── Design tokens ─────────────────────────────────────────────────────────────
 
 const C = {
-  bg: '#080a0e',
-  card: 'rgba(255,255,255,0.03)',
-  cardHover: 'rgba(255,255,255,0.06)',
+  bg: '#FAFAFA',
+  card: '#FFFFFF',
+  cardHover: '#F9FAFB',
+  surface: '#FFFFFF',
+  border: '#F0F0F0',
   gold: '#6366F1',
-  goldHover: '#e5c24a',
+  goldHover: '#4F46E5',
   goldBg: 'rgba(99,102,241,0.08)',
   goldBorder: 'rgba(99,102,241,0.2)',
-  text: '#f5f5f5',
-  sub: '#a1a1aa',
-  muted: '#52525b',
-  border: 'rgba(255,255,255,0.07)',
-  borderHover: 'rgba(255,255,255,0.15)',
+  text: '#0A0A0A',
+  sub: '#6B7280',
+  muted: '#9CA3AF',
+  border2: '#F0F0F0',
+  borderHover: '#E5E7EB',
   green: '#22c55e',
   amber: '#f59e0b',
   red: '#ef4444',
-  glass: 'rgba(255,255,255,0.04)',
-  glassBorder: 'rgba(255,255,255,0.1)',
+  glass: '#F9FAFB',
+  glassBorder: '#F0F0F0',
   silver: '#c0c0c0',
   bronze: '#cd7f32',
 } as const;
@@ -576,7 +578,7 @@ function Top5Rankings({
                   width: 40,
                   height: 40,
                   borderRadius: 8,
-                  background: 'rgba(255,255,255,0.04)',
+                  background: '#FFFFFF',
                   border: `1px solid ${C.border}`,
                   flexShrink: 0,
                   display: 'flex',
@@ -1078,7 +1080,7 @@ Be specific, opinionated, use AUD figures.`;
                   </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="rgba(255,255,255,0.05)"
+                    stroke="#F0F0F0"
                     vertical={false}
                   />
                   <XAxis
@@ -1706,7 +1708,7 @@ function FullReportModal({
                       <stop offset="95%" stopColor={C.gold} stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" vertical={false} />
                   <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.muted }} tickLine={false} axisLine={false} />
                   <YAxis tick={{ fontSize: 10, fill: C.muted }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `$${v}`} width={44} />
                   <RechartTooltip contentStyle={{ background: 'white', border: `1px solid ${C.goldBorder}`, borderRadius: 8, fontSize: 12 }} labelStyle={{ color: C.sub }} formatter={(v: number) => [`$${v} AUD`, 'Est. Rev']} />
@@ -1720,7 +1722,7 @@ function FullReportModal({
           {product.why_winning && (
             <div style={{ background: C.goldBg, border: `1px solid ${C.goldBorder}`, borderRadius: 14, padding: '16px 18px', marginBottom: 20 }}>
               <div style={{ fontSize: 10, color: C.gold, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>💡 Why It's Winning</div>
-              <p style={{ margin: 0, fontSize: 14, color: 'rgba(245,245,245,0.9)', lineHeight: 1.6 }}>{product.why_winning}</p>
+              <p style={{ margin: 0, fontSize: 14, color: '#374151', lineHeight: 1.6 }}>{product.why_winning}</p>
             </div>
           )}
 
@@ -1913,7 +1915,7 @@ function ProductCard({
         style={{
           position: 'relative',
           height: 160,
-          background: 'rgba(255,255,255,0.03)',
+          background: '#FFFFFF',
           overflow: 'hidden',
         }}
       >
@@ -2484,7 +2486,7 @@ function CategoryIntelligenceTable({ products }: { products: WinningProduct[] })
               </td>
               <td style={{ padding: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ flex: 1, maxWidth: 80, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)' }}>
+                  <div style={{ flex: 1, maxWidth: 80, height: 6, borderRadius: 3, background: '#F0F0F0' }}>
                     <div style={{ width: `${row.opportunity}%`, height: '100%', borderRadius: 3, background: row.opportunity >= 70 ? C.green : row.opportunity >= 40 ? C.amber : C.red }} />
                   </div>
                   <span style={{ fontSize: 11, fontWeight: 700, color: row.opportunity >= 70 ? C.green : row.opportunity >= 40 ? C.amber : C.red }}>{row.opportunity}</span>
@@ -2619,7 +2621,7 @@ function TableView({
                   <tr key={i}>
                     {[40, 220, 100, 90, 80, 80, 80, 80, 50].map((w, j) => (
                       <td key={j} style={{ padding: '14px 12px' }}>
-                        <div style={{ height: 14, width: w, maxWidth: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: 6, animation: 'shimmer 1.8s ease-in-out infinite' }} />
+                        <div style={{ height: 14, width: w, maxWidth: '100%', background: '#F9FAFB', borderRadius: 6, animation: 'shimmer 1.8s ease-in-out infinite' }} />
                       </td>
                     ))}
                   </tr>
@@ -2819,21 +2821,21 @@ function CardGrid({
           <div style={{
             padding: '48px 24px',
             textAlign: 'center',
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,255,255,0.07)',
+            background: '#FFFFFF',
+            border: '1px solid #F0F0F0',
             borderRadius: 16,
             marginBottom: 24,
             gridColumn: '1 / -1'
           }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
             <p style={{
-              color: 'rgba(240,237,232,0.9)',
+              color: '#0A0A0A',
               fontSize: 15,
               fontWeight: 700,
               marginBottom: 8,
               fontFamily: 'Syne, sans-serif'
             }}>No products found</p>
-            <p style={{ color: 'rgba(240,237,232,0.4)', fontSize: 13, marginBottom: 20 }}>
+            <p style={{ color: '#9CA3AF', fontSize: 13, marginBottom: 20 }}>
               Adjust your filters or check back tomorrow for fresh data
             </p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -3429,7 +3431,7 @@ function WinningProducts() {
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(0.88)} }
         @keyframes skeleton-pulse { 0%,100%{opacity:.4} 50%{opacity:.8} }
-        .skeleton { background: rgba(255,255,255,0.06); border-radius: 6px; animation: skeleton-pulse 1.5s ease-in-out infinite; }
+        .skeleton { background: #F0F0F0; border-radius: 6px; animation: skeleton-pulse 1.5s ease-in-out infinite; }
         @media (min-width: 1024px) { .sidebar-filters { display: block !important; } }
       `}</style>
 
@@ -3565,13 +3567,13 @@ function WinningProducts() {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 14 }}>📅</span>
-              <span style={{ color: 'rgba(240,237,232,0.6)' }}>
-                Showing data from: <strong style={{ color: '#f5f5f5' }}>Last 30 days</strong>
+              <span style={{ color: '#6B7280' }}>
+                Showing data from: <strong style={{ color: '#0A0A0A' }}>Last 30 days</strong>
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 14 }}>🔒</span>
-              <span style={{ color: 'rgba(240,237,232,0.4)' }}>
+              <span style={{ color: '#9CA3AF' }}>
                 Real-time (6h updates) —{' '}
                 <button
                   onClick={() => window.location.assign('/pricing')}
@@ -3948,8 +3950,8 @@ function WinningProducts() {
                     if (!isPro) {
                       toast(
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <span style={{ fontWeight: 700, color: '#f5f5f5' }}>🔒 Pro feature</span>
-                          <span style={{ fontSize: 12, color: 'rgba(240,237,232,0.6)' }}>
+                          <span style={{ fontWeight: 700, color: '#0A0A0A' }}>🔒 Pro feature</span>
+                          <span style={{ fontSize: 12, color: '#6B7280' }}>
                             Export to CSV is a Pro feature. Upgrade to export unlimited products to Shopify, Google Sheets, or CSV.
                           </span>
                           <button
@@ -4361,8 +4363,8 @@ function WinningProducts() {
               width: 30,
               height: 30,
               borderRadius: 8,
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: '#F0F0F0',
+              border: '1px solid #F3F4F6',
               color: C.sub,
               cursor: 'pointer',
               display: 'flex',
@@ -4430,10 +4432,10 @@ class WPErrorBoundary extends Component<{ children: ReactNode }, { hasError: boo
           }}
         >
           <div style={{ fontSize: 32, marginBottom: 16 }}>⚠️</div>
-          <div style={{ fontSize: 18, marginBottom: 8, color: '#f5f5f5' }}>
+          <div style={{ fontSize: 18, marginBottom: 8, color: '#0A0A0A' }}>
             Something went wrong loading products
           </div>
-          <div style={{ fontSize: 13, color: '#a1a1aa', marginBottom: 24 }}>
+          <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 24 }}>
             Check your connection and try reloading.
           </div>
           <button
@@ -4443,7 +4445,7 @@ class WPErrorBoundary extends Component<{ children: ReactNode }, { hasError: boo
             }}
             style={{
               background: '#6366F1',
-              color: '#080a0e',
+              color: 'white',
               border: 'none',
               borderRadius: 8,
               padding: '10px 24px',
