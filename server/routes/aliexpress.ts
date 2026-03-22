@@ -105,16 +105,71 @@ ALIEXPRESS_REFRESH_TOKEN=${token.refresh_token}</pre>
   }
 });
 
+// ── GET /api/aliexpress/test — raw DS API test (no auth required) ─────────────
+router.get('/test', async (_req: Request, res: Response) => {
+  const appKey = process.env.ALIEXPRESS_APP_KEY || '530110';
+  const appSecret = process.env.ALIEXPRESS_APP_SECRET || '8aHJr5hI76XIqvtKDKc5b1h6FfTytp75';
+  console.log('[ae-test] app_key:', appKey, '| app_secret set:', !!appSecret);
+
+  try {
+    // Direct raw call so we see the exact response
+    const crypto = await import('crypto');
+    const ts = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    const params: Record<string, string> = {
+      method: 'aliexpress.ds.product.search',
+      app_key: appKey,
+      timestamp: ts,
+      sign_method: 'md5',
+      v: '2.0',
+      search_key: 'posture corrector',
+      product_cnt: '5',
+      sort: 'SALE_PRICE_DESC',
+      local_currency: 'AUD',
+      ship_to_country: 'AU',
+    };
+    const sorted = Object.keys(params).sort();
+    const str = sorted.map(k => `${k}${params[k]}`).join('');
+    params.sign = crypto.default.createHash('md5').update(appSecret + str + appSecret).digest('hex').toUpperCase();
+
+    const body = new URLSearchParams(params).toString();
+    const apiRes = await fetch('https://api-sg.aliexpress.com/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body,
+      signal: AbortSignal.timeout(15000),
+    });
+
+    const raw = await apiRes.json();
+    const products = raw?.aliexpress_ds_product_search_response?.search_result?.products?.product || [];
+
+    res.json({
+      app_key: appKey,
+      http_status: apiRes.status,
+      product_count: products.length,
+      error: raw?.error_response || null,
+      sample_product: products[0] ? {
+        id: products[0].product_id,
+        title: products[0].product_title?.slice(0, 80),
+        price: products[0].target_sale_price,
+        image: products[0].product_main_image_url?.slice(0, 80),
+        orders: products[0].lastest_volume,
+      } : null,
+      raw_response: raw,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message, app_key: appKey });
+  }
+});
+
 // ── GET /api/aliexpress/status — check auth status ─────────────────────────────
 router.get('/status', async (_req: Request, res: Response) => {
   const { isAuthorized } = await import('../lib/aliexpress');
-  const authorized = isAuthorized();
   res.json({
-    authorized,
-    appKey: process.env.ALIEXPRESS_APP_KEY ? 'set' : 'missing',
-    appSecret: process.env.ALIEXPRESS_APP_SECRET ? 'set' : 'missing',
-    accessToken: process.env.ALIEXPRESS_ACCESS_TOKEN ? 'set' : 'missing',
-    authUrl: `${process.env.VITE_APP_URL || 'https://www.majorka.io'}/api/aliexpress/auth`,
+    authorized: isAuthorized(),
+    mode: 'ds_api', // DS API — no OAuth needed for product search
+    appKey: process.env.ALIEXPRESS_APP_KEY ? '✅ set' : '❌ missing',
+    appSecret: process.env.ALIEXPRESS_APP_SECRET ? '✅ set' : '❌ missing',
+    testUrl: 'https://www.majorka.io/api/aliexpress/test',
   });
 });
 

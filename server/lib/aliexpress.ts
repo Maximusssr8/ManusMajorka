@@ -38,13 +38,9 @@ function buildParams(method: string, extra: Record<string, string>, session?: st
   return params;
 }
 
-async function callAPI(method: string, extra: Record<string, string> = {}, requiresAuth = true): Promise<any> {
-  const session = requiresAuth ? (process.env.ALIEXPRESS_ACCESS_TOKEN || '') : undefined;
-  if (requiresAuth && !session) {
-    throw new Error('ALIEXPRESS_ACCESS_TOKEN not set. Visit /api/aliexpress/auth to authorize.');
-  }
-
-  const params = buildParams(method, extra, session || undefined);
+async function callAPI(method: string, extra: Record<string, string> = {}): Promise<any> {
+  // DS API uses AppKey+AppSecret signed requests — no OAuth token needed for product search
+  const params = buildParams(method, extra);
   const body = new URLSearchParams(params).toString();
 
   const res = await fetch(API_URL, {
@@ -162,37 +158,33 @@ export async function searchProducts(
 ): Promise<AliExpressProduct[]> {
   const extra: Record<string, string> = {
     search_key: keyword,
+    product_cnt: String(Math.min(50, options.pageSize || 20)),
     page_no: String(options.pageNo || 1),
-    page_size: String(Math.min(50, options.pageSize || 20)),
-    sort: options.sortBy || 'LAST_VOLUME_DESC',
-    locale: 'en_US',
+    sort: options.sortBy || 'SALE_PRICE_DESC',
     local_currency: options.currency || 'AUD',
     ship_to_country: options.shipToCountry || 'AU',
   };
   if (options.minPrice) extra.min_sale_price = String(Math.round(options.minPrice * 100));
   if (options.maxPrice) extra.max_sale_price = String(Math.round(options.maxPrice * 100));
 
-  const data = await callAPI('aliexpress.affiliate.product.query', extra);
-  const result = data?.aliexpress_affiliate_product_query_response?.resp_result;
-  if (result?.resp_code !== 200) {
-    console.error('[aliexpress] searchProducts non-200:', result);
-    return [];
-  }
-  return result?.result?.products?.product || [];
+  const data = await callAPI('aliexpress.ds.product.search', extra);
+  const products = data?.aliexpress_ds_product_search_response?.search_result?.products?.product || [];
+  console.log(`[aliexpress] searchProducts "${keyword}": ${products.length} results`);
+  return products;
 }
 
 // ── Product Detail ──────────────────────────────────────────────────────────────
 
 export async function getProductDetail(productId: string | number): Promise<any | null> {
   try {
-    const data = await callAPI('aliexpress.affiliate.productdetail.get', {
-      product_ids: String(productId),
-      fields: 'product_id,subject,image_urls,sku_price_list,average_star,evaluate_cnt,total_transaction_cnt',
+    const data = await callAPI('aliexpress.ds.product.get', {
+      product_id: String(productId),
       local_currency: 'AUD',
+      ship_to_country: 'AU',
     });
-    const result = data?.aliexpress_affiliate_productdetail_get_response?.resp_result;
-    if (result?.resp_code !== 200) return null;
-    return result?.result?.products?.product?.[0] || null;
+    const result = data?.aliexpress_ds_product_get_response?.result;
+    console.log(`[aliexpress] getProductDetail ${productId}:`, result ? 'found' : 'not found');
+    return result || null;
   } catch (err: any) {
     console.error('[aliexpress] getProductDetail:', err.message);
     return null;
@@ -203,12 +195,12 @@ export async function getProductDetail(productId: string | number): Promise<any 
 
 export async function getShippingInfo(productId: string | number, quantity = 1): Promise<any | null> {
   try {
-    const data = await callAPI('aliexpress.logistics.buyer.freight.get', {
+    const data = await callAPI('aliexpress.ds.freight.query', {
       product_id: String(productId),
       product_num: String(quantity),
       country_code: 'AU',
     });
-    return data?.aliexpress_logistics_buyer_freight_get_response?.result || null;
+    return data?.aliexpress_ds_freight_query_response?.result || null;
   } catch (err: any) {
     console.error('[aliexpress] getShippingInfo:', err.message);
     return null;
@@ -242,6 +234,7 @@ export async function getTrendingProducts(niche: string, limit = 20): Promise<Al
 
 // ── Check if API is authorized ─────────────────────────────────────────────────
 
+// DS API only needs app key + secret — no OAuth token required for product search
 export function isAuthorized(): boolean {
-  return !!(process.env.ALIEXPRESS_ACCESS_TOKEN);
+  return !!(process.env.ALIEXPRESS_APP_KEY && process.env.ALIEXPRESS_APP_SECRET);
 }
