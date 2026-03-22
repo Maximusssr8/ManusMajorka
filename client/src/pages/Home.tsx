@@ -632,10 +632,14 @@ function BentoFeaturesSection() {
   };
 
   return (
-    <section id="features" style={{ padding: '100px 24px', background: '#FAFAFA' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+    <section id="features" style={{ padding: '100px 24px', background: 'white', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.06) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none', zIndex: 0 }} />
+      <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 1 }}>
         <div style={{ textAlign: 'center', marginBottom: 56 }}>
-          <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(28px,5vw,48px)', color: '#0A0A0A' }}>Everything you need to win</h2>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 999, padding: '4px 14px', marginBottom: 16, fontSize: 12, fontWeight: 700, color: '#6366F1', letterSpacing: '0.06em' }}>
+            ⚡ 20+ AI TOOLS
+          </div>
+          <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(28px,5vw,48px)', color: '#0A0A0A', letterSpacing: '-0.02em' }}>Everything you need to win</h2>
           <p style={{ fontSize: 17, color: '#6B7280', maxWidth: 560, margin: '12px auto 0' }}>One platform. Every tool an AU dropshipper actually needs.</p>
         </div>
 
@@ -647,6 +651,7 @@ function BentoFeaturesSection() {
                 key={card.key}
                 style={{
                   ...cardBase,
+                  position: 'relative' as const,
                   gridColumn: card.gridColumn,
                   gridRow: card.gridRow,
                   opacity: visible ? 1 : 0,
@@ -656,32 +661,44 @@ function BentoFeaturesSection() {
                 onMouseEnter={handleEnter}
                 onMouseLeave={handleLeave}
               >
+                {/* "60 SECONDS" badge on Store Builder card */}
+                {card.key === 'B' && (
+                  <div style={{ position: 'absolute', top: 20, right: 20, background: '#6366F1', color: 'white', fontSize: 10, fontWeight: 800, padding: '4px 10px', borderRadius: 999, letterSpacing: '0.05em', whiteSpace: 'nowrap', zIndex: 2 }}>
+                    60 SECONDS ⚡
+                  </div>
+                )}
                 {/* Icon */}
-                <div style={{ width: 40, height: 40, background: '#EEF2FF', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-                  {IconComp ? <IconComp size={20} color="#6366F1" /> : <span style={{ fontSize: 18 }}>{'\u{1F1E6}\u{1F1FA}'}</span>}
+                <div style={{ width: 40, height: 40, background: card.key === 'C' ? 'rgba(8,145,178,0.08)' : card.key === 'D' ? 'rgba(5,150,105,0.08)' : card.key === 'E' ? 'rgba(245,158,11,0.08)' : card.key === 'G' ? 'rgba(236,72,153,0.08)' : '#EEF2FF', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+                  {IconComp ? <IconComp size={20} color={card.key === 'C' ? '#0891B2' : card.key === 'D' ? '#059669' : card.key === 'E' ? '#D97706' : card.key === 'G' ? '#EC4899' : '#6366F1'} /> : <span style={{ fontSize: 18 }}>{'\u{1F1E6}\u{1F1FA}'}</span>}
                 </div>
                 <h3 style={{ fontFamily: brico, fontWeight: 700, fontSize: 20, color: '#0A0A0A', marginBottom: 8 }}>{card.title}</h3>
                 <p style={{ fontSize: 15, color: '#6B7280', lineHeight: 1.65 }}>{card.desc}</p>
 
                 {/* Card A — mini table */}
                 {card.key === 'A' && (
-                  <div style={{ marginTop: 20, border: '1px solid #F3F4F6', borderRadius: 10, overflow: 'hidden' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 0 }}>
-                      <div style={{ background: '#F9FAFB', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: '#9CA3AF', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Product</div>
-                      <div style={{ background: '#F9FAFB', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Revenue</div>
-                      <div style={{ background: '#F9FAFB', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Score</div>
-                      <div style={{ padding: '10px 16px', fontSize: 13, color: '#374151', borderTop: '1px solid #F3F4F6' }}>Air Fryer 11-in-1</div>
-                      <div style={{ padding: '10px 16px', fontSize: 13, color: '#374151', borderTop: '1px solid #F3F4F6' }}>$8.7k/mo</div>
-                      <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6' }}>
-                        <span style={{ background: '#F3E8FF', color: '#7C3AED', border: '1px solid #DDD6FE', borderRadius: 5, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>75</span>
-                      </div>
-                      <div style={{ padding: '10px 16px', fontSize: 13, color: '#374151', borderTop: '1px solid #F3F4F6' }}>LED Strip Lights</div>
-                      <div style={{ padding: '10px 16px', fontSize: 13, color: '#374151', borderTop: '1px solid #F3F4F6' }}>$24.2k/mo</div>
-                      <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6' }}>
-                        <span style={{ background: '#EEF2FF', color: '#6366F1', border: '1px solid #C7D2FE', borderRadius: 5, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>82</span>
+                  <>
+                    <div style={{ marginTop: 20, border: '1px solid #F3F4F6', borderRadius: 10, overflow: 'hidden' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 0 }}>
+                        <div style={{ background: '#F9FAFB', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: '#9CA3AF', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Product</div>
+                        <div style={{ background: '#F9FAFB', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Revenue</div>
+                        <div style={{ background: '#F9FAFB', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Score</div>
+                        <div style={{ padding: '10px 16px', fontSize: 13, color: '#374151', borderTop: '1px solid #F3F4F6' }}>Air Fryer 11-in-1</div>
+                        <div style={{ padding: '10px 16px', fontSize: 13, color: '#374151', borderTop: '1px solid #F3F4F6' }}>$8.7k/mo</div>
+                        <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6' }}>
+                          <span style={{ background: '#F3E8FF', color: '#7C3AED', border: '1px solid #DDD6FE', borderRadius: 5, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>75</span>
+                        </div>
+                        <div style={{ padding: '10px 16px', fontSize: 13, color: '#374151', borderTop: '1px solid #F3F4F6' }}>LED Strip Lights</div>
+                        <div style={{ padding: '10px 16px', fontSize: 13, color: '#374151', borderTop: '1px solid #F3F4F6' }}>$24.2k/mo</div>
+                        <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6' }}>
+                          <span style={{ background: '#EEF2FF', color: '#6366F1', border: '1px solid #C7D2FE', borderRadius: 5, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>82</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                    <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#10B981', fontWeight: 500 }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981', animation: 'pulse-ring 2s ease-in-out infinite' }} />
+                      Live AU market data · Updated every 6 hours
+                    </div>
+                  </>
                 )}
 
                 {/* Card B — progress checklist */}
@@ -731,31 +748,66 @@ function HowItWorksSection() {
   ];
 
   return (
-    <section style={{ background: '#FAFAFA', padding: '100px 24px' }}>
-      <div style={{ maxWidth: 900, margin: '0 auto' }}>
+    <section style={{ background: '#FAFAFA', padding: '100px 24px', borderTop: '1px solid #F0F0F0' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 64 }}>
-          <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(28px,5vw,44px)', color: '#0A0A0A' }}>How it works</h2>
-          <p style={{ fontSize: 16, color: '#6B7280', marginTop: 12 }}>From zero to first sale — faster than you think.</p>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 999, padding: '4px 14px', marginBottom: 16, fontSize: 12, fontWeight: 700, color: '#6366F1', letterSpacing: '0.06em' }}>
+            🗺️ THE PROCESS
+          </div>
+          <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(28px,5vw,44px)', color: '#0A0A0A', letterSpacing: '-0.02em' }}>
+            Zero to first sale.{" "}
+            <span style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Faster than you think.
+            </span>
+          </h2>
         </div>
 
-        <div className="hiw-steps" style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', gap: 0, position: 'relative' }}>
-          {/* Connector line */}
-          <div className="hide-mobile" style={{ position: 'absolute', top: 28, left: '16.67%', right: '16.67%', height: 1, borderTop: '1px dashed #E5E7EB', zIndex: 0 }} />
-
-          {steps.map((step, i) => {
+        <div className="grid-1-mobile" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+          {[
+            {
+              num: '01', Icon: Search, color: '#6366F1', bg: '#EEF2FF',
+              title: 'Find a winning product',
+              desc: 'AI scans 50k+ products for AU demand signals. See real revenue estimates, supplier links, and TikTok trend data — in seconds.',
+              stat: { label: 'Products analysed', value: '50,000+' },
+              tag: 'Free feature',
+            },
+            {
+              num: '02', Icon: Zap, color: '#8B5CF6', bg: '#F3E8FF',
+              title: 'Build your store in 60s',
+              desc: 'Type your niche. Majorka generates a complete Shopify store — theme, product copy, images, and AU shipping settings.',
+              stat: { label: 'Avg build time', value: '54 seconds' },
+              tag: 'AI-powered',
+            },
+            {
+              num: '03', Icon: TrendingUp, color: '#10B981', bg: '#ECFDF5',
+              title: 'Launch, spy & scale',
+              desc: 'Use Spy Tools to monitor competitor ads. Track profit with the AU calculator. Scale what works, cut what does not.',
+              stat: { label: 'Avg first-month revenue', value: '$4,200 AUD' },
+              tag: 'Results',
+            },
+          ].map((step, i) => {
             const StepIcon = step.Icon;
             return (
-              <div key={i} style={{ flex: 1, textAlign: 'center', padding: '0 24px', position: 'relative' }}>
-                {/* Big background number */}
-                <div style={{ position: 'absolute', top: -16, left: '50%', transform: 'translateX(-50%)', fontSize: 72, fontWeight: 900, color: '#F3F4F6', lineHeight: 1, userSelect: 'none', zIndex: 0 }}>
-                  0{i + 1}
+              <div key={i}
+                style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 20, padding: '32px', position: 'relative', overflow: 'hidden', cursor: 'default', transition: 'all 200ms cubic-bezier(0.4,0,0.2,1)' }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.08)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.2)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#F0F0F0'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              >
+                {/* Ghost number */}
+                <div style={{ position: 'absolute', top: -8, right: 16, fontSize: 80, fontWeight: 900, color: '#F5F5F7', lineHeight: 1, userSelect: 'none' as const, zIndex: 0 }}>{step.num}</div>
+                {/* Icon */}
+                <div style={{ width: 52, height: 52, borderRadius: 14, background: step.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16, position: 'relative', zIndex: 1 }}>
+                  <StepIcon size={24} color={step.color} />
                 </div>
-                {/* Icon circle */}
-                <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EEF2FF', border: '2px solid #C7D2FE', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', position: 'relative', zIndex: 1 }}>
-                  <StepIcon size={24} color="#6366F1" />
+                {/* Tag */}
+                <div style={{ display: 'inline-flex', fontSize: 10, fontWeight: 700, color: step.color, background: step.bg, padding: '3px 10px', borderRadius: 999, letterSpacing: '0.06em', textTransform: 'uppercase' as const, marginBottom: 14, position: 'relative', zIndex: 1 }}>{step.tag}</div>
+                <h3 style={{ fontFamily: brico, fontWeight: 700, fontSize: 19, color: '#0A0A0A', marginBottom: 10, position: 'relative', zIndex: 1 }}>{step.title}</h3>
+                <p style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.7, marginBottom: 24, position: 'relative', zIndex: 1 }}>{step.desc}</p>
+                {/* Stat */}
+                <div style={{ borderTop: '1px solid #F5F5F7', paddingTop: 16, position: 'relative', zIndex: 1 }}>
+                  <div style={{ fontSize: 10, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 4 }}>{step.stat.label}</div>
+                  <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: step.color }}>{step.stat.value}</div>
                 </div>
-                <h3 style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#0A0A0A', marginBottom: 8 }}>{step.title}</h3>
-                <p style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.6, maxWidth: 220, margin: '0 auto' }}>{step.desc}</p>
               </div>
             );
           })}
@@ -928,9 +980,153 @@ function DemoSection() {
   );
 }
 
+// ── Demo Modal ────────────────────────────────────────────────────────────────
+function DemoModal({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState(0);
+  const brico = "'Bricolage Grotesque', sans-serif";
+
+  const STEPS = [
+    {
+      icon: "🔍",
+      title: "Searching AU market...",
+      subtitle: "Scanning 50,000+ products for trending opportunities",
+    },
+    {
+      icon: "📊",
+      title: "Found it. Posture Corrector Pro.",
+      subtitle: "High AU demand · Low competition · 62% margin",
+    },
+    {
+      icon: "⚡",
+      title: "Building your Shopify store...",
+      subtitle: "AI generates theme, copy, and product listings",
+    },
+    {
+      icon: "💰",
+      title: "Your store is live. First sale!",
+      subtitle: "Within 6 hours of launch · Customer from Sydney, NSW",
+    },
+  ];
+
+  // Auto-advance
+  useEffect(() => {
+    if (step < STEPS.length - 1) {
+      const t = setTimeout(() => setStep(s => s + 1), 2200);
+      return () => clearTimeout(t);
+    }
+  }, [step]);
+
+  const current = STEPS[step];
+
+  const renderContent = () => {
+    if (step === 0) return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 16 }}>
+        {["Posture Corrector Pro", "LED Strip Lights RGB", "Air Fryer 11-in-1", "Smart Watch GPS"].map((p, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 16px", background: i === 0 ? "#EEF2FF" : "#FAFAFA", borderRadius: 8, border: i === 0 ? "1px solid #C7D2FE" : "1px solid #F0F0F0" }}>
+            <div style={{ width: 32, height: 32, borderRadius: 6, background: "linear-gradient(135deg, #EEF2FF, #E0E7FF)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>📦</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#111111" }}>{p}</div>
+              <div style={{ fontSize: 11, color: "#9CA3AF" }}>Analysing AU demand...</div>
+            </div>
+            {i === 0 && <span style={{ fontSize: 11, fontWeight: 700, background: "#6366F1", color: "white", padding: "2px 8px", borderRadius: 999 }}>WINNER 🔥</span>}
+          </div>
+        ))}
+      </div>
+    );
+    if (step === 1) return (
+      <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+        {[
+          { label: "Est. Revenue", value: "$41.2k/mo", color: "#10B981" },
+          { label: "AU Competitors", value: "Only 3", color: "#6366F1" },
+          { label: "Margin", value: "62%", color: "#8B5CF6" },
+          { label: "TikTok Views", value: "4.2M+", color: "#F59E0B" },
+          { label: "Source Price", value: "$12 AUD", color: "#0891B2" },
+          { label: "Sell Price", value: "$49.95 AUD", color: "#10B981" },
+        ].map((m, i) => (
+          <div key={i} style={{ background: "#FAFAFA", borderRadius: 8, padding: "12px", border: "1px solid #F0F0F0" }}>
+            <div style={{ fontSize: 10, color: "#9CA3AF", textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 4 }}>{m.label}</div>
+            <div style={{ fontSize: 18, fontWeight: 800, fontFamily: brico, color: m.color }}>{m.value}</div>
+          </div>
+        ))}
+      </div>
+    );
+    if (step === 2) return (
+      <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
+        {[
+          { done: true, spinning: false, text: "Niche identified: Posture & Wellness" },
+          { done: true, spinning: false, text: "Shopify store created" },
+          { done: true, spinning: false, text: "Hero product imported from AliExpress" },
+          { done: false, spinning: true, text: "Generating product descriptions..." },
+          { done: false, spinning: false, text: "Setting up payment gateway" },
+        ].map((item, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: item.spinning ? "rgba(99,102,241,0.06)" : "transparent", borderRadius: 6 }}>
+            <span style={{ fontSize: 14, minWidth: 20 }}>{item.done ? "✅" : item.spinning ? "⟳" : "○"}</span>
+            <span style={{ fontSize: 13, color: item.done ? "#374151" : item.spinning ? "#6366F1" : "#9CA3AF" }}>{item.text}</span>
+          </div>
+        ))}
+        <div style={{ marginTop: 8 }}>
+          <div style={{ height: 6, background: "#F3F4F6", borderRadius: 999 }}>
+            <div style={{ height: "100%", width: "65%", background: "linear-gradient(90deg, #6366F1, #8B5CF6)", borderRadius: 999 }} />
+          </div>
+          <div style={{ fontSize: 12, color: "#6366F1", marginTop: 4, textAlign: "right" as const }}>65% complete</div>
+        </div>
+      </div>
+    );
+    return (
+      <div style={{ marginTop: 20, textAlign: "center" as const }}>
+        <div style={{ fontSize: 56, marginBottom: 12 }}>🎉</div>
+        <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 32, color: "#0A0A0A", marginBottom: 4 }}>
+          First Sale: <span style={{ color: "#10B981" }}>$84.00</span>
+        </div>
+        <div style={{ fontSize: 14, color: "#6B7280", marginBottom: 20 }}>Within 6 hours of store launch · Customer from Sydney, NSW</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+          {[
+            { label: "Profit", value: "$52.10", color: "#10B981" },
+            { label: "Margin", value: "62%", color: "#6366F1" },
+            { label: "Time to sale", value: "6 hrs", color: "#8B5CF6" },
+          ].map((s, i) => (
+            <div key={i} style={{ background: "#FAFAFA", borderRadius: 10, padding: "14px", border: "1px solid #F0F0F0" }}>
+              <div style={{ fontSize: 10, color: "#9CA3AF", textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 4 }}>{s.label}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, fontFamily: brico, color: s.color }}>{s.value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)" }} onClick={onClose} />
+      <div style={{ position: "relative", background: "white", borderRadius: 20, width: "100%", maxWidth: 520, maxHeight: "90vh", overflowY: "auto", boxShadow: "0 40px 80px rgba(0,0,0,0.2)" }}>
+        <button onClick={onClose} style={{ position: "absolute", top: 16, right: 16, width: 32, height: 32, borderRadius: "50%", border: "none", background: "#F5F5F5", cursor: "pointer", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>×</button>
+        <div style={{ display: "flex", gap: 6, padding: "24px 28px 0" }}>
+          {STEPS.map((_, i) => (
+            <div key={i} style={{ height: 3, flex: 1, borderRadius: 999, background: i <= step ? "#6366F1" : "#F3F4F6", transition: "background 0.3s" }} />
+          ))}
+        </div>
+        <div style={{ padding: "24px 28px 28px" }}>
+          <div style={{ fontSize: 36, marginBottom: 10 }}>{current.icon}</div>
+          <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: "#0A0A0A", marginBottom: 4 }}>{current.title}</div>
+          <div style={{ fontSize: 13, color: "#6B7280" }}>{current.subtitle}</div>
+          {renderContent()}
+        </div>
+        <div style={{ padding: "16px 28px", borderTop: "1px solid #F5F5F5", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: 12, color: "#9CA3AF" }}>Step {step + 1} of {STEPS.length}</span>
+          {step < STEPS.length - 1
+            ? <button onClick={() => setStep(s => s + 1)} style={{ padding: "8px 20px", background: "#6366F1", color: "white", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Next →</button>
+            : <a href="/app" style={{ padding: "8px 20px", background: "#6366F1", color: "white", borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Start for Free →</a>
+          }
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Home ─────────────────────────────────────────────────────────────────
 export default function Home() {
   const [annual, setAnnual] = useState(false);
+  const [showDemo, setShowDemo] = useState(false);
   const pricingCardsRef = useRef<HTMLDivElement>(null);
   const [navShadow, setNavShadow] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -985,6 +1181,7 @@ export default function Home() {
         ogImage="/og-image.svg"
       />
       <style>{GLOBAL_STYLES}</style>
+      {showDemo && <DemoModal onClose={() => setShowDemo(false)} />}
 
       {/* ═══ NAV ═══════════════════════════════════════════════════════════ */}
       <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(250,250,250,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(229,231,235,0.8)', boxShadow: navShadow ? '0 1px 12px rgba(0,0,0,0.08)' : 'none', transition: 'box-shadow 0.3s' }}>
@@ -1053,7 +1250,7 @@ export default function Home() {
             <Link href="/app" style={{ background: '#6366F1', color: 'white', height: 48, padding: '0 28px', borderRadius: 10, fontWeight: 600, fontSize: 15, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', transition: 'background 150ms, transform 150ms' }} onMouseEnter={(e) => { e.currentTarget.style.background = '#4F46E5'; e.currentTarget.style.transform = 'scale(1.02)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = '#6366F1'; e.currentTarget.style.transform = 'scale(1)'; }}>
               Start for Free →
             </Link>
-            <button onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })} style={{ background: 'transparent', color: '#374151', height: 48, padding: '0 24px', borderRadius: 10, border: '1px solid #E5E7EB', fontSize: 15, cursor: 'pointer', transition: 'background 150ms' }} onMouseEnter={(e) => (e.currentTarget.style.background = '#F9FAFB')} onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}>
+            <button onClick={() => setShowDemo(true)} style={{ background: 'transparent', color: '#374151', height: 48, padding: '0 24px', borderRadius: 10, border: '1px solid #E5E7EB', fontSize: 15, cursor: 'pointer', transition: 'background 150ms' }} onMouseEnter={(e) => (e.currentTarget.style.background = '#F9FAFB')} onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}>
               Watch a Demo ↓
             </button>
           </div>
@@ -1174,8 +1371,7 @@ export default function Home() {
       {/* ═══ HOW IT WORKS ════════════════════════════════════════════════ */}
       <HowItWorksSection />
 
-      {/* ═══ DEMO ════════════════════════════════════════════════════════ */}
-      <DemoSection />
+      {/* ═══ DEMO (removed — dark section incompatible with light landing) ═══ */}
 
       {/* ═══ TESTIMONIALS — 6 AU sellers ══════════════════════════════════ */}
       <section style={{ padding: '100px 24px', background: '#FFFFFF', borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB' }}>
