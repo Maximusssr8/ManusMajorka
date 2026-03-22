@@ -533,22 +533,30 @@ export default function MajorkaAppShell({ children }: Props) {
           })}
           <span className="flex-1 text-left truncate text-sm">
             {displayLabel}
-            {badge && (
-              <span
-                className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs"
-                style={{
-                  background:
-                    item.path === '/app/learn' && badge !== 'HOT'
-                      ? 'rgba(34,197,94,0.12)'
-                      : 'rgba(99,102,241,0.15)',
-                  color: item.path === '/app/learn' && badge !== 'HOT' ? '#4ade80' : '#6366F1',
-                  fontSize: 9,
-                  fontWeight: 700,
-                }}
-              >
-                {badge}
-              </span>
-            )}
+            {badge && (() => {
+              const bs = badge === 'PRO'
+                ? { background: '#6366F1', color: 'white' }
+                : badge === 'LIVE'
+                ? { background: '#ECFDF5', color: '#059669' }
+                : item.path === '/app/learn' && badge !== 'HOT'
+                ? { background: 'rgba(34,197,94,0.12)', color: '#4ade80' }
+                : { background: '#EEF2FF', color: '#6366F1' };
+              return (
+                <span
+                  className="ml-1.5"
+                  style={{
+                    ...bs,
+                    fontSize: 10,
+                    fontWeight: 700,
+                    padding: '2px 6px',
+                    borderRadius: 4,
+                    letterSpacing: '0.02em',
+                  }}
+                >
+                  {badge}
+                </span>
+              );
+            })()}
           </span>
           {active && (
             <div
@@ -648,8 +656,8 @@ export default function MajorkaAppShell({ children }: Props) {
             {section.label && (
               <>
                 {si > 0 && <div style={{ borderTop: '1px solid #F0F0F0', margin: '4px 0' }} />}
-                <div style={{ margin: '20px 12px 4px' }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: '#9CA3AF', textTransform: 'uppercase' as const, fontFamily: 'Syne, sans-serif' }}>
+                <div style={{ padding: '8px 16px 4px' }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', color: '#9CA3AF', textTransform: 'uppercase' as const }}>
                     {section.label}
                   </span>
                 </div>

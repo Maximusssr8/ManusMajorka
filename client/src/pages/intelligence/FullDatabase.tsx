@@ -594,12 +594,15 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         const totalProducts = products.length;
         const avgRevenue = products.length > 0 ? Math.round(products.reduce((s, p) => s + (p.est_monthly_revenue_aud || 0), 0) / products.length) : 0;
         const highMarginCount = products.filter(p => (p.estimated_margin_pct || 0) >= 40).length;
-        const trendingCount = products.filter(p => (p.winning_score || 0) >= 80).length;
+        const trendingCount = products.filter(p => {
+          const score = p.winning_score ?? (p as any).opportunity_score ?? p.trend_score ?? (p as any).score ?? 0;
+          return Number(score) >= 70;
+        }).length;
         const STAT_CARDS = [
           { label: 'Total Products', value: totalProducts.toString(), trend: '+12 today', positive: true, icon: '📦' },
           { label: 'Avg Est. Revenue', value: `$${(avgRevenue / 1000).toFixed(1)}k`, trend: '+8% this week', positive: true, icon: '💰' },
           { label: 'High Margin (40%+)', value: highMarginCount.toString(), trend: `${totalProducts > 0 ? Math.round(highMarginCount / totalProducts * 100) : 0}% of total`, positive: true, icon: '📈' },
-          { label: 'Score 80+ (Hot)', value: trendingCount.toString(), trend: 'Top performers', positive: true, icon: '🔥' },
+          { label: 'Score 70+ (Hot)', value: trendingCount.toString(), trend: 'Top performers', positive: true, icon: '🔥' },
         ];
         return (
           <div className="stat-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, padding: '16px 28px 0', background: '#FFFFFF' }}>
@@ -629,8 +632,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       <div style={{ display: 'flex', gap: 8, padding: '16px 28px 12px', flexWrap: 'wrap', alignItems: 'center', borderBottom: '1px solid #E5E7EB', background: '#FFFFFF' }}>
         {['All', '🔥 Viral', '💰 High Margin', '🇦🇺 AU Best Sellers', '⚡ TikTok', 'New Today'].map(f => (
           <button key={f} onClick={() => setOpportunityFilter(f)}
+            onMouseEnter={(e) => { if (opportunityFilter !== f) (e.currentTarget as HTMLButtonElement).style.background = '#EEEEEF'; }}
+            onMouseLeave={(e) => { if (opportunityFilter !== f) (e.currentTarget as HTMLButtonElement).style.background = '#F5F5F5'; }}
             style={{
-              height: 32, padding: '0 14px', borderRadius: 999, fontSize: 13, fontWeight: 500,
+              padding: '6px 16px', borderRadius: 999, fontSize: 13, fontWeight: 500,
               cursor: 'pointer', border: 'none', transition: 'all 150ms',
               background: opportunityFilter === f ? '#6366F1' : '#F5F5F5',
               color: opportunityFilter === f ? '#FFFFFF' : '#374151',
@@ -680,24 +685,21 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         </button>
       </div>
 
-      {/* Majorka moat */}
+      {/* Store Builder banner */}
       <div style={{
-        marginBottom: 14, marginLeft: 28, marginRight: 28,
-        padding: '11px 18px',
-        background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)',
-        border: '1px solid #C7D2FE',
-        borderRadius: 8,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+        background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 12,
+        padding: '14px 20px', marginBottom: 20, marginLeft: 28, marginRight: 28,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 12,
       }}>
-        <span style={{ color: '#4F46E5', fontSize: 13, fontWeight: 500, lineHeight: 1.4 }}>
-          ⚡ Found a winner? Build a complete Shopify store in 60 seconds — only on Majorka
-        </span>
+        <div>
+          <span style={{ fontSize: 14, fontWeight: 600, color: '#4338CA' }}>🚀 Found a winner?</span>
+          <span style={{ fontSize: 14, color: '#6366F1', marginLeft: 8 }}>Build a complete Shopify store in 60 seconds</span>
+        </div>
         <button
           onClick={() => navigate('/app/store-builder')}
           style={{
-            background: '#6366F1', color: '#FFFFFF', border: 'none',
-            padding: '8px 16px', borderRadius: 6, fontSize: 12, fontWeight: 700,
-            cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'Syne, sans-serif', flexShrink: 0,
+            height: 36, padding: '0 20px', background: '#6366F1', color: 'white', border: 'none',
+            borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const,
           }}
         >
           Try Store Builder →
@@ -776,12 +778,12 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
               // Margin color
               let marginColor: string;
-              if (marginPct > 40) { marginColor = '#10B981'; }
-              else if (marginPct >= 20) { marginColor = '#F59E0B'; }
+              if (marginPct > 50) { marginColor = '#10B981'; }
+              else if (marginPct >= 30) { marginColor = '#F59E0B'; }
               else { marginColor = '#EF4444'; }
 
               const isHovered = hoveredRow === rowKey;
-              const rowBg = isHovered ? '#F5F3FF' : idx % 2 === 0 ? '#FAFAFA' : '#FFFFFF';
+              const rowBg = isHovered ? '#F9FAFB' : idx % 2 === 0 ? '#FAFAFA' : '#FFFFFF';
 
               return (
                 <tr key={rowKey}
@@ -844,7 +846,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
                   {/* Revenue */}
                   <td style={{ padding: '12px 20px' }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#111111', lineHeight: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#10B981', lineHeight: 1 }}>
                       {estRevenue > 0 ? formatRevenue(estRevenue) : '—'}
                     </div>
                     <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 3 }}>est/month</div>

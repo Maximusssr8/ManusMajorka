@@ -2855,8 +2855,8 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           <Globe size={15} style={{ color: '#6366F1' }} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-black leading-tight" style={{ fontFamily: 'Syne, sans-serif' }}>Website Generator</div>
-          <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>AI-powered Shopify store builder for AU market</div>
+          <div className="text-sm font-black leading-tight" style={{ fontFamily: 'Syne, sans-serif' }}>Store Builder AI</div>
+          <div className="text-xs" style={{ color: '#9CA3AF' }}>AI-powered Shopify store builder for AU market</div>
         </div>
       </div>
 
@@ -2865,7 +2865,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
         {(['form','preview'] as const).map((p) => (
           <button key={p} onClick={() => setMobilePanel(p)}
             className="flex-1 py-2.5 text-xs font-bold uppercase tracking-wider transition-all"
-            style={{ color: mobilePanel === p ? '#6366F1' : 'rgba(240,237,232,0.35)', borderBottom: `2px solid ${mobilePanel === p ? '#6366F1' : 'transparent'}`, fontFamily: 'Syne, sans-serif', background: 'transparent', cursor: 'pointer' }}>
+            style={{ color: mobilePanel === p ? '#6366F1' : '#9CA3AF', borderBottom: `2px solid ${mobilePanel === p ? '#6366F1' : 'transparent'}`, fontFamily: 'Syne, sans-serif', background: 'transparent', cursor: 'pointer', border: 'none', borderBottomWidth: 2, borderBottomStyle: 'solid' as const, borderBottomColor: mobilePanel === p ? '#6366F1' : 'transparent' }}>
             {p === 'form' ? '⚙️ Configure' : '👁 Preview'}
           </button>
         ))}
@@ -2874,7 +2874,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
       {/* Body */}
       <div className="flex-1 overflow-auto flex flex-col md:flex-row">
         {/* ── LEFT PANEL ── */}
-        <div className={`flex-shrink-0 overflow-y-auto p-5 space-y-4 w-full md:w-[400px] ${mobilePanel === 'preview' ? 'hidden md:block' : ''}`} style={{ borderRight: '1px solid rgba(255,255,255,0.07)', borderBottom: '1px solid rgba(255,255,255,0.07)', scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.1) transparent' }}>
+        <div className={`flex-shrink-0 overflow-y-auto p-5 space-y-4 w-full md:w-[400px] ${mobilePanel === 'preview' ? 'hidden md:block' : ''}`} style={{ borderRight: '1px solid #F0F0F0', borderBottom: '1px solid #F0F0F0', scrollbarWidth: 'thin', scrollbarColor: 'rgba(0,0,0,0.1) transparent', background: '#FFFFFF' }}>
 
           {/* 3-Step Wizard Indicator */}
           <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 24, padding: "0 4px" }}>
@@ -2888,19 +2888,19 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               return (
                 <React.Fragment key={s.n}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                    <div style={{ width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, fontFamily: "Syne, sans-serif", background: done ? "#6366F1" : active ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.05)", color: done ? "#08080f" : active ? "#6366F1" : "rgba(255,255,255,0.3)", border: `1px solid ${done ? "#6366F1" : active ? "rgba(99,102,241,0.4)" : "rgba(255,255,255,0.08)"}`, transition: "all 0.3s" }}>
+                    <div style={{ width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, fontFamily: "Syne, sans-serif", background: done ? "#6366F1" : active ? "#EEF2FF" : "#F5F5F5", color: done ? "white" : active ? "#6366F1" : "#9CA3AF", border: `1px solid ${done ? "#6366F1" : active ? "#C7D2FE" : "#E5E7EB"}`, transition: "all 0.3s" }}>
                       {done ? "✓" : s.n}
                     </div>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: active ? "#6366F1" : "rgba(255,255,255,0.3)", fontFamily: "Syne, sans-serif", textTransform: "uppercase", letterSpacing: "0.06em" }}>{s.label}</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: active ? "#6366F1" : "#9CA3AF", fontFamily: "Syne, sans-serif", textTransform: "uppercase" as const, letterSpacing: "0.06em" }}>{s.label}</span>
                   </div>
-                  {i < 2 && <div style={{ flex: 1, height: 1, background: done ? "#6366F1" : "rgba(255,255,255,0.06)", marginBottom: 16, transition: "background 0.4s" }} />}
+                  {i < 2 && <div style={{ flex: 1, height: 1, background: done ? "#6366F1" : "#E5E7EB", marginBottom: 16, transition: "background 0.4s" }} />}
                 </React.Fragment>
               );
             })}
           </div>
 
           {/* Design Template Selector */}
-          <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1.5px solid rgba(99,102,241,0.2)', position: 'relative' }}>
+          <div className="rounded-xl p-4" style={{ background: '#FFFFFF', border: '1px solid #F0F0F0', position: 'relative' as const }}>
             <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}>Design Template</div>
             <div style={isMobile ? { display: 'flex', gap: 8, overflowX: 'auto', flexWrap: 'nowrap', paddingBottom: 4, scrollbarWidth: 'none' } : { display: 'flex', flexDirection: 'column', gap: 6 }}>
               {WEBSITE_TEMPLATES.map((t) => {
@@ -2911,27 +2911,39 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                   'premium-brand': 'luxury-editorial', 'coastal-au': 'coastal-lifestyle',
                   'tech-mono': 'tech-minimal', 'bloom-beauty': 'organic-wellness',
                 };
+                const tileGradientMap: Record<string, string> = {
+                  'DTC Minimal': 'linear-gradient(135deg, #f9fafb, #e5e7eb)',
+                  'Dropshipping Modal': 'linear-gradient(135deg, #EEF2FF, #C7D2FE)',
+                  'Dropship Bold': 'linear-gradient(135deg, #EEF2FF, #C7D2FE)',
+                  'Premium Beauty': 'linear-gradient(135deg, #fdf4ff, #fce7f3)',
+                  'Premium Brand': 'linear-gradient(135deg, #fdf4ff, #fce7f3)',
+                  'Tech Gadgets': 'linear-gradient(135deg, #0f0f23, #1e1b4b)',
+                  'Tech Mono': 'linear-gradient(135deg, #0f0f23, #1e1b4b)',
+                  'Outdoor/Sports': 'linear-gradient(135deg, #064e3b, #065f46)',
+                  'Coastal AU': 'linear-gradient(135deg, #ecfeff, #a5f3fc)',
+                  'Bloom Beauty': 'linear-gradient(135deg, #fdf4ff, #fce7f3)',
+                };
+                const tileGradient = tileGradientMap[t.name] || 'linear-gradient(135deg, #EEF2FF, #C7D2FE)';
                 return (
                   <button key={t.id}
                     onClick={() => { setPremiumTemplateId(t.id); setUserPickedTemplate(true); if (dirMap[t.id]) setDesignDirection(dirMap[t.id]); }}
-                    onMouseEnter={() => setHoveredTemplate(t.id)}
-                    onMouseLeave={() => setHoveredTemplate(null)}
-                    className="w-full rounded-xl text-left transition-all"
-                    style={{ background: isSelected ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)', border: `1.5px solid ${isSelected ? 'rgba(99,102,241,0.5)' : 'rgba(255,255,255,0.06)'}`, borderLeft: isSelected ? '3px solid #6366F1' : `1.5px solid ${isSelected ? 'rgba(99,102,241,0.5)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', padding: '9px 11px', display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 30, height: 30, borderRadius: 8, flexShrink: 0, background: `linear-gradient(135deg, ${t.palette.accent}dd, ${t.palette.accent}88)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15 }}>
-                      {t.emoji || '●'}
+                    onMouseEnter={(e) => { setHoveredTemplate(t.id); if (!isSelected) (e.currentTarget as HTMLButtonElement).style.background = '#F9FAFB'; }}
+                    onMouseLeave={(e) => { setHoveredTemplate(null); if (!isSelected) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+                    className="w-full text-left transition-all"
+                    style={{ height: 64, background: isSelected ? '#EEF2FF' : 'transparent', border: 'none', borderLeft: isSelected ? '3px solid #6366F1' : '3px solid transparent', cursor: 'pointer', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 12, borderRadius: 8 }}>
+                    <div style={{ width: 48, height: 36, borderRadius: 6, flexShrink: 0, background: tileGradient, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: t.palette.accent }} />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 12, fontWeight: 800, color: isSelected ? '#6366F1' : 'rgba(240,237,232,0.85)', fontFamily: 'Syne, sans-serif', marginBottom: 2, lineHeight: 1 }}>{t.name}</div>
-                      <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.35)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.3 }}>{t.bestFor || t.description}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: isSelected ? '#6366F1' : '#111827', fontFamily: 'Syne, sans-serif', marginBottom: 2, lineHeight: 1.2 }}>{t.name}</div>
+                      <div style={{ fontSize: 11, color: '#9CA3AF', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.3 }}>{t.bestFor || t.description}</div>
                     </div>
-                    {/* Task 2B — Colour palette dots */}
+                    {/* Colour palette dots */}
                     <div style={{ display: 'flex', gap: 3, flexShrink: 0 }}>
-                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: t.palette.bg, border: '1px solid rgba(255,255,255,0.15)' }} />
-                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: t.palette.accent, border: '1px solid rgba(255,255,255,0.15)' }} />
-                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: t.palette.text, border: '1px solid rgba(255,255,255,0.15)' }} />
+                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: t.palette.bg, border: '1px solid #E5E7EB' }} />
+                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: t.palette.accent, border: '1px solid #E5E7EB' }} />
+                      <div style={{ width: 10, height: 10, borderRadius: '50%', background: t.palette.text, border: '1px solid #E5E7EB' }} />
                     </div>
-                    {isSelected && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#6366F1', flexShrink: 0 }} />}
                   </button>
                 );
               })}
@@ -2966,8 +2978,8 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           </div>
 
           {/* Product URL Import */}
-          <div className="rounded-xl p-4" style={{ background: importedProduct ? 'rgba(45,202,114,0.05)' : 'rgba(255,255,255,0.03)', border: `1.5px solid ${importedProduct ? 'rgba(45,202,114,0.35)' : 'rgba(255,255,255,0.09)'}` }}>
-            <div className="text-xs font-bold uppercase tracking-widest mb-2.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Import Product</div>
+          <div className="rounded-xl p-4" style={{ background: importedProduct ? '#F0FDF4' : '#FFFFFF', border: `1px solid ${importedProduct ? '#BBF7D0' : '#F0F0F0'}` }}>
+            <div className="text-xs font-bold uppercase tracking-widest mb-2.5" style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}>Import Product</div>
             {importedProduct ? (
               <div>
                 <div className="flex gap-2.5 items-start mb-2">
@@ -3048,9 +3060,9 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           </div>
 
           {/* Product URL Quality Analyzer — Hero Input */}
-          <div className="rounded-xl p-4" style={{ background: analysisResult ? 'rgba(99,102,241,0.04)' : 'rgba(255,255,255,0.02)', border: `1.5px solid ${analysisResult ? 'rgba(99,102,241,0.25)' : 'rgba(99,102,241,0.15)'}` }}>
-            <div style={{ fontSize: 13, fontWeight: 800, color: '#6366F1', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
-              ✦ Step 1: Import a product
+          <div className="rounded-xl p-4" style={{ background: analysisResult ? '#EEF2FF' : '#FFFFFF', border: `1px solid ${analysisResult ? '#C7D2FE' : '#F0F0F0'}` }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: '#6366F1', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 10 }}>
+              ✦ Import a Product URL
             </div>
             <div className="flex gap-1.5 mb-2">
               <input
@@ -3059,13 +3071,15 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAnalyzeProduct(); } }}
                 placeholder="https://aliexpress.com/item/..."
                 className="flex-1 text-sm rounded-lg outline-none"
-                style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.1)', color: '#0A0A0A' }}
+                style={{ height: 44, padding: '0 16px', background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 10, color: '#0A0A0A' }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = '#6366F1'; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; }}
               />
               <button
                 onClick={() => handleAnalyzeProduct()}
                 disabled={analyzing || !analyzeUrl.trim()}
                 className="text-xs font-bold px-4 rounded-lg flex-shrink-0 flex items-center gap-1.5 disabled:opacity-50"
-                style={{ background: '#6366F1', border: '1.5px solid #6366F1', color: '#08080f', fontFamily: 'Syne, sans-serif', fontWeight: 800, cursor: 'pointer' }}
+                style={{ height: 44, background: '#6366F1', border: 'none', borderRadius: 10, color: 'white', fontFamily: 'Syne, sans-serif', fontWeight: 600, cursor: 'pointer' }}
               >
                 {analyzing ? <Loader2 size={12} className="animate-spin" /> : <Search size={12} />}
                 {analyzing ? 'Analyzing…' : 'Analyze'}
@@ -3628,7 +3642,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           )}
 
           {hasOutput && (
-            <SaveToProduct toolId="website-generator" toolName="Website Generator" outputData={JSON.stringify(generatedData || rawResponse)} />
+            <SaveToProduct toolId="website-generator" toolName="Store Builder AI" outputData={JSON.stringify(generatedData || rawResponse)} />
           )}
         </div>
 
@@ -4309,12 +4323,13 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
         return (
           <div style={{
-            height: 44, borderTop: '1px solid rgba(255,255,255,0.07)',
-            background: 'rgba(8,10,14,0.97)', display: 'flex', alignItems: 'center',
+            height: 44, borderTop: '1px solid #E5E7EB',
+            background: 'white', display: 'flex', alignItems: 'center',
             paddingLeft: 16, paddingRight: 16, gap: 10, flexShrink: 0,
+            boxShadow: '0 -1px 4px rgba(0,0,0,0.03)',
           }}>
-            <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, flexShrink: 0 }}>🤖</div>
-            <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)', fontFamily: 'DM Sans, sans-serif', marginRight: 4, flexShrink: 0 }}>Maya</span>
+            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#6366F1', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>M</div>
+            <span style={{ fontSize: 11, color: '#9CA3AF', fontFamily: 'DM Sans, sans-serif', marginRight: 4, flexShrink: 0 }}>Maya</span>
             {suggestion.href ? (
               <a
                 href={suggestion.href}
@@ -4326,7 +4341,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 {suggestion.text}
               </a>
             ) : (
-              <span style={{ fontSize: 12, color: 'rgba(240,237,232,0.4)', fontFamily: 'DM Sans, sans-serif' }}>{suggestion.text}</span>
+              <span style={{ fontSize: 12, color: '#9CA3AF', fontFamily: 'DM Sans, sans-serif' }}>{suggestion.text}</span>
             )}
           </div>
         );
