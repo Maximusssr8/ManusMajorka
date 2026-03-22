@@ -113,6 +113,11 @@ const GLOBAL_STYLES = `
   .feature-big { padding: 24px 16px !important; }
 }
 @media (min-width: 769px) { .hide-desktop { display: none !important; } }
+
+@keyframes blob-drift-1 { 0%,100%{transform:translate(0,0) scale(1);} 33%{transform:translate(60px,-40px) scale(1.1);} 66%{transform:translate(-40px,30px) scale(0.95);} }
+@keyframes blob-drift-2 { 0%,100%{transform:translate(0,0) scale(1);} 33%{transform:translate(-50px,60px) scale(1.05);} 66%{transform:translate(70px,-30px) scale(0.98);} }
+@keyframes blob-drift-3 { 0%,100%{transform:translate(0,0) scale(1);} 33%{transform:translate(40px,50px) scale(0.92);} 66%{transform:translate(-60px,-40px) scale(1.08);} }
+.gradient-blob { position:absolute; border-radius:50%; filter:blur(80px); pointer-events:none; }
 `;
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
@@ -177,6 +182,30 @@ const BIG_FEATURES = [
     desc: 'Get 5 Facebook/TikTok ad variations with hooks, body copy, and creative direction — written for AU audiences, ready to upload to Ads Manager.',
     accent: '#22c55e',
     stat: '5 ad angles per product',
+  },
+  {
+    Icon: Users,
+    title: 'Spy on competitors before they spy on you',
+    sub: 'Full competitive intelligence',
+    desc: 'See exactly what products any AU dropshipping store is running, their ad spend signals, price changes, and top-selling SKUs. Enter a domain, get the full playbook.',
+    accent: '#8B5CF6',
+    stat: '50K+ AU stores tracked',
+  },
+  {
+    Icon: DollarSign,
+    title: 'Know your margins before you spend a cent',
+    sub: 'AUD-native profit calculator',
+    desc: 'Full AU cost stack: AliExpress price, AusPost rates, Shopify fees, GST, and ad CPA. Enter your numbers, get your real take-home margin — with break-even ROAS built in.',
+    accent: '#d4af37',
+    stat: 'GST + AusPost included',
+  },
+  {
+    Icon: Package,
+    title: 'Built entirely for the Australian market',
+    sub: 'Not a US tool with an AU flag',
+    desc: 'AUD pricing, AusPost rates, local supplier network, GST compliance, and Australian consumer trends baked in at every layer. This is what AU-first actually means.',
+    accent: '#22c55e',
+    stat: '100% AU-focused',
   },
 ];
 
@@ -567,13 +596,21 @@ function FloatingCTA() {
 // ── Main Home ─────────────────────────────────────────────────────────────────
 export default function Home() {
   const [hoveredPricing, setHoveredPricing] = useState<number | null>(null);
+  const [billingAnnual, setBillingAnnual] = useState(false);
+  const [navShadow, setNavShadow] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setNavShadow(window.scrollY > 50);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const isAU = tz.startsWith('Australia');
   const isEU = tz.startsWith('Europe');
   const isUK = tz === 'Europe/London';
-  const priceBuilder = isAU ? 'A$79' : isUK ? '£39' : isEU ? '€45' : '$49';
-  const priceScale = isAU ? 'A$229' : isUK ? '£119' : isEU ? '€135' : '$149';
+  const priceBuilder = isAU ? "A$99" : isUK ? "£49" : isEU ? "€55" : "$59";
+  const priceScale = isAU ? "A$199" : isUK ? "£99" : isEU ? "€115" : "$119";
   const priceCurrency = isAU ? 'AUD/mo' : isUK ? 'GBP/mo' : isEU ? 'EUR/mo' : 'USD/mo';
 
   const PRICING = [
@@ -590,7 +627,7 @@ export default function Home() {
     },
     {
       name: 'Builder',
-      price: priceBuilder,
+      price: billingAnnual ? (isAU ? "A$79" : isUK ? "£39" : isEU ? "€44" : "$47") : priceBuilder,
       period: priceCurrency,
       description: 'Everything you need to run a winning ecommerce business.',
       features: ['Unlimited AI credits', 'All 20+ tools', 'Full Launch Kit', 'Meta + TikTok Ads Pack', 'Email Sequences', 'Priority support'],
@@ -602,7 +639,7 @@ export default function Home() {
     },
     {
       name: 'Scale',
-      price: priceScale,
+      price: billingAnnual ? (isAU ? "A$159" : isUK ? "£79" : isEU ? "€92" : "$95") : priceScale,
       period: priceCurrency,
       description: 'For serious operators who need full control.',
       features: ['Everything in Builder', 'Priority AI (faster)', 'API access', 'White-label export', 'Dedicated account manager'],
@@ -624,7 +661,7 @@ export default function Home() {
       <style>{GLOBAL_STYLES}</style>
 
       {/* ═══ NAV ═══════════════════════════════════════════════════════════ */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(8,10,14,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(8,10,14,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(212,175,55,0.08)', boxShadow: navShadow ? "0 4px 24px rgba(0,0,0,0.4)" : "none", transition: "box-shadow 0.3s" }}>
         <div className="nav-inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 34, height: 34, borderRadius: 8, background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 17, color: '#000' }}>M</div>
@@ -644,6 +681,10 @@ export default function Home() {
 
       {/* ═══ HERO ══════════════════════════════════════════════════════════ */}
       <section className="hero-section" style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', padding: '100px 24px 80px', overflow: 'hidden' }}>
+        {/* Gradient mesh blobs */}
+        <div className="gradient-blob" style={{ width:500, height:500, top:"-10%", left:"-5%", background:"rgba(99,102,241,0.10)", animation:"blob-drift-1 8s ease-in-out infinite", zIndex:0 }} />
+        <div className="gradient-blob" style={{ width:400, height:400, top:"20%", right:"-8%", background:"rgba(139,92,246,0.09)", animation:"blob-drift-2 10s ease-in-out infinite", zIndex:0 }} />
+        <div className="gradient-blob" style={{ width:350, height:350, bottom:"-5%", left:"30%", background:"rgba(6,182,212,0.07)", animation:"blob-drift-3 12s ease-in-out infinite", zIndex:0 }} />
         <div className="particle-grid" style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '70%', background: 'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212,175,55,0.12) 0%, transparent 70%)', zIndex: 0, pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', top: '50%', left: '50%', width: 900, height: 900, marginTop: -450, marginLeft: -450, background: 'conic-gradient(from 0deg, transparent, rgba(212,175,55,0.025), transparent, rgba(212,175,55,0.015), transparent, rgba(212,175,55,0.02), transparent)', animation: 'ray-rotate 40s linear infinite', borderRadius: '50%', zIndex: 0, pointerEvents: 'none' }} />
@@ -727,7 +768,37 @@ export default function Home() {
             className="hero-widget"
             style={{ flex: '1 1 400px', minWidth: 0 }}
           >
-            <StoreBuilderAnimation />
+            <div style={{ position:"relative", minHeight:320 }}>
+              <StoreBuilderAnimation />
+              {/* Floating card 1 */}
+              <div style={{
+                position:"absolute", top:-20, left:-30, background:"rgba(13,17,23,0.85)",
+                backdropFilter:"blur(8px)", WebkitBackdropFilter:"blur(8px)",
+                border:"1px solid rgba(212,175,55,0.25)", borderRadius:14, padding:"14px 18px",
+                minWidth:200, transform:"rotate(-3deg)",
+                animation:"float 4s ease-in-out infinite", zIndex:10,
+                boxShadow:"0 8px 32px rgba(0,0,0,0.4)",
+              }}>
+                <div style={{ fontSize:9, fontWeight:700, color:"#22c55e", letterSpacing:"0.08em", marginBottom:6 }}>🔥 TRENDING NOW</div>
+                <div style={{ fontSize:13, fontWeight:700, color:"#f5f5f5", fontFamily:"Syne, sans-serif", marginBottom:4 }}>Posture Corrector Pro</div>
+                <div style={{ fontSize:18, fontWeight:900, color:"#d4af37", fontFamily:"Syne, sans-serif" }}>$48,200<span style={{fontSize:11,color:"#94949e"}}>/mo</span></div>
+                <div style={{ fontSize:10, color:"#94949e", marginTop:2 }}>1,847 orders · 67% margin</div>
+              </div>
+              {/* Floating card 2 */}
+              <div style={{
+                position:"absolute", bottom:-16, right:-20, background:"rgba(13,17,23,0.85)",
+                backdropFilter:"blur(8px)", WebkitBackdropFilter:"blur(8px)",
+                border:"1px solid rgba(99,102,241,0.3)", borderRadius:14, padding:"14px 18px",
+                minWidth:190, transform:"rotate(2deg)",
+                animation:"float 5s ease-in-out 1s infinite", zIndex:10,
+                boxShadow:"0 8px 32px rgba(0,0,0,0.4)",
+              }}>
+                <div style={{ fontSize:9, fontWeight:700, color:"#6366F1", letterSpacing:"0.08em", marginBottom:6 }}>⚡ VIRAL TIKTOK</div>
+                <div style={{ fontSize:13, fontWeight:700, color:"#f5f5f5", fontFamily:"Syne, sans-serif", marginBottom:4 }}>LED Face Mask Pro</div>
+                <div style={{ fontSize:18, fontWeight:900, color:"#d4af37", fontFamily:"Syne, sans-serif" }}>$31,500<span style={{fontSize:11,color:"#94949e"}}>/mo</span></div>
+                <div style={{ fontSize:10, color:"#94949e", marginTop:2 }}>963 orders · 72% margin</div>
+              </div>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -977,7 +1048,7 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="grid-1-mobile" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+          <div className="grid-1-mobile" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24, maxWidth: 1100, margin: '0 auto' }}>
             {BIG_FEATURES.map((feat, i) => {
               const Icon = feat.Icon;
               return (
@@ -997,6 +1068,7 @@ export default function Home() {
                     position: 'relative',
                     overflow: 'hidden',
                     transition: 'border-color 0.3s, transform 0.3s',
+                    ...(i === 0 ? { gridColumn: '1 / -1' } : {}),
                   }}
                 >
                   {/* Accent top bar */}
@@ -1096,6 +1168,23 @@ export default function Home() {
             <p style={{ color: C.secondary, fontSize: 16, maxWidth: 460, margin: '0 auto 12px' }}>
               One platform replacing 6 tools at a fraction of the cost.
             </p>
+            {/* Annual/monthly toggle */}
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:12, margin:"20px auto 8px" }}>
+              <span style={{ fontSize:13, color: billingAnnual ? "#94949e" : "#f5f5f5", fontWeight: billingAnnual ? 400 : 600 }}>Monthly</span>
+              <button onClick={() => setBillingAnnual(b => !b)} style={{
+                width:44, height:24, borderRadius:12, border:"none", cursor:"pointer", position:"relative",
+                background: billingAnnual ? "#6366F1" : "rgba(255,255,255,0.12)",
+                transition:"background 0.3s",
+              }}>
+                <div style={{
+                  position:"absolute", top:2, left: billingAnnual ? 22 : 2, width:20, height:20,
+                  borderRadius:"50%", background:"#fff", transition:"left 0.3s",
+                }} />
+              </button>
+              <span style={{ fontSize:13, color: billingAnnual ? "#f5f5f5" : "#94949e", fontWeight: billingAnnual ? 600 : 400 }}>
+                Annual <span style={{ background:"rgba(99,102,241,0.2)", color:"#6366F1", borderRadius:4, padding:"1px 6px", fontSize:11, fontWeight:700 }}>Save 20%</span>
+              </span>
+            </div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 100, padding: '5px 16px', marginBottom: 8 }}>
               <span style={{ fontSize: 14 }}>🔥</span>
               <span style={{ fontSize: 12, fontWeight: 700, color: '#ef4444' }}>47 sellers joined this week</span>
@@ -1126,7 +1215,7 @@ export default function Home() {
                 transition={{ delay: i * 0.1, duration: 0.5, ease: 'easeOut' }}
                 onMouseEnter={() => setHoveredPricing(i)}
                 onMouseLeave={() => setHoveredPricing(null)}
-                style={{ background: plan.highlight ? C.elevated : C.card, border: `2px solid ${plan.highlight ? C.gold : hoveredPricing === i ? C.borderHover : C.border}`, borderRadius: 18, padding: '28px 24px', position: 'relative', boxShadow: plan.highlight ? `0 0 40px rgba(212,175,55,0.12)` : 'none', transition: 'border-color 0.3s, box-shadow 0.3s' }}
+                style={{ background: plan.highlight ? C.elevated : C.card, border: `2px solid ${plan.highlight ? "#6366F1" : hoveredPricing === i ? C.borderHover : C.border}`, borderRadius: 18, padding: '28px 24px', position: 'relative', boxShadow: plan.highlight ? "0 0 0 2px #6366F1, 0 20px 40px rgba(99,102,241,0.20)" : 'none', transition: 'border-color 0.3s, box-shadow 0.3s' }}
               >
                 {plan.badge && (
                   <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', background: `linear-gradient(135deg, ${C.gold}, #b8941f)`, color: '#000', borderRadius: 100, padding: '3px 14px', fontSize: 11, fontWeight: 800, fontFamily: syne, whiteSpace: 'nowrap' }}>
@@ -1301,7 +1390,7 @@ export default function Home() {
               </div>
             </div>
             <div style={{ textAlign: 'center', fontSize: 12, color: C.muted }}>
-              Made with ♥ in Australia 🇦🇺
+              Made in Gold Coast, Australia 🇦🇺
             </div>
           </div>
         </div>
