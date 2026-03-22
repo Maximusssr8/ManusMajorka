@@ -1098,9 +1098,10 @@ router.post('/refresh-db-rapidapi', async (req: Request, res: Response) => {
   const { createClient } = await import('@supabase/supabase-js');
   const supabase = createClient(supabaseUrl, serviceKey);
 
-  let total = 0;
-  const results: { niche: string; count?: number; error?: string }[] = [];
+  const results: { niche: string; count?: number; inserted?: number; error?: string }[] = [];
+  const allRows: any[] = [];
 
+  // Step 1: collect all products from RapidAPI
   for (const { keyword, label: niche } of OPPORTUNITY_SEARCHES) {
     try {
       const products = await searchAliExpressProducts(keyword, {
@@ -1109,37 +1110,59 @@ router.post('/refresh-db-rapidapi', async (req: Request, res: Response) => {
         shipTo: 'AU',
       });
 
+      let count = 0;
       for (const p of products) {
         if (!p.name || !p.image_url) continue;
-
-        await supabase.from('trend_signals').upsert({
+        allRows.push({
           name: p.name.slice(0, 200),
           niche,
-          image_url: p.image_url,
+          image_url: p.image_url.startsWith('//') ? `https:${p.image_url}` : p.image_url,
           estimated_retail_aud: p.price_aud || 49,
-          aliexpress_url: p.aliexpress_url,
+          aliexpress_url: p.aliexpress_url || '',
           supplier_name: p.supplier_name || 'AliExpress',
           winning_score: Math.min(100, Math.round((p.orders_count || 0) / 50)),
           trend_score: 70,
           growth_pct: 15,
           real_data_scraped: true,
           source: 'rapidapi_datahub',
-          orders_count: p.orders_count || 0,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'name' });
-        total++;
+        });
+        count++;
       }
 
-      results.push({ niche, count: products.length });
-      console.log(`[refresh-db-rapidapi] ${niche}: ${products.length} products`);
-      await new Promise(r => setTimeout(r, 500));
+      results.push({ niche, count });
+      console.log(`[refresh-db-rapidapi] ${niche}: ${products.length} products fetched`);
+      await new Promise(r => setTimeout(r, 400));
     } catch (err: any) {
       console.error(`[refresh-db-rapidapi] ${niche} failed:`, err.message);
       results.push({ niche, error: err.message });
     }
   }
 
-  res.json({ total, results });
+  // Step 2: delete old rapidapi_datahub records
+  const { error: delError } = await supabase
+    .from('trend_signals')
+    .delete()
+    .eq('source', 'rapidapi_datahub');
+  if (delError) console.error('[refresh-db-rapidapi] delete error:', delError.message);
+  console.log(`[refresh-db-rapidapi] deleted old rapidapi_datahub records`);
+
+  // Step 3: batch insert new records (chunks of 50)
+  let total = 0;
+  for (let i = 0; i < allRows.length; i += 50) {
+    const chunk = allRows.slice(i, i + 50);
+    const { error: insError, data } = await supabase
+      .from('trend_signals')
+      .insert(chunk)
+      .select('id');
+    if (insError) {
+      console.error('[refresh-db-rapidapi] insert error:', insError.message);
+    } else {
+      total += data?.length || chunk.length;
+    }
+  }
+
+  console.log(`[refresh-db-rapidapi] complete: ${total} inserted`);
+  res.json({ total, results, deleted_old: !delError });
 });
 
 // ── GET /api/admin/aliexpress-status — check AliExpress integration health ────

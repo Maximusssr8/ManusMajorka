@@ -59,10 +59,11 @@ export async function searchAliExpressProducts(
       const basePrice = it.sku?.def?.price;
       const rawPrice = parseFloat(promoPrice || basePrice || item.price || '0');
       const rawOriginal = parseFloat(basePrice || '0');
+      const rawImg = it.image || item.image || '';
       return {
         id: String(it.itemId || item.itemId || ''),
         name: (it.title || item.title || '').slice(0, 200),
-        image_url: it.image || item.image || '',
+        image_url: rawImg.startsWith('//') ? `https:${rawImg}` : rawImg,
         images: it.images || (it.image ? [it.image] : [item.image].filter(Boolean)),
         price_usd: rawPrice,
         price_aud: Math.round(rawPrice * 1.55),

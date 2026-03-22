@@ -264,34 +264,40 @@ router.get('/refresh-products', async (req: Request, res: Response) => {
     { keyword: "kitchen gadgets cooking tools", label: "Kitchen" },
   ];
 
-  let total = 0;
+  const { searchAliExpressProducts } = await import("../lib/aliexpressDataHub");
+  const allRows: any[] = [];
+
   for (const { keyword, label } of searches) {
     try {
-      const { searchAliExpressProducts } = await import("../lib/aliexpressDataHub");
       const products = await searchAliExpressProducts(keyword, { limit: 19, sort: "total_tranpro_desc", shipTo: "AU" });
       for (const p of products) {
         if (!p.name || !p.image_url) continue;
-        await supabase.from("trend_signals").upsert({
+        allRows.push({
           name: p.name.slice(0, 200),
           niche: label,
-          image_url: p.image_url,
+          image_url: p.image_url.startsWith('//') ? `https:${p.image_url}` : p.image_url,
           estimated_retail_aud: p.price_aud || 49,
-          aliexpress_url: p.aliexpress_url,
+          aliexpress_url: p.aliexpress_url || '',
           supplier_name: p.supplier_name || "AliExpress",
           winning_score: Math.min(100, Math.round((p.orders_count || 0) / 50)),
           trend_score: 70,
           growth_pct: 15,
           real_data_scraped: true,
           source: "rapidapi_datahub",
-          orders_count: p.orders_count || 0,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: "name" });
-        total++;
+        });
       }
       await new Promise(r => setTimeout(r, 300));
     } catch (err: any) {
       console.error(`[cron] ${label} failed:`, err.message);
     }
+  }
+
+  // Delete old, insert fresh
+  await supabase.from("trend_signals").delete().eq("source", "rapidapi_datahub");
+  let total = 0;
+  for (let i = 0; i < allRows.length; i += 50) {
+    const { data } = await supabase.from("trend_signals").insert(allRows.slice(i, i + 50)).select("id");
+    total += data?.length || 0;
   }
 
   console.log(`[cron] Product refresh completed: ${total} products`);
