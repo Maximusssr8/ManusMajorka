@@ -75,7 +75,7 @@ const STAGE_PATHS: Record<string, string> = {
 
 function ToolLoadingFallback() {
   return (
-    <div className="h-full flex items-center justify-center" style={{ background: '#0a0b0d' }}>
+    <div className="h-full flex items-center justify-center" style={{ background: '#FAFAFA' }}>
       <div className="flex flex-col items-center gap-3">
         <div
           className="w-8 h-8 rounded-xl flex items-center justify-center font-black animate-pulse"
@@ -230,13 +230,13 @@ export default function ToolPage() {
     return (
       <div
         className="flex items-center justify-center h-full page-enter"
-        style={{ background: '#0a0b0d' }}
+        style={{ background: '#FAFAFA' }}
       >
         <div className="text-center">
           <div className="text-4xl mb-4">🔧</div>
           <h2
             className="text-lg font-bold mb-2"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+            style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
           >
             Tool not found
           </h2>

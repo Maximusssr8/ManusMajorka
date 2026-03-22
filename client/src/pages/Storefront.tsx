@@ -165,10 +165,10 @@ export default function Storefront() {
             {products.map((sfp) => (
               <div
                 key={sfp.id}
-                className="group bg-neutral-950 border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all"
+                className="group bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-white/20 transition-all"
               >
                 {/* Product image placeholder */}
-                <div className="aspect-square bg-neutral-900 flex items-center justify-center">
+                <div className="aspect-square bg-gray-100 flex items-center justify-center">
                   <ShoppingBag className="w-16 h-16 text-neutral-700" />
                 </div>
                 <div className="p-5">
@@ -228,7 +228,7 @@ export default function Storefront() {
       {/* Checkout modal */}
       {showCheckout && selectedProduct && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4">
-          <div className="bg-neutral-950 border border-white/10 rounded-2xl w-full max-w-md p-6">
+          <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-white font-bold text-xl">Complete Order</h3>
               <button
@@ -238,7 +238,7 @@ export default function Storefront() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="bg-neutral-900 rounded-xl p-4 mb-6">
+            <div className="bg-gray-50 rounded-xl p-4 mb-6">
               <p className="text-white font-medium">{selectedProduct.product?.name}</p>
               <div className="flex items-baseline gap-2 mt-1">
                 <span className="text-xl font-bold">${selectedProduct.price}</span>
@@ -256,7 +256,7 @@ export default function Storefront() {
                   value={checkoutForm.name}
                   onChange={(e) => setCheckoutForm((f) => ({ ...f, name: e.target.value }))}
                   placeholder="John Smith"
-                  className="bg-neutral-900 border-neutral-700 text-white"
+                  className="bg-white border-gray-300 text-gray-900"
                 />
               </div>
               <div>
@@ -266,7 +266,7 @@ export default function Storefront() {
                   onChange={(e) => setCheckoutForm((f) => ({ ...f, email: e.target.value }))}
                   type="email"
                   placeholder="john@example.com"
-                  className="bg-neutral-900 border-neutral-700 text-white"
+                  className="bg-white border-gray-300 text-gray-900"
                 />
               </div>
               <div>
@@ -275,7 +275,7 @@ export default function Storefront() {
                   value={checkoutForm.address}
                   onChange={(e) => setCheckoutForm((f) => ({ ...f, address: e.target.value }))}
                   placeholder="123 Main St, Sydney NSW 2000"
-                  className="bg-neutral-900 border-neutral-700 text-white"
+                  className="bg-white border-gray-300 text-gray-900"
                 />
               </div>
               <Button

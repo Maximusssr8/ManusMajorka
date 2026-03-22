@@ -44,12 +44,12 @@ export default function AdminLeads() {
   // Gate access
   if (user?.email !== ADMIN_EMAIL && user?.role !== 'admin') {
     return (
-      <div className="h-full flex items-center justify-center" style={{ background: '#080a0e' }}>
+      <div className="h-full flex items-center justify-center" style={{ background: '#FAFAFA' }}>
         <div className="text-center">
           <div className="text-4xl mb-3">🔒</div>
           <h2
             className="text-lg font-bold"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+            style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
           >
             Admin Only
           </h2>
@@ -151,7 +151,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
   return (
     <div
       className="h-full overflow-y-auto p-6"
-      style={{ background: '#080a0e', scrollbarWidth: 'thin' }}
+      style={{ background: '#FAFAFA', scrollbarWidth: 'thin' }}
     >
       <div className="max-w-5xl mx-auto space-y-6">
         {/* Header */}
@@ -159,7 +159,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
           <div>
             <h1
               className="text-xl font-black flex items-center gap-2"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+              style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
             >
               <Users size={20} style={{ color: '#6366F1' }} />
               Lead Intelligence
@@ -207,7 +207,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 className="rounded-xl p-5"
                 style={{
                   background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid rgba(255,255,255,0.06)',
+                  border: '1px solid #E5E7EB',
                 }}
               >
                 <h2
@@ -238,7 +238,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                         borderRadius: 8,
                         fontSize: 12,
                       }}
-                      labelStyle={{ color: '#f0ede8' }}
+                      labelStyle={{ color: '#0A0A0A' }}
                     />
                     <Legend wrapperStyle={{ fontSize: 12, color: 'rgba(240,237,232,0.6)' }} />
                   </PieChart>
@@ -251,7 +251,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
               className="rounded-xl overflow-hidden"
               style={{
                 background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                border: '1px solid #E5E7EB',
               }}
             >
               <div
@@ -303,7 +303,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                               i < leads.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
                           }}
                         >
-                          <td className="px-4 py-2.5" style={{ color: '#f0ede8' }}>
+                          <td className="px-4 py-2.5" style={{ color: '#0A0A0A' }}>
                             {lead.email ?? '—'}
                           </td>
                           <td className="px-4 py-2.5" style={{ color: 'rgba(240,237,232,0.5)' }}>
@@ -382,7 +382,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 style={{
                   background: 'rgba(255,255,255,0.04)',
                   border: '1.5px solid rgba(255,255,255,0.08)',
-                  color: '#f0ede8',
+                  color: '#0A0A0A',
                 }}
               />
               <button
@@ -409,7 +409,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                   className="rounded-xl p-5"
                   style={{
                     background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    border: '1px solid #E5E7EB',
                   }}
                 >
                   <h2
@@ -440,7 +440,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                   className="rounded-xl p-5"
                   style={{
                     background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    border: '1px solid #E5E7EB',
                   }}
                 >
                   <h2
@@ -499,7 +499,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                   className="rounded-xl p-5"
                   style={{
                     background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    border: '1px solid #E5E7EB',
                   }}
                 >
                   <div className="flex items-center justify-between mb-3">

@@ -243,11 +243,11 @@ export default function NicheScorer() {
   return (
     <div
       className="h-full flex flex-col"
-      style={{ background: '#080a0e', color: '#f0ede8', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
     >
       <div
         className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0"
-        style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#0c0e12' }}
+        style={{ borderColor: '#E5E7EB', background: 'white' }}
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -288,7 +288,7 @@ export default function NicheScorer() {
       <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
         <div
           className="w-full lg:w-72 flex-shrink-0 overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 space-y-4"
-          style={{ borderColor: 'rgba(255,255,255,0.07)' }}
+          style={{ borderColor: '#E5E7EB' }}
         >
           <div className="space-y-3">
             <div>
@@ -466,7 +466,7 @@ export default function NicheScorer() {
                 className="p-4 rounded-2xl"
                 style={{
                   background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid rgba(255,255,255,0.07)',
+                  border: '1px solid #E5E7EB',
                 }}
               >
                 <div
@@ -544,7 +544,7 @@ export default function NicheScorer() {
                   className="p-3 rounded-xl text-center"
                   style={{
                     background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    border: '1px solid #E5E7EB',
                   }}
                 >
                   <div
@@ -564,7 +564,7 @@ export default function NicheScorer() {
                   className="p-3 rounded-xl text-center"
                   style={{
                     background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    border: '1px solid #E5E7EB',
                   }}
                 >
                   <div
@@ -584,7 +584,7 @@ export default function NicheScorer() {
                   className="p-3 rounded-xl text-center"
                   style={{
                     background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    border: '1px solid #E5E7EB',
                   }}
                 >
                   <div
@@ -604,7 +604,7 @@ export default function NicheScorer() {
                 className="p-4 rounded-2xl"
                 style={{
                   background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid rgba(255,255,255,0.06)',
+                  border: '1px solid #E5E7EB',
                 }}
               >
                 <div

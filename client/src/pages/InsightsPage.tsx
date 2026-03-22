@@ -34,7 +34,7 @@ export default function InsightsPage() {
     <div
       className="h-full overflow-auto"
       style={{
-        background: '#0a0b0d',
+        background: '#FAFAFA',
         scrollbarWidth: 'thin',
         scrollbarColor: 'rgba(255,255,255,0.1) transparent',
       }}
@@ -54,7 +54,7 @@ export default function InsightsPage() {
                 className="text-2xl font-black"
                 style={{
                   fontFamily: 'Syne, sans-serif',
-                  color: '#f0ede8',
+                  color: '#0A0A0A',
                   letterSpacing: '-0.02em',
                 }}
               >
@@ -101,7 +101,7 @@ export default function InsightsPage() {
                       className="text-left rounded-xl p-4 transition-all duration-150 group"
                       style={{
                         background: 'rgba(255,255,255,0.025)',
-                        border: '1px solid rgba(255,255,255,0.07)',
+                        border: '1px solid #E5E7EB',
                         cursor: 'pointer',
                       }}
                       onMouseEnter={(e) => {
@@ -113,7 +113,7 @@ export default function InsightsPage() {
                       }}
                       onMouseLeave={(e) => {
                         const el = e.currentTarget as HTMLButtonElement;
-                        el.style.borderColor = 'rgba(255,255,255,0.07)';
+                        el.style.borderColor = '#E5E7EB';
                         el.style.background = 'rgba(255,255,255,0.025)';
                         el.style.transform = 'none';
                         el.style.boxShadow = 'none';
@@ -134,7 +134,7 @@ export default function InsightsPage() {
                             className="text-sm font-bold mb-1"
                             style={{
                               fontFamily: 'Syne, sans-serif',
-                              color: '#f0ede8',
+                              color: '#0A0A0A',
                             }}
                           >
                             {tool.label}

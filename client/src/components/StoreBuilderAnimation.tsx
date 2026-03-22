@@ -298,7 +298,7 @@ export default function StoreBuilderAnimation() {
               width: '100%',
               minHeight: 380,
               borderRadius: 12,
-              background: '#080a0e',
+              background: '#FAFAFA',
               border: '1px solid rgba(99,102,241,0.1)',
               overflow: 'hidden',
               animation: phase === 4 ? 'sba-gold-pulse 2s ease-in-out infinite' : 'none',
@@ -396,7 +396,7 @@ export default function StoreBuilderAnimation() {
                       <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#28c840' }} />
                     </div>
                     <div style={{
-                      flex: 1, background: '#0d1117', borderRadius: 4,
+                      flex: 1, background: 'white', borderRadius: 4,
                       padding: '3px 10px', fontFamily: "'JetBrains Mono', monospace",
                       fontSize: 10, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 5,
                     }}>
@@ -407,7 +407,7 @@ export default function StoreBuilderAnimation() {
 
                   {/* Store content */}
                   <div style={{
-                    flex: 1, background: '#0a0c10',
+                    flex: 1, background: '#F3F4F6',
                     display: 'flex', flexDirection: 'column',
                     overflow: 'hidden', position: 'relative',
                   }}>
@@ -419,7 +419,7 @@ export default function StoreBuilderAnimation() {
                           initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
                           transition={{ duration: 0.25, ease: 'easeOut' }}
                           style={{
-                            background: '#0d1117',
+                            background: 'white',
                             borderBottom: '1px solid rgba(99,102,241,0.15)',
                             padding: '10px 16px', display: 'flex',
                             justifyContent: 'space-between', alignItems: 'center', flexShrink: 0,
@@ -966,7 +966,7 @@ export default function StoreBuilderAnimation() {
       {!visible && (
         <div style={{
           width: '100%', minHeight: 380, borderRadius: 12,
-          background: '#080a0e', border: '1px solid rgba(99,102,241,0.05)',
+          background: '#FAFAFA', border: '1px solid rgba(99,102,241,0.05)',
         }} />
       )}
 

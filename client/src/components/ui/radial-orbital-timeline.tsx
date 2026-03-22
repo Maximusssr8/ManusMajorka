@@ -148,7 +148,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
               className="absolute w-24 h-24 rounded-full border border-yellow-400/10 animate-ping opacity-50"
               style={{ animationDelay: '0.5s' }}
             />
-            <div className="w-8 h-8 rounded-full" style={{ background: '#080a0e' }} />
+            <div className="w-8 h-8 rounded-full" style={{ background: '#FAFAFA' }} />
           </div>
 
           {/* Orbit ring */}
@@ -258,7 +258,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                       </div>
                       <CardTitle
                         className="text-sm mt-2"
-                        style={{ color: '#f0ede8', fontFamily: 'Syne, sans-serif' }}
+                        style={{ color: '#0A0A0A', fontFamily: 'Syne, sans-serif' }}
                       >
                         {item.title}
                       </CardTitle>

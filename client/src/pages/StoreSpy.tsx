@@ -172,7 +172,7 @@ export default function StoreSpy() {
   // ── Styles ───────────────────────────────────────────────────────────────
 
   const pageStyle: React.CSSProperties = {
-    background: '#060608',
+    background: '#FAFAFA',
     minHeight: '100vh',
     padding: '32px 16px 80px',
     fontFamily: 'DM Sans, sans-serif',
@@ -185,7 +185,7 @@ export default function StoreSpy() {
   };
 
   const cardStyle: React.CSSProperties = {
-    background: '#0c0c10',
+    background: 'white',
     border: '1px solid rgba(255,255,255,0.06)',
     borderRadius: 12,
     padding: 24,
@@ -248,7 +248,7 @@ export default function StoreSpy() {
                 disabled={loading}
                 style={{
                   width: '100%',
-                  background: '#060608',
+                  background: '#FAFAFA',
                   border: '1px solid rgba(255,255,255,0.06)',
                   borderRadius: 10,
                   padding: '14px 14px 14px 42px',

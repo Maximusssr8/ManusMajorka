@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import Sparkline from '@/components/Sparkline';
 import { useLocation, useParams } from 'wouter';
 
-const C = { bg: '#080a0e', surface: '#0d0d14', border: '#1a1a2e', gold: '#6366F1', text: '#f0ede8', muted: 'rgba(240,237,232,0.5)' };
+const C = { bg: '#FAFAFA', surface: '#FFFFFF', border: '#E5E7EB', gold: '#6366F1', text: '#0A0A0A', muted: 'rgba(55,65,81,0.5)' };
 
 interface ShopDetailData {
   id: string;
@@ -127,7 +127,7 @@ export default function ShopDetail() {
             <div style={{ fontSize: 13, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 16, fontFamily: 'Syne, sans-serif' }}>Best Selling Products</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
               {(shop.best_selling_products || []).map((p, i) => (
-                <div key={i} style={{ background: '#0a0a12', border: `1px solid ${C.border}`, borderRadius: 10, overflow: 'hidden' }}>
+                <div key={i} style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 10, overflow: 'hidden' }}>
                   <img src={p.imageUrl} alt={p.name} style={{ width: '100%', height: 100, objectFit: 'cover' }} onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                   <div style={{ padding: '10px', fontSize: 12, color: C.text, fontWeight: 600 }}>{p.name}</div>
                 </div>
@@ -137,7 +137,7 @@ export default function ShopDetail() {
 
           <button
             onClick={() => navigate(`/app/website-generator?niche=${encodeURIComponent(shop.niche)}&fromDatabase=true`)}
-            style={{ width: '100%', padding: '14px', borderRadius: 12, background: C.gold, border: 'none', color: '#080a0e', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}
+            style={{ width: '100%', padding: '14px', borderRadius: 12, background: C.gold, border: 'none', color: '#FAFAFA', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}
           >
             Build a Competing Store →
           </button>
@@ -175,11 +175,11 @@ export default function ShopDetail() {
                   <div style={{ fontSize: 13, color: C.text }}>{analysis.competing_angle}</div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                  <div style={{ background: '#0a0a12', borderRadius: 8, padding: 12 }}>
+                  <div style={{ background: 'white', borderRadius: 8, padding: 12 }}>
                     <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase' }}>Ad Spend Range</div>
                     <div style={{ fontSize: 13, fontWeight: 700, color: C.text, marginTop: 4 }}>{analysis.ad_spend_range}</div>
                   </div>
-                  <div style={{ background: '#0a0a12', borderRadius: 8, padding: 12 }}>
+                  <div style={{ background: 'white', borderRadius: 8, padding: 12 }}>
                     <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase' }}>Copy Score</div>
                     <div style={{ fontSize: 20, fontWeight: 900, color: C.gold, fontFamily: 'Syne, sans-serif', marginTop: 4 }}>{analysis.copy_strategy_score}/10</div>
                   </div>
@@ -195,7 +195,7 @@ export default function ShopDetail() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {shop.similar_shops.map(s => (
                   <div key={s.id} onClick={() => navigate(`/app/shops/${s.id}`)}
-                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#0a0a12', borderRadius: 10, cursor: 'pointer', border: `1px solid ${C.border}` }}
+                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: 'white', borderRadius: 10, cursor: 'pointer', border: `1px solid ${C.border}` }}
                     onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(99,102,241,0.3)'}
                     onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = C.border}>
                     <div>

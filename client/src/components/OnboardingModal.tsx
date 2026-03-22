@@ -207,7 +207,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
       <div
         className="relative w-full max-w-md mx-4 rounded-2xl overflow-hidden"
         style={{
-          background: '#0f1115',
+          background: 'white',
           border: '1px solid rgba(255,255,255,0.1)',
           boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
         }}
@@ -245,7 +245,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 <div className="text-3xl mb-3">👋</div>
                 <h2
                   className="text-lg font-black mb-1"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                  style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
                 >
                   Welcome{userName ? `, ${userName}` : ''}!
                 </h2>
@@ -265,7 +265,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                         selectedLevel === level.id
                           ? 'rgba(99,102,241,0.12)'
                           : 'rgba(255,255,255,0.03)',
-                      border: `1.5px solid ${selectedLevel === level.id ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.07)'}`,
+                      border: `1.5px solid ${selectedLevel === level.id ? 'rgba(99,102,241,0.4)' : '#E5E7EB'}`,
                       cursor: 'pointer',
                     }}
                   >
@@ -275,7 +275,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                         className="text-xs font-bold"
                         style={{
                           fontFamily: 'Syne, sans-serif',
-                          color: selectedLevel === level.id ? '#6366F1' : '#f0ede8',
+                          color: selectedLevel === level.id ? '#6366F1' : '#0A0A0A',
                         }}
                       >
                         {level.label}
@@ -321,7 +321,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 <div className="text-3xl mb-3">🎯</div>
                 <h2
                   className="text-lg font-black mb-1"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                  style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
                 >
                   What's your priority?
                 </h2>
@@ -341,7 +341,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                       style={{
                         background:
                           selectedGoal === goal.id ? `${goal.color}15` : 'rgba(255,255,255,0.03)',
-                        border: `1.5px solid ${selectedGoal === goal.id ? `${goal.color}50` : 'rgba(255,255,255,0.07)'}`,
+                        border: `1.5px solid ${selectedGoal === goal.id ? `${goal.color}50` : '#E5E7EB'}`,
                         cursor: 'pointer',
                       }}
                     >
@@ -356,7 +356,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                           className="text-xs font-bold"
                           style={{
                             fontFamily: 'Syne, sans-serif',
-                            color: selectedGoal === goal.id ? goal.color : '#f0ede8',
+                            color: selectedGoal === goal.id ? goal.color : '#0A0A0A',
                           }}
                         >
                           {goal.label}
@@ -415,7 +415,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 <div className="text-3xl mb-3">💰</div>
                 <h2
                   className="text-lg font-black mb-1"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                  style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
                 >
                   Starting budget?
                 </h2>
@@ -435,7 +435,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                         selectedBudget === budget.id
                           ? 'rgba(45,202,114,0.12)'
                           : 'rgba(255,255,255,0.03)',
-                      border: `1.5px solid ${selectedBudget === budget.id ? 'rgba(45,202,114,0.4)' : 'rgba(255,255,255,0.07)'}`,
+                      border: `1.5px solid ${selectedBudget === budget.id ? 'rgba(45,202,114,0.4)' : '#E5E7EB'}`,
                       cursor: 'pointer',
                     }}
                   >
@@ -445,7 +445,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                         className="text-xs font-bold"
                         style={{
                           fontFamily: 'Syne, sans-serif',
-                          color: selectedBudget === budget.id ? '#2dca72' : '#f0ede8',
+                          color: selectedBudget === budget.id ? '#2dca72' : '#0A0A0A',
                         }}
                       >
                         {budget.label}
@@ -499,7 +499,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 <div className="text-3xl mb-3">📦</div>
                 <h2
                   className="text-lg font-black mb-1"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                  style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
                 >
                   Import your first product to get started
                 </h2>
@@ -523,7 +523,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     style={{
                       background: 'rgba(255,255,255,0.04)',
                       border: `1.5px solid ${importError ? 'rgba(224,92,122,0.5)' : 'rgba(255,255,255,0.08)'}`,
-                      color: '#f0ede8',
+                      color: '#0A0A0A',
                     }}
                     onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')}
                     onBlur={(e) =>

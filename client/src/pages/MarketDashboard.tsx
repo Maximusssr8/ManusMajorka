@@ -221,12 +221,12 @@ export default function MarketDashboard() {
   }
 
   return (
-    <div className="min-h-full" style={{ background: '#080a0e', color: '#e2e8f0' }}>
+    <div className="min-h-full" style={{ background: '#FAFAFA', color: '#0A0A0A' }}>
       <Helmet><title>Market Intelligence | Majorka</title></Helmet>
       {/* Header */}
       <div
         className="px-6 py-5 border-b"
-        style={{ borderColor: 'rgba(255,255,255,0.06)' }}
+        style={{ borderColor: '#E5E7EB' }}
       >
         <div className="flex items-center justify-between">
           <div>
@@ -256,7 +256,7 @@ export default function MarketDashboard() {
             <div
               key={s.label}
               className="rounded-xl p-4"
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}
             >
               <p className="text-xs mb-1" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>{s.label}</p>
               <p className="text-2xl font-bold" style={{ fontFamily: 'Syne, sans-serif', color: '#fff' }}>{s.value}</p>
@@ -274,7 +274,7 @@ export default function MarketDashboard() {
                 key={c.path}
                 onClick={() => nav(c.path)}
                 className="rounded-xl p-4 text-left transition-all duration-150 hover:scale-[1.02] hover:border-opacity-30"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}
               >
                 <c.icon size={18} style={{ color: c.color }} className="mb-2" />
                 <p className="text-sm font-semibold leading-tight" style={{ color: '#e2e8f0', fontFamily: 'DM Sans, sans-serif' }}>{c.label}</p>
@@ -292,7 +292,7 @@ export default function MarketDashboard() {
           </div>
           <div
             className="rounded-xl overflow-hidden"
-            style={{ border: '1px solid rgba(255,255,255,0.07)' }}
+            style={{ border: '1px solid #E5E7EB' }}
           >
             {loading ? (
               <div className="p-6 text-center text-sm" style={{ color: '#475569' }}>Loading…</div>
@@ -355,7 +355,7 @@ export default function MarketDashboard() {
                   <div
                     key={cat.id}
                     className="rounded-xl p-4 flex items-center justify-between"
-                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -388,11 +388,11 @@ export default function MarketDashboard() {
               <button onClick={() => nav('/app/creators')} className="text-xs" style={{ color: '#6366F1' }}>All →</button>
             </div>
             {loading ? (
-              <div className="rounded-xl p-4 text-sm" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: '#475569' }}>Loading…</div>
+              <div className="rounded-xl p-4 text-sm" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB', color: '#475569' }}>Loading…</div>
             ) : topCreator ? (
               <div
                 className="rounded-xl p-5"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}
               >
                 <div className="flex items-start gap-3 mb-4">
                   <div
@@ -439,7 +439,7 @@ export default function MarketDashboard() {
                 </button>
               </div>
             ) : (
-              <div className="rounded-xl p-4 text-sm" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: '#475569' }}>
+              <div className="rounded-xl p-4 text-sm" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB', color: '#475569' }}>
                 No creator data yet
               </div>
             )}

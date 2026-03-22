@@ -106,7 +106,7 @@ export default function StoreSetup() {
         })}
       </div>
 
-      <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-8">
+      <div className="bg-white border border-gray-200 rounded-xl p-8">
         {/* Step 1: Store Info */}
         {step === 1 && (
           <div className="space-y-6">

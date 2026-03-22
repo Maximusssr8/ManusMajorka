@@ -141,18 +141,18 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
   const toPercent = (val: number) => ((val - 1) / 9) * 100;
 
   return (
-    <div className="flex h-[calc(100vh-64px)]" style={{ background: '#080a0e' }}>
+    <div className="flex h-[calc(100vh-64px)]" style={{ background: '#FAFAFA' }}>
       {/* Left Panel — Inputs */}
       <div
         className="w-80 flex-shrink-0 flex flex-col border-r overflow-y-auto"
-        style={{ borderColor: 'rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.01)' }}
+        style={{ borderColor: '#E5E7EB', background: 'rgba(255,255,255,0.01)' }}
       >
-        <div className="p-5 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+        <div className="p-5 border-b" style={{ borderColor: '#E5E7EB' }}>
           <div className="flex items-center gap-2 mb-1">
             <Map className="w-4 h-4" style={{ color: '#6366F1' }} />
             <h1
               className="font-black text-sm"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+              style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
             >
               Market Map
             </h1>
@@ -178,7 +178,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
               style={{
                 background: 'rgba(255,255,255,0.04)',
                 borderColor: 'rgba(255,255,255,0.1)',
-                color: '#f0ede8',
+                color: '#0A0A0A',
               }}
             />
           </div>
@@ -199,7 +199,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
               style={{
                 background: 'rgba(255,255,255,0.04)',
                 borderColor: 'rgba(255,255,255,0.1)',
-                color: '#f0ede8',
+                color: '#0A0A0A',
               }}
             />
             <p className="text-xs mt-1" style={{ color: 'rgba(240,237,232,0.3)' }}>
@@ -222,7 +222,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
               style={{
                 background: 'rgba(255,255,255,0.04)',
                 borderColor: 'rgba(255,255,255,0.1)',
-                color: '#f0ede8',
+                color: '#0A0A0A',
               }}
             />
           </div>
@@ -321,7 +321,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                 <div>
                   <h2
                     className="text-lg font-black"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                    style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
                   >
                     {niche} — Market Positioning Map
                   </h2>
@@ -450,7 +450,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                       className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-lg text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10"
                       style={{
                         background: 'rgba(0,0,0,0.9)',
-                        color: '#f0ede8',
+                        color: '#0A0A0A',
                         border: `1px solid ${c.color}40`,
                       }}
                     >
@@ -485,7 +485,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                       className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-lg text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10"
                       style={{
                         background: 'rgba(0,0,0,0.9)',
-                        color: '#f0ede8',
+                        color: '#0A0A0A',
                         border: '1px solid rgba(255,255,255,0.3)',
                       }}
                     >
@@ -556,7 +556,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                   className="rounded-xl p-5 border"
                   style={{
                     background: 'rgba(255,255,255,0.02)',
-                    borderColor: 'rgba(255,255,255,0.07)',
+                    borderColor: '#E5E7EB',
                   }}
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -615,7 +615,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                         </div>
                         <span
                           className="text-sm font-bold"
-                          style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                          style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
                         >
                           {c.name}
                         </span>

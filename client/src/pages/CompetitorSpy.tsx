@@ -53,7 +53,7 @@ function CompetitorQuickActions({ query }: { query: string }) {
   return (
     <div
       className="rounded-xl p-4 mb-4"
-      style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}
+      style={{ border: '1px solid #E5E7EB', background: 'rgba(0,0,0,0.02)' }}
     >
       <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#64748b' }}>
         Attack Plan — Jump to Tool
@@ -228,7 +228,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               const match = line.match(/^- \*\*(.+?)\*\*(.*)$/);
               if (match) {
                 return (
-                  <div key={j} className="flex gap-2 text-sm" style={{ color: '#e2e8f0', fontFamily: 'DM Sans, sans-serif' }}>
+                  <div key={j} className="flex gap-2 text-sm" style={{ color: '#111111', fontFamily: 'DM Sans, sans-serif' }}>
                     <span style={{ color: '#6366F1', flexShrink: 0 }}>·</span>
                     <span>
                       <span className="font-semibold" style={{ color: '#6366F1' }}>{match[1]}</span>
@@ -242,7 +242,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               return (
                 <div key={j} className="flex gap-2 text-sm" style={{ color: '#94a3b8', fontFamily: 'DM Sans, sans-serif' }}>
                   <span style={{ color: '#475569', flexShrink: 0 }}>·</span>
-                  <span dangerouslySetInnerHTML={{ __html: line.slice(2).replace(/\*\*(.+?)\*\*/g, '<strong style="color:#e2e8f0">$1</strong>') }} />
+                  <span dangerouslySetInnerHTML={{ __html: line.slice(2).replace(/\*\*(.+?)\*\*/g, '<strong style="color:#111111">$1</strong>') }} />
                 </div>
               );
             }
@@ -250,13 +250,13 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               return (
                 <div key={j} className="flex gap-2 text-sm" style={{ color: '#94a3b8', fontFamily: 'DM Sans, sans-serif' }}>
                   <span className="font-mono flex-shrink-0" style={{ color: '#475569', minWidth: 20 }}>{line.match(/^\d+/)?.[0]}.</span>
-                  <span dangerouslySetInnerHTML={{ __html: line.replace(/^\d+\.\s*/, '').replace(/\*\*(.+?)\*\*/g, '<strong style="color:#e2e8f0">$1</strong>') }} />
+                  <span dangerouslySetInnerHTML={{ __html: line.replace(/^\d+\.\s*/, '').replace(/\*\*(.+?)\*\*/g, '<strong style="color:#111111">$1</strong>') }} />
                 </div>
               );
             }
             return (
               <p key={j} className="text-sm" style={{ color: '#94a3b8', fontFamily: 'DM Sans, sans-serif', lineHeight: '1.6' }}
-                dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.+?)\*\*/g, '<strong style="color:#e2e8f0">$1</strong>') }}
+                dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.+?)\*\*/g, '<strong style="color:#111111">$1</strong>') }}
               />
             );
           })}
@@ -268,9 +268,9 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
   const isInWatchlist = result && watchlist.some(w => w.query === result.query);
 
   return (
-    <div className="min-h-full" style={{ background: '#080a0e', color: '#e2e8f0' }}>
+    <div className="min-h-full" style={{ background: '#FAFAFA', color: '#0A0A0A' }}>
       {/* Header */}
-      <div className="px-6 py-5 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+      <div className="px-6 py-5 border-b" style={{ borderColor: '#E5E7EB' }}>
         <h1 className="text-xl font-bold" style={{ fontFamily: 'Syne, sans-serif', color: '#fff' }}>Competitor Spy</h1>
         <p className="text-sm mt-0.5" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>
           Research any TikTok Shop competitor — products, strategy, weaknesses, how to beat them
@@ -282,7 +282,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
         {user && (
           <aside
             className="hidden lg:flex flex-col w-56 flex-shrink-0 p-4 border-r"
-            style={{ borderColor: 'rgba(255,255,255,0.06)', background: '#080a0e' }}
+            style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}
           >
             <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#475569' }}>Watchlist</p>
             {watchlist.length === 0 ? (
@@ -331,9 +331,9 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 placeholder="Enter a TikTok Shop name, URL, or niche (e.g. 'PetLover AU' or 'pet water fountains')"
                 className="w-full pl-11 pr-32 py-4 rounded-xl text-sm"
                 style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.10)',
-                  color: '#e2e8f0',
+                  background: 'rgba(0,0,0,0.03)',
+                  border: '1px solid #E5E7EB',
+                  color: '#111111',
                   outline: 'none',
                   fontFamily: 'DM Sans, sans-serif',
                 }}
@@ -361,7 +361,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                     type="button"
                     onClick={() => setQuery(ex)}
                     className="text-xs px-2.5 py-1 rounded-lg transition-colors"
-                    style={{ background: 'rgba(255,255,255,0.05)', color: '#64748b', border: '1px solid rgba(255,255,255,0.07)' }}
+                    style={{ background: 'rgba(0,0,0,0.04)', color: '#64748b', border: '1px solid #E5E7EB' }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = '#94a3b8')}
                     onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
                   >
@@ -376,20 +376,20 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
           {loading && (
             <div
               className="rounded-xl p-8 text-center"
-              style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}
+              style={{ border: '1px solid #E5E7EB', background: 'rgba(0,0,0,0.02)' }}
             >
               <div className="flex justify-center mb-4">
                 <Eye size={28} style={{ color: '#6366F1' }} className="animate-pulse" />
               </div>
-              <p className="text-sm font-medium mb-2" style={{ color: '#e2e8f0' }}>Researching: <span style={{ color: '#6366F1' }}>"{query}"</span></p>
+              <p className="text-sm font-medium mb-2" style={{ color: '#111111' }}>Researching: <span style={{ color: '#6366F1' }}>"{query}"</span></p>
               <div className="space-y-2 max-w-xs mx-auto">
                 {PROGRESS_STEPS.map((step, i) => (
                   <div key={step} className="flex items-center gap-3">
                     <div
                       className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center text-xs"
                       style={{
-                        background: i <= progressStep ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${i <= progressStep ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                        background: i <= progressStep ? 'rgba(99,102,241,0.2)' : 'rgba(0,0,0,0.03)',
+                        border: `1px solid ${i <= progressStep ? 'rgba(99,102,241,0.4)' : '#E5E7EB'}`,
                       }}
                     >
                       {i < progressStep ? '✓' : i === progressStep ? <Loader2 size={10} className="animate-spin" style={{ color: '#6366F1' }} /> : ''}
@@ -407,10 +407,10 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               {/* Result header */}
               <div
                 className="flex items-center justify-between mb-4 px-4 py-3 rounded-xl"
-                style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+                style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid #E5E7EB' }}
               >
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>Analysis: <span style={{ color: '#6366F1' }}>{result.query}</span></p>
+                  <p className="text-sm font-semibold" style={{ color: '#111111' }}>Analysis: <span style={{ color: '#6366F1' }}>{result.query}</span></p>
                   <p className="text-xs mt-0.5" style={{ color: '#475569' }}>
                     {new Date(result.timestamp).toLocaleString('en-AU', { timeZone: 'Australia/Brisbane' })}
                   </p>
@@ -446,7 +446,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               {/* Analysis content */}
               <div
                 className="rounded-xl p-6"
-                style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}
+                style={{ border: '1px solid #E5E7EB', background: 'rgba(0,0,0,0.02)' }}
               >
                 {renderMarkdown(result.reply)}
               </div>
@@ -475,10 +475,10 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 <div
                   key={card.title}
                   className="rounded-xl p-5"
-                  style={{ border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}
+                  style={{ border: '1px solid #E5E7EB', background: 'rgba(0,0,0,0.02)' }}
                 >
                   <p className="text-2xl mb-2">{card.icon}</p>
-                  <p className="text-sm font-semibold mb-1" style={{ color: '#e2e8f0', fontFamily: 'Syne, sans-serif' }}>{card.title}</p>
+                  <p className="text-sm font-semibold mb-1" style={{ color: '#111111', fontFamily: 'Syne, sans-serif' }}>{card.title}</p>
                   <p className="text-xs" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>{card.desc}</p>
                 </div>
               ))}

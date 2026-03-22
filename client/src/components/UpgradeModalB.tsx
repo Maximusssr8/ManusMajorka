@@ -36,7 +36,7 @@ export default function UpgradeModalB({
       <div
         className="relative w-full max-w-md mx-4 rounded-2xl overflow-hidden"
         style={{
-          background: '#0f1115',
+          background: 'white',
           border: '1px solid rgba(99,102,241,0.15)',
           boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
         }}
@@ -61,7 +61,7 @@ export default function UpgradeModalB({
           </div>
           <h2
             className="text-xl font-black mb-2"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+            style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
           >
             Less than your morning coffee
           </h2>

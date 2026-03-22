@@ -142,7 +142,7 @@ function TextRow({ label, value }: { label: string; value: string }) {
       >
         {label}
       </span>
-      <span className="text-sm leading-relaxed flex-1" style={{ color: '#f0ede8' }}>
+      <span className="text-sm leading-relaxed flex-1" style={{ color: '#0A0A0A' }}>
         {value}
       </span>
       <CopyBtn text={value} />
@@ -295,7 +295,7 @@ Generate a comprehensive brand identity document as JSON.`;
   };
 
   return (
-    <div className="flex flex-col h-full" style={{ background: '#0a0b0d' }}>
+    <div className="flex flex-col h-full" style={{ background: '#FAFAFA' }}>
       <ActiveProductBanner
         ctaLabel="Load into tool"
         onUseProduct={(summary) => setProductType(summary)}
@@ -306,8 +306,8 @@ Generate a comprehensive brand identity document as JSON.`;
           className="flex flex-col flex-shrink-0 overflow-y-auto"
           style={{
             width: '320px',
-            borderRight: '1px solid rgba(255,255,255,0.07)',
-            background: '#0d0e10',
+            borderRight: '1px solid #E5E7EB',
+            background: 'white',
             scrollbarWidth: 'thin',
             scrollbarColor: 'rgba(255,255,255,0.1) transparent',
           }}
@@ -315,7 +315,7 @@ Generate a comprehensive brand identity document as JSON.`;
           {/* Header */}
           <div
             className="px-5 pt-6 pb-4"
-            style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}
+            style={{ borderBottom: '1px solid #E5E7EB' }}
           >
             <div className="flex items-center gap-2 mb-1">
               <div
@@ -331,7 +331,7 @@ Generate a comprehensive brand identity document as JSON.`;
             </div>
             <h1
               className="text-lg font-black"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8', letterSpacing: '-0.02em' }}
+              style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A', letterSpacing: '-0.02em' }}
             >
               Brand DNA Analyzer
             </h1>
@@ -357,7 +357,7 @@ Generate a comprehensive brand identity document as JSON.`;
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#f0ede8',
+                  color: '#0A0A0A',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
                 onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
@@ -379,7 +379,7 @@ Generate a comprehensive brand identity document as JSON.`;
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#f0ede8',
+                  color: '#0A0A0A',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
                 onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
@@ -401,7 +401,7 @@ Generate a comprehensive brand identity document as JSON.`;
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#f0ede8',
+                  color: '#0A0A0A',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
                 onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
@@ -424,7 +424,7 @@ Generate a comprehensive brand identity document as JSON.`;
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#f0ede8',
+                  color: '#0A0A0A',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
                 onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
@@ -446,7 +446,7 @@ Generate a comprehensive brand identity document as JSON.`;
                 style={{
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#f0ede8',
+                  color: '#0A0A0A',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
                 onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
@@ -517,7 +517,7 @@ Generate a comprehensive brand identity document as JSON.`;
               </div>
               <h2
                 className="text-xl font-black mb-2"
-                style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
               >
                 Discover Your Brand DNA
               </h2>
@@ -539,7 +539,7 @@ Generate a comprehensive brand identity document as JSON.`;
                     className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
                     style={{
                       background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.07)',
+                      border: '1px solid #E5E7EB',
                     }}
                   >
                     <span className="text-base">{icon}</span>
@@ -599,7 +599,7 @@ Generate a comprehensive brand identity document as JSON.`;
                 </div>
                 <h2
                   className="text-3xl font-black mb-2"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                  style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
                 >
                   {result.brandName}
                 </h2>
@@ -660,7 +660,7 @@ Generate a comprehensive brand identity document as JSON.`;
                               className="w-1 h-1 rounded-full mt-2 flex-shrink-0"
                               style={{ background: '#2dca72' }}
                             />
-                            <span className="text-sm" style={{ color: '#f0ede8' }}>
+                            <span className="text-sm" style={{ color: '#0A0A0A' }}>
                               {item}
                             </span>
                           </li>
@@ -681,7 +681,7 @@ Generate a comprehensive brand identity document as JSON.`;
                               className="w-1 h-1 rounded-full mt-2 flex-shrink-0"
                               style={{ background: '#ef4444' }}
                             />
-                            <span className="text-sm" style={{ color: '#f0ede8' }}>
+                            <span className="text-sm" style={{ color: '#0A0A0A' }}>
                               {item}
                             </span>
                           </li>
@@ -709,7 +709,7 @@ Generate a comprehensive brand identity document as JSON.`;
                     >
                       Customer Persona
                     </span>
-                    <div className="text-sm font-semibold mb-1" style={{ color: '#f0ede8' }}>
+                    <div className="text-sm font-semibold mb-1" style={{ color: '#0A0A0A' }}>
                       {result.targetAudience.personaName}
                       {result.targetAudience.personaAge
                         ? ` · ${result.targetAudience.personaAge}`
@@ -769,7 +769,7 @@ Generate a comprehensive brand identity document as JSON.`;
                               className="w-1 h-1 rounded-full mt-2 flex-shrink-0"
                               style={{ background: accent }}
                             />
-                            <span className="text-sm" style={{ color: '#f0ede8' }}>
+                            <span className="text-sm" style={{ color: '#0A0A0A' }}>
                               {item}
                             </span>
                           </li>
@@ -792,7 +792,7 @@ Generate a comprehensive brand identity document as JSON.`;
                     Brand Story
                   </span>
                   <div className="flex items-start gap-3">
-                    <p className="text-sm leading-relaxed flex-1" style={{ color: '#f0ede8' }}>
+                    <p className="text-sm leading-relaxed flex-1" style={{ color: '#0A0A0A' }}>
                       {result.brandStory}
                     </p>
                     <CopyBtn text={result.brandStory} />
@@ -821,7 +821,7 @@ Generate a comprehensive brand identity document as JSON.`;
                             className="w-8 h-8 rounded-lg flex-shrink-0"
                             style={{ background: hex, border: '1px solid rgba(255,255,255,0.15)' }}
                           />
-                          <span className="text-sm flex-1" style={{ color: '#f0ede8' }}>
+                          <span className="text-sm flex-1" style={{ color: '#0A0A0A' }}>
                             {color}
                           </span>
                           <CopyBtn text={hex} />
@@ -859,7 +859,7 @@ Generate a comprehensive brand identity document as JSON.`;
                         </span>
                         <span
                           className="text-sm font-semibold flex-1"
-                          style={{ color: '#f0ede8', fontStyle: 'italic' }}
+                          style={{ color: '#0A0A0A', fontStyle: 'italic' }}
                         >
                           "{tagline}"
                         </span>
@@ -882,7 +882,7 @@ Generate a comprehensive brand identity document as JSON.`;
                           className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0"
                           style={{ background: '#06b6d4' }}
                         />
-                        <span className="text-sm flex-1" style={{ color: '#f0ede8' }}>
+                        <span className="text-sm flex-1" style={{ color: '#0A0A0A' }}>
                           {msg}
                         </span>
                         <CopyBtn text={msg} />
@@ -905,7 +905,7 @@ Generate a comprehensive brand identity document as JSON.`;
                           >
                             {String(i + 1).padStart(2, '0')}
                           </span>
-                          <span className="text-sm font-semibold" style={{ color: '#f0ede8' }}>
+                          <span className="text-sm font-semibold" style={{ color: '#0A0A0A' }}>
                             {pillar.pillar}
                           </span>
                         </div>

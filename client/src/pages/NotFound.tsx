@@ -7,7 +7,7 @@ export default function NotFound() {
   return (
     <div
       className="min-h-screen w-full flex items-center justify-center"
-      style={{ background: '#0a0b0d' }}
+      style={{ background: '#FAFAFA' }}
     >
       <div className="text-center px-6 max-w-md animate-fade-in">
         {/* Logo */}
@@ -29,7 +29,7 @@ export default function NotFound() {
         {/* 404 */}
         <h1
           className="text-6xl font-black mb-3"
-          style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8', letterSpacing: '-2px' }}
+          style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A', letterSpacing: '-2px' }}
         >
           404
         </h1>
@@ -37,7 +37,7 @@ export default function NotFound() {
         {/* Witty AU message */}
         <p
           className="text-base font-semibold mb-2"
-          style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+          style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
         >
           Yeah nah, this page doesn't exist.
         </p>

@@ -146,7 +146,7 @@ function VideoModal({
       style={{ background: 'rgba(0,0,0,0.8)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="w-full max-w-lg rounded-2xl overflow-hidden" style={{ background: '#0f1117', border: '1px solid rgba(255,255,255,0.08)' }}>
+      <div className="w-full max-w-lg rounded-2xl overflow-hidden" style={{ background: 'white', border: '1px solid rgba(255,255,255,0.08)' }}>
         {/* Thumbnail */}
         <div className="relative aspect-video bg-black">
           {video.thumbnail_url ? (
@@ -181,7 +181,7 @@ function VideoModal({
         <div className="p-5">
           <div className="flex items-start justify-between gap-3 mb-4">
             <div>
-              <p className="text-sm font-semibold" style={{ color: '#e2e8f0', fontFamily: 'DM Sans, sans-serif' }}>{video.video_title ?? 'Untitled video'}</p>
+              <p className="text-sm font-semibold" style={{ color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}>{video.video_title ?? 'Untitled video'}</p>
               <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>
                 @{video.creator_username} · {timeAgo(video.published_at)}
               </p>
@@ -348,11 +348,11 @@ Write a 30-second script with: hook (0-3s), problem/tension (3-10s), solution/pr
   ];
 
   return (
-    <div className="min-h-full" style={{ background: '#080a0e', color: '#e2e8f0' }}>
+    <div className="min-h-full" style={{ background: '#FAFAFA', color: '#0A0A0A' }}>
       <Helmet><title>Video Intelligence | Majorka</title></Helmet>
       {/* Header */}
-      <div className="px-6 py-5 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
-        <h1 className="text-xl font-bold" style={{ fontFamily: 'Syne, sans-serif', color: '#fff' }}>Video Intelligence</h1>
+      <div className="px-6 py-5 border-b" style={{ borderColor: '#E5E7EB' }}>
+        <h1 className="text-xl font-bold" style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}>Video Intelligence</h1>
         <p className="text-sm mt-0.5" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>Top-performing AU product videos — what drives real sales</p>
       </div>
 
@@ -360,7 +360,7 @@ Write a 30-second script with: hook (0-3s), problem/tension (3-10s), solution/pr
         {/* Left sidebar */}
         <aside
           className="hidden lg:flex flex-col w-52 flex-shrink-0 p-4 border-r space-y-6"
-          style={{ borderColor: 'rgba(255,255,255,0.06)', background: '#080a0e', minHeight: 'calc(100vh - 80px)' }}
+          style={{ borderColor: '#E5E7EB', background: '#FAFAFA', minHeight: 'calc(100vh - 80px)' }}
         >
           {/* Hook type filter */}
           <div>
@@ -469,7 +469,7 @@ Write a 30-second script with: hook (0-3s), problem/tension (3-10s), solution/pr
                     {v.thumbnail_url ? (
                       <img src={v.thumbnail_url} alt={v.video_title ?? ''} className="w-full h-full object-cover opacity-75" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center" style={{ background: '#0a0b0d' }}>
+                      <div className="w-full h-full flex items-center justify-center" style={{ background: '#FAFAFA' }}>
                         <Play size={28} style={{ color: '#334155' }} />
                       </div>
                     )}
@@ -491,7 +491,7 @@ Write a 30-second script with: hook (0-3s), problem/tension (3-10s), solution/pr
                   {/* Card body */}
                   <div className="p-3">
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <p className="text-sm font-medium leading-tight flex-1" style={{ color: '#e2e8f0', fontFamily: 'DM Sans, sans-serif' }}>
+                      <p className="text-sm font-medium leading-tight flex-1" style={{ color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}>
                         {v.video_title ?? 'Untitled'}
                       </p>
                       <HookBadge hook={v.hook_type} />
@@ -529,7 +529,7 @@ Write a 30-second script with: hook (0-3s), problem/tension (3-10s), solution/pr
       {(scriptLoading || scriptText) && (
         <div
           className="fixed bottom-6 right-6 max-w-md rounded-xl p-5 shadow-2xl overflow-y-auto"
-          style={{ background: '#0f1117', border: '1px solid rgba(99,102,241,0.3)', zIndex: 60, maxHeight: '60vh' }}
+          style={{ background: 'white', border: '1px solid rgba(99,102,241,0.3)', zIndex: 60, maxHeight: '60vh' }}
         >
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-semibold" style={{ color: '#6366F1' }}>Generated Script</p>
@@ -538,7 +538,7 @@ Write a 30-second script with: hook (0-3s), problem/tension (3-10s), solution/pr
           {scriptLoading ? (
             <p className="text-sm" style={{ color: '#94a3b8' }}>Writing script…</p>
           ) : (
-            <p className="text-sm whitespace-pre-wrap" style={{ color: '#e2e8f0', fontFamily: 'DM Sans, sans-serif', lineHeight: '1.6' }}>{scriptText}</p>
+            <p className="text-sm whitespace-pre-wrap" style={{ color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif', lineHeight: '1.6' }}>{scriptText}</p>
           )}
         </div>
       )}

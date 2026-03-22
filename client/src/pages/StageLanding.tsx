@@ -14,7 +14,7 @@ export default function StageLanding({ stage }: Props) {
     <div
       className="h-full overflow-auto"
       style={{
-        background: '#0a0b0d',
+        background: '#FAFAFA',
         scrollbarWidth: 'thin',
         scrollbarColor: 'rgba(255,255,255,0.1) transparent',
       }}

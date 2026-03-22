@@ -219,7 +219,7 @@ function NotificationBell() {
             alignItems: 'center',
             justifyContent: 'center',
             fontFamily: 'Syne, sans-serif',
-            border: '1.5px solid #0a0a0e',
+            border: '1.5px solid white',
           }}>
             {unread}
           </div>
@@ -232,15 +232,15 @@ function NotificationBell() {
           top: 'calc(100% + 8px)',
           right: 0,
           width: 320,
-          background: '#141418',
-          border: '1px solid rgba(255,255,255,0.1)',
+          background: 'white',
+          border: '1px solid #E5E7EB',
           borderRadius: 14,
-          boxShadow: '0 16px 48px rgba(0,0,0,0.6)',
+          boxShadow: '0 16px 48px rgba(0,0,0,0.1)',
           zIndex: 500,
           overflow: 'hidden',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-            <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: '#f5f5f5' }}>Notifications</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid #E5E7EB' }}>
+            <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: '#111827' }}>Notifications</span>
             {unread > 0 && (
               <button onClick={markAllRead} style={{ fontSize: 11, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
                 Mark all read
@@ -251,7 +251,7 @@ function NotificationBell() {
             {INITIAL_NOTIFICATIONS.map((n) => (
               <div key={n.id} style={{
                 padding: '12px 16px',
-                borderBottom: '1px solid rgba(255,255,255,0.04)',
+                borderBottom: '1px solid #F3F4F6',
                 display: 'flex',
                 gap: 10,
                 alignItems: 'flex-start',
@@ -352,12 +352,12 @@ function PWAInstallBanner() {
   if (!show) return null;
 
   return (
-    <div style={{ position: 'fixed', bottom: 72, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: '#131620', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 14, padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', maxWidth: 380, width: 'calc(100% - 32px)' }}>
-      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, #6366F1, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Syne, sans-serif', fontWeight: 900, fontSize: 15, color: '#000', flexShrink: 0 }}>M</div>
-      <p style={{ flex: 1, fontSize: 13, color: '#e2e8f0', lineHeight: 1.4, margin: 0 }}>Install Majorka as an app for faster access</p>
+    <div style={{ position: 'fixed', bottom: 72, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.1)', maxWidth: 380, width: 'calc(100% - 32px)' }}>
+      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, #6366F1, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Syne, sans-serif', fontWeight: 900, fontSize: 15, color: '#fff', flexShrink: 0 }}>M</div>
+      <p style={{ flex: 1, fontSize: 13, color: '#374151', lineHeight: 1.4, margin: 0 }}>Install Majorka as an app for faster access</p>
       <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-        <button onClick={handleInstall} style={{ background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#000', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 700, fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}>Install</button>
-        <button onClick={handleDismiss} style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>Later</button>
+        <button onClick={handleInstall} style={{ background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#fff', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 700, fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}>Install</button>
+        <button onClick={handleDismiss} style={{ background: '#F3F4F6', color: '#6B7280', border: '1px solid #E5E7EB', borderRadius: 8, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>Later</button>
       </div>
     </div>
   );
@@ -905,7 +905,7 @@ export default function MajorkaAppShell({ children }: Props) {
   return (
     <div
       className="flex h-screen overflow-hidden"
-      style={{ background: '#060608', color: '#f5f5f5', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#F9FAFB', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
     >
       <PWAInstallBanner />
       {/* Search overlay */}
@@ -921,16 +921,16 @@ export default function MajorkaAppShell({ children }: Props) {
           <div
             className="w-full max-w-lg mx-4 overflow-hidden"
             style={{
-              background: '#141418',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: 'white',
+              border: '1px solid #E5E7EB',
               borderRadius: 12,
-              boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
+              boxShadow: '0 24px 64px rgba(0,0,0,0.12)',
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div
               className="flex items-center gap-3 px-4 py-3"
-              style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+              style={{ borderBottom: '1px solid #E5E7EB' }}
             >
               <Search size={16} style={{ color: '#52525b', flexShrink: 0 }} />
               <input
@@ -939,7 +939,7 @@ export default function MajorkaAppShell({ children }: Props) {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search tools..."
                 className="flex-1 bg-transparent outline-none text-sm"
-                style={{ color: '#f5f5f5', fontFamily: 'DM Sans, sans-serif' }}
+                style={{ color: '#111827', fontFamily: 'DM Sans, sans-serif' }}
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Escape') {
@@ -955,7 +955,7 @@ export default function MajorkaAppShell({ children }: Props) {
               />
               <kbd
                 className="px-1.5 py-0.5 rounded text-xs"
-                style={{ background: 'rgba(255,255,255,0.06)', color: '#52525b', fontSize: 10 }}
+                style={{ background: '#F3F4F6', color: '#6B7280', fontSize: 10 }}
               >
                 ESC
               </kbd>
@@ -975,7 +975,7 @@ export default function MajorkaAppShell({ children }: Props) {
                       background: 'transparent',
                       border: 'none',
                       cursor: 'pointer',
-                      color: '#f5f5f5',
+                      color: '#111827',
                     }}
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.background = 'rgba(99,102,241,0.06)')
@@ -1064,8 +1064,8 @@ export default function MajorkaAppShell({ children }: Props) {
             aria-label="Open navigation menu"
             className="w-8 h-8 rounded-md flex items-center justify-center"
             style={{
-              background: 'rgba(255,255,255,0.05)',
-              color: '#f5f5f5',
+              background: '#F3F4F6',
+              color: '#374151',
               border: 'none',
               cursor: 'pointer',
             }}
@@ -1077,7 +1077,7 @@ export default function MajorkaAppShell({ children }: Props) {
               className="w-6 h-6 rounded-md flex items-center justify-center font-black text-xs"
               style={{
                 background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                color: '#0a0a0a',
+                color: '#fff',
                 fontFamily: 'Syne, sans-serif',
               }}
             >
@@ -1085,7 +1085,7 @@ export default function MajorkaAppShell({ children }: Props) {
             </div>
             <span
               className="font-bold text-sm uppercase tracking-widest"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5', letterSpacing: '0.1em' }}
+              style={{ fontFamily: 'Syne, sans-serif', color: '#111827', letterSpacing: '0.1em' }}
             >
               MAJORKA
             </span>
@@ -1098,8 +1098,8 @@ export default function MajorkaAppShell({ children }: Props) {
               }}
               className="w-8 h-8 rounded-md flex items-center justify-center"
               style={{
-                background: 'rgba(255,255,255,0.05)',
-                color: '#a1a1aa',
+                background: '#F3F4F6',
+                color: '#6B7280',
                 border: 'none',
                 cursor: 'pointer',
               }}
@@ -1148,7 +1148,7 @@ export default function MajorkaAppShell({ children }: Props) {
         <nav
           aria-label="Mobile navigation"
           className="fixed bottom-0 left-0 right-0 z-40 lg:hidden"
-          style={{ background: '#0d1017', borderTop: '1px solid #1f2937' }}
+          style={{ background: '#FFFFFF', borderTop: '1px solid #E5E7EB' }}
         >
           <div className="flex items-center justify-around" style={{ paddingTop: 8, paddingBottom: 10 }}>
             {MOBILE_TABS.map((tab) => {

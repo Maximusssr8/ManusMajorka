@@ -29,7 +29,7 @@ export class ErrorBoundary extends Component<Props, State> {
     return (
       <div style={{
         minHeight: '100vh',
-        background: '#080a0e',
+        background: '#FAFAFA',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -41,7 +41,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <h1 style={{
             fontSize: 24,
             fontWeight: 700,
-            color: '#f0ede8',
+            color: '#0A0A0A',
             fontFamily: 'Syne, sans-serif',
             marginBottom: 8,
           }}>

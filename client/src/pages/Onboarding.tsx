@@ -342,7 +342,7 @@ export default function Onboarding() {
     <div
       className="min-h-screen flex flex-col"
       style={{
-        background: '#080a0e',
+        background: '#FAFAFA',
         backgroundImage:
           'radial-gradient(ellipse 60% 40% at 50% 0%, rgba(99,102,241,0.06) 0%, transparent 70%)',
       }}
@@ -434,7 +434,7 @@ export default function Onboarding() {
                   </div>
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                    style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
                   >
                     Welcome to Majorka{name ? `, ${name.split(' ')[0]}` : ''}
                   </h1>
@@ -461,7 +461,7 @@ export default function Onboarding() {
                     style={{
                       background: 'rgba(255,255,255,0.04)',
                       border: '1.5px solid rgba(255,255,255,0.1)',
-                      color: '#f5f5f5',
+                      color: '#374151',
                     }}
                     onFocus={(e) => (e.target.style.borderColor = GOLD_BORDER)}
                     onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
@@ -502,7 +502,7 @@ export default function Onboarding() {
                 <div className="text-center space-y-1">
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                    style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
                   >
                     What do you sell?
                   </h1>
@@ -574,7 +574,7 @@ export default function Onboarding() {
                     style={{
                       background: 'rgba(255,255,255,0.04)',
                       border: '1.5px solid rgba(255,255,255,0.08)',
-                      color: '#f5f5f5',
+                      color: '#374151',
                     }}
                     onFocus={(e) => (e.target.style.borderColor = GOLD_BORDER)}
                     onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
@@ -630,7 +630,7 @@ export default function Onboarding() {
                 <div className="text-center space-y-1">
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                    style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
                   >
                     How experienced are you?
                   </h1>
@@ -737,7 +737,7 @@ export default function Onboarding() {
                 <div className="text-center space-y-1">
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                    style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
                   >
                     What's your #1 goal?
                   </h1>
@@ -836,7 +836,7 @@ export default function Onboarding() {
                 <div className="text-center space-y-1">
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                    style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
                   >
                     How do you sell?
                   </h1>
@@ -995,7 +995,7 @@ export default function Onboarding() {
                 <div className="space-y-2">
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                    style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
                   >
                     You're all set, {firstName}!
                   </h1>
@@ -1038,7 +1038,7 @@ export default function Onboarding() {
                     </div>
                   ) : firstTask ? (
                     <>
-                      <p className="text-sm leading-relaxed mb-4" style={{ color: '#f0ede8' }}>
+                      <p className="text-sm leading-relaxed mb-4" style={{ color: '#0A0A0A' }}>
                         {firstTask}
                       </p>
                       <button

@@ -200,7 +200,7 @@ export default function MyProducts() {
     return (
       <div
         className="flex items-center justify-center h-full"
-        style={{ background: '#080a0e', color: '#f0ede8' }}
+        style={{ background: '#FAFAFA', color: '#0A0A0A' }}
       >
         <Loader2 className="animate-spin" size={24} style={{ color: 'rgba(240,237,232,0.4)' }} />
       </div>
@@ -211,7 +211,7 @@ export default function MyProducts() {
     return (
       <div
         className="flex items-center justify-center h-full"
-        style={{ background: '#080a0e', color: '#f0ede8' }}
+        style={{ background: '#FAFAFA', color: '#0A0A0A' }}
       >
         <div className="text-center">
           <div className="text-4xl mb-4">🔒</div>
@@ -227,8 +227,8 @@ export default function MyProducts() {
     <div
       className="h-full overflow-y-auto p-6"
       style={{
-        background: '#080a0e',
-        color: '#f0ede8',
+        background: '#FAFAFA',
+        color: '#0A0A0A',
         fontFamily: 'DM Sans, sans-serif',
         scrollbarWidth: 'thin',
       }}

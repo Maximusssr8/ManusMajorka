@@ -271,7 +271,7 @@ export default function SupplierIntelligence() {
   return (
     <div
       className="flex h-full overflow-hidden"
-      style={{ background: '#080a0e', color: '#f0ede8', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
     >
       <SEO
         title="Supplier Intelligence Australia — Find AU-Ready Suppliers | Majorka"
@@ -288,7 +288,7 @@ export default function SupplierIntelligence() {
         {/* Header */}
         <div
           className="flex-none px-4 sm:px-6 pt-2 pb-4 border-b"
-          style={{ borderColor: 'rgba(255,255,255,0.06)' }}
+          style={{ borderColor: '#E5E7EB' }}
         >
           <div className="flex items-center gap-3 mb-4">
             <div
@@ -425,7 +425,7 @@ export default function SupplierIntelligence() {
                   <div
                     key={item.label}
                     className="rounded-lg px-4 py-3"
-                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}
                   >
                     <div className="text-xs mb-1" style={{ color: 'rgba(240,237,232,0.4)' }}>
                       {item.label}
@@ -443,7 +443,7 @@ export default function SupplierIntelligence() {
           {suppliers.length > 0 && !loading && (
             <div
               className="rounded-xl overflow-hidden"
-              style={{ border: '1px solid rgba(255,255,255,0.06)', overflowX: 'auto' }}
+              style={{ border: '1px solid #E5E7EB', overflowX: 'auto' }}
             >
               <div
                 className="px-4 py-3 flex items-center justify-between"
@@ -707,7 +707,7 @@ export default function SupplierIntelligence() {
       {/* ── Side panel ── */}
       <div
         className="hidden lg:flex flex-col w-56 flex-none border-l p-4 gap-5"
-        style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.01)' }}
+        style={{ borderColor: '#E5E7EB', background: 'rgba(255,255,255,0.01)' }}
       >
         {/* Saved count */}
         <div>

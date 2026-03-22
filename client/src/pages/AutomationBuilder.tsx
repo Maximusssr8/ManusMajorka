@@ -107,11 +107,11 @@ export default function AutomationBuilder() {
   return (
     <div
       className="h-full flex"
-      style={{ background: '#080a0e', color: '#f0ede8', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
     >
       <div
         className="w-80 flex-shrink-0 overflow-y-auto border-r p-5 space-y-4"
-        style={{ borderColor: 'rgba(255,255,255,0.07)', scrollbarWidth: 'thin' }}
+        style={{ borderColor: '#E5E7EB', scrollbarWidth: 'thin' }}
       >
         <div className="flex items-center gap-2.5 mb-1">
           <div
@@ -282,12 +282,12 @@ export default function AutomationBuilder() {
                 className="rounded-xl overflow-hidden"
                 style={{
                   background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid rgba(255,255,255,0.07)',
+                  border: '1px solid #E5E7EB',
                 }}
               >
                 <div
                   className="px-4 py-3 border-b flex items-center justify-between"
-                  style={{ borderColor: 'rgba(255,255,255,0.07)' }}
+                  style={{ borderColor: '#E5E7EB' }}
                 >
                   <div>
                     <div className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif' }}>

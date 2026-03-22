@@ -1608,7 +1608,7 @@ export default function LearnHub() {
   return (
     <div
       className="min-h-screen"
-      style={{ background: '#080a0e', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#FAFAFA', fontFamily: 'DM Sans, sans-serif' }}
     >
       {/* Confetti */}
       <ConfettiBurst active={confettiActive} />
@@ -1667,7 +1667,7 @@ export default function LearnHub() {
               }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(99,102,241,0.25)';
-                (e.currentTarget as HTMLButtonElement).style.color = '#f5f5f5';
+                (e.currentTarget as HTMLButtonElement).style.color = '#374151';
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.08)';
@@ -1734,7 +1734,7 @@ export default function LearnHub() {
               border: '1px solid rgba(255,255,255,0.08)',
               borderRadius: 10,
               padding: '10px 16px',
-              color: '#f5f5f5',
+              color: '#374151',
               fontFamily: 'DM Sans, sans-serif',
             }}
             onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.4)')}

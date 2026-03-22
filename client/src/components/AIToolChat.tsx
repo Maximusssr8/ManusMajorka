@@ -360,14 +360,14 @@ export default function AIToolChat({
                         ? {
                             background: '#1a1600',
                             border: '1px solid rgba(99,102,241,0.3)',
-                            color: '#f0ede8',
+                            color: '#0A0A0A',
                           }
                         : msg.isError
                           ? {
                               background: 'rgba(255,100,100,0.12)',
                               border: '1px solid rgba(255,100,100,0.2)',
                             }
-                          : { background: '#0d0f12', border: '1px solid rgba(255,255,255,0.06)' }
+                          : { background: 'white', border: '1px solid #E5E7EB' }
                     }
                   >
                     <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -394,7 +394,7 @@ export default function AIToolChat({
                   </div>
                   <div
                     className="rounded-lg px-4 py-3"
-                    style={{ background: '#0d0f12', border: '1px solid rgba(255,255,255,0.06)' }}
+                    style={{ background: 'white', border: '1px solid #E5E7EB' }}
                   >
                     <div className="flex items-center gap-2">
                       {/* Pulsing gold dot */}
@@ -425,7 +425,7 @@ export default function AIToolChat({
                     className="flex gap-3 mt-2 p-4 rounded-2xl"
                     style={{
                       background: 'rgba(255,255,255,0.02)',
-                      border: '1px solid rgba(255,255,255,0.07)',
+                      border: '1px solid #E5E7EB',
                     }}
                   >
                     <div className="flex-1">
@@ -539,7 +539,7 @@ export default function AIToolChat({
                 className="resize-none text-sm"
                 rows={1}
                 style={{
-                  background: '#0d0f12',
+                  background: 'white',
                   borderColor: 'rgba(255,255,255,0.1)',
                   overflowY: 'auto',
                   maxHeight: '200px',

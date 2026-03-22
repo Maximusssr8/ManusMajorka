@@ -90,7 +90,7 @@ function GlassCard({
       className={className}
       style={{
         background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.07)',
+        border: '1px solid #E5E7EB',
         borderRadius: 12,
         backdropFilter: 'blur(12px)',
       }}
@@ -167,7 +167,7 @@ function ConfirmDialog({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         style={{
-          background: '#0f1117',
+          background: 'white',
           border: '1px solid rgba(255,255,255,0.1)',
           borderRadius: 16,
           padding: 32,
@@ -179,7 +179,7 @@ function ConfirmDialog({
         <h3
           style={{
             fontFamily: 'Syne, sans-serif',
-            color: '#f0ede8',
+            color: '#0A0A0A',
             fontSize: 18,
             marginBottom: 12,
           }}
@@ -297,7 +297,7 @@ export default function AdminPanel() {
   // Gate access
   if (!user) {
     return (
-      <div className="h-screen flex items-center justify-center" style={{ background: '#080a0e' }}>
+      <div className="h-screen flex items-center justify-center" style={{ background: '#FAFAFA' }}>
         <Loader2 className="animate-spin" size={24} style={{ color: '#6366F1' }} />
       </div>
     );
@@ -413,11 +413,11 @@ export default function AdminPanel() {
     <div
       style={{
         minHeight: '100vh',
-        background: '#080a0e',
+        background: '#FAFAFA',
         display: 'flex',
         flexDirection: 'column',
         fontFamily: 'DM Sans, sans-serif',
-        color: '#f0ede8',
+        color: '#0A0A0A',
       }}
     >
       {/* Top Nav */}
@@ -460,7 +460,7 @@ export default function AdminPanel() {
               fontFamily: 'Syne, sans-serif',
               fontWeight: 700,
               fontSize: 15,
-              color: '#f0ede8',
+              color: '#0A0A0A',
             }}
           >
             Majorka Admin
@@ -612,7 +612,7 @@ export default function AdminPanel() {
                           background: 'rgba(255,255,255,0.04)',
                           border: '1px solid rgba(255,255,255,0.08)',
                           borderRadius: 8,
-                          color: '#f0ede8',
+                          color: '#0A0A0A',
                           fontSize: 13,
                           outline: 'none',
                           transition: 'border-color 200ms ease',
@@ -633,22 +633,22 @@ export default function AdminPanel() {
                         background: 'rgba(255,255,255,0.04)',
                         border: '1px solid rgba(255,255,255,0.08)',
                         borderRadius: 8,
-                        color: '#f0ede8',
+                        color: '#0A0A0A',
                         fontSize: 13,
                         cursor: 'pointer',
                         outline: 'none',
                       }}
                     >
-                      <option value="all" style={{ background: '#0f1117' }}>
+                      <option value="all" style={{ background: 'white' }}>
                         All Plans
                       </option>
-                      <option value="starter" style={{ background: '#0f1117' }}>
+                      <option value="starter" style={{ background: 'white' }}>
                         Starter
                       </option>
-                      <option value="builder" style={{ background: '#0f1117' }}>
+                      <option value="builder" style={{ background: 'white' }}>
                         Builder
                       </option>
-                      <option value="scale" style={{ background: '#0f1117' }}>
+                      <option value="scale" style={{ background: 'white' }}>
                         Scale
                       </option>
                     </select>
@@ -771,7 +771,7 @@ export default function AdminPanel() {
                                       >
                                         {initials}
                                       </div>
-                                      <span style={{ fontSize: 13, color: '#f0ede8' }}>{name}</span>
+                                      <span style={{ fontSize: 13, color: '#0A0A0A' }}>{name}</span>
                                     </div>
                                   </td>
                                   {/* Email */}
@@ -837,7 +837,7 @@ export default function AdminPanel() {
                                             position: 'absolute',
                                             top: 'calc(100% + 4px)',
                                             left: 0,
-                                            background: '#0f1117',
+                                            background: 'white',
                                             border: '1px solid rgba(255,255,255,0.1)',
                                             borderRadius: 8,
                                             zIndex: 100,
@@ -1016,10 +1016,10 @@ export default function AdminPanel() {
                           <YAxis hide />
                           <Tooltip
                             contentStyle={{
-                              background: '#0f1117',
+                              background: 'white',
                               border: '1px solid rgba(255,255,255,0.1)',
                               borderRadius: 8,
-                              color: '#f0ede8',
+                              color: '#0A0A0A',
                               fontSize: 12,
                             }}
                           />
@@ -1150,7 +1150,7 @@ export default function AdminPanel() {
                               }}
                             >
                               <div>
-                                <div style={{ fontSize: 13, color: '#f0ede8', marginBottom: 2 }}>
+                                <div style={{ fontSize: 13, color: '#0A0A0A', marginBottom: 2 }}>
                                   {flag.label}
                                 </div>
                                 <div
@@ -1268,7 +1268,7 @@ export default function AdminPanel() {
                                 background: 'rgba(255,255,255,0.03)',
                                 border: '1px solid rgba(255,255,255,0.08)',
                                 borderRadius: 8,
-                                color: '#f0ede8',
+                                color: '#0A0A0A',
                                 fontSize: 13,
                                 resize: 'vertical',
                                 outline: 'none',
@@ -1456,7 +1456,7 @@ export default function AdminPanel() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               style={{
-                background: '#0f1117',
+                background: 'white',
                 border: '1px solid rgba(255,255,255,0.1)',
                 borderRadius: 16,
                 padding: 32,
@@ -1478,7 +1478,7 @@ export default function AdminPanel() {
                     fontFamily: 'Syne, sans-serif',
                     fontSize: 18,
                     fontWeight: 700,
-                    color: '#f0ede8',
+                    color: '#0A0A0A',
                   }}
                 >
                   Broadcast Email
@@ -1521,7 +1521,7 @@ export default function AdminPanel() {
                       background: 'rgba(255,255,255,0.04)',
                       border: '1px solid rgba(255,255,255,0.1)',
                       borderRadius: 8,
-                      color: '#f0ede8',
+                      color: '#0A0A0A',
                       fontSize: 14,
                       outline: 'none',
                       transition: 'border-color 200ms ease',
@@ -1552,7 +1552,7 @@ export default function AdminPanel() {
                       background: 'rgba(255,255,255,0.04)',
                       border: '1px solid rgba(255,255,255,0.1)',
                       borderRadius: 8,
-                      color: '#f0ede8',
+                      color: '#0A0A0A',
                       fontSize: 14,
                       resize: 'vertical',
                       outline: 'none',

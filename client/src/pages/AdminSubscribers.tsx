@@ -42,10 +42,10 @@ export default function AdminSubscribers() {
 
   if (user?.email !== ADMIN_EMAIL && user?.role !== 'admin') {
     return (
-      <div className="h-full flex items-center justify-center" style={{ background: '#080a0e' }}>
+      <div className="h-full flex items-center justify-center" style={{ background: '#FAFAFA' }}>
         <div className="text-center">
           <div className="text-4xl mb-3">🔒</div>
-          <h2 className="text-lg font-bold" style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}>
+          <h2 className="text-lg font-bold" style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}>
             Admin Only
           </h2>
           <p className="text-sm" style={{ color: 'rgba(240,237,232,0.4)' }}>
@@ -86,7 +86,7 @@ export default function AdminSubscribers() {
   };
 
   return (
-    <div className="min-h-screen p-6" style={{ background: '#080a0e', color: '#f0ede8' }}>
+    <div className="min-h-screen p-6" style={{ background: '#FAFAFA', color: '#0A0A0A' }}>
       {/* Header */}
       <div className="mb-8">
         <h1
@@ -143,7 +143,7 @@ export default function AdminSubscribers() {
             style={{
               background: 'rgba(255,255,255,0.06)',
               border: '1px solid rgba(255,255,255,0.1)',
-              color: '#f0ede8',
+              color: '#0A0A0A',
             }}
             placeholder="Search by email or name..."
             value={search}
@@ -197,7 +197,7 @@ export default function AdminSubscribers() {
                     background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)',
                   }}
                 >
-                  <td className="px-4 py-3" style={{ color: '#f0ede8' }}>
+                  <td className="px-4 py-3" style={{ color: '#0A0A0A' }}>
                     {s.email}
                   </td>
                   <td className="px-4 py-3" style={{ color: 'rgba(240,237,232,0.7)' }}>

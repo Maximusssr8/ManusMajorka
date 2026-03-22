@@ -373,11 +373,11 @@ export default function SupplierFinder() {
   return (
     <div
       className="h-full flex flex-col"
-      style={{ background: '#080a0e', color: '#f0ede8', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
     >
       <div
         className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0"
-        style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#0c0e12' }}
+        style={{ borderColor: '#E5E7EB', background: 'white' }}
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"

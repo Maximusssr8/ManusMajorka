@@ -109,12 +109,12 @@ export default function AnalyticsDecoder() {
   return (
     <div
       className="h-full flex"
-      style={{ background: '#080a0e', color: '#f0ede8', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
     >
       {/* LEFT */}
       <div
         className="w-80 flex-shrink-0 overflow-y-auto border-r p-5 space-y-4"
-        style={{ borderColor: 'rgba(255,255,255,0.07)', scrollbarWidth: 'thin' }}
+        style={{ borderColor: '#E5E7EB', scrollbarWidth: 'thin' }}
       >
         <div className="flex items-center gap-2.5 mb-1">
           <div
@@ -278,7 +278,7 @@ export default function AnalyticsDecoder() {
                   className="rounded-xl p-4"
                   style={{
                     background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.07)',
+                    border: '1px solid #E5E7EB',
                   }}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -322,10 +322,10 @@ export default function AnalyticsDecoder() {
               className="rounded-xl overflow-hidden"
               style={{
                 background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.07)',
+                border: '1px solid #E5E7EB',
               }}
             >
-              <div className="px-4 py-3 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+              <div className="px-4 py-3 border-b" style={{ borderColor: '#E5E7EB' }}>
                 <div
                   className="text-xs font-black uppercase tracking-widest"
                   style={{ color: '#f472b6', fontFamily: 'Syne, sans-serif' }}

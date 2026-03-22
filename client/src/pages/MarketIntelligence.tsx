@@ -290,14 +290,14 @@ Generate a full competitive intelligence report as JSON.`;
   };
 
   return (
-    <div className="flex h-full" style={{ background: '#0a0b0d' }}>
+    <div className="flex h-full" style={{ background: '#FAFAFA' }}>
       {/* ── Left Panel ── */}
       <div
         className="flex flex-col flex-shrink-0 overflow-y-auto"
         style={{
           width: '320px',
           borderRight: '1px solid rgba(255,255,255,0.07)',
-          background: '#0d0e10',
+          background: 'white',
           scrollbarWidth: 'thin',
           scrollbarColor: 'rgba(255,255,255,0.1) transparent',
         }}
@@ -321,7 +321,7 @@ Generate a full competitive intelligence report as JSON.`;
           </div>
           <h1
             className="text-lg font-black"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8', letterSpacing: '-0.02em' }}
+            style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A', letterSpacing: '-0.02em' }}
           >
             Market Intelligence
           </h1>
@@ -347,7 +347,7 @@ Generate a full competitive intelligence report as JSON.`;
               style={{
                 background: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.1)',
-                color: '#f0ede8',
+                color: '#0A0A0A',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(139,92,246,0.5)')}
               onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
@@ -369,7 +369,7 @@ Generate a full competitive intelligence report as JSON.`;
               style={{
                 background: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.1)',
-                color: '#f0ede8',
+                color: '#0A0A0A',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(139,92,246,0.5)')}
               onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
@@ -391,7 +391,7 @@ Generate a full competitive intelligence report as JSON.`;
               style={{
                 background: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.1)',
-                color: '#f0ede8',
+                color: '#0A0A0A',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(139,92,246,0.5)')}
               onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
@@ -413,7 +413,7 @@ Generate a full competitive intelligence report as JSON.`;
               style={{
                 background: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.1)',
-                color: '#f0ede8',
+                color: '#0A0A0A',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(139,92,246,0.5)')}
               onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
@@ -436,7 +436,7 @@ Generate a full competitive intelligence report as JSON.`;
               style={{
                 background: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.1)',
-                color: '#f0ede8',
+                color: '#0A0A0A',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(139,92,246,0.5)')}
               onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
@@ -507,7 +507,7 @@ Generate a full competitive intelligence report as JSON.`;
             </div>
             <h2
               className="text-xl font-black mb-2"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+              style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
             >
               Decode Your Market
             </h2>
@@ -584,7 +584,7 @@ Generate a full competitive intelligence report as JSON.`;
               <div className="flex items-center gap-3 mb-3">
                 <h2
                   className="text-2xl font-black"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                  style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
                 >
                   {niche}
                 </h2>
@@ -636,7 +636,7 @@ Generate a full competitive intelligence report as JSON.`;
                     >
                       {label}
                     </div>
-                    <div className="text-sm font-bold" style={{ color: '#f0ede8' }}>
+                    <div className="text-sm font-bold" style={{ color: '#0A0A0A' }}>
                       {value}
                     </div>
                   </div>
@@ -660,7 +660,7 @@ Generate a full competitive intelligence report as JSON.`;
                         className="w-1 h-1 rounded-full mt-2 flex-shrink-0"
                         style={{ background: '#8b5cf6' }}
                       />
-                      <span className="text-sm" style={{ color: '#f0ede8' }}>
+                      <span className="text-sm" style={{ color: '#0A0A0A' }}>
                         {driver}
                       </span>
                     </li>
@@ -689,7 +689,7 @@ Generate a full competitive intelligence report as JSON.`;
                         <div className="flex items-center gap-2">
                           <span
                             className="text-sm font-black"
-                            style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                            style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
                           >
                             {comp.name}
                           </span>
@@ -784,7 +784,7 @@ Generate a full competitive intelligence report as JSON.`;
                     }}
                   >
                     <div className="flex items-start justify-between gap-3 mb-2">
-                      <span className="text-sm font-semibold flex-1" style={{ color: '#f0ede8' }}>
+                      <span className="text-sm font-semibold flex-1" style={{ color: '#0A0A0A' }}>
                         {opp.gap}
                       </span>
                       <DifficultyBadge difficulty={opp.difficulty} />
@@ -843,7 +843,7 @@ Generate a full competitive intelligence report as JSON.`;
                 ))}
               </div>
               <div className="flex items-start gap-3">
-                <p className="text-sm leading-relaxed flex-1" style={{ color: '#f0ede8' }}>
+                <p className="text-sm leading-relaxed flex-1" style={{ color: '#0A0A0A' }}>
                   {result.pricingIntelligence.pricingStrategy}
                 </p>
                 <CopyBtn text={result.pricingIntelligence.pricingStrategy} />
@@ -890,7 +890,7 @@ Generate a full competitive intelligence report as JSON.`;
                             className="w-1 h-1 rounded-full mt-2 flex-shrink-0"
                             style={{ background: color }}
                           />
-                          <span className="text-sm" style={{ color: '#f0ede8' }}>
+                          <span className="text-sm" style={{ color: '#0A0A0A' }}>
                             {item}
                           </span>
                         </li>
@@ -926,7 +926,7 @@ Generate a full competitive intelligence report as JSON.`;
                       >
                         {String(i + 1).padStart(2, '0')}
                       </span>
-                      <span className="text-sm flex-1" style={{ color: '#f0ede8' }}>
+                      <span className="text-sm flex-1" style={{ color: '#0A0A0A' }}>
                         {rec}
                       </span>
                       <CopyBtn text={rec} />
@@ -942,7 +942,7 @@ Generate a full competitive intelligence report as JSON.`;
                   Threat Assessment
                 </span>
                 <div className="flex items-start gap-3">
-                  <p className="text-sm leading-relaxed flex-1" style={{ color: '#f0ede8' }}>
+                  <p className="text-sm leading-relaxed flex-1" style={{ color: '#0A0A0A' }}>
                     {result.threatAssessment}
                   </p>
                   <CopyBtn text={result.threatAssessment} />
@@ -962,7 +962,7 @@ Generate a full competitive intelligence report as JSON.`;
                     border: '1px solid rgba(99,102,241,0.2)',
                   }}
                 >
-                  <p className="text-sm leading-relaxed flex-1" style={{ color: '#f0ede8' }}>
+                  <p className="text-sm leading-relaxed flex-1" style={{ color: '#0A0A0A' }}>
                     {result.entryStrategy}
                   </p>
                   <CopyBtn text={result.entryStrategy} />

@@ -249,7 +249,7 @@ export default function ProfitCalculator() {
 
   // ── Shared styles ───────────────────────────────────────────────────────
   const cardStyle: React.CSSProperties = {
-    background: '#0c0c10',
+    background: 'white',
     border: '1px solid rgba(255,255,255,0.06)',
     borderRadius: 16,
     padding: '24px',
@@ -378,7 +378,7 @@ export default function ProfitCalculator() {
     <div
       style={{
         minHeight: '100vh',
-        background: '#060608',
+        background: '#FAFAFA',
         padding: '40px 24px 80px',
         fontFamily: 'DM Sans, sans-serif',
       }}

@@ -787,7 +787,7 @@ Be specific, opinionated, use AUD figures.`;
           right: 0,
           bottom: 0,
           width: 'min(480px, 100vw)',
-          background: '#0d1017',
+          background: 'white',
           borderLeft: `1px solid ${C.glassBorder}`,
           zIndex: 999,
           overflowY: 'auto',
@@ -817,7 +817,7 @@ Be specific, opinionated, use AUD figures.`;
               style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(to bottom, transparent 40%, #0d1017 100%)',
+                background: 'linear-gradient(to bottom, transparent 40%, white 100%)',
               }}
             />
             <button
@@ -1096,7 +1096,7 @@ Be specific, opinionated, use AUD figures.`;
                   />
                   <RechartTooltip
                     contentStyle={{
-                      background: '#0f1117',
+                      background: 'white',
                       border: `1px solid ${C.goldBorder}`,
                       borderRadius: 8,
                       fontSize: 12,
@@ -1521,7 +1521,7 @@ function SpyAdsModal({ product, onClose }: { product: WinningProduct; onClose: (
         width: 'min(560px, 96vw)',
         maxHeight: '85vh',
         overflowY: 'auto',
-        background: '#0d1017',
+        background: 'white',
         border: `1px solid ${C.goldBorder}`,
         borderRadius: 20,
         zIndex: 1001,
@@ -1634,7 +1634,7 @@ function FullReportModal({
         width: 'min(780px, 96vw)',
         maxHeight: '92vh',
         overflowY: 'auto',
-        background: '#0a0c14',
+        background: '#FAFAFA',
         border: `1px solid ${C.goldBorder}`,
         borderRadius: 24,
         zIndex: 1001,
@@ -1644,7 +1644,7 @@ function FullReportModal({
         {product.image_url && (
           <div style={{ position: 'relative', height: 220, overflow: 'hidden', borderRadius: '24px 24px 0 0' }}>
             <img src={product.image_url} alt={product.product_title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, #0a0c14 100%)' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, #FAFAFA 100%)' }} />
             <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, width: 36, height: 36, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: `1px solid ${C.glassBorder}`, color: C.text, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <X size={16} />
             </button>
@@ -1709,7 +1709,7 @@ function FullReportModal({
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                   <XAxis dataKey="day" tick={{ fontSize: 10, fill: C.muted }} tickLine={false} axisLine={false} />
                   <YAxis tick={{ fontSize: 10, fill: C.muted }} tickLine={false} axisLine={false} tickFormatter={(v: number) => `$${v}`} width={44} />
-                  <RechartTooltip contentStyle={{ background: '#0f1117', border: `1px solid ${C.goldBorder}`, borderRadius: 8, fontSize: 12 }} labelStyle={{ color: C.sub }} formatter={(v: number) => [`$${v} AUD`, 'Est. Rev']} />
+                  <RechartTooltip contentStyle={{ background: 'white', border: `1px solid ${C.goldBorder}`, borderRadius: 8, fontSize: 12 }} labelStyle={{ color: C.sub }} formatter={(v: number) => [`$${v} AUD`, 'Est. Rev']} />
                   <Area type="monotone" dataKey="rev" stroke={C.gold} strokeWidth={2} fill="url(#revGrad2)" dot={{ fill: C.gold, r: 3, strokeWidth: 0 }} activeDot={{ r: 5, fill: C.gold }} />
                 </AreaChart>
               </ResponsiveContainer>
@@ -3330,7 +3330,7 @@ function WinningProducts() {
   const showExportLockedToast = () => {
     toast('🔒 Export to CSV is a Pro feature. Upgrade to export unlimited products to Shopify, Google Sheets, or CSV.', {
       duration: 5000,
-      style: { background: '#0d0f15', border: '1px solid rgba(99,102,241,0.3)', color: '#f5f5f5', fontSize: 13 },
+      style: { background: 'white', border: '1px solid #E5E7EB', color: '#374151', fontSize: 13 },
       action: { label: 'Upgrade Now →', onClick: () => window.location.assign('/pricing') },
     });
   };
@@ -3959,7 +3959,7 @@ function WinningProducts() {
                             Upgrade Now →
                           </button>
                         </div>,
-                        { duration: 5000, style: { background: '#0d0f15', border: '1px solid rgba(99,102,241,0.3)', color: '#f5f5f5' } }
+                        { duration: 5000, style: { background: 'white', border: '1px solid #E5E7EB', color: '#374151' } }
                       );
                       return;
                     }
@@ -4326,7 +4326,7 @@ function WinningProducts() {
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 990,
-            background: 'linear-gradient(135deg, #1a1600, #0d1017)',
+            background: 'linear-gradient(135deg, #1a1600, white)',
             border: `1px solid ${C.goldBorder}`,
             borderRadius: 16,
             padding: '14px 24px',
@@ -4422,7 +4422,7 @@ class WPErrorBoundary extends Component<{ children: ReactNode }, { hasError: boo
             color: '#6366F1',
             fontFamily: 'Syne, sans-serif',
             minHeight: '100vh',
-            background: '#080a0e',
+            background: '#FAFAFA',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',

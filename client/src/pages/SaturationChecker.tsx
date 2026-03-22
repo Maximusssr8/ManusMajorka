@@ -11,14 +11,14 @@ function renderMarkdown(md: string): string {
     // headings
     .replace(
       /^## (.+)$/gm,
-      '<h2 style="font-family:Syne,sans-serif;font-size:1.25rem;font-weight:700;color:#f5f5f5;margin:1.5rem 0 0.75rem">$1</h2>'
+      '<h2 style="font-family:Syne,sans-serif;font-size:1.25rem;font-weight:700;color:#374151;margin:1.5rem 0 0.75rem">$1</h2>'
     )
     .replace(
       /^### (.+)$/gm,
-      '<h3 style="font-family:Syne,sans-serif;font-size:1.1rem;font-weight:600;color:#f5f5f5;margin:1.25rem 0 0.5rem">$1</h3>'
+      '<h3 style="font-family:Syne,sans-serif;font-size:1.1rem;font-weight:600;color:#374151;margin:1.25rem 0 0.5rem">$1</h3>'
     )
     // bold
-    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#f5f5f5;font-weight:600">$1</strong>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#374151;font-weight:600">$1</strong>')
     // bullet lists
     .replace(
       /^- (.+)$/gm,
@@ -205,9 +205,9 @@ export default function SaturationChecker() {
 
   const pageStyle: React.CSSProperties = {
     minHeight: '100vh',
-    background: '#060608',
+    background: '#FAFAFA',
     fontFamily: 'DM Sans, sans-serif',
-    color: '#f5f5f5',
+    color: '#374151',
     padding: '1.5rem 1rem 5rem',
   };
 
@@ -217,8 +217,8 @@ export default function SaturationChecker() {
   };
 
   const cardStyle: React.CSSProperties = {
-    background: '#0c0c10',
-    border: '1px solid rgba(255,255,255,0.06)',
+    background: 'white',
+    border: '1px solid #E5E7EB',
     borderRadius: 16,
     padding: '1.5rem',
     marginBottom: '1.25rem',
@@ -243,7 +243,7 @@ export default function SaturationChecker() {
     border: '1px solid rgba(255,255,255,0.06)',
     borderRadius: 12,
     padding: '0.75rem 1rem',
-    color: '#f5f5f5',
+    color: '#374151',
     fontFamily: 'DM Sans, sans-serif',
     fontSize: '0.95rem',
     outline: 'none',
@@ -295,7 +295,7 @@ export default function SaturationChecker() {
               fontFamily: 'Syne, sans-serif',
               fontSize: 'clamp(1.75rem, 5vw, 2.25rem)',
               fontWeight: 800,
-              color: '#f5f5f5',
+              color: '#374151',
               margin: '0.5rem 0 0.75rem',
               lineHeight: 1.15,
             }}
@@ -564,7 +564,7 @@ export default function SaturationChecker() {
                       height: 16,
                       borderRadius: '50%',
                       background: levelConf.color,
-                      border: '2px solid #0c0c10',
+                      border: '2px solid white',
                       transform: 'translateX(-50%)',
                       transition: 'left 1s ease',
                     }}
@@ -609,7 +609,7 @@ export default function SaturationChecker() {
                       fontFamily: 'Syne, sans-serif',
                       fontWeight: 700,
                       fontSize: '1.1rem',
-                      color: '#f5f5f5',
+                      color: '#374151',
                       margin: '0 0 0.75rem',
                     }}
                   >
@@ -666,7 +666,7 @@ export default function SaturationChecker() {
                     fontFamily: 'Syne, sans-serif',
                     fontWeight: 700,
                     fontSize: '1rem',
-                    color: '#f5f5f5',
+                    color: '#374151',
                     marginBottom: '0.5rem',
                   }}
                 >

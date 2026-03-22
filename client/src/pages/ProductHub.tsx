@@ -58,7 +58,7 @@ export default function ProductHub() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full" style={{ background: '#080a0e' }}>
+      <div className="flex items-center justify-center h-full" style={{ background: '#FAFAFA' }}>
         <Loader2 size={24} className="animate-spin" style={{ color: '#6366F1' }} />
       </div>
     );
@@ -68,7 +68,7 @@ export default function ProductHub() {
     return (
       <div
         className="flex items-center justify-center h-full"
-        style={{ background: '#080a0e', color: '#f0ede8' }}
+        style={{ background: '#FAFAFA', color: '#0A0A0A' }}
       >
         <div className="text-center">
           <div className="text-4xl mb-4">🔒</div>
@@ -82,7 +82,7 @@ export default function ProductHub() {
 
   if (loadingProduct || loadingOutputs) {
     return (
-      <div className="flex items-center justify-center h-full" style={{ background: '#080a0e' }}>
+      <div className="flex items-center justify-center h-full" style={{ background: '#FAFAFA' }}>
         <Loader2 size={24} className="animate-spin" style={{ color: '#6366F1' }} />
       </div>
     );
@@ -92,7 +92,7 @@ export default function ProductHub() {
     return (
       <div
         className="flex items-center justify-center h-full"
-        style={{ background: '#080a0e', color: '#f0ede8' }}
+        style={{ background: '#FAFAFA', color: '#0A0A0A' }}
       >
         <div className="text-center">
           <div className="text-4xl mb-4">📦</div>
@@ -125,8 +125,8 @@ export default function ProductHub() {
     <div
       className="h-full overflow-y-auto p-6"
       style={{
-        background: '#080a0e',
-        color: '#f0ede8',
+        background: '#FAFAFA',
+        color: '#0A0A0A',
         fontFamily: 'DM Sans, sans-serif',
         scrollbarWidth: 'thin',
       }}
@@ -167,7 +167,7 @@ export default function ProductHub() {
                 className="rounded-xl overflow-hidden"
                 style={{
                   background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid rgba(255,255,255,0.07)',
+                  border: '1px solid #E5E7EB',
                 }}
               >
                 <button

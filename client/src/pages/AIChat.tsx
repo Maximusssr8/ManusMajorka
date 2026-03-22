@@ -464,7 +464,7 @@ export default function AIChat() {
   }, [session]);
 
   return (
-    <div className="flex flex-col h-full" style={{ background: '#080a0e' }}>
+    <div className="flex flex-col h-full" style={{ background: '#FAFAFA' }}>
       <SEO
         title="Maya — Your AI Dropshipping Coach | Majorka"
         description="Ask Maya anything about dropshipping in Australia. Live market data, product research, and strategy."
@@ -473,7 +473,7 @@ export default function AIChat() {
       {/* Header */}
       <div
         className="flex-shrink-0 px-5 py-3"
-        style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#0d0f12' }}
+        style={{ borderBottom: '1px solid #E5E7EB', background: 'white' }}
       >
         <div className="flex items-center gap-3">
           <div
@@ -489,7 +489,7 @@ export default function AIChat() {
           <div className="flex-1">
             <h1
               className="font-black text-sm"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+              style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
             >
               AI Chat
             </h1>
@@ -586,7 +586,7 @@ export default function AIChat() {
                 </div>
                 <p
                   className="text-sm mb-1 font-bold"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                  style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
                 >
                   {activeProduct
                     ? `Let's talk about ${activeProduct.name}`
@@ -688,7 +688,7 @@ export default function AIChat() {
                       ? {
                           background: '#1a1600',
                           border: '1px solid rgba(99,102,241,0.3)',
-                          color: '#f0ede8',
+                          color: '#0A0A0A',
                         }
                       : msg.isError
                         ? {
@@ -696,8 +696,8 @@ export default function AIChat() {
                             border: '1px solid rgba(255,100,100,0.2)',
                           }
                         : {
-                            background: '#0d0f12',
-                            border: '1px solid rgba(255,255,255,0.06)',
+                            background: 'white',
+                            border: '1px solid #E5E7EB',
                           }
                   }
                 >
@@ -848,7 +848,7 @@ export default function AIChat() {
                   </div>
                   <div
                     className="rounded-lg px-4 py-3"
-                    style={{ background: '#0d0f12', border: '1px solid rgba(255,255,255,0.06)' }}
+                    style={{ background: 'white', border: '1px solid #E5E7EB' }}
                   >
                     <div className="flex items-center gap-1.5">
                       {[0, 1, 2].map((i) => (
@@ -923,7 +923,7 @@ export default function AIChat() {
           <div
             className="flex items-end gap-2 px-4 py-3 rounded-lg"
             style={{
-              background: '#0d0f12',
+              background: 'white',
               border: '1px solid rgba(255,255,255,0.1)',
             }}
           >
@@ -947,7 +947,7 @@ export default function AIChat() {
               rows={1}
               className="flex-1 bg-transparent text-sm outline-none resize-none"
               style={{
-                color: '#f0ede8',
+                color: '#0A0A0A',
                 fontFamily: 'DM Sans, sans-serif',
                 lineHeight: '1.5',
                 maxHeight: '120px',

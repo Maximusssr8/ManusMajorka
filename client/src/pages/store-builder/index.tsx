@@ -294,7 +294,7 @@ export default function StoreBuilder() {
   const displayStep = step <= 1 ? 0 : step <= 2 ? 1 : step <= 3 ? 2 : 3;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#080a0e', color: '#f0ede8', fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ minHeight: '100vh', background: '#FAFAFA', color: '#0A0A0A', fontFamily: "'DM Sans', sans-serif" }}>
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />
         <title>Store Builder AI — Majorka</title>

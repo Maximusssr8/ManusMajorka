@@ -6,9 +6,9 @@
 import { useEffect, useState } from 'react';
 
 const C = {
-  bg: '#0c0c10',
-  border: 'rgba(255,255,255,0.06)',
-  text: '#f5f5f5',
+  bg: 'white',
+  border: '#E5E7EB',
+  text: '#374151',
   secondary: '#94949e',
   muted: '#52525b',
   gold: '#6366F1',
@@ -142,7 +142,7 @@ export default function StreakWidget() {
         >
           <div
             style={{
-              background: '#0c0c10',
+              background: 'white',
               border: `1px solid ${C.goldBorder}`,
               borderRadius: 20,
               padding: '40px 48px',

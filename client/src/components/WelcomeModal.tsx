@@ -81,7 +81,7 @@ export default function WelcomeModal({ userName }: Props) {
       <div
         className="relative w-full max-w-lg mx-4 overflow-hidden animate-scale-in"
         style={{
-          background: '#111118',
+          background: 'white',
           border: '1px solid rgba(99,102,241,0.2)',
           borderRadius: 16,
           boxShadow: '0 32px 80px rgba(0,0,0,0.6)',
@@ -109,7 +109,7 @@ export default function WelcomeModal({ userName }: Props) {
             </div>
             <h1
               className="text-xl font-bold mb-2"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+              style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
             >
               Welcome to Majorka
             </h1>
@@ -147,7 +147,7 @@ export default function WelcomeModal({ userName }: Props) {
           <div className="mb-6">
             <p
               className="text-sm font-bold mb-3"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+              style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
             >
               What do you want to do first?
             </p>
@@ -162,7 +162,7 @@ export default function WelcomeModal({ userName }: Props) {
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all"
                     style={{
                       background: selected ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)',
-                      border: `1px solid ${selected ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                      border: `1px solid ${selected ? 'rgba(99,102,241,0.3)' : '#E5E7EB'}`,
                       cursor: 'pointer',
                     }}
                   >
@@ -176,7 +176,7 @@ export default function WelcomeModal({ userName }: Props) {
                     </div>
                     <span
                       className="text-sm"
-                      style={{ color: selected ? '#f5f5f5' : 'rgba(245,245,245,0.6)' }}
+                      style={{ color: selected ? '#374151' : 'rgba(55,65,81,0.6)' }}
                     >
                       {goal.label}
                     </span>
@@ -191,7 +191,7 @@ export default function WelcomeModal({ userName }: Props) {
                         {selected && (
                           <div
                             className="w-1.5 h-1.5 rounded-full"
-                            style={{ background: '#080a0e' }}
+                            style={{ background: '#FAFAFA' }}
                           />
                         )}
                       </div>
@@ -210,7 +210,7 @@ export default function WelcomeModal({ userName }: Props) {
               style={{
                 background: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.1)',
-                color: '#f5f5f5',
+                color: '#374151',
                 cursor: 'pointer',
                 fontFamily: 'Syne, sans-serif',
               }}

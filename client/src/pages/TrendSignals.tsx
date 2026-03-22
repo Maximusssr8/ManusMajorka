@@ -54,13 +54,13 @@ type SortDir = 'asc' | 'desc';
 // ── Design tokens ─────────────────────────────────────────────────────────────
 
 const C = {
-  bg: '#080a0e',
+  bg: '#FAFAFA',
   surface: 'rgba(255,255,255,0.02)',
   border: 'rgba(255,255,255,0.07)',
   borderHover: 'rgba(99,102,241,0.35)',
   gold: '#6366F1',
   goldDim: 'rgba(99,102,241,0.6)',
-  text: '#f0ede8',
+  text: '#0A0A0A',
   sub: 'rgba(240,237,232,0.55)',
   muted: 'rgba(240,237,232,0.35)',
   green: '#10b981',
@@ -258,7 +258,7 @@ export default function TrendSignals() {
         color: field === sortField ? C.gold : C.muted,
         cursor: field ? 'pointer' : 'default',
         whiteSpace: 'nowrap',
-        background: '#0c0e14',
+        background: '#FAFAFA',
         borderBottom: `1px solid ${C.border}`,
         userSelect: 'none',
         ...style,
@@ -327,7 +327,7 @@ export default function TrendSignals() {
               .map((p, idx) => (
                 <div key={p.id || p.name + '-top'}
                   style={{
-                    flexShrink: 0, width: 160, background: '#0d0d14',
+                    flexShrink: 0, width: 160, background: 'white',
                     border: `1px solid ${idx === 0 ? '#6366F1' : '#1a1a2e'}`,
                     borderRadius: 10, overflow: 'hidden', cursor: 'pointer', transition: 'border-color 0.15s',
                   }}
@@ -342,7 +342,7 @@ export default function TrendSignals() {
                     </div>
                   )}
                   <div style={{ padding: '8px 10px' }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#f0ede8', lineHeight: 1.3, marginBottom: 4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#0A0A0A', lineHeight: 1.3, marginBottom: 4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
                       {p.name}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -390,9 +390,9 @@ export default function TrendSignals() {
           return (
             <select value={nicheFilter} onChange={e => { setNicheFilter(e.target.value); setPage(1); }}
               style={{ padding: '7px 10px', background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`, borderRadius: 7, fontSize: 12, color: C.text, cursor: 'pointer', flex: '0 0 auto' }}>
-              <option value="All Niches" style={{ background: '#0a0b0d' }}>All Niches ({products.length})</option>
+              <option value="All Niches" style={{ background: 'white' }}>All Niches ({products.length})</option>
               {ALL_NICHES.filter(n => n !== 'All Niches').map(n => (
-                <option key={n} value={n} style={{ background: '#0a0b0d' }}>
+                <option key={n} value={n} style={{ background: 'white' }}>
                   {n} {nicheCounts[n] ? `(${nicheCounts[n]})` : ''}
                 </option>
               ))}

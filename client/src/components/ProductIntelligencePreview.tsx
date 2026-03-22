@@ -443,7 +443,7 @@ export default function ProductIntelligencePreview() {
   return (
     <>
       <style>{PIP_CSS}</style>
-      <section style={{ background: '#080a0e', padding: '80px 24px' }}>
+      <section style={{ background: '#FAFAFA', padding: '80px 24px' }}>
         <div className="pip-kalo-wrap" style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div className="pip-section-container">
 
@@ -837,7 +837,7 @@ export default function ProductIntelligencePreview() {
                   }}>
                     {first.trend}
                   </span>
-                  <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: '#f5f5f5', margin: '8px 0 4px', lineHeight: 1.3 }}>
+                  <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: '#374151', margin: '8px 0 4px', lineHeight: 1.3 }}>
                     {first.name}
                   </h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>

@@ -902,7 +902,7 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }} onClick={onClose}>
-      <div className="relative w-full max-w-lg mx-4 rounded-2xl p-6" style={{ background: '#0f1118', border: '1px solid rgba(255,255,255,0.1)' }} onClick={(e) => e.stopPropagation()}>
+      <div className="relative w-full max-w-lg mx-4 rounded-2xl p-6" style={{ background: 'white', border: '1px solid rgba(255,255,255,0.1)' }} onClick={(e) => e.stopPropagation()}>
         <button onClick={onClose} className="absolute top-4 right-4" style={{ color: 'rgba(240,237,232,0.4)', background: 'none', border: 'none', cursor: 'pointer' }}>
           <X size={18} />
         </button>
@@ -2838,7 +2838,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
   ];
 
   return (
-    <div className="h-full flex flex-col" style={{ background: '#080a0e', color: '#f0ede8', fontFamily: 'DM Sans, sans-serif' }}>
+    <div className="h-full flex flex-col" style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}>
       {/* Demo mode banner */}
       {demoMode && demoBannerVisible && (
         <div style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 0, padding: '8px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexShrink: 0 }}>
@@ -2850,7 +2850,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
       )}
 
       {/* Top bar */}
-      <div className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#0c0e12' }}>
+      <div className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0" style={{ borderColor: '#E5E7EB', background: 'white' }}>
         <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)' }}>
           <Globe size={15} style={{ color: '#6366F1' }} />
         </div>
@@ -2861,7 +2861,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
       </div>
 
       {/* Mobile panel toggle */}
-      <div className="flex md:hidden border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#0a0c10' }}>
+      <div className="flex md:hidden border-b flex-shrink-0" style={{ borderColor: '#E5E7EB', background: 'white' }}>
         {(['form','preview'] as const).map((p) => (
           <button key={p} onClick={() => setMobilePanel(p)}
             className="flex-1 py-2.5 text-xs font-bold uppercase tracking-wider transition-all"
@@ -2941,8 +2941,8 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               const ht = WEBSITE_TEMPLATES.find(t => t.id === hoveredTemplate);
               if (!ht) return null;
               return (
-                <div style={{ position: 'absolute', right: -220, top: 40, width: 200, zIndex: 100, background: '#0c0e12', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', pointerEvents: 'none' }}>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#f0ede8', fontFamily: 'Syne, sans-serif', marginBottom: 8 }}>{ht.name}</div>
+                <div style={{ position: 'absolute', right: -220, top: 40, width: 200, zIndex: 100, background: 'white', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', pointerEvents: 'none' }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#0A0A0A', fontFamily: 'Syne, sans-serif', marginBottom: 8 }}>{ht.name}</div>
                   <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
                     {[ht.palette.bg, ht.palette.accent, ht.palette.text].map((c, i) => (
                       <div key={i} style={{ width: 20, height: 20, borderRadius: '50%', background: c, border: '1px solid rgba(255,255,255,0.15)' }} />
@@ -2999,7 +2999,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
             ) : (
               <div>
                 <div className="flex gap-1.5">
-                  <input value={importUrl} onChange={(e) => { setImportUrl(e.target.value); setManualFallback(null); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleImport(); } }} placeholder="Paste product URL (AliExpress, Amazon…)" className="flex-1 text-xs px-3 py-2 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.1)', color: '#f0ede8' }} />
+                  <input value={importUrl} onChange={(e) => { setImportUrl(e.target.value); setManualFallback(null); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleImport(); } }} placeholder="Paste product URL (AliExpress, Amazon…)" className="flex-1 text-xs px-3 py-2 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.1)', color: '#0A0A0A' }} />
                   <button onClick={handleImport} disabled={importing || !importUrl.trim()} className="text-xs font-bold px-3 py-2 rounded-lg flex-shrink-0 flex items-center gap-1 disabled:opacity-50" style={{ background: 'rgba(45,202,114,0.12)', border: '1.5px solid rgba(45,202,114,0.35)', color: 'rgba(45,202,114,0.9)', fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}>
                     {importing ? <Loader2 size={10} className="animate-spin" /> : null}{importing ? '…' : 'Import'}
                   </button>
@@ -3059,7 +3059,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAnalyzeProduct(); } }}
                 placeholder="https://aliexpress.com/item/..."
                 className="flex-1 text-sm rounded-lg outline-none"
-                style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.1)', color: '#f0ede8' }}
+                style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.1)', color: '#0A0A0A' }}
               />
               <button
                 onClick={() => handleAnalyzeProduct()}
@@ -3082,7 +3082,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                   ) : <span style={{ fontSize: 20 }}>📦</span>}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#f0ede8', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#0A0A0A', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {analysisResult.product_title || analysisResult.suggested_title || 'Product'}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
@@ -3314,13 +3314,13 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
           {/* Supplier panel — shows when arriving from Intelligence with supplier URL */}
           {urlSupplierUrl && (
-            <div style={{ background: '#0a0a0a', border: '1px solid #1e1e1e', borderRadius: 8, padding: 16, marginBottom: 4 }}>
+            <div style={{ background: '#FAFAFA', border: '1px solid #1e1e1e', borderRadius: 8, padding: 16, marginBottom: 4 }}>
               <div style={{ fontSize: 10, letterSpacing: '2px', color: 'rgba(240,237,232,0.3)', marginBottom: 8, fontFamily: 'Syne, sans-serif', fontWeight: 700, textTransform: 'uppercase' as const }}>
                 Supplier &amp; Fulfilment
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                 <div>
-                  <div style={{ color: '#f0ede8', fontSize: 14, fontWeight: 600 }}>{urlSupplierName || 'AliExpress'}</div>
+                  <div style={{ color: '#0A0A0A', fontSize: 14, fontWeight: 600 }}>{urlSupplierName || 'AliExpress'}</div>
                   <div style={{ color: 'rgba(240,237,232,0.35)', fontSize: 12, marginTop: 2 }}>Source · dropship · fulfil orders</div>
                 </div>
                 <a href={urlSupplierUrl} target="_blank" rel="noopener noreferrer"
@@ -3334,13 +3334,13 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           {/* Store Name */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Store Name</label>
-            <input data-field="storeName" value={storeName} onChange={(e) => { setStoreName(e.target.value); clearTimeout(livePreviewStoreNameTimer.current); livePreviewStoreNameTimer.current = setTimeout(() => setLivePreviewStoreName(e.target.value), 400); }} placeholder="e.g. MaxFit Supplements" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#f0ede8' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
+            <input data-field="storeName" value={storeName} onChange={(e) => { setStoreName(e.target.value); clearTimeout(livePreviewStoreNameTimer.current); livePreviewStoreNameTimer.current = setTimeout(() => setLivePreviewStoreName(e.target.value), 400); }} placeholder="e.g. MaxFit Supplements" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
           </div>
 
           {/* Niche */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Niche <span style={{ color: '#6366F1', fontWeight: 700 }}>*</span></label>
-            <input value={niche} onChange={(e) => { setNiche(e.target.value); clearTimeout(livePreviewNicheTimer.current); livePreviewNicheTimer.current = setTimeout(() => setLivePreviewNiche(e.target.value), 400); }} list="niche-list" placeholder="e.g. gym clothing" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#f0ede8' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
+            <input value={niche} onChange={(e) => { setNiche(e.target.value); clearTimeout(livePreviewNicheTimer.current); livePreviewNicheTimer.current = setTimeout(() => setLivePreviewNiche(e.target.value), 400); }} list="niche-list" placeholder="e.g. gym clothing" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
             <datalist id="niche-list">
               {['Beauty & Skincare','Fitness & Gym','Home & Living','Pet Accessories','Tech Gadgets','Outdoor & Adventure','Women\'s Fashion','Men\'s Fashion','Baby & Kids','Health Supplements','Jewellery','Coffee & Tea'].map(n => (
                 <option key={n} value={n} />
@@ -3371,20 +3371,20 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           {/* Target Audience */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Target Audience</label>
-            <input value={targetAudience} onChange={(e) => setTargetAudience(e.target.value)} placeholder="e.g. AU men 18-35" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#f0ede8' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
+            <input value={targetAudience} onChange={(e) => setTargetAudience(e.target.value)} placeholder="e.g. AU men 18-35" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
           </div>
 
           {/* Tagline + Price */}
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Tagline <span style={{ opacity: 0.4, fontWeight: 400, textTransform: 'none' }}>(opt)</span></label>
-              <input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="e.g. Made for Aussies" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#f0ede8' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
+              <input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="e.g. Made for Aussies" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
             </div>
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Price AUD <span style={{ opacity: 0.4, fontWeight: 400, textTransform: 'none' }}>(opt)</span></label>
               <div style={{ position: 'relative' }}>
               <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: 'rgba(240,237,232,0.3)' }}>$</span>
-              <input value={priceAUD} onChange={(e) => setPriceAUD(e.target.value)} placeholder="e.g. 59.99" className="w-full text-sm py-2.5 rounded-lg outline-none" style={{ paddingLeft: 22, paddingRight: 12, background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#f0ede8' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; const num = parseFloat(priceAUD.replace(/[^0-9.]/g, '')); if (!isNaN(num)) setPriceAUD(num.toFixed(2)); }} />
+              <input value={priceAUD} onChange={(e) => setPriceAUD(e.target.value)} placeholder="e.g. 59.99" className="w-full text-sm py-2.5 rounded-lg outline-none" style={{ paddingLeft: 22, paddingRight: 12, background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; const num = parseFloat(priceAUD.replace(/[^0-9.]/g, '')); if (!isNaN(num)) setPriceAUD(num.toFixed(2)); }} />
             </div>
             </div>
           </div>
@@ -3394,10 +3394,10 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           {/* Platform */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Platform</label>
-            <select value={platform} onChange={(e) => setPlatform(e.target.value as Platform)} className="w-full text-sm px-3 py-2.5 rounded-lg outline-none appearance-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#f0ede8', cursor: 'pointer' }}>
-              <option value="shopify" style={{ background: '#0c0e12' }}>Shopify</option>
-              <option value="nextjs" style={{ background: '#0c0e12' }}>Next.js</option>
-              <option value="react" style={{ background: '#0c0e12' }}>React</option>
+            <select value={platform} onChange={(e) => setPlatform(e.target.value as Platform)} className="w-full text-sm px-3 py-2.5 rounded-lg outline-none appearance-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#0A0A0A', cursor: 'pointer' }}>
+              <option value="shopify" style={{ background: 'white' }}>Shopify</option>
+              <option value="nextjs" style={{ background: 'white' }}>Next.js</option>
+              <option value="react" style={{ background: 'white' }}>React</option>
             </select>
           </div>
 
@@ -3409,7 +3409,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               onChange={(e) => setRawDesc(e.target.value)}
               placeholder="Paste your raw product description here..."
               rows={3}
-              style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#f0ede8', fontSize: 13, resize: 'vertical', fontFamily: 'DM Sans, sans-serif' }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#0A0A0A', fontSize: 13, resize: 'vertical', fontFamily: 'DM Sans, sans-serif' }}
             />
             <div className="flex items-center gap-2" style={{ marginTop: 6 }}>
               <button
@@ -3511,7 +3511,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       setSiteHistory(next);
                       localStorage.setItem('majorka_site_history', JSON.stringify(next));
                     }}
-                    style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(240,237,232,0.3)', cursor: 'pointer', flexShrink: 0 }}
+                    style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB', color: 'rgba(240,237,232,0.3)', cursor: 'pointer', flexShrink: 0 }}
                   >✕</button>
                 </div>
               ))}
@@ -3591,7 +3591,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     onChange={(e) => setShopifyDomainInput(e.target.value)}
                     placeholder="mystore.myshopify.com"
                     onKeyDown={(e) => { if (e.key === 'Enter') { const d = shopifyDomainInput.trim().replace(/^https?:\/\//, '').replace(/\/$/, ''); if (d.includes('.myshopify.com')) window.location.href = `/api/shopify/auth?shop=${encodeURIComponent(d)}`; } }}
-                    style={{ flex: 1, padding: '7px 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: '#f0ede8', fontSize: 11, outline: 'none' }}
+                    style={{ flex: 1, padding: '7px 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: '#0A0A0A', fontSize: 11, outline: 'none' }}
                   />
                   <button
                     onClick={() => { const d = shopifyDomainInput.trim().replace(/^https?:\/\//, '').replace(/\/$/, ''); if (d.includes('.myshopify.com')) window.location.href = `/api/shopify/auth?shop=${encodeURIComponent(d)}`; else toast.error('Enter a valid .myshopify.com domain'); }}
@@ -3637,7 +3637,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           {hasOutput ? (
             <>
               {/* Tab bar */}
-              <div className="flex items-center gap-1 px-4 py-2.5 border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#0c0e12' }}>
+              <div className="flex items-center gap-1 px-4 py-2.5 border-b flex-shrink-0" style={{ borderColor: '#E5E7EB', background: 'white' }}>
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
@@ -3671,7 +3671,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 {activeTab === 'preview' && (
                   <div className="relative h-full flex flex-col overflow-hidden">
                     {/* Toolbar */}
-                    <div className="flex items-center gap-2 px-4 py-2 border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.06)', background: '#0a0c10' }}>
+                    <div className="flex items-center gap-2 px-4 py-2 border-b flex-shrink-0" style={{ borderColor: '#E5E7EB', background: 'white' }}>
                       <button onClick={handleOpenPreviewNewTab} className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', color: '#6366F1', fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}>
                         <ExternalLink size={11} /> Open in new tab
                       </button>
@@ -3712,7 +3712,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       )}
                     </div>
                     {(generatedData || directHtml) ? (
-                      <div className={`flex-1 overflow-auto ${previewDevice !== 'desktop' ? 'flex justify-center' : ''}`} style={{ background: '#060608', padding: previewDevice !== 'desktop' ? '20px 0' : 0, display: 'flex', flexDirection: 'column' }}>
+                      <div className={`flex-1 overflow-auto ${previewDevice !== 'desktop' ? 'flex justify-center' : ''}`} style={{ background: '#FAFAFA', padding: previewDevice !== 'desktop' ? '20px 0' : 0, display: 'flex', flexDirection: 'column' }}>
                         {/* Quick action bar */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'rgba(0,0,0,0.4)', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
                           <button
@@ -3743,7 +3743,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                           border: '1px solid rgba(255,255,255,0.07)',
                           borderRadius: previewDevice !== 'desktop' ? 20 : 0,
                           overflow: 'hidden',
-                          background: '#080808',
+                          background: '#FAFAFA',
                           flexShrink: 0,
                         }}>
                           <iframe
@@ -3792,7 +3792,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 {/* ── CODE TAB ── */}
                 {activeTab === 'code' && (
                   <div className="h-full flex flex-col overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-2 border-b flex-shrink-0" style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
+                    <div className="flex items-center justify-between px-4 py-2 border-b flex-shrink-0" style={{ borderColor: '#E5E7EB', background: 'rgba(255,255,255,0.02)' }}>
                       <span className="text-xs font-mono" style={{ color: 'rgba(240,237,232,0.6)' }}>store-preview.html</span>
                       <button
                         onClick={() => { copy(previewHTML, 'html-source'); toast.success('HTML copied!'); }}
@@ -3805,7 +3805,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     </div>
                     <div className="flex-1 overflow-auto" style={{ scrollbarWidth: 'thin' }}>
                       {(directHtml || rawResponse || generatedData) ? (
-                        <Suspense fallback={<pre className="text-xs p-4" style={{ color: 'rgba(240,237,232,0.7)', fontFamily: 'monospace', background: '#080a0e', minHeight: '100%' }}>{directHtml || rawResponse || previewHTML}</pre>}>
+                        <Suspense fallback={<pre className="text-xs p-4" style={{ color: 'rgba(240,237,232,0.7)', fontFamily: 'monospace', background: '#FAFAFA', minHeight: '100%' }}>{directHtml || rawResponse || previewHTML}</pre>}>
                           <SyntaxHighlighter
                             language="html"
                             style={vscDarkPlus ?? {}}
@@ -3870,7 +3870,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                                 const title = typeof f === 'string' ? f : f.title;
                                 const desc = typeof f === 'string' ? '' : f.description;
                                 return (
-                                  <div key={i} className="flex items-start gap-3 px-3 py-2.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                                  <div key={i} className="flex items-start gap-3 px-3 py-2.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}>
                                     <div className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-black" style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1' }}>{i + 1}</div>
                                     <div className="flex-1">
                                       <div className="text-sm font-semibold" style={{ color: 'rgba(240,237,232,0.85)' }}>{title}</div>
@@ -3897,7 +3897,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                             </div>
                             <div className="space-y-2">
                               {generatedData.faqs.map((f, i) => (
-                                <div key={i} className="px-3 py-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                                <div key={i} className="px-3 py-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}>
                                   <div className="text-xs font-bold mb-1" style={{ color: 'rgba(240,237,232,0.85)' }}>{f.question}</div>
                                   <div className="text-xs" style={{ color: 'rgba(240,237,232,0.5)' }}>{f.answer}</div>
                                 </div>
@@ -3917,7 +3917,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                             </div>
                             <div className="space-y-2">
                               {generatedData.testimonials.map((t, i) => (
-                                <div key={i} className="px-3 py-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderLeft: '3px solid #6366F1' }}>
+                                <div key={i} className="px-3 py-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB', borderLeft: '3px solid #6366F1' }}>
                                   <div className="text-xs italic mb-1" style={{ color: 'rgba(240,237,232,0.7)' }}>"{t.text}"</div>
                                   <div className="text-xs font-bold" style={{ color: 'rgba(240,237,232,0.4)' }}>— {t.name}, {t.location}</div>
                                 </div>
@@ -3943,7 +3943,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     ) : rawResponse ? (
                       <div>
                         <div className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Raw AI Output</div>
-                        <pre className="text-xs p-4 rounded-xl overflow-x-auto" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(240,237,232,0.6)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                        <pre className="text-xs p-4 rounded-xl overflow-x-auto" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB', color: 'rgba(240,237,232,0.6)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                           {rawResponse}
                         </pre>
                       </div>
@@ -4136,7 +4136,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     </div>
                     <div style={{ padding: '28px 32px', textAlign: 'center' }}>
                       <div style={{ fontSize: 32, marginBottom: 12 }}>&#9889;</div>
-                      <div style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: '#f0ede8', marginBottom: 8 }}>{genProgress}%</div>
+                      <div style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: '#0A0A0A', marginBottom: 8 }}>{genProgress}%</div>
                       <div style={{ fontSize: 14, color: 'rgba(240,237,232,0.6)', marginBottom: 20 }}>
                         {(() => {
                           const PM: Record<number, string> = { 5: 'Fetching product images...', 10: 'Building your brand brief...', 15: 'Warming up the AI...', 20: 'Writing your store copy...', 30: 'Crafting the hero section...', 50: 'Designing your layout...', 70: 'Adding product pages...', 90: 'Finishing touches...', 98: 'Assembling final store...', 100: 'Your store is ready!' };

@@ -70,7 +70,7 @@ export default function UpgradeModalA({
       <div
         className="relative w-full max-w-lg mx-4 rounded-2xl overflow-hidden"
         style={{
-          background: '#0f1115',
+          background: 'white',
           border: '1px solid rgba(99,102,241,0.15)',
           boxShadow: '0 24px 80px rgba(0,0,0,0.7)',
         }}
@@ -104,7 +104,7 @@ export default function UpgradeModalA({
           </div>
           <h2
             className="text-xl font-black mb-2"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+            style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
           >
             You've hit a limit
           </h2>
@@ -139,7 +139,7 @@ export default function UpgradeModalA({
               <div className="mb-3">
                 <div
                   className="text-xs font-bold mb-1"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                  style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
                 >
                   {plan.name}
                 </div>
@@ -148,7 +148,7 @@ export default function UpgradeModalA({
                     className="text-2xl font-black"
                     style={{
                       fontFamily: 'Syne, sans-serif',
-                      color: plan.popular ? '#6366F1' : '#f0ede8',
+                      color: plan.popular ? '#6366F1' : '#0A0A0A',
                     }}
                   >
                     {plan.price}
@@ -179,7 +179,7 @@ export default function UpgradeModalA({
                   background: plan.popular
                     ? 'linear-gradient(135deg, #6366F1, #f0c040)'
                     : 'rgba(255,255,255,0.06)',
-                  color: plan.popular ? '#080a0e' : '#f0ede8',
+                  color: plan.popular ? '#080a0e' : '#0A0A0A',
                   border: plan.popular ? 'none' : '1px solid rgba(255,255,255,0.1)',
                   fontFamily: 'Syne, sans-serif',
                   cursor: 'pointer',

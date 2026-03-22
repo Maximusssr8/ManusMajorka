@@ -88,7 +88,7 @@ export default function History() {
     <div
       className="h-full overflow-auto"
       style={{
-        background: '#060608',
+        background: '#FAFAFA',
         scrollbarWidth: 'thin',
         scrollbarColor: 'rgba(255,255,255,0.08) transparent',
       }}
@@ -102,7 +102,7 @@ export default function History() {
               className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
               style={{
                 background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                border: '1px solid #E5E7EB',
                 cursor: 'pointer',
                 color: '#a1a1aa',
               }}
@@ -114,7 +114,7 @@ export default function History() {
             <div>
               <h1
                 className="text-xl font-bold"
-                style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
               >
                 History
               </h1>
@@ -158,8 +158,8 @@ export default function History() {
                 className="w-full pl-8 pr-3 py-2 rounded-lg text-sm outline-none"
                 style={{
                   background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  color: '#f5f5f5',
+                  border: '1px solid #E5E7EB',
+                  color: '#374151',
                   fontFamily: 'DM Sans, sans-serif',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.3)')}
@@ -173,8 +173,8 @@ export default function History() {
                 className="px-3 py-2 rounded-lg text-sm outline-none appearance-none pr-8"
                 style={{
                   background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  color: '#f5f5f5',
+                  border: '1px solid #E5E7EB',
+                  color: '#374151',
                   fontFamily: 'DM Sans, sans-serif',
                   minWidth: 120,
                 }}
@@ -206,7 +206,7 @@ export default function History() {
             </div>
             <h2
               className="text-base font-bold mb-2"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+              style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
             >
               No history yet
             </h2>
@@ -271,7 +271,7 @@ export default function History() {
                         <div className="flex-1 min-w-0">
                           <div
                             className="text-sm font-medium truncate"
-                            style={{ color: '#f5f5f5' }}
+                            style={{ color: '#374151' }}
                           >
                             {entry.label}
                           </div>

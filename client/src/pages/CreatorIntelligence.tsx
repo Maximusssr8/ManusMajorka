@@ -127,14 +127,14 @@ function CreatorDrawer({
       <div
         ref={drawerRef}
         className="w-full max-w-md h-full overflow-y-auto flex flex-col"
-        style={{ background: '#0f1117', borderLeft: '1px solid rgba(255,255,255,0.08)' }}
+        style={{ background: 'white', borderLeft: '1px solid rgba(255,255,255,0.08)' }}
       >
         {/* Drawer header */}
         <div
           className="sticky top-0 flex items-center justify-between px-5 py-4"
-          style={{ background: '#0f1117', borderBottom: '1px solid rgba(255,255,255,0.06)', zIndex: 10 }}
+          style={{ background: 'white', borderBottom: '1px solid rgba(255,255,255,0.06)', zIndex: 10 }}
         >
-          <p className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>Creator Profile</p>
+          <p className="text-sm font-semibold" style={{ color: '#0A0A0A' }}>Creator Profile</p>
           <button onClick={onClose} style={{ color: '#64748b' }}><X size={18} /></button>
         </div>
 
@@ -147,7 +147,7 @@ function CreatorDrawer({
             />
             <div>
               <div className="flex items-center gap-1.5">
-                <p className="text-base font-semibold" style={{ color: '#e2e8f0', fontFamily: 'Syne, sans-serif' }}>
+                <p className="text-base font-semibold" style={{ color: '#0A0A0A', fontFamily: 'Syne, sans-serif' }}>
                   {creator.display_name ?? creator.username}
                 </p>
                 {creator.is_verified && <span className="text-sm" style={{ color: '#38bdf8' }}>✓</span>}
@@ -164,7 +164,7 @@ function CreatorDrawer({
           </div>
 
           {/* Revenue chart */}
-          <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}>
             <p className="text-xs mb-3" style={{ color: '#64748b' }}>8-week GMV trend</p>
             {sparkData.length > 1 ? (
               <ResponsiveContainer width="100%" height={80}>
@@ -189,7 +189,7 @@ function CreatorDrawer({
               { label: 'Items Sold', value: fmtNum(creator.items_sold_30d), highlight: false },
               { label: 'Commission', value: `${creator.commission_rate}%`, highlight: false },
             ].map((m) => (
-              <div key={m.label} className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div key={m.label} className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}>
                 <p className="text-xs" style={{ color: '#64748b' }}>{m.label}</p>
                 <p className="text-base font-semibold mt-0.5" style={{ color: m.highlight ? '#6366F1' : '#e2e8f0', fontFamily: 'Syne, sans-serif' }}>
                   {m.value}
@@ -358,10 +358,10 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
   const topEngagement = creators.length ? Math.max(...creators.map(c => c.engagement_rate)) : 0;
 
   return (
-    <div className="min-h-full" style={{ background: '#080a0e', color: '#e2e8f0' }}>
+    <div className="min-h-full" style={{ background: '#FAFAFA', color: '#0A0A0A' }}>
       <Helmet><title>Creator Intelligence | Majorka</title></Helmet>
       {/* Header */}
-      <div className="px-6 py-5 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+      <div className="px-6 py-5 border-b" style={{ borderColor: '#E5E7EB' }}>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-xl font-bold" style={{ fontFamily: 'Syne, sans-serif', color: '#fff' }}>Creator Intelligence</h1>
@@ -389,7 +389,7 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
         {/* Left sidebar filters */}
         <aside
           className="hidden lg:flex flex-col w-52 flex-shrink-0 p-4 border-r"
-          style={{ borderColor: 'rgba(255,255,255,0.06)', background: '#080a0e', minHeight: 'calc(100vh - 80px)' }}
+          style={{ borderColor: '#E5E7EB', background: '#FAFAFA', minHeight: 'calc(100vh - 80px)' }}
         >
           <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#475569' }}>Filter</p>
           <div className="space-y-1">
@@ -442,7 +442,7 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
               style={{
                 background: 'rgba(255,255,255,0.04)',
                 border: '1px solid rgba(255,255,255,0.08)',
-                color: '#e2e8f0',
+                color: '#0A0A0A',
                 outline: 'none',
                 fontFamily: 'DM Sans, sans-serif',
               }}
@@ -450,7 +450,7 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
           </div>
 
           {/* Table */}
-          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[700px]">
                 <thead>
@@ -479,7 +479,7 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
                     <tr><td colSpan={9} style={{ padding: '48px 24px', textAlign: 'center' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                         <span style={{ fontSize: 32, opacity: 0.4 }}>👥</span>
-                        <p style={{ color: '#e2e8f0', fontSize: 14, fontWeight: 600, fontFamily: 'Syne, sans-serif', margin: 0 }}>No creators found</p>
+                        <p style={{ color: '#0A0A0A', fontSize: 14, fontWeight: 600, fontFamily: 'Syne, sans-serif', margin: 0 }}>No creators found</p>
                         <p style={{ color: '#475569', fontSize: 12, margin: 0 }}>Data refreshes every 6 hours — check back soon</p>
                       </div>
                     </td></tr>
@@ -502,7 +502,7 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
                               style={{ backgroundImage: c.avatar_url ? `url(${c.avatar_url})` : undefined, background: c.avatar_url ? undefined : 'rgba(99,102,241,0.2)', minWidth: 32 }}
                             />
                             <div className="min-w-0">
-                              <p className="text-sm font-medium truncate flex items-center gap-1" style={{ color: '#e2e8f0' }}>
+                              <p className="text-sm font-medium truncate flex items-center gap-1" style={{ color: '#0A0A0A' }}>
                                 {c.display_name ?? c.username}
                                 {c.is_verified && <span className="text-xs" style={{ color: '#38bdf8' }}>✓</span>}
                               </p>
@@ -564,7 +564,7 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
       {(outreachLoading || outreachText) && selected && (
         <div
           className="fixed bottom-6 right-6 max-w-md rounded-xl p-5 shadow-2xl"
-          style={{ background: '#0f1117', border: '1px solid rgba(99,102,241,0.3)', zIndex: 60 }}
+          style={{ background: 'white', border: '1px solid rgba(99,102,241,0.3)', zIndex: 60 }}
         >
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-semibold" style={{ color: '#6366F1' }}>Outreach Pitch</p>
@@ -573,7 +573,7 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
           {outreachLoading ? (
             <p className="text-sm" style={{ color: '#94a3b8' }}>Writing pitch…</p>
           ) : (
-            <p className="text-sm whitespace-pre-wrap" style={{ color: '#e2e8f0', fontFamily: 'DM Sans, sans-serif', lineHeight: '1.6' }}>{outreachText}</p>
+            <p className="text-sm whitespace-pre-wrap" style={{ color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif', lineHeight: '1.6' }}>{outreachText}</p>
           )}
         </div>
       )}

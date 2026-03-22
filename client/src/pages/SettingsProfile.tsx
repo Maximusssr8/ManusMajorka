@@ -152,7 +152,7 @@ export default function SettingsProfile() {
 
   if (loading || !user) {
     return (
-      <div className="flex h-screen items-center justify-center" style={{ background: '#0a0b0d' }}>
+      <div className="flex h-screen items-center justify-center" style={{ background: '#FAFAFA' }}>
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm animate-pulse"
           style={{
@@ -168,9 +168,9 @@ export default function SettingsProfile() {
   }
 
   const inputClass =
-    'w-full rounded-lg px-4 py-3 text-sm bg-white/5 border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-[#6366F1]/50 transition-colors';
+    'w-full rounded-lg px-4 py-3 text-sm bg-black/[0.03] border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#6366F1]/50 transition-colors';
   const sectionCard = 'rounded-xl p-5' as const;
-  const sectionCardStyle = { background: '#0c0c10', border: '1px solid rgba(255,255,255,0.06)' };
+  const sectionCardStyle = { background: 'white', border: '1px solid #E5E7EB' };
 
   const TABS: { id: SettingsTab; label: string; icon: typeof User }[] = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -182,7 +182,7 @@ export default function SettingsProfile() {
 
   return (
     <MajorkaAppShell>
-      <div className="h-full overflow-auto" style={{ background: '#060608' }}>
+      <div className="h-full overflow-auto" style={{ background: '#FAFAFA' }}>
         <div className="max-w-3xl mx-auto px-6 py-8">
           {/* Header */}
           <div className="flex items-center gap-3 mb-6">
@@ -190,8 +190,8 @@ export default function SettingsProfile() {
               onClick={() => setLocation('/app')}
               className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
               style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: 'rgba(0,0,0,0.03)',
+                border: '1px solid #E5E7EB',
                 cursor: 'pointer',
                 color: '#a1a1aa',
               }}
@@ -384,11 +384,11 @@ export default function SettingsProfile() {
                             background:
                               form.experienceLevel === level
                                 ? 'rgba(99,102,241,0.15)'
-                                : 'rgba(255,255,255,0.03)',
+                                : 'rgba(0,0,0,0.02)',
                             borderColor:
                               form.experienceLevel === level
                                 ? 'rgba(99,102,241,0.4)'
-                                : 'rgba(255,255,255,0.1)',
+                                : '#E5E7EB',
                             color:
                               form.experienceLevel === level ? '#6366F1' : 'rgba(240,237,232,0.6)',
                             cursor: 'pointer',
@@ -416,11 +416,11 @@ export default function SettingsProfile() {
                             background:
                               form.mainGoal === goal
                                 ? 'rgba(99,102,241,0.15)'
-                                : 'rgba(255,255,255,0.03)',
+                                : 'rgba(0,0,0,0.02)',
                             borderColor:
                               form.mainGoal === goal
                                 ? 'rgba(99,102,241,0.4)'
-                                : 'rgba(255,255,255,0.1)',
+                                : '#E5E7EB',
                             color: form.mainGoal === goal ? '#6366F1' : 'rgba(240,237,232,0.6)',
                             cursor: 'pointer',
                           }}
@@ -520,7 +520,7 @@ export default function SettingsProfile() {
                   <div
                     key={key}
                     className="flex items-center justify-between py-3 px-4 rounded-lg"
-                    style={{ background: 'rgba(255,255,255,0.02)' }}
+                    style={{ background: 'rgba(0,0,0,0.02)' }}
                   >
                     <div>
                       <div className="text-sm font-medium" style={{ color: '#f5f5f5' }}>
@@ -536,7 +536,7 @@ export default function SettingsProfile() {
                       style={{
                         background: emailNotifs[key]
                           ? 'rgba(99,102,241,0.3)'
-                          : 'rgba(255,255,255,0.1)',
+                          : 'rgba(0,0,0,0.1)',
                         border: 'none',
                         cursor: 'pointer',
                       }}
@@ -606,13 +606,13 @@ export default function SettingsProfile() {
                 onClick={() => setLocation('/account')}
                 className="w-full flex items-center justify-between rounded-xl p-4 transition-all"
                 style={{
-                  background: '#0c0c10',
-                  border: '1px solid rgba(255,255,255,0.06)',
+                  background: 'white',
+                  border: '1px solid #E5E7EB',
                   cursor: 'pointer',
                   color: '#f5f5f5',
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.2)')}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)')}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#E5E7EB')}
               >
                 <div className="flex items-center gap-3">
                   <CreditCard size={16} style={{ color: '#6366F1' }} />
@@ -644,17 +644,17 @@ export default function SettingsProfile() {
                         key={key}
                         className="flex items-center justify-between px-4 py-3 rounded-lg"
                         style={{
-                          background: 'rgba(255,255,255,0.02)',
-                          border: '1px solid rgba(255,255,255,0.06)',
+                          background: 'rgba(0,0,0,0.02)',
+                          border: '1px solid #E5E7EB',
                         }}
                       >
                         <div
                           className="h-3 w-32 rounded animate-pulse"
-                          style={{ background: 'rgba(255,255,255,0.08)' }}
+                          style={{ background: 'rgba(0,0,0,0.06)' }}
                         />
                         <div
                           className="h-5 w-5 rounded animate-pulse"
-                          style={{ background: 'rgba(255,255,255,0.08)' }}
+                          style={{ background: 'rgba(0,0,0,0.06)' }}
                         />
                       </div>
                     ))
@@ -663,8 +663,8 @@ export default function SettingsProfile() {
                         key={key}
                         className="flex items-center justify-between px-4 py-3 rounded-lg"
                         style={{
-                          background: 'rgba(255,255,255,0.02)',
-                          border: '1px solid rgba(255,255,255,0.06)',
+                          background: 'rgba(0,0,0,0.02)',
+                          border: '1px solid #E5E7EB',
                         }}
                       >
                         <span className="text-sm" style={{ color: 'rgba(240,237,232,0.8)' }}>

@@ -211,7 +211,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
   const inputStyle = {
     background: 'rgba(255,255,255,0.04)',
     border: '1.5px solid rgba(255,255,255,0.08)',
-    color: '#f0ede8',
+    color: '#0A0A0A',
     fontFamily: 'DM Sans, sans-serif',
   };
 
@@ -225,19 +225,19 @@ Return ONLY the updated JSON. Same structure, better content.`,
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden" style={{ background: '#080a0e' }}>
+    <div className="h-full flex flex-col overflow-hidden" style={{ background: '#FAFAFA' }}>
       <ActiveProductBanner />
 
       <div className="flex-1 flex overflow-hidden">
         {/* ── LEFT PANEL: Inputs ── */}
         <div
           className="w-80 flex-shrink-0 border-r overflow-y-auto p-4 space-y-4"
-          style={{ borderColor: 'rgba(255,255,255,0.06)', scrollbarWidth: 'thin' }}
+          style={{ borderColor: '#E5E7EB', scrollbarWidth: 'thin' }}
         >
           <div>
             <h1
               className="text-lg font-black flex items-center gap-2"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+              style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
             >
               <Smartphone size={18} style={{ color: '#6366F1' }} />
               TikTok Slides
@@ -367,7 +367,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
           {result && (
             <div
               className="space-y-2 pt-2"
-              style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+              style={{ borderTop: '1px solid #E5E7EB' }}
             >
               <button
                 onClick={handleCopyAll}
@@ -449,7 +449,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block rounded-lg overflow-hidden"
-                        style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+                        style={{ border: '1px solid #E5E7EB' }}
                       >
                         <img
                           src={photo.src.tiny}
@@ -484,7 +484,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
               {/* Slide preview */}
               <div
                 className="flex-1 flex items-center justify-center p-6"
-                style={{ background: '#050507' }}
+                style={{ background: '#FAFAFA' }}
               >
                 <div className="relative flex flex-col items-center">
                   {/* Toggle 9:16 preview */}
@@ -565,7 +565,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                       className="p-2 rounded-full transition-all disabled:opacity-20"
                       style={{
                         background: 'rgba(255,255,255,0.06)',
-                        color: '#f0ede8',
+                        color: '#0A0A0A',
                         cursor: 'pointer',
                         border: 'none',
                       }}
@@ -599,7 +599,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                       className="p-2 rounded-full transition-all disabled:opacity-20"
                       style={{
                         background: 'rgba(255,255,255,0.06)',
-                        color: '#f0ede8',
+                        color: '#0A0A0A',
                         cursor: 'pointer',
                         border: 'none',
                       }}
@@ -623,7 +623,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
               {/* Bottom panel: Captions + extras */}
               <div
                 className="flex-shrink-0 border-t p-4 overflow-y-auto"
-                style={{ borderColor: 'rgba(255,255,255,0.06)', maxHeight: 220 }}
+                style={{ borderColor: '#E5E7EB', maxHeight: 220 }}
               >
                 <div className="grid grid-cols-2 gap-4">
                   {/* Captions */}
@@ -729,7 +729,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                 </div>
                 <h2
                   className="text-base font-black mb-2"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                  style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
                 >
                   No slideshow yet
                 </h2>

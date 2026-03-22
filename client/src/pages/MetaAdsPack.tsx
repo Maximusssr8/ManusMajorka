@@ -59,8 +59,8 @@ function CopyBtn({ text, label = 'Copy' }: { text: string; label?: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? 'rgba(45,202,114,0.1)' : 'rgba(255,255,255,0.05)',
-        border: `1px solid ${copied ? 'rgba(45,202,114,0.3)' : 'rgba(255,255,255,0.08)'}`,
+        background: copied ? 'rgba(45,202,114,0.1)' : 'rgba(0,0,0,0.04)',
+        border: `1px solid ${copied ? 'rgba(45,202,114,0.3)' : '#E5E7EB'}`,
         color: copied ? 'rgba(45,202,114,0.8)' : 'rgba(240,237,232,0.45)',
         cursor: 'pointer',
       }}
@@ -109,7 +109,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-black leading-tight"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+            style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
           >
             {angle.angle}
           </div>
@@ -121,7 +121,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
           <span
             className="text-xs px-2 py-0.5 rounded-full font-semibold"
             style={{
-              background: 'rgba(255,255,255,0.06)',
+              background: 'rgba(0,0,0,0.04)',
               color: 'rgba(240,237,232,0.45)',
               fontFamily: 'Syne, sans-serif',
             }}
@@ -138,7 +138,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
       </div>
       {expanded && (
         <div className="px-4 pb-4 space-y-4">
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
+          <div style={{ height: 1, background: 'rgba(0,0,0,0.04)' }} />
           <div>
             <div className="flex items-center justify-between mb-2">
               <div
@@ -154,7 +154,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
               style={{
                 background: 'rgba(0,0,0,0.2)',
                 color: 'rgba(240,237,232,0.85)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                border: '1px solid #E5E7EB',
               }}
             >
               {angle.hook}
@@ -184,7 +184,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
                     style={{
                       background: 'rgba(0,0,0,0.2)',
                       color: 'rgba(240,237,232,0.75)',
-                      border: '1px solid rgba(255,255,255,0.06)',
+                      border: '1px solid #E5E7EB',
                       whiteSpace: 'pre-wrap',
                     }}
                   >
@@ -211,7 +211,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
                   className="flex items-center gap-2 p-2.5 rounded-lg"
                   style={{
                     background: 'rgba(0,0,0,0.15)',
-                    border: '1px solid rgba(255,255,255,0.05)',
+                    border: '1px solid #E5E7EB',
                   }}
                 >
                   <span
@@ -241,7 +241,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
                 style={{
                   background: 'rgba(0,0,0,0.15)',
                   color: 'rgba(240,237,232,0.65)',
-                  border: '1px solid rgba(255,255,255,0.05)',
+                  border: '1px solid #E5E7EB',
                 }}
               >
                 {angle.creativeBrief}
@@ -259,7 +259,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
                 style={{
                   background: 'rgba(0,0,0,0.15)',
                   color: 'rgba(240,237,232,0.65)',
-                  border: '1px solid rgba(255,255,255,0.05)',
+                  border: '1px solid #E5E7EB',
                 }}
               >
                 {angle.targetAudience}
@@ -430,12 +430,12 @@ export default function MetaAdsPack() {
   return (
     <div
       className="h-full flex flex-col"
-      style={{ background: '#080a0e', color: '#f0ede8', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
     >
       {/* Top bar */}
       <div
         className="flex items-center gap-3 px-5 py-3 border-b flex-shrink-0"
-        style={{ borderColor: 'rgba(255,255,255,0.07)', background: '#0c0e12' }}
+        style={{ borderColor: '#E5E7EB', background: 'white' }}
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -478,14 +478,14 @@ export default function MetaAdsPack() {
         {/* LEFT: Input panel */}
         <div
           className="w-full lg:w-72 flex-shrink-0 overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 space-y-4"
-          style={{ borderColor: 'rgba(255,255,255,0.07)' }}
+          style={{ borderColor: '#E5E7EB' }}
         >
           {/* URL Import */}
           <div
             className="rounded-xl p-3"
             style={{
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,255,255,0.07)',
+              background: 'rgba(0,0,0,0.02)',
+              border: '1px solid #E5E7EB',
             }}
           >
             <div
@@ -502,9 +502,9 @@ export default function MetaAdsPack() {
                 placeholder="Paste AliExpress / Amazon URL…"
                 className="flex-1 text-xs px-2.5 py-2 rounded-lg outline-none"
                 style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.09)',
-                  color: '#f0ede8',
+                  background: 'rgba(0,0,0,0.03)',
+                  border: '1px solid #E5E7EB',
+                  color: '#0A0A0A',
                 }}
               />
               <button
@@ -551,9 +551,9 @@ export default function MetaAdsPack() {
                   placeholder="e.g. Posture Corrector Belt"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#f0ede8',
+                    background: 'rgba(0,0,0,0.03)',
+                    border: '1px solid #E5E7EB',
+                    color: '#0A0A0A',
                   }}
                 />
               </div>
@@ -570,9 +570,9 @@ export default function MetaAdsPack() {
                   placeholder="e.g. 49.99"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#f0ede8',
+                    background: 'rgba(0,0,0,0.03)',
+                    border: '1px solid #E5E7EB',
+                    color: '#0A0A0A',
                   }}
                 />
               </div>
@@ -590,9 +590,9 @@ export default function MetaAdsPack() {
                   rows={4}
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none resize-none"
                   style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#f0ede8',
+                    background: 'rgba(0,0,0,0.03)',
+                    border: '1px solid #E5E7EB',
+                    color: '#0A0A0A',
                   }}
                 />
               </div>
@@ -620,9 +620,9 @@ export default function MetaAdsPack() {
                   placeholder="e.g. Women 25-45, back pain sufferers"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#f0ede8',
+                    background: 'rgba(0,0,0,0.03)',
+                    border: '1px solid #E5E7EB',
+                    color: '#0A0A0A',
                   }}
                 />
               </div>
@@ -639,9 +639,9 @@ export default function MetaAdsPack() {
                   placeholder="e.g. 50"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#f0ede8',
+                    background: 'rgba(0,0,0,0.03)',
+                    border: '1px solid #E5E7EB',
+                    color: '#0A0A0A',
                   }}
                 />
               </div>
@@ -754,8 +754,8 @@ export default function MetaAdsPack() {
                       key={i}
                       className="flex items-center gap-3 text-xs p-3 rounded-xl"
                       style={{
-                        background: 'rgba(255,255,255,0.03)',
-                        border: '1px solid rgba(255,255,255,0.06)',
+                        background: 'rgba(0,0,0,0.02)',
+                        border: '1px solid #E5E7EB',
                         color: 'rgba(240,237,232,0.5)',
                       }}
                     >
@@ -817,8 +817,8 @@ export default function MetaAdsPack() {
                     }}
                     className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg"
                     style={{
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1px solid rgba(255,255,255,0.08)',
+                      background: 'rgba(0,0,0,0.03)',
+                      border: '1px solid #E5E7EB',
                       color: 'rgba(240,237,232,0.4)',
                       cursor: 'pointer',
                     }}
@@ -837,8 +837,8 @@ export default function MetaAdsPack() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.07)',
+                  background: 'rgba(0,0,0,0.02)',
+                  border: '1px solid #E5E7EB',
                 }}
               >
                 <div className="flex items-center justify-between mb-3">
@@ -919,8 +919,8 @@ export default function MetaAdsPack() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.07)',
+                    background: 'rgba(0,0,0,0.02)',
+                    border: '1px solid #E5E7EB',
                   }}
                 >
                   <div
@@ -939,8 +939,8 @@ export default function MetaAdsPack() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.07)',
+                    background: 'rgba(0,0,0,0.02)',
+                    border: '1px solid #E5E7EB',
                   }}
                 >
                   <div

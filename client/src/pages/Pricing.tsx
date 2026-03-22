@@ -8,12 +8,12 @@ import { useAuth } from '@/contexts/AuthContext';
 
 // ── Design tokens ───────────────────────────────────────────────────────────
 const C = {
-  bg: '#060608',
-  card: '#0c0c10',
-  elevated: '#131318',
-  border: 'rgba(255,255,255,0.06)',
+  bg: '#FAFAFA',
+  card: 'white',
+  elevated: '#F9FAFB',
+  border: '#E5E7EB',
   borderHover: 'rgba(99,102,241,0.3)',
-  text: '#f5f5f5',
+  text: '#374151',
   secondary: '#94949e',
   muted: '#52525b',
   gold: '#6366F1',
@@ -43,7 +43,7 @@ function LockedToolOverlay({ toolName }: { toolName: string }) {
       }}
     >
       <span style={{ fontSize: 24 }}>🔒</span>
-      <p style={{ fontFamily: syne, fontWeight: 700, color: '#f5f5f5', fontSize: 14 }}>
+      <p style={{ fontFamily: syne, fontWeight: 700, color: '#374151', fontSize: 14 }}>
         {toolName}
       </p>
       <p style={{ color: '#94949e', fontSize: 12, marginBottom: 8 }}>Builder plan required</p>
@@ -417,7 +417,7 @@ function SavingsCalculator() {
       <div style={{
         maxWidth: 860,
         margin: '0 auto',
-        background: '#0c0c10',
+        background: 'white',
         border: '1px solid rgba(99,102,241,0.2)',
         borderRadius: 20,
         padding: '40px 36px',
@@ -427,7 +427,7 @@ function SavingsCalculator() {
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent, #6366F1, transparent)' }} />
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{ fontSize: 24, marginBottom: 8 }}>💸</div>
-          <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', color: '#f5f5f5', letterSpacing: '-0.02em', marginBottom: 6 }}>
+          <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', color: '#374151', letterSpacing: '-0.02em', marginBottom: 6 }}>
             HOW MUCH IS ONE BAD PRODUCT DECISION COSTING YOU?
           </h2>
           <p style={{ fontSize: 14, color: '#94949e' }}>Drag the slider to see your real numbers</p>
@@ -828,7 +828,7 @@ export default function Pricing() {
         <div style={{ marginBottom: 48, textAlign: 'center', maxWidth: 1050, margin: '0 auto', paddingBottom: 48 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 20 }}>
             <div style={{ fontSize: 18, color: '#6366F1' }}>★★★★★</div>
-            <span style={{ fontSize: 14, fontWeight: 700, color: '#f5f5f5' }}>4.9/5</span>
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#374151' }}>4.9/5</span>
             <span style={{ fontSize: 13, color: 'rgba(240,237,232,0.4)' }}>from 200+ AU dropshippers</span>
           </div>
           <div className="pricing-testimonials" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, maxWidth: 760, margin: '0 auto' }}>
@@ -839,7 +839,7 @@ export default function Pricing() {
             ].map(t => (
               <div key={t.name} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '16px', textAlign: 'left' }}>
                 <p style={{ fontSize: 13, color: 'rgba(240,237,232,0.7)', lineHeight: 1.6, marginBottom: 12, fontStyle: 'italic' }}>"{t.quote}"</p>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#f5f5f5' }}>{t.name}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>{t.name}</div>
                 <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)' }}>{t.city}</div>
               </div>
             ))}

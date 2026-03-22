@@ -57,7 +57,7 @@ const ANGLE_COLORS: Record<string, string> = {
 
 function AdCard({ ad }: { ad: AdSet }) {
   const [open, setOpen] = useState(false);
-  const colorClass = ANGLE_COLORS[ad.angle] || 'border-neutral-800 bg-neutral-900/50';
+  const colorClass = ANGLE_COLORS[ad.angle] || 'border-gray-200 bg-gray-50';
   const copy = (t: string) => {
     navigator.clipboard.writeText(t);
     toast.success('Copied!');
@@ -207,7 +207,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
               onChange={(e) => setProductDesc(e.target.value)}
               placeholder="Describe your product..."
               rows={4}
-              className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-white text-sm resize-none focus:outline-none focus:border-[#6366F1]"
+              className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 text-sm resize-none focus:outline-none focus:border-[#6366F1]"
             />
           </div>
           <div>
@@ -236,7 +236,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
                 value={budget}
                 onChange={(e) => setBudget(e.target.value)}
                 type="number"
-                className="pl-7 bg-neutral-900 border-neutral-700 text-white"
+                className="pl-7 bg-white border-gray-300 text-gray-900"
               />
             </div>
           </div>
@@ -449,7 +449,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
                       ['10-15s CTA', campaign.video_script.cta_5s],
                       ['Caption', campaign.video_script.caption],
                     ].map(([label, val]) => (
-                      <div key={label} className="bg-neutral-900 rounded-lg p-3">
+                      <div key={label} className="bg-gray-50 rounded-lg p-3">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-xs text-neutral-500 uppercase">{label}</span>
                           <button
@@ -492,7 +492,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
                   </div>
                 </div>
                 {campaign.targeting.lookalike_note && (
-                  <p className="mt-4 text-neutral-400 text-sm bg-neutral-900 rounded-lg p-3">
+                  <p className="mt-4 text-neutral-500 text-sm bg-gray-50 rounded-lg p-3">
                     💡 {campaign.targeting.lookalike_note}
                   </p>
                 )}

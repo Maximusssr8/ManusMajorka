@@ -179,7 +179,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
   const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong'];
 
   return (
-    <div className={cn('flex w-full min-h-screen', className)} style={{ background: '#080a0e' }}>
+    <div className={cn('flex w-full min-h-screen', className)} style={{ background: '#FAFAFA' }}>
       {/* ── Left panel: Brand + Social Proof (desktop only) ──────────── */}
       <div className="hidden lg:flex flex-col justify-between w-[480px] xl:w-[520px] flex-shrink-0 p-10 relative overflow-hidden">
         {/* Background glow */}
@@ -222,7 +222,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
           {/* Brand statement */}
           <h2
             className="text-3xl font-bold leading-tight mb-4"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5', letterSpacing: '-0.02em' }}
+            style={{ fontFamily: 'Syne, sans-serif', color: '#374151', letterSpacing: '-0.02em' }}
           >
             Your AI ecommerce
             <br />
@@ -266,14 +266,14 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                 className="rounded-xl p-3"
                 style={{
                   background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.06)',
+                  border: '1px solid #E5E7EB',
                 }}
               >
                 <div className="flex items-center gap-2 mb-1">
                   <Icon size={13} style={{ color: '#6366F1' }} />
                   <span
                     className="text-lg font-bold"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                    style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
                   >
                     {stat}
                   </span>
@@ -353,7 +353,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                   style={{
                     background: 'rgba(255,255,255,0.06)',
                     border: '1px solid rgba(255,255,255,0.12)',
-                    color: '#f5f5f5',
+                    color: '#374151',
                     cursor: loading ? 'wait' : 'pointer',
                   }}
                   onMouseEnter={(e) => {
@@ -414,7 +414,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                       style={{
                         background: 'rgba(255,255,255,0.04)',
                         border: '1px solid rgba(255,255,255,0.1)',
-                        color: '#f5f5f5',
+                        color: '#374151',
                       }}
                       onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.4)')}
                       onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
@@ -439,7 +439,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                         style={{
                           background: 'rgba(255,255,255,0.04)',
                           border: '1px solid rgba(255,255,255,0.1)',
-                          color: '#f5f5f5',
+                          color: '#374151',
                         }}
                         onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.4)')}
                         onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}

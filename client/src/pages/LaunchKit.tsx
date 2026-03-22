@@ -210,7 +210,7 @@ function ResultSection({ step }: { step: LaunchKitStep }) {
         </div>
       </button>
       {open && (
-        <div className="px-5 py-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="px-5 py-4" style={{ borderTop: '1px solid #E5E7EB' }}>
           <Markdown className="text-sm" shikiTheme={['github-dark', 'github-dark']}>
             {step.result}
           </Markdown>
@@ -382,14 +382,14 @@ function LaunchKitContent() {
   const hasAnyDone = completedCount > 0;
 
   return (
-    <div className="flex h-full overflow-hidden" style={{ background: '#0a0a0a' }}>
+    <div className="flex h-full overflow-hidden" style={{ background: '#FAFAFA' }}>
       {/* ── Left Panel ── */}
       <div
         className="flex flex-col flex-shrink-0 overflow-y-auto"
         style={{
           width: 288,
-          background: '#0d0d0d',
-          borderRight: '1px solid rgba(255,255,255,0.07)',
+          background: '#FAFAFA',
+          borderRight: '1px solid #E5E7EB',
           scrollbarWidth: 'thin',
           scrollbarColor: 'rgba(255,255,255,0.08) transparent',
         }}
@@ -397,7 +397,7 @@ function LaunchKitContent() {
         {/* Header */}
         <div
           className="px-5 pt-6 pb-4"
-          style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}
+          style={{ borderBottom: '1px solid #E5E7EB' }}
         >
           <div className="flex items-center gap-2 mb-1">
             <Rocket size={14} style={{ color: '#f59e0b' }} />
@@ -410,7 +410,7 @@ function LaunchKitContent() {
           </div>
           <h1
             className="text-lg font-black"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5', letterSpacing: '-0.02em' }}
+            style={{ fontFamily: 'Syne, sans-serif', color: '#374151', letterSpacing: '-0.02em' }}
           >
             Launch Kit
           </h1>
@@ -420,7 +420,7 @@ function LaunchKitContent() {
         </div>
 
         {/* Active product status */}
-        <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="px-4 py-3" style={{ borderBottom: '1px solid #E5E7EB' }}>
           {activeProduct ? (
             <div
               className="flex items-center gap-2 px-3 py-2 rounded-xl"
@@ -432,7 +432,7 @@ function LaunchKitContent() {
               <Package size={12} style={{ color: '#f59e0b', flexShrink: 0 }} />
               <span
                 className="text-xs font-bold truncate"
-                style={{ color: '#f5f5f5', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#374151', fontFamily: 'Syne, sans-serif' }}
               >
                 {activeProduct.name}
               </span>
@@ -557,12 +557,12 @@ function LaunchKitContent() {
         {/* Top bar */}
         <div
           className="flex items-center justify-between px-6 py-3.5 flex-shrink-0"
-          style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', background: '#0a0a0a' }}
+          style={{ borderBottom: '1px solid #E5E7EB', background: '#FAFAFA' }}
         >
           <div>
             <h2
               className="text-base font-black"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+              style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
             >
               {activeProduct ? `Launch Kit — ${activeProduct.name}` : 'Launch Kit'}
             </h2>
@@ -633,7 +633,7 @@ function LaunchKitContent() {
               </div>
               <h3
                 className="text-2xl font-black mb-2"
-                style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
               >
                 Your Launch Kit awaits
               </h3>
@@ -671,7 +671,7 @@ function LaunchKitContent() {
                     className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
                     style={{
                       background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.07)',
+                      border: '1px solid #E5E7EB',
                     }}
                   >
                     <span className="text-base">{icon}</span>
@@ -753,7 +753,7 @@ function LaunchKitContent() {
                   <Check size={16} style={{ color: '#f59e0b' }} />
                   <p
                     className="text-sm font-bold"
-                    style={{ color: '#f5f5f5', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#374151', fontFamily: 'Syne, sans-serif' }}
                   >
                     Launch Kit complete! Click "Copy All" to export.
                   </p>

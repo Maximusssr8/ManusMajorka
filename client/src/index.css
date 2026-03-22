@@ -94,10 +94,10 @@ button, [role="button"] {
 :root {
   --radius: 0.625rem;
   /* Surface elevation scale */
-  --surface-0: #080a0e;
-  --surface-1: #0d1117;
-  --surface-2: #141922;
-  --surface-3: #1e2530;
+  --surface-0: #FAFAFA;
+  --surface-1: #FFFFFF;
+  --surface-2: #F3F4F6;
+  --surface-3: #E5E7EB;
   --surface-border: rgba(99, 102, 241, 0.12);
   --surface-border-hover: rgba(99, 102, 241, 0.35);
   --gold: #6366F1;
@@ -560,9 +560,7 @@ textarea {
 ══════════════════════════════════════════════════ */
 
 .dashboard-bg {
-  background: #080a0e;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
-  background-size: 32px 32px;
+  background: #F9FAFB;
 }
 
 /* ── Mobile responsive utilities ── */
