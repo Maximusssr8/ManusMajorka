@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
-import ProductInput from '@/components/store-builder/ProductInput';
-import BlueprintPreview from '@/components/store-builder/BlueprintPreview';
-import ShopifyConnect from '@/components/store-builder/ShopifyConnect';
-import PushSuccess from '@/components/store-builder/PushSuccess';
 
 const STEP_LABELS = ['Choose a Template', 'Pick Your Niche', 'Customise Your Store', 'Connect & Launch'];
 const accent = '#6366F1';
@@ -190,6 +186,41 @@ const TEMPLATES: StoreTemplate[] = [
     aov: "$25–$75",
     cr: "3.9%",
   },
+  {
+    id: "noir",
+    name: "Noir",
+    niche: "Photography & Creative",
+    description: "Moody, high-contrast editorial. Dramatic black and white with single bold accent color.",
+    accentColor: "#DC2626",
+    bgGradient: "linear-gradient(135deg, #0a0a0a 0%, #171717 100%)",
+    tags: ["Photography", "Creative", "Art"],
+    aov: "$95–$350",
+    cr: "2.4%",
+  },
+  {
+    id: "sunrise",
+    name: "Sunrise",
+    niche: "Coffee & Beverages",
+    description: "Warm, energetic morning aesthetic. Perfect for coffee, tea, and beverage brands.",
+    accentColor: "#EA580C",
+    bgGradient: "linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)",
+    tags: ["Coffee", "Tea", "Beverages"],
+    aov: "$45–$95",
+    cr: "4.0%",
+  },
+];
+
+// ── Niche data ────────────────────────────────────────────────
+
+const NICHES = [
+  { id: "pets", emoji: "\u{1F43E}", label: "Pet Accessories", examples: "Collars, beds, toys, grooming" },
+  { id: "kitchen", emoji: "\u{1F3E0}", label: "Kitchen & Home", examples: "Gadgets, organizers, decor" },
+  { id: "fitness", emoji: "\u{1F4AA}", label: "Fitness & Wellness", examples: "Resistance bands, yoga, supplements" },
+  { id: "beauty", emoji: "\u2728", label: "Beauty & Skincare", examples: "Serums, tools, makeup accessories" },
+  { id: "tech", emoji: "\u{1F4F1}", label: "Tech Gadgets", examples: "Wireless, smart home, accessories" },
+  { id: "outdoor", emoji: "\u{1F3D5}\uFE0F", label: "Outdoor & Adventure", examples: "Camping, hiking, water sports" },
+  { id: "baby", emoji: "\u{1F476}", label: "Baby & Kids", examples: "Toys, clothes, nursery" },
+  { id: "fashion", emoji: "\u{1F45C}", label: "Fashion Accessories", examples: "Jewellery, bags, sunglasses" },
 ];
 
 // ── Template Card ──────────────────────────────────────────────
@@ -200,52 +231,63 @@ function TemplateCard({ template, selected, onClick }: { template: StoreTemplate
       onClick={onClick}
       style={{
         borderRadius: 16,
-        border: selected ? "2px solid #6366F1" : "2px solid transparent",
+        border: selected ? "2px solid #6366F1" : "2px solid #F0F0F0",
         boxShadow: selected
-          ? "0 0 0 4px rgba(99,102,241,0.12), 0 8px 24px rgba(99,102,241,0.15)"
-          : "0 2px 8px rgba(0,0,0,0.06)",
+          ? "0 0 0 4px rgba(99,102,241,0.12), 0 12px 32px rgba(99,102,241,0.12)"
+          : "0 2px 8px rgba(0,0,0,0.04)",
         cursor: "pointer",
         overflow: "hidden",
-        transition: "all 200ms cubic-bezier(0.4,0,0.2,1)",
+        transition: "all 250ms cubic-bezier(0.4,0,0.2,1)",
         background: "white",
         position: "relative" as const,
       }}
       onMouseEnter={e => {
-        if (!selected) e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.1)";
-        e.currentTarget.style.transform = "translateY(-3px)";
+        e.currentTarget.style.transform = "translateY(-4px)";
+        if (!selected) e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.10)";
       }}
       onMouseLeave={e => {
-        if (!selected) e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)";
         e.currentTarget.style.transform = "translateY(0)";
+        if (!selected) e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)";
       }}
     >
-      {/* Preview area */}
-      <div style={{ height: 120, background: template.bgGradient, position: "relative", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-        <div style={{ textAlign: "center" as const }}>
-          <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 18, color: template.accentColor, marginBottom: 4, textShadow: "0 1px 2px rgba(0,0,0,0.1)" }}>{template.name}</div>
-          <div style={{ width: 48, height: 3, background: template.accentColor, borderRadius: 999, margin: "0 auto 8px" }} />
-          <div style={{ width: 80, height: 8, background: `${template.accentColor}40`, borderRadius: 4, margin: "0 auto 4px" }} />
-          <div style={{ width: 56, height: 8, background: `${template.accentColor}25`, borderRadius: 4, margin: "0 auto" }} />
+      {/* Preview panel */}
+      <div style={{ height: 180, background: template.bgGradient, position: "relative", padding: 14, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 13, color: template.accentColor, letterSpacing: "0.04em" }}>STORE</div>
+          <div style={{ fontSize: 9, color: template.accentColor, opacity: 0.7 }}>Shop · About · Cart</div>
+        </div>
+        <div>
+          <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 16, color: template.accentColor, marginBottom: 8, lineHeight: 1.2 }}>Featured Collection</div>
+          <div style={{ display: "inline-block", background: template.accentColor, color: "white", fontSize: 10, fontWeight: 700, padding: "4px 12px", borderRadius: 4 }}>
+            Shop Now
+          </div>
         </div>
         {selected && (
-          <div style={{ position: "absolute", top: 10, right: 10, width: 24, height: 24, borderRadius: "50%", background: "#6366F1", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700 }}>✓</div>
+          <div style={{ position: "absolute", inset: 0, background: "rgba(99,102,241,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#6366F1", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 18, fontWeight: 700 }}>{"\u2713"}</div>
+          </div>
         )}
-        <div style={{ position: "absolute", bottom: 8, left: 8, background: "rgba(0,0,0,0.6)", color: "white", fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 4 }}>
+        <div style={{ position: "absolute", top: 10, right: 10, background: "rgba(0,0,0,0.6)", color: "white", fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 4 }}>
           {template.cr} CR
         </div>
       </div>
-      {/* Info area */}
+
+      {/* Info panel */}
       <div style={{ padding: "14px 16px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 2 }}>
           <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 15, color: "#0A0A0A" }}>{template.name}</div>
-          <div style={{ fontSize: 10, color: "#6B7280", whiteSpace: "nowrap" as const }}>AOV {template.aov}</div>
+          <div style={{ fontSize: 11, color: "#9CA3AF", whiteSpace: "nowrap" as const, marginLeft: 8 }}>AOV {template.aov}</div>
         </div>
-        <div style={{ fontSize: 11, color: "#9CA3AF", marginBottom: 8 }}>{template.niche}</div>
-        <div style={{ fontSize: 12, color: "#6B7280", lineHeight: 1.5, marginBottom: 10 }}>{template.description}</div>
-        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" as const }}>
+        <div style={{ fontSize: 10, color: "#9CA3AF", textTransform: "uppercase" as const, letterSpacing: "0.08em", marginBottom: 6 }}>{template.niche}</div>
+        <div style={{ fontSize: 12, color: "#6B7280", lineHeight: 1.55, marginBottom: 10 }}>{template.description}</div>
+        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" as const, marginBottom: 10 }}>
           {template.tags.map(tag => (
             <span key={tag} style={{ fontSize: 10, fontWeight: 600, color: "#6366F1", background: "#EEF2FF", padding: "2px 7px", borderRadius: 999 }}>{tag}</span>
           ))}
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 10, borderTop: "1px solid #F5F5F5", fontSize: 12, fontWeight: 600, color: "#374151" }}>
+          <span>AOV {template.aov}</span>
+          <span>CR ~{template.cr}</span>
         </div>
       </div>
     </div>
@@ -255,43 +297,57 @@ function TemplateCard({ template, selected, onClick }: { template: StoreTemplate
 // ── Main component ─────────────────────────────────────────────
 
 export default function StoreBuilder() {
-  // Steps: 1=Template, 2=Niche/Product, 3=Blueprint, 4=Connect, 5=Success
-  const [step, setStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0);
   const [selectedTemplate, setSelectedTemplate] = useState('');
-  const [blueprint, setBlueprint] = useState<Record<string, any> | null>(null);
-  const [selectedStoreName, setSelectedStoreName] = useState('');
-  const [pushResult, setPushResult] = useState<Record<string, any> | null>(null);
-  const [oauthConnected, setOauthConnected] = useState(false);
+  const [selectedNiche, setSelectedNiche] = useState('');
+  const [customNiche, setCustomNiche] = useState('');
+  const [storeName, setStoreName] = useState('');
+  const [storeTagline, setStoreTagline] = useState('');
+  const [templateSearch, setTemplateSearch] = useState('');
+  const [templateFilter, setTemplateFilter] = useState('All');
+  const [buildState, setBuildState] = useState<'idle' | 'building' | 'done'>('idle');
+  const [buildStep, setBuildStep] = useState(0);
   const { session } = useAuth();
-
-  const [urlProduct] = useState(() => new URLSearchParams(window.location.search).get('product') || '');
-  const [urlNiche] = useState(() => new URLSearchParams(window.location.search).get('niche') || '');
-  const [urlPrice] = useState(() => new URLSearchParams(window.location.search).get('price') || '');
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('connected') === 'true') {
-      setStep(4);
-      setOauthConnected(true);
+      setCurrentStep(3);
       window.history.replaceState({}, '', '/store-builder');
     }
-    const oauthError = params.get('error');
-    if (oauthError) {
-      console.warn('[StoreBuilder] OAuth error:', oauthError);
+    if (params.get('error')) {
+      console.warn('[StoreBuilder] OAuth error:', params.get('error'));
     }
   }, []);
 
-  const handleReset = () => {
-    setStep(1);
-    setSelectedTemplate('');
-    setBlueprint(null);
-    setPushResult(null);
-    setSelectedStoreName('');
-    setOauthConnected(false);
-  };
+  const filteredTemplates = TEMPLATES.filter(t => {
+    const matchSearch = templateSearch === '' ||
+      t.name.toLowerCase().includes(templateSearch.toLowerCase()) ||
+      t.niche.toLowerCase().includes(templateSearch.toLowerCase());
+    const matchFilter = templateFilter === 'All' ||
+      t.tags.some(tag => tag.toLowerCase().includes(templateFilter.toLowerCase()));
+    return matchSearch && matchFilter;
+  });
 
-  // Map internal step (1-5) to display step (0-3)
-  const displayStep = step <= 1 ? 0 : step <= 2 ? 1 : step <= 3 ? 2 : 3;
+  const selectedTpl = TEMPLATES.find(t => t.id === selectedTemplate);
+
+  const BUILD_STEPS = [
+    "Selecting products for your niche...",
+    "Writing product descriptions...",
+    "Configuring theme and colours...",
+    "Setting up pages and navigation...",
+    "Finalising store settings...",
+    "Store ready! \u{1F389}",
+  ];
+
+  const startBuild = () => {
+    setBuildState('building');
+    setBuildStep(0);
+    BUILD_STEPS.forEach((_, i) => {
+      setTimeout(() => setBuildStep(i), i * 1800);
+    });
+    setTimeout(() => setBuildState('done'), BUILD_STEPS.length * 1800);
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: '#FAFAFA', color: '#0A0A0A', fontFamily: "'DM Sans', sans-serif" }}>
@@ -305,35 +361,36 @@ export default function StoreBuilder() {
           .sb-step-label { display: none !important; }
           .sb-content { padding: 24px 16px 80px !important; }
           .sb-template-grid { grid-template-columns: 1fr !important; }
+          .sb-customise-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
       {/* Top bar */}
-      <div className="sb-topbar" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="sb-topbar" style={{ borderBottom: '1px solid #E5E7EB', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'white' }}>
         <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 18, color: accent, letterSpacing: '-0.02em' }}>
-          🏪 Store Builder AI
+          Store Builder AI
         </span>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
           {STEP_LABELS.map((label, i) => {
-            const isActive = displayStep === i;
-            const isDone = displayStep > i;
+            const isActive = currentStep === i;
+            const isDone = currentStep > i;
             return (
               <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <div style={{
                   width: 28, height: 28, borderRadius: '50%',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: isActive ? accent : isDone ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.06)',
-                  color: isActive ? '#080a0e' : isDone ? accent : '#52525b',
+                  background: isActive ? accent : isDone ? 'rgba(99,102,241,0.15)' : '#F3F4F6',
+                  color: isActive ? 'white' : isDone ? accent : '#9CA3AF',
                   fontSize: 11, fontWeight: 700, flexShrink: 0,
                 }}>
-                  {isDone ? '✓' : i + 1}
+                  {isDone ? '\u2713' : i + 1}
                 </div>
-                <span className="sb-step-label" style={{ fontSize: 12, color: isActive ? accent : '#52525b' }}>
+                <span className="sb-step-label" style={{ fontSize: 12, color: isActive ? accent : '#9CA3AF' }}>
                   {label}
                 </span>
                 {i < STEP_LABELS.length - 1 && (
-                  <div style={{ width: 16, height: 1, background: 'rgba(255,255,255,0.07)', margin: '0 2px' }} />
+                  <div style={{ width: 16, height: 1, background: '#E5E7EB', margin: '0 2px' }} />
                 )}
               </div>
             );
@@ -341,20 +398,8 @@ export default function StoreBuilder() {
         </div>
       </div>
 
-      {/* Hero headline — only on step 1 */}
-      {step === 1 && (
-        <div style={{ textAlign: 'center', padding: '48px 24px 0' }}>
-          <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(28px, 5vw, 44px)', color: '#f0ede8', marginBottom: 12, letterSpacing: '-0.02em' }}>
-            Your Shopify store, built in 60 seconds.
-          </h1>
-          <p style={{ fontSize: 16, color: '#71717a', maxWidth: 560, margin: '0 auto', lineHeight: 1.6 }}>
-            Pick a template, choose your niche, and let Majorka's AI build a complete, conversion-optimised Shopify store — ready to launch.
-          </p>
-        </div>
-      )}
-
       {/* Content */}
-      <div className="sb-content" style={{ maxWidth: step === 1 ? 1100 : 680, margin: '0 auto', padding: '40px 24px 80px', transition: 'max-width 300ms' }}>
+      <div className="sb-content" style={{ maxWidth: currentStep === 0 ? 1100 : currentStep === 2 ? 900 : 680, margin: '0 auto', padding: '40px 24px 80px', transition: 'max-width 300ms' }}>
 
         {/* Step indicator */}
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 40 }}>
@@ -363,18 +408,18 @@ export default function StoreBuilder() {
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, minWidth: 80 }}>
                 <div style={{
                   width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: i <= displayStep ? '#6366F1' : '#F3F4F6',
-                  color: i <= displayStep ? 'white' : '#9CA3AF',
+                  background: i <= currentStep ? '#6366F1' : '#F3F4F6',
+                  color: i <= currentStep ? 'white' : '#9CA3AF',
                   fontSize: 14, fontWeight: 700,
-                  boxShadow: i === displayStep ? '0 0 0 4px rgba(99,102,241,0.15)' : 'none',
+                  boxShadow: i === currentStep ? '0 0 0 4px rgba(99,102,241,0.15)' : 'none',
                   transition: 'all 200ms',
                 }}>
-                  {i < displayStep ? '✓' : i + 1}
+                  {i < currentStep ? '\u2713' : i + 1}
                 </div>
                 <span style={{
                   fontSize: 12,
-                  fontWeight: i === displayStep ? 600 : 400,
-                  color: i <= displayStep ? '#6366F1' : '#9CA3AF',
+                  fontWeight: i === currentStep ? 600 : 400,
+                  color: i <= currentStep ? '#6366F1' : '#9CA3AF',
                   whiteSpace: 'nowrap',
                 }}>
                   {label}
@@ -383,7 +428,7 @@ export default function StoreBuilder() {
               {i < STEP_LABELS.length - 1 && (
                 <div style={{
                   flex: 1, height: 2,
-                  background: i < displayStep ? '#6366F1' : '#F3F4F6',
+                  background: i < currentStep ? '#6366F1' : '#F3F4F6',
                   transition: 'background 300ms',
                   marginBottom: 28,
                 }} />
@@ -392,102 +437,337 @@ export default function StoreBuilder() {
           ))}
         </div>
 
-        {/* Step 1: Choose a Template */}
-        {step === 1 && (
+        {/* ── Step 1: Choose a Template ── */}
+        {currentStep === 0 && (
           <div>
-            <div style={{ marginBottom: 28 }}>
-              <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(24px,4vw,36px)', color: '#f0ede8', marginBottom: 8 }}>
+            <div style={{ marginBottom: 24 }}>
+              <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: "clamp(22px,4vw,32px)", color: "#0A0A0A", marginBottom: 8 }}>
                 Choose a template
               </h2>
-              <p style={{ fontSize: 15, color: '#71717a' }}>
+              <p style={{ fontSize: 14, color: "#6B7280" }}>
                 Each template is built for a specific niche and pre-optimised for AU conversions. You can customise colours and copy after selecting.
               </p>
             </div>
 
-            <div className="sb-template-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
-              {TEMPLATES.map(template => (
+            {/* Search + filter bar */}
+            <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 24 }}>
+              <input
+                type="text"
+                placeholder="Search templates..."
+                value={templateSearch}
+                onChange={e => setTemplateSearch(e.target.value)}
+                style={{ height: 38, padding: "0 14px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 14, color: "#374151", background: "white", outline: "none", minWidth: 200, flex: "0 0 auto" }}
+                onFocus={e => (e.currentTarget.style.borderColor = "#6366F1")}
+                onBlur={e => (e.currentTarget.style.borderColor = "#E5E7EB")}
+              />
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {["All", "Luxury", "Fashion", "Tech", "Beauty", "Food", "Outdoor", "Kids", "Fitness", "Eco"].map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setTemplateFilter(f)}
+                    style={{ height: 32, padding: "0 14px", borderRadius: 999, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 150ms",
+                      background: templateFilter === f ? "#6366F1" : "#F5F5F5",
+                      color: templateFilter === f ? "white" : "#374151",
+                    }}
+                  >{f}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* Selected banner */}
+            {selectedTemplate && (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 20px", background: "#EEF2FF", border: "1px solid #C7D2FE", borderRadius: 10, marginBottom: 20 }}>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "#6366F1" }}>
+                  {"\u2713"} Template selected: {TEMPLATES.find(t => t.id === selectedTemplate)?.name} — ready for Step 2
+                </span>
+                <button
+                  onClick={() => setCurrentStep(1)}
+                  style={{ height: 36, padding: "0 20px", background: "#6366F1", color: "white", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}
+                >
+                  Continue to Niche Selection {"\u2192"}
+                </button>
+              </div>
+            )}
+
+            {/* Template grid */}
+            <div className="sb-template-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
+              {filteredTemplates.map(template => (
                 <TemplateCard
                   key={template.id}
                   template={template}
                   selected={selectedTemplate === template.id}
                   onClick={() => {
                     setSelectedTemplate(template.id);
-                    setTimeout(() => setStep(2), 400);
+                    setTimeout(() => setCurrentStep(1), 500);
                   }}
                 />
               ))}
+              {filteredTemplates.length === 0 && (
+                <div style={{ gridColumn: "1/-1", padding: "60px 24px", textAlign: "center", color: "#9CA3AF", fontSize: 14 }}>
+                  No templates match "{templateSearch}" — <button onClick={() => { setTemplateSearch(""); setTemplateFilter("All"); }} style={{ color: "#6366F1", background: "none", border: "none", cursor: "pointer", fontSize: 14 }}>Clear filters</button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── Step 2: Pick Your Niche ── */}
+        {currentStep === 1 && (
+          <div>
+            <div style={{ marginBottom: 28 }}>
+              <button onClick={() => setCurrentStep(0)} style={{ fontSize: 13, color: "#6B7280", background: "none", border: "none", cursor: "pointer", marginBottom: 12, display: "flex", alignItems: "center", gap: 4 }}>
+                {"\u2190"} Back to templates
+              </button>
+              <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: "clamp(22px,4vw,32px)", color: "#0A0A0A", marginBottom: 8 }}>
+                Pick your niche
+              </h2>
+              <p style={{ fontSize: 14, color: "#6B7280" }}>
+                Choose the product category your store will focus on. This helps Majorka AI generate the right copy and product selections.
+              </p>
             </div>
 
-            {selectedTemplate && (
-              <div style={{ marginTop: 24, display: 'flex', justifyContent: 'flex-end' }}>
-                <button
-                  onClick={() => setStep(2)}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12, marginBottom: 20 }}>
+              {NICHES.map(niche => (
+                <div
+                  key={niche.id}
+                  onClick={() => setSelectedNiche(niche.id)}
                   style={{
-                    height: 44, padding: '0 28px', background: '#6366F1', color: 'white',
-                    border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: 'pointer',
-                    transition: 'transform 150ms',
+                    padding: "20px", borderRadius: 14, cursor: "pointer", transition: "all 200ms",
+                    border: selectedNiche === niche.id ? "2px solid #6366F1" : "2px solid #F0F0F0",
+                    background: selectedNiche === niche.id ? "#EEF2FF" : "white",
+                    boxShadow: selectedNiche === niche.id ? "0 0 0 3px rgba(99,102,241,0.1)" : "none",
                   }}
-                  onMouseDown={e => (e.currentTarget.style.transform = 'scale(0.97)')}
-                  onMouseUp={e => (e.currentTarget.style.transform = 'scale(1)')}
+                  onMouseEnter={e => { if (selectedNiche !== niche.id) { e.currentTarget.style.borderColor = "#C7D2FE"; e.currentTarget.style.background = "#FAFAFA"; } }}
+                  onMouseLeave={e => { if (selectedNiche !== niche.id) { e.currentTarget.style.borderColor = "#F0F0F0"; e.currentTarget.style.background = "white"; } }}
                 >
-                  Continue with {TEMPLATES.find(t => t.id === selectedTemplate)?.name} →
+                  <div style={{ fontSize: 28, marginBottom: 10 }}>{niche.emoji}</div>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: "#0A0A0A", marginBottom: 4 }}>{niche.label}</div>
+                  <div style={{ fontSize: 12, color: "#9CA3AF" }}>{niche.examples}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Custom niche input */}
+            <div style={{ padding: "16px 20px", border: "2px dashed #E5E7EB", borderRadius: 14, display: "flex", gap: 12, alignItems: "center" }}>
+              <span style={{ fontSize: 20 }}>{"\u270F\uFE0F"}</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Enter a custom niche</div>
+                <input
+                  type="text"
+                  placeholder="e.g. 'LED lighting for gamers'"
+                  value={customNiche}
+                  onChange={e => { setCustomNiche(e.target.value); setSelectedNiche("custom"); }}
+                  style={{ width: "100%", height: 36, padding: "0 12px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, color: "#374151", background: "white", outline: "none", boxSizing: "border-box" as const }}
+                  onFocus={e => { e.currentTarget.style.borderColor = "#6366F1"; setSelectedNiche("custom"); }}
+                  onBlur={e => (e.currentTarget.style.borderColor = "#E5E7EB")}
+                />
+              </div>
+            </div>
+
+            {/* Next button */}
+            <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end" }}>
+              <button
+                onClick={() => { if (selectedNiche) setCurrentStep(2); }}
+                disabled={!selectedNiche}
+                style={{ height: 44, padding: "0 32px", background: selectedNiche ? "#6366F1" : "#E5E7EB", color: selectedNiche ? "white" : "#9CA3AF", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: selectedNiche ? "pointer" : "not-allowed", transition: "all 200ms" }}
+              >
+                Continue {"\u2192"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Step 3: Customise Your Store ── */}
+        {currentStep === 2 && (
+          <div className="sb-customise-grid" style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 32, alignItems: "flex-start" }}>
+            {/* Left: Form */}
+            <div>
+              <button onClick={() => setCurrentStep(1)} style={{ fontSize: 13, color: "#6B7280", background: "none", border: "none", cursor: "pointer", marginBottom: 20, display: "flex", alignItems: "center", gap: 4 }}>{"\u2190"} Back</button>
+              <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 28, color: "#0A0A0A", marginBottom: 8 }}>Customise your store</h2>
+              <p style={{ fontSize: 14, color: "#6B7280", marginBottom: 28 }}>Give your store its identity. You can change all of this later.</p>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>Store Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. PawsAustralia"
+                    value={storeName}
+                    onChange={e => setStoreName(e.target.value)}
+                    style={{ width: "100%", height: 44, padding: "0 14px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 14, color: "#0A0A0A", background: "white", outline: "none", boxSizing: "border-box" as const }}
+                    onFocus={e => (e.currentTarget.style.borderColor = "#6366F1")}
+                    onBlur={e => (e.currentTarget.style.borderColor = "#E5E7EB")}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>Store Tagline</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Premium pet products, delivered to your door"
+                    value={storeTagline}
+                    onChange={e => setStoreTagline(e.target.value)}
+                    style={{ width: "100%", height: 44, padding: "0 14px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 14, color: "#0A0A0A", background: "white", outline: "none", boxSizing: "border-box" as const }}
+                    onFocus={e => (e.currentTarget.style.borderColor = "#6366F1")}
+                    onBlur={e => (e.currentTarget.style.borderColor = "#E5E7EB")}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>Currency</label>
+                  <select
+                    style={{ width: "100%", height: 44, padding: "0 14px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 14, color: "#0A0A0A", background: "white", outline: "none", boxSizing: "border-box" as const, cursor: "pointer" }}
+                    defaultValue="AUD"
+                  >
+                    <option value="AUD">{"\u{1F1E6}\u{1F1FA}"} Australian Dollar (AUD)</option>
+                    <option value="USD">{"\u{1F1FA}\u{1F1F8}"} US Dollar (USD)</option>
+                    <option value="GBP">{"\u{1F1EC}\u{1F1E7}"} British Pound (GBP)</option>
+                    <option value="NZD">{"\u{1F1F3}\u{1F1FF}"} New Zealand Dollar (NZD)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ marginTop: 28, display: "flex", justifyContent: "flex-end" }}>
+                <button
+                  onClick={() => { if (storeName.trim()) setCurrentStep(3); }}
+                  disabled={!storeName.trim()}
+                  style={{ height: 44, padding: "0 32px", background: storeName.trim() ? "#6366F1" : "#E5E7EB", color: storeName.trim() ? "white" : "#9CA3AF", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: storeName.trim() ? "pointer" : "not-allowed", transition: "all 200ms" }}
+                >
+                  Continue to Launch {"\u2192"}
                 </button>
+              </div>
+            </div>
+
+            {/* Right: Live preview */}
+            <div style={{ position: "sticky" as const, top: 80 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", letterSpacing: "0.08em", textTransform: "uppercase" as const, marginBottom: 10 }}>Live Preview</div>
+              <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid #E5E7EB", boxShadow: "0 8px 24px rgba(0,0,0,0.06)" }}>
+                {/* Browser chrome */}
+                <div style={{ background: "#F5F5F5", padding: "8px 12px", display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ display: "flex", gap: 5 }}>
+                    {["#EF4444", "#F59E0B", "#22C55E"].map((c, i) => <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />)}
+                  </div>
+                  <div style={{ flex: 1, background: "white", borderRadius: 4, padding: "3px 8px", fontSize: 10, color: "#9CA3AF" }}>
+                    {storeName ? storeName.toLowerCase().replace(/\s/g, "") : "yourstore"}.myshopify.com
+                  </div>
+                </div>
+                {/* Store preview */}
+                {selectedTpl && (
+                  <div style={{ background: selectedTpl.bgGradient, padding: 20, minHeight: 180 }}>
+                    <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: selectedTpl.accentColor, marginBottom: 6 }}>
+                      {storeName || "Your Store Name"}
+                    </div>
+                    <div style={{ fontSize: 13, color: selectedTpl.accentColor, opacity: 0.75, marginBottom: 16 }}>
+                      {storeTagline || "Your store tagline goes here"}
+                    </div>
+                    <div style={{ display: "inline-block", background: selectedTpl.accentColor, color: "white", fontSize: 12, fontWeight: 700, padding: "8px 20px", borderRadius: 6 }}>
+                      Shop Now
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div style={{ marginTop: 10, fontSize: 12, color: "#9CA3AF", textAlign: "center" }}>
+                Using: {selectedTpl?.name ?? "\u2014"} template · {NICHES.find(n => n.id === selectedNiche)?.label ?? customNiche ?? "\u2014"}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Step 4: Connect & Launch ── */}
+        {currentStep === 3 && (
+          <div style={{ maxWidth: 600, margin: "0 auto" }}>
+            <div style={{ marginBottom: 32, textAlign: "center" }}>
+              <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 28, color: "#0A0A0A", marginBottom: 8 }}>
+                {buildState === "done" ? "Your store is ready! \u{1F389}" : "Connect & Launch"}
+              </h2>
+              <p style={{ fontSize: 14, color: "#6B7280" }}>
+                {buildState === "done"
+                  ? "Majorka has built your complete Shopify store. Connect it or download the files."
+                  : "Final step \u2014 choose how to launch your store."}
+              </p>
+            </div>
+
+            {buildState === "idle" && (
+              <>
+                {/* Summary card */}
+                <div style={{ background: "#FAFAFA", border: "1px solid #E5E7EB", borderRadius: 14, padding: "20px 24px", marginBottom: 24 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 12 }}>Store Summary</div>
+                  {[
+                    { label: "Template", value: TEMPLATES.find(t => t.id === selectedTemplate)?.name ?? "\u2014" },
+                    { label: "Niche", value: NICHES.find(n => n.id === selectedNiche)?.label ?? customNiche ?? "\u2014" },
+                    { label: "Store Name", value: storeName || "\u2014" },
+                    { label: "Currency", value: "AUD \u{1F1E6}\u{1F1FA}" },
+                  ].map((row, i) => (
+                    <div key={i} style={{ display: "flex", justifyContent: "space-between", paddingBottom: i < 3 ? 10 : 0, marginBottom: i < 3 ? 10 : 0, borderBottom: i < 3 ? "1px solid #F3F4F6" : "none" }}>
+                      <span style={{ fontSize: 13, color: "#6B7280" }}>{row.label}</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "#0A0A0A" }}>{row.value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Launch options */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
+                  <div style={{ padding: "20px", border: "2px solid #6366F1", borderRadius: 12, textAlign: "center", background: "#EEF2FF" }}>
+                    <div style={{ fontSize: 28, marginBottom: 8 }}>{"\u{1F3EA}"}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#0A0A0A", marginBottom: 4 }}>Connect Shopify</div>
+                    <div style={{ fontSize: 12, color: "#6B7280" }}>OAuth connection — store deploys directly</div>
+                  </div>
+                  <div style={{ padding: "20px", border: "2px solid #E5E7EB", borderRadius: 12, textAlign: "center", background: "white" }}>
+                    <div style={{ fontSize: 28, marginBottom: 8 }}>{"\u{1F4E6}"}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#0A0A0A", marginBottom: 4 }}>Download Files</div>
+                    <div style={{ fontSize: 12, color: "#6B7280" }}>ZIP export — upload to any Shopify store</div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={startBuild}
+                  style={{ width: "100%", height: 52, background: "#6366F1", color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: "pointer", transition: "all 150ms" }}
+                  onMouseEnter={e => (e.currentTarget.style.background = "#4F46E5")}
+                  onMouseLeave={e => (e.currentTarget.style.background = "#6366F1")}
+                >
+                  Build My Store {"\u2192"}
+                </button>
+              </>
+            )}
+
+            {buildState === "building" && (
+              <div style={{ background: "white", border: "1px solid #F0F0F0", borderRadius: 16, padding: 32 }}>
+                <div style={{ marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#374151" }}>Building your store...</div>
+                  <div style={{ fontSize: 13, color: "#6366F1" }}>{Math.round((buildStep / (BUILD_STEPS.length - 1)) * 100)}%</div>
+                </div>
+                <div style={{ height: 6, background: "#F3F4F6", borderRadius: 999, marginBottom: 24 }}>
+                  <div style={{ height: "100%", width: `${(buildStep / (BUILD_STEPS.length - 1)) * 100}%`, background: "linear-gradient(90deg, #6366F1, #8B5CF6)", borderRadius: 999, transition: "width 0.8s ease" }} />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {BUILD_STEPS.map((step, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 8, background: i === buildStep ? "rgba(99,102,241,0.06)" : "transparent", border: i === buildStep ? "1px solid rgba(99,102,241,0.15)" : "1px solid transparent" }}>
+                      <span style={{ fontSize: 16, minWidth: 20 }}>
+                        {i < buildStep ? "\u2705" : i === buildStep ? "\u27F3" : "\u25CB"}
+                      </span>
+                      <span style={{ fontSize: 13, color: i < buildStep ? "#374151" : i === buildStep ? "#6366F1" : "#9CA3AF", fontWeight: i === buildStep ? 500 : 400 }}>{step}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {buildState === "done" && (
+              <div style={{ background: "white", border: "1px solid #F0F0F0", borderRadius: 16, padding: 32, textAlign: "center" }}>
+                <div style={{ fontSize: 64, marginBottom: 16 }}>{"\u{1F389}"}</div>
+                <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 24, color: "#0A0A0A", marginBottom: 8 }}>{storeName} is live!</div>
+                <div style={{ fontSize: 14, color: "#6B7280", marginBottom: 24 }}>Your Majorka-built store is ready. Connect to Shopify or download your store files.</div>
+                <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+                  <button style={{ height: 44, padding: "0 24px", background: "#6366F1", color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                    Connect Shopify {"\u2192"}
+                  </button>
+                  <button style={{ height: 44, padding: "0 24px", background: "white", color: "#374151", border: "1px solid #E5E7EB", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+                    Download ZIP
+                  </button>
+                </div>
               </div>
             )}
           </div>
-        )}
-
-        {/* Step 2: Pick Your Niche / Product */}
-        {step === 2 && (
-          <div>
-            <div style={{ marginBottom: 16 }}>
-              <button
-                onClick={() => setStep(1)}
-                style={{ background: 'none', border: 'none', color: '#6366F1', cursor: 'pointer', fontSize: 13, fontWeight: 600, padding: 0, marginBottom: 8 }}
-              >
-                ← Back to templates
-              </button>
-            </div>
-            <ProductInput
-              session={session}
-              initialProduct={urlProduct}
-              initialNiche={urlNiche}
-              initialPrice={urlPrice}
-              onComplete={(input, bp) => {
-                setBlueprint(bp);
-                setSelectedStoreName(bp.storeNameOptions?.[0] || input.productName);
-                setStep(3);
-              }}
-            />
-          </div>
-        )}
-
-        {/* Step 3: Customise Your Store */}
-        {step === 3 && blueprint && (
-          <BlueprintPreview
-            blueprint={blueprint}
-            selectedStoreName={selectedStoreName}
-            onSelectStoreName={setSelectedStoreName}
-            onNext={() => setStep(4)}
-            onBack={() => setStep(2)}
-          />
-        )}
-
-        {/* Step 4: Connect & Launch */}
-        {step === 4 && (
-          <ShopifyConnect
-            blueprint={blueprint}
-            selectedStoreName={selectedStoreName}
-            session={session}
-            initialConnected={oauthConnected}
-            onPushComplete={result => { setPushResult(result); setStep(5); }}
-            onBack={() => setStep(3)}
-          />
-        )}
-
-        {/* Step 5: Success */}
-        {step === 5 && pushResult && (
-          <PushSuccess result={pushResult} onReset={handleReset} />
         )}
       </div>
     </div>

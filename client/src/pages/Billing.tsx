@@ -8,15 +8,15 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 
 const C = {
-  bg: '#0a0b0d',
-  surface: 'rgba(255,255,255,0.03)',
-  border: 'rgba(255,255,255,0.08)',
+  bg: '#FAFAFA',
+  surface: '#FFFFFF',
+  border: '#E5E7EB',
   gold: '#6366F1',
-  text: '#f0ede8',
-  muted: 'rgba(240,237,232,0.4)',
-  sub: 'rgba(240,237,232,0.6)',
+  text: '#0A0A0A',
+  muted: 'rgba(0,0,0,0.4)',
+  sub: 'rgba(0,0,0,0.6)',
   green: '#10b981',
-  card: 'rgba(255,255,255,0.02)',
+  card: '#FFFFFF',
 };
 
 interface SubData {
@@ -129,7 +129,7 @@ export default function Billing() {
             {planLabel === 'Free' && (
               <a
                 href="/pricing"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 20px', background: '#6366F1', color: '#080a0e', borderRadius: 10, fontSize: 14, fontWeight: 800, cursor: 'pointer', textDecoration: 'none', fontFamily: 'Syne, sans-serif' }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 20px', background: '#6366F1', color: 'white', borderRadius: 10, fontSize: 14, fontWeight: 800, cursor: 'pointer', textDecoration: 'none', fontFamily: 'Syne, sans-serif' }}
               >
                 <Star size={14} /> Upgrade Plan
               </a>

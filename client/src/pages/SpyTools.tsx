@@ -7,7 +7,7 @@ const VideoIntelligence = lazy(() => import('./VideoIntelligence'));
 
 type TabKey = 'market' | 'creators' | 'videos';
 
-const C = { bg: '#080a0e', surface: '#111118', border: '#1e1e1e', gold: '#6366F1', text: '#f0ede8', muted: 'rgba(240,237,232,0.5)' };
+const C = { bg: '#FAFAFA', surface: '#FFFFFF', border: '#E5E7EB', gold: '#6366F1', text: '#0A0A0A', muted: 'rgba(0,0,0,0.45)' };
 
 interface NicheStat {
   niche: string;
@@ -65,8 +65,8 @@ export default function SpyTools() {
           {(['market', 'creators', 'videos'] as TabKey[]).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               padding: '8px 20px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
-              background: tab === t ? C.gold : 'rgba(255,255,255,0.04)',
-              color: tab === t ? '#080a0e' : C.muted,
+              background: tab === t ? C.gold : 'rgba(0,0,0,0.04)',
+              color: tab === t ? 'white' : C.muted,
               fontFamily: 'Syne, sans-serif',
             }}>
               {t === 'market' ? 'Market Overview' : t === 'creators' ? 'Creators' : 'Video Inspiration'}
@@ -95,7 +95,7 @@ export default function SpyTools() {
                       <span style={{ fontSize: 14, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.niche}</span>
                     </div>
                     <div style={{ width: 200, position: 'relative', display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.04)', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ flex: 1, height: 6, background: 'rgba(0,0,0,0.04)', borderRadius: 3, overflow: 'hidden' }}>
                         <div style={{ width: `${item.avgScore}%`, height: '100%', background: C.gold, borderRadius: 3, opacity: 0.8 }} />
                       </div>
                       <span style={{ width: 30, textAlign: 'right', fontSize: 13, color: C.gold, fontWeight: 700 }}>{item.avgScore}</span>

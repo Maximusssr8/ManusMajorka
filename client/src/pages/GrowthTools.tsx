@@ -7,7 +7,7 @@ const BrandDNA = lazy(() => import('./BrandDNA'));
 
 type TabKey = 'ads' | 'copy' | 'brand';
 
-const C = { bg: '#080a0e', surface: '#111118', border: '#1e1e1e', gold: '#6366F1', text: '#f0ede8', muted: 'rgba(240,237,232,0.5)' };
+const C = { bg: '#FAFAFA', surface: '#FFFFFF', border: '#E5E7EB', gold: '#6366F1', text: '#0A0A0A', muted: 'rgba(0,0,0,0.45)' };
 
 export default function GrowthTools() {
   const [tab, setTab] = useState<TabKey>('ads');
@@ -31,8 +31,8 @@ export default function GrowthTools() {
           {(['ads', 'copy', 'brand'] as TabKey[]).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               padding: '8px 20px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
-              background: tab === t ? C.gold : 'rgba(255,255,255,0.04)',
-              color: tab === t ? '#080a0e' : C.muted,
+              background: tab === t ? C.gold : 'rgba(0,0,0,0.04)',
+              color: tab === t ? 'white' : C.muted,
               fontFamily: 'Syne, sans-serif',
             }}>
               {t === 'ads' ? 'Ad Studio' : t === 'copy' ? 'Copy Studio' : 'Brand DNA'}
