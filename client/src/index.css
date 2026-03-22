@@ -21,6 +21,9 @@ button, [role="button"] {
   min-height: 44px;
 }
 
+/* ── Spin animation ── */
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
 /* ── Mobile base font size ── */
 @media (max-width: 640px) {
   html {

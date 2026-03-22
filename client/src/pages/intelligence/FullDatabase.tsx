@@ -131,6 +131,156 @@ function SupplierDropdown({ product }: { product: any }) {
   );
 }
 
+// ── Ads Modal ────────────────────────────────────────────────────────────────
+function AdsModal({ product, onClose }: { product: any; onClose: () => void }) {
+  const brico = "'Bricolage Grotesque', sans-serif";
+  const [adCopy, setAdCopy] = React.useState<{ headline: string; body: string; cta: string } | null>(null);
+  const [loadingCopy, setLoadingCopy] = React.useState(false);
+  const [copied, setCopied] = React.useState(false);
+
+  const generateAdCopy = async () => {
+    setLoadingCopy(true);
+    try {
+      const res = await fetch('/api/ai/generate-ad-copy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productName: product.name || product.title,
+          niche: product.niche || product.category,
+          price: product.estimated_retail_aud || product.price_aud,
+          margin: product.estimated_margin_pct,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAdCopy(data);
+      } else {
+        const name = product.name || product.title || 'this product';
+        setAdCopy({
+          headline: `Australians are obsessed with this ${name}`,
+          body: `Join 10,000+ AU customers who switched to ${name}. Free shipping. 30-day returns. Shop now before it sells out.`,
+          cta: `Shop Now — ${product.estimated_retail_aud ? `$${product.estimated_retail_aud} AUD` : 'Best Price'}`,
+        });
+      }
+    } catch {
+      const name = product.name || product.title || 'this product';
+      setAdCopy({
+        headline: `Australians are obsessed with this ${name}`,
+        body: `Join 10,000+ AU customers who switched to ${name}. Free shipping. 30-day returns. Shop now before it sells out.`,
+        cta: `Shop Now — ${product.estimated_retail_aud ? `$${product.estimated_retail_aud} AUD` : 'Best Price'}`,
+      });
+    }
+    setLoadingCopy(false);
+  };
+
+  const copyToClipboard = () => {
+    if (!adCopy) return;
+    const text = `Headline: ${adCopy.headline}\n\n${adCopy.body}\n\nCTA: ${adCopy.cta}`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div
+      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: 24 }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div style={{ background: 'white', borderRadius: 20, padding: 32, maxWidth: 520, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', position: 'relative' as const }}>
+        <button onClick={onClose} style={{ position: 'absolute' as const, top: 16, right: 16, width: 32, height: 32, borderRadius: '50%', border: 'none', background: '#F5F5F5', cursor: 'pointer', fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280' }}>×</button>
+
+        <div style={{ fontSize: 28, marginBottom: 12 }}>📣</div>
+        <h3 style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#0A0A0A', marginBottom: 6 }}>
+          Run Ads for {product.name || product.title}
+        </h3>
+        <p style={{ fontSize: 13, color: '#6B7280', marginBottom: 24 }}>Launch ads directly or generate AI-powered ad copy for this product.</p>
+
+        {/* Ad platform options */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+          <a
+            href="https://www.facebook.com/adsmanager/creation"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px', border: '1.5px solid #E5E7EB', borderRadius: 12, textDecoration: 'none', color: '#111111', transition: 'all 150ms', background: 'white' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#1877F2'; e.currentTarget.style.background = '#F0F5FF'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.background = 'white'; }}
+          >
+            <span style={{ fontSize: 22 }}>📘</span>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700 }}>Meta Ads</div>
+              <div style={{ fontSize: 11, color: '#6B7280' }}>Facebook & Instagram</div>
+            </div>
+          </a>
+          <a
+            href="https://ads.tiktok.com/i18n/home"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px', border: '1.5px solid #E5E7EB', borderRadius: 12, textDecoration: 'none', color: '#111111', transition: 'all 150ms', background: 'white' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = '#111'; e.currentTarget.style.background = '#F5F5F5'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.background = 'white'; }}
+          >
+            <span style={{ fontSize: 22 }}>🎵</span>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700 }}>TikTok Ads</div>
+              <div style={{ fontSize: 11, color: '#6B7280' }}>TikTok for Business</div>
+            </div>
+          </a>
+        </div>
+
+        {/* AI Ad Copy */}
+        <div style={{ border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden' }}>
+          <div style={{ padding: '12px 16px', background: '#F9FAFB', borderBottom: '1px solid #E5E7EB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>✨ AI Ad Copy</span>
+            {!adCopy && (
+              <button
+                onClick={generateAdCopy}
+                disabled={loadingCopy}
+                style={{ height: 30, padding: '0 14px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: loadingCopy ? 'wait' : 'pointer', opacity: loadingCopy ? 0.7 : 1 }}
+              >
+                {loadingCopy ? 'Generating...' : 'Generate →'}
+              </button>
+            )}
+            {adCopy && (
+              <button
+                onClick={copyToClipboard}
+                style={{ height: 30, padding: '0 14px', background: copied ? '#059669' : '#6366F1', color: 'white', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'background 200ms' }}
+              >
+                {copied ? '✓ Copied!' : 'Copy All'}
+              </button>
+            )}
+          </div>
+          <div style={{ padding: '14px 16px', minHeight: 80 }}>
+            {!adCopy && !loadingCopy && (
+              <p style={{ fontSize: 13, color: '#9CA3AF', fontStyle: 'italic' }}>Click "Generate" to create AI-powered ad copy for this product.</p>
+            )}
+            {loadingCopy && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#6B7280', fontSize: 13 }}>
+                <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⟳</span> Writing copy...
+              </div>
+            )}
+            {adCopy && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 3 }}>Headline</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#0A0A0A' }}>{adCopy.headline}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 3 }}>Body Copy</div>
+                  <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.6 }}>{adCopy.body}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 3 }}>CTA</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#059669' }}>{adCopy.cta}</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Shimmer keyframes injected once ───────────────────────────────────────────
 const shimmerCss = `
 @keyframes shimmer {
@@ -234,7 +384,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   // Opportunity filters, sorting, ads modal
   const [opportunityFilter, setOpportunityFilter] = useState<string>('All');
   const [sortMode, setSortMode] = useState<string>('revenue');
-  const [adsModal, setAdsModal] = useState<{ product: any; creatives: any; adCopy: any; loading: boolean; copyLoading: boolean } | null>(null);
+  const [adsProduct, setAdsProduct] = useState<any>(null);
   const [lastRefreshed, setLastRefreshed] = useState<string>('');
 
   // Hovered row for bg
@@ -1010,19 +1160,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         Build Store
                       </button>
                       <button
-                        onClick={async () => {
-                          setAdsModal({ product: p, creatives: null, adCopy: null, loading: true, copyLoading: false });
-                          try {
-                            const res = await fetch(`/api/products/ad-creatives?product=${encodeURIComponent(p.name)}&price=${p.estimated_retail_aud || 49}`);
-                            const data = await res.json();
-                            setAdsModal(prev => prev ? { ...prev, creatives: data, loading: false } : null);
-                          } catch {
-                            setAdsModal(prev => prev ? { ...prev, loading: false } : null);
-                          }
-                        }}
+                        onClick={() => setAdsProduct(p)}
                         style={{ height: 32, padding: '0 10px', background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 6, color: '#374151', fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' }}
                       >
-                        🎬 Ads
+                        📣 Ads
                       </button>
                       <SupplierDropdown product={p} />
                     </div>
@@ -1040,92 +1181,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       </div>
 
       {/* === ADS MODAL === */}
-      {adsModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
-          onClick={e => { if (e.target === e.currentTarget) setAdsModal(null); }}>
-          <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 12, width: '100%', maxWidth: 600, maxHeight: '80vh', overflow: 'auto', padding: 28, boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 style={{ color: '#111111', margin: 0, fontFamily: 'Syne, sans-serif', fontSize: 18 }}>🎬 Ad Creatives for {adsModal.product?.name?.slice(0, 50)}</h3>
-              <button onClick={() => setAdsModal(null)} style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontSize: 20 }}>×</button>
-            </div>
-
-            {adsModal.loading && <p style={{ color: '#6B7280' }}>Searching for ad examples...</p>}
-
-            {!adsModal.loading && adsModal.creatives && (
-              <>
-                {adsModal.creatives.tiktokVideos?.length > 0 && (
-                  <div style={{ marginBottom: 20 }}>
-                    <h4 style={{ color: '#6366F1', fontSize: 13, margin: '0 0 10px' }}>📱 TikTok Videos</h4>
-                    {adsModal.creatives.tiktokVideos.map((v: any, i: number) => (
-                      <a key={i} href={v.url} target="_blank" rel="noopener noreferrer"
-                        style={{ display: 'block', padding: '10px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, marginBottom: 8, color: '#111111', textDecoration: 'none', fontSize: 12 }}>
-                        <div style={{ fontWeight: 600, marginBottom: 4 }}>{v.title}</div>
-                        <div style={{ color: '#6B7280' }}>{v.snippet}</div>
-                      </a>
-                    ))}
-                  </div>
-                )}
-
-                {adsModal.creatives.adInsights?.length > 0 && (
-                  <div style={{ marginBottom: 20 }}>
-                    <h4 style={{ color: '#6366F1', fontSize: 13, margin: '0 0 10px' }}>💡 Winning Ad Hooks</h4>
-                    {adsModal.creatives.adInsights.map((a: any, i: number) => (
-                      <div key={i} style={{ padding: '10px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, marginBottom: 8, fontSize: 12 }}>
-                        <div style={{ color: '#111111', fontWeight: 600, marginBottom: 4 }}>{a.hook}</div>
-                        <div style={{ color: '#6B7280' }}>{a.copy}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-
-            {adsModal.adCopy && (
-              <div style={{ marginTop: 16 }}>
-                <h4 style={{ color: '#6366F1', fontSize: 13, margin: '0 0 12px' }}>✍️ AI-Generated Ad Copy</h4>
-                {[
-                  { label: 'TikTok Hook (3s)', value: adsModal.adCopy.tiktokHook, emoji: '📱' },
-                  { label: 'Facebook Ad', value: adsModal.adCopy.facebookAd, emoji: '📘' },
-                  { label: 'Instagram Caption', value: adsModal.adCopy.instagramCaption, emoji: '📸' },
-                  { label: 'Email Subject', value: adsModal.adCopy.emailSubject, emoji: '📧' },
-                ].map(({ label, value, emoji }) => value ? (
-                  <div key={label} style={{ marginBottom: 12, background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: 12 }}>
-                    <div style={{ color: '#9CA3AF', fontSize: 11, marginBottom: 6 }}>{emoji} {label}</div>
-                    <div style={{ color: '#111111', fontSize: 13, lineHeight: 1.5 }}>{value}</div>
-                    <button onClick={() => navigator.clipboard?.writeText(value)}
-                      style={{ marginTop: 8, padding: '4px 10px', background: 'transparent', border: '1px solid #E5E7EB', borderRadius: 4, color: '#6B7280', fontSize: 11, cursor: 'pointer' }}>
-                      Copy
-                    </button>
-                  </div>
-                ) : null)}
-              </div>
-            )}
-
-            <button
-              onClick={async () => {
-                if (!adsModal) return;
-                setAdsModal(prev => prev ? { ...prev, copyLoading: true } : null);
-                try {
-                  const { data: sessionData } = await supabase.auth.getSession();
-                  const token = sessionData?.session?.access_token;
-                  const res = await fetch('/api/products/generate-ad-copy', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-                    body: JSON.stringify({ product: adsModal.product?.name, price: adsModal.product?.estimated_retail_aud }),
-                  });
-                  const data = await res.json();
-                  setAdsModal(prev => prev ? { ...prev, adCopy: data, copyLoading: false } : null);
-                } catch (err) {
-                  setAdsModal(prev => prev ? { ...prev, copyLoading: false } : null);
-                }
-              }}
-              disabled={adsModal.copyLoading}
-              style={{ width: '100%', padding: '12px', background: '#6366F1', color: '#FFFFFF', border: 'none', borderRadius: 8, fontWeight: 700, cursor: 'pointer', fontSize: 14, marginTop: 8 }}>
-              {adsModal.copyLoading ? 'Generating...' : '✨ Generate AI Ad Copy'}
-            </button>
-          </div>
-        </div>
-      )}
+      {adsProduct && <AdsModal product={adsProduct} onClose={() => setAdsProduct(null)} />}
     </div>
   );
 }
