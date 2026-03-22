@@ -583,10 +583,19 @@ function DashboardHome() {
 
 
   useEffect(() => {
-    fetch('/api/products/search?limit=5&sort=winning_score&order=desc')
-      .then(r => r.json())
-      .then(d => { setProducts(d.products || d || []); setLoading(false); })
-      .catch(() => setLoading(false));
+    supabase.auth.getSession().then(({ data }) => {
+      const token = data?.session?.access_token;
+      fetch('/api/products/search?limit=5&sort=winning_score&order=desc', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+        .then(r => r.json())
+        .then(d => {
+          const arr = Array.isArray(d) ? d : Array.isArray(d?.products) ? d.products : [];
+          setProducts(arr);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    });
   }, []);
 
   const chartData = [
