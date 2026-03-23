@@ -90,13 +90,23 @@ const NAV_SECTIONS: NavSection[] = [
     label: 'DISCOVER',
     items: [
       { label: 'Product Intelligence', path: '/app/product-intelligence', icon: Flame, tooltip: 'Trending products + full database + AI scout — all in one.' },
-      { label: 'Creator Intelligence', path: '/app/creators', icon: Users, tooltip: 'Find top TikTok creators promoting products in your niche.' },
-      { label: 'Video Intelligence', path: '/app/video-intelligence', icon: Play, badge: 'NEW', tooltip: 'Top-performing product videos — what drives real sales.' },
-      { label: 'Shop Intelligence', path: '/app/shop-intelligence', icon: Store, tooltip: 'Discover top performing Shopify stores and analyse competitor strategy.' },
       { label: 'Market Intel', path: '/app/market', icon: Globe, tooltip: 'Category trends, niche opportunities, and market-level demand data.' },
+    ],
+  },
+  {
+    label: 'INTELLIGENCE',
+    items: [
+      { label: 'Creator Intel', path: '/app/creators', icon: Users, tooltip: 'Find top TikTok creators promoting products in your niche.' },
+      { label: 'Video Intel', path: '/app/video-intelligence', icon: Play, badge: 'NEW', tooltip: 'Top-performing product videos — what drives real sales.' },
       { label: 'Ad Intelligence', path: '/app/ad-spy', icon: Target, tooltip: 'Spy on winning TikTok & Meta ads in your niche.' },
       { label: 'Livestream', path: '/app/livestream', icon: Radio, badge: 'NEW', tooltip: 'Track trending niches and GMV across TikTok Live sessions.' },
-      { label: 'Reports', path: '/app/spy-tools', icon: Eye, tooltip: 'Market overview, trending video hooks, shareable reports.' },
+    ],
+  },
+  {
+    label: 'COMPETE',
+    items: [
+      { label: 'Shop Spy', path: '/app/spy-tools', icon: Eye, tooltip: 'Market overview, trending video hooks, shareable reports.' },
+      { label: 'Shop Intelligence', path: '/app/shop-intelligence', icon: Store, tooltip: 'Discover top performing Shopify stores and analyse competitor strategy.' },
     ],
   },
   {
@@ -104,18 +114,13 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: 'Store Builder AI', path: '/app/store-builder', icon: Globe, badge: 'AI', tooltip: 'Build a complete Shopify-ready store in 60 seconds with 17 templates.' },
       { label: 'Growth Tools', path: '/app/growth-tools', icon: Zap, tooltip: 'Ad Studio, Copy Studio, and Brand DNA — one place.' },
-    ],
-  },
-  {
-    label: 'MANAGE',
-    items: [
-      { label: 'Profit & Suppliers', path: '/app/profit', icon: DollarSign, tooltip: 'Profit calculator + AU supplier directory.' },
-      { label: 'Academy', path: '/app/learn', icon: GraduationCap, tooltip: 'Learn dropshipping for the AU market.' },
+      { label: 'Profit & Suppliers', path: '/app/profit', icon: DollarSign, tooltip: 'Profit calculator + supplier directory.' },
     ],
   },
   {
     label: 'ACCOUNT',
     items: [
+      { label: 'Academy', path: '/app/learn', icon: GraduationCap, tooltip: 'Learn dropshipping for your market.' },
       { label: 'Settings', path: '/app/settings', icon: Settings, tooltip: 'Account settings, plan, and billing.' },
     ],
   },

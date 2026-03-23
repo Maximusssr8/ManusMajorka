@@ -315,6 +315,120 @@ app.get("/api/creators", async (req: Request, res: Response) => {
   }
 });
 
+// ── Creator Outreach AI endpoint ────────────────────────────────────────────
+app.post("/api/creators/outreach", async (req: Request, res: Response) => {
+  try {
+    const { handle, niche, product_category, products = [] } = req.body;
+    if (!handle) { res.status(400).json({ error: 'handle required' }); return; }
+
+    const Anthropic = (await import('@anthropic-ai/sdk')).default;
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+    const productList = products.length ? products.join(', ') : product_category || niche;
+    const prompt = `Write a short, friendly TikTok creator outreach DM (under 120 words) from a dropshipping brand to @${handle} who creates ${niche} content. Mention they promote ${productList}. Ask about a paid collaboration for a product in their niche. Be casual, not corporate. No emojis overdone. End with a clear CTA. Don't use "I hope this message finds you well."`;
+
+    const msg = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 200,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const text = msg.content[0].type === 'text' ? msg.content[0].text : '';
+    res.json({ message: text, handle });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Video Intelligence API ────────────────────────────────────────────────
+app.get("/api/videos", async (req: Request, res: Response) => {
+  try {
+    const niche = String(req.query.niche || '');
+    const region = String(req.query.region || '');
+    const limit = Math.min(50, parseInt(String(req.query.limit || '30')));
+
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+    if (supabaseUrl && supabaseKey) {
+      let url = `${supabaseUrl}/rest/v1/viral_videos?select=*&order=scraped_at.desc&limit=${limit}`;
+      if (niche) url += `&niche=ilike.*${encodeURIComponent(niche)}*`;
+      if (region) url += `&region_code=eq.${region}`;
+
+      const r = await fetch(url, { headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` } });
+      const data = await r.json();
+
+      if (Array.isArray(data) && data.length > 0) {
+        res.json({ videos: data, count: data.length, source: 'db' });
+        return;
+      }
+    }
+
+    // Fallback: live scrape
+    const { searchViralVideos } = await import('../server/lib/video-scraper');
+    const videos = await searchViralVideos(niche || 'beauty', region || 'US');
+    res.json({ videos, count: videos.length, source: 'live' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message, videos: [] });
+  }
+});
+
+// ── Reports API ────────────────────────────────────────────────────────────
+app.post("/api/reports/generate", async (req: Request, res: Response) => {
+  try {
+    const { product_ids = [], report_title = 'Product Report', region_code = 'US' } = req.body;
+    if (!product_ids.length) { res.status(400).json({ error: 'product_ids required' }); return; }
+
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+    const ids = product_ids.slice(0, 10).map((id: string) => `id.eq.${id}`).join(',');
+    const r = await fetch(`${supabaseUrl}/rest/v1/winning_products?or=(${ids})&select=*`, {
+      headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+    });
+    const products = await r.json();
+
+    const slug = Math.random().toString(36).slice(2, 10);
+    const reportRow = {
+      title: String(report_title).slice(0, 100),
+      slug,
+      products: JSON.stringify(Array.isArray(products) ? products : []),
+      region_code,
+      expires_at: new Date(Date.now() + 30 * 86400 * 1000).toISOString(),
+    };
+
+    await fetch(`${supabaseUrl}/rest/v1/reports`, {
+      method: 'POST',
+      headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify(reportRow),
+    });
+
+    res.json({ slug, url: `https://www.majorka.io/report/${slug}`, expires_in: '30 days' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/api/reports/:slug", async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+    const r = await fetch(`${supabaseUrl}/rest/v1/reports?slug=eq.${slug}&select=*&limit=1`, {
+      headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+    });
+    const data = await r.json();
+    if (!Array.isArray(data) || !data[0]) { res.status(404).json({ error: 'Report not found or expired' }); return; }
+
+    const report = data[0];
+    const products = typeof report.products === 'string' ? JSON.parse(report.products) : report.products;
+    res.json({ ...report, products });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 registerChatRoutes(app);
 registerScrapeRoutes(app);
 registerToolsApi(app);

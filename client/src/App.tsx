@@ -36,6 +36,7 @@ const AdminControlPanel = lazy(() => import('./pages/AdminControlPanel'));
 const AdminSubscribers = lazy(() => import('./pages/AdminSubscribers'));
 const PromoDashboard = lazy(() => import('./pages/PromoDashboard'));
 const ProductReport = lazy(() => import('./pages/ProductReport'));
+const SharedReport = lazy(() => import('./pages/SharedReport'));
 const ShopDetail = lazy(() => import('./pages/ShopDetail'));
 const ProductSearch = lazy(() => import('./pages/ProductSearch'));
 const StoreHealthScore = lazy(() => import('./pages/StoreHealthScore'));
@@ -265,6 +266,7 @@ function Router() {
             <Route path="/dropshipping-australia" component={DropshippingAustralia} />
             <Route path="/tiktok-shop-australia" component={TikTokShopAustralia} />
             <Route path="/winning-products-australia" component={WinningProductsAustralia} />
+            <Route path="/report/:slug" component={SharedReport} />
             <Route path="/product/:slug" component={ProductReport} />
             <Route path="/demo-dashboard" component={PromoDashboard} />
             <Route path="/privacy">{() => <LegalPage title="Privacy Policy" slug="privacy" />}</Route>

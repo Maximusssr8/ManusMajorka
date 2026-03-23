@@ -108,6 +108,48 @@ CREATE TABLE IF NOT EXISTS competitor_products (
 );
 CREATE INDEX IF NOT EXISTS idx_competitor_store ON competitor_products(store_domain);
 CREATE INDEX IF NOT EXISTS idx_competitor_seen ON competitor_products(first_seen_at DESC);
+
+-- Creator Intelligence
+CREATE TABLE IF NOT EXISTS creators (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  handle text UNIQUE NOT NULL,
+  display_name text,
+  profile_url text,
+  niche text,
+  region_code text DEFAULT 'US',
+  est_followers text,
+  promoting_products text[],
+  engagement_signal text,
+  contact_hint text,
+  last_scraped_at timestamptz DEFAULT now()
+);
+
+-- Video Intelligence
+CREATE TABLE IF NOT EXISTS viral_videos (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  title text,
+  url text,
+  product_mentioned text,
+  niche text,
+  hook_text text,
+  engagement_signal text,
+  format text,
+  region_code text DEFAULT 'US',
+  scraped_at timestamptz DEFAULT now()
+);
+
+-- Shareable Reports
+CREATE TABLE IF NOT EXISTS reports (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid,
+  title text,
+  slug text UNIQUE,
+  products jsonb,
+  region_code text,
+  created_at timestamptz DEFAULT now(),
+  expires_at timestamptz DEFAULT now() + INTERVAL '30 days'
+);
+CREATE INDEX IF NOT EXISTS idx_reports_slug ON reports(slug);
 `;
 
 console.log('\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557');

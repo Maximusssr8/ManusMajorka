@@ -1406,4 +1406,39 @@ router.post('/run-competitor-spy', async (req: Request, res: Response) => {
   })();
 });
 
+// POST /api/admin/refresh-creators
+router.post('/refresh-creators', async (req: Request, res: Response) => {
+  res.json({ message: 'Creator refresh started', status: 'running' });
+  (async () => {
+    try {
+      const { refreshCreators } = await import('../lib/creator-scraper');
+      const result = await refreshCreators();
+      console.log('[refresh-creators] done:', result);
+    } catch (err) {
+      console.error('[refresh-creators] fatal:', err);
+    }
+  })();
+});
+
+// POST /api/admin/refresh-videos
+router.post('/refresh-videos', async (req: Request, res: Response) => {
+  res.json({ message: 'Video refresh started', status: 'running' });
+  (async () => {
+    try {
+      const { searchViralVideos, upsertVideos } = await import('../lib/video-scraper');
+      const niches = ['beauty', 'fitness', 'home decor', 'pet care', 'tech accessories'];
+      for (const niche of niches) {
+        try {
+          const vids = await searchViralVideos(niche, 'US');
+          await upsertVideos(vids);
+          console.log(`[videos] ${niche}: ${vids.length}`);
+        } catch { /* silent */ }
+        await new Promise(r => setTimeout(r, 400));
+      }
+    } catch (err) {
+      console.error('[refresh-videos] fatal:', err);
+    }
+  })();
+});
+
 export default router;
