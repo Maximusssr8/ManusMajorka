@@ -117,6 +117,15 @@ Make it feel personal, not spammy. Include free shipping mention and easy return
       prompt = `Generate 8 creative store name ideas for a ${niche || 'general'} dropshipping store targeting Australian customers.
 Requirements: memorable, .com.au available likely, professional, not generic.
 Format: numbered list, one name per line, no explanations.`;
+    } else if (tool === 'product-analysis') {
+      prompt = `Analyse this product for Australian dropshipping:
+Product: ${productName}
+Orders: ${(req.body as any).orders || 0}+ lifetime orders
+Margin: ${(req.body as any).margin || 50}%
+Niche: ${niche || 'General'}
+
+In 4 sections (Target Customer / Best Ad Angle / Seasonal / Risk Factors):
+Be specific to the Australian market. Keep each section 2-3 sentences. No bullet points.`;
     } else {
       return res.status(400).json({ error: 'Unknown tool' });
     }
