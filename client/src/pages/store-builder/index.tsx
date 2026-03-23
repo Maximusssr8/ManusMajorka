@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -308,9 +308,18 @@ function TemplateCard({ template, selected, onClick }: { template: StoreTemplate
           <span>CR ~{template.cr}</span>
         </div>
         <button
-          onClick={e => {
+          onClick={async (e) => {
             e.stopPropagation();
-            window.open(`/templates/${template.id}-preview.html`, '_blank');
+            try {
+              const res = await fetch('/api/store-builder/preview', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ template: template.id, storeName: template.name + ' Store', niche: template.niche }),
+              });
+              const html = await res.text();
+              const blob = new Blob([html], { type: 'text/html' });
+              window.open(URL.createObjectURL(blob), '_blank');
+            } catch { /* silent */ }
           }}
           style={{ width: '100%', marginTop: 10, height: 32, background: '#F5F5F5', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 12, fontWeight: 500, cursor: 'pointer' }}
         >
@@ -337,7 +346,58 @@ export default function StoreBuilder() {
   const [shopifyModal, setShopifyModal] = useState(false);
   const [shopDomain, setShopDomain] = useState('');
   const [shopDomainError, setShopDomainError] = useState('');
+  const [previewHtml, setPreviewHtml] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const { session } = useAuth();
+
+  const previewTemplate = async (templateId: string) => {
+    try {
+      const res = await fetch('/api/store-builder/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          template: templateId,
+          storeName: storeName || 'Demo Store',
+          storeTagline: 'Trending products, fast delivery',
+          niche: NICHES.find(n => n.id === selectedNiche)?.label || 'General',
+        }),
+      });
+      const html = await res.text();
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch (err) {
+      console.warn('[StoreBuilder] Preview failed:', err);
+    }
+  };
+
+  const generatePreview = useCallback(async () => {
+    if (!selectedTemplate) return;
+    setPreviewLoading(true);
+    try {
+      const tpl = TEMPLATES.find(t => t.id === selectedTemplate);
+      const res = await fetch('/api/store-builder/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          template: selectedTemplate,
+          storeName: storeName || 'My Store',
+          storeTagline: storeTagline || 'Trending products delivered fast',
+          niche: NICHES.find(n => n.id === selectedNiche)?.label || customNiche || 'General',
+          primaryColor: tpl?.accentColor || '#6366F1',
+        }),
+      });
+      const html = await res.text();
+      setPreviewHtml(html);
+    } catch {
+      // silent fail
+    }
+    setPreviewLoading(false);
+  }, [selectedTemplate, storeName, storeTagline, selectedNiche, customNiche]);
+
+  useEffect(() => {
+    if (currentStep === 2 && selectedTemplate) generatePreview();
+  }, [currentStep, selectedTemplate]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -752,7 +812,7 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
             {/* Right: Live preview */}
             <div style={{ position: "sticky" as const, top: 80 }}>
               <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", letterSpacing: "0.08em", textTransform: "uppercase" as const, marginBottom: 10 }}>Live Preview</div>
-              <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid #E5E7EB", boxShadow: "0 8px 24px rgba(0,0,0,0.06)" }}>
+              <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid #E5E7EB", boxShadow: "0 8px 32px rgba(0,0,0,0.10)" }}>
                 {/* Browser chrome */}
                 <div style={{ background: "#F5F5F5", padding: "8px 12px", display: "flex", alignItems: "center", gap: 8 }}>
                   <div style={{ display: "flex", gap: 5 }}>
@@ -761,25 +821,45 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
                   <div style={{ flex: 1, background: "white", borderRadius: 4, padding: "3px 8px", fontSize: 10, color: "#9CA3AF" }}>
                     {storeName ? storeName.toLowerCase().replace(/\s/g, "") : "yourstore"}.myshopify.com
                   </div>
+                  <button onClick={generatePreview} style={{ fontSize: 10, color: "#6366F1", background: "none", border: "none", cursor: "pointer", fontWeight: 700, padding: "2px 6px" }}>
+                    {"\u21BB"} Refresh
+                  </button>
                 </div>
-                {/* Store preview */}
-                {selectedTpl && (
-                  <div style={{ background: selectedTpl.bgGradient, padding: 20, minHeight: 180 }}>
-                    <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: selectedTpl.accentColor, marginBottom: 6 }}>
-                      {storeName || "Your Store Name"}
-                    </div>
-                    <div style={{ fontSize: 13, color: selectedTpl.accentColor, opacity: 0.75, marginBottom: 16 }}>
-                      {storeTagline || "Your store tagline goes here"}
-                    </div>
-                    <div style={{ display: "inline-block", background: selectedTpl.accentColor, color: "white", fontSize: 12, fontWeight: 700, padding: "8px 20px", borderRadius: 6 }}>
-                      Shop Now
-                    </div>
+                {previewLoading ? (
+                  <div style={{ height: 400, display: "flex", alignItems: "center", justifyContent: "center", background: "#FAFAFA", fontSize: 13, color: "#9CA3AF" }}>
+                    {"\u2728"} Generating preview{"\u2026"}
+                  </div>
+                ) : previewHtml ? (
+                  <iframe
+                    srcDoc={previewHtml}
+                    style={{ width: "100%", height: 400, border: "none", display: "block" }}
+                    title="Store Preview"
+                    sandbox="allow-scripts allow-same-origin"
+                  />
+                ) : (
+                  <div style={{ height: 400, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", background: "#FAFAFA", gap: 12 }}>
+                    <div style={{ fontSize: 32 }}>{"\u{1F3EA}"}</div>
+                    <div style={{ fontSize: 13, color: "#9CA3AF" }}>Click Refresh to preview your store</div>
                   </div>
                 )}
               </div>
-              <div style={{ marginTop: 10, fontSize: 12, color: "#9CA3AF", textAlign: "center" }}>
-                Using: {selectedTpl?.name ?? "\u2014"} template · {NICHES.find(n => n.id === selectedNiche)?.label ?? customNiche ?? "\u2014"}
+              {/* Sub-pages notice */}
+              <div style={{ marginTop: 10, display: "flex", gap: 8, justifyContent: "center" }}>
+                {["\u{1F3E0} Home", "\u{1F6CD}\uFE0F Products", "\u2139\uFE0F About", "\u2709\uFE0F Contact"].map(p => (
+                  <span key={p} style={{ fontSize: 10, color: "#6366F1", background: "#EEF2FF", padding: "2px 8px", borderRadius: 10, fontWeight: 600 }}>{p}</span>
+                ))}
               </div>
+              <div style={{ marginTop: 6, fontSize: 11, color: "#9CA3AF", textAlign: "center" as const }}>
+                4 pages included {"\u00B7"} Scroll inside preview to explore
+              </div>
+              {/* Open Full Preview button */}
+              <button onClick={() => {
+                if (!previewHtml) return;
+                const blob = new Blob([previewHtml], { type: 'text/html' });
+                window.open(URL.createObjectURL(blob), '_blank');
+              }} style={{ width: "100%", height: 38, background: "none", border: "1px solid #6366F1", color: "#6366F1", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", marginTop: 10 }}>
+                {"\u2197"} Open Full Preview
+              </button>
             </div>
           </div>
         )}

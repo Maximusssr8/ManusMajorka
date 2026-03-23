@@ -138,6 +138,7 @@ export function buildStoreHTML(plan: StorePlan): string {
     primaryColour, accentColour, headingFontName, bodyFontName,
     template, niche, supportEmail,
     supplierUrl, supplierName,
+    includeAbout, includeContact, products,
   } = plan;
 
   const tk = getTokens(template, primaryColour, accentColour);
@@ -390,6 +391,11 @@ details[open]>.faq-q::after{transform:rotate(45deg)}
   .footer{padding:60px 24px 36px}
   .footer-grid{grid-template-columns:1fr;gap:36px}
   .footer-bottom{flex-direction:column;text-align:center}
+  .about{padding:60px 24px!important}
+  .about div[style*="grid-template-columns:repeat(3"]{grid-template-columns:1fr!important}
+  #products{padding:60px 24px!important}
+  #contact{padding:60px 24px!important}
+  #contact div[style*="padding:40px"]{padding:24px!important}
 }
 </style>
 </head>
@@ -400,12 +406,15 @@ details[open]>.faq-q::after{transform:rotate(45deg)}
 <nav class="nav">
   <div class="nav-logo">${esc(storeName)}</div>
   <div class="nav-links">
-    <a href="#">Home</a><a href="#">Shop</a><a href="#">About</a><a href="#">Contact</a>
+    <a href="#hero" onclick="scrollTo(0,0);return false">Home</a>
+    <a href="#products">Products</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
   </div>
   <button class="nav-cta">${esc(heroCTA || 'Shop Now')}</button>
 </nav>
 
-<section class="hero">
+<section class="hero" id="hero">
   <div class="hero__text">
     <span class="hero__badge">🇦🇺 Proudly Australian</span>
     <h1>${esc(heroHeadline)}</h1>
@@ -473,13 +482,92 @@ details[open]>.faq-q::after{transform:rotate(45deg)}
   <div class="how-grid">${howHtml}</div>
 </section>
 
-<section class="faq">
+<section class="faq" id="faq">
   <div class="faq-inner">
     <div class="section-label" style="text-align:left;margin-bottom:6px">Support</div>
     <h2 class="section-heading" style="text-align:left;margin-bottom:40px">Frequently Asked Questions</h2>
     ${faqHtml}
   </div>
 </section>
+
+${includeAbout !== false ? `
+<!-- ── About page ──────────────────────────────────────────────── -->
+<section class="about" id="about" style="padding:100px 40px;max-width:900px;margin:0 auto">
+  <div style="text-align:center;margin-bottom:60px">
+    <div class="section-label">Our Story</div>
+    <h2 class="section-heading">About ${esc(storeName)}</h2>
+    <p style="font-size:16px;color:var(--muted);line-height:1.8;max-width:640px;margin:0 auto">
+      We source the best ${esc(niche)} products from trusted global suppliers and deliver them fast to your door.
+      Every product is hand-selected for quality, value, and real-world results.
+    </p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+    ${[
+      { icon: '\u{1F30F}', title: 'Global Sourcing', desc: `Curated ${esc(niche)} products from top-rated global suppliers` },
+      { icon: '\u26A1', title: 'Fast Shipping', desc: 'Express delivery to your door, tracked every step' },
+      { icon: '\u{1F4AF}', title: '30-Day Returns', desc: 'Not happy? Return it, no questions asked' },
+    ].map(f => `
+      <div style="background:var(--surface);border:1px solid rgba(0,0,0,0.06);border-radius:var(--radius);padding:28px 24px;text-align:center">
+        <div style="font-size:36px;margin-bottom:12px">${f.icon}</div>
+        <div style="font-family:var(--font-h);font-weight:700;font-size:15px;color:var(--text);margin-bottom:8px">${f.title}</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6">${f.desc}</div>
+      </div>
+    `).join('')}
+  </div>
+</section>
+` : ''}
+
+<!-- ── Products page ──────────────────────────────────────────── -->
+<section id="products" style="padding:80px 40px;background:var(--surface);margin:0">
+  <div style="max-width:1100px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:48px">
+      <div class="section-label">Full Catalogue</div>
+      <h2 class="section-heading">Shop All ${esc(niche)} Products</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px">
+      ${((products && products.length > 0) ? products : Array(6).fill(null)).map((p: any, i: number) => `
+        <div style="background:${isLight ? '#fff' : 'var(--bg)'};border:1px solid rgba(0,0,0,0.07);border-radius:var(--radius);overflow:hidden;transition:transform .2s,box-shadow .2s" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 32px rgba(0,0,0,0.12)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+          <div style="height:200px;background:${isLight ? '#F5F5F5' : '#1a1a1a'};overflow:hidden">
+            ${p?.image_url ? `<img src="${esc(p.image_url)}" alt="${esc(p.product_title)}" style="width:100%;height:100%;object-fit:cover" loading="lazy">` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:40px">\u{1F6CD}\uFE0F</div>`}
+          </div>
+          <div style="padding:16px">
+            <div style="font-family:var(--font-h);font-weight:600;font-size:13px;color:var(--text);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p?.product_title || `${niche} Product ${i+1}`)}</div>
+            <div style="font-size:16px;font-weight:700;color:var(--primary);margin-bottom:10px">$${p?.price_aud || (29 + i * 10)}.00</div>
+            <button class="btn-cart" style="width:100%;padding:9px 0;background:var(--primary);color:${isLight ? '#fff' : tk.btnPrimaryColor};border:none;border-radius:var(--radius);font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;cursor:pointer">Add to Cart</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+</section>
+
+${includeContact !== false ? `
+<!-- ── Contact page ──────────────────────────────────────────── -->
+<section id="contact" style="padding:100px 40px;max-width:700px;margin:0 auto">
+  <div style="text-align:center;margin-bottom:48px">
+    <div class="section-label">Get In Touch</div>
+    <h2 class="section-heading">Contact Us</h2>
+    <p style="font-size:14px;color:var(--muted)">Questions? We respond within 24 hours.</p>
+  </div>
+  <div style="background:var(--surface);border:1px solid rgba(0,0,0,0.07);border-radius:var(--radius);padding:40px">
+    <div style="display:grid;gap:16px">
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:6px">Your Name</label>
+        <input type="text" placeholder="Enter your name" style="width:100%;height:44px;padding:0 14px;border:1px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;background:${isLight ? '#fff' : 'var(--bg)'};color:var(--text);box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:6px">Email</label>
+        <input type="email" placeholder="your@email.com" style="width:100%;height:44px;padding:0 14px;border:1px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;background:${isLight ? '#fff' : 'var(--bg)'};color:var(--text);box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;display:block;margin-bottom:6px">Message</label>
+        <textarea rows="4" placeholder="How can we help?" style="width:100%;padding:12px 14px;border:1px solid rgba(0,0,0,0.12);border-radius:8px;font-size:14px;background:${isLight ? '#fff' : 'var(--bg)'};color:var(--text);resize:vertical;box-sizing:border-box;font-family:inherit"></textarea>
+      </div>
+      <button class="btn-p" style="width:100%;height:48px;background:var(--primary);color:${isLight ? '#fff' : tk.btnPrimaryColor};border:none;border-radius:var(--radius);font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer">Send Message</button>
+    </div>
+  </div>
+</section>
+` : ''}
 
 <footer class="footer">
   <div class="footer-grid">
@@ -490,8 +578,8 @@ details[open]>.faq-q::after{transform:rotate(45deg)}
     <div>
       <div class="footer-col-h">Quick Links</div>
       <ul class="footer-links">
-        <li><a href="#">Home</a></li><li><a href="#">Shop</a></li>
-        <li><a href="#">About</a></li><li><a href="#">Contact</a></li><li><a href="#">FAQ</a></li>
+        <li><a href="#hero">Home</a></li><li><a href="#products">Products</a></li>
+        <li><a href="#about">About</a></li><li><a href="#contact">Contact</a></li><li><a href="#faq">FAQ</a></li>
       </ul>
     </div>
     <div>

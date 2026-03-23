@@ -189,4 +189,80 @@ router.post('/push', requireSubscription, async (req, res) => {
   }
 });
 
+// POST /api/store-builder/preview — render full store HTML for iframe display
+router.post('/preview', async (req, res) => {
+  try {
+    const {
+      template = 'minimal',
+      storeName = 'My Store',
+      storeTagline = 'Trending products, fast delivery',
+      niche = 'General',
+      primaryColor = '#6366F1',
+      products = [],
+    } = req.body as {
+      template?: string;
+      storeName?: string;
+      storeTagline?: string;
+      niche?: string;
+      primaryColor?: string;
+      products?: Array<{ product_title?: string; image_url?: string | null; price_aud?: number }>;
+    };
+
+    const { buildStoreHTML } = await import('../lib/storeTemplate');
+
+    const html = buildStoreHTML({
+      template,
+      storeName,
+      tagline: storeTagline,
+      heroHeadline: `The ${niche} Store You Deserve`,
+      heroSubheadline: `Premium ${niche.toLowerCase()} products curated for quality, value, and fast delivery.`,
+      heroCTA: 'Shop Now',
+      productName: products[0]?.product_title || `Premium ${niche} Product`,
+      productDescription: `Hand-selected ${niche.toLowerCase()} product, tested for quality and value.`,
+      productBullets: [
+        'Premium quality materials',
+        'Fast tracked shipping',
+        '30-day money-back guarantee',
+        'Secure checkout',
+        'Dedicated support team',
+      ],
+      price: products[0]?.price_aud || 49.95,
+      afterpayPrice: ((products[0]?.price_aud || 49.95) / 4),
+      testimonials: [
+        { name: 'Sarah M.', location: 'Sydney', text: 'Amazing quality and super fast delivery. Highly recommend!', rating: 5 },
+        { name: 'Jake T.', location: 'Brisbane', text: 'Best purchase I have made this year. Will buy again.', rating: 5 },
+        { name: 'Emma K.', location: 'Melbourne', text: 'Great product and excellent customer service.', rating: 5 },
+      ],
+      faqItems: [
+        { q: 'How fast is shipping?', a: 'Same-day dispatch before 2pm. 2-5 business days delivery.' },
+        { q: 'What is your return policy?', a: '30-day no-questions-asked returns on all orders.' },
+        { q: 'Do you offer Afterpay?', a: 'Yes! Pay in 4 interest-free instalments on orders over $35.' },
+      ],
+      howItWorks: [
+        { step: '1', title: 'Browse', description: 'Explore our curated collection' },
+        { step: '2', title: 'Order', description: 'Secure checkout with Afterpay' },
+        { step: '3', title: 'Enjoy', description: 'Fast delivery to your door' },
+      ],
+      niche,
+      heroImageUrl: '',
+      productImageUrl: products[0]?.image_url || '',
+      primaryColour: primaryColor,
+      accentColour: primaryColor,
+      headingFont: 'Syne',
+      bodyFont: 'DM Sans',
+      headingFontName: 'Syne',
+      bodyFontName: 'DM Sans',
+      supportEmail: 'hello@example.com',
+      includeAbout: true,
+      includeContact: true,
+      products: products.slice(0, 8),
+    });
+
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

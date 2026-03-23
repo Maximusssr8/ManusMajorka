@@ -1149,6 +1149,14 @@ export interface StorePlan {
   supportEmail: string;
   supplierUrl?: string;
   supplierName?: string;
+  includeAbout?: boolean;
+  includeContact?: boolean;
+  products?: Array<{
+    id?: string;
+    product_title?: string;
+    image_url?: string | null;
+    price_aud?: number;
+  }>;
 }
 
 // ─── planStore(): Haiku JSON plan for two-stage generation ───────────────────
