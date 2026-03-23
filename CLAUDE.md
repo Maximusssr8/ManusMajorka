@@ -1355,3 +1355,8 @@ GOOGLE_STITCH_API_KEY=your_google_ai_studio_key
 ```
 
 Get key at: https://aistudio.google.com/app/apikey
+
+### Stitch MCP Status
+- ✅ Added to ~/.claude.json (user scope)
+- Key: AQ.Ab8RN6KOA_... (configured in claude.json)
+- Available in all Claude Code sessions automatically
