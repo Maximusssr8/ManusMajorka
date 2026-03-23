@@ -303,13 +303,29 @@ app.get("/api/competitor/stores", async (_req: Request, res: Response) => {
 // ── Creator Intelligence API ──────────────────────────────────────────────
 app.get("/api/creators", async (req: Request, res: Response) => {
   try {
-    const niche = String(req.query.niche || 'beauty');
-    const region = String(req.query.region || 'US');
+    const niche = String(req.query.niche || '');
+    const region = String(req.query.region || '');
     const limit = Math.min(50, parseInt(String(req.query.limit || '20')));
 
+    const SURL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://ievekuazsjbdrltsdksn.supabase.co';
+    const SKEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+    // Query DB first
+    let url = `${SURL}/rest/v1/creators?select=*&order=last_scraped_at.desc&limit=${limit}`;
+    if (niche) url += `&niche=eq.${encodeURIComponent(niche)}`;
+    if (region) url += `&region_code=eq.${region}`;
+
+    const r = await fetch(url, { headers: { apikey: SKEY, Authorization: `Bearer ${SKEY}` } });
+    const dbData = await r.json();
+
+    if (Array.isArray(dbData) && dbData.length > 0) {
+      return res.json({ creators: dbData, count: dbData.length, niche, region, source: 'db' });
+    }
+
+    // Fallback to live Tavily scrape
     const { searchCreators } = await import('../server/lib/creator-scraper');
-    const creators = await searchCreators(niche, region, limit);
-    res.json({ creators, count: creators.length, niche, region });
+    const creators = await searchCreators(niche || 'beauty', region || 'US', limit);
+    res.json({ creators, count: creators.length, niche, region, source: 'live' });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
