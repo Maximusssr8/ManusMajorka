@@ -86,6 +86,14 @@ CREATE TABLE IF NOT EXISTS au_shop_rankings (
   shop_type text default 'dropship',
   created_at timestamptz default now()
 );
+
+-- Velocity columns for winning_products
+ALTER TABLE winning_products
+  ADD COLUMN IF NOT EXISTS velocity_label text,
+  ADD COLUMN IF NOT EXISTS velocity_score integer,
+  ADD COLUMN IF NOT EXISTS peak_in_days integer,
+  ADD COLUMN IF NOT EXISTS velocity_curve jsonb,
+  ADD COLUMN IF NOT EXISTS velocity_confidence text;
 `;
 
 console.log('\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557');

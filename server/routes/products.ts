@@ -563,4 +563,20 @@ router.post("/generate-ad-copy", requireAuth, async (req: Request, res: Response
   }
 });
 
+// GET /api/products/velocity?name=product+name
+// Returns trend velocity for a single product
+router.get('/velocity', async (req: Request, res: Response) => {
+  try {
+    const name = String(req.query.name || '').trim();
+    if (!name) { res.status(400).json({ error: 'name is required' }); return; }
+
+    const { calculateTrendVelocity } = await import('../lib/trend-velocity');
+    const result = await calculateTrendVelocity(name);
+
+    res.json({ name, ...result });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

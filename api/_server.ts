@@ -409,6 +409,10 @@ app.get("/api/trend-signals", async (req: Request, res: Response) => {
       aliexpress_id: p.aliexpress_id,
       source: 'live_pipeline_v2',
       updated_at: p.updated_at || p.last_refreshed,
+      velocity_label: p.velocity_label || null,
+      velocity_score: p.velocity_score || null,
+      peak_in_days: p.peak_in_days || null,
+      velocity_curve: p.velocity_curve || null,
     }));
 
     res.json(rows);

@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { ProductStatCards } from '@/components/ProductStatCards';
 import { ProductFilterSidebar, DEFAULT_FILTERS } from '@/components/ProductFilterSidebar';
 import { ProductImage } from '@/components/ProductImage';
+import { VelocityBadge } from '@/components/VelocityBadge';
 import type { FilterState } from '@/components/ProductFilterSidebar';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -49,6 +50,10 @@ interface Product {
   revenue_trend?: number[];
   revenue_growth_pct?: number;
   avg_unit_price_aud?: number;
+  velocity_label?: 'EARLY' | 'PEAK' | 'FADING' | 'UNKNOWN';
+  velocity_score?: number;
+  peak_in_days?: number | null;
+  velocity_curve?: Array<{ signal_strength: number }>;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -600,6 +605,17 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                               <div style={{ fontWeight: 600, fontSize: 13, color: '#0A0A0A', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
                                 {name}
                               </div>
+                              {p.velocity_label && p.velocity_label !== 'UNKNOWN' && (
+                                <div style={{ marginTop: 3 }}>
+                                  <VelocityBadge
+                                    label={p.velocity_label}
+                                    score={p.velocity_score}
+                                    peakInDays={p.peak_in_days}
+                                    curve={p.velocity_curve}
+                                    size="sm"
+                                  />
+                                </div>
+                              )}
                               <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
                                 {tags.slice(0, 2).map(tag => {
                                   const ts = TAG_STYLE[tag] || TAG_STYLE['TRENDING'];

@@ -1,6 +1,7 @@
 // server/lib/productPipeline.ts
 import { fetchTrendSignals } from './tavilyTrends';
 import { searchAliAffiliateProducts } from './aliexpress-affiliate';
+import { calculateTrendVelocity } from './trend-velocity';
 // TikTok scraper intentionally excluded from pipeline (unreliable, blocks cron)
 // import { searchTikTokShop } from './tiktok-shop-scraper';
 
@@ -143,6 +144,15 @@ export async function runProductPipeline(light = false): Promise<{ inserted: num
       }
     }
 
+    // Calculate trend velocity (Tavily-powered)
+    let velocity: { label: string; score: number; peak_in_days: number | null; curve: any[]; confidence: string } | null = null;
+    try {
+      await new Promise(r => setTimeout(r, 600));
+      velocity = await calculateTrendVelocity(p.name);
+    } catch {
+      // silent fail
+    }
+
     // Image priority: 1. AliExpress Affiliate API, 2. Pexels fallback, 3. NoImage (handled in frontend)
     const finalImage = realImage || p.image_raw || null;
     const finalUrl = affiliateUrl || `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(p.name)}&shipCountry=au`;
@@ -165,7 +175,12 @@ export async function runProductPipeline(light = false): Promise<{ inserted: num
       rating: p.rating,
       tags: buildTags(p),
       score_breakdown: { ...p.score_breakdown, tavily_mentions: p.tavily_mentions || 0, tiktok_signal: p.tiktok_signal || false },
-      tiktok_signal: tikTokSales > 0 || p.tiktok_signal || false,
+      tiktok_signal: p.tiktok_signal || false,
+      velocity_label: velocity?.label || null,
+      velocity_score: velocity?.score || null,
+      peak_in_days: velocity?.peak_in_days || null,
+      velocity_curve: velocity?.curve ? JSON.stringify(velocity.curve) : null,
+      velocity_confidence: velocity?.confidence || null,
       source: 'rapidapi_datahub',
       updated_at: new Date().toISOString(),
     });
