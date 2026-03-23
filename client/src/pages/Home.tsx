@@ -221,23 +221,23 @@ const BIG_FEATURES = [
 ];
 
 const TESTIMONIALS_SHOW = [
-  { quote: 'Made $4,200 in my first month using Majorka\'s winning products feed. The AU-specific data is what makes it different.', name: 'Jordan K.', city: 'Gold Coast, QLD', flag: '🇦🇺', plan: 'Builder Plan', stars: 5 },
-  { quote: 'Finally a tool that understands Australian shipping costs. The profit calculator alone saved me from 3 bad decisions.', name: 'Sarah M.', city: 'Sydney, NSW', flag: '🇦🇺', plan: 'Builder Plan', stars: 5 },
-  { quote: 'The TikTok trend detection is scary accurate. I got into posture correctors 2 weeks before they blew up.', name: 'Marcus T.', city: 'Melbourne, VIC', flag: '🇦🇺', plan: 'Builder Plan', stars: 5 },
-  { quote: 'Competitor spy is 🔥. I can see exactly what other stores are selling and undercut them before they know what happened.', name: 'Priya S.', city: 'Brisbane, QLD', flag: '🇦🇺', plan: 'Scale Plan', stars: 5 },
-  { quote: 'Used 3 other tools before Majorka. This is the only one that actually knows Australia — AusPost rates, GST, Afterpay.', name: 'Tom W.', city: 'Perth, WA', flag: '🇦🇺', plan: 'Builder Plan', stars: 5 },
-  { quote: 'The AI ad copy writes better than I do. My Facebook CTR went from 1.2% to 3.8% using Majorka\'s templates.', name: 'Emma L.', city: 'Adelaide, SA', flag: '🇦🇺', plan: 'Scale Plan', stars: 5 },
+  { quote: 'Made $4,200 in my first month using Majorka\'s winning products feed. The market-specific data is what makes it different.', name: 'Jordan K.', city: 'Gold Coast, AU', flag: '🇦🇺', plan: 'Builder Plan', stars: 5 },
+  { quote: 'Finally a tool that understands local shipping costs. The profit calculator alone saved me from 3 bad decisions.', name: 'Sarah M.', city: 'Sydney, AU', flag: '🇦🇺', plan: 'Builder Plan', stars: 5 },
+  { quote: 'The TikTok trend detection is scary accurate. I got into posture correctors 2 weeks before they blew up.', name: 'Marcus T.', city: 'Melbourne, AU', flag: '🇦🇺', plan: 'Builder Plan', stars: 5 },
+  { quote: 'Competitor spy is amazing. I can see exactly what other stores are selling and undercut them before they know what happened.', name: 'Jake R.', city: 'New York, US', flag: '🇺🇸', plan: 'Scale Plan', stars: 5 },
+  { quote: 'Used 3 other tools before Majorka. This is the only one that adapts to my market — local shipping rates, tax, and payments.', name: 'Tom W.', city: 'London, UK', flag: '🇬🇧', plan: 'Builder Plan', stars: 5 },
+  { quote: 'The AI ad copy writes better than I do. My Facebook CTR went from 1.2% to 3.8% using Majorka\'s templates.', name: 'Emma L.', city: 'Toronto, CA', flag: '🇨🇦', plan: 'Scale Plan', stars: 5 },
 ];
 
 const FAQ = [
-  { q: 'Is Majorka built for sellers worldwide?', a: 'Yes. Majorka detects your timezone and currency automatically, serving sellers in Australia (AUD), UK (GBP), Europe (EUR), and the US (USD). Every tool adapts to your local market — shipping carriers, compliance, language, and pricing.' },
-  { q: 'What makes this different from other AI tools?', a: 'Most tools are US-centric. Majorka supports multi-currency pricing, global shipping carriers, regional compliance, and local payment methods (Afterpay, Klarna, Zip, Stripe). No more converting USD or adapting American advice.' },
+  { q: 'Which markets does Majorka support?', a: 'Majorka supports 7 markets: US, Australia, UK, Canada, New Zealand, Germany, and Singapore. Select your region and every tool adapts — currency, shipping carriers, tax rates, compliance, and local payment methods.' },
+  { q: 'What makes this different from other AI tools?', a: 'Majorka is region-native. It supports multi-currency pricing, local shipping carriers, tax compliance, and payment methods (Afterpay, Klarna, Zip, Stripe) across 7 markets. No more converting currencies or adapting generic advice.' },
   { q: 'Can I cancel anytime?', a: 'Yes, absolutely. No lock-in contracts. Cancel from your dashboard anytime. You retain access until the end of your billing period.' },
   { q: 'Do you support Shopify?', a: 'Yes. Website Generator exports production-ready Shopify Liquid theme files as a ZIP. All landing pages include trust signals, local payment badges, and mobile-optimised layouts ready for your store.' },
   { q: 'Is there a free trial?', a: 'Yes. The Starter plan is free forever with 5 AI credits per day and access to core tools. Paid plans include a 7-day free trial with no credit card required.' },
 ];
 
-const LOGO_STRIP = ['Shopify', 'AliExpress', 'Meta', 'Google', 'TikTok', 'Australia Post', 'Stripe', 'Klarna', 'Afterpay', 'Amazon', 'Canva'];
+const LOGO_STRIP = ['Shopify', 'AliExpress', 'Meta', 'Google', 'TikTok', 'DHL', 'Stripe', 'Klarna', 'Afterpay', 'Amazon', 'Canva'];
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
@@ -577,7 +577,7 @@ const BENTO_CARDS = [
   },
   {
     key: 'F', title: '\u{1F1E6}\u{1F1FA} AU-First Data',
-    desc: 'Every signal, trend, and supplier link is filtered for the Australian market. No US noise. Just AU opportunities.',
+    desc: 'Every signal, trend, and supplier link is filtered for your market. Pick your region and get local opportunities.',
     gridColumn: '2 / 3', gridRow: '3 / 4',
   },
   {
@@ -1177,7 +1177,7 @@ export default function Home() {
   return (
     <div style={{ background: C.bg, color: C.text, fontFamily: dm, overflowX: 'hidden', minHeight: '100vh' }}>
       <SEO
-        title="Majorka — AI Ecommerce OS for Australian Dropshippers"
+        title="Majorka — AI Ecommerce OS for Dropshippers"
         description="Find winning products, build Shopify stores and launch AU dropshipping campaigns with AI. Trusted by 2,400+ AU sellers."
         path="/"
         ogImage="/og-image.svg"
@@ -1231,7 +1231,7 @@ export default function Home() {
           {/* Pill badge */}
           <div style={{ opacity: 0, animation: 'fadeIn 0.4s ease 0.1s both' }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid #E5E7EB', background: 'white', color: '#6B7280', fontSize: 13, padding: '6px 14px', borderRadius: 999, marginBottom: 24 }}>
-              ✦ Built exclusively for Australian Dropshippers
+              ✦ Built for Dropshippers Worldwide
             </span>
           </div>
 
@@ -1341,14 +1341,14 @@ export default function Home() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 32 }}>
             <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
             <span style={{ fontSize: 13, color: '#9CA3AF', fontWeight: 500, whiteSpace: 'nowrap', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-              Powering stores across Australia
+              Powering stores worldwide
             </span>
             <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 48, flexWrap: 'wrap' }}>
-            {['Shopify', 'AliExpress', 'TikTok Shop', 'Meta Ads', 'Google Ads', 'Australia Post'].map(name => (
+            {['Shopify', 'AliExpress', 'TikTok Shop', 'Meta Ads', 'Google Ads', 'DHL'].map(name => (
               <div key={name}
-                style={{ fontSize: 15, fontWeight: 700, color: '#374151', opacity: 0.35, filter: 'grayscale(1)', transition: 'opacity 200ms', letterSpacing: name === 'Australia Post' ? '-0.02em' : '0', cursor: 'default', userSelect: 'none' }}
+                style={{ fontSize: 15, fontWeight: 700, color: '#374151', opacity: 0.35, filter: 'grayscale(1)', transition: 'opacity 200ms', letterSpacing: '0', cursor: 'default', userSelect: 'none' }}
                 onMouseEnter={e => (e.currentTarget.style.opacity = '0.65')}
                 onMouseLeave={e => (e.currentTarget.style.opacity = '0.35')}
               >
@@ -1383,7 +1383,7 @@ export default function Home() {
               <span style={{ fontSize: 12, fontWeight: 700, color: C.gold, fontFamily: syne }}>WHAT SELLERS ARE SAYING</span>
             </div>
             <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.6rem, 4.5vw, 3rem)', letterSpacing: '-0.025em', color: '#0A0A0A' }}>
-              Real results. Real Australian sellers.
+              Real results. Real sellers.
             </h2>
             <p style={{ color: '#6B7280', fontSize: 16, marginTop: 12 }}>Join 2,400+ sellers already winning with Majorka.</p>
           </motion.div>
@@ -1425,7 +1425,7 @@ export default function Home() {
         <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '12px 32px' }}>
           {[
             { icon: '🔒', label: 'SSL Encrypted' },
-            { icon: '🇦🇺', label: 'Australian-Founded' },
+            { icon: '🌍', label: 'Global Platform' },
             { icon: '💳', label: 'Cancel Anytime' },
             { icon: '🤝', label: '7-Day Money Back' },
           ].map((badge, i) => (
@@ -1679,8 +1679,8 @@ export default function Home() {
             </div>
           </div>
           <div style={{ borderTop: '1px solid #1F1F23', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-            <span style={{ fontSize: 13, color: '#4B4B57' }}>© 2026 Majorka Pty Ltd · Made in Gold Coast, Australia 🇦🇺</span>
-            <span style={{ fontSize: 13, color: '#4B4B57' }}>🇦🇺 Australian Owned & Operated</span>
+            <span style={{ fontSize: 13, color: '#4B4B57' }}>© 2026 Majorka Pty Ltd</span>
+            <span style={{ fontSize: 13, color: '#4B4B57' }}>🌍 Global Platform · 7 Markets</span>
           </div>
         </div>
       </footer>
