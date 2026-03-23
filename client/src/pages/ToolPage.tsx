@@ -164,6 +164,7 @@ export default function ToolPage() {
 
   // New consolidated pages
   if (location === '/app/shops') return page(<ShopIntelligence />);
+  if (location === '/app/video-intelligence') return page(<VideoIntelligence />);
   if (location === '/app/intelligence') return page(<ProductIntelligence />);
   if (location === '/app/spy') return page(<SpyTools />);
   if (location === '/app/growth') return page(<GrowthTools />);

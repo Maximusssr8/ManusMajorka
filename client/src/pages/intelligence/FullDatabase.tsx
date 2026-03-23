@@ -1,5 +1,8 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
+import { ProductStatCards } from '@/components/ProductStatCards';
+import { ProductFilterSidebar, DEFAULT_FILTERS } from '@/components/ProductFilterSidebar';
+import type { FilterState } from '@/components/ProductFilterSidebar';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Product {
@@ -42,6 +45,9 @@ interface Product {
   updated_at?: string;
   creator_count?: number;
   creator_handles?: string;
+  revenue_trend?: number[];
+  revenue_growth_pct?: number;
+  avg_unit_price_aud?: number;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -193,6 +199,9 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const [lastUpdated, setLastUpdated] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [refreshMsg, setRefreshMsg] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState<FilterState>(DEFAULT_FILTERS);
+  const [activeTab, setActiveTab] = useState('all');
 
   // Plan check (simple)
   const [userPlan, setUserPlan] = useState<'free' | 'builder' | 'scale'>('free');
@@ -268,29 +277,88 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     }
   };
 
+  // Tab filter definitions
+  const TAB_FILTERS: { id: string; label: string; filter?: (p: Product) => boolean; sortOverride?: string }[] = [
+    { id: 'all', label: '\uD83D\uDD25 All Products' },
+    { id: 'revenue', label: '\uD83D\uDCC8 Best Revenue', sortOverride: 'est_monthly_revenue_aud' },
+    { id: 'margin', label: '\uD83D\uDCB0 High Margin', filter: (p: Product) => (p.estimated_margin_pct || p.profit_margin || 0) >= 50 },
+    { id: 'tiktok', label: '\uD83D\uDCF1 TikTok Viral', filter: (p: Product) => (p.tags || []).includes('VIRAL') || !!p.tiktok_signal },
+    { id: 'au', label: '\uD83C\uDDE6\uD83C\uDDFA AU Demand', filter: (p: Product) => (p.tags || []).includes('AU DEMAND') || (p.tags || []).includes('AU BEST SELLERS') },
+    { id: 'new', label: '\uD83C\uDD95 New Today', filter: (p: Product) => { const t = p.updated_at; return t ? Date.now() - new Date(t).getTime() < 86400000 : false; } },
+  ];
+
   // Client-side filter
   const filtered = products.filter(p => {
     if (verifiedOnly && (p.orders_count || 0) < 500) return false;
-    if (opportunityFilter === 'All') return true;
-    const orders = p.orders_count || 0;
-    const margin = getProductMargin(p);
-    const growth = getGrowthRate(p);
-    const nStr = getProductNiche(p).toLowerCase();
-    if (opportunityFilter === 'Viral') return growth > 20 || (p.social_buzz_score || 0) > 70;
-    if (opportunityFilter === 'High Margin') return margin >= 40;
-    if (opportunityFilter === 'AU Best Sellers') return orders >= 50;
-    if (opportunityFilter === 'TikTok') return p.tiktok_signal || nStr.includes('tiktok');
-    if (opportunityFilter === 'New Today') {
-      const ago = Date.now() - 86400000;
-      const t = p.updated_at;
-      return t ? new Date(t).getTime() > ago : false;
+
+    // Opportunity pill filter
+    if (opportunityFilter !== 'All') {
+      const orders = p.orders_count || 0;
+      const margin = getProductMargin(p);
+      const growth = getGrowthRate(p);
+      const nStr = getProductNiche(p).toLowerCase();
+      if (opportunityFilter === 'Viral' && !(growth > 20 || (p.social_buzz_score || 0) > 70)) return false;
+      if (opportunityFilter === 'High Margin' && margin < 40) return false;
+      if (opportunityFilter === 'AU Best Sellers' && orders < 50) return false;
+      if (opportunityFilter === 'TikTok' && !p.tiktok_signal && !nStr.includes('tiktok')) return false;
+      if (opportunityFilter === 'New Today') {
+        const t = p.updated_at;
+        if (!t || new Date(t).getTime() < Date.now() - 86400000) return false;
+      }
     }
+
+    // Tab filter
+    const tabDef = TAB_FILTERS.find(t => t.id === activeTab);
+    if (tabDef?.filter && !tabDef.filter(p)) return false;
+
+    // Advanced sidebar filters
+    if (advancedFilters.categories.length > 0 && !advancedFilters.categories.includes(getProductNiche(p))) return false;
+    if ((p.winning_score || 0) < advancedFilters.scoreMin) return false;
+    const rev = getProductRevenue(p);
+    if (rev < advancedFilters.revenueMin || rev > advancedFilters.revenueMax) return false;
+    if (advancedFilters.marginFilter.length > 0) {
+      const m = getProductMargin(p);
+      const tier = m >= 50 ? 'high' : m >= 30 ? 'medium' : 'low';
+      if (!advancedFilters.marginFilter.includes(tier)) return false;
+    }
+    if (advancedFilters.growthFilter !== 'all') {
+      const g = getGrowthRate(p);
+      if (advancedFilters.growthFilter === 'growing' && g <= 0) return false;
+      if (advancedFilters.growthFilter === 'rapid' && g <= 20) return false;
+      if (advancedFilters.growthFilter === 'declining' && g >= 0) return false;
+    }
+
     return true;
   });
 
   const niches = ['All Niches', ...Array.from(new Set(products.map(p => getProductNiche(p)).filter(Boolean)))].slice(0, 16);
 
   const FILTERS = ['All', 'Viral', 'High Margin', 'AU Best Sellers', 'TikTok', 'New Today'];
+
+  // Export CSV
+  const exportCSV = () => {
+    const headers = ['Name', 'Niche', 'Revenue/mo (AUD)', 'Growth %', 'Orders', 'Price (AUD)', 'Margin %', 'AI Score', 'Tags', 'Supplier URL'];
+    const rows = filtered.map(p => [
+      getProductName(p),
+      getProductNiche(p),
+      getProductRevenue(p),
+      getGrowthRate(p),
+      getProductOrders(p),
+      getProductPrice(p).toFixed(2),
+      getProductMargin(p),
+      getProductScore(p),
+      (p.tags || []).join(' | '),
+      getSupplierUrl(p),
+    ]);
+    const csv = [headers, ...rows].map(row => row.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `majorka-products-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   // Sort indicator
   const SortIcon = ({ col }: { col: string }) => {
@@ -313,6 +381,12 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
   return (
     <div style={{ background: '#FAFAFA', minHeight: '100vh' }}>
+      <ProductFilterSidebar
+        open={sidebarOpen}
+        onToggle={() => setSidebarOpen(o => !o)}
+        categories={niches.filter(n => n !== 'All Niches')}
+        onFiltersChange={setAdvancedFilters}
+      />
       {/* ── PAGE HEADER ── */}
       <div style={{ padding: '24px 24px 0', maxWidth: 1400, margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
@@ -325,6 +399,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button onClick={exportCSV}
+              style={{ height: 36, padding: '0 16px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              {'\u2193'} Export CSV
+            </button>
             <button onClick={handleRefresh} disabled={refreshing}
               style={{ height: 36, padding: '0 16px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: refreshing ? 'wait' : 'pointer', opacity: refreshing ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ display: 'inline-block', animation: refreshing ? 'spin 1s linear infinite' : 'none' }}>{'\u21BB'}</span>
@@ -385,6 +463,19 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             <input type="checkbox" checked={verifiedOnly} onChange={e => setVerifiedOnly(e.target.checked)} style={{ accentColor: '#6366F1', width: 14, height: 14 }} />
             500+ orders only
           </label>
+        </div>
+
+        {/* Stat Cards */}
+        <ProductStatCards products={filtered} />
+
+        {/* KaloData-style Tab Bar */}
+        <div style={{ display: 'flex', gap: 0, borderBottom: '2px solid #F3F4F6', marginBottom: 16, overflowX: 'auto' }}>
+          {TAB_FILTERS.map(t => (
+            <button key={t.id} onClick={() => setActiveTab(t.id)}
+              style={{ height: 42, padding: '0 20px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === t.id ? 700 : 500, color: activeTab === t.id ? '#6366F1' : '#9CA3AF', borderBottom: activeTab === t.id ? '3px solid #6366F1' : '3px solid transparent', whiteSpace: 'nowrap' as const, transition: 'all 150ms', marginBottom: -2, minWidth: 120 }}>
+              {t.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -467,8 +558,12 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   const score = getProductScore(p);
                   const price = getProductPrice(p);
                   const growth = getGrowthRate(p);
-                  const sparkData = generateSparkline(p.id || idx, revenue, score);
-                  const isPositive = growth >= 0;
+                  const sparkData = (p.revenue_trend && Array.isArray(p.revenue_trend) && p.revenue_trend.length >= 2)
+                    ? p.revenue_trend as number[]
+                    : generateSparkline(p.id || idx, revenue, score);
+                  const isPositive = (p.revenue_growth_pct !== undefined && p.revenue_growth_pct !== null)
+                    ? p.revenue_growth_pct >= 0
+                    : growth >= 0;
                   const tags = (p.tags && p.tags.length > 0) ? p.tags : (
                     [growth > 25 ? 'VIRAL' : null, margin >= 50 ? 'HIGH MARGIN' : null, orders >= 2000 ? 'AU BEST SELLERS' : null, 'TRENDING']
                       .filter(Boolean) as string[]
