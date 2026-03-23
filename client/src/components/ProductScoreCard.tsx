@@ -10,13 +10,13 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export interface ProductScore {
-  demand: number;       // 0-100
+  demand: number | null;       // 0-100
   competition: number;  // 0-100 (inverted — lower = better)
   margin: number;       // 0-100
-  timing: number;       // 0-100
+  timing: number | null;       // 0-100
   overall: number;      // weighted average
   productName?: string;
-  [key: string]: number | string | undefined;
+  [key: string]: number | string | null | undefined;
 }
 
 interface Props {
@@ -157,13 +157,13 @@ function extractScoreFromResponse(text: string): ProductScore | null {
   const productName = nameMatch?.[1]?.trim() ?? undefined;
 
   return {
-    demand: Math.min(100, Math.round(sentiment + Math.random() * 10 - 5)),
-    competition: Math.min(100, Math.round(40 + Math.random() * 30)),
+    demand: sentiment > 0 ? Math.min(100, Math.round(sentiment)) : null,
+    competition: Math.min(100, Math.round(55)),
     margin: Math.min(100, marginScore),
-    timing: Math.min(100, Math.round(sentiment + Math.random() * 15 - 7)),
+    timing: sentiment > 0 ? Math.min(100, Math.round(sentiment)) : null,
     overall: Math.round(sentiment),
     productName,
-  };
+  } as ProductScore;
 }
 
 export function ProductScoreCard({ response, onScoreLoaded }: Props) {
@@ -297,10 +297,22 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
       </div>
 
       {/* Score bars */}
-      <ScoreBar label="Market Demand" icon={TrendingUp} score={score.demand} delay={0} />
+      {score.demand != null ? <ScoreBar label="Market Demand" icon={TrendingUp} score={score.demand} delay={0} /> : (
+        <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <TrendingUp size={12} color="#52525b" />
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#94949e' }}>Market Demand</span>
+          <span style={{ marginLeft: 'auto', fontSize: 13, color: '#52525b' }}>&mdash;</span>
+        </div>
+      )}
       <ScoreBar label="Competition" icon={Users} score={score.competition} inverted delay={100} />
       <ScoreBar label="Margin Potential" icon={DollarSign} score={score.margin} delay={200} />
-      <ScoreBar label="Market Timing" icon={Clock} score={score.timing} delay={300} />
+      {score.timing != null ? <ScoreBar label="Market Timing" icon={Clock} score={score.timing} delay={300} /> : (
+        <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <Clock size={12} color="#52525b" />
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#94949e' }}>Market Timing</span>
+          <span style={{ marginLeft: 'auto', fontSize: 13, color: '#52525b' }}>&mdash;</span>
+        </div>
+      )}
       <ScoreBar label="Overall Opportunity" icon={BarChart2} score={score.overall} delay={400} />
 
       {/* Verdict */}

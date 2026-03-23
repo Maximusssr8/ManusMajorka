@@ -202,7 +202,7 @@ function parseProductCards(text: string): ProductCard[] {
         break;
       }
     }
-    if (!score) score = 72 + Math.floor(Math.random() * 20);
+    if (!score) score = 78;
 
     let oneLiner = '';
     for (let i = 1; i < lines.length; i++) {
@@ -222,7 +222,7 @@ function parseProductCards(text: string): ProductCard[] {
     for (const m of boldMatches.slice(0, 3)) {
       const name = m[1].trim();
       if (name && !name.toLowerCase().includes('score') && !name.toLowerCase().includes('note')) {
-        cards.push({ name, score: 75 + Math.floor(Math.random() * 20), oneLiner: '' });
+        cards.push({ name, score: 78, oneLiner: '' });
       }
     }
   }

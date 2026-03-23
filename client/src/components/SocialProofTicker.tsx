@@ -1,6 +1,6 @@
 /**
  * SocialProofTicker — Fixed bottom-left real-time activity notifications.
- * Rotates through 20 AU sellers doing cool things.
+ * Rotates through 20 global users taking actions on the platform.
  * Desktop only (hidden < 768px).
  * Dismissible (localStorage, 24h).
  */
@@ -10,26 +10,26 @@ import { useEffect, useState } from 'react';
 // ── Notification list ─────────────────────────────────────────────────────────
 
 const NOTIFICATIONS = [
-  { name: 'Jake', city: 'Brisbane QLD', action: 'found a $12,400/day product', icon: '🔥' },
-  { name: 'Sarah', city: 'Sydney NSW', action: 'exported 3 products to Shopify', icon: '📦' },
-  { name: 'Marcus', city: 'Melbourne VIC', action: 'discovered a winning niche', icon: '💡' },
-  { name: 'Priya', city: 'Gold Coast QLD', action: 'spied on a $50k/month store', icon: '🔍' },
-  { name: 'Tom', city: 'Perth WA', action: 'generated 5 Facebook ad sets', icon: '📱' },
-  { name: 'Emma', city: 'Adelaide SA', action: 'found a supplier at 72% margin', icon: '💰' },
-  { name: 'Liam', city: 'Sunshine Coast QLD', action: 'just went Pro', icon: '⭐' },
-  { name: 'Olivia', city: 'Hobart TAS', action: 'built a store in 8 minutes', icon: '🏗️' },
-  { name: 'Noah', city: 'Darwin NT', action: 'identified a $18,500/day trend', icon: '📈' },
-  { name: 'Ava', city: 'Canberra ACT', action: 'found a product with 91% AU relevance', icon: '🇦🇺' },
-  { name: 'Jack', city: 'Newcastle NSW', action: 'exported to Shopify successfully', icon: '✅' },
-  { name: 'Isla', city: 'Wollongong NSW', action: 'found 3 trending pet products', icon: '🐾' },
-  { name: 'William', city: 'Geelong VIC', action: 'hit $4,200 in first month sales', icon: '💎' },
-  { name: 'Mia', city: 'Cairns QLD', action: 'discovered a viral beauty trend', icon: '💄' },
-  { name: 'Henry', city: 'Townsville QLD', action: 'saved a supplier at $8 cost price', icon: '🏭' },
-  { name: 'Charlotte', city: 'Ballarat VIC', action: 'generated 12 ad creatives with AI', icon: '🤖' },
-  { name: 'James', city: 'Launceston TAS', action: 'found a product scoring 97/100', icon: '🏆' },
-  { name: 'Amelia', city: 'Mackay QLD', action: 'just cancelled their Minea subscription', icon: '👋' },
-  { name: 'Oliver', city: 'Bendigo VIC', action: 'hit their first $1,000 day', icon: '🚀' },
-  { name: 'Grace', city: 'Toowoomba QLD', action: 'found a supplier with 4-day AU shipping', icon: '📬' },
+  { name: 'Jake', city: 'Brisbane, AU', action: 'just found a trending product in Health', icon: '🔥' },
+  { name: 'Sarah', city: 'London, UK', action: 'exported 3 products to their Shopify store', icon: '📦' },
+  { name: 'Marcus', city: 'Melbourne, AU', action: 'discovered a high-margin niche', icon: '💡' },
+  { name: 'Priya', city: 'Toronto, CA', action: 'ran a competitor spy on their niche', icon: '🔍' },
+  { name: 'Tom', city: 'Perth, AU', action: 'generated an ad pack with AI', icon: '📱' },
+  { name: 'Emma', city: 'Auckland, NZ', action: 'found a supplier at high margin', icon: '💰' },
+  { name: 'Liam', city: 'Sydney, AU', action: 'just upgraded to Scale', icon: '⭐' },
+  { name: 'Olivia', city: 'New York, US', action: 'launched a store in under 10 minutes', icon: '🏗️' },
+  { name: 'Noah', city: 'Singapore, SG', action: 'identified a trending product in Tech', icon: '📈' },
+  { name: 'Ava', city: 'Gold Coast, AU', action: 'filtered 200 products down to 5 winners', icon: '🎯' },
+  { name: 'Jack', city: 'Chicago, US', action: 'connected their Shopify store', icon: '✅' },
+  { name: 'Isla', city: 'Edinburgh, UK', action: 'found 3 trending pet products', icon: '🐾' },
+  { name: 'William', city: 'Berlin, DE', action: 'ran an AI score on their product list', icon: '🤖' },
+  { name: 'Mia', city: 'Brisbane, AU', action: 'discovered a viral beauty trend', icon: '💄' },
+  { name: 'Henry', city: 'Auckland, NZ', action: 'saved a low-cost supplier for later', icon: '🏭' },
+  { name: 'Charlotte', city: 'Vancouver, CA', action: 'generated ad creatives with AI', icon: '🎨' },
+  { name: 'James', city: 'Melbourne, AU', action: 'found a product scoring 97/100', icon: '🏆' },
+  { name: 'Amelia', city: 'Los Angeles, US', action: 'switched from a competitor to Majorka', icon: '👋' },
+  { name: 'Oliver', city: 'Adelaide, AU', action: 'hit their first successful test campaign', icon: '🚀' },
+  { name: 'Grace', city: 'Dublin, IE', action: 'found a fast-shipping supplier', icon: '📬' },
 ];
 
 const DISMISS_KEY = 'majorka_social_ticker_dismissed';

@@ -58,7 +58,7 @@ async function dbSearch(supabase: ReturnType<typeof createClient>, query: string
   if (error || !data?.length) return [];
 
   return data.map((row: any) => {
-    const price = row.price_aud ?? Math.floor(Math.random() * 60) + 15;
+    const price = row.price_aud ?? 0;
     const sold = row.orders_count ?? 0;
     return {
       id: String(row.id),
@@ -107,19 +107,18 @@ async function pexelsFallback(query: string): Promise<ProductResult[]> {
   ];
 
   return images.slice(0, 10).map((img, idx) => {
-    const priceVariance = Math.round((Math.random() * 0.6 - 0.3) * basePrice);
-    const price = Math.max(9, basePrice + priceVariance);
-    const sold = Math.floor(Math.random() * 15000) + 500;
+    const priceOffsets = [-8, 5, -3, 12, -5, 7, 0, 10, -6, 3];
+    const price = Math.max(9, basePrice + (priceOffsets[idx] || 0));
     return {
       id: `pexels-${idx}`,
       title: titleVariants[idx] ?? `${query} #${idx + 1}`,
       image: img,
       price_aud: price,
-      sold_count: sold >= 1000 ? `${(sold / 1000).toFixed(1)}k sold` : `${sold} sold`,
-      rating: Math.round((4.0 + Math.random() * 0.9) * 10) / 10,
-      source: 'aliexpress',
+      sold_count: '',
+      rating: 0,
+      source: 'pexels_placeholder',
       product_url: `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(query)}&SortType=total_tranpro_desc`,
-      platform_badge: '📦 AliExpress',
+      platform_badge: '🔍 Search Result',
     };
   });
 }

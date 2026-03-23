@@ -164,7 +164,7 @@ const dm = "'DM Sans', sans-serif";
 
 const STATS_BASE = [
   { key: 'sellers', end: 2400, suffix: '+', prefix: '', label: 'Active Sellers', icon: Users, live: true, tickEvery: 30000, tickBy: 1 },
-  { key: 'revenue', end: 4200000, suffix: 'M+', prefix: '$', label: 'Revenue Generated', icon: DollarSign, live: true, tickEvery: 45000, tickBy: 2500, display: (n: number) => `$${(n / 1000000).toFixed(1)}M+` },
+  { key: 'markets', end: 7, suffix: '', prefix: '', label: 'Markets Supported', icon: DollarSign, live: false, display: (_n: number) => '7' },
   { key: 'joiners', end: 47, suffix: ' this week', prefix: '', label: 'New Joiners', icon: Package, live: true, tickEvery: 60000, tickBy: 1 },
   { key: 'rating', end: 4.9, suffix: '★', prefix: '', label: 'Average Rating', icon: BarChart2, live: false, display: () => '4.9★' },
 ];
@@ -220,14 +220,8 @@ const BIG_FEATURES = [
   },
 ];
 
-const TESTIMONIALS_SHOW = [
-  { quote: 'Made $4,200 in my first month using Majorka\'s winning products feed. The market-specific data is what makes it different.', name: 'Jordan K.', city: 'Gold Coast, AU', flag: '🇦🇺', plan: 'Builder Plan', stars: 5 },
-  { quote: 'Finally a tool that understands local shipping costs. The profit calculator alone saved me from 3 bad decisions.', name: 'Sarah M.', city: 'Sydney, AU', flag: '🇦🇺', plan: 'Builder Plan', stars: 5 },
-  { quote: 'The TikTok trend detection is scary accurate. I got into posture correctors 2 weeks before they blew up.', name: 'Marcus T.', city: 'Melbourne, AU', flag: '🇦🇺', plan: 'Builder Plan', stars: 5 },
-  { quote: 'Competitor spy is amazing. I can see exactly what other stores are selling and undercut them before they know what happened.', name: 'Jake R.', city: 'New York, US', flag: '🇺🇸', plan: 'Scale Plan', stars: 5 },
-  { quote: 'Used 3 other tools before Majorka. This is the only one that adapts to my market — local shipping rates, tax, and payments.', name: 'Tom W.', city: 'London, UK', flag: '🇬🇧', plan: 'Builder Plan', stars: 5 },
-  { quote: 'The AI ad copy writes better than I do. My Facebook CTR went from 1.2% to 3.8% using Majorka\'s templates.', name: 'Emma L.', city: 'Toronto, CA', flag: '🇨🇦', plan: 'Scale Plan', stars: 5 },
-];
+// Testimonials — hidden until real customer quotes are collected
+const TESTIMONIALS_SHOW: { quote: string; name: string; city: string; flag: string; plan: string; stars: number }[] = [];
 
 const FAQ = [
   { q: 'Which markets does Majorka support?', a: 'Majorka supports 7 markets: US, Australia, UK, Canada, New Zealand, Germany, and Singapore. Select your region and every tool adapts — currency, shipping carriers, tax rates, compliance, and local payment methods.' },
@@ -383,11 +377,11 @@ function EmailCapture() {
 // ── Weekly Winners Email Capture ──────────────────────────────────────────────
 
 const WEEKLY_PRODUCTS = [
-  { name: 'Ninja Creami 7-in-1', revenue: '$28,400', badge: '🔥', blur: 0 },
-  { name: 'Heatless Curl Kit',   revenue: '$21,800', badge: '📈', blur: 1 },
-  { name: 'Pet Hair Remover',    revenue: '$19,600', badge: '🚀', blur: 3 },
-  { name: 'Posture Corrector',   revenue: '$18,500', badge: '⚡', blur: 6 },
-  { name: 'LED Face Mask Pro',   revenue: '$17,800', badge: '🔥', blur: 10 },
+  { name: 'Ninja Creami 7-in-1', revenue: 'View details →', badge: '🔥', blur: 0 },
+  { name: 'Heatless Curl Kit',   revenue: 'View details →', badge: '📈', blur: 1 },
+  { name: 'Pet Hair Remover',    revenue: 'View details →', badge: '🚀', blur: 3 },
+  { name: 'Posture Corrector',   revenue: 'View details →', badge: '⚡', blur: 6 },
+  { name: 'LED Face Mask Pro',   revenue: 'View details →', badge: '🔥', blur: 10 },
 ];
 
 function WeeklyWinnersSection() {
@@ -418,7 +412,7 @@ function WeeklyWinnersSection() {
             Get AU's Top 5 Products Every Monday — <span className="gold-text">Free Forever</span>
           </h2>
           <p style={{ fontSize: 15, color: C.secondary, maxWidth: 500, margin: '0 auto' }}>
-            Real revenue data. Real opportunities. Before your competitors find them.
+            Real products. Real opportunities. Before your competitors find them.
           </p>
         </div>
 
@@ -454,8 +448,7 @@ function WeeklyWinnersSection() {
                 <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 13, color: C.text, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {prod.name}
                 </div>
-                <div style={{ fontFamily: syne, fontWeight: 900, fontSize: 16, color: C.gold }}>{prod.revenue}</div>
-                <div style={{ fontSize: 10, color: C.secondary, marginTop: 2 }}>/day revenue</div>
+                <div style={{ fontFamily: syne, fontWeight: 900, fontSize: 13, color: C.gold }}>{prod.revenue}</div>
               </div>
             );
           })}
@@ -552,7 +545,7 @@ function FloatingCTA() {
 const BENTO_CARDS = [
   {
     key: 'A', Icon: TrendingUp, title: 'Product Intelligence',
-    desc: 'Discover the exact products trending in your market right now. Real revenue data, supplier links, and competitor analysis — updated daily.',
+    desc: 'Discover the exact products trending in your market right now. Supplier links, margin data, and competitor analysis — updated daily.',
     gridColumn: '1 / 3', gridRow: '1 / 2',
   },
   {
@@ -784,7 +777,7 @@ function HowItWorksSection() {
               num: '03', Icon: TrendingUp, color: '#10B981', bg: '#ECFDF5',
               title: 'Launch, spy & scale',
               desc: 'Use Spy Tools to monitor competitor ads. Track profit with the calculator. Scale what works, cut what does not.',
-              stat: { label: 'Avg first-month revenue', value: '$4,200' },
+              stat: { label: '14-day free trial', value: 'Free' },
               tag: 'Results',
             },
           ].map((step, i) => {
@@ -821,11 +814,11 @@ function HowItWorksSection() {
 
 // ── Demo Section ──────────────────────────────────────────────────────────────
 const DEMO_PRODUCTS = [
-  { rank: 1, product: 'Posture Corrector Pro', revenue: '$41,200', orders: '528', margin: '62%', score: 91 },
-  { rank: 2, product: 'LED Strip Lights RGB', revenue: '$24,200', orders: '312', margin: '61%', score: 82 },
-  { rank: 3, product: 'Air Fryer 11-in-1', revenue: '$8,700', orders: '48', margin: '58%', score: 75 },
-  { rank: 4, product: 'Smart Watch GPS', revenue: '$5,400', orders: '49', margin: '44%', score: 68 },
-  { rank: 5, product: 'Resistance Band Set', revenue: '$3,100', orders: '38', margin: '31%', score: 54 },
+  { rank: 1, product: 'Posture Corrector Pro', margin: '62%', score: 91 },
+  { rank: 2, product: 'LED Strip Lights RGB', margin: '61%', score: 82 },
+  { rank: 3, product: 'Air Fryer 11-in-1', margin: '58%', score: 75 },
+  { rank: 4, product: 'Smart Watch GPS', margin: '44%', score: 68 },
+  { rank: 5, product: 'Resistance Band Set', margin: '31%', score: 54 },
 ];
 
 function getScoreStyle(score: number) {
@@ -882,7 +875,7 @@ function DemoSection() {
                 <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 640 }}>
                   <thead>
                     <tr style={{ background: '#0F0F11' }}>
-                      {['#', 'Product', 'Revenue/mo', 'Orders', 'Margin', 'Score', ''].map(h => (
+                      {['#', 'Product', 'Margin', 'Score', ''].map(h => (
                         <th key={h} style={{ padding: '10px 20px', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6B7280', textAlign: 'left', fontWeight: 600 }}>{h}</th>
                       ))}
                     </tr>
@@ -897,8 +890,6 @@ function DemoSection() {
                         >
                           <td style={{ padding: '12px 20px', color: '#6B7280' }}>{row.rank}</td>
                           <td style={{ padding: '12px 20px', fontWeight: 500 }}>{row.product}</td>
-                          <td style={{ padding: '12px 20px' }}>{row.revenue}</td>
-                          <td style={{ padding: '12px 20px' }}>{row.orders}</td>
                           <td style={{ padding: '12px 20px' }}>{row.margin}</td>
                           <td style={{ padding: '12px 20px' }}>
                             <span style={{ ...ss, borderRadius: 5, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>{row.score}</span>
@@ -1299,16 +1290,16 @@ export default function Home() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: '#F9FAFB' }}>
-                    {['Product', 'Revenue/mo', 'Orders', 'Margin', 'Score', ''].map((h) => (
+                    {['Product', 'Margin', 'Score', ''].map((h) => (
                       <th key={h} style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#9CA3AF', padding: '8px 20px', textAlign: 'left', fontWeight: 600 }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {[
-                    { product: 'Air Fryer 11-in-1', revenue: '$8,700', orders: '48 orders', margin: '58%', score: 75 },
-                    { product: 'LED Strip Lights', revenue: '$24,200', orders: '312 orders', margin: '61%', score: 82 },
-                    { product: 'Smart Watch GPS', revenue: '$5,400', orders: '49 orders', margin: '44%', score: 68 },
+                    { product: 'Air Fryer 11-in-1', margin: '58%', score: 75 },
+                    { product: 'LED Strip Lights', margin: '61%', score: 82 },
+                    { product: 'Smart Watch GPS', margin: '44%', score: 68 },
                   ].map((row) => {
                     const scoreBg = row.score >= 80 ? '#EEF2FF' : row.score >= 65 ? '#F3E8FF' : '#F9FAFB';
                     const scoreColor = row.score >= 80 ? '#6366F1' : row.score >= 65 ? '#7C3AED' : '#6B7280';
@@ -1316,8 +1307,6 @@ export default function Home() {
                     return (
                       <tr key={row.product} style={{ borderBottom: '1px solid #F3F4F6', fontSize: 13, color: '#374151' }} onMouseEnter={(e) => (e.currentTarget.style.background = '#F5F3FF')} onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}>
                         <td style={{ padding: '10px 20px', fontWeight: 500 }}>{row.product}</td>
-                        <td style={{ padding: '10px 20px', fontWeight: 600 }}>{row.revenue}</td>
-                        <td style={{ padding: '10px 20px' }}>{row.orders}</td>
                         <td style={{ padding: '10px 20px' }}>{row.margin}</td>
                         <td style={{ padding: '10px 20px' }}>
                           <span style={{ background: scoreBg, color: scoreColor, border: `1px solid ${scoreBorder}`, fontWeight: 700, borderRadius: 6, padding: '3px 8px', fontSize: 12 }}>{row.score}</span>
@@ -1375,50 +1364,12 @@ export default function Home() {
 
       {/* ═══ DEMO (removed — dark section incompatible with light landing) ═══ */}
 
-      {/* ═══ TESTIMONIALS — 6 AU sellers ══════════════════════════════════ */}
-      <section style={{ padding: '100px 24px', background: '#FFFFFF', borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} style={{ textAlign: 'center', marginBottom: 56 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: C.goldDim, border: `1px solid ${C.goldBorder}`, borderRadius: 100, padding: '5px 14px', marginBottom: 16 }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: C.gold, fontFamily: syne }}>WHAT SELLERS ARE SAYING</span>
-            </div>
-            <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.6rem, 4.5vw, 3rem)', letterSpacing: '-0.025em', color: '#0A0A0A' }}>
-              Real results. Real sellers.
-            </h2>
-            <p style={{ color: '#6B7280', fontSize: 16, marginTop: 12 }}>Join 2,400+ sellers already winning with Majorka.</p>
-          </motion.div>
-
-          <div className="grid-1-mobile" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
-            {TESTIMONIALS_SHOW.map((t, i) => (
-              <motion.div
-                key={i}
-                variants={fadeUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.1 }}
-                transition={{ delay: (i % 3) * 0.1, duration: 0.5, ease: 'easeOut' }}
-                style={{ position: 'relative', background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 18, padding: '28px 24px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
-              >
-                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: C.gold, borderRadius: '18px 0 0 18px' }} />
-                <div style={{ paddingLeft: 6 }}>
-                  <div style={{ color: C.gold, fontSize: 13, letterSpacing: 2, marginBottom: 12 }}>{'★'.repeat(t.stars)}</div>
-                  <p style={{ fontSize: 15, color: '#374151', lineHeight: 1.65, marginBottom: 20, fontStyle: 'italic' }}>&ldquo;{t.quote}&rdquo;</p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 34, height: 34, borderRadius: '50%', background: '#EEF2FF', border: '1px solid #C7D2FE', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 11, color: C.gold, flexShrink: 0 }}>
-                      {t.name.split(' ').map((n) => n[0]).join('')}
-                    </div>
-                    <div>
-                      <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 13, color: '#0A0A0A' }}>{t.name} {t.flag}</div>
-                      <div style={{ fontSize: 11, color: '#9CA3AF' }}>{t.city}</div>
-                    </div>
-                    <div style={{ marginLeft: 'auto', background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 100, padding: '2px 8px', fontSize: 10, fontWeight: 700, color: C.gold, fontFamily: syne, flexShrink: 0 }}>{t.plan}</div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+      {/* ═══ TESTIMONIALS — hidden until real ones collected ══════════════ */}
+      {import.meta.env.DEV && (
+        <div style={{ padding: 40, textAlign: 'center', color: '#9CA3AF', fontSize: 13 }}>
+          [Testimonials section — add real customer quotes here]
         </div>
-      </section>
+      )}
 
       {/* ═══ TRUST BADGES ══════════════════════════════════════════════════ */}
       <section style={{ padding: '32px 24px', background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
