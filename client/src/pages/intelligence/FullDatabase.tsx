@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { ProductStatCards } from '@/components/ProductStatCards';
 import { ProductFilterSidebar, DEFAULT_FILTERS } from '@/components/ProductFilterSidebar';
@@ -60,6 +60,10 @@ interface Product {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const brico = "'Bricolage Grotesque', sans-serif";
 const dm = "'DM Sans', sans-serif";
+
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
 
 function getProductName(p: Product) {
   return p.name || p.product_title || 'Unknown Product';
@@ -210,6 +214,14 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [activeTab, setActiveTab] = useState('all');
+  const [filters, setFilters] = useState({
+    category: [] as string[],
+    priceMin: 0,
+    priceMax: 9999,
+    revenueMin: 0,
+    trend: 'all' as 'all' | 'rising' | 'peaked' | 'declining',
+    sortBy: 'revenue' as 'revenue' | 'score' | 'margin' | 'growth' | 'newest',
+  });
 
   // Plan check (simple)
   const [userPlan, setUserPlan] = useState<'free' | 'builder' | 'scale'>('free');
@@ -338,6 +350,28 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
     return true;
   });
+
+  const filteredProducts = useMemo(() => {
+    let result = [...filtered];
+    if (filters.category.length > 0) result = result.filter(p => filters.category.includes(p.category || ''));
+    if (filters.trend !== 'all') {
+      result = result.filter(p => {
+        const vel = p.velocity_label?.toLowerCase() || '';
+        if (filters.trend === 'rising') return vel.includes('early') || vel.includes('ris');
+        if (filters.trend === 'peaked') return vel.includes('peak');
+        if (filters.trend === 'declining') return vel.includes('fad') || vel.includes('declin');
+        return true;
+      });
+    }
+    result.sort((a, b) => {
+      if (filters.sortBy === 'revenue') return (b.est_monthly_revenue_aud || 0) - (a.est_monthly_revenue_aud || 0);
+      if (filters.sortBy === 'score') return (b.winning_score || 0) - (a.winning_score || 0);
+      if (filters.sortBy === 'margin') return (b.profit_margin || 0) - (a.profit_margin || 0);
+      if (filters.sortBy === 'newest') return new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime();
+      return 0;
+    });
+    return result;
+  }, [filtered, filters]);
 
   const niches = ['All Niches', ...Array.from(new Set(products.map(p => getProductNiche(p)).filter(Boolean)))].slice(0, 16);
 
@@ -473,6 +507,43 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           </label>
         </div>
 
+        {/* Trend + Sort filter bar */}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const, marginBottom: 16, alignItems: 'center' }}>
+          {/* Category multi-select */}
+          <select multiple={false} onChange={e => setFilters(f => ({ ...f, category: e.target.value ? [e.target.value] : [] }))}
+            style={{ height: 34, padding: '0 10px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, color: '#374151', cursor: 'pointer' }}>
+            <option value="">All Categories</option>
+            {[...new Set(products.map(p => p.category).filter(Boolean))].map(c => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+
+          {/* Trend direction */}
+          {(['all', 'rising', 'peaked', 'declining'] as const).map(t => (
+            <button key={t} onClick={() => setFilters(f => ({ ...f, trend: t }))}
+              style={{ height: 34, padding: '0 14px', background: filters.trend === t ? '#6366F1' : 'white', color: filters.trend === t ? 'white' : '#374151', border: `1px solid ${filters.trend === t ? '#6366F1' : '#E5E7EB'}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize' as const }}>
+              {t === 'all' ? 'All' : t === 'rising' ? 'Rising' : t === 'peaked' ? 'Peaked' : 'Declining'}
+            </button>
+          ))}
+
+          {/* Sort by */}
+          <select onChange={e => setFilters(f => ({ ...f, sortBy: e.target.value as any }))}
+            style={{ height: 34, padding: '0 10px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, color: '#374151', cursor: 'pointer' }}>
+            <option value="revenue">Sort: Revenue</option>
+            <option value="score">Sort: Score</option>
+            <option value="margin">Sort: Margin</option>
+            <option value="newest">Sort: Newest</option>
+          </select>
+
+          {/* Reset */}
+          {(filters.category.length > 0 || filters.trend !== 'all') && (
+            <button onClick={() => setFilters({ category: [], priceMin: 0, priceMax: 9999, revenueMin: 0, trend: 'all', sortBy: 'revenue' })}
+              style={{ height: 34, padding: '0 12px', background: 'none', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, color: '#9CA3AF', cursor: 'pointer' }}>
+              Reset
+            </button>
+          )}
+        </div>
+
         {/* Stat Cards */}
         <ProductStatCards products={filtered} />
 
@@ -545,7 +616,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     ))}
                   </tr>
                 ))
-              ) : filtered.length === 0 ? (
+              ) : filteredProducts.length === 0 ? (
                 <tr>
                   <td colSpan={10} style={{ padding: '60px 24px', textAlign: 'center' as const }}>
                     <div style={{ fontSize: 40, marginBottom: 12 }}>{'\uD83D\uDD0D'}</div>
@@ -558,7 +629,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   </td>
                 </tr>
               ) : (
-                filtered.map((p, idx) => {
+                filteredProducts.map((p, idx) => {
                   const name = getProductName(p);
                   const revenue = getProductRevenue(p);
                   const margin = getProductMargin(p);
@@ -701,6 +772,9 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         {/* Actions */}
                         <td style={tdStyle('center')}>
                           <div style={{ display: 'flex', gap: 5, justifyContent: 'center', flexWrap: 'wrap' }} onClick={e => e.stopPropagation()}>
+                            <a href={`/product/${slugify(name)}`} style={{ height: 28, padding: '0 10px', background: 'white', color: '#6366F1', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const, textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
+                              View Report
+                            </a>
                             <button onClick={() => { window.location.href = `/app/store-builder?product=${encodeURIComponent(name)}&niche=${encodeURIComponent(getProductNiche(p))}`; }}
                               style={{ height: 28, padding: '0 10px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
                               Build Store

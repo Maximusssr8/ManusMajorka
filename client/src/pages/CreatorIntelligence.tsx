@@ -260,13 +260,33 @@ export default function CreatorIntelligence() {
   const [outreachLoading, setOutreachLoading] = useState(false);
   const [outreachText, setOutreachText] = useState('');
 
+  // Live creator search state
+  const [liveCreators, setLiveCreators] = useState<any[]>([]);
+  const [liveLoading, setLiveLoading] = useState(false);
+  const [searchNiche, setSearchNiche] = useState('beauty');
+
+  const fetchLiveCreators = async (niche: string, region = 'US') => {
+    setLiveLoading(true);
+    try {
+      const r = await fetch(`/api/creators?niche=${encodeURIComponent(niche)}&region=${region}&limit=20`);
+      const data = await r.json();
+      if (data.creators) setLiveCreators(data.creators);
+    } catch { /* silent */ }
+    finally { setLiveLoading(false); }
+  };
+
   useEffect(() => { void fetchCreators(); }, []);
+  useEffect(() => { fetchLiveCreators(searchNiche); }, []);
 
   // Auto-fill from URL params (e.g. from Winning Products quick actions)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const category = params.get('category');
-    if (category) setSearch(category);
+    if (category) {
+      setSearch(category);
+      setSearchNiche(category);
+      fetchLiveCreators(category);
+    }
   }, []);
 
   async function fetchCreators() {
@@ -428,6 +448,72 @@ Keep it under 150 words, friendly and specific to their niche. Include a subject
                 {f.label}
               </button>
             ))}
+          </div>
+
+          {/* Live Creator Search */}
+          <div className="mb-4 p-4 rounded-xl" style={{ background: '#FFFFFF', border: '1px solid #E5E7EB' }}>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Live Creator Search</p>
+            <form
+              onSubmit={(e) => { e.preventDefault(); fetchLiveCreators(searchNiche); }}
+              className="flex gap-2"
+            >
+              <input
+                type="text"
+                placeholder="Enter niche (e.g. beauty, fitness, tech)…"
+                value={searchNiche}
+                onChange={(e) => setSearchNiche(e.target.value)}
+                className="flex-1 pl-3 pr-4 py-2.5 rounded-lg text-sm"
+                style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', color: '#0A0A0A', outline: 'none', fontFamily: 'DM Sans, sans-serif' }}
+              />
+              <button
+                type="submit"
+                disabled={liveLoading}
+                className="px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors"
+                style={{ background: '#6366F1', color: '#FFFFFF', border: 'none', cursor: liveLoading ? 'not-allowed' : 'pointer', opacity: liveLoading ? 0.6 : 1, fontFamily: "'Bricolage Grotesque', sans-serif" }}
+              >
+                {liveLoading ? 'Searching…' : 'Search Creators'}
+              </button>
+            </form>
+            {liveCreators.length > 0 && (
+              <div className="mt-3 space-y-2">
+                <p className="text-xs" style={{ color: '#64748b' }}>{liveCreators.length} creators found via live search</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {liveCreators.map((c: any) => (
+                    <a
+                      key={c.handle}
+                      href={c.profile_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 rounded-lg transition-colors"
+                      style={{ background: '#F9FAFB', border: '1px solid #F0F0F0' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = '#F5F5FF')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = '#F9FAFB')}
+                    >
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(99,102,241,0.15)' }}>
+                        <span className="text-xs font-bold" style={{ color: '#6366F1' }}>{c.handle.replace('@', '').charAt(0).toUpperCase()}</span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium truncate" style={{ color: '#0A0A0A' }}>{c.display_name}</p>
+                        <p className="text-xs truncate" style={{ color: '#64748b' }}>{c.handle} · {c.est_followers} followers</p>
+                      </div>
+                      <span
+                        className="text-xs px-2 py-0.5 rounded-full flex-shrink-0"
+                        style={{
+                          background: c.engagement_signal === 'HIGH' ? 'rgba(34,197,94,0.1)' : c.engagement_signal === 'MEDIUM' ? 'rgba(234,179,8,0.1)' : 'rgba(107,114,128,0.1)',
+                          color: c.engagement_signal === 'HIGH' ? '#16a34a' : c.engagement_signal === 'MEDIUM' ? '#ca8a04' : '#6B7280',
+                          border: `1px solid ${c.engagement_signal === 'HIGH' ? 'rgba(34,197,94,0.2)' : c.engagement_signal === 'MEDIUM' ? 'rgba(234,179,8,0.2)' : 'rgba(107,114,128,0.2)'}`,
+                        }}
+                      >
+                        {c.engagement_signal}
+                      </span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+            {liveLoading && (
+              <p className="mt-3 text-xs" style={{ color: '#6366F1' }}>Searching TikTok creators for "{searchNiche}"…</p>
+            )}
           </div>
 
           {/* Search */}

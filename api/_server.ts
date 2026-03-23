@@ -300,6 +300,21 @@ app.get("/api/competitor/stores", async (_req: Request, res: Response) => {
   }
 });
 
+// ── Creator Intelligence API ──────────────────────────────────────────────
+app.get("/api/creators", async (req: Request, res: Response) => {
+  try {
+    const niche = String(req.query.niche || 'beauty');
+    const region = String(req.query.region || 'US');
+    const limit = Math.min(50, parseInt(String(req.query.limit || '20')));
+
+    const { searchCreators } = await import('../server/lib/creator-scraper');
+    const creators = await searchCreators(niche, region, limit);
+    res.json({ creators, count: creators.length, niche, region });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 registerChatRoutes(app);
 registerScrapeRoutes(app);
 registerToolsApi(app);

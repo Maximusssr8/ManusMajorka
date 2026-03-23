@@ -127,7 +127,44 @@ export default function VideoIntelligence() {
   const [tab, setTab] = useState<TabKey>('all');
   const [, nav] = useLocation();
 
-  useEffect(() => { void fetchVideos(); }, []);
+  useEffect(() => { void fetchVideos(); void fetchLiveProducts(); }, []);
+
+  async function fetchLiveProducts() {
+    try {
+      const res = await fetch('/api/products?hasVideo=true&limit=20');
+      if (!res.ok) return;
+      const d = await res.json();
+      const items = Array.isArray(d) ? d : (d.products || d.data || []);
+      const videoProducts: VideoRow[] = items
+        .filter((p: any) => p.tiktok_product_url)
+        .map((p: any, i: number) => ({
+          id: `live-${p.id || i}`,
+          video_title: p.product_title || p.name || 'Untitled',
+          creator_username: p.creator_handles?.split(',')[0]?.trim() || 'unknown',
+          product_name: p.product_title || p.name || 'Product',
+          product_image: p.image_url || undefined,
+          platform: 'tiktok',
+          views: p.orders_count ? p.orders_count * 50 : 0,
+          likes: p.orders_count ? Math.round(p.orders_count * 3.5) : 0,
+          gmv_driven_aud: p.est_monthly_revenue_aud || (p.price_aud ? p.price_aud * (p.orders_count || 10) : 0),
+          items_sold: p.orders_count || p.units_per_day ? (p.units_per_day || 0) * 30 : 0,
+          est_roas: p.winning_score ? p.winning_score / 20 : 2.5,
+          rev_trend: generateRevTrend(Number(String(p.id).replace(/\D/g, '') || i + 100), p.est_monthly_revenue_aud || 5000),
+          hook_type: null,
+          category: p.category || p.search_keyword || null,
+          published_at: p.updated_at || new Date().toISOString(),
+        }));
+      if (videoProducts.length > 0) {
+        setVideos(prev => {
+          const existingIds = new Set(prev.map(v => v.product_name.toLowerCase()));
+          const newOnes = videoProducts.filter(v => !existingIds.has(v.product_name.toLowerCase()));
+          return [...prev, ...newOnes];
+        });
+      }
+    } catch {
+      // Non-fatal — seed/DB data still available
+    }
+  }
 
   async function fetchVideos() {
     try {

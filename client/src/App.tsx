@@ -208,9 +208,9 @@ function Router() {
             <Route path="/app/winning-products">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             {/* Both routes render WebsiteGenerator — ToolPage handles both via location check */}
             <Route path="/app/product-discovery">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
-            <Route path="/app/market">{() => { window.location.replace('/app/spy'); return null; }}</Route>
-            <Route path="/app/creators">{() => { window.location.replace('/app/spy'); return null; }}</Route>
-            <Route path="/app/videos">{() => { window.location.replace('/app/spy'); return null; }}</Route>
+            <Route path="/app/market">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+            <Route path="/app/creators">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+            <Route path="/app/videos">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
             <Route path="/app/meta-ads">{() => { window.location.replace('/app/growth'); return null; }}</Route>
             <Route path="/app/copywriter">{() => { window.location.replace('/app/growth'); return null; }}</Route>
             <Route path="/app/brand-dna">{() => { window.location.replace('/app/growth'); return null; }}</Route>

@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { Copy } from 'lucide-react';
 import { Link, useParams } from 'wouter';
 import { SEO } from '@/components/SEO';
 import { supabase } from '@/lib/supabase';
@@ -191,9 +192,24 @@ export default function ProductReport() {
               <span style={{ fontSize: 12, color: C.secondary, background: C.goldDim, border: `1px solid ${C.goldBorder}`, borderRadius: 8, padding: '3px 10px' }}>{product.category}</span>
             )}
           </div>
-          <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.4rem, 4vw, 2.2rem)', lineHeight: 1.2, marginBottom: 16, color: C.text }}>
-            {product.product_title}
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
+            <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.4rem, 4vw, 2.2rem)', lineHeight: 1.2, color: C.text, margin: 0, flex: 1 }}>
+              {product.product_title}
+            </h1>
+            <button
+              onClick={handleShare}
+              style={{
+                height: 34, padding: '0 16px', background: '#6366F1', color: 'white',
+                border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6,
+                transition: 'transform 150ms, opacity 150ms',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.02)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
+            >
+              <Copy size={13} /> {copied ? 'Copied!' : 'Share Report'}
+            </button>
+          </div>
           <div style={{ marginBottom: 8 }}>
             <div style={{ fontSize: 11, color: C.secondary, marginBottom: 6, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Winning Score</div>
             <ScoreBar score={product.winning_score} />

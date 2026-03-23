@@ -64,6 +64,7 @@ const GrowthTools = lazy(() => import('./GrowthTools'));
 const ProfitSuppliers = lazy(() => import('./ProfitSuppliers'));
 const ShopIntelligence = lazy(() => import('./ShopIntelligence'));
 const ProductSearch = lazy(() => import('./ProductSearch'));
+const LivestreamAnalytics = lazy(() => import('./LivestreamAnalytics'));
 
 // Map stage landing paths to their stage names
 const STAGE_PATHS: Record<string, string> = {
@@ -226,6 +227,7 @@ export default function ToolPage() {
   if (location === '/app/suppliers') return page(<SupplierDirectory />);
   if (location === '/app/supplier-finder') return page(<SupplierIntelligence />);
   if (location === '/app/billing') return page(<Billing />);
+  if (location === '/app/livestream') return page(<LivestreamAnalytics />);
   if (location === '/app/tiktok') return page(<TikTokSlideshow />);
   if (location === '/app/store/setup') return page(<StoreSetup />);
   if (location === '/app/store/products') return page(<StoreProducts />);

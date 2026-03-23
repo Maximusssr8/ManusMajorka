@@ -123,6 +123,31 @@ async function pexelsFallback(query: string): Promise<ProductResult[]> {
   });
 }
 
+// GET /api/products?hasVideo=true&limit=20
+router.get('/', async (req: Request, res: Response) => {
+  const limit = Math.min(50, Number(req.query.limit) || 20);
+  const hasVideo = req.query.hasVideo === 'true';
+
+  const supabase = getSupabase();
+  try {
+    let query = supabase
+      .from('winning_products')
+      .select('*')
+      .order('winning_score', { ascending: false })
+      .limit(limit);
+
+    if (hasVideo) {
+      query = query.not('tiktok_product_url', 'is', null);
+    }
+
+    const { data, error } = await query;
+    if (error) { res.status(500).json({ error: error.message, products: [] }); return; }
+    res.json({ products: data || [], total: (data || []).length });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message, products: [] });
+  }
+});
+
 // GET /api/products/search?q=QUERY
 router.get('/search', requireAuth, async (req: Request, res: Response) => {
   const query = (req.query.q as string || '').trim();
