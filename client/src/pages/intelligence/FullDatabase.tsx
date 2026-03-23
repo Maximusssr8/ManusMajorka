@@ -31,7 +31,11 @@ interface Product {
   aliexpress_url?: string;
   supplier_name?: string;
   social_buzz_score?: number;
-  trend_reason?: string;
+  tags?: string[];
+  tiktok_signal?: boolean;
+  cost_price_aud?: number;
+  aliexpress_id?: string;
+  opportunity_score?: number;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -541,31 +545,37 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     window.location.href = `/app/profit?niche=${encodeURIComponent(p.niche)}&product=${encodeURIComponent(p.name)}`;
   }
 
-  // Opportunity tags helper — light theme colors
-  const getOpportunityTags = (product: Product) => {
-    const tags: { label: string; color: string; bg: string }[] = [];
-    const orders = (product as any).orders_count || 0;
-    const price = product.estimated_retail_aud || 0;
-    const nicheStr = (product.niche || '').toLowerCase();
-    // Parse tavily data from trend_reason JSON
-    let tavilyMentions = 0;
-    let tiktokSignal = false;
-    try {
-      const reason = (product as any).trend_reason || '';
-      const jsonPart = reason.includes('|') ? reason.split('|').pop()!.trim() : reason;
-      if (jsonPart.startsWith('{')) {
-        const parsed = JSON.parse(jsonPart);
-        tavilyMentions = parsed.tavily_mentions || 0;
-        tiktokSignal = parsed.tiktok_signal || false;
-      }
-    } catch { /* ignore parse errors */ }
-    if (orders > 1000) tags.push({ label: 'VIRAL', color: '#7C3AED', bg: '#F3E8FF' });
-    if (price > 30) tags.push({ label: 'HIGH MARGIN', color: '#6366F1', bg: '#EEF2FF' });
-    if (tavilyMentions >= 2) tags.push({ label: 'IN THE NEWS', color: '#D97706', bg: '#FEF3C7' });
-    if (tiktokSignal) tags.push({ label: 'TIKTOK', color: '#7C3AED', bg: '#F3E8FF' });
-    if (nicheStr.includes('tiktok') || nicheStr.includes('viral')) tags.push({ label: 'VIRAL', color: '#7C3AED', bg: '#F3E8FF' });
-    tags.push({ label: 'AU DEMAND', color: '#0891B2', bg: '#ECFEFF' });
+  // Tag color map
+  const TAG_COLORS: Record<string, { color: string; bg: string }> = {
+    'VIRAL': { color: '#7C3AED', bg: '#F3E8FF' },
+    'HIGH MARGIN': { color: '#059669', bg: '#ECFDF5' },
+    'AU DEMAND': { color: '#D97706', bg: '#FEF3C7' },
+    'AU BEST SELLERS': { color: '#6366F1', bg: '#EEF2FF' },
+    'TRENDING': { color: '#6B7280', bg: '#F5F5F5' },
+    'IN THE NEWS': { color: '#D97706', bg: '#FEF3C7' },
+    'TIKTOK': { color: '#7C3AED', bg: '#F3E8FF' },
+  };
+
+  function generateTagsFromScore(p: any): string[] {
+    const tags: string[] = [];
+    if ((p.growth_rate_pct || 0) > 20 || (p.social_buzz_score || 0) > 70) tags.push('VIRAL');
+    if ((p.estimated_margin_pct || 0) >= 50) tags.push('HIGH MARGIN');
+    if ((p.orders_count || 0) >= 2000) tags.push('AU BEST SELLERS');
+    if (tags.length === 0) tags.push('TRENDING');
     return tags;
+  }
+
+  // Opportunity tags helper — supports both winning_products tags array and legacy score-based
+  const getOpportunityTags = (product: Product) => {
+    const p = product as any;
+    const tagLabels = p.tags && Array.isArray(p.tags) && p.tags.length > 0
+      ? p.tags as string[]
+      : generateTagsFromScore(p);
+
+    return tagLabels.map((label: string) => {
+      const colors = TAG_COLORS[label] || { color: '#6B7280', bg: '#F5F5F5' };
+      return { label, color: colors.color, bg: colors.bg };
+    });
   };
 
   // Top 10 by winning score — only products with revenue data

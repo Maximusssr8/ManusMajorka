@@ -1215,7 +1215,10 @@ Note: `setHasOutput_or_activeTab` — use whatever sets the preview tab as activ
 - Mobile responsive: 375px layout, horizontal template scroll, 44px tap targets
 - Smoke test: 31/32 PASS (1 expected 401 auth gate on `/api/website/generate`)
 
-### Tables added to Supabase
+### Tables in Supabase
+TABLES:
+- `winning_products` — PRIMARY product table (50+ products, has tags/score_breakdown/aliexpress_id)
+- `trend_signals` — legacy/deprecated, empty, do not use for new queries
 - `shopify_connections` (user_id, shop_domain, access_token)
 - `generated_stores` (user_id, store_name, niche, template, blueprint jsonb, html, shopify_product_id, pushed_at)
 

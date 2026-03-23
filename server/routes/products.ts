@@ -47,31 +47,31 @@ async function dbSearch(supabase: ReturnType<typeof createClient>, query: string
   const keywords = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
   if (!keywords.length) return [];
 
-  // Use ilike on name + niche
+  // Use ilike on product_title + category + search_keyword
   const { data, error } = await supabase
-    .from('trend_signals')
-    .select('id, name, niche, image_url, estimated_retail_aud, trend_score, dropship_viability_score, items_sold_monthly')
-    .or(keywords.map(k => `name.ilike.%${k}%,niche.ilike.%${k}%`).join(','))
-    .order('trend_score', { ascending: false })
+    .from('winning_products')
+    .select('id, product_title, category, search_keyword, image_url, price_aud, winning_score, orders_count, aliexpress_url, rating')
+    .or(keywords.map(k => `product_title.ilike.%${k}%,category.ilike.%${k}%,search_keyword.ilike.%${k}%`).join(','))
+    .order('winning_score', { ascending: false })
     .limit(20);
 
   if (error || !data?.length) return [];
 
   return data.map((row: any) => {
-    const price = row.estimated_retail_aud ?? Math.floor(Math.random() * 60) + 15;
-    const sold = row.items_sold_monthly ?? 0;
+    const price = row.price_aud ?? Math.floor(Math.random() * 60) + 15;
+    const sold = row.orders_count ?? 0;
     return {
       id: String(row.id),
-      title: row.name,
+      title: row.product_title,
       image: row.image_url || '',
       price_aud: price,
       sold_count: sold >= 1000 ? `${(sold / 1000).toFixed(1)}k sold/mo` : sold > 0 ? `${sold} sold/mo` : '',
-      rating: 4.5,
+      rating: row.rating || 4.5,
       source: 'majorka_db',
-      product_url: `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(row.name)}`,
+      product_url: row.aliexpress_url || `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(row.product_title)}`,
       platform_badge: '📊 Majorka DB',
-      niche: row.niche,
-      trend_score: row.trend_score,
+      niche: row.category || row.search_keyword,
+      trend_score: row.winning_score,
     };
   });
 }
@@ -274,7 +274,7 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
   const userId = (req as any).user?.id ?? null;
   supabase.from('search_analytics').insert({ query: cacheKey, results_count: results.length, user_id: userId }).then(() => {}).catch(() => {});
 
-  // Auto-populate trend_signals from popular searches (3+ times in 24h)
+  // Auto-populate winning_products from popular searches (3+ times in 24h)
   (async () => {
     try {
       const { count } = await supabase
@@ -285,17 +285,17 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
 
       if ((count ?? 0) >= 3 && results.length > 0) {
         const top = results[0];
-        await supabase.from('trend_signals').upsert({
-          name: top.title.slice(0, 120),
-          niche: query.charAt(0).toUpperCase() + query.slice(1),
+        await supabase.from('winning_products').upsert({
+          product_title: top.title.slice(0, 120),
+          category: query.charAt(0).toUpperCase() + query.slice(1),
+          search_keyword: query,
           image_url: top.image,
-          estimated_retail_aud: top.price_aud,
-          estimated_margin_pct: 55,
-          trend_score: 75 + Math.min(20, Math.floor((count ?? 3) * 2)),
-          dropship_viability_score: 80,
-          trend_reason: `Popular search: "${query}" — ${top.sold_count}`,
+          price_aud: top.price_aud,
+          profit_margin: 55,
+          winning_score: 75 + Math.min(20, Math.floor((count ?? 3) * 2)),
+          tags: ['TRENDING'],
           source: 'user_search',
-        }, { onConflict: 'name' });
+        }, { onConflict: 'product_title' });
       }
     } catch { /* non-fatal */ }
   })();
@@ -495,19 +495,19 @@ router.post('/aliexpress/import', requireAuth, async (req: Request, res: Respons
     const imageUrl = detail.image_urls?.split(';')[0] || '';
     const priceAud = parseFloat(detail.sku_price_list?.[0]?.sku_price?.price || '0') * 1.55;
 
-    const { error } = await supabase.from('trend_signals').upsert({
-      name: detail.subject?.slice(0, 200),
-      niche: niche || 'General',
+    const { error } = await supabase.from('winning_products').upsert({
+      product_title: detail.subject?.slice(0, 200),
+      category: niche || 'General',
+      search_keyword: niche || 'General',
       image_url: imageUrl,
       aliexpress_url: `https://www.aliexpress.com/item/${productId}.html`,
-      supplier_name: 'AliExpress',
-      estimated_retail_aud: Math.round(priceAud * 100) / 100,
+      aliexpress_id: productId,
+      shop_name: 'AliExpress',
+      price_aud: Math.round(priceAud * 100) / 100,
       winning_score: 70,
-      trend_score: 70,
-      growth_pct: 10,
+      tags: ['TRENDING'],
       source: 'aliexpress_import',
-      real_data_scraped: true,
-    }, { onConflict: 'name' });
+    }, { onConflict: 'product_title' });
 
     if (error) { res.status(500).json({ error: error.message }); return; }
     res.json({ success: true, product: { id: productId, name: detail.subject, imageUrl, priceAud } });

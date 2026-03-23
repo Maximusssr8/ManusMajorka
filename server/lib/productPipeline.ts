@@ -103,34 +103,45 @@ export async function runProductPipeline(light = false): Promise<{ inserted: num
 
   if (!scored.length) return { inserted: 0 };
 
+  // Build tags array for each product
+  function buildTags(p: any): string[] {
+    const tags: string[] = [];
+    if (p.orders_count >= 5000) tags.push('VIRAL');
+    if (p.margin >= 50) tags.push('HIGH MARGIN');
+    if (p.tavily_mentions >= 2) tags.push('IN THE NEWS');
+    if (p.tiktok_signal) tags.push('TIKTOK');
+    if (AU_HIGH_DEMAND.some(k => p.name.toLowerCase().includes(k))) tags.push('AU DEMAND');
+    if (p.orders_count >= 2000) tags.push('AU BEST SELLERS');
+    if (tags.length === 0) tags.push('TRENDING');
+    return tags;
+  }
+
   const enriched = scored.map(p => ({
-    name: p.name,
-    niche: p.keyword,
+    product_title: p.name,
+    category: p.keyword,
+    search_keyword: p.keyword,
     aliexpress_url: `https://www.aliexpress.com/item/${p.aliexpress_id}.html`,
-    supplier_name: 'AliExpress',
+    aliexpress_id: p.aliexpress_id,
+    shop_name: 'AliExpress',
     image_url: p.image_raw || 'https://images.pexels.com/photos/4050287/pexels-photo-4050287.jpeg',
-    avg_unit_price_aud: Math.round(p.cost_aud * 100) / 100,
-    estimated_retail_aud: p.retail,
-    estimated_margin_pct: p.margin,
+    cost_price_aud: Math.round(p.cost_aud * 100) / 100,
+    price_aud: p.retail,
+    profit_margin: p.margin,
     est_monthly_revenue_aud: Math.round(p.orders_count * 30 * p.retail / 365 * 0.3),
     orders_count: p.orders_count,
-    items_sold_monthly: Math.max(5, Math.round(p.orders_count * 30 / 365)),
+    units_per_day: Math.max(1, Math.round(p.orders_count / 365)),
     winning_score: p.winning_score,
-    dropship_viability_score: Math.min(95, 70 + (p.margin > 50 ? 10 : 0)),
-    trend_score: Math.round(p.winning_score * 0.88 + Math.random() * 8),
-    growth_rate_pct: Math.round(5 + Math.random() * 35),
-    saturation_score: Math.floor(Math.random() * 5 + 4),
-    ad_count_est: Math.floor(Math.random() * 200 + 20),
-    social_buzz_score: Math.round(40 + (p.tavily_mentions || 0) * 8 + (p.tiktok_signal ? 15 : 0)),
+    rating: p.rating,
+    tags: buildTags(p),
+    score_breakdown: { ...p.score_breakdown, tavily_mentions: p.tavily_mentions || 0, tiktok_signal: p.tiktok_signal || false },
+    tiktok_signal: p.tiktok_signal || false,
     source: 'rapidapi_datahub',
-    real_data_scraped: true,
-    trend_reason: JSON.stringify({ ...p.score_breakdown, tavily_mentions: p.tavily_mentions || 0, tiktok_signal: p.tiktok_signal || false }),
     updated_at: new Date().toISOString(),
   }));
 
   let inserted = 0;
   for (let i = 0; i < enriched.length; i += 25) {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/trend_signals`, {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/winning_products`, {
       method: 'POST',
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify(enriched.slice(i, i + 25)),
