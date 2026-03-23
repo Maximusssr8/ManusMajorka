@@ -5,6 +5,7 @@ import { ProductFilterSidebar, DEFAULT_FILTERS } from '@/components/ProductFilte
 import { ProductImage } from '@/components/ProductImage';
 import { VelocityBadge } from '@/components/VelocityBadge';
 import type { FilterState } from '@/components/ProductFilterSidebar';
+import { useRegion } from '@/context/RegionContext';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Product {
@@ -191,6 +192,7 @@ interface FullDatabaseProps {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps) {
+  const { region } = useRegion();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -343,7 +345,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
   // Export CSV
   const exportCSV = () => {
-    const headers = ['Name', 'Niche', 'Revenue/mo (AUD)', 'Growth %', 'Orders', 'Price (AUD)', 'Margin %', 'AI Score', 'Tags', 'Supplier URL'];
+    const headers = ['Name', 'Niche', `Revenue/mo (${region.currency})`, 'Growth %', 'Orders', `Price (${region.currency})`, 'Margin %', 'AI Score', 'Tags', 'Supplier URL'];
     const rows = filtered.map(p => [
       getProductName(p),
       getProductNiche(p),
@@ -659,7 +661,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         {/* Price */}
                         <td style={tdStyle('right')}>
                           <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A' }}>${price.toFixed(0)}</div>
-                          <div style={{ fontSize: 10, color: '#9CA3AF' }}>AUD</div>
+                          <div style={{ fontSize: 10, color: '#9CA3AF' }}>{region.currency}</div>
                         </td>
 
                         {/* Margin */}
@@ -795,7 +797,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
   };
 
   function fallbackAnalysis() {
-    return `Target Customer: ${p.niche || p.category || 'AU'} enthusiasts, primarily 25-44 year old Australians shopping online for convenience.\n\nBest Ad Angle: Problem-solution narrative. Show before/after, emphasise free AU shipping and 30-day returns.\n\nSeasonal: Strong year-round demand. Peak Jan (resolutions), May (Mother's Day), Nov-Dec (Christmas).\n\nRisk Factors: Confirm supplier AU shipping times. Monitor AliExpress reviews for quality consistency.`;
+    return `Target Customer: ${p.niche || p.category || 'General'} enthusiasts, primarily 25-44 year old shoppers looking for convenience.\n\nBest Ad Angle: Problem-solution narrative. Show before/after, emphasise free shipping and 30-day returns.\n\nSeasonal: Strong year-round demand. Peak Jan (resolutions), May (Mother's Day), Nov-Dec (Christmas).\n\nRisk Factors: Confirm supplier shipping times. Monitor AliExpress reviews for quality consistency.`;
   }
 
   return (
@@ -830,8 +832,8 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: '#F0F0F0', borderRadius: 10, overflow: 'hidden', marginBottom: 20 }}>
             {[
-              { label: 'AliExpress Cost', val: `$${cost.toFixed(2)} AUD` },
-              { label: 'Est. Retail AU', val: `$${price.toFixed(0)} AUD` },
+              { label: 'AliExpress Cost', val: `$${cost.toFixed(2)}` },
+              { label: 'Est. Retail', val: `$${price.toFixed(0)}` },
               { label: 'Gross Margin', val: `${margin}%` },
               { label: 'Monthly Revenue', val: `$${revenue >= 1000 ? (revenue / 1000).toFixed(1) + 'k' : revenue}` },
               { label: 'Monthly Orders', val: orders.toLocaleString() },

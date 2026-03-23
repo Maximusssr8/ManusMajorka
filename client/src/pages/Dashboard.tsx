@@ -37,6 +37,7 @@ import { ProductImporter } from '@/components/ProductImporter';
 import ProductTour from '@/components/ProductTour';
 import TrialBanner from '@/components/TrialBanner';
 import WelcomeModal from '@/components/WelcomeModal';
+import { OnboardingRegionModal } from '@/components/OnboardingRegionModal';
 import { useActiveProduct } from '@/hooks/useActiveProduct';
 import StreakWidget from '@/components/StreakWidget';
 import { type ActivityEntry, getActivityLog, getRelativeTime } from '@/lib/activity';
@@ -90,6 +91,9 @@ export default function Dashboard() {
   const isToolPage = location.startsWith('/app/') && location !== '/app';
   const currentTool = isToolPage ? getToolByPath(location) : null;
   useDocumentTitle(currentTool?.label ?? 'Dashboard');
+  const [showRegionOnboarding, setShowRegionOnboarding] = useState(() => {
+    return !localStorage.getItem('majorka_onboarded') && !localStorage.getItem('majorka_region');
+  });
 
   useEffect(() => {
     if (!loading && !isAuthenticated) setLocation('/login');
@@ -115,6 +119,7 @@ export default function Dashboard() {
       </div>
       {user && <OnboardingModal userName={user.name ?? undefined} />}
       {user && <WelcomeModal userName={user.name ?? undefined} />}
+      {showRegionOnboarding && <OnboardingRegionModal onComplete={() => setShowRegionOnboarding(false)} />}
       <ProductTour />
     </MajorkaAppShell>
   );

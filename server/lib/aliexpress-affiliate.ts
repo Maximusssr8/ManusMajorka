@@ -60,20 +60,32 @@ export interface AliAffiliateProduct {
   source: 'aliexpress_affiliate';
 }
 
+const REGION_TO_ALI: Record<string, { currency: string; country: string; ship_to: string }> = {
+  AU: { currency: 'AUD', country: 'AU', ship_to: 'AU' },
+  US: { currency: 'USD', country: 'US', ship_to: 'US' },
+  UK: { currency: 'GBP', country: 'UK', ship_to: 'GB' },
+  CA: { currency: 'CAD', country: 'CA', ship_to: 'CA' },
+  NZ: { currency: 'NZD', country: 'NZ', ship_to: 'NZ' },
+  DE: { currency: 'EUR', country: 'DE', ship_to: 'DE' },
+  SG: { currency: 'SGD', country: 'SG', ship_to: 'SG' },
+};
+
 export const searchAliAffiliateProducts = async (
   keyword: string,
-  pageSize = 20
+  pageSize = 20,
+  regionCode = 'AU'
 ): Promise<AliAffiliateProduct[]> => {
   const { trackingId } = getKeys();
+  const ali = REGION_TO_ALI[regionCode] || REGION_TO_ALI.AU;
   const data = await aliAffiliateRequest('aliexpress.affiliate.product.query', {
     keywords: keyword,
     page_no: '1',
     page_size: String(pageSize),
     tracking_id: trackingId,
-    target_currency: 'AUD',
+    target_currency: ali.currency,
     target_language: 'EN',
-    country: 'AU',
-    ship_to_country: 'AU',
+    country: ali.country,
+    ship_to_country: ali.ship_to,
     sort: 'SALE_PRICE_ASC',
   });
 
@@ -96,14 +108,15 @@ export const searchAliAffiliateProducts = async (
   }));
 };
 
-export const getAliAffiliateProductDetail = async (productId: string): Promise<AliAffiliateProduct | null> => {
+export const getAliAffiliateProductDetail = async (productId: string, regionCode = 'AU'): Promise<AliAffiliateProduct | null> => {
   const { trackingId } = getKeys();
+  const ali = REGION_TO_ALI[regionCode] || REGION_TO_ALI.AU;
   const data = await aliAffiliateRequest('aliexpress.affiliate.product.detail.get', {
     product_ids: productId,
     tracking_id: trackingId,
-    target_currency: 'AUD',
+    target_currency: ali.currency,
     target_language: 'EN',
-    country: 'AU',
+    country: ali.country,
   });
 
   const product =

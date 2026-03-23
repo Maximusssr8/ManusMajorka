@@ -12,6 +12,7 @@ import { MarketProvider } from './contexts/MarketContext';
 import { ProductProvider } from './contexts/ProductContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { MayaProvider } from './context/MayaContext';
+import { RegionProvider } from './context/RegionContext';
 
 // Lazy-loaded page components for code splitting
 const Home = lazy(() => import('./pages/Home'));
@@ -363,6 +364,7 @@ function App() {
       <ThemeProvider defaultTheme="dark" switchable>
         <AuthProvider>
           <MarketProvider>
+            <RegionProvider>
             <ProductProvider>
               <MayaProvider>
                 <TooltipProvider>
@@ -372,6 +374,7 @@ function App() {
                 </TooltipProvider>
               </MayaProvider>
             </ProductProvider>
+            </RegionProvider>
           </MarketProvider>
         </AuthProvider>
       </ThemeProvider>

@@ -729,7 +729,7 @@ export default function Pricing() {
             letterSpacing: '0.05em',
           }}
         >
-          Simple Pricing &middot; All in AUD
+          Simple Pricing &middot; Prices in AUD &middot; Global access included
         </div>
         <h1
           className="pricing-hero-title"

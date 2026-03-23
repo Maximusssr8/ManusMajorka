@@ -3,6 +3,7 @@ import { Calculator, Share2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
+import { useRegion } from '@/context/RegionContext';
 
 // ── Platform fee presets ────────────────────────────────────────────────────
 const PLATFORM_OPTIONS = [
@@ -73,6 +74,7 @@ function ProfitGauge({ value, color }: { value: number; color: string }) {
 
 // ── Component ───────────────────────────────────────────────────────────────
 export default function ProfitCalculator() {
+  const { region } = useRegion();
   // Inputs
   const [productCost, setProductCost] = useState(12);
   const [sellingPrice, setSellingPrice] = useState(49);
@@ -205,7 +207,7 @@ export default function ProfitCalculator() {
         </div>
         <div>
           <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 28, fontWeight: 700, color: '#0A0A0A', margin: 0 }}>Profit Calculator</h1>
-          <p style={{ fontSize: 14, color: '#a1a1aa', margin: 0, marginTop: 2 }}>Model your unit economics for the Australian market</p>
+          <p style={{ fontSize: 14, color: '#a1a1aa', margin: 0, marginTop: 2 }}>Model your unit economics for the {region.name} market</p>
         </div>
       </div>
 
@@ -225,10 +227,10 @@ export default function ProfitCalculator() {
           <div style={cardStyle}>
             <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 18, fontWeight: 600, color: '#0A0A0A', margin: '0 0 24px' }}>Product & Costs</h2>
 
-            <InputGroup label="Product Cost (AUD)" value={productCost} onChange={setProductCost} min={0} max={200} step={0.5} />
-            <InputGroup label="Selling Price (AUD)" value={sellingPrice} onChange={setSellingPrice} min={0} max={500} step={1} />
+            <InputGroup label={`Product Cost (${region.currency})`} value={productCost} onChange={setProductCost} min={0} max={200} step={0.5} />
+            <InputGroup label={`Selling Price (${region.currency})`} value={sellingPrice} onChange={setSellingPrice} min={0} max={500} step={1} />
             <InputGroup label="Units per Day" value={unitsPerDay} onChange={setUnitsPerDay} min={1} max={100} step={1} prefix="" suffix="units" />
-            <InputGroup label="Ad Spend per Day (AUD)" value={adSpendPerDay} onChange={setAdSpendPerDay} min={0} max={500} step={5} />
+            <InputGroup label={`Ad Spend per Day (${region.currency})`} value={adSpendPerDay} onChange={setAdSpendPerDay} min={0} max={500} step={5} />
 
             {/* AusPost Shipping Dropdown */}
             <div style={{ marginBottom: 20 }}>
@@ -272,13 +274,13 @@ export default function ProfitCalculator() {
 
             {/* AU-specific toggles */}
             <div style={{ borderTop: '1px solid #F0F0F0', paddingTop: 20, marginTop: 8 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 12 }}>AU-Specific</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 12 }}>Tax & Fees</div>
 
               {/* GST Toggle */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#0A0A0A' }}>Include GST (10%)</div>
-                  <div style={{ fontSize: 12, color: '#9CA3AF' }}>Adds 10% to product cost</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#0A0A0A' }}>Include Tax ({(region.gst_rate * 100).toFixed(0)}%)</div>
+                  <div style={{ fontSize: 12, color: '#9CA3AF' }}>Adds {(region.gst_rate * 100).toFixed(0)}% to product cost</div>
                 </div>
                 <button onClick={() => setGstEnabled(!gstEnabled)} style={{
                   width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',

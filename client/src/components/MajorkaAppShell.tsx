@@ -44,6 +44,7 @@ import { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/_core/hooks/useAuth';
 import MarketSelector from '@/components/MarketSelector';
+import { RegionSelector } from '@/components/RegionSelector';
 // SocialProofTicker removed — felt cheap/spammy
 import { BEGINNER_LABELS, BEGINNER_TOOLTIPS, useBeginnerMode } from '@/hooks/useBeginnerMode';
 import { supabase } from '@/lib/supabase';
@@ -717,13 +718,12 @@ export default function MajorkaAppShell({ children }: Props) {
       {/* Shopify connection status */}
       <ShopifyStatusIndicator />
 
-      {/* AU flag + region */}
+      {/* Region selector */}
       <div
-        className="flex-shrink-0 px-3 py-2 flex items-center gap-2"
+        className="flex-shrink-0 px-3 py-2 flex items-center"
         style={{ borderTop: '1px solid #F0F0F0' }}
       >
-        <span style={{ fontSize: 14 }}>🇦🇺</span>
-        <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 500 }}>Australia</span>
+        <RegionSelector />
       </div>
 
       {/* User section */}

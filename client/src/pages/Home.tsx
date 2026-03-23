@@ -181,16 +181,16 @@ const BIG_FEATURES = [
   {
     Icon: BarChart2,
     title: 'Validate margins before you spend a cent',
-    sub: 'Real AUD numbers',
-    desc: 'Enter your buy price, sell price, and market. Maya calculates net margin, break-even CPA, and ad budget — with AU shipping, GST, and platform fees built in.',
+    sub: 'Real numbers, your currency',
+    desc: 'Enter your buy price, sell price, and market. Maya calculates net margin, break-even CPA, and ad budget — with shipping, tax, and platform fees built in.',
     accent: '#6366F1',
-    stat: '98% AU market accuracy',
+    stat: '98% market accuracy',
   },
   {
     Icon: Zap,
     title: 'Generate ad campaigns ready to run',
     sub: 'Copy, creative angles, everything',
-    desc: 'Get 5 Facebook/TikTok ad variations with hooks, body copy, and creative direction — written for AU audiences, ready to upload to Ads Manager.',
+    desc: 'Get 5 Facebook/TikTok ad variations with hooks, body copy, and creative direction — written for your market, ready to upload to Ads Manager.',
     accent: '#22c55e',
     stat: '5 ad angles per product',
   },
@@ -198,25 +198,25 @@ const BIG_FEATURES = [
     Icon: Users,
     title: 'Spy on competitors before they spy on you',
     sub: 'Full competitive intelligence',
-    desc: 'See exactly what products any AU dropshipping store is running, their ad spend signals, price changes, and top-selling SKUs. Enter a domain, get the full playbook.',
+    desc: 'See exactly what products any dropshipping store is running, their ad spend signals, price changes, and top-selling SKUs. Enter a domain, get the full playbook.',
     accent: '#8B5CF6',
-    stat: '50K+ AU stores tracked',
+    stat: '50K+ stores tracked',
   },
   {
     Icon: DollarSign,
     title: 'Know your margins before you spend a cent',
-    sub: 'AUD-native profit calculator',
-    desc: 'Full AU cost stack: AliExpress price, AusPost rates, Shopify fees, GST, and ad CPA. Enter your numbers, get your real take-home margin — with break-even ROAS built in.',
+    sub: 'Region-native profit calculator',
+    desc: 'Full cost stack: supplier price, shipping rates, Shopify fees, tax, and ad CPA. Enter your numbers, get your real take-home margin — with break-even ROAS built in.',
     accent: '#6366F1',
-    stat: 'GST + AusPost included',
+    stat: 'Tax + shipping included',
   },
   {
     Icon: Package,
-    title: 'Built entirely for the Australian market',
-    sub: 'Not a US tool with an AU flag',
-    desc: 'AUD pricing, AusPost rates, local supplier network, GST compliance, and Australian consumer trends baked in at every layer. This is what AU-first actually means.',
+    title: 'Built for your market, wherever you sell',
+    sub: '7 regions, one platform',
+    desc: 'Local pricing, shipping rates, supplier networks, tax compliance, and consumer trends — adapted for AU, US, UK, CA, NZ, DE, and SG. Pick your market and go.',
     accent: '#22c55e',
-    stat: '100% AU-focused',
+    stat: '7 markets supported',
   },
 ];
 
@@ -552,7 +552,7 @@ function FloatingCTA() {
 const BENTO_CARDS = [
   {
     key: 'A', Icon: TrendingUp, title: 'Product Intelligence',
-    desc: 'Discover the exact products trending in the AU market right now. Real revenue data, supplier links, and competitor analysis — updated daily.',
+    desc: 'Discover the exact products trending in your market right now. Real revenue data, supplier links, and competitor analysis — updated daily.',
     gridColumn: '1 / 3', gridRow: '1 / 2',
   },
   {
@@ -567,7 +567,7 @@ const BENTO_CARDS = [
   },
   {
     key: 'D', Icon: BarChart3, title: 'Market Intelligence',
-    desc: 'Real-time AU market data. Know what is selling, where demand is spiking, and which niches are about to blow up.',
+    desc: 'Real-time market data. Know what is selling, where demand is spiking, and which niches are about to blow up.',
     gridColumn: '2 / 3', gridRow: '2 / 3',
   },
   {
@@ -698,7 +698,7 @@ function BentoFeaturesSection() {
                     </div>
                     <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#10B981', fontWeight: 500 }}>
                       <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981', animation: 'pulse-ring 2s ease-in-out infinite' }} />
-                      Live AU market data · Updated every 6 hours
+                      Live market data · Updated every 6 hours
                     </div>
                   </>
                 )}
@@ -783,8 +783,8 @@ function HowItWorksSection() {
             {
               num: '03', Icon: TrendingUp, color: '#10B981', bg: '#ECFDF5',
               title: 'Launch, spy & scale',
-              desc: 'Use Spy Tools to monitor competitor ads. Track profit with the AU calculator. Scale what works, cut what does not.',
-              stat: { label: 'Avg first-month revenue', value: '$4,200 AUD' },
+              desc: 'Use Spy Tools to monitor competitor ads. Track profit with the calculator. Scale what works, cut what does not.',
+              stat: { label: 'Avg first-month revenue', value: '$4,200' },
               tag: 'Results',
             },
           ].map((step, i) => {
@@ -990,13 +990,13 @@ function DemoModal({ onClose }: { onClose: () => void }) {
   const STEPS = [
     {
       icon: "🔍",
-      title: "Searching AU market...",
+      title: "Searching market...",
       subtitle: "Scanning 50,000+ products for trending opportunities",
     },
     {
       icon: "📊",
       title: "Found it. Posture Corrector Pro.",
-      subtitle: "High AU demand · Low competition · 62% margin",
+      subtitle: "High demand · Low competition · 62% margin",
     },
     {
       icon: "⚡",
@@ -1039,11 +1039,11 @@ function DemoModal({ onClose }: { onClose: () => void }) {
       <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
         {[
           { label: "Est. Revenue", value: "$41.2k/mo", color: "#10B981" },
-          { label: "AU Competitors", value: "Only 3", color: "#6366F1" },
+          { label: "Competitors", value: "Only 3", color: "#6366F1" },
           { label: "Margin", value: "62%", color: "#8B5CF6" },
           { label: "TikTok Views", value: "4.2M+", color: "#F59E0B" },
-          { label: "Source Price", value: "$12 AUD", color: "#0891B2" },
-          { label: "Sell Price", value: "$49.95 AUD", color: "#10B981" },
+          { label: "Source Price", value: "$12", color: "#0891B2" },
+          { label: "Sell Price", value: "$49.95", color: "#10B981" },
         ].map((m, i) => (
           <div key={i} style={{ background: "#FAFAFA", borderRadius: 8, padding: "12px", border: "1px solid #F0F0F0" }}>
             <div style={{ fontSize: 10, color: "#9CA3AF", textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 4 }}>{m.label}</div>
@@ -1244,7 +1244,7 @@ export default function Home() {
 
           {/* Subheading */}
           <p style={{ fontSize: 18, color: '#6B7280', maxWidth: 520, margin: '20px auto 0', lineHeight: 1.6, fontFamily: dm, opacity: 0, animation: 'fadeInUp 0.5s ease 0.3s both' }}>
-            Find winning products, build a Shopify store in 60 seconds, and spy on competitors — all built for the AU market.
+            Find winning products, build a Shopify store in 60 seconds, and spy on competitors — built for dropshippers worldwide.
           </p>
 
           {/* CTA row */}
@@ -1471,7 +1471,7 @@ export default function Home() {
                 {[
                   { text: '10 product searches/day', on: true },
                   { text: 'Basic store builder (1 store)', on: true },
-                  { text: 'AU market filters', on: true },
+                  { text: 'Market filters (7 regions)', on: true },
                   { text: 'Product Intelligence', on: false },
                   { text: 'Competitor Spy Tools', on: false },
                   { text: 'Priority support', on: false },

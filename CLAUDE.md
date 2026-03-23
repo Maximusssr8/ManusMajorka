@@ -1384,5 +1384,27 @@ Image pipeline priority (in order):
 2. Pexels per-niche fallback — stock images
 3. `<NoImage>` component — clean SVG placeholder (no emoji, no picsum)
 
-TikTok scraper intentionally disabled in cron (too unreliable). 
+TikTok scraper intentionally disabled in cron (too unreliable).
 File kept at `server/lib/tiktok-shop-scraper.ts` for future use.
+
+## Region System (Global Markets)
+
+Majorka supports 7 markets: AU, US, UK, CA, NZ, DE, SG
+Default region: **US** (Majorka is now global-first)
+
+### Rules
+- NEVER hardcode AUD, AU, or Australia in new features
+- Always use `useRegion()` hook for currency display
+- Region stored: `localStorage.majorka_region` + `user_preferences.region_code`
+- Default: US / USD if no preference set
+
+### Key files
+- `client/src/lib/regions.ts` — region definitions (client)
+- `server/lib/regions.ts` — region definitions (server)
+- `client/src/context/RegionContext.tsx` — React context
+- `client/src/components/RegionSelector.tsx` — nav dropdown
+- `client/src/components/OnboardingRegionModal.tsx` — first-login modal
+- `server/lib/fx-rates.ts` — live FX rates from open.er-api.com
+
+### Currency display
+Use `formatPrice(usdAmount)` from `useRegion()` — auto-converts from USD to user's currency.
