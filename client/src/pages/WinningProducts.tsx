@@ -5,6 +5,7 @@
 
 import { Helmet } from 'react-helmet-async';
 import { Component, ErrorInfo, ReactNode } from 'react';
+import { ProductImage } from '@/components/ProductImage';
 import {
   BarChart2,
   CheckSquare,
@@ -558,20 +559,7 @@ function Top5Rankings({
 
             {/* Image */}
             {p.image_url ? (
-              <img
-                src={p.image_url}
-                alt=""
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 8,
-                  objectFit: 'cover',
-                  flexShrink: 0,
-                }}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
+              <ProductImage src={p.image_url} alt={p.product_title} size={40} />
             ) : (
               <div
                 style={{
@@ -807,14 +795,7 @@ Be specific, opinionated, use AUD figures.`;
               overflow: 'hidden',
             }}
           >
-            <img
-              src={product.image_url}
-              alt={product.product_title}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
+            <ProductImage src={product.image_url} alt={product.product_title} size={200} style={{ width: '100%', height: '100%', borderRadius: 0 }} />
             <div
               style={{
                 position: 'absolute',
@@ -1645,7 +1626,7 @@ function FullReportModal({
         {/* Hero image */}
         {product.image_url && (
           <div style={{ position: 'relative', height: 220, overflow: 'hidden', borderRadius: '24px 24px 0 0' }}>
-            <img src={product.image_url} alt={product.product_title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+            <ProductImage src={product.image_url} alt={product.product_title} size={220} style={{ width: '100%', height: '100%', borderRadius: 0 }} />
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, #FAFAFA 100%)' }} />
             <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, width: 36, height: 36, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', border: `1px solid ${C.glassBorder}`, color: C.text, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <X size={16} />
@@ -1781,7 +1762,7 @@ function FullReportModal({
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {similar.map(p => (
                   <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: C.glass, border: `1px solid ${C.border}`, borderRadius: 10 }}>
-                    {p.image_url && <img src={p.image_url} alt="" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />}
+                    {p.image_url && <ProductImage src={p.image_url} alt={p.product_title} size={36} borderRadius={6} />}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.product_title}</div>
                     </div>
@@ -1920,14 +1901,7 @@ function ProductCard({
         }}
       >
         {product.image_url ? (
-          <img
-            src={product.image_url}
-            alt={product.product_title}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = 'none';
-            }}
-          />
+          <ProductImage src={product.image_url} alt={product.product_title} size={200} style={{ width: '100%', height: '100%', borderRadius: 0 }} />
         ) : (
           <div
             style={{
@@ -2645,13 +2619,7 @@ function TableView({
                       {/* Product (image + name) */}
                       <td style={{ padding: '12px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 180, maxWidth: 280 }}>
-                          {p.image_url ? (
-                            <img src={p.image_url} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-                          ) : (
-                            <div style={{ width: 40, height: 40, borderRadius: 8, background: C.glass, border: `1px solid ${C.border}`, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <BarChart2 size={16} style={{ color: C.muted }} />
-                            </div>
-                          )}
+                          <ProductImage src={p.image_url} alt={p.product_title} size={40} />
                           <div>
                             <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.3 }}>{p.product_title}</div>
                             <div style={{ fontSize: 11, color: C.sub }}>{p.category}</div>
@@ -3814,7 +3782,7 @@ function WinningProducts() {
                                 <td style={{ padding: '12px', fontSize: 12, color: C.muted, fontWeight: 700 }}>{idx + 1}</td>
                                 <td style={{ padding: '12px' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 180 }}>
-                                    {p.image_url ? <img src={p.image_url} alt="" style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} /> : <div style={{ width: 36, height: 36, borderRadius: 8, background: C.glass, border: `1px solid ${C.border}`, flexShrink: 0 }} />}
+                                    <ProductImage src={p.image_url} alt={p.product_title} size={36} />
                                     <div>
                                       <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 13, fontWeight: 700, color: C.text }}>{p.product_title}</div>
                                       <div style={{ fontSize: 11, color: C.sub }}>{p.category}</div>

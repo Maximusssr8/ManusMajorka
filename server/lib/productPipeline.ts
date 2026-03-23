@@ -1,6 +1,10 @@
 // server/lib/productPipeline.ts
 import { fetchTrendSignals } from './tavilyTrends';
 
+const hasAffiliateKeys = (): boolean => {
+  return !!(process.env.ALIEXPRESS_APP_KEY && process.env.ALIEXPRESS_APP_SECRET);
+};
+
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || '72000f9eeamsh375c31f96187909p1caf20jsn4494e614ec1b';
 const PEXELS_KEY = process.env.PEXELS_API_KEY || 'EZjK9XGsizihc0Kr0mTGiQoglCY5kGQfOQ3QIKOLLODImTaxlg5ztpFB';
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://ievekuazsjbdrltsdksn.supabase.co';
@@ -123,6 +127,9 @@ export async function runProductPipeline(light = false): Promise<{ inserted: num
     aliexpress_url: `https://www.aliexpress.com/item/${p.aliexpress_id}.html`,
     aliexpress_id: p.aliexpress_id,
     shop_name: 'AliExpress',
+    // TODO: When ALIEXPRESS_APP_KEY is configured, use searchAliAffiliateProducts()
+    // to fetch real product images. Currently using Pexels fallback.
+    // image_url will be populated from affiliate API once keys are approved.
     image_url: p.image_raw || 'https://images.pexels.com/photos/4050287/pexels-photo-4050287.jpeg',
     cost_price_aud: Math.round(p.cost_aud * 100) / 100,
     price_aud: p.retail,

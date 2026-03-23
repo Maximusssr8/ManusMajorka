@@ -6,6 +6,7 @@
 
 import { Helmet } from 'react-helmet-async';
 import { Copy, Play, X } from 'lucide-react';
+import { ProductImage } from '@/components/ProductImage';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { useLocation } from 'wouter';
@@ -273,8 +274,7 @@ export default function VideoIntelligence() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                           <div style={{ width: 48, height: 36, borderRadius: 6, overflow: 'hidden', flexShrink: 0, background: '#F3F4F6', position: 'relative' as const }}>
                             {v.product_image ? (
-                              <img src={v.product_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                              <ProductImage src={v.product_image} alt={v.video_title} size={36} style={{ width: 48, height: 36, borderRadius: 6 }} />
                             ) : (
                               <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <Play size={14} style={{ color: '#9CA3AF' }} />
@@ -309,8 +309,7 @@ export default function VideoIntelligence() {
                       <td style={{ padding: '0 12px', textAlign: 'center' as const, verticalAlign: 'middle' as const }}>
                         <div style={{ width: 40, height: 40, borderRadius: 8, overflow: 'hidden', border: '1px solid #F3F4F6', margin: '0 auto', background: '#F9FAFB' }}>
                           {v.product_image ? (
-                            <img src={v.product_image} alt={v.product_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                              onError={e => { (e.target as HTMLImageElement).src = 'https://images.pexels.com/photos/4050287/pexels-photo-4050287.jpeg?auto=compress&cs=tinysrgb&w=60'; }} />
+                            <ProductImage src={v.product_image} alt={v.product_name} size={40} borderRadius={8} />
                           ) : (
                             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#9CA3AF' }}>—</div>
                           )}

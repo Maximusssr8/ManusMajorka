@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { ProductStatCards } from '@/components/ProductStatCards';
 import { ProductFilterSidebar, DEFAULT_FILTERS } from '@/components/ProductFilterSidebar';
+import { ProductImage } from '@/components/ProductImage';
 import type { FilterState } from '@/components/ProductFilterSidebar';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -594,9 +595,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         {/* Product */}
                         <td style={tdStyle()}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <img src={p.image_url || ''} alt={name}
-                              style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid #F3F4F6', background: '#F9FAFB' }}
-                              onError={e => { (e.target as HTMLImageElement).src = 'https://images.pexels.com/photos/4050287/pexels-photo-4050287.jpeg?auto=compress&cs=tinysrgb&w=100'; }} />
+                            <ProductImage src={p.image_url} alt={name} size={44} />
                             <div style={{ minWidth: 0 }}>
                               <div style={{ fontWeight: 600, fontSize: 13, color: '#0A0A0A', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
                                 {name}
@@ -792,8 +791,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
           <span style={{ fontFamily: brico, fontWeight: 700, fontSize: 14, color: '#0A0A0A' }}>Product Details</span>
         </div>
         <div style={{ width: '100%', height: 180, background: '#F9FAFB', overflow: 'hidden' }}>
-          <img src={p.image_url || ''} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            onError={e => { (e.target as HTMLImageElement).src = 'https://images.pexels.com/photos/4050287/pexels-photo-4050287.jpeg'; }} />
+          <ProductImage src={p.image_url} alt={name} size={180} style={{ width: '100%', height: 180, borderRadius: 0 }} />
         </div>
         <div style={{ padding: 20 }}>
           <h2 style={{ fontFamily: brico, fontWeight: 700, fontSize: 17, color: '#0A0A0A', marginBottom: 6, lineHeight: 1.4 }}>{name}</h2>

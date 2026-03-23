@@ -254,4 +254,34 @@ router.post('/import', async (req: Request, res: Response) => {
   }
 });
 
+// ── Affiliate API endpoints (keys pending — returns empty when unconfigured) ──
+
+// GET /api/aliexpress/affiliate/search?q=keyword&limit=20
+router.get('/affiliate/search', async (req: Request, res: Response) => {
+  try {
+    const keyword = String(req.query.q || '');
+    const limit = Math.min(50, parseInt(String(req.query.limit || '20')));
+    if (!keyword) return res.status(400).json({ error: 'q is required' });
+
+    const { searchAliAffiliateProducts } = await import('../lib/aliexpress-affiliate');
+    const products = await searchAliAffiliateProducts(keyword, limit);
+    res.json({ products, count: products.length, keyword });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/aliexpress/affiliate/product/:id
+router.get('/affiliate/product/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { getAliAffiliateProductDetail } = await import('../lib/aliexpress-affiliate');
+    const product = await getAliAffiliateProductDetail(id);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    res.json(product);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
