@@ -376,11 +376,9 @@ async function runPipeline() {
       saturation_score: Math.floor(Math.random() * 5 + 4),
       ad_count_est: Math.floor(Math.random() * 200 + 20),
       social_buzz_score: Math.round(40 + (p.tavily_mentions || 0) * 8 + (p.tavily_tiktok ? 15 : 0)),
-      tavily_mentions: p.tavily_mentions || 0,
-      tiktok_signal: p.tavily_tiktok || false,
       source: 'rapidapi_datahub',
       real_data_scraped: true,
-      trend_reason: `${tags.join(', ')} | ${JSON.stringify(p.score_breakdown)}`,
+      trend_reason: `${tags.join(', ')} | ${JSON.stringify({ ...p.score_breakdown, tavily_mentions: p.tavily_mentions || 0, tiktok_signal: p.tavily_tiktok || false })}`,
       updated_at: new Date().toISOString(),
     });
 

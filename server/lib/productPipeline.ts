@@ -122,11 +122,9 @@ export async function runProductPipeline(light = false): Promise<{ inserted: num
     saturation_score: Math.floor(Math.random() * 5 + 4),
     ad_count_est: Math.floor(Math.random() * 200 + 20),
     social_buzz_score: Math.round(40 + (p.tavily_mentions || 0) * 8 + (p.tiktok_signal ? 15 : 0)),
-    tavily_mentions: p.tavily_mentions || 0,
-    tiktok_signal: p.tiktok_signal || false,
     source: 'rapidapi_datahub',
     real_data_scraped: true,
-    trend_reason: JSON.stringify(p.score_breakdown),
+    trend_reason: JSON.stringify({ ...p.score_breakdown, tavily_mentions: p.tavily_mentions || 0, tiktok_signal: p.tiktok_signal || false }),
     updated_at: new Date().toISOString(),
   }));
 

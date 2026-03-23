@@ -547,8 +547,22 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     const orders = (product as any).orders_count || 0;
     const price = product.estimated_retail_aud || 0;
     const nicheStr = (product.niche || '').toLowerCase();
+    // Parse tavily data from trend_reason JSON
+    let tavilyMentions = 0;
+    let tiktokSignal = false;
+    try {
+      const reason = (product as any).trend_reason || '';
+      const jsonPart = reason.includes('|') ? reason.split('|').pop()!.trim() : reason;
+      if (jsonPart.startsWith('{')) {
+        const parsed = JSON.parse(jsonPart);
+        tavilyMentions = parsed.tavily_mentions || 0;
+        tiktokSignal = parsed.tiktok_signal || false;
+      }
+    } catch { /* ignore parse errors */ }
     if (orders > 1000) tags.push({ label: 'VIRAL', color: '#7C3AED', bg: '#F3E8FF' });
     if (price > 30) tags.push({ label: 'HIGH MARGIN', color: '#6366F1', bg: '#EEF2FF' });
+    if (tavilyMentions >= 2) tags.push({ label: 'IN THE NEWS', color: '#D97706', bg: '#FEF3C7' });
+    if (tiktokSignal) tags.push({ label: 'TIKTOK', color: '#7C3AED', bg: '#F3E8FF' });
     if (nicheStr.includes('tiktok') || nicheStr.includes('viral')) tags.push({ label: 'VIRAL', color: '#7C3AED', bg: '#F3E8FF' });
     tags.push({ label: 'AU DEMAND', color: '#0891B2', bg: '#ECFEFF' });
     return tags;
