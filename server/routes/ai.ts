@@ -262,3 +262,33 @@ CAPTION: This is a game changer #australia #${(niche || 'product').replace(/\s/g
 });
 
 export default router;
+
+// POST /api/ai/supplier-search — Tavily live supplier search
+router.post('/supplier-search', async (req: Request, res: Response) => {
+  try {
+    const { product } = req.body;
+    if (!product) return res.status(400).json({ error: 'product required' });
+
+    const TAVILY_KEY = process.env.TAVILY_API_KEY || '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';
+    const query = `${product} supplier wholesale dropship AliExpress buy bulk`;
+
+    const r = await fetch('https://api.tavily.com/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_key: TAVILY_KEY, query, search_depth: 'basic', max_results: 6 }),
+    });
+
+    if (!r.ok) return res.json({ results: [] });
+    const data = await r.json();
+
+    const results = (data.results || []).map((r: any) => ({
+      title: r.title || '',
+      url: r.url || '',
+      snippet: r.content?.slice(0, 120) || '',
+    }));
+
+    res.json({ results, product });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message, results: [] });
+  }
+});

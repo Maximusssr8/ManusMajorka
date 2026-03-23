@@ -85,7 +85,6 @@ export default function ProfitCalculator() {
   const [customPlatformFee, setCustomPlatformFee] = useState(5);
   const [gstEnabled, setGstEnabled] = useState(false);
   const [afterpayEnabled, setAfterpayEnabled] = useState(false);
-  const [supplierSearch, setSupplierSearch] = useState('');
 
   const [saved, setSaved] = useState(false);
 

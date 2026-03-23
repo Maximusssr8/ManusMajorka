@@ -841,6 +841,70 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 }
 
 // ─── Product Detail Drawer ────────────────────────────────────────────────────
+// ── Supplier Finder — live Tavily search ───────────────────────────────────
+function SupplierFinder({ productName, aliUrl }: { productName: string; aliUrl?: string }) {
+  const [results, setResults] = useState<Array<{ title: string; url: string; snippet: string }>>([]);
+  const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
+
+  const search = async () => {
+    setLoading(true);
+    setSearched(true);
+    try {
+      const r = await fetch('/api/ai/supplier-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product: productName }),
+      });
+      const d = await r.json();
+      setResults(d.results || []);
+    } catch { setResults([]); }
+    setLoading(false);
+  };
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#0A0A0A', marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Supplier Finder</div>
+      {/* Static quick links */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 10 }}>
+        {[
+          { label: '🛒 AliExpress', url: aliUrl || `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(productName)}&shipCountry=au` },
+          { label: '🏭 Alibaba', url: `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(productName)}&shipToCountry=AU` },
+          { label: '🎵 TikTok Shop', url: `https://www.tiktok.com/search?q=${encodeURIComponent(productName)}` },
+          { label: '📦 CJ Dropship', url: `https://cjdropshipping.com/search.html?q=${encodeURIComponent(productName)}` },
+        ].map(({ label, url }) => (
+          <a key={label} href={url} target="_blank" rel="noopener noreferrer"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, color: '#374151', fontWeight: 500, textDecoration: 'none' }}>
+            {label} <span style={{ color: '#9CA3AF', fontSize: 10 }}>↗</span>
+          </a>
+        ))}
+      </div>
+      {/* Tavily live search */}
+      {!searched ? (
+        <button onClick={search}
+          style={{ width: '100%', height: 36, background: '#EEF2FF', color: '#6366F1', border: '1px solid #C7D2FE', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+          🔍 Find Live Supplier Listings
+        </button>
+      ) : loading ? (
+        <div style={{ padding: '12px 0', textAlign: 'center' as const, fontSize: 12, color: '#9CA3AF' }}>Searching suppliers…</div>
+      ) : results.length > 0 ? (
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', marginBottom: 6, textTransform: 'uppercase' as const }}>Live Results</div>
+          {results.slice(0, 4).map((r, i) => (
+            <a key={i} href={r.url} target="_blank" rel="noopener noreferrer"
+              style={{ display: 'block', padding: '8px 10px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, marginBottom: 5, textDecoration: 'none' }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#374151', marginBottom: 2 }}>{r.title.slice(0, 60)}</div>
+              <div style={{ fontSize: 10, color: '#9CA3AF' }}>{r.snippet?.slice(0, 80)}…</div>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <div style={{ fontSize: 12, color: '#9CA3AF', textAlign: 'center' as const, padding: '8px 0' }}>No live results — use the links above</div>
+      )}
+    </div>
+  );
+}
+
 function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClose: () => void }) {
   const [aiAnalysis, setAiAnalysis] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
@@ -940,19 +1004,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
               <div style={{ fontSize: 11, color: '#059669', fontWeight: 600, marginTop: 8 }}>Passes all quality gates</div>
             </div>
           )}
-          <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#0A0A0A', marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Supplier Links</div>
-            {[
-              { label: 'View on AliExpress', url: p.aliexpress_url || `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(name)}&shipCountry=au` },
-              { label: 'Search TikTok Shop', url: `https://www.tiktok.com/search?q=${encodeURIComponent(name)}` },
-              { label: 'Search Alibaba', url: `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(name)}&shipToCountry=AU` },
-            ].map(({ label, url }) => (
-              <a key={label} href={url} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, color: '#374151', fontWeight: 500, textDecoration: 'none', marginBottom: 6 }}>
-                {label} <span style={{ color: '#9CA3AF' }}>{'\u2192'}</span>
-              </a>
-            ))}
-          </div>
+          <SupplierFinder productName={name} aliUrl={p.aliexpress_url} />
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#0A0A0A', marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>AI Market Analysis</div>
             {!aiAnalysis ? (
