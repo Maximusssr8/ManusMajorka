@@ -1,6 +1,7 @@
 // server/lib/productPipeline.ts
 import { fetchTrendSignals } from './tavilyTrends';
 import { searchAliAffiliateProducts } from './aliexpress-affiliate';
+import { searchTikTokShop } from './tiktok-shop-scraper';
 
 const hasAffiliateKeys = (): boolean => {
   return !!(process.env.ALIEXPRESS_APP_KEY && process.env.ALIEXPRESS_APP_SECRET);
@@ -141,19 +142,36 @@ export async function runProductPipeline(light = false): Promise<{ inserted: num
       }
     }
 
-    // Fallback to raw image or default
-    if (!realImage) {
-      realImage = p.image_raw || 'https://images.pexels.com/photos/4050287/pexels-photo-4050287.jpeg';
+    // Try TikTok Shop image (higher quality, better AU relevance)
+    let tikTokImage: string | null = null;
+    let tikTokUrl: string | null = null;
+    let tikTokSales = 0;
+
+    try {
+      const shortKeyword = p.name.split(' ').slice(0, 4).join(' ');
+      const tikResults = await searchTikTokShop(shortKeyword, 1);
+      if (tikResults.length > 0) {
+        tikTokImage = tikResults[0].image || null;
+        tikTokUrl = tikResults[0].product_url || null;
+        tikTokSales = tikResults[0].sold_count || 0;
+      }
+      await new Promise(r => setTimeout(r, 400));
+    } catch {
+      // silent fail — TikTok scraper returns [] on failure
     }
+
+    // Image priority: TikTok > Affiliate > Raw AliExpress > Pexels fallback
+    const finalImage = tikTokImage || realImage || p.image_raw || 'https://images.pexels.com/photos/4050287/pexels-photo-4050287.jpeg';
+    const finalUrl = tikTokUrl || affiliateUrl || `https://www.aliexpress.com/item/${p.aliexpress_id}.html`;
 
     enriched.push({
       product_title: p.name,
       category: p.keyword,
       search_keyword: p.keyword,
-      aliexpress_url: affiliateUrl || `https://www.aliexpress.com/item/${p.aliexpress_id}.html`,
+      aliexpress_url: finalUrl,
       aliexpress_id: p.aliexpress_id,
       shop_name: 'AliExpress',
-      image_url: realImage,
+      image_url: finalImage,
       cost_price_aud: Math.round(p.cost_aud * 100) / 100,
       price_aud: p.retail,
       profit_margin: p.margin,
@@ -164,7 +182,7 @@ export async function runProductPipeline(light = false): Promise<{ inserted: num
       rating: p.rating,
       tags: buildTags(p),
       score_breakdown: { ...p.score_breakdown, tavily_mentions: p.tavily_mentions || 0, tiktok_signal: p.tiktok_signal || false },
-      tiktok_signal: p.tiktok_signal || false,
+      tiktok_signal: tikTokSales > 0 || p.tiktok_signal || false,
       source: 'rapidapi_datahub',
       updated_at: new Date().toISOString(),
     });

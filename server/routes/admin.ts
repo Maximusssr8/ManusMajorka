@@ -1358,4 +1358,36 @@ router.post('/backfill-ali-images', requireAuth, requireAdmin, async (req: Reque
   })();
 });
 
+// POST /api/admin/test-tiktok-scraper
+// Body: { keyword: "wireless earbuds" }
+router.post('/test-tiktok-scraper', async (req: Request, res: Response) => {
+  try {
+    const keyword = String(req.body?.keyword || 'LED strip lights');
+    console.log(`[admin] testing TikTok scraper for: "${keyword}"`);
+
+    const { debugTikTokEndpoint } = await import('../lib/tiktok-shop-scraper');
+    const results = await debugTikTokEndpoint(keyword);
+
+    const summary = results.map(r => ({
+      endpoint: r.endpoint,
+      status: r.status,
+      products_found: r.parsed.length,
+      first_product: r.parsed[0] || null,
+      raw_preview: r.raw.slice(0, 500),
+    }));
+
+    const best = results.find(r => r.parsed.length > 0);
+
+    res.json({
+      keyword,
+      endpoints_tried: results.length,
+      best_endpoint: best?.endpoint || 'none (all blocked)',
+      total_products: best?.parsed.length || 0,
+      results: summary,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
