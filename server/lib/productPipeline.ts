@@ -1,7 +1,8 @@
 // server/lib/productPipeline.ts
 import { fetchTrendSignals } from './tavilyTrends';
 import { searchAliAffiliateProducts } from './aliexpress-affiliate';
-import { searchTikTokShop } from './tiktok-shop-scraper';
+// TikTok scraper intentionally excluded from pipeline (unreliable, blocks cron)
+// import { searchTikTokShop } from './tiktok-shop-scraper';
 
 const hasAffiliateKeys = (): boolean => {
   return !!(process.env.ALIEXPRESS_APP_KEY && process.env.ALIEXPRESS_APP_SECRET);
@@ -142,27 +143,9 @@ export async function runProductPipeline(light = false): Promise<{ inserted: num
       }
     }
 
-    // Try TikTok Shop image (higher quality, better AU relevance)
-    let tikTokImage: string | null = null;
-    let tikTokUrl: string | null = null;
-    let tikTokSales = 0;
-
-    try {
-      const shortKeyword = p.name.split(' ').slice(0, 4).join(' ');
-      const tikResults = await searchTikTokShop(shortKeyword, 1);
-      if (tikResults.length > 0) {
-        tikTokImage = tikResults[0].image || null;
-        tikTokUrl = tikResults[0].product_url || null;
-        tikTokSales = tikResults[0].sold_count || 0;
-      }
-      await new Promise(r => setTimeout(r, 400));
-    } catch {
-      // silent fail — TikTok scraper returns [] on failure
-    }
-
-    // Image priority: TikTok > Affiliate > Raw AliExpress > Pexels fallback
-    const finalImage = tikTokImage || realImage || p.image_raw || 'https://images.pexels.com/photos/4050287/pexels-photo-4050287.jpeg';
-    const finalUrl = tikTokUrl || affiliateUrl || `https://www.aliexpress.com/item/${p.aliexpress_id}.html`;
+    // Image priority: 1. AliExpress Affiliate API, 2. Pexels fallback, 3. NoImage (handled in frontend)
+    const finalImage = realImage || p.image_raw || null;
+    const finalUrl = affiliateUrl || `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(p.name)}&shipCountry=au`;
 
     enriched.push({
       product_title: p.name,

@@ -1360,3 +1360,29 @@ Get key at: https://aistudio.google.com/app/apikey
 - ✅ Added to ~/.claude.json (user scope)
 - Key: AQ.Ab8RN6KOA_... (configured in claude.json)
 - Available in all Claude Code sessions automatically
+
+## AliExpress Affiliate API
+
+Keys from: https://openservice.aliexpress.com → App Console → App Detail
+
+```
+ALIEXPRESS_APP_KEY=your_app_key
+ALIEXPRESS_APP_SECRET=your_app_secret
+ALIEXPRESS_TRACKING_ID=majorka_au
+```
+
+Both keys are already set in Vercel (encrypted). Local `.env.local` has them too.
+
+Once affiliate approval is confirmed, trigger backfill to update all product images:
+```bash
+curl -X POST https://www.majorka.io/api/admin/backfill-ali-images \
+  -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"
+```
+
+Image pipeline priority (in order):
+1. AliExpress Affiliate API (`product_main_image_url`) — real product photos
+2. Pexels per-niche fallback — stock images
+3. `<NoImage>` component — clean SVG placeholder (no emoji, no picsum)
+
+TikTok scraper intentionally disabled in cron (too unreliable). 
+File kept at `server/lib/tiktok-shop-scraper.ts` for future use.
