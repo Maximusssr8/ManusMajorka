@@ -63,6 +63,7 @@ const SpyTools = lazy(() => import('./SpyTools'));
 const GrowthTools = lazy(() => import('./GrowthTools'));
 const ProfitSuppliers = lazy(() => import('./ProfitSuppliers'));
 const ShopIntelligence = lazy(() => import('./ShopIntelligence'));
+const ProductSearch = lazy(() => import('./ProductSearch'));
 
 // Map stage landing paths to their stage names
 const STAGE_PATHS: Record<string, string> = {
@@ -162,13 +163,14 @@ export default function ToolPage() {
     return page(<SettingsProfile />);
   }
 
-  // New consolidated pages
-  if (location === '/app/shops') return page(<ShopIntelligence />);
+  // New consolidated pages (canonical + aliases)
+  if (location === '/app/shops' || location === '/app/shop-intelligence') return page(<ShopIntelligence />);
   if (location === '/app/video-intelligence') return page(<VideoIntelligence />);
-  if (location === '/app/intelligence') return page(<ProductIntelligence />);
-  if (location === '/app/spy') return page(<SpyTools />);
-  if (location === '/app/growth') return page(<GrowthTools />);
+  if (location === '/app/intelligence' || location === '/app/product-intelligence') return page(<ProductIntelligence />);
+  if (location === '/app/spy' || location === '/app/spy-tools') return page(<SpyTools />);
+  if (location === '/app/growth' || location === '/app/growth-tools') return page(<GrowthTools />);
   if (location === '/app/profit') return page(<ProfitSuppliers />);
+  if (location === '/app/search') return page(<ProductSearch />);
 
   // Route dedicated tool pages
   if (location === '/app/website-generator') return page(<WebsiteGenerator />);

@@ -183,7 +183,7 @@ export default function ShopIntelligence() {
             </ul>
             <button
               onClick={() => navigate('/app/billing')}
-              style={{ width: '100%', padding: '14px', borderRadius: 10, background: C.gold, border: 'none', color: '#080a0e', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif", marginBottom: 8 }}
+              style={{ width: '100%', padding: '14px', borderRadius: 10, background: C.gold, border: 'none', color: '#ffffff', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif", marginBottom: 8 }}
             >
               Upgrade to Pro →
             </button>
@@ -453,7 +453,7 @@ export default function ShopIntelligence() {
         />
 
         <button onClick={() => fetchShops(1)}
-          style={{ padding: '8px 20px', borderRadius: 7, background: C.gold, border: 'none', color: '#080a0e', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          style={{ padding: '8px 20px', borderRadius: 7, background: C.gold, border: 'none', color: '#ffffff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
           Apply Filters
         </button>
       </div>

@@ -86,31 +86,31 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: 'DISCOVER',
     items: [
-      { label: 'Product Intelligence', path: '/app/intelligence', icon: Sparkles, badge: 'NEW', tooltip: 'Trending products + full database + AI scout — all in one.' },
-      { label: 'Shop Intelligence', path: '/app/shops', icon: Store, badge: 'PRO', tooltip: 'Discover top performing AU Shopify stores and analyse competitor strategy.' },
-      { label: 'Product Search', path: '/app/product-search', icon: Search, badge: 'LIVE', tooltip: 'Search TikTok Shop & AliExpress for real trending products.' },
+      { label: 'Product Intelligence', path: '/app/product-intelligence', icon: Flame, tooltip: 'Trending products + full database + AI scout — all in one.' },
       { label: 'Video Intelligence', path: '/app/video-intelligence', icon: Play, badge: 'NEW', tooltip: 'Top-performing AU product videos — what drives real sales.' },
-      { label: 'Spy Tools', path: '/app/spy', icon: Eye, tooltip: 'Market overview, AU creators, trending video hooks.' },
+      { label: 'Product Search', path: '/app/search', icon: Search, tooltip: 'Search TikTok Shop & AliExpress for real trending products.' },
+      { label: 'Shop Intelligence', path: '/app/shop-intelligence', icon: Store, tooltip: 'Discover top performing AU Shopify stores and analyse competitor strategy.' },
+      { label: 'Spy Tools', path: '/app/spy-tools', icon: Eye, tooltip: 'Market overview, AU creators, trending video hooks.' },
     ],
   },
   {
     label: 'BUILD',
     items: [
-      { label: 'Store Builder', path: '/app/store-builder', icon: Globe, badge: 'AI', tooltip: 'Build a complete Shopify-ready store in 60 seconds with 17 templates.' },
-      { label: 'Growth Tools', path: '/app/growth', icon: Zap, tooltip: 'Ad Studio, Copy Studio, and Brand DNA — one place.' },
+      { label: 'Store Builder AI', path: '/app/store-builder', icon: Globe, badge: 'AI', tooltip: 'Build a complete Shopify-ready store in 60 seconds with 17 templates.' },
+      { label: 'Growth Tools', path: '/app/growth-tools', icon: Zap, tooltip: 'Ad Studio, Copy Studio, and Brand DNA — one place.' },
     ],
   },
   {
     label: 'MANAGE',
     items: [
       { label: 'Profit & Suppliers', path: '/app/profit', icon: DollarSign, tooltip: 'Profit calculator + AU supplier directory.' },
-      { label: 'Academy', path: '/app/learn', icon: BookOpen, tooltip: 'Learn dropshipping for the AU market.' },
+      { label: 'Academy', path: '/app/learn', icon: GraduationCap, tooltip: 'Learn dropshipping for the AU market.' },
     ],
   },
   {
     label: 'ACCOUNT',
     items: [
-      { label: 'Settings & Billing', path: '/app/billing', icon: Settings, tooltip: 'Account settings, plan, and billing.' },
+      { label: 'Settings', path: '/app/settings', icon: Settings, tooltip: 'Account settings, plan, and billing.' },
     ],
   },
 ];

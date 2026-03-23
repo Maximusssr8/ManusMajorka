@@ -1313,3 +1313,45 @@ Rules installed at `~/.claude/rules/`. Key TypeScript rules for Majorka:
 | superagent-patterns | .claude/skills/superagent-patterns/SKILL.md | Parallel product fetching, multi-agent research tasks |
 | rag-patterns | .claude/skills/rag-patterns/SKILL.md | Semantic product search, "find similar products" feature |
 | majorka-design-system | .claude/skills/majorka-design-system/SKILL.md | All UI components and styling decisions |
+
+## Google Stitch MCP
+
+> Design UI in plain English → Stitch generates specs → react:components converts → Claw implements.
+
+### Setup
+
+To enable Stitch in a Claude Code session:
+```bash
+claude mcp add stitch --transport http \
+  https://stitch.googleapis.com/mcp \
+  --header "X-Goog-Api-Key: $GOOGLE_STITCH_API_KEY" \
+  -s user
+```
+
+Install skills globally:
+```bash
+npx skills add google-labs-code/stitch-skills --skill stitch-design --global
+npx skills add google-labs-code/stitch-skills --skill react:components --global
+npx skills add google-labs-code/stitch-skills --skill stitch-loop --global
+```
+
+### Usage
+
+```
+/stitch-design [describe the UI you want in plain English]
+/react:components [convert Stitch output to React component]
+```
+
+Example:
+```
+/stitch-design A product card with sparkline, revenue badge, tags, and action buttons for AU dropshipping
+```
+
+### Environment
+
+Add to Vercel and .env.local:
+```
+GOOGLE_STITCH_API_KEY=your_google_ai_studio_key
+```
+
+Get key at: https://aistudio.google.com/app/apikey

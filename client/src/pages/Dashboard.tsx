@@ -145,7 +145,7 @@ function StatCard({
   return (
     <div
       ref={ref}
-      className="stat-card-top-border glass-card group rounded-xl p-4 transition-all"
+      className="stat-card-top-border group rounded-xl p-4 transition-all"
       style={{ userSelect: 'none' }}
     >
       <div className="flex items-center justify-between mb-3">

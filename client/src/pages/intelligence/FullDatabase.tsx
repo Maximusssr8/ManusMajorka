@@ -798,6 +798,22 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
         <div style={{ padding: 20 }}>
           <h2 style={{ fontFamily: brico, fontWeight: 700, fontSize: 17, color: '#0A0A0A', marginBottom: 6, lineHeight: 1.4 }}>{name}</h2>
           <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 18 }}>{p.niche || p.category} &middot; {(p.rating || 4.2).toFixed(1)}&#9733; &middot; {orders.toLocaleString()}+ orders</div>
+
+          {/* Large 30-day revenue trend sparkline */}
+          <div style={{ marginBottom: 20, padding: 16, background: '#F9FAFB', borderRadius: 10, border: '1px solid #E5E7EB' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#0A0A0A', marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>30-Day Revenue Trend</div>
+            <MiniSparkline
+              data={(p.revenue_trend && Array.isArray(p.revenue_trend) && p.revenue_trend.length >= 2) ? p.revenue_trend as number[] : generateSparkline(p.id || 0, revenue, score)}
+              width={Math.min(520, typeof window !== 'undefined' ? window.innerWidth - 80 : 520)}
+              height={80}
+              positive={(p.revenue_growth_pct !== undefined && p.revenue_growth_pct !== null) ? p.revenue_growth_pct >= 0 : (getGrowthRate(p) >= 0)}
+            />
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 10, color: '#9CA3AF' }}>
+              <span>30 days ago</span>
+              <span>Today</span>
+            </div>
+          </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: '#F0F0F0', borderRadius: 10, overflow: 'hidden', marginBottom: 20 }}>
             {[
               { label: 'AliExpress Cost', val: `$${cost.toFixed(2)} AUD` },

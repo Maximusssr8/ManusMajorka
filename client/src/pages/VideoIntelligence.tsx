@@ -1,7 +1,7 @@
 /**
- * VideoIntelligence — /app/videos
- * Top-performing AU product videos. Card grid, revenue-first.
- * Bloomberg terminal style — no gamification, no scores.
+ * VideoIntelligence — /app/video-intelligence
+ * KaloData-level table: Video | Revenue | Product | Items Sold | Rev Trend | Views | Est ROAS | Published
+ * Standalone page with tab filters and platform badges.
  */
 
 import { Helmet } from 'react-helmet-async';
@@ -10,67 +10,49 @@ import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { useLocation } from 'wouter';
 import { supabase } from '@/lib/supabase';
+import Sparkline from '@/components/Sparkline';
 
-// ── Quick Action flywheel ─────────────────────────────────────────────────────
-function QuickActions({
-  productTitle,
-  category,
-  compact = false,
-}: {
-  productTitle: string | null;
-  category: string | null;
-  compact?: boolean;
-}) {
-  const [, nav] = useLocation();
-  if (!productTitle && !category) return null;
-  const pt = encodeURIComponent(productTitle ?? category ?? '');
-  const cat = encodeURIComponent(category ?? 'General');
-  const actions = [
-    { label: 'Generate Ads', path: `/app/meta-ads?product=${pt}&category=${cat}`, color: '#a78bfa' },
-    { label: 'Build Store', path: `/app/website-generator?niche=${cat}&product=${pt}`, color: '#34d399' },
-    { label: 'Check Profit', path: `/app/profit-calculator`, color: '#6366F1' },
-    { label: 'Find Creators', path: `/app/creators?category=${cat}`, color: '#38bdf8' },
-  ];
+// ── Design tokens ────────────────────────────────────────────────────────────
+const brico = "'Bricolage Grotesque', sans-serif";
+const dm = "'DM Sans', sans-serif";
+
+// ── Platform icons ───────────────────────────────────────────────────────────
+function PlatformBadge({ platform }: { platform: string }) {
+  const cfg: Record<string, { label: string; color: string; bg: string }> = {
+    tiktok:    { label: 'TikTok', color: '#000000', bg: '#E8F8F5' },
+    meta:      { label: 'Meta', color: '#1877F2', bg: '#EBF5FF' },
+    instagram: { label: 'IG', color: '#E1306C', bg: '#FDE8F0' },
+    youtube:   { label: 'YT', color: '#FF0000', bg: '#FEE2E2' },
+  };
+  const c = cfg[platform.toLowerCase()] || cfg.tiktok;
   return (
-    <div className={`flex flex-wrap gap-1.5 ${compact ? '' : 'mt-1'}`}>
-      {actions.map((a) => (
-        <button
-          key={a.label}
-          onClick={(e) => { e.stopPropagation(); nav(a.path); }}
-          className="text-xs px-2 py-0.5 rounded font-medium transition-colors"
-          style={{ background: `${a.color}14`, color: a.color, border: `1px solid ${a.color}25` }}
-          onMouseEnter={(ev) => (ev.currentTarget.style.background = `${a.color}28`)}
-          onMouseLeave={(ev) => (ev.currentTarget.style.background = `${a.color}14`)}
-        >
-          {a.label} →
-        </button>
-      ))}
-    </div>
+    <span style={{ fontSize: 10, fontWeight: 700, color: c.color, background: c.bg, borderRadius: 4, padding: '2px 6px', letterSpacing: '0.03em' }}>
+      {c.label}
+    </span>
   );
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-interface TrendingVideo {
+interface VideoRow {
   id: string;
-  video_title: string | null;
-  creator_username: string | null;
-  product_name: string | null;
-  thumbnail_url: string | null;
-  tiktok_video_url: string | null;
+  video_title: string;
+  creator_username: string;
+  product_name: string;
+  product_image?: string;
+  platform: string;
   views: number;
   likes: number;
   gmv_driven_aud: number;
-  items_sold_from_video: number;
-  engagement_rate: number;
+  items_sold: number;
+  est_roas: number;
+  rev_trend: number[];
   hook_type: string | null;
   category: string | null;
-  published_at: string | null;
+  published_at: string;
 }
 
-type TabKey = 'hot' | 'rising' | 'converting' | 'gmv';
-type HookFilter = 'all' | string;
-type CategoryFilter = 'all' | string;
+type TabKey = 'all' | 'high_roas' | 'high_organic' | 'low_follower';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -86,205 +68,90 @@ function fmtViews(n: number): string {
   return String(n);
 }
 
-function timeAgo(iso: string | null): string {
-  if (!iso) return '—';
+function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const days = Math.floor(diff / 86_400_000);
   if (days === 0) return 'Today';
-  if (days === 1) return '1 day ago';
+  if (days === 1) return '1d ago';
   if (days < 30) return `${days}d ago`;
   return `${Math.floor(days / 30)}mo ago`;
 }
 
-const HOOK_COLOURS: Record<string, string> = {
-  'Problem/Solution': '#ef4444',
-  'POV':             '#a78bfa',
-  'Unboxing':        '#38bdf8',
-  'Demo':            '#34d399',
-  'Testimonial':     '#f59e0b',
-};
-
-function HookBadge({ hook }: { hook: string | null }) {
-  if (!hook) return null;
-  const color = HOOK_COLOURS[hook] ?? '#94a3b8';
-  return (
-    <span
-      className="text-xs px-2 py-0.5 rounded font-medium"
-      style={{ background: `${color}18`, color, border: `1px solid ${color}30` }}
-    >
-      {hook}
-    </span>
-  );
-}
-
-// ── Video Modal ───────────────────────────────────────────────────────────────
-
-function VideoModal({
-  video,
-  onClose,
-  onGenerateScript,
-}: {
-  video: TrendingVideo;
-  onClose: () => void;
-  onGenerateScript: (v: TrendingVideo) => void;
-}) {
-  useEffect(() => {
-    function handleKey(e: KeyboardEvent) { if (e.key === 'Escape') onClose(); }
-    document.addEventListener('keydown', handleKey);
-    return () => document.removeEventListener('keydown', handleKey);
-  }, [onClose]);
-
-  function copyHook() {
-    const hook = video.video_title ?? `Check this out — ${video.product_name}`;
-    void navigator.clipboard.writeText(hook);
-    toast.success('Hook copied');
+function generateRevTrend(seed: number, base: number): number[] {
+  let val = base * 0.6;
+  const pts: number[] = [];
+  for (let i = 0; i < 7; i++) {
+    const noise = ((seed * (i + 1) * 7919) % 200 - 100) / 800;
+    val = Math.max(100, val * 1.08 * (1 + noise));
+    pts.push(Math.round(val));
   }
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(0,0,0,0.8)' }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      <div className="w-full max-w-lg rounded-2xl overflow-hidden" style={{ background: 'white', border: '1px solid rgba(255,255,255,0.08)' }}>
-        {/* Thumbnail */}
-        <div className="relative aspect-video bg-black">
-          {video.thumbnail_url ? (
-            <img src={video.thumbnail_url} alt={video.video_title ?? ''} className="w-full h-full object-cover opacity-80" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
-              <Play size={40} style={{ color: '#475569' }} />
-            </div>
-          )}
-          {video.tiktok_video_url && (
-            <a
-              href={video.tiktok_video_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="absolute inset-0 flex items-center justify-center"
-              style={{ background: 'rgba(0,0,0,0.4)' }}
-            >
-              <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)', border: '2px solid rgba(255,255,255,0.4)' }}>
-                <Play size={22} style={{ color: '#fff' }} fill="white" />
-              </div>
-            </a>
-          )}
-          <button
-            onClick={onClose}
-            className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center"
-            style={{ background: 'rgba(0,0,0,0.7)' }}
-          >
-            <X size={15} style={{ color: '#fff' }} />
-          </button>
-        </div>
-
-        <div className="p-5">
-          <div className="flex items-start justify-between gap-3 mb-4">
-            <div>
-              <p className="text-sm font-semibold" style={{ color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}>{video.video_title ?? 'Untitled video'}</p>
-              <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>
-                @{video.creator_username} · {timeAgo(video.published_at)}
-              </p>
-            </div>
-            <HookBadge hook={video.hook_type} />
-          </div>
-
-          {/* Metrics grid */}
-          <div className="grid grid-cols-3 gap-3 mb-4">
-            {[
-              { label: 'GMV Driven', value: fmtAUD(video.gmv_driven_aud), gold: true },
-              { label: 'Views', value: fmtViews(video.views), gold: false },
-              { label: 'Items Sold', value: fmtViews(video.items_sold_from_video), gold: false },
-              { label: 'Likes', value: fmtViews(video.likes), gold: false },
-              { label: 'Engagement', value: `${video.engagement_rate?.toFixed(1)}%`, gold: false },
-              { label: 'Product', value: video.product_name ?? '—', gold: false },
-            ].map((m) => (
-              <div key={m.label} className="rounded-lg p-2.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <p className="text-xs mb-0.5" style={{ color: '#64748b' }}>{m.label}</p>
-                <p className="text-sm font-semibold truncate" style={{ color: m.gold ? '#6366F1' : '#e2e8f0' }}>{m.value}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Why it works */}
-          <div className="rounded-lg p-3 mb-4" style={{ background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)' }}>
-            <p className="text-xs font-semibold mb-1" style={{ color: '#6366F1' }}>Why this video works</p>
-            <p className="text-xs" style={{ color: '#94a3b8', lineHeight: '1.6' }}>
-              {video.hook_type === 'POV' && 'POV hooks place the viewer inside the experience — creates instant relatability and drives saves/shares as people tag friends.'}
-              {video.hook_type === 'Problem/Solution' && 'Leads with a pain point the AU audience already feels, then positions the product as the obvious solution — high purchase intent.'}
-              {video.hook_type === 'Unboxing' && 'Unboxing satisfies curiosity and builds trust — viewers see the exact product before buying, reducing return risk mentally.'}
-              {video.hook_type === 'Demo' && 'Live demonstrations remove the "does it work?" doubt — highest-converting hook type for functional products.'}
-              {video.hook_type === 'Testimonial' && 'Real results from a relatable creator build social proof — AU audiences trust peer recommendations over brand ads.'}
-              {!video.hook_type && 'Strong creative execution with an engaging hook and product demonstration drives high conversion rates.'}
-            </p>
-          </div>
-
-          {/* Quick Actions flywheel */}
-          <QuickActions productTitle={video.product_name} category={video.category} />
-
-          {/* Script actions */}
-          <div className="flex gap-2 mt-1">
-            <button
-              onClick={copyHook}
-              className="flex-1 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors"
-              style={{ background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)' }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
-            >
-              <Copy size={14} /> Copy Hook
-            </button>
-            <button
-              onClick={() => onGenerateScript(video)}
-              className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors"
-              style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.3)' }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.25)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.15)')}
-            >
-              Generate Script →
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  pts.push(base);
+  return pts;
 }
 
-// ── Seed data fallback ───────────────────────────────────────────────────────
+// ── Seed data ────────────────────────────────────────────────────────────────
 
-const SEED_VIDEOS: TrendingVideo[] = [
-  { id: '1', video_title: 'Stop looking washed out on video calls — this $39 fix changed everything', creator_username: 'zoeaubeauty', product_name: 'LED Ring Light', thumbnail_url: null, tiktok_video_url: null, views: 2400000, likes: 180000, gmv_driven_aud: 127680, items_sold_from_video: 1840, engagement_rate: 8.4, hook_type: 'Problem/Solution', category: 'Tech Accessories', published_at: new Date(Date.now()-2*86400000).toISOString() },
-  { id: '2', video_title: '3 weeks of WFH destroyed my posture — here\'s what fixed it', creator_username: 'healthhackau', product_name: 'Posture Corrector', thumbnail_url: null, tiktok_video_url: null, views: 1890000, likes: 145000, gmv_driven_aud: 89200, items_sold_from_video: 2230, engagement_rate: 9.1, hook_type: 'Problem/Solution', category: 'Health & Wellness', published_at: new Date(Date.now()-1*86400000).toISOString() },
-  { id: '3', video_title: 'I ASMR\'d my stress away with this $45 gadget and now I can\'t stop', creator_username: 'glowwithgrace_au', product_name: 'Electric Scalp Massager', thumbnail_url: null, tiktok_video_url: null, views: 3200000, likes: 290000, gmv_driven_aud: 205000, items_sold_from_video: 4100, engagement_rate: 11.2, hook_type: 'Demo', category: 'Beauty & Skincare', published_at: new Date(Date.now()-3*86400000).toISOString() },
-  { id: '4', video_title: '5 exercises to transform your glutes at home — no gym needed', creator_username: 'fitnesswithkyle_au', product_name: 'Resistance Bands Set', thumbnail_url: null, tiktok_video_url: null, views: 890000, likes: 52000, gmv_driven_aud: 48020, items_sold_from_video: 980, engagement_rate: 6.8, hook_type: 'Demo', category: 'Activewear & Gym', published_at: new Date(Date.now()-4*86400000).toISOString() },
-  { id: '5', video_title: 'Unboxing the charging pad that cleared all the cables off my desk', creator_username: 'techdealsau', product_name: 'Wireless Charging Pad', thumbnail_url: null, tiktok_video_url: null, views: 1560000, likes: 98000, gmv_driven_aud: 143500, items_sold_from_video: 2870, engagement_rate: 7.3, hook_type: 'Unboxing', category: 'Tech Accessories', published_at: new Date(Date.now()-5*86400000).toISOString() },
-  { id: '6', video_title: 'My new morning ritual that actually makes me want to wake up', creator_username: 'cookingwithmateo', product_name: 'Matcha Whisk Set', thumbnail_url: null, tiktok_video_url: null, views: 2100000, likes: 175000, gmv_driven_aud: 96000, items_sold_from_video: 3200, engagement_rate: 10.4, hook_type: 'POV', category: 'Coffee & Beverages', published_at: new Date(Date.now()-6*86400000).toISOString() },
-  { id: '7', video_title: 'My dog completely lost his mind when I gave him this $28 puzzle toy', creator_username: 'petsofoz', product_name: 'Dog Puzzle Feeder', thumbnail_url: null, tiktok_video_url: null, views: 4500000, likes: 420000, gmv_driven_aud: 224000, items_sold_from_video: 5600, engagement_rate: 14.2, hook_type: 'Testimonial', category: 'Pets & Animals', published_at: new Date(Date.now()-1*86400000).toISOString() },
-  { id: '8', video_title: 'The ancient face sculpting technique that costs $24 — dermatologist approved', creator_username: 'zoeaubeauty', product_name: 'Gua Sha Tool', thumbnail_url: null, tiktok_video_url: null, views: 1200000, likes: 88000, gmv_driven_aud: 95000, items_sold_from_video: 1900, engagement_rate: 8.8, hook_type: 'Demo', category: 'Beauty & Skincare', published_at: new Date(Date.now()-2*86400000).toISOString() },
-  { id: '9', video_title: 'I finally found what stops my air fryer from staining — game changer', creator_username: 'cookingwithmateo', product_name: 'Air Fryer Silicone Liners', thumbnail_url: null, tiktok_video_url: null, views: 780000, likes: 41000, gmv_driven_aud: 52800, items_sold_from_video: 2400, engagement_rate: 5.6, hook_type: 'Problem/Solution', category: 'Home & Kitchen', published_at: new Date(Date.now()-7*86400000).toISOString() },
-  { id: '10', video_title: 'I took this on a 5-day hike and it charged my phone 8 times', creator_username: 'outdooradventuresoz', product_name: 'Solar Power Bank', thumbnail_url: null, tiktok_video_url: null, views: 640000, likes: 35000, gmv_driven_aud: 71200, items_sold_from_video: 890, engagement_rate: 6.2, hook_type: 'Testimonial', category: 'Outdoor & Camping', published_at: new Date(Date.now()-8*86400000).toISOString() },
-  { id: '11', video_title: 'My pantry went from chaos to Pinterest-worthy in 20 minutes', creator_username: 'homewithsophie', product_name: 'Bamboo Storage Baskets', thumbnail_url: null, tiktok_video_url: null, views: 920000, likes: 56000, gmv_driven_aud: 44000, items_sold_from_video: 1100, engagement_rate: 7.1, hook_type: 'POV', category: 'Home Decor', published_at: new Date(Date.now()-3*86400000).toISOString() },
-  { id: '12', video_title: 'I make a week of baby food in 30 minutes with this — mums this is for you', creator_username: 'mumlifemelbourne', product_name: 'Baby Food Maker', thumbnail_url: null, tiktok_video_url: null, views: 1080000, likes: 82000, gmv_driven_aud: 53200, items_sold_from_video: 760, engagement_rate: 9.4, hook_type: 'Testimonial', category: 'Baby & Kids', published_at: new Date(Date.now()-4*86400000).toISOString() },
+const SEED_VIDEOS: VideoRow[] = [
+  { id: 'v1', video_title: 'Stop looking washed out on video calls — this $39 fix changed everything', creator_username: 'zoeaubeauty', product_name: 'LED Ring Light', product_image: 'https://images.pexels.com/photos/3945667/pexels-photo-3945667.jpeg?auto=compress&cs=tinysrgb&w=60', platform: 'tiktok', views: 2400000, likes: 180000, gmv_driven_aud: 127680, items_sold: 1840, est_roas: 4.2, rev_trend: generateRevTrend(1, 127680), hook_type: 'Problem/Solution', category: 'Tech', published_at: new Date(Date.now() - 2 * 86400000).toISOString() },
+  { id: 'v2', video_title: '3 weeks of WFH destroyed my posture — here\'s what fixed it', creator_username: 'healthhackau', product_name: 'Posture Corrector', product_image: 'https://images.pexels.com/photos/4498481/pexels-photo-4498481.jpeg?auto=compress&cs=tinysrgb&w=60', platform: 'tiktok', views: 1890000, likes: 145000, gmv_driven_aud: 89200, items_sold: 2230, est_roas: 3.8, rev_trend: generateRevTrend(2, 89200), hook_type: 'Problem/Solution', category: 'Health', published_at: new Date(Date.now() - 1 * 86400000).toISOString() },
+  { id: 'v3', video_title: 'I ASMR\'d my stress away with this $45 gadget', creator_username: 'glowwithgrace_au', product_name: 'Electric Scalp Massager', product_image: 'https://images.pexels.com/photos/3997993/pexels-photo-3997993.jpeg?auto=compress&cs=tinysrgb&w=60', platform: 'instagram', views: 3200000, likes: 290000, gmv_driven_aud: 205000, items_sold: 4100, est_roas: 6.1, rev_trend: generateRevTrend(3, 205000), hook_type: 'Demo', category: 'Beauty', published_at: new Date(Date.now() - 3 * 86400000).toISOString() },
+  { id: 'v4', video_title: '5 exercises to transform your glutes at home — no gym needed', creator_username: 'fitnesswithkyle_au', product_name: 'Resistance Bands Set', product_image: 'https://images.pexels.com/photos/4162449/pexels-photo-4162449.jpeg?auto=compress&cs=tinysrgb&w=60', platform: 'tiktok', views: 890000, likes: 52000, gmv_driven_aud: 48020, items_sold: 980, est_roas: 2.4, rev_trend: generateRevTrend(4, 48020), hook_type: 'Demo', category: 'Fitness', published_at: new Date(Date.now() - 4 * 86400000).toISOString() },
+  { id: 'v5', video_title: 'Unboxing the charging pad that cleared all the cables off my desk', creator_username: 'techdealsau', product_name: 'Wireless Charging Pad', product_image: 'https://images.pexels.com/photos/4526407/pexels-photo-4526407.jpeg?auto=compress&cs=tinysrgb&w=60', platform: 'meta', views: 1560000, likes: 98000, gmv_driven_aud: 143500, items_sold: 2870, est_roas: 5.3, rev_trend: generateRevTrend(5, 143500), hook_type: 'Unboxing', category: 'Tech', published_at: new Date(Date.now() - 5 * 86400000).toISOString() },
+  { id: 'v6', video_title: 'My new morning ritual that actually makes me want to wake up', creator_username: 'cookingwithmateo', product_name: 'Matcha Whisk Set', product_image: 'https://images.pexels.com/photos/5946630/pexels-photo-5946630.jpeg?auto=compress&cs=tinysrgb&w=60', platform: 'tiktok', views: 2100000, likes: 175000, gmv_driven_aud: 96000, items_sold: 3200, est_roas: 3.5, rev_trend: generateRevTrend(6, 96000), hook_type: 'POV', category: 'Beverages', published_at: new Date(Date.now() - 6 * 86400000).toISOString() },
+  { id: 'v7', video_title: 'My dog lost his mind when I gave him this $28 puzzle toy', creator_username: 'petsofoz', product_name: 'Dog Puzzle Feeder', product_image: 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=60', platform: 'tiktok', views: 4500000, likes: 420000, gmv_driven_aud: 224000, items_sold: 5600, est_roas: 7.8, rev_trend: generateRevTrend(7, 224000), hook_type: 'Testimonial', category: 'Pets', published_at: new Date(Date.now() - 1 * 86400000).toISOString() },
+  { id: 'v8', video_title: 'The ancient face sculpting technique — dermatologist approved', creator_username: 'zoeaubeauty', product_name: 'Gua Sha Tool', product_image: 'https://images.pexels.com/photos/5069432/pexels-photo-5069432.jpeg?auto=compress&cs=tinysrgb&w=60', platform: 'instagram', views: 1200000, likes: 88000, gmv_driven_aud: 95000, items_sold: 1900, est_roas: 4.6, rev_trend: generateRevTrend(8, 95000), hook_type: 'Demo', category: 'Beauty', published_at: new Date(Date.now() - 2 * 86400000).toISOString() },
+  { id: 'v9', video_title: 'I found what stops my air fryer from staining — game changer', creator_username: 'cookingwithmateo', product_name: 'Air Fryer Silicone Liners', product_image: 'https://images.pexels.com/photos/6996084/pexels-photo-6996084.jpeg?auto=compress&cs=tinysrgb&w=60', platform: 'meta', views: 780000, likes: 41000, gmv_driven_aud: 52800, items_sold: 2400, est_roas: 2.1, rev_trend: generateRevTrend(9, 52800), hook_type: 'Problem/Solution', category: 'Kitchen', published_at: new Date(Date.now() - 7 * 86400000).toISOString() },
+  { id: 'v10', video_title: 'Took this on a 5-day hike and it charged my phone 8 times', creator_username: 'outdooradventuresoz', product_name: 'Solar Power Bank', product_image: 'https://images.pexels.com/photos/5474296/pexels-photo-5474296.jpeg?auto=compress&cs=tinysrgb&w=60', platform: 'tiktok', views: 640000, likes: 35000, gmv_driven_aud: 71200, items_sold: 890, est_roas: 3.2, rev_trend: generateRevTrend(10, 71200), hook_type: 'Testimonial', category: 'Outdoor', published_at: new Date(Date.now() - 8 * 86400000).toISOString() },
+  { id: 'v11', video_title: 'My pantry went from chaos to Pinterest-worthy in 20 minutes', creator_username: 'homewithsophie', product_name: 'Bamboo Storage Baskets', product_image: 'https://images.pexels.com/photos/6069544/pexels-photo-6069544.jpeg?auto=compress&cs=tinysrgb&w=60', platform: 'instagram', views: 920000, likes: 56000, gmv_driven_aud: 44000, items_sold: 1100, est_roas: 2.8, rev_trend: generateRevTrend(11, 44000), hook_type: 'POV', category: 'Home', published_at: new Date(Date.now() - 3 * 86400000).toISOString() },
+  { id: 'v12', video_title: 'Week of baby food in 30 minutes — mums this is for you', creator_username: 'mumlifemelbourne', product_name: 'Baby Food Maker', product_image: 'https://images.pexels.com/photos/3662850/pexels-photo-3662850.jpeg?auto=compress&cs=tinysrgb&w=60', platform: 'meta', views: 1080000, likes: 82000, gmv_driven_aud: 53200, items_sold: 760, est_roas: 3.9, rev_trend: generateRevTrend(12, 53200), hook_type: 'Testimonial', category: 'Baby', published_at: new Date(Date.now() - 4 * 86400000).toISOString() },
+  { id: 'v13', video_title: 'This $22 serum replaced my entire skincare routine', creator_username: 'skincarewithemma', product_name: 'Vitamin C Serum', product_image: 'https://images.pexels.com/photos/3785147/pexels-photo-3785147.jpeg?auto=compress&cs=tinysrgb&w=60', platform: 'tiktok', views: 5200000, likes: 380000, gmv_driven_aud: 312000, items_sold: 7800, est_roas: 8.4, rev_trend: generateRevTrend(13, 312000), hook_type: 'POV', category: 'Beauty', published_at: new Date(Date.now() - 1 * 86400000).toISOString() },
+  { id: 'v14', video_title: 'The $35 car mount every Uber driver needs — changed my commute', creator_username: 'drivewithdan', product_name: 'Magnetic Car Mount', product_image: 'https://images.pexels.com/photos/13861/IMG_3496a.jpg?auto=compress&cs=tinysrgb&w=60', platform: 'tiktok', views: 720000, likes: 38000, gmv_driven_aud: 41500, items_sold: 1186, est_roas: 1.9, rev_trend: generateRevTrend(14, 41500), hook_type: 'Demo', category: 'Auto', published_at: new Date(Date.now() - 9 * 86400000).toISOString() },
+  { id: 'v15', video_title: 'Planted this 3 weeks ago — look at my balcony now', creator_username: 'urbangreenau', product_name: 'Self-Watering Planter Kit', product_image: 'https://images.pexels.com/photos/4505166/pexels-photo-4505166.jpeg?auto=compress&cs=tinysrgb&w=60', platform: 'instagram', views: 1340000, likes: 102000, gmv_driven_aud: 78600, items_sold: 1572, est_roas: 4.1, rev_trend: generateRevTrend(15, 78600), hook_type: 'POV', category: 'Garden', published_at: new Date(Date.now() - 5 * 86400000).toISOString() },
 ];
 
-// ── Main component ────────────────────────────────────────────────────────────
+// ── Tab definitions ──────────────────────────────────────────────────────────
+
+const TABS: { key: TabKey; label: string }[] = [
+  { key: 'all', label: 'All Videos' },
+  { key: 'high_roas', label: 'High ROAS' },
+  { key: 'high_organic', label: 'High Organic' },
+  { key: 'low_follower', label: 'Low-Follower Sales' },
+];
+
+// ── Main component ───────────────────────────────────────────────────────────
 
 export default function VideoIntelligence() {
-  const [videos, setVideos] = useState<TrendingVideo[]>([]);
+  const [videos, setVideos] = useState<VideoRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<TabKey>('hot');
-  const [hookFilter, setHookFilter] = useState<HookFilter>('all');
-  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
-  const [minGmv, setMinGmv] = useState(0);
-  const [selected, setSelected] = useState<TrendingVideo | null>(null);
-  const [scriptLoading, setScriptLoading] = useState(false);
-  const [scriptText, setScriptText] = useState('');
+  const [tab, setTab] = useState<TabKey>('all');
+  const [, nav] = useLocation();
 
   useEffect(() => { void fetchVideos(); }, []);
 
   async function fetchVideos() {
     try {
       const { data } = await supabase.from('trending_videos').select('*').order('gmv_driven_aud', { ascending: false });
-      setVideos(data && data.length > 0 ? (data as TrendingVideo[]) : SEED_VIDEOS);
+      if (data && data.length > 0) {
+        setVideos(data.map((d: any) => ({
+          id: d.id,
+          video_title: d.video_title || 'Untitled',
+          creator_username: d.creator_username || 'unknown',
+          product_name: d.product_name || 'Product',
+          product_image: d.thumbnail_url,
+          platform: d.platform || 'tiktok',
+          views: d.views || 0,
+          likes: d.likes || 0,
+          gmv_driven_aud: d.gmv_driven_aud || 0,
+          items_sold: d.items_sold_from_video || 0,
+          est_roas: d.est_roas || ((d.gmv_driven_aud || 0) / Math.max(1, (d.views || 1) * 0.005)),
+          rev_trend: generateRevTrend(Number(d.id?.replace(/\D/g, '') || 1), d.gmv_driven_aud || 1000),
+          hook_type: d.hook_type,
+          category: d.category,
+          published_at: d.published_at || new Date().toISOString(),
+        })));
+      } else {
+        setVideos(SEED_VIDEOS);
+      }
     } catch {
       setVideos(SEED_VIDEOS);
     } finally {
@@ -292,268 +159,211 @@ export default function VideoIntelligence() {
     }
   }
 
-  const allHooks = useMemo(() => ['all', ...Array.from(new Set(videos.map(v => v.hook_type).filter(Boolean)))], [videos]) as string[];
-  const allCategories = useMemo(() => ['all', ...Array.from(new Set(videos.map(v => v.category).filter(Boolean)))], [videos]) as string[];
-
   const filtered = useMemo(() => {
     let list = [...videos];
-    if (hookFilter !== 'all') list = list.filter(v => v.hook_type === hookFilter);
-    if (categoryFilter !== 'all') list = list.filter(v => v.category === categoryFilter);
-    if (minGmv > 0) list = list.filter(v => v.gmv_driven_aud >= minGmv);
     switch (tab) {
-      case 'hot': list.sort((a, b) => b.views - a.views); break;
-      case 'rising': list.sort((a, b) => b.engagement_rate - a.engagement_rate); break;
-      case 'converting': list.sort((a, b) => b.items_sold_from_video - a.items_sold_from_video); break;
-      case 'gmv': list.sort((a, b) => b.gmv_driven_aud - a.gmv_driven_aud); break;
+      case 'high_roas': list = list.filter(v => v.est_roas >= 4.0).sort((a, b) => b.est_roas - a.est_roas); break;
+      case 'high_organic': list = list.filter(v => v.views >= 1_000_000).sort((a, b) => b.views - a.views); break;
+      case 'low_follower': list = list.filter(v => v.items_sold >= 1000 && v.views < 1_500_000).sort((a, b) => b.items_sold - a.items_sold); break;
+      default: list.sort((a, b) => b.gmv_driven_aud - a.gmv_driven_aud);
     }
     return list;
-  }, [videos, tab, hookFilter, categoryFilter, minGmv]);
+  }, [videos, tab]);
 
-  async function handleGenerateScript(video: TrendingVideo) {
-    setScriptLoading(true);
-    setScriptText('');
-    try {
-      const { data: session } = await supabase.auth.getSession();
-      const token = session.session?.access_token;
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-        body: JSON.stringify({
-          toolName: 'ai-chat',
-          messages: [{
-            role: 'user',
-            content: `Write a TikTok video script similar to this high-performing video:
-Title: "${video.video_title}"
-Product: ${video.product_name}
-Hook type: ${video.hook_type}
-Performance: ${fmtViews(video.views)} views, ${fmtAUD(video.gmv_driven_aud)} GMV driven, ${video.engagement_rate.toFixed(1)}% engagement
-Category: ${video.category}
-
-Write a 30-second script with: hook (0-3s), problem/tension (3-10s), solution/product reveal (10-22s), CTA (22-30s). Include text overlays. AU English.`,
-          }],
-          stream: false,
-        }),
-      });
-      const json = await res.json() as { reply?: string };
-      setScriptText(json.reply ?? 'Error generating script.');
-    } catch { setScriptText('Error — please try again.'); }
-    finally { setScriptLoading(false); }
-  }
-
-  const TABS: { key: TabKey; label: string }[] = [
-    { key: 'hot', label: '🔥 Most Viewed' },
-    { key: 'rising', label: '📈 Best Engagement' },
-    { key: 'converting', label: '🎯 Top Converting' },
-    { key: 'gmv', label: '💰 Top GMV' },
-  ];
+  const thStyle = (width: number, align: 'left' | 'center' | 'right' = 'left'): React.CSSProperties => ({
+    width, minWidth: width, padding: '0 12px', fontSize: 11, fontWeight: 700,
+    color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em',
+    textAlign: align, userSelect: 'none' as const, whiteSpace: 'nowrap' as const,
+    borderBottom: '2px solid #F3F4F6', paddingBottom: 10,
+  });
 
   return (
-    <div className="min-h-full" style={{ background: '#FAFAFA', color: '#0A0A0A' }}>
+    <div style={{ background: '#FAFAFA', minHeight: '100vh' }}>
       <Helmet><title>Video Intelligence | Majorka</title></Helmet>
-      {/* Header */}
-      <div className="px-6 py-5 border-b" style={{ borderColor: '#E5E7EB' }}>
-        <h1 className="text-xl font-bold" style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}>Video Intelligence</h1>
-        <p className="text-sm mt-0.5" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>Top-performing AU product videos — what drives real sales</p>
+
+      {/* ── HEADER ── */}
+      <div style={{ padding: '24px 24px 0', maxWidth: 1400, margin: '0 auto' }}>
+        <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#0A0A0A', margin: 0 }}>
+          Video Intelligence
+        </h1>
+        <p style={{ fontSize: 13, color: '#6B7280', marginTop: 4, marginBottom: 20, fontFamily: dm }}>
+          Top-performing AU product videos — what hooks, converts, and drives real revenue
+        </p>
+
+        {/* ── TAB FILTERS ── */}
+        <div style={{ display: 'flex', gap: 0, borderBottom: '2px solid #F3F4F6', marginBottom: 16, overflowX: 'auto' }}>
+          {TABS.map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)}
+              style={{
+                height: 42, padding: '0 20px', background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: 13, fontWeight: tab === t.key ? 700 : 500,
+                color: tab === t.key ? '#6366F1' : '#9CA3AF',
+                borderBottom: tab === t.key ? '3px solid #6366F1' : '3px solid transparent',
+                whiteSpace: 'nowrap' as const, transition: 'all 150ms', marginBottom: -2, minWidth: 120,
+              }}>
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="flex">
-        {/* Left sidebar */}
-        <aside
-          className="hidden lg:flex flex-col w-52 flex-shrink-0 p-4 border-r space-y-6"
-          style={{ borderColor: '#E5E7EB', background: '#FAFAFA', minHeight: 'calc(100vh - 80px)' }}
-        >
-          {/* Hook type filter */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#475569' }}>Hook Type</p>
-            <div className="space-y-1">
-              {allHooks.map((h) => (
-                <button
-                  key={h}
-                  onClick={() => setHookFilter(h)}
-                  className="w-full text-left text-sm px-3 py-1.5 rounded-lg transition-colors"
-                  style={{
-                    background: hookFilter === h ? 'rgba(99,102,241,0.12)' : 'transparent',
-                    color: hookFilter === h ? '#6366F1' : '#94a3b8',
-                  }}
-                >
-                  {h === 'all' ? 'All Types' : h}
-                </button>
-              ))}
-            </div>
-          </div>
+      {/* ── TABLE ── */}
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 24px 40px', overflowX: 'auto' }}>
+        <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 1000 }}>
+            <colgroup>
+              <col style={{ width: 340 }} />
+              <col style={{ width: 110 }} />
+              <col style={{ width: 80 }} />
+              <col style={{ width: 90 }} />
+              <col style={{ width: 130 }} />
+              <col style={{ width: 90 }} />
+              <col style={{ width: 80 }} />
+              <col style={{ width: 80 }} />
+            </colgroup>
+            <thead>
+              <tr style={{ background: 'rgba(250,250,250,0.98)', height: 42, position: 'sticky' as const, top: 0, zIndex: 10 }}>
+                <th style={thStyle(340)}>Video</th>
+                <th style={thStyle(110, 'right')}>Revenue</th>
+                <th style={thStyle(80, 'center')}>Product</th>
+                <th style={thStyle(90, 'right')}>Items Sold</th>
+                <th style={thStyle(130, 'center')}>Rev Trend</th>
+                <th style={thStyle(90, 'right')}>Views</th>
+                <th style={thStyle(80, 'center')}>Est ROAS</th>
+                <th style={thStyle(80, 'right')}>Published</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                Array.from({ length: 6 }).map((_, i) => (
+                  <tr key={i} style={{ height: 68, borderBottom: '1px solid #F3F4F6' }}>
+                    {Array.from({ length: 8 }).map((_, j) => (
+                      <td key={j} style={{ padding: '0 12px' }}>
+                        <div style={{ height: 14, background: '#F3F4F6', borderRadius: 6, width: `${50 + (i * j * 11) % 40}%`, animation: 'shimmer 1.5s ease-in-out infinite' }} />
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={8} style={{ padding: '60px 24px', textAlign: 'center' as const }}>
+                    <Play size={32} style={{ color: '#D1D5DB', marginBottom: 8 }} />
+                    <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 16, color: '#0A0A0A', marginBottom: 4 }}>No videos match this filter</div>
+                    <div style={{ fontSize: 13, color: '#6B7280' }}>Try "All Videos" to see everything</div>
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((v, idx) => {
+                  const roasColor = v.est_roas >= 5 ? '#059669' : v.est_roas >= 3 ? '#D97706' : '#6B7280';
+                  const roasBg = v.est_roas >= 5 ? '#ECFDF5' : v.est_roas >= 3 ? '#FEF3C7' : '#F5F5F5';
+                  const trendPositive = v.rev_trend.length >= 2 && v.rev_trend[v.rev_trend.length - 1] >= v.rev_trend[0];
 
-          {/* Category filter */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#475569' }}>Category</p>
-            <div className="space-y-1">
-              {allCategories.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setCategoryFilter(c)}
-                  className="w-full text-left text-sm px-3 py-1.5 rounded-lg transition-colors"
-                  style={{
-                    background: categoryFilter === c ? 'rgba(99,102,241,0.12)' : 'transparent',
-                    color: categoryFilter === c ? '#6366F1' : '#94a3b8',
-                  }}
-                >
-                  {c === 'all' ? 'All Categories' : c}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Min GMV */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#475569' }}>Min GMV</p>
-            <div className="space-y-1">
-              {[0, 5000, 8000, 10000, 15000].map((g) => (
-                <button
-                  key={g}
-                  onClick={() => setMinGmv(g)}
-                  className="w-full text-left text-sm px-3 py-1.5 rounded-lg transition-colors"
-                  style={{
-                    background: minGmv === g ? 'rgba(99,102,241,0.12)' : 'transparent',
-                    color: minGmv === g ? '#6366F1' : '#94a3b8',
-                  }}
-                >
-                  {g === 0 ? 'Any' : `$${(g / 1000).toFixed(0)}k+`}
-                </button>
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        {/* Main content */}
-        <div className="flex-1 min-w-0 p-6">
-          {/* Tabs */}
-          <div className="flex gap-2 overflow-x-auto pb-1 mb-6">
-            {TABS.map((t) => (
-              <button
-                key={t.key}
-                onClick={() => setTab(t.key)}
-                className="flex-shrink-0 text-sm px-4 py-2 rounded-lg transition-colors font-medium"
-                style={{
-                  background: tab === t.key ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.04)',
-                  color: tab === t.key ? '#6366F1' : '#94a3b8',
-                  border: tab === t.key ? '1px solid rgba(99,102,241,0.3)' : '1px solid rgba(255,255,255,0.07)',
-                }}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Cards grid */}
-          {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="rounded-xl aspect-video animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }} />
-              ))}
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-16" style={{ color: '#475569' }}>
-              <Play size={32} className="mx-auto mb-3 opacity-30" />
-              <p className="text-sm">No videos match your filters</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filtered.map((v) => (
-                <div
-                  key={v.id}
-                  className="rounded-xl overflow-hidden cursor-pointer transition-all duration-150 hover:scale-[1.01]"
-                  style={{ border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}
-                  onClick={() => { setSelected(v); setScriptText(''); }}
-                >
-                  {/* Thumbnail */}
-                  <div className="relative aspect-video bg-black">
-                    {v.thumbnail_url ? (
-                      <img src={v.thumbnail_url} alt={v.video_title ?? ''} className="w-full h-full object-cover opacity-75" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center" style={{ background: '#FAFAFA' }}>
-                        <Play size={28} style={{ color: '#334155' }} />
-                      </div>
-                    )}
-                    {/* View count badge */}
-                    <div
-                      className="absolute top-2 left-2 text-xs font-semibold px-2 py-0.5 rounded"
-                      style={{ background: 'rgba(0,0,0,0.75)', color: '#fff' }}
+                  return (
+                    <tr key={v.id}
+                      style={{
+                        height: 68, borderBottom: '1px solid #F3F4F6', cursor: 'pointer',
+                        transition: 'background 120ms',
+                        animation: `fadeInRow 0.3s ease ${idx * 0.03}s both`,
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = '#FAFAFF'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'white'; }}
                     >
-                      👁 {fmtViews(v.views)}
-                    </div>
-                    {/* Play overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity" style={{ background: 'rgba(0,0,0,0.4)' }}>
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.8)' }}>
-                        <Play size={16} fill="white" style={{ color: '#fff' }} />
-                      </div>
-                    </div>
-                  </div>
+                      {/* Video */}
+                      <td style={{ padding: '8px 12px', verticalAlign: 'middle' as const }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div style={{ width: 48, height: 36, borderRadius: 6, overflow: 'hidden', flexShrink: 0, background: '#F3F4F6', position: 'relative' as const }}>
+                            {v.product_image ? (
+                              <img src={v.product_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                            ) : (
+                              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Play size={14} style={{ color: '#9CA3AF' }} />
+                              </div>
+                            )}
+                          </div>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontWeight: 600, fontSize: 13, color: '#0A0A0A', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                              {v.video_title}
+                            </div>
+                            <div style={{ display: 'flex', gap: 5, alignItems: 'center', marginTop: 3 }}>
+                              <span style={{ fontSize: 11, color: '#6B7280' }}>@{v.creator_username}</span>
+                              <PlatformBadge platform={v.platform} />
+                              {v.hook_type && (
+                                <span style={{ fontSize: 9, fontWeight: 700, color: '#7C3AED', background: '#F3E8FF', borderRadius: 4, padding: '1px 5px' }}>
+                                  {v.hook_type}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
 
-                  {/* Card body */}
-                  <div className="p-3">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <p className="text-sm font-medium leading-tight flex-1" style={{ color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}>
-                        {v.video_title ?? 'Untitled'}
-                      </p>
-                      <HookBadge hook={v.hook_type} />
-                    </div>
-
-                    <p className="text-xs mb-2" style={{ color: '#475569' }}>
-                      @{v.creator_username} · {v.category} · {timeAgo(v.published_at)}
-                    </p>
-
-                    <div className="flex items-center justify-between mb-2">
-                      {/* GMV — primary metric */}
-                      <div>
-                        <p className="text-xs" style={{ color: '#64748b' }}>GMV driven</p>
-                        <p className="text-base font-bold" style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}>
+                      {/* Revenue */}
+                      <td style={{ padding: '0 12px', textAlign: 'right' as const, verticalAlign: 'middle' as const }}>
+                        <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: v.gmv_driven_aud >= 100000 ? '#059669' : '#0A0A0A' }}>
                           {fmtAUD(v.gmv_driven_aud)}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs" style={{ color: '#64748b' }}>Engagement</p>
-                        <p className="text-sm font-medium" style={{ color: '#94a3b8' }}>{v.engagement_rate?.toFixed(1)}%</p>
-                      </div>
-                    </div>
-                    <QuickActions productTitle={v.product_name} category={v.category} compact />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                        </div>
+                      </td>
 
-          <p className="text-xs mt-4" style={{ color: '#334155' }}>{filtered.length} of {videos.length} videos shown</p>
+                      {/* Product thumb */}
+                      <td style={{ padding: '0 12px', textAlign: 'center' as const, verticalAlign: 'middle' as const }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 8, overflow: 'hidden', border: '1px solid #F3F4F6', margin: '0 auto', background: '#F9FAFB' }}>
+                          {v.product_image ? (
+                            <img src={v.product_image} alt={v.product_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              onError={e => { (e.target as HTMLImageElement).src = 'https://images.pexels.com/photos/4050287/pexels-photo-4050287.jpeg?auto=compress&cs=tinysrgb&w=60'; }} />
+                          ) : (
+                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#9CA3AF' }}>—</div>
+                          )}
+                        </div>
+                        <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, maxWidth: 70, margin: '2px auto 0' }}>{v.product_name}</div>
+                      </td>
+
+                      {/* Items Sold */}
+                      <td style={{ padding: '0 12px', textAlign: 'right' as const, verticalAlign: 'middle' as const }}>
+                        <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A' }}>
+                          {v.items_sold >= 1000 ? `${(v.items_sold / 1000).toFixed(1)}k` : v.items_sold.toLocaleString()}
+                        </div>
+                        <div style={{ fontSize: 10, color: '#9CA3AF' }}>units</div>
+                      </td>
+
+                      {/* Rev Trend sparkline */}
+                      <td style={{ padding: '0 12px', textAlign: 'center' as const, verticalAlign: 'middle' as const }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                          <Sparkline data={v.rev_trend} width={110} height={28} color={trendPositive ? '#10B981' : '#EF4444'} />
+                        </div>
+                      </td>
+
+                      {/* Views */}
+                      <td style={{ padding: '0 12px', textAlign: 'right' as const, verticalAlign: 'middle' as const }}>
+                        <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A' }}>{fmtViews(v.views)}</div>
+                        <div style={{ fontSize: 10, color: '#9CA3AF' }}>views</div>
+                      </td>
+
+                      {/* Est ROAS */}
+                      <td style={{ padding: '0 12px', textAlign: 'center' as const, verticalAlign: 'middle' as const }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '3px 10px', borderRadius: 12, background: roasBg, fontFamily: brico, fontWeight: 800, fontSize: 13, color: roasColor }}>
+                          {v.est_roas.toFixed(1)}x
+                        </div>
+                      </td>
+
+                      {/* Published */}
+                      <td style={{ padding: '0 12px', textAlign: 'right' as const, verticalAlign: 'middle' as const }}>
+                        <div style={{ fontSize: 12, color: '#6B7280' }}>{timeAgo(v.published_at)}</div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
+        <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 12 }}>{filtered.length} of {videos.length} videos shown</p>
       </div>
 
-      {/* Script result panel */}
-      {(scriptLoading || scriptText) && (
-        <div
-          className="fixed bottom-6 right-6 max-w-md rounded-xl p-5 shadow-2xl overflow-y-auto"
-          style={{ background: 'white', border: '1px solid rgba(99,102,241,0.3)', zIndex: 60, maxHeight: '60vh' }}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold" style={{ color: '#6366F1' }}>Generated Script</p>
-            <button onClick={() => setScriptText('')} style={{ color: '#64748b' }}><X size={15} /></button>
-          </div>
-          {scriptLoading ? (
-            <p className="text-sm" style={{ color: '#94a3b8' }}>Writing script…</p>
-          ) : (
-            <p className="text-sm whitespace-pre-wrap" style={{ color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif', lineHeight: '1.6' }}>{scriptText}</p>
-          )}
-        </div>
-      )}
-
-      {/* Modal */}
-      {selected && (
-        <VideoModal
-          video={selected}
-          onClose={() => { setSelected(null); setScriptText(''); }}
-          onGenerateScript={(v) => {
-            setSelected(null);
-            void handleGenerateScript(v);
-          }}
-        />
-      )}
+      <style>{`
+        @keyframes fadeInRow { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes shimmer { 0% { opacity:0.6; } 50% { opacity:1; } 100% { opacity:0.6; } }
+      `}</style>
     </div>
   );
 }
