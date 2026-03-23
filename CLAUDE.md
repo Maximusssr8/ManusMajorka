@@ -1286,3 +1286,27 @@ Note: `setHasOutput_or_activeTab` — use whatever sets the preview tab as activ
 
 ### Majorka Own UI
 Always use `majorka-design-system/SKILL.md` — #6366F1 indigo, Bricolage Grotesque headings.
+
+---
+
+## Global Rules (everything-claude-code)
+
+Rules installed at `~/.claude/rules/`. Key TypeScript rules for Majorka:
+- **Agents**: 10 available agents (planner, architect, tdd-guide, code-reviewer, security-reviewer, build-error-resolver, e2e-runner, refactor-cleaner, doc-updater). Use parallel execution for independent operations; no user prompt needed for complex features, bug fixes, or architectural decisions.
+- **Coding style**: Immutability is CRITICAL (always new objects, never mutate). Many small files (200-400 lines, 800 max). Functions <50 lines. Handle errors at every level. Validate at system boundaries.
+- **Patterns**: Search for battle-tested skeleton projects before building. Repository pattern for data access. Consistent API envelope: `{ success, data?, error?, meta? }`.
+- **TypeScript**: Explicit types on public APIs, infer locals. Use `interface` for object shapes, `type` for unions/mapped. Avoid `any` (use `unknown` + narrow). Zod for schema validation. Playwright for E2E. No console.log.
+
+## Available Skills (ECC)
+- `tdd-workflow`: Write tests first (RED→GREEN→IMPROVE), 80%+ coverage, unit + integration + E2E with Playwright
+- `verification-loop`: 6-phase quality gate before PR: build → types → lint → tests → security scan → diff review
+- `e2e-testing`: Playwright patterns with Page Object Model, fixtures, cross-browser testing, flaky test quarantine
+
+## Custom Skills (Majorka-specific, in .claude/skills/)
+
+| Skill | Location | Use when |
+|---|---|---|
+| browser-automation | .claude/skills/browser-automation/SKILL.md | Scraping AliExpress, TikTok, competitor ads |
+| superagent-patterns | .claude/skills/superagent-patterns/SKILL.md | Parallel product fetching, multi-agent research tasks |
+| rag-patterns | .claude/skills/rag-patterns/SKILL.md | Semantic product search, "find similar products" feature |
+| majorka-design-system | .claude/skills/majorka-design-system/SKILL.md | All UI components and styling decisions |

@@ -258,8 +258,194 @@ function NameGeneratorTool() {
   );
 }
 
+// ── Content Creator: callContentAI ──────────────────────────────────────────
+async function callContentAI(tool: string, params: Record<string, string>): Promise<string> {
+  try {
+    const res = await fetch('/api/ai/generate-content', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tool, ...params }),
+    });
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+    return data.result || '';
+  } catch {
+    return 'Could not generate content. Please try again.';
+  }
+}
+
+// ── Content Tool 1: TikTok Script Generator ─────────────────────────────────
+function TikTokScriptTool() {
+  const [productName, setProductName] = useState('');
+  const [benefit, setBenefit] = useState('');
+  const [result, setResult] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const generate = async () => {
+    if (!productName.trim()) return;
+    setLoading(true);
+    const text = await callContentAI('tiktok-script', { productName, benefit });
+    setResult(text);
+    setLoading(false);
+  };
+
+  return (
+    <ToolCard icon="🎵" title="TikTok Script Generator" description="Hook → content → CTA in TikTok-native language">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <input placeholder="Product name (e.g. Posture Corrector)" value={productName} onChange={e => setProductName(e.target.value)}
+          style={inputStyle}
+          onFocus={e => (e.currentTarget.style.borderColor = '#6366F1')} onBlur={e => (e.currentTarget.style.borderColor = '#E5E7EB')} />
+        <input placeholder="Key benefit (e.g. relieves back pain in 10 min)" value={benefit} onChange={e => setBenefit(e.target.value)}
+          style={inputStyle}
+          onFocus={e => (e.currentTarget.style.borderColor = '#6366F1')} onBlur={e => (e.currentTarget.style.borderColor = '#E5E7EB')} />
+        <button onClick={generate} disabled={loading || !productName.trim()}
+          style={{ ...btnStyle, opacity: loading || !productName.trim() ? 0.7 : 1, cursor: loading ? 'wait' : 'pointer' }}>
+          {loading ? '⟳ Writing Script...' : '🎵 Generate TikTok Script →'}
+        </button>
+        {result && (
+          <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: 14 }}>
+            <pre style={{ whiteSpace: 'pre-wrap', fontSize: 13, color: '#374151', fontFamily: "'DM Sans', sans-serif", lineHeight: 1.7, margin: 0 }}>{result}</pre>
+            <button onClick={() => { navigator.clipboard.writeText(result); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+              style={{ marginTop: 10, height: 30, padding: '0 14px', background: copied ? '#059669' : '#6366F1', color: 'white', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'background 150ms' }}>
+              {copied ? '✓ Copied!' : '📋 Copy Script'}
+            </button>
+          </div>
+        )}
+      </div>
+    </ToolCard>
+  );
+}
+
+// ── Content Tool 2: YouTube Short Script ────────────────────────────────────
+function YouTubeShortTool() {
+  const [productName, setProductName] = useState('');
+  const [result, setResult] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const generate = async () => {
+    if (!productName.trim()) return;
+    setLoading(true);
+    const text = await callContentAI('youtube-short', { productName });
+    setResult(text);
+    setLoading(false);
+  };
+
+  return (
+    <ToolCard icon="📹" title="YouTube Short Script" description="Title, hook, 60-second script, CTA">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <input placeholder="Product name (e.g. LED Desk Lamp)" value={productName} onChange={e => setProductName(e.target.value)}
+          style={inputStyle}
+          onFocus={e => (e.currentTarget.style.borderColor = '#6366F1')} onBlur={e => (e.currentTarget.style.borderColor = '#E5E7EB')} />
+        <button onClick={generate} disabled={loading || !productName.trim()}
+          style={{ ...btnStyle, opacity: loading || !productName.trim() ? 0.7 : 1, cursor: loading ? 'wait' : 'pointer' }}>
+          {loading ? '⟳ Writing Script...' : '📹 Generate YouTube Script →'}
+        </button>
+        {result && (
+          <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: 14 }}>
+            <pre style={{ whiteSpace: 'pre-wrap', fontSize: 13, color: '#374151', fontFamily: "'DM Sans', sans-serif", lineHeight: 1.7, margin: 0 }}>{result}</pre>
+            <button onClick={() => { navigator.clipboard.writeText(result); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+              style={{ marginTop: 10, height: 30, padding: '0 14px', background: copied ? '#059669' : '#6366F1', color: 'white', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'background 150ms' }}>
+              {copied ? '✓ Copied!' : '📋 Copy Script'}
+            </button>
+          </div>
+        )}
+      </div>
+    </ToolCard>
+  );
+}
+
+// ── Content Tool 3: Ad Copy Pack ────────────────────────────────────────────
+function AdCopyPackTool() {
+  const [productName, setProductName] = useState('');
+  const [audience, setAudience] = useState('AU Shoppers (General)');
+  const [result, setResult] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const generate = async () => {
+    if (!productName.trim()) return;
+    setLoading(true);
+    const text = await callContentAI('ad-pack', { productName, audience });
+    setResult(text);
+    setLoading(false);
+  };
+
+  return (
+    <ToolCard icon="📦" title="Ad Copy Pack" description="5 platform variations — Facebook, TikTok, Instagram, Google, Email">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <input placeholder="Product name (e.g. Wireless Earbuds)" value={productName} onChange={e => setProductName(e.target.value)}
+          style={inputStyle}
+          onFocus={e => (e.currentTarget.style.borderColor = '#6366F1')} onBlur={e => (e.currentTarget.style.borderColor = '#E5E7EB')} />
+        <select value={audience} onChange={e => setAudience(e.target.value)}
+          style={{ ...inputStyle, cursor: 'pointer' }}>
+          {['AU Shoppers (General)', 'Young Adults 18-34', 'Parents & Families', 'Fitness Enthusiasts', 'Home Workers'].map(a => (
+            <option key={a} value={a}>{a}</option>
+          ))}
+        </select>
+        <button onClick={generate} disabled={loading || !productName.trim()}
+          style={{ ...btnStyle, opacity: loading || !productName.trim() ? 0.7 : 1, cursor: loading ? 'wait' : 'pointer' }}>
+          {loading ? '⟳ Generating Pack...' : '📦 Generate Full Ad Pack →'}
+        </button>
+        {result && (
+          <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: 14 }}>
+            <pre style={{ whiteSpace: 'pre-wrap', fontSize: 13, color: '#374151', fontFamily: "'DM Sans', sans-serif", lineHeight: 1.7, margin: 0 }}>{result}</pre>
+            <button onClick={() => { navigator.clipboard.writeText(result); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+              style={{ marginTop: 10, height: 30, padding: '0 14px', background: copied ? '#059669' : '#6366F1', color: 'white', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'background 150ms' }}>
+              {copied ? '✓ Copied!' : '📋 Copy All'}
+            </button>
+          </div>
+        )}
+      </div>
+    </ToolCard>
+  );
+}
+
+// ── Content Tool 4: Hashtag Research ────────────────────────────────────────
+function HashtagTool() {
+  const [niche, setNiche] = useState('');
+  const [result, setResult] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const generate = async () => {
+    if (!niche.trim()) return;
+    setLoading(true);
+    const text = await callContentAI('hashtags', { niche });
+    setResult(text);
+    setLoading(false);
+  };
+
+  return (
+    <ToolCard icon="#️⃣" title="Hashtag Research" description="20 hashtags by size — mega, macro, micro, niche, AU-specific">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <input placeholder="Niche (e.g. fitness gadgets)" value={niche} onChange={e => setNiche(e.target.value)}
+          style={inputStyle}
+          onFocus={e => (e.currentTarget.style.borderColor = '#6366F1')} onBlur={e => (e.currentTarget.style.borderColor = '#E5E7EB')}
+          onKeyDown={e => { if (e.key === 'Enter') generate(); }} />
+        <button onClick={generate} disabled={loading || !niche.trim()}
+          style={{ ...btnStyle, opacity: loading || !niche.trim() ? 0.7 : 1, cursor: loading ? 'wait' : 'pointer' }}>
+          {loading ? '⟳ Researching...' : '#️⃣ Research Hashtags →'}
+        </button>
+        {result && (
+          <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: 14 }}>
+            <pre style={{ whiteSpace: 'pre-wrap', fontSize: 13, color: '#374151', fontFamily: "'DM Sans', sans-serif", lineHeight: 1.7, margin: 0 }}>{result}</pre>
+            <button onClick={() => { navigator.clipboard.writeText(result); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+              style={{ marginTop: 10, height: 30, padding: '0 14px', background: copied ? '#059669' : '#6366F1', color: 'white', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'background 150ms' }}>
+              {copied ? '✓ Copied!' : '📋 Copy All'}
+            </button>
+          </div>
+        )}
+      </div>
+    </ToolCard>
+  );
+}
+
 // ── Main Page ───────────────────────────────────────────────────────────────
 export default function GrowthTools() {
+  const [activeTab, setActiveTab] = useState<'marketing' | 'content'>('marketing');
+
   return (
     <div style={{ background: '#FAFAFA', minHeight: '100vh', padding: '24px', fontFamily: "'DM Sans', sans-serif" }}>
       <Helmet><title>Growth Tools | Majorka</title></Helmet>
@@ -269,13 +455,38 @@ export default function GrowthTools() {
           <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 24, color: '#0A0A0A', marginBottom: 4, marginTop: 0 }}>Growth Tools</h1>
           <p style={{ fontSize: 14, color: '#6B7280', margin: 0 }}>AI-powered marketing tools for Australian dropshippers</p>
         </div>
-        {/* 2x2 grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(480px, 1fr))', gap: 20 }}>
-          <AdCopyTool />
-          <DescriptionTool />
-          <EmailTool />
-          <NameGeneratorTool />
+
+        {/* Tab switcher */}
+        <div style={{ display: 'flex', gap: 4, background: '#F5F5F5', borderRadius: 10, padding: 4, marginBottom: 28, width: 'fit-content' }}>
+          {(['marketing', 'content'] as const).map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)}
+              style={{ padding: '8px 20px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, transition: 'all 150ms',
+                background: activeTab === tab ? '#6366F1' : 'transparent',
+                color: activeTab === tab ? 'white' : '#6B7280' }}>
+              {tab === 'marketing' ? '📢 Marketing Tools' : '🎬 Content Creator'}
+            </button>
+          ))}
         </div>
+
+        {/* Marketing Tools tab */}
+        {activeTab === 'marketing' && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(480px, 1fr))', gap: 20 }}>
+            <AdCopyTool />
+            <DescriptionTool />
+            <EmailTool />
+            <NameGeneratorTool />
+          </div>
+        )}
+
+        {/* Content Creator tab */}
+        {activeTab === 'content' && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(480px, 1fr))', gap: 20 }}>
+            <TikTokScriptTool />
+            <YouTubeShortTool />
+            <AdCopyPackTool />
+            <HashtagTool />
+          </div>
+        )}
       </div>
     </div>
   );

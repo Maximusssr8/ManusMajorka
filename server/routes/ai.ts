@@ -150,4 +150,115 @@ Be specific to the Australian market. Keep each section 2-3 sentences. No bullet
   }
 });
 
+// Content Creator tools endpoint
+router.post('/generate-content', async (req, res) => {
+  try {
+    const { tool, productName, benefit, niche, audience, platform } = req.body;
+
+    // Simple in-memory cache (1 hour)
+    const cacheKey = `${tool}:${productName}:${niche}:${platform}`;
+    const cached = (global as any).__contentCache?.[cacheKey];
+    if (cached && (Date.now() - cached.ts) < 3600000) {
+      return res.json({ result: cached.result });
+    }
+
+    const client = getClient();
+
+    let prompt = '';
+
+    if (tool === 'tiktok-script') {
+      prompt = `Write a TikTok video script for an Australian dropshipper selling "${productName}".
+Key benefit: ${benefit || 'solves a common problem'}
+Style: Short, punchy, TikTok-native. Use Australian slang where appropriate.
+
+Format exactly like this:
+HOOK (0-3 seconds): [3-5 words that stop the scroll — start with "POV:" or "Wait..." or a shocking statement]
+
+MAIN CONTENT (3-45 seconds): [3-4 punchy sentences showing the product in action. Reference common AU pain points.]
+
+CALL TO ACTION (last 5 seconds): [One clear CTA — "Link in bio", "Shop now", "Get yours today"]
+
+CAPTION: [Caption with 5 relevant hashtags for AU audience]`;
+    } else if (tool === 'youtube-short') {
+      prompt = `Write a YouTube Shorts script for selling "${productName}" to Australian customers.
+
+Format exactly like this:
+TITLE: [Clickbait title under 60 chars, include "Australia" or "AU" if relevant]
+
+THUMBNAIL IDEA: [Describe the thumbnail visual in one sentence]
+
+HOOK (0-5 seconds): [Shocking statement or question that makes them stay]
+
+SCRIPT (60 seconds total):
+[Write the full 60-second script broken into 5-10 second segments. Include when to show product, when to zoom, when to show text overlay.]
+
+END SCREEN CTA: [What to say in final 5 seconds]`;
+    } else if (tool === 'ad-pack') {
+      prompt = `Create a complete ad copy pack for "${productName}" targeting Australian customers. Audience: ${audience || 'Australian shoppers 25-45'}.
+
+Format exactly like this:
+FACEBOOK AD:
+Headline: [Under 40 chars]
+Primary text: [2-3 sentences, include free AU shipping, social proof]
+CTA button: [Shop Now / Learn More / Get Offer]
+
+TIKTOK CAPTION:
+[2-3 lines max, conversational, 5-7 hashtags at end]
+
+INSTAGRAM CAPTION:
+[3-4 lines, lifestyle-focused, 8-10 hashtags]
+
+GOOGLE SEARCH AD:
+Headline 1: [30 chars max]
+Headline 2: [30 chars max]
+Description: [90 chars max, include AU shipping]
+
+EMAIL SUBJECT LINE:
+[Under 50 chars, create urgency without being spammy]`;
+    } else if (tool === 'hashtags') {
+      prompt = `Research and generate hashtags for the "${niche || productName}" niche targeting Australian audiences on TikTok and Instagram.
+
+Format exactly like this:
+MEGA (10M+ posts): [5 hashtags]
+MACRO (1M-10M posts): [5 hashtags]
+MICRO (100K-1M posts): [5 hashtags]
+NICHE (under 100K posts): [5 hashtags]
+AU-SPECIFIC: [5 Australia-specific hashtags]
+
+STRATEGY TIP: [One sentence on the best hashtag mix for reach vs engagement]`;
+    } else {
+      return res.status(400).json({ error: 'Unknown content tool' });
+    }
+
+    const message = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 800,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const result = message.content[0].type === 'text' ? message.content[0].text : '';
+
+    // Cache the result
+    if (!(global as any).__contentCache) (global as any).__contentCache = {};
+    (global as any).__contentCache[cacheKey] = { result, ts: Date.now() };
+
+    res.json({ result });
+  } catch (err: any) {
+    const { tool, productName, niche } = req.body;
+    const fallbacks: Record<string, string> = {
+      'tiktok-script': `HOOK (0-3 seconds): POV: You just found the best ${productName || 'product'} in Australia
+
+MAIN CONTENT (3-45 seconds): I've been searching for this for months and I can't believe how good it is. Every Australian who works from home needs this. The quality is actually insane for the price — and yes, it ships free within Australia.
+
+CALL TO ACTION (last 5 seconds): Link in bio, limited stock — grab it before it sells out!
+
+CAPTION: This is a game changer #australia #${(niche || 'product').replace(/\s/g, '')} #australianfinds #fyp #shopaustralia`,
+      'youtube-short': `TITLE: This ${productName || 'Product'} Changed My Life (Australian Find)\n\nTHUMBNAIL IDEA: Person holding product with shocked expression, text overlay: "WHY DIDN'T I FIND THIS SOONER?"\n\nHOOK: I can't believe Australians are sleeping on this...\n\nSCRIPT: [0-10s] Open with the problem. [10-30s] Introduce the product, show it in use. [30-50s] Show the before/after or results. [50-60s] Where to get it, free AU shipping.\n\nEND SCREEN CTA: Check the description for the link — free shipping Australia-wide!`,
+      'ad-pack': `FACEBOOK AD:\nHeadline: ${productName || 'Top Product'} — Free AU Shipping\nPrimary text: Join 10,000+ Australians who upgraded their life with ${productName || 'this product'}. Fast shipping across Australia. 30-day hassle-free returns. Don't miss out — stock is limited.\nCTA button: Shop Now\n\nTIKTOK CAPTION:\nAustralians are obsessed with this and I get it Free shipping, arrives in days\n#australia #australianshopping #${(productName || 'product').replace(/\s/g, '').toLowerCase()} #fyp #trending\n\nINSTAGRAM CAPTION:\nLevel up your everyday with ${productName}. Real Australians, real results. Free AU-wide shipping + 30 day returns. Shop via link in bio\n#australia #australianlife #shopaustralia #lifestyle #${(productName || 'product').replace(/\s/g, '').toLowerCase()}\n\nGOOGLE SEARCH AD:\nHeadline 1: ${(productName || 'Best Product').substring(0, 30)}\nHeadline 2: Free AU Shipping Today\nDescription: Top-rated in Australia. Fast delivery. 30-day returns. Order today!\n\nEMAIL SUBJECT LINE:\n${productName || 'This'} is selling out fast — free AU shipping today only`,
+      'hashtags': `MEGA (10M+ posts): #australia #shopping #trending #viral #tiktokmademebuyit\n\nMACRO (1M-10M posts): #australianshopping #shopaustralia #australianfinds #aussiefinds #shoppinghaul\n\nMICRO (100K-1M posts): #${(niche || 'product').replace(/\s/g, '')}australia #aussielifestyle #australianproducts #shoplocal #onlineshoppingaustralia\n\nNICHE (under 100K posts): #${(niche || 'product').replace(/\s/g, '')}AU #aussiebusiness #madeinaustralia #australianowned #discoveryaustralia\n\nAU-SPECIFIC: #aussiemums #australianbusiness #goldcoast #sydney #melbourne\n\nSTRATEGY TIP: Use 2 mega + 3 macro + 4 micro + 1-2 niche hashtags per post for the best reach-to-engagement ratio on both TikTok and Instagram.`,
+    };
+    res.json({ result: fallbacks[tool] || 'Content will appear here.' });
+  }
+});
+
 export default router;
