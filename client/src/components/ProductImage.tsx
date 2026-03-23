@@ -15,11 +15,14 @@ export function ProductImage({ src, alt = 'Product', size = 44, borderRadius = 8
   const isValidUrl = (url?: string | null): boolean => {
     if (!url || typeof url !== 'string') return false;
     if (url.trim() === '') return false;
-    // Block placeholder/fake sources
+    // Block all stock/fake image sources — only real product CDN images allowed
     if (url.includes('picsum.photos')) return false;
     if (url.includes('placeholder.com')) return false;
     if (url.includes('via.placeholder')) return false;
-    // Allow pexels as fallback for now (until affiliate API is live)
+    if (url.includes('pexels.com')) return false;
+    if (url.includes('unsplash.com')) return false;
+    if (url.includes('images.unsplash')) return false;
+    if (url.includes('loremflickr')) return false;
     return url.startsWith('http');
   };
 
