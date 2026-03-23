@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { Calculator, Share2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 
 // ── Platform fee presets ────────────────────────────────────────────────────
 const PLATFORM_OPTIONS = [
@@ -84,13 +85,19 @@ export default function ProfitCalculator() {
   const [afterpayEnabled, setAfterpayEnabled] = useState(false);
   const [supplierSearch, setSupplierSearch] = useState('');
 
+  const [saved, setSaved] = useState(false);
+
   // Auto-fill from URL params
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const price = params.get('price');
     const cost = params.get('cost');
+    const units = params.get('units');
+    const ads = params.get('ads');
     if (price) { const p = parseFloat(price); if (!isNaN(p)) setSellingPrice(p); }
     if (cost) { const c = parseFloat(cost); if (!isNaN(c)) setProductCost(c); }
+    if (units) { const u = parseFloat(units); if (!isNaN(u)) setUnitsPerDay(u); }
+    if (ads) { const a = parseFloat(ads); if (!isNaN(a)) setAdSpendPerDay(a); }
     const mayaPrefill = sessionStorage.getItem('maya_prefill_profit-calculator');
     if (mayaPrefill) {
       try {
@@ -373,6 +380,37 @@ export default function ProfitCalculator() {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Save & Share Actions */}
+      <div style={{ maxWidth: 1200, margin: '16px auto 0', display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+        <button
+          onClick={() => {
+            const calcData = { productCost, sellingPrice, unitsPerDay, adSpendPerDay, shippingOption, platformKey, savedAt: new Date().toISOString() };
+            const existing = JSON.parse(localStorage.getItem('majorka_saved_calcs') || '[]');
+            existing.unshift(calcData);
+            localStorage.setItem('majorka_saved_calcs', JSON.stringify(existing.slice(0, 10)));
+            setSaved(true);
+            setTimeout(() => setSaved(false), 2000);
+          }}
+          style={{ height: 40, padding: '0 20px', background: saved ? '#059669' : 'white', color: saved ? 'white' : '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 200ms' }}
+        >
+          {saved ? '✓ Saved!' : 'Save Calculation'}
+        </button>
+        <button
+          onClick={() => {
+            const params = new URLSearchParams({
+              cost: String(productCost), price: String(sellingPrice),
+              units: String(unitsPerDay), ads: String(adSpendPerDay),
+            });
+            const url = `${window.location.origin}/app/profit?${params}`;
+            navigator.clipboard.writeText(url);
+            toast.success('Share link copied to clipboard!');
+          }}
+          style={{ height: 40, padding: '0 20px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+        >
+          Share
+        </button>
       </div>
 
       {/* Supplier Search Section */}

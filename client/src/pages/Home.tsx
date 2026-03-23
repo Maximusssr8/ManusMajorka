@@ -1202,7 +1202,7 @@ export default function Home() {
           {/* Right: auth */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <Link href="/sign-in" className="hide-mobile" style={{ color: '#374151', textDecoration: 'none', fontSize: 14 }}>Log in</Link>
-            <Link href="/app" style={{ background: '#6366F1', color: '#fff', borderRadius: 8, padding: '8px 18px', fontWeight: 600, fontSize: 14, textDecoration: 'none', display: 'inline-block' }}>
+            <Link href="/sign-up" style={{ background: '#6366F1', color: '#fff', borderRadius: 8, padding: '8px 18px', fontWeight: 600, fontSize: 14, textDecoration: 'none', display: 'inline-block' }}>
               Start Free →
             </Link>
             {/* Mobile hamburger */}
@@ -1249,7 +1249,7 @@ export default function Home() {
 
           {/* CTA row */}
           <div className="hero-cta-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 36, opacity: 0, animation: 'fadeInUp 0.5s ease 0.4s both' }}>
-            <Link href="/app" style={{ background: '#6366F1', color: 'white', height: 48, padding: '0 28px', borderRadius: 10, fontWeight: 600, fontSize: 15, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', transition: 'background 150ms, transform 150ms' }} onMouseEnter={(e) => { e.currentTarget.style.background = '#4F46E5'; e.currentTarget.style.transform = 'scale(1.02)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = '#6366F1'; e.currentTarget.style.transform = 'scale(1)'; }}>
+            <Link href="/sign-up" style={{ background: '#6366F1', color: 'white', height: 48, padding: '0 28px', borderRadius: 10, fontWeight: 600, fontSize: 15, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', transition: 'background 150ms, transform 150ms' }} onMouseEnter={(e) => { e.currentTarget.style.background = '#4F46E5'; e.currentTarget.style.transform = 'scale(1.02)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = '#6366F1'; e.currentTarget.style.transform = 'scale(1)'; }}>
               Start for Free →
             </Link>
             <button onClick={() => setShowDemo(true)} style={{ background: 'transparent', color: '#374151', height: 48, padding: '0 24px', borderRadius: 10, border: '1px solid #E5E7EB', fontSize: 15, cursor: 'pointer', transition: 'background 150ms' }} onMouseEnter={(e) => (e.currentTarget.style.background = '#F9FAFB')} onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}>
@@ -1482,7 +1482,7 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <Link href="/app" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 44, borderRadius: 10, fontWeight: 600, fontSize: 15, width: '100%', cursor: 'pointer', transition: 'all 150ms', marginTop: 28, background: 'white', border: '1px solid #E5E7EB', color: '#374151', textDecoration: 'none' }}
+              <Link href="/sign-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 44, borderRadius: 10, fontWeight: 600, fontSize: 15, width: '100%', cursor: 'pointer', transition: 'all 150ms', marginTop: 28, background: 'white', border: '1px solid #E5E7EB', color: '#374151', textDecoration: 'none' }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#F9FAFB')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'white')}
               >Start Free</Link>
@@ -1514,7 +1514,7 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <Link href="/pricing" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 44, borderRadius: 10, fontWeight: 600, fontSize: 15, width: '100%', cursor: 'pointer', transition: 'all 150ms', marginTop: 28, background: '#6366F1', color: 'white', border: 'none', textDecoration: 'none', boxShadow: '0 4px 12px rgba(99,102,241,0.3)' }}
+              <Link href="/sign-up?plan=builder" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 44, borderRadius: 10, fontWeight: 600, fontSize: 15, width: '100%', cursor: 'pointer', transition: 'all 150ms', marginTop: 28, background: '#6366F1', color: 'white', border: 'none', textDecoration: 'none', boxShadow: '0 4px 12px rgba(99,102,241,0.3)' }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#4F46E5')}
                 onMouseLeave={e => (e.currentTarget.style.background = '#6366F1')}
               >Start Free Trial</Link>
@@ -1545,7 +1545,7 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <Link href="/pricing" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 44, borderRadius: 10, fontWeight: 600, fontSize: 15, width: '100%', cursor: 'pointer', transition: 'all 150ms', marginTop: 28, background: '#0A0A0A', color: 'white', border: 'none', textDecoration: 'none' }}
+              <Link href="/sign-up?plan=scale" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 44, borderRadius: 10, fontWeight: 600, fontSize: 15, width: '100%', cursor: 'pointer', transition: 'all 150ms', marginTop: 28, background: '#0A0A0A', color: 'white', border: 'none', textDecoration: 'none' }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#1A1A1A')}
                 onMouseLeave={e => (e.currentTarget.style.background = '#0A0A0A')}
               >Start Free Trial</Link>

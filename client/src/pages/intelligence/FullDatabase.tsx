@@ -367,13 +367,20 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   const [niche, setNiche] = useState('All Niches');
   const [sortBy, setSortBy] = useState<string>('winning_score');
   const [sortDir, setSortDir] = useState<'desc' | 'asc'>('desc');
   const [total, setTotal] = useState(0);
   const [refreshedAt, setRefreshedAt] = useState<string>('');
   const [minGrowth, setMinGrowth] = useState<number | null>(null);
-  const searchTimer = useRef<ReturnType<typeof setTimeout>>();
+  const searchTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => setSearch(searchInput), 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   // Live search state
   const [liveSearch, setLiveSearch] = useState('');
@@ -538,13 +545,14 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     if (search.trim() && !p.name?.toLowerCase().includes(search.toLowerCase())) return false;
     if (minGrowth !== null && (p.growth_rate_pct || 0) < minGrowth) return false;
     if (presetFilter === 'trending' && (p.trend_score || 0) < 70) return false;
-    if (opportunityFilter === '🔥 Viral') return orders > 1000;
-    if (opportunityFilter === '💰 High Margin') return price > 30;
-    if (opportunityFilter === '🇦🇺 AU Best Sellers') return nicheStr.includes('au best') || nicheStr.includes('au sellers');
-    if (opportunityFilter === '⚡ TikTok') return nicheStr.includes('tiktok') || nicheStr.includes('viral');
+    if (opportunityFilter === '🔥 Viral') return (p.growth_rate_pct || 0) > 20 || ((p as any).social_buzz_score || 0) > 70;
+    if (opportunityFilter === '💰 High Margin') return (p.estimated_margin_pct || 0) >= 40;
+    if (opportunityFilter === '🇦🇺 AU Best Sellers') return (p.items_sold_monthly || (p as any).orders_count || 0) >= 50;
+    if (opportunityFilter === '⚡ TikTok') return nicheStr.includes('tiktok') || nicheStr.includes('viral') || ((p as any).social_buzz_score || 0) > 60;
     if (opportunityFilter === 'New Today') {
-      const d = new Date((p as any).updated_at || 0);
-      return Date.now() - d.getTime() < 86400000;
+      const oneDayAgo = Date.now() - 86400000;
+      const refreshed = p.refreshed_at || (p as any).updated_at;
+      return refreshed ? new Date(refreshed).getTime() > oneDayAgo : false;
     }
     return true;
   });
@@ -904,8 +912,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         borderBottom: '1px solid #E5E7EB', marginBottom: 16,
       }}>
         <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
+          value={searchInput}
+          onChange={e => setSearchInput(e.target.value)}
           placeholder="Search products..."
           style={{
             width: 260, padding: '8px 12px', borderRadius: 7,
@@ -988,7 +996,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     <div style={{ fontSize: 14, color: '#6B7280', marginBottom: 20 }}>Try clearing your filters or search query</div>
                     <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
                       {search && (
-                        <button onClick={() => setSearch('')} style={{ height: 36, padding: '0 20px', background: 'white', color: '#6366F1', borderRadius: 8, border: '1px solid #6366F1', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>Clear Search</button>
+                        <button onClick={() => { setSearchInput(''); setSearch(''); }} style={{ height: 36, padding: '0 20px', background: 'white', color: '#6366F1', borderRadius: 8, border: '1px solid #6366F1', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>Clear Search</button>
                       )}
                       <button onClick={() => loadProducts()} style={{ height: 36, padding: '0 20px', background: '#6366F1', color: 'white', borderRadius: 8, border: 'none', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>Refresh Products</button>
                     </div>

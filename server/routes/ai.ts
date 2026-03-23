@@ -86,4 +86,59 @@ Only output the JSON. No markdown. No code blocks.`
   }
 });
 
+// Unified /generate endpoint for Growth Tools
+router.post('/generate', async (req, res) => {
+  try {
+    const { tool, productName, platform, tone, features, audience, templateType, brandName, niche } = req.body;
+
+    const client = getClient();
+
+    let prompt = '';
+
+    if (tool === 'ad-copy') {
+      prompt = `Write a high-converting ${platform || 'Facebook'} ad for an Australian dropshipping store selling "${productName}".
+Tone: ${tone || 'Urgent'}. Target: Australian shoppers.
+Format:
+Headline: [attention-grabbing headline]
+Body: [2-3 sentences, include social proof, free AU shipping mention]
+CTA: [clear call to action with price hint if possible]
+Hook: [first 3 words that stop the scroll]`;
+    } else if (tool === 'description') {
+      prompt = `Write a Shopify product description for "${productName}" targeting ${audience || 'Australian shoppers'}.
+Key features: ${features || 'premium quality, fast shipping'}.
+Format: Bold title, 2-paragraph benefit-focused description, bullet points (5 benefits), shipping note.
+Keep it under 300 words. Make it conversion-focused for AU ecommerce.`;
+    } else if (tool === 'email') {
+      prompt = `Write a ${templateType || 'abandoned cart'} email for "${brandName || 'an Australian store'}".
+Subject: [compelling subject line]
+[email body - 3-4 paragraphs, friendly AU tone, clear CTA button text]
+Make it feel personal, not spammy. Include free shipping mention and easy returns.`;
+    } else if (tool === 'name') {
+      prompt = `Generate 8 creative store name ideas for a ${niche || 'general'} dropshipping store targeting Australian customers.
+Requirements: memorable, .com.au available likely, professional, not generic.
+Format: numbered list, one name per line, no explanations.`;
+    } else {
+      return res.status(400).json({ error: 'Unknown tool' });
+    }
+
+    const message = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 500,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const result = message.content[0].type === 'text' ? message.content[0].text : '';
+    res.json({ result });
+  } catch (err: any) {
+    const { tool, productName, brandName, niche } = req.body;
+    const fallbacks: Record<string, string> = {
+      'ad-copy': `Headline: Australians Can't Stop Talking About This ${productName || 'Product'}\n\nBody: Join 10,000+ AU customers who made the switch. Free shipping Australia-wide. 30-day money-back guarantee. Stock is running out fast.\n\nCTA: Shop Now — Limited Stock\n\nHook: "Wait, what is..."`,
+      'description': `**${productName || 'Premium Product'}**\n\nAustralians love this product for good reason — it delivers exceptional quality at an unbeatable price point. Perfect for everyday use.\n\n**Why customers love it:**\n• Premium build quality that lasts\n• Fast AU shipping (3-7 business days)\n• 30-day hassle-free returns\n• Trusted by 10,000+ Australian customers\n• 100% satisfaction guaranteed\n\nOrder today and receive free shipping on orders over $75.`,
+      'email': `Subject: Did you forget something?\n\nHey there,\n\nYou left something amazing in your cart at ${brandName || 'our store'}!\n\nDon't miss out — your cart is saved but stock is limited.\n\n[Complete Your Order]\n\nFree shipping on orders over $75\n30-day returns, no questions asked.\n\nBest,\nThe ${brandName || 'Team'}`,
+      'name': `1. ${niche || 'Shop'}Direct AU\n2. The${niche || 'Store'}Hub\n3. AU${niche || 'Goods'}Co\n4. Prime${niche || 'Shop'}\n5. ${niche || 'Quality'}Store\n6. ${niche || 'Best'}Finds AU\n7. True${niche || 'Quality'}\n8. ${niche || 'Shop'}Market`,
+    };
+    res.json({ result: fallbacks[tool] || 'Generated content will appear here.' });
+  }
+});
+
 export default router;

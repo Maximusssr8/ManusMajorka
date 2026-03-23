@@ -78,6 +78,7 @@ export default function SettingsProfile() {
   const [saving, setSaving] = useState(false);
   const [healthStatus, setHealthStatus] = useState<HealthStatus | null>(null);
   const [healthLoading, setHealthLoading] = useState(false);
+  const [subInfo, setSubInfo] = useState<{ plan: string; renewalDate: string; status: string } | null>(null);
   const [emailNotifs, setEmailNotifs] = useState({
     weeklyReport: true,
     productAlerts: true,
@@ -93,6 +94,25 @@ export default function SettingsProfile() {
       .then((data: HealthStatus) => setHealthStatus(data))
       .catch(() => setHealthStatus(null))
       .finally(() => setHealthLoading(false));
+
+    // Fetch subscription info
+    supabase.auth.getSession().then(({ data: sessionData }) => {
+      const token = sessionData?.session?.access_token;
+      fetch('/api/stripe/subscription-status', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data) {
+            const planName = data.plan || 'free';
+            const renewalDate = data.periodEnd
+              ? new Date(data.periodEnd).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
+              : 'monthly';
+            setSubInfo({ plan: planName, renewalDate, status: data.status || 'inactive' });
+          }
+        })
+        .catch(() => {});
+    });
   }, [isAuthenticated]);
 
   const profileQuery = trpc.profile.get.useQuery(undefined, { enabled: isAuthenticated });
@@ -616,35 +636,25 @@ export default function SettingsProfile() {
           {/* ── Billing Tab ─────────────────────────────────────────────── */}
           {activeTab === 'billing' && (
             <div className="space-y-4">
-              <div className={sectionCard} style={sectionCardStyle}>
-                <div
-                  className="text-xs font-bold uppercase tracking-widest mb-4"
-                  style={{ color: '#52525b', fontFamily: 'Syne, sans-serif' }}
-                >
-                  Current Plan
-                </div>
-                <div className="flex items-center justify-between">
+              <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 14, padding: '20px 24px', marginBottom: 20 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 8 }}>Current Plan</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div
-                      className="text-lg font-bold"
-                      style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
-                    >
-                      Majorka Pro
+                    <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 22, color: '#0A0A0A' }}>
+                      {subInfo?.plan === 'scale' ? 'Scale' : subInfo?.plan === 'builder' ? 'Builder' : subInfo?.plan === 'pro' ? 'Pro' : 'Free'}
                     </div>
-                    <div className="text-sm" style={{ color: '#a1a1aa' }}>
-                      $99/month AUD
+                    <div style={{ fontSize: 13, color: '#6B7280', marginTop: 4 }}>
+                      {subInfo?.plan === 'free' || !subInfo?.plan
+                        ? 'Free tier — upgrade to unlock all features'
+                        : `Renews ${subInfo?.renewalDate || 'monthly'} · ${subInfo?.status === 'active' ? 'Active' : subInfo?.status || 'Active'}`}
                     </div>
                   </div>
-                  <span
-                    className="px-3 py-1 rounded-full text-xs font-bold"
-                    style={{
-                      background: 'rgba(45,202,114,0.1)',
-                      border: '1px solid rgba(45,202,114,0.25)',
-                      color: '#2dca72',
-                    }}
-                  >
-                    Active
-                  </span>
+                  <div style={{ textAlign: 'right' as const }}>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                      {subInfo?.plan === 'scale' ? '$199' : subInfo?.plan === 'builder' ? '$99' : subInfo?.plan === 'pro' ? '$99' : '$0'}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#9CA3AF' }}>AUD/month</div>
+                  </div>
                 </div>
               </div>
               <button

@@ -1,0 +1,13 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#0A0A0A"/>
+  <rect x="80" y="80" width="48" height="48" rx="12" fill="#6366F1"/>
+  <text x="104" y="116" font-family="Arial" font-weight="800" font-size="28" fill="white" text-anchor="middle">M</text>
+  <text x="152" y="115" font-family="Arial" font-weight="800" font-size="32" fill="white">MAJORKA</text>
+  <text x="80" y="220" font-family="Arial" font-weight="800" font-size="64" fill="white">AI Ecommerce OS</text>
+  <text x="80" y="300" font-family="Arial" font-weight="800" font-size="64" fill="#6366F1">for AU Dropshippers</text>
+  <text x="80" y="390" font-family="Arial" font-size="28" fill="#6B7280">Find winning products. Build a Shopify store in 60s.</text>
+  <text x="80" y="430" font-family="Arial" font-size="28" fill="#6B7280">Spy on competitors. Built for Australia.</text>
+  <rect x="80" y="510" width="220" height="60" rx="10" fill="#6366F1"/>
+  <text x="190" y="548" font-family="Arial" font-weight="700" font-size="22" fill="white" text-anchor="middle">Start Free</text>
+  <text x="1120" y="580" font-family="Arial" font-size="20" fill="#374151" text-anchor="end">majorka.io</text>
+</svg>

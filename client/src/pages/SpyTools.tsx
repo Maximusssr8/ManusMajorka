@@ -40,6 +40,7 @@ export default function SpyTools() {
   const [platformFilter, setPlatformFilter] = useState('All');
   const [sort, setSort] = useState<'days' | 'spend' | 'platform'>('days');
   const [viewAd, setViewAd] = useState<typeof SEED_ADS[0] | null>(null);
+  const [savedAds, setSavedAds] = useState<Set<number>>(new Set());
 
   const filteredAds = platformFilter === 'All' ? SEED_ADS : SEED_ADS.filter(a => a.platform === platformFilter);
 
@@ -164,7 +165,7 @@ export default function SpyTools() {
                     <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 12 }}>{ad.niche}</div>
 
                     {/* Buttons */}
-                    <div style={{ display: 'flex', gap: 8 }}>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       <button onClick={() => setViewAd(ad)} style={{
                         flex: 1, height: 36, borderRadius: 8, border: `1px solid ${C.accent}`, background: 'transparent',
                         color: C.accent, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms',
@@ -186,6 +187,22 @@ export default function SpyTools() {
                         onMouseUp={e => { e.currentTarget.style.transform = 'scale(1.02)'; }}
                       >
                         🛒 Find Supplier
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const newSaved = new Set(savedAds);
+                          if (newSaved.has(ad.id)) { newSaved.delete(ad.id); } else { newSaved.add(ad.id); }
+                          setSavedAds(newSaved);
+                        }}
+                        style={{
+                          background: 'none', border: 'none', cursor: 'pointer', fontSize: 18,
+                          color: savedAds.has(ad.id) ? '#6366F1' : '#D1D5DB',
+                          transition: 'color 150ms', padding: '4px', flexShrink: 0,
+                        }}
+                        title={savedAds.has(ad.id) ? 'Saved' : 'Save ad'}
+                      >
+                        {savedAds.has(ad.id) ? '♥' : '♡'}
                       </button>
                     </div>
                   </div>
