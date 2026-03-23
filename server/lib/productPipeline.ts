@@ -1,5 +1,6 @@
 // server/lib/productPipeline.ts
 import { fetchTrendSignals } from './tavilyTrends';
+import { searchAliAffiliateProducts } from './aliexpress-affiliate';
 
 const hasAffiliateKeys = (): boolean => {
   return !!(process.env.ALIEXPRESS_APP_KEY && process.env.ALIEXPRESS_APP_SECRET);
@@ -120,31 +121,54 @@ export async function runProductPipeline(light = false): Promise<{ inserted: num
     return tags;
   }
 
-  const enriched = scored.map(p => ({
-    product_title: p.name,
-    category: p.keyword,
-    search_keyword: p.keyword,
-    aliexpress_url: `https://www.aliexpress.com/item/${p.aliexpress_id}.html`,
-    aliexpress_id: p.aliexpress_id,
-    shop_name: 'AliExpress',
-    // TODO: When ALIEXPRESS_APP_KEY is configured, use searchAliAffiliateProducts()
-    // to fetch real product images. Currently using Pexels fallback.
-    // image_url will be populated from affiliate API once keys are approved.
-    image_url: p.image_raw || 'https://images.pexels.com/photos/4050287/pexels-photo-4050287.jpeg',
-    cost_price_aud: Math.round(p.cost_aud * 100) / 100,
-    price_aud: p.retail,
-    profit_margin: p.margin,
-    est_monthly_revenue_aud: Math.round(p.orders_count * 30 * p.retail / 365 * 0.3),
-    orders_count: p.orders_count,
-    units_per_day: Math.max(1, Math.round(p.orders_count / 365)),
-    winning_score: p.winning_score,
-    rating: p.rating,
-    tags: buildTags(p),
-    score_breakdown: { ...p.score_breakdown, tavily_mentions: p.tavily_mentions || 0, tiktok_signal: p.tiktok_signal || false },
-    tiktok_signal: p.tiktok_signal || false,
-    source: 'rapidapi_datahub',
-    updated_at: new Date().toISOString(),
-  }));
+  // Fetch real affiliate images in batches with 400ms delay
+  const enriched = [];
+  for (const p of scored) {
+    let realImage: string | null = null;
+    let affiliateUrl: string | null = null;
+
+    // Try affiliate API if keys are configured
+    if (hasAffiliateKeys()) {
+      try {
+        const affResults = await searchAliAffiliateProducts(p.name.split(' ').slice(0, 4).join(' '), 1);
+        if (affResults.length > 0) {
+          realImage = affResults[0].image || null;
+          affiliateUrl = affResults[0].affiliate_url || null;
+        }
+        await new Promise(r => setTimeout(r, 400)); // rate limit
+      } catch (err) {
+        console.warn('[pipeline] affiliate image fetch failed for', p.name, err instanceof Error ? err.message : '');
+      }
+    }
+
+    // Fallback to raw image or default
+    if (!realImage) {
+      realImage = p.image_raw || 'https://images.pexels.com/photos/4050287/pexels-photo-4050287.jpeg';
+    }
+
+    enriched.push({
+      product_title: p.name,
+      category: p.keyword,
+      search_keyword: p.keyword,
+      aliexpress_url: affiliateUrl || `https://www.aliexpress.com/item/${p.aliexpress_id}.html`,
+      aliexpress_id: p.aliexpress_id,
+      shop_name: 'AliExpress',
+      image_url: realImage,
+      cost_price_aud: Math.round(p.cost_aud * 100) / 100,
+      price_aud: p.retail,
+      profit_margin: p.margin,
+      est_monthly_revenue_aud: Math.round(p.orders_count * 30 * p.retail / 365 * 0.3),
+      orders_count: p.orders_count,
+      units_per_day: Math.max(1, Math.round(p.orders_count / 365)),
+      winning_score: p.winning_score,
+      rating: p.rating,
+      tags: buildTags(p),
+      score_breakdown: { ...p.score_breakdown, tavily_mentions: p.tavily_mentions || 0, tiktok_signal: p.tiktok_signal || false },
+      tiktok_signal: p.tiktok_signal || false,
+      source: 'rapidapi_datahub',
+      updated_at: new Date().toISOString(),
+    });
+  }
 
   let inserted = 0;
   for (let i = 0; i < enriched.length; i += 25) {

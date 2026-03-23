@@ -31,6 +31,7 @@ import LaunchReadiness from '@/components/LaunchReadiness';
 import MajorkaAppShell from '@/components/MajorkaAppShell';
 import { SEO } from '@/components/SEO';
 import OnboardingChecklist from '@/components/OnboardingChecklist';
+import { ProductImage } from '@/components/ProductImage';
 import OnboardingModal from '@/components/OnboardingModal';
 import { ProductImporter } from '@/components/ProductImporter';
 import ProductTour from '@/components/ProductTour';
@@ -264,7 +265,7 @@ function PersonalisedFeed() {
         {products.map((p, i) => (
           <div key={String(p.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: '#FAFAFA', borderRadius: 8 }}>
             <span style={{ fontSize: 11, color: '#6B7280', width: 20 }}>#{i+1}</span>
-            {p.image_url ? <img src={String(p.image_url)} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: 'cover' }} /> : null}
+            <ProductImage src={p.image_url ? String(p.image_url) : undefined} alt="" size={32} />
             <span style={{ flex: 1, fontSize: 13, color: '#111111', fontWeight: 500 }}>{String(p.product_title ?? '')}</span>
             <span style={{ fontSize: 13, fontWeight: 700, color: '#6366F1' }}>
               ${Math.round((Number(p.est_daily_revenue_aud) || 0) * 30 / 1000)}k/mo

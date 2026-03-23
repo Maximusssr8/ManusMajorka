@@ -1278,4 +1278,84 @@ router.get('/aliexpress-status', async (_req: Request, res: Response) => {
   });
 });
 
+// POST /api/admin/backfill-ali-images
+// Backfills image_url from AliExpress affiliate API for products with missing images
+router.post('/backfill-ali-images', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+  const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://ievekuazsjbdrltsdksn.supabase.co';
+  const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+  // Check if affiliate keys are configured
+  if (!process.env.ALIEXPRESS_APP_KEY || !process.env.ALIEXPRESS_APP_SECRET) {
+    res.status(503).json({
+      error: 'AliExpress affiliate keys not configured',
+      message: 'Set ALIEXPRESS_APP_KEY and ALIEXPRESS_APP_SECRET in environment variables',
+    });
+    return;
+  }
+
+  // Fire and forget — respond immediately, process in background
+  res.json({ message: 'Backfill started', status: 'running' });
+
+  // Background processing
+  (async () => {
+    try {
+      const { searchAliAffiliateProducts } = await import('../lib/aliexpress-affiliate');
+
+      // Fetch all products from winning_products
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/winning_products?select=id,product_title,image_url&order=winning_score.desc&limit=200`, {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
+      });
+      const products: any[] = await r.json();
+      if (!Array.isArray(products)) { console.error('[backfill] failed to fetch products'); return; }
+
+      // Filter to products with no/Pexels images
+      const needsImage = products.filter(p =>
+        !p.image_url ||
+        p.image_url.includes('pexels.com') ||
+        p.image_url.includes('picsum')
+      );
+
+      console.log(`[backfill] Processing ${needsImage.length}/${products.length} products`);
+      let updated = 0;
+
+      for (const p of needsImage) {
+        try {
+          const keyword = (p.product_title || '').split(' ').slice(0, 4).join(' ');
+          const results = await searchAliAffiliateProducts(keyword, 1);
+
+          if (results.length > 0 && results[0].image) {
+            const patchRes = await fetch(`${SUPABASE_URL}/rest/v1/winning_products?id=eq.${p.id}`, {
+              method: 'PATCH',
+              headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=minimal',
+              },
+              body: JSON.stringify({
+                image_url: results[0].image,
+                aliexpress_url: results[0].affiliate_url || results[0].product_url || p.aliexpress_url,
+                updated_at: new Date().toISOString(),
+              }),
+            });
+            if (patchRes.ok) {
+              updated++;
+              console.log(`[backfill] ${updated}/${needsImage.length} — updated: ${keyword}`);
+            }
+          }
+
+          await new Promise(r => setTimeout(r, 500)); // 500ms between calls
+        } catch (err) {
+          console.warn('[backfill] error for', p.product_title, err instanceof Error ? err.message : '');
+          await new Promise(r => setTimeout(r, 200));
+        }
+      }
+
+      console.log(`[backfill] Complete: ${updated}/${needsImage.length} updated`);
+    } catch (err) {
+      console.error('[backfill] Fatal error:', err);
+    }
+  })();
+});
+
 export default router;
