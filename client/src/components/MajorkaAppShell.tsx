@@ -364,6 +364,42 @@ function PWAInstallBanner() {
   );
 }
 
+function ShopifyStatusIndicator() {
+  const [connected, setConnected] = useState(false);
+  const [shop, setShop] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/shopify/status')
+      .then(r => r.json())
+      .then(d => {
+        if (d.connected) {
+          setConnected(true);
+          setShop(d.shop || null);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  return (
+    <div style={{
+      margin: '8px 12px 0',
+      padding: '8px 12px',
+      background: connected ? '#ECFDF5' : '#FEF9C3',
+      border: `1px solid ${connected ? '#A7F3D0' : '#FDE68A'}`,
+      borderRadius: 8,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      fontSize: 11,
+    }}>
+      <span style={{ width: 7, height: 7, borderRadius: '50%', background: connected ? '#10B981' : '#F59E0B', display: 'inline-block', flexShrink: 0 }} />
+      <span style={{ fontWeight: 600, color: connected ? '#065F46' : '#92400E', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        {connected ? (shop || 'Store Connected') : 'Connect Shopify'}
+      </span>
+    </div>
+  );
+}
+
 export default function MajorkaAppShell({ children }: Props) {
   const [location, setLocation] = useLocation();
   const { user, isAuthenticated, loading, session, isPro, subPlan } = useAuth();
@@ -677,6 +713,9 @@ export default function MajorkaAppShell({ children }: Props) {
             tooltip: 'Admin panel — user management, stats, quick actions.',
           })}
       </div>
+
+      {/* Shopify connection status */}
+      <ShopifyStatusIndicator />
 
       {/* AU flag + region */}
       <div

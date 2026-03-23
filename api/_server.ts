@@ -238,6 +238,67 @@ app.use('/api/health', (req, res, next) => {
   next();
 });
 
+// ── Competitor Spy API ──────────────────────────────────────────────────────
+app.get("/api/competitor/products", async (req: Request, res: Response) => {
+  try {
+    const limit = Math.min(100, parseInt(String(req.query.limit || '50')));
+    const store = String(req.query.store || '');
+    const newOnly = req.query.new === 'true';
+
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+    if (!supabaseUrl || !supabaseKey) { res.json([]); return; }
+
+    let url = `${supabaseUrl}/rest/v1/competitor_products?select=*&order=first_seen_at.desc&limit=${limit}`;
+    if (store) url += `&store_domain=eq.${encodeURIComponent(store)}`;
+    if (newOnly) {
+      const yesterday = new Date(Date.now() - 86400000).toISOString();
+      url += `&first_seen_at=gte.${yesterday}`;
+    }
+
+    const r = await fetch(url, {
+      headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+    });
+    const data = await r.json();
+    res.json(Array.isArray(data) ? data : []);
+  } catch {
+    res.json([]);
+  }
+});
+
+app.get("/api/competitor/stores", async (_req: Request, res: Response) => {
+  try {
+    const { AU_DROPSHIP_STORES } = await import('../server/lib/competitor-shops');
+
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+    if (!supabaseUrl || !supabaseKey) {
+      res.json(AU_DROPSHIP_STORES.map(s => ({ ...s, product_count: 0, favicon: `https://www.google.com/s2/favicons?domain=${s.domain}&sz=32` })));
+      return;
+    }
+
+    const r = await fetch(`${supabaseUrl}/rest/v1/competitor_products?select=store_domain`, {
+      headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}`, 'Range': '0-999' }
+    });
+    const products: any[] = await r.json().catch(() => []);
+
+    const counts: Record<string, number> = {};
+    if (Array.isArray(products)) {
+      for (const p of products) counts[p.store_domain] = (counts[p.store_domain] || 0) + 1;
+    }
+
+    const stores = AU_DROPSHIP_STORES.map(s => ({
+      ...s,
+      product_count: counts[s.domain] || 0,
+      favicon: `https://www.google.com/s2/favicons?domain=${s.domain}&sz=32`,
+    }));
+
+    res.json(stores);
+  } catch {
+    res.json([]);
+  }
+});
+
 registerChatRoutes(app);
 registerScrapeRoutes(app);
 registerToolsApi(app);

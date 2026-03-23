@@ -94,6 +94,20 @@ ALTER TABLE winning_products
   ADD COLUMN IF NOT EXISTS peak_in_days integer,
   ADD COLUMN IF NOT EXISTS velocity_curve jsonb,
   ADD COLUMN IF NOT EXISTS velocity_confidence text;
+
+-- Competitor products table
+CREATE TABLE IF NOT EXISTS competitor_products (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  store_domain text NOT NULL,
+  product_name text NOT NULL,
+  price_aud numeric,
+  category text,
+  first_seen_at timestamptz DEFAULT now(),
+  last_seen_at timestamptz DEFAULT now(),
+  is_new boolean DEFAULT true
+);
+CREATE INDEX IF NOT EXISTS idx_competitor_store ON competitor_products(store_domain);
+CREATE INDEX IF NOT EXISTS idx_competitor_seen ON competitor_products(first_seen_at DESC);
 `;
 
 console.log('\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557');

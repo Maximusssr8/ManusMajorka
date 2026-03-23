@@ -108,4 +108,70 @@ router.delete('/disconnect', async (req, res) => {
   }
 });
 
+// POST /api/shopify/products — push a Majorka product to Shopify
+router.post('/products', async (req, res) => {
+  try {
+    const { productId, shop } = req.body;
+    if (!productId || !shop) return res.status(400).json({ error: 'productId and shop required' });
+
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+    if (!supabaseUrl || !supabaseKey) return res.status(500).json({ error: 'Server not configured' });
+
+    const tokenRes = await fetch(`${supabaseUrl}/rest/v1/shopify_connections?shop_domain=eq.${encodeURIComponent(shop)}&select=access_token&limit=1`, {
+      headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+    });
+    const tokens = await tokenRes.json();
+    if (!Array.isArray(tokens) || !tokens[0]?.access_token) {
+      return res.status(401).json({ error: 'Shopify not connected. Please reconnect your store.' });
+    }
+    const accessToken = tokens[0].access_token;
+
+    const prodRes = await fetch(`${supabaseUrl}/rest/v1/winning_products?id=eq.${encodeURIComponent(productId)}&limit=1`, {
+      headers: { 'apikey': supabaseKey, 'Authorization': `Bearer ${supabaseKey}` }
+    });
+    const products = await prodRes.json();
+    if (!Array.isArray(products) || !products[0]) return res.status(404).json({ error: 'Product not found' });
+    const p = products[0];
+
+    const title = p.product_title || 'New Product';
+    const price = (p.price_aud || 49.99).toFixed(2);
+    const image = p.image_url || null;
+
+    const shopifyRes = await fetch(`https://${shop}/admin/api/2024-01/products.json`, {
+      method: 'POST',
+      headers: {
+        'X-Shopify-Access-Token': accessToken,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        product: {
+          title,
+          body_html: `<p>${title}</p><p>Source: AliExpress | AU dropship ready</p>`,
+          vendor: 'Majorka',
+          product_type: p.category || 'General',
+          status: 'draft',
+          variants: [{ price, inventory_management: null, fulfillment_service: 'manual' }],
+          images: image ? [{ src: image }] : [],
+        },
+      }),
+    });
+
+    if (!shopifyRes.ok) {
+      const err = await shopifyRes.json();
+      return res.status(shopifyRes.status).json({ error: 'Shopify API error', details: err });
+    }
+
+    const result: any = await shopifyRes.json();
+    res.json({
+      success: true,
+      shopify_product_id: result.product?.id,
+      shopify_product_url: `https://${shop}/admin/products/${result.product?.id}`,
+      title: result.product?.title,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

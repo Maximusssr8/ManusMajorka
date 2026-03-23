@@ -1390,4 +1390,20 @@ router.post('/test-tiktok-scraper', async (req: Request, res: Response) => {
   }
 });
 
+// POST /api/admin/run-competitor-spy
+router.post('/run-competitor-spy', async (req: Request, res: Response) => {
+  res.json({ message: 'Competitor spy started — check server logs for progress', status: 'running' });
+
+  (async () => {
+    try {
+      const { runCompetitorSpy } = await import('../lib/competitor-scraper');
+      const storeLimit = parseInt(String(req.body?.limit || '5'));
+      const result = await runCompetitorSpy(Math.min(20, storeLimit));
+      console.log('[competitor-spy] complete:', JSON.stringify(result));
+    } catch (err) {
+      console.error('[competitor-spy] fatal:', err);
+    }
+  })();
+});
+
 export default router;
