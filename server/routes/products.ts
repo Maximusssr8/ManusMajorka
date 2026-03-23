@@ -308,6 +308,38 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
   });
 });
 
+// ── POST /api/products/refresh — trigger real data pipeline ────────────────────
+router.post('/refresh', async (req: Request, res: Response) => {
+  const THROTTLE_KEY = '__last_product_refresh';
+  const lastRefresh = (global as any)[THROTTLE_KEY] as number | undefined;
+  const now = Date.now();
+
+  if (lastRefresh && (now - lastRefresh) < 30 * 60 * 1000) {
+    const minsAgo = Math.round((now - lastRefresh) / 60000);
+    const minsLeft = 30 - minsAgo;
+    res.json({
+      throttled: true,
+      message: `Refreshed ${minsAgo} minutes ago — next refresh available in ${minsLeft} minutes`,
+      minsAgo,
+      minsLeft,
+    });
+    return;
+  }
+
+  (global as any)[THROTTLE_KEY] = now;
+  res.json({ status: 'started', message: 'Product refresh started — check back in 60 seconds' });
+
+  setImmediate(async () => {
+    try {
+      const { runProductPipeline } = await import('../lib/productPipeline');
+      await runProductPipeline();
+      console.log('[products/refresh] Pipeline complete');
+    } catch (err: any) {
+      console.error('[products/refresh] Pipeline error:', err.message);
+    }
+  });
+});
+
 // ── GET /api/products/datahub/test — RapidAPI DataHub connectivity check ─────
 router.get('/datahub/test', async (_req: Request, res: Response) => {
   try {

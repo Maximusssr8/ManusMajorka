@@ -397,6 +397,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   // Hovered row for bg
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
 
+  // Refresh pipeline state
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshMsg, setRefreshMsg] = useState('');
+
   const handleLiveSearch = async (queryOverride?: string) => {
     const query = queryOverride ?? liveSearch;
     if (!query.trim()) return;
@@ -922,16 +926,51 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             minWidth: 'min(200px, 100%)',
           }}
         />
-        <button onClick={() => loadProducts()}
+        <button onClick={async () => {
+            if (refreshing) return;
+            setRefreshing(true);
+            setRefreshMsg('');
+            try {
+              const { data: sessionData } = await supabase.auth.getSession();
+              const token = sessionData?.session?.access_token;
+              const res = await fetch('/api/products/refresh', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
+              });
+              const data = await res.json();
+              if (data.throttled) {
+                setRefreshMsg(`⏱ ${data.message}`);
+              } else {
+                setRefreshMsg('🔄 Refresh started — new products will appear in ~60 seconds');
+                setTimeout(() => loadProducts(), 30000);
+              }
+            } catch {
+              setRefreshMsg('⚠️ Refresh failed — please try again');
+            } finally {
+              setRefreshing(false);
+            }
+          }}
+          disabled={refreshing}
           style={{
             marginLeft: 'auto', padding: '8px 18px', borderRadius: 7,
             background: '#EEF2FF', border: '1px solid #C7D2FE',
-            color: '#6366F1', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+            color: '#6366F1', fontSize: 13, fontWeight: 700,
+            cursor: refreshing ? 'not-allowed' : 'pointer',
             fontFamily: 'Syne, sans-serif',
+            opacity: refreshing ? 0.6 : 1,
           }}>
-          ↻ Refresh
+          {refreshing ? '⟳ Refreshing...' : '↻ Refresh'}
         </button>
       </div>
+
+      {refreshMsg && (
+        <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 8, marginLeft: 28, marginRight: 28, padding: '6px 12px', background: '#F9FAFB', borderRadius: 6, border: '1px solid #E5E7EB' }}>
+          {refreshMsg}
+        </div>
+      )}
 
       {/* Store Builder banner */}
       <div style={{

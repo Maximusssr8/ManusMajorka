@@ -243,81 +243,22 @@ router.get('/refresh-shops', async (req: Request, res: Response) => {
 
 // ── GET /api/cron/refresh-products — auto-refresh every 6h ────────────────────
 router.get('/refresh-products', async (req: Request, res: Response) => {
-  const secret = req.headers['x-cron-secret'] || req.query.secret;
-  if (secret && secret !== process.env.CRON_SECRET) { res.status(401).json({ error: "Unauthorized" }); return; }
+  if (!verifyCronSecret(req)) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
 
-  console.log("[cron] Product refresh started");
-  const supabase = getSupabaseAdmin();
-  const rapidApiKey = process.env.RAPIDAPI_KEY;
-  if (!rapidApiKey) { res.json({ ok: false, error: "RAPIDAPI_KEY not set" }); return; }
+  console.log('[cron] Product refresh started');
+  res.json({ status: 'started', message: 'Product refresh pipeline running' });
 
-  const searches = [
-    { keyword: "trending viral products 2026", label: "Viral Right Now" },
-    { keyword: "best selling dropship australia 2026", label: "AU Best Sellers" },
-    { keyword: "high profit margin products", label: "High Margin" },
-    { keyword: "tiktok viral products shop", label: "TikTok Trending" },
-    { keyword: "posture corrector back pain australia", label: "Health & Wellness" },
-    { keyword: "led lighting home decoration", label: "Home Upgrade" },
-    { keyword: "phone accessories wireless", label: "Tech Accessories" },
-    { keyword: "gym workout equipment home", label: "Fitness" },
-    { keyword: "pet grooming accessories dog", label: "Pet Products" },
-    { keyword: "kitchen gadgets cooking tools", label: "Kitchen" },
-  ];
-
-  const { searchAliExpressProducts } = await import("../lib/aliexpressDataHub");
-  const allRows: any[] = [];
-
-  for (const { keyword, label } of searches) {
+  setImmediate(async () => {
     try {
-      const products = await searchAliExpressProducts(keyword, { limit: 19, sort: "total_tranpro_desc", shipTo: "AU" });
-      for (const p of products) {
-        if (!p.name || !p.image_url) continue;
-        const costAud = p.price_aud || 10;
-        const retailAud = Math.round(costAud * 3);
-        const marginPct = Math.round(((retailAud - costAud) / retailAud) * 100);
-        const demand = costAud < 5 ? 800 : costAud < 15 ? 350 : costAud < 30 ? 150 : costAud < 60 ? 80 : 40;
-        const variation = 0.7 + (p.name.charCodeAt(0) % 60) / 100;
-        const itemsSoldMonthly = Math.round(demand * variation);
-        const estMonthlyRevenue = Math.round(itemsSoldMonthly * retailAud / 100) * 100;
-        const nicheBonus = ["Viral", "TikTok", "Best Seller"].some(k => label.includes(k)) ? 15 : 0;
-        const winningScore = Math.min(95, 55 + nicheBonus + Math.round((p.rating || 0) * 5) + (costAud > 10 ? 5 : 0));
-
-        allRows.push({
-          name: p.name.slice(0, 200),
-          niche: label,
-          image_url: p.image_url.startsWith("//") ? `https:${p.image_url}` : p.image_url,
-          avg_unit_price_aud: costAud,
-          estimated_retail_aud: retailAud,
-          estimated_margin_pct: marginPct,
-          est_monthly_revenue_aud: estMonthlyRevenue,
-          items_sold_monthly: itemsSoldMonthly,
-          orders_count: p.orders_count || itemsSoldMonthly,
-          winning_score: winningScore,
-          trend_score: 65 + nicheBonus + Math.round(Math.random() * 15),
-          dropship_viability_score: Math.min(95, 70 + (marginPct > 60 ? 10 : 0) + nicheBonus),
-          growth_rate_pct: 10 + nicheBonus + Math.round(Math.random() * 25),
-          aliexpress_url: p.aliexpress_url || "",
-          supplier_name: p.supplier_name || "AliExpress",
-          real_data_scraped: true,
-          source: "rapidapi_datahub",
-        });
-      }
-      await new Promise(r => setTimeout(r, 300));
+      const { runProductPipeline } = await import('../lib/productPipeline');
+      const result = await runProductPipeline();
+      console.log('[cron] refresh-products complete:', result);
     } catch (err: any) {
-      console.error(`[cron] ${label} failed:`, err.message);
+      console.error('[cron] refresh-products failed:', err.message);
     }
-  }
-
-  // Delete old, insert fresh
-  await supabase.from("trend_signals").delete().eq("source", "rapidapi_datahub");
-  let total = 0;
-  for (let i = 0; i < allRows.length; i += 50) {
-    const { data } = await supabase.from("trend_signals").insert(allRows.slice(i, i + 50)).select("id");
-    total += data?.length || 0;
-  }
-
-  console.log(`[cron] Product refresh completed: ${total} products`);
-  res.json({ ok: true, total, refreshed_at: new Date().toISOString() });
+  });
 });
 
 export default router;
