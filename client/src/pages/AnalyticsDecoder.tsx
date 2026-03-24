@@ -347,7 +347,7 @@ export default function AnalyticsDecoder() {
                   </span>
                   <span
                     className="text-xs leading-relaxed"
-                    style={{ color: 'rgba(240,237,232,0.65)' }}
+                    style={{ color: '#6B7280' }}
                   >
                     {insight}
                   </span>
@@ -387,7 +387,7 @@ export default function AnalyticsDecoder() {
                   />
                   <span
                     className="text-xs leading-relaxed"
-                    style={{ color: 'rgba(240,237,232,0.65)' }}
+                    style={{ color: '#6B7280' }}
                   >
                     {action}
                   </span>

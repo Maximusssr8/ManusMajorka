@@ -388,7 +388,7 @@ function MiniSparkSvg({ data, color = '#22c55e' }: { data: number[]; color?: str
 function SalesTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: '#18181b', border: '1px solid #F0F0F0', borderRadius: 8, padding: '8px 12px', fontFamily: UI }}>
+    <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, padding: '8px 12px', fontFamily: UI, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
       <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 2 }}>{label}</div>
       <div style={{ fontSize: 14, fontWeight: 600, color: '#6366F1' }}>${payload[0].value.toLocaleString()}</div>
     </div>
@@ -496,7 +496,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
             <thead>
               <tr style={{ borderBottom: '1px solid #F9FAFB' }}>
                 {['#', 'Product', 'Category', 'Units Sold', 'Revenue', 'vs last period'].map((h) => (
-                  <th key={h} style={{ padding: '6px 10px', textAlign: h === 'Units Sold' || h === 'Revenue' ? 'right' as const : 'left' as const, color: '#3f3f46', fontWeight: 600, fontSize: 10, letterSpacing: '0.07em', textTransform: 'uppercase' as const, fontFamily: UI, whiteSpace: 'nowrap' as const }}>
+                  <th key={h} style={{ padding: '6px 10px', textAlign: h === 'Units Sold' || h === 'Revenue' ? 'right' as const : 'left' as const, color: '#9CA3AF', fontWeight: 600, fontSize: 10, letterSpacing: '0.07em', textTransform: 'uppercase' as const, fontFamily: UI, whiteSpace: 'nowrap' as const }}>
                     {h}
                   </th>
                 ))}
@@ -509,11 +509,11 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
                   <tr key={p.rank} style={{ borderBottom: '1px solid #FAFAFA' }}
                     onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFA')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
-                    <td style={{ padding: '9px 10px', color: '#3f3f46', fontSize: 12, fontWeight: 600, fontVariantNumeric: 'tabular-nums', width: 28 }}>{i + 1}</td>
+                    <td style={{ padding: '9px 10px', color: '#6B7280', fontSize: 12, fontWeight: 600, fontVariantNumeric: 'tabular-nums', width: 28 }}>{i + 1}</td>
                     <td style={{ padding: '9px 10px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ fontSize: 16, lineHeight: 1 }}>{p.emoji}</span>
-                        <span style={{ fontSize: 13, color: '#e4e4e7', fontWeight: 500, whiteSpace: 'nowrap' as const }}>{p.name}</span>
+                        <span style={{ fontSize: 13, color: '#374151', fontWeight: 500, whiteSpace: 'nowrap' as const }}>{p.name}</span>
                       </div>
                     </td>
                     <td style={{ padding: '9px 10px' }}>
@@ -554,8 +554,8 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
                 {/* Name + product */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: '#e4e4e7' }}>{o.customer}</span>
-                    <span style={{ fontSize: 11, color: '#3f3f46', fontWeight: 400 }}>{o.id}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>{o.customer}</span>
+                    <span style={{ fontSize: 11, color: '#6B7280', fontWeight: 400 }}>{o.id}</span>
                   </div>
                   <span style={{ fontSize: 11, color: '#6B7280', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{o.product}</span>
                 </div>
@@ -568,7 +568,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
                   {o.status}
                 </span>
                 {/* Time */}
-                <span style={{ fontSize: 11, color: '#3f3f46', flexShrink: 0, minWidth: 52, textAlign: 'right' as const }}>{o.time}</span>
+                <span style={{ fontSize: 11, color: '#9CA3AF', flexShrink: 0, minWidth: 52, textAlign: 'right' as const }}>{o.time}</span>
               </div>
             );
           })}
@@ -777,9 +777,9 @@ function DashboardHome() {
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, opacity: 0.75, marginBottom: 12 }}>AI Insight</div>
             <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, lineHeight: 1.4, marginBottom: 12 }}>Posture correctors trending +140% this week in AU</div>
             <div style={{ fontSize: 13, opacity: 0.8, lineHeight: 1.6, flex: 1 }}>High TikTok engagement, low AU saturation. Estimated $8-12k/mo at 55% margin.</div>
-            <button onClick={() => setLocation('/app/intelligence/database')} style={{ marginTop: 20, padding: '10px 16px', background: '#D1D5DB', color: 'white', border: '1px solid #9CA3AF', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(8px)', transition: 'background 150ms' }}
-              onMouseEnter={e => (e.currentTarget.style.background = '#9CA3AF')}
-              onMouseLeave={e => (e.currentTarget.style.background = '#D1D5DB')}
+            <button onClick={() => setLocation('/app/intelligence/database')} style={{ marginTop: 20, padding: '10px 16px', background: 'rgba(255,255,255,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(8px)', transition: 'background 150ms' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.3)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.2)')}
             >Explore this niche &rarr;</button>
           </div>
         </div>

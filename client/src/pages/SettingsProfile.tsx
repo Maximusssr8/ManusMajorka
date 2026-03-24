@@ -221,7 +221,7 @@ export default function SettingsProfile() {
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-sm animate-pulse"
           style={{
-            background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+            background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
             color: '#FAFAFA',
             fontFamily: "'Bricolage Grotesque', sans-serif",
           }}
@@ -507,7 +507,7 @@ export default function SettingsProfile() {
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm font-medium" style={{ color: '#f5f5f5' }}>
+                    <div className="text-sm font-medium" style={{ color: '#0A0A0A' }}>
                       Product Tour
                     </div>
                     <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -538,7 +538,7 @@ export default function SettingsProfile() {
                 disabled={saving}
                 className="w-full rounded-lg py-3 font-bold text-sm transition-all disabled:opacity-50"
                 style={{
-                  background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+                  background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                   color: '#FAFAFA',
                   fontFamily: "'Bricolage Grotesque', sans-serif",
                   border: 'none',
@@ -588,7 +588,7 @@ export default function SettingsProfile() {
                     style={{ background: '#FAFAFA' }}
                   >
                     <div>
-                      <div className="text-sm font-medium" style={{ color: '#f5f5f5' }}>
+                      <div className="text-sm font-medium" style={{ color: '#0A0A0A' }}>
                         {label}
                       </div>
                       <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -620,7 +620,7 @@ export default function SettingsProfile() {
               <button
                 className="mt-4 w-full rounded-lg py-3 font-bold text-sm"
                 style={{
-                  background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+                  background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                   color: '#FAFAFA',
                   fontFamily: "'Bricolage Grotesque', sans-serif",
                   border: 'none',

@@ -143,7 +143,7 @@ function EmailCard({ email }: { email: Email }) {
             </div>
             <div
               className="text-sm leading-relaxed whitespace-pre-line"
-              style={{ color: 'rgba(240,237,232,0.75)' }}
+              style={{ color: '#374151' }}
             >
               {email.body}
             </div>
@@ -437,7 +437,7 @@ export default function EmailSequences() {
                 </div>
                 <div
                   className="text-xs leading-relaxed"
-                  style={{ color: 'rgba(240,237,232,0.65)' }}
+                  style={{ color: '#6B7280' }}
                 >
                   {result.overview}
                 </div>
@@ -467,7 +467,7 @@ export default function EmailSequences() {
                     <div
                       key={i}
                       className="text-xs flex items-start gap-1.5 mb-1.5"
-                      style={{ color: 'rgba(240,237,232,0.65)' }}
+                      style={{ color: '#6B7280' }}
                     >
                       <span style={{ color: '#4ab8f5', flexShrink: 0 }}>→</span>
                       {tip}
@@ -489,7 +489,7 @@ export default function EmailSequences() {
                   </div>
                   <div
                     className="text-xs leading-relaxed"
-                    style={{ color: 'rgba(240,237,232,0.65)' }}
+                    style={{ color: '#6B7280' }}
                   >
                     {result.segmentationAdvice}
                   </div>

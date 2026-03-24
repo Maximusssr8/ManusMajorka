@@ -128,6 +128,8 @@ function Router() {
             <Route path="/login" component={SignIn} />
             <Route path="/sign-in" component={SignIn} />
             <Route path="/signup">{() => <SignIn />}</Route>
+            <Route path="/sign-up">{() => <SignIn />}</Route>
+            <Route path="/register">{() => <SignIn />}</Route>
             <Route path="/onboarding">
               {() => (
                 <ProtectedRoute>

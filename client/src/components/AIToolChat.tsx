@@ -358,8 +358,8 @@ export default function AIToolChat({
                     style={
                       msg.role === 'user'
                         ? {
-                            background: '#1a1600',
-                            border: '1px solid rgba(99,102,241,0.3)',
+                            background: 'rgba(99,102,241,0.06)',
+                            border: '1px solid rgba(99,102,241,0.2)',
                             color: '#0A0A0A',
                           }
                         : msg.isError
@@ -441,7 +441,7 @@ export default function AIToolChat({
                             onClick={() => (window.location.href = '/app/website-generator')}
                             className="text-xs font-bold px-4 py-2 rounded-xl"
                             style={{
-                              background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+                              background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                               color: '#FAFAFA',
                               cursor: 'pointer',
                             }}
@@ -553,7 +553,7 @@ export default function AIToolChat({
                   size="icon"
                   className="h-9 w-9 rounded-lg"
                   style={{
-                    background: 'linear-gradient(135deg, #6366F1, #c09a28)',
+                    background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                     color: '#FAFAFA',
                     border: 'none',
                   }}
@@ -644,7 +644,7 @@ export default function AIToolChat({
                   className="flex-1 gap-2 text-xs"
                   onClick={downloadHTML}
                   style={{
-                    background: 'linear-gradient(135deg, #6366F1, #c09a28)',
+                    background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                     color: '#FAFAFA',
                   }}
                 >

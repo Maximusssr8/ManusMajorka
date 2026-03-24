@@ -224,10 +224,10 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
         style={{
           background: '#F9FAFB',
           border: '1px solid #F0F0F0',
-          color: '#f5f5f5',
+          color: '#0A0A0A',
           fontFamily: 'DM Sans, sans-serif',
         }}
-        onFocus={(e) => (e.target.style.borderColor = 'rgba(245,158,11,0.5)')}
+        onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.5)')}
         onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
       />
       <button
@@ -236,9 +236,9 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
         className="px-4 py-2.5 rounded-xl text-sm font-bold transition-all flex-shrink-0"
         style={{
           background: url.trim()
-            ? 'linear-gradient(135deg, #f59e0b, #d97706)'
-            : 'rgba(245,158,11,0.15)',
-          color: url.trim() ? '#0a0a0a' : 'rgba(245,158,11,0.4)',
+            ? 'linear-gradient(135deg, #6366F1, #4F46E5)'
+            : 'rgba(99,102,241,0.15)',
+          color: url.trim() ? '#FFFFFF' : 'rgba(99,102,241,0.4)',
           border: 'none',
           cursor: url.trim() ? 'pointer' : 'not-allowed',
           fontFamily: "'Bricolage Grotesque', sans-serif",
@@ -291,7 +291,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
       {/* Shimmer skeleton */}
       <p
         className="text-xs font-semibold mb-3"
-        style={{ color: 'rgba(245,158,11,0.7)', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+        style={{ color: 'rgba(99,102,241,0.7)', fontFamily: "'Bricolage Grotesque', sans-serif" }}
       >
         Analysing product...
       </p>
@@ -312,7 +312,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
         }}
       >
         <X size={14} style={{ color: '#ef4444', flexShrink: 0 }} />
-        <span className="text-sm flex-1" style={{ color: '#f5f5f5' }}>
+        <span className="text-sm flex-1" style={{ color: '#0A0A0A' }}>
           Failed to import product. Check the URL and try again.
         </span>
         <button
@@ -336,13 +336,13 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
     <div
       className="rounded-2xl overflow-hidden"
       style={{
-        background: '#111111',
-        border: '1px solid #F5F5F5',
+        background: '#FFFFFF',
+        border: '1px solid #E5E7EB',
       }}
     >
       {/* Hero image */}
       {result.imageUrls.length > 0 ? (
-        <div className="w-full overflow-hidden" style={{ height: 160, background: '#1a1a1a' }}>
+        <div className="w-full overflow-hidden" style={{ height: 160, background: '#F9FAFB' }}>
           <img
             src={proxyImage(result.imageUrls[0])}
             alt={result.cleanTitle || result.productTitle}
@@ -355,7 +355,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
       ) : (
         <div
           className="w-full flex items-center justify-center"
-          style={{ height: 160, background: '#1a1a1a' }}
+          style={{ height: 160, background: '#F9FAFB' }}
         >
           <Package size={48} style={{ color: '#E5E7EB' }} />
         </div>
@@ -366,7 +366,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
         <div className="flex items-start gap-2 flex-wrap">
           <h3
             className="text-sm font-extrabold flex-1 min-w-0"
-            style={{ color: '#f5f5f5', fontFamily: "'Bricolage Grotesque', sans-serif", lineHeight: 1.35 }}
+            style={{ color: '#0A0A0A', fontFamily: "'Bricolage Grotesque', sans-serif", lineHeight: 1.35 }}
           >
             {result.cleanTitle || result.productTitle}
           </h3>
@@ -374,9 +374,9 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
             <span
               className="px-2 py-0.5 rounded-full text-xs font-bold flex-shrink-0"
               style={{
-                background: 'rgba(245,158,11,0.15)',
-                color: '#f59e0b',
-                border: '1px solid rgba(245,158,11,0.25)',
+                background: 'rgba(99,102,241,0.12)',
+                color: '#6366F1',
+                border: '1px solid rgba(99,102,241,0.25)',
                 fontFamily: "'Bricolage Grotesque', sans-serif",
               }}
             >
@@ -411,7 +411,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
           <ul className="space-y-1">
             {result.bulletPoints.slice(0, 3).map((bp, i) => (
               <li key={i} className="flex items-start gap-2">
-                <Check size={11} style={{ color: '#f59e0b', flexShrink: 0, marginTop: 2 }} />
+                <Check size={11} style={{ color: '#6366F1', flexShrink: 0, marginTop: 2 }} />
                 <span className="text-xs" style={{ color: '#6B7280' }}>
                   {bp}
                 </span>
@@ -430,8 +430,8 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
                 style={{
                   width: 48,
                   height: 48,
-                  background: '#1a1a1a',
-                  border: '1px solid #F5F5F5',
+                  background: '#F9FAFB',
+                  border: '1px solid #E5E7EB',
                 }}
               >
                 <img
@@ -479,8 +479,8 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
             onClick={handleSetActive}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all"
             style={{
-              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-              color: '#0a0a0a',
+              background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
+              color: '#FFFFFF',
               border: 'none',
               cursor: 'pointer',
               fontFamily: "'Bricolage Grotesque', sans-serif",
@@ -512,13 +512,13 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
     <div
       className="flex items-center gap-3 px-4 py-3 rounded-xl"
       style={{
-        background: 'rgba(245,158,11,0.08)',
-        border: '1px solid rgba(245,158,11,0.2)',
+        background: 'rgba(99,102,241,0.06)',
+        border: '1px solid rgba(99,102,241,0.2)',
       }}
     >
-      <Check size={14} style={{ color: '#f59e0b', flexShrink: 0 }} />
-      <span className="text-sm flex-1" style={{ color: '#f5f5f5' }}>
-        <span style={{ color: '#f59e0b', fontWeight: 700 }}>
+      <Check size={14} style={{ color: '#6366F1', flexShrink: 0 }} />
+      <span className="text-sm flex-1" style={{ color: '#0A0A0A' }}>
+        <span style={{ color: '#6366F1', fontWeight: 700 }}>
           {result.cleanTitle || result.productTitle}
         </span>{' '}
         is now your active product
@@ -527,7 +527,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
         onClick={() => setLocation('/app/product-discovery')}
         className="flex items-center gap-1.5 text-xs font-bold transition-all flex-shrink-0"
         style={{
-          color: '#f59e0b',
+          color: '#6366F1',
           background: 'transparent',
           border: 'none',
           cursor: 'pointer',
@@ -564,14 +564,14 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
     <div
       className="rounded-2xl p-5 space-y-4"
       style={{
-        background: '#111111',
-        border: '1px solid #F5F5F5',
+        background: '#FFFFFF',
+        border: '1px solid #E5E7EB',
       }}
     >
       <div>
         <h3
           className="text-sm font-extrabold mb-0.5"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f5f5f5' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
         >
           Import Product
         </h3>
@@ -599,7 +599,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
             className="w-full py-2 rounded-xl text-xs font-semibold transition-all"
             style={{
               background: 'transparent',
-              border: '1px solid #F5F5F5',
+              border: '1px solid #E5E7EB',
               color: '#6B7280',
               cursor: 'pointer',
             }}
@@ -617,7 +617,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 text-xs transition-all"
           style={{ color: '#6B7280' }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = '#f59e0b')}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#6366F1')}
           onMouseLeave={(e) => (e.currentTarget.style.color = '#6B7280')}
         >
           <ExternalLink size={11} />

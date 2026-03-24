@@ -70,9 +70,9 @@ function AdCard({ ad }: { ad: AdSet }) {
             <span className="text-xs text-neutral-400 uppercase tracking-wider">
               Variation {ad.variation}
             </span>
-            <h3 className="text-white font-bold text-lg mt-0.5">{ad.angle}</h3>
+            <h3 className="text-gray-900 font-bold text-lg mt-0.5">{ad.angle}</h3>
           </div>
-          <span className="text-xs bg-neutral-800 text-neutral-300 px-2 py-1 rounded-full">
+          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
             {ad.cta?.replace(/_/g, ' ')}
           </span>
         </div>
@@ -83,9 +83,9 @@ function AdCard({ ad }: { ad: AdSet }) {
             className="w-full rounded-lg aspect-video object-cover mb-4"
           />
         ) : (
-          <div className="bg-neutral-800/50 rounded-lg p-3 mb-4 flex items-start gap-2">
-            <ImageIcon className="w-4 h-4 text-neutral-500 mt-0.5 flex-shrink-0" />
-            <p className="text-neutral-400 text-xs italic">{ad.image_prompt}</p>
+          <div className="bg-gray-100 rounded-lg p-3 mb-4 flex items-start gap-2">
+            <ImageIcon className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+            <p className="text-gray-500 text-xs italic">{ad.image_prompt}</p>
           </div>
         )}
         <div className="space-y-2">
@@ -94,15 +94,15 @@ function AdCard({ ad }: { ad: AdSet }) {
             ['Primary Text', ad.primary_text],
             ['Headline', ad.headline],
           ].map(([label, val]) => (
-            <div key={label} className="bg-black/30 rounded-lg p-3">
+            <div key={label} className="bg-gray-50 rounded-lg p-3">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-neutral-500 uppercase">{label}</span>
-                <button onClick={() => copy(val)} className="text-neutral-500 hover:text-white">
+                <span className="text-xs text-gray-400 uppercase">{label}</span>
+                <button onClick={() => copy(val)} className="text-gray-400 hover:text-gray-900">
                   <Copy className="w-3 h-3" />
                 </button>
               </div>
               <p
-                className={`${label === 'Hook' ? 'text-white font-semibold' : 'text-neutral-300 text-sm'}`}
+                className={`${label === 'Hook' ? 'text-gray-900 font-semibold' : 'text-gray-700 text-sm'}`}
               >
                 {val}
               </p>
@@ -265,7 +265,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
         {loading && (
           <div className="flex flex-col items-center justify-center h-64 text-center">
             <div className="w-12 h-12 border-2 border-[#6366F1]/30 border-t-[#6366F1] rounded-full animate-spin mb-4" />
-            <p className="text-white font-medium">Generating your ad campaign...</p>
+            <p className="text-gray-900 font-medium">Generating your ad campaign...</p>
             <p className="text-neutral-400 text-sm mt-1">Creating 3 unique creative variations</p>
           </div>
         )}
@@ -273,7 +273,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
           <div className="flex flex-col items-center gap-8 py-8 px-4 max-w-md mx-auto">
             {/* Explanation text */}
             <div className="text-center">
-              <p className="font-semibold text-white mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <p className="font-semibold text-gray-900 mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Preview: What your ad pack looks like
               </p>
               <p className="text-sm text-neutral-400">
@@ -429,12 +429,12 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
               ))}
             </div>
             {campaign.video_script && (
-              <div className="border border-neutral-800 rounded-xl">
+              <div className="border border-gray-200 rounded-xl">
                 <button
                   onClick={() => setShowScript(!showScript)}
                   className="w-full flex items-center justify-between p-5 text-left"
                 >
-                  <span className="text-white font-semibold">15-Second Video Script</span>
+                  <span className="text-gray-900 font-semibold">15-Second Video Script</span>
                   {showScript ? (
                     <ChevronUp className="w-4 h-4 text-neutral-400" />
                   ) : (
@@ -442,7 +442,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
                   )}
                 </button>
                 {showScript && (
-                  <div className="px-5 pb-5 space-y-3 border-t border-neutral-800 pt-4">
+                  <div className="px-5 pb-5 space-y-3 border-t border-gray-200 pt-4">
                     {[
                       ['0-3s Hook', campaign.video_script.hook_3s],
                       ['3-10s Body', campaign.video_script.body_7s],
@@ -451,18 +451,18 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
                     ].map(([label, val]) => (
                       <div key={label} className="bg-gray-50 rounded-lg p-3">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs text-neutral-500 uppercase">{label}</span>
+                          <span className="text-xs text-gray-400 uppercase">{label}</span>
                           <button
                             onClick={() => {
                               navigator.clipboard.writeText(val);
                               toast.success('Copied!');
                             }}
-                            className="text-neutral-500 hover:text-white"
+                            className="text-gray-400 hover:text-gray-900"
                           >
                             <Copy className="w-3 h-3" />
                           </button>
                         </div>
-                        <p className="text-neutral-200 text-sm">{val}</p>
+                        <p className="text-gray-700 text-sm">{val}</p>
                       </div>
                     ))}
                   </div>
@@ -470,12 +470,12 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
               </div>
             )}
             {campaign.targeting && (
-              <div className="border border-neutral-800 rounded-xl p-5">
-                <h3 className="text-white font-semibold mb-4">Targeting Suggestions</h3>
+              <div className="border border-gray-200 rounded-xl p-5">
+                <h3 className="text-gray-900 font-semibold mb-4">Targeting Suggestions</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <p className="text-neutral-400 text-xs uppercase mb-1">Age Range</p>
-                    <p className="text-white">{campaign.targeting.age_range}</p>
+                    <p className="text-gray-900">{campaign.targeting.age_range}</p>
                   </div>
                   <div>
                     <p className="text-neutral-400 text-xs uppercase mb-1">Interests</p>
@@ -483,7 +483,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
                       {campaign.targeting.interests?.map((i) => (
                         <span
                           key={i}
-                          className="text-xs bg-neutral-800 text-neutral-300 px-2 py-0.5 rounded-full"
+                          className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full"
                         >
                           {i}
                         </span>

@@ -106,14 +106,14 @@ export default function SocialProofTicker() {
         <div
           key={index}
           style={{
-            background: 'rgba(12,14,20,0.95)',
+            background: '#FFFFFF',
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
-            border: '1px solid rgba(99,102,241,0.2)',
-            borderLeft: '3px solid #4ade80',
+            border: '1px solid #E5E7EB',
+            borderLeft: '3px solid #6366F1',
             borderRadius: 10,
             padding: '12px 14px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
             display: 'flex',
             alignItems: 'flex-start',
             gap: 10,
@@ -128,7 +128,7 @@ export default function SocialProofTicker() {
                 width: 8,
                 height: 8,
                 borderRadius: '50%',
-                background: '#4ade80',
+                background: '#6366F1',
                 animation: 'green-dot-pulse 2s ease-in-out infinite',
               }}
             />
@@ -136,11 +136,11 @@ export default function SocialProofTicker() {
 
           {/* Text */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 12, lineHeight: 1.45, color: '#f5f5f5' }}>
-              <strong style={{ color: '#f5f5f5' }}>{notif.name}</strong>{' '}
+            <div style={{ fontSize: 12, lineHeight: 1.45, color: '#0A0A0A' }}>
+              <strong style={{ color: '#0A0A0A' }}>{notif.name}</strong>{' '}
               <span style={{ color: '#6B7280', fontSize: 11 }}>from {notif.city}</span>
             </div>
-            <div style={{ fontSize: 12, color: 'rgba(240,237,232,0.75)', lineHeight: 1.45, marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: '#374151', lineHeight: 1.45, marginTop: 2 }}>
               {notif.icon} {notif.action}
             </div>
           </div>
@@ -153,7 +153,7 @@ export default function SocialProofTicker() {
               background: 'none',
               border: 'none',
               padding: 0,
-              color: '#D1D5DB',
+              color: '#9CA3AF',
               cursor: 'pointer',
               fontSize: 14,
               lineHeight: 1,

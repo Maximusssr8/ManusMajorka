@@ -212,7 +212,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
               </span>
             </div>
             <span
-              className="text-white font-bold text-xl"
+              className="text-gray-900 font-bold text-xl"
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Majorka
@@ -313,7 +313,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
               M
             </span>
           </div>
-          <span className="text-white font-bold text-xl" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          <span className="text-gray-900 font-bold text-xl" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             Majorka
           </span>
         </div>
@@ -332,8 +332,8 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                 {/* Header */}
                 <div className="text-center lg:text-left space-y-1">
                   <h1
-                    className="text-3xl font-bold tracking-tight text-white"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    className="text-3xl font-bold tracking-tight"
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                   >
                     {mode === 'signup' ? 'Create your account' : 'Welcome back'}
                   </h1>
@@ -597,8 +597,8 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
               >
                 <div className="space-y-2">
                   <h1
-                    className="text-3xl font-bold tracking-tight text-white"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    className="text-3xl font-bold tracking-tight"
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                   >
                     Check your email
                   </h1>
@@ -643,7 +643,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                     setStep('form');
                     setError(null);
                   }}
-                  className="rounded-xl bg-white/10 text-white font-medium px-6 py-3 text-sm hover:bg-white/15 transition-colors"
+                  className="rounded-xl font-medium px-6 py-3 text-sm transition-colors" style={{ background: '#EEF2FF', color: '#6366F1', border: '1px solid #C7D2FE' }}
                   style={{ border: 'none', cursor: 'pointer' }}
                   whileTap={{ scale: 0.97 }}
                 >
@@ -660,8 +660,8 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
               >
                 <div className="space-y-2">
                   <h1
-                    className="text-3xl font-bold tracking-tight text-white"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                    className="text-3xl font-bold tracking-tight"
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                   >
                     You're in!
                   </h1>

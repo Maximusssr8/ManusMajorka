@@ -483,7 +483,7 @@ function LaunchKitContent() {
                 style={{
                   color:
                     step.status === 'done'
-                      ? '#f5f5f5'
+                      ? '#0A0A0A'
                       : step.status === 'running'
                         ? '#f59e0b'
                         : step.status === 'error'

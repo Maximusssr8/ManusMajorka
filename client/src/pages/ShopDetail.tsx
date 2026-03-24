@@ -89,7 +89,7 @@ export default function ShopDetail() {
                 {shop.shop_name[0]}
               </div>
               <div>
-                <div style={{ fontSize: 24, fontWeight: 900, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text }}>{shop.shop_name}</div>
+                <div style={{ fontSize: 24, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text }}>{shop.shop_name}</div>
                 <div style={{ fontSize: 13, color: C.muted, marginTop: 2 }}>{shop.shop_domain}</div>
                 <div style={{ display: 'flex', gap: 8, marginTop: 6, alignItems: 'center' }}>
                   <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: 'rgba(99,102,241,0.1)', color: C.gold }}>{shop.niche}</span>
@@ -98,7 +98,7 @@ export default function ShopDetail() {
                 </div>
               </div>
             </div>
-            <div style={{ fontSize: 36, fontWeight: 900, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.gold }}>
+            <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.gold }}>
               ${shop.est_revenue_aud?.toLocaleString()} AUD
               <span style={{ fontSize: 14, fontWeight: 400, color: C.muted, marginLeft: 8 }}>/ month</span>
             </div>
@@ -181,7 +181,7 @@ export default function ShopDetail() {
                   </div>
                   <div style={{ background: 'white', borderRadius: 8, padding: 12 }}>
                     <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase' }}>Copy Score</div>
-                    <div style={{ fontSize: 20, fontWeight: 900, color: C.gold, fontFamily: "'Bricolage Grotesque', sans-serif", marginTop: 4 }}>{analysis.copy_strategy_score}/10</div>
+                    <div style={{ fontSize: 20, fontWeight: 800, color: C.gold, fontFamily: "'Bricolage Grotesque', sans-serif", marginTop: 4 }}>{analysis.copy_strategy_score}/10</div>
                   </div>
                 </div>
                 <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>{analysis.summary}</div>

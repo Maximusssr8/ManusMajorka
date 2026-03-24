@@ -1256,7 +1256,7 @@ function TrackCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3
-                className="font-bold text-white text-base leading-tight"
+                className="font-bold text-gray-900 text-base leading-tight"
                 style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {track.title}
@@ -1707,7 +1707,7 @@ export default function LearnHub() {
                 </div>
                 <div>
                   <div
-                    className="font-bold text-white text-sm"
+                    className="font-bold text-gray-900 text-sm"
                     style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     {completedCount} of {TOTAL_LESSONS}

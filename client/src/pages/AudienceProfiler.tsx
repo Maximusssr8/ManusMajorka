@@ -262,7 +262,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
                       className="text-xs px-1.5 py-0.5 rounded"
                       style={{
                         background: '#F9FAFB',
-                        color: 'rgba(240,237,232,0.55)',
+                        color: '#6B7280',
                       }}
                     >
                       {ct}
@@ -286,7 +286,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
                 </div>
                 <CopyBtn text={persona.messagingAngle} />
               </div>
-              <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.75)' }}>
+              <div className="text-xs leading-relaxed" style={{ color: '#374151' }}>
                 {persona.messagingAngle}
               </div>
             </div>
@@ -589,7 +589,7 @@ export default function AudienceProfiler() {
                   </div>
                   <div
                     className="text-xs leading-relaxed"
-                    style={{ color: 'rgba(240,237,232,0.65)' }}
+                    style={{ color: '#6B7280' }}
                   >
                     {result.messagingFramework}
                   </div>
@@ -609,7 +609,7 @@ export default function AudienceProfiler() {
                   </div>
                   <div
                     className="text-xs leading-relaxed"
-                    style={{ color: 'rgba(240,237,232,0.65)' }}
+                    style={{ color: '#6B7280' }}
                   >
                     {result.channelStrategy}
                   </div>

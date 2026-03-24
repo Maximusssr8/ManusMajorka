@@ -172,7 +172,7 @@ export default function Storefront() {
                   <ShoppingBag className="w-16 h-16 text-neutral-700" />
                 </div>
                 <div className="p-5">
-                  <h3 className="text-white font-semibold text-lg mb-1 line-clamp-2">
+                  <h3 className="text-gray-900 font-semibold text-lg mb-1 line-clamp-2">
                     {sfp.product?.name || 'Product'}
                   </h3>
                   {sfp.product?.description && (
@@ -181,7 +181,7 @@ export default function Storefront() {
                     </p>
                   )}
                   <div className="flex items-baseline gap-2 mb-4">
-                    <span className="text-2xl font-bold text-white">${sfp.price || '—'}</span>
+                    <span className="text-2xl font-bold text-gray-900">${sfp.price || '—'}</span>
                     {sfp.comparePrice && (
                       <span className="text-neutral-500 line-through text-sm">
                         ${sfp.comparePrice}
@@ -230,16 +230,16 @@ export default function Storefront() {
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4">
           <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-white font-bold text-xl">Complete Order</h3>
+              <h3 className="text-gray-900 font-bold text-xl">Complete Order</h3>
               <button
                 onClick={() => setShowCheckout(false)}
-                className="text-neutral-400 hover:text-white"
+                className="text-gray-400 hover:text-gray-900"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="bg-gray-50 rounded-xl p-4 mb-6">
-              <p className="text-white font-medium">{selectedProduct.product?.name}</p>
+              <p className="text-gray-900 font-medium">{selectedProduct.product?.name}</p>
               <div className="flex items-baseline gap-2 mt-1">
                 <span className="text-xl font-bold">${selectedProduct.price}</span>
                 {selectedProduct.comparePrice && (
@@ -251,7 +251,7 @@ export default function Storefront() {
             </div>
             <div className="space-y-4">
               <div>
-                <Label className="text-neutral-300 mb-1 block text-sm">Full Name *</Label>
+                <Label className="text-gray-700 mb-1 block text-sm">Full Name *</Label>
                 <Input
                   value={checkoutForm.name}
                   onChange={(e) => setCheckoutForm((f) => ({ ...f, name: e.target.value }))}
@@ -260,7 +260,7 @@ export default function Storefront() {
                 />
               </div>
               <div>
-                <Label className="text-neutral-300 mb-1 block text-sm">Email *</Label>
+                <Label className="text-gray-700 mb-1 block text-sm">Email *</Label>
                 <Input
                   value={checkoutForm.email}
                   onChange={(e) => setCheckoutForm((f) => ({ ...f, email: e.target.value }))}
@@ -270,7 +270,7 @@ export default function Storefront() {
                 />
               </div>
               <div>
-                <Label className="text-neutral-300 mb-1 block text-sm">Shipping Address</Label>
+                <Label className="text-gray-700 mb-1 block text-sm">Shipping Address</Label>
                 <Input
                   value={checkoutForm.address}
                   onChange={(e) => setCheckoutForm((f) => ({ ...f, address: e.target.value }))}

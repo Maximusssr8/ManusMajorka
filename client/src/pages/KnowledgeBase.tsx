@@ -438,14 +438,14 @@ export default function KnowledgeBase() {
   return (
     <div
       className="flex h-full overflow-hidden"
-      style={{ background: 'var(--surface-0, #FAFAFA)', color: '#f5f5f5' }}
+      style={{ background: 'var(--surface-0, #FAFAFA)', color: '#0A0A0A' }}
     >
       {/* Left sidebar nav */}
       <aside
         className="flex-shrink-0 overflow-y-auto hidden md:flex flex-col"
         style={{
           width: 240,
-          background: 'var(--surface-1, #0d1117)',
+          background: 'var(--surface-1, #FFFFFF)',
           borderRight: '1px solid var(--surface-border, rgba(99,102,241,0.12))',
         }}
       >
@@ -462,7 +462,7 @@ export default function KnowledgeBase() {
           </div>
           <span
             className="font-bold text-sm uppercase tracking-widest"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f5f5f5', letterSpacing: '0.1em' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', letterSpacing: '0.1em' }}
           >
             Knowledge Base
           </span>
@@ -491,7 +491,7 @@ export default function KnowledgeBase() {
                 style={{
                   borderRadius: 8,
                   background: active ? 'rgba(99,102,241,0.08)' : 'transparent',
-                  color: active ? '#f5f5f5' : '#6B7280',
+                  color: active ? '#0A0A0A' : '#6B7280',
                   border: 'none',
                   cursor: 'pointer',
                   borderLeft: active ? '2px solid #6366F1' : '2px solid transparent',
@@ -503,7 +503,7 @@ export default function KnowledgeBase() {
                   if (!active) {
                     (e.currentTarget as HTMLButtonElement).style.background =
                       '#F9FAFB';
-                    (e.currentTarget as HTMLButtonElement).style.color = '#f5f5f5';
+                    (e.currentTarget as HTMLButtonElement).style.color = '#0A0A0A';
                   }
                 }}
                 onMouseLeave={(e) => {
@@ -538,9 +538,9 @@ export default function KnowledgeBase() {
               onChange={(e) => setActiveId(e.target.value)}
               className="w-full px-3 py-2 text-sm rounded-lg"
               style={{
-                background: 'var(--surface-1, #0d1117)',
+                background: 'var(--surface-1, #FFFFFF)',
                 border: '1px solid var(--surface-border, rgba(99,102,241,0.12))',
-                color: '#f5f5f5',
+                color: '#0A0A0A',
                 fontFamily: 'DM Sans, sans-serif',
               }}
             >
@@ -570,7 +570,7 @@ export default function KnowledgeBase() {
             </div>
             <h1
               className="text-2xl font-extrabold mb-2"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f5f5f5', lineHeight: 1.2 }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', lineHeight: 1.2 }}
             >
               {activeSection.title}
             </h1>
@@ -599,7 +599,7 @@ export default function KnowledgeBase() {
             <div>
               <p
                 className="text-sm font-bold mb-0.5"
-                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f5f5f5' }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
               >
                 Have questions about {activeSection.title.toLowerCase()}?
               </p>
@@ -654,7 +654,7 @@ export default function KnowledgeBase() {
                         </span>
                         <span
                           className="text-sm font-bold"
-                          style={{ color: '#f5f5f5', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                          style={{ color: '#0A0A0A', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                         >
                           {prev.title}
                         </span>
@@ -673,7 +673,7 @@ export default function KnowledgeBase() {
                         </span>
                         <span
                           className="text-sm font-bold"
-                          style={{ color: '#f5f5f5', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                          style={{ color: '#0A0A0A', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                         >
                           {next.title}
                         </span>
@@ -708,7 +708,7 @@ function ArticleContent({ content }: { content: string }) {
         <h2
           key={i}
           className="text-xl font-extrabold mt-8 mb-3"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f5f5f5' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
         >
           {line.slice(3)}
         </h2>

@@ -292,7 +292,7 @@ function ProfitDisplay({ result }: { result: ProfitResult }) {
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.4 }}
-            style={{ fontFamily: syne, fontWeight: 900, fontSize: 20, color: '#6366F1' }}
+            style={{ fontFamily: syne, fontWeight: 800, fontSize: 20, color: '#6366F1' }}
           >
             {grossMargin.toFixed(1)}%
           </motion.span>
@@ -385,7 +385,7 @@ function ProductScoutDisplay({ cards, streaming }: { cards: ProductCard[]; strea
           <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: 'linear-gradient(to bottom, #3b82f6, #60a5fa)', borderRadius: '12px 0 0 12px' }} />
           <div style={{ paddingLeft: 8 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 14, color: '#f5f5f5' }}>{card.name}</span>
+              <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 14, color: '#0A0A0A' }}>{card.name}</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 {/* Score bar */}
                 <div style={{ width: 48, height: 4, background: '#F5F5F5', borderRadius: 2, overflow: 'hidden' }}>
@@ -402,7 +402,7 @@ function ProductScoutDisplay({ cards, streaming }: { cards: ProductCard[]; strea
               </div>
             </div>
             {card.oneLiner && (
-              <p style={{ fontFamily: dm, fontSize: 12, color: '#7a7a8a', lineHeight: 1.5, margin: 0 }}>{card.oneLiner}</p>
+              <p style={{ fontFamily: dm, fontSize: 12, color: '#6B7280', lineHeight: 1.5, margin: 0 }}>{card.oneLiner}</p>
             )}
           </div>
         </div>
@@ -416,26 +416,26 @@ function AdDisplay({ card }: { card: AdCard }) {
     <div className="ad-card-anim" style={{ animationDelay: '0.1s' }}>
       {/* Facebook ad mockup */}
       <div style={{
-        background: '#1c1e21',
-        border: '1px solid #F5F5F5',
+        background: '#FFFFFF',
+        border: '1px solid #E5E7EB',
         borderRadius: 12,
         overflow: 'hidden',
         fontFamily: dm,
       }}>
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderBottom: '1px solid #F9FAFB' }}>
-          <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 14, color: '#000', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderBottom: '1px solid #E5E7EB' }}>
+          <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 14, color: '#FFFFFF', flexShrink: 0 }}>
             M
           </div>
           <div>
-            <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 13, color: '#f5f5f5' }}>Majorka Brand</div>
+            <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 13, color: '#0A0A0A' }}>Majorka Brand</div>
             <div style={{ fontSize: 11, color: '#9CA3AF' }}>Sponsored · <span style={{ color: '#3b82f6' }}>🌐 Public</span></div>
           </div>
         </div>
         {/* Body */}
         <div style={{ padding: '14px 14px 0' }}>
           {card.headline && (
-            <p style={{ fontFamily: syne, fontWeight: 800, fontSize: 15, color: '#f5f5f5', lineHeight: 1.4, marginBottom: 10 }}>
+            <p style={{ fontFamily: syne, fontWeight: 800, fontSize: 15, color: '#0A0A0A', lineHeight: 1.4, marginBottom: 10 }}>
               {card.headline}
             </p>
           )}
@@ -446,18 +446,18 @@ function AdDisplay({ card }: { card: AdCard }) {
           )}
         </div>
         {/* Image placeholder */}
-        <div style={{ background: '#FAFAFA', borderTop: '1px solid #F9FAFB', borderBottom: '1px solid #F9FAFB', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span style={{ fontSize: 11, color: '#3f3f46', fontFamily: dm }}>[ Product creative / UGC video ]</span>
+        <div style={{ background: '#F9FAFB', borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span style={{ fontSize: 11, color: '#6B7280', fontFamily: dm }}>[ Product creative / UGC video ]</span>
         </div>
         {/* CTA row */}
         <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <div style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 1 }}>majorka.com</div>
-            <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 12, color: '#f5f5f5' }}>Majorka AI</div>
+            <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 12, color: '#0A0A0A' }}>Majorka AI</div>
           </div>
           <div style={{
             background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-            color: '#000',
+            color: '#FFFFFF',
             borderRadius: 6,
             padding: '8px 16px',
             fontFamily: syne,
@@ -481,7 +481,7 @@ function AdDisplay({ card }: { card: AdCard }) {
 function renderInline(text: string) {
   const parts = text.split(/(\*\*[^*]+\*\*|\$[\d,.]+%?|[\d.]+%)/g);
   return parts.map((p, i) => {
-    if (p.startsWith('**') && p.endsWith('**')) return <strong key={i} style={{ color: '#f5f5f5', fontWeight: 700 }}>{p.replace(/\*\*/g, '')}</strong>;
+    if (p.startsWith('**') && p.endsWith('**')) return <strong key={i} style={{ color: '#0A0A0A', fontWeight: 700 }}>{p.replace(/\*\*/g, '')}</strong>;
     if (/^\$[\d,.]+/.test(p) || /^[\d.]+%$/.test(p)) return <span key={i} style={{ color: '#6366F1', fontWeight: 700, fontFamily: mono }}>{p}</span>;
     return <span key={i}>{p}</span>;
   });
@@ -837,7 +837,7 @@ export default function LiveDemoWidget() {
                 ) : adCard && !streaming ? (
                   <AdDisplay card={adCard} />
                 ) : (
-                  <div style={{ fontFamily: dm, fontSize: 13, color: '#d1d5db', lineHeight: 1.8, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                  <div style={{ fontFamily: dm, fontSize: 13, color: '#6B7280', lineHeight: 1.8, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                     <StreamingText text={rawText} streaming={streaming} />
                   </div>
                 )}
@@ -848,7 +848,7 @@ export default function LiveDemoWidget() {
           {/* Reset link after result */}
           {hasResult && !thinking && !streaming && (
             <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={handleReset} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3f3f46', fontSize: 11, fontFamily: dm, padding: '2px 6px', transition: 'color 0.15s' }}
+              <button onClick={handleReset} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', fontSize: 11, fontFamily: dm, padding: '2px 6px', transition: 'color 0.15s' }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = '#6366F1')}
                 onMouseLeave={(e) => (e.currentTarget.style.color = '#3f3f46')}>
                 ↺ new query
@@ -872,7 +872,7 @@ export default function LiveDemoWidget() {
               borderRadius: 10,
               padding: '10px 14px',
               fontSize: 13,
-              color: '#e2e8f0',
+              color: '#111827',
               fontFamily: dm,
               outline: 'none',
               minHeight: 42,
@@ -915,13 +915,13 @@ export default function LiveDemoWidget() {
             >
               <Lock size={30} color="#6366F1" />
               <div>
-                <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 20, color: '#f5f5f5', marginBottom: 8 }}>You've seen what Maya can do</h3>
+                <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 20, color: '#FFFFFF', marginBottom: 8 }}>You've seen what Maya can do</h3>
                 <p style={{ fontFamily: dm, fontSize: 14, color: '#6B7280', lineHeight: 1.6, maxWidth: 340 }}>Sign up free for unlimited queries, all 3 tools, and full access to the AI OS.</p>
               </div>
               <Link
                 href="/sign-in"
                 className="widget-shimmer-cta"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: '#000', borderRadius: 12, padding: '14px 36px', fontFamily: syne, fontWeight: 800, fontSize: 15, textDecoration: 'none', minHeight: 52, boxShadow: '0 0 32px rgba(99,102,241,0.3)' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: '#FFFFFF', borderRadius: 12, padding: '14px 36px', fontFamily: syne, fontWeight: 800, fontSize: 15, textDecoration: 'none', minHeight: 52, boxShadow: '0 0 32px rgba(99,102,241,0.3)' }}
               >
                 Start Free — No Credit Card →
               </Link>
@@ -935,12 +935,12 @@ export default function LiveDemoWidget() {
 
       {/* Bottom label */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, padding: '0 4px' }}>
-        <span style={{ fontSize: 11, color: '#3f3f46', fontFamily: dm }}>Try free — no signup required</span>
+        <span style={{ fontSize: 11, color: '#6B7280', fontFamily: dm }}>Try free — no signup required</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           <div style={{ width: 13, height: 13, borderRadius: 3, background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 7, color: '#6366F1', fontWeight: 900 }}>A</span>
+            <span style={{ fontSize: 7, color: '#6366F1', fontWeight: 800 }}>A</span>
           </div>
-          <span style={{ fontSize: 11, color: '#3f3f46', fontFamily: dm }}>Powered by Majorka AI</span>
+          <span style={{ fontSize: 11, color: '#6B7280', fontFamily: dm }}>Powered by Majorka AI</span>
         </div>
       </div>
     </div>

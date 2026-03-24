@@ -448,7 +448,7 @@ export default function AdminPanel() {
               alignItems: 'center',
               justifyContent: 'center',
               fontFamily: "'Bricolage Grotesque', sans-serif",
-              fontWeight: 900,
+              fontWeight: 800,
               fontSize: 13,
               color: '#FAFAFA',
             }}

@@ -25,7 +25,7 @@ function md(text: string): string {
         return `<table style="width:100%;border-collapse:collapse;margin:12px 0">${cleaned}</table>`;
       })
       // Bold
-      .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#f5f5f5">$1</strong>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#0A0A0A">$1</strong>')
       // Italic
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
       // Unordered lists
@@ -176,7 +176,7 @@ export default function StoreSpy() {
     minHeight: '100vh',
     padding: '32px 16px 80px',
     fontFamily: 'DM Sans, sans-serif',
-    color: '#f5f5f5',
+    color: '#0A0A0A',
   };
 
   const containerStyle: React.CSSProperties = {
@@ -205,7 +205,7 @@ export default function StoreSpy() {
               fontFamily: "'Bricolage Grotesque', sans-serif",
               fontSize: 36,
               fontWeight: 700,
-              color: '#f5f5f5',
+              color: '#0A0A0A',
               margin: 0,
             }}
           >
@@ -253,7 +253,7 @@ export default function StoreSpy() {
                   borderRadius: 10,
                   padding: '14px 14px 14px 42px',
                   fontSize: 15,
-                  color: '#f5f5f5',
+                  color: '#0A0A0A',
                   fontFamily: 'DM Sans, sans-serif',
                   outline: 'none',
                   transition: 'border-color 0.2s',
@@ -335,7 +335,7 @@ export default function StoreSpy() {
                     <span
                       style={{
                         fontSize: 14,
-                        color: isActive ? '#f5f5f5' : '#6B7280',
+                        color: isActive ? '#0A0A0A' : '#6B7280',
                         fontWeight: isActive ? 500 : 400,
                       }}
                     >
@@ -416,7 +416,7 @@ export default function StoreSpy() {
                       fontFamily: "'Bricolage Grotesque', sans-serif",
                       fontSize: 16,
                       fontWeight: 600,
-                      color: '#f5f5f5',
+                      color: '#0A0A0A',
                       margin: '0 0 8px',
                     }}
                   >

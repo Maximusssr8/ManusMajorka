@@ -679,7 +679,7 @@ export default function SupplierIntelligence() {
                         Browse <ArrowUpRight className="w-3 h-3" />
                       </a>
                     </div>
-                    <p className="text-xs" style={{ color: 'rgba(240,237,232,0.55)' }}>
+                    <p className="text-xs" style={{ color: '#6B7280' }}>
                       {p.description}
                     </p>
                     <div className="flex items-center gap-3 mt-1">
@@ -757,7 +757,7 @@ export default function SupplierIntelligence() {
                   }}
                   className="text-left text-xs px-2.5 py-1.5 rounded-lg truncate transition-colors"
                   style={{
-                    color: 'rgba(240,237,232,0.55)',
+                    color: '#6B7280',
                     background: '#FAFAFA',
                     border: '1px solid #F9FAFB',
                   }}
@@ -766,7 +766,7 @@ export default function SupplierIntelligence() {
                     (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99,102,241,0.3)';
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.color = 'rgba(240,237,232,0.55)';
+                    (e.currentTarget as HTMLElement).style.color = '#6B7280';
                     (e.currentTarget as HTMLElement).style.borderColor = '#F9FAFB';
                   }}
                 >

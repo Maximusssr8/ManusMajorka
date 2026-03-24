@@ -973,7 +973,7 @@ export default function AIChat() {
               )}
             </button>
           </div>
-          <p className="text-xs mt-1.5 text-center" style={{ color: 'rgba(240,237,232,0.12)' }}>
+          <p className="text-xs mt-1.5 text-center" style={{ color: '#E5E7EB' }}>
             Enter to send · Shift+Enter for new line
           </p>
         </div>

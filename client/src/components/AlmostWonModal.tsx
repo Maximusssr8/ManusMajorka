@@ -104,14 +104,14 @@ export default function AlmostWonModal() {
         <div
           onClick={(e) => e.stopPropagation()}
           style={{
-            background: 'linear-gradient(160deg, #0d0f15, #0a0c10)',
-            border: '1px solid rgba(99,102,241,0.3)',
+            background: '#FFFFFF',
+            border: '1px solid #E5E7EB',
             borderRadius: 20,
             padding: '40px 36px',
             maxWidth: 480,
             width: '100%',
             textAlign: 'center',
-            boxShadow: '0 24px 80px rgba(0,0,0,0.7), 0 0 60px rgba(99,102,241,0.08)',
+            boxShadow: '0 24px 80px rgba(0,0,0,0.15), 0 0 60px rgba(99,102,241,0.08)',
             animation: 'almost-won-in 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards',
           }}
         >
@@ -133,7 +133,7 @@ export default function AlmostWonModal() {
               fontFamily: "'Bricolage Grotesque', sans-serif",
               fontSize: 26,
               fontWeight: 800,
-              color: '#f5f5f5',
+              color: '#0A0A0A',
               margin: '0 0 8px',
               letterSpacing: '-0.02em',
             }}
@@ -196,7 +196,7 @@ export default function AlmostWonModal() {
           <p
             style={{
               fontSize: 14,
-              color: 'rgba(240,237,232,0.55)',
+              color: '#6B7280',
               lineHeight: 1.6,
               margin: '0 0 24px',
             }}
@@ -215,7 +215,7 @@ export default function AlmostWonModal() {
               borderRadius: 12,
               background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
               border: 'none',
-              color: '#000',
+              color: '#FFFFFF',
               fontFamily: "'Bricolage Grotesque', sans-serif",
               fontSize: 15,
               fontWeight: 800,

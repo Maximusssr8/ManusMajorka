@@ -271,7 +271,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
     <div className="min-h-full" style={{ background: '#FAFAFA', color: '#0A0A0A' }}>
       {/* Header */}
       <div className="px-6 py-5 border-b" style={{ borderColor: '#E5E7EB' }}>
-        <h1 className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#fff' }}>Competitor Spy</h1>
+        <h1 className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}>Competitor Spy</h1>
         <p className="text-sm mt-0.5" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>
           Research any TikTok Shop competitor — products, strategy, weaknesses, how to beat them
         </p>

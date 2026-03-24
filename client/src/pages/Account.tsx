@@ -149,7 +149,7 @@ export default function Account() {
       {/* ── NAV ── */}
       <nav
         className="relative z-10 border-b sticky top-0 backdrop-blur-md"
-        style={{ background: 'rgba(8,10,14,0.9)', borderColor: '#E5E7EB' }}
+        style={{ background: 'rgba(255,255,255,0.9)', borderColor: '#E5E7EB' }}
       >
         <div className="container flex items-center justify-between h-14">
           <button
@@ -163,7 +163,7 @@ export default function Account() {
             <div
               className="w-7 h-7 rounded-lg flex items-center justify-center font-extrabold text-sm"
               style={{
-                background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+                background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                 color: '#FAFAFA',
                 fontFamily: "'Bricolage Grotesque', sans-serif",
               }}
@@ -344,7 +344,7 @@ export default function Account() {
                 disabled={checkoutLoading}
                 onClick={handleStripeCheckout}
                 style={{
-                  background: 'linear-gradient(135deg, #6366F1, #c09a28)',
+                  background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                   color: '#FAFAFA',
                   fontFamily: "'Bricolage Grotesque', sans-serif",
                   fontWeight: 800,

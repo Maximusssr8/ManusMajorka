@@ -53,7 +53,7 @@ export default function StoreOrders() {
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          <h1 className="text-2xl font-bold text-gray-900" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             Orders
           </h1>
           <p className="text-sm mt-1" style={{ color: '#6B7280' }}>
@@ -75,7 +75,7 @@ export default function StoreOrders() {
       ) : orderList.length === 0 ? (
         <div className="text-center py-20">
           <Package className="w-12 h-12 mx-auto mb-4" style={{ color: '#D1D5DB' }} />
-          <p className="font-semibold text-white mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          <p className="font-semibold text-gray-900 mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             No orders yet
           </p>
           <p className="text-sm" style={{ color: '#6B7280' }}>
@@ -141,14 +141,14 @@ export default function StoreOrders() {
                     })}
                   </td>
                   <td className="px-5 py-4">
-                    <p className="text-white text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                    <p className="text-gray-900 text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                       {order.customerName}
                     </p>
                     <p className="text-xs" style={{ color: '#9CA3AF' }}>
                       {order.customerEmail}
                     </p>
                   </td>
-                  <td className="px-5 py-4 text-white font-medium">${order.amount || '—'}</td>
+                  <td className="px-5 py-4 text-gray-900 font-medium">${order.amount || '—'}</td>
                   <td className="px-5 py-4">
                     <span
                       className={`text-xs px-2 py-1 rounded-full font-medium ${STATUS_COLORS[order.status || 'pending'] || STATUS_COLORS.pending}`}

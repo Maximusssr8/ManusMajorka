@@ -278,7 +278,7 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
             AI Opportunity Score
           </div>
           {score.productName && (
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#f5f5f5', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#0A0A0A', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               {score.productName}
             </div>
           )}
@@ -286,7 +286,7 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
         {/* Overall score circle */}
         <div style={{ textAlign: 'center' }}>
           <div style={{
-            fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 900,
+            fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800,
             fontSize: 36, color: '#6366F1', lineHeight: 1,
             animation: 'score-pulse 3s ease-in-out infinite',
           }}>

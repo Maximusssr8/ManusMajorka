@@ -40,9 +40,9 @@ export default function UpgradePromptBanner() {
         flexWrap: 'wrap',
       }}
     >
-      <span style={{ fontSize: 13, color: 'rgba(240,237,232,0.75)', lineHeight: 1.5, flex: 1, minWidth: 200 }}>
+      <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5, flex: 1, minWidth: 200 }}>
         ⚡ <strong style={{ color: '#6366F1' }}>Only {remaining} searches left today.</strong>{' '}
-        Pro users found <strong style={{ color: '#f5f5f5' }}>47 winning products</strong> today.
+        Pro users found <strong style={{ color: '#0A0A0A' }}>47 winning products</strong> today.
       </span>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
@@ -50,7 +50,7 @@ export default function UpgradePromptBanner() {
           onClick={() => setLocation('/pricing')}
           style={{
             background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-            color: '#000',
+            color: '#FFFFFF',
             border: 'none',
             borderRadius: 8,
             padding: '6px 14px',

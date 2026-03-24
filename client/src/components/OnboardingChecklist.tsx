@@ -138,7 +138,7 @@ export default function OnboardingChecklist() {
         <div className="flex items-center gap-3">
           <h3
             className="text-sm font-bold"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f5f5f5' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
           >
             Getting Started
           </h3>
@@ -170,7 +170,7 @@ export default function OnboardingChecklist() {
             background:
               progress === 100
                 ? 'linear-gradient(90deg, #10b981, #6366F1)'
-                : 'linear-gradient(90deg, #6366F1, #f0c040)',
+                : 'linear-gradient(90deg, #6366F1, #818CF8)',
           }}
         />
       </div>
@@ -206,7 +206,7 @@ export default function OnboardingChecklist() {
                 <div
                   className="text-xs font-medium truncate"
                   style={{
-                    color: done ? '#10b981' : '#f5f5f5',
+                    color: done ? '#10b981' : '#0A0A0A',
                     textDecoration: done ? 'line-through' : 'none',
                   }}
                 >

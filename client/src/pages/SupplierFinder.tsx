@@ -672,7 +672,7 @@ export default function SupplierFinder() {
                   </div>
                   <div
                     className="text-xs leading-relaxed"
-                    style={{ color: 'rgba(240,237,232,0.65)' }}
+                    style={{ color: '#6B7280' }}
                   >
                     {result.sampleOrderAdvice}
                   </div>

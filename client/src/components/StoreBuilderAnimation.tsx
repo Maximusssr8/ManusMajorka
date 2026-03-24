@@ -462,7 +462,7 @@ export default function StoreBuilderAnimation() {
                             <div style={{
                                 width: '100%', height: 140,
                                 borderRadius: 6, position: 'relative', zIndex: 1,
-                                background: 'linear-gradient(135deg, #0d1117 0%, #141b24 50%, #0d1117 100%)',
+                                background: 'linear-gradient(135deg, #F9FAFB 0%, #FFFFFF 50%, #F9FAFB 100%)',
                                 border: '1px solid rgba(99,102,241,0.1)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8,
                               }}>
@@ -510,7 +510,7 @@ export default function StoreBuilderAnimation() {
                               key="price"
                               initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                               transition={{ duration: 0.3 }}
-                              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 18, fontWeight: 900, color: '#6366F1' }}
+                              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 18, fontWeight: 800, color: '#6366F1' }}
                             >
                               $89.99 AUD
                             </motion.div>

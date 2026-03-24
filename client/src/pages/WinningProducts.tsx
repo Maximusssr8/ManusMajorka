@@ -2382,7 +2382,7 @@ function MarketSignalsBar({ products }: { products: WinningProduct[] }) {
 
   return (
     <div style={{
-      marginBottom: 20, background: 'rgba(0,0,0,0.4)', border: `1px solid ${C.border}`,
+      marginBottom: 20, background: '#F9FAFB', border: `1px solid ${C.border}`,
       borderRadius: 12, padding: '10px 16px', overflowX: 'auto', display: 'flex', gap: 24, alignItems: 'center',
     }}>
       <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', flexShrink: 0 }}>Signals</span>
@@ -4296,14 +4296,14 @@ function WinningProducts() {
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 990,
-            background: 'linear-gradient(135deg, #1a1600, white)',
+            background: 'linear-gradient(135deg, #EEF2FF, white)',
             border: `1px solid ${C.goldBorder}`,
             borderRadius: 16,
             padding: '14px 24px',
             display: 'flex',
             alignItems: 'center',
             gap: 16,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 40px rgba(99,102,241,0.1)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.1), 0 0 40px rgba(99,102,241,0.08)',
           }}
         >
           <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>

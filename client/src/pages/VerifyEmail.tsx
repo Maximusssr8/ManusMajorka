@@ -62,7 +62,7 @@ export default function VerifyEmail() {
               M
             </span>
           </div>
-          <span className="text-white font-bold text-xl" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          <span className="text-gray-900 font-bold text-xl" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             Majorka
           </span>
         </div>
@@ -91,7 +91,7 @@ export default function VerifyEmail() {
 
         <div>
           <h1
-            className="text-2xl font-bold mb-2 text-white"
+            className="text-2xl font-bold mb-2 text-gray-900"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Check your inbox

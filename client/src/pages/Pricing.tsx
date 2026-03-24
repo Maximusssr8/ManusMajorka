@@ -43,16 +43,16 @@ function LockedToolOverlay({ toolName }: { toolName: string }) {
       }}
     >
       <span style={{ fontSize: 24 }}>🔒</span>
-      <p style={{ fontFamily: syne, fontWeight: 700, color: '#374151', fontSize: 14 }}>
+      <p style={{ fontFamily: syne, fontWeight: 700, color: '#FAFAFA', fontSize: 14 }}>
         {toolName}
       </p>
-      <p style={{ color: '#6B7280', fontSize: 12, marginBottom: 8 }}>Builder plan required</p>
+      <p style={{ color: '#E5E7EB', fontSize: 12, marginBottom: 8 }}>Builder plan required</p>
       <Link
         href="/pricing"
         style={{
           padding: '6px 14px',
           background: '#6366F1',
-          color: '#000',
+          color: '#FAFAFA',
           borderRadius: 8,
           fontSize: 12,
           fontWeight: 700,
@@ -107,7 +107,7 @@ function EmotionalComparisonTable() {
             <span
               style={{
                 fontFamily: syne,
-                fontWeight: 900,
+                fontWeight: 800,
                 fontSize: 'clamp(48px, 8vw, 80px)',
                 color: '#6366F1',
                 lineHeight: 1,
@@ -202,7 +202,7 @@ function EmotionalComparisonTable() {
                 ${tool.cost}/mo
               </span>
               <span
-                style={{ textAlign: 'center', fontSize: 14, color: '#22c55e', fontWeight: 700 }}
+                style={{ textAlign: 'center', fontSize: 14, color: '#6366F1', fontWeight: 700 }}
               >
                 ✓ Included
               </span>
@@ -227,7 +227,7 @@ function EmotionalComparisonTable() {
                 <span
                   style={{
                     fontFamily: syne,
-                    fontWeight: 900,
+                    fontWeight: 800,
                     fontSize: 16,
                     color: '#ef4444',
                     textDecoration: 'line-through',
@@ -250,7 +250,7 @@ function EmotionalComparisonTable() {
                 style={{
                   textAlign: 'center',
                   fontFamily: syne,
-                  fontWeight: 900,
+                  fontWeight: 800,
                   fontSize: 16,
                   color: '#6366F1',
                 }}
@@ -269,9 +269,9 @@ function EmotionalComparisonTable() {
             >
               <span
                 style={{
-                  background: 'rgba(34,197,94,0.12)',
-                  border: '1px solid rgba(34,197,94,0.25)',
-                  color: '#22c55e',
+                  background: 'rgba(99,102,241,0.12)',
+                  border: '1px solid rgba(99,102,241,0.25)',
+                  color: '#6366F1',
                   borderRadius: 100,
                   padding: '4px 14px',
                   fontFamily: syne,
@@ -302,8 +302,8 @@ function EmotionalComparisonTable() {
                 width: 6,
                 height: 6,
                 borderRadius: '50%',
-                background: '#22c55e',
-                boxShadow: '0 0 6px #22c55e',
+                background: '#6366F1',
+                boxShadow: '0 0 6px #6366F1',
               }}
             />
             <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 500 }}>
@@ -475,8 +475,8 @@ function SavingsCalculator() {
               <div key={item} style={{ fontSize: 13, color: '#6B7280', marginBottom: 10, transition: 'all 0.3s' }}>{item}</div>
             ))}
           </div>
-          <div style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 14, padding: '20px 18px' }}>
-            <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 13, color: '#22c55e', marginBottom: 14 }}>With Majorka Pro</div>
+          <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 14, padding: '20px 18px' }}>
+            <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 13, color: '#6366F1', marginBottom: 14 }}>With Majorka Pro</div>
             {[
               `✅ Data-backed choices`,
               `✅ Save ~${fmt(savings)}/month`,
@@ -489,7 +489,7 @@ function SavingsCalculator() {
 
         {/* Payback box */}
         <div style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.12), rgba(99,102,241,0.06))', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 14, padding: '20px 24px', textAlign: 'center', marginBottom: 24 }}>
-          <div style={{ fontFamily: syne, fontWeight: 900, fontSize: 'clamp(1.2rem, 3vw, 1.7rem)', color: '#6366F1', marginBottom: 4, transition: 'all 0.3s' }}>
+          <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.2rem, 3vw, 1.7rem)', color: '#6366F1', marginBottom: 4, transition: 'all 0.3s' }}>
             💰 Majorka Pro pays for itself in {paybackDays} day{paybackDays !== 1 ? 's' : ''}
           </div>
           <div style={{ fontSize: 13, color: '#6B7280' }}>
@@ -498,7 +498,7 @@ function SavingsCalculator() {
         </div>
 
         <div style={{ textAlign: 'center' }}>
-          <a href="/sign-in" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#000', borderRadius: 12, padding: '14px 36px', fontFamily: syne, fontWeight: 800, fontSize: 15, textDecoration: 'none' }}>
+          <a href="/sign-in" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#FAFAFA', borderRadius: 12, padding: '14px 36px', fontFamily: syne, fontWeight: 800, fontSize: 15, textDecoration: 'none' }}>
             Start Saving Now →
           </a>
         </div>
@@ -658,7 +658,7 @@ export default function Pricing() {
           position: 'sticky',
           top: 0,
           zIndex: 100,
-          background: 'rgba(6,6,8,0.85)',
+          background: 'rgba(255,255,255,0.9)',
           backdropFilter: 'blur(14px)',
           WebkitBackdropFilter: 'blur(14px)',
           borderBottom: `1px solid ${C.border}`,
@@ -701,14 +701,14 @@ export default function Pricing() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontFamily: syne,
-                fontWeight: 900,
+                fontWeight: 800,
                 fontSize: 16,
-                color: '#000',
+                color: '#FAFAFA',
               }}
             >
               M
             </div>
-            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 16 }}>MAJORKA</span>
+            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 16, color: '#0A0A0A' }}>MAJORKA</span>
           </div>
         </div>
       </nav>
@@ -735,7 +735,7 @@ export default function Pricing() {
           className="pricing-hero-title"
           style={{
             fontFamily: syne,
-            fontWeight: 900,
+            fontWeight: 800,
             fontSize: 'clamp(32px, 6vw, 56px)',
             letterSpacing: '-1.5px',
             marginBottom: 16,
@@ -778,7 +778,7 @@ export default function Pricing() {
               fontWeight: 700,
               fontFamily: syne,
               background: !annual ? `linear-gradient(135deg, ${C.gold}, #4F46E5)` : 'transparent',
-              color: !annual ? '#000' : C.secondary,
+              color: !annual ? '#FAFAFA' : C.secondary,
               border: 'none',
               cursor: 'pointer',
             }}
@@ -794,7 +794,7 @@ export default function Pricing() {
               fontWeight: 700,
               fontFamily: syne,
               background: annual ? `linear-gradient(135deg, ${C.gold}, #4F46E5)` : 'transparent',
-              color: annual ? '#000' : C.secondary,
+              color: annual ? '#FAFAFA' : C.secondary,
               border: 'none',
               cursor: 'pointer',
               display: 'flex',
@@ -883,7 +883,7 @@ export default function Pricing() {
                     left: '50%',
                     transform: 'translateX(-50%)',
                     background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`,
-                    color: '#000',
+                    color: '#FAFAFA',
                     borderRadius: 100,
                     padding: '5px 18px',
                     fontSize: 11,
@@ -912,7 +912,7 @@ export default function Pricing() {
 
               {/* Price */}
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
-                <span style={{ fontFamily: syne, fontWeight: 900, fontSize: 48, color: C.text }}>
+                <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 48, color: C.text }}>
                   {getDisplayPrice(plan)}
                 </span>
                 <span style={{ color: C.muted, fontSize: 15 }}>
@@ -963,7 +963,7 @@ export default function Pricing() {
                     width: '100%',
                     textAlign: 'center',
                     background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`,
-                    color: '#000',
+                    color: '#FAFAFA',
                     border: 'none',
                     borderRadius: 10,
                     padding: '13px 20px',
@@ -998,7 +998,7 @@ export default function Pricing() {
                   <span
                     style={{
                       background: '#b2fce4',
-                      color: '#000',
+                      color: '#0A0A0A',
                       borderRadius: 4,
                       padding: '2px 6px',
                       fontSize: 10,
@@ -1100,7 +1100,7 @@ export default function Pricing() {
           <h2
             style={{
               fontFamily: syne,
-              fontWeight: 900,
+              fontWeight: 800,
               fontSize: 'clamp(24px, 4vw, 36px)',
               letterSpacing: '-0.8px',
               textAlign: 'center',
@@ -1232,7 +1232,7 @@ export default function Pricing() {
           <h2
             style={{
               fontFamily: syne,
-              fontWeight: 900,
+              fontWeight: 800,
               fontSize: 'clamp(24px, 4vw, 36px)',
               letterSpacing: '-0.8px',
               textAlign: 'center',
@@ -1306,7 +1306,7 @@ export default function Pricing() {
         <h2
           style={{
             fontFamily: syne,
-            fontWeight: 900,
+            fontWeight: 800,
             fontSize: 'clamp(24px, 4vw, 36px)',
             letterSpacing: '-0.8px',
             marginBottom: 16,
@@ -1322,7 +1322,7 @@ export default function Pricing() {
           style={{
             display: 'inline-block',
             background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`,
-            color: '#000',
+            color: '#FAFAFA',
             borderRadius: 10,
             padding: '14px 36px',
             fontFamily: syne,
@@ -1379,9 +1379,9 @@ export default function Pricing() {
               alignItems: 'center',
               justifyContent: 'center',
               fontFamily: syne,
-              fontWeight: 900,
+              fontWeight: 800,
               fontSize: 14,
-              color: '#000',
+              color: '#FAFAFA',
             }}
           >
             M

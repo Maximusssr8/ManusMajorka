@@ -259,7 +259,7 @@ export default function PublicProfitCalculator() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontFamily: syne,
-                fontWeight: 900,
+                fontWeight: 800,
                 fontSize: 17,
                 color: '#000',
               }}
@@ -316,7 +316,7 @@ export default function PublicProfitCalculator() {
         <h1
           style={{
             fontFamily: syne,
-            fontWeight: 900,
+            fontWeight: 800,
             fontSize: 'clamp(28px, 5vw, 44px)',
             color: C.text,
             marginBottom: 12,

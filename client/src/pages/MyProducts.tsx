@@ -250,7 +250,7 @@ export default function MyProducts() {
               style={{
                 background: sortByScore ? 'rgba(99,102,241,0.12)' : '#F9FAFB',
                 border: `1px solid ${sortByScore ? 'rgba(99,102,241,0.4)' : '#F5F5F5'}`,
-                color: sortByScore ? '#6366F1' : 'rgba(240,237,232,0.55)',
+                color: sortByScore ? '#6366F1' : '#6B7280',
                 cursor: 'pointer',
               }}
             >
@@ -290,7 +290,7 @@ export default function MyProducts() {
               style={{
                 background: '#F9FAFB',
                 border: '1px solid #F5F5F5',
-                color: 'rgba(240,237,232,0.55)',
+                color: '#6B7280',
                 cursor: 'pointer',
               }}
             >
@@ -421,7 +421,7 @@ export default function MyProducts() {
                   {importedProduct.bulletPoints.length > 0 && (
                     <ul
                       className="text-xs mb-3 space-y-1"
-                      style={{ color: 'rgba(240,237,232,0.55)' }}
+                      style={{ color: '#6B7280' }}
                     >
                       {importedProduct.bulletPoints.slice(0, 4).map((bp, i) => (
                         <li key={i} className="flex items-start gap-1.5">

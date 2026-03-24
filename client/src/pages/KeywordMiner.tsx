@@ -538,7 +538,7 @@ export default function KeywordMiner() {
                       <div
                         key={i}
                         className="text-xs flex items-start gap-1.5"
-                        style={{ color: 'rgba(240,237,232,0.65)' }}
+                        style={{ color: '#6B7280' }}
                       >
                         <span style={{ color: '#4ab8f5', flexShrink: 0 }}>→</span>
                         {idea}
@@ -567,7 +567,7 @@ export default function KeywordMiner() {
                       <div
                         key={i}
                         className="text-xs flex items-start gap-1.5"
-                        style={{ color: 'rgba(240,237,232,0.65)' }}
+                        style={{ color: '#6B7280' }}
                       >
                         <span style={{ color: '#6366F1', flexShrink: 0 }}>→</span>
                         {ag}

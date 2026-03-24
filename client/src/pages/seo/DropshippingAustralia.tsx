@@ -119,15 +119,15 @@ export default function DropshippingAustralia() {
       />
 
       {/* ── NAV ── */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(8,10,14,0.92)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${C.border}` }}>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(250,250,250,0.98)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #E5E7EB' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            <div style={{ width: 30, height: 30, borderRadius: 7, background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 15, color: '#000' }}>M</div>
+            <div style={{ width: 30, height: 30, borderRadius: 7, background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 15, color: 'white' }}>M</div>
             <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 15, color: C.text, letterSpacing: '0.06em' }}>MAJORKA</span>
           </Link>
           <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
             <Link href="/pricing" style={{ color: C.secondary, fontSize: 13, textDecoration: 'none', fontFamily: syne, fontWeight: 600 }}>Pricing</Link>
-            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', fontFamily: syne, fontWeight: 700, fontSize: 13, padding: '8px 18px', borderRadius: 8, textDecoration: 'none' }}>Start Free →</Link>
+            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: 'white', fontFamily: syne, fontWeight: 700, fontSize: 13, padding: '8px 18px', borderRadius: 8, textDecoration: 'none' }}>Start Free →</Link>
           </div>
         </div>
       </nav>
@@ -139,15 +139,15 @@ export default function DropshippingAustralia() {
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: C.goldDim, border: `1px solid ${C.goldBorder}`, borderRadius: 100, padding: '6px 16px', marginBottom: 24, fontSize: 13, color: C.gold, fontWeight: 600 }}>
             🇦🇺 Built for Australian Dropshippers
           </div>
-          <h1 style={{ fontFamily: syne, fontWeight: 900, fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 20 }}>
+          <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 20 }}>
             The Smartest Way to<br />
-            <span style={{ background: `linear-gradient(135deg, ${C.gold}, #A5B4FC)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Dropship in Australia</span> in 2025
+            <span style={{ background: `linear-gradient(135deg, ${C.gold}, #A5B4FC)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' as const, color: '#6366F1' }}>Dropship in Australia</span> in 2025
           </h1>
           <p style={{ color: C.secondary, fontSize: 'clamp(15px, 2vw, 18px)', maxWidth: 620, margin: '0 auto 36px', lineHeight: 1.65 }}>
             Majorka is the <strong style={{ color: C.text }}>AI-powered product intelligence platform</strong> built exclusively for Australian dropshippers. Find winning products, source AU-ready suppliers, and launch profitable stores — faster than your competition.
           </p>
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 16, padding: '16px 40px', borderRadius: 12, textDecoration: 'none', boxShadow: `0 0 40px rgba(99,102,241,0.3)` }}>
+            <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: 'white', fontFamily: syne, fontWeight: 800, fontSize: 16, padding: '16px 40px', borderRadius: 12, textDecoration: 'none', boxShadow: `0 0 40px rgba(99,102,241,0.3)` }}>
               Start Finding Products Free →
             </Link>
             <Link href="/winning-products-australia" style={{ background: 'transparent', color: C.text, fontFamily: syne, fontWeight: 600, fontSize: 15, padding: '16px 30px', borderRadius: 12, textDecoration: 'none', border: `1px solid ${C.border}` }}>
@@ -166,7 +166,7 @@ export default function DropshippingAustralia() {
             { label: 'AU dropshippers on Majorka', value: '2,400+', note: 'Active sellers' },
           ].map((s) => (
             <div key={s.label} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: '20px 20px', textAlign: 'center' }}>
-              <div style={{ fontFamily: syne, fontWeight: 900, fontSize: 28, color: C.gold, marginBottom: 4 }}>{s.value}</div>
+              <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 28, color: C.gold, marginBottom: 4 }}>{s.value}</div>
               <div style={{ color: C.text, fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{s.label}</div>
               <div style={{ color: C.muted, fontSize: 11 }}>{s.note}</div>
             </div>
@@ -216,7 +216,7 @@ export default function DropshippingAustralia() {
               { step: '05', title: 'Launch & Scale with Confidence', body: 'Import products directly to your Shopify store, launch with our pre-built AU ad campaigns, and use Majorka\'s Store Health Score to continuously optimise for AU conversions.' },
             ].map((s) => (
               <div key={s.step} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '24px 28px', display: 'flex', gap: 24, alignItems: 'flex-start' }}>
-                <div style={{ fontFamily: syne, fontWeight: 900, fontSize: 32, color: C.goldBorder.replace('0.2', '0.4'), flexShrink: 0, lineHeight: 1 }}>{s.step}</div>
+                <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 32, color: C.goldBorder.replace('0.2', '0.4'), flexShrink: 0, lineHeight: 1 }}>{s.step}</div>
                 <div>
                   <h3 style={{ fontFamily: syne, fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 6 }}>{s.title}</h3>
                   <p style={{ color: C.secondary, fontSize: 14, lineHeight: 1.65, margin: 0 }}>{s.body}</p>
@@ -297,7 +297,7 @@ export default function DropshippingAustralia() {
           <p style={{ color: C.secondary, fontSize: 16, marginBottom: 36, maxWidth: 520, margin: '0 auto 36px' }}>
             Join 2,400+ Australian dropshippers already using Majorka to find $10k/month products. Start free — no credit card needed.
           </p>
-          <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', fontFamily: syne, fontWeight: 800, fontSize: 17, padding: '18px 48px', borderRadius: 14, textDecoration: 'none', display: 'inline-block', boxShadow: `0 0 50px rgba(99,102,241,0.35)` }}>
+          <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: 'white', fontFamily: syne, fontWeight: 800, fontSize: 17, padding: '18px 48px', borderRadius: 14, textDecoration: 'none', display: 'inline-block', boxShadow: `0 0 50px rgba(99,102,241,0.35)` }}>
             Start Finding Products Free →
           </Link>
           <p style={{ color: C.muted, fontSize: 12, marginTop: 14 }}>Free tier: 10 product searches/day · No credit card · Cancel anytime</p>

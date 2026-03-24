@@ -387,7 +387,7 @@ function HealthTab() {
         {counts.map(c => (
           <div key={c.label} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, padding: 16 }}>
             <div style={{ fontSize: 11, color: C.muted, marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>{c.label}</div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: C.text, fontFamily: "'Bricolage Grotesque', sans-serif" }}>{c.value}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: C.text, fontFamily: "'Bricolage Grotesque', sans-serif" }}>{c.value}</div>
           </div>
         ))}
       </div>
@@ -572,7 +572,7 @@ export default function AdminControlPanel() {
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
           <div>
-            <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 900, color: C.text, margin: 0, marginBottom: 4 }}>
+            <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 800, color: C.text, margin: 0, marginBottom: 4 }}>
               Admin Control Panel
             </h1>
             <div style={{ fontSize: 13, color: C.muted }}>Majorka internal tools · {session?.user?.email}</div>

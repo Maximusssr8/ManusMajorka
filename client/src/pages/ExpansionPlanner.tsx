@@ -400,7 +400,7 @@ export default function ExpansionPlanner() {
                   ) : (
                     <AlertTriangle size={14} style={{ color: '#f0c040' }} />
                   )}
-                  <span className="text-xs" style={{ color: 'rgba(240,237,232,0.65)' }}>
+                  <span className="text-xs" style={{ color: '#6B7280' }}>
                     {item.item}
                   </span>
                 </div>

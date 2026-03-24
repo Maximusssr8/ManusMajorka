@@ -362,7 +362,7 @@ export default function Onboarding() {
             </span>
           </div>
           <span
-            className="text-white font-semibold text-sm"
+            className="text-gray-900 font-semibold text-sm"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Majorka
@@ -543,7 +543,7 @@ export default function Onboarding() {
                         <span
                           className="text-xs font-semibold leading-tight"
                           style={{
-                            color: active ? GOLD : '#f5f5f5',
+                            color: active ? GOLD : '#0A0A0A',
                             fontFamily: "'Bricolage Grotesque', sans-serif",
                           }}
                         >
@@ -672,7 +672,7 @@ export default function Onboarding() {
                             className="text-sm font-bold"
                             style={{
                               fontFamily: "'Bricolage Grotesque', sans-serif",
-                              color: active ? GOLD : '#f5f5f5',
+                              color: active ? GOLD : '#0A0A0A',
                             }}
                           >
                             {label}
@@ -778,7 +778,7 @@ export default function Onboarding() {
                           className="text-sm font-semibold"
                           style={{
                             fontFamily: "'Bricolage Grotesque', sans-serif",
-                            color: active ? GOLD : '#f5f5f5',
+                            color: active ? GOLD : '#0A0A0A',
                           }}
                         >
                           {label}
@@ -886,7 +886,7 @@ export default function Onboarding() {
                               className="text-sm font-semibold"
                               style={{
                                 fontFamily: "'Bricolage Grotesque', sans-serif",
-                                color: active ? GOLD : '#f5f5f5',
+                                color: active ? GOLD : '#0A0A0A',
                               }}
                             >
                               {label}

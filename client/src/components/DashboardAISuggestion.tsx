@@ -298,7 +298,7 @@ export function DashboardAISuggestion({ userProfile }: Props) {
                   <div style={{
                     fontFamily: "'Bricolage Grotesque', sans-serif",
                     fontWeight: 700, fontSize: 13,
-                    color: '#f5f5f5', marginBottom: 4, lineHeight: 1.3,
+                    color: '#0A0A0A', marginBottom: 4, lineHeight: 1.3,
                   }}>
                     {card.title}
                   </div>

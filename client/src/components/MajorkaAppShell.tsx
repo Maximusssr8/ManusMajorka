@@ -252,7 +252,7 @@ function NotificationBell() {
           overflow: 'hidden',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid #E5E7EB' }}>
-            <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: '#FAFAFA' }}>Notifications</span>
+            <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: '#0A0A0A' }}>Notifications</span>
             {unread > 0 && (
               <button onClick={markAllRead} style={{ fontSize: 11, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
                 Mark all read
@@ -365,7 +365,7 @@ function PWAInstallBanner() {
 
   return (
     <div style={{ position: 'fixed', bottom: 72, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.1)', maxWidth: 380, width: 'calc(100% - 32px)' }}>
-      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, #6366F1, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 900, fontSize: 15, color: '#fff', flexShrink: 0 }}>M</div>
+      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, #6366F1, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 15, color: '#fff', flexShrink: 0 }}>M</div>
       <p style={{ flex: 1, fontSize: 13, color: '#374151', lineHeight: 1.4, margin: 0 }}>Install Majorka as an app for faster access</p>
       <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
         <button onClick={handleInstall} style={{ background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#fff', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 700, fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer' }}>Install</button>
@@ -587,7 +587,7 @@ export default function MajorkaAppShell({ children }: Props) {
                 : badge === 'LIVE'
                 ? { background: '#ECFDF5', color: '#059669' }
                 : item.path === '/app/learn' && badge !== 'HOT'
-                ? { background: 'rgba(34,197,94,0.12)', color: '#4ade80' }
+                ? { background: 'rgba(16,185,129,0.12)', color: '#059669' }
                 : { background: '#EEF2FF', color: '#6366F1' };
               return (
                 <span
@@ -632,7 +632,7 @@ export default function MajorkaAppShell({ children }: Props) {
             className="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-sm flex-shrink-0"
             style={{
               background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-              color: '#0a0a0a',
+              color: '#FFFFFF',
               fontFamily: "'Bricolage Grotesque', sans-serif",
             }}
           >
@@ -869,9 +869,9 @@ export default function MajorkaAppShell({ children }: Props) {
               <div
                 className="absolute bottom-full left-0 mb-1 overflow-hidden w-full"
                 style={{
-                  background: '#1a1a1a',
-                  border: '1px solid #F5F5F5',
-                  boxShadow: '0 -8px 32px rgba(0,0,0,0.5)',
+                  background: '#FFFFFF',
+                  border: '1px solid #E5E7EB',
+                  boxShadow: '0 -8px 32px rgba(0,0,0,0.1)',
                   minWidth: 180,
                   zIndex: 100,
                   borderRadius: 10,
@@ -947,7 +947,7 @@ export default function MajorkaAppShell({ children }: Props) {
             style={{
               borderRadius: 8,
               background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-              color: '#0a0a0a',
+              color: '#FFFFFF',
               fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: 'pointer',
               border: 'none',
@@ -997,7 +997,7 @@ export default function MajorkaAppShell({ children }: Props) {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search tools..."
                 className="flex-1 bg-transparent outline-none text-sm"
-                style={{ color: '#FAFAFA', fontFamily: 'DM Sans, sans-serif' }}
+                style={{ color: '#111827', fontFamily: 'DM Sans, sans-serif' }}
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Escape') {
@@ -1033,7 +1033,7 @@ export default function MajorkaAppShell({ children }: Props) {
                       background: 'transparent',
                       border: 'none',
                       cursor: 'pointer',
-                      color: '#FAFAFA',
+                      color: '#111827',
                     }}
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.background = 'rgba(99,102,241,0.06)')
@@ -1099,7 +1099,7 @@ export default function MajorkaAppShell({ children }: Props) {
             className="absolute top-3 right-3 z-50 w-7 h-7 rounded-md flex items-center justify-center lg:hidden"
             style={{
               background: '#F5F5F5',
-              color: '#f5f5f5',
+              color: '#0A0A0A',
               border: 'none',
               cursor: 'pointer',
             }}
@@ -1143,7 +1143,7 @@ export default function MajorkaAppShell({ children }: Props) {
             </div>
             <span
               className="font-bold text-sm uppercase tracking-widest"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#FAFAFA', letterSpacing: '0.1em' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#111827', letterSpacing: '0.1em' }}
             >
               MAJORKA
             </span>

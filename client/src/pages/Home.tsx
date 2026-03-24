@@ -290,7 +290,7 @@ function StatsBar() {
                 <Icon size={18} color={C.gold} />
                 {stat.live && <div style={{ position: 'absolute', top: -3, right: -3, width: 8, height: 8, borderRadius: '50%', background: C.green, animation: 'pulse-ring 2s ease-in-out infinite' }} />}
               </div>
-              <div style={{ fontFamily: syne, fontWeight: 900, fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)', color: C.gold, lineHeight: 1.1, marginBottom: 6 }}>
+              <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)', color: C.gold, lineHeight: 1.1, marginBottom: 6 }}>
                 {inView ? (
                   <motion.span key={currentVal} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
                     {formatValue(stat, currentVal)}
@@ -448,7 +448,7 @@ function WeeklyWinnersSection() {
                 <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 13, color: C.text, marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {prod.name}
                 </div>
-                <div style={{ fontFamily: syne, fontWeight: 900, fontSize: 13, color: C.gold }}>{prod.revenue}</div>
+                <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 13, color: C.gold }}>{prod.revenue}</div>
               </div>
             );
           })}
@@ -789,7 +789,7 @@ function HowItWorksSection() {
                 onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#F0F0F0'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >
                 {/* Ghost number */}
-                <div style={{ position: 'absolute', top: -8, right: 16, fontSize: 80, fontWeight: 900, color: '#F5F5F7', lineHeight: 1, userSelect: 'none' as const, zIndex: 0 }}>{step.num}</div>
+                <div style={{ position: 'absolute', top: -8, right: 16, fontSize: 80, fontWeight: 800, color: '#F5F5F7', lineHeight: 1, userSelect: 'none' as const, zIndex: 0 }}>{step.num}</div>
                 {/* Icon */}
                 <div style={{ width: 52, height: 52, borderRadius: 14, background: step.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16, position: 'relative', zIndex: 1 }}>
                   <StepIcon size={24} color={step.color} />
@@ -1186,7 +1186,7 @@ export default function Home() {
           </div>
           {/* Center: nav links */}
           <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-            {[['#features', 'Features'], ['#pricing', 'Pricing'], ['/dropshipping-australia', 'Blog'], ['/docs', 'Docs']].map(([href, label]) => (
+            {[['#features', 'Features'], ['#pricing', 'Pricing'], ['/dropshipping-australia', 'Blog']].map(([href, label]) => (
               <a key={label} href={href} style={{ color: '#374151', textDecoration: 'none', fontSize: 14, padding: '0 4px', margin: '0 12px', transition: 'color 150ms' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#6366F1')} onMouseLeave={(e) => (e.currentTarget.style.color = '#374151')}>{label}</a>
             ))}
           </div>
@@ -1203,7 +1203,7 @@ export default function Home() {
         {/* Mobile drawer */}
         {mobileMenuOpen && (
           <div className="hide-desktop" style={{ borderTop: '1px solid #E5E7EB', background: 'rgba(250,250,250,0.95)', padding: '12px 24px', display: 'flex', flexDirection: 'column', gap: 0 }}>
-            {[['#features', 'Features'], ['#pricing', 'Pricing'], ['/dropshipping-australia', 'Blog'], ['/docs', 'Docs']].map(([href, label]) => (
+            {[['#features', 'Features'], ['#pricing', 'Pricing'], ['/dropshipping-australia', 'Blog']].map(([href, label]) => (
               <a key={label} href={href} onClick={() => setMobileMenuOpen(false)} style={{ color: '#374151', textDecoration: 'none', fontSize: 15, padding: '12px 0', borderBottom: '1px solid #F3F4F6' }}>{label}</a>
             ))}
           </div>
@@ -1227,7 +1227,7 @@ export default function Home() {
           </div>
 
           {/* H1 */}
-          <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 'clamp(40px, 8vw, 72px)', lineHeight: 1.1, letterSpacing: '-0.03em', margin: '0 0 0', opacity: 0, animation: 'fadeInUp 0.5s ease 0.2s both' }}>
+          <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 'clamp(32px, 7vw, 72px)', lineHeight: 1.1, letterSpacing: '-0.03em', margin: '0 0 0', opacity: 0, animation: 'fadeInUp 0.5s ease 0.2s both', overflowWrap: 'break-word' as const, wordBreak: 'break-word' as const }}>
             The <span style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI Operating System</span>
             <br />
             <span style={{ color: '#0A0A0A' }}>for Ecommerce Winners.</span>

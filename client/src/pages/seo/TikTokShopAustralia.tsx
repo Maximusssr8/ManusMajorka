@@ -104,7 +104,7 @@ export default function TikTokShopAustralia() {
       <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(8,10,14,0.92)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            <div style={{ width: 30, height: 30, borderRadius: 7, background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 15, color: '#000' }}>M</div>
+            <div style={{ width: 30, height: 30, borderRadius: 7, background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 15, color: '#000' }}>M</div>
             <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 15, color: C.text, letterSpacing: '0.06em' }}>MAJORKA</span>
           </Link>
           <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
@@ -121,7 +121,7 @@ export default function TikTokShopAustralia() {
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#F9FAFB', border: `1px solid #F0F0F0`, borderRadius: 100, padding: '6px 16px', marginBottom: 24, fontSize: 13, color: '#fff', fontWeight: 600 }}>
             ♪ TikTok Shop AU · Launched 2024
           </div>
-          <h1 style={{ fontFamily: syne, fontWeight: 900, fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 20 }}>
+          <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 20 }}>
             TikTok Shop Australia:<br />
             <span style={{ background: `linear-gradient(135deg, ${C.gold}, #A5B4FC)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>The Complete 2025 Guide</span>
           </h1>
@@ -164,7 +164,7 @@ export default function TikTokShopAustralia() {
                 { label: 'Affiliate creators AU', value: '50,000+' },
               ].map((s) => (
                 <div key={s.label} style={{ textAlign: 'center', background: C.elevated, borderRadius: 10, padding: '16px 12px' }}>
-                  <div style={{ fontFamily: syne, fontWeight: 900, fontSize: 24, color: C.gold }}>{s.value}</div>
+                  <div style={{ fontFamily: syne, fontWeight: 800, fontSize: 24, color: C.gold }}>{s.value}</div>
                   <div style={{ color: C.secondary, fontSize: 11, marginTop: 4 }}>{s.label}</div>
                 </div>
               ))}

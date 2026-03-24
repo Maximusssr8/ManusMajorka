@@ -205,7 +205,7 @@ function renderLine(line: string, idx: number) {
   const parts = line.split(/(\*\*[^*]+\*\*)/g);
   const rendered = parts.map((p, j) =>
     p.startsWith('**') && p.endsWith('**') ? (
-      <strong key={j} style={{ color: '#f5f5f5', fontWeight: 700 }}>
+      <strong key={j} style={{ color: '#0A0A0A', fontWeight: 700 }}>
         {p.replace(/\*\*/g, '')}
       </strong>
     ) : (
@@ -447,7 +447,7 @@ export default function DemoWidget() {
                   background: 'rgba(99,102,241,0.3)',
                 }}
               />
-              <span style={{ fontSize: 12, color: '#3f3f46', fontFamily: dm }}>
+              <span style={{ fontSize: 12, color: '#6B7280', fontFamily: dm }}>
                 Waiting for your prompt...
               </span>
             </div>
@@ -497,7 +497,7 @@ export default function DemoWidget() {
           className="demo-cta-primary"
           style={{
             background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-            color: '#000',
+            color: '#FFFFFF',
             borderRadius: 10,
             padding: '11px 28px',
             fontFamily: syne,

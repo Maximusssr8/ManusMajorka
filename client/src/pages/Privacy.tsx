@@ -83,7 +83,7 @@ export default function Privacy() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontFamily: syne,
-                fontWeight: 900,
+                fontWeight: 800,
                 fontSize: 16,
                 color: '#FAFAFA',
               }}

@@ -35,7 +35,7 @@ export default function StoreProducts() {
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
         <Store className="w-12 h-12 mx-auto mb-4" style={{ color: '#9CA3AF' }} />
         <h2
-          className="text-xl font-bold text-white mb-2"
+          className="text-xl font-bold text-gray-900 mb-2"
           style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
         >
           No store yet
@@ -76,7 +76,7 @@ export default function StoreProducts() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          <h1 className="text-2xl font-bold text-gray-900" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             Storefront
           </h1>
           {store.data && (
@@ -90,7 +90,7 @@ export default function StoreProducts() {
             <Button
               variant="outline"
               size="sm"
-              className="border-white/10 text-white/70 hover:text-white"
+              className="border-gray-200 text-gray-600 hover:text-gray-900"
               onClick={() => {
                 navigator.clipboard.writeText(storeUrl);
                 toast.success('Store link copied!');
@@ -102,7 +102,7 @@ export default function StoreProducts() {
             <Button
               variant="outline"
               size="sm"
-              className="border-white/10 text-white/70 hover:text-white"
+              className="border-gray-200 text-gray-600 hover:text-gray-900"
               onClick={() => window.open(storeUrl, '_blank')}
             >
               <ExternalLink className="w-4 h-4 mr-2" />
@@ -125,7 +125,7 @@ export default function StoreProducts() {
       ) : !myProducts.data?.length ? (
         <div className="text-center py-16">
           <Package className="w-12 h-12 mx-auto mb-4" style={{ color: '#D1D5DB' }} />
-          <p className="font-semibold text-white mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          <p className="font-semibold text-gray-900 mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             No products yet
           </p>
           <p className="text-sm mb-4" style={{ color: '#6B7280' }}>
@@ -166,7 +166,7 @@ export default function StoreProducts() {
                     />
                     <div>
                       <p
-                        className="text-white font-medium"
+                        className="text-gray-900 font-medium"
                         style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                       >
                         {product.name}
@@ -218,7 +218,7 @@ export default function StoreProducts() {
                           })
                         }
                         placeholder="49.00"
-                        className="border-white/10 text-white w-32 h-8 text-sm"
+                        className="border-gray-200 text-gray-900 w-32 h-8 text-sm"
                         style={{ background: '#F9FAFB' }}
                       />
                     </div>
@@ -246,7 +246,7 @@ export default function StoreProducts() {
                           })
                         }
                         placeholder="99.00"
-                        className="border-white/10 text-white w-32 h-8 text-sm"
+                        className="border-gray-200 text-gray-900 w-32 h-8 text-sm"
                         style={{ background: '#F9FAFB' }}
                       />
                     </div>

@@ -55,10 +55,10 @@ export default function MarketSelector() {
         <div
           className="absolute bottom-full left-0 mb-1 w-full overflow-hidden"
           style={{
-            background: '#1a1a1a',
-            border: '1px solid #F5F5F5',
+            background: '#FFFFFF',
+            border: '1px solid #E5E7EB',
             borderRadius: 10,
-            boxShadow: '0 -8px 32px rgba(0,0,0,0.5)',
+            boxShadow: '0 -8px 32px rgba(0,0,0,0.1)',
             zIndex: 100,
           }}
         >
@@ -76,7 +76,7 @@ export default function MarketSelector() {
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-xs transition-all"
                 style={{
                   background: active ? 'rgba(99,102,241,0.08)' : 'transparent',
-                  color: active ? '#f5f5f5' : '#6B7280',
+                  color: active ? '#0A0A0A' : '#6B7280',
                   cursor: 'pointer',
                   border: 'none',
                   fontFamily: 'DM Sans, sans-serif',

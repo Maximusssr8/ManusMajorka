@@ -292,7 +292,7 @@ function AdCard({
           style={{
             background: copied ? '#EEF2FF' : '#F9FAFB',
             border: `1px solid ${copied ? '#C7D2FE' : '#F5F5F5'}`,
-            color: copied ? '#6366F1' : 'rgba(240,237,232,0.55)',
+            color: copied ? '#6366F1' : '#6B7280',
             cursor: 'pointer',
           }}
         >

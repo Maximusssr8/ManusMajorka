@@ -212,9 +212,9 @@ function ProgressDial({ percent, allDone }: { percent: number; allDone: boolean 
         <span
           style={{
             fontFamily: syne,
-            fontWeight: 900,
+            fontWeight: 800,
             fontSize: 18,
-            color: allDone ? '#10b981' : '#f5f5f5',
+            color: allDone ? '#10b981' : '#0A0A0A',
             lineHeight: 1,
           }}
         >
@@ -351,7 +351,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1 }}>
           <Rocket size={16} style={{ color: allDone ? '#10b981' : '#6366F1', flexShrink: 0 }} />
           <div>
-            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 14, color: '#f5f5f5' }}>
+            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 14, color: '#0A0A0A' }}>
               Launch Readiness
             </span>
             <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 1 }}>

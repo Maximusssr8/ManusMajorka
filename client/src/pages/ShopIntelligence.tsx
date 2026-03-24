@@ -160,7 +160,7 @@ export default function ShopIntelligence() {
         <Helmet><title>Shop Intelligence — Majorka</title></Helmet>
         <div style={{ filter: 'blur(8px)', pointerEvents: 'none', opacity: 0.4, padding: '40px 32px' }}>
           <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 28, fontWeight: 900, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text }}>Shop Intelligence</div>
+            <div style={{ fontSize: 28, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text }}>Shop Intelligence</div>
             <div style={{ fontSize: 14, color: C.muted, marginTop: 4 }}>Discover top performing Shopify stores in your niche</div>
           </div>
           {[1,2,3,4,5].map(i => (
@@ -200,7 +200,7 @@ export default function ShopIntelligence() {
 
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
-        <div style={{ fontSize: 28, fontWeight: 900, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text, marginBottom: 4 }}>
+        <div style={{ fontSize: 28, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text, marginBottom: 4 }}>
           Shop Intelligence
         </div>
         <div style={{ fontSize: 14, color: C.muted }}>

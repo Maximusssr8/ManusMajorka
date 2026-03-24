@@ -42,35 +42,35 @@ export default function CommandPalette() {
       <div
         className="w-full max-w-lg mx-4 overflow-hidden animate-scale-in"
         style={{
-          background: '#141418',
-          border: '1px solid #2a2a2e',
+          background: '#FFFFFF',
+          border: '1px solid #E5E7EB',
           borderRadius: 14,
-          boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.12)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         <Command label="Command palette" loop>
           <div
             className="flex items-center gap-3 px-4 py-3"
-            style={{ borderBottom: '1px solid #2a2a2e' }}
+            style={{ borderBottom: '1px solid #E5E7EB' }}
           >
             <Search size={16} style={{ color: '#9CA3AF', flexShrink: 0 }} />
             <Command.Input
               placeholder="Search tools or jump to..."
               className="flex-1 bg-transparent outline-none text-sm"
-              style={{ color: '#f5f5f5', fontFamily: 'DM Sans, sans-serif' }}
+              style={{ color: '#111827', fontFamily: 'DM Sans, sans-serif' }}
               autoFocus
             />
             <kbd
               className="px-1.5 py-0.5 rounded text-xs"
-              style={{ background: '#2a2a2e', color: '#9CA3AF', fontSize: 10 }}
+              style={{ background: '#F3F4F6', color: '#6B7280', fontSize: 10 }}
             >
               ESC
             </kbd>
           </div>
           <Command.List
             className="max-h-[320px] overflow-auto py-1"
-            style={{ scrollbarWidth: 'thin', scrollbarColor: '#F5F5F5 transparent' }}
+            style={{ scrollbarWidth: 'thin', scrollbarColor: '#E5E7EB transparent' }}
           >
             <Command.Empty className="px-4 py-6 text-center text-sm" style={{ color: '#9CA3AF' }}>
               No results found.
@@ -87,7 +87,7 @@ export default function CommandPalette() {
                   value={a.label}
                   onSelect={() => navigate(a.path)}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors text-sm"
-                  style={{ color: '#f5f5f5' }}
+                  style={{ color: '#111827' }}
                   data-cmdk-item=""
                 >
                   <div
@@ -113,7 +113,7 @@ export default function CommandPalette() {
                   value={`${tool.label} ${tool.description}`}
                   onSelect={() => navigate(tool.path)}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors text-sm"
-                  style={{ color: '#f5f5f5' }}
+                  style={{ color: '#111827' }}
                   data-cmdk-item=""
                 >
                   <div

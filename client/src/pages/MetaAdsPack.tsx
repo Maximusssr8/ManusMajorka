@@ -892,7 +892,7 @@ export default function MetaAdsPack() {
                               color: '#6366F1',
                               fontFamily: "'Bricolage Grotesque', sans-serif",
                               fontSize: '10px',
-                              fontWeight: 900,
+                              fontWeight: 800,
                             }}
                           >
                             {i + 1}
