@@ -417,7 +417,7 @@ function App() {
   }, []);
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="dark" switchable>
+      <ThemeProvider defaultTheme="light" switchable={false}>
         <AuthProvider>
           <MarketProvider>
             <RegionProvider>

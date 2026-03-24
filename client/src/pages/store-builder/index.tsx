@@ -407,6 +407,13 @@ export default function StoreBuilder() {
     if (currentStep === 2 && selectedTemplate) generatePreview();
   }, [currentStep, selectedTemplate]);
 
+  // Re-generate preview when store name or tagline changes (debounced 800ms)
+  useEffect(() => {
+    if (currentStep !== 2 || !selectedTemplate) return;
+    const t = setTimeout(() => generatePreview(), 800);
+    return () => clearTimeout(t);
+  }, [storeName, storeTagline]);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('connected') === 'true') {
@@ -842,7 +849,7 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
                     srcDoc={previewHtml}
                     style={{ width: "100%", height: 400, border: "none", display: "block" }}
                     title="Store Preview"
-                    sandbox="allow-scripts allow-same-origin"
+                    sandbox="allow-scripts"
                   />
                 ) : (
                   <div style={{ height: 400, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", background: "#FAFAFA", gap: 12 }}>

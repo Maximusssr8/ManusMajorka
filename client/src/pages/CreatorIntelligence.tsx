@@ -101,6 +101,13 @@ export default function CreatorIntelligence() {
 
   return (
     <div style={{ background: '#FAFAFA', minHeight: '100vh', display: 'flex', flexDirection: 'column' as const }}>
+      {/* ⚠️ Sample data disclaimer */}
+      <div style={{ background: '#FFF7ED', borderBottom: '1px solid #FED7AA', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <span style={{ fontSize: 16 }}>⚠️</span>
+        <span style={{ fontSize: 12, color: '#92400E', lineHeight: 1.5 }}>
+          <strong>Sample creator profiles.</strong> These represent creator archetypes by niche and region — not verified real accounts. Follower counts are estimated ranges. Use "Search on TikTok" to find real creators in each niche.
+        </span>
+      </div>
       <div style={{ padding: '24px 24px 0', maxWidth: 1400, margin: '0 auto', width: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
           <div>

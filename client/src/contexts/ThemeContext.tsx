@@ -24,7 +24,8 @@ export function ThemeProvider({
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
     if (switchable) {
-      const stored = localStorage.getItem('theme');
+      // Prefer 'majorka-theme' key (used by MajorkaAppShell), fall back to 'theme'
+      const stored = localStorage.getItem('majorka-theme') || localStorage.getItem('theme');
       return (stored as Theme) || defaultTheme;
     }
     return defaultTheme;
@@ -39,7 +40,7 @@ export function ThemeProvider({
     }
 
     if (switchable) {
-      localStorage.setItem('theme', theme);
+      localStorage.setItem('majorka-theme', theme);
     }
   }, [theme, switchable]);
 
