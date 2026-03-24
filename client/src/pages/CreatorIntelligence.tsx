@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
+import { DateRangeSelector, getDateRangeStart, type Range } from '@/components/DateRangeSelector';
+import { exportCSV } from '@/lib/exportCsv';
 
 const brico = "'Bricolage Grotesque', sans-serif";
 const NICHES = ['beauty','fitness','home decor','pet care','tech accessories','fashion','health','kitchen','outdoor','baby'];
@@ -13,6 +15,7 @@ interface Creator {
   promoting_products: string[];
   engagement_signal: string;
   contact_hint: string | null;
+  created_at?: string;
 }
 
 const REGION_FLAGS: Record<string, string> = { AU: '\u{1F1E6}\u{1F1FA}', US: '\u{1F1FA}\u{1F1F8}', UK: '\u{1F1EC}\u{1F1E7}', CA: '\u{1F1E8}\u{1F1E6}', NZ: '\u{1F1F3}\u{1F1FF}', DE: '\u{1F1E9}\u{1F1EA}', SG: '\u{1F1F8}\u{1F1EC}' };
@@ -35,6 +38,8 @@ export default function CreatorIntelligence() {
   const [filterRegion, setFilterRegion] = useState('');
   const [filterEngagement, setFilterEngagement] = useState('');
   const [sortBy, setSortBy] = useState<'followers' | 'engagement' | 'recent'>('followers');
+  const [dateRange, setDateRange] = useState<Range>(() => (localStorage.getItem('majorka_creator_daterange') as Range) || '30d');
+  const handleDateRange = (v: Range) => { localStorage.setItem('majorka_creator_daterange', v); setDateRange(v); };
 
   const fetchCreators = useCallback(async (niche = '', region = '') => {
     setLoading(true);
@@ -77,6 +82,10 @@ export default function CreatorIntelligence() {
     if (filterNiche && c.niche !== filterNiche) return false;
     if (filterRegion && c.region_code !== filterRegion) return false;
     if (filterEngagement && c.engagement_signal !== filterEngagement) return false;
+    if (c.created_at) {
+      const createdDate = new Date(c.created_at);
+      if (createdDate < getDateRangeStart(dateRange)) return false;
+    }
     return true;
   }).sort((a, b) => {
     if (sortBy === 'engagement') return a.engagement_signal === 'HIGH' ? -1 : 1;
@@ -98,10 +107,17 @@ export default function CreatorIntelligence() {
               Find TikTok creators promoting products in your niche. Contact hints FREE (KaloData charges $90+/mo).
             </p>
           </div>
-          <button onClick={triggerRefresh} disabled={refreshing}
-            style={{ height: 36, padding: '0 16px', background: refreshing ? '#9CA3AF' : '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: refreshing ? 'wait' : 'pointer' }}>
-            {refreshing ? '\u27F3 Refreshing...' : '\u21BB Refresh Creators'}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <DateRangeSelector value={dateRange} onChange={handleDateRange} />
+            <button onClick={() => exportCSV(filtered.map(c => ({ username: c.handle, platform: 'TikTok', niche: c.niche, followers: c.est_followers, engagement_rate: c.engagement_signal, profile_url: c.profile_url })), 'creators')}
+              style={{ border: '1px solid #E5E7EB', background: 'white', color: '#374151', borderRadius: 8, padding: '6px 14px', fontSize: 13, cursor: 'pointer' }}>
+              {'⬇'} Export CSV
+            </button>
+            <button onClick={triggerRefresh} disabled={refreshing}
+              style={{ height: 36, padding: '0 16px', background: refreshing ? '#9CA3AF' : '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: refreshing ? 'wait' : 'pointer' }}>
+              {refreshing ? '\u27F3 Refreshing...' : '\u21BB Refresh Creators'}
+            </button>
+          </div>
         </div>
       </div>
 

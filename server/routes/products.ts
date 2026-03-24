@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import Anthropic from '@anthropic-ai/sdk';
 import { requireAuth } from '../middleware/requireAuth';
 import { createClient } from '@supabase/supabase-js';
 
@@ -147,6 +148,13 @@ router.get('/', async (req: Request, res: Response) => {
     res.status(500).json({ error: err.message, products: [] });
   }
 });
+
+
+function getAnthropicClient() {
+  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+}
+
+const whyTrendingCache = new Map<string, { brief: string; at: number }>();
 
 // GET /api/products/search?q=QUERY
 router.get('/search', requireAuth, async (req: Request, res: Response) => {
@@ -600,6 +608,40 @@ router.get('/velocity', async (req: Request, res: Response) => {
     res.json({ name, ...result });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/products/:id/why-trending — AI brief explaining why this product is trending
+router.post('/:id/why-trending', requireAuth, async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const CACHE_MS = 24 * 60 * 60 * 1000;
+  const cached = whyTrendingCache.get(id);
+  if (cached && Date.now() - cached.at < CACHE_MS) {
+    res.json({ brief: cached.brief, cached: true });
+    return;
+  }
+  const supabase = getSupabase();
+  const { data: product, error } = await supabase
+    .from('winning_products')
+    .select('product_title, category, winning_score, why_winning, trend, tags, score_breakdown, tavily_mentions')
+    .eq('id', id)
+    .single();
+  if (error || !product) { res.status(404).json({ error: 'Product not found' }); return; }
+  try {
+    const client = getAnthropicClient();
+    const msg = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 200,
+      messages: [{
+        role: 'user',
+        content: `You are a TikTok ecommerce analyst. Write a 3-sentence brief explaining exactly why this product is trending right now. Be specific, data-driven, no fluff. Plain text only.\n\nProduct: ${product.product_title}\nCategory: ${product.category || 'General'}\nScore: ${product.winning_score}/100\nWhy Winning: ${product.why_winning || 'Strong market demand'}\nTrend: ${product.trend || 'Rising'}\nTags: ${JSON.stringify(product.tags || [])}`,
+      }],
+    });
+    const brief = ((msg.content[0] as any).text || '').trim() || 'This product is gaining traction through organic TikTok discovery, driven by strong visual appeal and competitive AU pricing.';
+    whyTrendingCache.set(id, { brief, at: Date.now() });
+    res.json({ brief, cached: false });
+  } catch {
+    res.json({ brief: 'This product is seeing strong organic momentum on TikTok with consistent sales velocity and growing creator interest in this category.', cached: false });
   }
 });
 

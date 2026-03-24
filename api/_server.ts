@@ -312,7 +312,7 @@ app.get("/api/creators", async (req: Request, res: Response) => {
 
     // Query DB first
     let url = `${SURL}/rest/v1/creators?select=*&order=last_scraped_at.desc&limit=${limit}`;
-    if (niche) url += `&niche=eq.${encodeURIComponent(niche)}`;
+    if (niche) url += `&niche=ilike.*${encodeURIComponent(niche)}*`;
     if (region) url += `&region_code=eq.${region}`;
 
     const r = await fetch(url, { headers: { apikey: SKEY, Authorization: `Bearer ${SKEY}` } });

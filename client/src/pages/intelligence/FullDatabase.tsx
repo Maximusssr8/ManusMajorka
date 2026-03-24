@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
+import { DateRangeSelector, DateRange, getDateRangeStart } from '@/components/DateRangeSelector';
+import { exportCSV } from '@/lib/exportCsv';
 import { ProductStatCards } from '@/components/ProductStatCards';
 import { ProductFilterSidebar, DEFAULT_FILTERS } from '@/components/ProductFilterSidebar';
 import { ProductImage } from '@/components/ProductImage';
@@ -148,10 +150,20 @@ const TAG_STYLE: Record<string, { color: string; bg: string }> = {
 };
 
 function ScoreBadge({ score }: { score: number }) {
+  const tier = score >= 80
+    ? { bg: '#ECFDF5', color: '#059669', prefix: '🔥 ' }
+    : score >= 60
+    ? { bg: '#EEF2FF', color: '#6366F1', prefix: '' }
+    : score >= 40
+    ? { bg: '#FFFBEB', color: '#D97706', prefix: '' }
+    : { bg: '#FEF2F2', color: '#DC2626', prefix: '' };
   return (
-    <div title={`AI Score: ${score}/100 — Top ${score >= 85 ? '10' : score >= 75 ? '25' : '40'}% of products this week`}
-      style={{ width: 40, height: 40, borderRadius: '50%', background: '#EEF2FF', border: '2px solid #6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'help', flexShrink: 0 }}>
-      <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 13, color: '#4338CA' }}>{score}</span>
+    <div title={`Opportunity Score: ${score}/100 — Top ${score >= 85 ? '10' : score >= 75 ? '25' : '40'}% of products this week`}
+      style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', cursor: 'help', flexShrink: 0 }}>
+      <div style={{ padding: '4px 10px', borderRadius: 20, background: tier.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 13, color: tier.color }}>{tier.prefix}{score}</span>
+      </div>
+      <span style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>Score</span>
     </div>
   );
 }
@@ -206,6 +218,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const [searchInput, setSearchInput] = useState('');
   const [niche, setNiche] = useState('All Niches');
   const [sortBy, setSortBy] = useState(presetFilter === 'trending' ? 'orders_count' : 'winning_score');
+  const [dateRange, setDateRange] = useState<DateRange>(() => (localStorage.getItem('majorka_db_daterange') as DateRange) || '30d');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [opportunityFilter, setOpportunityFilter] = useState('All');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
@@ -217,6 +230,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [activeTab, setActiveTab] = useState('all');
+  const handleDateRange = (v: DateRange) => { localStorage.setItem('majorka_db_daterange', v); setDateRange(v); };
   const [filters, setFilters] = useState({
     category: [] as string[],
     priceMin: 0,
@@ -312,6 +326,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
   // Client-side filter
   const filtered = products.filter(p => {
+    // Date range filter
+    const pDate = (p as any).scraped_at || (p as any).created_at;
+    if (pDate && new Date(pDate) < getDateRangeStart(dateRange)) return false;
+
     if (verifiedOnly && (p.orders_count || 0) < 500) return false;
 
     // Opportunity pill filter
@@ -380,31 +398,6 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
   const FILTERS = ['All', 'Viral', 'High Margin', 'AU Best Sellers', 'TikTok', 'New Today'];
 
-  // Export CSV
-  const exportCSV = () => {
-    const headers = ['Name', 'Niche', `Revenue/mo (${region.currency})`, 'Growth %', 'Orders', `Price (${region.currency})`, 'Margin %', 'AI Score', 'Tags', 'Supplier URL'];
-    const rows = filtered.map(p => [
-      getProductName(p),
-      getProductNiche(p),
-      getProductRevenue(p),
-      getGrowthRate(p),
-      getProductOrders(p),
-      getProductPrice(p).toFixed(2),
-      getProductMargin(p),
-      getProductScore(p),
-      (p.tags || []).join(' | '),
-      getSupplierUrl(p),
-    ]);
-    const csv = [headers, ...rows].map(row => row.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `majorka-products-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   // Sort indicator
   const SortIcon = ({ col }: { col: string }) => {
     if (sortBy !== col) return <span style={{ color: '#D1D5DB', fontSize: 10, marginLeft: 3 }}>&#8597;</span>;
@@ -444,9 +437,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <button onClick={exportCSV}
+            <DateRangeSelector value={dateRange} onChange={handleDateRange} />
+            <button onClick={() => exportCSV(filteredProducts.map(p => ({ name: p.product_title || p.name, category: p.category, price_aud: p.price_aud, monthly_revenue: p.est_monthly_revenue_aud, margin_pct: p.profit_margin, score: p.winning_score, trend: (p as any).trend, units_per_day: p.units_per_day, aliexpress_url: p.aliexpress_url, tags: (p.tags || []).join(';') })), 'products')}
               style={{ height: 36, padding: '0 16px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-              {'\u2193'} Export CSV
+              ⬇ Export CSV
             </button>
             <button onClick={handleRefresh} disabled={refreshing}
               style={{ height: 36, padding: '0 16px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: refreshing ? 'wait' : 'pointer', opacity: refreshing ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -599,7 +593,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   Margin <SortIcon col="estimated_margin_pct" />
                 </th>
                 <th style={thStyle('winning_score', 68, 'center')} onClick={() => handleSort('winning_score')}>
-                  Score <SortIcon col="winning_score" />
+                  Opportunity <SortIcon col="winning_score" />
                 </th>
                 <th style={{ ...thStyle('creators', 84, 'center'), cursor: 'default' }}>Creators</th>
                 <th style={{ ...thStyle('actions', 170, 'center'), cursor: 'default' }}>Actions</th>
@@ -908,10 +902,22 @@ function SupplierFinder({ productName, aliUrl }: { productName: string; aliUrl?:
   );
 }
 
+function formatFollowers(n: string | number): string {
+  const num = typeof n === 'string' ? parseInt(n.replace(/[^0-9]/g, ''), 10) : n;
+  if (isNaN(num)) return String(n);
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+  return String(num);
+}
+
 function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClose: () => void }) {
   const [aiAnalysis, setAiAnalysis] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [trendBrief, setTrendBrief] = useState<string | null>(null);
+  const [briefLoading, setBriefLoading] = useState(false);
+  const [matchedCreators, setMatchedCreators] = useState<any[]>([]);
+  const [creatorsLoading, setCreatorsLoading] = useState(false);
   const name = p.name || p.product_title || 'Product';
   const revenue = p.est_monthly_revenue_aud || 0;
   const margin = p.estimated_margin_pct || p.profit_margin || 0;
@@ -919,6 +925,37 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
   const score = p.winning_score || 0;
   const price = p.estimated_retail_aud || p.price_aud || 0;
   const cost = p.cost_price_aud || p.supplier_cost_aud || 0;
+  const productCategory = p.niche || p.category || '';
+
+  // Fetch "Why Trending" brief
+  useEffect(() => {
+    if (!p.id) return;
+    setBriefLoading(true);
+    setTrendBrief(null);
+    supabase.auth.getSession().then(({ data }) => {
+      const token = data.session?.access_token || '';
+      fetch(`/api/products/${p.id}/why-trending`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      })
+        .then(r => r.json())
+        .then(d => setTrendBrief(d.brief || null))
+        .catch(() => setTrendBrief(null))
+        .finally(() => setBriefLoading(false));
+    });
+  }, [p.id]);
+
+  // Fetch matched creators
+  useEffect(() => {
+    if (!productCategory) return;
+    setCreatorsLoading(true);
+    setMatchedCreators([]);
+    fetch(`/api/creators?niche=${encodeURIComponent(productCategory)}&limit=4`)
+      .then(r => r.json())
+      .then(d => setMatchedCreators((d.creators || []).slice(0, 4)))
+      .catch(() => setMatchedCreators([]))
+      .finally(() => setCreatorsLoading(false));
+  }, [productCategory]);
 
   const runAnalysis = async () => {
     setAnalyzing(true);
@@ -1007,6 +1044,63 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
               <div style={{ fontSize: 11, color: '#059669', fontWeight: 600, marginTop: 8 }}>Passes all quality gates</div>
             </div>
           )}
+          {/* Why This is Trending */}
+          <div style={{ borderLeft: '3px solid #6366F1', background: '#F5F3FF', borderRadius: 12, padding: '14px 16px', marginBottom: 20 }}>
+            <h4 style={{ fontFamily: brico, fontSize: 13, color: '#6366F1', fontWeight: 700, marginBottom: 8, margin: 0 }}>Why This is Trending ✨</h4>
+            {briefLoading ? (
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 6 }}>
+                {[1, 2, 3].map(i => (
+                  <div key={i} style={{ height: 12, borderRadius: 6, background: 'linear-gradient(90deg, #E0E7FF 25%, #EEF2FF 50%, #E0E7FF 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s ease-in-out infinite', width: i === 3 ? '70%' : '100%' }} />
+                ))}
+              </div>
+            ) : trendBrief ? (
+              <>
+                <p style={{ fontFamily: dm, fontSize: 13, color: '#374151', lineHeight: 1.6, margin: 0 }}>{trendBrief}</p>
+                <div style={{ textAlign: 'right' as const, marginTop: 6 }}>
+                  <span style={{ fontSize: 11, color: '#9CA3AF' }}>Powered by Claude</span>
+                </div>
+              </>
+            ) : (
+              <p style={{ fontFamily: dm, fontSize: 13, color: '#9CA3AF', margin: 0 }}>Brief unavailable</p>
+            )}
+          </div>
+
+          {/* Matched Creators */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontFamily: brico, fontSize: 13, color: '#6366F1', fontWeight: 700, marginBottom: 10 }}>🎯 Matched Creators</div>
+            {creatorsLoading ? (
+              <div style={{ fontSize: 12, color: '#9CA3AF', padding: '8px 0' }}>Finding creators…</div>
+            ) : matchedCreators.length > 0 ? (
+              <>
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+                  {matchedCreators.map((c: any, i: number) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#EEF2FF', color: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
+                        {(c.handle || c.display_name || 'U')[0].toUpperCase()}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontFamily: dm, fontSize: 13, fontWeight: 600, color: '#0A0A0A' }}>{c.display_name || c.handle}</div>
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2 }}>
+                          {c.niche && <span style={{ fontSize: 10, color: '#6366F1', background: '#EEF2FF', padding: '1px 6px', borderRadius: 10 }}>{c.niche}</span>}
+                          <span style={{ fontSize: 10, color: '#9CA3AF' }}>{formatFollowers(c.est_followers || c.followers_count || 0)}</span>
+                        </div>
+                      </div>
+                      {c.profile_url && (
+                        <a href={c.profile_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#6366F1', textDecoration: 'none', fontWeight: 600, flexShrink: 0 }}>View →</a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <a href={`https://www.tiktok.com/search?q=${encodeURIComponent(name)}+affiliate`} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'block', marginTop: 10, fontSize: 13, color: '#6366F1', textDecoration: 'none' }}>
+                  Find more creators on TikTok →
+                </a>
+              </>
+            ) : (
+              <div style={{ fontSize: 12, color: '#9CA3AF' }}>No matched creators found for this niche</div>
+            )}
+          </div>
+
           <SupplierFinder productName={name} aliUrl={p.aliexpress_url} />
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#0A0A0A', marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>AI Market Analysis</div>

@@ -1,4 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
+import { DateRangeSelector, getDateRangeStart, type Range } from '@/components/DateRangeSelector';
+import { exportCSV } from '@/lib/exportCsv';
 
 const brico = "'Bricolage Grotesque', sans-serif";
 
@@ -28,6 +30,8 @@ interface Video {
   engagement_signal: string;
   format: string;
   region_code: string;
+  created_at?: string;
+  scraped_at?: string;
 }
 
 export default function VideoIntelligence() {
@@ -41,6 +45,9 @@ export default function VideoIntelligence() {
   const [copied, setCopied]       = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [toast, setToast]         = useState('');
+  const [dateRange, setDateRange] = useState<Range>(() => (localStorage.getItem('majorka_video_daterange') as Range) || '30d');
+
+  const handleDateRange = (v: Range) => { localStorage.setItem('majorka_video_daterange', v); setDateRange(v); };
 
   // Load ALL videos once, filter client-side
   useEffect(() => {
@@ -53,9 +60,17 @@ export default function VideoIntelligence() {
   }, []);
 
   const videos = useMemo(() => {
-    if (!selectedNiche) return allVideos;
-    return allVideos.filter(v => v.niche?.toLowerCase() === selectedNiche.toLowerCase());
-  }, [allVideos, selectedNiche]);
+    const rangeStart = getDateRangeStart(dateRange);
+    return allVideos.filter(v => {
+      if (selectedNiche && v.niche?.toLowerCase() !== selectedNiche.toLowerCase()) return false;
+      const dateStr = v.created_at || v.scraped_at;
+      if (dateStr) {
+        const d = new Date(dateStr);
+        if (!isNaN(d.getTime()) && d < rangeStart) return false;
+      }
+      return true;
+    });
+  }, [allVideos, selectedNiche, dateRange]);
 
   const hooks = useMemo(() =>
     allVideos.filter(v => v.hook_text && v.hook_text.length > 15)
@@ -128,11 +143,18 @@ export default function VideoIntelligence() {
             {loading ? 'Loading…' : `${videos.length} videos tracked`}
           </p>
         </div>
-        <button onClick={triggerRefresh} disabled={refreshing}
-          style={{ height: 36, padding: '0 16px', background: refreshing ? '#9CA3AF' : '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: refreshing ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 14 }}>{refreshing ? '⟳' : '↻'}</span>
-          {refreshing ? 'Scraping…' : 'Refresh'}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <DateRangeSelector value={dateRange} onChange={handleDateRange} />
+          <button onClick={() => exportCSV(videos.map(v => ({ title: v.product_mentioned, niche: v.niche, format: v.format, engagement_signal: v.engagement_signal, hook_text: v.hook_text || '', url: v.url, region: v.region_code })), 'videos')}
+            style={{ border: '1px solid #E5E7EB', background: 'white', color: '#374151', borderRadius: 8, padding: '6px 14px', fontSize: 13, cursor: 'pointer' }}>
+            ⬇ Export CSV
+          </button>
+          <button onClick={triggerRefresh} disabled={refreshing}
+            style={{ height: 36, padding: '0 16px', background: refreshing ? '#9CA3AF' : '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: refreshing ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 14 }}>{refreshing ? '⟳' : '↻'}</span>
+            {refreshing ? 'Scraping…' : 'Refresh'}
+          </button>
+        </div>
       </div>
 
       <div style={{ padding: '20px 28px', maxWidth: 1360, margin: '0 auto' }}>
