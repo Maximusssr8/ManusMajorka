@@ -3,6 +3,7 @@
  * Route: /winning-products-australia
  */
 
+import MajorkaLogo from '@/components/MajorkaLogo';
 import { useState } from 'react';
 import { Link } from 'wouter';
 import { SEO } from '@/components/SEO';
@@ -121,8 +122,12 @@ export default function WinningProductsAustralia() {
       <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(8,10,14,0.92)', backdropFilter: 'blur(12px)', borderBottom: `1px solid ${C.border}` }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            <div style={{ width: 30, height: 30, borderRadius: 7, background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 800, fontSize: 15, color: '#000' }}>M</div>
-            <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 15, color: C.text, letterSpacing: '0.06em' }}>MAJORKA</span>
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                <defs><linearGradient id="lg-seo" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse"><stop offset="0%" stopColor="#818CF8"/><stop offset="100%" stopColor="#6366F1"/></linearGradient></defs>
+                <rect width="32" height="32" rx="9" fill="url(#lg-seo)"/>
+                <path d="M7 22V10L13.5 18L16 14L18.5 18L25 10V22" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+              </svg>
+              <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 18, color: C.text, letterSpacing: '-0.02em' }}>Majorka</span>
           </Link>
           <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
             <Link href="/pricing" style={{ color: C.secondary, fontSize: 13, textDecoration: 'none', fontFamily: syne, fontWeight: 600 }}>Pricing</Link>
