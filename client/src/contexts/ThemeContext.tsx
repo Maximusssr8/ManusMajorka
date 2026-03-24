@@ -23,22 +23,14 @@ export function ThemeProvider({
   switchable = false,
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
-    if (switchable) {
-      // Prefer 'majorka-theme' key (used by MajorkaAppShell), fall back to 'theme'
-      const stored = localStorage.getItem('majorka-theme') || localStorage.getItem('theme');
-      return (stored as Theme) || defaultTheme;
-    }
-    return defaultTheme;
+    if (typeof window === 'undefined') return defaultTheme;
+    const stored = localStorage.getItem('majorka-theme');
+    return (stored as Theme) || defaultTheme;
   });
 
+  // ThemeContext does NOT manage the .dark class — MajorkaAppShell is the single source of truth.
+  // This context only propagates the theme VALUE to consumers (like toast/sonner components).
   useEffect(() => {
-    const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-
     if (switchable) {
       localStorage.setItem('majorka-theme', theme);
     }

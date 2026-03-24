@@ -31,7 +31,20 @@ interface TemplateTokens {
 function getTokens(template: string, primary: string, accent: string): TemplateTokens {
   const t = (template || '').toLowerCase().replace(/[\s_]/g, '-');
 
-  if (t.includes('bloom') || t.includes('beauty')) return {
+  // Map client template IDs to design token categories
+  const tMap: Record<string, string> = {
+    'prestige': 'luxury', 'luxury': 'luxury',
+    'aurora': 'bloom', 'bloom': 'bloom', 'beauty': 'bloom',
+    'velocity': 'bold', 'bold': 'bold', 'dropship': 'bold',
+    'minimal': 'coastal-minimal', 'clean': 'coastal-minimal',
+    'neonpulse': 'tech', 'saas': 'tech', 'tech': 'tech',
+    'coastal': 'coastal', 'rustic': 'coastal',
+    'kids': 'bloom', 'pets': 'coastal', 'food': 'coastal',
+    'fashion': 'luxury', 'bundles': 'bold',
+  };
+  const mapped = tMap[t] || t;
+
+  if (mapped.includes('bloom') || mapped.includes('beauty')) return {
     bg:'#fdf6f8', bgAlt:'#fff0f5', surface:'#ffffff', text:'#2d1b25', textMuted:'rgba(45,27,37,0.55)',
     primary:'#c9607f', accent:'#e8a0b4', headingFont:'Cormorant Garamond', bodyFont:'Nunito',
     radius:'20px', navBg:'rgba(253,246,248,0.97)', navBorder:'rgba(201,96,127,0.12)',
@@ -47,7 +60,7 @@ function getTokens(template: string, primary: string, accent: string): TemplateT
     googleFonts:'Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Nunito:wght@300;400;500;600',
   };
 
-  if (t.includes('tech') || t.includes('mono') || t.includes('saas')) return {
+  if (mapped.includes('tech') || mapped.includes('mono') || mapped.includes('saas')) return {
     bg:'#0d1117', bgAlt:'#161b22', surface:'#161b22', text:'#e6edf3', textMuted:'rgba(230,237,243,0.5)',
     primary:'#2ea043', accent:'#58a6ff', headingFont:'JetBrains Mono', bodyFont:'Inter',
     radius:'6px', navBg:'rgba(13,17,23,0.98)', navBorder:'rgba(48,54,61,0.8)',
@@ -63,7 +76,7 @@ function getTokens(template: string, primary: string, accent: string): TemplateT
     googleFonts:'JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600',
   };
 
-  if (t.includes('premium') || t.includes('luxury')) return {
+  if (mapped.includes('premium') || mapped.includes('luxury')) return {
     bg:'#0a0806', bgAlt:'#120f0a', surface:'#120f0a', text:'#f5f0e8', textMuted:'rgba(245,240,232,0.45)',
     primary:'#c9a84c', accent:'#e8d5a0', headingFont:'Playfair Display', bodyFont:'Lato',
     radius:'2px', navBg:'rgba(10,8,6,0.97)', navBorder:'rgba(201,168,76,0.12)',
@@ -79,7 +92,7 @@ function getTokens(template: string, primary: string, accent: string): TemplateT
     googleFonts:'Playfair+Display:ital,wght@0,300;0,400;0,700;1,300;1,400&family=Lato:wght@300;400;700',
   };
 
-  if (t.includes('coastal')) return {
+  if (mapped.includes('coastal')) return {
     bg:'#f7f4f0', bgAlt:'#edf4f2', surface:'#ffffff', text:'#1e3a32', textMuted:'rgba(30,58,50,0.55)',
     primary:'#2a9d8f', accent:'#e76f51', headingFont:'Montserrat', bodyFont:'Lato',
     radius:'12px', navBg:'rgba(247,244,240,0.97)', navBorder:'rgba(0,0,0,0.06)',
@@ -95,7 +108,7 @@ function getTokens(template: string, primary: string, accent: string): TemplateT
     googleFonts:'Montserrat:wght@400;500;600;700;800&family=Lato:wght@300;400;700',
   };
 
-  if (t.includes('bold') || t.includes('drop')) return {
+  if (mapped.includes('bold') || mapped.includes('drop')) return {
     bg:'#0a0a0a', bgAlt:'#111111', surface:'#161616', text:'#ffffff', textMuted:'rgba(255,255,255,0.6)',
     primary:'#ff4500', accent:'#ffcc00', headingFont:'Barlow Condensed', bodyFont:'Inter',
     radius:'4px', navBg:'rgba(10,10,10,0.98)', navBorder:'rgba(255,69,0,0.2)',
@@ -109,6 +122,23 @@ function getTokens(template: string, primary: string, accent: string): TemplateT
     btnOutlineBorder:'rgba(255,255,255,0.25)', btnOutlineColor:'#ffffff',
     announcementBg:'#ff4500', statsBg:'#ff4500',
     googleFonts:'Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,700&family=Inter:wght@300;400;500;600',
+  };
+
+  // Minimal / Clean — light bg, indigo accents
+  if (mapped.includes('coastal-minimal')) return {
+    bg:'#FAFAFA', bgAlt:'#F3F4F6', surface:'#FFFFFF', text:'#111827', textMuted:'rgba(17,24,39,0.55)',
+    primary:'#6366F1', accent:'#8B5CF6', headingFont:'Bricolage Grotesque', bodyFont:'DM Sans',
+    radius:'12px', navBg:'rgba(255,255,255,0.97)', navBorder:'rgba(0,0,0,0.06)',
+    trustBg:'#FFFFFF', trustText:'#111827', trustBorder:'rgba(0,0,0,0.06)',
+    productBg:'#F9FAFB', productText:'#111827',
+    testimonialBg:'#F9FAFB', testimonialCard:'#FFFFFF', testimonialBorder:'#6366F1', testimonialText:'#111827',
+    howBg:'#FFFFFF', howText:'#111827', howNumberOpacity:'0.1',
+    faqBg:'#FAFAFA', faqText:'#111827',
+    heroBadgeColor:'#6366F1', heroH1Weight:'800', heroH1Style:'normal',
+    btnPrimaryBg:'#6366F1', btnPrimaryColor:'#FFFFFF',
+    btnOutlineBorder:'rgba(99,102,241,0.3)', btnOutlineColor:'#6366F1',
+    announcementBg:'#6366F1', statsBg:'#EEF2FF',
+    googleFonts:'Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=DM+Sans:wght@300;400;500;600',
   };
 
   // DTC Minimal (default) — dark, premium gold

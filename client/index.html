@@ -143,7 +143,17 @@
       }
     </script>
     <script>
-    try { var t = localStorage.getItem("majorka-theme") || "light"; document.documentElement.setAttribute("data-theme", t); if (t === "dark") document.documentElement.classList.add("dark"); } catch(e) {}
+    try {
+  var _t = localStorage.getItem("majorka-theme") || localStorage.getItem("theme");
+  // ONLY apply dark if explicitly saved — never assume dark
+  if (_t === "dark") {
+    document.documentElement.classList.add("dark");
+    document.documentElement.setAttribute("data-theme", "dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+    document.documentElement.setAttribute("data-theme", "light");
+  }
+} catch(e) {}
   </script>
 </body>
 
