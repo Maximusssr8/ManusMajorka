@@ -120,10 +120,10 @@ export default function UsageCounter({ count: countProp }: UsageCounterProps) {
             </span>
             <span
               style={{
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
                 fontSize: 11,
                 fontWeight: 800,
-                color: atLimit ? '#ef4444' : 'rgba(240,237,232,0.7)',
+                color: atLimit ? '#ef4444' : '#374151',
                 letterSpacing: '0.08em',
                 textTransform: 'uppercase',
                 animation: warning || atLimit ? 'usage-pulse 2s ease-in-out infinite' : undefined,
@@ -143,7 +143,7 @@ export default function UsageCounter({ count: countProp }: UsageCounterProps) {
               padding: '3px 10px',
               fontSize: 10,
               fontWeight: 800,
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               letterSpacing: '0.08em',
               cursor: 'pointer',
               flexShrink: 0,
@@ -160,7 +160,7 @@ export default function UsageCounter({ count: countProp }: UsageCounterProps) {
             style={{
               flex: 1,
               height: 6,
-              background: 'rgba(255,255,255,0.08)',
+              background: '#F5F5F5',
               borderRadius: 3,
               overflow: 'hidden',
             }}
@@ -199,7 +199,7 @@ export default function UsageCounter({ count: countProp }: UsageCounterProps) {
               Limit reached — upgrade to continue
             </span>
           ) : (
-            <span style={{ fontSize: 12, color: 'rgba(240,237,232,0.4)' }}>
+            <span style={{ fontSize: 12, color: '#9CA3AF' }}>
               Resets in {resetLabel} · Upgrade for unlimited
             </span>
           )}

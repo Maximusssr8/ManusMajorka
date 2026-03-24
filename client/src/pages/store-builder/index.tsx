@@ -28,7 +28,7 @@ const TEMPLATES: StoreTemplate[] = [
     niche: "Luxury & Premium",
     description: "Dark, elegant aesthetic for high-ticket products. Bold typography, gold accents, full-screen hero.",
     accentColor: "#B8860B",
-    bgGradient: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+    bgGradient: "linear-gradient(135deg, #F3F4F6 0%, #16213e 100%)",
     tags: ["Luxury", "High-ticket", "Premium"],
     aov: "$180–$420",
     cr: "2.8%",
@@ -252,7 +252,7 @@ function TemplateCard({ template, selected, onClick }: { template: StoreTemplate
         border: selected ? "2px solid #6366F1" : "2px solid #F0F0F0",
         boxShadow: selected
           ? "0 0 0 4px rgba(99,102,241,0.12), 0 12px 32px rgba(99,102,241,0.12)"
-          : "0 2px 8px rgba(0,0,0,0.04)",
+          : "0 2px 8px #F5F5F5",
         cursor: "pointer",
         overflow: "hidden",
         transition: "all 250ms cubic-bezier(0.4,0,0.2,1)",
@@ -265,7 +265,7 @@ function TemplateCard({ template, selected, onClick }: { template: StoreTemplate
       }}
       onMouseLeave={e => {
         e.currentTarget.style.transform = "translateY(0)";
-        if (!selected) e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)";
+        if (!selected) e.currentTarget.style.boxShadow = "0 2px 8px #F5F5F5";
       }}
     >
       {/* Preview panel */}

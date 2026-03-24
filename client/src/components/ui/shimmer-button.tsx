@@ -20,7 +20,7 @@ export function ShimmerButton({ children, onClick, className, disabled }: Shimme
         'disabled:opacity-50 disabled:cursor-not-allowed',
         className
       )}
-      style={{ fontFamily: 'Syne, sans-serif' }}
+      style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
     >
       {children}
     </button>

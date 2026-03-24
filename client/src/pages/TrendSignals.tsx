@@ -314,8 +314,8 @@ export default function TrendSignals() {
       {products.length > 0 && (
         <div style={{ marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#2dca72', boxShadow: '0 0 8px #2dca72' }} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#2dca72', fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '1px' }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#6366F1', boxShadow: '0 0 8px #6366F1' }} />
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '1px' }}>
               Top 10 Today
             </span>
             <span style={{ fontSize: 11, color: '#9CA3AF' }}>· Refreshed every 6h</span>
@@ -343,7 +343,7 @@ export default function TrendSignals() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <span style={{ fontSize: 12, fontWeight: 800, color: '#6366F1' }}>${p.estimated_retail_aud}</span>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: '#2dca72' }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: '#6366F1' }}>
                         {p.winning_score || p.trend_score}
                       </span>
                     </div>
@@ -552,7 +552,7 @@ export default function TrendSignals() {
 
                     {/* Growth */}
                     <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: (p.growth_rate_pct || 0) >= 0 ? '#2dca72' : '#ef4444' }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: (p.growth_rate_pct || 0) >= 0 ? '#6366F1' : '#ef4444' }}>
                         {(p.growth_rate_pct || 0) >= 0 ? '\u2191' : '\u2193'} {Math.abs(p.growth_rate_pct || 0)}%
                       </span>
                     </td>
@@ -590,7 +590,7 @@ export default function TrendSignals() {
                             <div key={i} style={{
                               width: 8, height: 8, borderRadius: 2,
                               background: i <= Math.round((p.saturation_score || 5) / 2)
-                                ? (p.saturation_score || 5) >= 7 ? '#2dca72' : (p.saturation_score || 5) >= 4 ? '#6366F1' : '#ef4444'
+                                ? (p.saturation_score || 5) >= 7 ? '#6366F1' : (p.saturation_score || 5) >= 4 ? '#6366F1' : '#ef4444'
                                 : '#E5E7EB',
                             }} />
                           ))}

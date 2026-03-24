@@ -560,7 +560,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
       {/* ── TABLE WRAPPER ── */}
       <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 24px 40px', overflowX: 'auto' }}>
-        <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+        <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px #F5F5F5' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 1100 }}>
 
             {/* ── STICKY HEADER ── */}

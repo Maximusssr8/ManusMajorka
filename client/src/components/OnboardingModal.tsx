@@ -63,7 +63,7 @@ const goals = [
     id: 'scale-up',
     label: "Scale what's working",
     icon: TrendingUp,
-    color: '#2dca72',
+    color: '#6366F1',
     path: '/app/scaling-playbook',
   },
 ];
@@ -208,7 +208,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
         className="relative w-full max-w-md mx-4 rounded-2xl overflow-hidden"
         style={{
           background: 'white',
-          border: '1px solid rgba(255,255,255,0.1)',
+          border: '1px solid #F0F0F0',
           boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
         }}
       >
@@ -218,7 +218,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
           className="absolute top-3 right-3 p-1.5 rounded-lg hover:bg-white/5 transition-all"
           style={{
             cursor: 'pointer',
-            color: 'rgba(240,237,232,0.4)',
+            color: '#9CA3AF',
             background: 'none',
             border: 'none',
             zIndex: 10,
@@ -228,7 +228,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
         </button>
 
         {/* Progress bar */}
-        <div className="h-1 w-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        <div className="h-1 w-full" style={{ background: '#F9FAFB' }}>
           <div
             className="h-full transition-all duration-500"
             style={{
@@ -245,11 +245,11 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 <div className="text-3xl mb-3">👋</div>
                 <h2
                   className="text-lg font-black mb-1"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                 >
                   Welcome{userName ? `, ${userName}` : ''}!
                 </h2>
-                <p className="text-xs" style={{ color: 'rgba(240,237,232,0.45)' }}>
+                <p className="text-xs" style={{ color: '#6B7280' }}>
                   Let's personalise your experience. What's your e-commerce level?
                 </p>
               </div>
@@ -264,7 +264,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                       background:
                         selectedLevel === level.id
                           ? 'rgba(99,102,241,0.12)'
-                          : 'rgba(255,255,255,0.03)',
+                          : '#FAFAFA',
                       border: `1.5px solid ${selectedLevel === level.id ? 'rgba(99,102,241,0.4)' : '#E5E7EB'}`,
                       cursor: 'pointer',
                     }}
@@ -274,13 +274,13 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                       <div
                         className="text-xs font-bold"
                         style={{
-                          fontFamily: 'Syne, sans-serif',
+                          fontFamily: "'Bricolage Grotesque', sans-serif",
                           color: selectedLevel === level.id ? '#6366F1' : '#0A0A0A',
                         }}
                       >
                         {level.label}
                       </div>
-                      <div className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                      <div className="text-xs" style={{ color: '#9CA3AF' }}>
                         {level.desc}
                       </div>
                     </div>
@@ -303,9 +303,9 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 style={{
                   background: selectedLevel
                     ? 'linear-gradient(135deg, #6366F1, #f0c040)'
-                    : 'rgba(255,255,255,0.06)',
-                  color: selectedLevel ? '#080a0e' : 'rgba(240,237,232,0.3)',
-                  fontFamily: 'Syne, sans-serif',
+                    : '#F9FAFB',
+                  color: selectedLevel ? '#FAFAFA' : '#9CA3AF',
+                  fontFamily: "'Bricolage Grotesque', sans-serif",
                   cursor: selectedLevel ? 'pointer' : 'not-allowed',
                   border: 'none',
                 }}
@@ -321,11 +321,11 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 <div className="text-3xl mb-3">🎯</div>
                 <h2
                   className="text-lg font-black mb-1"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                 >
                   What's your priority?
                 </h2>
-                <p className="text-xs" style={{ color: 'rgba(240,237,232,0.45)' }}>
+                <p className="text-xs" style={{ color: '#6B7280' }}>
                   We'll take you straight to the right tool.
                 </p>
               </div>
@@ -340,7 +340,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                       className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl transition-all"
                       style={{
                         background:
-                          selectedGoal === goal.id ? `${goal.color}15` : 'rgba(255,255,255,0.03)',
+                          selectedGoal === goal.id ? `${goal.color}15` : '#FAFAFA',
                         border: `1.5px solid ${selectedGoal === goal.id ? `${goal.color}50` : '#E5E7EB'}`,
                         cursor: 'pointer',
                       }}
@@ -355,7 +355,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                         <div
                           className="text-xs font-bold"
                           style={{
-                            fontFamily: 'Syne, sans-serif',
+                            fontFamily: "'Bricolage Grotesque', sans-serif",
                             color: selectedGoal === goal.id ? goal.color : '#0A0A0A',
                           }}
                         >
@@ -375,11 +375,11 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   onClick={() => setStep(1)}
                   className="px-4 py-3 rounded-xl text-xs font-bold transition-all"
                   style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: 'rgba(240,237,232,0.5)',
+                    background: '#F9FAFB',
+                    border: '1px solid #F0F0F0',
+                    color: '#6B7280',
                     cursor: 'pointer',
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                   }}
                 >
                   <ChevronLeft size={14} />
@@ -396,9 +396,9 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   style={{
                     background: selectedGoal
                       ? 'linear-gradient(135deg, #6366F1, #f0c040)'
-                      : 'rgba(255,255,255,0.06)',
-                    color: selectedGoal ? '#080a0e' : 'rgba(240,237,232,0.3)',
-                    fontFamily: 'Syne, sans-serif',
+                      : '#F9FAFB',
+                    color: selectedGoal ? '#FAFAFA' : '#9CA3AF',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                     cursor: selectedGoal ? 'pointer' : 'not-allowed',
                     border: 'none',
                   }}
@@ -415,11 +415,11 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 <div className="text-3xl mb-3">💰</div>
                 <h2
                   className="text-lg font-black mb-1"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                 >
                   Starting budget?
                 </h2>
-                <p className="text-xs" style={{ color: 'rgba(240,237,232,0.45)' }}>
+                <p className="text-xs" style={{ color: '#6B7280' }}>
                   This helps us tailor realistic strategies and expectations.
                 </p>
               </div>
@@ -433,9 +433,9 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     style={{
                       background:
                         selectedBudget === budget.id
-                          ? 'rgba(45,202,114,0.12)'
-                          : 'rgba(255,255,255,0.03)',
-                      border: `1.5px solid ${selectedBudget === budget.id ? 'rgba(45,202,114,0.4)' : '#E5E7EB'}`,
+                          ? 'rgba(99,102,241,0.18)'
+                          : '#FAFAFA',
+                      border: `1.5px solid ${selectedBudget === budget.id ? 'rgba(99,102,241,0.60)' : '#E5E7EB'}`,
                       cursor: 'pointer',
                     }}
                   >
@@ -444,13 +444,13 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                       <div
                         className="text-xs font-bold"
                         style={{
-                          fontFamily: 'Syne, sans-serif',
-                          color: selectedBudget === budget.id ? '#2dca72' : '#0A0A0A',
+                          fontFamily: "'Bricolage Grotesque', sans-serif",
+                          color: selectedBudget === budget.id ? '#6366F1' : '#0A0A0A',
                         }}
                       >
                         {budget.label}
                       </div>
-                      <div className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                      <div className="text-xs" style={{ color: '#9CA3AF' }}>
                         {budget.desc}
                       </div>
                     </div>
@@ -463,11 +463,11 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   onClick={() => setStep(2)}
                   className="px-4 py-3 rounded-xl text-xs font-bold transition-all"
                   style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: 'rgba(240,237,232,0.5)',
+                    background: '#F9FAFB',
+                    border: '1px solid #F0F0F0',
+                    color: '#6B7280',
                     cursor: 'pointer',
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                   }}
                 >
                   <ChevronLeft size={14} />
@@ -478,13 +478,13 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
                   style={{
                     background: selectedBudget
-                      ? 'linear-gradient(135deg, #2dca72, #1fa85c)'
-                      : 'rgba(255,255,255,0.06)',
-                    color: selectedBudget ? '#fff' : 'rgba(240,237,232,0.3)',
-                    fontFamily: 'Syne, sans-serif',
+                      ? 'linear-gradient(135deg, #6366F1, #1fa85c)'
+                      : '#F9FAFB',
+                    color: selectedBudget ? '#fff' : '#9CA3AF',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                     cursor: selectedBudget ? 'pointer' : 'not-allowed',
                     border: 'none',
-                    boxShadow: selectedBudget ? '0 4px 20px rgba(45,202,114,0.3)' : 'none',
+                    boxShadow: selectedBudget ? '0 4px 20px #C7D2FE' : 'none',
                   }}
                 >
                   Continue <ChevronRight size={14} />
@@ -499,11 +499,11 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 <div className="text-3xl mb-3">📦</div>
                 <h2
                   className="text-lg font-black mb-1"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                 >
                   Import your first product to get started
                 </h2>
-                <p className="text-xs" style={{ color: 'rgba(240,237,232,0.45)' }}>
+                <p className="text-xs" style={{ color: '#6B7280' }}>
                   Paste any AliExpress, Amazon, or store URL and Majorka will analyse it instantly.
                 </p>
               </div>
@@ -521,15 +521,15 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     placeholder="https://aliexpress.com/item/... or any product URL"
                     className="flex-1 text-xs px-3 py-2.5 rounded-xl outline-none"
                     style={{
-                      background: 'rgba(255,255,255,0.04)',
-                      border: `1.5px solid ${importError ? 'rgba(224,92,122,0.5)' : 'rgba(255,255,255,0.08)'}`,
+                      background: '#F9FAFB',
+                      border: `1.5px solid ${importError ? 'rgba(224,92,122,0.5)' : '#F5F5F5'}`,
                       color: '#0A0A0A',
                     }}
                     onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')}
                     onBlur={(e) =>
                       (e.target.style.borderColor = importError
                         ? 'rgba(224,92,122,0.5)'
-                        : 'rgba(255,255,255,0.08)')
+                        : '#F5F5F5')
                     }
                   />
                   <button
@@ -538,8 +538,8 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-50"
                     style={{
                       background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-                      color: '#080a0e',
-                      fontFamily: 'Syne, sans-serif',
+                      color: '#FAFAFA',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       cursor: importing || !importUrl.trim() ? 'not-allowed' : 'pointer',
                       border: 'none',
                       whiteSpace: 'nowrap',
@@ -571,12 +571,12 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   <div
                     className="flex items-center gap-2 p-2.5 rounded-lg"
                     style={{
-                      background: 'rgba(45,202,114,0.08)',
-                      border: '1px solid rgba(45,202,114,0.2)',
+                      background: 'rgba(99,102,241,0.12)',
+                      border: '1px solid rgba(99,102,241,0.30)',
                     }}
                   >
-                    <Check size={13} style={{ color: '#2dca72', flexShrink: 0 }} />
-                    <span className="text-xs font-semibold" style={{ color: '#2dca72' }}>
+                    <Check size={13} style={{ color: '#6366F1', flexShrink: 0 }} />
+                    <span className="text-xs font-semibold" style={{ color: '#6366F1' }}>
                       ✓ Product imported! Taking you to your dashboard...
                     </span>
                   </div>
@@ -588,11 +588,11 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   onClick={() => setStep(3)}
                   className="px-4 py-3 rounded-xl text-xs font-bold transition-all"
                   style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: 'rgba(240,237,232,0.5)',
+                    background: '#F9FAFB',
+                    border: '1px solid #F0F0F0',
+                    color: '#6B7280',
                     cursor: 'pointer',
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                   }}
                 >
                   <ChevronLeft size={14} />
@@ -601,12 +601,12 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   onClick={handleFinish}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all"
                   style={{
-                    background: 'linear-gradient(135deg, #2dca72, #1fa85c)',
+                    background: 'linear-gradient(135deg, #6366F1, #1fa85c)',
                     color: '#fff',
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                     cursor: 'pointer',
                     border: 'none',
-                    boxShadow: '0 4px 20px rgba(45,202,114,0.3)',
+                    boxShadow: '0 4px 20px #C7D2FE',
                   }}
                 >
                   🚀 Let's Go!
@@ -624,7 +624,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: 'rgba(240,237,232,0.3)',
+                  color: '#9CA3AF',
                   cursor: 'pointer',
                 }}
               >
@@ -645,7 +645,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                       ? '#6366F1'
                       : s < step
                         ? 'rgba(99,102,241,0.4)'
-                        : 'rgba(255,255,255,0.15)',
+                        : '#D1D5DB',
                   width: s === step ? 16 : 6,
                 }}
               />

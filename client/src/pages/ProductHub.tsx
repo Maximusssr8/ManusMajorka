@@ -28,7 +28,7 @@ const stageColors: Record<string, string> = {
   validate: '#7c6af5',
   build: '#6366F1',
   launch: '#ff6b6b',
-  optimize: '#2dca72',
+  optimize: '#6366F1',
   scale: '#f472b6',
 };
 
@@ -72,7 +72,7 @@ export default function ProductHub() {
       >
         <div className="text-center">
           <div className="text-4xl mb-4">🔒</div>
-          <div className="text-sm font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             Sign in to view product hub
           </div>
         </div>
@@ -96,7 +96,7 @@ export default function ProductHub() {
       >
         <div className="text-center">
           <div className="text-4xl mb-4">📦</div>
-          <div className="text-sm font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             Product not found
           </div>
           <button
@@ -137,18 +137,18 @@ export default function ProductHub() {
           <button
             onClick={() => navigate('/app/my-products')}
             className="p-2 rounded-lg hover:bg-white/5 transition-all"
-            style={{ cursor: 'pointer', color: 'rgba(240,237,232,0.5)' }}
+            style={{ cursor: 'pointer', color: '#6B7280' }}
           >
             <ArrowLeft size={16} />
           </button>
           <div>
             <div className="flex items-center gap-2">
               <Package size={16} style={{ color: stageColors[product.status] || '#6366F1' }} />
-              <h1 className="text-xl font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+              <h1 className="text-xl font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 {product.name}
               </h1>
             </div>
-            <p className="text-xs mt-0.5" style={{ color: 'rgba(240,237,232,0.4)' }}>
+            <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
               {product.niche ? `${product.niche} · ` : ''}
               {totalOutputs} saved output{totalOutputs !== 1 ? 's' : ''}
             </p>
@@ -166,7 +166,7 @@ export default function ProductHub() {
                 key={stage}
                 className="rounded-xl overflow-hidden"
                 style={{
-                  background: 'rgba(255,255,255,0.02)',
+                  background: '#FAFAFA',
                   border: '1px solid #E5E7EB',
                 }}
               >
@@ -177,7 +177,7 @@ export default function ProductHub() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 rounded-full" style={{ background: color }} />
-                    <span className="text-sm font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
+                    <span className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                       {stageLabels[stage]}
                     </span>
                     <span
@@ -188,9 +188,9 @@ export default function ProductHub() {
                     </span>
                   </div>
                   {isExpanded ? (
-                    <ChevronUp size={14} style={{ color: 'rgba(240,237,232,0.4)' }} />
+                    <ChevronUp size={14} style={{ color: '#9CA3AF' }} />
                   ) : (
-                    <ChevronDown size={14} style={{ color: 'rgba(240,237,232,0.4)' }} />
+                    <ChevronDown size={14} style={{ color: '#9CA3AF' }} />
                   )}
                 </button>
                 {isExpanded && (
@@ -198,7 +198,7 @@ export default function ProductHub() {
                     {stageOutputs.length === 0 ? (
                       <div
                         className="text-xs py-6 text-center"
-                        style={{ color: 'rgba(240,237,232,0.25)' }}
+                        style={{ color: '#D1D5DB' }}
                       >
                         No outputs saved for this stage yet. Run a {stageLabels[stage]} tool and
                         click "Save to Product".
@@ -216,8 +216,8 @@ export default function ProductHub() {
                               key={output.id}
                               className="rounded-lg"
                               style={{
-                                background: 'rgba(255,255,255,0.02)',
-                                border: '1px solid rgba(255,255,255,0.05)',
+                                background: '#FAFAFA',
+                                border: '1px solid #F9FAFB',
                               }}
                             >
                               <div
@@ -229,7 +229,7 @@ export default function ProductHub() {
                                   <span className="text-xs font-bold">{output.toolName}</span>
                                   <span
                                     className="text-xs"
-                                    style={{ color: 'rgba(240,237,232,0.3)' }}
+                                    style={{ color: '#9CA3AF' }}
                                   >
                                     {new Date(output.createdAt).toLocaleDateString()}
                                   </span>
@@ -242,7 +242,7 @@ export default function ProductHub() {
                                       toast.success('Copied JSON!');
                                     }}
                                     className="p-1 rounded hover:bg-white/5 transition-all"
-                                    style={{ cursor: 'pointer', color: 'rgba(240,237,232,0.4)' }}
+                                    style={{ cursor: 'pointer', color: '#9CA3AF' }}
                                   >
                                     <Copy size={11} />
                                   </button>
@@ -265,7 +265,7 @@ export default function ProductHub() {
                                     className="text-xs p-3 rounded-lg overflow-x-auto"
                                     style={{
                                       background: 'rgba(0,0,0,0.3)',
-                                      color: 'rgba(240,237,232,0.6)',
+                                      color: '#374151',
                                       maxHeight: 300,
                                       scrollbarWidth: 'thin',
                                     }}

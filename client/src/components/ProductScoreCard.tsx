@@ -80,7 +80,7 @@ function ScoreBar({
             {inverted && <span style={{ fontSize: 10, color: '#52525b', marginLeft: 4 }}>(lower = better)</span>}
           </span>
         </div>
-        <span style={{ fontSize: 13, fontWeight: 800, color, fontFamily: 'Syne, sans-serif' }}>
+        <span style={{ fontSize: 13, fontWeight: 800, color, fontFamily: "'Bricolage Grotesque', sans-serif" }}>
           {started ? <CountUp start={0} end={inverted ? 100 - score : score} duration={1.2} delay={0} /> : 0}
           <span style={{ fontSize: 10, marginLeft: 1 }}>/100</span>
         </span>
@@ -88,7 +88,7 @@ function ScoreBar({
       <div
         style={{
           height: 6, borderRadius: 3,
-          background: 'rgba(255,255,255,0.06)',
+          background: '#F9FAFB',
           overflow: 'hidden',
         }}
       >
@@ -236,12 +236,12 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <RefreshCw size={12} color="#6366F1" style={{ animation: 'spin 1s linear infinite' }} />
-          <span style={{ fontSize: 11, color: '#6366F1', fontWeight: 700, fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <span style={{ fontSize: 11, color: '#6366F1', fontWeight: 700, fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             Scoring Opportunity...
           </span>
         </div>
         {[0, 1, 2, 3, 4].map(i => (
-          <div key={i} style={{ height: 6, background: 'rgba(255,255,255,0.05)', borderRadius: 3, marginBottom: 16, width: `${70 + i * 6}%` }} />
+          <div key={i} style={{ height: 6, background: '#F9FAFB', borderRadius: 3, marginBottom: 16, width: `${70 + i * 6}%` }} />
         ))}
       </div>
     );
@@ -274,11 +274,11 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
-          <div style={{ fontSize: 10, fontWeight: 700, color: '#6366F1', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 }}>
             AI Opportunity Score
           </div>
           {score.productName && (
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#f5f5f5', fontFamily: 'Syne, sans-serif' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#f5f5f5', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               {score.productName}
             </div>
           )}
@@ -286,7 +286,7 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
         {/* Overall score circle */}
         <div style={{ textAlign: 'center' }}>
           <div style={{
-            fontFamily: 'Syne, sans-serif', fontWeight: 900,
+            fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 900,
             fontSize: 36, color: '#6366F1', lineHeight: 1,
             animation: 'score-pulse 3s ease-in-out infinite',
           }}>
@@ -331,7 +331,7 @@ export function ProductScoreCard({ response, onScoreLoaded }: Props) {
       >
         <span style={{ fontSize: 16 }}>{verdict.dot}</span>
         <div>
-          <span style={{ fontSize: 13, fontWeight: 800, color: verdict.color, fontFamily: 'Syne, sans-serif' }}>
+          <span style={{ fontSize: 13, fontWeight: 800, color: verdict.color, fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             {verdict.label}
           </span>
           <span style={{ fontSize: 12, color: '#52525b', marginLeft: 8, fontFamily: 'DM Sans, sans-serif' }}>

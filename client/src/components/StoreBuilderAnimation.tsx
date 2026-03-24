@@ -388,7 +388,7 @@ export default function StoreBuilderAnimation() {
                   <div style={{
                     background: '#161b22', borderRadius: '10px 10px 0 0',
                     padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10,
-                    borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0,
+                    borderBottom: '1px solid #F9FAFB', flexShrink: 0,
                   }}>
                     <div style={{ display: 'flex', gap: 5 }}>
                       <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#ff5f56' }} />
@@ -426,7 +426,7 @@ export default function StoreBuilderAnimation() {
                           }}
                         >
                           <span style={{
-                            fontFamily: 'Syne, sans-serif', color: '#6366F1',
+                            fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1',
                             fontSize: 11, fontWeight: 700, letterSpacing: '0.08em',
                           }}>MAJORKA STORE</span>
                           <span style={{ color: '#6b7280', fontSize: 9, fontFamily: "'DM Sans', sans-serif" }}>
@@ -470,7 +470,7 @@ export default function StoreBuilderAnimation() {
                                   <rect x="2" y="3" width="20" height="14" rx="2" stroke="#6366F1" strokeOpacity="0.35" strokeWidth="1.5"/>
                                   <path d="M8 21h8M12 17v4" stroke="#6366F1" strokeOpacity="0.35" strokeWidth="1.5" strokeLinecap="round"/>
                                 </svg>
-                                <span style={{ color: 'rgba(99,102,241,0.4)', fontSize: 10, letterSpacing: '0.12em', fontFamily: 'Syne, sans-serif' }}>PRODUCT</span>
+                                <span style={{ color: 'rgba(99,102,241,0.4)', fontSize: 10, letterSpacing: '0.12em', fontFamily: "'Bricolage Grotesque', sans-serif" }}>PRODUCT</span>
                               </div>
                           </motion.div>
                         )}
@@ -488,7 +488,7 @@ export default function StoreBuilderAnimation() {
                               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                               transition={{ duration: 0.2 }}
                               style={{
-                                fontFamily: 'Syne, sans-serif', fontSize: 12,
+                                fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 12,
                                 fontWeight: 700, color: '#fff', lineHeight: 1.3, minHeight: 32,
                               }}
                             >
@@ -510,7 +510,7 @@ export default function StoreBuilderAnimation() {
                               key="price"
                               initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                               transition={{ duration: 0.3 }}
-                              style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 900, color: '#6366F1' }}
+                              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 18, fontWeight: 900, color: '#6366F1' }}
                             >
                               $89.99 AUD
                             </motion.div>
@@ -524,9 +524,9 @@ export default function StoreBuilderAnimation() {
                               initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
                               transition={{ duration: 0.3, type: 'spring', stiffness: 260, damping: 20 }}
                               style={{
-                                background: '#6366F1', color: '#080a0e', border: 'none',
+                                background: '#6366F1', color: '#FAFAFA', border: 'none',
                                 borderRadius: 5, padding: '7px 12px',
-                                fontFamily: 'Syne, sans-serif', fontWeight: 800,
+                                fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800,
                                 fontSize: 10, cursor: 'pointer',
                                 boxShadow: '0 0 20px rgba(99,102,241,0.4)', letterSpacing: '0.03em',
                               }}
@@ -628,7 +628,7 @@ export default function StoreBuilderAnimation() {
 
                     <div style={{ marginTop: 18 }}>
                       <div style={{
-                        background: 'rgba(255,255,255,0.08)', borderRadius: 4,
+                        background: '#F5F5F5', borderRadius: 4,
                         height: 6, overflow: 'hidden', marginBottom: 6,
                       }}>
                         <motion.div
@@ -683,7 +683,7 @@ export default function StoreBuilderAnimation() {
                             display: 'flex', alignItems: 'center',
                             justifyContent: 'space-between',
                             padding: '9px 0',
-                            borderBottom: '1px solid rgba(255,255,255,0.05)',
+                            borderBottom: '1px solid #F9FAFB',
                             fontSize: 12,
                           }}
                         >
@@ -744,8 +744,8 @@ export default function StoreBuilderAnimation() {
                           exit={{ opacity: 0 }}
                           transition={{ duration: 0.35 }}
                           style={{
-                            background: 'rgba(255,255,255,0.03)',
-                            border: '1px solid rgba(255,255,255,0.07)',
+                            background: '#FAFAFA',
+                            border: '1px solid #E5E7EB',
                             borderLeft: '3px solid #4ade80',
                             borderRadius: 6, padding: '10px 12px', marginBottom: 8,
                           }}
@@ -809,7 +809,7 @@ export default function StoreBuilderAnimation() {
                   <div style={{ color: '#6b7280', fontSize: 11, marginBottom: 14 }}>
                     Supplier: CJ Dropshipping
                   </div>
-                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', marginBottom: 14 }} />
+                  <div style={{ borderTop: '1px solid #E5E7EB', marginBottom: 14 }} />
 
                   {([
                     { id: '#1847', shipped: true  },
@@ -828,7 +828,7 @@ export default function StoreBuilderAnimation() {
                         >
                           <span style={{ fontFamily: 'monospace', color: '#6366F1', width: 46 }}>{item.id}</span>
                           <div style={{
-                            flex: 1, background: 'rgba(255,255,255,0.06)',
+                            flex: 1, background: '#F9FAFB',
                             borderRadius: 3, height: 5, overflow: 'hidden',
                           }}>
                             <motion.div
@@ -879,7 +879,7 @@ export default function StoreBuilderAnimation() {
                   <div style={{ marginBottom: 18 }}>
                     <div style={{ color: '#6b7280', fontSize: 10, marginBottom: 4 }}>Revenue</div>
                     <div style={{
-                      fontFamily: 'Syne, sans-serif', fontSize: 28, fontWeight: 800,
+                      fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 28, fontWeight: 800,
                       color: '#6366F1',
                       textShadow: '0 0 30px rgba(99,102,241,0.55), 0 0 60px rgba(99,102,241,0.25)',
                     }}>
@@ -910,7 +910,7 @@ export default function StoreBuilderAnimation() {
                   {/* Day progress bar */}
                   <div>
                     <div style={{
-                      background: 'rgba(255,255,255,0.06)', borderRadius: 4,
+                      background: '#F9FAFB', borderRadius: 4,
                       height: 5, overflow: 'hidden', marginBottom: 5,
                     }}>
                       <motion.div
@@ -948,7 +948,7 @@ export default function StoreBuilderAnimation() {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3, delay: 0.1 }}
                     style={{
-                      fontFamily: 'Syne, sans-serif', fontSize: 16, fontWeight: 700,
+                      fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 16, fontWeight: 700,
                       color: '#6366F1', letterSpacing: '0.05em',
                     }}
                   >

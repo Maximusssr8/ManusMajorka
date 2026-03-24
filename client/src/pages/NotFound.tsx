@@ -20,7 +20,7 @@ export default function NotFound() {
         >
           <span
             className="text-black font-black text-2xl"
-            style={{ fontFamily: 'Syne, sans-serif' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             M
           </span>
@@ -29,7 +29,7 @@ export default function NotFound() {
         {/* 404 */}
         <h1
           className="text-6xl font-black mb-3"
-          style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A', letterSpacing: '-2px' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', letterSpacing: '-2px' }}
         >
           404
         </h1>
@@ -37,11 +37,11 @@ export default function NotFound() {
         {/* Witty AU message */}
         <p
           className="text-base font-semibold mb-2"
-          style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
         >
           Yeah nah, this page doesn't exist.
         </p>
-        <p className="text-sm mb-8" style={{ color: 'rgba(240,237,232,0.4)', lineHeight: 1.6 }}>
+        <p className="text-sm mb-8" style={{ color: '#9CA3AF', lineHeight: 1.6 }}>
           Looks like this URL has gone walkabout. No worries — let's get you back on track.
         </p>
 
@@ -51,10 +51,10 @@ export default function NotFound() {
             onClick={() => window.history.back()}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
             style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: 'rgba(240,237,232,0.6)',
-              fontFamily: 'Syne, sans-serif',
+              background: '#F9FAFB',
+              border: '1px solid #F0F0F0',
+              color: '#374151',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
             }}
             aria-label="Go back to previous page"
           >
@@ -67,7 +67,7 @@ export default function NotFound() {
             style={{
               background: 'linear-gradient(135deg, #6366F1, #f0c040)',
               color: '#0a0b0d',
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               border: 'none',
               boxShadow: '0 4px 16px rgba(99,102,241,0.25)',
             }}

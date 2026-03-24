@@ -68,7 +68,7 @@ export default function ProductSearch() {
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         {/* Header */}
         <div style={{ marginBottom: 32 }}>
-          <h1 style={{ color: C.text, fontSize: 28, fontWeight: 700, fontFamily: 'Syne, sans-serif', margin: 0 }}>
+          <h1 style={{ color: C.text, fontSize: 28, fontWeight: 700, fontFamily: "'Bricolage Grotesque', sans-serif", margin: 0 }}>
             Product Search
           </h1>
           <p style={{ color: C.muted, fontSize: 14, marginTop: 6 }}>
@@ -101,7 +101,7 @@ export default function ProductSearch() {
               background: C.gold, color: 'white', border: 'none',
               padding: '10px 20px', borderRadius: 7, fontSize: 13, fontWeight: 700,
               cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1,
-              fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap', minHeight: 44,
+              fontFamily: "'Bricolage Grotesque', sans-serif", whiteSpace: 'nowrap', minHeight: 44,
             }}
           >
             {loading ? 'Searching...' : 'Search'}

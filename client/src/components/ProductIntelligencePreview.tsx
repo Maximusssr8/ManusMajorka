@@ -221,7 +221,7 @@ const PIP_CSS = `
   cursor: pointer;
 }
 
-.pip-row:hover { background: rgba(255,255,255,0.025) !important; }
+.pip-row:hover { background: #FAFAFA !important; }
 
 .pip-action-sm {
   display: inline-flex;
@@ -246,8 +246,8 @@ const PIP_CSS = `
 }
 
 .pip-filter-chip {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: #F9FAFB;
+  border: 1px solid #F5F5F5;
   border-radius: 7px;
   padding: 7px 13px;
   font-size: 12px;
@@ -267,10 +267,10 @@ const PIP_CSS = `
 
 .pip-unlock-cta {
   background: linear-gradient(135deg, #6366F1, #4F46E5);
-  color: #080a0e;
+  color: #FAFAFA;
   border-radius: 10px;
   padding: 14px 36px;
-  font-family: 'Syne', sans-serif;
+  font-family: 'Bricolage Grotesque', sans-serif;
   font-weight: 800;
   font-size: 15px;
   text-decoration: none;
@@ -313,7 +313,7 @@ const PIP_CSS = `
 }
 
 .pip-skeleton {
-  background: rgba(255,255,255,0.06);
+  background: #F9FAFB;
   border-radius: 4px;
   animation: shimmer-pip 1.5s ease-in-out infinite;
 }
@@ -342,7 +342,7 @@ function SkeletonRow({ isFirst }: { isFirst?: boolean }) {
       gridTemplateColumns: '36px 1fr 130px 140px 90px 80px 64px',
       padding: '0 20px',
       height: 56,
-      borderBottom: '1px solid rgba(255,255,255,0.04)',
+      borderBottom: '1px solid #F9FAFB',
       alignItems: 'center',
       background: isFirst ? 'rgba(99,102,241,0.02)' : 'transparent',
     }}>
@@ -484,7 +484,7 @@ export default function ProductIntelligencePreview() {
                 </div>
                 {/* H2 */}
                 <h2 style={{
-                  fontFamily: 'Syne, sans-serif',
+                  fontFamily: "'Bricolage Grotesque', sans-serif",
                   fontSize: 'clamp(36px, 5vw, 52px)',
                   fontWeight: 800,
                   color: '#fff',
@@ -529,7 +529,7 @@ export default function ProductIntelligencePreview() {
             <div className="pip-table-area" style={{ display: 'block' }}>
               <div style={{
                 background: 'rgba(6,8,14,0.8)',
-                border: '1px solid rgba(255,255,255,0.07)',
+                border: '1px solid #E5E7EB',
                 borderRadius: 12,
                 overflow: 'hidden',
                 position: 'relative',
@@ -540,8 +540,8 @@ export default function ProductIntelligencePreview() {
                   display: 'grid',
                   gridTemplateColumns: '36px 1fr 130px 140px 90px 80px 64px',
                   padding: '12px 20px',
-                  background: 'rgba(255,255,255,0.02)',
-                  borderBottom: '1px solid rgba(255,255,255,0.06)',
+                  background: '#FAFAFA',
+                  borderBottom: '1px solid #F9FAFB',
                   fontSize: 10,
                   color: '#4b5563',
                   fontFamily: 'DM Sans, sans-serif',
@@ -576,7 +576,7 @@ export default function ProductIntelligencePreview() {
                         gridTemplateColumns: '36px 1fr 130px 140px 90px 80px 64px',
                         padding: '0 20px',
                         height: 56,
-                        borderBottom: '1px solid rgba(255,255,255,0.04)',
+                        borderBottom: '1px solid #F9FAFB',
                         alignItems: 'center',
                         background: product.rank === 1 ? 'rgba(99,102,241,0.04)' : 'transparent',
                         position: 'relative',
@@ -654,7 +654,7 @@ export default function ProductIntelligencePreview() {
                         fontSize: 11,
                         padding: '3px 10px',
                         borderRadius: 5,
-                        background: 'rgba(255,255,255,0.05)',
+                        background: '#F9FAFB',
                         color: '#9ca3af',
                         fontFamily: 'DM Sans, sans-serif',
                         whiteSpace: 'nowrap',
@@ -664,7 +664,7 @@ export default function ProductIntelligencePreview() {
 
                       {/* Revenue */}
                       <span style={{
-                        fontFamily: 'Syne, sans-serif',
+                        fontFamily: "'Bricolage Grotesque', sans-serif",
                         fontSize: 15,
                         fontWeight: 700,
                         color: '#6366F1',
@@ -837,11 +837,11 @@ export default function ProductIntelligencePreview() {
                   }}>
                     {first.trend}
                   </span>
-                  <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: '#374151', margin: '8px 0 4px', lineHeight: 1.3 }}>
+                  <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 18, color: '#374151', margin: '8px 0 4px', lineHeight: 1.3 }}>
                     {first.name}
                   </h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-                    <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#6366F1' }}>
+                    <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 800, color: '#6366F1' }}>
                       {first.revenue}
                     </span>
                     <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 700, color: '#4ade80' }}>

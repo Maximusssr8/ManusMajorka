@@ -140,7 +140,7 @@ export default function ScalingPlaybook() {
     }
   };
 
-  const phaseColors = ['#2dca72', '#7c6af5', '#6366F1', '#ff6b6b', '#00b4d8', '#f472b6'];
+  const phaseColors = ['#6366F1', '#7c6af5', '#6366F1', '#ff6b6b', '#00b4d8', '#f472b6'];
 
   return (
     <div
@@ -163,10 +163,10 @@ export default function ScalingPlaybook() {
             <Rocket size={15} style={{ color: '#7c6af5' }} />
           </div>
           <div>
-            <div className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+            <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Scaling Playbook
             </div>
-            <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+            <div className="text-xs" style={{ color: '#9CA3AF' }}>
               Revenue roadmap with milestones
             </div>
           </div>
@@ -210,7 +210,7 @@ export default function ScalingPlaybook() {
           <div key={label}>
             <label
               className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               {label} {required && <span style={{ color: '#7c6af5' }}>*</span>}
             </label>
@@ -220,12 +220,12 @@ export default function ScalingPlaybook() {
               placeholder={placeholder}
               className="w-full text-xs px-3 py-2.5 rounded-lg outline-none"
               style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1.5px solid rgba(255,255,255,0.08)',
-                color: '#f0ede8',
+                background: '#F9FAFB',
+                border: '1.5px solid #F5F5F5',
+                color: '#374151',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(124,106,245,0.45)')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+              onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
             />
           </div>
         ))}
@@ -239,7 +239,7 @@ export default function ScalingPlaybook() {
               ? 'rgba(124,106,245,0.25)'
               : 'linear-gradient(135deg, #7c6af5, #9c5fff)',
             color: '#fff',
-            fontFamily: 'Syne, sans-serif',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
             boxShadow: generating ? 'none' : '0 4px 20px rgba(124,106,245,0.3)',
             cursor: generating ? 'not-allowed' : 'pointer',
           }}
@@ -260,7 +260,7 @@ export default function ScalingPlaybook() {
           <div className="pt-2 space-y-2">
             <div
               className="text-xs font-bold uppercase tracking-wider"
-              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Email Your Playbook
             </div>
@@ -271,12 +271,12 @@ export default function ScalingPlaybook() {
               placeholder="your@email.com"
               className="w-full text-xs px-3 py-2.5 rounded-lg outline-none"
               style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1.5px solid rgba(255,255,255,0.08)',
-                color: '#f0ede8',
+                background: '#F9FAFB',
+                border: '1.5px solid #F5F5F5',
+                color: '#374151',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+              onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
             />
             <button
               onClick={handleEmailSend}
@@ -287,7 +287,7 @@ export default function ScalingPlaybook() {
                 border: '1px solid rgba(99,102,241,0.3)',
                 color: '#6366F1',
                 cursor: emailSending ? 'not-allowed' : 'pointer',
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
               }}
             >
               {emailSending ? (
@@ -309,16 +309,16 @@ export default function ScalingPlaybook() {
         {milestones.length > 0 ? (
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+              <h2 className="text-lg font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Your Scaling Roadmap
               </h2>
               <button
                 onClick={copyAll}
                 className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: 'rgba(240,237,232,0.6)',
+                  background: '#F9FAFB',
+                  border: '1px solid #F0F0F0',
+                  color: '#374151',
                   cursor: 'pointer',
                 }}
               >
@@ -334,7 +334,7 @@ export default function ScalingPlaybook() {
                   border: '1px solid rgba(124,106,245,0.2)',
                 }}
               >
-                <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.7)' }}>
+                <div className="text-xs leading-relaxed" style={{ color: '#374151' }}>
                   {summary}
                 </div>
               </div>
@@ -354,7 +354,7 @@ export default function ScalingPlaybook() {
                           background: `${color}15`,
                           border: `2px solid ${color}`,
                           color,
-                          fontFamily: 'Syne, sans-serif',
+                          fontFamily: "'Bricolage Grotesque', sans-serif",
                         }}
                       >
                         {i + 1}
@@ -368,7 +368,7 @@ export default function ScalingPlaybook() {
                     <div
                       className="flex-1 rounded-xl p-4 mb-2"
                       style={{
-                        background: 'rgba(255,255,255,0.02)',
+                        background: '#FAFAFA',
                         border: `1px solid ${color}20`,
                       }}
                     >
@@ -376,13 +376,13 @@ export default function ScalingPlaybook() {
                         <div>
                           <span
                             className="text-xs font-bold uppercase tracking-wider"
-                            style={{ color, fontFamily: 'Syne, sans-serif' }}
+                            style={{ color, fontFamily: "'Bricolage Grotesque', sans-serif" }}
                           >
                             {m.phase}
                           </span>
                           <h3
                             className="text-sm font-bold mt-0.5"
-                            style={{ fontFamily: 'Syne, sans-serif' }}
+                            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                           >
                             {m.title}
                           </h3>
@@ -392,7 +392,7 @@ export default function ScalingPlaybook() {
                           style={{
                             background: `${color}12`,
                             color,
-                            fontFamily: 'Syne, sans-serif',
+                            fontFamily: "'Bricolage Grotesque', sans-serif",
                             fontWeight: 700,
                           }}
                         >
@@ -405,7 +405,7 @@ export default function ScalingPlaybook() {
                           <div
                             key={j}
                             className="flex items-start gap-2 text-xs"
-                            style={{ color: 'rgba(240,237,232,0.6)' }}
+                            style={{ color: '#374151' }}
                           >
                             <ChevronRight
                               size={10}
@@ -422,7 +422,7 @@ export default function ScalingPlaybook() {
                         style={{ background: `${color}08`, border: `1px solid ${color}15` }}
                       >
                         <Target size={11} style={{ color }} />
-                        <span style={{ color: 'rgba(240,237,232,0.5)' }}>KPI:</span>
+                        <span style={{ color: '#6B7280' }}>KPI:</span>
                         <span style={{ color, fontWeight: 600 }}>{m.kpi}</span>
                       </div>
                     </div>
@@ -440,10 +440,10 @@ export default function ScalingPlaybook() {
                   className="animate-spin mx-auto mb-4"
                   style={{ color: '#7c6af5' }}
                 />
-                <div className="text-sm font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
+                <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Building your scaling roadmap…
                 </div>
-                <div className="text-xs mt-1" style={{ color: 'rgba(240,237,232,0.35)' }}>
+                <div className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
                   Analyzing your business metrics and growth potential
                 </div>
               </div>
@@ -453,13 +453,13 @@ export default function ScalingPlaybook() {
                 <div className="text-center">
                   <div
                     className="text-base font-black mb-2"
-                    style={{ fontFamily: 'Syne, sans-serif' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Scaling Playbook
                   </div>
                   <div
                     className="text-xs max-w-xs leading-relaxed"
-                    style={{ color: 'rgba(240,237,232,0.35)' }}
+                    style={{ color: '#9CA3AF' }}
                   >
                     Enter your current revenue, target, and niche to get a step-by-step scaling
                     roadmap with milestones, actions, and KPIs.

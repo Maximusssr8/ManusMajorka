@@ -37,11 +37,11 @@ export function EmptyState({ icon: Icon, title, description, ctaLabel, onCta }: 
         </div>
         <h3
           className="text-base font-black mb-2"
-          style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
         >
           {title}
         </h3>
-        <p className="text-xs leading-relaxed mb-5" style={{ color: 'rgba(240,237,232,0.4)' }}>
+        <p className="text-xs leading-relaxed mb-5" style={{ color: '#9CA3AF' }}>
           {description}
         </p>
         {ctaLabel && onCta && (
@@ -50,8 +50,8 @@ export function EmptyState({ icon: Icon, title, description, ctaLabel, onCta }: 
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all"
             style={{
               background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-              color: '#080a0e',
-              fontFamily: 'Syne, sans-serif',
+              color: '#FAFAFA',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: 'pointer',
               border: 'none',
               boxShadow: '0 4px 16px rgba(99,102,241,0.2)',

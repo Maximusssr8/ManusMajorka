@@ -194,7 +194,7 @@ export function DashboardAISuggestion({ userProfile }: Props) {
         <span style={{
           fontSize: 11, color: '#6366F1', fontWeight: 700,
           textTransform: 'uppercase', letterSpacing: '0.08em',
-          fontFamily: 'Syne, sans-serif',
+          fontFamily: "'Bricolage Grotesque', sans-serif",
         }}>
           Maya's Smart Actions
         </span>
@@ -228,14 +228,14 @@ export function DashboardAISuggestion({ userProfile }: Props) {
         {loading
           ? [0, 1, 2].map((i) => (
               <div key={i} style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: '#FAFAFA',
+                border: '1px solid #F9FAFB',
                 borderRadius: 12, padding: '16px 18px',
                 minHeight: 100,
               }}>
-                <div style={{ height: 10, background: 'rgba(255,255,255,0.06)', borderRadius: 5, width: '60%', marginBottom: 10, animation: 'pulse 1.5s ease-in-out infinite' }} />
-                <div style={{ height: 8, background: 'rgba(255,255,255,0.04)', borderRadius: 4, width: '80%', marginBottom: 16, animation: 'pulse 1.5s ease-in-out infinite' }} />
-                <div style={{ height: 8, background: 'rgba(255,255,255,0.04)', borderRadius: 4, width: '40%', animation: 'pulse 1.5s ease-in-out infinite' }} />
+                <div style={{ height: 10, background: '#F9FAFB', borderRadius: 5, width: '60%', marginBottom: 10, animation: 'pulse 1.5s ease-in-out infinite' }} />
+                <div style={{ height: 8, background: '#F9FAFB', borderRadius: 4, width: '80%', marginBottom: 16, animation: 'pulse 1.5s ease-in-out infinite' }} />
+                <div style={{ height: 8, background: '#F9FAFB', borderRadius: 4, width: '40%', animation: 'pulse 1.5s ease-in-out infinite' }} />
               </div>
             ))
           : (displayCards || FALLBACK_CARDS).map((card, i) => {
@@ -249,8 +249,8 @@ export function DashboardAISuggestion({ userProfile }: Props) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1, duration: 0.4, ease: 'easeOut' }}
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
-                    border: `1px solid rgba(255,255,255,0.07)`,
+                    background: '#FAFAFA',
+                    border: `1px solid #E5E7EB`,
                     borderRadius: 12,
                     padding: '16px 18px',
                     cursor: 'pointer',
@@ -266,8 +266,8 @@ export function DashboardAISuggestion({ userProfile }: Props) {
                   }}
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLElement;
-                    el.style.borderColor = 'rgba(255,255,255,0.07)';
-                    el.style.background = 'rgba(255,255,255,0.02)';
+                    el.style.borderColor = '#E5E7EB';
+                    el.style.background = '#FAFAFA';
                     el.style.transform = '';
                   }}
                   onClick={() => {
@@ -296,7 +296,7 @@ export function DashboardAISuggestion({ userProfile }: Props) {
 
                   {/* Title */}
                   <div style={{
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                     fontWeight: 700, fontSize: 13,
                     color: '#f5f5f5', marginBottom: 4, lineHeight: 1.3,
                   }}>
@@ -316,7 +316,7 @@ export function DashboardAISuggestion({ userProfile }: Props) {
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: 4,
                     fontSize: 12, fontWeight: 700, color: cardColor,
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                   }}>
                     {card.action}
                     <ArrowRight size={11} />

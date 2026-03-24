@@ -16,7 +16,7 @@ export default function StageLanding({ stage }: Props) {
       style={{
         background: '#FAFAFA',
         scrollbarWidth: 'thin',
-        scrollbarColor: 'rgba(255,255,255,0.1) transparent',
+        scrollbarColor: '#F0F0F0 transparent',
       }}
     >
       <div className="max-w-4xl mx-auto px-6 py-8">
@@ -26,7 +26,7 @@ export default function StageLanding({ stage }: Props) {
             <div className="w-2.5 h-2.5 rounded-full" style={{ background: stage.color }} />
             <span
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: `${stage.color}90`, fontFamily: 'Syne, sans-serif' }}
+              style={{ color: `${stage.color}90`, fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Stage
             </span>
@@ -34,14 +34,14 @@ export default function StageLanding({ stage }: Props) {
           <h1
             className="text-2xl font-black mb-2"
             style={{
-              fontFamily: 'Syne, sans-serif',
-              color: '#f0ede8',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
+              color: '#374151',
               letterSpacing: '-0.02em',
             }}
           >
             {stage.stage}
           </h1>
-          <p className="text-sm" style={{ color: 'rgba(240,237,232,0.45)' }}>
+          <p className="text-sm" style={{ color: '#6B7280' }}>
             {stage.tools.length} tools available in this stage. Pick one to get started.
           </p>
         </div>
@@ -54,8 +54,8 @@ export default function StageLanding({ stage }: Props) {
               onClick={() => setLocation(tool.path)}
               className="text-left rounded-xl p-4 transition-all duration-150 group"
               style={{
-                background: 'rgba(255,255,255,0.025)',
-                border: '1px solid rgba(255,255,255,0.07)',
+                background: '#FAFAFA',
+                border: '1px solid #E5E7EB',
                 cursor: 'pointer',
               }}
               onMouseEnter={(e) => {
@@ -67,8 +67,8 @@ export default function StageLanding({ stage }: Props) {
               }}
               onMouseLeave={(e) => {
                 const el = e.currentTarget as HTMLButtonElement;
-                el.style.borderColor = 'rgba(255,255,255,0.07)';
-                el.style.background = 'rgba(255,255,255,0.025)';
+                el.style.borderColor = '#E5E7EB';
+                el.style.background = '#FAFAFA';
                 el.style.transform = 'none';
                 el.style.boxShadow = 'none';
               }}
@@ -84,15 +84,15 @@ export default function StageLanding({ stage }: Props) {
                   <div
                     className="text-sm font-bold mb-1"
                     style={{
-                      fontFamily: 'Syne, sans-serif',
-                      color: '#f0ede8',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
+                      color: '#374151',
                     }}
                   >
                     {tool.label}
                   </div>
                   <div
                     className="text-xs leading-relaxed"
-                    style={{ color: 'rgba(240,237,232,0.45)' }}
+                    style={{ color: '#6B7280' }}
                   >
                     {tool.description}
                   </div>

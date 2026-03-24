@@ -213,7 +213,7 @@ export default function VideoIntelligence() {
                   return (
                     <div key={v.id || i}
                       style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', transition: 'box-shadow 150ms', cursor: 'pointer' }}
-                      onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)')}
+                      onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px #E5E7EB')}
                       onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}>
 
                       {/* Thumbnail strip */}
@@ -309,7 +309,7 @@ export default function VideoIntelligence() {
               <div style={{ display: 'flex', background: '#F5F5F5', borderRadius: 8, padding: 3, marginBottom: 12 }}>
                 {(['hooks', 'script', 'live'] as const).map(t => (
                   <button key={t} onClick={() => setAiTab(t)}
-                    style={{ flex: 1, height: 28, background: aiTab === t ? 'white' : 'transparent', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 700, color: aiTab === t ? '#0A0A0A' : '#9CA3AF', cursor: 'pointer', boxShadow: aiTab === t ? '0 1px 4px rgba(0,0,0,0.08)' : 'none', transition: 'all 150ms', textTransform: 'capitalize' as const }}>
+                    style={{ flex: 1, height: 28, background: aiTab === t ? 'white' : 'transparent', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 700, color: aiTab === t ? '#0A0A0A' : '#9CA3AF', cursor: 'pointer', boxShadow: aiTab === t ? '0 1px 4px #E5E7EB' : 'none', transition: 'all 150ms', textTransform: 'capitalize' as const }}>
                     {t === 'live' ? '📡 Live' : t === 'script' ? '🎬 Script' : '🎣 Hooks'}
                   </button>
                 ))}

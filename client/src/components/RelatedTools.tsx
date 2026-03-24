@@ -79,11 +79,11 @@ export default function RelatedTools({ currentToolId }: RelatedToolsProps) {
   return (
     <div
       className="border-t px-5 py-4 flex-shrink-0"
-      style={{ borderColor: 'rgba(255,255,255,0.06)' }}
+      style={{ borderColor: '#F9FAFB' }}
     >
       <div
         className="text-xs font-bold uppercase tracking-widest mb-3"
-        style={{ color: 'rgba(240,237,232,0.3)', fontFamily: 'Syne, sans-serif' }}
+        style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
       >
         Related Tools
       </div>
@@ -96,8 +96,8 @@ export default function RelatedTools({ currentToolId }: RelatedToolsProps) {
               onClick={() => setLocation(tool.path)}
               className="flex-1 text-left rounded-xl p-3 transition-all group"
               style={{
-                background: 'rgba(255,255,255,0.025)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: '#FAFAFA',
+                border: '1px solid #F9FAFB',
                 cursor: 'pointer',
               }}
               onMouseEnter={(e) => {
@@ -106,8 +106,8 @@ export default function RelatedTools({ currentToolId }: RelatedToolsProps) {
                 (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.06)';
-                (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.025)';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#F9FAFB';
+                (e.currentTarget as HTMLButtonElement).style.background = '#FAFAFA';
                 (e.currentTarget as HTMLButtonElement).style.transform = 'none';
               }}
             >
@@ -120,14 +120,14 @@ export default function RelatedTools({ currentToolId }: RelatedToolsProps) {
                 </div>
                 <div
                   className="text-xs font-bold"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
                 >
                   {tool.label}
                 </div>
               </div>
               <div
                 className="text-xs leading-snug"
-                style={{ color: 'rgba(240,237,232,0.35)', fontSize: 10 }}
+                style={{ color: '#9CA3AF', fontSize: 10 }}
               >
                 {tool.description}
               </div>

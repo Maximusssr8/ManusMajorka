@@ -91,7 +91,7 @@ function ShimmerBlock({
         height,
         width,
         background:
-          'linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%)',
+          'linear-gradient(90deg, #F9FAFB 25%, #F0F0F0 50%, #F9FAFB 75%)',
         backgroundSize: '200% 100%',
         animation: 'shimmer 1.4s infinite',
       }}
@@ -222,13 +222,13 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
         placeholder="Paste AliExpress, Amazon, or any product URL..."
         className="flex-1 rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
         style={{
-          background: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.1)',
+          background: '#F9FAFB',
+          border: '1px solid #F0F0F0',
           color: '#f5f5f5',
           fontFamily: 'DM Sans, sans-serif',
         }}
         onFocus={(e) => (e.target.style.borderColor = 'rgba(245,158,11,0.5)')}
-        onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
+        onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
       />
       <button
         onClick={handleImport}
@@ -241,7 +241,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
           color: url.trim() ? '#0a0a0a' : 'rgba(245,158,11,0.4)',
           border: 'none',
           cursor: url.trim() ? 'pointer' : 'not-allowed',
-          fontFamily: 'Syne, sans-serif',
+          fontFamily: "'Bricolage Grotesque', sans-serif",
         }}
       >
         Import
@@ -291,7 +291,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
       {/* Shimmer skeleton */}
       <p
         className="text-xs font-semibold mb-3"
-        style={{ color: 'rgba(245,158,11,0.7)', fontFamily: 'Syne, sans-serif' }}
+        style={{ color: 'rgba(245,158,11,0.7)', fontFamily: "'Bricolage Grotesque', sans-serif" }}
       >
         Analysing product...
       </p>
@@ -323,7 +323,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
             border: '1px solid rgba(239,68,68,0.25)',
             color: '#ef4444',
             cursor: 'pointer',
-            fontFamily: 'Syne, sans-serif',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
           }}
         >
           <RefreshCw size={11} /> Retry
@@ -337,7 +337,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
       className="rounded-2xl overflow-hidden"
       style={{
         background: '#111111',
-        border: '1px solid rgba(255,255,255,0.08)',
+        border: '1px solid #F5F5F5',
       }}
     >
       {/* Hero image */}
@@ -357,7 +357,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
           className="w-full flex items-center justify-center"
           style={{ height: 160, background: '#1a1a1a' }}
         >
-          <Package size={48} style={{ color: 'rgba(255,255,255,0.12)' }} />
+          <Package size={48} style={{ color: '#E5E7EB' }} />
         </div>
       )}
 
@@ -366,7 +366,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
         <div className="flex items-start gap-2 flex-wrap">
           <h3
             className="text-sm font-black flex-1 min-w-0"
-            style={{ color: '#f5f5f5', fontFamily: 'Syne, sans-serif', lineHeight: 1.35 }}
+            style={{ color: '#f5f5f5', fontFamily: "'Bricolage Grotesque', sans-serif", lineHeight: 1.35 }}
           >
             {result.cleanTitle || result.productTitle}
           </h3>
@@ -377,7 +377,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
                 background: 'rgba(245,158,11,0.15)',
                 color: '#f59e0b',
                 border: '1px solid rgba(245,158,11,0.25)',
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
               }}
             >
               {result.price}
@@ -387,9 +387,9 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
             <span
               className="px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0"
               style={{
-                background: 'rgba(255,255,255,0.07)',
+                background: '#E5E7EB',
                 color: '#a1a1aa',
-                border: '1px solid rgba(255,255,255,0.1)',
+                border: '1px solid #F0F0F0',
               }}
             >
               {result.sourcePlatform}
@@ -431,7 +431,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
                   width: 48,
                   height: 48,
                   background: '#1a1a1a',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  border: '1px solid #F5F5F5',
                 }}
               >
                 <img
@@ -457,16 +457,16 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
               🧠 AI Product Intelligence
             </div>
             <div className="space-y-1">
-              <div className="text-xs" style={{ color: 'rgba(240,237,232,0.7)' }}>
-                <span style={{ color: 'rgba(240,237,232,0.4)' }}>Audience: </span>
+              <div className="text-xs" style={{ color: '#374151' }}>
+                <span style={{ color: '#9CA3AF' }}>Audience: </span>
                 {result.intelligence.primaryAudience}
               </div>
-              <div className="text-xs" style={{ color: 'rgba(240,237,232,0.7)' }}>
-                <span style={{ color: 'rgba(240,237,232,0.4)' }}>Hero angle: </span>
+              <div className="text-xs" style={{ color: '#374151' }}>
+                <span style={{ color: '#9CA3AF' }}>Hero angle: </span>
                 {result.intelligence.heroAngle}
               </div>
-              <div className="text-xs" style={{ color: 'rgba(240,237,232,0.7)' }}>
-                <span style={{ color: 'rgba(240,237,232,0.4)' }}>Best season: </span>
+              <div className="text-xs" style={{ color: '#374151' }}>
+                <span style={{ color: '#9CA3AF' }}>Best season: </span>
                 {result.intelligence.seasonality}
               </div>
             </div>
@@ -483,7 +483,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
               color: '#0a0a0a',
               border: 'none',
               cursor: 'pointer',
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
             }}
           >
             <Check size={14} />
@@ -494,12 +494,12 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
             className="px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
             style={{
               background: 'transparent',
-              border: '1px solid rgba(255,255,255,0.1)',
+              border: '1px solid #F0F0F0',
               color: '#a1a1aa',
               cursor: 'pointer',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)')}
-            onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
+            onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#D1D5DB')}
+            onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#F0F0F0')}
           >
             Discard
           </button>
@@ -531,7 +531,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
           background: 'transparent',
           border: 'none',
           cursor: 'pointer',
-          fontFamily: 'Syne, sans-serif',
+          fontFamily: "'Bricolage Grotesque', sans-serif",
         }}
       >
         Open in tools <ArrowRight size={11} />
@@ -565,13 +565,13 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
       className="rounded-2xl p-5 space-y-4"
       style={{
         background: '#111111',
-        border: '1px solid rgba(255,255,255,0.08)',
+        border: '1px solid #F5F5F5',
       }}
     >
       <div>
         <h3
           className="text-sm font-black mb-0.5"
-          style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f5f5f5' }}
         >
           Import Product
         </h3>
@@ -599,7 +599,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
             className="w-full py-2 rounded-xl text-xs font-semibold transition-all"
             style={{
               background: 'transparent',
-              border: '1px solid rgba(255,255,255,0.08)',
+              border: '1px solid #F5F5F5',
               color: '#a1a1aa',
               cursor: 'pointer',
             }}

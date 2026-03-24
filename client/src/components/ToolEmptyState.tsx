@@ -44,7 +44,7 @@ export default function ToolEmptyState({
       {/* Text */}
       <h3
         className="text-lg font-bold mb-2"
-        style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f5f5f5' }}
       >
         Ready when you are
       </h3>

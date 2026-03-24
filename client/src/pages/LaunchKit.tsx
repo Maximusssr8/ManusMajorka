@@ -153,8 +153,8 @@ function CopyBtn({ text, small = false }: { text: string; small?: boolean }) {
       style={{
         padding: small ? '4px 8px' : '6px 12px',
         fontSize: small ? 11 : 12,
-        background: copied ? 'rgba(245,158,11,0.12)' : 'rgba(255,255,255,0.05)',
-        border: `1px solid ${copied ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.1)'}`,
+        background: copied ? 'rgba(245,158,11,0.12)' : '#F9FAFB',
+        border: `1px solid ${copied ? 'rgba(245,158,11,0.3)' : '#F0F0F0'}`,
         color: copied ? '#f59e0b' : '#a1a1aa',
         cursor: 'pointer',
         fontFamily: 'DM Sans, sans-serif',
@@ -178,7 +178,7 @@ function ResultSection({ step }: { step: LaunchKitStep }) {
       className="rounded-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-400"
       style={{
         background: '#111111',
-        border: '1px solid rgba(255,255,255,0.08)',
+        border: '1px solid #F5F5F5',
       }}
     >
       <button
@@ -195,7 +195,7 @@ function ResultSection({ step }: { step: LaunchKitStep }) {
           </div>
           <span
             className="text-xs font-black uppercase tracking-widest"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#f59e0b' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f59e0b' }}
           >
             {step.label}
           </span>
@@ -254,9 +254,9 @@ function StepIcon({ status, index }: { status: StepStatus; index: number }) {
     <div
       className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-black"
       style={{
-        background: 'rgba(255,255,255,0.06)',
-        color: 'rgba(255,255,255,0.25)',
-        fontFamily: 'Syne, sans-serif',
+        background: '#F9FAFB',
+        color: '#D1D5DB',
+        fontFamily: "'Bricolage Grotesque', sans-serif",
       }}
     >
       {index + 1}
@@ -391,7 +391,7 @@ function LaunchKitContent() {
           background: '#FAFAFA',
           borderRight: '1px solid #E5E7EB',
           scrollbarWidth: 'thin',
-          scrollbarColor: 'rgba(255,255,255,0.08) transparent',
+          scrollbarColor: '#F5F5F5 transparent',
         }}
       >
         {/* Header */}
@@ -403,14 +403,14 @@ function LaunchKitContent() {
             <Rocket size={14} style={{ color: '#f59e0b' }} />
             <span
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: 'rgba(245,158,11,0.6)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: 'rgba(245,158,11,0.6)', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Launch
             </span>
           </div>
           <h1
             className="text-lg font-black"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#374151', letterSpacing: '-0.02em' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151', letterSpacing: '-0.02em' }}
           >
             Launch Kit
           </h1>
@@ -432,7 +432,7 @@ function LaunchKitContent() {
               <Package size={12} style={{ color: '#f59e0b', flexShrink: 0 }} />
               <span
                 className="text-xs font-bold truncate"
-                style={{ color: '#374151', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {activeProduct.name}
               </span>
@@ -457,7 +457,7 @@ function LaunchKitContent() {
                   border: 'none',
                   cursor: 'pointer',
                   padding: 0,
-                  fontFamily: 'Syne, sans-serif',
+                  fontFamily: "'Bricolage Grotesque', sans-serif",
                 }}
               >
                 Import a product first <ArrowRight size={10} />
@@ -503,7 +503,7 @@ function LaunchKitContent() {
           <div className="px-4 pb-2">
             <div
               className="rounded-full overflow-hidden"
-              style={{ height: 3, background: 'rgba(255,255,255,0.06)' }}
+              style={{ height: 3, background: '#F9FAFB' }}
             >
               <div
                 className="h-full transition-all duration-500"
@@ -527,7 +527,7 @@ function LaunchKitContent() {
             disabled={!activeProduct || isRunning}
             className="w-full py-3 rounded-xl text-sm font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2"
             style={{
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               background:
                 !activeProduct || isRunning
                   ? 'rgba(245,158,11,0.1)'
@@ -562,7 +562,7 @@ function LaunchKitContent() {
           <div>
             <h2
               className="text-base font-black"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
             >
               {activeProduct ? `Launch Kit — ${activeProduct.name}` : 'Launch Kit'}
             </h2>
@@ -582,7 +582,7 @@ function LaunchKitContent() {
                   border: '1px solid rgba(245,158,11,0.2)',
                   color: '#f59e0b',
                   cursor: 'pointer',
-                  fontFamily: 'Syne, sans-serif',
+                  fontFamily: "'Bricolage Grotesque', sans-serif",
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(245,158,11,0.18)')}
                 onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(245,158,11,0.1)')}
@@ -595,14 +595,14 @@ function LaunchKitContent() {
               onClick={() => window.print()}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all no-print"
               style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: '#F9FAFB',
+                border: '1px solid #F0F0F0',
                 color: '#a1a1aa',
                 cursor: 'pointer',
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+              onMouseEnter={(e) => (e.currentTarget.style.background = '#F0F0F0')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = '#F9FAFB')}
             >
               <Printer size={12} />
               Export PDF
@@ -616,7 +616,7 @@ function LaunchKitContent() {
           className="flex-1 overflow-y-auto px-6 py-6 space-y-4"
           style={{
             scrollbarWidth: 'thin',
-            scrollbarColor: 'rgba(255,255,255,0.08) transparent',
+            scrollbarColor: '#F5F5F5 transparent',
           }}
         >
           {/* Empty state */}
@@ -633,7 +633,7 @@ function LaunchKitContent() {
               </div>
               <h3
                 className="text-2xl font-black mb-2"
-                style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
               >
                 Your Launch Kit awaits
               </h3>
@@ -651,7 +651,7 @@ function LaunchKitContent() {
                     color: '#0a0a0a',
                     border: 'none',
                     cursor: 'pointer',
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                   }}
                 >
                   Import a Product <ArrowRight size={14} />
@@ -670,7 +670,7 @@ function LaunchKitContent() {
                     key={label}
                     className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
                     style={{
-                      background: 'rgba(255,255,255,0.03)',
+                      background: '#FAFAFA',
                       border: '1px solid #E5E7EB',
                     }}
                   >
@@ -709,7 +709,7 @@ function LaunchKitContent() {
                       <div>
                         <p
                           className="text-xs font-bold"
-                          style={{ color: '#f59e0b', fontFamily: 'Syne, sans-serif' }}
+                          style={{ color: '#f59e0b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                         >
                           {step.label}
                         </p>
@@ -753,7 +753,7 @@ function LaunchKitContent() {
                   <Check size={16} style={{ color: '#f59e0b' }} />
                   <p
                     className="text-sm font-bold"
-                    style={{ color: '#374151', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Launch Kit complete! Click "Copy All" to export.
                   </p>

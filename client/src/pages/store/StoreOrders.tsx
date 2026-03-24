@@ -33,7 +33,7 @@ export default function StoreOrders() {
   if (!store.data && !store.isLoading) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <p className="mb-4" style={{ color: 'rgba(240,237,232,0.5)' }}>
+        <p className="mb-4" style={{ color: '#6B7280' }}>
           No store found.
         </p>
         <Button
@@ -53,10 +53,10 @@ export default function StoreOrders() {
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             Orders
           </h1>
-          <p className="text-sm mt-1" style={{ color: 'rgba(240,237,232,0.5)' }}>
+          <p className="text-sm mt-1" style={{ color: '#6B7280' }}>
             {orderList.length} total orders
           </p>
         </div>
@@ -68,17 +68,17 @@ export default function StoreOrders() {
             <div
               key={i}
               className="h-16 rounded-xl animate-pulse"
-              style={{ background: 'rgba(255,255,255,0.04)' }}
+              style={{ background: '#F9FAFB' }}
             />
           ))}
         </div>
       ) : orderList.length === 0 ? (
         <div className="text-center py-20">
-          <Package className="w-12 h-12 mx-auto mb-4" style={{ color: 'rgba(240,237,232,0.2)' }} />
-          <p className="font-semibold text-white mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <Package className="w-12 h-12 mx-auto mb-4" style={{ color: '#D1D5DB' }} />
+          <p className="font-semibold text-white mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             No orders yet
           </p>
-          <p className="text-sm" style={{ color: 'rgba(240,237,232,0.5)' }}>
+          <p className="text-sm" style={{ color: '#6B7280' }}>
             Share your store link to start getting sales.
           </p>
         </div>
@@ -86,40 +86,40 @@ export default function StoreOrders() {
         <div
           className="rounded-xl overflow-hidden"
           style={{
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,255,255,0.07)',
+            background: '#FAFAFA',
+            border: '1px solid #E5E7EB',
           }}
         >
           <table className="w-full">
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+              <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
                 <th
                   className="text-left px-5 py-3 text-xs font-medium uppercase"
-                  style={{ color: 'rgba(240,237,232,0.4)' }}
+                  style={{ color: '#9CA3AF' }}
                 >
                   Date
                 </th>
                 <th
                   className="text-left px-5 py-3 text-xs font-medium uppercase"
-                  style={{ color: 'rgba(240,237,232,0.4)' }}
+                  style={{ color: '#9CA3AF' }}
                 >
                   Customer
                 </th>
                 <th
                   className="text-left px-5 py-3 text-xs font-medium uppercase"
-                  style={{ color: 'rgba(240,237,232,0.4)' }}
+                  style={{ color: '#9CA3AF' }}
                 >
                   Amount
                 </th>
                 <th
                   className="text-left px-5 py-3 text-xs font-medium uppercase"
-                  style={{ color: 'rgba(240,237,232,0.4)' }}
+                  style={{ color: '#9CA3AF' }}
                 >
                   Payment
                 </th>
                 <th
                   className="text-left px-5 py-3 text-xs font-medium uppercase"
-                  style={{ color: 'rgba(240,237,232,0.4)' }}
+                  style={{ color: '#9CA3AF' }}
                 >
                   Fulfillment
                 </th>
@@ -131,9 +131,9 @@ export default function StoreOrders() {
                 <tr
                   key={order.id}
                   className="transition-colors hover:bg-white/[0.02]"
-                  style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+                  style={{ borderBottom: '1px solid #F9FAFB' }}
                 >
-                  <td className="px-5 py-4 text-sm" style={{ color: 'rgba(240,237,232,0.5)' }}>
+                  <td className="px-5 py-4 text-sm" style={{ color: '#6B7280' }}>
                     {new Date(order.createdAt).toLocaleDateString('en-AU', {
                       day: 'numeric',
                       month: 'short',
@@ -141,10 +141,10 @@ export default function StoreOrders() {
                     })}
                   </td>
                   <td className="px-5 py-4">
-                    <p className="text-white text-sm" style={{ fontFamily: 'Syne, sans-serif' }}>
+                    <p className="text-white text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                       {order.customerName}
                     </p>
-                    <p className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                    <p className="text-xs" style={{ color: '#9CA3AF' }}>
                       {order.customerEmail}
                     </p>
                   </td>

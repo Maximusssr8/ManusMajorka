@@ -66,9 +66,9 @@ function CopyBtn({ text }: { text: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? 'rgba(45,202,114,0.1)' : 'rgba(255,255,255,0.05)',
-        border: `1px solid ${copied ? 'rgba(45,202,114,0.3)' : 'rgba(255,255,255,0.08)'}`,
-        color: copied ? 'rgba(45,202,114,0.8)' : 'rgba(240,237,232,0.4)',
+        background: copied ? '#EEF2FF' : '#F9FAFB',
+        border: `1px solid ${copied ? '#C7D2FE' : '#F5F5F5'}`,
+        color: copied ? 'rgba(99,102,241,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
     >
@@ -78,7 +78,7 @@ function CopyBtn({ text }: { text: string }) {
 }
 
 const RELIABILITY_COLORS: Record<string, string> = {
-  High: '#2dca72',
+  High: '#6366F1',
   Medium: '#6366F1',
   Low: '#e05c7a',
 };
@@ -87,8 +87,8 @@ const PLATFORM_COLORS: Record<string, string> = {
   AliExpress: '#6366F1',
   DHgate: '#4ab8f5',
   '1688': '#9c5fff',
-  Faire: '#2dca72',
-  Local: '#2dca72',
+  Faire: '#6366F1',
+  Local: '#6366F1',
 };
 
 function SupplierCard({ supplier }: { supplier: Supplier }) {
@@ -99,14 +99,14 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
   return (
     <div
       className="rounded-2xl overflow-hidden"
-      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
+      style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}
     >
       <div className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div>
             <div
               className="text-sm font-black"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
             >
               {supplier.name}
             </div>
@@ -117,7 +117,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
               >
                 {supplier.platform}
               </span>
-              <span className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+              <span className="text-xs" style={{ color: '#9CA3AF' }}>
                 {supplier.location}
               </span>
             </div>
@@ -143,13 +143,13 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
             >
               <div
                 className="text-xs mb-0.5"
-                style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {label}
               </div>
               <div
                 className="text-xs font-black"
-                style={{ color: '#f0ede8', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {value}
               </div>
@@ -165,9 +165,9 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
               className="flex-1 text-xs py-1.5 rounded-md capitalize font-semibold transition-all"
               style={{
                 background: tab === t ? pc : 'transparent',
-                color: tab === t ? '#080a0e' : 'rgba(240,237,232,0.4)',
+                color: tab === t ? '#FAFAFA' : '#9CA3AF',
                 cursor: 'pointer',
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
               }}
             >
               {t}
@@ -180,7 +180,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
             <div className="p-2.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.15)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1.5"
-                style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Pros
               </div>
@@ -188,9 +188,9 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
                 <div
                   key={i}
                   className="text-xs flex items-start gap-1.5 mb-1"
-                  style={{ color: 'rgba(240,237,232,0.7)' }}
+                  style={{ color: '#374151' }}
                 >
-                  <span style={{ color: '#2dca72', flexShrink: 0 }}>+</span>
+                  <span style={{ color: '#6366F1', flexShrink: 0 }}>+</span>
                   {p}
                 </div>
               ))}
@@ -198,7 +198,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
             <div className="p-2.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.15)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1.5"
-                style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Cons
               </div>
@@ -206,7 +206,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
                 <div
                   key={i}
                   className="text-xs flex items-start gap-1.5 mb-1"
-                  style={{ color: 'rgba(240,237,232,0.7)' }}
+                  style={{ color: '#374151' }}
                 >
                   <span style={{ color: '#e05c7a', flexShrink: 0 }}>−</span>
                   {c}
@@ -220,7 +220,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
           <div className="space-y-2">
             <div
               className="text-xs font-bold uppercase tracking-wider mb-2"
-              style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Search Terms to Use
             </div>
@@ -230,7 +230,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
                 className="flex items-center justify-between gap-2 p-2 rounded-lg"
                 style={{ background: 'rgba(0,0,0,0.2)' }}
               >
-                <span className="text-xs font-mono" style={{ color: '#f0ede8' }}>
+                <span className="text-xs font-mono" style={{ color: '#374151' }}>
                   "{term}"
                 </span>
                 <div className="flex items-center gap-1">
@@ -254,11 +254,11 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
           <div className="p-3 rounded-xl" style={{ background: 'rgba(0,0,0,0.2)' }}>
             <div
               className="text-xs font-bold uppercase tracking-wider mb-2"
-              style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Contact Approach
             </div>
-            <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.7)' }}>
+            <div className="text-xs leading-relaxed" style={{ color: '#374151' }}>
               {supplier.contactApproach}
             </div>
           </div>
@@ -381,18 +381,18 @@ export default function SupplierFinder() {
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ background: 'rgba(45,202,114,0.15)', border: '1px solid rgba(45,202,114,0.3)' }}
+          style={{ background: '#EEF2FF', border: '1px solid #C7D2FE' }}
         >
-          <Truck size={15} style={{ color: '#2dca72' }} />
+          <Truck size={15} style={{ color: '#6366F1' }} />
         </div>
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-black leading-tight"
-            style={{ fontFamily: 'Syne, sans-serif' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Supplier Finder
           </div>
-          <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+          <div className="text-xs" style={{ color: '#9CA3AF' }}>
             Alibaba · DHgate · AliExpress · MOQ · Lead times · Search terms
           </div>
         </div>
@@ -404,9 +404,9 @@ export default function SupplierFinder() {
             }}
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: 'rgba(240,237,232,0.5)',
+              background: '#F9FAFB',
+              border: '1px solid #F5F5F5',
+              color: '#6B7280',
               cursor: 'pointer',
             }}
           >
@@ -423,13 +423,13 @@ export default function SupplierFinder() {
       <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
         <div
           className="w-full lg:w-72 flex-shrink-0 overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 space-y-4"
-          style={{ borderColor: 'rgba(255,255,255,0.07)' }}
+          style={{ borderColor: '#E5E7EB' }}
         >
           <div className="space-y-3">
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Product to Source *
               </label>
@@ -440,9 +440,9 @@ export default function SupplierFinder() {
                 placeholder="e.g. Posture corrector belt…"
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#f0ede8',
+                  background: '#F9FAFB',
+                  border: '1px solid #F0F0F0',
+                  color: '#374151',
                 }}
               />
             </div>
@@ -450,7 +450,7 @@ export default function SupplierFinder() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Target Retail ($AUD)
                 </label>
@@ -460,16 +460,16 @@ export default function SupplierFinder() {
                   placeholder="e.g. 79"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#f0ede8',
+                    background: '#F9FAFB',
+                    border: '1px solid #F0F0F0',
+                    color: '#374151',
                   }}
                 />
               </div>
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Order Qty
                 </label>
@@ -479,9 +479,9 @@ export default function SupplierFinder() {
                   placeholder="e.g. 100"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#f0ede8',
+                    background: '#F9FAFB',
+                    border: '1px solid #F0F0F0',
+                    color: '#374151',
                   }}
                 />
               </div>
@@ -491,7 +491,7 @@ export default function SupplierFinder() {
           <div>
             <div
               className="text-xs font-bold uppercase tracking-widest mb-2"
-              style={{ color: 'rgba(240,237,232,0.3)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Quick Categories
             </div>
@@ -502,9 +502,9 @@ export default function SupplierFinder() {
                   onClick={() => setProduct(c)}
                   className="text-xs px-2.5 py-1 rounded-lg transition-all"
                   style={{
-                    background: product === c ? 'rgba(45,202,114,0.1)' : 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${product === c ? 'rgba(45,202,114,0.3)' : 'rgba(255,255,255,0.07)'}`,
-                    color: product === c ? '#2dca72' : 'rgba(240,237,232,0.45)',
+                    background: product === c ? '#EEF2FF' : '#F9FAFB',
+                    border: `1px solid ${product === c ? '#C7D2FE' : '#E5E7EB'}`,
+                    color: product === c ? '#6366F1' : '#6B7280',
                     cursor: 'pointer',
                   }}
                 >
@@ -519,9 +519,9 @@ export default function SupplierFinder() {
             disabled={isLoading}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all"
             style={{
-              background: isLoading ? 'rgba(45,202,114,0.25)' : '#2dca72',
-              color: '#080a0e',
-              fontFamily: 'Syne, sans-serif',
+              background: isLoading ? '#C7D2FE' : '#6366F1',
+              color: '#FAFAFA',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: isLoading ? 'not-allowed' : 'pointer',
             }}
           >
@@ -556,17 +556,17 @@ export default function SupplierFinder() {
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center"
                 style={{
-                  background: 'rgba(45,202,114,0.1)',
-                  border: '1px solid rgba(45,202,114,0.2)',
+                  background: '#EEF2FF',
+                  border: '1px solid rgba(99,102,241,0.30)',
                 }}
               >
-                <Truck size={24} style={{ color: '#2dca72' }} className="animate-pulse" />
+                <Truck size={24} style={{ color: '#6366F1' }} className="animate-pulse" />
               </div>
               <div className="text-center">
-                <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>
+                <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Finding suppliers…
                 </div>
-                <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+                <div className="text-xs" style={{ color: '#9CA3AF' }}>
                   Searching global sourcing platforms
                 </div>
               </div>
@@ -579,13 +579,13 @@ export default function SupplierFinder() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(45,202,114,0.04)',
-                    border: '1px solid rgba(45,202,114,0.12)',
+                    background: 'rgba(99,102,241,0.06)',
+                    border: '1px solid rgba(99,102,241,0.18)',
                   }}
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: '#2dca72', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Recommended Platforms
                   </div>
@@ -593,9 +593,9 @@ export default function SupplierFinder() {
                     <div
                       key={i}
                       className="text-xs flex items-start gap-1.5 mb-1.5"
-                      style={{ color: 'rgba(240,237,232,0.7)' }}
+                      style={{ color: '#374151' }}
                     >
-                      <span style={{ color: '#2dca72', flexShrink: 0 }}>→</span>
+                      <span style={{ color: '#6366F1', flexShrink: 0 }}>→</span>
                       {p}
                     </div>
                   ))}
@@ -609,7 +609,7 @@ export default function SupplierFinder() {
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: '#e05c7a', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#e05c7a', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Red Flags to Watch
                   </div>
@@ -617,7 +617,7 @@ export default function SupplierFinder() {
                     <div
                       key={i}
                       className="text-xs flex items-start gap-1.5 mb-1.5"
-                      style={{ color: 'rgba(240,237,232,0.7)' }}
+                      style={{ color: '#374151' }}
                     >
                       <span style={{ color: '#e05c7a', flexShrink: 0 }}>!</span>
                       {f}
@@ -642,7 +642,7 @@ export default function SupplierFinder() {
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Negotiation Tips
                   </div>
@@ -650,7 +650,7 @@ export default function SupplierFinder() {
                     <div
                       key={i}
                       className="text-xs flex items-start gap-1.5 mb-1.5"
-                      style={{ color: 'rgba(240,237,232,0.7)' }}
+                      style={{ color: '#374151' }}
                     >
                       <span style={{ color: '#6366F1', flexShrink: 0 }}>{i + 1}.</span>
                       {tip}
@@ -666,7 +666,7 @@ export default function SupplierFinder() {
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: '#4ab8f5', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#4ab8f5', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Sample Order Advice
                   </div>
@@ -687,13 +687,13 @@ export default function SupplierFinder() {
               <div className="text-center">
                 <div
                   className="text-base font-black mb-2"
-                  style={{ fontFamily: 'Syne, sans-serif' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Find the right supplier fast
                 </div>
                 <div
                   className="text-xs max-w-xs leading-relaxed"
-                  style={{ color: 'rgba(240,237,232,0.35)' }}
+                  style={{ color: '#9CA3AF' }}
                 >
                   Get supplier recommendations with MOQ, lead times, search terms, and negotiation
                   tips across Alibaba, DHgate, and more.

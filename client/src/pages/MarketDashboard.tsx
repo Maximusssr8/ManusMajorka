@@ -230,7 +230,7 @@ export default function MarketDashboard() {
       >
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold" style={{ fontFamily: 'Syne, sans-serif', color: '#fff' }}>
+            <h1 className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#fff' }}>
               AU Market Intelligence
             </h1>
             <p className="text-sm mt-0.5" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>
@@ -256,10 +256,10 @@ export default function MarketDashboard() {
             <div
               key={s.label}
               className="rounded-xl p-4"
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}
+              style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}
             >
               <p className="text-xs mb-1" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>{s.label}</p>
-              <p className="text-2xl font-bold" style={{ fontFamily: 'Syne, sans-serif', color: '#fff' }}>{s.value}</p>
+              <p className="text-2xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#fff' }}>{s.value}</p>
               <p className="text-xs mt-0.5" style={{ color: '#475569' }}>{s.sub}</p>
             </div>
           ))}
@@ -274,7 +274,7 @@ export default function MarketDashboard() {
                 key={c.path}
                 onClick={() => nav(c.path)}
                 className="rounded-xl p-4 text-left transition-all duration-150 hover:scale-[1.02] hover:border-opacity-30"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}
+                style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}
               >
                 <c.icon size={18} style={{ color: c.color }} className="mb-2" />
                 <p className="text-sm font-semibold leading-tight" style={{ color: '#e2e8f0', fontFamily: 'DM Sans, sans-serif' }}>{c.label}</p>
@@ -312,8 +312,8 @@ export default function MarketDashboard() {
                     <tr
                       key={p.id}
                       className="cursor-pointer transition-colors"
-                      style={{ borderBottom: i < products.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
+                      style={{ borderBottom: i < products.length - 1 ? '1px solid #F9FAFB' : 'none' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = '#FAFAFA')}
                       onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                       onClick={() => nav('/app/winning-products')}
                     >
@@ -355,7 +355,7 @@ export default function MarketDashboard() {
                   <div
                     key={cat.id}
                     className="rounded-xl p-4 flex items-center justify-between"
-                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}
+                    style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -368,7 +368,7 @@ export default function MarketDashboard() {
                       <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>Top: {cat.top_product_title}</p>
                     </div>
                     <div className="text-right ml-4 flex-shrink-0">
-                      <p className="text-lg font-bold" style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}>
+                      <p className="text-lg font-bold" style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                         {fmtAUD(cat.total_gmv_aud)}
                       </p>
                       <p className="text-xs" style={{ color: cat.revenue_growth_rate >= 0 ? '#22c55e' : '#ef4444' }}>
@@ -388,11 +388,11 @@ export default function MarketDashboard() {
               <button onClick={() => nav('/app/creators')} className="text-xs" style={{ color: '#6366F1' }}>All →</button>
             </div>
             {loading ? (
-              <div className="rounded-xl p-4 text-sm" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB', color: '#475569' }}>Loading…</div>
+              <div className="rounded-xl p-4 text-sm" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', color: '#475569' }}>Loading…</div>
             ) : topCreator ? (
               <div
                 className="rounded-xl p-5"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}
+                style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}
               >
                 <div className="flex items-start gap-3 mb-4">
                   <div
@@ -411,7 +411,7 @@ export default function MarketDashboard() {
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <p className="text-xs" style={{ color: '#64748b' }}>30-day GMV</p>
-                    <p className="text-xl font-bold" style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}>
+                    <p className="text-xl font-bold" style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                       {fmtAUD(topCreator.gmv_30d_aud)}
                     </p>
                   </div>
@@ -439,7 +439,7 @@ export default function MarketDashboard() {
                 </button>
               </div>
             ) : (
-              <div className="rounded-xl p-4 text-sm" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB', color: '#475569' }}>
+              <div className="rounded-xl p-4 text-sm" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', color: '#475569' }}>
                 No creator data yet
               </div>
             )}

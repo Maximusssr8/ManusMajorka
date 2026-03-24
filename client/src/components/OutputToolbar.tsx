@@ -31,11 +31,11 @@ function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) 
       onClick={handleCopy}
       className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all"
       style={{
-        background: copied ? 'rgba(45,202,114,0.12)' : 'rgba(255,255,255,0.05)',
-        border: `1px solid ${copied ? 'rgba(45,202,114,0.35)' : 'rgba(255,255,255,0.08)'}`,
-        color: copied ? '#2dca72' : 'rgba(240,237,232,0.5)',
+        background: copied ? 'rgba(99,102,241,0.18)' : '#F9FAFB',
+        border: `1px solid ${copied ? 'rgba(99,102,241,0.52)' : '#F5F5F5'}`,
+        color: copied ? '#6366F1' : '#6B7280',
         cursor: 'pointer',
-        fontFamily: 'Syne, sans-serif',
+        fontFamily: "'Bricolage Grotesque', sans-serif",
         fontWeight: 600,
       }}
     >
@@ -78,11 +78,11 @@ export default function OutputToolbar({
         onClick={handleExportTxt}
         className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all"
         style={{
-          background: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          color: 'rgba(240,237,232,0.5)',
+          background: '#F9FAFB',
+          border: '1px solid #F5F5F5',
+          color: '#6B7280',
           cursor: 'pointer',
-          fontFamily: 'Syne, sans-serif',
+          fontFamily: "'Bricolage Grotesque', sans-serif",
           fontWeight: 600,
         }}
       >
@@ -92,11 +92,11 @@ export default function OutputToolbar({
         onClick={handleSave}
         className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all"
         style={{
-          background: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          color: 'rgba(240,237,232,0.5)',
+          background: '#F9FAFB',
+          border: '1px solid #F5F5F5',
+          color: '#6B7280',
           cursor: 'pointer',
-          fontFamily: 'Syne, sans-serif',
+          fontFamily: "'Bricolage Grotesque', sans-serif",
           fontWeight: 600,
         }}
       >

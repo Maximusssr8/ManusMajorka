@@ -257,7 +257,7 @@ export default function AIToolChat({
       {/* Tool Header */}
       <div
         className="flex-shrink-0 border-b px-5 py-3"
-        style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+        style={{ borderColor: '#F5F5F5' }}
       >
         <div className="flex items-center gap-3">
           <div
@@ -267,7 +267,7 @@ export default function AIToolChat({
             {toolIcon}
           </div>
           <div className="flex-1">
-            <h1 className="font-black text-sm" style={{ fontFamily: 'Syne, sans-serif' }}>
+            <h1 className="font-black text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               {toolName}
             </h1>
             <p className="text-xs text-muted-foreground hidden sm:block">{toolDescription}</p>
@@ -313,7 +313,7 @@ export default function AIToolChat({
                     <div className="flex flex-col gap-2 w-full max-w-md">
                       <p
                         className="text-xs font-bold uppercase tracking-widest mb-1"
-                        style={{ color: 'rgba(240,237,232,0.3)', fontFamily: 'Syne, sans-serif' }}
+                        style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                       >
                         Try an example
                       </p>
@@ -424,14 +424,14 @@ export default function AIToolChat({
                   <div
                     className="flex gap-3 mt-2 p-4 rounded-2xl"
                     style={{
-                      background: 'rgba(255,255,255,0.02)',
+                      background: '#FAFAFA',
                       border: '1px solid #E5E7EB',
                     }}
                   >
                     <div className="flex-1">
                       <div
                         className="text-xs font-bold uppercase tracking-widest mb-2"
-                        style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                        style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                       >
                         What's next?
                       </div>
@@ -442,7 +442,7 @@ export default function AIToolChat({
                             className="text-xs font-bold px-4 py-2 rounded-xl"
                             style={{
                               background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-                              color: '#080a0e',
+                              color: '#FAFAFA',
                               cursor: 'pointer',
                             }}
                           >
@@ -472,18 +472,18 @@ export default function AIToolChat({
                       style={{
                         background:
                           verdict === 'GO'
-                            ? 'rgba(45,202,114,0.12)'
+                            ? 'rgba(99,102,241,0.18)'
                             : verdict === 'NO-GO'
                               ? 'rgba(224,92,122,0.12)'
                               : 'rgba(99,102,241,0.12)',
                         color:
                           verdict === 'GO'
-                            ? '#2dca72'
+                            ? '#6366F1'
                             : verdict === 'NO-GO'
                               ? '#e05c7a'
                               : '#6366F1',
-                        fontFamily: 'Syne, sans-serif',
-                        border: `1px solid ${verdict === 'GO' ? 'rgba(45,202,114,0.25)' : verdict === 'NO-GO' ? 'rgba(224,92,122,0.25)' : 'rgba(99,102,241,0.25)'}`,
+                        fontFamily: "'Bricolage Grotesque', sans-serif",
+                        border: `1px solid ${verdict === 'GO' ? '#C7D2FE' : verdict === 'NO-GO' ? 'rgba(224,92,122,0.25)' : 'rgba(99,102,241,0.25)'}`,
                       }}
                     >
                       {verdict}
@@ -501,9 +501,9 @@ export default function AIToolChat({
                       onClick={handleRegenerate}
                       className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-all hover:bg-white/5"
                       style={{
-                        color: 'rgba(240,237,232,0.4)',
+                        color: '#9CA3AF',
                         cursor: 'pointer',
-                        border: '1px solid rgba(255,255,255,0.08)',
+                        border: '1px solid #F5F5F5',
                         background: 'transparent',
                       }}
                     >
@@ -518,7 +518,7 @@ export default function AIToolChat({
           {/* Input Bar */}
           <div
             className="flex-shrink-0 border-t p-3 pb-safe"
-            style={{ borderColor: 'rgba(255,255,255,0.08)', paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
+            style={{ borderColor: '#F5F5F5', paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
           >
             <div className="flex gap-2 items-end">
               <Textarea
@@ -540,7 +540,7 @@ export default function AIToolChat({
                 rows={1}
                 style={{
                   background: 'white',
-                  borderColor: 'rgba(255,255,255,0.1)',
+                  borderColor: '#F0F0F0',
                   overflowY: 'auto',
                   maxHeight: '200px',
                   resize: 'none',
@@ -554,7 +554,7 @@ export default function AIToolChat({
                   className="h-9 w-9 rounded-lg"
                   style={{
                     background: 'linear-gradient(135deg, #6366F1, #c09a28)',
-                    color: '#080a0e',
+                    color: '#FAFAFA',
                     border: 'none',
                   }}
                 >
@@ -572,7 +572,7 @@ export default function AIToolChat({
                 )}
               </div>
             </div>
-            <div className="text-xs mt-1.5" style={{ color: 'rgba(240,237,232,0.2)' }}>
+            <div className="text-xs mt-1.5" style={{ color: '#D1D5DB' }}>
               Press Enter to send · Shift+Enter for new line
             </div>
           </div>
@@ -585,7 +585,7 @@ export default function AIToolChat({
         {showHTMLPreview && generatedHTML && (
           <div
             className="hidden md:flex w-[380px] flex-shrink-0 flex-col border-l"
-            style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+            style={{ borderColor: '#F5F5F5' }}
           >
             <Card
               className="flex-1 flex flex-col overflow-hidden rounded-none border-0"
@@ -593,9 +593,9 @@ export default function AIToolChat({
             >
               <div
                 className="p-3 border-b flex items-center justify-between"
-                style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+                style={{ borderColor: '#F5F5F5' }}
               >
-                <span className="text-xs font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
+                <span className="text-xs font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Generated HTML
                 </span>
                 <button
@@ -628,7 +628,7 @@ export default function AIToolChat({
               </div>
               <div
                 className="flex gap-2 p-3 border-t"
-                style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+                style={{ borderColor: '#F5F5F5' }}
               >
                 <Button
                   size="sm"
@@ -645,7 +645,7 @@ export default function AIToolChat({
                   onClick={downloadHTML}
                   style={{
                     background: 'linear-gradient(135deg, #6366F1, #c09a28)',
-                    color: '#080a0e',
+                    color: '#FAFAFA',
                   }}
                 >
                   <Download className="w-3 h-3" /> Download
@@ -672,8 +672,8 @@ function CopyMsgBtn({ text }: { text: string }) {
       }}
       className="text-xs flex items-center gap-1 px-2 py-1 rounded-md transition-all"
       style={{
-        background: copied ? 'rgba(45,202,114,0.1)' : 'transparent',
-        color: copied ? '#2dca72' : 'rgba(240,237,232,0.25)',
+        background: copied ? '#EEF2FF' : 'transparent',
+        color: copied ? '#6366F1' : '#D1D5DB',
         cursor: 'pointer',
         border: 'none',
       }}
@@ -702,7 +702,7 @@ function ExportMsgBtn({ text, toolId }: { text: string; toolId: string }) {
       className="text-xs flex items-center gap-1 px-2 py-1 rounded-md transition-all"
       style={{
         background: 'transparent',
-        color: 'rgba(240,237,232,0.25)',
+        color: '#D1D5DB',
         cursor: 'pointer',
         border: 'none',
       }}

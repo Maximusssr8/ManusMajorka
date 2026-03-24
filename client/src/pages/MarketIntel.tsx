@@ -101,16 +101,16 @@ export default function MarketIntel() {
         onUseProduct={(summary) => setInput(summary)}
       />
       {/* Header */}
-      <div className="flex-shrink-0 border-b p-4" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+      <div className="flex-shrink-0 border-b p-4" style={{ borderColor: '#F5F5F5' }}>
         <div className="flex items-center gap-3">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm"
-            style={{ background: 'linear-gradient(135deg, #6366F1, #f0c040)', color: '#080a0e' }}
+            style={{ background: 'linear-gradient(135deg, #6366F1, #f0c040)', color: '#FAFAFA' }}
           >
             I
           </div>
           <div>
-            <h1 className="font-black text-sm" style={{ fontFamily: 'Syne, sans-serif' }}>
+            <h1 className="font-black text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Market Intelligence
             </h1>
             <p className="text-xs text-muted-foreground">
@@ -187,7 +187,7 @@ export default function MarketIntel() {
         {/* Input */}
         <div
           className="flex-shrink-0 border-t p-4"
-          style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+          style={{ borderColor: '#F5F5F5' }}
         >
           <div className="flex gap-2">
             <Textarea
@@ -210,7 +210,7 @@ export default function MarketIntel() {
                 size="sm"
                 style={{
                   background: 'linear-gradient(135deg, #6366F1, #c09a28)',
-                  color: '#080a0e',
+                  color: '#FAFAFA',
                 }}
               >
                 <Send className="w-4 h-4" />

@@ -98,7 +98,7 @@ export default function ProductIntelligence() {
                 padding: '8px 20px', borderRadius: 7, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
                 background: tab === t ? 'white' : 'transparent',
                 color: tab === t ? C.accent : C.muted,
-                boxShadow: tab === t ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+                boxShadow: tab === t ? '0 1px 4px #E5E7EB' : 'none',
                 transition: 'all 150ms',
               }}
             >

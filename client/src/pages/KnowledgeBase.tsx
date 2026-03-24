@@ -438,7 +438,7 @@ export default function KnowledgeBase() {
   return (
     <div
       className="flex h-full overflow-hidden"
-      style={{ background: 'var(--surface-0, #080a0e)', color: '#f5f5f5' }}
+      style={{ background: 'var(--surface-0, #FAFAFA)', color: '#f5f5f5' }}
     >
       {/* Left sidebar nav */}
       <aside
@@ -462,7 +462,7 @@ export default function KnowledgeBase() {
           </div>
           <span
             className="font-bold text-sm uppercase tracking-widest"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5', letterSpacing: '0.1em' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f5f5f5', letterSpacing: '0.1em' }}
           >
             Knowledge Base
           </span>
@@ -474,7 +474,7 @@ export default function KnowledgeBase() {
             className="px-2 pb-2 text-xs uppercase font-bold tracking-widest"
             style={{
               color: '#3f3f46',
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               fontSize: 9,
               letterSpacing: '0.12em',
             }}
@@ -502,7 +502,7 @@ export default function KnowledgeBase() {
                 onMouseEnter={(e) => {
                   if (!active) {
                     (e.currentTarget as HTMLButtonElement).style.background =
-                      'rgba(255,255,255,0.04)';
+                      '#F9FAFB';
                     (e.currentTarget as HTMLButtonElement).style.color = '#f5f5f5';
                   }
                 }}
@@ -563,14 +563,14 @@ export default function KnowledgeBase() {
               </div>
               <span
                 className="text-xs uppercase tracking-widest font-bold"
-                style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif', fontSize: 10 }}
+                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 10 }}
               >
                 Knowledge Base
               </span>
             </div>
             <h1
               className="text-2xl font-black mb-2"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5', lineHeight: 1.2 }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f5f5f5', lineHeight: 1.2 }}
             >
               {activeSection.title}
             </h1>
@@ -599,7 +599,7 @@ export default function KnowledgeBase() {
             <div>
               <p
                 className="text-sm font-bold mb-0.5"
-                style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f5f5f5' }}
               >
                 Have questions about {activeSection.title.toLowerCase()}?
               </p>
@@ -612,10 +612,10 @@ export default function KnowledgeBase() {
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold flex-shrink-0 sm:ml-4 transition-all w-full sm:w-auto justify-center"
               style={{
                 background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                color: '#080a0e',
+                color: '#FAFAFA',
                 border: 'none',
                 cursor: 'pointer',
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
                 whiteSpace: 'nowrap',
               }}
               onMouseEnter={(e) => {
@@ -634,7 +634,7 @@ export default function KnowledgeBase() {
           {/* Section navigation */}
           <div
             className="flex items-center justify-between mt-8 pt-6"
-            style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ borderTop: '1px solid #F9FAFB' }}
           >
             {(() => {
               const currentIndex = sections.findIndex((s) => s.id === activeId);
@@ -654,7 +654,7 @@ export default function KnowledgeBase() {
                         </span>
                         <span
                           className="text-sm font-bold"
-                          style={{ color: '#f5f5f5', fontFamily: 'Syne, sans-serif' }}
+                          style={{ color: '#f5f5f5', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                         >
                           {prev.title}
                         </span>
@@ -673,7 +673,7 @@ export default function KnowledgeBase() {
                         </span>
                         <span
                           className="text-sm font-bold"
-                          style={{ color: '#f5f5f5', fontFamily: 'Syne, sans-serif' }}
+                          style={{ color: '#f5f5f5', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                         >
                           {next.title}
                         </span>
@@ -708,7 +708,7 @@ function ArticleContent({ content }: { content: string }) {
         <h2
           key={i}
           className="text-xl font-black mt-8 mb-3"
-          style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f5f5f5' }}
         >
           {line.slice(3)}
         </h2>
@@ -723,7 +723,7 @@ function ArticleContent({ content }: { content: string }) {
         <h3
           key={i}
           className="text-base font-bold mt-5 mb-2"
-          style={{ fontFamily: 'Syne, sans-serif', color: '#e5e5e5' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#e5e5e5' }}
         >
           {line.slice(4)}
         </h3>
@@ -825,7 +825,7 @@ function MarkdownTable({ lines }: { lines: string[] }) {
                   background: 'rgba(99,102,241,0.06)',
                   color: '#6366F1',
                   borderBottom: '1px solid rgba(99,102,241,0.15)',
-                  fontFamily: 'Syne, sans-serif',
+                  fontFamily: "'Bricolage Grotesque', sans-serif",
                   fontSize: 10,
                   letterSpacing: '0.1em',
                   whiteSpace: 'nowrap',
@@ -840,10 +840,10 @@ function MarkdownTable({ lines }: { lines: string[] }) {
           {body.map((row, ri) => (
             <tr
               key={ri}
-              style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+              style={{ borderBottom: '1px solid #F9FAFB' }}
               onMouseEnter={(e) =>
                 ((e.currentTarget as HTMLTableRowElement).style.background =
-                  'rgba(255,255,255,0.02)')
+                  '#FAFAFA')
               }
               onMouseLeave={(e) =>
                 ((e.currentTarget as HTMLTableRowElement).style.background = 'transparent')

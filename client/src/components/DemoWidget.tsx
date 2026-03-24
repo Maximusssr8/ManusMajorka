@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'wouter';
 
 const dm = "'DM Sans', sans-serif";
-const syne = 'Syne, sans-serif';
+const syne = "'Bricolage Grotesque', sans-serif";
 const mono = "'DM Mono', 'Fira Code', 'Courier New', monospace";
 
 const DEMO_STYLES = `
@@ -52,7 +52,7 @@ const DEMO_STYLES = `
 .demo-cta-primary::before {
   content: '';
   position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.22) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, #D1D5DB 50%, transparent 100%);
   background-size: 200% 100%;
   animation: demo-shimmer 3s linear infinite;
   pointer-events: none;
@@ -316,7 +316,7 @@ export default function DemoWidget() {
             pointerEvents: 'none',
             zIndex: 0,
             backgroundImage:
-              'repeating-linear-gradient(0deg, rgba(255,255,255,0.006) 0px, rgba(255,255,255,0.006) 1px, transparent 1px, transparent 4px)',
+              'repeating-linear-gradient(0deg, #FAFAFA 0px, #FAFAFA 1px, transparent 1px, transparent 4px)',
             backgroundSize: '100% 4px',
           }}
         />
@@ -362,7 +362,7 @@ export default function DemoWidget() {
             position: 'relative',
             zIndex: 1,
             padding: '12px 16px',
-            borderBottom: '1px solid rgba(255,255,255,0.04)',
+            borderBottom: '1px solid #F9FAFB',
           }}
         >
           <div
@@ -414,7 +414,7 @@ export default function DemoWidget() {
             maxHeight: 300,
             overflowY: 'auto',
             scrollbarWidth: 'thin',
-            scrollbarColor: 'rgba(255,255,255,0.08) transparent',
+            scrollbarColor: '#F5F5F5 transparent',
           }}
         >
           {phase === 'thinking' && (
@@ -463,7 +463,7 @@ export default function DemoWidget() {
             justifyContent: 'center',
             gap: 6,
             padding: '8px 16px 12px',
-            borderTop: '1px solid rgba(255,255,255,0.04)',
+            borderTop: '1px solid #F9FAFB',
           }}
         >
           {PROMPTS.map((_, i) => (
@@ -473,7 +473,7 @@ export default function DemoWidget() {
                 width: i === promptIdx ? 18 : 6,
                 height: 6,
                 borderRadius: 3,
-                background: i === promptIdx ? '#6366F1' : 'rgba(255,255,255,0.1)',
+                background: i === promptIdx ? '#6366F1' : '#F0F0F0',
                 transition: 'all 0.35s ease',
               }}
             />

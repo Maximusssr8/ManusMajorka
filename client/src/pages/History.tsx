@@ -90,7 +90,7 @@ export default function History() {
       style={{
         background: '#FAFAFA',
         scrollbarWidth: 'thin',
-        scrollbarColor: 'rgba(255,255,255,0.08) transparent',
+        scrollbarColor: '#F5F5F5 transparent',
       }}
     >
       <div className="max-w-3xl mx-auto px-6 py-8">
@@ -101,20 +101,20 @@ export default function History() {
               onClick={() => setLocation('/app')}
               className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
               style={{
-                background: 'rgba(255,255,255,0.04)',
+                background: '#F9FAFB',
                 border: '1px solid #E5E7EB',
                 cursor: 'pointer',
                 color: '#a1a1aa',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)')}
-              onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)')}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#D1D5DB')}
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#F9FAFB')}
             >
               <ArrowLeft size={14} />
             </button>
             <div>
               <h1
                 className="text-xl font-bold"
-                style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
               >
                 History
               </h1>
@@ -157,13 +157,13 @@ export default function History() {
                 placeholder="Search history..."
                 className="w-full pl-8 pr-3 py-2 rounded-lg text-sm outline-none"
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
+                  background: '#FAFAFA',
                   border: '1px solid #E5E7EB',
                   color: '#374151',
                   fontFamily: 'DM Sans, sans-serif',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.3)')}
-                onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.06)')}
+                onBlur={(e) => (e.target.style.borderColor = '#F9FAFB')}
               />
             </div>
             <div className="relative">
@@ -172,7 +172,7 @@ export default function History() {
                 onChange={(e) => setFilterType(e.target.value)}
                 className="px-3 py-2 rounded-lg text-sm outline-none appearance-none pr-8"
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
+                  background: '#FAFAFA',
                   border: '1px solid #E5E7EB',
                   color: '#374151',
                   fontFamily: 'DM Sans, sans-serif',
@@ -206,7 +206,7 @@ export default function History() {
             </div>
             <h2
               className="text-base font-bold mb-2"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
             >
               No history yet
             </h2>
@@ -221,7 +221,7 @@ export default function History() {
                 color: '#060608',
                 border: 'none',
                 cursor: 'pointer',
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
               }}
             >
               Start Exploring <ArrowUpRight size={12} />
@@ -239,7 +239,7 @@ export default function History() {
               <div key={group.label}>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-2 px-1"
-                  style={{ color: '#3f3f46', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#3f3f46', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   {group.label}
                 </div>
@@ -250,12 +250,12 @@ export default function History() {
                       <div
                         key={idx}
                         className="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group"
-                        style={{ background: 'rgba(255,255,255,0.02)' }}
+                        style={{ background: '#FAFAFA' }}
                         onMouseEnter={(e) =>
-                          (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')
+                          (e.currentTarget.style.background = '#F9FAFB')
                         }
                         onMouseLeave={(e) =>
-                          (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')
+                          (e.currentTarget.style.background = '#FAFAFA')
                         }
                       >
                         <div

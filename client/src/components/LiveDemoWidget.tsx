@@ -7,7 +7,7 @@ import { ChevronRight, Lock, Megaphone, Search, TrendingUp } from 'lucide-react'
 import { useRef, useState } from 'react';
 import { Link } from 'wouter';
 
-const syne = 'Syne, sans-serif';
+const syne = "'Bricolage Grotesque', sans-serif";
 const dm = "'DM Sans', sans-serif";
 const mono = "'DM Mono', 'Fira Code', monospace";
 
@@ -297,7 +297,7 @@ function ProfitDisplay({ result }: { result: ProfitResult }) {
             {grossMargin.toFixed(1)}%
           </motion.span>
         </div>
-        <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 6, height: 8, overflow: 'hidden', position: 'relative' }}>
+        <div style={{ background: '#F9FAFB', borderRadius: 6, height: 8, overflow: 'hidden', position: 'relative' }}>
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${Math.min(100, grossMargin)}%` }}
@@ -317,7 +317,7 @@ function ProfitDisplay({ result }: { result: ProfitResult }) {
       </div>
 
       {/* Metrics table */}
-      <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10, overflow: 'hidden', marginBottom: 14 }}>
+      <div style={{ background: '#FAFAFA', border: '1px solid #F9FAFB', borderRadius: 10, overflow: 'hidden', marginBottom: 14 }}>
         {rows.map((row, i) => (
           <motion.div
             key={row.label}
@@ -329,7 +329,7 @@ function ProfitDisplay({ result }: { result: ProfitResult }) {
               justifyContent: 'space-between',
               alignItems: 'center',
               padding: '9px 14px',
-              borderBottom: i < rows.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+              borderBottom: i < rows.length - 1 ? '1px solid #F9FAFB' : 'none',
               background: i === rows.length - 2 ? 'rgba(99,102,241,0.04)' : 'transparent',
             }}
           >
@@ -374,8 +374,8 @@ function ProductScoutDisplay({ cards, streaming }: { cards: ProductCard[]; strea
           className="product-card-anim"
           style={{
             animationDelay: `${i * 0.08}s`,
-            background: 'rgba(255,255,255,0.025)',
-            border: '1px solid rgba(255,255,255,0.07)',
+            background: '#FAFAFA',
+            border: '1px solid #E5E7EB',
             borderRadius: 12,
             padding: '14px 16px',
             position: 'relative',
@@ -388,7 +388,7 @@ function ProductScoutDisplay({ cards, streaming }: { cards: ProductCard[]; strea
               <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 14, color: '#f5f5f5' }}>{card.name}</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 {/* Score bar */}
-                <div style={{ width: 48, height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ width: 48, height: 4, background: '#F5F5F5', borderRadius: 2, overflow: 'hidden' }}>
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${card.score}%` }}
@@ -417,13 +417,13 @@ function AdDisplay({ card }: { card: AdCard }) {
       {/* Facebook ad mockup */}
       <div style={{
         background: '#1c1e21',
-        border: '1px solid rgba(255,255,255,0.08)',
+        border: '1px solid #F5F5F5',
         borderRadius: 12,
         overflow: 'hidden',
         fontFamily: dm,
       }}>
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderBottom: '1px solid #F9FAFB' }}>
           <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #4F46E5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: syne, fontWeight: 900, fontSize: 14, color: '#000', flexShrink: 0 }}>
             M
           </div>
@@ -446,7 +446,7 @@ function AdDisplay({ card }: { card: AdCard }) {
           )}
         </div>
         {/* Image placeholder */}
-        <div style={{ background: 'rgba(255,255,255,0.03)', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ background: '#FAFAFA', borderTop: '1px solid #F9FAFB', borderBottom: '1px solid #F9FAFB', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <span style={{ fontSize: 11, color: '#3f3f46', fontFamily: dm }}>[ Product creative / UGC video ]</span>
         </div>
         {/* CTA row */}
@@ -694,7 +694,7 @@ export default function LiveDemoWidget() {
         }}
       >
         {/* Scanline texture */}
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, backgroundImage: 'repeating-linear-gradient(0deg, rgba(255,255,255,0.003) 0px, rgba(255,255,255,0.003) 1px, transparent 1px, transparent 4px)' }} />
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, backgroundImage: 'repeating-linear-gradient(0deg, #FAFAFA 0px, #FAFAFA 1px, transparent 1px, transparent 4px)' }} />
 
         {/* ── Top bar ── */}
         <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 16px', background: 'rgba(0,0,0,0.45)', borderBottom: '1px solid rgba(99,102,241,0.1)' }}>
@@ -717,7 +717,7 @@ export default function LiveDemoWidget() {
         </div>
 
         {/* ── Tab bar ── */}
-        <div style={{ position: 'relative', zIndex: 2, display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.2)' }}>
+        <div style={{ position: 'relative', zIndex: 2, display: 'flex', borderBottom: '1px solid #F9FAFB', background: 'rgba(0,0,0,0.2)' }}>
           {TABS.map((t) => {
             const active = t.id === activeTab;
             return (
@@ -738,7 +738,7 @@ export default function LiveDemoWidget() {
                   transition: 'all 0.2s ease',
                   position: 'relative',
                 }}
-                onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.03)'; }}
+                onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = '#FAFAFA'; }}
                 onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
               >
                 <t.Icon size={13} color={active ? t.accent : '#52525b'} strokeWidth={2.2} />
@@ -760,8 +760,8 @@ export default function LiveDemoWidget() {
                   key={i}
                   onClick={() => { setInputs((p) => ({ ...p, [activeTab]: chip })); handleSend(chip); }}
                   style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: `1px solid rgba(255,255,255,0.08)`,
+                    background: '#F9FAFB',
+                    border: `1px solid #F5F5F5`,
                     borderRadius: 20,
                     padding: '5px 12px',
                     fontSize: 12,
@@ -779,9 +779,9 @@ export default function LiveDemoWidget() {
                   }}
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLElement;
-                    el.style.borderColor = 'rgba(255,255,255,0.08)';
+                    el.style.borderColor = '#F5F5F5';
                     el.style.color = '#94949e';
-                    el.style.background = 'rgba(255,255,255,0.04)';
+                    el.style.background = '#F9FAFB';
                   }}
                 >
                   {chip}
@@ -802,7 +802,7 @@ export default function LiveDemoWidget() {
             maxHeight: 340,
             overflowY: 'auto',
             scrollbarWidth: 'thin',
-            scrollbarColor: 'rgba(255,255,255,0.07) transparent',
+            scrollbarColor: '#E5E7EB transparent',
             transition: 'min-height 0.3s ease',
           }}
         >
@@ -858,7 +858,7 @@ export default function LiveDemoWidget() {
         </div>
 
         {/* ── Input row ── */}
-        <div style={{ position: 'relative', zIndex: 2, padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: 10, alignItems: 'center', background: 'rgba(0,0,0,0.2)' }}>
+        <div style={{ position: 'relative', zIndex: 2, padding: '12px 16px', borderTop: '1px solid #F9FAFB', display: 'flex', gap: 10, alignItems: 'center', background: 'rgba(0,0,0,0.2)' }}>
           <input
             value={inputValue}
             onChange={(e) => setInputs((p) => ({ ...p, [activeTab]: e.target.value }))}
@@ -867,7 +867,7 @@ export default function LiveDemoWidget() {
             placeholder={usesLeft > 0 ? tab.placeholder : 'Sign up for unlimited queries'}
             style={{
               flex: 1,
-              background: 'rgba(255,255,255,0.04)',
+              background: '#F9FAFB',
               border: '1px solid rgba(99,102,241,0.14)',
               borderRadius: 10,
               padding: '10px 14px',
@@ -887,7 +887,7 @@ export default function LiveDemoWidget() {
             style={{
               background: inputValue.trim() && !streaming && !thinking && !showSignup
                 ? `linear-gradient(135deg, ${tab.accent}, ${tab.accent}aa)`
-                : 'rgba(255,255,255,0.05)',
+                : '#F9FAFB',
               border: 'none',
               borderRadius: 10,
               width: 42,
@@ -937,7 +937,7 @@ export default function LiveDemoWidget() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, padding: '0 4px' }}>
         <span style={{ fontSize: 11, color: '#3f3f46', fontFamily: dm }}>Try free — no signup required</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <div style={{ width: 13, height: 13, borderRadius: 3, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 13, height: 13, borderRadius: 3, background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ fontSize: 7, color: '#6366F1', fontWeight: 900 }}>A</span>
           </div>
           <span style={{ fontSize: 11, color: '#3f3f46', fontFamily: dm }}>Powered by Majorka AI</span>

@@ -66,9 +66,9 @@ function CopyBtn({ text }: { text: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? 'rgba(45,202,114,0.1)' : 'rgba(255,255,255,0.05)',
-        border: `1px solid ${copied ? 'rgba(45,202,114,0.3)' : 'rgba(255,255,255,0.08)'}`,
-        color: copied ? 'rgba(45,202,114,0.8)' : 'rgba(240,237,232,0.4)',
+        background: copied ? '#EEF2FF' : '#F9FAFB',
+        border: `1px solid ${copied ? '#C7D2FE' : '#F5F5F5'}`,
+        color: copied ? 'rgba(99,102,241,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
     >
@@ -96,11 +96,11 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
           <div>
             <div
               className="text-sm font-black"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
             >
               {persona.name}
             </div>
-            <div className="text-xs mt-0.5" style={{ color: 'rgba(240,237,232,0.45)' }}>
+            <div className="text-xs mt-0.5" style={{ color: '#6B7280' }}>
               {persona.age} · {persona.gender} · {persona.location}
             </div>
           </div>
@@ -108,7 +108,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
             <div className="text-xs font-semibold" style={{ color: c.accent }}>
               {persona.occupation}
             </div>
-            <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+            <div className="text-xs" style={{ color: '#9CA3AF' }}>
               {persona.income}
             </div>
           </div>
@@ -123,9 +123,9 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
               className="flex-1 text-xs py-1.5 rounded-md capitalize font-semibold transition-all"
               style={{
                 background: tab === t ? c.accent : 'transparent',
-                color: tab === t ? '#080a0e' : 'rgba(240,237,232,0.4)',
+                color: tab === t ? '#FAFAFA' : '#9CA3AF',
                 cursor: 'pointer',
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
               }}
             >
               {t}
@@ -139,7 +139,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
               <div className="p-2.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.15)' }}>
                 <div
                   className="text-xs font-bold uppercase tracking-wider mb-1.5"
-                  style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Pain Points
                 </div>
@@ -147,7 +147,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
                   <div
                     key={i}
                     className="text-xs flex items-start gap-1.5 mb-1"
-                    style={{ color: 'rgba(240,237,232,0.7)' }}
+                    style={{ color: '#374151' }}
                   >
                     <span style={{ color: '#e05c7a', flexShrink: 0 }}>✕</span>
                     {p}
@@ -157,7 +157,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
               <div className="p-2.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.15)' }}>
                 <div
                   className="text-xs font-bold uppercase tracking-wider mb-1.5"
-                  style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Desires
                 </div>
@@ -165,9 +165,9 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
                   <div
                     key={i}
                     className="text-xs flex items-start gap-1.5 mb-1"
-                    style={{ color: 'rgba(240,237,232,0.7)' }}
+                    style={{ color: '#374151' }}
                   >
-                    <span style={{ color: '#2dca72', flexShrink: 0 }}>✓</span>
+                    <span style={{ color: '#6366F1', flexShrink: 0 }}>✓</span>
                     {d}
                   </div>
                 ))}
@@ -176,13 +176,13 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
             <div className="p-2.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.15)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1.5"
-                style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Audience Size
               </div>
               <div
                 className="text-sm font-black"
-                style={{ color: c.accent, fontFamily: 'Syne, sans-serif' }}
+                style={{ color: c.accent, fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {persona.estimatedSize}
               </div>
@@ -195,7 +195,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
             <div className="p-2.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.15)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1.5"
-                style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Buying Triggers
               </div>
@@ -203,7 +203,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
                 <div
                   key={i}
                   className="text-xs flex items-start gap-1.5 mb-1"
-                  style={{ color: 'rgba(240,237,232,0.7)' }}
+                  style={{ color: '#374151' }}
                 >
                   <span style={{ color: '#6366F1', flexShrink: 0 }}>→</span>
                   {t}
@@ -213,7 +213,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
             <div className="p-2.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.15)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1.5"
-                style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Objections to Overcome
               </div>
@@ -221,7 +221,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
                 <div
                   key={i}
                   className="text-xs flex items-start gap-1.5 mb-1"
-                  style={{ color: 'rgba(240,237,232,0.7)' }}
+                  style={{ color: '#374151' }}
                 >
                   <span style={{ color: '#e05c7a', flexShrink: 0 }}>!</span>
                   {o}
@@ -232,7 +232,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
               <div className="p-2.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.15)' }}>
                 <div
                   className="text-xs font-bold uppercase tracking-wider mb-1.5"
-                  style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Channels
                 </div>
@@ -251,7 +251,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
               <div className="p-2.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.15)' }}>
                 <div
                   className="text-xs font-bold uppercase tracking-wider mb-1.5"
-                  style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Content Types
                 </div>
@@ -261,7 +261,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
                       key={i}
                       className="text-xs px-1.5 py-0.5 rounded"
                       style={{
-                        background: 'rgba(255,255,255,0.06)',
+                        background: '#F9FAFB',
                         color: 'rgba(240,237,232,0.55)',
                       }}
                     >
@@ -280,7 +280,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
               <div className="flex items-center justify-between mb-1.5">
                 <div
                   className="text-xs font-bold uppercase tracking-wider"
-                  style={{ color: c.accent, fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: c.accent, fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Messaging Angle
                 </div>
@@ -300,13 +300,13 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
               <div className="flex items-center justify-between mb-1.5">
                 <div
                   className="text-xs font-bold uppercase tracking-wider"
-                  style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   🎣 Ad Hook
                 </div>
                 <CopyBtn text={persona.adHook} />
               </div>
-              <div className="text-sm font-semibold leading-relaxed" style={{ color: '#f0ede8' }}>
+              <div className="text-sm font-semibold leading-relaxed" style={{ color: '#374151' }}>
                 {persona.adHook}
               </div>
             </div>
@@ -409,11 +409,11 @@ export default function AudienceProfiler() {
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-black leading-tight"
-            style={{ fontFamily: 'Syne, sans-serif' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Audience Profiler
           </div>
-          <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+          <div className="text-xs" style={{ color: '#9CA3AF' }}>
             3 buyer personas · Pain points · Ad hooks · Channel strategy
           </div>
         </div>
@@ -425,9 +425,9 @@ export default function AudienceProfiler() {
             }}
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: 'rgba(240,237,232,0.5)',
+              background: '#F9FAFB',
+              border: '1px solid #F5F5F5',
+              color: '#6B7280',
               cursor: 'pointer',
             }}
           >
@@ -445,7 +445,7 @@ export default function AudienceProfiler() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Product / Niche *
               </label>
@@ -461,16 +461,16 @@ export default function AudienceProfiler() {
                 placeholder="e.g. Posture corrector belt…"
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#f0ede8',
+                  background: '#F9FAFB',
+                  border: '1px solid #F0F0F0',
+                  color: '#374151',
                 }}
               />
             </div>
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Price Point (AUD)
               </label>
@@ -480,9 +480,9 @@ export default function AudienceProfiler() {
                 placeholder="e.g. 49"
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#f0ede8',
+                  background: '#F9FAFB',
+                  border: '1px solid #F0F0F0',
+                  color: '#374151',
                 }}
               />
             </div>
@@ -495,7 +495,7 @@ export default function AudienceProfiler() {
             style={{
               background: isLoading ? 'rgba(156,95,255,0.25)' : '#9c5fff',
               color: '#fff',
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: isLoading ? 'not-allowed' : 'pointer',
             }}
           >
@@ -537,10 +537,10 @@ export default function AudienceProfiler() {
                 <Users size={24} style={{ color: '#9c5fff' }} className="animate-pulse" />
               </div>
               <div className="text-center">
-                <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>
+                <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Building audience profiles…
                 </div>
-                <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+                <div className="text-xs" style={{ color: '#9CA3AF' }}>
                   Analysing buyer psychology and demographics
                 </div>
               </div>
@@ -558,11 +558,11 @@ export default function AudienceProfiler() {
               >
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-2"
-                  style={{ color: '#9c5fff', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#9c5fff', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Primary Persona
                 </div>
-                <div className="text-sm leading-relaxed" style={{ color: 'rgba(240,237,232,0.8)' }}>
+                <div className="text-sm leading-relaxed" style={{ color: '#1F2937' }}>
                   {result.primaryPersona}
                 </div>
               </div>
@@ -577,13 +577,13 @@ export default function AudienceProfiler() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
+                    background: '#FAFAFA',
                     border: '1px solid #E5E7EB',
                   }}
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Messaging Framework
                   </div>
@@ -597,13 +597,13 @@ export default function AudienceProfiler() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
+                    background: '#FAFAFA',
                     border: '1px solid #E5E7EB',
                   }}
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Channel Strategy
                   </div>
@@ -624,13 +624,13 @@ export default function AudienceProfiler() {
               <div className="text-center">
                 <div
                   className="text-base font-black mb-2"
-                  style={{ fontFamily: 'Syne, sans-serif' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Know your buyer inside out
                 </div>
                 <div
                   className="text-xs max-w-xs leading-relaxed"
-                  style={{ color: 'rgba(240,237,232,0.35)' }}
+                  style={{ color: '#9CA3AF' }}
                 >
                   Enter a product to get 3 detailed buyer personas with pain points, buying
                   triggers, ad hooks, and channel strategy.

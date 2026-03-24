@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 const C = {
   bg: '#060608',
   card: '#0c0c10',
-  border: 'rgba(255,255,255,0.06)',
+  border: '#F9FAFB',
   text: '#f5f5f5',
   secondary: '#94949e',
   muted: '#52525b',
@@ -21,7 +21,7 @@ const C = {
   purple: '#a855f7',
 };
 
-const syne = 'Syne, sans-serif';
+const syne = "'Bricolage Grotesque', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 const LEADERBOARD = [
@@ -299,7 +299,7 @@ export default function Affiliate() {
           {LEADERBOARD.map((entry) => (
             <div
               key={entry.name}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderRadius: 10, marginBottom: 8, background: 'rgba(255,255,255,0.03)', border: `1px solid ${C.border}` }}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderRadius: 10, marginBottom: 8, background: '#FAFAFA', border: `1px solid ${C.border}` }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ fontSize: 20 }}>{entry.rank}</span>

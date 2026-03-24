@@ -102,7 +102,7 @@ export default function AutomationBuilder() {
   };
 
   const diffColor = (d: string) =>
-    d === 'easy' ? '#2dca72' : d === 'medium' ? '#f0c040' : '#ff6b6b';
+    d === 'easy' ? '#6366F1' : d === 'medium' ? '#f0c040' : '#ff6b6b';
 
   return (
     <div
@@ -121,10 +121,10 @@ export default function AutomationBuilder() {
             <Zap size={15} style={{ color: '#ffb400' }} />
           </div>
           <div>
-            <div className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+            <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Automation Builder
             </div>
-            <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+            <div className="text-xs" style={{ color: '#9CA3AF' }}>
               Workflows · Triggers · Tools
             </div>
           </div>
@@ -167,7 +167,7 @@ export default function AutomationBuilder() {
           <div key={label}>
             <label
               className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               {label} {req && <span style={{ color: '#ffb400' }}>*</span>}
             </label>
@@ -179,12 +179,12 @@ export default function AutomationBuilder() {
                 rows={2}
                 className="w-full text-xs px-3 py-2.5 rounded-lg outline-none resize-none"
                 style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1.5px solid rgba(255,255,255,0.08)',
-                  color: '#f0ede8',
+                  background: '#F9FAFB',
+                  border: '1.5px solid #F5F5F5',
+                  color: '#374151',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(255,180,0,0.45)')}
-                onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+                onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
               />
             ) : (
               <input
@@ -193,12 +193,12 @@ export default function AutomationBuilder() {
                 placeholder={placeholder}
                 className="w-full text-xs px-3 py-2.5 rounded-lg outline-none"
                 style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1.5px solid rgba(255,255,255,0.08)',
-                  color: '#f0ede8',
+                  background: '#F9FAFB',
+                  border: '1.5px solid #F5F5F5',
+                  color: '#374151',
                 }}
                 onFocus={(e) => (e.target.style.borderColor = 'rgba(255,180,0,0.45)')}
-                onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+                onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
               />
             )}
           </div>
@@ -212,8 +212,8 @@ export default function AutomationBuilder() {
             background: generating
               ? 'rgba(255,180,0,0.25)'
               : 'linear-gradient(135deg, #ffb400, #f0c040)',
-            color: '#080a0e',
-            fontFamily: 'Syne, sans-serif',
+            color: '#FAFAFA',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
             boxShadow: generating ? 'none' : '0 4px 20px rgba(255,180,0,0.3)',
             cursor: generating ? 'not-allowed' : 'pointer',
           }}
@@ -235,7 +235,7 @@ export default function AutomationBuilder() {
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+                <h2 className="text-lg font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Automation Plan
                 </h2>
                 <SaveToProduct
@@ -244,8 +244,8 @@ export default function AutomationBuilder() {
                   outputData={result}
                 />
                 <div className="flex items-center gap-2 mt-1">
-                  <Clock size={12} style={{ color: '#2dca72' }} />
-                  <span className="text-xs font-bold" style={{ color: '#2dca72' }}>
+                  <Clock size={12} style={{ color: '#6366F1' }} />
+                  <span className="text-xs font-bold" style={{ color: '#6366F1' }}>
                     Save {result.totalTimeSaved}
                   </span>
                 </div>
@@ -254,9 +254,9 @@ export default function AutomationBuilder() {
                 onClick={copyAll}
                 className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: 'rgba(240,237,232,0.6)',
+                  background: '#F9FAFB',
+                  border: '1px solid #F0F0F0',
+                  color: '#374151',
                   cursor: 'pointer',
                 }}
               >
@@ -271,7 +271,7 @@ export default function AutomationBuilder() {
                 border: '1px solid rgba(255,180,0,0.2)',
               }}
             >
-              <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.7)' }}>
+              <div className="text-xs leading-relaxed" style={{ color: '#374151' }}>
                 {result.summary}
               </div>
             </div>
@@ -281,7 +281,7 @@ export default function AutomationBuilder() {
                 key={i}
                 className="rounded-xl overflow-hidden"
                 style={{
-                  background: 'rgba(255,255,255,0.02)',
+                  background: '#FAFAFA',
                   border: '1px solid #E5E7EB',
                 }}
               >
@@ -290,10 +290,10 @@ export default function AutomationBuilder() {
                   style={{ borderColor: '#E5E7EB' }}
                 >
                   <div>
-                    <div className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+                    <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                       {auto.name}
                     </div>
-                    <div className="text-xs mt-0.5" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                    <div className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
                       {auto.description}
                     </div>
                   </div>
@@ -307,7 +307,7 @@ export default function AutomationBuilder() {
                     >
                       {auto.difficulty}
                     </span>
-                    <span className="text-xs font-mono" style={{ color: '#2dca72' }}>
+                    <span className="text-xs font-mono" style={{ color: '#6366F1' }}>
                       {auto.timeSaved}
                     </span>
                   </div>
@@ -321,8 +321,8 @@ export default function AutomationBuilder() {
                         <div
                           className="rounded-lg px-3 py-2"
                           style={{
-                            background: 'rgba(255,255,255,0.04)',
-                            border: '1px solid rgba(255,255,255,0.08)',
+                            background: '#F9FAFB',
+                            border: '1px solid #F5F5F5',
                           }}
                         >
                           <div className="text-xs font-bold" style={{ color: '#ffb400' }}>
@@ -330,19 +330,19 @@ export default function AutomationBuilder() {
                           </div>
                           <div
                             className="text-xs mt-0.5"
-                            style={{ color: 'rgba(240,237,232,0.5)' }}
+                            style={{ color: '#6B7280' }}
                           >
                             {step.action}
                           </div>
                           <div
                             className="text-xs mt-0.5 flex items-center gap-1"
-                            style={{ color: 'rgba(240,237,232,0.3)' }}
+                            style={{ color: '#9CA3AF' }}
                           >
                             <Settings size={8} /> {step.tool}
                           </div>
                         </div>
                         {j < auto.steps.length - 1 && (
-                          <ArrowRight size={14} style={{ color: 'rgba(255,255,255,0.15)' }} />
+                          <ArrowRight size={14} style={{ color: '#D1D5DB' }} />
                         )}
                       </div>
                     ))}
@@ -377,7 +377,7 @@ export default function AutomationBuilder() {
                   className="animate-spin mx-auto mb-4"
                   style={{ color: '#ffb400' }}
                 />
-                <div className="text-sm font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
+                <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Building your automations…
                 </div>
               </div>
@@ -387,13 +387,13 @@ export default function AutomationBuilder() {
                 <div className="text-center">
                   <div
                     className="text-base font-black mb-2"
-                    style={{ fontFamily: 'Syne, sans-serif' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Automation Builder
                   </div>
                   <div
                     className="text-xs max-w-xs leading-relaxed"
-                    style={{ color: 'rgba(240,237,232,0.35)' }}
+                    style={{ color: '#9CA3AF' }}
                   >
                     Describe your business and pain points to get custom automation workflows with
                     tools, triggers, and time savings.

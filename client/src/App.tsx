@@ -56,8 +56,8 @@ function LoadingFallback() {
           className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg animate-pulse"
           style={{
             background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-            color: '#080a0e',
-            fontFamily: 'Syne, sans-serif',
+            color: '#FAFAFA',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
           }}
         >
           M
@@ -323,7 +323,7 @@ function LegalPage({ title, slug }: { title: string; slug: string }) {
     <div style={{ minHeight: '100vh', background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif', padding: '80px 24px' }}>
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
         <a href="/" style={{ color: '#6366F1', fontSize: 13, textDecoration: 'none', display: 'inline-block', marginBottom: 32 }}>← Back to Majorka</a>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 36, fontWeight: 800, marginBottom: 8, color: '#0A0A0A' }}>{title}</h1>
+        <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 36, fontWeight: 800, marginBottom: 8, color: '#0A0A0A' }}>{title}</h1>
         <p style={{ fontSize: 13, color: '#52525b', marginBottom: 48 }}>Last updated: March 2025 · Majorka Pty Ltd · Gold Coast, QLD, Australia</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {paragraphs.map((p, i) => (

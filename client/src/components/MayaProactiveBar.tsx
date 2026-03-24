@@ -92,8 +92,8 @@ export default function MayaProactiveBar() {
               justifyContent: 'center',
               fontSize: 10,
               fontWeight: 800,
-              color: '#080a0e',
-              fontFamily: 'Syne, sans-serif',
+              color: '#FAFAFA',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               flexShrink: 0,
             }}
           >
@@ -104,7 +104,7 @@ export default function MayaProactiveBar() {
               fontSize: 11,
               color: 'rgba(99,102,241,0.7)',
               fontWeight: 700,
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               whiteSpace: 'nowrap',
             }}
           >
@@ -149,23 +149,23 @@ export default function MayaProactiveBar() {
             onClick={handleAskMaya}
             style={{
               background: 'transparent',
-              border: '1px solid rgba(255,255,255,0.1)',
+              border: '1px solid #F0F0F0',
               borderRadius: 20,
               padding: '5px 12px',
               fontSize: 12,
-              color: 'rgba(255,255,255,0.4)',
+              color: '#9CA3AF',
               cursor: 'pointer',
               fontFamily: 'DM Sans, sans-serif',
               whiteSpace: 'nowrap',
               transition: 'all 0.15s',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.color = 'rgba(255,255,255,0.7)';
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+              e.currentTarget.style.color = '#374151';
+              e.currentTarget.style.borderColor = '#D1D5DB';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = 'rgba(255,255,255,0.4)';
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+              e.currentTarget.style.color = '#9CA3AF';
+              e.currentTarget.style.borderColor = '#F0F0F0';
             }}
           >
             Ask Maya anything
@@ -178,15 +178,15 @@ export default function MayaProactiveBar() {
           style={{
             background: 'none',
             border: 'none',
-            color: 'rgba(255,255,255,0.2)',
+            color: '#D1D5DB',
             cursor: 'pointer',
             fontSize: 16,
             padding: '2px 4px',
             flexShrink: 0,
             lineHeight: 1,
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.2)')}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#6B7280')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = '#D1D5DB')}
           title="Dismiss"
         >
           ×

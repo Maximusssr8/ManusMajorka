@@ -138,7 +138,7 @@ export default function SocialProofTicker() {
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 12, lineHeight: 1.45, color: '#f5f5f5' }}>
               <strong style={{ color: '#f5f5f5' }}>{notif.name}</strong>{' '}
-              <span style={{ color: 'rgba(240,237,232,0.45)', fontSize: 11 }}>from {notif.city}</span>
+              <span style={{ color: '#6B7280', fontSize: 11 }}>from {notif.city}</span>
             </div>
             <div style={{ fontSize: 12, color: 'rgba(240,237,232,0.75)', lineHeight: 1.45, marginTop: 2 }}>
               {notif.icon} {notif.action}
@@ -153,7 +153,7 @@ export default function SocialProofTicker() {
               background: 'none',
               border: 'none',
               padding: 0,
-              color: 'rgba(240,237,232,0.25)',
+              color: '#D1D5DB',
               cursor: 'pointer',
               fontSize: 14,
               lineHeight: 1,

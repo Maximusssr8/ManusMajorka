@@ -123,7 +123,7 @@ export default function OnboardingChecklist() {
           </span>
           <span
             className="text-sm font-bold"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#6366F1' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
           >
             You're a power user!
           </span>
@@ -138,7 +138,7 @@ export default function OnboardingChecklist() {
         <div className="flex items-center gap-3">
           <h3
             className="text-sm font-bold"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#f5f5f5' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f5f5f5' }}
           >
             Getting Started
           </h3>
@@ -161,7 +161,7 @@ export default function OnboardingChecklist() {
       {/* Progress bar */}
       <div
         className="w-full h-1.5 rounded-full overflow-hidden mb-4"
-        style={{ background: 'rgba(255,255,255,0.06)' }}
+        style={{ background: '#F9FAFB' }}
       >
         <div
           className="h-full rounded-full transition-all duration-700"
@@ -169,7 +169,7 @@ export default function OnboardingChecklist() {
             width: `${progress}%`,
             background:
               progress === 100
-                ? 'linear-gradient(90deg, #10b981, #2dca72)'
+                ? 'linear-gradient(90deg, #10b981, #6366F1)'
                 : 'linear-gradient(90deg, #6366F1, #f0c040)',
           }}
         />
@@ -185,8 +185,8 @@ export default function OnboardingChecklist() {
               onClick={() => !done && setLocation(item.path)}
               className="flex items-center gap-2 rounded-lg px-3 py-2.5 transition-all text-left"
               style={{
-                background: done ? 'rgba(16,185,129,0.06)' : 'rgba(255,255,255,0.02)',
-                border: `1px solid ${done ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.06)'}`,
+                background: done ? 'rgba(16,185,129,0.06)' : '#FAFAFA',
+                border: `1px solid ${done ? 'rgba(16,185,129,0.15)' : '#F9FAFB'}`,
                 cursor: done ? 'default' : 'pointer',
                 opacity: done ? 0.7 : 1,
               }}
@@ -194,7 +194,7 @@ export default function OnboardingChecklist() {
                 if (!done) e.currentTarget.style.borderColor = 'rgba(99,102,241,0.25)';
               }}
               onMouseLeave={(e) => {
-                if (!done) e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+                if (!done) e.currentTarget.style.borderColor = '#F9FAFB';
               }}
             >
               {done ? (

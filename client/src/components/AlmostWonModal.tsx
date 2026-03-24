@@ -34,7 +34,7 @@ function BlurredName() {
         filter: 'blur(6px)',
         fontSize: 18,
         fontWeight: 700,
-        fontFamily: 'Syne, sans-serif',
+        fontFamily: "'Bricolage Grotesque', sans-serif",
         letterSpacing: '0.04em',
         border: '1px solid rgba(99,102,241,0.25)',
       }}
@@ -130,7 +130,7 @@ export default function AlmostWonModal() {
           {/* Headline */}
           <h2
             style={{
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               fontSize: 26,
               fontWeight: 800,
               color: '#f5f5f5',
@@ -165,7 +165,7 @@ export default function AlmostWonModal() {
               >
                 {data.score}/100
               </div>
-              <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <div style={{ fontSize: 10, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 Win Score
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function AlmostWonModal() {
               >
                 {fmtRevenue}
               </div>
-              <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <div style={{ fontSize: 10, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 Est. Revenue
               </div>
             </div>
@@ -216,7 +216,7 @@ export default function AlmostWonModal() {
               background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
               border: 'none',
               color: '#000',
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               fontSize: 15,
               fontWeight: 800,
               cursor: 'pointer',
@@ -229,7 +229,7 @@ export default function AlmostWonModal() {
           </button>
 
           {/* Social proof */}
-          <p style={{ fontSize: 12, color: 'rgba(240,237,232,0.35)', margin: '0 0 16px' }}>
+          <p style={{ fontSize: 12, color: '#9CA3AF', margin: '0 0 16px' }}>
             47 sellers found their next winner today
           </p>
 
@@ -241,7 +241,7 @@ export default function AlmostWonModal() {
               border: 'none',
               padding: 0,
               fontSize: 12,
-              color: 'rgba(240,237,232,0.3)',
+              color: '#9CA3AF',
               cursor: 'pointer',
               textDecoration: 'underline',
               textUnderlineOffset: 3,

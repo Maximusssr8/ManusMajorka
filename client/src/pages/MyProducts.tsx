@@ -36,7 +36,7 @@ const statusColors: Record<string, { bg: string; text: string; label: string }> 
   validate: { bg: 'rgba(124,106,245,0.12)', text: '#7c6af5', label: 'Validate' },
   build: { bg: 'rgba(99,102,241,0.12)', text: '#6366F1', label: 'Build' },
   launch: { bg: 'rgba(255,100,100,0.12)', text: '#ff6b6b', label: 'Launch' },
-  optimize: { bg: 'rgba(45,202,114,0.12)', text: '#2dca72', label: 'Optimize' },
+  optimize: { bg: 'rgba(99,102,241,0.18)', text: '#6366F1', label: 'Optimize' },
   scale: { bg: 'rgba(244,114,182,0.12)', text: '#f472b6', label: 'Scale' },
 };
 
@@ -202,7 +202,7 @@ export default function MyProducts() {
         className="flex items-center justify-center h-full"
         style={{ background: '#FAFAFA', color: '#0A0A0A' }}
       >
-        <Loader2 className="animate-spin" size={24} style={{ color: 'rgba(240,237,232,0.4)' }} />
+        <Loader2 className="animate-spin" size={24} style={{ color: '#9CA3AF' }} />
       </div>
     );
   }
@@ -215,7 +215,7 @@ export default function MyProducts() {
       >
         <div className="text-center">
           <div className="text-4xl mb-4">🔒</div>
-          <div className="text-sm font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             Sign in to manage products
           </div>
         </div>
@@ -236,10 +236,10 @@ export default function MyProducts() {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+            <h1 className="text-xl font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               My Products
             </h1>
-            <p className="text-xs mt-1" style={{ color: 'rgba(240,237,232,0.4)' }}>
+            <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
               Track your products through every stage — from research to scale.
             </p>
           </div>
@@ -248,8 +248,8 @@ export default function MyProducts() {
               onClick={() => setSortByScore((s) => !s)}
               className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all"
               style={{
-                background: sortByScore ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${sortByScore ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                background: sortByScore ? 'rgba(99,102,241,0.12)' : '#F9FAFB',
+                border: `1px solid ${sortByScore ? 'rgba(99,102,241,0.4)' : '#F5F5F5'}`,
                 color: sortByScore ? '#6366F1' : 'rgba(240,237,232,0.55)',
                 cursor: 'pointer',
               }}
@@ -265,8 +265,8 @@ export default function MyProducts() {
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all"
               style={{
                 background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-                color: '#080a0e',
-                fontFamily: 'Syne, sans-serif',
+                color: '#FAFAFA',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
                 cursor: 'pointer',
               }}
             >
@@ -288,8 +288,8 @@ export default function MyProducts() {
               }}
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all"
               style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
+                background: '#F9FAFB',
+                border: '1px solid #F5F5F5',
                 color: 'rgba(240,237,232,0.55)',
                 cursor: 'pointer',
               }}
@@ -300,12 +300,12 @@ export default function MyProducts() {
             <div
               className="rounded-xl p-5 mb-2"
               style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.08)',
+                background: '#FAFAFA',
+                border: '1px solid #F5F5F5',
               }}
             >
               <div className="flex items-center justify-between mb-4">
-                <div className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+                <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Import Product from URL
                 </div>
                 <button
@@ -316,7 +316,7 @@ export default function MyProducts() {
                   }}
                   style={{
                     cursor: 'pointer',
-                    color: 'rgba(240,237,232,0.4)',
+                    color: '#9CA3AF',
                     background: 'none',
                     border: 'none',
                   }}
@@ -331,13 +331,13 @@ export default function MyProducts() {
                   placeholder="https://aliexpress.com/item/... or any product URL"
                   className="flex-1 text-xs px-3 py-2.5 rounded-lg outline-none"
                   style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1.5px solid rgba(255,255,255,0.08)',
-                    color: '#f0ede8',
+                    background: '#F9FAFB',
+                    border: '1.5px solid #F5F5F5',
+                    color: '#374151',
                   }}
                   onKeyDown={(e) => e.key === 'Enter' && handleImport()}
                   onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')}
-                  onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+                  onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
                 />
                 <button
                   onClick={handleImport}
@@ -345,8 +345,8 @@ export default function MyProducts() {
                   className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
                   style={{
                     background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-                    color: '#080a0e',
-                    fontFamily: 'Syne, sans-serif',
+                    color: '#FAFAFA',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                     cursor: importing ? 'not-allowed' : 'pointer',
                   }}
                 >
@@ -384,15 +384,15 @@ export default function MyProducts() {
                 <div
                   className="rounded-xl p-4"
                   style={{
-                    background: 'rgba(45,202,114,0.05)',
-                    border: '1px solid rgba(45,202,114,0.2)',
+                    background: 'rgba(99,102,241,0.06)',
+                    border: '1px solid rgba(99,102,241,0.30)',
                   }}
                 >
                   <div className="flex items-center gap-2 mb-3">
-                    <Check size={14} style={{ color: '#2dca72' }} />
+                    <Check size={14} style={{ color: '#6366F1' }} />
                     <div
                       className="text-xs font-bold uppercase tracking-wider"
-                      style={{ color: '#2dca72', fontFamily: 'Syne, sans-serif' }}
+                      style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                     >
                       Product Extracted
                     </div>
@@ -400,7 +400,7 @@ export default function MyProducts() {
                   <div className="mb-2">
                     <div
                       className="text-sm font-black mb-1"
-                      style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
                     >
                       {importedProduct.productTitle || 'Product'}
                     </div>
@@ -413,7 +413,7 @@ export default function MyProducts() {
                   {importedProduct.description && (
                     <div
                       className="text-xs mb-3 line-clamp-3"
-                      style={{ color: 'rgba(240,237,232,0.6)' }}
+                      style={{ color: '#374151' }}
                     >
                       {importedProduct.description}
                     </div>
@@ -425,7 +425,7 @@ export default function MyProducts() {
                     >
                       {importedProduct.bulletPoints.slice(0, 4).map((bp, i) => (
                         <li key={i} className="flex items-start gap-1.5">
-                          <span style={{ color: '#2dca72', flexShrink: 0 }}>•</span>
+                          <span style={{ color: '#6366F1', flexShrink: 0 }}>•</span>
                           {bp}
                         </li>
                       ))}
@@ -452,8 +452,8 @@ export default function MyProducts() {
                     className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all disabled:opacity-60"
                     style={{
                       background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-                      color: '#080a0e',
-                      fontFamily: 'Syne, sans-serif',
+                      color: '#FAFAFA',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       cursor: isSubmitting ? 'not-allowed' : 'pointer',
                     }}
                   >
@@ -475,12 +475,12 @@ export default function MyProducts() {
           <div
             className="rounded-xl p-5 mb-6"
             style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: '#FAFAFA',
+              border: '1px solid #F5F5F5',
             }}
           >
             <div className="flex items-center justify-between mb-4">
-              <div className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+              <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 {editId ? 'Edit Product' : 'New Product'}
               </div>
               <button
@@ -489,7 +489,7 @@ export default function MyProducts() {
                   setEditId(null);
                   resetForm();
                 }}
-                style={{ cursor: 'pointer', color: 'rgba(240,237,232,0.4)' }}
+                style={{ cursor: 'pointer', color: '#9CA3AF' }}
               >
                 <X size={16} />
               </button>
@@ -514,7 +514,7 @@ export default function MyProducts() {
                 <div key={label}>
                   <label
                     className="block text-xs font-bold uppercase tracking-wider mb-1"
-                    style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     {label}
                   </label>
@@ -524,12 +524,12 @@ export default function MyProducts() {
                     placeholder={placeholder}
                     className="w-full text-xs px-3 py-2.5 rounded-lg outline-none"
                     style={{
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1.5px solid rgba(255,255,255,0.08)',
-                      color: '#f0ede8',
+                      background: '#F9FAFB',
+                      border: '1.5px solid #F5F5F5',
+                      color: '#374151',
                     }}
                     onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')}
-                    onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+                    onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
                   />
                 </div>
               ))}
@@ -540,13 +540,13 @@ export default function MyProducts() {
               className="px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-60"
               style={{
                 background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-                color: '#080a0e',
-                fontFamily: 'Syne, sans-serif',
+                color: '#FAFAFA',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
                 cursor: isSubmitting ? 'not-allowed' : 'pointer',
               }}
             >
               {isSubmitting ? (
-                <div className="w-4 h-4 rounded-full border-2 border-[#080a0e]/30 border-t-[#080a0e] animate-spin" />
+                <div className="w-4 h-4 rounded-full border-2 border-[#FAFAFA]/30 border-t-[#FAFAFA] animate-spin" />
               ) : null}
               {editId ? 'Save Changes' : 'Create Product'}
             </button>
@@ -557,12 +557,12 @@ export default function MyProducts() {
         {error ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <div className="text-4xl">⚠️</div>
-            <div className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+            <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Database not connected
             </div>
             <div
               className="text-xs max-w-xs text-center"
-              style={{ color: 'rgba(240,237,232,0.35)' }}
+              style={{ color: '#9CA3AF' }}
             >
               Run your database migrations and check DATABASE_URL in .env
             </div>
@@ -575,10 +575,10 @@ export default function MyProducts() {
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <div className="text-5xl">📦</div>
             <div className="text-center">
-              <div className="text-base font-black mb-2" style={{ fontFamily: 'Syne, sans-serif' }}>
+              <div className="text-base font-black mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 No products yet
               </div>
-              <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+              <div className="text-xs" style={{ color: '#9CA3AF' }}>
                 Create your first product to start tracking it through every stage.
               </div>
             </div>
@@ -607,8 +607,8 @@ export default function MyProducts() {
                   key={p.id}
                   className="rounded-xl p-4 transition-all hover:border-white/10 cursor-pointer"
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.07)',
+                    background: '#FAFAFA',
+                    border: '1px solid #E5E7EB',
                   }}
                   onClick={() => navigate(`/app/product-hub/${p.id}`)}
                 >
@@ -623,14 +623,14 @@ export default function MyProducts() {
                       <div>
                         <div
                           className="text-sm font-bold"
-                          style={{ fontFamily: 'Syne, sans-serif' }}
+                          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                         >
                           {p.name}
                         </div>
                         {p.niche && (
                           <div
                             className="text-xs mt-0.5"
-                            style={{ color: 'rgba(240,237,232,0.4)' }}
+                            style={{ color: '#9CA3AF' }}
                           >
                             {p.niche}
                           </div>
@@ -657,7 +657,7 @@ export default function MyProducts() {
                   {p.description && (
                     <div
                       className="text-xs mb-3 line-clamp-2"
-                      style={{ color: 'rgba(240,237,232,0.5)' }}
+                      style={{ color: '#6B7280' }}
                     >
                       {p.description}
                     </div>
@@ -701,8 +701,8 @@ export default function MyProducts() {
                           className="text-xs px-2 py-1 rounded-lg transition-all hover:bg-white/5"
                           style={{
                             cursor: 'pointer',
-                            color: 'rgba(240,237,232,0.4)',
-                            border: '1px solid rgba(255,255,255,0.08)',
+                            color: '#9CA3AF',
+                            border: '1px solid #F5F5F5',
                           }}
                         >
                           Set Active
@@ -711,7 +711,7 @@ export default function MyProducts() {
                       <button
                         onClick={() => startEdit(p)}
                         className="p-1.5 rounded-lg transition-all hover:bg-white/5"
-                        style={{ cursor: 'pointer', color: 'rgba(240,237,232,0.4)' }}
+                        style={{ cursor: 'pointer', color: '#9CA3AF' }}
                       >
                         <Pencil size={12} />
                       </button>
@@ -734,7 +734,7 @@ export default function MyProducts() {
                           <button
                             onClick={() => setPendingDeleteId(null)}
                             className="text-xs px-2 py-1 rounded-lg transition-all hover:bg-white/5"
-                            style={{ color: 'rgba(240,237,232,0.4)', cursor: 'pointer' }}
+                            style={{ color: '#9CA3AF', cursor: 'pointer' }}
                           >
                             Cancel
                           </button>

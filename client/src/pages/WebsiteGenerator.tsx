@@ -175,7 +175,7 @@ const PREVIEW_TEMPLATE = `<!DOCTYPE html>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', sans-serif; color: var(--text); background: var(--bg); }
     /* NAV */
-    nav { display: flex; justify-content: space-between; align-items: center; padding: 14px 40px; background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 8px rgba(0,0,0,0.06); }
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 14px 40px; background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 8px #E5E7EB; }
     .logo { font-weight: 900; font-size: 20px; color: var(--primary); letter-spacing: -0.5px; }
     .nav-links { display: flex; gap: 28px; }
     .nav-links a { text-decoration: none; color: #555; font-size: 14px; font-weight: 500; }
@@ -210,7 +210,7 @@ const PREVIEW_TEMPLATE = `<!DOCTYPE html>
     .price-original { font-size: 20px; color: #aaa; text-decoration: line-through; }
     .price-save { background: #dcfce7; color: #16a34a; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; }
     .countdown-box { background: var(--dark); color: #fff; padding: 12px 16px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-    .countdown-label { font-size: 12px; color: rgba(255,255,255,0.7); }
+    .countdown-label { font-size: 12px; color: #374151; }
     .countdown-timer { font-size: 22px; font-weight: 900; font-family: monospace; color: #f59e0b; }
     .qty-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
     .qty-label { font-size: 13px; font-weight: 600; color: #555; }
@@ -227,7 +227,7 @@ const PREVIEW_TEMPLATE = `<!DOCTYPE html>
     .features { padding: 80px 40px; background: var(--light); }
     .features h2 { text-align: center; font-size: 32px; font-weight: 900; margin-bottom: 48px; }
     .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; max-width: 960px; margin: 0 auto; }
-    .feature-card { background: #fff; padding: 28px 22px; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .feature-card { background: #fff; padding: 28px 22px; border-radius: 14px; box-shadow: 0 2px 12px #E5E7EB; }
     .feature-icon { font-size: 28px; margin-bottom: 12px; }
     .feature-card h3 { font-size: 17px; font-weight: 800; margin-bottom: 8px; }
     .feature-card p { font-size: 14px; color: #666; line-height: 1.6; }
@@ -256,11 +256,11 @@ const PREVIEW_TEMPLATE = `<!DOCTYPE html>
     footer { background: var(--dark); color: #fff; padding: 48px 40px; }
     .footer-inner { max-width: 960px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 32px; }
     .footer-brand .logo { font-size: 22px; margin-bottom: 8px; }
-    .footer-brand p { font-size: 13px; color: rgba(255,255,255,0.5); max-width: 240px; line-height: 1.6; }
+    .footer-brand p { font-size: 13px; color: #6B7280; max-width: 240px; line-height: 1.6; }
     .footer-links { display: flex; flex-direction: column; gap: 8px; }
-    .footer-links a { font-size: 13px; color: rgba(255,255,255,0.5); text-decoration: none; }
+    .footer-links a { font-size: 13px; color: #6B7280; text-decoration: none; }
     .footer-links a:hover { color: #fff; }
-    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); margin-top: 32px; padding-top: 20px; text-align: center; font-size: 12px; color: rgba(255,255,255,0.35); }
+    .footer-bottom { border-top: 1px solid #F5F5F5; margin-top: 32px; padding-top: 20px; text-align: center; font-size: 12px; color: #9CA3AF; }
     /* VARIANTS */
     .variant-row { margin-bottom: 16px; }
     .variant-label { font-size: 13px; font-weight: 600; color: #555; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
@@ -876,7 +876,7 @@ function FileTree({
                   paddingLeft: folder === '.' ? 12 : 28,
                   paddingRight: 12,
                   background: isActive ? 'rgba(99,102,241,0.1)' : 'transparent',
-                  color: isActive ? '#6366F1' : 'rgba(240,237,232,0.5)',
+                  color: isActive ? '#6366F1' : '#6B7280',
                   borderLeft: `2px solid ${isActive ? '#6366F1' : 'transparent'}`,
                   cursor: 'pointer',
                   border: 'none',
@@ -902,8 +902,8 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }} onClick={onClose}>
-      <div className="relative w-full max-w-lg mx-4 rounded-2xl p-6" style={{ background: 'white', border: '1px solid rgba(255,255,255,0.1)' }} onClick={(e) => e.stopPropagation()}>
-        <button onClick={onClose} className="absolute top-4 right-4" style={{ color: 'rgba(240,237,232,0.4)', background: 'none', border: 'none', cursor: 'pointer' }}>
+      <div className="relative w-full max-w-lg mx-4 rounded-2xl p-6" style={{ background: 'white', border: '1px solid #F0F0F0' }} onClick={(e) => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute top-4 right-4" style={{ color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer' }}>
           <X size={18} />
         </button>
         {children}
@@ -1009,9 +1009,9 @@ function GoLiveLaunchPanel({ generatedData, storeName, priceAUD, niche }: GoLive
 
   if (!generatedData) {
     return (
-      <div className="h-full flex flex-col items-center justify-center gap-4 p-8" style={{ color: 'rgba(240,237,232,0.4)' }}>
+      <div className="h-full flex flex-col items-center justify-center gap-4 p-8" style={{ color: '#9CA3AF' }}>
         <Rocket size={40} style={{ opacity: 0.3 }} />
-        <p className="text-sm font-medium" style={{ fontFamily: 'Syne, sans-serif' }}>Generate your website first, then launch it here.</p>
+        <p className="text-sm font-medium" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Generate your website first, then launch it here.</p>
       </div>
     );
   }
@@ -1021,8 +1021,8 @@ function GoLiveLaunchPanel({ generatedData, storeName, priceAUD, niche }: GoLive
       <div className="h-full overflow-y-auto p-6" style={{ scrollbarWidth: 'thin' }}>
         <div className="max-w-2xl mx-auto space-y-6">
           <div className="text-center space-y-1">
-            <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}>Ready to sell?</p>
-            <h2 className="text-xl font-bold" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: 'Syne, sans-serif' }}>Choose your launch path</h2>
+            <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Ready to sell?</p>
+            <h2 className="text-xl font-bold" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Choose your launch path</h2>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <button onClick={() => setMode('majorka-wizard')} className="group relative text-left p-6 rounded-2xl transition-all duration-200" style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', cursor: 'pointer' }} onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.border = '1px solid rgba(99,102,241,0.6)'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(99,102,241,0.1)'; }} onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.border = '1px solid rgba(99,102,241,0.2)'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(99,102,241,0.06)'; }}>
@@ -1030,26 +1030,26 @@ function GoLiveLaunchPanel({ generatedData, storeName, priceAUD, niche }: GoLive
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.15)' }}><Zap size={20} style={{ color: '#6366F1' }} /></div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: 'Syne, sans-serif' }}>Sell on Majorka</span>
+                    <span className="font-bold text-sm" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Sell on Majorka</span>
                     <span className="text-xs px-2 py-0.5 rounded-full font-bold" style={{ background: 'rgba(99,102,241,0.2)', color: '#6366F1' }}>Recommended</span>
                   </div>
-                  <p className="text-xs mt-1" style={{ color: 'rgba(240,237,232,0.5)', lineHeight: 1.5 }}>Your store is hosted here. Add Stripe and start selling in minutes. Free.</p>
+                  <p className="text-xs mt-1" style={{ color: '#6B7280', lineHeight: 1.5 }}>Your store is hosted here. Add Stripe and start selling in minutes. Free.</p>
                 </div>
                 <div className="text-xs font-bold flex items-center gap-1" style={{ color: '#6366F1' }}>Set Up Store <ChevronRight size={12} /></div>
               </div>
             </button>
-            <button onClick={handleShopifyExport} className="group relative text-left p-6 rounded-2xl transition-all duration-200" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' }} onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.border = '1px solid rgba(255,255,255,0.18)'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)'; }} onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.border = '1px solid rgba(255,255,255,0.08)'; (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.03)'; }}>
+            <button onClick={handleShopifyExport} className="group relative text-left p-6 rounded-2xl transition-all duration-200" style={{ background: '#FAFAFA', border: '1px solid #F5F5F5', cursor: 'pointer' }} onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.border = '1px solid rgba(255,255,255,0.18)'; (e.currentTarget as HTMLButtonElement).style.background = '#F9FAFB'; }} onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.border = '1px solid #F5F5F5'; (e.currentTarget as HTMLButtonElement).style.background = '#FAFAFA'; }}>
               <div className="space-y-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.06)' }}><ShoppingBag size={20} style={{ color: 'rgba(240,237,232,0.6)' }} /></div>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: '#F9FAFB' }}><ShoppingBag size={20} style={{ color: '#374151' }} /></div>
                 <div>
-                  <span className="font-bold text-sm" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: 'Syne, sans-serif' }}>Export to Shopify</span>
-                  <p className="text-xs mt-1" style={{ color: 'rgba(240,237,232,0.5)', lineHeight: 1.5 }}>Download a Shopify-ready product CSV and import it to your Shopify store in one click.</p>
+                  <span className="font-bold text-sm" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Export to Shopify</span>
+                  <p className="text-xs mt-1" style={{ color: '#6B7280', lineHeight: 1.5 }}>Download a Shopify-ready product CSV and import it to your Shopify store in one click.</p>
                 </div>
-                <div className="text-xs font-bold flex items-center gap-1" style={{ color: 'rgba(240,237,232,0.5)' }}><Download size={12} /> Export CSV</div>
+                <div className="text-xs font-bold flex items-center gap-1" style={{ color: '#6B7280' }}><Download size={12} /> Export CSV</div>
               </div>
             </button>
           </div>
-          <div className="text-center text-xs" style={{ color: 'rgba(240,237,232,0.3)', fontFamily: 'DM Sans, sans-serif' }}>
+          <div className="text-center text-xs" style={{ color: '#9CA3AF', fontFamily: 'DM Sans, sans-serif' }}>
             Your store will be hosted at <span style={{ color: 'rgba(99,102,241,0.7)' }}>majorka.io/store/{slug}</span>
           </div>
         </div>
@@ -1062,35 +1062,35 @@ function GoLiveLaunchPanel({ generatedData, storeName, priceAUD, niche }: GoLive
       <div className="h-full overflow-y-auto p-6" style={{ scrollbarWidth: 'thin' }}>
         <div className="max-w-lg mx-auto space-y-6">
           {wizardStep < 3 && (
-            <button onClick={() => { if (wizardStep === 1) setMode('choose'); else setWizardStep((s) => s - 1); }} className="flex items-center gap-1 text-xs transition-opacity hover:opacity-80" style={{ color: 'rgba(240,237,232,0.4)', cursor: 'pointer' }}>
+            <button onClick={() => { if (wizardStep === 1) setMode('choose'); else setWizardStep((s) => s - 1); }} className="flex items-center gap-1 text-xs transition-opacity hover:opacity-80" style={{ color: '#9CA3AF', cursor: 'pointer' }}>
               <ChevronRight size={12} style={{ transform: 'rotate(180deg)' }} /> Back
             </button>
           )}
           <div className="flex items-center justify-center gap-2">
             {[1, 2, 3].map((s) => (
-              <div key={s} className="rounded-full transition-all duration-200" style={{ width: s === wizardStep ? 24 : 8, height: 8, background: s === wizardStep ? '#6366F1' : s < wizardStep ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.12)' }} />
+              <div key={s} className="rounded-full transition-all duration-200" style={{ width: s === wizardStep ? 24 : 8, height: 8, background: s === wizardStep ? '#6366F1' : s < wizardStep ? 'rgba(99,102,241,0.4)' : '#E5E7EB' }} />
             ))}
           </div>
 
           {wizardStep === 1 && (
             <div className="space-y-5">
               <div className="text-center space-y-1">
-                <h3 className="text-lg font-bold" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: 'Syne, sans-serif' }}>Connect Stripe</h3>
-                <p className="text-xs" style={{ color: 'rgba(240,237,232,0.45)' }}>Required to accept payments on your store.</p>
+                <h3 className="text-lg font-bold" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Connect Stripe</h3>
+                <p className="text-xs" style={{ color: '#6B7280' }}>Required to accept payments on your store.</p>
               </div>
               <div className="space-y-3">
                 {[{ label: 'Publishable Key', value: stripePublishable, setter: setStripePublishable, placeholder: 'pk_live_...', type: 'text' }, { label: 'Secret Key', value: stripeSecret, setter: setStripeSecret, placeholder: 'sk_live_...', type: 'password' }].map(({ label, value, setter, placeholder, type }) => (
                   <div key={label} className="space-y-1.5">
-                    <label className="text-xs font-medium" style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}>{label}</label>
-                    <input type={type} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder} className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,237,232,0.9)', fontFamily: 'monospace' }} onFocus={(e) => { e.target.style.border = '1px solid rgba(99,102,241,0.4)'; }} onBlur={(e) => { e.target.style.border = '1px solid rgba(255,255,255,0.1)'; }} />
+                    <label className="text-xs font-medium" style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}>{label}</label>
+                    <input type={type} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder} className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all" style={{ background: '#F9FAFB', border: '1px solid #F0F0F0', color: '#111827', fontFamily: 'monospace' }} onFocus={(e) => { e.target.style.border = '1px solid rgba(99,102,241,0.4)'; }} onBlur={(e) => { e.target.style.border = '1px solid #F0F0F0'; }} />
                   </div>
                 ))}
               </div>
               <div className="space-y-1.5">
-                <p className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>Saved locally. We never transmit your secret key to third parties.</p>
-                <p className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>No Stripe account? <a href="https://stripe.com/au" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: '#6366F1', cursor: 'pointer' }}>Create a free account →</a></p>
+                <p className="text-xs" style={{ color: '#9CA3AF' }}>Saved locally. We never transmit your secret key to third parties.</p>
+                <p className="text-xs" style={{ color: '#9CA3AF' }}>No Stripe account? <a href="https://stripe.com/au" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: '#6366F1', cursor: 'pointer' }}>Create a free account →</a></p>
               </div>
-              <button onClick={handleStep1Next} className="w-full py-3 rounded-xl text-sm font-bold transition-all duration-200" style={{ background: '#6366F1', color: '#0c0e12', fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}>
+              <button onClick={handleStep1Next} className="w-full py-3 rounded-xl text-sm font-bold transition-all duration-200" style={{ background: '#6366F1', color: '#0c0e12', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer' }}>
                 Next: Set Your Product →
               </button>
             </div>
@@ -1099,22 +1099,22 @@ function GoLiveLaunchPanel({ generatedData, storeName, priceAUD, niche }: GoLive
           {wizardStep === 2 && (
             <div className="space-y-5">
               <div className="text-center space-y-1">
-                <h3 className="text-lg font-bold" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: 'Syne, sans-serif' }}>What are you selling?</h3>
-                <p className="text-xs" style={{ color: 'rgba(240,237,232,0.45)' }}>Pre-filled from your generated store. Edit as needed.</p>
+                <h3 className="text-lg font-bold" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>What are you selling?</h3>
+                <p className="text-xs" style={{ color: '#6B7280' }}>Pre-filled from your generated store. Edit as needed.</p>
               </div>
               <div className="space-y-3">
                 {[{ label: 'Product Name', value: productName, setter: setProductName, placeholder: 'e.g. Bondi Glow Supplement', type: 'text' }, { label: 'Price (AUD)', value: productPrice, setter: setProductPrice, placeholder: '49.00', type: 'text' }, { label: 'Product Image URL (optional)', value: productImageUrl, setter: setProductImageUrl, placeholder: 'https://...', type: 'text' }].map(({ label, value, setter, placeholder, type }) => (
                   <div key={label} className="space-y-1.5">
-                    <label className="text-xs font-medium" style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}>{label}</label>
-                    <input type={type} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder} className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,237,232,0.9)' }} onFocus={(e) => { e.target.style.border = '1px solid rgba(99,102,241,0.4)'; }} onBlur={(e) => { e.target.style.border = '1px solid rgba(255,255,255,0.1)'; }} />
+                    <label className="text-xs font-medium" style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}>{label}</label>
+                    <input type={type} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder} className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all" style={{ background: '#F9FAFB', border: '1px solid #F0F0F0', color: '#111827' }} onFocus={(e) => { e.target.style.border = '1px solid rgba(99,102,241,0.4)'; }} onBlur={(e) => { e.target.style.border = '1px solid #F0F0F0'; }} />
                   </div>
                 ))}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium" style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}>Description</label>
-                  <textarea value={productDesc} onChange={(e) => setProductDesc(e.target.value)} placeholder="Describe your product..." rows={3} className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all resize-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,237,232,0.9)' }} onFocus={(e) => { e.target.style.border = '1px solid rgba(99,102,241,0.4)'; }} onBlur={(e) => { e.target.style.border = '1px solid rgba(255,255,255,0.1)'; }} />
+                  <label className="text-xs font-medium" style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Description</label>
+                  <textarea value={productDesc} onChange={(e) => setProductDesc(e.target.value)} placeholder="Describe your product..." rows={3} className="w-full px-3 py-2.5 rounded-lg text-xs outline-none transition-all resize-none" style={{ background: '#F9FAFB', border: '1px solid #F0F0F0', color: '#111827' }} onFocus={(e) => { e.target.style.border = '1px solid rgba(99,102,241,0.4)'; }} onBlur={(e) => { e.target.style.border = '1px solid #F0F0F0'; }} />
                 </div>
               </div>
-              <button onClick={handleGoLive} disabled={createStoreMutation.isPending || createProductMutation.isPending} className="w-full py-3 rounded-xl text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2" style={{ background: '#6366F1', color: '#0c0e12', fontFamily: 'Syne, sans-serif', cursor: createStoreMutation.isPending || createProductMutation.isPending ? 'not-allowed' : 'pointer', opacity: createStoreMutation.isPending || createProductMutation.isPending ? 0.7 : 1 }}>
+              <button onClick={handleGoLive} disabled={createStoreMutation.isPending || createProductMutation.isPending} className="w-full py-3 rounded-xl text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2" style={{ background: '#6366F1', color: '#0c0e12', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: createStoreMutation.isPending || createProductMutation.isPending ? 'not-allowed' : 'pointer', opacity: createStoreMutation.isPending || createProductMutation.isPending ? 0.7 : 1 }}>
                 {createStoreMutation.isPending || createProductMutation.isPending ? (<><Loader2 size={14} className="animate-spin" /> Creating your store...</>) : (<><Rocket size={14} /> Create Product &amp; Go Live →</>)}
               </button>
             </div>
@@ -1124,8 +1124,8 @@ function GoLiveLaunchPanel({ generatedData, storeName, priceAUD, niche }: GoLive
             <div className="space-y-5 text-center">
               <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.15)', border: '2px solid #6366F1' }}><Check size={28} style={{ color: '#6366F1' }} /></div>
               <div className="space-y-1">
-                <h3 className="text-lg font-bold" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: 'Syne, sans-serif' }}>Your store is live!</h3>
-                <p className="text-xs" style={{ color: 'rgba(240,237,232,0.45)' }}>Share this link to start selling immediately.</p>
+                <h3 className="text-lg font-bold" style={{ color: 'rgba(240,237,232,0.95)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Your store is live!</h3>
+                <p className="text-xs" style={{ color: '#6B7280' }}>Share this link to start selling immediately.</p>
               </div>
               <div className="rounded-xl p-4 space-y-3" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.35)' }}>
                 <p className="text-xs" style={{ color: 'rgba(99,102,241,0.8)' }}>Your store URL</p>
@@ -1137,14 +1137,14 @@ function GoLiveLaunchPanel({ generatedData, storeName, priceAUD, niche }: GoLive
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <a href={`https://majorka.io/store/${liveSlug || slug}`} target="_blank" rel="noopener noreferrer" className="py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200" style={{ background: '#6366F1', color: '#0c0e12', fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}>
+                <a href={`https://majorka.io/store/${liveSlug || slug}`} target="_blank" rel="noopener noreferrer" className="py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200" style={{ background: '#6366F1', color: '#0c0e12', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer' }}>
                   <ExternalLink size={12} /> Open My Store
                 </a>
-                <button onClick={() => navigate('/app/store/products')} className="py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(240,237,232,0.8)', fontFamily: 'Syne, sans-serif', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <button onClick={() => navigate('/app/store/products')} className="py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200" style={{ background: '#F9FAFB', color: '#1F2937', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer', border: '1px solid #F0F0F0' }}>
                   <Package size={12} /> Manage Store
                 </button>
               </div>
-              <button onClick={() => { const text = `Check out my new store: https://majorka.io/store/${liveSlug || slug}`; navigator.clipboard.writeText(text); toast.success('Link copied — paste it anywhere to share!'); }} className="w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200" style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(240,237,232,0.5)', fontFamily: 'Syne, sans-serif', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <button onClick={() => { const text = `Check out my new store: https://majorka.io/store/${liveSlug || slug}`; navigator.clipboard.writeText(text); toast.success('Link copied — paste it anywhere to share!'); }} className="w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all duration-200" style={{ background: '#F9FAFB', color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer', border: '1px solid #E5E7EB' }}>
                 <Share2 size={12} /> Share
               </button>
             </div>
@@ -2528,7 +2528,7 @@ export default function WebsiteGenerator() {
 {% schema %}{"name":"Hero Banner","settings":[{"type":"text","id":"heading","label":"Heading","default":"${hl}"}]}{% endschema %}`);
 
     zip.file('assets/theme.css', `/* ${name} Theme — Generated by Majorka AI */
-:root{--accent:${accent};--bg:#080a0e;--text:#f2efe9;--surface:#111114}
+:root{--accent:${accent};--bg:#FAFAFA;--text:#f2efe9;--surface:#111114}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;line-height:1.6}
 h1,h2,h3,h4{font-family:'Syne',sans-serif;font-weight:800}
@@ -2638,16 +2638,16 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
     font-family: 'Syne', 'DM Sans', sans-serif; box-shadow: 0 2px 24px rgba(0,0,0,0.5);
   }
   #majorka-toolbar .tb-brand { color: #6366F1; font-weight: 900; font-size: 13px; margin-right: 4px; white-space: nowrap; }
-  #majorka-toolbar .tb-div { width: 1px; height: 18px; background: rgba(255,255,255,0.1); flex-shrink: 0; }
+  #majorka-toolbar .tb-div { width: 1px; height: 18px; background: #F0F0F0; flex-shrink: 0; }
   #majorka-toolbar .tb-btn { padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
   #majorka-toolbar .tb-edit { background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3); color: #6366F1; }
   #majorka-toolbar .tb-edit.active { background: rgba(99,102,241,0.22); border-color: #6366F1; }
-  #majorka-toolbar .tb-save { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(240,237,232,0.7); }
-  #majorka-toolbar .tb-save:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  #majorka-toolbar .tb-save { background: #F9FAFB; border: 1px solid #F0F0F0; color: #374151; }
+  #majorka-toolbar .tb-save:hover { background: #F0F0F0; color: #fff; }
   #majorka-toolbar .tb-color-wrap { display: flex; align-items: center; gap: 6px; }
-  #majorka-toolbar .tb-color-label { font-size: 11px; color: rgba(240,237,232,0.4); }
-  #majorka-toolbar input[type=color] { width: 26px; height: 26px; border: 1px solid rgba(255,255,255,0.15); background: none; cursor: pointer; border-radius: 4px; padding: 1px; }
-  #majorka-toolbar .tb-hint { font-size: 10px; color: rgba(240,237,232,0.25); margin-left: auto; display: flex; gap: 12px; }
+  #majorka-toolbar .tb-color-label { font-size: 11px; color: #9CA3AF; }
+  #majorka-toolbar input[type=color] { width: 26px; height: 26px; border: 1px solid #D1D5DB; background: none; cursor: pointer; border-radius: 4px; padding: 1px; }
+  #majorka-toolbar .tb-hint { font-size: 10px; color: #D1D5DB; margin-left: auto; display: flex; gap: 12px; }
   #majorka-toolbar .tb-hint span::before { margin-right: 4px; }
   .claw-editable { box-shadow: 0 0 0 2px rgba(99,102,241,0.5) !important; cursor: text !important; border-radius: 3px; transition: box-shadow 0.15s !important; }
   .claw-editable:hover { box-shadow: 0 0 0 2px #6366F1, 0 0 12px rgba(99,102,241,0.2) !important; background: rgba(99,102,241,0.06) !important; }
@@ -2686,7 +2686,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
   <button onclick="clawAI('shorten')">✂️ Shorten</button>
   <button onclick="clawAI('urgent')">🔥 Add Urgency</button>
   <button onclick="clawAI('au')">🇦🇺 AU Voice</button>
-  <button onclick="document.getElementById('ai-tooltip').style.display='none'" style="background:none;border:none;color:rgba(240,237,232,0.3);font-size:16px;padding:2px 6px;">×</button>
+  <button onclick="document.getElementById('ai-tooltip').style.display='none'" style="background:none;border:none;color:#9CA3AF;font-size:16px;padding:2px 6px;">×</button>
 </div>
 <script>
 (function(){
@@ -2855,7 +2855,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           <Globe size={15} style={{ color: '#6366F1' }} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-black leading-tight" style={{ fontFamily: 'Syne, sans-serif' }}>Store Builder AI</div>
+          <div className="text-sm font-black leading-tight" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Store Builder AI</div>
           <div className="text-xs" style={{ color: '#9CA3AF' }}>AI-powered Shopify store builder for AU market</div>
         </div>
       </div>
@@ -2865,7 +2865,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
         {(['form','preview'] as const).map((p) => (
           <button key={p} onClick={() => setMobilePanel(p)}
             className="flex-1 py-2.5 text-xs font-bold uppercase tracking-wider transition-all"
-            style={{ color: mobilePanel === p ? '#6366F1' : '#9CA3AF', borderBottom: `2px solid ${mobilePanel === p ? '#6366F1' : 'transparent'}`, fontFamily: 'Syne, sans-serif', background: 'transparent', cursor: 'pointer', border: 'none', borderBottomWidth: 2, borderBottomStyle: 'solid' as const, borderBottomColor: mobilePanel === p ? '#6366F1' : 'transparent' }}>
+            style={{ color: mobilePanel === p ? '#6366F1' : '#9CA3AF', borderBottom: `2px solid ${mobilePanel === p ? '#6366F1' : 'transparent'}`, fontFamily: "'Bricolage Grotesque', sans-serif", background: 'transparent', cursor: 'pointer', border: 'none', borderBottomWidth: 2, borderBottomStyle: 'solid' as const, borderBottomColor: mobilePanel === p ? '#6366F1' : 'transparent' }}>
             {p === 'form' ? '⚙️ Configure' : '👁 Preview'}
           </button>
         ))}
@@ -2888,10 +2888,10 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               return (
                 <React.Fragment key={s.n}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                    <div style={{ width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, fontFamily: "Syne, sans-serif", background: done ? "#6366F1" : active ? "#EEF2FF" : "#F5F5F5", color: done ? "white" : active ? "#6366F1" : "#9CA3AF", border: `1px solid ${done ? "#6366F1" : active ? "#C7D2FE" : "#E5E7EB"}`, transition: "all 0.3s" }}>
+                    <div style={{ width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", background: done ? "#6366F1" : active ? "#EEF2FF" : "#F5F5F5", color: done ? "white" : active ? "#6366F1" : "#9CA3AF", border: `1px solid ${done ? "#6366F1" : active ? "#C7D2FE" : "#E5E7EB"}`, transition: "all 0.3s" }}>
                       {done ? "✓" : s.n}
                     </div>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: active ? "#6366F1" : "#9CA3AF", fontFamily: "Syne, sans-serif", textTransform: "uppercase" as const, letterSpacing: "0.06em" }}>{s.label}</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: active ? "#6366F1" : "#9CA3AF", fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: "uppercase" as const, letterSpacing: "0.06em" }}>{s.label}</span>
                   </div>
                   {i < 2 && <div style={{ flex: 1, height: 1, background: done ? "#6366F1" : "#E5E7EB", marginBottom: 16, transition: "background 0.4s" }} />}
                 </React.Fragment>
@@ -2901,7 +2901,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
           {/* Design Template Selector */}
           <div className="rounded-xl p-4" style={{ background: '#FFFFFF', border: '1px solid #F0F0F0', position: 'relative' as const }}>
-            <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}>Design Template</div>
+            <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Design Template</div>
             <div style={isMobile ? { display: 'flex', gap: 8, overflowX: 'auto', flexWrap: 'nowrap', paddingBottom: 4, scrollbarWidth: 'none' } : { display: 'flex', flexDirection: 'column', gap: 6 }}>
               {WEBSITE_TEMPLATES.map((t) => {
                 const isSelected = premiumTemplateId === t.id;
@@ -2935,7 +2935,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       <div style={{ width: 6, height: 6, borderRadius: '50%', background: t.palette.accent }} />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: isSelected ? '#6366F1' : '#111827', fontFamily: 'Syne, sans-serif', marginBottom: 2, lineHeight: 1.2 }}>{t.name}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: isSelected ? '#6366F1' : '#111827', fontFamily: "'Bricolage Grotesque', sans-serif", marginBottom: 2, lineHeight: 1.2 }}>{t.name}</div>
                       <div style={{ fontSize: 11, color: '#9CA3AF', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.3 }}>{t.bestFor || t.description}</div>
                     </div>
                     {/* Colour palette dots */}
@@ -2953,15 +2953,15 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               const ht = WEBSITE_TEMPLATES.find(t => t.id === hoveredTemplate);
               if (!ht) return null;
               return (
-                <div style={{ position: 'absolute', right: -220, top: 40, width: 200, zIndex: 100, background: 'white', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', pointerEvents: 'none' }}>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#0A0A0A', fontFamily: 'Syne, sans-serif', marginBottom: 8 }}>{ht.name}</div>
+                <div style={{ position: 'absolute', right: -220, top: 40, width: 200, zIndex: 100, background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, padding: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', pointerEvents: 'none' }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#0A0A0A', fontFamily: "'Bricolage Grotesque', sans-serif", marginBottom: 8 }}>{ht.name}</div>
                   <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
                     {[ht.palette.bg, ht.palette.accent, ht.palette.text].map((c, i) => (
-                      <div key={i} style={{ width: 20, height: 20, borderRadius: '50%', background: c, border: '1px solid rgba(255,255,255,0.15)' }} />
+                      <div key={i} style={{ width: 20, height: 20, borderRadius: '50%', background: c, border: '1px solid #D1D5DB' }} />
                     ))}
                   </div>
                   {/* Mini wireframe */}
-                  <div style={{ borderRadius: 6, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div style={{ borderRadius: 6, overflow: 'hidden', border: '1px solid #F5F5F5' }}>
                     <div style={{ height: 8, background: ht.palette.bg, borderBottom: `1px solid ${ht.palette.accent}40` }} />
                     <div style={{ height: 32, background: ht.palette.accent + '30', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <div style={{ fontSize: 8, color: ht.palette.text, fontWeight: 700 }}>HERO</div>
@@ -2979,50 +2979,50 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
           {/* Product URL Import */}
           <div className="rounded-xl p-4" style={{ background: importedProduct ? '#F0FDF4' : '#FFFFFF', border: `1px solid ${importedProduct ? '#BBF7D0' : '#F0F0F0'}` }}>
-            <div className="text-xs font-bold uppercase tracking-widest mb-2.5" style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}>Import Product</div>
+            <div className="text-xs font-bold uppercase tracking-widest mb-2.5" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Import Product</div>
             {importedProduct ? (
               <div>
                 <div className="flex gap-2.5 items-start mb-2">
-                  <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center text-lg" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                  <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center text-lg" style={{ background: '#F9FAFB' }}>
                     {importedProduct.images && importedProduct.images.length > 0 ? (
                       <img src={proxyImage(importedProduct.images[0])} alt="" className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                     ) : '📦'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-bold truncate" style={{ fontFamily: 'Syne, sans-serif' }}>{importedProduct.title}</div>
-                    {importedProduct.price && <div className="text-xs mt-0.5" style={{ color: 'rgba(45,202,114,0.75)' }}>${importedProduct.price} AUD</div>}
+                    <div className="text-xs font-bold truncate" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>{importedProduct.title}</div>
+                    {importedProduct.price && <div className="text-xs mt-0.5" style={{ color: 'rgba(99,102,241,1.00)' }}>${importedProduct.price} AUD</div>}
                   </div>
-                  <button onClick={() => { setImportedProduct(null); setImportUrl(''); }} style={{ color: 'rgba(240,237,232,0.3)', background: 'none', border: 'none', cursor: 'pointer' }}><X size={14} /></button>
+                  <button onClick={() => { setImportedProduct(null); setImportUrl(''); }} style={{ color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer' }}><X size={14} /></button>
                 </div>
-                <div className="text-xs font-semibold" style={{ color: 'rgba(45,202,114,0.75)' }}>✓ Product data imported</div>
+                <div className="text-xs font-semibold" style={{ color: 'rgba(99,102,241,1.00)' }}>✓ Product data imported</div>
                 {/* Task 3D — Feature tags + auto-fill badges */}
                 {importedProduct.features && importedProduct.features.length > 0 && (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 6 }}>
                     {importedProduct.features.slice(0, 2).map((f, i) => (
-                      <span key={i} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,237,232,0.45)' }}>{typeof f === 'string' ? f.slice(0, 50) : f}</span>
+                      <span key={i} style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#F9FAFB', border: '1px solid #F5F5F5', color: '#6B7280' }}>{typeof f === 'string' ? f.slice(0, 50) : f}</span>
                     ))}
                   </div>
                 )}
                 <div style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
-                  {importAutoFilledStore && <span style={{ fontSize: 10, color: 'rgba(45,202,114,0.7)', fontWeight: 600 }}>✓ Store name auto-filled</span>}
-                  {importAutoFilledNiche && <span style={{ fontSize: 10, color: 'rgba(45,202,114,0.7)', fontWeight: 600 }}>✓ Niche detected</span>}
+                  {importAutoFilledStore && <span style={{ fontSize: 10, color: 'rgba(99,102,241,1.00)', fontWeight: 600 }}>✓ Store name auto-filled</span>}
+                  {importAutoFilledNiche && <span style={{ fontSize: 10, color: 'rgba(99,102,241,1.00)', fontWeight: 600 }}>✓ Niche detected</span>}
                 </div>
               </div>
             ) : (
               <div>
                 <div className="flex gap-1.5">
-                  <input value={importUrl} onChange={(e) => { setImportUrl(e.target.value); setManualFallback(null); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleImport(); } }} placeholder="Paste product URL (AliExpress, Amazon…)" className="flex-1 text-xs px-3 py-2 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.1)', color: '#0A0A0A' }} />
-                  <button onClick={handleImport} disabled={importing || !importUrl.trim()} className="text-xs font-bold px-3 py-2 rounded-lg flex-shrink-0 flex items-center gap-1 disabled:opacity-50" style={{ background: 'rgba(45,202,114,0.12)', border: '1.5px solid rgba(45,202,114,0.35)', color: 'rgba(45,202,114,0.9)', fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}>
+                  <input value={importUrl} onChange={(e) => { setImportUrl(e.target.value); setManualFallback(null); }} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleImport(); } }} placeholder="Paste product URL (AliExpress, Amazon…)" className="flex-1 text-xs px-3 py-2 rounded-lg outline-none" style={{ background: '#F9FAFB', border: '1.5px solid #F0F0F0', color: '#0A0A0A' }} />
+                  <button onClick={handleImport} disabled={importing || !importUrl.trim()} className="text-xs font-bold px-3 py-2 rounded-lg flex-shrink-0 flex items-center gap-1 disabled:opacity-50" style={{ background: 'rgba(99,102,241,0.18)', border: '1.5px solid rgba(99,102,241,0.52)', color: 'rgba(99,102,241,1.00)', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer' }}>
                     {importing ? <Loader2 size={10} className="animate-spin" /> : null}{importing ? '…' : 'Import'}
                   </button>
                 </div>
                 {/* Task 3A — Better loading state */}
-                {importing && <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.5)', marginTop: 4, display: 'block' }}>Analyzing product...</span>}
+                {importing && <span style={{ fontSize: 11, color: '#6B7280', marginTop: 4, display: 'block' }}>Analyzing product...</span>}
                 {importError && (
                   <div>
                     <div className="text-xs mt-1.5" style={{ color: 'rgba(255,150,100,0.8)' }}>{importError}</div>
                     {/* Task 3C — Supported sources */}
-                    <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)', marginTop: 4 }}>
+                    <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 4 }}>
                       Supported: AliExpress, Amazon AU, eBay AU, CJDropshipping, DHgate
                     </div>
                   </div>
@@ -3061,7 +3061,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
           {/* Product URL Quality Analyzer — Hero Input */}
           <div className="rounded-xl p-4" style={{ background: analysisResult ? '#EEF2FF' : '#FFFFFF', border: `1px solid ${analysisResult ? '#C7D2FE' : '#F0F0F0'}` }}>
-            <div style={{ fontSize: 13, fontWeight: 800, color: '#6366F1', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 10 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 10 }}>
               ✦ Import a Product URL
             </div>
             <div className="flex gap-1.5 mb-2">
@@ -3079,24 +3079,24 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 onClick={() => handleAnalyzeProduct()}
                 disabled={analyzing || !analyzeUrl.trim()}
                 className="text-xs font-bold px-4 rounded-lg flex-shrink-0 flex items-center gap-1.5 disabled:opacity-50"
-                style={{ height: 44, background: '#6366F1', border: 'none', borderRadius: 10, color: 'white', fontFamily: 'Syne, sans-serif', fontWeight: 600, cursor: 'pointer' }}
+                style={{ height: 44, background: '#6366F1', border: 'none', borderRadius: 10, color: 'white', fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 600, cursor: 'pointer' }}
               >
                 {analyzing ? <Loader2 size={12} className="animate-spin" /> : <Search size={12} />}
                 {analyzing ? 'Analyzing…' : 'Analyze'}
               </button>
             </div>
-            {!analysisResult && <p className="text-xs" style={{ color: 'rgba(240,237,232,0.25)' }}>Paste a URL — AI scores your product before you build</p>}
+            {!analysisResult && <p className="text-xs" style={{ color: '#D1D5DB' }}>Paste a URL — AI scores your product before you build</p>}
 
             {/* Product Summary Card */}
             {analysisResult && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 10, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(99,102,241,0.15)', marginBottom: 8 }}>
-                <div style={{ width: 48, height: 48, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 48, height: 48, borderRadius: 8, overflow: 'hidden', flexShrink: 0, background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {((analysisResult.product_images as string[]) || []).length > 0 ? (
                     <img src={proxyImage((analysisResult.product_images as string[])[0])} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                   ) : <span style={{ fontSize: 20 }}>📦</span>}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#0A0A0A', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#0A0A0A', fontFamily: "'Bricolage Grotesque', sans-serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {analysisResult.product_title || analysisResult.suggested_title || 'Product'}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
@@ -3119,14 +3119,14 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               <div className="mt-3 rounded-xl p-4 space-y-3" style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(99,102,241,0.25)' }}>
                 {/* Score badge */}
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black uppercase tracking-wider" style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}>
+                  <span className="text-xs font-black uppercase tracking-wider" style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                     🔍 Product Analysis
                   </span>
                   <div className="flex items-center justify-center w-10 h-10 rounded-full font-black text-sm" style={{
                     background: ((analysisResult.overall_score ?? analysisResult.score ?? 0) as number) >= 80 ? 'rgba(74,222,128,0.15)' : ((analysisResult.overall_score ?? analysisResult.score ?? 0) as number) >= 60 ? 'rgba(245,158,11,0.15)' : 'rgba(248,113,113,0.15)',
                     border: `2px solid ${((analysisResult.overall_score ?? analysisResult.score ?? 0) as number) >= 80 ? '#4ade80' : ((analysisResult.overall_score ?? analysisResult.score ?? 0) as number) >= 60 ? '#f59e0b' : '#f87171'}`,
                     color: ((analysisResult.overall_score ?? analysisResult.score ?? 0) as number) >= 80 ? '#4ade80' : ((analysisResult.overall_score ?? analysisResult.score ?? 0) as number) >= 60 ? '#f59e0b' : '#f87171',
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                   }}>
                     {(analysisResult.overall_score ?? analysisResult.score ?? '?') as number}
                   </div>
@@ -3134,7 +3134,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
                 {/* Supplier badge */}
                 {analysisResult.supplier && (
-                  <div className="text-xs px-2 py-0.5 inline-flex rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(240,237,232,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div className="text-xs px-2 py-0.5 inline-flex rounded-full" style={{ background: '#F9FAFB', color: '#6B7280', border: '1px solid #F5F5F5' }}>
                     {analysisResult.supplier}
                   </div>
                 )}
@@ -3150,13 +3150,13 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     <div key={signal}>
                       <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color }}>
                         <span>{icon}</span>
-                        <span style={{ color: 'rgba(240,237,232,0.7)' }}>{label}:</span>
+                        <span style={{ color: '#374151' }}>{label}:</span>
                         <span>{quality === 'good' ? 'Looks good' : quality === 'bad' ? 'Needs fixing' : 'Issues found'}</span>
                       </div>
                       {issues && issues.length > 0 && (
                         <ul className="ml-5 mt-1 space-y-0.5">
                           {issues.map((issue: string, i: number) => (
-                            <li key={i} className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>• {issue}</li>
+                            <li key={i} className="text-xs" style={{ color: '#9CA3AF' }}>• {issue}</li>
                           ))}
                         </ul>
                       )}
@@ -3169,27 +3169,27 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                   <div className="rounded-lg p-2.5 space-y-1.5" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}>
                     {(analysisResult.au_suggested_title || analysisResult.suggested_title) && (
                       <div>
-                        <div className="text-xs font-bold mb-0.5" style={{ color: 'rgba(99,102,241,0.9)', fontFamily: 'Syne, sans-serif' }}>💡 AU Title:</div>
-                        <div className="text-xs italic" style={{ color: 'rgba(240,237,232,0.7)', lineHeight: 1.5 }}>"{analysisResult.au_suggested_title || analysisResult.suggested_title}"</div>
+                        <div className="text-xs font-bold mb-0.5" style={{ color: 'rgba(99,102,241,0.9)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>💡 AU Title:</div>
+                        <div className="text-xs italic" style={{ color: '#374151', lineHeight: 1.5 }}>"{analysisResult.au_suggested_title || analysisResult.suggested_title}"</div>
                       </div>
                     )}
                     {analysisResult.hero_headline && (
                       <div>
-                        <div className="text-xs font-bold mb-0.5" style={{ color: 'rgba(99,102,241,0.9)', fontFamily: 'Syne, sans-serif' }}>🎯 Hero Headline:</div>
-                        <div className="text-xs italic" style={{ color: 'rgba(240,237,232,0.7)', lineHeight: 1.5 }}>"{analysisResult.hero_headline}"</div>
+                        <div className="text-xs font-bold mb-0.5" style={{ color: 'rgba(99,102,241,0.9)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>🎯 Hero Headline:</div>
+                        <div className="text-xs italic" style={{ color: '#374151', lineHeight: 1.5 }}>"{analysisResult.hero_headline}"</div>
                       </div>
                     )}
                     {analysisResult.hero_benefit && (
-                      <div className="text-xs" style={{ color: 'rgba(240,237,232,0.5)' }}>⚡ Hero benefit: <span style={{ color: '#6366F1' }}>{analysisResult.hero_benefit}</span></div>
+                      <div className="text-xs" style={{ color: '#6B7280' }}>⚡ Hero benefit: <span style={{ color: '#6366F1' }}>{analysisResult.hero_benefit}</span></div>
                     )}
                     {((analysisResult.sizes as string[]) || []).length > 0 && (
-                      <div className="text-xs" style={{ color: 'rgba(240,237,232,0.5)' }}>📐 Sizes: {((analysisResult.sizes as string[]) || []).join(', ')}</div>
+                      <div className="text-xs" style={{ color: '#6B7280' }}>📐 Sizes: {((analysisResult.sizes as string[]) || []).join(', ')}</div>
                     )}
                     {((analysisResult.colors as string[]) || []).length > 0 && (
-                      <div className="text-xs" style={{ color: 'rgba(240,237,232,0.5)' }}>🎨 Colours: {((analysisResult.colors as string[]) || []).join(', ')}</div>
+                      <div className="text-xs" style={{ color: '#6B7280' }}>🎨 Colours: {((analysisResult.colors as string[]) || []).join(', ')}</div>
                     )}
                     {((analysisResult.product_images as string[]) || []).length > 0 && (
-                      <div className="text-xs" style={{ color: 'rgba(45,202,114,0.8)' }}>✓ {((analysisResult.product_images as string[]) || []).length} product image(s) extracted</div>
+                      <div className="text-xs" style={{ color: 'rgba(99,102,241,1.00)' }}>✓ {((analysisResult.product_images as string[]) || []).length} product image(s) extracted</div>
                     )}
                   </div>
                 )}
@@ -3222,7 +3222,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       toast.info('URL moved to Import — click Import to load product data');
                     }}
                     className="text-xs font-bold px-2.5 py-1.5 rounded-lg"
-                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,237,232,0.5)', cursor: 'pointer' }}
+                    style={{ background: '#F9FAFB', border: '1px solid #F0F0F0', color: '#6B7280', cursor: 'pointer' }}
                   >
                     Import Anyway
                   </button>
@@ -3237,7 +3237,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
                 {/* Recommendation */}
                 {analysisResult.recommendation && (
-                  <div className="text-xs font-semibold" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                  <div className="text-xs font-semibold" style={{ color: '#9CA3AF' }}>
                     Recommendation: <span style={{ color: '#f0c040' }}>{analysisResult.recommendation}</span>
                   </div>
                 )}
@@ -3249,7 +3249,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           <div>
             <button
               onClick={() => setQuickStartOpen(!quickStartOpen)}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(99,102,241,0.7)', fontSize: 11, fontWeight: 700, fontFamily: 'Syne, sans-serif', padding: '4px 0', display: 'flex', alignItems: 'center', gap: 4 }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(99,102,241,0.7)', fontSize: 11, fontWeight: 700, fontFamily: "'Bricolage Grotesque', sans-serif", padding: '4px 0', display: 'flex', alignItems: 'center', gap: 4 }}
             >
               <ChevronRight size={11} style={{ transform: quickStartOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
               Quick start with an example →
@@ -3277,19 +3277,19 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       toast.success(`"${ex.label}" example loaded — generating…`);
                       setTimeout(() => handleGenerate(), 200);
                     }}
-                    style={{ padding: '6px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,237,232,0.7)', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.15s' }}
+                    style={{ padding: '6px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: '#F9FAFB', border: '1px solid #F0F0F0', color: '#374151', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', display: 'flex', alignItems: 'center', gap: 5, transition: 'all 0.15s' }}
                     onMouseEnter={(e) => { e.currentTarget.style.borderColor = ex.color; e.currentTarget.style.color = ex.color; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(240,237,232,0.7)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#F0F0F0'; e.currentTarget.style.color = '#374151'; }}
                   >
                     {ex.emoji} {ex.label}
-                    <span style={{ fontSize: 9, padding: '1px 5px', borderRadius: 10, background: 'rgba(255,255,255,0.08)', color: 'rgba(240,237,232,0.4)' }}>EXAMPLE</span>
+                    <span style={{ fontSize: 9, padding: '1px 5px', borderRadius: 10, background: '#F5F5F5', color: '#9CA3AF' }}>EXAMPLE</span>
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
+          <div style={{ height: 1, background: '#F9FAFB' }} />
 
           {/* From Database banner — shows immediately on arrival from Intelligence */}
           {(fromDatabaseBanner || (fromDatabase && urlProductName)) && (
@@ -3307,7 +3307,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
                 <span style={{ fontSize: 18, flexShrink: 0 }}>⚡</span>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#6366F1', fontFamily: 'Syne, sans-serif', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif", whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     Building store for: <strong>{fromDatabaseBanner?.productName || urlProductName}</strong>
                   </div>
                   <div style={{ fontSize: 12, color: 'rgba(99,102,241,0.65)', marginTop: 2 }}>
@@ -3329,16 +3329,16 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           {/* Supplier panel — shows when arriving from Intelligence with supplier URL */}
           {urlSupplierUrl && (
             <div style={{ background: '#FAFAFA', border: '1px solid #1e1e1e', borderRadius: 8, padding: 16, marginBottom: 4 }}>
-              <div style={{ fontSize: 10, letterSpacing: '2px', color: 'rgba(240,237,232,0.3)', marginBottom: 8, fontFamily: 'Syne, sans-serif', fontWeight: 700, textTransform: 'uppercase' as const }}>
+              <div style={{ fontSize: 10, letterSpacing: '2px', color: '#9CA3AF', marginBottom: 8, fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, textTransform: 'uppercase' as const }}>
                 Supplier &amp; Fulfilment
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                 <div>
                   <div style={{ color: '#0A0A0A', fontSize: 14, fontWeight: 600 }}>{urlSupplierName || 'AliExpress'}</div>
-                  <div style={{ color: 'rgba(240,237,232,0.35)', fontSize: 12, marginTop: 2 }}>Source · dropship · fulfil orders</div>
+                  <div style={{ color: '#9CA3AF', fontSize: 12, marginTop: 2 }}>Source · dropship · fulfil orders</div>
                 </div>
                 <a href={urlSupplierUrl} target="_blank" rel="noopener noreferrer"
-                  style={{ background: '#6366F1', color: '#080a0e', padding: '7px 14px', borderRadius: 6, fontSize: 11, fontWeight: 700, textDecoration: 'none', letterSpacing: '0.5px', whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
+                  style={{ background: '#6366F1', color: '#FAFAFA', padding: '7px 14px', borderRadius: 6, fontSize: 11, fontWeight: 700, textDecoration: 'none', letterSpacing: '0.5px', whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
                   View Supplier →
                 </a>
               </div>
@@ -3347,14 +3347,14 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
           {/* Store Name */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Store Name</label>
-            <input data-field="storeName" value={storeName} onChange={(e) => { setStoreName(e.target.value); clearTimeout(livePreviewStoreNameTimer.current); livePreviewStoreNameTimer.current = setTimeout(() => setLivePreviewStoreName(e.target.value), 400); }} placeholder="e.g. MaxFit Supplements" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
+            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Store Name</label>
+            <input data-field="storeName" value={storeName} onChange={(e) => { setStoreName(e.target.value); clearTimeout(livePreviewStoreNameTimer.current); livePreviewStoreNameTimer.current = setTimeout(() => setLivePreviewStoreName(e.target.value), 400); }} placeholder="e.g. MaxFit Supplements" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: '#F9FAFB', border: '1.5px solid #F5F5F5', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')} />
           </div>
 
           {/* Niche */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Niche <span style={{ color: '#6366F1', fontWeight: 700 }}>*</span></label>
-            <input value={niche} onChange={(e) => { setNiche(e.target.value); clearTimeout(livePreviewNicheTimer.current); livePreviewNicheTimer.current = setTimeout(() => setLivePreviewNiche(e.target.value), 400); }} list="niche-list" placeholder="e.g. gym clothing" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
+            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Niche <span style={{ color: '#6366F1', fontWeight: 700 }}>*</span></label>
+            <input value={niche} onChange={(e) => { setNiche(e.target.value); clearTimeout(livePreviewNicheTimer.current); livePreviewNicheTimer.current = setTimeout(() => setLivePreviewNiche(e.target.value), 400); }} list="niche-list" placeholder="e.g. gym clothing" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: '#F9FAFB', border: '1.5px solid #F5F5F5', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')} />
             <datalist id="niche-list">
               {['Beauty & Skincare','Fitness & Gym','Home & Living','Pet Accessories','Tech Gadgets','Outdoor & Adventure','Women\'s Fashion','Men\'s Fashion','Baby & Kids','Health Supplements','Jewellery','Coffee & Tea'].map(n => (
                 <option key={n} value={n} />
@@ -3364,7 +3364,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
           {/* Design Direction — moved up for prominence */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Design Direction</label>
+            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Design Direction</label>
             <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
               {[
                 { id: 'default', emoji: '✦', label: 'Dark DTC' },
@@ -3374,7 +3374,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 { id: 'saas', emoji: '⚡', label: 'SaaS' },
                 { id: 'minimal', emoji: '○', label: 'Minimal' },
               ].map((d) => (
-                <button key={d.id} onClick={() => setDesignDirection(d.id)} style={{ padding: '8px 6px', borderRadius: 8, background: designDirection === d.id ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.03)', border: `1.5px solid ${designDirection === d.id ? 'rgba(99,102,241,0.5)' : 'rgba(255,255,255,0.07)'}`, color: designDirection === d.id ? '#6366F1' : 'rgba(240,237,232,0.45)', fontFamily: 'Syne, sans-serif', fontSize: 11, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>
+                <button key={d.id} onClick={() => setDesignDirection(d.id)} style={{ padding: '8px 6px', borderRadius: 8, background: designDirection === d.id ? 'rgba(99,102,241,0.12)' : '#FAFAFA', border: `1.5px solid ${designDirection === d.id ? 'rgba(99,102,241,0.5)' : '#E5E7EB'}`, color: designDirection === d.id ? '#6366F1' : '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 11, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>
                   <div style={{ fontSize: 14, marginBottom: 3 }}>{d.emoji}</div>
                   {d.label}
                 </button>
@@ -3384,21 +3384,21 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
           {/* Target Audience */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Target Audience</label>
-            <input value={targetAudience} onChange={(e) => setTargetAudience(e.target.value)} placeholder="e.g. AU men 18-35" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
+            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Target Audience</label>
+            <input value={targetAudience} onChange={(e) => setTargetAudience(e.target.value)} placeholder="e.g. AU men 18-35" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: '#F9FAFB', border: '1.5px solid #F5F5F5', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')} />
           </div>
 
           {/* Tagline + Price */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Tagline <span style={{ opacity: 0.4, fontWeight: 400, textTransform: 'none' }}>(opt)</span></label>
-              <input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="e.g. Made for Aussies" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')} />
+              <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Tagline <span style={{ opacity: 0.4, fontWeight: 400, textTransform: 'none' }}>(opt)</span></label>
+              <input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="e.g. Made for Aussies" className="w-full text-sm px-3 py-2.5 rounded-lg outline-none" style={{ background: '#F9FAFB', border: '1.5px solid #F5F5F5', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')} />
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Price AUD <span style={{ opacity: 0.4, fontWeight: 400, textTransform: 'none' }}>(opt)</span></label>
+              <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Price AUD <span style={{ opacity: 0.4, fontWeight: 400, textTransform: 'none' }}>(opt)</span></label>
               <div style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: 'rgba(240,237,232,0.3)' }}>$</span>
-              <input value={priceAUD} onChange={(e) => setPriceAUD(e.target.value)} placeholder="e.g. 59.99" className="w-full text-sm py-2.5 rounded-lg outline-none" style={{ paddingLeft: 22, paddingRight: 12, background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; const num = parseFloat(priceAUD.replace(/[^0-9.]/g, '')); if (!isNaN(num)) setPriceAUD(num.toFixed(2)); }} />
+              <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: '#9CA3AF' }}>$</span>
+              <input value={priceAUD} onChange={(e) => setPriceAUD(e.target.value)} placeholder="e.g. 59.99" className="w-full text-sm py-2.5 rounded-lg outline-none" style={{ paddingLeft: 22, paddingRight: 12, background: '#F9FAFB', border: '1.5px solid #F5F5F5', color: '#0A0A0A' }} onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.45)')} onBlur={(e) => { e.target.style.borderColor = '#F5F5F5'; const num = parseFloat(priceAUD.replace(/[^0-9.]/g, '')); if (!isNaN(num)) setPriceAUD(num.toFixed(2)); }} />
             </div>
             </div>
           </div>
@@ -3407,8 +3407,8 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
           {/* Platform */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Platform</label>
-            <select value={platform} onChange={(e) => setPlatform(e.target.value as Platform)} className="w-full text-sm px-3 py-2.5 rounded-lg outline-none appearance-none" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#0A0A0A', cursor: 'pointer' }}>
+            <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Platform</label>
+            <select value={platform} onChange={(e) => setPlatform(e.target.value as Platform)} className="w-full text-sm px-3 py-2.5 rounded-lg outline-none appearance-none" style={{ background: '#F9FAFB', border: '1.5px solid #F5F5F5', color: '#0A0A0A', cursor: 'pointer' }}>
               <option value="shopify" style={{ background: 'white' }}>Shopify</option>
               <option value="nextjs" style={{ background: 'white' }}>Next.js</option>
               <option value="react" style={{ background: 'white' }}>React</option>
@@ -3417,13 +3417,13 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
 
           {/* Description Enhancer */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Product Description</label>
+            <label className="block text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Product Description</label>
             <textarea
               value={rawDesc}
               onChange={(e) => setRawDesc(e.target.value)}
               placeholder="Paste your raw product description here..."
               rows={3}
-              style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', color: '#0A0A0A', fontSize: 13, resize: 'vertical', fontFamily: 'DM Sans, sans-serif' }}
+              style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: '#F9FAFB', border: '1.5px solid #F5F5F5', color: '#0A0A0A', fontSize: 13, resize: 'vertical', fontFamily: 'DM Sans, sans-serif' }}
             />
             <div className="flex items-center gap-2" style={{ marginTop: 6 }}>
               <button
@@ -3443,7 +3443,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                   finally { setEnhancingDesc(false); }
                 }}
                 disabled={enhancingDesc || !rawDesc.trim()}
-                style={{ padding: '6px 14px', borderRadius: 8, background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', color: '#6366F1', fontSize: 11, fontWeight: 700, fontFamily: 'Syne, sans-serif', cursor: enhancingDesc || !rawDesc.trim() ? 'not-allowed' : 'pointer', opacity: enhancingDesc || !rawDesc.trim() ? 0.5 : 1 }}
+                style={{ padding: '6px 14px', borderRadius: 8, background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', color: '#6366F1', fontSize: 11, fontWeight: 700, fontFamily: "'Bricolage Grotesque', sans-serif", cursor: enhancingDesc || !rawDesc.trim() ? 'not-allowed' : 'pointer', opacity: enhancingDesc || !rawDesc.trim() ? 0.5 : 1 }}
               >
                 {enhancingDesc ? '...' : 'Enhance'}
               </button>
@@ -3457,9 +3457,9 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     onClick={() => setSelectedDesc(val)}
                     style={{
                       textAlign: 'left', padding: '8px 10px', borderRadius: 8, fontSize: 12, lineHeight: 1.5, cursor: 'pointer',
-                      background: selectedDesc === val ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${selectedDesc === val ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.07)'}`,
-                      color: selectedDesc === val ? '#f0ede8' : 'rgba(240,237,232,0.6)',
+                      background: selectedDesc === val ? 'rgba(99,102,241,0.12)' : '#FAFAFA',
+                      border: `1px solid ${selectedDesc === val ? 'rgba(99,102,241,0.4)' : '#E5E7EB'}`,
+                      color: selectedDesc === val ? '#374151' : '#374151',
                     }}
                   >
                     <span style={{ fontWeight: 700, textTransform: 'capitalize', color: '#6366F1', fontSize: 10, marginRight: 6 }}>{key}</span>
@@ -3474,22 +3474,22 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           {siteHistory.length === 0 ? (
             <div style={{
               padding: '16px',
-              background: 'rgba(255,255,255,0.02)',
-              border: '1px solid rgba(255,255,255,0.05)',
+              background: '#FAFAFA',
+              border: '1px solid #F9FAFB',
               borderRadius: 10,
               textAlign: 'center'
             }}>
-              <p style={{ fontSize: 11, color: 'rgba(240,237,232,0.3)', marginBottom: 8 }}>No stores generated yet</p>
+              <p style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 8 }}>No stores generated yet</p>
               <p style={{ fontSize: 10, color: 'rgba(99,102,241,0.5)' }}>Try a quick start example below →</p>
             </div>
           ) : (
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 16, marginTop: 8 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(240,237,232,0.3)', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Recent Sites</div>
+            <div style={{ borderTop: '1px solid #F9FAFB', paddingTop: 16, marginTop: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Recent Sites</div>
               {siteHistory.map(item => (
-                <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 0', borderBottom: '1px solid #F9FAFB' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(240,237,232,0.8)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.storeName}</div>
-                    <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)' }}>{item.direction} · {new Date(item.timestamp).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#1F2937', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.storeName}</div>
+                    <div style={{ fontSize: 11, color: '#9CA3AF' }}>{item.direction} · {new Date(item.timestamp).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</div>
                   </div>
                   {/* Load — restore preview */}
                   <button
@@ -3516,7 +3516,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                       toast('Loaded into editor — tweak and regenerate ✏️');
                     }}
-                    style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,237,232,0.6)', cursor: 'pointer', flexShrink: 0 }}
+                    style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: '#F9FAFB', border: '1px solid #F5F5F5', color: '#374151', cursor: 'pointer', flexShrink: 0 }}
                   >✏️</button>
                   {/* Delete */}
                   <button
@@ -3525,14 +3525,14 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       setSiteHistory(next);
                       localStorage.setItem('majorka_site_history', JSON.stringify(next));
                     }}
-                    style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB', color: 'rgba(240,237,232,0.3)', cursor: 'pointer', flexShrink: 0 }}
+                    style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: '#FAFAFA', border: '1px solid #E5E7EB', color: '#9CA3AF', cursor: 'pointer', flexShrink: 0 }}
                   >✕</button>
                 </div>
               ))}
             </div>
           )}
 
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
+          <div style={{ height: 1, background: '#F9FAFB' }} />
 
           {/* Generate Button */}
           <style>{`
@@ -3561,7 +3561,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               onClick={handleGenerate}
               disabled={generating}
               className="mjk-gen-btn w-full rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
-              style={{ height: 56, background: generating ? 'rgba(99,102,241,0.25)' : 'linear-gradient(135deg, #6366F1, #f0c040)', color: '#080a0e', fontFamily: 'Syne, sans-serif', boxShadow: generating ? 'none' : '0 4px 24px rgba(99,102,241,0.35)', cursor: generating ? 'not-allowed' : 'pointer', border: 'none', fontSize: 14 }}
+              style={{ height: 56, background: generating ? 'rgba(99,102,241,0.25)' : 'linear-gradient(135deg, #6366F1, #f0c040)', color: '#FAFAFA', fontFamily: "'Bricolage Grotesque', sans-serif", boxShadow: generating ? 'none' : '0 4px 24px rgba(99,102,241,0.35)', cursor: generating ? 'not-allowed' : 'pointer', border: 'none', fontSize: 14 }}
             >
               {generating ? (
                 <>
@@ -3575,7 +3575,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 <><Globe size={15} />{hasOutput ? 'Regenerate' : 'Generate'}</>
               )}
             </button>
-            <span style={{ fontSize: 10, color: 'rgba(240,237,232,0.25)', fontFamily: 'Syne, sans-serif' }}>⌘↵ Generate</span>
+            <span style={{ fontSize: 10, color: '#D1D5DB', fontFamily: "'Bricolage Grotesque', sans-serif" }}>⌘↵ Generate</span>
           </div>
 
           {/* Task 4E — Shopify Connect / Push */}
@@ -3590,7 +3590,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                   <button
                     onClick={handleShopifyPush}
                     disabled={shopifyPushing}
-                    style={{ padding: '7px 14px', borderRadius: 8, border: '1px solid rgba(34,197,94,0.35)', background: 'rgba(34,197,94,0.08)', color: '#22c55e', fontSize: 11, fontWeight: 700, cursor: shopifyPushing ? 'not-allowed' : 'pointer', fontFamily: 'Syne, sans-serif', display: 'flex', alignItems: 'center', gap: 6, opacity: shopifyPushing ? 0.6 : 1 }}
+                    style={{ padding: '7px 14px', borderRadius: 8, border: '1px solid rgba(34,197,94,0.35)', background: 'rgba(34,197,94,0.08)', color: '#22c55e', fontSize: 11, fontWeight: 700, cursor: shopifyPushing ? 'not-allowed' : 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif", display: 'flex', alignItems: 'center', gap: 6, opacity: shopifyPushing ? 0.6 : 1 }}
                   >
                     {shopifyPushing ? <Loader2 size={11} className="animate-spin" /> : null}
                     {shopifyPushing ? 'Pushing...' : '↑ Push to Shopify'}
@@ -3605,18 +3605,18 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     onChange={(e) => setShopifyDomainInput(e.target.value)}
                     placeholder="mystore.myshopify.com"
                     onKeyDown={(e) => { if (e.key === 'Enter') { const d = shopifyDomainInput.trim().replace(/^https?:\/\//, '').replace(/\/$/, ''); if (d.includes('.myshopify.com')) window.location.href = `/api/shopify/auth?shop=${encodeURIComponent(d)}`; } }}
-                    style={{ flex: 1, padding: '7px 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: '#0A0A0A', fontSize: 11, outline: 'none' }}
+                    style={{ flex: 1, padding: '7px 10px', borderRadius: 8, border: '1px solid #F0F0F0', background: '#F9FAFB', color: '#0A0A0A', fontSize: 11, outline: 'none' }}
                   />
                   <button
                     onClick={() => { const d = shopifyDomainInput.trim().replace(/^https?:\/\//, '').replace(/\/$/, ''); if (d.includes('.myshopify.com')) window.location.href = `/api/shopify/auth?shop=${encodeURIComponent(d)}`; else toast.error('Enter a valid .myshopify.com domain'); }}
-                    style={{ padding: '7px 12px', borderRadius: 8, border: 'none', background: '#6366F1', color: '#080a0e', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}
+                    style={{ padding: '7px 12px', borderRadius: 8, border: 'none', background: '#6366F1', color: '#FAFAFA', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >Go</button>
-                  <button onClick={() => setShowShopifyInput(false)} style={{ padding: '7px 8px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', background: 'transparent', color: 'rgba(240,237,232,0.4)', fontSize: 11, cursor: 'pointer' }}>✕</button>
+                  <button onClick={() => setShowShopifyInput(false)} style={{ padding: '7px 8px', borderRadius: 8, border: '1px solid #F5F5F5', background: 'transparent', color: '#9CA3AF', fontSize: 11, cursor: 'pointer' }}>✕</button>
                 </div>
               ) : (
                 <button
                   onClick={() => setShowShopifyInput(true)}
-                  style={{ width: '100%', padding: '8px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)', color: 'rgba(240,237,232,0.5)', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'Syne, sans-serif', display: 'flex', alignItems: 'center', gap: 6 }}
+                  style={{ width: '100%', padding: '8px 14px', borderRadius: 8, border: '1px solid #F0F0F0', background: '#FAFAFA', color: '#6B7280', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif", display: 'flex', alignItems: 'center', gap: 6 }}
                 >
                   🔗 Connect Shopify store
                 </button>
@@ -3659,9 +3659,9 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     className="px-4 py-1.5 text-xs font-bold rounded-lg capitalize transition-all flex items-center gap-1.5"
                     style={{
                       background: activeTab === tab.id ? 'rgba(99,102,241,0.12)' : 'transparent',
-                      color: activeTab === tab.id ? '#6366F1' : tab.id === 'launch' ? 'rgba(99,102,241,0.7)' : 'rgba(240,237,232,0.4)',
+                      color: activeTab === tab.id ? '#6366F1' : tab.id === 'launch' ? 'rgba(99,102,241,0.7)' : '#9CA3AF',
                       borderBottom: `2px solid ${activeTab === tab.id ? '#6366F1' : 'transparent'}`,
-                      fontFamily: 'Syne, sans-serif',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       cursor: 'pointer',
                     }}
                   >
@@ -3669,12 +3669,12 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                   </button>
                 ))}
                 {hasOutput && genStartTime > 0 && !generating && (
-                  <div style={{ marginLeft: 'auto', fontSize: 10, color: 'rgba(99,102,241,0.6)', fontFamily: 'Syne, sans-serif' }}>
+                  <div style={{ marginLeft: 'auto', fontSize: 10, color: 'rgba(99,102,241,0.6)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                     Generated in {Math.round(elapsedMs / 1000)}s
                   </div>
                 )}
                 {savedStoreId && (
-                  <div style={{ marginLeft: hasOutput && genStartTime > 0 && !generating ? 8 : 'auto', fontSize: 10, color: 'rgba(45,202,114,0.7)', fontFamily: 'Syne, sans-serif' }}>
+                  <div style={{ marginLeft: hasOutput && genStartTime > 0 && !generating ? 8 : 'auto', fontSize: 10, color: 'rgba(99,102,241,1.00)', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                     ✓ Saved
                   </div>
                 )}
@@ -3686,38 +3686,38 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                   <div className="relative h-full flex flex-col overflow-hidden">
                     {/* Toolbar */}
                     <div className="flex items-center gap-2 px-4 py-2 border-b flex-shrink-0" style={{ borderColor: '#E5E7EB', background: 'white' }}>
-                      <button onClick={handleOpenPreviewNewTab} className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', color: '#6366F1', fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}>
+                      <button onClick={handleOpenPreviewNewTab} className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer' }}>
                         <ExternalLink size={11} /> Open in new tab
                       </button>
                       {directHtml && (
-                        <button onClick={handleDownloadHTML} className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', color: '#6366F1', fontFamily: 'Syne, sans-serif', cursor: 'pointer' }}>
+                        <button onClick={handleDownloadHTML} className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: 'pointer' }}>
                           <Download size={11} /> Download HTML
                         </button>
                       )}
                       <div className="flex items-center gap-1">
                         {(['desktop','tablet','mobile'] as const).map(d => (
-                          <button key={d} onClick={() => { setPreviewDevice(d); setMobilePreview(d !== 'desktop'); }} style={{ padding: '4px 10px', fontSize: 11, borderRadius: 6, background: previewDevice === d ? 'rgba(99,102,241,0.15)' : 'transparent', border: `1px solid ${previewDevice === d ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.06)'}`, color: previewDevice === d ? '#6366F1' : 'rgba(240,237,232,0.4)', cursor: 'pointer', fontFamily: 'Syne, sans-serif', fontWeight: 700, textTransform: 'capitalize' as const }}>{d === 'desktop' ? '🖥' : d === 'tablet' ? '📱' : '📲'} {d}</button>
+                          <button key={d} onClick={() => { setPreviewDevice(d); setMobilePreview(d !== 'desktop'); }} style={{ padding: '4px 10px', fontSize: 11, borderRadius: 6, background: previewDevice === d ? 'rgba(99,102,241,0.15)' : 'transparent', border: `1px solid ${previewDevice === d ? 'rgba(99,102,241,0.4)' : '#F9FAFB'}`, color: previewDevice === d ? '#6366F1' : '#9CA3AF', cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, textTransform: 'capitalize' as const }}>{d === 'desktop' ? '🖥' : d === 'tablet' ? '📱' : '📲'} {d}</button>
                         ))}
                       </div>
                       {/* B4 — Theme switcher + Edit mode */}
                       {directHtml && (
                         <div className="ml-auto flex items-center gap-1 flex-wrap">
                           {(['dark','light','bold','muted'] as const).map(t => (
-                            <button key={t} onClick={() => applyTheme(t)} style={{ padding: '5px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: 'Syne, sans-serif', background: activeTheme === t ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${activeTheme === t ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.08)'}`, color: activeTheme === t ? '#6366F1' : 'rgba(240,237,232,0.5)', cursor: 'pointer', textTransform: 'capitalize' as const }}>{t}</button>
+                            <button key={t} onClick={() => applyTheme(t)} style={{ padding: '5px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: "'Bricolage Grotesque', sans-serif", background: activeTheme === t ? 'rgba(99,102,241,0.15)' : '#F9FAFB', border: `1px solid ${activeTheme === t ? 'rgba(99,102,241,0.4)' : '#F5F5F5'}`, color: activeTheme === t ? '#6366F1' : '#6B7280', cursor: 'pointer', textTransform: 'capitalize' as const }}>{t}</button>
                           ))}
-                          <span style={{ fontSize: 11, color: 'rgba(240,237,232,0.3)', marginLeft: 4 }}>theme</span>
-                          <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.08)', margin: '0 6px' }} />
+                          <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 4 }}>theme</span>
+                          <div style={{ width: 1, height: 18, background: '#F5F5F5', margin: '0 6px' }} />
                           <button
                             onClick={handleToggleEdit}
                             title="Click text to edit, click images to upload your own"
-                            style={{ padding: '5px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: 'Syne, sans-serif', background: editMode ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.04)', border: `1px solid ${editMode ? '#6366F1' : 'rgba(255,255,255,0.1)'}`, color: editMode ? '#6366F1' : 'rgba(240,237,232,0.5)', cursor: 'pointer' }}
+                            style={{ padding: '5px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: "'Bricolage Grotesque', sans-serif", background: editMode ? 'rgba(99,102,241,0.2)' : '#F9FAFB', border: `1px solid ${editMode ? '#6366F1' : '#F0F0F0'}`, color: editMode ? '#6366F1' : '#6B7280', cursor: 'pointer' }}
                           >
                             ✏️ {editMode ? 'Editing...' : 'Edit'}
                           </button>
                           {editMode && (
                             <button
                               onClick={handleSaveEdits}
-                              style={{ padding: '5px 12px', borderRadius: 6, fontSize: 11, fontWeight: 800, fontFamily: 'Syne, sans-serif', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.5)', color: '#6366F1', cursor: 'pointer' }}
+                              style={{ padding: '5px 12px', borderRadius: 6, fontSize: 11, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.5)', color: '#6366F1', cursor: 'pointer' }}
                             >
                               💾 Save
                             </button>
@@ -3728,23 +3728,23 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     {(generatedData || directHtml) ? (
                       <div className={`flex-1 overflow-auto ${previewDevice !== 'desktop' ? 'flex justify-center' : ''}`} style={{ background: '#FAFAFA', padding: previewDevice !== 'desktop' ? '20px 0' : 0, display: 'flex', flexDirection: 'column' }}>
                         {/* Quick action bar */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'rgba(0,0,0,0.4)', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'rgba(0,0,0,0.4)', borderBottom: '1px solid #F9FAFB', flexShrink: 0 }}>
                           <button
                             onClick={handleOpenPreviewNewTab}
-                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 6, color: '#6366F1', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 6, color: '#6366F1', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                           >
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                             Full Screen
                           </button>
                           <button
                             onClick={handleDownloadHTML}
-                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, color: 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', background: '#F9FAFB', border: '1px solid #F0F0F0', borderRadius: 6, color: '#374151', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                           >
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             Download
                           </button>
                           <span style={{ flex: 1 }} />
-                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>
+                          <span style={{ fontSize: 11, color: '#D1D5DB' }}>
                             {previewDevice}
                           </span>
                         </div>
@@ -3754,7 +3754,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                           height: window.innerWidth < 768 ? '75vh' : '70vh',
                           minHeight: window.innerWidth < 768 ? 400 : 500,
                           margin: previewDevice !== 'desktop' ? '0 auto' : undefined,
-                          border: '1px solid rgba(255,255,255,0.07)',
+                          border: '1px solid #E5E7EB',
                           borderRadius: previewDevice !== 'desktop' ? 20 : 0,
                           overflow: 'hidden',
                           background: '#FAFAFA',
@@ -3777,7 +3777,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                         {headlines && directHtml && (
                           <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16, zIndex: 10 }}>
                             <div style={{ padding: '16px 20px', background: 'rgba(12,14,18,0.95)', backdropFilter: 'blur(12px)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 12 }}>
-                              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Headline Variants — click to swap</div>
+                              <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Headline Variants — click to swap</div>
                               {[
                                 { key: 'painPoint', label: 'Pain-point', value: headlines.painPoint },
                                 { key: 'benefit', label: 'Benefit-led', value: headlines.benefit },
@@ -3786,7 +3786,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                                 <button key={key} onClick={() => {
                                   const newHtml = directHtml.replace(/<h1[^>]*>[\s\S]*?<\/h1>/, `<h1 style="font-size:clamp(44px,7vw,72px);font-weight:900;color:#fff;margin:0 0 24px;line-height:1.08">${value}</h1>`);
                                   setDirectHtml(newHtml);
-                                }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 14px', marginBottom: 6, borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', cursor: 'pointer', color: 'rgba(240,237,232,0.75)', fontSize: 13 }}>
+                                }} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '10px 14px', marginBottom: 6, borderRadius: 8, background: '#FAFAFA', border: '1px solid #E5E7EB', cursor: 'pointer', color: 'rgba(240,237,232,0.75)', fontSize: 13 }}>
                                   <span style={{ fontSize: 11, color: '#6366F1', fontWeight: 700, display: 'block', marginBottom: 3 }}>{label}</span>
                                   {value}
                                 </button>
@@ -3797,7 +3797,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       </div>
                     ) : (
                       <div className="flex-1 flex items-center justify-center">
-                        <div className="text-sm" style={{ color: 'rgba(240,237,232,0.3)' }}>Raw response could not be parsed. Check Copy All tab.</div>
+                        <div className="text-sm" style={{ color: '#9CA3AF' }}>Raw response could not be parsed. Check Copy All tab.</div>
                       </div>
                     )}
                   </div>
@@ -3806,12 +3806,12 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 {/* ── CODE TAB ── */}
                 {activeTab === 'code' && (
                   <div className="h-full flex flex-col overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-2 border-b flex-shrink-0" style={{ borderColor: '#E5E7EB', background: 'rgba(255,255,255,0.02)' }}>
-                      <span className="text-xs font-mono" style={{ color: 'rgba(240,237,232,0.6)' }}>store-preview.html</span>
+                    <div className="flex items-center justify-between px-4 py-2 border-b flex-shrink-0" style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}>
+                      <span className="text-xs font-mono" style={{ color: '#374151' }}>store-preview.html</span>
                       <button
                         onClick={() => { copy(previewHTML, 'html-source'); toast.success('HTML copied!'); }}
                         className="text-xs flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all"
-                        style={{ color: copiedKey === 'html-source' ? '#2dca72' : 'rgba(240,237,232,0.4)', background: 'rgba(255,255,255,0.04)', cursor: 'pointer', border: 'none' }}
+                        style={{ color: copiedKey === 'html-source' ? '#6366F1' : '#9CA3AF', background: '#F9FAFB', cursor: 'pointer', border: 'none' }}
                       >
                         {copiedKey === 'html-source' ? <Check size={10} /> : <Copy size={10} />}
                         {copiedKey === 'html-source' ? 'Copied!' : 'Copy HTML'}
@@ -3819,7 +3819,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                     </div>
                     <div className="flex-1 overflow-auto" style={{ scrollbarWidth: 'thin' }}>
                       {(directHtml || rawResponse || generatedData) ? (
-                        <Suspense fallback={<pre className="text-xs p-4" style={{ color: 'rgba(240,237,232,0.7)', fontFamily: 'monospace', background: '#FAFAFA', minHeight: '100%' }}>{directHtml || rawResponse || previewHTML}</pre>}>
+                        <Suspense fallback={<pre className="text-xs p-4" style={{ color: '#374151', fontFamily: 'monospace', background: '#FAFAFA', minHeight: '100%' }}>{directHtml || rawResponse || previewHTML}</pre>}>
                           <SyntaxHighlighter
                             language="html"
                             style={vscDarkPlus ?? {}}
@@ -3831,7 +3831,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                           </SyntaxHighlighter>
                         </Suspense>
                       ) : (
-                        <div className="flex-1 flex items-center justify-center p-8"><div className="text-sm" style={{ color: 'rgba(240,237,232,0.3)' }}>Generate a store to view its HTML source.</div></div>
+                        <div className="flex-1 flex items-center justify-center p-8"><div className="text-sm" style={{ color: '#9CA3AF' }}>Generate a store to view its HTML source.</div></div>
                       )}
                     </div>
                   </div>
@@ -3859,12 +3859,12 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                         ].map(({ key, label, value, large }) => value ? (
                           <div key={key}>
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>{label}</span>
-                              <button onClick={() => copy(value, key)} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg" style={{ color: copiedKey === key ? '#2dca72' : 'rgba(240,237,232,0.4)', background: 'rgba(255,255,255,0.04)', cursor: 'pointer', border: 'none' }}>
+                              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>{label}</span>
+                              <button onClick={() => copy(value, key)} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg" style={{ color: copiedKey === key ? '#6366F1' : '#9CA3AF', background: '#F9FAFB', cursor: 'pointer', border: 'none' }}>
                                 {copiedKey === key ? <Check size={10} /> : <Copy size={10} />}{copiedKey === key ? 'Copied' : 'Copy'}
                               </button>
                             </div>
-                            <div className={large ? 'text-xl font-black' : 'text-sm leading-relaxed'} style={{ fontFamily: large ? 'Syne, sans-serif' : undefined, color: large ? undefined : 'rgba(240,237,232,0.7)', lineHeight: large ? 1.2 : undefined }}>
+                            <div className={large ? 'text-xl font-black' : 'text-sm leading-relaxed'} style={{ fontFamily: large ? "'Bricolage Grotesque', sans-serif" : undefined, color: large ? undefined : '#374151', lineHeight: large ? 1.2 : undefined }}>
                               {value}
                             </div>
                           </div>
@@ -3874,8 +3874,8 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                         {generatedData.features && generatedData.features.length > 0 && (
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Features</span>
-                              <button onClick={() => copy(generatedData.features!.map(featureToStr).join('\n'), 'feats')} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg" style={{ color: copiedKey === 'feats' ? '#2dca72' : 'rgba(240,237,232,0.4)', background: 'rgba(255,255,255,0.04)', cursor: 'pointer', border: 'none' }}>
+                              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Features</span>
+                              <button onClick={() => copy(generatedData.features!.map(featureToStr).join('\n'), 'feats')} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg" style={{ color: copiedKey === 'feats' ? '#6366F1' : '#9CA3AF', background: '#F9FAFB', cursor: 'pointer', border: 'none' }}>
                                 {copiedKey === 'feats' ? <Check size={10} /> : <Copy size={10} />}{copiedKey === 'feats' ? 'Copied' : 'Copy All'}
                               </button>
                             </div>
@@ -3884,13 +3884,13 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                                 const title = typeof f === 'string' ? f : f.title;
                                 const desc = typeof f === 'string' ? '' : f.description;
                                 return (
-                                  <div key={i} className="flex items-start gap-3 px-3 py-2.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}>
+                                  <div key={i} className="flex items-start gap-3 px-3 py-2.5 rounded-lg" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}>
                                     <div className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-black" style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1' }}>{i + 1}</div>
                                     <div className="flex-1">
                                       <div className="text-sm font-semibold" style={{ color: 'rgba(240,237,232,0.85)' }}>{title}</div>
-                                      {desc && <div className="text-xs mt-0.5" style={{ color: 'rgba(240,237,232,0.45)' }}>{desc}</div>}
+                                      {desc && <div className="text-xs mt-0.5" style={{ color: '#6B7280' }}>{desc}</div>}
                                     </div>
-                                    <button onClick={() => copy(featureToStr(f), `feat-${i}`)} style={{ color: copiedKey === `feat-${i}` ? '#2dca72' : 'rgba(240,237,232,0.3)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
+                                    <button onClick={() => copy(featureToStr(f), `feat-${i}`)} style={{ color: copiedKey === `feat-${i}` ? '#6366F1' : '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
                                       {copiedKey === `feat-${i}` ? <Check size={10} /> : <Copy size={10} />}
                                     </button>
                                   </div>
@@ -3904,16 +3904,16 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                         {generatedData.faqs && generatedData.faqs.length > 0 && (
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>FAQs</span>
-                              <button onClick={() => copy(generatedData.faqs!.map(f => `Q: ${f.question}\nA: ${f.answer}`).join('\n\n'), 'faqs')} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg" style={{ color: copiedKey === 'faqs' ? '#2dca72' : 'rgba(240,237,232,0.4)', background: 'rgba(255,255,255,0.04)', cursor: 'pointer', border: 'none' }}>
+                              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>FAQs</span>
+                              <button onClick={() => copy(generatedData.faqs!.map(f => `Q: ${f.question}\nA: ${f.answer}`).join('\n\n'), 'faqs')} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg" style={{ color: copiedKey === 'faqs' ? '#6366F1' : '#9CA3AF', background: '#F9FAFB', cursor: 'pointer', border: 'none' }}>
                                 {copiedKey === 'faqs' ? <Check size={10} /> : <Copy size={10} />}{copiedKey === 'faqs' ? 'Copied' : 'Copy All'}
                               </button>
                             </div>
                             <div className="space-y-2">
                               {generatedData.faqs.map((f, i) => (
-                                <div key={i} className="px-3 py-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}>
+                                <div key={i} className="px-3 py-3 rounded-lg" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}>
                                   <div className="text-xs font-bold mb-1" style={{ color: 'rgba(240,237,232,0.85)' }}>{f.question}</div>
-                                  <div className="text-xs" style={{ color: 'rgba(240,237,232,0.5)' }}>{f.answer}</div>
+                                  <div className="text-xs" style={{ color: '#6B7280' }}>{f.answer}</div>
                                 </div>
                               ))}
                             </div>
@@ -3924,16 +3924,16 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                         {generatedData.testimonials && generatedData.testimonials.length > 0 && (
                           <div>
                             <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Testimonials</span>
-                              <button onClick={() => copy(generatedData.testimonials!.map(t => `"${t.text}" — ${t.name}, ${t.location}`).join('\n\n'), 'tests')} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg" style={{ color: copiedKey === 'tests' ? '#2dca72' : 'rgba(240,237,232,0.4)', background: 'rgba(255,255,255,0.04)', cursor: 'pointer', border: 'none' }}>
+                              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Testimonials</span>
+                              <button onClick={() => copy(generatedData.testimonials!.map(t => `"${t.text}" — ${t.name}, ${t.location}`).join('\n\n'), 'tests')} className="text-xs flex items-center gap-1 px-2 py-1 rounded-lg" style={{ color: copiedKey === 'tests' ? '#6366F1' : '#9CA3AF', background: '#F9FAFB', cursor: 'pointer', border: 'none' }}>
                                 {copiedKey === 'tests' ? <Check size={10} /> : <Copy size={10} />}Copy All
                               </button>
                             </div>
                             <div className="space-y-2">
                               {generatedData.testimonials.map((t, i) => (
-                                <div key={i} className="px-3 py-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB', borderLeft: '3px solid #6366F1' }}>
-                                  <div className="text-xs italic mb-1" style={{ color: 'rgba(240,237,232,0.7)' }}>"{t.text}"</div>
-                                  <div className="text-xs font-bold" style={{ color: 'rgba(240,237,232,0.4)' }}>— {t.name}, {t.location}</div>
+                                <div key={i} className="px-3 py-3 rounded-lg" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', borderLeft: '3px solid #6366F1' }}>
+                                  <div className="text-xs italic mb-1" style={{ color: '#374151' }}>"{t.text}"</div>
+                                  <div className="text-xs font-bold" style={{ color: '#9CA3AF' }}>— {t.name}, {t.location}</div>
                                 </div>
                               ))}
                             </div>
@@ -3943,10 +3943,10 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                         {/* Trust badges (legacy) */}
                         {generatedData.trust_badges && generatedData.trust_badges.length > 0 && (
                           <div>
-                            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Trust Badges 🇦🇺</span>
+                            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Trust Badges 🇦🇺</span>
                             <div className="flex flex-wrap gap-2 mt-2">
                               {generatedData.trust_badges.map((b, i) => (
-                                <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: 'rgba(45,202,114,0.08)', border: '1px solid rgba(45,202,114,0.2)', color: 'rgba(45,202,114,0.85)' }}>
+                                <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold" style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.30)', color: 'rgba(99,102,241,1.00)' }}>
                                   <Check size={10} /> {b}
                                 </div>
                               ))}
@@ -3956,8 +3956,8 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       </>
                     ) : rawResponse ? (
                       <div>
-                        <div className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Raw AI Output</div>
-                        <pre className="text-xs p-4 rounded-xl overflow-x-auto" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB', color: 'rgba(240,237,232,0.6)', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                        <div className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Raw AI Output</div>
+                        <pre className="text-xs p-4 rounded-xl overflow-x-auto" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', color: '#374151', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                           {rawResponse}
                         </pre>
                       </div>
@@ -3970,7 +3970,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                   <div className="h-full overflow-y-auto p-6 space-y-6" style={{ scrollbarWidth: 'thin' }}>
                     {/* 1-Click Deploy Section */}
                     <div>
-                      <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}>🚀 Deploy Your Store</div>
+                      <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>🚀 Deploy Your Store</div>
                       <div className="grid grid-cols-3 gap-3 mb-3">
                         {/* Vercel Deploy Button */}
                         <div className="col-span-3 sm:col-span-1">
@@ -3978,16 +3978,16 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                             onClick={handleVercelDeploy}
                             disabled={!generatedData || vercelDeploying}
                             className="w-full p-4 rounded-xl text-left transition-all disabled:opacity-40 flex flex-col gap-2"
-                            style={{ background: '#000', border: '1px solid rgba(255,255,255,0.15)', cursor: (!generatedData || vercelDeploying) ? 'not-allowed' : 'pointer' }}
+                            style={{ background: '#000', border: '1px solid #D1D5DB', cursor: (!generatedData || vercelDeploying) ? 'not-allowed' : 'pointer' }}
                           >
                             <div className="flex items-center gap-2">
                               <span className="font-black text-base">▲</span>
-                              <span className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif', color: '#fff' }}>
+                              <span className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#fff' }}>
                                 {vercelDeploying ? 'Deploying…' : vercelResult ? 'Re-deploy' : 'Deploy to Vercel'}
                               </span>
-                              {vercelDeploying && <Loader2 size={13} className="animate-spin ml-auto" style={{ color: 'rgba(255,255,255,0.6)' }} />}
+                              {vercelDeploying && <Loader2 size={13} className="animate-spin ml-auto" style={{ color: '#374151' }} />}
                             </div>
-                            <div className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>Live in ~30 seconds</div>
+                            <div className="text-xs" style={{ color: '#6B7280' }}>Live in ~30 seconds</div>
                           </button>
                         </div>
                         {/* Netlify — Available Soon */}
@@ -3995,11 +3995,11 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                           <button
                             disabled
                             className="w-full p-4 rounded-xl text-left flex flex-col gap-2"
-                            style={{ background: 'rgba(0,173,164,0.1)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'not-allowed', opacity: 0.55 }}
+                            style={{ background: 'rgba(0,173,164,0.1)', border: '1px solid #F5F5F5', cursor: 'not-allowed', opacity: 0.55 }}
                           >
                             <div className="flex items-center gap-2">
                               <span className="font-black text-base">◆</span>
-                              <span className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif', color: '#6b7280' }}>Netlify</span>
+                              <span className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6b7280' }}>Netlify</span>
                             </div>
                             <div className="text-xs" style={{ color: '#6b7280' }}>Available soon</div>
                           </button>
@@ -4014,7 +4014,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                           >
                             <div className="flex items-center gap-2">
                               <ShoppingBag size={14} style={{ color: '#96bf4a' }} />
-                              <span className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif', color: '#96bf4a' }}>Shopify CSV</span>
+                              <span className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#96bf4a' }}>Shopify CSV</span>
                             </div>
                             <div className="text-xs" style={{ color: 'rgba(150,191,74,0.6)' }}>Download CSV</div>
                           </button>
@@ -4024,7 +4024,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       {/* Vercel Result / Error */}
                       {vercelResult && (
                         <div className="rounded-xl p-4 space-y-2" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.3)' }}>
-                          <div className="flex items-center gap-2 text-sm font-bold" style={{ color: '#4ade80', fontFamily: 'Syne, sans-serif' }}>
+                          <div className="flex items-center gap-2 text-sm font-bold" style={{ color: '#4ade80', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                             <Check size={14} /> Deployed successfully!
                           </div>
                           <div className="flex items-center gap-2 flex-wrap">
@@ -4033,19 +4033,19 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-lg"
-                              style={{ background: '#6366F1', color: '#0c0e12', textDecoration: 'none', fontFamily: 'Syne, sans-serif' }}
+                              style={{ background: '#6366F1', color: '#0c0e12', textDecoration: 'none', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                             >
                               <ExternalLink size={11} /> 🌐 Visit Store →
                             </a>
                             <button
                               onClick={() => { navigator.clipboard.writeText(vercelResult.url); toast.success('URL copied!'); }}
                               className="text-xs px-3 py-2 rounded-lg flex items-center gap-1"
-                              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(240,237,232,0.6)', cursor: 'pointer' }}
+                              style={{ background: '#F9FAFB', border: '1px solid #F0F0F0', color: '#374151', cursor: 'pointer' }}
                             >
                               <Copy size={10} /> Copy URL
                             </button>
                           </div>
-                          <div className="text-xs font-mono truncate" style={{ color: 'rgba(240,237,232,0.4)' }}>{vercelResult.url}</div>
+                          <div className="text-xs font-mono truncate" style={{ color: '#9CA3AF' }}>{vercelResult.url}</div>
                         </div>
                       )}
                       {vercelError && (
@@ -4059,68 +4059,68 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                       )}
                     </div>
 
-                    <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
+                    <div style={{ height: 1, background: '#F9FAFB' }} />
 
                     {/* Download Options */}
                     <div>
-                      <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}>Download & Export</div>
+                      <div className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Download & Export</div>
                     <div className="grid grid-cols-2 gap-4 max-w-2xl">
                       {/* Download HTML */}
                       <button onClick={handleDownloadHTML} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: 'rgba(99,102,241,0.06)', border: '1.5px solid rgba(99,102,241,0.2)', cursor: 'pointer' }}>
                         <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.15)' }}><Download size={20} style={{ color: '#6366F1' }} /></div>
-                        <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>Download HTML</div>
-                        <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.4)' }}>Self-contained HTML file. Host anywhere — Netlify, Vercel, or your own server.</div>
+                        <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Download HTML</div>
+                        <div className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>Self-contained HTML file. Host anywhere — Netlify, Vercel, or your own server.</div>
                       </button>
 
                       {/* Download ZIP */}
-                      <button onClick={handleDownloadZip} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: 'rgba(255,255,255,0.03)', border: '1.5px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
+                      <button onClick={handleDownloadZip} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#FAFAFA', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
                         <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.12)' }}><FileArchive size={20} style={{ color: '#6366F1' }} /></div>
-                        <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>Download ZIP</div>
-                        <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.4)' }}>Download all generated files as a ZIP archive with folder structure preserved.</div>
+                        <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Download ZIP</div>
+                        <div className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>Download all generated files as a ZIP archive with folder structure preserved.</div>
                       </button>
 
                       {/* Download Manifest */}
                       {storeManifest && (
                         <button onClick={() => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([storeManifest], { type: 'application/json' })); a.download = 'manifest.json'; a.click(); }} className="p-5 rounded-xl text-left transition-all" style={{ background: 'rgba(59,130,246,0.05)', border: '1.5px solid rgba(59,130,246,0.2)', cursor: 'pointer' }}>
                           <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(59,130,246,0.12)' }}><span style={{ fontSize: 20 }}>📱</span></div>
-                          <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>Download manifest.json</div>
-                          <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.4)' }}>PWA manifest for your store — enables "Add to Home Screen" on mobile.</div>
+                          <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Download manifest.json</div>
+                          <div className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>PWA manifest for your store — enables "Add to Home Screen" on mobile.</div>
                         </button>
                       )}
 
                       {/* B5a — Copy Embed Code */}
-                      <button onClick={() => { navigator.clipboard.writeText(`<iframe src="your-store-url" width="100%" height="800" frameborder="0" style="border:none;border-radius:12px;"></iframe>`); toast.success('Embed code copied!'); }} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: 'rgba(255,255,255,0.03)', border: '1.5px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
+                      <button onClick={() => { navigator.clipboard.writeText(`<iframe src="your-store-url" width="100%" height="800" frameborder="0" style="border:none;border-radius:12px;"></iframe>`); toast.success('Embed code copied!'); }} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#FAFAFA', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
                         <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.12)' }}><Code2 size={20} style={{ color: '#6366F1' }} /></div>
-                        <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>Copy Embed Code</div>
-                        <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.4)' }}>Embed your store in Shopify, Wix, or any website via iframe.</div>
+                        <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Copy Embed Code</div>
+                        <div className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>Embed your store in Shopify, Wix, or any website via iframe.</div>
                       </button>
 
                       {/* B5b — Download Bundle */}
-                      <button onClick={handleDownloadFullBundle} disabled={!directHtml} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: 'rgba(255,255,255,0.03)', border: '1.5px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
+                      <button onClick={handleDownloadFullBundle} disabled={!directHtml} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#FAFAFA', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
                         <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.12)' }}><Package size={20} style={{ color: '#6366F1' }} /></div>
-                        <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>Download Bundle (3 files)</div>
-                        <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.4)' }}>HTML + manifest.json + README — everything to deploy.</div>
+                        <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Download Bundle (3 files)</div>
+                        <div className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>HTML + manifest.json + README — everything to deploy.</div>
                       </button>
 
                       {/* Open in Cursor */}
-                      <button onClick={handleOpenCursor} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: 'rgba(255,255,255,0.03)', border: '1.5px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
+                      <button onClick={handleOpenCursor} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#FAFAFA', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
                         <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(156,95,255,0.12)' }}><Terminal size={20} style={{ color: '#9c5fff' }} /></div>
-                        <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>Open in Cursor</div>
-                        <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.4)' }}>Download ZIP + get step-by-step instructions to customise with Cursor AI.</div>
+                        <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Open in Cursor</div>
+                        <div className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>Download ZIP + get step-by-step instructions to customise with Cursor AI.</div>
                       </button>
 
                       {/* Export to Shopify */}
-                      <button onClick={handleShopifyExport} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: 'rgba(255,255,255,0.03)', border: '1.5px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
-                        <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(45,202,114,0.12)' }}><ShoppingBag size={20} style={{ color: '#2dca72' }} /></div>
-                        <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>Export to Shopify</div>
-                        <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.4)' }}>Download Shopify-compatible theme ZIP with layout, sections, and config included.</div>
+                      <button onClick={handleShopifyExport} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#FAFAFA', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
+                        <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.18)' }}><ShoppingBag size={20} style={{ color: '#6366F1' }} /></div>
+                        <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Export to Shopify</div>
+                        <div className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>Download Shopify-compatible theme ZIP with layout, sections, and config included.</div>
                       </button>
 
                       {/* Copy to Notion */}
-                      <button onClick={handleCopyNotion} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: 'rgba(255,255,255,0.03)', border: '1.5px solid rgba(255,255,255,0.08)', cursor: 'pointer' }}>
-                        <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.08)' }}><StickyNote size={20} style={{ color: 'rgba(240,237,232,0.6)' }} /></div>
-                        <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>Copy to Notion</div>
-                        <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.4)' }}>Copy headline, features, CTAs, and brand story as clean Markdown for Notion.</div>
+                      <button onClick={handleCopyNotion} disabled={!generatedData} className="p-5 rounded-xl text-left transition-all disabled:opacity-40" style={{ background: '#FAFAFA', border: '1.5px solid #F5F5F5', cursor: 'pointer' }}>
+                        <div className="w-10 h-10 rounded-xl mb-3 flex items-center justify-center" style={{ background: '#F5F5F5' }}><StickyNote size={20} style={{ color: '#374151' }} /></div>
+                        <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Copy to Notion</div>
+                        <div className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>Copy headline, features, CTAs, and brand story as clean Markdown for Notion.</div>
                       </button>
 
                     </div>
@@ -4144,14 +4144,14 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               {generating ? (
                 /* Task 5 — Progress overlay */
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: 520, gap: 20 }}>
-                  <div style={{ width: '100%', background: 'rgba(255,255,255,0.03)', borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)' }}>
-                    <div style={{ height: 3, background: 'rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ width: '100%', background: '#FAFAFA', borderRadius: 12, overflow: 'hidden', border: '1px solid #E5E7EB' }}>
+                    <div style={{ height: 3, background: '#F9FAFB', position: 'relative', overflow: 'hidden' }}>
                       <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', background: '#6366F1', width: `${genProgress}%`, transition: 'width 0.6s ease', borderRadius: 2 }} />
                     </div>
                     <div style={{ padding: '28px 32px', textAlign: 'center' }}>
                       <div style={{ fontSize: 32, marginBottom: 12 }}>&#9889;</div>
-                      <div style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: '#0A0A0A', marginBottom: 8 }}>{genProgress}%</div>
-                      <div style={{ fontSize: 14, color: 'rgba(240,237,232,0.6)', marginBottom: 20 }}>
+                      <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', marginBottom: 8 }}>{genProgress}%</div>
+                      <div style={{ fontSize: 14, color: '#374151', marginBottom: 20 }}>
                         {(() => {
                           const PM: Record<number, string> = { 5: 'Fetching product images...', 10: 'Building your brand brief...', 15: 'Warming up the AI...', 20: 'Writing your store copy...', 30: 'Crafting the hero section...', 50: 'Designing your layout...', 70: 'Adding product pages...', 90: 'Finishing touches...', 98: 'Assembling final store...', 100: 'Your store is ready!' };
                           const keys = Object.keys(PM).map(Number).sort((a, b) => b - a);
@@ -4164,17 +4164,17 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                           const isCurrent = !step.done && (i === 0 || progressSteps[i - 1]?.done);
                           return (
                             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: step.done ? 'rgba(99,102,241,0.06)' : isCurrent ? 'rgba(99,102,241,0.03)' : 'transparent' }}>
-                              <div style={{ width: 16, height: 16, borderRadius: '50%', flexShrink: 0, border: `1.5px solid ${step.done ? '#6366F1' : isCurrent ? 'rgba(99,102,241,0.5)' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: step.done ? '#6366F1' : 'transparent' }}>
+                              <div style={{ width: 16, height: 16, borderRadius: '50%', flexShrink: 0, border: `1.5px solid ${step.done ? '#6366F1' : isCurrent ? 'rgba(99,102,241,0.5)' : '#D1D5DB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: step.done ? '#6366F1' : 'transparent' }}>
                                 {step.done ? '\u2713' : ''}
                               </div>
-                              <span style={{ fontSize: 12, color: step.done ? '#6366F1' : isCurrent ? 'rgba(240,237,232,0.8)' : 'rgba(240,237,232,0.35)' }}>{step.label}</span>
+                              <span style={{ fontSize: 12, color: step.done ? '#6366F1' : isCurrent ? '#1F2937' : '#9CA3AF' }}>{step.label}</span>
                               {isCurrent && <Loader2 size={11} className="animate-spin" style={{ color: '#6366F1', marginLeft: 'auto' }} />}
                             </div>
                           );
                         })}
                       </div>
                       {genStartTime > 0 && (
-                        <div style={{ marginTop: 16, fontSize: 11, color: 'rgba(240,237,232,0.3)', fontFamily: 'Syne, sans-serif' }}>
+                        <div style={{ marginTop: 16, fontSize: 11, color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                           Elapsed: {Math.round(elapsedMs / 1000)}s
                         </div>
                       )}
@@ -4191,15 +4191,15 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                   const skName = livePreviewStoreName || storeName || 'Your Store';
                   return (
                     <div style={{ width: '100%', maxWidth: 520, animation: 'mjk-fadeIn 0.4s ease' }}>
-                      <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', background: skBg }}>
-                        <div style={{ height: 28, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px' }}>
+                      <div style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid #F0F0F0', background: skBg }}>
+                        <div style={{ height: 28, background: '#F9FAFB', display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px' }}>
                           <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ff5f56' }} />
                           <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ffbd2e' }} />
                           <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#27c93f' }} />
-                          <div style={{ flex: 1, height: 14, borderRadius: 4, background: 'rgba(255,255,255,0.06)', marginLeft: 12 }} />
+                          <div style={{ flex: 1, height: 14, borderRadius: 4, background: '#F9FAFB', marginLeft: 12 }} />
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px', borderBottom: `1px solid ${skAccent}20` }}>
-                          <div style={{ fontSize: 13, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: skAccent }}>{skName}</div>
+                          <div style={{ fontSize: 13, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: skAccent }}>{skName}</div>
                           <div style={{ display: 'flex', gap: 12 }}>
                             {['Home', 'Shop', 'About'].map(l => <div key={l} style={{ fontSize: 10, color: skText + '60' }}>{l}</div>)}
                             <div style={{ padding: '3px 10px', borderRadius: 4, background: skAccent, fontSize: 9, fontWeight: 700, color: skBg }}>Cart</div>
@@ -4216,7 +4216,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                           </div>
                         </div>
                         <div style={{ padding: '16px 20px' }}>
-                          <div style={{ fontSize: 10, fontWeight: 700, color: skText + '40', marginBottom: 10, fontFamily: 'Syne, sans-serif', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Products</div>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: skText + '40', marginBottom: 10, fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Products</div>
                           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                             {[0, 1, 2].map(idx => (
                               <div key={idx} style={{ borderRadius: 8, overflow: 'hidden', border: `1px solid ${skText}10` }}>
@@ -4246,12 +4246,12 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                         </div>
                         <div style={{ display: 'flex', gap: 6, justifyContent: 'center', padding: '10px 0 14px' }}>
                           {[skBg, skAccent, skText].map((c, idx) => (
-                            <div key={idx} style={{ width: 18, height: 18, borderRadius: '50%', background: c, border: '1.5px solid rgba(255,255,255,0.15)' }} />
+                            <div key={idx} style={{ width: 18, height: 18, borderRadius: '50%', background: c, border: '1.5px solid #D1D5DB' }} />
                           ))}
                         </div>
                       </div>
                       <div style={{ textAlign: 'center', marginTop: 16 }}>
-                        <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+                        <div className="text-xs" style={{ color: '#9CA3AF' }}>
                           Fill in a niche and hit <strong style={{ color: 'rgba(99,102,241,0.6)' }}>Generate</strong> to build your store.
                         </div>
                       </div>
@@ -4270,13 +4270,13 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(156,95,255,0.12)', border: '1px solid rgba(156,95,255,0.25)' }}><Terminal size={16} style={{ color: '#9c5fff' }} /></div>
             <div>
-              <div className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif' }}>Open in Cursor AI</div>
-              <div className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>Your ZIP has been downloaded</div>
+              <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Open in Cursor AI</div>
+              <div className="text-xs" style={{ color: '#9CA3AF' }}>Your ZIP has been downloaded</div>
             </div>
           </div>
-          <pre className="text-xs rounded-xl p-4 leading-relaxed" style={{ background: 'rgba(0,0,0,0.3)', color: 'rgba(240,237,232,0.7)', whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>{cursorInstructions}</pre>
+          <pre className="text-xs rounded-xl p-4 leading-relaxed" style={{ background: 'rgba(0,0,0,0.3)', color: '#374151', whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>{cursorInstructions}</pre>
           <div className="flex gap-2">
-            <button onClick={() => { copy(cursorInstructions, 'cursor-inst'); }} className="flex-1 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5" style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(240,237,232,0.6)', cursor: 'pointer', border: 'none' }}>
+            <button onClick={() => { copy(cursorInstructions, 'cursor-inst'); }} className="flex-1 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5" style={{ background: '#F9FAFB', color: '#374151', cursor: 'pointer', border: 'none' }}>
               {copiedKey === 'cursor-inst' ? <Check size={11} /> : <Clipboard size={11} />}{copiedKey === 'cursor-inst' ? 'Copied!' : 'Copy Instructions'}
             </button>
             <a href="https://cursor.com" target="_blank" rel="noopener noreferrer" className="flex-1 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5" style={{ background: 'rgba(156,95,255,0.15)', color: '#9c5fff', border: '1px solid rgba(156,95,255,0.3)', textDecoration: 'none' }}>
@@ -4290,13 +4290,13 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
       <Modal open={shopifyModal} onClose={() => setShopifyModal(false)}>
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(45,202,114,0.12)', border: '1px solid rgba(45,202,114,0.25)' }}><ShoppingBag size={16} style={{ color: '#2dca72' }} /></div>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.18)', border: '1px solid #C7D2FE' }}><ShoppingBag size={16} style={{ color: '#6366F1' }} /></div>
             <div>
-              <div className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif' }}>Shopify Theme Downloaded</div>
-              <div className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>Upload the ZIP to your Shopify store</div>
+              <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>Shopify Theme Downloaded</div>
+              <div className="text-xs" style={{ color: '#9CA3AF' }}>Upload the ZIP to your Shopify store</div>
             </div>
           </div>
-          <ol className="space-y-2 text-xs" style={{ color: 'rgba(240,237,232,0.6)' }}>
+          <ol className="space-y-2 text-xs" style={{ color: '#374151' }}>
             {['Log into your Shopify Admin', 'Go to Online Store → Themes', 'Click "Add theme" → "Upload zip file"', 'Select the downloaded ZIP file', 'Preview, then click "Publish"'].map((step, i) => (
               <li key={i} className="flex gap-2">
                 <span className="font-black flex-shrink-0" style={{ color: '#6366F1' }}>{i + 1}.</span>
@@ -4304,7 +4304,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               </li>
             ))}
           </ol>
-          <a href="https://admin.shopify.com" target="_blank" rel="noopener noreferrer" className="block w-full py-2.5 rounded-xl text-xs font-bold text-center" style={{ background: 'rgba(45,202,114,0.15)', color: '#2dca72', border: '1px solid rgba(45,202,114,0.3)', textDecoration: 'none' }}>
+          <a href="https://admin.shopify.com" target="_blank" rel="noopener noreferrer" className="block w-full py-2.5 rounded-xl text-xs font-bold text-center" style={{ background: '#EEF2FF', color: '#6366F1', border: '1px solid #C7D2FE', textDecoration: 'none' }}>
             <ExternalLink size={11} className="inline mr-1.5" />Open Shopify Admin
           </a>
         </div>
@@ -4326,7 +4326,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
             height: 44, borderTop: '1px solid #E5E7EB',
             background: 'white', display: 'flex', alignItems: 'center',
             paddingLeft: 16, paddingRight: 16, gap: 10, flexShrink: 0,
-            boxShadow: '0 -1px 4px rgba(0,0,0,0.03)',
+            boxShadow: '0 -1px 4px #F9FAFB',
           }}>
             <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#6366F1', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>M</div>
             <span style={{ fontSize: 11, color: '#9CA3AF', fontFamily: 'DM Sans, sans-serif', marginRight: 4, flexShrink: 0 }}>Maya</span>

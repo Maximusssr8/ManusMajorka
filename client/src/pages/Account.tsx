@@ -24,15 +24,15 @@ function StatusBadge({ status }: { status: string | undefined }) {
       <span
         className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
         style={{
-          background: 'rgba(45,202,114,0.1)',
-          border: '1px solid rgba(45,202,114,0.25)',
-          color: '#2dca72',
-          fontFamily: 'Syne, sans-serif',
+          background: '#EEF2FF',
+          border: '1px solid #C7D2FE',
+          color: '#6366F1',
+          fontFamily: "'Bricolage Grotesque', sans-serif",
         }}
       >
         <div
           className="w-1.5 h-1.5 rounded-full bg-green-400"
-          style={{ boxShadow: '0 0 6px rgba(45,202,114,0.8)' }}
+          style={{ boxShadow: '0 0 6px rgba(99,102,241,1.00)' }}
         />
         Active
       </span>
@@ -45,7 +45,7 @@ function StatusBadge({ status }: { status: string | undefined }) {
           background: 'rgba(255,165,0,0.1)',
           border: '1px solid rgba(255,165,0,0.25)',
           color: '#ffa500',
-          fontFamily: 'Syne, sans-serif',
+          fontFamily: "'Bricolage Grotesque', sans-serif",
         }}
       >
         Cancelled
@@ -58,7 +58,7 @@ function StatusBadge({ status }: { status: string | undefined }) {
         background: 'rgba(255,80,80,0.1)',
         border: '1px solid rgba(255,80,80,0.25)',
         color: '#ff5050',
-        fontFamily: 'Syne, sans-serif',
+        fontFamily: "'Bricolage Grotesque', sans-serif",
       }}
     >
       Expired
@@ -149,7 +149,7 @@ export default function Account() {
       {/* ── NAV ── */}
       <nav
         className="relative z-10 border-b sticky top-0 backdrop-blur-md"
-        style={{ background: 'rgba(8,10,14,0.9)', borderColor: 'rgba(255,255,255,0.07)' }}
+        style={{ background: 'rgba(8,10,14,0.9)', borderColor: '#E5E7EB' }}
       >
         <div className="container flex items-center justify-between h-14">
           <button
@@ -164,13 +164,13 @@ export default function Account() {
               className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm"
               style={{
                 background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-                color: '#080a0e',
-                fontFamily: 'Syne, sans-serif',
+                color: '#FAFAFA',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
               }}
             >
               M
             </div>
-            <span className="font-black text-sm" style={{ fontFamily: 'Syne, sans-serif' }}>
+            <span className="font-black text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Majorka
             </span>
           </div>
@@ -191,7 +191,7 @@ export default function Account() {
 
       {/* ── CONTENT ── */}
       <main className="relative z-10 container py-12 max-w-2xl">
-        <h1 className="text-3xl font-black mb-2" style={{ fontFamily: 'Syne, sans-serif' }}>
+        <h1 className="text-3xl font-black mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
           Account
         </h1>
         <p className="text-muted-foreground mb-10">Manage your Majorka membership and billing.</p>
@@ -199,7 +199,7 @@ export default function Account() {
         {/* Profile card */}
         <div
           className="rounded-2xl p-6 border mb-5"
-          style={{ background: 'rgba(255,255,255,0.025)', borderColor: 'rgba(255,255,255,0.07)' }}
+          style={{ background: '#FAFAFA', borderColor: '#E5E7EB' }}
         >
           <div className="flex items-center gap-4">
             <div
@@ -207,13 +207,13 @@ export default function Account() {
               style={{
                 background: 'rgba(99,102,241,0.15)',
                 color: '#6366F1',
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
               }}
             >
               {user?.name?.[0]?.toUpperCase() ?? 'U'}
             </div>
             <div>
-              <div className="font-bold text-base" style={{ fontFamily: 'Syne, sans-serif' }}>
+              <div className="font-bold text-base" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 {user?.name}
               </div>
               <div className="text-sm text-muted-foreground">
@@ -227,18 +227,18 @@ export default function Account() {
         <div
           className="rounded-2xl border overflow-hidden mb-5"
           style={{
-            background: 'rgba(255,255,255,0.025)',
-            borderColor: isActive ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.07)',
+            background: '#FAFAFA',
+            borderColor: isActive ? 'rgba(99,102,241,0.25)' : '#E5E7EB',
           }}
         >
           {/* Header */}
           <div
             className="flex items-center justify-between px-6 py-4 border-b"
-            style={{ borderColor: 'rgba(255,255,255,0.06)' }}
+            style={{ borderColor: '#F9FAFB' }}
           >
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4" style={{ color: '#6366F1' }} />
-              <span className="font-bold text-sm" style={{ fontFamily: 'Syne, sans-serif' }}>
+              <span className="font-bold text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Subscription
               </span>
             </div>
@@ -253,7 +253,7 @@ export default function Account() {
                   <div>
                     <p
                       className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-semibold"
-                      style={{ fontFamily: 'Syne, sans-serif' }}
+                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                     >
                       Plan
                     </p>
@@ -262,7 +262,7 @@ export default function Account() {
                   <div>
                     <p
                       className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-semibold"
-                      style={{ fontFamily: 'Syne, sans-serif' }}
+                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                     >
                       Price
                     </p>
@@ -273,7 +273,7 @@ export default function Account() {
                   <div>
                     <p
                       className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-semibold"
-                      style={{ fontFamily: 'Syne, sans-serif' }}
+                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                     >
                       Started
                     </p>
@@ -285,7 +285,7 @@ export default function Account() {
                     <div>
                       <p
                         className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-semibold"
-                        style={{ fontFamily: 'Syne, sans-serif' }}
+                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                       >
                         {subscription.status === 'cancelled' ? 'Access until' : 'Renews'}
                       </p>
@@ -298,9 +298,9 @@ export default function Account() {
                   <div
                     className="flex items-center gap-2 p-3 rounded-xl text-sm"
                     style={{
-                      background: 'rgba(45,202,114,0.06)',
-                      border: '1px solid rgba(45,202,114,0.15)',
-                      color: 'rgba(45,202,114,0.9)',
+                      background: 'rgba(99,102,241,0.09)',
+                      border: '1px solid #EEF2FF',
+                      color: 'rgba(99,102,241,1.00)',
                     }}
                   >
                     <CheckCircle className="w-4 h-4 flex-shrink-0" />
@@ -336,7 +336,7 @@ export default function Account() {
           {/* Actions */}
           <div
             className="px-6 py-4 border-t flex flex-col sm:flex-row gap-3"
-            style={{ borderColor: 'rgba(255,255,255,0.06)' }}
+            style={{ borderColor: '#F9FAFB' }}
           >
             {!isActive ? (
               <Button
@@ -345,8 +345,8 @@ export default function Account() {
                 onClick={handleStripeCheckout}
                 style={{
                   background: 'linear-gradient(135deg, #6366F1, #c09a28)',
-                  color: '#080a0e',
-                  fontFamily: 'Syne, sans-serif',
+                  color: '#FAFAFA',
+                  fontFamily: "'Bricolage Grotesque', sans-serif",
                   fontWeight: 800,
                   boxShadow: '0 4px 18px rgba(99,102,241,0.3)',
                 }}
@@ -406,7 +406,7 @@ export default function Account() {
         {/* Info card */}
         <div
           className="rounded-2xl p-5 border text-sm text-muted-foreground"
-          style={{ background: 'rgba(255,255,255,0.015)', borderColor: 'rgba(255,255,255,0.06)' }}
+          style={{ background: '#FAFAFA', borderColor: '#F9FAFB' }}
         >
           <p className="flex items-start gap-2">
             <Calendar className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#6366F1' }} />

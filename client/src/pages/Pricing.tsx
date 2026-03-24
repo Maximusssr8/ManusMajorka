@@ -21,7 +21,7 @@ const C = {
   goldBorder: 'rgba(99,102,241,0.25)',
 };
 
-const syne = 'Syne, sans-serif';
+const syne = "'Bricolage Grotesque', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 // ── Locked tool overlay ─────────────────────────────────────────────────────
@@ -131,7 +131,7 @@ function EmotionalComparisonTable() {
         {/* Table */}
         <div
           style={{
-            border: '1px solid rgba(255,255,255,0.07)',
+            border: '1px solid #E5E7EB',
             borderRadius: 16,
             overflow: 'hidden',
           }}
@@ -143,7 +143,7 @@ function EmotionalComparisonTable() {
               gridTemplateColumns: '1fr 140px 130px',
               background: '#131318',
               padding: '12px 20px',
-              borderBottom: '1px solid rgba(255,255,255,0.07)',
+              borderBottom: '1px solid #E5E7EB',
             }}
           >
             <span
@@ -193,8 +193,8 @@ function EmotionalComparisonTable() {
                 display: 'grid',
                 gridTemplateColumns: '1fr 140px 130px',
                 padding: '13px 20px',
-                borderBottom: '1px solid rgba(255,255,255,0.04)',
-                background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)',
+                borderBottom: '1px solid #F9FAFB',
+                background: i % 2 === 0 ? 'transparent' : '#FAFAFA',
               }}
             >
               <span style={{ fontSize: 13, color: '#a1a1aa' }}>{tool.name}</span>
@@ -452,7 +452,7 @@ function SavingsCalculator() {
               WebkitAppearance: 'none',
               height: 6,
               borderRadius: 3,
-              background: `linear-gradient(to right, #6366F1 ${((adSpend - 500) / (50000 - 500)) * 100}%, rgba(255,255,255,0.1) ${((adSpend - 500) / (50000 - 500)) * 100}%)`,
+              background: `linear-gradient(to right, #6366F1 ${((adSpend - 500) / (50000 - 500)) * 100}%, #F0F0F0 ${((adSpend - 500) / (50000 - 500)) * 100}%)`,
               outline: 'none',
               cursor: 'pointer',
             }}
@@ -829,7 +829,7 @@ export default function Pricing() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 20 }}>
             <div style={{ fontSize: 18, color: '#6366F1' }}>★★★★★</div>
             <span style={{ fontSize: 14, fontWeight: 700, color: '#374151' }}>4.9/5</span>
-            <span style={{ fontSize: 13, color: 'rgba(240,237,232,0.4)' }}>from 200+ AU dropshippers</span>
+            <span style={{ fontSize: 13, color: '#9CA3AF' }}>from 200+ AU dropshippers</span>
           </div>
           <div className="pricing-testimonials" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, maxWidth: 760, margin: '0 auto' }}>
             {[
@@ -837,16 +837,16 @@ export default function Pricing() {
               { quote: 'Got into posture correctors 2 weeks before they went viral. Trend signals actually work.', name: 'Marcus T.', city: 'Melbourne, VIC' },
               { quote: 'The profit calculator alone saved me from 3 terrible product decisions.', name: 'Sarah M.', city: 'Sydney, NSW' },
             ].map(t => (
-              <div key={t.name} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '16px', textAlign: 'left' }}>
-                <p style={{ fontSize: 13, color: 'rgba(240,237,232,0.7)', lineHeight: 1.6, marginBottom: 12, fontStyle: 'italic' }}>"{t.quote}"</p>
+              <div key={t.name} style={{ background: '#FAFAFA', border: '1px solid #F5F5F5', borderRadius: 12, padding: '16px', textAlign: 'left' }}>
+                <p style={{ fontSize: 13, color: '#374151', lineHeight: 1.6, marginBottom: 12, fontStyle: 'italic' }}>"{t.quote}"</p>
                 <div style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>{t.name}</div>
-                <div style={{ fontSize: 11, color: 'rgba(240,237,232,0.4)' }}>{t.city}</div>
+                <div style={{ fontSize: 11, color: '#9CA3AF' }}>{t.city}</div>
               </div>
             ))}
           </div>
           <div className="pricing-trust-badges" style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 20, flexWrap: 'wrap' }}>
             {['Secure checkout', 'Australian Consumer Law', 'Afterpay coming soon', 'Cancel anytime'].map(badge => (
-              <span key={badge} style={{ fontSize: 12, color: 'rgba(240,237,232,0.45)', display: 'flex', alignItems: 'center', gap: 4 }}>{badge}</span>
+              <span key={badge} style={{ fontSize: 12, color: '#6B7280', display: 'flex', alignItems: 'center', gap: 4 }}>{badge}</span>
             ))}
           </div>
         </div>
@@ -1172,7 +1172,7 @@ export default function Pricing() {
                   gridTemplateColumns: '1fr 100px 100px 100px',
                   padding: '14px 24px',
                   borderBottom: `1px solid ${C.border}`,
-                  background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.015)',
+                  background: i % 2 === 0 ? 'transparent' : '#FAFAFA',
                 }}
               >
                 <span style={{ fontSize: 14, color: C.secondary }}>{row.label}</span>

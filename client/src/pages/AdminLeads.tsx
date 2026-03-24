@@ -18,10 +18,10 @@ const ADMIN_EMAIL = 'maximusmajorka@gmail.com';
 const MARKET_COLORS: Record<string, string> = {
   AU: '#6366F1',
   US: '#7c6af5',
-  UK: '#2dca72',
+  UK: '#6366F1',
   CA: '#e05c7a',
   NZ: '#4ecdc4',
-  OTHER: 'rgba(255,255,255,0.3)',
+  OTHER: '#9CA3AF',
 };
 
 interface LeadIntelResult {
@@ -49,11 +49,11 @@ export default function AdminLeads() {
           <div className="text-4xl mb-3">🔒</div>
           <h2
             className="text-lg font-bold"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
           >
             Admin Only
           </h2>
-          <p className="text-sm" style={{ color: 'rgba(240,237,232,0.4)' }}>
+          <p className="text-sm" style={{ color: '#9CA3AF' }}>
             This page is restricted.
           </p>
         </div>
@@ -159,12 +159,12 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
           <div>
             <h1
               className="text-xl font-black flex items-center gap-2"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
             >
               <Users size={20} style={{ color: '#6366F1' }} />
               Lead Intelligence
             </h1>
-            <p className="text-sm mt-1" style={{ color: 'rgba(240,237,232,0.4)' }}>
+            <p className="text-sm mt-1" style={{ color: '#9CA3AF' }}>
               {leads.length} registered users · Admin view
             </p>
           </div>
@@ -176,11 +176,11 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 onClick={() => setTab(t)}
                 className="px-4 py-2 rounded-xl text-xs font-bold capitalize transition-all"
                 style={{
-                  background: tab === t ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${tab === t ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.08)'}`,
-                  color: tab === t ? '#6366F1' : 'rgba(240,237,232,0.5)',
+                  background: tab === t ? 'rgba(99,102,241,0.12)' : '#F9FAFB',
+                  border: `1px solid ${tab === t ? 'rgba(99,102,241,0.3)' : '#F5F5F5'}`,
+                  color: tab === t ? '#6366F1' : '#6B7280',
                   cursor: 'pointer',
-                  fontFamily: 'Syne, sans-serif',
+                  fontFamily: "'Bricolage Grotesque', sans-serif",
                 }}
               >
                 {t === 'leads' ? (
@@ -206,13 +206,13 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
               <div
                 className="rounded-xl p-5"
                 style={{
-                  background: 'rgba(255,255,255,0.02)',
+                  background: '#FAFAFA',
                   border: '1px solid #E5E7EB',
                 }}
               >
                 <h2
                   className="text-sm font-bold mb-4 flex items-center gap-2"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#6366F1' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
                 >
                   <Globe size={14} /> Market Breakdown
                 </h2>
@@ -234,13 +234,13 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                     <Tooltip
                       contentStyle={{
                         background: '#1a1a1a',
-                        border: '1px solid rgba(255,255,255,0.1)',
+                        border: '1px solid #F0F0F0',
                         borderRadius: 8,
                         fontSize: 12,
                       }}
                       labelStyle={{ color: '#0A0A0A' }}
                     />
-                    <Legend wrapperStyle={{ fontSize: 12, color: 'rgba(240,237,232,0.6)' }} />
+                    <Legend wrapperStyle={{ fontSize: 12, color: '#374151' }} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -250,18 +250,18 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
             <div
               className="rounded-xl overflow-hidden"
               style={{
-                background: 'rgba(255,255,255,0.02)',
+                background: '#FAFAFA',
                 border: '1px solid #E5E7EB',
               }}
             >
               <div
                 className="px-4 py-3 border-b flex items-center gap-2"
-                style={{ borderColor: 'rgba(255,255,255,0.06)' }}
+                style={{ borderColor: '#F9FAFB' }}
               >
                 <Mail size={14} style={{ color: '#6366F1' }} />
                 <span
                   className="text-sm font-bold"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#6366F1' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
                 >
                   All Users ({leads.length})
                 </span>
@@ -271,21 +271,21 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                   <Loader2 size={20} className="animate-spin" style={{ color: '#6366F1' }} />
                 </div>
               ) : leads.length === 0 ? (
-                <div className="p-6 text-center text-sm" style={{ color: 'rgba(240,237,232,0.3)' }}>
+                <div className="p-6 text-center text-sm" style={{ color: '#9CA3AF' }}>
                   No users yet
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs" style={{ borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                      <tr style={{ borderBottom: '1px solid #F9FAFB' }}>
                         {['Email', 'Signup Date', 'Plan', 'Market', 'Niche'].map((h) => (
                           <th
                             key={h}
                             className="px-4 py-2.5 text-left font-bold uppercase tracking-wider"
                             style={{
-                              color: 'rgba(240,237,232,0.35)',
-                              fontFamily: 'Syne, sans-serif',
+                              color: '#9CA3AF',
+                              fontFamily: "'Bricolage Grotesque', sans-serif",
                               fontSize: 10,
                             }}
                           >
@@ -300,13 +300,13 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                           key={lead.id}
                           style={{
                             borderBottom:
-                              i < leads.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                              i < leads.length - 1 ? '1px solid #F9FAFB' : 'none',
                           }}
                         >
                           <td className="px-4 py-2.5" style={{ color: '#0A0A0A' }}>
                             {lead.email ?? '—'}
                           </td>
-                          <td className="px-4 py-2.5" style={{ color: 'rgba(240,237,232,0.5)' }}>
+                          <td className="px-4 py-2.5" style={{ color: '#6B7280' }}>
                             {lead.createdAt
                               ? new Date(lead.createdAt).toLocaleDateString('en-AU')
                               : '—'}
@@ -317,11 +317,11 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                               style={{
                                 background:
                                   lead.plan === 'free' || !lead.plan
-                                    ? 'rgba(255,255,255,0.06)'
+                                    ? '#F9FAFB'
                                     : 'rgba(99,102,241,0.1)',
                                 color:
                                   lead.plan === 'free' || !lead.plan
-                                    ? 'rgba(240,237,232,0.4)'
+                                    ? '#9CA3AF'
                                     : '#6366F1',
                               }}
                             >
@@ -334,13 +334,13 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                               style={{
                                 background: `${MARKET_COLORS[lead.market ?? 'OTHER'] ?? MARKET_COLORS.OTHER}20`,
                                 color:
-                                  MARKET_COLORS[lead.market ?? 'OTHER'] ?? 'rgba(240,237,232,0.4)',
+                                  MARKET_COLORS[lead.market ?? 'OTHER'] ?? '#9CA3AF',
                               }}
                             >
                               {lead.market ?? 'AU'}
                             </span>
                           </td>
-                          <td className="px-4 py-2.5" style={{ color: 'rgba(240,237,232,0.5)' }}>
+                          <td className="px-4 py-2.5" style={{ color: '#6B7280' }}>
                             {lead.targetNiche ?? '—'}
                           </td>
                         </tr>
@@ -357,8 +357,8 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all"
               style={{
                 background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-                color: '#080a0e',
-                fontFamily: 'Syne, sans-serif',
+                color: '#FAFAFA',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
                 cursor: 'pointer',
                 border: 'none',
               }}
@@ -380,8 +380,8 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 placeholder="Keywords your ideal customers use..."
                 className="flex-1 px-4 py-3 rounded-xl text-sm outline-none"
                 style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1.5px solid rgba(255,255,255,0.08)',
+                  background: '#F9FAFB',
+                  border: '1.5px solid #F5F5F5',
                   color: '#0A0A0A',
                 }}
               />
@@ -391,8 +391,8 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold transition-all disabled:opacity-40"
                 style={{
                   background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-                  color: '#080a0e',
-                  fontFamily: 'Syne, sans-serif',
+                  color: '#FAFAFA',
+                  fontFamily: "'Bricolage Grotesque', sans-serif",
                   cursor: 'pointer',
                   border: 'none',
                 }}
@@ -408,13 +408,13 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 <div
                   className="rounded-xl p-5"
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
+                    background: '#FAFAFA',
                     border: '1px solid #E5E7EB',
                   }}
                 >
                   <h2
                     className="text-sm font-bold mb-3 flex items-center gap-2"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#6366F1' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
                   >
                     <Globe size={14} /> Where Your Customers Are (Top 20)
                   </h2>
@@ -424,9 +424,9 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                         key={i}
                         className="text-xs p-2 rounded-lg"
                         style={{
-                          background: 'rgba(255,255,255,0.02)',
-                          border: '1px solid rgba(255,255,255,0.04)',
-                          color: 'rgba(240,237,232,0.6)',
+                          background: '#FAFAFA',
+                          border: '1px solid #F9FAFB',
+                          color: '#374151',
                         }}
                       >
                         {i + 1}. {place}
@@ -439,13 +439,13 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 <div
                   className="rounded-xl p-5"
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
+                    background: '#FAFAFA',
                     border: '1px solid #E5E7EB',
                   }}
                 >
                   <h2
                     className="text-sm font-bold mb-3 flex items-center gap-2"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#6366F1' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
                   >
                     <Mail size={14} /> Outreach Templates
                   </h2>
@@ -455,16 +455,16 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                         key={key}
                         className="rounded-lg p-3"
                         style={{
-                          background: 'rgba(255,255,255,0.02)',
-                          border: '1px solid rgba(255,255,255,0.05)',
+                          background: '#FAFAFA',
+                          border: '1px solid #F9FAFB',
                         }}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <span
                             className="text-xs font-bold uppercase"
                             style={{
-                              color: 'rgba(240,237,232,0.5)',
-                              fontFamily: 'Syne, sans-serif',
+                              color: '#6B7280',
+                              fontFamily: "'Bricolage Grotesque', sans-serif",
                               letterSpacing: '0.05em',
                             }}
                           >
@@ -485,7 +485,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                         </div>
                         <p
                           className="text-xs leading-relaxed whitespace-pre-wrap"
-                          style={{ color: 'rgba(240,237,232,0.6)' }}
+                          style={{ color: '#374151' }}
                         >
                           {template}
                         </p>
@@ -498,14 +498,14 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 <div
                   className="rounded-xl p-5"
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
+                    background: '#FAFAFA',
                     border: '1px solid #E5E7EB',
                   }}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <h2
                       className="text-sm font-bold flex items-center gap-2"
-                      style={{ fontFamily: 'Syne, sans-serif', color: '#6366F1' }}
+                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
                     >
                       <MessageSquare size={14} /> Weekly Schedule
                     </h2>
@@ -524,7 +524,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                   </div>
                   <pre
                     className="text-xs leading-relaxed whitespace-pre-wrap"
-                    style={{ color: 'rgba(240,237,232,0.6)' }}
+                    style={{ color: '#374151' }}
                   >
                     {result.weeklySchedule}
                   </pre>

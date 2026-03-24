@@ -89,7 +89,7 @@ function GlassCard({
     <div
       className={className}
       style={{
-        background: 'rgba(255,255,255,0.03)',
+        background: '#FAFAFA',
         border: '1px solid #E5E7EB',
         borderRadius: 12,
         backdropFilter: 'blur(12px)',
@@ -107,7 +107,7 @@ function PlanBadge({ plan }: { plan: string }) {
     starter: { background: 'rgba(113,113,122,0.2)', color: '#a1a1aa' },
     builder: { background: 'rgba(99,102,241,0.15)', color: '#6366F1' },
     scale: { background: 'rgba(124,90,245,0.2)', color: '#a78bfa' },
-    pro: { background: 'rgba(45,202,114,0.2)', color: '#2dca72' },
+    pro: { background: 'rgba(99,102,241,0.30)', color: '#6366F1' },
   };
   const s = styles[plan] ?? styles.starter;
   return (
@@ -168,7 +168,7 @@ function ConfirmDialog({
         exit={{ opacity: 0, scale: 0.95 }}
         style={{
           background: 'white',
-          border: '1px solid rgba(255,255,255,0.1)',
+          border: '1px solid #F0F0F0',
           borderRadius: 16,
           padding: 32,
           maxWidth: 420,
@@ -178,7 +178,7 @@ function ConfirmDialog({
       >
         <h3
           style={{
-            fontFamily: 'Syne, sans-serif',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
             color: '#0A0A0A',
             fontSize: 18,
             marginBottom: 12,
@@ -186,22 +186,22 @@ function ConfirmDialog({
         >
           {title}
         </h3>
-        <p style={{ color: 'rgba(240,237,232,0.6)', fontSize: 14, marginBottom: 24 }}>{message}</p>
+        <p style={{ color: '#374151', fontSize: 14, marginBottom: 24 }}>{message}</p>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
           <button
             onClick={onCancel}
             style={{
               padding: '8px 16px',
               borderRadius: 8,
-              background: 'rgba(255,255,255,0.06)',
-              color: 'rgba(240,237,232,0.7)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: '#F9FAFB',
+              color: '#374151',
+              border: '1px solid #F0F0F0',
               cursor: 'pointer',
               fontSize: 14,
               transition: 'all 200ms ease',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
+            onMouseEnter={(e) => (e.currentTarget.style.background = '#F0F0F0')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = '#F9FAFB')}
           >
             Cancel
           </button>
@@ -389,7 +389,7 @@ export default function AdminPanel() {
       label: 'Active Today',
       value: statsQuery.data?.activeToday ?? '—',
       icon: Activity,
-      color: '#2dca72',
+      color: '#6366F1',
     },
     {
       label: 'Active This Week',
@@ -424,7 +424,7 @@ export default function AdminPanel() {
       <div
         style={{
           height: 56,
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          borderBottom: '1px solid #F9FAFB',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -447,17 +447,17 @@ export default function AdminPanel() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               fontWeight: 900,
               fontSize: 13,
-              color: '#080a0e',
+              color: '#FAFAFA',
             }}
           >
             M
           </div>
           <span
             style={{
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               fontWeight: 700,
               fontSize: 15,
               color: '#0A0A0A',
@@ -481,7 +481,7 @@ export default function AdminPanel() {
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <span style={{ fontSize: 12, color: 'rgba(240,237,232,0.4)' }}>{user.email}</span>
+          <span style={{ fontSize: 12, color: '#9CA3AF' }}>{user.email}</span>
           <button
             onClick={() => navigate('/app')}
             style={{
@@ -490,15 +490,15 @@ export default function AdminPanel() {
               gap: 6,
               padding: '6px 12px',
               borderRadius: 8,
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: 'rgba(240,237,232,0.7)',
+              background: '#F9FAFB',
+              border: '1px solid #F5F5F5',
+              color: '#374151',
               cursor: 'pointer',
               fontSize: 13,
               transition: 'all 200ms ease',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+            onMouseEnter={(e) => (e.currentTarget.style.background = '#F0F0F0')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = '#F9FAFB')}
           >
             <ArrowLeft size={13} />
             Back to App
@@ -513,7 +513,7 @@ export default function AdminPanel() {
           style={{
             width: 200,
             flexShrink: 0,
-            borderRight: '1px solid rgba(255,255,255,0.06)',
+            borderRight: '1px solid #F9FAFB',
             padding: '16px 8px',
             display: 'flex',
             flexDirection: 'column',
@@ -534,7 +534,7 @@ export default function AdminPanel() {
                   padding: '8px 12px',
                   borderRadius: 8,
                   background: active ? 'rgba(99,102,241,0.1)' : 'transparent',
-                  color: active ? '#6366F1' : 'rgba(240,237,232,0.5)',
+                  color: active ? '#6366F1' : '#6B7280',
                   border: active ? '1px solid rgba(99,102,241,0.2)' : '1px solid transparent',
                   cursor: 'pointer',
                   fontSize: 13,
@@ -544,7 +544,7 @@ export default function AdminPanel() {
                   width: '100%',
                 }}
                 onMouseEnter={(e) => {
-                  if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                  if (!active) e.currentTarget.style.background = '#F9FAFB';
                 }}
                 onMouseLeave={(e) => {
                   if (!active) e.currentTarget.style.background = 'transparent';
@@ -572,7 +572,7 @@ export default function AdminPanel() {
                 <div>
                   <h2
                     style={{
-                      fontFamily: 'Syne, sans-serif',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       fontSize: 20,
                       fontWeight: 700,
                       marginBottom: 20,
@@ -598,7 +598,7 @@ export default function AdminPanel() {
                           left: 12,
                           top: '50%',
                           transform: 'translateY(-50%)',
-                          color: 'rgba(240,237,232,0.3)',
+                          color: '#9CA3AF',
                           pointerEvents: 'none',
                         }}
                       />
@@ -609,8 +609,8 @@ export default function AdminPanel() {
                         style={{
                           width: '100%',
                           padding: '9px 12px 9px 34px',
-                          background: 'rgba(255,255,255,0.04)',
-                          border: '1px solid rgba(255,255,255,0.08)',
+                          background: '#F9FAFB',
+                          border: '1px solid #F5F5F5',
                           borderRadius: 8,
                           color: '#0A0A0A',
                           fontSize: 13,
@@ -621,7 +621,7 @@ export default function AdminPanel() {
                           (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)')
                         }
                         onBlur={(e) =>
-                          (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)')
+                          (e.currentTarget.style.borderColor = '#F5F5F5')
                         }
                       />
                     </div>
@@ -630,8 +630,8 @@ export default function AdminPanel() {
                       onChange={(e) => setPlanFilter(e.target.value)}
                       style={{
                         padding: '9px 12px',
-                        background: 'rgba(255,255,255,0.04)',
-                        border: '1px solid rgba(255,255,255,0.08)',
+                        background: '#F9FAFB',
+                        border: '1px solid #F5F5F5',
                         borderRadius: 8,
                         color: '#0A0A0A',
                         fontSize: 13,
@@ -661,7 +661,7 @@ export default function AdminPanel() {
                         <thead>
                           <tr
                             style={{
-                              borderBottom: '1px solid rgba(255,255,255,0.06)',
+                              borderBottom: '1px solid #F9FAFB',
                             }}
                           >
                             {['User', 'Email', 'Plan', 'Joined', 'Actions'].map((h) => (
@@ -671,7 +671,7 @@ export default function AdminPanel() {
                                   padding: '12px 16px',
                                   textAlign: 'left',
                                   fontSize: 11,
-                                  color: 'rgba(240,237,232,0.4)',
+                                  color: '#9CA3AF',
                                   fontWeight: 600,
                                   letterSpacing: '0.05em',
                                   textTransform: 'uppercase',
@@ -691,7 +691,7 @@ export default function AdminPanel() {
                                 style={{
                                   padding: 32,
                                   textAlign: 'center',
-                                  color: 'rgba(240,237,232,0.3)',
+                                  color: '#9CA3AF',
                                 }}
                               >
                                 <Loader2
@@ -708,7 +708,7 @@ export default function AdminPanel() {
                                 style={{
                                   padding: 32,
                                   textAlign: 'center',
-                                  color: 'rgba(240,237,232,0.3)',
+                                  color: '#9CA3AF',
                                   fontSize: 14,
                                 }}
                               >
@@ -735,11 +735,11 @@ export default function AdminPanel() {
                                 <tr
                                   key={u.id}
                                   style={{
-                                    borderBottom: '1px solid rgba(255,255,255,0.04)',
+                                    borderBottom: '1px solid #F9FAFB',
                                     transition: 'background 150ms ease',
                                   }}
                                   onMouseEnter={(e) =>
-                                    (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')
+                                    (e.currentTarget.style.background = '#FAFAFA')
                                   }
                                   onMouseLeave={(e) =>
                                     (e.currentTarget.style.background = 'transparent')
@@ -779,7 +779,7 @@ export default function AdminPanel() {
                                     style={{
                                       padding: '10px 16px',
                                       fontSize: 12,
-                                      color: 'rgba(240,237,232,0.6)',
+                                      color: '#374151',
                                       fontFamily: 'Fira Code, monospace',
                                     }}
                                   >
@@ -794,7 +794,7 @@ export default function AdminPanel() {
                                     style={{
                                       padding: '10px 16px',
                                       fontSize: 12,
-                                      color: 'rgba(240,237,232,0.4)',
+                                      color: '#9CA3AF',
                                     }}
                                   >
                                     {joined}
@@ -811,21 +811,21 @@ export default function AdminPanel() {
                                           alignItems: 'center',
                                           gap: 4,
                                           padding: '5px 10px',
-                                          background: 'rgba(255,255,255,0.05)',
-                                          border: '1px solid rgba(255,255,255,0.08)',
+                                          background: '#F9FAFB',
+                                          border: '1px solid #F5F5F5',
                                           borderRadius: 6,
-                                          color: 'rgba(240,237,232,0.7)',
+                                          color: '#374151',
                                           cursor: 'pointer',
                                           fontSize: 12,
                                           transition: 'all 200ms ease',
                                         }}
                                         onMouseEnter={(e) =>
                                           (e.currentTarget.style.background =
-                                            'rgba(255,255,255,0.09)')
+                                            '#F5F5F5')
                                         }
                                         onMouseLeave={(e) =>
                                           (e.currentTarget.style.background =
-                                            'rgba(255,255,255,0.05)')
+                                            '#F9FAFB')
                                         }
                                       >
                                         Change Plan
@@ -838,7 +838,7 @@ export default function AdminPanel() {
                                             top: 'calc(100% + 4px)',
                                             left: 0,
                                             background: 'white',
-                                            border: '1px solid rgba(255,255,255,0.1)',
+                                            border: '1px solid #F0F0F0',
                                             borderRadius: 8,
                                             zIndex: 100,
                                             minWidth: 140,
@@ -857,7 +857,7 @@ export default function AdminPanel() {
                                                 padding: '8px 12px',
                                                 background: 'transparent',
                                                 border: 'none',
-                                                color: 'rgba(240,237,232,0.7)',
+                                                color: '#374151',
                                                 cursor: 'pointer',
                                                 fontSize: 13,
                                                 textAlign: 'left',
@@ -866,7 +866,7 @@ export default function AdminPanel() {
                                               }}
                                               onMouseEnter={(e) =>
                                                 (e.currentTarget.style.background =
-                                                  'rgba(255,255,255,0.06)')
+                                                  '#F9FAFB')
                                               }
                                               onMouseLeave={(e) =>
                                                 (e.currentTarget.style.background = 'transparent')
@@ -889,9 +889,9 @@ export default function AdminPanel() {
                     <div
                       style={{
                         padding: '10px 16px',
-                        borderTop: '1px solid rgba(255,255,255,0.04)',
+                        borderTop: '1px solid #F9FAFB',
                         fontSize: 12,
-                        color: 'rgba(240,237,232,0.3)',
+                        color: '#9CA3AF',
                       }}
                     >
                       {filteredUsers.length} user
@@ -906,7 +906,7 @@ export default function AdminPanel() {
                 <div>
                   <h2
                     style={{
-                      fontFamily: 'Syne, sans-serif',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       fontSize: 20,
                       fontWeight: 700,
                       marginBottom: 20,
@@ -952,7 +952,7 @@ export default function AdminPanel() {
                               <span
                                 style={{
                                   fontSize: 12,
-                                  color: 'rgba(240,237,232,0.5)',
+                                  color: '#6B7280',
                                 }}
                               >
                                 {card.label}
@@ -989,7 +989,7 @@ export default function AdminPanel() {
                         style={{
                           fontSize: 14,
                           fontWeight: 600,
-                          color: 'rgba(240,237,232,0.7)',
+                          color: '#374151',
                           marginBottom: 16,
                         }}
                       >
@@ -998,7 +998,7 @@ export default function AdminPanel() {
                       <p
                         style={{
                           fontSize: 12,
-                          color: 'rgba(240,237,232,0.3)',
+                          color: '#9CA3AF',
                           marginBottom: 16,
                         }}
                       >
@@ -1017,7 +1017,7 @@ export default function AdminPanel() {
                           <Tooltip
                             contentStyle={{
                               background: 'white',
-                              border: '1px solid rgba(255,255,255,0.1)',
+                              border: '1px solid #F0F0F0',
                               borderRadius: 8,
                               color: '#0A0A0A',
                               fontSize: 12,
@@ -1035,7 +1035,7 @@ export default function AdminPanel() {
                 <div>
                   <h2
                     style={{
-                      fontFamily: 'Syne, sans-serif',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       fontSize: 20,
                       fontWeight: 700,
                       marginBottom: 20,
@@ -1061,7 +1061,7 @@ export default function AdminPanel() {
                         label: 'Estimated Cost',
                         value: '—',
                         hint: 'Requires Anthropic usage API',
-                        color: '#2dca72',
+                        color: '#6366F1',
                       },
                       {
                         label: 'Rate Limit Hits',
@@ -1075,7 +1075,7 @@ export default function AdminPanel() {
                           <div
                             style={{
                               fontSize: 12,
-                              color: 'rgba(240,237,232,0.5)',
+                              color: '#6B7280',
                               marginBottom: 10,
                             }}
                           >
@@ -1095,7 +1095,7 @@ export default function AdminPanel() {
                           <div
                             style={{
                               fontSize: 11,
-                              color: 'rgba(240,237,232,0.3)',
+                              color: '#9CA3AF',
                             }}
                             title={item.hint}
                           >
@@ -1113,7 +1113,7 @@ export default function AdminPanel() {
                 <div>
                   <h2
                     style={{
-                      fontFamily: 'Syne, sans-serif',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       fontSize: 20,
                       fontWeight: 700,
                       marginBottom: 20,
@@ -1129,7 +1129,7 @@ export default function AdminPanel() {
                         style={{
                           fontSize: 14,
                           fontWeight: 600,
-                          color: 'rgba(240,237,232,0.7)',
+                          color: '#374151',
                           marginBottom: 16,
                         }}
                       >
@@ -1146,7 +1146,7 @@ export default function AdminPanel() {
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
                                 padding: '12px 0',
-                                borderBottom: '1px solid rgba(255,255,255,0.04)',
+                                borderBottom: '1px solid #F9FAFB',
                               }}
                             >
                               <div>
@@ -1156,7 +1156,7 @@ export default function AdminPanel() {
                                 <div
                                   style={{
                                     fontSize: 11,
-                                    color: 'rgba(240,237,232,0.35)',
+                                    color: '#9CA3AF',
                                     fontFamily: 'Fira Code, monospace',
                                   }}
                                 >
@@ -1180,7 +1180,7 @@ export default function AdminPanel() {
                                     borderRadius: 10,
                                     background: enabled
                                       ? 'rgba(99,102,241,0.6)'
-                                      : 'rgba(255,255,255,0.1)',
+                                      : '#F0F0F0',
                                     transition: 'background 200ms',
                                     position: 'relative',
                                   }}
@@ -1203,7 +1203,7 @@ export default function AdminPanel() {
                           );
                         })}
                       </div>
-                      <p style={{ fontSize: 11, color: 'rgba(240,237,232,0.3)', marginTop: 12 }}>
+                      <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 12 }}>
                         Saved to localStorage — client-side only for MVP.
                       </p>
                     </div>
@@ -1217,7 +1217,7 @@ export default function AdminPanel() {
                           style={{
                             fontSize: 14,
                             fontWeight: 600,
-                            color: 'rgba(240,237,232,0.7)',
+                            color: '#374151',
                             marginBottom: 4,
                           }}
                         >
@@ -1226,7 +1226,7 @@ export default function AdminPanel() {
                         <p
                           style={{
                             fontSize: 12,
-                            color: 'rgba(240,237,232,0.3)',
+                            color: '#9CA3AF',
                             marginBottom: 16,
                           }}
                         >
@@ -1242,7 +1242,7 @@ export default function AdminPanel() {
                             <div
                               style={{
                                 fontSize: 11,
-                                color: 'rgba(240,237,232,0.4)',
+                                color: '#9CA3AF',
                                 marginBottom: 4,
                                 fontFamily: 'Fira Code, monospace',
                               }}
@@ -1265,8 +1265,8 @@ export default function AdminPanel() {
                               style={{
                                 width: '100%',
                                 padding: '10px 12px',
-                                background: 'rgba(255,255,255,0.03)',
-                                border: '1px solid rgba(255,255,255,0.08)',
+                                background: '#FAFAFA',
+                                border: '1px solid #F5F5F5',
                                 borderRadius: 8,
                                 color: '#0A0A0A',
                                 fontSize: 13,
@@ -1279,7 +1279,7 @@ export default function AdminPanel() {
                                 (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)')
                               }
                               onBlur={(e) =>
-                                (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)')
+                                (e.currentTarget.style.borderColor = '#F5F5F5')
                               }
                             />
                             <button
@@ -1322,7 +1322,7 @@ export default function AdminPanel() {
                 <div>
                   <h2
                     style={{
-                      fontFamily: 'Syne, sans-serif',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       fontSize: 20,
                       fontWeight: 700,
                       marginBottom: 20,
@@ -1385,8 +1385,8 @@ export default function AdminPanel() {
                             alignItems: 'center',
                             gap: 12,
                             padding: '16px 20px',
-                            background: 'rgba(255,255,255,0.03)',
-                            border: `1px solid ${action.danger ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.07)'}`,
+                            background: '#FAFAFA',
+                            border: `1px solid ${action.danger ? 'rgba(239,68,68,0.2)' : '#E5E7EB'}`,
                             borderRadius: 12,
                             color: action.color,
                             cursor: 'pointer',
@@ -1398,11 +1398,11 @@ export default function AdminPanel() {
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = action.danger
                               ? 'rgba(239,68,68,0.08)'
-                              : 'rgba(255,255,255,0.06)';
+                              : '#F9FAFB';
                             e.currentTarget.style.transform = 'translateY(-1px)';
                           }}
                           onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                            e.currentTarget.style.background = '#FAFAFA';
                             e.currentTarget.style.transform = 'translateY(0)';
                           }}
                         >
@@ -1457,7 +1457,7 @@ export default function AdminPanel() {
               exit={{ opacity: 0, scale: 0.95 }}
               style={{
                 background: 'white',
-                border: '1px solid rgba(255,255,255,0.1)',
+                border: '1px solid #F0F0F0',
                 borderRadius: 16,
                 padding: 32,
                 maxWidth: 500,
@@ -1475,7 +1475,7 @@ export default function AdminPanel() {
               >
                 <h3
                   style={{
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                     fontSize: 18,
                     fontWeight: 700,
                     color: '#0A0A0A',
@@ -1489,12 +1489,12 @@ export default function AdminPanel() {
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
-                    color: 'rgba(240,237,232,0.4)',
+                    color: '#9CA3AF',
                     padding: 4,
                     transition: 'color 150ms ease',
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = '#f0ede8')}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(240,237,232,0.4)')}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#374151')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = '#9CA3AF')}
                 >
                   <X size={18} />
                 </button>
@@ -1505,7 +1505,7 @@ export default function AdminPanel() {
                     style={{
                       display: 'block',
                       fontSize: 12,
-                      color: 'rgba(240,237,232,0.5)',
+                      color: '#6B7280',
                       marginBottom: 6,
                     }}
                   >
@@ -1518,8 +1518,8 @@ export default function AdminPanel() {
                     style={{
                       width: '100%',
                       padding: '10px 14px',
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: '#F9FAFB',
+                      border: '1px solid #F0F0F0',
                       borderRadius: 8,
                       color: '#0A0A0A',
                       fontSize: 14,
@@ -1527,7 +1527,7 @@ export default function AdminPanel() {
                       transition: 'border-color 200ms ease',
                     }}
                     onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)')}
-                    onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = '#F0F0F0')}
                   />
                 </div>
                 <div>
@@ -1535,7 +1535,7 @@ export default function AdminPanel() {
                     style={{
                       display: 'block',
                       fontSize: 12,
-                      color: 'rgba(240,237,232,0.5)',
+                      color: '#6B7280',
                       marginBottom: 6,
                     }}
                   >
@@ -1549,8 +1549,8 @@ export default function AdminPanel() {
                     style={{
                       width: '100%',
                       padding: '10px 14px',
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1px solid rgba(255,255,255,0.1)',
+                      background: '#F9FAFB',
+                      border: '1px solid #F0F0F0',
                       borderRadius: 8,
                       color: '#0A0A0A',
                       fontSize: 14,
@@ -1560,7 +1560,7 @@ export default function AdminPanel() {
                       transition: 'border-color 200ms ease',
                     }}
                     onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)')}
-                    onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = '#F0F0F0')}
                   />
                 </div>
                 <button

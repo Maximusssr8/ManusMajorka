@@ -36,7 +36,7 @@ export default function InsightsPage() {
       style={{
         background: '#FAFAFA',
         scrollbarWidth: 'thin',
-        scrollbarColor: 'rgba(255,255,255,0.1) transparent',
+        scrollbarColor: '#F0F0F0 transparent',
       }}
     >
       <div className="max-w-4xl mx-auto px-6 py-8">
@@ -53,7 +53,7 @@ export default function InsightsPage() {
               <h1
                 className="text-2xl font-black"
                 style={{
-                  fontFamily: 'Syne, sans-serif',
+                  fontFamily: "'Bricolage Grotesque', sans-serif",
                   color: '#0A0A0A',
                   letterSpacing: '-0.02em',
                 }}
@@ -62,7 +62,7 @@ export default function InsightsPage() {
               </h1>
             </div>
           </div>
-          <p className="text-sm mt-2" style={{ color: 'rgba(240,237,232,0.45)' }}>
+          <p className="text-sm mt-2" style={{ color: '#6B7280' }}>
             Analyse your business, decode your data, and uncover growth opportunities with these
             tools.
           </p>
@@ -82,11 +82,11 @@ export default function InsightsPage() {
                 <div className="w-1.5 h-1.5 rounded-full" style={{ background: section.color }} />
                 <h2
                   className="text-xs font-black uppercase tracking-widest"
-                  style={{ fontFamily: 'Syne, sans-serif', color: section.color }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: section.color }}
                 >
                   {section.title}
                 </h2>
-                <span className="text-xs" style={{ color: 'rgba(240,237,232,0.25)' }}>
+                <span className="text-xs" style={{ color: '#D1D5DB' }}>
                   {tools.length} tools
                 </span>
               </div>
@@ -100,7 +100,7 @@ export default function InsightsPage() {
                       onClick={() => setLocation(tool.path)}
                       className="text-left rounded-xl p-4 transition-all duration-150 group"
                       style={{
-                        background: 'rgba(255,255,255,0.025)',
+                        background: '#FAFAFA',
                         border: '1px solid #E5E7EB',
                         cursor: 'pointer',
                       }}
@@ -114,7 +114,7 @@ export default function InsightsPage() {
                       onMouseLeave={(e) => {
                         const el = e.currentTarget as HTMLButtonElement;
                         el.style.borderColor = '#E5E7EB';
-                        el.style.background = 'rgba(255,255,255,0.025)';
+                        el.style.background = '#FAFAFA';
                         el.style.transform = 'none';
                         el.style.boxShadow = 'none';
                       }}
@@ -133,7 +133,7 @@ export default function InsightsPage() {
                           <div
                             className="text-sm font-bold mb-1"
                             style={{
-                              fontFamily: 'Syne, sans-serif',
+                              fontFamily: "'Bricolage Grotesque', sans-serif",
                               color: '#0A0A0A',
                             }}
                           >
@@ -141,7 +141,7 @@ export default function InsightsPage() {
                           </div>
                           <div
                             className="text-xs leading-relaxed"
-                            style={{ color: 'rgba(240,237,232,0.45)' }}
+                            style={{ color: '#6B7280' }}
                           >
                             {tool.description}
                           </div>

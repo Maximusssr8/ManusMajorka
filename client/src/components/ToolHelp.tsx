@@ -66,7 +66,7 @@ export default function ToolHelp({
             <div>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 What it does
               </div>
@@ -77,7 +77,7 @@ export default function ToolHelp({
             <div>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Best for
               </div>
@@ -88,7 +88,7 @@ export default function ToolHelp({
             <div>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Example input
               </div>
@@ -96,8 +96,8 @@ export default function ToolHelp({
                 className="text-xs px-2.5 py-1.5 rounded-lg"
                 style={{
                   color: 'rgba(245,245,245,0.5)',
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.06)',
+                  background: '#FAFAFA',
+                  border: '1px solid #F9FAFB',
                   fontStyle: 'italic',
                 }}
               >
@@ -107,7 +107,7 @@ export default function ToolHelp({
             <div>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 You get
               </div>

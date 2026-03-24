@@ -223,7 +223,7 @@ export default function SettingsProfile() {
           style={{
             background: 'linear-gradient(135deg, #6366F1, #f0c040)',
             color: '#0a0b0d',
-            fontFamily: 'Syne, sans-serif',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
           }}
         >
           M
@@ -255,7 +255,7 @@ export default function SettingsProfile() {
               onClick={() => setLocation('/app')}
               className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
               style={{
-                background: 'rgba(0,0,0,0.03)',
+                background: '#F9FAFB',
                 border: '1px solid #E5E7EB',
                 cursor: 'pointer',
                 color: '#a1a1aa',
@@ -266,7 +266,7 @@ export default function SettingsProfile() {
             <div>
               <h1
                 className="text-xl font-bold"
-                style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
               >
                 Settings
               </h1>
@@ -312,7 +312,7 @@ export default function SettingsProfile() {
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-4"
-                  style={{ color: '#52525b', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Account
                 </div>
@@ -351,7 +351,7 @@ export default function SettingsProfile() {
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-4"
-                  style={{ color: '#52525b', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Business Profile
                 </div>
@@ -427,7 +427,7 @@ export default function SettingsProfile() {
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-4"
-                  style={{ color: '#52525b', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Preferences
                 </div>
@@ -449,7 +449,7 @@ export default function SettingsProfile() {
                             background:
                               form.experienceLevel === level
                                 ? 'rgba(99,102,241,0.15)'
-                                : 'rgba(0,0,0,0.02)',
+                                : '#FAFAFA',
                             borderColor:
                               form.experienceLevel === level
                                 ? 'rgba(99,102,241,0.4)'
@@ -481,7 +481,7 @@ export default function SettingsProfile() {
                             background:
                               form.mainGoal === goal
                                 ? 'rgba(99,102,241,0.15)'
-                                : 'rgba(0,0,0,0.02)',
+                                : '#FAFAFA',
                             borderColor:
                               form.mainGoal === goal
                                 ? 'rgba(99,102,241,0.4)'
@@ -501,7 +501,7 @@ export default function SettingsProfile() {
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-3"
-                  style={{ color: '#52525b', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Onboarding
                 </div>
@@ -540,7 +540,7 @@ export default function SettingsProfile() {
                 style={{
                   background: 'linear-gradient(135deg, #6366F1, #f0c040)',
                   color: '#0a0b0d',
-                  fontFamily: 'Syne, sans-serif',
+                  fontFamily: "'Bricolage Grotesque', sans-serif",
                   border: 'none',
                   cursor: saving ? 'not-allowed' : 'pointer',
                 }}
@@ -555,7 +555,7 @@ export default function SettingsProfile() {
             <div className={sectionCard} style={sectionCardStyle}>
               <div
                 className="text-xs font-bold uppercase tracking-widest mb-4"
-                style={{ color: '#52525b', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Email Preferences
               </div>
@@ -585,7 +585,7 @@ export default function SettingsProfile() {
                   <div
                     key={key}
                     className="flex items-center justify-between py-3 px-4 rounded-lg"
-                    style={{ background: 'rgba(0,0,0,0.02)' }}
+                    style={{ background: '#FAFAFA' }}
                   >
                     <div>
                       <div className="text-sm font-medium" style={{ color: '#f5f5f5' }}>
@@ -622,7 +622,7 @@ export default function SettingsProfile() {
                 style={{
                   background: 'linear-gradient(135deg, #6366F1, #f0c040)',
                   color: '#0a0b0d',
-                  fontFamily: 'Syne, sans-serif',
+                  fontFamily: "'Bricolage Grotesque', sans-serif",
                   border: 'none',
                   cursor: 'pointer',
                 }}
@@ -688,7 +688,7 @@ export default function SettingsProfile() {
             <div className={sectionCard} style={sectionCardStyle}>
               <div
                 className="text-xs font-bold uppercase tracking-widest mb-4"
-                style={{ color: '#52525b', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Service Status
               </div>
@@ -699,17 +699,17 @@ export default function SettingsProfile() {
                         key={key}
                         className="flex items-center justify-between px-4 py-3 rounded-lg"
                         style={{
-                          background: 'rgba(0,0,0,0.02)',
+                          background: '#FAFAFA',
                           border: '1px solid #E5E7EB',
                         }}
                       >
                         <div
                           className="h-3 w-32 rounded animate-pulse"
-                          style={{ background: 'rgba(0,0,0,0.06)' }}
+                          style={{ background: '#E5E7EB' }}
                         />
                         <div
                           className="h-5 w-5 rounded animate-pulse"
-                          style={{ background: 'rgba(0,0,0,0.06)' }}
+                          style={{ background: '#E5E7EB' }}
                         />
                       </div>
                     ))
@@ -718,7 +718,7 @@ export default function SettingsProfile() {
                         key={key}
                         className="flex items-center justify-between px-4 py-3 rounded-lg"
                         style={{
-                          background: 'rgba(0,0,0,0.02)',
+                          background: '#FAFAFA',
                           border: '1px solid #E5E7EB',
                         }}
                       >
@@ -749,7 +749,7 @@ export default function SettingsProfile() {
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-4"
-                  style={{ color: '#52525b', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Your Data
                 </div>
@@ -776,7 +776,7 @@ export default function SettingsProfile() {
               >
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-4"
-                  style={{ color: '#ef4444', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#ef4444', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Danger Zone
                 </div>

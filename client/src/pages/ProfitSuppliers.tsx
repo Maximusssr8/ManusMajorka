@@ -6,7 +6,7 @@ const SupplierDirectory = lazy(() => import('./SupplierDirectory'));
 
 type TabKey = 'profit' | 'suppliers';
 
-const C = { bg: '#080a0e', surface: '#111118', border: '#1e1e1e', gold: '#6366F1', text: '#f0ede8', muted: 'rgba(240,237,232,0.5)' };
+const C = { bg: '#FAFAFA', surface: '#111118', border: '#1e1e1e', gold: '#6366F1', text: '#374151', muted: '#6B7280' };
 
 export default function ProfitSuppliers() {
   const [tab, setTab] = useState<TabKey>('profit');
@@ -22,16 +22,16 @@ export default function ProfitSuppliers() {
     <div style={{ minHeight: '100vh', background: C.bg, color: C.text, fontFamily: "'DM Sans', sans-serif" }}>
       <Helmet><title>Profit & Suppliers | Majorka</title></Helmet>
       <div style={{ padding: '24px 24px 0', maxWidth: 1200, margin: '0 auto' }}>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: C.text, margin: 0, marginBottom: 4 }}>Profit & Suppliers</h1>
+        <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 800, color: C.text, margin: 0, marginBottom: 4 }}>Profit & Suppliers</h1>
         <p style={{ color: C.muted, fontSize: 14, margin: 0, marginBottom: 20 }}>Calculate margins and find AU-ready suppliers</p>
 
         <div style={{ display: 'flex', gap: 4, marginBottom: 24 }}>
           {(['profit', 'suppliers'] as TabKey[]).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{
               padding: '8px 20px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
-              background: tab === t ? C.gold : 'rgba(255,255,255,0.04)',
-              color: tab === t ? '#080a0e' : C.muted,
-              fontFamily: 'Syne, sans-serif',
+              background: tab === t ? C.gold : '#F9FAFB',
+              color: tab === t ? '#FAFAFA' : C.muted,
+              fontFamily: "'Bricolage Grotesque', sans-serif",
             }}>
               {t === 'profit' ? 'Profit Calculator' : 'Suppliers'}
             </button>

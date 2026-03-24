@@ -29,11 +29,11 @@ const NICHES = [
   'General / Mixed Niche',
 ];
 const gold = '#6366F1';
-const syne = 'Syne, sans-serif';
+const syne = "'Bricolage Grotesque', sans-serif";
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '12px 14px', borderRadius: 8,
-  border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)',
-  color: '#f0ede8', fontSize: 14, fontFamily: "'DM Sans', sans-serif",
+  border: '1px solid #F0F0F0', background: '#F9FAFB',
+  color: '#374151', fontSize: 14, fontFamily: "'DM Sans', sans-serif",
   outline: 'none', boxSizing: 'border-box',
 };
 
@@ -85,14 +85,14 @@ export default function ProductInput({ onComplete, session, initialProduct, init
         <div>
           <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#a1a1aa', marginBottom: 6 }}>Product Name *</label>
           <input value={productName} onChange={e => setProductName(e.target.value)} placeholder="e.g. LED Desk Lamp with Wireless Charger" style={inputStyle}
-            onFocus={e => (e.target.style.borderColor = gold)} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
+            onFocus={e => (e.target.style.borderColor = gold)} onBlur={e => (e.target.style.borderColor = '#F0F0F0')} />
         </div>
         <div>
           <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#a1a1aa', marginBottom: 6 }}>Description <span style={{ color: '#52525b' }}>(optional but improves quality)</span></label>
           <textarea value={description} onChange={e => setDescription(e.target.value)}
             placeholder="Describe your product, its key benefits, and who it's for..." rows={4}
             style={{ ...inputStyle, resize: 'vertical' }}
-            onFocus={e => (e.target.style.borderColor = gold)} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
+            onFocus={e => (e.target.style.borderColor = gold)} onBlur={e => (e.target.style.borderColor = '#F0F0F0')} />
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div>
@@ -104,7 +104,7 @@ export default function ProductInput({ onComplete, session, initialProduct, init
           <div>
             <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#a1a1aa', marginBottom: 6 }}>Price Point (AUD)</label>
             <input value={pricePoint} onChange={e => setPricePoint(e.target.value)} placeholder="49.95" type="number" min="0" style={inputStyle}
-              onFocus={e => (e.target.style.borderColor = gold)} onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')} />
+              onFocus={e => (e.target.style.borderColor = gold)} onBlur={e => (e.target.style.borderColor = '#F0F0F0')} />
           </div>
         </div>
 
@@ -114,7 +114,7 @@ export default function ProductInput({ onComplete, session, initialProduct, init
           padding: '14px 24px', borderRadius: 8, border: 'none',
           cursor: loading ? 'not-allowed' : 'pointer',
           background: loading ? 'rgba(99,102,241,0.3)' : gold,
-          color: '#080a0e', fontFamily: syne, fontWeight: 700, fontSize: 15,
+          color: '#FAFAFA', fontFamily: syne, fontWeight: 700, fontSize: 15,
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
           opacity: loading ? 0.7 : 1, minHeight: 50,
         }}>

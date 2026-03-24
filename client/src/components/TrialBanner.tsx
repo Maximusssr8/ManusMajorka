@@ -21,7 +21,7 @@ export default function TrialBanner({ className }: TrialBannerProps) {
         fontFamily: 'DM Sans, sans-serif',
       }}
     >
-      <div className="flex items-center gap-2 text-xs" style={{ color: 'rgba(240,237,232,0.7)' }}>
+      <div className="flex items-center gap-2 text-xs" style={{ color: '#374151' }}>
         <Zap size={13} style={{ color: '#6366F1' }} />
         <span>
           You&apos;re on the <strong style={{ color: '#6366F1' }}>Free plan</strong>
@@ -35,9 +35,9 @@ export default function TrialBanner({ className }: TrialBannerProps) {
         className="text-xs font-bold px-3 py-1 rounded-lg flex-shrink-0 transition-all"
         style={{
           background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-          color: '#080a0e',
+          color: '#FAFAFA',
           textDecoration: 'none',
-          fontFamily: 'Syne, sans-serif',
+          fontFamily: "'Bricolage Grotesque', sans-serif",
         }}
       >
         Upgrade →

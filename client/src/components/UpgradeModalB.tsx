@@ -46,7 +46,7 @@ export default function UpgradeModalB({
           className="absolute top-4 right-4 p-1.5 rounded-lg transition-all"
           style={{
             cursor: 'pointer',
-            color: 'rgba(240,237,232,0.4)',
+            color: '#9CA3AF',
             background: 'none',
             border: 'none',
             zIndex: 10,
@@ -61,11 +61,11 @@ export default function UpgradeModalB({
           </div>
           <h2
             className="text-xl font-black mb-2"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
           >
             Less than your morning coffee
           </h2>
-          <p className="text-sm mb-1" style={{ color: 'rgba(240,237,232,0.5)' }}>
+          <p className="text-sm mb-1" style={{ color: '#6B7280' }}>
             For <span style={{ color: '#6366F1', fontWeight: 700 }}>$1.63/day</span>, get an entire
             AI ecommerce team working for you.
           </p>
@@ -79,26 +79,26 @@ export default function UpgradeModalB({
             }}
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>
+              <span className="text-xs" style={{ color: '#9CA3AF' }}>
                 Flat white in Sydney
               </span>
-              <span className="text-sm font-bold" style={{ color: 'rgba(240,237,232,0.6)' }}>
+              <span className="text-sm font-bold" style={{ color: '#374151' }}>
                 ~$5.50/day
               </span>
             </div>
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>
+              <span className="text-xs" style={{ color: '#9CA3AF' }}>
                 Hiring a VA
               </span>
-              <span className="text-sm font-bold" style={{ color: 'rgba(240,237,232,0.6)' }}>
+              <span className="text-sm font-bold" style={{ color: '#374151' }}>
                 ~$30/day
               </span>
             </div>
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>
+              <span className="text-xs" style={{ color: '#9CA3AF' }}>
                 Freelance copywriter
               </span>
-              <span className="text-sm font-bold" style={{ color: 'rgba(240,237,232,0.6)' }}>
+              <span className="text-sm font-bold" style={{ color: '#374151' }}>
                 ~$150/task
               </span>
             </div>
@@ -106,13 +106,13 @@ export default function UpgradeModalB({
             <div className="flex items-center justify-between">
               <span
                 className="text-xs font-bold"
-                style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Majorka Builder
               </span>
               <span
                 className="text-lg font-black"
-                style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 $1.63/day
               </span>
@@ -124,7 +124,7 @@ export default function UpgradeModalB({
             {[1, 2, 3, 4, 5].map((i) => (
               <Star key={i} size={12} fill="#6366F1" style={{ color: '#6366F1' }} />
             ))}
-            <span className="text-xs ml-1" style={{ color: 'rgba(240,237,232,0.4)' }}>
+            <span className="text-xs ml-1" style={{ color: '#9CA3AF' }}>
               Used by AU sellers daily
             </span>
           </div>
@@ -135,8 +135,8 @@ export default function UpgradeModalB({
             className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all mb-2"
             style={{
               background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-              color: '#080a0e',
-              fontFamily: 'Syne, sans-serif',
+              color: '#FAFAFA',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: 'pointer',
               border: 'none',
               boxShadow: '0 4px 24px rgba(99,102,241,0.3)',
@@ -149,10 +149,10 @@ export default function UpgradeModalB({
             onClick={() => handleUpgrade('scale')}
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              color: 'rgba(240,237,232,0.6)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              fontFamily: 'Syne, sans-serif',
+              background: '#F9FAFB',
+              color: '#374151',
+              border: '1px solid #F5F5F5',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: 'pointer',
             }}
           >
@@ -165,7 +165,7 @@ export default function UpgradeModalB({
             style={{
               background: 'none',
               border: 'none',
-              color: 'rgba(240,237,232,0.25)',
+              color: '#D1D5DB',
               cursor: 'pointer',
             }}
           >

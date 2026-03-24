@@ -12,10 +12,10 @@ import { supabase } from '@/lib/supabase';
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const C = {
-  bg: '#080a0e',
+  bg: '#FAFAFA',
   card: '#0d1117',
   elevated: '#131620',
-  border: 'rgba(255,255,255,0.06)',
+  border: '#F9FAFB',
   text: '#f5f5f5',
   secondary: '#94949e',
   muted: '#52525b',
@@ -26,7 +26,7 @@ const C = {
   red: '#ef4444',
 };
 
-const syne = 'Syne, sans-serif';
+const syne = "'Bricolage Grotesque', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 function slugify(text: string): string {
@@ -62,7 +62,7 @@ function fmtAUD(n: number | null | undefined): string {
 function ScoreBar({ score }: { score: number }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-      <div style={{ flex: 1, height: 8, background: 'rgba(255,255,255,0.08)', borderRadius: 4, overflow: 'hidden' }}>
+      <div style={{ flex: 1, height: 8, background: '#F5F5F5', borderRadius: 4, overflow: 'hidden' }}>
         <div style={{ width: `${score}%`, height: '100%', background: `linear-gradient(90deg, ${C.gold}, #A5B4FC)`, borderRadius: 4, transition: 'width 0.8s ease' }} />
       </div>
       <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 16, color: C.gold, flexShrink: 0 }}>{score}/100</span>

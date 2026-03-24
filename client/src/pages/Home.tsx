@@ -353,7 +353,7 @@ function EmailCapture() {
   }
 
   return (
-    <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 20, padding: '48px 32px', maxWidth: 560, margin: '0 auto', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
+    <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 20, padding: '48px 32px', maxWidth: 560, margin: '0 auto', boxShadow: '0 4px 16px #E5E7EB' }}>
       <div style={{ textAlign: 'center', marginBottom: 28 }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 100, padding: '5px 14px', marginBottom: 16 }}>
           <span style={{ fontSize: 11, fontWeight: 600, color: C.gold }}>FREE PRODUCT GUIDE</span>
@@ -470,7 +470,7 @@ function WeeklyWinnersSection() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                style={{ flex: '1 1 260px', background: 'rgba(255,255,255,0.04)', border: `1px solid ${C.border}`, borderRadius: 12, padding: '14px 18px', color: C.text, fontSize: 15, fontFamily: dm, outline: 'none', minHeight: 52 }}
+                style={{ flex: '1 1 260px', background: '#F9FAFB', border: `1px solid ${C.border}`, borderRadius: 12, padding: '14px 18px', color: C.text, fontSize: 15, fontFamily: dm, outline: 'none', minHeight: 52 }}
               />
               <button
                 type="submit"
@@ -616,7 +616,7 @@ function BentoFeaturesSection() {
   const handleEnter = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = e.currentTarget;
     el.style.transform = 'translateY(-3px)';
-    el.style.boxShadow = '0 12px 32px rgba(0,0,0,0.08)';
+    el.style.boxShadow = '0 12px 32px #E5E7EB';
     el.style.borderColor = 'rgba(99,102,241,0.25)';
   };
   const handleLeave = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -785,7 +785,7 @@ function HowItWorksSection() {
             return (
               <div key={i}
                 style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 20, padding: '32px', position: 'relative', overflow: 'hidden', cursor: 'default', transition: 'all 200ms cubic-bezier(0.4,0,0.2,1)' }}
-                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.08)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.2)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 12px 32px #E5E7EB'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.2)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
                 onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#F0F0F0'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >
                 {/* Ghost number */}
@@ -885,7 +885,7 @@ function DemoSection() {
                       const ss = getScoreStyle(row.score);
                       return (
                         <tr key={row.rank} style={{ borderBottom: '1px solid #1F1F23', fontSize: 13, color: '#E5E7EB' }}
-                          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
+                          onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFA')}
                           onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                         >
                           <td style={{ padding: '12px 20px', color: '#6B7280' }}>{row.rank}</td>
@@ -1177,7 +1177,7 @@ export default function Home() {
       {showDemo && <DemoModal onClose={() => setShowDemo(false)} />}
 
       {/* ═══ NAV ═══════════════════════════════════════════════════════════ */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(250,250,250,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(229,231,235,0.8)', boxShadow: navShadow ? '0 1px 12px rgba(0,0,0,0.08)' : 'none', transition: 'box-shadow 0.3s' }}>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(250,250,250,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(229,231,235,0.8)', boxShadow: navShadow ? '0 1px 12px #E5E7EB' : 'none', transition: 'box-shadow 0.3s' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 max(calc((100vw - 1200px) / 2), 24px)', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Left: wordmark */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1269,7 +1269,7 @@ export default function Home() {
 
         {/* Browser mockup */}
         <div id="demo" style={{ marginTop: 80, padding: '0 24px', opacity: 0, animation: 'fadeInUp 0.7s ease 0.6s both' }}>
-          <div ref={mockupRef} style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid #E5E7EB', boxShadow: '0 40px 80px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)', transform: 'perspective(1200px) rotateX(4deg)', maxWidth: 900, margin: '0 auto' }}>
+          <div ref={mockupRef} style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid #E5E7EB', boxShadow: '0 40px 80px rgba(0,0,0,0.12), 0 0 0 1px #F5F5F5', transform: 'perspective(1200px) rotateX(4deg)', maxWidth: 900, margin: '0 auto' }}>
             {/* Browser title bar */}
             <div style={{ height: 44, background: '#F3F4F6', display: 'flex', alignItems: 'center', padding: '0 16px', gap: 8 }}>
               <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#EF4444' }} />

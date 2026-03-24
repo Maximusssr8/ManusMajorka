@@ -205,7 +205,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                       : isRelated
                         ? '#6366F1'
                         : 'rgba(99,102,241,0.4)',
-                    color: isExpanded ? '#080a0e' : '#6366F1',
+                    color: isExpanded ? '#FAFAFA' : '#6366F1',
                     boxShadow: isExpanded ? '0 0 20px rgba(99,102,241,0.5)' : 'none',
                   }}
                 >
@@ -216,8 +216,8 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                 <div
                   className={`absolute top-12 whitespace-nowrap text-xs font-bold tracking-wider transition-all duration-300 ${isExpanded ? 'scale-125' : ''}`}
                   style={{
-                    color: isExpanded ? '#6366F1' : 'rgba(240,237,232,0.7)',
-                    fontFamily: 'Syne, sans-serif',
+                    color: isExpanded ? '#6366F1' : '#374151',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                     left: '50%',
                     transform: `translateX(-50%) ${isExpanded ? 'scale(1.25)' : ''}`,
                   }}
@@ -251,14 +251,14 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                         </Badge>
                         <span
                           className="text-xs font-mono"
-                          style={{ color: 'rgba(240,237,232,0.4)' }}
+                          style={{ color: '#9CA3AF' }}
                         >
                           {item.date}
                         </span>
                       </div>
                       <CardTitle
                         className="text-sm mt-2"
-                        style={{ color: '#0A0A0A', fontFamily: 'Syne, sans-serif' }}
+                        style={{ color: '#0A0A0A', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                       >
                         {item.title}
                       </CardTitle>
@@ -266,7 +266,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                     <CardContent>
                       <p
                         className="text-xs leading-relaxed mb-3"
-                        style={{ color: 'rgba(240,237,232,0.6)' }}
+                        style={{ color: '#374151' }}
                       >
                         {item.content}
                       </p>
@@ -283,7 +283,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
                         </span>
                         <div className="flex items-center gap-1">
                           <Zap size={10} style={{ color: '#6366F1' }} />
-                          <span className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                          <span className="text-xs" style={{ color: '#9CA3AF' }}>
                             {item.energy}%
                           </span>
                         </div>

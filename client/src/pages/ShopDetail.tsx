@@ -69,7 +69,7 @@ export default function ShopDetail() {
     setAnalysing(false);
   };
 
-  if (loading) return <div style={{ padding: 48, textAlign: 'center', color: 'rgba(240,237,232,0.5)' }}>Loading...</div>;
+  if (loading) return <div style={{ padding: 48, textAlign: 'center', color: '#6B7280' }}>Loading...</div>;
   if (!shop) return null;
 
   return (
@@ -89,23 +89,23 @@ export default function ShopDetail() {
                 {shop.shop_name[0]}
               </div>
               <div>
-                <div style={{ fontSize: 24, fontWeight: 900, fontFamily: 'Syne, sans-serif', color: C.text }}>{shop.shop_name}</div>
+                <div style={{ fontSize: 24, fontWeight: 900, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text }}>{shop.shop_name}</div>
                 <div style={{ fontSize: 13, color: C.muted, marginTop: 2 }}>{shop.shop_domain}</div>
                 <div style={{ display: 'flex', gap: 8, marginTop: 6, alignItems: 'center' }}>
                   <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: 'rgba(99,102,241,0.1)', color: C.gold }}>{shop.niche}</span>
-                  <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.06)', color: C.muted, textTransform: 'uppercase' }}>{shop.shop_type}</span>
+                  <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4, background: '#F9FAFB', color: C.muted, textTransform: 'uppercase' }}>{shop.shop_type}</span>
                   <span style={{ fontSize: 12, color: C.muted }}>Est. {shop.founded_year}</span>
                 </div>
               </div>
             </div>
-            <div style={{ fontSize: 36, fontWeight: 900, fontFamily: 'Syne, sans-serif', color: C.gold }}>
+            <div style={{ fontSize: 36, fontWeight: 900, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.gold }}>
               ${shop.est_revenue_aud?.toLocaleString()} AUD
               <span style={{ fontSize: 14, fontWeight: 400, color: C.muted, marginLeft: 8 }}>/ month</span>
             </div>
           </div>
 
           <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 24, marginBottom: 20 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 16, fontFamily: 'Syne, sans-serif' }}>Revenue Trend (7 weeks)</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 16, fontFamily: "'Bricolage Grotesque', sans-serif" }}>Revenue Trend (7 weeks)</div>
             <Sparkline data={shop.revenue_trend || []} width={600} height={120} color={C.gold} strokeWidth={2.5} />
           </div>
 
@@ -113,18 +113,18 @@ export default function ShopDetail() {
             {[
               { label: 'Items Sold/Mo', value: (shop.items_sold_est || 0).toLocaleString() },
               { label: 'Avg Unit Price', value: `$${shop.avg_unit_price_aud} AUD` },
-              { label: 'Growth Rate', value: `${shop.growth_rate_pct > 0 ? '+' : ''}${shop.growth_rate_pct}%`, color: shop.growth_rate_pct >= 0 ? '#2dca72' : '#ef4444' },
+              { label: 'Growth Rate', value: `${shop.growth_rate_pct > 0 ? '+' : ''}${shop.growth_rate_pct}%`, color: shop.growth_rate_pct >= 0 ? '#6366F1' : '#ef4444' },
               { label: 'Ad Spend Est.', value: `$${(shop.ad_spend_est_aud || 0).toLocaleString()}/mo` },
             ].map(({ label, value, color }) => (
               <div key={label} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, padding: '16px' }}>
                 <div style={{ fontSize: 11, color: C.muted, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 6 }}>{label}</div>
-                <div style={{ fontSize: 20, fontWeight: 800, color: color || C.text, fontFamily: 'Syne, sans-serif' }}>{value}</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: color || C.text, fontFamily: "'Bricolage Grotesque', sans-serif" }}>{value}</div>
               </div>
             ))}
           </div>
 
           <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 24, marginBottom: 20 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 16, fontFamily: 'Syne, sans-serif' }}>Best Selling Products</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 16, fontFamily: "'Bricolage Grotesque', sans-serif" }}>Best Selling Products</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
               {(shop.best_selling_products || []).map((p, i) => (
                 <div key={i} style={{ background: 'white', border: `1px solid ${C.border}`, borderRadius: 10, overflow: 'hidden' }}>
@@ -137,7 +137,7 @@ export default function ShopDetail() {
 
           <button
             onClick={() => navigate(`/app/website-generator?niche=${encodeURIComponent(shop.niche)}&fromDatabase=true`)}
-            style={{ width: '100%', padding: '14px', borderRadius: 12, background: C.gold, border: 'none', color: '#FAFAFA', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: 'Syne, sans-serif' }}
+            style={{ width: '100%', padding: '14px', borderRadius: 12, background: C.gold, border: 'none', color: '#FAFAFA', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Build a Competing Store →
           </button>
@@ -146,10 +146,10 @@ export default function ShopDetail() {
         {/* RIGHT */}
         <div>
           <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 24, marginBottom: 20 }}>
-            <div style={{ fontSize: 15, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: C.text, marginBottom: 12 }}>AI Store Analysis</div>
+            <div style={{ fontSize: 15, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text, marginBottom: 12 }}>AI Store Analysis</div>
             {!analysis ? (
               <button onClick={generateAnalysis} disabled={analysing}
-                style={{ width: '100%', padding: '12px', borderRadius: 10, background: 'rgba(99,102,241,0.1)', border: `1px solid rgba(99,102,241,0.25)`, color: C.gold, fontSize: 14, fontWeight: 700, cursor: analysing ? 'not-allowed' : 'pointer', fontFamily: 'Syne, sans-serif' }}>
+                style={{ width: '100%', padding: '12px', borderRadius: 10, background: 'rgba(99,102,241,0.1)', border: `1px solid rgba(99,102,241,0.25)`, color: C.gold, fontSize: 14, fontWeight: 700, cursor: analysing ? 'not-allowed' : 'pointer', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 {analysing ? 'Analysing...' : 'Generate Analysis'}
               </button>
             ) : (
@@ -158,7 +158,7 @@ export default function ShopDetail() {
                   <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', color: C.muted, marginBottom: 8 }}>Why It's Succeeding</div>
                   {analysis.why_succeeding.map((point, i) => (
                     <div key={i} style={{ fontSize: 13, color: C.text, padding: '6px 0', borderBottom: i < analysis.why_succeeding.length - 1 ? `1px solid ${C.border}` : 'none', display: 'flex', gap: 8 }}>
-                      <span style={{ color: '#2dca72', flexShrink: 0 }}>✓</span> {point}
+                      <span style={{ color: '#6366F1', flexShrink: 0 }}>✓</span> {point}
                     </div>
                   ))}
                 </div>
@@ -181,7 +181,7 @@ export default function ShopDetail() {
                   </div>
                   <div style={{ background: 'white', borderRadius: 8, padding: 12 }}>
                     <div style={{ fontSize: 10, color: C.muted, textTransform: 'uppercase' }}>Copy Score</div>
-                    <div style={{ fontSize: 20, fontWeight: 900, color: C.gold, fontFamily: 'Syne, sans-serif', marginTop: 4 }}>{analysis.copy_strategy_score}/10</div>
+                    <div style={{ fontSize: 20, fontWeight: 900, color: C.gold, fontFamily: "'Bricolage Grotesque', sans-serif", marginTop: 4 }}>{analysis.copy_strategy_score}/10</div>
                   </div>
                 </div>
                 <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>{analysis.summary}</div>
@@ -191,7 +191,7 @@ export default function ShopDetail() {
 
           {(shop.similar_shops || []).length > 0 && (
             <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 16, padding: 24 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 14, fontFamily: 'Syne, sans-serif' }}>Similar Shops</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 14, fontFamily: "'Bricolage Grotesque', sans-serif" }}>Similar Shops</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {shop.similar_shops.map(s => (
                   <div key={s.id} onClick={() => navigate(`/app/shops/${s.id}`)}
@@ -204,7 +204,7 @@ export default function ShopDetail() {
                     </div>
                     <div style={{ textAlign: 'right' }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: C.gold }}>${(s.est_revenue_aud / 1000).toFixed(0)}k</div>
-                      <div style={{ fontSize: 11, color: s.growth_rate_pct >= 0 ? '#2dca72' : '#ef4444' }}>{s.growth_rate_pct > 0 ? '+' : ''}{s.growth_rate_pct}%</div>
+                      <div style={{ fontSize: 11, color: s.growth_rate_pct >= 0 ? '#6366F1' : '#ef4444' }}>{s.growth_rate_pct > 0 ? '+' : ''}{s.growth_rate_pct}%</div>
                     </div>
                   </div>
                 ))}

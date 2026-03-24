@@ -2,15 +2,15 @@ import { Link } from 'wouter';
 import { SEO } from '@/components/SEO';
 
 const C = {
-  bg: '#080a0e',
+  bg: '#FAFAFA',
   card: '#0d0f14',
-  border: 'rgba(255,255,255,0.06)',
+  border: '#F9FAFB',
   text: '#f5f5f5',
   secondary: '#94949e',
   gold: '#6366F1',
 };
 
-const syne = 'Syne, sans-serif';
+const syne = "'Bricolage Grotesque', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 const SECTIONS = [
@@ -85,7 +85,7 @@ export default function Privacy() {
                 fontFamily: syne,
                 fontWeight: 900,
                 fontSize: 16,
-                color: '#080a0e',
+                color: '#FAFAFA',
               }}
             >
               M

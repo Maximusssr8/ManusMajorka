@@ -109,42 +109,42 @@ function ShimmerCard() {
   return (
     <div
       className="rounded-2xl p-5 space-y-3"
-      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
+      style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}
     >
       <div className="flex items-center gap-2">
         <div
           className="w-16 h-5 rounded-full animate-pulse"
-          style={{ background: 'rgba(255,255,255,0.08)' }}
+          style={{ background: '#F5F5F5' }}
         />
         <div
           className="w-20 h-5 rounded-full animate-pulse"
-          style={{ background: 'rgba(255,255,255,0.08)' }}
+          style={{ background: '#F5F5F5' }}
         />
       </div>
       <div
         className="w-full h-5 rounded animate-pulse"
-        style={{ background: 'rgba(255,255,255,0.06)' }}
+        style={{ background: '#F9FAFB' }}
       />
       <div
         className="w-5/6 h-5 rounded animate-pulse"
-        style={{ background: 'rgba(255,255,255,0.06)' }}
+        style={{ background: '#F9FAFB' }}
       />
       <div
         className="w-3/4 h-4 rounded animate-pulse"
-        style={{ background: 'rgba(255,255,255,0.04)' }}
+        style={{ background: '#F9FAFB' }}
       />
       <div
         className="w-3/4 h-4 rounded animate-pulse"
-        style={{ background: 'rgba(255,255,255,0.04)' }}
+        style={{ background: '#F9FAFB' }}
       />
       <div className="flex gap-2 mt-2">
         <div
           className="flex-1 h-8 rounded-lg animate-pulse"
-          style={{ background: 'rgba(255,255,255,0.06)' }}
+          style={{ background: '#F9FAFB' }}
         />
         <div
           className="flex-1 h-8 rounded-lg animate-pulse"
-          style={{ background: 'rgba(255,255,255,0.06)' }}
+          style={{ background: '#F9FAFB' }}
         />
       </div>
     </div>
@@ -188,7 +188,7 @@ function AdCard({
   return (
     <div
       className="rounded-2xl overflow-hidden flex flex-col"
-      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
+      style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}
     >
       <div className="p-5 flex-1 space-y-3">
         {/* Badges */}
@@ -218,7 +218,7 @@ function AdCard({
         {/* Hook */}
         <p
           className="text-sm font-black leading-snug"
-          style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
         >
           {ad.hook}
         </p>
@@ -230,7 +230,7 @@ function AdCard({
 
         {/* CTA */}
         <div className="flex items-center gap-1.5">
-          <span className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+          <span className="text-xs" style={{ color: '#9CA3AF' }}>
             CTA:
           </span>
           <span
@@ -246,8 +246,8 @@ function AdCard({
         </div>
 
         {/* Audience */}
-        <div className="text-xs" style={{ color: 'rgba(240,237,232,0.45)' }}>
-          <span className="font-semibold" style={{ color: 'rgba(240,237,232,0.6)' }}>
+        <div className="text-xs" style={{ color: '#6B7280' }}>
+          <span className="font-semibold" style={{ color: '#374151' }}>
             Targets:{' '}
           </span>
           {ad.targetAudience}
@@ -259,7 +259,7 @@ function AdCard({
             onClick={() => setExpanded(!expanded)}
             className="flex items-center gap-1.5 text-xs font-semibold transition-all"
             style={{
-              color: 'rgba(240,237,232,0.4)',
+              color: '#9CA3AF',
               cursor: 'pointer',
               background: 'none',
               border: 'none',
@@ -273,9 +273,9 @@ function AdCard({
             <div
               className="mt-2 p-3 rounded-xl text-xs leading-relaxed"
               style={{
-                background: 'rgba(255,255,255,0.03)',
-                color: 'rgba(240,237,232,0.7)',
-                border: '1px solid rgba(255,255,255,0.06)',
+                background: '#FAFAFA',
+                color: '#374151',
+                border: '1px solid #F9FAFB',
               }}
             >
               {ad.whyItWorks}
@@ -290,9 +290,9 @@ function AdCard({
           onClick={handleCopy}
           className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all"
           style={{
-            background: copied ? 'rgba(45,202,114,0.1)' : 'rgba(255,255,255,0.04)',
-            border: `1px solid ${copied ? 'rgba(45,202,114,0.3)' : 'rgba(255,255,255,0.08)'}`,
-            color: copied ? '#2dca72' : 'rgba(240,237,232,0.55)',
+            background: copied ? '#EEF2FF' : '#F9FAFB',
+            border: `1px solid ${copied ? '#C7D2FE' : '#F5F5F5'}`,
+            color: copied ? '#6366F1' : 'rgba(240,237,232,0.55)',
             cursor: 'pointer',
           }}
         >
@@ -415,11 +415,11 @@ function AdSpyContent() {
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-black leading-tight"
-            style={{ fontFamily: 'Syne, sans-serif' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Ad Spy
           </div>
-          <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+          <div className="text-xs" style={{ color: '#9CA3AF' }}>
             Find winning ads in your niche
           </div>
         </div>
@@ -431,9 +431,9 @@ function AdSpyContent() {
             }}
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: 'rgba(240,237,232,0.5)',
+              background: '#F9FAFB',
+              border: '1px solid #F5F5F5',
+              color: '#6B7280',
               cursor: 'pointer',
             }}
           >
@@ -449,9 +449,9 @@ function AdSpyContent() {
           style={{ background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.18)' }}
         >
           <Package size={13} style={{ color: '#6366F1' }} />
-          <span className="text-xs flex-1" style={{ color: 'rgba(240,237,232,0.6)' }}>
+          <span className="text-xs flex-1" style={{ color: '#374151' }}>
             Using:{' '}
-            <span className="font-bold" style={{ color: '#f0ede8' }}>
+            <span className="font-bold" style={{ color: '#374151' }}>
               {activeProduct.name}
             </span>
           </span>
@@ -486,12 +486,12 @@ function AdSpyContent() {
             placeholder="Enter product niche or keyword (e.g. 'yoga pants', 'LED lights')..."
             className="flex-1 text-sm px-4 py-3 rounded-xl outline-none"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: '#f0ede8',
+              background: '#F9FAFB',
+              border: '1px solid #F0F0F0',
+              color: '#374151',
             }}
             onFocus={(e) => (e.target.style.borderColor = 'rgba(245,158,11,0.45)')}
-            onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
+            onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
           />
           <button
             onClick={handleSearch}
@@ -501,8 +501,8 @@ function AdSpyContent() {
               background: isLoading
                 ? 'rgba(245,158,11,0.25)'
                 : 'linear-gradient(135deg, #f59e0b, #d97706)',
-              color: isLoading ? 'rgba(240,237,232,0.5)' : '#080a0e',
-              fontFamily: 'Syne, sans-serif',
+              color: isLoading ? '#6B7280' : '#FAFAFA',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: isLoading ? 'not-allowed' : 'pointer',
               border: 'none',
               whiteSpace: 'nowrap',
@@ -549,9 +549,9 @@ function AdSpyContent() {
               onClick={handleSearch}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold"
               style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: 'rgba(240,237,232,0.6)',
+                background: '#F9FAFB',
+                border: '1px solid #F0F0F0',
+                color: '#374151',
                 cursor: 'pointer',
               }}
             >
@@ -566,7 +566,7 @@ function AdSpyContent() {
             <div className="flex items-center justify-between mb-4">
               <div
                 className="text-xs font-bold uppercase tracking-widest"
-                style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {result.ads.length} Winning Ads Found — "{lastSearchInput}"
               </div>
@@ -597,12 +597,12 @@ function AdSpyContent() {
               <Megaphone size={28} style={{ color: '#f59e0b', opacity: 0.6 }} />
             </div>
             <div className="text-center">
-              <div className="text-base font-black mb-2" style={{ fontFamily: 'Syne, sans-serif' }}>
+              <div className="text-base font-black mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Spy on winning ads
               </div>
               <div
                 className="text-xs max-w-xs leading-relaxed"
-                style={{ color: 'rgba(240,237,232,0.35)' }}
+                style={{ color: '#9CA3AF' }}
               >
                 Enter a product niche or keyword above to discover high-performing ads from
                 Facebook, TikTok, and Instagram.

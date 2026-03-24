@@ -9,9 +9,9 @@ import { Link } from 'wouter';
 import { SEO } from '@/components/SEO';
 
 const C = {
-  bg: '#080a0e',
+  bg: '#FAFAFA',
   card: '#0c0c10',
-  border: 'rgba(255,255,255,0.06)',
+  border: '#F9FAFB',
   text: '#f5f5f5',
   secondary: '#94949e',
   muted: '#52525b',
@@ -23,7 +23,7 @@ const C = {
   red: '#ef4444',
 };
 
-const syne = 'Syne, sans-serif';
+const syne = "'Bricolage Grotesque', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 interface HealthScoreResult {
@@ -80,7 +80,7 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
       </div>
       <div
         style={{
-          background: 'rgba(255,255,255,0.06)',
+          background: '#F9FAFB',
           borderRadius: 6,
           height: 8,
           overflow: 'hidden',
@@ -154,7 +154,7 @@ function LoadingAnimation({ storeUrl }: { storeUrl: string }) {
               </div>
               <div
                 style={{
-                  background: 'rgba(255,255,255,0.06)',
+                  background: '#F9FAFB',
                   borderRadius: 6,
                   height: 6,
                   overflow: 'hidden',
@@ -500,7 +500,7 @@ function ResultsScreen({ result, storeUrl }: { result: HealthScoreResult; storeU
         <button
           onClick={() => window.location.reload()}
           style={{
-            background: 'rgba(255,255,255,0.04)',
+            background: '#F9FAFB',
             border: `1px solid ${C.border}`,
             color: C.secondary,
             borderRadius: 10,

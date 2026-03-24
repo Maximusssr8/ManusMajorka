@@ -56,7 +56,7 @@ export default function UpgradePromptBanner() {
             padding: '6px 14px',
             fontSize: 12,
             fontWeight: 800,
-            fontFamily: 'Syne, sans-serif',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
             cursor: 'pointer',
             whiteSpace: 'nowrap',
           }}
@@ -70,7 +70,7 @@ export default function UpgradePromptBanner() {
             background: 'none',
             border: 'none',
             padding: 0,
-            color: 'rgba(240,237,232,0.3)',
+            color: '#9CA3AF',
             cursor: 'pointer',
             fontSize: 16,
             lineHeight: 1,

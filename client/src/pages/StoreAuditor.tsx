@@ -112,7 +112,7 @@ export default function StoreAuditor() {
 
   const statusIcon = (s: string) =>
     s === 'pass' ? (
-      <CheckCircle2 size={14} style={{ color: '#2dca72' }} />
+      <CheckCircle2 size={14} style={{ color: '#6366F1' }} />
     ) : s === 'fail' ? (
       <XCircle size={14} style={{ color: '#ff6b6b' }} />
     ) : (
@@ -138,10 +138,10 @@ export default function StoreAuditor() {
             <ShieldCheck size={15} style={{ color: '#00b4d8' }} />
           </div>
           <div>
-            <div className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+            <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Store Auditor
             </div>
-            <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+            <div className="text-xs" style={{ color: '#9CA3AF' }}>
               SEO · Speed · Trust · UX · CRO
             </div>
           </div>
@@ -150,7 +150,7 @@ export default function StoreAuditor() {
         <div>
           <label
             className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-            style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+            style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Store URL <span style={{ color: '#00b4d8' }}>*</span>
           </label>
@@ -161,12 +161,12 @@ export default function StoreAuditor() {
             placeholder="https://your-store.myshopify.com"
             className="w-full text-xs px-3 py-2.5 rounded-lg outline-none"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1.5px solid rgba(255,255,255,0.08)',
-              color: '#f0ede8',
+              background: '#F9FAFB',
+              border: '1.5px solid #F5F5F5',
+              color: '#374151',
             }}
             onFocus={(e) => (e.target.style.borderColor = 'rgba(0,180,216,0.45)')}
-            onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+            onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
           />
         </div>
 
@@ -179,7 +179,7 @@ export default function StoreAuditor() {
               ? 'rgba(0,180,216,0.25)'
               : 'linear-gradient(135deg, #00b4d8, #0096c7)',
             color: '#fff',
-            fontFamily: 'Syne, sans-serif',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
             boxShadow: generating ? 'none' : '0 4px 20px rgba(0,180,216,0.3)',
             cursor: generating ? 'not-allowed' : 'pointer',
           }}
@@ -195,7 +195,7 @@ export default function StoreAuditor() {
           )}
         </button>
 
-        <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.3)' }}>
+        <div className="text-xs leading-relaxed" style={{ color: '#9CA3AF' }}>
           Analyzes your store across 6 categories: SEO, Speed, Trust Signals, User Experience,
           Conversion Rate, and Mobile Optimization.
         </div>
@@ -206,7 +206,7 @@ export default function StoreAuditor() {
         {result ? (
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+              <h2 className="text-lg font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Store Audit Report
               </h2>
               <SaveToProduct toolId="store-auditor" toolName="Store Auditor" outputData={result} />
@@ -214,9 +214,9 @@ export default function StoreAuditor() {
                 onClick={copyAll}
                 className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: 'rgba(240,237,232,0.6)',
+                  background: '#F9FAFB',
+                  border: '1px solid #F0F0F0',
+                  color: '#374151',
                   cursor: 'pointer',
                 }}
               >
@@ -228,7 +228,7 @@ export default function StoreAuditor() {
             <div
               className="flex items-center gap-6 rounded-xl p-5"
               style={{
-                background: 'rgba(255,255,255,0.02)',
+                background: '#FAFAFA',
                 border: '1px solid #E5E7EB',
               }}
             >
@@ -239,7 +239,7 @@ export default function StoreAuditor() {
                     cy="18"
                     r="16"
                     fill="none"
-                    stroke="rgba(255,255,255,0.06)"
+                    stroke="#F9FAFB"
                     strokeWidth="3"
                   />
                   <circle
@@ -248,7 +248,7 @@ export default function StoreAuditor() {
                     r="16"
                     fill="none"
                     stroke={
-                      result.score >= 70 ? '#2dca72' : result.score >= 40 ? '#f0c040' : '#ff6b6b'
+                      result.score >= 70 ? '#6366F1' : result.score >= 40 ? '#f0c040' : '#ff6b6b'
                     }
                     strokeWidth="3"
                     strokeDasharray={`${result.score} ${100 - result.score}`}
@@ -258,16 +258,16 @@ export default function StoreAuditor() {
                 <div
                   className="absolute inset-0 flex items-center justify-center text-lg font-black"
                   style={{
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                     color:
-                      result.score >= 70 ? '#2dca72' : result.score >= 40 ? '#f0c040' : '#ff6b6b',
+                      result.score >= 70 ? '#6366F1' : result.score >= 40 ? '#f0c040' : '#ff6b6b',
                   }}
                 >
                   {result.score}
                 </div>
               </div>
               <div className="flex-1">
-                <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.6)' }}>
+                <div className="text-xs leading-relaxed" style={{ color: '#374151' }}>
                   {result.summary}
                 </div>
               </div>
@@ -283,7 +283,7 @@ export default function StoreAuditor() {
             >
               <div
                 className="text-xs font-black uppercase tracking-widest mb-3"
-                style={{ color: '#ff6b6b', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#ff6b6b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Priority Fixes
               </div>
@@ -291,14 +291,14 @@ export default function StoreAuditor() {
                 <div
                   key={i}
                   className="flex items-start gap-2.5 mb-2 text-xs"
-                  style={{ color: 'rgba(240,237,232,0.7)' }}
+                  style={{ color: '#374151' }}
                 >
                   <span
                     className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-black"
                     style={{
                       background: 'rgba(255,100,100,0.15)',
                       color: '#ff6b6b',
-                      fontFamily: 'Syne, sans-serif',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                     }}
                   >
                     {i + 1}
@@ -317,7 +317,7 @@ export default function StoreAuditor() {
                   key={cat}
                   className="rounded-xl overflow-hidden"
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
+                    background: '#FAFAFA',
                     border: '1px solid #E5E7EB',
                   }}
                 >
@@ -327,11 +327,11 @@ export default function StoreAuditor() {
                   >
                     <div
                       className="text-xs font-black uppercase tracking-widest"
-                      style={{ color: '#00b4d8', fontFamily: 'Syne, sans-serif' }}
+                      style={{ color: '#00b4d8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                     >
                       {cat}
                     </div>
-                    <span className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                    <span className="text-xs" style={{ color: '#9CA3AF' }}>
                       {passed}/{items.length} passed
                     </span>
                   </div>
@@ -341,18 +341,18 @@ export default function StoreAuditor() {
                       className="flex items-start gap-3 px-4 py-2.5"
                       style={{
                         borderBottom:
-                          j < items.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                          j < items.length - 1 ? '1px solid #F9FAFB' : 'none',
                       }}
                     >
                       {statusIcon(item.status)}
                       <div className="flex-1 min-w-0">
                         <div
                           className="text-xs font-semibold"
-                          style={{ color: 'rgba(240,237,232,0.7)' }}
+                          style={{ color: '#374151' }}
                         >
                           {item.item}
                         </div>
-                        <div className="text-xs mt-0.5" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                        <div className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
                           {item.note}
                         </div>
                       </div>
@@ -364,13 +364,13 @@ export default function StoreAuditor() {
                               ? 'rgba(255,100,100,0.1)'
                               : item.priority === 'medium'
                                 ? 'rgba(240,192,64,0.1)'
-                                : 'rgba(255,255,255,0.05)',
+                                : '#F9FAFB',
                           color:
                             item.priority === 'high'
                               ? '#ff6b6b'
                               : item.priority === 'medium'
                                 ? '#f0c040'
-                                : 'rgba(240,237,232,0.4)',
+                                : '#9CA3AF',
                         }}
                       >
                         {item.priority}
@@ -390,10 +390,10 @@ export default function StoreAuditor() {
                   className="animate-spin mx-auto mb-4"
                   style={{ color: '#00b4d8' }}
                 />
-                <div className="text-sm font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
+                <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Auditing your store…
                 </div>
-                <div className="text-xs mt-1" style={{ color: 'rgba(240,237,232,0.35)' }}>
+                <div className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
                   Scraping and analyzing across 6 categories
                 </div>
               </div>
@@ -403,13 +403,13 @@ export default function StoreAuditor() {
                 <div className="text-center">
                   <div
                     className="text-base font-black mb-2"
-                    style={{ fontFamily: 'Syne, sans-serif' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Store Auditor
                   </div>
                   <div
                     className="text-xs max-w-xs leading-relaxed"
-                    style={{ color: 'rgba(240,237,232,0.35)' }}
+                    style={{ color: '#9CA3AF' }}
                   >
                     Enter your store URL to get a comprehensive audit across SEO, Speed, Trust, UX,
                     Conversion, and Mobile.

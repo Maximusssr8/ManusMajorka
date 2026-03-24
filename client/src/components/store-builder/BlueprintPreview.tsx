@@ -1,8 +1,8 @@
 const gold = '#6366F1';
-const syne = 'Syne, sans-serif';
+const syne = "'Bricolage Grotesque', sans-serif";
 const card: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.06)',
+  background: '#FAFAFA',
+  border: '1px solid #F9FAFB',
   borderRadius: 12, padding: 20,
 };
 const labelStyle: React.CSSProperties = {
@@ -32,11 +32,11 @@ export default function BlueprintPreview({ blueprint, selectedStoreName, onSelec
             <label key={n} style={{
               display: 'flex', alignItems: 'center', gap: 10,
               padding: '12px 16px', borderRadius: 10, cursor: 'pointer',
-              border: `1px solid ${selectedStoreName === n ? gold : 'rgba(255,255,255,0.08)'}`,
-              background: selectedStoreName === n ? 'rgba(99,102,241,0.06)' : 'rgba(255,255,255,0.02)',
+              border: `1px solid ${selectedStoreName === n ? gold : '#F5F5F5'}`,
+              background: selectedStoreName === n ? 'rgba(99,102,241,0.06)' : '#FAFAFA',
             }}>
               <input type="radio" checked={selectedStoreName === n} onChange={() => onSelectStoreName(n)} style={{ accentColor: gold }} />
-              <span style={{ fontWeight: 600, color: '#f0ede8' }}>{n}</span>
+              <span style={{ fontWeight: 600, color: '#374151' }}>{n}</span>
             </label>
           ))}
         </div>
@@ -46,7 +46,7 @@ export default function BlueprintPreview({ blueprint, selectedStoreName, onSelec
       {brief && (
         <div style={{ ...card, marginBottom: 20 }}>
           <span style={labelStyle}>Brand Copy</span>
-          <p style={{ fontFamily: syne, fontSize: 18, fontWeight: 700, color: '#f0ede8', marginBottom: 6 }}>{brief.heroHeadline}</p>
+          <p style={{ fontFamily: syne, fontSize: 18, fontWeight: 700, color: '#374151', marginBottom: 6 }}>{brief.heroHeadline}</p>
           <p style={{ color: '#a1a1aa', fontSize: 14, marginBottom: 10, lineHeight: 1.6 }}>{brief.heroSubheadline}</p>
           <p style={{ color: '#71717a', fontSize: 13, fontStyle: 'italic' }}>"{brief.tagline}"</p>
         </div>
@@ -59,7 +59,7 @@ export default function BlueprintPreview({ blueprint, selectedStoreName, onSelec
           <div style={{ display: 'flex', gap: 12 }}>
             {Object.entries(brief.colourPalette as Record<string, string>).map(([k, v]) => (
               <div key={k} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: v, border: '2px solid rgba(255,255,255,0.12)', boxShadow: `0 0 12px ${v}40` }} />
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: v, border: '2px solid #E5E7EB', boxShadow: `0 0 12px ${v}40` }} />
                 <span style={{ fontSize: 10, color: '#52525b', fontFamily: "'DM Mono', monospace" }}>{v}</span>
                 <span style={{ fontSize: 10, color: '#3f3f46' }}>{k}</span>
               </div>
@@ -72,7 +72,7 @@ export default function BlueprintPreview({ blueprint, selectedStoreName, onSelec
       {themeRecommendation && (
         <div style={{ ...card, marginBottom: 20 }}>
           <span style={labelStyle}>Recommended Theme</span>
-          <p style={{ fontWeight: 600, color: '#f0ede8', marginBottom: 4 }}>{themeRecommendation.name}</p>
+          <p style={{ fontWeight: 600, color: '#374151', marginBottom: 4 }}>{themeRecommendation.name}</p>
           <p style={{ color: '#71717a', fontSize: 13, lineHeight: 1.55 }}>{themeRecommendation.reason}</p>
         </div>
       )}
@@ -86,7 +86,7 @@ export default function BlueprintPreview({ blueprint, selectedStoreName, onSelec
               <div key={app.name} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 16px', ...card }}>
                 <span style={{ fontSize: 22, flexShrink: 0 }}>{app.icon}</span>
                 <div>
-                  <p style={{ fontWeight: 600, color: '#f0ede8', marginBottom: 2, fontSize: 14 }}>{app.name}</p>
+                  <p style={{ fontWeight: 600, color: '#374151', marginBottom: 2, fontSize: 14 }}>{app.name}</p>
                   <p style={{ color: '#71717a', fontSize: 13, lineHeight: 1.5 }}>{app.reason}</p>
                 </div>
               </div>
@@ -96,10 +96,10 @@ export default function BlueprintPreview({ blueprint, selectedStoreName, onSelec
       )}
 
       <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={onBack} style={{ flex: 1, padding: 14, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#a1a1aa', cursor: 'pointer', fontFamily: syne, fontWeight: 600 }}>
+        <button onClick={onBack} style={{ flex: 1, padding: 14, borderRadius: 8, border: '1px solid #F0F0F0', background: 'transparent', color: '#a1a1aa', cursor: 'pointer', fontFamily: syne, fontWeight: 600 }}>
           ← Back
         </button>
-        <button onClick={onNext} style={{ flex: 2, padding: 14, borderRadius: 8, border: 'none', background: gold, color: '#080a0e', cursor: 'pointer', fontFamily: syne, fontWeight: 700, fontSize: 15 }}>
+        <button onClick={onNext} style={{ flex: 2, padding: 14, borderRadius: 8, border: 'none', background: gold, color: '#FAFAFA', cursor: 'pointer', fontFamily: syne, fontWeight: 700, fontSize: 15 }}>
           Connect Shopify & Push →
         </button>
       </div>

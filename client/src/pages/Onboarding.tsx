@@ -94,8 +94,8 @@ const PLATFORMS = ['Shopify', 'WooCommerce', 'eBay AU', 'Amazon', 'Other'];
 const GOLD = '#6366F1';
 const GOLD_DIM = 'rgba(99,102,241,0.18)';
 const GOLD_BORDER = 'rgba(99,102,241,0.4)';
-const DIM_BG = 'rgba(255,255,255,0.03)';
-const DIM_BORDER = 'rgba(255,255,255,0.08)';
+const DIM_BG = '#FAFAFA';
+const DIM_BORDER = '#F5F5F5';
 
 function goldCard(active: boolean) {
   return {
@@ -123,7 +123,7 @@ function ProgressDots({ current, total }: { current: number; total: number }) {
                   ? GOLD
                   : done
                     ? 'rgba(99,102,241,0.5)'
-                    : 'rgba(255,255,255,0.15)',
+                    : '#D1D5DB',
               }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
               style={{ height: 6, borderRadius: 99 }}
@@ -133,7 +133,7 @@ function ProgressDots({ current, total }: { current: number; total: number }) {
                 style={{
                   width: 16,
                   height: 1,
-                  background: done ? GOLD_BORDER : 'rgba(255,255,255,0.1)',
+                  background: done ? GOLD_BORDER : '#F0F0F0',
                 }}
               />
             )}
@@ -356,14 +356,14 @@ export default function Onboarding() {
           >
             <span
               className="text-black font-bold text-xs"
-              style={{ fontFamily: 'Syne, sans-serif' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               M
             </span>
           </div>
           <span
             className="text-white font-semibold text-sm"
-            style={{ fontFamily: 'Syne, sans-serif' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Majorka
           </span>
@@ -376,11 +376,11 @@ export default function Onboarding() {
             style={{
               background: 'none',
               border: 'none',
-              color: 'rgba(255,255,255,0.25)',
+              color: '#D1D5DB',
               cursor: 'pointer',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.25)')}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#6B7280')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#D1D5DB')}
           >
             Skip for now →
           </button>
@@ -391,7 +391,7 @@ export default function Onboarding() {
       {step !== 'done' && (
         <div
           className="h-0.5 w-full flex-shrink-0"
-          style={{ background: 'rgba(255,255,255,0.04)' }}
+          style={{ background: '#F9FAFB' }}
         >
           <motion.div
             className="h-full"
@@ -434,11 +434,11 @@ export default function Onboarding() {
                   </div>
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
                   >
                     Welcome to Majorka{name ? `, ${name.split(' ')[0]}` : ''}
                   </h1>
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                  <p className="text-sm" style={{ color: '#6B7280' }}>
                     Let's personalise your experience. Takes 2 minutes.
                   </p>
                 </div>
@@ -446,7 +446,7 @@ export default function Onboarding() {
                 <div>
                   <label
                     className="block text-xs font-medium mb-1.5"
-                    style={{ color: 'rgba(255,255,255,0.5)' }}
+                    style={{ color: '#6B7280' }}
                   >
                     What should we call you?
                   </label>
@@ -459,12 +459,12 @@ export default function Onboarding() {
                     autoFocus
                     className="w-full rounded-xl py-3 px-4 text-sm outline-none transition-all"
                     style={{
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1.5px solid rgba(255,255,255,0.1)',
+                      background: '#F9FAFB',
+                      border: '1.5px solid #F0F0F0',
                       color: '#374151',
                     }}
                     onFocus={(e) => (e.target.style.borderColor = GOLD_BORDER)}
-                    onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
+                    onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
                   />
                 </div>
 
@@ -475,9 +475,9 @@ export default function Onboarding() {
                   style={{
                     background: name.trim()
                       ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
-                      : 'rgba(255,255,255,0.06)',
-                    color: name.trim() ? '#080a0e' : 'rgba(255,255,255,0.3)',
-                    fontFamily: 'Syne, sans-serif',
+                      : '#F9FAFB',
+                    color: name.trim() ? '#FAFAFA' : '#9CA3AF',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                     cursor: name.trim() ? 'pointer' : 'not-allowed',
                     border: 'none',
                   }}
@@ -502,11 +502,11 @@ export default function Onboarding() {
                 <div className="text-center space-y-1">
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
                   >
                     What do you sell?
                   </h1>
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                  <p className="text-sm" style={{ color: '#6B7280' }}>
                     We'll personalise every AI tool to your market.
                   </p>
                 </div>
@@ -524,7 +524,7 @@ export default function Onboarding() {
                         onMouseEnter={(e) => {
                           if (!active)
                             (e.currentTarget as HTMLButtonElement).style.background =
-                              'rgba(255,255,255,0.055)';
+                              '#F9FAFB';
                         }}
                         onMouseLeave={(e) => {
                           if (!active)
@@ -533,18 +533,18 @@ export default function Onboarding() {
                       >
                         <div
                           className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                          style={{ background: active ? GOLD_DIM : 'rgba(255,255,255,0.05)' }}
+                          style={{ background: active ? GOLD_DIM : '#F9FAFB' }}
                         >
                           <Icon
                             size={14}
-                            style={{ color: active ? GOLD : 'rgba(255,255,255,0.5)' }}
+                            style={{ color: active ? GOLD : '#6B7280' }}
                           />
                         </div>
                         <span
                           className="text-xs font-semibold leading-tight"
                           style={{
                             color: active ? GOLD : '#f5f5f5',
-                            fontFamily: 'Syne, sans-serif',
+                            fontFamily: "'Bricolage Grotesque', sans-serif",
                           }}
                         >
                           {label}
@@ -558,7 +558,7 @@ export default function Onboarding() {
                 <div>
                   <label
                     className="block text-xs mb-1.5"
-                    style={{ color: 'rgba(255,255,255,0.4)' }}
+                    style={{ color: '#9CA3AF' }}
                   >
                     Or describe your niche:
                   </label>
@@ -572,12 +572,12 @@ export default function Onboarding() {
                     }}
                     className="w-full rounded-xl py-2.5 px-3 text-sm outline-none transition-all"
                     style={{
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1.5px solid rgba(255,255,255,0.08)',
+                      background: '#F9FAFB',
+                      border: '1.5px solid #F5F5F5',
                       color: '#374151',
                     }}
                     onFocus={(e) => (e.target.style.borderColor = GOLD_BORDER)}
-                    onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+                    onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
                   />
                 </div>
 
@@ -586,9 +586,9 @@ export default function Onboarding() {
                     onClick={() => goBack(2)}
                     className="px-4 py-3.5 rounded-xl transition-all"
                     style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      color: 'rgba(255,255,255,0.5)',
+                      background: '#F9FAFB',
+                      border: '1px solid #F0F0F0',
+                      color: '#6B7280',
                       cursor: 'pointer',
                     }}
                   >
@@ -602,9 +602,9 @@ export default function Onboarding() {
                       background:
                         niche || customNiche.trim()
                           ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
-                          : 'rgba(255,255,255,0.06)',
-                      color: niche || customNiche.trim() ? '#080a0e' : 'rgba(255,255,255,0.3)',
-                      fontFamily: 'Syne, sans-serif',
+                          : '#F9FAFB',
+                      color: niche || customNiche.trim() ? '#FAFAFA' : '#9CA3AF',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       cursor: niche || customNiche.trim() ? 'pointer' : 'not-allowed',
                       border: 'none',
                     }}
@@ -630,11 +630,11 @@ export default function Onboarding() {
                 <div className="text-center space-y-1">
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
                   >
                     How experienced are you?
                   </h1>
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                  <p className="text-sm" style={{ color: '#6B7280' }}>
                     Honest answer helps us show the right content.
                   </p>
                 </div>
@@ -651,7 +651,7 @@ export default function Onboarding() {
                         onMouseEnter={(e) => {
                           if (!active)
                             (e.currentTarget as HTMLButtonElement).style.background =
-                              'rgba(255,255,255,0.055)';
+                              '#F9FAFB';
                         }}
                         onMouseLeave={(e) => {
                           if (!active)
@@ -660,18 +660,18 @@ export default function Onboarding() {
                       >
                         <div
                           className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                          style={{ background: active ? GOLD_DIM : 'rgba(255,255,255,0.05)' }}
+                          style={{ background: active ? GOLD_DIM : '#F9FAFB' }}
                         >
                           <Icon
                             size={18}
-                            style={{ color: active ? GOLD : 'rgba(255,255,255,0.45)' }}
+                            style={{ color: active ? GOLD : '#6B7280' }}
                           />
                         </div>
                         <div>
                           <div
                             className="text-sm font-bold"
                             style={{
-                              fontFamily: 'Syne, sans-serif',
+                              fontFamily: "'Bricolage Grotesque', sans-serif",
                               color: active ? GOLD : '#f5f5f5',
                             }}
                           >
@@ -679,7 +679,7 @@ export default function Onboarding() {
                           </div>
                           <div
                             className="text-xs mt-0.5"
-                            style={{ color: 'rgba(255,255,255,0.35)' }}
+                            style={{ color: '#9CA3AF' }}
                           >
                             {desc}
                           </div>
@@ -694,9 +694,9 @@ export default function Onboarding() {
                     onClick={() => goBack(3)}
                     className="px-4 py-3.5 rounded-xl transition-all"
                     style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      color: 'rgba(255,255,255,0.5)',
+                      background: '#F9FAFB',
+                      border: '1px solid #F0F0F0',
+                      color: '#6B7280',
                       cursor: 'pointer',
                     }}
                   >
@@ -709,9 +709,9 @@ export default function Onboarding() {
                     style={{
                       background: experience
                         ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
-                        : 'rgba(255,255,255,0.06)',
-                      color: experience ? '#080a0e' : 'rgba(255,255,255,0.3)',
-                      fontFamily: 'Syne, sans-serif',
+                        : '#F9FAFB',
+                      color: experience ? '#FAFAFA' : '#9CA3AF',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       cursor: experience ? 'pointer' : 'not-allowed',
                       border: 'none',
                     }}
@@ -737,11 +737,11 @@ export default function Onboarding() {
                 <div className="text-center space-y-1">
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
                   >
                     What's your #1 goal?
                   </h1>
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                  <p className="text-sm" style={{ color: '#6B7280' }}>
                     We'll align every tool to help you get there.
                   </p>
                 </div>
@@ -758,7 +758,7 @@ export default function Onboarding() {
                         onMouseEnter={(e) => {
                           if (!active)
                             (e.currentTarget as HTMLButtonElement).style.background =
-                              'rgba(255,255,255,0.055)';
+                              '#F9FAFB';
                         }}
                         onMouseLeave={(e) => {
                           if (!active)
@@ -767,17 +767,17 @@ export default function Onboarding() {
                       >
                         <div
                           className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                          style={{ background: active ? GOLD_DIM : 'rgba(255,255,255,0.05)' }}
+                          style={{ background: active ? GOLD_DIM : '#F9FAFB' }}
                         >
                           <Icon
                             size={16}
-                            style={{ color: active ? GOLD : 'rgba(255,255,255,0.45)' }}
+                            style={{ color: active ? GOLD : '#6B7280' }}
                           />
                         </div>
                         <span
                           className="text-sm font-semibold"
                           style={{
-                            fontFamily: 'Syne, sans-serif',
+                            fontFamily: "'Bricolage Grotesque', sans-serif",
                             color: active ? GOLD : '#f5f5f5',
                           }}
                         >
@@ -793,9 +793,9 @@ export default function Onboarding() {
                     onClick={() => goBack(4)}
                     className="px-4 py-3.5 rounded-xl transition-all"
                     style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      color: 'rgba(255,255,255,0.5)',
+                      background: '#F9FAFB',
+                      border: '1px solid #F0F0F0',
+                      color: '#6B7280',
                       cursor: 'pointer',
                     }}
                   >
@@ -808,9 +808,9 @@ export default function Onboarding() {
                     style={{
                       background: goal
                         ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
-                        : 'rgba(255,255,255,0.06)',
-                      color: goal ? '#080a0e' : 'rgba(255,255,255,0.3)',
-                      fontFamily: 'Syne, sans-serif',
+                        : '#F9FAFB',
+                      color: goal ? '#FAFAFA' : '#9CA3AF',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       cursor: goal ? 'pointer' : 'not-allowed',
                       border: 'none',
                     }}
@@ -836,11 +836,11 @@ export default function Onboarding() {
                 <div className="text-center space-y-1">
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
                   >
                     How do you sell?
                   </h1>
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                  <p className="text-sm" style={{ color: '#6B7280' }}>
                     Almost done — just two quick picks.
                   </p>
                 </div>
@@ -849,7 +849,7 @@ export default function Onboarding() {
                 <div>
                   <label
                     className="block text-xs font-medium mb-2"
-                    style={{ color: 'rgba(255,255,255,0.45)' }}
+                    style={{ color: '#6B7280' }}
                   >
                     Business model
                   </label>
@@ -865,7 +865,7 @@ export default function Onboarding() {
                           onMouseEnter={(e) => {
                             if (!active)
                               (e.currentTarget as HTMLButtonElement).style.background =
-                                'rgba(255,255,255,0.055)';
+                                '#F9FAFB';
                           }}
                           onMouseLeave={(e) => {
                             if (!active)
@@ -874,18 +874,18 @@ export default function Onboarding() {
                         >
                           <div
                             className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                            style={{ background: active ? GOLD_DIM : 'rgba(255,255,255,0.05)' }}
+                            style={{ background: active ? GOLD_DIM : '#F9FAFB' }}
                           >
                             <Icon
                               size={16}
-                              style={{ color: active ? GOLD : 'rgba(255,255,255,0.45)' }}
+                              style={{ color: active ? GOLD : '#6B7280' }}
                             />
                           </div>
                           <div>
                             <div
                               className="text-sm font-semibold"
                               style={{
-                                fontFamily: 'Syne, sans-serif',
+                                fontFamily: "'Bricolage Grotesque', sans-serif",
                                 color: active ? GOLD : '#f5f5f5',
                               }}
                             >
@@ -894,7 +894,7 @@ export default function Onboarding() {
                             {desc && (
                               <div
                                 className="text-xs mt-0.5"
-                                style={{ color: 'rgba(255,255,255,0.35)' }}
+                                style={{ color: '#9CA3AF' }}
                               >
                                 {desc}
                               </div>
@@ -910,7 +910,7 @@ export default function Onboarding() {
                 <div>
                   <label
                     className="block text-xs font-medium mb-2"
-                    style={{ color: 'rgba(255,255,255,0.45)' }}
+                    style={{ color: '#6B7280' }}
                   >
                     Which platform?
                   </label>
@@ -923,9 +923,9 @@ export default function Onboarding() {
                           onClick={() => setPlatform(p)}
                           className="px-4 py-2 rounded-xl text-xs font-semibold transition-all"
                           style={{
-                            background: active ? GOLD_DIM : 'rgba(255,255,255,0.04)',
+                            background: active ? GOLD_DIM : '#F9FAFB',
                             border: `1.5px solid ${active ? GOLD_BORDER : DIM_BORDER}`,
-                            color: active ? GOLD : 'rgba(255,255,255,0.6)',
+                            color: active ? GOLD : '#374151',
                             cursor: 'pointer',
                           }}
                         >
@@ -941,9 +941,9 @@ export default function Onboarding() {
                     onClick={() => goBack(5)}
                     className="px-4 py-3.5 rounded-xl transition-all"
                     style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      color: 'rgba(255,255,255,0.5)',
+                      background: '#F9FAFB',
+                      border: '1px solid #F0F0F0',
+                      color: '#6B7280',
                       cursor: 'pointer',
                     }}
                   >
@@ -956,9 +956,9 @@ export default function Onboarding() {
                     style={{
                       background: storeType
                         ? `linear-gradient(135deg, ${GOLD}, #4F46E5)`
-                        : 'rgba(255,255,255,0.06)',
-                      color: storeType ? '#080a0e' : 'rgba(255,255,255,0.3)',
-                      fontFamily: 'Syne, sans-serif',
+                        : '#F9FAFB',
+                      color: storeType ? '#FAFAFA' : '#9CA3AF',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       cursor: storeType ? 'pointer' : 'not-allowed',
                       border: 'none',
                       boxShadow: storeType ? '0 8px 24px rgba(99,102,241,0.2)' : 'none',
@@ -995,11 +995,11 @@ export default function Onboarding() {
                 <div className="space-y-2">
                   <h1
                     className="text-2xl font-bold"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
                   >
                     You're all set, {firstName}!
                   </h1>
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                  <p className="text-sm" style={{ color: '#6B7280' }}>
                     Majorka is now personalised for{' '}
                     <span style={{ color: GOLD }}>{nicheLabel}</span> sellers at{' '}
                     <span style={{ color: GOLD }}>{expLabel}</span> level.
@@ -1023,7 +1023,7 @@ export default function Onboarding() {
                     <Sparkles size={14} style={{ color: GOLD }} />
                     <span
                       className="text-xs font-semibold uppercase tracking-widest"
-                      style={{ color: GOLD, fontFamily: 'Syne, sans-serif' }}
+                      style={{ color: GOLD, fontFamily: "'Bricolage Grotesque', sans-serif" }}
                     >
                       Your First Task
                     </span>
@@ -1031,7 +1031,7 @@ export default function Onboarding() {
                   {taskLoading ? (
                     <div
                       className="flex items-center gap-2"
-                      style={{ color: 'rgba(255,255,255,0.35)' }}
+                      style={{ color: '#9CA3AF' }}
                     >
                       <Loader2 size={14} className="animate-spin" />
                       <span className="text-sm">Personalising your action plan...</span>
@@ -1057,7 +1057,7 @@ export default function Onboarding() {
                       </button>
                     </>
                   ) : (
-                    <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                    <p className="text-sm" style={{ color: '#6B7280' }}>
                       Head to your dashboard to get started with personalised tools.
                     </p>
                   )}
@@ -1075,8 +1075,8 @@ export default function Onboarding() {
                     className="w-full flex items-center justify-center gap-2 py-4 rounded-xl text-sm font-bold transition-all"
                     style={{
                       background: `linear-gradient(135deg, ${GOLD}, #4F46E5)`,
-                      color: '#080a0e',
-                      fontFamily: 'Syne, sans-serif',
+                      color: '#FAFAFA',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       cursor: 'pointer',
                       border: 'none',
                       boxShadow: '0 8px 32px rgba(99,102,241,0.25)',
@@ -1089,16 +1089,16 @@ export default function Onboarding() {
                     className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-semibold transition-all"
                     style={{
                       background: 'transparent',
-                      border: '1.5px solid rgba(255,255,255,0.1)',
-                      color: 'rgba(255,255,255,0.6)',
-                      fontFamily: 'Syne, sans-serif',
+                      border: '1.5px solid #F0F0F0',
+                      color: '#374151',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       cursor: 'pointer',
                     }}
                     onMouseEnter={(e) =>
-                      (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)')
+                      (e.currentTarget.style.borderColor = '#D1D5DB')
                     }
                     onMouseLeave={(e) =>
-                      (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')
+                      (e.currentTarget.style.borderColor = '#F0F0F0')
                     }
                   >
                     Explore Tools

@@ -273,7 +273,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
           <div className="flex flex-col items-center gap-8 py-8 px-4 max-w-md mx-auto">
             {/* Explanation text */}
             <div className="text-center">
-              <p className="font-semibold text-white mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>
+              <p className="font-semibold text-white mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Preview: What your ad pack looks like
               </p>
               <p className="text-sm text-neutral-400">
@@ -295,7 +295,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
               <div className="flex items-center gap-3 p-4">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0"
-                  style={{ background: '#6366F1', color: '#000', fontFamily: 'Syne, sans-serif' }}
+                  style={{ background: '#6366F1', color: '#000', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   M
                 </div>
@@ -326,7 +326,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
                 className="w-full flex flex-col items-center justify-center gap-2"
                 style={{
                   height: 180,
-                  background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+                  background: 'linear-gradient(135deg, #F3F4F6 0%, #16213e 50%, #0f3460 100%)',
                 }}
               >
                 <div
@@ -341,7 +341,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
               {/* Headline + CTA row */}
               <div
                 className="flex items-center justify-between px-4 py-3"
-                style={{ background: '#2d2f33', borderTop: '1px solid rgba(255,255,255,0.06)' }}
+                style={{ background: '#2d2f33', borderTop: '1px solid #F9FAFB' }}
               >
                 <div className="flex-1 min-w-0 pr-3">
                   <div className="text-xs text-neutral-400 uppercase tracking-wide truncate">
@@ -349,7 +349,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
                   </div>
                   <div
                     className="text-sm font-bold text-white leading-tight mt-0.5 truncate"
-                    style={{ fontFamily: 'Syne, sans-serif' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     🔥 Buy 2 Get 1 Free — Today Only
                   </div>
@@ -363,7 +363,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
                     background: '#6366F1',
                     color: '#000',
                     cursor: 'default',
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                   }}
                 >
                   Shop Now
@@ -373,7 +373,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
               {/* FB reactions bar */}
               <div
                 className="flex items-center justify-between px-4 py-2 text-xs text-neutral-500"
-                style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
+                style={{ borderTop: '1px solid #F9FAFB' }}
               >
                 <span>👍 ❤️ 😮 &nbsp; 2.4k</span>
                 <span>148 comments · 312 shares</span>

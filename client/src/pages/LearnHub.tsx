@@ -358,7 +358,7 @@ function SafeInlineText({ text }: { text: string }) {
         <code
           key={key++}
           style={{
-            background: 'rgba(255,255,255,0.08)',
+            background: '#F5F5F5',
             padding: '1px 6px',
             borderRadius: '4px',
             fontFamily: 'monospace',
@@ -398,7 +398,7 @@ function renderMarkdown(text: string): React.ReactNode[] {
         <h3
           key={key++}
           className="text-lg font-bold text-white mt-6 mb-3"
-          style={{ fontFamily: 'Syne, sans-serif' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
         >
           {content}
         </h3>
@@ -488,7 +488,7 @@ function CircularRing({ percent }: { percent: number }) {
   const offset = circ - (percent / 100) * circ;
   return (
     <svg width={40} height={40} className="flex-shrink-0">
-      <circle cx={20} cy={20} r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={3} />
+      <circle cx={20} cy={20} r={r} fill="none" stroke="#F5F5F5" strokeWidth={3} />
       <circle
         cx={20}
         cy={20}
@@ -568,7 +568,7 @@ function Toast({ message, visible }: { message: string; visible: boolean }) {
             border: '1px solid rgba(99,102,241,0.4)',
             boxShadow: '0 8px 32px rgba(99,102,241,0.15), 0 2px 8px rgba(0,0,0,0.4)',
             backdropFilter: 'blur(16px)',
-            fontFamily: 'Syne, sans-serif',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
           }}
         >
           <Trophy size={18} style={{ color: '#6366F1', flexShrink: 0 }} />
@@ -626,7 +626,7 @@ function PlaylistDrawer({
             style={{
               width: 'min(380px, 100vw)',
               background: 'rgba(10,10,14,0.98)',
-              borderLeft: '1px solid rgba(255,255,255,0.08)',
+              borderLeft: '1px solid #F5F5F5',
               boxShadow: '-16px 0 64px rgba(0,0,0,0.5)',
               backdropFilter: 'blur(20px)',
             }}
@@ -634,13 +634,13 @@ function PlaylistDrawer({
             {/* Header */}
             <div
               className="flex items-center justify-between px-5 py-4 flex-shrink-0"
-              style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}
+              style={{ borderBottom: '1px solid #E5E7EB' }}
             >
               <div className="flex items-center gap-2">
                 <ListOrdered size={16} style={{ color: '#6366F1' }} />
                 <h3
                   className="font-bold text-white text-sm"
-                  style={{ fontFamily: 'Syne, sans-serif' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   My Playlist
                 </h3>
@@ -657,18 +657,18 @@ function PlaylistDrawer({
                 onClick={onClose}
                 className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
                 style={{
-                  background: 'rgba(255,255,255,0.06)',
+                  background: '#F9FAFB',
                   border: 'none',
                   cursor: 'pointer',
                   color: '#a1a1aa',
                 }}
                 onMouseEnter={(e) =>
                   ((e.currentTarget as HTMLButtonElement).style.background =
-                    'rgba(255,255,255,0.1)')
+                    '#F0F0F0')
                 }
                 onMouseLeave={(e) =>
                   ((e.currentTarget as HTMLButtonElement).style.background =
-                    'rgba(255,255,255,0.06)')
+                    '#F9FAFB')
                 }
               >
                 <X size={13} />
@@ -680,7 +680,7 @@ function PlaylistDrawer({
               className="flex-1 overflow-y-auto px-3 py-3"
               style={{
                 scrollbarWidth: 'thin',
-                scrollbarColor: 'rgba(255,255,255,0.06) transparent',
+                scrollbarColor: '#F9FAFB transparent',
               }}
             >
               {playlist.length === 0 ? (
@@ -703,8 +703,8 @@ function PlaylistDrawer({
                       key={id}
                       className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1 group transition-all"
                       style={{
-                        background: 'rgba(255,255,255,0.02)',
-                        border: '1px solid rgba(255,255,255,0.05)',
+                        background: '#FAFAFA',
+                        border: '1px solid #F9FAFB',
                       }}
                       onMouseEnter={(e) =>
                         ((e.currentTarget as HTMLDivElement).style.borderColor =
@@ -712,12 +712,12 @@ function PlaylistDrawer({
                       }
                       onMouseLeave={(e) =>
                         ((e.currentTarget as HTMLDivElement).style.borderColor =
-                          'rgba(255,255,255,0.05)')
+                          '#F9FAFB')
                       }
                     >
                       <span
                         className="text-xs font-bold flex-shrink-0"
-                        style={{ color: '#52525b', fontFamily: 'Syne, sans-serif', minWidth: 20 }}
+                        style={{ color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif", minWidth: 20 }}
                       >
                         {String(idx + 1).padStart(2, '0')}
                       </span>
@@ -787,7 +787,7 @@ function PlaylistDrawer({
             {playlist.length > 0 && (
               <div
                 className="flex-shrink-0 px-4 py-4"
-                style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}
+                style={{ borderTop: '1px solid #E5E7EB' }}
               >
                 <button
                   onClick={() => {
@@ -800,7 +800,7 @@ function PlaylistDrawer({
                     color: '#0a0a0a',
                     border: 'none',
                     cursor: 'pointer',
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                   }}
                   onMouseEnter={(e) =>
                     ((e.currentTarget as HTMLButtonElement).style.opacity = '0.9')
@@ -947,7 +947,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
         {/* Reading progress bar */}
         <div
           className="absolute top-0 left-0 right-0 z-10"
-          style={{ height: 2, background: 'rgba(255,255,255,0.04)' }}
+          style={{ height: 2, background: '#F9FAFB' }}
         >
           <div
             className="h-full transition-all duration-200"
@@ -961,7 +961,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
         {/* Header */}
         <DialogHeader
           className="px-6 pt-7 pb-4 flex-shrink-0"
-          style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}
+          style={{ borderBottom: '1px solid #E5E7EB' }}
         >
           <div className="flex items-center gap-3 mb-2">
             <span
@@ -984,7 +984,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
           </div>
           <DialogTitle
             className="text-xl font-bold text-white leading-tight"
-            style={{ fontFamily: 'Syne, sans-serif' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             {lesson.title}
           </DialogTitle>
@@ -998,7 +998,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
           ref={contentRef}
           onScroll={handleScroll}
           className="flex-1 overflow-y-auto px-6 py-4"
-          style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.06) transparent' }}
+          style={{ scrollbarWidth: 'thin', scrollbarColor: '#F9FAFB transparent' }}
         >
           {loading ? (
             <div className="space-y-3 mt-2 animate-pulse">
@@ -1006,15 +1006,15 @@ Start with a brief intro paragraph, then dive straight into the content.`;
                 <div
                   key={i}
                   className="h-3.5 rounded-full"
-                  style={{ background: 'rgba(255,255,255,0.05)', width: `${w}%` }}
+                  style={{ background: '#F9FAFB', width: `${w}%` }}
                 />
               ))}
-              <div className="mt-4 h-px" style={{ background: 'rgba(255,255,255,0.05)' }} />
+              <div className="mt-4 h-px" style={{ background: '#F9FAFB' }} />
               {[70, 85, 60, 90].map((w, i) => (
                 <div
                   key={i + 10}
                   className="h-3.5 rounded-full mt-2"
-                  style={{ background: 'rgba(255,255,255,0.04)', width: `${w}%` }}
+                  style={{ background: '#F9FAFB', width: `${w}%` }}
                 />
               ))}
             </div>
@@ -1026,7 +1026,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
         {/* Footer */}
         <div
           className="flex-shrink-0 px-5 py-4 space-y-3"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}
+          style={{ borderTop: '1px solid #E5E7EB' }}
         >
           {/* Navigation + Save */}
           <div className="flex items-center justify-between">
@@ -1036,18 +1036,18 @@ Start with a brief intro paragraph, then dive straight into the content.`;
                   onClick={() => onNavigate(prevLesson)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={{
-                    background: 'rgba(255,255,255,0.05)',
+                    background: '#F9FAFB',
                     color: '#a1a1aa',
                     border: 'none',
                     cursor: 'pointer',
                   }}
                   onMouseEnter={(e) =>
                     ((e.currentTarget as HTMLButtonElement).style.background =
-                      'rgba(255,255,255,0.09)')
+                      '#F5F5F5')
                   }
                   onMouseLeave={(e) =>
                     ((e.currentTarget as HTMLButtonElement).style.background =
-                      'rgba(255,255,255,0.05)')
+                      '#F9FAFB')
                   }
                 >
                   <ChevronLeft size={12} /> Prev
@@ -1060,18 +1060,18 @@ Start with a brief intro paragraph, then dive straight into the content.`;
                   onClick={() => onNavigate(nextLesson)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={{
-                    background: 'rgba(255,255,255,0.05)',
+                    background: '#F9FAFB',
                     color: '#a1a1aa',
                     border: 'none',
                     cursor: 'pointer',
                   }}
                   onMouseEnter={(e) =>
                     ((e.currentTarget as HTMLButtonElement).style.background =
-                      'rgba(255,255,255,0.09)')
+                      '#F5F5F5')
                   }
                   onMouseLeave={(e) =>
                     ((e.currentTarget as HTMLButtonElement).style.background =
-                      'rgba(255,255,255,0.05)')
+                      '#F9FAFB')
                   }
                 >
                   Next <ChevronRight size={12} />
@@ -1085,7 +1085,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
                   title="Save key takeaways to My Playbook"
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={{
-                    background: saved ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.05)',
+                    background: saved ? 'rgba(99,102,241,0.1)' : '#F9FAFB',
                     color: saved ? '#6366F1' : '#71717a',
                     border: `1px solid ${saved ? 'rgba(99,102,241,0.2)' : 'transparent'}`,
                     cursor: 'pointer',
@@ -1093,12 +1093,12 @@ Start with a brief intro paragraph, then dive straight into the content.`;
                   onMouseEnter={(e) => {
                     if (!saved)
                       (e.currentTarget as HTMLButtonElement).style.background =
-                        'rgba(255,255,255,0.09)';
+                        '#F5F5F5';
                   }}
                   onMouseLeave={(e) => {
                     if (!saved)
                       (e.currentTarget as HTMLButtonElement).style.background =
-                        'rgba(255,255,255,0.05)';
+                        '#F9FAFB';
                   }}
                 >
                   {saved ? <BookmarkCheck size={12} /> : <Bookmark size={12} />}
@@ -1135,7 +1135,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
               color: isCompleted ? '#4ade80' : '#0a0a0a',
               border: isCompleted ? '1px solid rgba(34,197,94,0.25)' : 'none',
               cursor: 'pointer',
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               boxShadow: isCompleted ? 'none' : '0 4px 16px rgba(99,102,241,0.25)',
             }}
             onMouseEnter={(e) => {
@@ -1174,7 +1174,7 @@ function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }
           </div>
           <DialogTitle
             className="text-xl font-bold text-white"
-            style={{ fontFamily: 'Syne, sans-serif' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Builder Plan Required
           </DialogTitle>
@@ -1192,7 +1192,7 @@ function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }
               color: '#0a0a0a',
               border: 'none',
               cursor: 'pointer',
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
             }}
             onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '0.9')}
@@ -1239,8 +1239,8 @@ function TrackCard({
       layout
       className="rounded-2xl overflow-hidden cursor-pointer"
       style={{
-        background: isOpen ? 'rgba(99,102,241,0.04)' : 'rgba(255,255,255,0.025)',
-        border: isOpen ? '1px solid rgba(99,102,241,0.25)' : '1px solid rgba(255,255,255,0.07)',
+        background: isOpen ? 'rgba(99,102,241,0.04)' : '#FAFAFA',
+        border: isOpen ? '1px solid rgba(99,102,241,0.25)' : '1px solid #E5E7EB',
         backdropFilter: 'blur(12px)',
         boxShadow: isOpen
           ? '0 0 40px rgba(99,102,241,0.06), 0 4px 24px rgba(0,0,0,0.3)'
@@ -1257,7 +1257,7 @@ function TrackCard({
             <div className="flex items-center gap-2 flex-wrap">
               <h3
                 className="font-bold text-white text-base leading-tight"
-                style={{ fontFamily: 'Syne, sans-serif' }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {track.title}
               </h3>
@@ -1281,7 +1281,7 @@ function TrackCard({
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               <span
                 className="px-2 py-0.5 rounded-full text-xs font-medium"
-                style={{ background: 'rgba(255,255,255,0.05)', color: '#71717a' }}
+                style={{ background: '#F9FAFB', color: '#71717a' }}
               >
                 {track.lessons.length} lessons · {freeInTrack.length} free
               </span>
@@ -1300,7 +1300,7 @@ function TrackCard({
         {/* Progress bar */}
         <div
           className="mt-4 w-full rounded-full overflow-hidden"
-          style={{ height: 3, background: 'rgba(255,255,255,0.06)' }}
+          style={{ height: 3, background: '#F9FAFB' }}
         >
           <motion.div
             className="h-full rounded-full"
@@ -1324,11 +1324,11 @@ function TrackCard({
             }}
             className="mt-3 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
             style={{
-              background: hasStarted ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.04)',
+              background: hasStarted ? 'rgba(99,102,241,0.1)' : '#F9FAFB',
               color: hasStarted ? '#6366F1' : '#71717a',
-              border: `1px solid ${hasStarted ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.07)'}`,
+              border: `1px solid ${hasStarted ? 'rgba(99,102,241,0.2)' : '#E5E7EB'}`,
               cursor: 'pointer',
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
             }}
             onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '0.8')}
             onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.opacity = '1')}
@@ -1357,7 +1357,7 @@ function TrackCard({
             style={{ overflow: 'hidden' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-3 pb-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="px-3 pb-3" style={{ borderTop: '1px solid #F9FAFB' }}>
               {track.lessons.map((lesson, idx) => {
                 const isCompleted = progress[lesson.id];
                 const inPlaylist = playlist.includes(lesson.id);
@@ -1376,7 +1376,7 @@ function TrackCard({
                     onClick={() => onLessonClick(lesson)}
                     onMouseEnter={(e) => {
                       const el = e.currentTarget as HTMLDivElement;
-                      el.style.background = 'rgba(255,255,255,0.03)';
+                      el.style.background = '#FAFAFA';
                       el.style.borderLeftColor = isCompleted
                         ? 'rgba(34,197,94,0.4)'
                         : 'rgba(99,102,241,0.4)';
@@ -1390,7 +1390,7 @@ function TrackCard({
                     {/* Lesson number */}
                     <span
                       className="text-xs font-bold flex-shrink-0 w-7 text-center"
-                      style={{ color: '#3f3f46', fontFamily: 'Syne, sans-serif' }}
+                      style={{ color: '#3f3f46', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                     >
                       {num}
                     </span>
@@ -1451,7 +1451,7 @@ function TrackCard({
                           style={{
                             background: inPlaylist
                               ? 'rgba(99,102,241,0.15)'
-                              : 'rgba(255,255,255,0.06)',
+                              : '#F9FAFB',
                             border: 'none',
                             cursor: 'pointer',
                             color: inPlaylist ? '#6366F1' : '#71717a',
@@ -1636,7 +1636,7 @@ export default function LearnHub() {
             <h1
               className="text-4xl md:text-5xl font-black leading-tight"
               style={{
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
                 background: 'linear-gradient(135deg, #6366F1 20%, #A5B4FC 60%, #6366F1 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -1657,11 +1657,11 @@ export default function LearnHub() {
               onClick={() => setPlaylistOpen(true)}
               className="relative flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all"
               style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
+                background: '#F9FAFB',
+                border: '1px solid #F5F5F5',
                 color: '#a1a1aa',
                 cursor: 'pointer',
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
                 fontSize: 13,
                 fontWeight: 600,
               }}
@@ -1670,7 +1670,7 @@ export default function LearnHub() {
                 (e.currentTarget as HTMLButtonElement).style.color = '#374151';
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.08)';
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#F5F5F5';
                 (e.currentTarget as HTMLButtonElement).style.color = '#a1a1aa';
               }}
             >
@@ -1691,8 +1691,8 @@ export default function LearnHub() {
               <div
                 className="flex items-center gap-3 px-4 py-3 rounded-2xl"
                 style={{
-                  background: 'rgba(255,255,255,0.025)',
-                  border: '1px solid rgba(255,255,255,0.07)',
+                  background: '#FAFAFA',
+                  border: '1px solid #E5E7EB',
                   backdropFilter: 'blur(12px)',
                 }}
               >
@@ -1700,7 +1700,7 @@ export default function LearnHub() {
                   <CircularRing percent={overallPercent} />
                   <span
                     className="absolute text-xs font-black"
-                    style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     {overallPercent}%
                   </span>
@@ -1708,7 +1708,7 @@ export default function LearnHub() {
                 <div>
                   <div
                     className="font-bold text-white text-sm"
-                    style={{ fontFamily: 'Syne, sans-serif' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     {completedCount} of {TOTAL_LESSONS}
                   </div>
@@ -1730,15 +1730,15 @@ export default function LearnHub() {
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 sm:max-w-sm text-sm transition-all focus:outline-none"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: '#F9FAFB',
+              border: '1px solid #F5F5F5',
               borderRadius: 10,
               padding: '10px 16px',
               color: '#374151',
               fontFamily: 'DM Sans, sans-serif',
             }}
             onFocus={(e) => (e.target.style.borderColor = 'rgba(99,102,241,0.4)')}
-            onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+            onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
           />
 
           {/* Difficulty pills */}
@@ -1759,11 +1759,11 @@ export default function LearnHub() {
                       ? pill === 'All'
                         ? 'rgba(99,102,241,0.15)'
                         : `${difficultyStyle(pill).bg}`
-                      : 'rgba(255,255,255,0.04)',
+                      : '#F9FAFB',
                     color: active ? col : '#52525b',
-                    border: active ? `1px solid ${col}40` : '1px solid rgba(255,255,255,0.07)',
+                    border: active ? `1px solid ${col}40` : '1px solid #E5E7EB',
                     cursor: 'pointer',
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                   }}
                   onMouseEnter={(e) => {
                     if (!active) (e.currentTarget as HTMLButtonElement).style.color = '#a1a1aa';

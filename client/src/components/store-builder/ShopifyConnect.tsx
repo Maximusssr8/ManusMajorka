@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { markOnboardingStep } from '@/lib/onboarding';
 
 const gold = '#6366F1';
-const syne = 'Syne, sans-serif';
+const syne = "'Bricolage Grotesque', sans-serif";
 
 export default function ShopifyConnect({
   blueprint,
@@ -120,7 +120,7 @@ export default function ShopifyConnect({
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
             <CheckCircle size={16} style={{ color: '#22c55e', flexShrink: 0 }} />
-            <span style={{ fontWeight: 600, color: '#f0ede8', fontSize: 14 }}>
+            <span style={{ fontWeight: 600, color: '#374151', fontSize: 14 }}>
               {connectedShop ? `Connected to ${connectedShop}` : 'Shopify store connected ✓'}
             </span>
           </div>
@@ -144,18 +144,18 @@ export default function ShopifyConnect({
               placeholder="mystore.myshopify.com"
               style={{
                 flex: 1, padding: '12px 14px', borderRadius: 8,
-                border: '1px solid rgba(255,255,255,0.1)',
-                background: 'rgba(255,255,255,0.04)', color: '#f0ede8',
+                border: '1px solid #F0F0F0',
+                background: '#F9FAFB', color: '#374151',
                 fontSize: 14, outline: 'none', minHeight: 44,
               }}
               onFocus={e => (e.target.style.borderColor = gold)}
-              onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
+              onBlur={e => (e.target.style.borderColor = '#F0F0F0')}
             />
             <button
               onClick={handleConnect}
               style={{
                 padding: '12px 18px', borderRadius: 8, border: 'none',
-                background: gold, color: '#080a0e', cursor: 'pointer',
+                background: gold, color: '#FAFAFA', cursor: 'pointer',
                 fontFamily: syne, fontWeight: 700, whiteSpace: 'nowrap', minHeight: 44,
               }}
             >
@@ -175,7 +175,7 @@ export default function ShopifyConnect({
           onClick={onBack}
           style={{
             flex: 1, padding: 14, borderRadius: 8,
-            border: '1px solid rgba(255,255,255,0.1)',
+            border: '1px solid #F0F0F0',
             background: 'transparent', color: '#a1a1aa',
             cursor: 'pointer', fontFamily: syne, fontWeight: 600,
           }}
@@ -188,7 +188,7 @@ export default function ShopifyConnect({
           style={{
             flex: 2, padding: 14, borderRadius: 8, border: 'none',
             background: connected ? gold : 'rgba(99,102,241,0.15)',
-            color: connected ? '#080a0e' : '#52525b',
+            color: connected ? '#FAFAFA' : '#52525b',
             cursor: connected && !pushing ? 'pointer' : 'not-allowed',
             fontFamily: syne, fontWeight: 700, fontSize: 15,
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,

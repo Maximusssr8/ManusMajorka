@@ -123,7 +123,7 @@ export default function ProjectManager() {
   };
 
   const priorityColor = (p: string) =>
-    p === 'high' ? '#ff6b6b' : p === 'medium' ? '#f0c040' : 'rgba(240,237,232,0.4)';
+    p === 'high' ? '#ff6b6b' : p === 'medium' ? '#f0c040' : '#9CA3AF';
 
   return (
     <div
@@ -145,10 +145,10 @@ export default function ProjectManager() {
             <ClipboardList size={15} style={{ color: '#9c5fff' }} />
           </div>
           <div>
-            <div className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+            <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Project Manager
             </div>
-            <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+            <div className="text-xs" style={{ color: '#9CA3AF' }}>
               Tasks · Phases · Timeline
             </div>
           </div>
@@ -157,7 +157,7 @@ export default function ProjectManager() {
         <div>
           <label
             className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-            style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+            style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Project Goal <span style={{ color: '#9c5fff' }}>*</span>
           </label>
@@ -168,12 +168,12 @@ export default function ProjectManager() {
             rows={3}
             className="w-full text-xs px-3 py-2.5 rounded-lg outline-none resize-none"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1.5px solid rgba(255,255,255,0.08)',
-              color: '#f0ede8',
+              background: '#F9FAFB',
+              border: '1.5px solid #F5F5F5',
+              color: '#374151',
             }}
             onFocus={(e) => (e.target.style.borderColor = 'rgba(156,95,255,0.45)')}
-            onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+            onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
           />
         </div>
 
@@ -190,7 +190,7 @@ export default function ProjectManager() {
           <div key={label}>
             <label
               className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               {label}
             </label>
@@ -200,12 +200,12 @@ export default function ProjectManager() {
               placeholder={placeholder}
               className="w-full text-xs px-3 py-2.5 rounded-lg outline-none"
               style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1.5px solid rgba(255,255,255,0.08)',
-                color: '#f0ede8',
+                background: '#F9FAFB',
+                border: '1.5px solid #F5F5F5',
+                color: '#374151',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(156,95,255,0.45)')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+              onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
             />
           </div>
         ))}
@@ -219,7 +219,7 @@ export default function ProjectManager() {
               ? 'rgba(156,95,255,0.25)'
               : 'linear-gradient(135deg, #9c5fff, #7c6af5)',
             color: '#fff',
-            fontFamily: 'Syne, sans-serif',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
             boxShadow: generating ? 'none' : '0 4px 20px rgba(156,95,255,0.3)',
             cursor: generating ? 'not-allowed' : 'pointer',
           }}
@@ -241,7 +241,7 @@ export default function ProjectManager() {
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+                <h2 className="text-lg font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   {result.name}
                 </h2>
                 <SaveToProduct
@@ -249,7 +249,7 @@ export default function ProjectManager() {
                   toolName="Project Manager"
                   outputData={result}
                 />
-                <div className="text-xs mt-0.5" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                <div className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
                   {result.estimatedWeeks} weeks · {totalTasks} tasks
                 </div>
               </div>
@@ -257,9 +257,9 @@ export default function ProjectManager() {
                 onClick={copyAll}
                 className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: 'rgba(240,237,232,0.6)',
+                  background: '#F9FAFB',
+                  border: '1px solid #F0F0F0',
+                  color: '#374151',
                   cursor: 'pointer',
                 }}
               >
@@ -278,7 +278,7 @@ export default function ProjectManager() {
               <div className="flex items-center justify-between mb-2">
                 <span
                   className="text-xs font-bold"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#9c5fff' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#9c5fff' }}
                 >
                   Progress
                 </span>
@@ -288,7 +288,7 @@ export default function ProjectManager() {
               </div>
               <div
                 className="w-full h-2 rounded-full overflow-hidden"
-                style={{ background: 'rgba(255,255,255,0.06)' }}
+                style={{ background: '#F9FAFB' }}
               >
                 <div
                   className="h-full rounded-full transition-all duration-300"
@@ -303,9 +303,9 @@ export default function ProjectManager() {
             <div
               className="text-xs leading-relaxed rounded-xl p-4"
               style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid rgba(255,255,255,0.07)',
-                color: 'rgba(240,237,232,0.6)',
+                background: '#FAFAFA',
+                border: '1px solid #E5E7EB',
+                color: '#374151',
               }}
             >
               {result.summary}
@@ -317,23 +317,23 @@ export default function ProjectManager() {
                 key={pi}
                 className="rounded-xl overflow-hidden"
                 style={{
-                  background: 'rgba(255,255,255,0.02)',
-                  border: '1px solid rgba(255,255,255,0.07)',
+                  background: '#FAFAFA',
+                  border: '1px solid #E5E7EB',
                 }}
               >
                 <div
                   className="px-4 py-3 border-b flex items-center justify-between"
-                  style={{ borderColor: 'rgba(255,255,255,0.07)' }}
+                  style={{ borderColor: '#E5E7EB' }}
                 >
                   <div
                     className="text-xs font-black uppercase tracking-widest"
-                    style={{ color: '#9c5fff', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#9c5fff', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     {phase.name}
                   </div>
                   <div
                     className="flex items-center gap-1.5 text-xs"
-                    style={{ color: 'rgba(240,237,232,0.4)' }}
+                    style={{ color: '#9CA3AF' }}
                   >
                     <Clock size={10} /> {phase.deadline}
                   </div>
@@ -347,18 +347,18 @@ export default function ProjectManager() {
                       className="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-all hover:bg-white/[0.02]"
                       style={{
                         borderBottom:
-                          ti < phase.tasks.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                          ti < phase.tasks.length - 1 ? '1px solid #F9FAFB' : 'none',
                       }}
                       onClick={() => toggleTask(key)}
                     >
                       {done ? (
-                        <CheckCircle2 size={14} style={{ color: '#2dca72' }} />
+                        <CheckCircle2 size={14} style={{ color: '#6366F1' }} />
                       ) : (
-                        <Circle size={14} style={{ color: 'rgba(240,237,232,0.2)' }} />
+                        <Circle size={14} style={{ color: '#D1D5DB' }} />
                       )}
                       <span
                         className={`text-xs flex-1 ${done ? 'line-through' : ''}`}
-                        style={{ color: done ? 'rgba(240,237,232,0.3)' : 'rgba(240,237,232,0.7)' }}
+                        style={{ color: done ? '#9CA3AF' : '#374151' }}
                       >
                         {task.title}
                       </span>
@@ -373,7 +373,7 @@ export default function ProjectManager() {
                       </span>
                       <span
                         className="text-xs font-mono"
-                        style={{ color: 'rgba(240,237,232,0.3)' }}
+                        style={{ color: '#9CA3AF' }}
                       >
                         {task.estimate}
                       </span>
@@ -392,7 +392,7 @@ export default function ProjectManager() {
                   className="animate-spin mx-auto mb-4"
                   style={{ color: '#9c5fff' }}
                 />
-                <div className="text-sm font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
+                <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Building your project plan…
                 </div>
               </div>
@@ -402,13 +402,13 @@ export default function ProjectManager() {
                 <div className="text-center">
                   <div
                     className="text-base font-black mb-2"
-                    style={{ fontFamily: 'Syne, sans-serif' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Project Manager
                   </div>
                   <div
                     className="text-xs max-w-xs leading-relaxed"
-                    style={{ color: 'rgba(240,237,232,0.35)' }}
+                    style={{ color: '#9CA3AF' }}
                   >
                     Describe your project goal to get a phased task board with priorities, time
                     estimates, and interactive checkboxes.

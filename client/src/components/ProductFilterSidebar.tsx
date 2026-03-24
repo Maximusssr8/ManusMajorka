@@ -76,7 +76,7 @@ export function ProductFilterSidebar({ open, onToggle, categories, onFiltersChan
       <div style={{
         position: 'fixed' as const, left: 0, top: 0, bottom: 0, width: open ? 228 : 0, background: 'white',
         borderRight: '1px solid #E5E7EB', overflowX: 'hidden' as const, overflowY: open ? 'auto' as const : 'hidden' as const,
-        transition: 'width 300ms ease', zIndex: 40, boxShadow: open ? '4px 0 16px rgba(0,0,0,0.06)' : 'none',
+        transition: 'width 300ms ease', zIndex: 40, boxShadow: open ? '4px 0 16px #E5E7EB' : 'none',
       }}>
         <div style={{ width: 228, padding: '60px 16px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>

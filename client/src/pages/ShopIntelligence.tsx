@@ -64,7 +64,7 @@ const fmtSold = (n: number | null | undefined) => {
 function ShopTypeBadge({ type }: { type: string }) {
   const colors: Record<string, { bg: string; text: string }> = {
     'dropship': { bg: 'rgba(99,102,241,0.12)', text: '#6366F1' },
-    'brand': { bg: 'rgba(45,202,114,0.12)', text: '#2dca72' },
+    'brand': { bg: 'rgba(99,102,241,0.18)', text: '#6366F1' },
     'print-on-demand': { bg: 'rgba(99,102,241,0.12)', text: '#a5b4fc' },
   };
   const c = colors[type] || colors['dropship'];
@@ -513,7 +513,7 @@ export default function ShopIntelligence() {
               <Sparkline data={shop.revenue_trend || [100,110,105,115,108,120,118]} width={72} height={28} />
             </div>
 
-            <div style={{ fontSize: 13, fontWeight: 700, color: shop.growth_rate_pct >= 0 ? '#2dca72' : '#ef4444' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: shop.growth_rate_pct >= 0 ? '#6366F1' : '#ef4444' }}>
               {shop.growth_rate_pct >= 0 ? '↑' : '↓'} {Math.abs(shop.growth_rate_pct)}%
             </div>
 

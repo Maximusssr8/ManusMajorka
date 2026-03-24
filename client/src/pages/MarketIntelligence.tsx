@@ -110,7 +110,7 @@ function SectionCard({
       >
         <span
           className="text-xs font-black uppercase tracking-widest"
-          style={{ fontFamily: 'Syne, sans-serif', color: accent }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: accent }}
         >
           {title}
         </span>
@@ -127,7 +127,7 @@ function SectionCard({
 
 // ─── Trend Icon ───────────────────────────────────────────────────────────────
 function TrendIcon({ trend }: { trend: 'growing' | 'stable' | 'declining' }) {
-  if (trend === 'growing') return <TrendingUp size={16} style={{ color: '#2dca72' }} />;
+  if (trend === 'growing') return <TrendingUp size={16} style={{ color: '#6366F1' }} />;
   if (trend === 'declining') return <TrendingDown size={16} style={{ color: '#ef4444' }} />;
   return <Minus size={16} style={{ color: '#f59e0b' }} />;
 }
@@ -135,7 +135,7 @@ function TrendIcon({ trend }: { trend: 'growing' | 'stable' | 'declining' }) {
 // ─── Difficulty Badge ─────────────────────────────────────────────────────────
 function DifficultyBadge({ difficulty }: { difficulty: 'low' | 'medium' | 'high' }) {
   const config = {
-    low: { color: '#2dca72', label: 'Low Effort' },
+    low: { color: '#6366F1', label: 'Low Effort' },
     medium: { color: '#f59e0b', label: 'Medium Effort' },
     high: { color: '#ef4444', label: 'High Effort' },
   };
@@ -299,7 +299,7 @@ Generate a full competitive intelligence report as JSON.`;
           borderRight: '1px solid #E5E7EB',
           background: 'white',
           scrollbarWidth: 'thin',
-          scrollbarColor: 'rgba(255,255,255,0.1) transparent',
+          scrollbarColor: '#F0F0F0 transparent',
         }}
       >
         {/* Header */}
@@ -314,14 +314,14 @@ Generate a full competitive intelligence report as JSON.`;
             />
             <span
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: 'rgba(139,92,246,0.7)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: 'rgba(139,92,246,0.7)', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Competitive Intel
             </span>
           </div>
           <h1
             className="text-lg font-black"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A', letterSpacing: '-0.02em' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', letterSpacing: '-0.02em' }}
           >
             Market Intelligence
           </h1>
@@ -346,11 +346,11 @@ Generate a full competitive intelligence report as JSON.`;
               className="w-full rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
               style={{
                 background: '#F9FAFB',
-                border: '1px solid rgba(255,255,255,0.1)',
+                border: '1px solid #F0F0F0',
                 color: '#0A0A0A',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(139,92,246,0.5)')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
+              onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
             />
           </div>
 
@@ -368,11 +368,11 @@ Generate a full competitive intelligence report as JSON.`;
               className="w-full rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
               style={{
                 background: '#F9FAFB',
-                border: '1px solid rgba(255,255,255,0.1)',
+                border: '1px solid #F0F0F0',
                 color: '#0A0A0A',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(139,92,246,0.5)')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
+              onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
             />
           </div>
 
@@ -390,11 +390,11 @@ Generate a full competitive intelligence report as JSON.`;
               className="w-full rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
               style={{
                 background: '#F9FAFB',
-                border: '1px solid rgba(255,255,255,0.1)',
+                border: '1px solid #F0F0F0',
                 color: '#0A0A0A',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(139,92,246,0.5)')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
+              onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
             />
           </div>
 
@@ -412,11 +412,11 @@ Generate a full competitive intelligence report as JSON.`;
               className="w-full rounded-xl px-3 py-2.5 text-sm outline-none transition-all"
               style={{
                 background: '#F9FAFB',
-                border: '1px solid rgba(255,255,255,0.1)',
+                border: '1px solid #F0F0F0',
                 color: '#0A0A0A',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(139,92,246,0.5)')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
+              onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
             />
           </div>
 
@@ -435,11 +435,11 @@ Generate a full competitive intelligence report as JSON.`;
               className="w-full rounded-xl px-3 py-2.5 text-sm outline-none transition-all resize-none"
               style={{
                 background: '#F9FAFB',
-                border: '1px solid rgba(255,255,255,0.1)',
+                border: '1px solid #F0F0F0',
                 color: '#0A0A0A',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(139,92,246,0.5)')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.1)')}
+              onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
             />
           </div>
         </div>
@@ -451,7 +451,7 @@ Generate a full competitive intelligence report as JSON.`;
             disabled={isGenerating || !niche.trim()}
             className="w-full py-3 rounded-xl text-sm font-black uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2"
             style={{
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               background: isGenerating
                 ? 'rgba(139,92,246,0.15)'
                 : 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
@@ -479,7 +479,7 @@ Generate a full competitive intelligence report as JSON.`;
               className="w-full py-2 rounded-xl text-xs font-semibold transition-all duration-150"
               style={{
                 background: 'transparent',
-                border: '1px solid rgba(255,255,255,0.1)',
+                border: '1px solid #F0F0F0',
                 color: '#9CA3AF',
               }}
             >
@@ -492,7 +492,7 @@ Generate a full competitive intelligence report as JSON.`;
       {/* ── Right Panel ── */}
       <div
         className="flex-1 overflow-y-auto"
-        style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.1) transparent' }}
+        style={{ scrollbarWidth: 'thin', scrollbarColor: '#F0F0F0 transparent' }}
       >
         {!result && !isGenerating && (
           <div className="flex flex-col items-center justify-center h-full px-8 text-center">
@@ -507,7 +507,7 @@ Generate a full competitive intelligence report as JSON.`;
             </div>
             <h2
               className="text-xl font-black mb-2"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
             >
               Decode Your Market
             </h2>
@@ -576,7 +576,7 @@ Generate a full competitive intelligence report as JSON.`;
                 <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#8b5cf6' }} />
                 <span
                   className="text-xs font-semibold uppercase tracking-widest"
-                  style={{ color: 'rgba(139,92,246,0.7)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: 'rgba(139,92,246,0.7)', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Market Intelligence Report
                 </span>
@@ -584,7 +584,7 @@ Generate a full competitive intelligence report as JSON.`;
               <div className="flex items-center gap-3 mb-3">
                 <h2
                   className="text-2xl font-black"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                 >
                   {niche}
                 </h2>
@@ -593,11 +593,11 @@ Generate a full competitive intelligence report as JSON.`;
                   style={{
                     background:
                       result.marketOverview.trend === 'growing'
-                        ? 'rgba(45,202,114,0.1)'
+                        ? '#EEF2FF'
                         : result.marketOverview.trend === 'declining'
                           ? 'rgba(239,68,68,0.1)'
                           : 'rgba(245,158,11,0.1)',
-                    border: `1px solid ${result.marketOverview.trend === 'growing' ? 'rgba(45,202,114,0.3)' : result.marketOverview.trend === 'declining' ? 'rgba(239,68,68,0.3)' : 'rgba(245,158,11,0.3)'}`,
+                    border: `1px solid ${result.marketOverview.trend === 'growing' ? '#C7D2FE' : result.marketOverview.trend === 'declining' ? 'rgba(239,68,68,0.3)' : 'rgba(245,158,11,0.3)'}`,
                   }}
                 >
                   <TrendIcon trend={result.marketOverview.trend} />
@@ -606,7 +606,7 @@ Generate a full competitive intelligence report as JSON.`;
                     style={{
                       color:
                         result.marketOverview.trend === 'growing'
-                          ? '#2dca72'
+                          ? '#6366F1'
                           : result.marketOverview.trend === 'declining'
                             ? '#ef4444'
                             : '#f59e0b',
@@ -689,7 +689,7 @@ Generate a full competitive intelligence report as JSON.`;
                         <div className="flex items-center gap-2">
                           <span
                             className="text-sm font-black"
-                            style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+                            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                           >
                             {comp.name}
                           </span>
@@ -715,7 +715,7 @@ Generate a full competitive intelligence report as JSON.`;
                       <div>
                         <span
                           className="text-xs font-semibold uppercase tracking-wider block mb-1.5"
-                          style={{ color: 'rgba(45,202,114,0.6)' }}
+                          style={{ color: 'rgba(99,102,241,0.90)' }}
                         >
                           Strengths
                         </span>
@@ -726,7 +726,7 @@ Generate a full competitive intelligence report as JSON.`;
                               className="text-xs flex items-start gap-1.5"
                               style={{ color: '#6B7280' }}
                             >
-                              <span style={{ color: '#2dca72' }}>+</span> {s}
+                              <span style={{ color: '#6366F1' }}>+</span> {s}
                             </li>
                           ))}
                         </ul>
@@ -759,7 +759,7 @@ Generate a full competitive intelligence report as JSON.`;
                           style={{
                             background: '#F0F0F0',
                             color: '#6B7280',
-                            border: '1px solid rgba(255,255,255,0.1)',
+                            border: '1px solid #F0F0F0',
                           }}
                         >
                           {ch}
@@ -772,15 +772,15 @@ Generate a full competitive intelligence report as JSON.`;
             </SectionCard>
 
             {/* Opportunity Gaps */}
-            <SectionCard title="Opportunity Gaps" accent="#2dca72">
+            <SectionCard title="Opportunity Gaps" accent="#6366F1">
               <div className="space-y-3">
                 {result.opportunityGaps.map((opp, i) => (
                   <div
                     key={i}
                     className="rounded-xl p-4"
                     style={{
-                      background: 'rgba(45,202,114,0.04)',
-                      border: '1px solid rgba(45,202,114,0.12)',
+                      background: 'rgba(99,102,241,0.06)',
+                      border: '1px solid rgba(99,102,241,0.18)',
                     }}
                   >
                     <div className="flex items-start justify-between gap-3 mb-2">
@@ -790,8 +790,8 @@ Generate a full competitive intelligence report as JSON.`;
                       <DifficultyBadge difficulty={opp.difficulty} />
                     </div>
                     <div className="flex items-center gap-2">
-                      <TrendingUp size={12} style={{ color: '#2dca72' }} />
-                      <span className="text-xs" style={{ color: 'rgba(45,202,114,0.8)' }}>
+                      <TrendingUp size={12} style={{ color: '#6366F1' }} />
+                      <span className="text-xs" style={{ color: 'rgba(99,102,241,1.00)' }}>
                         {opp.potentialImpact}
                       </span>
                     </div>
@@ -807,7 +807,7 @@ Generate a full competitive intelligence report as JSON.`;
                   {
                     label: 'Market Low',
                     value: result.pricingIntelligence.marketLow,
-                    color: '#2dca72',
+                    color: '#6366F1',
                   },
                   {
                     label: 'Average',
@@ -863,7 +863,7 @@ Generate a full competitive intelligence report as JSON.`;
                   {
                     label: 'What They Love',
                     items: result.customerSentiment.topPraises,
-                    color: '#2dca72',
+                    color: '#6366F1',
                     icon: '😍',
                   },
                   {

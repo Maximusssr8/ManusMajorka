@@ -8,10 +8,10 @@ import { Link } from 'wouter';
 import { SEO } from '@/components/SEO';
 
 const C = {
-  bg: '#080a0e',
+  bg: '#FAFAFA',
   card: '#0d0f14',
   elevated: '#131318',
-  border: 'rgba(255,255,255,0.06)',
+  border: '#F9FAFB',
   text: '#f5f5f5',
   secondary: '#94949e',
   muted: '#52525b',
@@ -20,7 +20,7 @@ const C = {
   goldBorder: 'rgba(99,102,241,0.2)',
 };
 
-const syne = 'Syne, sans-serif';
+const syne = "'Bricolage Grotesque', sans-serif";
 const dmSans = 'DM Sans, sans-serif';
 
 const TIKTOK_PRODUCTS = [
@@ -118,7 +118,7 @@ export default function TikTokShopAustralia() {
 
         {/* ── HERO ── */}
         <section style={{ padding: '80px 0 60px', textAlign: 'center' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.05)', border: `1px solid rgba(255,255,255,0.1)`, borderRadius: 100, padding: '6px 16px', marginBottom: 24, fontSize: 13, color: '#fff', fontWeight: 600 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#F9FAFB', border: `1px solid #F0F0F0`, borderRadius: 100, padding: '6px 16px', marginBottom: 24, fontSize: 13, color: '#fff', fontWeight: 600 }}>
             ♪ TikTok Shop AU · Launched 2024
           </div>
           <h1 style={{ fontFamily: syne, fontWeight: 900, fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 20 }}>
@@ -191,7 +191,7 @@ export default function TikTokShopAustralia() {
               </thead>
               <tbody>
                 {TIKTOK_PRODUCTS.map((p, i) => (
-                  <tr key={p.name} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)' }}>
+                  <tr key={p.name} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? 'transparent' : '#FAFAFA' }}>
                     <td style={{ padding: '14px 16px', color: C.text, fontWeight: 600 }}>{p.name}</td>
                     <td style={{ padding: '14px 16px', color: C.secondary }}>{p.category}</td>
                     <td style={{ padding: '14px 16px', color: C.gold, fontWeight: 700 }}>{p.revenue}</td>

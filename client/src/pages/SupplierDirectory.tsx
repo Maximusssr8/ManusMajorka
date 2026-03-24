@@ -8,14 +8,14 @@ import { SEO } from '@/components/SEO';
 
 const C = {
   bg: '#0a0b0d',
-  surface: 'rgba(255,255,255,0.03)',
-  border: 'rgba(255,255,255,0.08)',
+  surface: '#FAFAFA',
+  border: '#F5F5F5',
   gold: '#6366F1',
-  text: '#f0ede8',
-  muted: 'rgba(240,237,232,0.4)',
-  sub: 'rgba(240,237,232,0.6)',
+  text: '#374151',
+  muted: '#9CA3AF',
+  sub: '#374151',
   green: '#10b981',
-  card: 'rgba(255,255,255,0.02)',
+  card: '#FAFAFA',
 };
 
 interface Supplier {
@@ -106,7 +106,7 @@ export default function SupplierDirectory() {
     borderRadius: 6,
     fontSize: 11,
     fontWeight: 700 as const,
-    fontFamily: 'Syne, sans-serif',
+    fontFamily: "'Bricolage Grotesque', sans-serif",
     cursor: 'pointer' as const,
     border: `1px solid ${active ? C.gold : C.border}`,
     background: active ? 'rgba(99,102,241,0.12)' : C.surface,
@@ -127,7 +127,7 @@ export default function SupplierDirectory() {
       `}</style>
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Syne, sans-serif', color: C.text, marginBottom: 6 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text, marginBottom: 6 }}>
           Supplier Directory
         </h1>
         <p style={{ fontSize: 13, color: C.muted }}>
@@ -187,23 +187,23 @@ export default function SupplierDirectory() {
             {/* Badges */}
             <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
               {s.beginner_friendly && (
-                <span style={{ fontSize: 9, fontWeight: 800, padding: '3px 7px', borderRadius: 4, background: 'rgba(99,102,241,0.15)', color: C.gold, fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                <span style={{ fontSize: 9, fontWeight: 800, padding: '3px 7px', borderRadius: 4, background: 'rgba(99,102,241,0.15)', color: C.gold, fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   Beginner Friendly
                 </span>
               )}
               {s.au_warehouse && (
-                <span style={{ fontSize: 9, fontWeight: 800, padding: '3px 7px', borderRadius: 4, background: 'rgba(16,185,129,0.12)', color: C.green, fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                <span style={{ fontSize: 9, fontWeight: 800, padding: '3px 7px', borderRadius: 4, background: 'rgba(16,185,129,0.12)', color: C.green, fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                   AU Warehouse
                 </span>
               )}
-              <span style={{ fontSize: 9, fontWeight: 700, padding: '3px 7px', borderRadius: 4, background: C.surface, color: C.muted, fontFamily: 'Syne, sans-serif', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <span style={{ fontSize: 9, fontWeight: 700, padding: '3px 7px', borderRadius: 4, background: C.surface, color: C.muted, fontFamily: "'Bricolage Grotesque', sans-serif", textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 {s.type === 'print-on-demand' ? 'POD' : s.type}
               </span>
             </div>
 
             {/* Name + rating */}
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 700, fontFamily: 'Syne, sans-serif', color: C.text, margin: 0 }}>{s.name}</h3>
+              <h3 style={{ fontSize: 15, fontWeight: 700, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text, margin: 0 }}>{s.name}</h3>
               <StarRating rating={s.quality_rating} />
             </div>
 
@@ -248,7 +248,7 @@ export default function SupplierDirectory() {
                 borderRadius: 7,
                 background: 'rgba(99,102,241,0.08)',
                 border: '1px solid rgba(99,102,241,0.2)',
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
                 transition: 'all 0.15s',
               }}
               onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.15)')}

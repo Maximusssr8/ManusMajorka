@@ -80,7 +80,7 @@ export default function UpgradeModalA({
           className="absolute top-4 right-4 p-1.5 rounded-lg transition-all"
           style={{
             cursor: 'pointer',
-            color: 'rgba(240,237,232,0.4)',
+            color: '#9CA3AF',
             background: 'none',
             border: 'none',
             zIndex: 10,
@@ -97,18 +97,18 @@ export default function UpgradeModalA({
             <Zap size={12} style={{ color: '#6366F1' }} />
             <span
               className="text-xs font-bold"
-              style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Unlock Full Power
             </span>
           </div>
           <h2
             className="text-xl font-black mb-2"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
           >
             You've hit a limit
           </h2>
-          <p className="text-sm mb-1" style={{ color: 'rgba(240,237,232,0.5)' }}>
+          <p className="text-sm mb-1" style={{ color: '#6B7280' }}>
             Upgrade to unlock unlimited access to all Majorka AI tools.
           </p>
         </div>
@@ -119,8 +119,8 @@ export default function UpgradeModalA({
               key={plan.id}
               className="relative rounded-xl p-4 flex flex-col"
               style={{
-                background: plan.popular ? 'rgba(99,102,241,0.06)' : 'rgba(255,255,255,0.02)',
-                border: `1.5px solid ${plan.popular ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                background: plan.popular ? 'rgba(99,102,241,0.06)' : '#FAFAFA',
+                border: `1.5px solid ${plan.popular ? 'rgba(99,102,241,0.3)' : '#F9FAFB'}`,
               }}
             >
               {plan.popular && (
@@ -128,8 +128,8 @@ export default function UpgradeModalA({
                   className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-xs font-bold"
                   style={{
                     background: '#6366F1',
-                    color: '#080a0e',
-                    fontFamily: 'Syne, sans-serif',
+                    color: '#FAFAFA',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                     fontSize: 9,
                   }}
                 >
@@ -139,7 +139,7 @@ export default function UpgradeModalA({
               <div className="mb-3">
                 <div
                   className="text-xs font-bold mb-1"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                 >
                   {plan.name}
                 </div>
@@ -147,13 +147,13 @@ export default function UpgradeModalA({
                   <span
                     className="text-2xl font-black"
                     style={{
-                      fontFamily: 'Syne, sans-serif',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       color: plan.popular ? '#6366F1' : '#0A0A0A',
                     }}
                   >
                     {plan.price}
                   </span>
-                  <span className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                  <span className="text-xs" style={{ color: '#9CA3AF' }}>
                     {plan.period}
                   </span>
                 </div>
@@ -166,7 +166,7 @@ export default function UpgradeModalA({
                       className="mt-0.5 flex-shrink-0"
                       style={{ color: plan.popular ? '#6366F1' : '#4ade80' }}
                     />
-                    <span className="text-xs" style={{ color: 'rgba(240,237,232,0.6)' }}>
+                    <span className="text-xs" style={{ color: '#374151' }}>
                       {f}
                     </span>
                   </div>
@@ -178,10 +178,10 @@ export default function UpgradeModalA({
                 style={{
                   background: plan.popular
                     ? 'linear-gradient(135deg, #6366F1, #f0c040)'
-                    : 'rgba(255,255,255,0.06)',
-                  color: plan.popular ? '#080a0e' : '#0A0A0A',
-                  border: plan.popular ? 'none' : '1px solid rgba(255,255,255,0.1)',
-                  fontFamily: 'Syne, sans-serif',
+                    : '#F9FAFB',
+                  color: plan.popular ? '#FAFAFA' : '#0A0A0A',
+                  border: plan.popular ? 'none' : '1px solid #F0F0F0',
+                  fontFamily: "'Bricolage Grotesque', sans-serif",
                   cursor: 'pointer',
                 }}
               >
@@ -198,7 +198,7 @@ export default function UpgradeModalA({
             style={{
               background: 'none',
               border: 'none',
-              color: 'rgba(240,237,232,0.3)',
+              color: '#9CA3AF',
               cursor: 'pointer',
             }}
           >

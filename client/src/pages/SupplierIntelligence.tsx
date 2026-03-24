@@ -130,7 +130,7 @@ function StarRating({ rating }: { rating: number }) {
   return (
     <span className="text-xs" style={{ color: '#6366F1' }}>
       {'★'.repeat(filled)}{'☆'.repeat(5 - filled)}
-      <span style={{ color: 'rgba(240,237,232,0.4)', marginLeft: 4 }}>{rating.toFixed(1)}</span>
+      <span style={{ color: '#9CA3AF', marginLeft: 4 }}>{rating.toFixed(1)}</span>
     </span>
   );
 }
@@ -300,11 +300,11 @@ export default function SupplierIntelligence() {
             <div>
               <h1
                 className="text-lg font-bold leading-tight"
-                style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+                style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
               >
                 Supplier Intelligence
               </h1>
-              <p className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>
+              <p className="text-xs" style={{ color: '#9CA3AF' }}>
                 Find AU-ready suppliers · AliExpress · Alibaba · CJ Dropshipping
               </p>
             </div>
@@ -314,7 +314,7 @@ export default function SupplierIntelligence() {
           <div className="relative">
             <Search
               className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
-              style={{ color: 'rgba(240,237,232,0.3)' }}
+              style={{ color: '#9CA3AF' }}
             />
             <input
               ref={inputRef}
@@ -325,16 +325,16 @@ export default function SupplierIntelligence() {
               placeholder="Search any product to find AU-ready suppliers..."
               className="w-full pl-10 pr-32 py-3 rounded-xl text-sm outline-none"
               style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                color: '#f0ede8',
+                background: '#F9FAFB',
+                border: '1px solid #F5F5F5',
+                color: '#374151',
               }}
             />
             {query && (
               <button
                 onClick={() => setQuery('')}
                 className="absolute right-24 top-1/2 -translate-y-1/2 p-1 rounded"
-                style={{ color: 'rgba(240,237,232,0.3)' }}
+                style={{ color: '#9CA3AF' }}
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -345,8 +345,8 @@ export default function SupplierIntelligence() {
               className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 rounded-lg text-xs font-semibold transition-opacity disabled:opacity-40"
               style={{
                 background: '#6366F1',
-                color: '#080a0e',
-                fontFamily: 'Syne, sans-serif',
+                color: '#FAFAFA',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
               }}
             >
               {loading ? 'Searching...' : 'Search'}
@@ -397,7 +397,7 @@ export default function SupplierIntelligence() {
                 <TrendingUp className="w-4 h-4" style={{ color: '#6366F1' }} />
                 <span
                   className="text-sm font-semibold"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#6366F1' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
                 >
                   Profit Snapshot — {currentQuery}
                 </span>
@@ -410,9 +410,9 @@ export default function SupplierIntelligence() {
               </div>
               <p
                 className="text-sm mb-3"
-                style={{ color: 'rgba(240,237,232,0.6)' }}
+                style={{ color: '#374151' }}
               >
-                If you sell <strong style={{ color: '#f0ede8' }}>{currentQuery}</strong> at{' '}
+                If you sell <strong style={{ color: '#374151' }}>{currentQuery}</strong> at{' '}
                 <strong style={{ color: '#6366F1' }}>{fmt(snapSellPrice)}</strong>:
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -425,12 +425,12 @@ export default function SupplierIntelligence() {
                   <div
                     key={item.label}
                     className="rounded-lg px-4 py-3"
-                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid #E5E7EB' }}
+                    style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}
                   >
-                    <div className="text-xs mb-1" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                    <div className="text-xs mb-1" style={{ color: '#9CA3AF' }}>
                       {item.label}
                     </div>
-                    <div className="text-sm font-semibold" style={{ color: '#f0ede8', fontFamily: 'Syne, sans-serif' }}>
+                    <div className="text-sm font-semibold" style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                       {item.value}
                     </div>
                   </div>
@@ -447,11 +447,11 @@ export default function SupplierIntelligence() {
             >
               <div
                 className="px-4 py-3 flex items-center justify-between"
-                style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                style={{ background: '#FAFAFA', borderBottom: '1px solid #F9FAFB' }}
               >
                 <span
                   className="text-xs font-semibold uppercase tracking-widest"
-                  style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   {suppliers.length} Suppliers Found — Sorted by Margin
                 </span>
@@ -463,10 +463,10 @@ export default function SupplierIntelligence() {
                 style={{
                   gridTemplateColumns: '28px 1fr 120px 90px 100px 60px 90px 90px 120px',
                   minWidth: 780,
-                  color: 'rgba(240,237,232,0.35)',
-                  background: 'rgba(255,255,255,0.02)',
-                  borderBottom: '1px solid rgba(255,255,255,0.04)',
-                  fontFamily: 'Syne, sans-serif',
+                  color: '#9CA3AF',
+                  background: '#FAFAFA',
+                  borderBottom: '1px solid #F9FAFB',
+                  fontFamily: "'Bricolage Grotesque', sans-serif",
                 }}
               >
                 <span>#</span>
@@ -493,31 +493,31 @@ export default function SupplierIntelligence() {
                     style={{
                       gridTemplateColumns: '28px 1fr 120px 90px 100px 60px 90px 90px 120px',
                       minWidth: 780,
-                      borderBottom: i < suppliers.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-                      background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)',
+                      borderBottom: i < suppliers.length - 1 ? '1px solid #F9FAFB' : 'none',
+                      background: i % 2 === 0 ? 'transparent' : '#FAFAFA',
                     }}
                     onMouseEnter={(e) => {
                       (e.currentTarget as HTMLElement).style.background = 'rgba(99,102,241,0.04)';
                     }}
                     onMouseLeave={(e) => {
                       (e.currentTarget as HTMLElement).style.background =
-                        i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)';
+                        i % 2 === 0 ? 'transparent' : '#FAFAFA';
                     }}
                   >
                     {/* # */}
-                    <span style={{ color: 'rgba(240,237,232,0.3)', fontSize: 11 }}>{i + 1}</span>
+                    <span style={{ color: '#9CA3AF', fontSize: 11 }}>{i + 1}</span>
 
                     {/* Supplier name + why */}
                     <div className="min-w-0 pr-2">
                       <div
                         className="font-semibold truncate"
-                        style={{ color: '#f0ede8', fontFamily: 'Syne, sans-serif', fontSize: 13 }}
+                        style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 13 }}
                       >
                         {s.supplier_name}
                       </div>
                       <div
                         className="text-xs truncate mt-0.5"
-                        style={{ color: 'rgba(240,237,232,0.35)' }}
+                        style={{ color: '#9CA3AF' }}
                         title={s.why_recommended}
                       >
                         {s.why_recommended}
@@ -528,19 +528,19 @@ export default function SupplierIntelligence() {
                     <PlatformPill platform={s.platform} />
 
                     {/* Unit cost */}
-                    <span style={{ color: '#f0ede8', fontWeight: 600 }}>
+                    <span style={{ color: '#374151', fontWeight: 600 }}>
                       {fmt(s.unit_cost_aud)}
                     </span>
 
                     {/* Shipping */}
-                    <span style={{ color: 'rgba(240,237,232,0.6)' }}>
+                    <span style={{ color: '#374151' }}>
                       {fmt(s.shipping_cost_aud)}
                     </span>
 
                     {/* Days */}
                     <span
                       style={{
-                        color: s.shipping_days_to_au <= 10 ? '#10b981' : s.shipping_days_to_au <= 15 ? '#6366F1' : 'rgba(240,237,232,0.5)',
+                        color: s.shipping_days_to_au <= 10 ? '#10b981' : s.shipping_days_to_au <= 15 ? '#6366F1' : '#6B7280',
                       }}
                     >
                       {s.shipping_days_to_au}d
@@ -552,7 +552,7 @@ export default function SupplierIntelligence() {
                     {/* Margin */}
                     <span
                       className="font-bold text-sm"
-                      style={{ color: profitColor, fontFamily: 'Syne, sans-serif' }}
+                      style={{ color: profitColor, fontFamily: "'Bricolage Grotesque', sans-serif" }}
                     >
                       {s.profit_margin_pct.toFixed(0)}%
                     </span>
@@ -564,13 +564,13 @@ export default function SupplierIntelligence() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-1.5 rounded transition-colors"
-                        style={{ color: 'rgba(240,237,232,0.5)' }}
+                        style={{ color: '#6B7280' }}
                         title="Visit Supplier"
                         onMouseEnter={(e) => {
                           (e.currentTarget as HTMLElement).style.color = '#6366F1';
                         }}
                         onMouseLeave={(e) => {
-                          (e.currentTarget as HTMLElement).style.color = 'rgba(240,237,232,0.5)';
+                          (e.currentTarget as HTMLElement).style.color = '#6B7280';
                         }}
                       >
                         <ArrowUpRight className="w-3.5 h-3.5" />
@@ -582,13 +582,13 @@ export default function SupplierIntelligence() {
                           )
                         }
                         className="p-1.5 rounded transition-colors"
-                        style={{ color: 'rgba(240,237,232,0.5)' }}
+                        style={{ color: '#6B7280' }}
                         title="Calculate Profit"
                         onMouseEnter={(e) => {
                           (e.currentTarget as HTMLElement).style.color = '#10b981';
                         }}
                         onMouseLeave={(e) => {
-                          (e.currentTarget as HTMLElement).style.color = 'rgba(240,237,232,0.5)';
+                          (e.currentTarget as HTMLElement).style.color = '#6B7280';
                         }}
                       >
                         <Calculator className="w-3.5 h-3.5" />
@@ -600,13 +600,13 @@ export default function SupplierIntelligence() {
                           )
                         }
                         className="p-1.5 rounded transition-colors"
-                        style={{ color: 'rgba(240,237,232,0.5)' }}
+                        style={{ color: '#6B7280' }}
                         title="Build Store"
                         onMouseEnter={(e) => {
                           (e.currentTarget as HTMLElement).style.color = '#7c6af5';
                         }}
                         onMouseLeave={(e) => {
-                          (e.currentTarget as HTMLElement).style.color = 'rgba(240,237,232,0.5)';
+                          (e.currentTarget as HTMLElement).style.color = '#6B7280';
                         }}
                       >
                         <Store className="w-3.5 h-3.5" />
@@ -616,7 +616,7 @@ export default function SupplierIntelligence() {
                         disabled={isSaved || isSaving}
                         className="p-1.5 rounded transition-colors"
                         style={{
-                          color: isSaved ? '#6366F1' : 'rgba(240,237,232,0.5)',
+                          color: isSaved ? '#6366F1' : '#6B7280',
                           opacity: isSaving ? 0.5 : 1,
                         }}
                         title={isSaved ? 'Saved' : 'Save Supplier'}
@@ -626,7 +626,7 @@ export default function SupplierIntelligence() {
                         }}
                         onMouseLeave={(e) => {
                           if (!isSaved)
-                            (e.currentTarget as HTMLElement).style.color = 'rgba(240,237,232,0.5)';
+                            (e.currentTarget as HTMLElement).style.color = '#6B7280';
                         }}
                       >
                         <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-current' : ''}`} />
@@ -644,11 +644,11 @@ export default function SupplierIntelligence() {
               <div className="mb-2">
                 <h2
                   className="text-sm font-semibold mb-1"
-                  style={{ fontFamily: 'Syne, sans-serif', color: 'rgba(240,237,232,0.6)' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
                 >
                   Featured AU Supplier Platforms
                 </h2>
-                <p className="text-xs" style={{ color: 'rgba(240,237,232,0.3)' }}>
+                <p className="text-xs" style={{ color: '#9CA3AF' }}>
                   Trusted platforms for Australian dropshippers — search above to find product-specific suppliers.
                 </p>
               </div>
@@ -665,7 +665,7 @@ export default function SupplierIntelligence() {
                     <div className="flex items-center justify-between">
                       <span
                         className="font-bold text-sm"
-                        style={{ fontFamily: 'Syne, sans-serif', color: p.color }}
+                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: p.color }}
                       >
                         {p.name}
                       </span>
@@ -685,7 +685,7 @@ export default function SupplierIntelligence() {
                     <div className="flex items-center gap-3 mt-1">
                       <span
                         className="text-xs"
-                        style={{ color: 'rgba(240,237,232,0.4)' }}
+                        style={{ color: '#9CA3AF' }}
                       >
                         🚢 {p.shipping}
                       </span>
@@ -707,14 +707,14 @@ export default function SupplierIntelligence() {
       {/* ── Side panel ── */}
       <div
         className="hidden lg:flex flex-col w-56 flex-none border-l p-4 gap-5"
-        style={{ borderColor: '#E5E7EB', background: 'rgba(255,255,255,0.01)' }}
+        style={{ borderColor: '#E5E7EB', background: '#FAFAFA' }}
       >
         {/* Saved count */}
         <div>
           <div className="flex items-center justify-between mb-2">
             <span
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Saved Suppliers
             </span>
@@ -727,7 +727,7 @@ export default function SupplierIntelligence() {
               </span>
             )}
           </div>
-          <p className="text-xs" style={{ color: 'rgba(240,237,232,0.25)' }}>
+          <p className="text-xs" style={{ color: '#D1D5DB' }}>
             {savedCount === 0 ? 'No suppliers saved yet.' : `${savedCount} supplier${savedCount > 1 ? 's' : ''} saved this session.`}
           </p>
         </div>
@@ -737,13 +737,13 @@ export default function SupplierIntelligence() {
           <div className="mb-2">
             <span
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Recent Searches
             </span>
           </div>
           {recentSearches.length === 0 ? (
-            <p className="text-xs" style={{ color: 'rgba(240,237,232,0.25)' }}>
+            <p className="text-xs" style={{ color: '#D1D5DB' }}>
               No recent searches.
             </p>
           ) : (
@@ -758,8 +758,8 @@ export default function SupplierIntelligence() {
                   className="text-left text-xs px-2.5 py-1.5 rounded-lg truncate transition-colors"
                   style={{
                     color: 'rgba(240,237,232,0.55)',
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.05)',
+                    background: '#FAFAFA',
+                    border: '1px solid #F9FAFB',
                   }}
                   onMouseEnter={(e) => {
                     (e.currentTarget as HTMLElement).style.color = '#6366F1';
@@ -767,7 +767,7 @@ export default function SupplierIntelligence() {
                   }}
                   onMouseLeave={(e) => {
                     (e.currentTarget as HTMLElement).style.color = 'rgba(240,237,232,0.55)';
-                    (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.05)';
+                    (e.currentTarget as HTMLElement).style.borderColor = '#F9FAFB';
                   }}
                 >
                   🔍 {s}
@@ -784,11 +784,11 @@ export default function SupplierIntelligence() {
         >
           <div
             className="text-xs font-semibold mb-2"
-            style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+            style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             💡 Pro Tips
           </div>
-          <ul className="text-xs space-y-1.5" style={{ color: 'rgba(240,237,232,0.45)' }}>
+          <ul className="text-xs space-y-1.5" style={{ color: '#6B7280' }}>
             <li>• Search exact product names for better results</li>
             <li>• CJ Dropshipping ships fastest to AU</li>
             <li>• Margin &gt;60% = strong product</li>

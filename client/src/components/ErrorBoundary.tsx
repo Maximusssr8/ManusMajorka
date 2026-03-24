@@ -42,26 +42,26 @@ export class ErrorBoundary extends Component<Props, State> {
             fontSize: 24,
             fontWeight: 700,
             color: '#0A0A0A',
-            fontFamily: 'Syne, sans-serif',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
             marginBottom: 8,
           }}>
             Something went wrong
           </h1>
-          <p style={{ color: 'rgba(240,237,232,0.5)', fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>
+          <p style={{ color: '#6B7280', fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>
             An unexpected error occurred. Your data is safe — try refreshing the page.
           </p>
           {this.state.error && (
             <details style={{ marginBottom: 24, textAlign: 'left' }}>
-              <summary style={{ color: 'rgba(240,237,232,0.3)', fontSize: 11, cursor: 'pointer', marginBottom: 8 }}>
+              <summary style={{ color: '#9CA3AF', fontSize: 11, cursor: 'pointer', marginBottom: 8 }}>
                 Error details
               </summary>
               <pre style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
+                background: '#F9FAFB',
+                border: '1px solid #F5F5F5',
                 borderRadius: 8,
                 padding: 12,
                 fontSize: 11,
-                color: 'rgba(240,237,232,0.5)',
+                color: '#6B7280',
                 overflow: 'auto',
                 maxHeight: 120,
               }}>
@@ -74,14 +74,14 @@ export class ErrorBoundary extends Component<Props, State> {
               onClick={() => window.location.reload()}
               style={{
                 background: '#6366F1',
-                color: '#080a0e',
+                color: '#FAFAFA',
                 border: 'none',
                 borderRadius: 8,
                 padding: '10px 24px',
                 fontSize: 14,
                 fontWeight: 700,
                 cursor: 'pointer',
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
               }}
             >
               Refresh page
@@ -89,9 +89,9 @@ export class ErrorBoundary extends Component<Props, State> {
             <a
               href="mailto:support@majorka.io?subject=App Error"
               style={{
-                background: 'rgba(255,255,255,0.05)',
-                color: 'rgba(240,237,232,0.6)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: '#F9FAFB',
+                color: '#374151',
+                border: '1px solid #F0F0F0',
                 borderRadius: 8,
                 padding: '10px 24px',
                 fontSize: 14,

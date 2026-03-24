@@ -1,7 +1,7 @@
 import { CheckCircle, XCircle, ExternalLink } from 'lucide-react';
 
 const gold = '#6366F1';
-const syne = 'Syne, sans-serif';
+const syne = "'Bricolage Grotesque', sans-serif";
 
 const STEP_LABELS = [
   { key: 'product', label: 'Product Created' },
@@ -39,7 +39,7 @@ export default function PushSuccess({ result, onReset }: {
               {ok
                 ? <CheckCircle size={16} style={{ color: '#22c55e', flexShrink: 0 }} />
                 : <XCircle size={16} style={{ color: '#ef4444', flexShrink: 0 }} />}
-              <span style={{ fontWeight: 600, color: '#f0ede8', fontSize: 14, flex: 1 }}>{s.label}</span>
+              <span style={{ fontWeight: 600, color: '#374151', fontSize: 14, flex: 1 }}>{s.label}</span>
               <span style={{ fontSize: 12, color: ok ? '#22c55e' : '#ef4444' }}>
                 {ok ? '✓ Done' : err ? `✗ ${String(err).slice(0, 40)}` : '✗ Failed'}
               </span>
@@ -62,7 +62,7 @@ export default function PushSuccess({ result, onReset }: {
         {result?.storeUrl && (
           <a href={result.storeUrl} target="_blank" rel="noopener noreferrer" style={{
             padding: '12px 18px', borderRadius: 8,
-            border: 'none', background: gold, color: '#080a0e', textDecoration: 'none',
+            border: 'none', background: gold, color: '#FAFAFA', textDecoration: 'none',
             fontFamily: syne, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6, fontSize: 14,
           }}>
             <ExternalLink size={14} /> Open Store
@@ -71,7 +71,7 @@ export default function PushSuccess({ result, onReset }: {
       </div>
 
       <button onClick={onReset} style={{
-        padding: '12px 24px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)',
+        padding: '12px 24px', borderRadius: 8, border: '1px solid #F0F0F0',
         background: 'transparent', color: '#a1a1aa', cursor: 'pointer', fontFamily: syne, fontWeight: 600,
       }}>
         Build Another Store

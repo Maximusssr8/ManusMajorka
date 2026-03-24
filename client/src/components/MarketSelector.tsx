@@ -24,8 +24,8 @@ export default function MarketSelector() {
         className="w-full flex items-center gap-2 px-3 py-2 text-xs transition-all"
         style={{
           borderRadius: 8,
-          background: open ? 'rgba(255,255,255,0.05)' : 'transparent',
-          border: '1px solid rgba(255,255,255,0.06)',
+          background: open ? '#F9FAFB' : 'transparent',
+          border: '1px solid #F9FAFB',
           color: '#a1a1aa',
           cursor: 'pointer',
           fontFamily: 'DM Sans, sans-serif',
@@ -36,7 +36,7 @@ export default function MarketSelector() {
         }}
         onMouseLeave={(e) => {
           if (!open)
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.06)';
+            (e.currentTarget as HTMLButtonElement).style.borderColor = '#F9FAFB';
         }}
       >
         <span className="text-sm">{marketConfig.flag}</span>
@@ -56,7 +56,7 @@ export default function MarketSelector() {
           className="absolute bottom-full left-0 mb-1 w-full overflow-hidden"
           style={{
             background: '#1a1a1a',
-            border: '1px solid rgba(255,255,255,0.08)',
+            border: '1px solid #F5F5F5',
             borderRadius: 10,
             boxShadow: '0 -8px 32px rgba(0,0,0,0.5)',
             zIndex: 100,
@@ -84,7 +84,7 @@ export default function MarketSelector() {
                 onMouseEnter={(e) => {
                   if (!active)
                     (e.currentTarget as HTMLButtonElement).style.background =
-                      'rgba(255,255,255,0.04)';
+                      '#F9FAFB';
                 }}
                 onMouseLeave={(e) => {
                   if (!active)

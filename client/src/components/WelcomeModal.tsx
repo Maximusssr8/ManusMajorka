@@ -92,7 +92,7 @@ export default function WelcomeModal({ userName }: Props) {
           onClick={dismiss}
           className="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center z-10"
           style={{
-            background: 'rgba(255,255,255,0.05)',
+            background: '#F9FAFB',
             border: 'none',
             color: '#52525b',
             cursor: 'pointer',
@@ -109,7 +109,7 @@ export default function WelcomeModal({ userName }: Props) {
             </div>
             <h1
               className="text-xl font-bold mb-2"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
             >
               Welcome to Majorka
             </h1>
@@ -132,7 +132,7 @@ export default function WelcomeModal({ userName }: Props) {
               >
                 <div
                   className="text-lg font-bold"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#6366F1' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
                 >
                   {stat.value}
                 </div>
@@ -147,7 +147,7 @@ export default function WelcomeModal({ userName }: Props) {
           <div className="mb-6">
             <p
               className="text-sm font-bold mb-3"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
             >
               What do you want to do first?
             </p>
@@ -161,7 +161,7 @@ export default function WelcomeModal({ userName }: Props) {
                     onClick={() => setSelectedGoal(goal.id)}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all"
                     style={{
-                      background: selected ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)',
+                      background: selected ? 'rgba(99,102,241,0.08)' : '#FAFAFA',
                       border: `1px solid ${selected ? 'rgba(99,102,241,0.3)' : '#E5E7EB'}`,
                       cursor: 'pointer',
                     }}
@@ -169,7 +169,7 @@ export default function WelcomeModal({ userName }: Props) {
                     <div
                       className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                       style={{
-                        background: selected ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.04)',
+                        background: selected ? 'rgba(99,102,241,0.15)' : '#F9FAFB',
                       }}
                     >
                       <Icon size={14} style={{ color: selected ? '#6366F1' : '#71717a' }} />
@@ -184,7 +184,7 @@ export default function WelcomeModal({ userName }: Props) {
                       <div
                         className="w-4 h-4 rounded-full flex items-center justify-center"
                         style={{
-                          border: `2px solid ${selected ? '#6366F1' : 'rgba(255,255,255,0.15)'}`,
+                          border: `2px solid ${selected ? '#6366F1' : '#D1D5DB'}`,
                           background: selected ? '#6366F1' : 'transparent',
                         }}
                       >
@@ -208,11 +208,11 @@ export default function WelcomeModal({ userName }: Props) {
               onClick={handleTakeTour}
               className="flex-1 py-3 rounded-xl text-sm font-bold transition-all"
               style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: '#F9FAFB',
+                border: '1px solid #F0F0F0',
                 color: '#374151',
                 cursor: 'pointer',
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
               }}
             >
               Take the Tour
@@ -223,9 +223,9 @@ export default function WelcomeModal({ userName }: Props) {
               style={{
                 background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                 border: 'none',
-                color: '#080a0e',
+                color: '#FAFAFA',
                 cursor: 'pointer',
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
                 boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
               }}
             >

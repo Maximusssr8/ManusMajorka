@@ -97,13 +97,13 @@ function UsersTab() {
             <tbody>
               {filtered.map(u => (
                 <tr key={u.id} style={{ borderBottom: `1px solid ${C.border}` }}
-                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.02)')}
+                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#FAFAFA')}
                   onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}>
                   <td style={{ padding: '10px 12px', color: C.text }}>{u.email}</td>
                   <td style={{ padding: '10px 12px' }}>
                     <span style={{
                       padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700,
-                      background: ['pro','builder','scale'].includes(u.plan) ? C.goldBg : 'rgba(255,255,255,0.04)',
+                      background: ['pro','builder','scale'].includes(u.plan) ? C.goldBg : '#F9FAFB',
                       color: ['pro','builder','scale'].includes(u.plan) ? C.gold : C.muted,
                     }}>{u.plan || 'free'}</span>
                   </td>
@@ -219,7 +219,7 @@ function TrendsTab() {
               style={{ width: '100%', padding: '6px 10px', background: 'white', border: `1px solid ${C.border}`, borderRadius: 6, color: C.text, fontSize: 12 }} />
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={addProduct} style={{ padding: '7px 16px', background: C.gold, border: 'none', borderRadius: 7, color: '#080a0e', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Add</button>
+            <button onClick={addProduct} style={{ padding: '7px 16px', background: C.gold, border: 'none', borderRadius: 7, color: '#FAFAFA', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Add</button>
             <button onClick={() => setShowAddForm(false)} style={{ padding: '7px 16px', background: C.surface, border: `1px solid ${C.border}`, borderRadius: 7, color: C.sub, fontSize: 12, cursor: 'pointer' }}>Cancel</button>
           </div>
         </div>
@@ -238,7 +238,7 @@ function TrendsTab() {
             <tbody>
               {products.map((p, i) => (
                 <tr key={i} style={{ borderBottom: `1px solid ${C.border}` }}
-                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.02)')}
+                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#FAFAFA')}
                   onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}>
                   <td style={{ padding: '10px 12px', color: C.text, fontWeight: 600 }}>{p.name}</td>
                   <td style={{ padding: '10px 12px', color: C.sub }}>{p.niche}</td>
@@ -299,7 +299,7 @@ function SubscriptionsTab() {
               )}
             </div>
           ))}
-          <button onClick={addSub} style={{ padding: '7px 16px', background: C.gold, border: 'none', borderRadius: 7, color: '#080a0e', fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>Add</button>
+          <button onClick={addSub} style={{ padding: '7px 16px', background: C.gold, border: 'none', borderRadius: 7, color: '#FAFAFA', fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>Add</button>
         </div>
       )}
 
@@ -316,7 +316,7 @@ function SubscriptionsTab() {
             <tbody>
               {subs.map((s, i) => (
                 <tr key={i} style={{ borderBottom: `1px solid ${C.border}` }}
-                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.02)')}
+                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#FAFAFA')}
                   onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}>
                   <td style={{ padding: '10px 12px', color: C.text }}>{s.email}</td>
                   <td style={{ padding: '10px 12px' }}>
@@ -387,7 +387,7 @@ function HealthTab() {
         {counts.map(c => (
           <div key={c.label} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, padding: 16 }}>
             <div style={{ fontSize: 11, color: C.muted, marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>{c.label}</div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: C.text, fontFamily: 'Syne, sans-serif' }}>{c.value}</div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: C.text, fontFamily: "'Bricolage Grotesque', sans-serif" }}>{c.value}</div>
           </div>
         ))}
       </div>
@@ -554,8 +554,8 @@ export default function AdminControlPanel() {
   if (!authorized) return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
       <div style={{ fontSize: 32 }}>Access Denied</div>
-      <div style={{ color: C.text, fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18 }}>Admin access required</div>
-      <button onClick={() => setLocation('/app')} style={{ padding: '8px 20px', background: C.gold, border: 'none', borderRadius: 8, color: '#080a0e', fontWeight: 700, cursor: 'pointer' }}>Back to Dashboard</button>
+      <div style={{ color: C.text, fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 18 }}>Admin access required</div>
+      <button onClick={() => setLocation('/app')} style={{ padding: '8px 20px', background: C.gold, border: 'none', borderRadius: 8, color: '#FAFAFA', fontWeight: 700, cursor: 'pointer' }}>Back to Dashboard</button>
     </div>
   );
 
@@ -572,7 +572,7 @@ export default function AdminControlPanel() {
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
           <div>
-            <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 900, color: C.text, margin: 0, marginBottom: 4 }}>
+            <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 24, fontWeight: 900, color: C.text, margin: 0, marginBottom: 4 }}>
               Admin Control Panel
             </h1>
             <div style={{ fontSize: 13, color: C.muted }}>Majorka internal tools · {session?.user?.email}</div>
@@ -583,12 +583,12 @@ export default function AdminControlPanel() {
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'rgba(255,255,255,0.03)', border: `1px solid ${C.border}`, borderRadius: 12, padding: 4, width: 'fit-content' }}>
+        <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: '#FAFAFA', border: `1px solid ${C.border}`, borderRadius: 12, padding: 4, width: 'fit-content' }}>
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
-              padding: '8px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, fontFamily: 'Syne, sans-serif',
+              padding: '8px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, fontFamily: "'Bricolage Grotesque', sans-serif",
               background: tab === t.id ? C.gold : 'transparent',
-              color: tab === t.id ? '#080a0e' : C.sub,
+              color: tab === t.id ? '#FAFAFA' : C.sub,
               transition: 'all 0.15s',
             }}>
               {t.label}

@@ -275,7 +275,7 @@ export default function PromoDashboard() {
 
         .promo-root {
           font-family: 'DM Sans', sans-serif;
-          background: #080a0e;
+          background: #FAFAFA;
           color: #e8eaed;
           height: 100vh;
           display: flex;
@@ -318,7 +318,7 @@ export default function PromoDashboard() {
         /* Logo / brand area */
         .sidebar-logo {
           padding: 20px 18px 16px;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
+          border-bottom: 1px solid #F9FAFB;
           position: relative;
         }
 
@@ -341,7 +341,7 @@ export default function PromoDashboard() {
           height: 38px;
           border-radius: 10px;
           background: linear-gradient(135deg, #6366F1, #c9a227);
-          color: #080a0e;
+          color: #FAFAFA;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -363,7 +363,7 @@ export default function PromoDashboard() {
 
         .logo-tagline {
           font-size: 10px;
-          color: rgba(255,255,255,0.35);
+          color: #9CA3AF;
           margin-top: 1px;
           letter-spacing: 0.3px;
         }
@@ -391,7 +391,7 @@ export default function PromoDashboard() {
           font-family: 'Syne', sans-serif;
           font-weight: 700;
           font-size: 13px;
-          color: #080a0e;
+          color: #FAFAFA;
           flex-shrink: 0;
           box-shadow: 0 0 0 2px rgba(99,102,241,0.3);
         }
@@ -450,7 +450,7 @@ export default function PromoDashboard() {
 
         .slr-label {
           font-size: 10px;
-          color: rgba(255,255,255,0.4);
+          color: #9CA3AF;
           margin-bottom: 4px;
           display: flex;
           align-items: center;
@@ -492,7 +492,7 @@ export default function PromoDashboard() {
           font-size: 9px;
           font-weight: 600;
           letter-spacing: 1.8px;
-          color: rgba(255,255,255,0.2);
+          color: #D1D5DB;
           text-transform: uppercase;
           user-select: none;
         }
@@ -505,7 +505,7 @@ export default function PromoDashboard() {
           cursor: default;
           font-size: 13.5px;
           font-weight: 400;
-          color: rgba(255,255,255,0.5);
+          color: #6B7280;
           transition: all 0.18s;
           user-select: none;
           position: relative;
@@ -532,14 +532,14 @@ export default function PromoDashboard() {
 
         .nav-item:not(.active):hover {
           color: rgba(255,255,255,0.75);
-          background: rgba(255,255,255,0.04);
+          background: #F9FAFB;
         }
 
         .nav-icon-wrap {
           width: 30px;
           height: 30px;
           border-radius: 7px;
-          background: rgba(255,255,255,0.05);
+          background: #F9FAFB;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -573,7 +573,7 @@ export default function PromoDashboard() {
         /* Bottom area */
         .sidebar-bottom {
           padding: 12px 14px 16px;
-          border-top: 1px solid rgba(255,255,255,0.05);
+          border-top: 1px solid #F9FAFB;
         }
 
         .sidebar-bottom::before {
@@ -594,15 +594,15 @@ export default function PromoDashboard() {
         }
 
         .qs-card {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.06);
+          background: #FAFAFA;
+          border: 1px solid #F9FAFB;
           border-radius: 8px;
           padding: 9px 10px;
         }
 
         .qs-label {
           font-size: 9px;
-          color: rgba(255,255,255,0.3);
+          color: #9CA3AF;
           margin-bottom: 3px;
           text-transform: uppercase;
           letter-spacing: 0.4px;
@@ -634,7 +634,7 @@ export default function PromoDashboard() {
           gap: 7px;
           font-size: 12px;
           font-weight: 500;
-          color: rgba(255,255,255,0.7);
+          color: #374151;
         }
 
         .pulse-dot-green {
@@ -760,7 +760,7 @@ export default function PromoDashboard() {
           align-items: center;
           gap: 6px;
           font-size: 11px;
-          color: rgba(255,255,255,0.6);
+          color: #374151;
         }
 
         .main-content::before {
@@ -858,7 +858,7 @@ export default function PromoDashboard() {
           height: 14px;
           border-radius: 50%;
           background: #6366F1;
-          color: #080a0e;
+          color: #FAFAFA;
           font-family: 'JetBrains Mono', monospace;
           font-size: 8px;
           font-weight: 700;
@@ -934,7 +934,7 @@ export default function PromoDashboard() {
           font-family: 'DM Sans', sans-serif;
           font-size: 11px;
           font-weight: 500;
-          color: rgba(255,255,255,0.45);
+          color: #6B7280;
           letter-spacing: 0.5px;
           text-transform: uppercase;
           margin-bottom: 10px;
@@ -1170,7 +1170,7 @@ export default function PromoDashboard() {
 
         .order-product {
           font-size: 12px;
-          color: rgba(255,255,255,0.8);
+          color: #1F2937;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -1199,7 +1199,7 @@ export default function PromoDashboard() {
         .order-time {
           font-family: 'JetBrains Mono', monospace;
           font-size: 9px;
-          color: rgba(255,255,255,0.4);
+          color: #9CA3AF;
           margin-top: 1px;
         }
 
@@ -1255,7 +1255,7 @@ export default function PromoDashboard() {
         .products-table td {
           padding: 9px 0;
           border-bottom: 1px solid rgba(99,102,241,0.03);
-          color: rgba(255,255,255,0.7);
+          color: #374151;
           vertical-align: middle;
         }
 
@@ -1359,7 +1359,7 @@ export default function PromoDashboard() {
         .toast-body {}
 
         .toast-msg {
-          color: rgba(255,255,255,0.8);
+          color: #1F2937;
           font-size: 12px;
         }
 
@@ -1663,7 +1663,7 @@ export default function PromoDashboard() {
                         key={i}
                         x1="0" x2="840"
                         y1={i * 30} y2={i * 30}
-                        stroke="rgba(255,255,255,0.04)"
+                        stroke="#F9FAFB"
                         strokeWidth="1"
                       />
                     ))}

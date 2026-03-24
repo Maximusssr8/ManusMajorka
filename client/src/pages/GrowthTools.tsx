@@ -97,7 +97,7 @@ function LaunchPack() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <span style={{ fontSize: 22 }}>🚀</span>
             <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 18, color: 'white' }}>Full Launch Pack</span>
-            <span style={{ fontSize: 9, fontWeight: 700, color: '#A5B4FC', background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: 10 }}>MAJORKA EXCLUSIVE</span>
+            <span style={{ fontSize: 9, fontWeight: 700, color: '#A5B4FC', background: '#D1D5DB', padding: '2px 8px', borderRadius: 10 }}>MAJORKA EXCLUSIVE</span>
           </div>
           <p style={{ fontSize: 12, color: '#C7D2FE', margin: 0 }}>
             One product → complete marketing kit: Meta ads, TikTok hooks, description, emails, hashtags + store names
@@ -105,7 +105,7 @@ function LaunchPack() {
         </div>
         {hasPack && (
           <button onClick={() => { navigator.clipboard.writeText(allText); }}
-            style={{ height: 32, padding: '0 14px', background: 'rgba(255,255,255,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>
+            style={{ height: 32, padding: '0 14px', background: '#D1D5DB', color: 'white', border: '1px solid #9CA3AF', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}>
             📋 Copy All
           </button>
         )}

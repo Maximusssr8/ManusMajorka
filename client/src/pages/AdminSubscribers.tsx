@@ -45,10 +45,10 @@ export default function AdminSubscribers() {
       <div className="h-full flex items-center justify-center" style={{ background: '#FAFAFA' }}>
         <div className="text-center">
           <div className="text-4xl mb-3">🔒</div>
-          <h2 className="text-lg font-bold" style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}>
+          <h2 className="text-lg font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}>
             Admin Only
           </h2>
-          <p className="text-sm" style={{ color: 'rgba(240,237,232,0.4)' }}>
+          <p className="text-sm" style={{ color: '#9CA3AF' }}>
             This page is restricted.
           </p>
         </div>
@@ -91,11 +91,11 @@ export default function AdminSubscribers() {
       <div className="mb-8">
         <h1
           className="text-2xl font-bold mb-1"
-          style={{ fontFamily: 'Syne, sans-serif', color: '#6366F1' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
         >
           Subscribers
         </h1>
-        <p className="text-sm" style={{ color: 'rgba(240,237,232,0.5)' }}>
+        <p className="text-sm" style={{ color: '#6B7280' }}>
           Email list from all acquisition channels
         </p>
       </div>
@@ -110,7 +110,7 @@ export default function AdminSubscribers() {
           <div
             key={label}
             className="rounded-xl p-4 flex items-center gap-3"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+            style={{ background: '#F9FAFB', border: '1px solid #F5F5F5' }}
           >
             <div
               className="w-9 h-9 rounded-lg flex items-center justify-center"
@@ -119,10 +119,10 @@ export default function AdminSubscribers() {
               <Icon size={16} style={{ color: '#6366F1' }} />
             </div>
             <div>
-              <div className="text-xl font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
+              <div className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 {value.toLocaleString()}
               </div>
-              <div className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>
+              <div className="text-xs" style={{ color: '#9CA3AF' }}>
                 {label}
               </div>
             </div>
@@ -136,13 +136,13 @@ export default function AdminSubscribers() {
           <Search
             size={14}
             className="absolute left-3 top-1/2 -translate-y-1/2"
-            style={{ color: 'rgba(240,237,232,0.3)' }}
+            style={{ color: '#9CA3AF' }}
           />
           <input
             className="w-full pl-9 pr-3 py-2 rounded-lg text-sm outline-none"
             style={{
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: '#F9FAFB',
+              border: '1px solid #F0F0F0',
               color: '#0A0A0A',
             }}
             placeholder="Search by email or name..."
@@ -163,25 +163,25 @@ export default function AdminSubscribers() {
       {/* Table */}
       <div
         className="rounded-xl overflow-hidden"
-        style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+        style={{ border: '1px solid #F5F5F5' }}
       >
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 size={20} className="animate-spin" style={{ color: '#6366F1' }} />
           </div>
         ) : error ? (
-          <div className="text-center py-12 text-sm" style={{ color: 'rgba(240,237,232,0.5)' }}>
+          <div className="text-center py-12 text-sm" style={{ color: '#6B7280' }}>
             Error: {error}
           </div>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr style={{ background: 'rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+              <tr style={{ background: '#F9FAFB', borderBottom: '1px solid #F5F5F5' }}>
                 {['Email', 'Name', 'Source', 'Subscribed', 'Status'].map((h) => (
                   <th
                     key={h}
                     className="text-left px-4 py-3 font-medium"
-                    style={{ color: 'rgba(240,237,232,0.5)', fontFamily: 'Syne, sans-serif', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                    style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em' }}
                   >
                     {h}
                   </th>
@@ -193,14 +193,14 @@ export default function AdminSubscribers() {
                 <tr
                   key={s.id}
                   style={{
-                    borderBottom: '1px solid rgba(255,255,255,0.04)',
-                    background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)',
+                    borderBottom: '1px solid #F9FAFB',
+                    background: i % 2 === 0 ? 'transparent' : '#FAFAFA',
                   }}
                 >
                   <td className="px-4 py-3" style={{ color: '#0A0A0A' }}>
                     {s.email}
                   </td>
-                  <td className="px-4 py-3" style={{ color: 'rgba(240,237,232,0.7)' }}>
+                  <td className="px-4 py-3" style={{ color: '#374151' }}>
                     {s.name || '—'}
                   </td>
                   <td className="px-4 py-3">
@@ -211,7 +211,7 @@ export default function AdminSubscribers() {
                       {s.source}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs" style={{ color: 'rgba(240,237,232,0.5)' }}>
+                  <td className="px-4 py-3 text-xs" style={{ color: '#6B7280' }}>
                     {new Date(s.subscribed_at).toLocaleDateString('en-AU', {
                       day: 'numeric',
                       month: 'short',
@@ -222,8 +222,8 @@ export default function AdminSubscribers() {
                     <span
                       className="px-2 py-0.5 rounded text-xs font-medium"
                       style={{
-                        background: s.is_active ? 'rgba(45,202,114,0.12)' : 'rgba(255,255,255,0.06)',
-                        color: s.is_active ? '#2dca72' : 'rgba(240,237,232,0.4)',
+                        background: s.is_active ? 'rgba(99,102,241,0.18)' : '#F9FAFB',
+                        color: s.is_active ? '#6366F1' : '#9CA3AF',
                       }}
                     >
                       {s.is_active ? 'Active' : 'Inactive'}
@@ -235,13 +235,13 @@ export default function AdminSubscribers() {
           </table>
         )}
         {!loading && !error && filtered.length === 0 && (
-          <div className="text-center py-12 text-sm" style={{ color: 'rgba(240,237,232,0.4)' }}>
+          <div className="text-center py-12 text-sm" style={{ color: '#9CA3AF' }}>
             No subscribers found
           </div>
         )}
       </div>
 
-      <div className="mt-4 text-xs" style={{ color: 'rgba(240,237,232,0.3)' }}>
+      <div className="mt-4 text-xs" style={{ color: '#9CA3AF' }}>
         Showing {filtered.length} of {subscribers.length} subscribers
       </div>
     </div>

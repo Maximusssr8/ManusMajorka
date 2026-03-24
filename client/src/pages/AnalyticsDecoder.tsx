@@ -127,10 +127,10 @@ export default function AnalyticsDecoder() {
             <BarChart3 size={15} style={{ color: '#f472b6' }} />
           </div>
           <div>
-            <div className="text-sm font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+            <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Analytics Decoder
             </div>
-            <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+            <div className="text-xs" style={{ color: '#9CA3AF' }}>
               KPIs · Benchmarks · Actions
             </div>
           </div>
@@ -184,7 +184,7 @@ export default function AnalyticsDecoder() {
           <div key={label}>
             <label
               className="block text-xs font-bold uppercase tracking-wider mb-1.5"
-              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               {label}
             </label>
@@ -195,12 +195,12 @@ export default function AnalyticsDecoder() {
               placeholder={placeholder}
               className="w-full text-xs px-3 py-2.5 rounded-lg outline-none"
               style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1.5px solid rgba(255,255,255,0.08)',
-                color: '#f0ede8',
+                background: '#F9FAFB',
+                border: '1.5px solid #F5F5F5',
+                color: '#374151',
               }}
               onFocus={(e) => (e.target.style.borderColor = 'rgba(244,114,182,0.45)')}
-              onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+              onBlur={(e) => (e.target.style.borderColor = '#F5F5F5')}
             />
           </div>
         ))}
@@ -214,7 +214,7 @@ export default function AnalyticsDecoder() {
               ? 'rgba(244,114,182,0.25)'
               : 'linear-gradient(135deg, #f472b6, #ec4899)',
             color: '#fff',
-            fontFamily: 'Syne, sans-serif',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
             boxShadow: generating ? 'none' : '0 4px 20px rgba(244,114,182,0.3)',
             cursor: generating ? 'not-allowed' : 'pointer',
           }}
@@ -236,7 +236,7 @@ export default function AnalyticsDecoder() {
         {result ? (
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black" style={{ fontFamily: 'Syne, sans-serif' }}>
+              <h2 className="text-lg font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Analytics Report
               </h2>
               <SaveToProduct
@@ -248,9 +248,9 @@ export default function AnalyticsDecoder() {
                 onClick={copyAll}
                 className="text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: 'rgba(240,237,232,0.6)',
+                  background: '#F9FAFB',
+                  border: '1px solid #F0F0F0',
+                  color: '#374151',
                   cursor: 'pointer',
                 }}
               >
@@ -265,7 +265,7 @@ export default function AnalyticsDecoder() {
                 border: '1px solid rgba(244,114,182,0.2)',
               }}
             >
-              <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.7)' }}>
+              <div className="text-xs leading-relaxed" style={{ color: '#374151' }}>
                 {result.summary}
               </div>
             </div>
@@ -277,12 +277,12 @@ export default function AnalyticsDecoder() {
                   key={i}
                   className="rounded-xl p-4"
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
+                    background: '#FAFAFA',
                     border: '1px solid #E5E7EB',
                   }}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                    <span className="text-xs" style={{ color: '#9CA3AF' }}>
                       {kpi.name}
                     </span>
                     <div
@@ -290,7 +290,7 @@ export default function AnalyticsDecoder() {
                       style={{
                         color:
                           kpi.trend === 'up'
-                            ? '#2dca72'
+                            ? '#6366F1'
                             : kpi.trend === 'down'
                               ? '#ff6b6b'
                               : '#f0c040',
@@ -306,11 +306,11 @@ export default function AnalyticsDecoder() {
                   </div>
                   <div
                     className="text-lg font-black mb-1"
-                    style={{ fontFamily: 'Syne, sans-serif' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     {kpi.value}
                   </div>
-                  <div className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                  <div className="text-xs" style={{ color: '#9CA3AF' }}>
                     {kpi.insight}
                   </div>
                 </div>
@@ -321,14 +321,14 @@ export default function AnalyticsDecoder() {
             <div
               className="rounded-xl overflow-hidden"
               style={{
-                background: 'rgba(255,255,255,0.02)',
+                background: '#FAFAFA',
                 border: '1px solid #E5E7EB',
               }}
             >
               <div className="px-4 py-3 border-b" style={{ borderColor: '#E5E7EB' }}>
                 <div
                   className="text-xs font-black uppercase tracking-widest"
-                  style={{ color: '#f472b6', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#f472b6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Key Insights
                 </div>
@@ -339,7 +339,7 @@ export default function AnalyticsDecoder() {
                   className="flex items-start gap-3 px-4 py-3"
                   style={{
                     borderBottom:
-                      i < result.insights.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                      i < result.insights.length - 1 ? '1px solid #F9FAFB' : 'none',
                   }}
                 >
                   <span className="text-xs mt-0.5" style={{ color: '#f472b6' }}>
@@ -359,14 +359,14 @@ export default function AnalyticsDecoder() {
             <div
               className="rounded-xl overflow-hidden"
               style={{
-                background: 'rgba(45,202,114,0.04)',
-                border: '1px solid rgba(45,202,114,0.15)',
+                background: 'rgba(99,102,241,0.06)',
+                border: '1px solid #EEF2FF',
               }}
             >
-              <div className="px-4 py-3 border-b" style={{ borderColor: 'rgba(45,202,114,0.1)' }}>
+              <div className="px-4 py-3 border-b" style={{ borderColor: '#EEF2FF' }}>
                 <div
                   className="text-xs font-black uppercase tracking-widest"
-                  style={{ color: '#2dca72', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Recommended Actions
                 </div>
@@ -377,13 +377,13 @@ export default function AnalyticsDecoder() {
                   className="flex items-start gap-3 px-4 py-3"
                   style={{
                     borderBottom:
-                      i < result.actions.length - 1 ? '1px solid rgba(45,202,114,0.08)' : 'none',
+                      i < result.actions.length - 1 ? '1px solid rgba(99,102,241,0.12)' : 'none',
                   }}
                 >
                   <ArrowRight
                     size={12}
                     className="mt-0.5 flex-shrink-0"
-                    style={{ color: '#2dca72' }}
+                    style={{ color: '#6366F1' }}
                   />
                   <span
                     className="text-xs leading-relaxed"
@@ -404,10 +404,10 @@ export default function AnalyticsDecoder() {
                   className="animate-spin mx-auto mb-4"
                   style={{ color: '#f472b6' }}
                 />
-                <div className="text-sm font-bold" style={{ fontFamily: 'Syne, sans-serif' }}>
+                <div className="text-sm font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Decoding your analytics…
                 </div>
-                <div className="text-xs mt-1" style={{ color: 'rgba(240,237,232,0.35)' }}>
+                <div className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
                   Comparing against industry benchmarks
                 </div>
               </div>
@@ -417,13 +417,13 @@ export default function AnalyticsDecoder() {
                 <div className="text-center">
                   <div
                     className="text-base font-black mb-2"
-                    style={{ fontFamily: 'Syne, sans-serif' }}
+                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Analytics Decoder
                   </div>
                   <div
                     className="text-xs max-w-xs leading-relaxed"
-                    style={{ color: 'rgba(240,237,232,0.35)' }}
+                    style={{ color: '#9CA3AF' }}
                   >
                     Enter your store metrics to get KPI analysis with industry benchmarks, key
                     insights, and recommended actions.

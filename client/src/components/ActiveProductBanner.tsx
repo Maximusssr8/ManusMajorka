@@ -6,7 +6,7 @@ const STAGE_COLORS: Record<string, { bg: string; text: string; label: string }> 
   research: { bg: 'rgba(0,180,216,0.12)', text: '#00b4d8', label: 'Research' },
   validate: { bg: 'rgba(124,106,245,0.12)', text: '#7c6af5', label: 'Validate' },
   manual: { bg: 'rgba(99,102,241,0.12)', text: '#6366F1', label: 'Manual' },
-  build: { bg: 'rgba(45,202,114,0.12)', text: '#2dca72', label: 'Build' },
+  build: { bg: 'rgba(99,102,241,0.18)', text: '#6366F1', label: 'Build' },
   launch: { bg: 'rgba(255,100,100,0.12)', text: '#ff6b6b', label: 'Launch' },
   optimize: { bg: 'rgba(244,114,182,0.12)', text: '#f472b6', label: 'Optimize' },
   scale: { bg: 'rgba(139,92,246,0.12)', text: '#8b5cf6', label: 'Scale' },
@@ -44,7 +44,7 @@ export function ActiveProductBanner({ onUseProduct, ctaLabel = 'Use this product
         <div className="flex items-center gap-2">
           <span
             className="text-xs font-black truncate"
-            style={{ color: '#f0ede8', fontFamily: 'Syne, sans-serif' }}
+            style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             {activeProduct.name}
           </span>
@@ -82,13 +82,13 @@ export function ActiveProductBanner({ onUseProduct, ctaLabel = 'Use this product
           onClick={() => setLocation('/app/my-products')}
           className="text-xs px-2.5 py-1 rounded-md transition-all"
           style={{
-            color: 'rgba(240,237,232,0.4)',
+            color: '#9CA3AF',
             background: 'transparent',
             border: 'none',
             cursor: 'pointer',
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(240,237,232,0.7)')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(240,237,232,0.4)')}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#374151')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = '#9CA3AF')}
         >
           Switch
         </button>
@@ -113,14 +113,14 @@ export function ActiveProductBanner({ onUseProduct, ctaLabel = 'Use this product
         <button
           onClick={() => setProduct(null)}
           style={{
-            color: 'rgba(240,237,232,0.25)',
+            color: '#D1D5DB',
             cursor: 'pointer',
             background: 'none',
             border: 'none',
             padding: '2px',
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = 'rgba(240,237,232,0.6)')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(240,237,232,0.25)')}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#374151')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = '#D1D5DB')}
         >
           <X size={12} />
         </button>

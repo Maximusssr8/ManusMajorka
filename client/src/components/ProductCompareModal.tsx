@@ -25,8 +25,8 @@ const C = {
   gold: '#6366F1',
   goldBg: 'rgba(99,102,241,0.08)',
   goldBorder: 'rgba(99,102,241,0.2)',
-  glass: 'rgba(255,255,255,0.04)',
-  border: 'rgba(255,255,255,0.08)',
+  glass: '#F9FAFB',
+  border: '#F5F5F5',
   text: '#f5f5f5',
   sub: '#a1a1aa',
   muted: '#52525b',
@@ -61,7 +61,7 @@ export default function ProductCompareModal({ products, onClose }: Props) {
       render: (p) => (
         <span
           style={{
-            fontFamily: 'Syne, sans-serif',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
             fontSize: 22,
             fontWeight: 800,
             color: C.gold,
@@ -189,7 +189,7 @@ export default function ProductCompareModal({ products, onClose }: Props) {
           maxHeight: '90vh',
           overflowY: 'auto',
           background: C.bg,
-          border: '1px solid rgba(255,255,255,0.1)',
+          border: '1px solid #F0F0F0',
           borderRadius: 20,
           boxShadow: '0 40px 80px rgba(0,0,0,0.6)',
         }}
@@ -201,13 +201,13 @@ export default function ProductCompareModal({ products, onClose }: Props) {
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '20px 24px',
-            borderBottom: '1px solid rgba(255,255,255,0.07)',
+            borderBottom: '1px solid #E5E7EB',
           }}
         >
           <div>
             <h2
               style={{
-                fontFamily: 'Syne, sans-serif',
+                fontFamily: "'Bricolage Grotesque', sans-serif",
                 fontSize: 18,
                 fontWeight: 800,
                 color: C.text,
@@ -227,7 +227,7 @@ export default function ProductCompareModal({ products, onClose }: Props) {
               height: 34,
               borderRadius: '50%',
               background: C.glass,
-              border: '1px solid rgba(255,255,255,0.1)',
+              border: '1px solid #F0F0F0',
               color: C.text,
               cursor: 'pointer',
               display: 'flex',
@@ -275,7 +275,7 @@ export default function ProductCompareModal({ products, onClose }: Props) {
                     padding: '2px 12px',
                     fontSize: 10,
                     fontWeight: 800,
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                     whiteSpace: 'nowrap',
                   }}
                 >
@@ -307,7 +307,7 @@ export default function ProductCompareModal({ products, onClose }: Props) {
                     height: 60,
                     borderRadius: 10,
                     background: C.glass,
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    border: '1px solid #F9FAFB',
                     margin: '0 auto 10px',
                     display: 'flex',
                     alignItems: 'center',
@@ -321,7 +321,7 @@ export default function ProductCompareModal({ products, onClose }: Props) {
 
               <div
                 style={{
-                  fontFamily: 'Syne, sans-serif',
+                  fontFamily: "'Bricolage Grotesque', sans-serif",
                   fontSize: 13,
                   fontWeight: 700,
                   color: C.text,
@@ -343,7 +343,7 @@ export default function ProductCompareModal({ products, onClose }: Props) {
                 display: 'grid',
                 gridTemplateColumns: `160px repeat(${products.length}, 1fr)`,
                 gap: 0,
-                borderBottom: ri < rows.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                borderBottom: ri < rows.length - 1 ? '1px solid #F9FAFB' : 'none',
                 padding: '12px 0',
                 alignItems: 'center',
               }}

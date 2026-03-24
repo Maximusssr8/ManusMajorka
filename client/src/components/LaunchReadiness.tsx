@@ -9,7 +9,7 @@ import { ArrowRight, Lock, Rocket } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 
-const syne = 'Syne, sans-serif';
+const syne = "'Bricolage Grotesque', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 const LAUNCH_CSS = `
@@ -166,7 +166,7 @@ function ProgressDial({ percent, allDone }: { percent: number; allDone: boolean 
   return (
     <div style={{ position: 'relative', width: 80, height: 80, flexShrink: 0 }}>
       <svg width="80" height="80" viewBox="0 0 80 80" style={{ transform: 'rotate(-90deg)' }}>
-        <circle cx="40" cy="40" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
+        <circle cx="40" cy="40" r={r} fill="none" stroke="#F9FAFB" strokeWidth="5" />
         <circle
           cx="40"
           cy="40"
@@ -403,8 +403,8 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
             <div
               key={col.key}
               style={{
-                background: 'rgba(255,255,255,0.02)',
-                border: `1px solid rgba(255,255,255,0.05)`,
+                background: '#FAFAFA',
+                border: `1px solid #F9FAFB`,
                 borderRadius: 10,
                 padding: 10,
                 minWidth: 0,
@@ -439,7 +439,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
                     fontSize: 9,
                     color: '#52525b',
                     fontWeight: 600,
-                    background: 'rgba(255,255,255,0.04)',
+                    background: '#F9FAFB',
                     borderRadius: 100,
                     padding: '1px 6px',
                   }}
@@ -466,8 +466,8 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
                             ? 'rgba(16,185,129,0.06)'
                             : col.key === 'inprogress'
                               ? 'rgba(99,102,241,0.06)'
-                              : 'rgba(255,255,255,0.03)',
-                        border: `1px solid ${col.key === 'done' ? 'rgba(16,185,129,0.18)' : col.key === 'inprogress' ? 'rgba(99,102,241,0.18)' : 'rgba(255,255,255,0.06)'}`,
+                              : '#FAFAFA',
+                        border: `1px solid ${col.key === 'done' ? 'rgba(16,185,129,0.18)' : col.key === 'inprogress' ? 'rgba(99,102,241,0.18)' : '#F9FAFB'}`,
                         borderRadius: 8,
                         padding: '8px 10px',
                         cursor: 'pointer',
@@ -561,7 +561,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
             fontSize: 10,
             color: '#3f3f46',
             background: 'none',
-            border: '1px solid rgba(255,255,255,0.06)',
+            border: '1px solid #F9FAFB',
             borderRadius: 6,
             padding: '3px 8px',
             cursor: 'pointer',
@@ -569,11 +569,11 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
           }}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLButtonElement).style.color = '#a1a1aa';
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.15)';
+            (e.currentTarget as HTMLButtonElement).style.borderColor = '#D1D5DB';
           }}
           onMouseLeave={(e) => {
             (e.currentTarget as HTMLButtonElement).style.color = '#3f3f46';
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.06)';
+            (e.currentTarget as HTMLButtonElement).style.borderColor = '#F9FAFB';
           }}
         >
           Reset board

@@ -61,9 +61,9 @@ function CopyBtn({ text }: { text: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? 'rgba(45,202,114,0.1)' : '#F9FAFB',
-        border: `1px solid ${copied ? 'rgba(45,202,114,0.3)' : '#E5E7EB'}`,
-        color: copied ? 'rgba(45,202,114,0.8)' : '#9CA3AF',
+        background: copied ? '#EEF2FF' : '#F9FAFB',
+        border: `1px solid ${copied ? '#C7D2FE' : '#E5E7EB'}`,
+        color: copied ? 'rgba(99,102,241,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
     >
@@ -73,7 +73,7 @@ function CopyBtn({ text }: { text: string }) {
 }
 
 const THREAT_COLORS: Record<string, string> = {
-  Low: '#2dca72',
+  Low: '#6366F1',
   Medium: '#6366F1',
   High: '#e05c7a',
 };
@@ -96,7 +96,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
           style={{
             background: 'rgba(156,95,255,0.12)',
             color: '#9c5fff',
-            fontFamily: 'Syne, sans-serif',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
           }}
         >
           {index + 1}
@@ -104,7 +104,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-black leading-tight"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
           >
             {competitor.name}
           </div>
@@ -133,13 +133,13 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
             <div
               className="p-3 rounded-xl"
               style={{
-                background: 'rgba(45,202,114,0.04)',
-                border: '1px solid rgba(45,202,114,0.1)',
+                background: 'rgba(99,102,241,0.06)',
+                border: '1px solid #EEF2FF',
               }}
             >
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-2"
-                style={{ color: '#2dca72', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Strengths
               </div>
@@ -150,7 +150,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
                     className="text-xs flex items-start gap-1.5"
                     style={{ color: '#374151' }}
                   >
-                    <span style={{ color: '#2dca72', flexShrink: 0 }}>+</span>
+                    <span style={{ color: '#6366F1', flexShrink: 0 }}>+</span>
                     {s}
                   </div>
                 ))}
@@ -165,7 +165,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
             >
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-2"
-                style={{ color: '#e05c7a', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#e05c7a', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Weaknesses
               </div>
@@ -187,7 +187,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
             <div className="p-3 rounded-xl" style={{ background: '#F9FAFB' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Target Audience
               </div>
@@ -198,7 +198,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
             <div className="p-3 rounded-xl" style={{ background: '#F9FAFB' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Marketing Channels
               </div>
@@ -224,7 +224,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
           >
             <div
               className="text-xs font-bold uppercase tracking-wider mb-1"
-              style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Key Differentiator
             </div>
@@ -324,7 +324,7 @@ export default function CompetitorBreakdown() {
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-black leading-tight"
-            style={{ fontFamily: 'Syne, sans-serif' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Competitor Breakdown
           </div>
@@ -365,7 +365,7 @@ export default function CompetitorBreakdown() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#6B7280', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Product / Niche *
               </label>
@@ -382,7 +382,7 @@ export default function CompetitorBreakdown() {
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
                   background: '#F9FAFB',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  border: '1px solid #F0F0F0',
                   color: '#0A0A0A',
                 }}
               />
@@ -390,7 +390,7 @@ export default function CompetitorBreakdown() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#6B7280', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Competitor URLs (optional)
               </label>
@@ -402,7 +402,7 @@ export default function CompetitorBreakdown() {
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none resize-none"
                 style={{
                   background: '#F9FAFB',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  border: '1px solid #F0F0F0',
                   color: '#0A0A0A',
                 }}
               />
@@ -419,7 +419,7 @@ export default function CompetitorBreakdown() {
             style={{
               background: isLoading ? 'rgba(156,95,255,0.25)' : '#9c5fff',
               color: '#fff',
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: isLoading ? 'not-allowed' : 'pointer',
             }}
           >
@@ -461,7 +461,7 @@ export default function CompetitorBreakdown() {
                 <Target size={24} style={{ color: '#9c5fff' }} className="animate-pulse" />
               </div>
               <div className="text-center">
-                <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>
+                <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Analysing competitors…
                 </div>
                 <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -483,7 +483,7 @@ export default function CompetitorBreakdown() {
                 <div className="flex items-center justify-between mb-2">
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#9c5fff', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#9c5fff', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Market Summary
                   </div>
@@ -497,7 +497,7 @@ export default function CompetitorBreakdown() {
               <div>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-3"
-                  style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   {result.competitors.length} Competitors Analysed
                 </div>
@@ -511,14 +511,14 @@ export default function CompetitorBreakdown() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: 'rgba(45,202,114,0.04)',
-                  border: '1px solid rgba(45,202,114,0.12)',
+                  background: 'rgba(99,102,241,0.06)',
+                  border: '1px solid rgba(99,102,241,0.18)',
                 }}
               >
                 <div className="flex items-center justify-between mb-3">
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#2dca72', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Opportunity Gaps
                   </div>
@@ -534,9 +534,9 @@ export default function CompetitorBreakdown() {
                       <span
                         className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 mt-0.5 font-black text-xs"
                         style={{
-                          background: 'rgba(45,202,114,0.15)',
-                          color: '#2dca72',
-                          fontFamily: 'Syne, sans-serif',
+                          background: '#EEF2FF',
+                          color: '#6366F1',
+                          fontFamily: "'Bricolage Grotesque', sans-serif",
                         }}
                       >
                         {i + 1}
@@ -557,7 +557,7 @@ export default function CompetitorBreakdown() {
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Entry Strategy
                   </div>
@@ -577,7 +577,7 @@ export default function CompetitorBreakdown() {
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Pricing Intel
                   </div>
@@ -598,7 +598,7 @@ export default function CompetitorBreakdown() {
               <div className="text-center">
                 <div
                   className="text-base font-black mb-2"
-                  style={{ fontFamily: 'Syne, sans-serif' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Understand your competition
                 </div>

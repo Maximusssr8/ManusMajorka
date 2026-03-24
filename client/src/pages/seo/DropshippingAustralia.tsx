@@ -8,10 +8,10 @@ import { Link } from 'wouter';
 import { SEO } from '@/components/SEO';
 
 const C = {
-  bg: '#080a0e',
+  bg: '#FAFAFA',
   card: '#0d0f14',
   elevated: '#131318',
-  border: 'rgba(255,255,255,0.06)',
+  border: '#F9FAFB',
   text: '#f5f5f5',
   secondary: '#94949e',
   muted: '#52525b',
@@ -20,7 +20,7 @@ const C = {
   goldBorder: 'rgba(99,102,241,0.2)',
 };
 
-const syne = 'Syne, sans-serif';
+const syne = "'Bricolage Grotesque', sans-serif";
 const dmSans = 'DM Sans, sans-serif';
 
 const TRENDING_PRODUCTS = [
@@ -243,7 +243,7 @@ export default function DropshippingAustralia() {
               </thead>
               <tbody>
                 {TRENDING_PRODUCTS.map((p, i) => (
-                  <tr key={p.name} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.01)' }}>
+                  <tr key={p.name} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? 'transparent' : '#FAFAFA' }}>
                     <td style={{ padding: '14px 16px', color: C.text, fontWeight: 600 }}>{p.name}</td>
                     <td style={{ padding: '14px 16px', color: C.gold, fontWeight: 700 }}>{p.revenue}</td>
                     <td style={{ padding: '14px 16px', color: '#4ade80' }}>{p.margin}</td>

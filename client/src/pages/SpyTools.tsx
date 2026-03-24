@@ -7,7 +7,7 @@ const VideoIntelligence = lazy(() => import('./VideoIntelligence'));
 type TabKey = 'ads' | 'creators' | 'videos' | 'competitors';
 
 const SEED_ADS = [
-  { id: 1, platform: 'Facebook', product: 'Posture Corrector Pro', runningDays: 47, spendPerDay: 312, gradient: 'linear-gradient(135deg,#1a1a2e,#16213e)', niche: 'Health' },
+  { id: 1, platform: 'Facebook', product: 'Posture Corrector Pro', runningDays: 47, spendPerDay: 312, gradient: 'linear-gradient(135deg,#F3F4F6,#16213e)', niche: 'Health' },
   { id: 2, platform: 'TikTok', product: 'LED Desk Lamp RGB', runningDays: 23, spendPerDay: 187, gradient: 'linear-gradient(135deg,#0f0f23,#1a1a3e)', niche: 'Tech' },
   { id: 3, platform: 'Instagram', product: 'Vitamin C Serum 30ml', runningDays: 61, spendPerDay: 445, gradient: 'linear-gradient(135deg,#fdf4ff,#fce7f3)', niche: 'Beauty' },
   { id: 4, platform: 'Facebook', product: 'Weighted Blanket 8kg', runningDays: 38, spendPerDay: 276, gradient: 'linear-gradient(135deg,#1c1917,#292524)', niche: 'Home' },
@@ -332,10 +332,10 @@ export default function SpyTools() {
               {sortedAds.map(ad => (
                 <div key={ad.id} style={{
                   background: 'white', borderRadius: 12, border: '1px solid #F0F0F0', overflow: 'hidden',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'transform 150ms, box-shadow 150ms',
+                  boxShadow: '0 2px 8px #F5F5F5', transition: 'transform 150ms, box-shadow 150ms',
                 }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.08)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'; }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px #E5E7EB'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 2px 8px #F5F5F5'; }}
                 >
                   <div style={{ height: 180, background: ad.gradient, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <span style={{ fontSize: 48, opacity: 0.3 }}>📦</span>
@@ -455,7 +455,7 @@ export default function SpyTools() {
               </div>
               <button onClick={() => setViewAd(null)} style={{
                 position: 'absolute', bottom: 14, right: 14,
-                width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.9)', border: 'none',
+                width: 32, height: 32, borderRadius: '50%', background: '#111827', border: 'none',
                 cursor: 'pointer', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>×</button>
             </div>

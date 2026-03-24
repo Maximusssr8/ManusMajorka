@@ -33,14 +33,14 @@ export default function StoreProducts() {
   if (!store.data && !store.isLoading) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <Store className="w-12 h-12 mx-auto mb-4" style={{ color: 'rgba(240,237,232,0.3)' }} />
+        <Store className="w-12 h-12 mx-auto mb-4" style={{ color: '#9CA3AF' }} />
         <h2
           className="text-xl font-bold text-white mb-2"
-          style={{ fontFamily: 'Syne, sans-serif' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
         >
           No store yet
         </h2>
-        <p className="mb-6" style={{ color: 'rgba(240,237,232,0.5)' }}>
+        <p className="mb-6" style={{ color: '#6B7280' }}>
           Set up your store first to start selling.
         </p>
         <Button
@@ -76,11 +76,11 @@ export default function StoreProducts() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             Storefront
           </h1>
           {store.data && (
-            <p className="text-sm mt-1" style={{ color: 'rgba(240,237,232,0.5)' }}>
+            <p className="text-sm mt-1" style={{ color: '#6B7280' }}>
               {store.data.storeName}
             </p>
           )}
@@ -118,17 +118,17 @@ export default function StoreProducts() {
             <div
               key={i}
               className="h-20 rounded-xl animate-pulse"
-              style={{ background: 'rgba(255,255,255,0.04)' }}
+              style={{ background: '#F9FAFB' }}
             />
           ))}
         </div>
       ) : !myProducts.data?.length ? (
         <div className="text-center py-16">
-          <Package className="w-12 h-12 mx-auto mb-4" style={{ color: 'rgba(240,237,232,0.2)' }} />
-          <p className="font-semibold text-white mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <Package className="w-12 h-12 mx-auto mb-4" style={{ color: '#D1D5DB' }} />
+          <p className="font-semibold text-white mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             No products yet
           </p>
-          <p className="text-sm mb-4" style={{ color: 'rgba(240,237,232,0.5)' }}>
+          <p className="text-sm mb-4" style={{ color: '#6B7280' }}>
             Add products in{' '}
             <button
               onClick={() => navigate('/app/my-products')}
@@ -152,26 +152,26 @@ export default function StoreProducts() {
                 key={product.id}
                 className="rounded-xl p-5 transition-colors"
                 style={{
-                  background: 'rgba(255,255,255,0.02)',
+                  background: '#FAFAFA',
                   border: published
                     ? '1px solid rgba(99,102,241,0.3)'
-                    : '1px solid rgba(255,255,255,0.07)',
+                    : '1px solid #E5E7EB',
                 }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div
                       className="w-2 h-2 rounded-full"
-                      style={{ background: published ? '#4ade80' : 'rgba(255,255,255,0.2)' }}
+                      style={{ background: published ? '#4ade80' : '#D1D5DB' }}
                     />
                     <div>
                       <p
                         className="text-white font-medium"
-                        style={{ fontFamily: 'Syne, sans-serif' }}
+                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                       >
                         {product.name}
                       </p>
-                      <p className="text-xs" style={{ color: 'rgba(240,237,232,0.4)' }}>
+                      <p className="text-xs" style={{ color: '#9CA3AF' }}>
                         {product.niche || 'No niche'}
                       </p>
                     </div>
@@ -180,7 +180,7 @@ export default function StoreProducts() {
                     {published ? (
                       <Eye className="w-4 h-4" style={{ color: '#4ade80' }} />
                     ) : (
-                      <EyeOff className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.3)' }} />
+                      <EyeOff className="w-4 h-4" style={{ color: '#9CA3AF' }} />
                     )}
                     <Switch
                       checked={published}
@@ -192,12 +192,12 @@ export default function StoreProducts() {
                 {(published || prices[product.id]) && (
                   <div
                     className="mt-4 pt-4 flex gap-4"
-                    style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+                    style={{ borderTop: '1px solid #F9FAFB' }}
                   >
                     <div>
                       <Label
                         className="text-xs mb-1 block"
-                        style={{ color: 'rgba(240,237,232,0.5)' }}
+                        style={{ color: '#6B7280' }}
                       >
                         Price (AUD)
                       </Label>
@@ -219,13 +219,13 @@ export default function StoreProducts() {
                         }
                         placeholder="49.00"
                         className="border-white/10 text-white w-32 h-8 text-sm"
-                        style={{ background: 'rgba(255,255,255,0.05)' }}
+                        style={{ background: '#F9FAFB' }}
                       />
                     </div>
                     <div>
                       <Label
                         className="text-xs mb-1 block"
-                        style={{ color: 'rgba(240,237,232,0.5)' }}
+                        style={{ color: '#6B7280' }}
                       >
                         Compare at (crossed out)
                       </Label>
@@ -247,7 +247,7 @@ export default function StoreProducts() {
                         }
                         placeholder="99.00"
                         className="border-white/10 text-white w-32 h-8 text-sm"
-                        style={{ background: 'rgba(255,255,255,0.05)' }}
+                        style={{ background: '#F9FAFB' }}
                       />
                     </div>
                   </div>

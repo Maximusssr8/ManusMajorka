@@ -43,8 +43,8 @@ export function AILoadingState({
                 className="rounded-xl animate-pulse"
                 style={{
                   height: 100,
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.04)',
+                  background: '#FAFAFA',
+                  border: '1px solid #F9FAFB',
                   animationDelay: `${i * 0.2}s`,
                 }}
               />
@@ -60,7 +60,7 @@ export function AILoadingState({
                 style={{
                   height: 12,
                   width: `${w}%`,
-                  background: 'rgba(255,255,255,0.04)',
+                  background: '#F9FAFB',
                   animationDelay: `${i * 0.15}s`,
                 }}
               />
@@ -79,7 +79,7 @@ export function AILoadingState({
                 className="rounded-lg animate-pulse"
                 style={{
                   height: 24,
-                  background: 'rgba(255,255,255,0.03)',
+                  background: '#FAFAFA',
                   animationDelay: `${i * 0.15}s`,
                 }}
               />
@@ -108,7 +108,7 @@ export function AILoadingState({
         className="text-xs font-semibold transition-opacity duration-300"
         style={{
           color: 'rgba(99,102,241,0.7)',
-          fontFamily: 'Syne, sans-serif',
+          fontFamily: "'Bricolage Grotesque', sans-serif",
         }}
       >
         {messages[msgIndex]}

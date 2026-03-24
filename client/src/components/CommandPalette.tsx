@@ -43,7 +43,7 @@ export default function CommandPalette() {
         className="w-full max-w-lg mx-4 overflow-hidden animate-scale-in"
         style={{
           background: '#141418',
-          border: '1px solid rgba(255,255,255,0.1)',
+          border: '1px solid #F0F0F0',
           borderRadius: 14,
           boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
         }}
@@ -52,7 +52,7 @@ export default function CommandPalette() {
         <Command label="Command palette" loop>
           <div
             className="flex items-center gap-3 px-4 py-3"
-            style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ borderBottom: '1px solid #F9FAFB' }}
           >
             <Search size={16} style={{ color: '#52525b', flexShrink: 0 }} />
             <Command.Input
@@ -63,14 +63,14 @@ export default function CommandPalette() {
             />
             <kbd
               className="px-1.5 py-0.5 rounded text-xs"
-              style={{ background: 'rgba(255,255,255,0.06)', color: '#52525b', fontSize: 10 }}
+              style={{ background: '#F9FAFB', color: '#52525b', fontSize: 10 }}
             >
               ESC
             </kbd>
           </div>
           <Command.List
             className="max-h-[320px] overflow-auto py-1"
-            style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}
+            style={{ scrollbarWidth: 'thin', scrollbarColor: '#F5F5F5 transparent' }}
           >
             <Command.Empty className="px-4 py-6 text-center text-sm" style={{ color: '#52525b' }}>
               No results found.
@@ -79,7 +79,7 @@ export default function CommandPalette() {
             <Command.Group
               heading="Quick Actions"
               className="px-2 py-1"
-              style={{ fontFamily: 'Syne, sans-serif' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               {QUICK_ACTIONS.map((a) => (
                 <Command.Item
@@ -105,7 +105,7 @@ export default function CommandPalette() {
             <Command.Group
               heading="All Tools"
               className="px-2 py-1"
-              style={{ fontFamily: 'Syne, sans-serif' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               {allTools.map((tool) => (
                 <Command.Item
@@ -118,14 +118,14 @@ export default function CommandPalette() {
                 >
                   <div
                     className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'rgba(255,255,255,0.05)' }}
+                    style={{ background: '#F9FAFB' }}
                   >
                     {createElement(tool.icon, { size: 12, style: { color: '#a1a1aa' } })}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div
                       className="font-bold truncate"
-                      style={{ fontFamily: 'Syne, sans-serif', fontSize: 13 }}
+                      style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 13 }}
                     >
                       {tool.label}
                     </div>

@@ -11,11 +11,11 @@ function renderMarkdown(md: string): string {
     // headings
     .replace(
       /^## (.+)$/gm,
-      '<h2 style="font-family:Syne,sans-serif;font-size:1.25rem;font-weight:700;color:#374151;margin:1.5rem 0 0.75rem">$1</h2>'
+      `<h2 style="font-family: 'Bricolage Grotesque', sans-serif;font-size:1.25rem;font-weight:700;color:#374151;margin:1.5rem 0 0.75rem">$1</h2>`
     )
     .replace(
       /^### (.+)$/gm,
-      '<h3 style="font-family:Syne,sans-serif;font-size:1.1rem;font-weight:600;color:#374151;margin:1.25rem 0 0.5rem">$1</h3>'
+      `<h3 style="font-family: 'Bricolage Grotesque', sans-serif;font-size:1.1rem;font-weight:600;color:#374151;margin:1.25rem 0 0.5rem">$1</h3>`
     )
     // bold
     .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#374151;font-weight:600">$1</strong>')
@@ -30,7 +30,7 @@ function renderMarkdown(md: string): string {
       const row = cells
         .map(
           (c: string) =>
-            `<td style="padding:0.5rem 0.75rem;border-bottom:1px solid rgba(255,255,255,0.06);color:#a1a1aa">${c}</td>`
+            `<td style="padding:0.5rem 0.75rem;border-bottom:1px solid #F9FAFB;color:#a1a1aa">${c}</td>`
         )
         .join('');
       return `<tr>${row}</tr>`;
@@ -227,7 +227,7 @@ export default function SaturationChecker() {
   const goldButton: React.CSSProperties = {
     background: '#6366F1',
     color: '#060608',
-    fontFamily: 'Syne, sans-serif',
+    fontFamily: "'Bricolage Grotesque', sans-serif",
     fontWeight: 700,
     fontSize: '0.95rem',
     border: 'none',
@@ -239,8 +239,8 @@ export default function SaturationChecker() {
 
   const inputStyle: React.CSSProperties = {
     flex: 1,
-    background: 'rgba(255,255,255,0.04)',
-    border: '1px solid rgba(255,255,255,0.06)',
+    background: '#F9FAFB',
+    border: '1px solid #F9FAFB',
     borderRadius: 12,
     padding: '0.75rem 1rem',
     color: '#374151',
@@ -283,7 +283,7 @@ export default function SaturationChecker() {
               fontWeight: 700,
               letterSpacing: '0.1em',
               color: '#6366F1',
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               marginBottom: '1rem',
               textTransform: 'uppercase',
             }}
@@ -292,7 +292,7 @@ export default function SaturationChecker() {
           </span>
           <h1
             style={{
-              fontFamily: 'Syne, sans-serif',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               fontSize: 'clamp(1.75rem, 5vw, 2.25rem)',
               fontWeight: 800,
               color: '#374151',
@@ -399,7 +399,7 @@ export default function SaturationChecker() {
             <div
               style={{
                 height: 4,
-                background: 'rgba(255,255,255,0.06)',
+                background: '#F9FAFB',
                 borderRadius: 2,
                 overflow: 'hidden',
                 maxWidth: 320,
@@ -464,7 +464,7 @@ export default function SaturationChecker() {
                     cy="70"
                     r="60"
                     fill="none"
-                    stroke="rgba(255,255,255,0.06)"
+                    stroke="#F9FAFB"
                     strokeWidth="10"
                   />
                   <circle
@@ -490,7 +490,7 @@ export default function SaturationChecker() {
                 >
                   <div
                     style={{
-                      fontFamily: 'Syne, sans-serif',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       fontSize: '2.25rem',
                       fontWeight: 800,
                       color: levelConf.color,
@@ -516,7 +516,7 @@ export default function SaturationChecker() {
               >
                 <span
                   style={{
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                     fontWeight: 700,
                     fontSize: '1rem',
                     color: levelConf.color,
@@ -584,7 +584,7 @@ export default function SaturationChecker() {
               >
                 <div
                   style={{
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                     fontWeight: 700,
                     fontSize: '1rem',
                     color: '#6366F1',
@@ -606,7 +606,7 @@ export default function SaturationChecker() {
                 <div key={i} style={cardStyle}>
                   <h2
                     style={{
-                      fontFamily: 'Syne, sans-serif',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       fontWeight: 700,
                       fontSize: '1.1rem',
                       color: '#374151',
@@ -663,7 +663,7 @@ export default function SaturationChecker() {
                 <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>{card.icon}</div>
                 <h3
                   style={{
-                    fontFamily: 'Syne, sans-serif',
+                    fontFamily: "'Bricolage Grotesque', sans-serif",
                     fontWeight: 700,
                     fontSize: '1rem',
                     color: '#374151',

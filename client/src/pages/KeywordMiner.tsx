@@ -62,9 +62,9 @@ function CopyBtn({ text, label }: { text: string; label?: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? 'rgba(45,202,114,0.1)' : 'rgba(255,255,255,0.05)',
-        border: `1px solid ${copied ? 'rgba(45,202,114,0.3)' : 'rgba(255,255,255,0.08)'}`,
-        color: copied ? 'rgba(45,202,114,0.8)' : 'rgba(240,237,232,0.4)',
+        background: copied ? '#EEF2FF' : '#F9FAFB',
+        border: `1px solid ${copied ? '#C7D2FE' : '#F5F5F5'}`,
+        color: copied ? 'rgba(99,102,241,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
     >
@@ -75,12 +75,12 @@ function CopyBtn({ text, label }: { text: string; label?: string }) {
 }
 
 const COMPETITION_COLORS: Record<string, string> = {
-  Low: '#2dca72',
+  Low: '#6366F1',
   Medium: '#6366F1',
   High: '#e05c7a',
 };
 const INTENT_COLORS: Record<string, string> = {
-  Transactional: '#2dca72',
+  Transactional: '#6366F1',
   Commercial: '#6366F1',
   Informational: '#4ab8f5',
   Navigational: '#9c5fff',
@@ -201,11 +201,11 @@ export default function KeywordMiner() {
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-black leading-tight"
-            style={{ fontFamily: 'Syne, sans-serif' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Keyword Miner
           </div>
-          <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+          <div className="text-xs" style={{ color: '#9CA3AF' }}>
             SEO & PPC keyword research · Opportunity scoring · Ad group suggestions
           </div>
         </div>
@@ -217,9 +217,9 @@ export default function KeywordMiner() {
             }}
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: 'rgba(240,237,232,0.5)',
+              background: '#F9FAFB',
+              border: '1px solid #F5F5F5',
+              color: '#6B7280',
               cursor: 'pointer',
             }}
           >
@@ -239,7 +239,7 @@ export default function KeywordMiner() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Seed Keyword *
               </label>
@@ -255,16 +255,16 @@ export default function KeywordMiner() {
                 placeholder="e.g. posture corrector, yoga mat…"
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#f0ede8',
+                  background: '#F9FAFB',
+                  border: '1px solid #F0F0F0',
+                  color: '#374151',
                 }}
               />
             </div>
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Platform
               </label>
@@ -273,9 +273,9 @@ export default function KeywordMiner() {
                 onChange={(e) => setPlatform(e.target.value)}
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#f0ede8',
+                  background: '#F9FAFB',
+                  border: '1px solid #F0F0F0',
+                  color: '#374151',
                 }}
               >
                 {['Google', 'Amazon', 'Meta Ads', 'TikTok'].map((p) => (
@@ -288,7 +288,7 @@ export default function KeywordMiner() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Market
               </label>
@@ -297,9 +297,9 @@ export default function KeywordMiner() {
                 onChange={(e) => setMarket(e.target.value)}
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: '#f0ede8',
+                  background: '#F9FAFB',
+                  border: '1px solid #F0F0F0',
+                  color: '#374151',
                 }}
               >
                 {['Australia', 'United States', 'United Kingdom', 'Global'].map((m) => (
@@ -317,8 +317,8 @@ export default function KeywordMiner() {
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all"
             style={{
               background: isLoading ? 'rgba(74,184,245,0.25)' : '#4ab8f5',
-              color: '#080a0e',
-              fontFamily: 'Syne, sans-serif',
+              color: '#FAFAFA',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: isLoading ? 'not-allowed' : 'pointer',
             }}
           >
@@ -360,10 +360,10 @@ export default function KeywordMiner() {
                 <Hash size={24} style={{ color: '#4ab8f5' }} className="animate-pulse" />
               </div>
               <div className="text-center">
-                <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>
+                <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Mining keywords for "{seed}"…
                 </div>
-                <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+                <div className="text-xs" style={{ color: '#9CA3AF' }}>
                   Analysing search intent and opportunity
                 </div>
               </div>
@@ -382,13 +382,13 @@ export default function KeywordMiner() {
                 <div className="flex items-center justify-between mb-2">
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#4ab8f5', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#4ab8f5', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Keyword Landscape
                   </div>
                   <CopyBtn text={result.summary} />
                 </div>
-                <div className="text-sm leading-relaxed" style={{ color: 'rgba(240,237,232,0.8)' }}>
+                <div className="text-sm leading-relaxed" style={{ color: '#1F2937' }}>
                   {result.summary}
                 </div>
               </div>
@@ -396,23 +396,23 @@ export default function KeywordMiner() {
               {/* Keyword table */}
               <div
                 className="rounded-2xl overflow-hidden"
-                style={{ border: '1px solid rgba(255,255,255,0.07)' }}
+                style={{ border: '1px solid #E5E7EB' }}
               >
                 <div
                   className="flex items-center justify-between px-4 py-3"
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
-                    borderBottom: '1px solid rgba(255,255,255,0.06)',
+                    background: '#FAFAFA',
+                    borderBottom: '1px solid #F9FAFB',
                   }}
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     {result.keywords.length} Keywords
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs" style={{ color: 'rgba(240,237,232,0.3)' }}>
+                    <span className="text-xs" style={{ color: '#9CA3AF' }}>
                       Sort:
                     </span>
                     {(['opportunity', 'difficulty'] as const).map((s) => (
@@ -422,7 +422,7 @@ export default function KeywordMiner() {
                         className="text-xs px-2 py-0.5 rounded capitalize"
                         style={{
                           background: sortBy === s ? 'rgba(74,184,245,0.15)' : 'transparent',
-                          color: sortBy === s ? '#4ab8f5' : 'rgba(240,237,232,0.35)',
+                          color: sortBy === s ? '#4ab8f5' : '#9CA3AF',
                           cursor: 'pointer',
                         }}
                       >
@@ -432,24 +432,24 @@ export default function KeywordMiner() {
                     <CopyBtn text={result.keywords.map((k) => k.keyword).join('\n')} label="All" />
                   </div>
                 </div>
-                <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
+                <div className="divide-y" style={{ borderColor: '#F9FAFB' }}>
                   {sortedKeywords.map((kw, i) => (
                     <div
                       key={i}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-white/[0.02] transition-colors"
                     >
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold" style={{ color: '#f0ede8' }}>
+                        <div className="text-sm font-semibold" style={{ color: '#374151' }}>
                           {kw.keyword}
                         </div>
-                        <div className="text-xs mt-0.5" style={{ color: 'rgba(240,237,232,0.35)' }}>
+                        <div className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
                           {kw.useCase}
                         </div>
                       </div>
                       <div className="flex items-center gap-3 flex-shrink-0 text-xs">
                         <span
                           style={{
-                            color: 'rgba(240,237,232,0.5)',
+                            color: '#6B7280',
                             minWidth: '70px',
                             textAlign: 'right',
                           }}
@@ -479,11 +479,11 @@ export default function KeywordMiner() {
                           style={{
                             color:
                               kw.opportunity >= 70
-                                ? '#2dca72'
+                                ? '#6366F1'
                                 : kw.opportunity >= 50
                                   ? '#6366F1'
                                   : '#e05c7a',
-                            fontFamily: 'Syne, sans-serif',
+                            fontFamily: "'Bricolage Grotesque', sans-serif",
                             minWidth: '28px',
                             textAlign: 'right',
                           }}
@@ -507,11 +507,11 @@ export default function KeywordMiner() {
               >
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-2"
-                  style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Top Opportunity
                 </div>
-                <div className="text-sm leading-relaxed" style={{ color: 'rgba(240,237,232,0.8)' }}>
+                <div className="text-sm leading-relaxed" style={{ color: '#1F2937' }}>
                   {result.topOpportunity}
                 </div>
               </div>
@@ -520,14 +520,14 @@ export default function KeywordMiner() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    background: '#FAFAFA',
+                    border: '1px solid #F9FAFB',
                   }}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div
                       className="text-xs font-bold uppercase tracking-widest"
-                      style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                      style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                     >
                       Content Ideas
                     </div>
@@ -549,14 +549,14 @@ export default function KeywordMiner() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    background: '#FAFAFA',
+                    border: '1px solid #F9FAFB',
                   }}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div
                       className="text-xs font-bold uppercase tracking-widest"
-                      style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                      style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                     >
                       Ad Groups
                     </div>
@@ -585,13 +585,13 @@ export default function KeywordMiner() {
               <div className="text-center">
                 <div
                   className="text-base font-black mb-2"
-                  style={{ fontFamily: 'Syne, sans-serif' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Uncover high-value keywords
                 </div>
                 <div
                   className="text-xs max-w-xs leading-relaxed"
-                  style={{ color: 'rgba(240,237,232,0.35)' }}
+                  style={{ color: '#9CA3AF' }}
                 >
                   Enter a seed keyword to get 12-15 scored keywords with search volume, competition,
                   intent, and ad group suggestions.

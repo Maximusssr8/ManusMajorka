@@ -31,7 +31,7 @@ const pct = (n: number) => `${n.toFixed(1)}%`;
 const C = {
   bg: '#060608',
   card: '#0c0c10',
-  border: 'rgba(255,255,255,0.06)',
+  border: '#F9FAFB',
   text: '#f5f5f5',
   secondary: '#94949e',
   muted: '#52525b',
@@ -41,7 +41,7 @@ const C = {
   green: '#22c55e',
 };
 
-const syne = 'Syne, sans-serif';
+const syne = "'Bricolage Grotesque', sans-serif";
 const dm = "'DM Sans', sans-serif";
 
 export default function PublicProfitCalculator() {
@@ -135,7 +135,7 @@ export default function PublicProfitCalculator() {
   const numberInputStyle: React.CSSProperties = {
     fontFamily: dm,
     background: '#15151a',
-    border: '1px solid rgba(255,255,255,0.08)',
+    border: '1px solid #F5F5F5',
     borderRadius: 8,
     color: C.text,
     padding: '8px 12px',
@@ -382,7 +382,7 @@ export default function PublicProfitCalculator() {
                   width: '100%',
                   fontFamily: dm,
                   background: '#15151a',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  border: '1px solid #F5F5F5',
                   borderRadius: 8,
                   color: C.text,
                   padding: '10px 12px',
@@ -523,7 +523,7 @@ export default function PublicProfitCalculator() {
                       style={{
                         padding: 12,
                         color: C.text,
-                        borderBottom: `1px solid rgba(255,255,255,0.04)`,
+                        borderBottom: `1px solid #F9FAFB`,
                       }}
                     >
                       {row.orders.toLocaleString()}
@@ -532,7 +532,7 @@ export default function PublicProfitCalculator() {
                       style={{
                         padding: 12,
                         color: C.text,
-                        borderBottom: `1px solid rgba(255,255,255,0.04)`,
+                        borderBottom: `1px solid #F9FAFB`,
                       }}
                     >
                       {fmt(row.revenue)}
@@ -541,7 +541,7 @@ export default function PublicProfitCalculator() {
                       style={{
                         padding: 12,
                         color: '#a1a1aa',
-                        borderBottom: `1px solid rgba(255,255,255,0.04)`,
+                        borderBottom: `1px solid #F9FAFB`,
                       }}
                     >
                       {fmt(row.costs)}
@@ -551,7 +551,7 @@ export default function PublicProfitCalculator() {
                         padding: 12,
                         color: row.profit >= 0 ? C.green : '#ef4444',
                         fontWeight: 600,
-                        borderBottom: `1px solid rgba(255,255,255,0.04)`,
+                        borderBottom: `1px solid #F9FAFB`,
                       }}
                     >
                       {fmt(row.profit)}

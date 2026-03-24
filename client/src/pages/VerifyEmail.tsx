@@ -57,12 +57,12 @@ export default function VerifyEmail() {
           >
             <span
               className="text-black font-bold text-sm"
-              style={{ fontFamily: 'Syne, sans-serif' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               M
             </span>
           </div>
-          <span className="text-white font-bold text-xl" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <span className="text-white font-bold text-xl" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
             Majorka
           </span>
         </div>
@@ -92,19 +92,19 @@ export default function VerifyEmail() {
         <div>
           <h1
             className="text-2xl font-bold mb-2 text-white"
-            style={{ fontFamily: 'Syne, sans-serif' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Check your inbox
           </h1>
           {email ? (
-            <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            <p className="text-sm" style={{ color: '#6B7280' }}>
               We sent a verification link to{' '}
               <span className="font-medium" style={{ color: '#6366F1' }}>
                 {email}
               </span>
             </p>
           ) : (
-            <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
+            <p className="text-sm" style={{ color: '#6B7280' }}>
               We sent a verification link to your email address.
             </p>
           )}
@@ -113,25 +113,25 @@ export default function VerifyEmail() {
         <div
           className="rounded-xl p-4 text-left space-y-2"
           style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.06)',
+            background: '#FAFAFA',
+            border: '1px solid #F9FAFB',
           }}
         >
           <div
             className="flex items-center gap-2 text-xs"
-            style={{ color: 'rgba(255,255,255,0.5)' }}
+            style={{ color: '#6B7280' }}
           >
             <span style={{ color: '#6366F1' }}>1.</span> Open the email from Majorka
           </div>
           <div
             className="flex items-center gap-2 text-xs"
-            style={{ color: 'rgba(255,255,255,0.5)' }}
+            style={{ color: '#6B7280' }}
           >
             <span style={{ color: '#6366F1' }}>2.</span> Click the verification link
           </div>
           <div
             className="flex items-center gap-2 text-xs"
-            style={{ color: 'rgba(255,255,255,0.5)' }}
+            style={{ color: '#6B7280' }}
           >
             <span style={{ color: '#6366F1' }}>3.</span> You'll be taken to your dashboard
           </div>
@@ -163,7 +163,7 @@ export default function VerifyEmail() {
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            color: 'rgba(255,255,255,0.3)',
+            color: '#9CA3AF',
           }}
         >
           Back to sign in

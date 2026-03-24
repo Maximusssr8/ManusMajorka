@@ -88,7 +88,7 @@ function CopyBtn({ text }: { text: string }) {
 }
 
 const COMPETITION_COLORS: Record<string, string> = {
-  Low: '#2dca72',
+  Low: '#6366F1',
   Medium: '#6366F1',
   High: '#e05c7a',
 };
@@ -130,7 +130,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
                 : product.score >= 50
                   ? 'rgba(99,102,241,0.15)'
                   : 'rgba(224,92,122,0.15)',
-            color: product.score >= 75 ? '#2dca72' : product.score >= 50 ? '#6366F1' : '#e05c7a',
+            color: product.score >= 75 ? '#6366F1' : product.score >= 50 ? '#6366F1' : '#e05c7a',
             border: `1px solid ${product.score >= 75 ? '#6EE7B7' : product.score >= 50 ? '#C7D2FE' : '#FECACA'}`,
             fontFamily: "'Bricolage Grotesque', sans-serif",
           }}
@@ -160,7 +160,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
             style={{
               color:
                 product.trendDirection === 'Rising'
-                  ? '#2dca72'
+                  ? '#6366F1'
                   : product.trendDirection === 'Declining'
                     ? '#e05c7a'
                     : '#6366F1',

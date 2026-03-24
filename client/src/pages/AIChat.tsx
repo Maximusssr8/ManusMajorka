@@ -139,7 +139,7 @@ function MayaActionCard({ action }: { action: any }) {
           style={{
             marginTop: 10,
             background: '#6366F1',
-            color: '#080a0e',
+            color: '#FAFAFA',
             border: 'none',
             borderRadius: 8,
             padding: '8px 16px',
@@ -147,7 +147,7 @@ function MayaActionCard({ action }: { action: any }) {
             fontSize: 13,
             cursor: 'pointer',
             width: '100%',
-            fontFamily: 'Syne, sans-serif',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
           }}
         >
           Start Workflow →
@@ -186,7 +186,7 @@ function MayaActionCard({ action }: { action: any }) {
     >
       <span style={{ fontSize: 16, color: '#6366F1' }}>→</span>
       <div>
-        <div style={{ color: '#6366F1', fontWeight: 700, fontSize: 13, fontFamily: 'Syne, sans-serif' }}>
+        <div style={{ color: '#6366F1', fontWeight: 700, fontSize: 13, fontFamily: "'Bricolage Grotesque', sans-serif" }}>
           {TOOL_LABELS[tool] || tool}
         </div>
         {params.productUrl && (
@@ -239,7 +239,7 @@ function ActionCard({ title, context, cta, path }: { title: string; context: str
         e.currentTarget.style.borderColor = 'rgba(99,102,241,0.2)';
       }}
     >
-      <div style={{ color: '#fff', fontWeight: 600, fontSize: 14, fontFamily: 'Syne, sans-serif' }}>{title}</div>
+      <div style={{ color: '#fff', fontWeight: 600, fontSize: 14, fontFamily: "'Bricolage Grotesque', sans-serif" }}>{title}</div>
       <div style={{ color: '#9ca3af', fontSize: 12, marginTop: 4, lineHeight: 1.4 }}>{context}</div>
       <div style={{ color: '#6366F1', fontSize: 12, marginTop: 8, fontWeight: 500 }}>{cta} →</div>
     </a>
@@ -480,8 +480,8 @@ export default function AIChat() {
             className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm"
             style={{
               background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-              color: '#080a0e',
-              fontFamily: 'Syne, sans-serif',
+              color: '#FAFAFA',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
             }}
           >
             A
@@ -489,13 +489,13 @@ export default function AIChat() {
           <div className="flex-1">
             <h1
               className="font-black text-sm"
-              style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
             >
               AI Chat
             </h1>
             <p
               className="text-xs"
-              style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'DM Sans, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: 'DM Sans, sans-serif' }}
             >
               {activeProduct ? `Advising on ${activeProduct.name}` : 'Ask Majorka anything'}
             </p>
@@ -511,7 +511,7 @@ export default function AIChat() {
               <Package size={11} style={{ color: '#6366F1' }} />
               <span
                 className="text-xs font-bold"
-                style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {activeProduct.name}
               </span>
@@ -534,12 +534,12 @@ export default function AIChat() {
               onClick={handleClearHistory}
               className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg transition-all"
               style={{
-                color: 'rgba(240,237,232,0.35)',
+                color: '#9CA3AF',
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
+              onMouseEnter={(e) => (e.currentTarget.style.background = '#F9FAFB')}
               onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
               title="Clear chat"
             >
@@ -582,11 +582,11 @@ export default function AIChat() {
                     marginBottom: 16,
                   }}
                 >
-                  <Sparkles style={{ color: '#080a0e' }} size={24} />
+                  <Sparkles style={{ color: '#FAFAFA' }} size={24} />
                 </div>
                 <p
                   className="text-sm mb-1 font-bold"
-                  style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                 >
                   {activeProduct
                     ? `Let's talk about ${activeProduct.name}`
@@ -594,7 +594,7 @@ export default function AIChat() {
                 </p>
                 <p
                   className="text-xs mb-6 max-w-xs"
-                  style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'DM Sans, sans-serif' }}
+                  style={{ color: '#9CA3AF', fontFamily: 'DM Sans, sans-serif' }}
                 >
                   {activeProduct
                     ? `I have full context on your ${activeProduct.niche} product and can give you specific, targeted advice.`
@@ -628,7 +628,7 @@ export default function AIChat() {
                           style={{
                             fontSize: 12,
                             fontWeight: 600,
-                            color: 'rgba(240,237,232,0.8)',
+                            color: '#1F2937',
                             fontFamily: 'DM Sans, sans-serif',
                             lineHeight: 1.4,
                           }}
@@ -714,7 +714,7 @@ export default function AIChat() {
                           border: '1px solid rgba(99,102,241,0.3)',
                           color: '#6366F1',
                           cursor: 'pointer',
-                          fontFamily: 'Syne, sans-serif',
+                          fontFamily: "'Bricolage Grotesque', sans-serif",
                           fontWeight: 700,
                         }}
                       >
@@ -763,7 +763,7 @@ export default function AIChat() {
                             {msg.role === 'assistant' &&
                               msg.content.length > 50 &&
                               detectProductLink(msg.content) && (
-                                <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                                <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #F9FAFB' }}>
                                   <Link
                                     href="/app/winning-products"
                                     style={{
@@ -774,7 +774,7 @@ export default function AIChat() {
                                       fontWeight: 700,
                                       color: '#6366F1',
                                       textDecoration: 'none',
-                                      fontFamily: 'Syne, sans-serif',
+                                      fontFamily: "'Bricolage Grotesque', sans-serif",
                                     }}
                                   >
                                     <ExternalLink size={10} />
@@ -794,8 +794,8 @@ export default function AIChat() {
                     className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center font-black text-xs"
                     style={{
                       background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-                      color: '#080a0e',
-                      fontFamily: 'Syne, sans-serif',
+                      color: '#FAFAFA',
+                      fontFamily: "'Bricolage Grotesque', sans-serif",
                       flexShrink: 0,
                     }}
                   >
@@ -924,7 +924,7 @@ export default function AIChat() {
             className="flex items-end gap-2 px-4 py-3 rounded-lg"
             style={{
               background: 'white',
-              border: '1px solid rgba(255,255,255,0.1)',
+              border: '1px solid #F0F0F0',
             }}
           >
             <textarea
@@ -960,8 +960,8 @@ export default function AIChat() {
               style={{
                 background: input.trim()
                   ? 'linear-gradient(135deg, #6366F1, #c09a28)'
-                  : 'rgba(255,255,255,0.06)',
-                color: input.trim() ? '#080a0e' : 'rgba(240,237,232,0.3)',
+                  : '#F9FAFB',
+                color: input.trim() ? '#FAFAFA' : '#9CA3AF',
                 cursor: 'pointer',
                 border: 'none',
               }}

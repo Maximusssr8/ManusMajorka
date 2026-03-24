@@ -70,9 +70,9 @@ function CopyBtn({ text }: { text: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? 'rgba(45,202,114,0.1)' : '#F9FAFB',
-        border: `1px solid ${copied ? 'rgba(45,202,114,0.3)' : '#E5E7EB'}`,
-        color: copied ? 'rgba(45,202,114,0.8)' : '#9CA3AF',
+        background: copied ? '#EEF2FF' : '#F9FAFB',
+        border: `1px solid ${copied ? '#C7D2FE' : '#E5E7EB'}`,
+        color: copied ? 'rgba(99,102,241,1.00)' : '#9CA3AF',
         cursor: 'pointer',
       }}
     >
@@ -83,7 +83,7 @@ function CopyBtn({ text }: { text: string }) {
 
 const MOMENTUM_CONFIG: Record<string, { color: string; icon: React.ReactNode; bg: string }> = {
   Exploding: { color: '#e05c7a', icon: <TrendingUp size={11} />, bg: 'rgba(224,92,122,0.1)' },
-  Rising: { color: '#2dca72', icon: <TrendingUp size={11} />, bg: 'rgba(45,202,114,0.1)' },
+  Rising: { color: '#6366F1', icon: <TrendingUp size={11} />, bg: '#EEF2FF' },
   Stable: { color: '#6366F1', icon: <Minus size={11} />, bg: 'rgba(99,102,241,0.1)' },
   Declining: {
     color: '#9CA3AF',
@@ -93,7 +93,7 @@ const MOMENTUM_CONFIG: Record<string, { color: string; icon: React.ReactNode; bg
 };
 
 const POTENTIAL_COLORS: Record<string, string> = {
-  High: '#2dca72',
+  High: '#6366F1',
   Medium: '#6366F1',
   Low: '#e05c7a',
 };
@@ -116,7 +116,7 @@ function TrendCard({ trend, index }: { trend: Trend; index: number }) {
           style={{
             background: 'rgba(74,184,245,0.12)',
             color: '#4ab8f5',
-            fontFamily: 'Syne, sans-serif',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
           }}
         >
           {trend.score}
@@ -124,7 +124,7 @@ function TrendCard({ trend, index }: { trend: Trend; index: number }) {
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-black leading-tight"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#0A0A0A' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
           >
             {trend.name}
           </div>
@@ -159,7 +159,7 @@ function TrendCard({ trend, index }: { trend: Trend; index: number }) {
             <div className="p-3 rounded-xl" style={{ background: '#F9FAFB' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Key Drivers
               </div>
@@ -170,7 +170,7 @@ function TrendCard({ trend, index }: { trend: Trend; index: number }) {
             <div className="p-3 rounded-xl" style={{ background: '#F9FAFB' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Target Demographic
               </div>
@@ -188,7 +188,7 @@ function TrendCard({ trend, index }: { trend: Trend; index: number }) {
           >
             <div
               className="text-xs font-bold uppercase tracking-wider mb-2"
-              style={{ color: '#4ab8f5', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#4ab8f5', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Product Opportunities
             </div>
@@ -215,7 +215,7 @@ function TrendCard({ trend, index }: { trend: Trend; index: number }) {
             >
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: '#e05c7a', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#e05c7a', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Risk Factors
               </div>
@@ -333,7 +333,7 @@ export default function TrendRadar() {
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-black leading-tight"
-            style={{ fontFamily: 'Syne, sans-serif' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Trend Radar
           </div>
@@ -369,7 +369,7 @@ export default function TrendRadar() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#6B7280', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Category *
               </label>
@@ -386,7 +386,7 @@ export default function TrendRadar() {
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
                   background: '#F9FAFB',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  border: '1px solid #F0F0F0',
                   color: '#0A0A0A',
                 }}
               />
@@ -394,7 +394,7 @@ export default function TrendRadar() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#6B7280', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Region
               </label>
@@ -404,7 +404,7 @@ export default function TrendRadar() {
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
                   background: '#F9FAFB',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  border: '1px solid #F0F0F0',
                   color: '#0A0A0A',
                 }}
               >
@@ -418,7 +418,7 @@ export default function TrendRadar() {
             <div>
               <label
                 className="block text-xs font-semibold mb-1.5"
-                style={{ color: '#6B7280', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Timeframe
               </label>
@@ -428,7 +428,7 @@ export default function TrendRadar() {
                 className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                 style={{
                   background: '#F9FAFB',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  border: '1px solid #F0F0F0',
                   color: '#0A0A0A',
                 }}
               >
@@ -444,7 +444,7 @@ export default function TrendRadar() {
           <div>
             <div
               className="text-xs font-bold uppercase tracking-widest mb-2"
-              style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Quick Categories
             </div>
@@ -473,8 +473,8 @@ export default function TrendRadar() {
             className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all"
             style={{
               background: isLoading ? 'rgba(74,184,245,0.25)' : '#4ab8f5',
-              color: '#080a0e',
-              fontFamily: 'Syne, sans-serif',
+              color: '#FAFAFA',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: isLoading ? 'not-allowed' : 'pointer',
             }}
           >
@@ -516,7 +516,7 @@ export default function TrendRadar() {
                 <Radio size={24} style={{ color: '#4ab8f5' }} className="animate-pulse" />
               </div>
               <div className="text-center">
-                <div className="text-sm font-black mb-1" style={{ fontFamily: 'Syne, sans-serif' }}>
+                <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Scanning {category}…
                 </div>
                 <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -538,7 +538,7 @@ export default function TrendRadar() {
                 <div className="flex items-center justify-between mb-2">
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#4ab8f5', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#4ab8f5', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Trend Overview
                   </div>
@@ -558,7 +558,7 @@ export default function TrendRadar() {
               >
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-1"
-                  style={{ color: '#e05c7a', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#e05c7a', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   🔥 Hottest Right Now
                 </div>
@@ -570,7 +570,7 @@ export default function TrendRadar() {
               <div>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-3"
-                  style={{ color: '#9CA3AF', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   {result.trends.length} Trends Detected
                 </div>
@@ -590,7 +590,7 @@ export default function TrendRadar() {
               >
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-2"
-                  style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Actionable Insight
                 </div>
@@ -607,7 +607,7 @@ export default function TrendRadar() {
               <div className="text-center">
                 <div
                   className="text-base font-black mb-2"
-                  style={{ fontFamily: 'Syne, sans-serif' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Spot trends before they peak
                 </div>

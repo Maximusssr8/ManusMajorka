@@ -175,7 +175,7 @@ function StatCard({
 
       <div
         className="font-bold mb-1"
-        style={{ fontFamily: 'Syne, sans-serif', color: '#6366F1', letterSpacing: '-0.02em', fontSize: 28, fontWeight: 700 }}
+        style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1', letterSpacing: '-0.02em', fontSize: 28, fontWeight: 700 }}
       >
         {displayValue ??
           (numericValue !== null && inView ? (
@@ -261,7 +261,7 @@ function PersonalisedFeed() {
       borderRadius: 16, padding: 20, marginBottom: 24
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: 15, fontWeight: 700, color: '#0A0A0A', margin: 0 }}>
+        <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 15, fontWeight: 700, color: '#0A0A0A', margin: 0 }}>
           {userNiche ? `🔥 Top Products in ${userNiche}` : '🔥 Today\'s Top Revenue Products'}
         </h3>
         <a href="/app/winning-products" style={{ fontSize: 12, color: '#6366F1', textDecoration: 'none' }}>View all →</a>
@@ -388,7 +388,7 @@ function MiniSparkSvg({ data, color = '#22c55e' }: { data: number[]; color?: str
 function SalesTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: '#18181b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', fontFamily: UI }}>
+    <div style={{ background: '#18181b', border: '1px solid #F0F0F0', borderRadius: 8, padding: '8px 12px', fontFamily: UI }}>
       <div style={{ fontSize: 11, color: '#71717a', marginBottom: 2 }}>{label}</div>
       <div style={{ fontSize: 14, fontWeight: 600, color: '#6366F1' }}>${payload[0].value.toLocaleString()}</div>
     </div>
@@ -426,16 +426,16 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
 
       {/* Header row */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#52525b', fontFamily: 'Syne, sans-serif' }}>
+        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
           Sales Overview
         </span>
-        <div style={{ display: 'flex', gap: 3, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 8, padding: 3 }}>
+        <div style={{ display: 'flex', gap: 3, background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: 3 }}>
           {RANGE_OPTIONS.map((r) => (
             <button key={r.key} onClick={() => setRange(r.key)} style={{
               padding: '4px 11px', borderRadius: 6, border: 'none', cursor: 'pointer',
               fontSize: 11, fontWeight: 600, fontFamily: UI, letterSpacing: '-0.01em',
               background: range === r.key ? '#6366F1' : 'transparent',
-              color: range === r.key ? '#080a0e' : '#71717a',
+              color: range === r.key ? '#FAFAFA' : '#71717a',
               transition: 'all 0.12s',
             }}>
               {r.label}
@@ -452,7 +452,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
               <k.icon size={12} style={{ color: '#52525b' }} />
               <span style={{ fontSize: 11, color: '#52525b', fontWeight: 500, letterSpacing: '0.01em' }}>{k.label}</span>
             </div>
-            <div style={{ fontSize: 21, fontWeight: 700, color: '#f0ede8', letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', marginBottom: 8, lineHeight: 1 }}>
+            <div style={{ fontSize: 21, fontWeight: 700, color: '#374151', letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', marginBottom: 8, lineHeight: 1 }}>
               {k.value}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -467,7 +467,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
 
       {/* Revenue area chart */}
       <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '18px 14px 10px', marginBottom: 12 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: '#52525b', marginBottom: 12, fontFamily: 'Syne, sans-serif', letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>Revenue</div>
+        <div style={{ fontSize: 11, fontWeight: 600, color: '#52525b', marginBottom: 12, fontFamily: "'Bricolage Grotesque', sans-serif", letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>Revenue</div>
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
             <defs>
@@ -476,7 +476,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
                 <stop offset="95%" stopColor="#6366F1" stopOpacity={0.01} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 4" stroke="rgba(255,255,255,0.04)" vertical={false} />
+            <CartesianGrid strokeDasharray="3 4" stroke="#F9FAFB" vertical={false} />
             <XAxis dataKey="date" tick={{ fill: '#52525b', fontSize: 10, fontFamily: UI }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
             <YAxis tick={{ fill: '#52525b', fontSize: 10, fontFamily: UI }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${(v / 1000).toFixed(1)}k`} />
             <Tooltip content={<SalesTooltip />} cursor={{ stroke: 'rgba(99,102,241,0.2)', strokeWidth: 1 }} />
@@ -488,13 +488,13 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       {/* Top Products */}
       <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '18px 20px', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#52525b', fontFamily: 'Syne, sans-serif' }}>Top Products</span>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Top Products</span>
           <a href="/app/winning-products" style={{ fontSize: 12, color: '#6366F1', textDecoration: 'none', fontWeight: 500 }}>View all →</a>
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+              <tr style={{ borderBottom: '1px solid #F9FAFB' }}>
                 {['#', 'Product', 'Category', 'Units Sold', 'Revenue', 'vs last period'].map((h) => (
                   <th key={h} style={{ padding: '6px 10px', textAlign: h === 'Units Sold' || h === 'Revenue' ? 'right' as const : 'left' as const, color: '#3f3f46', fontWeight: 600, fontSize: 10, letterSpacing: '0.07em', textTransform: 'uppercase' as const, fontFamily: UI, whiteSpace: 'nowrap' as const }}>
                     {h}
@@ -506,8 +506,8 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
               {DEMO_PRODUCTS.map((p, i) => {
                 const cc = CAT_CFG[p.cat] ?? { bg: 'rgba(113,113,122,0.12)', text: '#71717a' };
                 return (
-                  <tr key={p.rank} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
+                  <tr key={p.rank} style={{ borderBottom: '1px solid #FAFAFA' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFA')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                     <td style={{ padding: '9px 10px', color: '#3f3f46', fontSize: 12, fontWeight: 600, fontVariantNumeric: 'tabular-nums', width: 28 }}>{i + 1}</td>
                     <td style={{ padding: '9px 10px' }}>
@@ -537,7 +537,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       {/* Recent Orders */}
       <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '18px 20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#52525b', fontFamily: 'Syne, sans-serif' }}>Recent Orders</span>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Recent Orders</span>
           <span style={{ fontSize: 11, color: '#52525b' }}>Updated just now</span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -545,7 +545,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
             const sc = STATUS_CFG[o.status];
             return (
               <div key={o.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 4px', borderRadius: 8, transition: 'background 0.1s' }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.025)')}
+                onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFA')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                 {/* Avatar */}
                 <div style={{ width: 30, height: 30, borderRadius: '50%', background: o.color + '22', border: `1px solid ${o.color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -560,7 +560,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
                   <span style={{ fontSize: 11, color: '#71717a', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{o.product}</span>
                 </div>
                 {/* Amount */}
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#f0ede8', fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#374151', fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>
                   ${o.amount.toFixed(2)}
                 </span>
                 {/* Status pill */}
@@ -649,7 +649,7 @@ function DashboardHome() {
             { label: 'Hot Products', value: '23', delta: 'Score 80+', icon: Zap, positive: true, color: '#F59E0B' },
           ] as const).map((card, i) => (
             <div key={i} style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '22px 24px', cursor: 'default', transition: 'box-shadow 200ms, border-color 200ms' }}
-              onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.06)'; e.currentTarget.style.borderColor = '#E0E7FF'; }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px #E5E7EB'; e.currentTarget.style.borderColor = '#E0E7FF'; }}
               onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#F0F0F0'; }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
@@ -777,9 +777,9 @@ function DashboardHome() {
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, opacity: 0.75, marginBottom: 12 }}>AI Insight</div>
             <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, lineHeight: 1.4, marginBottom: 12 }}>Posture correctors trending +140% this week in AU</div>
             <div style={{ fontSize: 13, opacity: 0.8, lineHeight: 1.6, flex: 1 }}>High TikTok engagement, low AU saturation. Estimated $8-12k/mo at 55% margin.</div>
-            <button onClick={() => setLocation('/app/intelligence/database')} style={{ marginTop: 20, padding: '10px 16px', background: 'rgba(255,255,255,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(8px)', transition: 'background 150ms' }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.3)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.2)')}
+            <button onClick={() => setLocation('/app/intelligence/database')} style={{ marginTop: 20, padding: '10px 16px', background: '#D1D5DB', color: 'white', border: '1px solid #9CA3AF', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(8px)', transition: 'background 150ms' }}
+              onMouseEnter={e => (e.currentTarget.style.background = '#9CA3AF')}
+              onMouseLeave={e => (e.currentTarget.style.background = '#D1D5DB')}
             >Explore this niche &rarr;</button>
           </div>
         </div>

@@ -117,12 +117,12 @@ class ErrorBoundary extends React.Component<
             minHeight: '100vh',
             background: '#FAFAFA',
             color: '#6366F1',
-            fontFamily: 'Syne, sans-serif',
+            fontFamily: "'Bricolage Grotesque', sans-serif",
             gap: 16,
           }}
         >
           <h1>Something went wrong</h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14 }}>
+          <p style={{ color: '#6B7280', fontSize: 14 }}>
             {this.state.error?.message}
           </p>
           <button

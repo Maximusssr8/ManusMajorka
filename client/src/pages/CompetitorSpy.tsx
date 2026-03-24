@@ -53,7 +53,7 @@ function CompetitorQuickActions({ query }: { query: string }) {
   return (
     <div
       className="rounded-xl p-4 mb-4"
-      style={{ border: '1px solid #E5E7EB', background: 'rgba(0,0,0,0.02)' }}
+      style={{ border: '1px solid #E5E7EB', background: '#FAFAFA' }}
     >
       <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: '#64748b' }}>
         Attack Plan — Jump to Tool
@@ -212,7 +212,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
           <h3
             key={i}
             className="text-sm font-semibold mt-5 mb-2 first:mt-0"
-            style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+            style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             {section.replace('## ', '')}
           </h3>
@@ -271,7 +271,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
     <div className="min-h-full" style={{ background: '#FAFAFA', color: '#0A0A0A' }}>
       {/* Header */}
       <div className="px-6 py-5 border-b" style={{ borderColor: '#E5E7EB' }}>
-        <h1 className="text-xl font-bold" style={{ fontFamily: 'Syne, sans-serif', color: '#fff' }}>Competitor Spy</h1>
+        <h1 className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#fff' }}>Competitor Spy</h1>
         <p className="text-sm mt-0.5" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>
           Research any TikTok Shop competitor — products, strategy, weaknesses, how to beat them
         </p>
@@ -331,7 +331,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 placeholder="Enter a TikTok Shop name, URL, or niche (e.g. 'PetLover AU' or 'pet water fountains')"
                 className="w-full pl-11 pr-32 py-4 rounded-xl text-sm"
                 style={{
-                  background: 'rgba(0,0,0,0.03)',
+                  background: '#F9FAFB',
                   border: '1px solid #E5E7EB',
                   color: '#111111',
                   outline: 'none',
@@ -361,7 +361,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                     type="button"
                     onClick={() => setQuery(ex)}
                     className="text-xs px-2.5 py-1 rounded-lg transition-colors"
-                    style={{ background: 'rgba(0,0,0,0.04)', color: '#64748b', border: '1px solid #E5E7EB' }}
+                    style={{ background: '#F5F5F5', color: '#64748b', border: '1px solid #E5E7EB' }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = '#94a3b8')}
                     onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
                   >
@@ -376,7 +376,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
           {loading && (
             <div
               className="rounded-xl p-8 text-center"
-              style={{ border: '1px solid #E5E7EB', background: 'rgba(0,0,0,0.02)' }}
+              style={{ border: '1px solid #E5E7EB', background: '#FAFAFA' }}
             >
               <div className="flex justify-center mb-4">
                 <Eye size={28} style={{ color: '#6366F1' }} className="animate-pulse" />
@@ -388,7 +388,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                     <div
                       className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center text-xs"
                       style={{
-                        background: i <= progressStep ? 'rgba(99,102,241,0.2)' : 'rgba(0,0,0,0.03)',
+                        background: i <= progressStep ? 'rgba(99,102,241,0.2)' : '#F9FAFB',
                         border: `1px solid ${i <= progressStep ? 'rgba(99,102,241,0.4)' : '#E5E7EB'}`,
                       }}
                     >
@@ -407,7 +407,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               {/* Result header */}
               <div
                 className="flex items-center justify-between mb-4 px-4 py-3 rounded-xl"
-                style={{ background: 'rgba(0,0,0,0.02)', border: '1px solid #E5E7EB' }}
+                style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}
               >
                 <div>
                   <p className="text-sm font-semibold" style={{ color: '#111111' }}>Analysis: <span style={{ color: '#6366F1' }}>{result.query}</span></p>
@@ -446,7 +446,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               {/* Analysis content */}
               <div
                 className="rounded-xl p-6"
-                style={{ border: '1px solid #E5E7EB', background: 'rgba(0,0,0,0.02)' }}
+                style={{ border: '1px solid #E5E7EB', background: '#FAFAFA' }}
               >
                 {renderMarkdown(result.reply)}
               </div>
@@ -475,10 +475,10 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                 <div
                   key={card.title}
                   className="rounded-xl p-5"
-                  style={{ border: '1px solid #E5E7EB', background: 'rgba(0,0,0,0.02)' }}
+                  style={{ border: '1px solid #E5E7EB', background: '#FAFAFA' }}
                 >
                   <p className="text-2xl mb-2">{card.icon}</p>
-                  <p className="text-sm font-semibold mb-1" style={{ color: '#111111', fontFamily: 'Syne, sans-serif' }}>{card.title}</p>
+                  <p className="text-sm font-semibold mb-1" style={{ color: '#111111', fontFamily: "'Bricolage Grotesque', sans-serif" }}>{card.title}</p>
                   <p className="text-xs" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>{card.desc}</p>
                 </div>
               ))}
