@@ -586,159 +586,289 @@ const BENTO_CARDS = [
 ];
 
 function BentoFeaturesSection() {
+  const isMobile = useIsMobile();
   const gridRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
-  const [progressWidth, setProgressWidth] = useState(0);
-  const progressRef = useRef<HTMLDivElement>(null);
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const [buildStep, setBuildStep] = useState(0);
+  const brico = "'Bricolage Grotesque', sans-serif";
+  const mono = "'Geist Mono','Fira Code',monospace";
 
   useEffect(() => {
     const el = gridRef.current;
     if (!el) return;
-    const obs = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) { setVisible(true); obs.disconnect(); }
-    }, { threshold: 0.1 });
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setVisible(true); obs.disconnect(); }
+    }, { threshold: 0.08 });
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
 
+  // Animate build steps when section visible
   useEffect(() => {
-    const el = progressRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) { setTimeout(() => setProgressWidth(72), 300); obs.disconnect(); }
-    }, { threshold: 0.2 });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
+    if (!visible) return;
+    const t = setInterval(() => setBuildStep(p => p < 4 ? p + 1 : 0), 1400);
+    return () => clearInterval(t);
+  }, [visible]);
 
-  const brico = "'Bricolage Grotesque', sans-serif";
+  const accent = '#6366F1';
+  const card = (extra: React.CSSProperties = {}): React.CSSProperties => ({
+    background: '#111318',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: 18,
+    padding: isMobile ? 20 : 28,
+    cursor: 'default',
+    transition: 'border-color 220ms, box-shadow 220ms, transform 220ms',
+    position: 'relative' as const,
+    overflow: 'hidden' as const,
+    ...extra,
+  });
 
-  const cardBase: React.CSSProperties = {
-    background: 'white', border: '1px solid #E5E7EB', borderRadius: 16, padding: 32,
-    transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1)', cursor: 'default',
-  };
+  const hoverCard = (id: string): React.CSSProperties =>
+    hoveredCard === id ? { borderColor: 'rgba(99,102,241,0.5)', boxShadow: '0 0 0 1px rgba(99,102,241,0.2), 0 20px 60px rgba(0,0,0,0.5)', transform: 'translateY(-2px)' } : {};
 
-  const handleEnter = (e: React.MouseEvent<HTMLDivElement>) => {
-    const el = e.currentTarget;
-    el.style.transform = 'translateY(-3px)';
-    el.style.boxShadow = '0 12px 32px #E5E7EB';
-    el.style.borderColor = 'rgba(99,102,241,0.25)';
-  };
-  const handleLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-    const el = e.currentTarget;
-    el.style.transform = '';
-    el.style.boxShadow = '';
-    el.style.borderColor = '#E5E7EB';
-  };
+  const PRODUCTS = [
+    { name: 'Posture Corrector Pro', rev: '$41.2k/mo', score: 94, trend: '+340%' },
+    { name: 'LED Strip Lights RGB',  rev: '$18.5k/mo', score: 81, trend: '+128%' },
+    { name: 'Air Fryer 11-in-1',     rev: '$24.1k/mo', score: 78, trend: '+67%'  },
+    { name: 'Bamboo Desk Set',       rev: '$11.9k/mo', score: 71, trend: '+44%'  },
+  ];
+
+  const BUILD_STEPS = [
+    { done: true,  active: false, text: 'Niche identified: Pet accessories' },
+    { done: true,  active: false, text: 'Shopify store created' },
+    { done: true,  active: false, text: 'Hero product imported' },
+    { done: false, active: true,  text: 'Generating product descriptions...' },
+    { done: false, active: false, text: 'Setting up payment gateway' },
+    { done: false, active: false, text: 'Publishing store' },
+  ];
+
+  const MARKET_BARS = [
+    { label: 'Pet Accessories', val: 87, color: '#6366F1' },
+    { label: 'Home & Garden',   val: 74, color: '#8B5CF6' },
+    { label: 'Health & Wellness', val: 91, color: '#06B6D4' },
+    { label: 'Kitchen & Cook', val: 62, color: '#6366F1' },
+  ];
+
+  const SPY_ADS = [
+    { platform: 'TikTok', days: 47, spend: '$312/day', hook: '"I fixed my posture in 2 weeks—"' },
+    { platform: 'Meta',   days: 23, spend: '$187/day', hook: '"My wife threw out our old ones"' },
+  ];
+
+  const FEATURES = [
+    { id: 'A', col: isMobile ? '1 / -1' : '1 / 2', row: '1 / 2' },
+    { id: 'B', col: isMobile ? '1 / -1' : '2 / 4', row: '1 / 2' },
+    { id: 'C', col: isMobile ? '1 / -1' : '1 / 2', row: '2 / 3' },
+    { id: 'D', col: isMobile ? '1 / -1' : '2 / 3', row: '2 / 3' },
+    { id: 'E', col: isMobile ? '1 / -1' : '3 / 4', row: '2 / 3' },
+    { id: 'F', col: isMobile ? '1 / -1' : '1 / 2', row: '3 / 4' },
+    { id: 'G', col: isMobile ? '1 / -1' : '2 / 4', row: '3 / 4' },
+  ];
+
+  const staggerStyle = (i: number): React.CSSProperties => ({
+    opacity: visible ? 1 : 0,
+    transform: visible ? 'translateY(0)' : 'translateY(20px)',
+    transition: `opacity 500ms ease ${i * 70}ms, transform 500ms ease ${i * 70}ms`,
+  });
 
   return (
-    <section id="features" style={{ padding: '100px 24px', background: 'white', position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(99,102,241,0.06) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none', zIndex: 0 }} />
-      <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-        <div style={{ textAlign: 'center', marginBottom: 56 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 999, padding: '4px 14px', marginBottom: 16, fontSize: 12, fontWeight: 700, color: '#6366F1', letterSpacing: '0.06em' }}>
+    <section id="features" style={{ padding: isMobile ? '64px 0' : '100px 0', background: '#080A0F', position: 'relative', overflow: 'hidden' }}>
+      {/* Subtle grid bg */}
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px)', backgroundSize: '48px 48px', pointerEvents: 'none' }} />
+      {/* Glow orbs */}
+      <div style={{ position: 'absolute', top: '10%', left: '5%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '10%', right: '5%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(139,92,246,0.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 1 }}>
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? 40 : 64 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 999, padding: '4px 14px', marginBottom: 16, fontSize: 11, fontWeight: 700, color: '#818CF8', letterSpacing: '0.08em' }}>
             ⚡ 20+ AI TOOLS
           </div>
-          <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(28px,5vw,48px)', color: '#0A0A0A', letterSpacing: '-0.02em' }}>Everything you need to win</h2>
-          <p style={{ fontSize: 17, color: '#6B7280', maxWidth: 560, margin: '12px auto 0' }}>One platform. Every tool an AU dropshipper actually needs.</p>
+          <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(28px,5vw,48px)', color: '#F8FAFC', letterSpacing: '-0.02em', marginBottom: 12 }}>Everything you need to win</h2>
+          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', maxWidth: 480, margin: '0 auto' }}>One platform. Every tool a serious dropshipper actually needs.</p>
         </div>
 
-        <div ref={gridRef} className="bento-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gridTemplateRows: 'auto auto auto', gap: 20 }}>
-          {BENTO_CARDS.map((card, index) => {
-            const IconComp = card.Icon;
-            return (
-              <div
-                key={card.key}
-                style={{
-                  ...cardBase,
-                  position: 'relative' as const,
-                  gridColumn: card.gridColumn,
-                  gridRow: card.gridRow,
-                  opacity: visible ? 1 : 0,
-                  transform: visible ? 'translateY(0)' : 'translateY(24px)',
-                  transition: `opacity 500ms ease ${index * 60}ms, transform 500ms ease ${index * 60}ms, box-shadow 200ms, border-color 200ms`,
-                }}
-                onMouseEnter={handleEnter}
-                onMouseLeave={handleLeave}
-              >
-                {/* "60 SECONDS" badge on Store Builder card */}
-                {card.key === 'B' && (
-                  <div style={{ position: 'absolute', top: 20, right: 20, background: '#6366F1', color: 'white', fontSize: 10, fontWeight: 800, padding: '4px 10px', borderRadius: 999, letterSpacing: '0.05em', whiteSpace: 'nowrap', zIndex: 2 }}>
-                    60 SECONDS ⚡
-                  </div>
-                )}
-                {/* Icon */}
-                <div style={{ width: 40, height: 40, background: card.key === 'C' ? 'rgba(8,145,178,0.08)' : card.key === 'D' ? 'rgba(5,150,105,0.08)' : card.key === 'E' ? 'rgba(245,158,11,0.08)' : card.key === 'G' ? 'rgba(236,72,153,0.08)' : '#EEF2FF', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-                  {IconComp ? <IconComp size={20} color={card.key === 'C' ? '#0891B2' : card.key === 'D' ? '#059669' : card.key === 'E' ? '#D97706' : card.key === 'G' ? '#EC4899' : '#6366F1'} /> : <span style={{ fontSize: 18 }}>{'\u{1F1E6}\u{1F1FA}'}</span>}
-                </div>
-                <h3 style={{ fontFamily: brico, fontWeight: 700, fontSize: 20, color: '#0A0A0A', marginBottom: 8 }}>{card.title}</h3>
-                <p style={{ fontSize: 15, color: '#6B7280', lineHeight: 1.65 }}>{card.desc}</p>
+        {/* Bento Grid */}
+        <div ref={gridRef} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: isMobile ? 12 : 16 }}>
 
-                {/* Card A — mini table */}
-                {card.key === 'A' && (
-                  <>
-                    <div style={{ marginTop: 20, border: '1px solid #F3F4F6', borderRadius: 10, overflow: 'hidden' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: 0 }}>
-                        <div style={{ background: '#F9FAFB', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: '#9CA3AF', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Product</div>
-                        <div style={{ background: '#F9FAFB', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Revenue</div>
-                        <div style={{ background: '#F9FAFB', padding: '8px 16px', fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Score</div>
-                        <div style={{ padding: '10px 16px', fontSize: 13, color: '#374151', borderTop: '1px solid #F3F4F6' }}>Air Fryer 11-in-1</div>
-                        <div style={{ padding: '10px 16px', fontSize: 13, color: '#374151', borderTop: '1px solid #F3F4F6' }}>$8.7k/mo</div>
-                        <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6' }}>
-                          <span style={{ background: '#F3E8FF', color: '#7C3AED', border: '1px solid #DDD6FE', borderRadius: 5, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>75</span>
-                        </div>
-                        <div style={{ padding: '10px 16px', fontSize: 13, color: '#374151', borderTop: '1px solid #F3F4F6' }}>LED Strip Lights</div>
-                        <div style={{ padding: '10px 16px', fontSize: 13, color: '#374151', borderTop: '1px solid #F3F4F6' }}>$24.2k/mo</div>
-                        <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6' }}>
-                          <span style={{ background: '#EEF2FF', color: '#6366F1', border: '1px solid #C7D2FE', borderRadius: 5, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>82</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#10B981', fontWeight: 500 }}>
-                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981', animation: 'pulse-ring 2s ease-in-out infinite' }} />
-                      Live market data · Updated every 6 hours
-                    </div>
-                  </>
-                )}
-
-                {/* Card B — progress checklist */}
-                {card.key === 'B' && (
-                  <div ref={progressRef} style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {[
-                      { done: true, text: 'Niche identified: Pet accessories' },
-                      { done: true, text: 'Shopify store created' },
-                      { done: true, text: 'Hero product imported' },
-                      { done: false, spinning: true, text: 'Generating product descriptions...' },
-                      { done: false, text: 'Setting up payment gateway' },
-                      { done: false, text: 'Publishing store' },
-                    ].map((item, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
-                        <span style={{ fontSize: 14, color: item.done ? '#10B981' : (item as any).spinning ? '#6366F1' : '#D1D5DB' }}>
-                          {item.done ? '\u2705' : (item as any).spinning ? '\u27F3' : '\u2610'}
-                        </span>
-                        <span style={{ color: item.done ? '#374151' : (item as any).spinning ? '#6366F1' : '#9CA3AF' }}>{item.text}</span>
-                      </div>
-                    ))}
-                    <div style={{ marginTop: 12 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 12, color: '#9CA3AF' }}>
-                        <span>Building store...</span><span>72%</span>
-                      </div>
-                      <div style={{ height: 6, background: '#F3F4F6', borderRadius: 999 }}>
-                        <div style={{ height: '100%', width: `${progressWidth}%`, background: 'linear-gradient(90deg, #6366F1, #8B5CF6)', borderRadius: 999, transition: 'width 1.5s ease' }} />
-                      </div>
-                    </div>
-                  </div>
-                )}
+          {/* ── A: Product Intelligence ── */}
+          <div style={{ ...card(), ...staggerStyle(0), ...hoverCard('A'), gridColumn: FEATURES[0].col, gridRow: FEATURES[0].row }}
+            onMouseEnter={() => setHoveredCard('A')} onMouseLeave={() => setHoveredCard(null)}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12L6 7l3 4 2-3 3 4" stroke="#6366F1" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#6366F1', letterSpacing: '0.08em' }}>PRODUCT INTELLIGENCE</span>
+            </div>
+            <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 800, color: '#F8FAFC', marginBottom: 6, letterSpacing: '-0.01em' }}>Find winners before anyone else</h3>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 16, lineHeight: 1.6 }}>Real margin data, TikTok signals, and supplier links — updated every 6 hours.</p>
+            {/* Mini product table */}
+            <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 10, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px 36px', gap: 0, padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                {['PRODUCT','REVENUE',''].map(h => <span key={h} style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em' }}>{h}</span>)}
               </div>
-            );
-          })}
+              {PRODUCTS.map((p, i) => (
+                <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 90px 36px', gap: 0, padding: '9px 12px', borderBottom: i < PRODUCTS.length-1 ? '1px solid rgba(255,255,255,0.04)' : 'none', background: i === 0 ? 'rgba(99,102,241,0.06)' : 'transparent' }}>
+                  <span style={{ fontSize: 12, color: i === 0 ? '#E0E7FF' : 'rgba(255,255,255,0.6)', fontWeight: i === 0 ? 600 : 400, whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</span>
+                  <span style={{ fontSize: 12, color: '#4ADE80', fontFamily: mono, fontWeight: 600 }}>{p.rev}</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: i === 0 ? '#818CF8' : 'rgba(255,255,255,0.4)', textAlign: 'right' as const, fontFamily: mono }}>{p.score}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ADE80', animation: 'demoPulse 2s ease-in-out infinite' }} />
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: mono }}>Live market data · Updated every 6 hours</span>
+            </div>
+          </div>
+
+          {/* ── B: AI Store Builder ── */}
+          <div style={{ ...card(), ...staggerStyle(1), ...hoverCard('B'), gridColumn: FEATURES[1].col, gridRow: FEATURES[1].row }}
+            onMouseEnter={() => setHoveredCard('B')} onMouseLeave={() => setHoveredCard(null)}>
+            <div style={{ position: 'absolute', top: 20, right: 20, background: 'rgba(99,102,241,0.9)', color: 'white', fontSize: 9, fontWeight: 800, padding: '4px 10px', borderRadius: 999, letterSpacing: '0.08em', backdropFilter: 'blur(4px)' }}>
+              60 SECONDS ⚡
+            </div>
+            <div style={{ display: 'flex', gap: isMobile ? 0 : 28, flexDirection: isMobile ? 'column' as const : 'row' as const }}>
+              {/* Left */}
+              <div style={{ flex: '0 0 auto', maxWidth: isMobile ? '100%' : '48%' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 3h10v2H3V3zm0 4h10v6H3V7zm2 2v2h6V9H5z" fill="#8B5CF6"/></svg>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#8B5CF6', letterSpacing: '0.08em' }}>AI STORE BUILDER</span>
+                </div>
+                <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 800, color: '#F8FAFC', marginBottom: 6, letterSpacing: '-0.01em' }}>Store live in 60 seconds</h3>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>Describe your niche. AI builds your entire Shopify store — theme, products, copy, payments.</p>
+              </div>
+              {/* Right — build checklist */}
+              <div style={{ flex: 1, marginTop: isMobile ? 16 : 0 }}>
+                <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: '12px 14px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  {BUILD_STEPS.slice(0, Math.min(buildStep + 2, BUILD_STEPS.length)).map((step, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0', opacity: i <= buildStep ? 1 : 0.3, transition: 'opacity 0.4s' }}>
+                      <span style={{ fontSize: 11, flexShrink: 0, color: step.done && i < buildStep ? '#4ADE80' : step.active && i === buildStep ? '#FBBF24' : 'rgba(255,255,255,0.25)' }}>
+                        {step.done && i < buildStep ? '✓' : step.active && i === buildStep ? '◉' : '○'}
+                      </span>
+                      <span style={{ fontSize: 12, color: step.active && i === buildStep ? '#F8FAFC' : step.done && i < buildStep ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)', fontFamily: i === buildStep ? mono : 'inherit' }}>{step.text}</span>
+                    </div>
+                  ))}
+                  <div style={{ marginTop: 10 }}>
+                    <div style={{ height: 3, background: 'rgba(255,255,255,0.08)', borderRadius: 999 }}>
+                      <div style={{ height: '100%', width: `${Math.round((Math.min(buildStep, BUILD_STEPS.length - 1) / BUILD_STEPS.length) * 100)}%`, background: 'linear-gradient(90deg, #6366F1, #8B5CF6)', borderRadius: 999, transition: 'width 0.8s ease' }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── C: Competitor Spy ── */}
+          <div style={{ ...card(), ...staggerStyle(2), ...hoverCard('C'), gridColumn: FEATURES[2].col, gridRow: FEATURES[2].row }}
+            onMouseEnter={() => setHoveredCard('C')} onMouseLeave={() => setHoveredCard(null)}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4" stroke="#06B6D4" strokeWidth="1.8"/><path d="M10.5 10.5L14 14" stroke="#06B6D4" strokeWidth="1.8" strokeLinecap="round"/></svg>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#06B6D4', letterSpacing: '0.08em' }}>COMPETITOR SPY</span>
+            </div>
+            <h3 style={{ fontFamily: brico, fontSize: 17, fontWeight: 800, color: '#F8FAFC', marginBottom: 6, letterSpacing: '-0.01em' }}>See exactly what rivals run</h3>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 14, lineHeight: 1.5 }}>Winning ads, top products, and spend estimates.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {SPY_ADS.map((ad, i) => (
+                <div key={i} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: '10px 12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: i === 0 ? '#FF6B6B' : '#1DA1F2', letterSpacing: '0.06em' }}>{ad.platform}</span>
+                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontFamily: mono }}>{ad.days}d · {ad.spend}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', fontStyle: 'italic' }}>{ad.hook}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── D: Market Intelligence ── */}
+          <div style={{ ...card(), ...staggerStyle(3), ...hoverCard('D'), gridColumn: FEATURES[3].col, gridRow: FEATURES[3].row }}
+            onMouseEnter={() => setHoveredCard('D')} onMouseLeave={() => setHoveredCard(null)}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 10l3-4 3 3 3-5 3 2" stroke="#F59E0B" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#F59E0B', letterSpacing: '0.08em' }}>MARKET INTEL</span>
+            </div>
+            <h3 style={{ fontFamily: brico, fontSize: 17, fontWeight: 800, color: '#F8FAFC', marginBottom: 12, letterSpacing: '-0.01em' }}>Know what's about to blow up</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {MARKET_BARS.map((b, i) => (
+                <div key={i}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{b.label}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#F8FAFC', fontFamily: mono }}>{b.val}</span>
+                  </div>
+                  <div style={{ height: 4, background: 'rgba(255,255,255,0.06)', borderRadius: 999 }}>
+                    <div style={{ height: '100%', width: visible ? `${b.val}%` : '0%', background: b.color, borderRadius: 999, transition: `width 1s ease ${i * 150}ms` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── E: Profit Calculator ── */}
+          <div style={{ ...card(), ...staggerStyle(4), ...hoverCard('E'), gridColumn: FEATURES[4].col, gridRow: FEATURES[4].row }}
+            onMouseEnter={() => setHoveredCard('E')} onMouseLeave={() => setHoveredCard(null)}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v12M4 6h8M4 10h8" stroke="#4ADE80" strokeWidth="1.8" strokeLinecap="round"/></svg>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#4ADE80', letterSpacing: '0.08em' }}>PROFIT CALC</span>
+            </div>
+            <h3 style={{ fontFamily: brico, fontSize: 17, fontWeight: 800, color: '#F8FAFC', marginBottom: 10, letterSpacing: '-0.01em' }}>Know your numbers cold</h3>
+            <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: '10px 12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              {[['Sell price','$49.95'],['COGS','$12.00'],['Ad spend','$8.50'],['Net profit','$29.45']].map(([k,v],i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: i < 3 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{k}</span>
+                  <span style={{ fontSize: 12, fontWeight: i === 3 ? 800 : 600, color: i === 3 ? '#4ADE80' : 'rgba(255,255,255,0.7)', fontFamily: mono }}>{v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── F: Creator Intel ── */}
+          <div style={{ ...card(), ...staggerStyle(5), ...hoverCard('F'), gridColumn: FEATURES[5].col, gridRow: FEATURES[5].row }}
+            onMouseEnter={() => setHoveredCard('F')} onMouseLeave={() => setHoveredCard(null)}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="#EC4899" strokeWidth="1.8"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="#EC4899" strokeWidth="1.8" strokeLinecap="round"/></svg>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#EC4899', letterSpacing: '0.08em' }}>CREATOR INTEL</span>
+            </div>
+            <h3 style={{ fontFamily: brico, fontSize: 17, fontWeight: 800, color: '#F8FAFC', marginBottom: 6, letterSpacing: '-0.01em' }}>Find your next collab</h3>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>Browse creators by niche, GMV, and engagement. Contact info included.</p>
+          </div>
+
+          {/* ── G: Ad Intelligence ── */}
+          <div style={{ ...card({ background: 'linear-gradient(135deg, #0D0F1A 0%, #1A1040 100%)' }), ...staggerStyle(6), ...hoverCard('G'), gridColumn: FEATURES[6].col, gridRow: FEATURES[6].row }}
+            onMouseEnter={() => setHoveredCard('G')} onMouseLeave={() => setHoveredCard(null)}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h2l2-5 2 10 2-6 2 3h2" stroke="#A78BFA" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA', letterSpacing: '0.08em' }}>AD INTELLIGENCE</span>
+                </div>
+                <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 800, color: '#F8FAFC', marginBottom: 6, letterSpacing: '-0.01em' }}>Steal winning ad formulas</h3>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, maxWidth: 300 }}>Browse live ads across Meta and TikTok. See spend estimates, engagement, and the exact hooks that convert.</p>
+              </div>
+              {!isMobile && (
+                <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {[['Meta','47d','$312/d','#1877F2'],['TikTok','23d','$187/d','#FF0050'],['Google','61d','$445/d','#4285F4']].map(([p,d,s,col]) => (
+                    <div key={p} style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 8, padding: '8px 12px', border: '1px solid rgba(255,255,255,0.08)', minWidth: 140 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                        <div style={{ width: 6, height: 6, borderRadius: '50%', background: col }} />
+                        <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.06em' }}>{p}</span>
+                      </div>
+                      <div style={{ display: 'flex', gap: 10 }}>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: mono }}>{d}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#F8FAFC', fontFamily: mono }}>{s}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
   );
 }
 
-// ── How It Works ──────────────────────────────────────────────────────────────
+
 function HowItWorksSection() {
   const isMobile = useIsMobile();
   const brico = "'Bricolage Grotesque', sans-serif";
