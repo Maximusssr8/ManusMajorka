@@ -1187,26 +1187,34 @@ export default function Home() {
 
       {/* ═══ NAV ═══════════════════════════════════════════════════════════ */}
       <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(250,250,250,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(229,231,235,0.8)', boxShadow: navShadow ? '0 1px 12px #E5E7EB' : 'none', transition: 'box-shadow 0.3s' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? '0 16px' : '0 max(calc((100vw - 1200px) / 2), 24px)', height: 64, display: 'flex', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', flexDirection: isMobile ? 'column' as const : 'row' as const }}>
-          {/* Left: wordmark */}
-          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', userSelect: 'none' }}>
-            <img src="/majorka-logo.jpg" alt="Majorka" width={36} height={36} style={{ width: 36, height: 36, objectFit: 'contain', display: 'block', borderRadius: 10, flexShrink: 0 }} draggable={false} />
-            <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 18, color: '#0F172A', letterSpacing: '-0.02em', lineHeight: 1 }}>Majorka</span>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? '0 20px' : '0 max(calc((100vw - 1200px) / 2), 32px)', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexDirection: 'row' as const }}>
+          {/* Left: logomark + wordmark */}
+          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', userSelect: 'none', flexShrink: 0 }}>
+            <img src="/majorka-logo.jpg" alt="Majorka" width={32} height={32} style={{ width: 32, height: 32, objectFit: 'contain', display: 'block', borderRadius: 8, flexShrink: 0 }} draggable={false} />
+            <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 17, color: '#0F172A', letterSpacing: '-0.02em', lineHeight: 1 }}>Majorka</span>
           </a>
           {/* Center: nav links */}
-          <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+          <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             {[['#features', 'Features'], ['#pricing', 'Pricing'], ['/dropshipping-australia', 'Blog']].map(([href, label]) => (
-              <a key={label} href={href} style={{ color: '#374151', textDecoration: 'none', fontSize: 14, padding: '0 4px', margin: '0 12px', transition: 'color 150ms' }} onMouseEnter={(e) => (e.currentTarget.style.color = '#6366F1')} onMouseLeave={(e) => (e.currentTarget.style.color = '#374151')}>{label}</a>
+              <a key={label} href={href} style={{ color: '#6B7280', textDecoration: 'none', fontSize: 14, fontWeight: 500, padding: '6px 14px', borderRadius: 8, transition: 'color 150ms, background 150ms' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#0F172A'; e.currentTarget.style.background = '#F3F4F6'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.background = 'transparent'; }}>
+                {label}
+              </a>
             ))}
           </div>
           {/* Right: auth */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Link href="/sign-in" className="hide-mobile" style={{ color: '#374151', textDecoration: 'none', fontSize: 14 }}>Log in</Link>
-            <Link href="/sign-up" style={{ background: '#6366F1', color: '#fff', borderRadius: 8, padding: '8px 18px', fontWeight: 600, fontSize: 14, textDecoration: 'none', display: 'inline-block' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+            <Link href="/sign-in" className="hide-mobile" style={{ color: '#6B7280', textDecoration: 'none', fontSize: 14, fontWeight: 500, padding: '6px 14px', borderRadius: 8, transition: 'color 150ms, background 150ms' }}
+              onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.color = '#0F172A'; e.currentTarget.style.background = '#F3F4F6'; }}
+              onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.background = 'transparent'; }}>
+              Log in
+            </Link>
+            <Link href="/sign-up" style={{ background: '#6366F1', color: '#fff', borderRadius: 8, padding: '8px 20px', fontWeight: 600, fontSize: 14, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, letterSpacing: '-0.01em', whiteSpace: 'nowrap' as const }}>
               Start Free →
             </Link>
             {/* Mobile hamburger */}
-            <button className="hide-desktop" onClick={() => setMobileMenuOpen(prev => !prev)} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#374151', padding: '4px 0', lineHeight: 1 }}>☰</button>
+            <button className="hide-desktop" onClick={() => setMobileMenuOpen(prev => !prev)} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#374151', padding: '4px 0', lineHeight: 1, marginLeft: 4 }}>☰</button>
           </div>
         </div>
         {/* Mobile drawer */}
@@ -1252,8 +1260,22 @@ export default function Home() {
             <Link href="/sign-up" style={{ background: '#6366F1', color: 'white', height: 48, padding: '0 28px', borderRadius: 10, fontWeight: 600, fontSize: 15, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', transition: 'background 150ms, transform 150ms' }} onMouseEnter={(e) => { e.currentTarget.style.background = '#4F46E5'; e.currentTarget.style.transform = 'scale(1.02)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = '#6366F1'; e.currentTarget.style.transform = 'scale(1)'; }}>
               Start for Free →
             </Link>
-            <button onClick={() => setShowDemo(true)} style={{ background: 'transparent', color: '#374151', height: 48, padding: '0 24px', borderRadius: 10, border: '1px solid #E5E7EB', fontSize: 15, cursor: 'pointer', transition: 'background 150ms' }} onMouseEnter={(e) => (e.currentTarget.style.background = '#F9FAFB')} onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}>
-              Watch a Demo ↓
+            <button
+              onClick={() => setShowDemo(true)}
+              style={{ position: 'relative', background: 'transparent', color: '#0F172A', height: 48, padding: '0 24px 0 16px', borderRadius: 10, border: '1.5px solid #E5E7EB', fontSize: 15, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 10, transition: 'border-color 200ms, box-shadow 200ms', letterSpacing: '-0.01em' }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 4px rgba(99,102,241,0.10)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.boxShadow = 'none'; }}
+            >
+              {/* Animated play icon */}
+              <span style={{ position: 'relative', width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {/* Pulse ring */}
+                <span style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid rgba(99,102,241,0.35)', animation: 'demoPulse 2s ease-in-out infinite' }} />
+                {/* Triangle play */}
+                <svg width="10" height="12" viewBox="0 0 10 12" fill="none" style={{ marginLeft: 2 }}>
+                  <path d="M1 1L9 6L1 11V1Z" fill="white" stroke="white" strokeWidth="1" strokeLinejoin="round"/>
+                </svg>
+              </span>
+              Watch a Demo
             </button>
           </div>
 
