@@ -1186,42 +1186,56 @@ export default function Home() {
       {showDemo && <DemoModal onClose={() => setShowDemo(false)} />}
 
       {/* ═══ NAV ═══════════════════════════════════════════════════════════ */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(250,250,250,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(229,231,235,0.8)', boxShadow: navShadow ? '0 1px 12px #E5E7EB' : 'none', transition: 'box-shadow 0.3s' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? '0 20px' : '0 max(calc((100vw - 1200px) / 2), 32px)', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexDirection: 'row' as const }}>
-          {/* Left: logomark + wordmark */}
-          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', userSelect: 'none', flexShrink: 0 }}>
-            <img src="/majorka-logo.jpg" alt="Majorka" width={32} height={32} style={{ width: 32, height: 32, objectFit: 'contain', display: 'block', borderRadius: 8, flexShrink: 0 }} draggable={false} />
-            <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 17, color: '#0F172A', letterSpacing: '-0.02em', lineHeight: 1 }}>Majorka</span>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(250,250,250,0.92)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid #ECECEC', boxShadow: navShadow ? '0 1px 16px rgba(0,0,0,0.06)' : 'none', transition: 'box-shadow 0.3s' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+
+          {/* ── Left: Logo ── */}
+          <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none', userSelect: 'none', flexShrink: 0 }}>
+            <img src="/majorka-logo.jpg" alt="Majorka" width={30} height={30} style={{ width: 30, height: 30, objectFit: 'contain', borderRadius: 7, flexShrink: 0, display: 'block' }} draggable={false} />
+            <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 16, color: '#0F172A', letterSpacing: '-0.02em' }}>Majorka</span>
           </a>
-          {/* Center: nav links */}
-          <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            {[['#features', 'Features'], ['#pricing', 'Pricing'], ['/dropshipping-australia', 'Blog']].map(([href, label]) => (
-              <a key={label} href={href} style={{ color: '#6B7280', textDecoration: 'none', fontSize: 14, fontWeight: 500, padding: '6px 14px', borderRadius: 8, transition: 'color 150ms, background 150ms' }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = '#0F172A'; e.currentTarget.style.background = '#F3F4F6'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.background = 'transparent'; }}>
-                {label}
-              </a>
-            ))}
-          </div>
-          {/* Right: auth */}
+
+          {/* ── Center: Nav links (desktop only) ── */}
+          {!isMobile && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              {[['#features', 'Features'], ['#pricing', 'Pricing'], ['/dropshipping-australia', 'Blog']].map(([href, label]) => (
+                <a key={label} href={href} style={{ color: '#6B7280', textDecoration: 'none', fontSize: 14, fontWeight: 500, padding: '6px 12px', borderRadius: 7, transition: 'color 120ms, background 120ms' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = '#111827'; e.currentTarget.style.background = '#F3F4F6'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.background = 'transparent'; }}>
+                  {label}
+                </a>
+              ))}
+            </div>
+          )}
+
+          {/* ── Right: CTA ── */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-            <Link href="/sign-in" className="hide-mobile" style={{ color: '#6B7280', textDecoration: 'none', fontSize: 14, fontWeight: 500, padding: '6px 14px', borderRadius: 8, transition: 'color 150ms, background 150ms' }}
-              onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.color = '#0F172A'; e.currentTarget.style.background = '#F3F4F6'; }}
-              onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.background = 'transparent'; }}>
-              Log in
+            {!isMobile && (
+              <Link href="/sign-in" style={{ color: '#6B7280', textDecoration: 'none', fontSize: 14, fontWeight: 500, padding: '6px 12px', borderRadius: 7, transition: 'color 120ms, background 120ms' }}
+                onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.color = '#111827'; e.currentTarget.style.background = '#F3F4F6'; }}
+                onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.background = 'transparent'; }}>
+                Log in
+              </Link>
+            )}
+            <Link href="/sign-up" style={{ background: '#6366F1', color: '#fff', borderRadius: 8, padding: '8px 18px', fontWeight: 600, fontSize: 14, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', letterSpacing: '-0.01em', whiteSpace: 'nowrap' as const }}>
+              {isMobile ? 'Sign up' : 'Start Free →'}
             </Link>
-            <Link href="/sign-up" style={{ background: '#6366F1', color: '#fff', borderRadius: 8, padding: '8px 20px', fontWeight: 600, fontSize: 14, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, letterSpacing: '-0.01em', whiteSpace: 'nowrap' as const }}>
-              Start Free →
-            </Link>
-            {/* Mobile hamburger */}
-            <button className="hide-desktop" onClick={() => setMobileMenuOpen(prev => !prev)} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#374151', padding: '4px 0', lineHeight: 1, marginLeft: 4 }}>☰</button>
+            {isMobile && (
+              <button onClick={() => setMobileMenuOpen(prev => !prev)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6 }}>
+                {mobileMenuOpen
+                  ? <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 4L16 16M4 16L16 4" stroke="#374151" strokeWidth="2" strokeLinecap="round"/></svg>
+                  : <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="#374151" strokeWidth="2" strokeLinecap="round"/></svg>
+                }
+              </button>
+            )}
           </div>
         </div>
-        {/* Mobile drawer */}
-        {mobileMenuOpen && (
-          <div className="hide-desktop" style={{ borderTop: '1px solid #E5E7EB', background: 'rgba(250,250,250,0.95)', padding: '12px 24px', display: 'flex', flexDirection: 'column', gap: 0 }}>
-            {[['#features', 'Features'], ['#pricing', 'Pricing'], ['/dropshipping-australia', 'Blog']].map(([href, label]) => (
-              <a key={label} href={href} onClick={() => setMobileMenuOpen(false)} style={{ color: '#374151', textDecoration: 'none', fontSize: 15, padding: '12px 0', borderBottom: '1px solid #F3F4F6' }}>{label}</a>
+
+        {/* ── Mobile drawer ── */}
+        {isMobile && mobileMenuOpen && (
+          <div style={{ borderTop: '1px solid #E5E7EB', background: 'rgba(250,250,250,0.97)', padding: '8px 16px 16px' }}>
+            {[['#features', 'Features'], ['#pricing', 'Pricing'], ['/dropshipping-australia', 'Blog'], ['/sign-in', 'Log in']].map(([href, label]) => (
+              <a key={label} href={href} onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', color: '#374151', textDecoration: 'none', fontSize: 15, fontWeight: 500, padding: '12px 8px', borderBottom: '1px solid #F3F4F6' }}>{label}</a>
             ))}
           </div>
         )}
