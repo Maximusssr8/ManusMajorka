@@ -89,13 +89,14 @@ Only output the JSON. No markdown. No code blocks.`
 // Unified /generate endpoint for Growth Tools
 router.post('/generate', async (req, res) => {
   try {
-    const { tool, productName, platform, tone, features, audience, templateType, brandName, niche } = req.body;
+    const { tool, platform, tone, features, audience, templateType, brandName, niche } = req.body;
+    const productName = req.body.productName || req.body.product || req.body.name || "the product";
 
     const client = getClient();
 
     let prompt = '';
 
-    if (tool === 'ad-copy') {
+    if (tool === 'ad-copy' || tool === 'ad_copy') {
       prompt = `Write a high-converting ${platform || 'Facebook'} ad for an Australian dropshipping store selling "${productName}".
 Tone: ${tone || 'Urgent'}. Target: Australian shoppers.
 Format:

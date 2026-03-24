@@ -264,6 +264,8 @@ type MessageWithActions = Message & { agentActions?: any[] };
 
 export default function AIChat() {
   const [input, setInput] = useState('');
+  const [pageReady, setPageReady] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setPageReady(true), 100); return () => clearTimeout(t); }, []);
   const [messages, setMessages] = useState<MessageWithActions[]>([]);
   const [status, setStatus] = useState<'idle' | 'streaming'>('idle');
   const [toolStatus, setToolStatus] = useState<string | null>(null);
@@ -462,6 +464,18 @@ export default function AIChat() {
       }
     }
   }, [session]);
+
+  if (!pageReady) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', flexDirection: 'column', gap: 16, background: '#F9FAFB' }}>
+      <div style={{ width: 48, height: 48, borderRadius: 12, background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontSize: 24 }}>✨</span>
+      </div>
+      <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 18, color: '#0A0A0A' }}>Maya AI</div>
+      <div style={{ width: 200, height: 4, borderRadius: 2, background: '#EEF2FF', overflow: 'hidden' }}>
+        <div style={{ width: '60%', height: '100%', background: '#6366F1', borderRadius: 2, animation: 'shimmer 1s ease infinite' }} />
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex flex-col h-full" style={{ background: '#FAFAFA' }}>

@@ -31,6 +31,7 @@ const PublicProfitCalculator = lazy(() => import('./pages/PublicProfitCalculator
 const Affiliate = lazy(() => import('./pages/Affiliate'));
 const KnowledgeBase = lazy(() => import('./pages/KnowledgeBase'));
 const LearnHub = lazy(() => import('./pages/LearnHub'));
+const AdSpy = lazy(() => import('./pages/AdSpy'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const AdminControlPanel = lazy(() => import('./pages/AdminControlPanel'));
 const AdminSubscribers = lazy(() => import('./pages/AdminSubscribers'));
@@ -177,6 +178,7 @@ function Router() {
                 </ProtectedRoute>
               )}
             </Route>
+            <Route path="/app/ad-spy">{() => <ProtectedRoute><AdSpy /></ProtectedRoute>}</Route>
             <Route path="/app/learn">
               {() => (
                 <ProtectedRoute>

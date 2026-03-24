@@ -380,6 +380,7 @@ export default function ProductDiscovery() {
           messages: [{ role: 'user', content: prompt }],
           systemPrompt: getSystemPrompt(SYSTEM_PROMPT, activeProduct),
           searchQuery,
+          stream: false,
         }),
       });
 
@@ -395,10 +396,28 @@ export default function ProductDiscovery() {
         const resData = await response.json();
         fullText = resData.reply ?? resData.content ?? resData.text ?? '';
       } else {
-        // Plain text / streaming — read as text
-        fullText = await response.text();
-        // Strip SSE data: prefix if present
-        fullText = fullText.replace(/^data: /gm, '').trim();
+        // Plain text / streaming — read as text and reassemble
+        const rawText = await response.text();
+        if (rawText.startsWith('data: ') || rawText.includes('\ndata: ')) {
+          // SSE format — extract text fields from each event
+          const lines = rawText.split('\n');
+          const parts: string[] = [];
+          for (const line of lines) {
+            const trimmed = line.replace(/^data: /, '').trim();
+            if (!trimmed || trimmed === '[DONE]') continue;
+            try {
+              const evt = JSON.parse(trimmed);
+              if (evt.text) parts.push(evt.text);
+              else if (evt.reply) { fullText = evt.reply; break; }
+              else if (evt.delta) parts.push(evt.delta);
+              // Vercel AI SDK format: "0:"text""
+              else if (line.match(/^0:/)) parts.push(JSON.parse(line.slice(2)));
+            } catch { /* not JSON, treat as plain text */ parts.push(trimmed); }
+          }
+          if (!fullText) fullText = parts.join('');
+        } else {
+          fullText = rawText;
+        }
       }
 
       if (!fullText.trim()) {

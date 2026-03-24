@@ -745,7 +745,7 @@ function DashboardHome() {
                 {(products.slice(0, 5)).map((p: any, i: number) => {
                   const score = p.winning_score ?? p.opportunity_score ?? 0;
                   const revenue = p.est_monthly_revenue_aud ?? 0;
-                  const margin = p.estimated_margin_pct ?? 0;
+                  const margin = p.profit_margin ?? 0;
                   return (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px', borderBottom: i < 4 ? '1px solid #F9FAFB' : 'none', cursor: 'pointer', transition: 'background 150ms' }}
                       onMouseEnter={e => (e.currentTarget.style.background = '#F5F3FF')}
@@ -753,11 +753,11 @@ function DashboardHome() {
                       onClick={() => setLocation('/app/intelligence/database')}
                     >
                       <div style={{ width: 40, height: 40, borderRadius: 8, background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>
-                        {(p.name ?? 'P').charAt(0)}
+                        {(p.product_title ?? p.name ?? 'P').charAt(0)}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#0A0A0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
-                        <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{margin}% margin &middot; {p.niche ?? 'General'}</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: '#0A0A0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.product_title ?? p.name}</div>
+                        <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{margin > 0 ? `${margin}% margin · ` : ''}{p.category ?? 'General'}</div>
                       </div>
                       <div style={{ textAlign: 'right' as const, flexShrink: 0 }}>
                         <div style={{ fontSize: 14, fontWeight: 700, color: '#0A0A0A' }}>${(revenue / 1000).toFixed(1)}k/mo</div>
