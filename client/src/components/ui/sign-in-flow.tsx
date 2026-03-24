@@ -181,19 +181,19 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
   return (
     <div className={cn('flex w-full min-h-screen', className)} style={{ background: '#FAFAFA' }}>
       {/* ── Left panel: Brand + Social Proof (desktop only) ──────────── */}
-      <div className="hidden lg:flex flex-col justify-between w-[480px] xl:w-[520px] flex-shrink-0 p-10 relative overflow-hidden">
+      <div className="hidden lg:flex flex-col justify-between w-[480px] xl:w-[520px] flex-shrink-0 p-10 relative overflow-hidden" style={{ background: 'linear-gradient(145deg, #1e1b4b 0%, #312e81 40%, #4338ca 100%)' }}>
         {/* Background glow */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              'radial-gradient(ellipse at 30% 50%, rgba(99,102,241,0.08) 0%, transparent 70%)',
+              'radial-gradient(ellipse at 30% 50%, rgba(139,92,246,0.25) 0%, transparent 70%)',
           }}
         />
         <div
           className="absolute inset-0"
           style={{
-            background: 'linear-gradient(135deg, rgba(99,102,241,0.03) 0%, transparent 60%)',
+            background: 'linear-gradient(135deg, rgba(99,102,241,0.15) 0%, transparent 60%)',
           }}
         />
 
@@ -222,7 +222,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
           {/* Brand statement */}
           <h2
             className="text-3xl font-bold leading-tight mb-4"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#374151', letterSpacing: '-0.02em' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: 'white', letterSpacing: '-0.02em' }}
           >
             Your AI ecommerce
             <br />
@@ -265,15 +265,15 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                 key={label}
                 className="rounded-xl p-3"
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid #E5E7EB',
+                  background: 'rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(255,255,255,0.15)',
                 }}
               >
                 <div className="flex items-center gap-2 mb-1">
                   <Icon size={13} style={{ color: '#6366F1' }} />
                   <span
                     className="text-lg font-bold"
-                    style={{ fontFamily: 'Syne, sans-serif', color: '#374151' }}
+                    style={{ fontFamily: 'Syne, sans-serif', color: 'white' }}
                   >
                     {stat}
                   </span>
@@ -337,7 +337,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                   >
                     {mode === 'signup' ? 'Create your account' : 'Welcome back'}
                   </h1>
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                  <p className="text-sm" style={{ color: '#6B7280' }}>
                     {mode === 'signup'
                       ? 'Start free — no credit card needed'
                       : 'Sign in to your Majorka account'}
@@ -351,19 +351,17 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                   disabled={loading}
                   className="w-full flex items-center justify-center gap-2.5 rounded-xl py-3.5 px-4 font-medium transition-all disabled:opacity-50"
                   style={{
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.12)',
+                    background: '#F9FAFB',
+                    border: '1px solid #E5E7EB',
                     color: '#374151',
                     cursor: loading ? 'wait' : 'pointer',
                   }}
                   onMouseEnter={(e) => {
                     if (!loading)
-                      (e.currentTarget as HTMLButtonElement).style.background =
-                        'rgba(255,255,255,0.1)';
+                      (e.currentTarget as HTMLButtonElement).style.background = '#F3F4F6';
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background =
-                      'rgba(255,255,255,0.06)';
+                    (e.currentTarget as HTMLButtonElement).style.background = '#F9FAFB';
                   }}
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -604,7 +602,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                   >
                     Check your email
                   </h1>
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                  <p className="text-sm" style={{ color: '#6B7280' }}>
                     {mode === 'signup'
                       ? `We sent a confirmation link to ${email}`
                       : `We sent a magic link to ${email}`}
@@ -667,7 +665,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                   >
                     You're in!
                   </h1>
-                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                  <p className="text-sm" style={{ color: '#6B7280' }}>
                     Welcome to Majorka
                   </p>
                 </div>
