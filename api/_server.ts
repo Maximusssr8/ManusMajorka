@@ -1,39 +1,3 @@
-
-// ── Image proxy — fixes AliExpress CDN AVIF/format issues ────────────
-app.get("/api/proxy-img", async (req: Request, res: Response) => {
-  const url = req.query.url as string;
-  if (!url) return res.status(400).json({ error: 'url required' });
-  // Only allow AliExpress CDN domains
-  if (!url.includes('alicdn.com') && !url.includes('aliexpress-media.com')) {
-    return res.status(403).json({ error: 'domain not allowed' });
-  }
-  try {
-    // Try the URL as-is, then strip format suffixes
-    const attempts = [
-      url,
-      url.replace(/\.avif$/, '.jpg').replace('_480x480q75.jpg_', ''),
-      url.replace(/\.avif$/, '.jpg'),
-      url.replace(/\.webp$/, '.jpg'),
-    ];
-    for (const attempt of attempts) {
-      try {
-        const r = await fetch(attempt, { headers: { 'Referer': 'https://www.aliexpress.com/', 'User-Agent': 'Mozilla/5.0' } });
-        if (r.ok) {
-          const buf = await r.arrayBuffer();
-          const ct = r.headers.get('content-type') || 'image/jpeg';
-          res.setHeader('Content-Type', ct.includes('avif') ? 'image/jpeg' : ct);
-          res.setHeader('Cache-Control', 'public, max-age=604800');
-          return res.send(Buffer.from(buf));
-        }
-      } catch { continue; }
-    }
-    // All attempts failed — return a 1x1 transparent PNG
-    res.status(404).send('');
-  } catch (err) {
-    res.status(500).send('');
-  }
-});
-
 /**
  * Vercel Serverless Function — wraps the Express app for serverless deployment.
  * All /api/* requests are routed here via vercel.json rewrites.
@@ -107,6 +71,41 @@ app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async
 });
 
 app.use(express.json({ limit: "50mb" }));
+// ── Image proxy — fixes AliExpress CDN AVIF/format issues ─────────────────
+app.get("/api/proxy-img", async (req: Request, res: Response) => {
+  const url = req.query.url as string;
+  if (!url) return res.status(400).json({ error: 'url required' });
+  if (!url.includes('alicdn.com') && !url.includes('aliexpress-media.com')) {
+    return res.status(403).json({ error: 'domain not allowed' });
+  }
+  try {
+    const attempts = [
+      url,
+      url.replace(/\.avif$/, '.jpg').replace('_480x480q75.jpg_', ''),
+      url.replace(/\.avif$/, '.jpg'),
+      url.replace(/\.webp$/, '.jpg'),
+    ];
+    for (const attempt of attempts) {
+      try {
+        const r = await fetch(attempt, {
+          headers: { 'Referer': 'https://www.aliexpress.com/', 'User-Agent': 'Mozilla/5.0 (compatible; Majorka/1.0)' },
+          signal: AbortSignal.timeout(6000),
+        });
+        if (r.ok) {
+          const buf = await r.arrayBuffer();
+          const ct = r.headers.get('content-type') || 'image/jpeg';
+          res.setHeader('Content-Type', ct.includes('avif') ? 'image/jpeg' : ct);
+          res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
+          return res.send(Buffer.from(buf));
+        }
+      } catch { continue; }
+    }
+    res.status(404).send('');
+  } catch {
+    res.status(500).send('');
+  }
+});
+
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());
 
