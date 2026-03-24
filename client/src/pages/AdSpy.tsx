@@ -224,7 +224,7 @@ function AdCard({
         </p>
 
         {/* Body */}
-        <p className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.65)' }}>
+        <p className="text-xs leading-relaxed" style={{ color: '#6B7280' }}>
           {ad.bodyText}
         </p>
 

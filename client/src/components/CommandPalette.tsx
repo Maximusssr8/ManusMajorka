@@ -43,7 +43,7 @@ export default function CommandPalette() {
         className="w-full max-w-lg mx-4 overflow-hidden animate-scale-in"
         style={{
           background: '#141418',
-          border: '1px solid #F0F0F0',
+          border: '1px solid #2a2a2e',
           borderRadius: 14,
           boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
         }}
@@ -52,7 +52,7 @@ export default function CommandPalette() {
         <Command label="Command palette" loop>
           <div
             className="flex items-center gap-3 px-4 py-3"
-            style={{ borderBottom: '1px solid #F9FAFB' }}
+            style={{ borderBottom: '1px solid #2a2a2e' }}
           >
             <Search size={16} style={{ color: '#9CA3AF', flexShrink: 0 }} />
             <Command.Input
@@ -63,7 +63,7 @@ export default function CommandPalette() {
             />
             <kbd
               className="px-1.5 py-0.5 rounded text-xs"
-              style={{ background: '#F9FAFB', color: '#9CA3AF', fontSize: 10 }}
+              style={{ background: '#2a2a2e', color: '#9CA3AF', fontSize: 10 }}
             >
               ESC
             </kbd>
