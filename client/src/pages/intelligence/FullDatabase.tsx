@@ -144,12 +144,10 @@ const TAG_STYLE: Record<string, { color: string; bg: string }> = {
 };
 
 function ScoreBadge({ score }: { score: number }) {
-  const color = score >= 80 ? '#059669' : score >= 65 ? '#D97706' : '#6B7280';
-  const bg = score >= 80 ? '#ECFDF5' : score >= 65 ? '#FEF3C7' : '#F5F5F5';
   return (
     <div title={`AI Score: ${score}/100 — Top ${score >= 85 ? '10' : score >= 75 ? '25' : '40'}% of products this week`}
-      style={{ width: 40, height: 40, borderRadius: '50%', background: bg, border: `2px solid ${color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'help', flexShrink: 0 }}>
-      <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 13, color }}>{score}</span>
+      style={{ width: 40, height: 40, borderRadius: '50%', background: '#EEF2FF', border: '2px solid #6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'help', flexShrink: 0 }}>
+      <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 13, color: '#4338CA' }}>{score}</span>
     </div>
   );
 }
@@ -561,20 +559,20 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       {/* ── TABLE WRAPPER ── */}
       <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 24px 40px', overflowX: 'auto' }}>
         <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px #F5F5F5' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 1100 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 1080 }}>
 
             {/* ── STICKY HEADER ── */}
             <colgroup>
-              <col style={{ width: 44 }} />
-              <col style={{ width: 290 }} />
+              <col style={{ width: 40 }} />
+              <col style={{ width: 240 }} />
+              <col style={{ width: 110 }} />
               <col style={{ width: 120 }} />
-              <col style={{ width: 140 }} />
-              <col style={{ width: 90 }} />
-              <col style={{ width: 90 }} />
-              <col style={{ width: 84 }} />
-              <col style={{ width: 68 }} />
-              <col style={{ width: 84 }} />
-              <col style={{ width: 170 }} />
+              <col style={{ width: 80 }} />
+              <col style={{ width: 80 }} />
+              <col style={{ width: 80 }} />
+              <col style={{ width: 64 }} />
+              <col style={{ width: 80 }} />
+              <col style={{ width: 186 }} />
             </colgroup>
             <thead>
               <tr style={{ background: 'rgba(250,250,250,0.98)', borderBottom: '2px solid #F3F4F6', height: 42, position: 'sticky' as const, top: 0, zIndex: 10 }}>
@@ -609,7 +607,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i} style={{ height: 72, borderBottom: '1px solid #F3F4F6' }}>
                     <td style={{ padding: '0 12px' }}><div style={{ height: 14, background: '#F3F4F6', borderRadius: 6, width: '60%', animation: 'shimmer 1.5s ease-in-out infinite' }} /></td>
-                    {[290, 120, 140, 90, 90, 84, 68, 84, 170].map((_, j) => (
+                    {[240, 110, 120, 80, 80, 80, 64, 80, 186].map((_, j) => (
                       <td key={j} style={{ padding: '0 12px' }}>
                         <div style={{ height: 14, background: '#F3F4F6', borderRadius: 6, width: `${40 + (i * j * 7) % 50}%`, animation: 'shimmer 1.5s ease-in-out infinite' }} />
                       </td>
@@ -771,7 +769,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
                         {/* Actions */}
                         <td style={tdStyle('center')}>
-                          <div style={{ display: 'flex', gap: 5, justifyContent: 'center', flexWrap: 'wrap' }} onClick={e => e.stopPropagation()}>
+                          <div style={{ display: 'flex', gap: 4, justifyContent: 'center', alignItems: 'center', flexWrap: 'nowrap' as const }} onClick={e => e.stopPropagation()}>
                             <a href={`/product/${slugify(name)}`} style={{ height: 28, padding: '0 10px', background: 'white', color: '#6366F1', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const, textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
                               View Report
                             </a>
