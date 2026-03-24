@@ -161,7 +161,7 @@ export default function ProfitCalculator() {
 
   // ── Shared styles ───────────────────────────────────────────────────────
   const cardStyle: React.CSSProperties = { background: '#FFFFFF', border: '1px solid #F0F0F0', borderRadius: 16, padding: '24px' };
-  const labelStyle: React.CSSProperties = { fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#a1a1aa', marginBottom: 8, display: 'block' };
+  const labelStyle: React.CSSProperties = { fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: '#6B7280', marginBottom: 8, display: 'block' };
   const numberInputStyle: React.CSSProperties = { fontFamily: 'DM Sans, sans-serif', background: '#FFFFFF', border: '1px solid #F3F4F6', borderRadius: 8, color: '#0A0A0A', padding: '8px 12px', width: 90, fontSize: 14, outline: 'none' };
   const sliderStyle: React.CSSProperties = { flex: 1, accentColor: '#6366F1', height: 6, cursor: 'pointer' };
 
@@ -172,7 +172,7 @@ export default function ProfitCalculator() {
       <label style={labelStyle}>{label}</label>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <input type="range" min={min} max={max} step={step} value={value} onChange={e => onChange(parseFloat(e.target.value))} style={sliderStyle} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'DM Sans, sans-serif', color: '#a1a1aa', fontSize: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'DM Sans, sans-serif', color: '#6B7280', fontSize: 14 }}>
           {prefix && <span>{prefix}</span>}
           <input type="number" min={min} max={max} step={step} value={value}
             onChange={e => { const v = parseFloat(e.target.value); if (!isNaN(v)) onChange(Math.min(max, Math.max(min, v))); }}
@@ -206,7 +206,7 @@ export default function ProfitCalculator() {
         </div>
         <div>
           <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 28, fontWeight: 700, color: '#0A0A0A', margin: 0 }}>Profit Calculator</h1>
-          <p style={{ fontSize: 14, color: '#a1a1aa', margin: 0, marginTop: 2 }}>Model your unit economics for the {region.name} market</p>
+          <p style={{ fontSize: 14, color: '#6B7280', margin: 0, marginTop: 2 }}>Model your unit economics for the {region.name} market</p>
         </div>
       </div>
 
@@ -251,7 +251,7 @@ export default function ProfitCalculator() {
                   {PLATFORM_OPTIONS.map(o => <option key={o.label} value={o.label}>{o.label}{o.value > 0 ? ` (${o.value}%)` : ''}</option>)}
                 </select>
                 {platformKey === 'Custom' && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#a1a1aa', fontSize: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#6B7280', fontSize: 14 }}>
                     <input type="number" min={0} max={100} step={0.5} value={customPlatformFee}
                       onChange={e => { const v = parseFloat(e.target.value); if (!isNaN(v)) setCustomPlatformFee(Math.min(100, Math.max(0, v))); }}
                       style={{ ...numberInputStyle, width: 70 }} />
@@ -259,7 +259,7 @@ export default function ProfitCalculator() {
                   </div>
                 )}
               </div>
-              <div style={{ fontSize: 12, color: '#52525b', marginTop: 6 }}>Fee: {platformFeeRate}% = {fmt(calc.platformFeeAmt)} per unit</div>
+              <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 6 }}>Fee: {platformFeeRate}% = {fmt(calc.platformFeeAmt)} per unit</div>
             </div>
 
             {/* Payment Processing */}
@@ -267,7 +267,7 @@ export default function ProfitCalculator() {
               <label style={labelStyle}>Payment Processing (Stripe AU)</label>
               <div style={{ background: '#FFFFFF', border: '1px solid #F3F4F6', borderRadius: 8, padding: '10px 14px', display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
                 <span>{PAYMENT_PROCESSING_RATE}%</span>
-                <span style={{ color: '#a1a1aa' }}>{fmt(calc.paymentFeeAmt)} per unit</span>
+                <span style={{ color: '#6B7280' }}>{fmt(calc.paymentFeeAmt)} per unit</span>
               </div>
             </div>
 
@@ -321,7 +321,7 @@ export default function ProfitCalculator() {
             <ProfitGauge value={Math.max(0, Math.min(100, calc.netMarginPct))} color={calc.verdictColor} />
             <div style={{ textAlign: 'center' }}>
               <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 22, fontWeight: 800, color: calc.verdictColor, display: 'block' }}>{calc.verdictLabel}</span>
-              <p style={{ fontSize: 13, color: '#a1a1aa', margin: '8px 0 0', lineHeight: 1.6, maxWidth: 340, textAlign: 'center' }}>{calc.verdictReason}</p>
+              <p style={{ fontSize: 13, color: '#6B7280', margin: '8px 0 0', lineHeight: 1.6, maxWidth: 340, textAlign: 'center' }}>{calc.verdictReason}</p>
             </div>
           </div>
 
@@ -351,7 +351,7 @@ export default function ProfitCalculator() {
                 <thead>
                   <tr>
                     {['Orders', 'Revenue', 'Costs', 'Profit'].map(h => (
-                      <th key={h} style={{ textAlign: 'left', padding: '10px 12px', color: '#52525b', fontWeight: 500, fontSize: 12, textTransform: 'uppercase' as const, letterSpacing: '0.05em', borderBottom: '1px solid #F0F0F0' }}>{h}</th>
+                      <th key={h} style={{ textAlign: 'left', padding: '10px 12px', color: '#9CA3AF', fontWeight: 500, fontSize: 12, textTransform: 'uppercase' as const, letterSpacing: '0.05em', borderBottom: '1px solid #F0F0F0' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -360,7 +360,7 @@ export default function ProfitCalculator() {
                     <tr key={row.orders}>
                       <td style={{ padding: '12px', color: '#0A0A0A', borderBottom: '1px solid #F9FAFB' }}>{row.orders.toLocaleString()}</td>
                       <td style={{ padding: '12px', color: '#0A0A0A', borderBottom: '1px solid #F9FAFB' }}>{fmt(row.revenue)}</td>
-                      <td style={{ padding: '12px', color: '#a1a1aa', borderBottom: '1px solid #F9FAFB' }}>{fmt(row.costs)}</td>
+                      <td style={{ padding: '12px', color: '#6B7280', borderBottom: '1px solid #F9FAFB' }}>{fmt(row.costs)}</td>
                       <td style={{ padding: '12px', color: row.profit >= 0 ? '#22c55e' : '#ef4444', fontWeight: 600, borderBottom: '1px solid #F9FAFB' }}>{fmt(row.profit)}</td>
                     </tr>
                   ))}

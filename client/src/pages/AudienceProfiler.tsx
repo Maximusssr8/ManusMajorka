@@ -95,7 +95,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
         <div className="flex items-start justify-between mb-3">
           <div>
             <div
-              className="text-sm font-black"
+              className="text-sm font-extrabold"
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
             >
               {persona.name}
@@ -181,7 +181,7 @@ function PersonaCard({ persona, index }: { persona: Persona; index: number }) {
                 Audience Size
               </div>
               <div
-                className="text-sm font-black"
+                className="text-sm font-extrabold"
                 style={{ color: c.accent, fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {persona.estimatedSize}
@@ -408,7 +408,7 @@ export default function AudienceProfiler() {
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className="text-sm font-black leading-tight"
+            className="text-sm font-extrabold leading-tight"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Audience Profiler
@@ -491,7 +491,7 @@ export default function AudienceProfiler() {
           <button
             onClick={handleGenerate}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-extrabold text-sm transition-all"
             style={{
               background: isLoading ? 'rgba(156,95,255,0.25)' : '#9c5fff',
               color: '#fff',
@@ -537,7 +537,7 @@ export default function AudienceProfiler() {
                 <Users size={24} style={{ color: '#9c5fff' }} className="animate-pulse" />
               </div>
               <div className="text-center">
-                <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-extrabold mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Building audience profiles…
                 </div>
                 <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -623,7 +623,7 @@ export default function AudienceProfiler() {
               <div className="text-5xl">👥</div>
               <div className="text-center">
                 <div
-                  className="text-base font-black mb-2"
+                  className="text-base font-extrabold mb-2"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Know your buyer inside out

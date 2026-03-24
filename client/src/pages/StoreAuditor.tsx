@@ -138,7 +138,7 @@ export default function StoreAuditor() {
             <ShieldCheck size={15} style={{ color: '#00b4d8' }} />
           </div>
           <div>
-            <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Store Auditor
             </div>
             <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -173,7 +173,7 @@ export default function StoreAuditor() {
         <button
           onClick={handleAudit}
           disabled={generating}
-          className="w-full py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
+          className="w-full py-3 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
           style={{
             background: generating
               ? 'rgba(0,180,216,0.25)'
@@ -206,7 +206,7 @@ export default function StoreAuditor() {
         {result ? (
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Store Audit Report
               </h2>
               <SaveToProduct toolId="store-auditor" toolName="Store Auditor" outputData={result} />
@@ -256,7 +256,7 @@ export default function StoreAuditor() {
                   />
                 </svg>
                 <div
-                  className="absolute inset-0 flex items-center justify-center text-lg font-black"
+                  className="absolute inset-0 flex items-center justify-center text-lg font-extrabold"
                   style={{
                     fontFamily: "'Bricolage Grotesque', sans-serif",
                     color:
@@ -282,7 +282,7 @@ export default function StoreAuditor() {
               }}
             >
               <div
-                className="text-xs font-black uppercase tracking-widest mb-3"
+                className="text-xs font-extrabold uppercase tracking-widest mb-3"
                 style={{ color: '#ff6b6b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Priority Fixes
@@ -294,7 +294,7 @@ export default function StoreAuditor() {
                   style={{ color: '#374151' }}
                 >
                   <span
-                    className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-black"
+                    className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-extrabold"
                     style={{
                       background: 'rgba(255,100,100,0.15)',
                       color: '#ff6b6b',
@@ -326,7 +326,7 @@ export default function StoreAuditor() {
                     style={{ borderColor: '#E5E7EB' }}
                   >
                     <div
-                      className="text-xs font-black uppercase tracking-widest"
+                      className="text-xs font-extrabold uppercase tracking-widest"
                       style={{ color: '#00b4d8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                     >
                       {cat}
@@ -402,7 +402,7 @@ export default function StoreAuditor() {
                 <div className="text-5xl">🔍</div>
                 <div className="text-center">
                   <div
-                    className="text-base font-black mb-2"
+                    className="text-base font-extrabold mb-2"
                     style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Store Auditor

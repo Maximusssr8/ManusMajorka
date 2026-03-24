@@ -7,15 +7,15 @@ import { ExternalLink, Truck, Package } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 
 const C = {
-  bg: '#0a0b0d',
-  surface: '#FAFAFA',
-  border: '#F5F5F5',
+  bg: '#FAFAFA',
+  surface: '#FFFFFF',
+  border: '#E5E7EB',
   gold: '#6366F1',
   text: '#374151',
   muted: '#9CA3AF',
   sub: '#374151',
   green: '#10b981',
-  card: '#FAFAFA',
+  card: '#FFFFFF',
 };
 
 interface Supplier {

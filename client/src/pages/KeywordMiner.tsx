@@ -200,7 +200,7 @@ export default function KeywordMiner() {
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className="text-sm font-black leading-tight"
+            className="text-sm font-extrabold leading-tight"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Keyword Miner
@@ -314,7 +314,7 @@ export default function KeywordMiner() {
           <button
             onClick={handleGenerate}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-extrabold text-sm transition-all"
             style={{
               background: isLoading ? 'rgba(74,184,245,0.25)' : '#4ab8f5',
               color: '#FAFAFA',
@@ -360,7 +360,7 @@ export default function KeywordMiner() {
                 <Hash size={24} style={{ color: '#4ab8f5' }} className="animate-pulse" />
               </div>
               <div className="text-center">
-                <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-extrabold mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Mining keywords for "{seed}"…
                 </div>
                 <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -475,7 +475,7 @@ export default function KeywordMiner() {
                           {kw.competition}
                         </span>
                         <span
-                          className="font-black"
+                          className="font-extrabold"
                           style={{
                             color:
                               kw.opportunity >= 70
@@ -584,7 +584,7 @@ export default function KeywordMiner() {
               <div className="text-5xl">#️⃣</div>
               <div className="text-center">
                 <div
-                  className="text-base font-black mb-2"
+                  className="text-base font-extrabold mb-2"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Uncover high-value keywords

@@ -122,7 +122,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
         style={{ cursor: 'pointer' }}
       >
         <div
-          className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-base flex-shrink-0"
+          className="w-12 h-12 rounded-xl flex items-center justify-center font-extrabold text-base flex-shrink-0"
           style={{
             background:
               product.score >= 75
@@ -139,7 +139,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className="text-sm font-black leading-tight"
+            className="text-sm font-extrabold leading-tight"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
           >
             {product.name}
@@ -209,7 +209,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
                 Est. Margin
               </div>
               <div
-                className="text-sm font-black"
+                className="text-sm font-extrabold"
                 style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {product.estimatedMargin}
@@ -430,7 +430,7 @@ export default function ProductDiscovery() {
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className="text-sm font-black leading-tight"
+            className="text-sm font-extrabold leading-tight"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Product Discovery
@@ -616,7 +616,7 @@ export default function ProductDiscovery() {
         <div className="flex-1 overflow-y-auto p-5">
           {isLoading && !result && (
             <div className="space-y-4 animate-fade-in p-4 max-w-3xl">
-              <div className="text-sm font-black mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <div className="text-sm font-extrabold mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Researching {niche}…
               </div>
               <div className="skeleton-shimmer h-16 w-full rounded-2xl" />
@@ -743,7 +743,7 @@ export default function ProductDiscovery() {
                 className="text-center"
               >
                 <div
-                  className="text-base font-black mb-2"
+                  className="text-base font-extrabold mb-2"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Find your next winning product

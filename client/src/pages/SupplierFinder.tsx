@@ -105,7 +105,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
         <div className="flex items-start justify-between mb-3">
           <div>
             <div
-              className="text-sm font-black"
+              className="text-sm font-extrabold"
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
             >
               {supplier.name}
@@ -148,7 +148,7 @@ function SupplierCard({ supplier }: { supplier: Supplier }) {
                 {label}
               </div>
               <div
-                className="text-xs font-black"
+                className="text-xs font-extrabold"
                 style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {value}
@@ -387,7 +387,7 @@ export default function SupplierFinder() {
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className="text-sm font-black leading-tight"
+            className="text-sm font-extrabold leading-tight"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Supplier Finder
@@ -517,7 +517,7 @@ export default function SupplierFinder() {
           <button
             onClick={handleGenerate}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-extrabold text-sm transition-all"
             style={{
               background: isLoading ? '#C7D2FE' : '#6366F1',
               color: '#FAFAFA',
@@ -563,7 +563,7 @@ export default function SupplierFinder() {
                 <Truck size={24} style={{ color: '#6366F1' }} className="animate-pulse" />
               </div>
               <div className="text-center">
-                <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-extrabold mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Finding suppliers…
                 </div>
                 <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -686,7 +686,7 @@ export default function SupplierFinder() {
               <div className="text-5xl">🚚</div>
               <div className="text-center">
                 <div
-                  className="text-base font-black mb-2"
+                  className="text-base font-extrabold mb-2"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Find the right supplier fast

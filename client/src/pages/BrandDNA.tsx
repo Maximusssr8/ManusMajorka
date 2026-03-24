@@ -101,7 +101,7 @@ function SectionCard({
         style={{ background: `${accent}08` }}
       >
         <span
-          className="text-xs font-black uppercase tracking-widest"
+          className="text-xs font-extrabold uppercase tracking-widest"
           style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: accent }}
         >
           {title}
@@ -330,7 +330,7 @@ Generate a comprehensive brand identity document as JSON.`;
               </span>
             </div>
             <h1
-              className="text-lg font-black"
+              className="text-lg font-extrabold"
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', letterSpacing: '-0.02em' }}
             >
               Brand DNA Analyzer
@@ -459,13 +459,13 @@ Generate a comprehensive brand identity document as JSON.`;
             <button
               onClick={handleGenerate}
               disabled={isGenerating || !brandName.trim() || !productType.trim()}
-              className="w-full py-3 rounded-xl text-sm font-black uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl text-sm font-extrabold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2"
               style={{
                 fontFamily: "'Bricolage Grotesque', sans-serif",
                 background: isGenerating
                   ? 'rgba(99,102,241,0.15)'
                   : 'linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)',
-                color: isGenerating ? '#6366F1' : '#0a0b0d',
+                color: isGenerating ? '#6366F1' : '#FAFAFA',
                 border: isGenerating ? '1px solid rgba(99,102,241,0.3)' : 'none',
                 opacity: !brandName.trim() || !productType.trim() ? 0.4 : 1,
                 cursor: !brandName.trim() || !productType.trim() ? 'not-allowed' : 'pointer',
@@ -516,7 +516,7 @@ Generate a comprehensive brand identity document as JSON.`;
                 <span className="text-3xl">🧬</span>
               </div>
               <h2
-                className="text-xl font-black mb-2"
+                className="text-xl font-extrabold mb-2"
                 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
               >
                 Discover Your Brand DNA
@@ -598,7 +598,7 @@ Generate a comprehensive brand identity document as JSON.`;
                   </span>
                 </div>
                 <h2
-                  className="text-3xl font-black mb-2"
+                  className="text-3xl font-extrabold mb-2"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                 >
                   {result.brandName}
@@ -852,7 +852,7 @@ Generate a comprehensive brand identity document as JSON.`;
                         }}
                       >
                         <span
-                          className="text-xs font-black"
+                          className="text-xs font-extrabold"
                           style={{ color: 'rgba(6,182,212,0.5)', minWidth: '20px' }}
                         >
                           {String(i + 1).padStart(2, '0')}
@@ -900,7 +900,7 @@ Generate a comprehensive brand identity document as JSON.`;
                       <div key={i}>
                         <div className="flex items-center gap-2 mb-1">
                           <span
-                            className="text-xs font-black"
+                            className="text-xs font-extrabold"
                             style={{ color: 'rgba(236,72,153,0.5)', minWidth: '20px' }}
                           >
                             {String(i + 1).padStart(2, '0')}

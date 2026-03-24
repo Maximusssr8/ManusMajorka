@@ -158,7 +158,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1
-              className="text-xl font-black flex items-center gap-2"
+              className="text-xl font-extrabold flex items-center gap-2"
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
             >
               <Users size={20} style={{ color: '#6366F1' }} />

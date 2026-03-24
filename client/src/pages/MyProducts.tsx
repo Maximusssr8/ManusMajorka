@@ -236,7 +236,7 @@ export default function MyProducts() {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <h1 className="text-xl font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               My Products
             </h1>
             <p className="text-xs mt-1" style={{ color: '#9CA3AF' }}>
@@ -305,7 +305,7 @@ export default function MyProducts() {
               }}
             >
               <div className="flex items-center justify-between mb-4">
-                <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Import Product from URL
                 </div>
                 <button
@@ -399,7 +399,7 @@ export default function MyProducts() {
                   </div>
                   <div className="mb-2">
                     <div
-                      className="text-sm font-black mb-1"
+                      className="text-sm font-extrabold mb-1"
                       style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
                     >
                       {importedProduct.productTitle || 'Product'}
@@ -480,7 +480,7 @@ export default function MyProducts() {
             }}
           >
             <div className="flex items-center justify-between mb-4">
-              <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 {editId ? 'Edit Product' : 'New Product'}
               </div>
               <button
@@ -557,7 +557,7 @@ export default function MyProducts() {
         {error ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <div className="text-4xl">⚠️</div>
-            <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Database not connected
             </div>
             <div
@@ -575,7 +575,7 @@ export default function MyProducts() {
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <div className="text-5xl">📦</div>
             <div className="text-center">
-              <div className="text-base font-black mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <div className="text-base font-extrabold mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 No products yet
               </div>
               <div className="text-xs" style={{ color: '#9CA3AF' }}>

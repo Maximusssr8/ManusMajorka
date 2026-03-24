@@ -217,7 +217,7 @@ function AdCard({
 
         {/* Hook */}
         <p
-          className="text-sm font-black leading-snug"
+          className="text-sm font-extrabold leading-snug"
           style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
         >
           {ad.hook}
@@ -414,7 +414,7 @@ function AdSpyContent() {
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className="text-sm font-black leading-tight"
+            className="text-sm font-extrabold leading-tight"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Ad Spy
@@ -496,7 +496,7 @@ function AdSpyContent() {
           <button
             onClick={handleSearch}
             disabled={isLoading}
-            className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-black transition-all disabled:opacity-60"
+            className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-extrabold transition-all disabled:opacity-60"
             style={{
               background: isLoading
                 ? 'rgba(245,158,11,0.25)'
@@ -597,7 +597,7 @@ function AdSpyContent() {
               <Megaphone size={28} style={{ color: '#f59e0b', opacity: 0.6 }} />
             </div>
             <div className="text-center">
-              <div className="text-base font-black mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <div className="text-base font-extrabold mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Spy on winning ads
               </div>
               <div

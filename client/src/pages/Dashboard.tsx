@@ -166,7 +166,7 @@ function StatCard({
               style={{ color: iconColor }}
             />
           </div>
-          <span className="text-xs font-medium" style={{ color: '#71717a' }}>
+          <span className="text-xs font-medium" style={{ color: '#6B7280' }}>
             {label}
           </span>
         </div>
@@ -389,7 +389,7 @@ function SalesTooltip({ active, payload, label }: { active?: boolean; payload?: 
   if (!active || !payload?.length) return null;
   return (
     <div style={{ background: '#18181b', border: '1px solid #F0F0F0', borderRadius: 8, padding: '8px 12px', fontFamily: UI }}>
-      <div style={{ fontSize: 11, color: '#71717a', marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 2 }}>{label}</div>
       <div style={{ fontSize: 14, fontWeight: 600, color: '#6366F1' }}>${payload[0].value.toLocaleString()}</div>
     </div>
   );
@@ -419,14 +419,14 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
             📊 Showing sample data — orders from your store will appear here automatically
           </span>
           <button onClick={() => setBannerDismissed(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex', opacity: 0.5 }}>
-            <X size={11} style={{ color: '#a1a1aa' }} />
+            <X size={11} style={{ color: '#6B7280' }} />
           </button>
         </div>
       )}
 
       {/* Header row */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
           Sales Overview
         </span>
         <div style={{ display: 'flex', gap: 3, background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: 3 }}>
@@ -435,7 +435,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
               padding: '4px 11px', borderRadius: 6, border: 'none', cursor: 'pointer',
               fontSize: 11, fontWeight: 600, fontFamily: UI, letterSpacing: '-0.01em',
               background: range === r.key ? '#6366F1' : 'transparent',
-              color: range === r.key ? '#FAFAFA' : '#71717a',
+              color: range === r.key ? '#FAFAFA' : '#6B7280',
               transition: 'all 0.12s',
             }}>
               {r.label}
@@ -449,8 +449,8 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
         {kpiCards.map((k) => (
           <div key={k.label} style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 9 }}>
-              <k.icon size={12} style={{ color: '#52525b' }} />
-              <span style={{ fontSize: 11, color: '#52525b', fontWeight: 500, letterSpacing: '0.01em' }}>{k.label}</span>
+              <k.icon size={12} style={{ color: '#9CA3AF' }} />
+              <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 500, letterSpacing: '0.01em' }}>{k.label}</span>
             </div>
             <div style={{ fontSize: 21, fontWeight: 700, color: '#374151', letterSpacing: '-0.03em', fontVariantNumeric: 'tabular-nums', marginBottom: 8, lineHeight: 1 }}>
               {k.value}
@@ -467,7 +467,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
 
       {/* Revenue area chart */}
       <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '18px 14px 10px', marginBottom: 12 }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: '#52525b', marginBottom: 12, fontFamily: "'Bricolage Grotesque', sans-serif", letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>Revenue</div>
+        <div style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', marginBottom: 12, fontFamily: "'Bricolage Grotesque', sans-serif", letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>Revenue</div>
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
             <defs>
@@ -477,8 +477,8 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 4" stroke="#F9FAFB" vertical={false} />
-            <XAxis dataKey="date" tick={{ fill: '#52525b', fontSize: 10, fontFamily: UI }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-            <YAxis tick={{ fill: '#52525b', fontSize: 10, fontFamily: UI }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${(v / 1000).toFixed(1)}k`} />
+            <XAxis dataKey="date" tick={{ fill: '#9CA3AF', fontSize: 10, fontFamily: UI }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+            <YAxis tick={{ fill: '#9CA3AF', fontSize: 10, fontFamily: UI }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${(v / 1000).toFixed(1)}k`} />
             <Tooltip content={<SalesTooltip />} cursor={{ stroke: 'rgba(99,102,241,0.2)', strokeWidth: 1 }} />
             <Area type="monotone" dataKey="revenue" stroke="#6366F1" strokeWidth={1.8} fill="url(#goldGrad)" dot={false} activeDot={{ r: 3, fill: '#6366F1', strokeWidth: 0 }} />
           </AreaChart>
@@ -488,7 +488,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       {/* Top Products */}
       <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '18px 20px', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Top Products</span>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Top Products</span>
           <a href="/app/winning-products" style={{ fontSize: 12, color: '#6366F1', textDecoration: 'none', fontWeight: 500 }}>View all →</a>
         </div>
         <div style={{ overflowX: 'auto' }}>
@@ -504,7 +504,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
             </thead>
             <tbody>
               {DEMO_PRODUCTS.map((p, i) => {
-                const cc = CAT_CFG[p.cat] ?? { bg: 'rgba(113,113,122,0.12)', text: '#71717a' };
+                const cc = CAT_CFG[p.cat] ?? { bg: 'rgba(113,113,122,0.12)', text: '#6B7280' };
                 return (
                   <tr key={p.rank} style={{ borderBottom: '1px solid #FAFAFA' }}
                     onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFA')}
@@ -519,7 +519,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
                     <td style={{ padding: '9px 10px' }}>
                       <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 100, background: cc.bg, color: cc.text, fontWeight: 600 }}>{p.cat}</span>
                     </td>
-                    <td style={{ padding: '9px 10px', color: '#a1a1aa', fontSize: 13, textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' }}>{p.units.toLocaleString()}</td>
+                    <td style={{ padding: '9px 10px', color: '#6B7280', fontSize: 13, textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' }}>{p.units.toLocaleString()}</td>
                     <td style={{ padding: '9px 10px', color: '#6366F1', fontWeight: 600, fontSize: 13, textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' }}>${p.revenue.toLocaleString()}</td>
                     <td style={{ padding: '9px 10px', textAlign: 'right' as const }}>
                       <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 6px', borderRadius: 4, background: 'rgba(34,197,94,0.1)', color: '#22c55e' }}>
@@ -537,8 +537,8 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       {/* Recent Orders */}
       <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '18px 20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Recent Orders</span>
-          <span style={{ fontSize: 11, color: '#52525b' }}>Updated just now</span>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Recent Orders</span>
+          <span style={{ fontSize: 11, color: '#9CA3AF' }}>Updated just now</span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {DEMO_ORDERS.map((o) => {
@@ -557,7 +557,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#e4e4e7' }}>{o.customer}</span>
                     <span style={{ fontSize: 11, color: '#3f3f46', fontWeight: 400 }}>{o.id}</span>
                   </div>
-                  <span style={{ fontSize: 11, color: '#71717a', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{o.product}</span>
+                  <span style={{ fontSize: 11, color: '#6B7280', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{o.product}</span>
                 </div>
                 {/* Amount */}
                 <span style={{ fontSize: 13, fontWeight: 600, color: '#374151', fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>

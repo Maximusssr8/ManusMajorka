@@ -455,7 +455,7 @@ export default function SpyTools() {
               </div>
               <button onClick={() => setViewAd(null)} style={{
                 position: 'absolute', bottom: 14, right: 14,
-                width: 32, height: 32, borderRadius: '50%', background: '#111827', border: 'none',
+                width: 32, height: 32, borderRadius: '50%', background: '#FAFAFA', border: 'none',
                 cursor: 'pointer', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>×</button>
             </div>

@@ -54,7 +54,7 @@ export default function CommandPalette() {
             className="flex items-center gap-3 px-4 py-3"
             style={{ borderBottom: '1px solid #F9FAFB' }}
           >
-            <Search size={16} style={{ color: '#52525b', flexShrink: 0 }} />
+            <Search size={16} style={{ color: '#9CA3AF', flexShrink: 0 }} />
             <Command.Input
               placeholder="Search tools or jump to..."
               className="flex-1 bg-transparent outline-none text-sm"
@@ -63,7 +63,7 @@ export default function CommandPalette() {
             />
             <kbd
               className="px-1.5 py-0.5 rounded text-xs"
-              style={{ background: '#F9FAFB', color: '#52525b', fontSize: 10 }}
+              style={{ background: '#F9FAFB', color: '#9CA3AF', fontSize: 10 }}
             >
               ESC
             </kbd>
@@ -72,7 +72,7 @@ export default function CommandPalette() {
             className="max-h-[320px] overflow-auto py-1"
             style={{ scrollbarWidth: 'thin', scrollbarColor: '#F5F5F5 transparent' }}
           >
-            <Command.Empty className="px-4 py-6 text-center text-sm" style={{ color: '#52525b' }}>
+            <Command.Empty className="px-4 py-6 text-center text-sm" style={{ color: '#9CA3AF' }}>
               No results found.
             </Command.Empty>
 
@@ -97,7 +97,7 @@ export default function CommandPalette() {
                     {createElement(a.icon, { size: 12, style: { color: '#6366F1' } })}
                   </div>
                   <span className="flex-1">{a.label}</span>
-                  <ArrowUpRight size={12} style={{ color: '#52525b' }} />
+                  <ArrowUpRight size={12} style={{ color: '#9CA3AF' }} />
                 </Command.Item>
               ))}
             </Command.Group>
@@ -120,7 +120,7 @@ export default function CommandPalette() {
                     className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
                     style={{ background: '#F9FAFB' }}
                   >
-                    {createElement(tool.icon, { size: 12, style: { color: '#a1a1aa' } })}
+                    {createElement(tool.icon, { size: 12, style: { color: '#6B7280' } })}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div
@@ -129,11 +129,11 @@ export default function CommandPalette() {
                     >
                       {tool.label}
                     </div>
-                    <div className="text-xs truncate" style={{ color: '#52525b' }}>
+                    <div className="text-xs truncate" style={{ color: '#9CA3AF' }}>
                       {tool.description}
                     </div>
                   </div>
-                  <ArrowUpRight size={12} style={{ color: '#52525b', flexShrink: 0 }} />
+                  <ArrowUpRight size={12} style={{ color: '#9CA3AF', flexShrink: 0 }} />
                 </Command.Item>
               ))}
             </Command.Group>

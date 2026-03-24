@@ -144,7 +144,7 @@ export default function ProductHub() {
           <div>
             <div className="flex items-center gap-2">
               <Package size={16} style={{ color: stageColors[product.status] || '#6366F1' }} />
-              <h1 className="text-xl font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <h1 className="text-xl font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 {product.name}
               </h1>
             </div>

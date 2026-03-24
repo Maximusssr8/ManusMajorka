@@ -491,7 +491,7 @@ export default function KnowledgeBase() {
                 style={{
                   borderRadius: 8,
                   background: active ? 'rgba(99,102,241,0.08)' : 'transparent',
-                  color: active ? '#f5f5f5' : '#71717a',
+                  color: active ? '#f5f5f5' : '#6B7280',
                   border: 'none',
                   cursor: 'pointer',
                   borderLeft: active ? '2px solid #6366F1' : '2px solid transparent',
@@ -509,7 +509,7 @@ export default function KnowledgeBase() {
                 onMouseLeave={(e) => {
                   if (!active) {
                     (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-                    (e.currentTarget as HTMLButtonElement).style.color = '#71717a';
+                    (e.currentTarget as HTMLButtonElement).style.color = '#6B7280';
                   }
                 }}
               >
@@ -569,7 +569,7 @@ export default function KnowledgeBase() {
               </span>
             </div>
             <h1
-              className="text-2xl font-black mb-2"
+              className="text-2xl font-extrabold mb-2"
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f5f5f5', lineHeight: 1.2 }}
             >
               {activeSection.title}
@@ -603,7 +603,7 @@ export default function KnowledgeBase() {
               >
                 Have questions about {activeSection.title.toLowerCase()}?
               </p>
-              <p className="text-xs" style={{ color: '#71717a' }}>
+              <p className="text-xs" style={{ color: '#6B7280' }}>
                 Ask Majorka AI for personalised guidance on your specific situation.
               </p>
             </div>
@@ -649,7 +649,7 @@ export default function KnowledgeBase() {
                         className="flex flex-col items-start gap-1 text-left"
                         style={{ background: 'none', border: 'none', cursor: 'pointer' }}
                       >
-                        <span className="text-xs" style={{ color: '#52525b' }}>
+                        <span className="text-xs" style={{ color: '#9CA3AF' }}>
                           ← Previous
                         </span>
                         <span
@@ -668,7 +668,7 @@ export default function KnowledgeBase() {
                         className="flex flex-col items-end gap-1 text-right"
                         style={{ background: 'none', border: 'none', cursor: 'pointer' }}
                       >
-                        <span className="text-xs" style={{ color: '#52525b' }}>
+                        <span className="text-xs" style={{ color: '#9CA3AF' }}>
                           Next →
                         </span>
                         <span
@@ -707,7 +707,7 @@ function ArticleContent({ content }: { content: string }) {
       elements.push(
         <h2
           key={i}
-          className="text-xl font-black mt-8 mb-3"
+          className="text-xl font-extrabold mt-8 mb-3"
           style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f5f5f5' }}
         >
           {line.slice(3)}
@@ -753,7 +753,7 @@ function ArticleContent({ content }: { content: string }) {
       elements.push(
         <ul key={`ul-${i}`} className="list-disc pl-5 mb-4 space-y-1">
           {listLines.map((l, li) => (
-            <li key={li} className="text-sm leading-relaxed" style={{ color: '#a1a1aa' }}>
+            <li key={li} className="text-sm leading-relaxed" style={{ color: '#6B7280' }}>
               <InlineMarkdown text={l} />
             </li>
           ))}
@@ -772,7 +772,7 @@ function ArticleContent({ content }: { content: string }) {
       elements.push(
         <ol key={`ol-${i}`} className="list-decimal pl-5 mb-4 space-y-1">
           {listLines.map((l, li) => (
-            <li key={li} className="text-sm leading-relaxed" style={{ color: '#a1a1aa' }}>
+            <li key={li} className="text-sm leading-relaxed" style={{ color: '#6B7280' }}>
               <InlineMarkdown text={l} />
             </li>
           ))}
@@ -789,7 +789,7 @@ function ArticleContent({ content }: { content: string }) {
 
     // Regular paragraph
     elements.push(
-      <p key={i} className="text-sm leading-relaxed mb-4" style={{ color: '#a1a1aa' }}>
+      <p key={i} className="text-sm leading-relaxed mb-4" style={{ color: '#6B7280' }}>
         <InlineMarkdown text={line} />
       </p>
     );
@@ -854,7 +854,7 @@ function MarkdownTable({ lines }: { lines: string[] }) {
                   key={ci}
                   className="px-3 py-2 text-sm"
                   style={{
-                    color: ci === 0 ? '#e5e5e5' : '#a1a1aa',
+                    color: ci === 0 ? '#e5e5e5' : '#6B7280',
                     fontWeight: ci === 0 ? 500 : 400,
                   }}
                 >

@@ -104,13 +104,13 @@ export default function MarketIntel() {
       <div className="flex-shrink-0 border-b p-4" style={{ borderColor: '#F5F5F5' }}>
         <div className="flex items-center gap-3">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm"
+            className="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-sm"
             style={{ background: 'linear-gradient(135deg, #6366F1, #f0c040)', color: '#FAFAFA' }}
           >
             I
           </div>
           <div>
-            <h1 className="font-black text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <h1 className="font-extrabold text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Market Intelligence
             </h1>
             <p className="text-xs text-muted-foreground">

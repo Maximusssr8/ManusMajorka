@@ -43,7 +43,7 @@ export default function ToolHelp({
           background: open ? 'rgba(99,102,241,0.1)' : 'transparent',
           border: 'none',
           cursor: 'pointer',
-          color: open ? '#6366F1' : '#52525b',
+          color: open ? '#6366F1' : '#9CA3AF',
         }}
         aria-label="Tool help"
       >

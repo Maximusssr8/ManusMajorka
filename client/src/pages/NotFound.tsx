@@ -19,7 +19,7 @@ export default function NotFound() {
           }}
         >
           <span
-            className="text-black font-black text-2xl"
+            className="text-black font-extrabold text-2xl"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             M
@@ -28,7 +28,7 @@ export default function NotFound() {
 
         {/* 404 */}
         <h1
-          className="text-6xl font-black mb-3"
+          className="text-6xl font-extrabold mb-3"
           style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', letterSpacing: '-2px' }}
         >
           404
@@ -66,7 +66,7 @@ export default function NotFound() {
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all"
             style={{
               background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-              color: '#0a0b0d',
+              color: '#FAFAFA',
               fontFamily: "'Bricolage Grotesque', sans-serif",
               border: 'none',
               boxShadow: '0 4px 16px rgba(99,102,241,0.25)',

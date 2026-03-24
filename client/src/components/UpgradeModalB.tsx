@@ -60,7 +60,7 @@ export default function UpgradeModalB({
             <Coffee size={40} style={{ color: '#6366F1', margin: '0 auto' }} />
           </div>
           <h2
-            className="text-xl font-black mb-2"
+            className="text-xl font-extrabold mb-2"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
           >
             Less than your morning coffee
@@ -111,7 +111,7 @@ export default function UpgradeModalB({
                 Majorka Builder
               </span>
               <span
-                className="text-lg font-black"
+                className="text-lg font-extrabold"
                 style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 $1.63/day

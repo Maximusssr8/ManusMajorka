@@ -161,7 +161,7 @@ export default function Account() {
           </button>
           <div className="flex items-center gap-2">
             <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm"
+              className="w-7 h-7 rounded-lg flex items-center justify-center font-extrabold text-sm"
               style={{
                 background: 'linear-gradient(135deg, #6366F1, #f0c040)',
                 color: '#FAFAFA',
@@ -170,7 +170,7 @@ export default function Account() {
             >
               M
             </div>
-            <span className="font-black text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <span className="font-extrabold text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Majorka
             </span>
           </div>
@@ -191,7 +191,7 @@ export default function Account() {
 
       {/* ── CONTENT ── */}
       <main className="relative z-10 container py-12 max-w-2xl">
-        <h1 className="text-3xl font-black mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+        <h1 className="text-3xl font-extrabold mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
           Account
         </h1>
         <p className="text-muted-foreground mb-10">Manage your Majorka membership and billing.</p>
@@ -203,7 +203,7 @@ export default function Account() {
         >
           <div className="flex items-center gap-4">
             <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg flex-shrink-0"
+              className="w-12 h-12 rounded-xl flex items-center justify-center font-extrabold text-lg flex-shrink-0"
               style={{
                 background: 'rgba(99,102,241,0.15)',
                 color: '#6366F1',
@@ -340,7 +340,7 @@ export default function Account() {
           >
             {!isActive ? (
               <Button
-                className="flex-1 font-black"
+                className="flex-1 font-extrabold"
                 disabled={checkoutLoading}
                 onClick={handleStripeCheckout}
                 style={{

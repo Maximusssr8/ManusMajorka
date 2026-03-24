@@ -221,7 +221,7 @@ function ProgressDial({ percent, allDone }: { percent: number; allDone: boolean 
           {allDone ? '🚀' : `${percent}%`}
         </span>
         {!allDone && (
-          <span style={{ fontSize: 9, color: '#52525b', fontWeight: 600, letterSpacing: '0.04em' }}>
+          <span style={{ fontSize: 9, color: '#9CA3AF', fontWeight: 600, letterSpacing: '0.04em' }}>
             DONE
           </span>
         )}
@@ -268,7 +268,7 @@ function ConfettiBurst() {
 }
 
 const COLUMNS: { key: ColKey; label: string; color: string }[] = [
-  { key: 'todo', label: 'To Do', color: '#52525b' },
+  { key: 'todo', label: 'To Do', color: '#9CA3AF' },
   { key: 'inprogress', label: 'In Progress', color: '#6366F1' },
   { key: 'done', label: 'Done ✓', color: '#10b981' },
 ];
@@ -354,7 +354,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
             <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 14, color: '#f5f5f5' }}>
               Launch Readiness
             </span>
-            <div style={{ fontSize: 11, color: '#52525b', marginTop: 1 }}>
+            <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 1 }}>
               {doneCount} of {total} complete · click a card to advance it
             </div>
           </div>
@@ -381,7 +381,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
             <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 15, color: '#10b981' }}>
               You're launch-ready 🚀
             </span>
-            <p style={{ fontSize: 12, color: '#a1a1aa', marginTop: 4 }}>
+            <p style={{ fontSize: 12, color: '#6B7280', marginTop: 4 }}>
               All checklist items complete. Time to go live.
             </p>
           </motion.div>
@@ -437,7 +437,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
                   style={{
                     marginLeft: 'auto',
                     fontSize: 9,
-                    color: '#52525b',
+                    color: '#9CA3AF',
                     fontWeight: 600,
                     background: '#F9FAFB',
                     borderRadius: 100,
@@ -483,7 +483,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
                             fontSize: 11,
                             fontWeight: 600,
                             fontFamily: dm,
-                            color: col.key === 'done' ? '#52525b' : '#a1a1aa',
+                            color: col.key === 'done' ? '#9CA3AF' : '#6B7280',
                             textDecoration: col.key === 'done' ? 'line-through' : 'none',
                             flex: 1,
                             lineHeight: 1.4,
@@ -505,7 +505,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
                             gap: 3,
                             fontSize: 10,
                             fontWeight: 600,
-                            color: col.key === 'inprogress' ? '#6366F1' : '#52525b',
+                            color: col.key === 'inprogress' ? '#6366F1' : '#9CA3AF',
                             background: 'none',
                             border: 'none',
                             cursor: 'pointer',
@@ -568,7 +568,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
             transition: 'color 150ms ease, border-color 150ms ease',
           }}
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.color = '#a1a1aa';
+            (e.currentTarget as HTMLButtonElement).style.color = '#6B7280';
             (e.currentTarget as HTMLButtonElement).style.borderColor = '#D1D5DB';
           }}
           onMouseLeave={(e) => {

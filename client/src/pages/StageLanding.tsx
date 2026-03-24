@@ -32,7 +32,7 @@ export default function StageLanding({ stage }: Props) {
             </span>
           </div>
           <h1
-            className="text-2xl font-black mb-2"
+            className="text-2xl font-extrabold mb-2"
             style={{
               fontFamily: "'Bricolage Grotesque', sans-serif",
               color: '#374151',

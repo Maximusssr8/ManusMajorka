@@ -51,7 +51,7 @@ export default function InsightsPage() {
             </div>
             <div>
               <h1
-                className="text-2xl font-black"
+                className="text-2xl font-extrabold"
                 style={{
                   fontFamily: "'Bricolage Grotesque', sans-serif",
                   color: '#0A0A0A',
@@ -81,7 +81,7 @@ export default function InsightsPage() {
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-1.5 h-1.5 rounded-full" style={{ background: section.color }} />
                 <h2
-                  className="text-xs font-black uppercase tracking-widest"
+                  className="text-xs font-extrabold uppercase tracking-widest"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: section.color }}
                 >
                   {section.title}

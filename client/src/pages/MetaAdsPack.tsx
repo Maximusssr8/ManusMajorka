@@ -101,14 +101,14 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
         style={{ cursor: 'pointer' }}
       >
         <div
-          className="w-8 h-8 rounded-xl flex items-center justify-center text-sm font-black flex-shrink-0"
+          className="w-8 h-8 rounded-xl flex items-center justify-center text-sm font-extrabold flex-shrink-0"
           style={{ background: c.accent, color: '#FAFAFA', fontFamily: "'Bricolage Grotesque', sans-serif" }}
         >
           {index + 1}
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className="text-sm font-black leading-tight"
+            className="text-sm font-extrabold leading-tight"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
           >
             {angle.angle}
@@ -215,7 +215,7 @@ function AngleCard({ angle, index }: { angle: AdAngle; index: number }) {
                   }}
                 >
                   <span
-                    className="text-xs font-black w-4 flex-shrink-0"
+                    className="text-xs font-extrabold w-4 flex-shrink-0"
                     style={{ color: c.accent, fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     {i + 1}
@@ -445,7 +445,7 @@ export default function MetaAdsPack() {
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className="text-sm font-black leading-tight"
+            className="text-sm font-extrabold leading-tight"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Meta Ads Pack
@@ -651,7 +651,7 @@ export default function MetaAdsPack() {
           <button
             onClick={handleGenerate}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-extrabold text-sm transition-all"
             style={{
               background: isLoading ? 'rgba(99,102,241,0.3)' : '#6366F1',
               color: '#FAFAFA',
@@ -699,7 +699,7 @@ export default function MetaAdsPack() {
               </div>
               <div className="text-center">
                 <div
-                  className="text-base font-black mb-1"
+                  className="text-base font-extrabold mb-1"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Generating your Meta Ads Pack…
@@ -733,7 +733,7 @@ export default function MetaAdsPack() {
               </div>
               <div className="text-center max-w-sm">
                 <div
-                  className="text-base font-black mb-2"
+                  className="text-base font-extrabold mb-2"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Your Meta Ads Pack will appear here
@@ -760,7 +760,7 @@ export default function MetaAdsPack() {
                       }}
                     >
                       <span
-                        className="w-5 h-5 rounded-lg flex items-center justify-center text-xs font-black flex-shrink-0"
+                        className="w-5 h-5 rounded-lg flex items-center justify-center text-xs font-extrabold flex-shrink-0"
                         style={{
                           background: 'rgba(99,102,241,0.15)',
                           color: '#6366F1',

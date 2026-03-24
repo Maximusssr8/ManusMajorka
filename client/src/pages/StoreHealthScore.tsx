@@ -10,11 +10,11 @@ import { SEO } from '@/components/SEO';
 
 const C = {
   bg: '#FAFAFA',
-  card: '#0c0c10',
-  border: '#F9FAFB',
-  text: '#f5f5f5',
-  secondary: '#94949e',
-  muted: '#52525b',
+  card: '#FFFFFF',
+  border: '#E5E7EB',
+  text: '#0A0A0A',
+  secondary: '#6B7280',
+  muted: '#9CA3AF',
   gold: '#6366F1',
   goldDim: 'rgba(99,102,241,0.10)',
   goldBorder: 'rgba(99,102,241,0.25)',

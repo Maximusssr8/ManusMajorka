@@ -109,7 +109,7 @@ function SectionCard({
         style={{ background: `${accent}08` }}
       >
         <span
-          className="text-xs font-black uppercase tracking-widest"
+          className="text-xs font-extrabold uppercase tracking-widest"
           style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: accent }}
         >
           {title}
@@ -320,7 +320,7 @@ Generate a full competitive intelligence report as JSON.`;
             </span>
           </div>
           <h1
-            className="text-lg font-black"
+            className="text-lg font-extrabold"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', letterSpacing: '-0.02em' }}
           >
             Market Intelligence
@@ -449,7 +449,7 @@ Generate a full competitive intelligence report as JSON.`;
           <button
             onClick={handleGenerate}
             disabled={isGenerating || !niche.trim()}
-            className="w-full py-3 rounded-xl text-sm font-black uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-xl text-sm font-extrabold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2"
             style={{
               fontFamily: "'Bricolage Grotesque', sans-serif",
               background: isGenerating
@@ -506,7 +506,7 @@ Generate a full competitive intelligence report as JSON.`;
               <span className="text-3xl">🔍</span>
             </div>
             <h2
-              className="text-xl font-black mb-2"
+              className="text-xl font-extrabold mb-2"
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
             >
               Decode Your Market
@@ -583,7 +583,7 @@ Generate a full competitive intelligence report as JSON.`;
               </div>
               <div className="flex items-center gap-3 mb-3">
                 <h2
-                  className="text-2xl font-black"
+                  className="text-2xl font-extrabold"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                 >
                   {niche}
@@ -688,7 +688,7 @@ Generate a full competitive intelligence report as JSON.`;
                       <div>
                         <div className="flex items-center gap-2">
                           <span
-                            className="text-sm font-black"
+                            className="text-sm font-extrabold"
                             style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                           >
                             {comp.name}
@@ -836,7 +836,7 @@ Generate a full competitive intelligence report as JSON.`;
                     >
                       {label}
                     </div>
-                    <div className="text-sm font-black" style={{ color }}>
+                    <div className="text-sm font-extrabold" style={{ color }}>
                       {value}
                     </div>
                   </div>
@@ -921,7 +921,7 @@ Generate a full competitive intelligence report as JSON.`;
                       }}
                     >
                       <span
-                        className="text-xs font-black flex-shrink-0 mt-0.5"
+                        className="text-xs font-extrabold flex-shrink-0 mt-0.5"
                         style={{ color: 'rgba(99,102,241,0.5)' }}
                       >
                         {String(i + 1).padStart(2, '0')}

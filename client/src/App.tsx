@@ -53,7 +53,7 @@ function LoadingFallback() {
     >
       <div className="flex flex-col items-center gap-4">
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg animate-pulse"
+          className="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-lg animate-pulse"
           style={{
             background: 'linear-gradient(135deg, #6366F1, #f0c040)',
             color: '#FAFAFA',
@@ -324,14 +324,14 @@ function LegalPage({ title, slug }: { title: string; slug: string }) {
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
         <a href="/" style={{ color: '#6366F1', fontSize: 13, textDecoration: 'none', display: 'inline-block', marginBottom: 32 }}>← Back to Majorka</a>
         <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 36, fontWeight: 800, marginBottom: 8, color: '#0A0A0A' }}>{title}</h1>
-        <p style={{ fontSize: 13, color: '#52525b', marginBottom: 48 }}>Last updated: March 2025 · Majorka Pty Ltd · Gold Coast, QLD, Australia</p>
+        <p style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 48 }}>Last updated: March 2025 · Majorka Pty Ltd · Gold Coast, QLD, Australia</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {paragraphs.map((p, i) => (
-            <p key={i} style={{ fontSize: 15, lineHeight: 1.8, color: '#a1a1aa', borderLeft: '2px solid rgba(99,102,241,0.2)', paddingLeft: 20 }}>{p}</p>
+            <p key={i} style={{ fontSize: 15, lineHeight: 1.8, color: '#6B7280', borderLeft: '2px solid rgba(99,102,241,0.2)', paddingLeft: 20 }}>{p}</p>
           ))}
         </div>
         <div style={{ marginTop: 60, padding: '24px', background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 12 }}>
-          <p style={{ fontSize: 14, color: '#71717a' }}>Questions? Email us at <a href="mailto:hello@majorka.io" style={{ color: '#6366F1' }}>hello@majorka.io</a></p>
+          <p style={{ fontSize: 14, color: '#6B7280' }}>Questions? Email us at <a href="mailto:hello@majorka.io" style={{ color: '#6366F1' }}>hello@majorka.io</a></p>
         </div>
       </div>
     </div>

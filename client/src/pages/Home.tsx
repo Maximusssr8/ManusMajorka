@@ -853,7 +853,7 @@ function DemoSection() {
                 style={{
                   padding: '8px 20px', borderRadius: 7, fontSize: 14, cursor: 'pointer', border: 'none', transition: 'all 150ms',
                   background: activeTab === tab.key ? 'white' : 'transparent',
-                  color: activeTab === tab.key ? '#111827' : '#6B7280',
+                  color: activeTab === tab.key ? '#FAFAFA' : '#6B7280',
                   fontWeight: activeTab === tab.key ? 600 : 500,
                   boxShadow: activeTab === tab.key ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
                 }}
@@ -1182,7 +1182,7 @@ export default function Home() {
           {/* Left: wordmark */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 24, height: 24, borderRadius: 6, background: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: '#fff' }}>M</div>
-            <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 16, color: '#111827' }}>MAJORKA</span>
+            <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 16, color: '#FAFAFA' }}>MAJORKA</span>
           </div>
           {/* Center: nav links */}
           <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
@@ -1283,7 +1283,7 @@ export default function Home() {
             <div style={{ background: 'white' }}>
               {/* Mini header */}
               <div style={{ background: '#FAFAFA', borderBottom: '1px solid #E5E7EB', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontWeight: 600, fontSize: 14, color: '#111827' }}>Product Intelligence</span>
+                <span style={{ fontWeight: 600, fontSize: 14, color: '#FAFAFA' }}>Product Intelligence</span>
                 <span style={{ fontSize: 12, color: '#6B7280' }}>🇦🇺 AU Market · Live Data</span>
               </div>
               {/* Table */}

@@ -14,8 +14,8 @@ const C = {
   border: '#E5E7EB',
   borderHover: 'rgba(99,102,241,0.3)',
   text: '#374151',
-  secondary: '#94949e',
-  muted: '#52525b',
+  secondary: '#6B7280',
+  muted: '#9CA3AF',
   gold: '#6366F1',
   goldDim: 'rgba(99,102,241,0.1)',
   goldBorder: 'rgba(99,102,241,0.25)',
@@ -46,7 +46,7 @@ function LockedToolOverlay({ toolName }: { toolName: string }) {
       <p style={{ fontFamily: syne, fontWeight: 700, color: '#374151', fontSize: 14 }}>
         {toolName}
       </p>
-      <p style={{ color: '#94949e', fontSize: 12, marginBottom: 8 }}>Builder plan required</p>
+      <p style={{ color: '#6B7280', fontSize: 12, marginBottom: 8 }}>Builder plan required</p>
       <Link
         href="/pricing"
         style={{
@@ -93,7 +93,7 @@ function EmotionalComparisonTable() {
               fontFamily: syne,
               fontWeight: 700,
               fontSize: 18,
-              color: '#94949e',
+              color: '#6B7280',
               marginBottom: 8,
             }}
           >
@@ -119,11 +119,11 @@ function EmotionalComparisonTable() {
                 `$${MAJORKA_PRICE}`
               )}
             </span>
-            <span style={{ fontFamily: syne, fontWeight: 600, fontSize: 18, color: '#52525b' }}>
+            <span style={{ fontFamily: syne, fontWeight: 600, fontSize: 18, color: '#9CA3AF' }}>
               AUD/mo
             </span>
           </div>
-          <p style={{ color: '#94949e', fontSize: 15, marginTop: 8 }}>
+          <p style={{ color: '#6B7280', fontSize: 15, marginTop: 8 }}>
             You pay for everything. On one platform.
           </p>
         </div>
@@ -141,7 +141,7 @@ function EmotionalComparisonTable() {
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr 140px 130px',
-              background: '#131318',
+              background: '#F9FAFB',
               padding: '12px 20px',
               borderBottom: '1px solid #E5E7EB',
             }}
@@ -151,7 +151,7 @@ function EmotionalComparisonTable() {
                 fontSize: 11,
                 fontWeight: 700,
                 fontFamily: syne,
-                color: '#52525b',
+                color: '#9CA3AF',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
               }}
@@ -197,8 +197,8 @@ function EmotionalComparisonTable() {
                 background: i % 2 === 0 ? 'transparent' : '#FAFAFA',
               }}
             >
-              <span style={{ fontSize: 13, color: '#a1a1aa' }}>{tool.name}</span>
-              <span style={{ textAlign: 'center', fontSize: 13, color: '#94949e' }}>
+              <span style={{ fontSize: 13, color: '#6B7280' }}>{tool.name}</span>
+              <span style={{ textAlign: 'center', fontSize: 13, color: '#6B7280' }}>
                 ${tool.cost}/mo
               </span>
               <span
@@ -212,7 +212,7 @@ function EmotionalComparisonTable() {
           {/* Totals row */}
           <div
             style={{
-              background: '#131318',
+              background: '#F9FAFB',
               borderTop: '1px solid rgba(99,102,241,0.2)',
               padding: '16px 20px',
             }}
@@ -220,7 +220,7 @@ function EmotionalComparisonTable() {
             <div
               style={{ display: 'grid', gridTemplateColumns: '1fr 140px 130px', marginBottom: 10 }}
             >
-              <span style={{ fontFamily: syne, fontWeight: 700, fontSize: 14, color: '#a1a1aa' }}>
+              <span style={{ fontFamily: syne, fontWeight: 700, fontSize: 14, color: '#6B7280' }}>
                 Total if bought separately
               </span>
               <span style={{ textAlign: 'center' }}>
@@ -306,7 +306,7 @@ function EmotionalComparisonTable() {
                 boxShadow: '0 0 6px #22c55e',
               }}
             />
-            <span style={{ fontSize: 13, color: '#94949e', fontWeight: 500 }}>
+            <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 500 }}>
               2,847 sellers already made the switch
             </span>
           </div>
@@ -430,13 +430,13 @@ function SavingsCalculator() {
           <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', color: '#374151', letterSpacing: '-0.02em', marginBottom: 6 }}>
             HOW MUCH IS ONE BAD PRODUCT DECISION COSTING YOU?
           </h2>
-          <p style={{ fontSize: 14, color: '#94949e' }}>Drag the slider to see your real numbers</p>
+          <p style={{ fontSize: 14, color: '#6B7280' }}>Drag the slider to see your real numbers</p>
         </div>
 
         {/* Slider */}
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-            <span style={{ fontSize: 13, color: '#94949e' }}>Your monthly ad spend:</span>
+            <span style={{ fontSize: 13, color: '#6B7280' }}>Your monthly ad spend:</span>
             <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 18, color: '#6366F1' }}>{fmt(adSpend)}/month</span>
           </div>
           <input
@@ -458,8 +458,8 @@ function SavingsCalculator() {
             }}
           />
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-            <span style={{ fontSize: 11, color: '#52525b' }}>$500</span>
-            <span style={{ fontSize: 11, color: '#52525b' }}>$50,000</span>
+            <span style={{ fontSize: 11, color: '#9CA3AF' }}>$500</span>
+            <span style={{ fontSize: 11, color: '#9CA3AF' }}>$50,000</span>
           </div>
         </div>
 
@@ -472,7 +472,7 @@ function SavingsCalculator() {
               `❌ ${fmt(wastedSpend)} lost/month`,
               `❌ 15h researching manually`,
             ].map((item) => (
-              <div key={item} style={{ fontSize: 13, color: '#94949e', marginBottom: 10, transition: 'all 0.3s' }}>{item}</div>
+              <div key={item} style={{ fontSize: 13, color: '#6B7280', marginBottom: 10, transition: 'all 0.3s' }}>{item}</div>
             ))}
           </div>
           <div style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 14, padding: '20px 18px' }}>
@@ -482,7 +482,7 @@ function SavingsCalculator() {
               `✅ Save ~${fmt(savings)}/month`,
               `✅ 15min automated`,
             ].map((item) => (
-              <div key={item} style={{ fontSize: 13, color: '#94949e', marginBottom: 10, transition: 'all 0.3s' }}>{item}</div>
+              <div key={item} style={{ fontSize: 13, color: '#6B7280', marginBottom: 10, transition: 'all 0.3s' }}>{item}</div>
             ))}
           </div>
         </div>
@@ -492,7 +492,7 @@ function SavingsCalculator() {
           <div style={{ fontFamily: syne, fontWeight: 900, fontSize: 'clamp(1.2rem, 3vw, 1.7rem)', color: '#6366F1', marginBottom: 4, transition: 'all 0.3s' }}>
             💰 Majorka Pro pays for itself in {paybackDays} day{paybackDays !== 1 ? 's' : ''}
           </div>
-          <div style={{ fontSize: 13, color: '#94949e' }}>
+          <div style={{ fontSize: 13, color: '#6B7280' }}>
             ($99/mo vs {fmt(wastedSpend)} in wasted ad spend)
           </div>
         </div>

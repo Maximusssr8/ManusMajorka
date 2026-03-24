@@ -104,7 +104,7 @@ export default function History() {
                 background: '#F9FAFB',
                 border: '1px solid #E5E7EB',
                 cursor: 'pointer',
-                color: '#a1a1aa',
+                color: '#6B7280',
               }}
               onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#D1D5DB')}
               onMouseLeave={(e) => (e.currentTarget.style.borderColor = '#F9FAFB')}
@@ -118,7 +118,7 @@ export default function History() {
               >
                 History
               </h1>
-              <p className="text-xs" style={{ color: '#52525b' }}>
+              <p className="text-xs" style={{ color: '#9CA3AF' }}>
                 {entries.length} total entries
               </p>
             </div>
@@ -149,7 +149,7 @@ export default function History() {
               <Search
                 size={12}
                 className="absolute left-3 top-1/2 -translate-y-1/2"
-                style={{ color: '#52525b' }}
+                style={{ color: '#9CA3AF' }}
               />
               <input
                 value={searchQuery}
@@ -189,7 +189,7 @@ export default function History() {
               <Filter
                 size={10}
                 className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                style={{ color: '#52525b' }}
+                style={{ color: '#9CA3AF' }}
               />
             </div>
           </div>
@@ -210,7 +210,7 @@ export default function History() {
             >
               No history yet
             </h2>
-            <p className="text-sm mb-4" style={{ color: '#52525b' }}>
+            <p className="text-sm mb-4" style={{ color: '#9CA3AF' }}>
               Your tool usage will appear here as you explore Majorka.
             </p>
             <button
@@ -218,7 +218,7 @@ export default function History() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold"
               style={{
                 background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                color: '#060608',
+                color: '#FAFAFA',
                 border: 'none',
                 cursor: 'pointer',
                 fontFamily: "'Bricolage Grotesque', sans-serif",
@@ -229,7 +229,7 @@ export default function History() {
           </div>
         ) : filteredEntries.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-sm" style={{ color: '#52525b' }}>
+            <p className="text-sm" style={{ color: '#9CA3AF' }}>
               No results for "{searchQuery}"
             </p>
           </div>
@@ -275,7 +275,7 @@ export default function History() {
                           >
                             {entry.label}
                           </div>
-                          <div className="text-xs" style={{ color: '#52525b' }}>
+                          <div className="text-xs" style={{ color: '#9CA3AF' }}>
                             {entry.type === 'tool_opened'
                               ? 'Opened tool'
                               : entry.type === 'product_imported'
@@ -285,7 +285,7 @@ export default function History() {
                                   : entry.type}
                           </div>
                         </div>
-                        <div className="text-xs flex-shrink-0" style={{ color: '#52525b' }}>
+                        <div className="text-xs flex-shrink-0" style={{ color: '#9CA3AF' }}>
                           {getRelativeTime(entry.timestamp)}
                         </div>
                         {tool && (

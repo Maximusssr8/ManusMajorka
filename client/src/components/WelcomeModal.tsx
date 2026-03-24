@@ -94,7 +94,7 @@ export default function WelcomeModal({ userName }: Props) {
           style={{
             background: '#F9FAFB',
             border: 'none',
-            color: '#52525b',
+            color: '#9CA3AF',
             cursor: 'pointer',
           }}
         >
@@ -172,7 +172,7 @@ export default function WelcomeModal({ userName }: Props) {
                         background: selected ? 'rgba(99,102,241,0.15)' : '#F9FAFB',
                       }}
                     >
-                      <Icon size={14} style={{ color: selected ? '#6366F1' : '#71717a' }} />
+                      <Icon size={14} style={{ color: selected ? '#6366F1' : '#6B7280' }} />
                     </div>
                     <span
                       className="text-sm"

@@ -79,16 +79,16 @@ export default function ProductInput({ onComplete, session, initialProduct, init
   return (
     <div>
       <h2 style={{ fontFamily: syne, fontSize: 28, fontWeight: 700, marginBottom: 8, letterSpacing: '-0.02em' }}>What are you selling?</h2>
-      <p style={{ color: '#71717a', marginBottom: 32, fontSize: 15 }}>Tell us about your product and we'll build the complete launch blueprint.</p>
+      <p style={{ color: '#6B7280', marginBottom: 32, fontSize: 15 }}>Tell us about your product and we'll build the complete launch blueprint.</p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#a1a1aa', marginBottom: 6 }}>Product Name *</label>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#6B7280', marginBottom: 6 }}>Product Name *</label>
           <input value={productName} onChange={e => setProductName(e.target.value)} placeholder="e.g. LED Desk Lamp with Wireless Charger" style={inputStyle}
             onFocus={e => (e.target.style.borderColor = gold)} onBlur={e => (e.target.style.borderColor = '#F0F0F0')} />
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#a1a1aa', marginBottom: 6 }}>Description <span style={{ color: '#52525b' }}>(optional but improves quality)</span></label>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#6B7280', marginBottom: 6 }}>Description <span style={{ color: '#9CA3AF' }}>(optional but improves quality)</span></label>
           <textarea value={description} onChange={e => setDescription(e.target.value)}
             placeholder="Describe your product, its key benefits, and who it's for..." rows={4}
             style={{ ...inputStyle, resize: 'vertical' }}
@@ -96,13 +96,13 @@ export default function ProductInput({ onComplete, session, initialProduct, init
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           <div>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#a1a1aa', marginBottom: 6 }}>Niche</label>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#6B7280', marginBottom: 6 }}>Niche</label>
             <select value={niche} onChange={e => setNiche(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
               {NICHES.map(n => <option key={n} value={n}>{n}</option>)}
             </select>
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#a1a1aa', marginBottom: 6 }}>Price Point (AUD)</label>
+            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#6B7280', marginBottom: 6 }}>Price Point (AUD)</label>
             <input value={pricePoint} onChange={e => setPricePoint(e.target.value)} placeholder="49.95" type="number" min="0" style={inputStyle}
               onFocus={e => (e.target.style.borderColor = gold)} onBlur={e => (e.target.style.borderColor = '#F0F0F0')} />
           </div>

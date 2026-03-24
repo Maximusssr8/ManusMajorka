@@ -145,7 +145,7 @@ export default function ProjectManager() {
             <ClipboardList size={15} style={{ color: '#9c5fff' }} />
           </div>
           <div>
-            <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Project Manager
             </div>
             <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -213,7 +213,7 @@ export default function ProjectManager() {
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className="w-full py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
+          className="w-full py-3 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
           style={{
             background: generating
               ? 'rgba(156,95,255,0.25)'
@@ -241,7 +241,7 @@ export default function ProjectManager() {
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   {result.name}
                 </h2>
                 <SaveToProduct
@@ -326,7 +326,7 @@ export default function ProjectManager() {
                   style={{ borderColor: '#E5E7EB' }}
                 >
                   <div
-                    className="text-xs font-black uppercase tracking-widest"
+                    className="text-xs font-extrabold uppercase tracking-widest"
                     style={{ color: '#9c5fff', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     {phase.name}
@@ -401,7 +401,7 @@ export default function ProjectManager() {
                 <div className="text-5xl">📋</div>
                 <div className="text-center">
                   <div
-                    className="text-base font-black mb-2"
+                    className="text-base font-extrabold mb-2"
                     style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Project Manager

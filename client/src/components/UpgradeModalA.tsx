@@ -103,7 +103,7 @@ export default function UpgradeModalA({
             </span>
           </div>
           <h2
-            className="text-xl font-black mb-2"
+            className="text-xl font-extrabold mb-2"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
           >
             You've hit a limit
@@ -145,7 +145,7 @@ export default function UpgradeModalA({
                 </div>
                 <div className="flex items-baseline gap-0.5">
                   <span
-                    className="text-2xl font-black"
+                    className="text-2xl font-extrabold"
                     style={{
                       fontFamily: "'Bricolage Grotesque', sans-serif",
                       color: plan.popular ? '#6366F1' : '#0A0A0A',

@@ -104,7 +104,7 @@ function GlassCard({
 
 function PlanBadge({ plan }: { plan: string }) {
   const styles: Record<string, React.CSSProperties> = {
-    starter: { background: 'rgba(113,113,122,0.2)', color: '#a1a1aa' },
+    starter: { background: 'rgba(113,113,122,0.2)', color: '#6B7280' },
     builder: { background: 'rgba(99,102,241,0.15)', color: '#6366F1' },
     scale: { background: 'rgba(124,90,245,0.2)', color: '#a78bfa' },
     pro: { background: 'rgba(99,102,241,0.30)', color: '#6366F1' },
@@ -1190,7 +1190,7 @@ export default function AdminPanel() {
                                       width: 14,
                                       height: 14,
                                       borderRadius: '50%',
-                                      background: enabled ? '#6366F1' : '#52525b',
+                                      background: enabled ? '#6366F1' : '#9CA3AF',
                                       position: 'absolute',
                                       top: 3,
                                       left: enabled ? 19 : 3,

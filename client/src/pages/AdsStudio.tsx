@@ -294,7 +294,7 @@ Use AU English. Make hooks punchy and specific to the product. Each ad_set must 
               {/* FB Post Header */}
               <div className="flex items-center gap-3 p-4">
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0"
+                  className="w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-sm flex-shrink-0"
                   style={{ background: '#6366F1', color: '#000', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   M

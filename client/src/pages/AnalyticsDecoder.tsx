@@ -127,7 +127,7 @@ export default function AnalyticsDecoder() {
             <BarChart3 size={15} style={{ color: '#f472b6' }} />
           </div>
           <div>
-            <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Analytics Decoder
             </div>
             <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -208,7 +208,7 @@ export default function AnalyticsDecoder() {
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className="w-full py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
+          className="w-full py-3 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
           style={{
             background: generating
               ? 'rgba(244,114,182,0.25)'
@@ -236,7 +236,7 @@ export default function AnalyticsDecoder() {
         {result ? (
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Analytics Report
               </h2>
               <SaveToProduct
@@ -305,7 +305,7 @@ export default function AnalyticsDecoder() {
                     </div>
                   </div>
                   <div
-                    className="text-lg font-black mb-1"
+                    className="text-lg font-extrabold mb-1"
                     style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     {kpi.value}
@@ -327,7 +327,7 @@ export default function AnalyticsDecoder() {
             >
               <div className="px-4 py-3 border-b" style={{ borderColor: '#E5E7EB' }}>
                 <div
-                  className="text-xs font-black uppercase tracking-widest"
+                  className="text-xs font-extrabold uppercase tracking-widest"
                   style={{ color: '#f472b6', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Key Insights
@@ -365,7 +365,7 @@ export default function AnalyticsDecoder() {
             >
               <div className="px-4 py-3 border-b" style={{ borderColor: '#EEF2FF' }}>
                 <div
-                  className="text-xs font-black uppercase tracking-widest"
+                  className="text-xs font-extrabold uppercase tracking-widest"
                   style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Recommended Actions
@@ -416,7 +416,7 @@ export default function AnalyticsDecoder() {
                 <div className="text-5xl">📈</div>
                 <div className="text-center">
                   <div
-                    className="text-base font-black mb-2"
+                    className="text-base font-extrabold mb-2"
                     style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Analytics Decoder

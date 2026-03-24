@@ -48,7 +48,7 @@ export default function ToolEmptyState({
       >
         Ready when you are
       </h3>
-      <p className="text-sm mb-6 max-w-sm" style={{ color: '#71717a', lineHeight: 1.6 }}>
+      <p className="text-sm mb-6 max-w-sm" style={{ color: '#6B7280', lineHeight: 1.6 }}>
         {toolDescription}
       </p>
 

@@ -219,10 +219,10 @@ export default function SettingsProfile() {
     return (
       <div className="flex h-screen items-center justify-center" style={{ background: '#FAFAFA' }}>
         <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm animate-pulse"
+          className="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-sm animate-pulse"
           style={{
             background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-            color: '#0a0b0d',
+            color: '#FAFAFA',
             fontFamily: "'Bricolage Grotesque', sans-serif",
           }}
         >
@@ -258,7 +258,7 @@ export default function SettingsProfile() {
                 background: '#F9FAFB',
                 border: '1px solid #E5E7EB',
                 cursor: 'pointer',
-                color: '#a1a1aa',
+                color: '#6B7280',
               }}
             >
               <ArrowLeft size={14} />
@@ -270,7 +270,7 @@ export default function SettingsProfile() {
               >
                 Settings
               </h1>
-              <p className="text-xs" style={{ color: '#52525b' }}>
+              <p className="text-xs" style={{ color: '#9CA3AF' }}>
                 Manage your account and preferences
               </p>
             </div>
@@ -288,16 +288,16 @@ export default function SettingsProfile() {
                   className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all"
                   style={{
                     background: active ? 'rgba(99,102,241,0.08)' : 'transparent',
-                    color: active ? '#6366F1' : '#71717a',
+                    color: active ? '#6366F1' : '#6B7280',
                     border: active ? '1px solid rgba(99,102,241,0.2)' : '1px solid transparent',
                     cursor: 'pointer',
                     fontFamily: 'DM Sans, sans-serif',
                   }}
                   onMouseEnter={(e) => {
-                    if (!active) e.currentTarget.style.color = '#a1a1aa';
+                    if (!active) e.currentTarget.style.color = '#6B7280';
                   }}
                   onMouseLeave={(e) => {
-                    if (!active) e.currentTarget.style.color = '#71717a';
+                    if (!active) e.currentTarget.style.color = '#6B7280';
                   }}
                 >
                   <Icon size={12} /> {tab.label}
@@ -312,7 +312,7 @@ export default function SettingsProfile() {
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-4"
-                  style={{ color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Account
                 </div>
@@ -351,7 +351,7 @@ export default function SettingsProfile() {
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-4"
-                  style={{ color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Business Profile
                 </div>
@@ -427,7 +427,7 @@ export default function SettingsProfile() {
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-4"
-                  style={{ color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Preferences
                 </div>
@@ -501,7 +501,7 @@ export default function SettingsProfile() {
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-3"
-                  style={{ color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Onboarding
                 </div>
@@ -510,7 +510,7 @@ export default function SettingsProfile() {
                     <div className="text-sm font-medium" style={{ color: '#f5f5f5' }}>
                       Product Tour
                     </div>
-                    <div className="text-xs" style={{ color: '#52525b' }}>
+                    <div className="text-xs" style={{ color: '#9CA3AF' }}>
                       Replay the guided tour of Majorka's features
                     </div>
                   </div>
@@ -539,7 +539,7 @@ export default function SettingsProfile() {
                 className="w-full rounded-lg py-3 font-bold text-sm transition-all disabled:opacity-50"
                 style={{
                   background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-                  color: '#0a0b0d',
+                  color: '#FAFAFA',
                   fontFamily: "'Bricolage Grotesque', sans-serif",
                   border: 'none',
                   cursor: saving ? 'not-allowed' : 'pointer',
@@ -555,7 +555,7 @@ export default function SettingsProfile() {
             <div className={sectionCard} style={sectionCardStyle}>
               <div
                 className="text-xs font-bold uppercase tracking-widest mb-4"
-                style={{ color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Email Preferences
               </div>
@@ -591,7 +591,7 @@ export default function SettingsProfile() {
                       <div className="text-sm font-medium" style={{ color: '#f5f5f5' }}>
                         {label}
                       </div>
-                      <div className="text-xs" style={{ color: '#52525b' }}>
+                      <div className="text-xs" style={{ color: '#9CA3AF' }}>
                         {desc}
                       </div>
                     </div>
@@ -609,7 +609,7 @@ export default function SettingsProfile() {
                       <div
                         className="absolute top-0.5 w-4 h-4 rounded-full transition-all"
                         style={{
-                          background: emailNotifs[key] ? '#6366F1' : '#52525b',
+                          background: emailNotifs[key] ? '#6366F1' : '#9CA3AF',
                           left: emailNotifs[key] ? 22 : 2,
                         }}
                       />
@@ -621,7 +621,7 @@ export default function SettingsProfile() {
                 className="mt-4 w-full rounded-lg py-3 font-bold text-sm"
                 style={{
                   background: 'linear-gradient(135deg, #6366F1, #f0c040)',
-                  color: '#0a0b0d',
+                  color: '#FAFAFA',
                   fontFamily: "'Bricolage Grotesque', sans-serif",
                   border: 'none',
                   cursor: 'pointer',
@@ -673,12 +673,12 @@ export default function SettingsProfile() {
                   <CreditCard size={16} style={{ color: '#6366F1' }} />
                   <div className="text-left">
                     <div className="text-sm font-medium">Manage Subscription</div>
-                    <div className="text-xs" style={{ color: '#52525b' }}>
+                    <div className="text-xs" style={{ color: '#9CA3AF' }}>
                       Update billing, change plan, or cancel via Stripe
                     </div>
                   </div>
                 </div>
-                <ExternalLink size={14} style={{ color: '#52525b' }} />
+                <ExternalLink size={14} style={{ color: '#9CA3AF' }} />
               </button>
             </div>
           )}
@@ -688,7 +688,7 @@ export default function SettingsProfile() {
             <div className={sectionCard} style={sectionCardStyle}>
               <div
                 className="text-xs font-bold uppercase tracking-widest mb-4"
-                style={{ color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Service Status
               </div>
@@ -749,11 +749,11 @@ export default function SettingsProfile() {
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-4"
-                  style={{ color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Your Data
                 </div>
-                <p className="text-sm mb-4" style={{ color: '#a1a1aa' }}>
+                <p className="text-sm mb-4" style={{ color: '#6B7280' }}>
                   Export all your data including profile, activity history, and saved products.
                 </p>
                 <button
@@ -780,7 +780,7 @@ export default function SettingsProfile() {
                 >
                   Danger Zone
                 </div>
-                <p className="text-sm mb-4" style={{ color: '#a1a1aa' }}>
+                <p className="text-sm mb-4" style={{ color: '#6B7280' }}>
                   Permanently delete your account and all associated data. This action cannot be
                   undone.
                 </p>

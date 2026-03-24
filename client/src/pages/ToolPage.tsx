@@ -81,7 +81,7 @@ function ToolLoadingFallback() {
     <div className="h-full flex items-center justify-center" style={{ background: '#FAFAFA' }}>
       <div className="flex flex-col items-center gap-3">
         <div
-          className="w-8 h-8 rounded-xl flex items-center justify-center font-black animate-pulse"
+          className="w-8 h-8 rounded-xl flex items-center justify-center font-extrabold animate-pulse"
           style={{
             background: 'rgba(99,102,241,0.15)',
             color: '#6366F1',

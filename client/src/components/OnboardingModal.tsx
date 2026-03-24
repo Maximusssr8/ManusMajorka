@@ -244,7 +244,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
               <div className="text-center mb-6">
                 <div className="text-3xl mb-3">👋</div>
                 <h2
-                  className="text-lg font-black mb-1"
+                  className="text-lg font-extrabold mb-1"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                 >
                   Welcome{userName ? `, ${userName}` : ''}!
@@ -320,7 +320,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
               <div className="text-center mb-6">
                 <div className="text-3xl mb-3">🎯</div>
                 <h2
-                  className="text-lg font-black mb-1"
+                  className="text-lg font-extrabold mb-1"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                 >
                   What's your priority?
@@ -414,7 +414,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
               <div className="text-center mb-6">
                 <div className="text-3xl mb-3">💰</div>
                 <h2
-                  className="text-lg font-black mb-1"
+                  className="text-lg font-extrabold mb-1"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                 >
                   Starting budget?
@@ -478,7 +478,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
                   style={{
                     background: selectedBudget
-                      ? 'linear-gradient(135deg, #6366F1, #1fa85c)'
+                      ? 'linear-gradient(135deg, #6366F1, #4F46E5)'
                       : '#F9FAFB',
                     color: selectedBudget ? '#fff' : '#9CA3AF',
                     fontFamily: "'Bricolage Grotesque', sans-serif",
@@ -498,7 +498,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
               <div className="text-center mb-6">
                 <div className="text-3xl mb-3">📦</div>
                 <h2
-                  className="text-lg font-black mb-1"
+                  className="text-lg font-extrabold mb-1"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                 >
                   Import your first product to get started
@@ -601,7 +601,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   onClick={handleFinish}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all"
                   style={{
-                    background: 'linear-gradient(135deg, #6366F1, #1fa85c)',
+                    background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                     color: '#fff',
                     fontFamily: "'Bricolage Grotesque', sans-serif",
                     cursor: 'pointer',

@@ -213,7 +213,7 @@ export default function StoreSpy() {
           </h1>
           <p
             style={{
-              color: '#a1a1aa',
+              color: '#6B7280',
               fontSize: 16,
               marginTop: 8,
               lineHeight: 1.6,
@@ -234,7 +234,7 @@ export default function StoreSpy() {
                   left: 14,
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  color: '#52525b',
+                  color: '#9CA3AF',
                 }}
               />
               <input
@@ -264,8 +264,8 @@ export default function StoreSpy() {
               onClick={() => analyse()}
               disabled={loading || !url.trim()}
               style={{
-                background: loading || !url.trim() ? '#52525b' : '#6366F1',
-                color: loading || !url.trim() ? '#a1a1aa' : '#060608',
+                background: loading || !url.trim() ? '#9CA3AF' : '#6366F1',
+                color: loading || !url.trim() ? '#6B7280' : '#FAFAFA',
                 border: 'none',
                 borderRadius: 10,
                 padding: '14px 28px',
@@ -327,7 +327,7 @@ export default function StoreSpy() {
                         width: 8,
                         height: 8,
                         borderRadius: '50%',
-                        background: isDone ? '#22c55e' : isActive ? '#6366F1' : '#52525b',
+                        background: isDone ? '#22c55e' : isActive ? '#6366F1' : '#9CA3AF',
                         transition: 'background 0.4s',
                         flexShrink: 0,
                       }}
@@ -335,7 +335,7 @@ export default function StoreSpy() {
                     <span
                       style={{
                         fontSize: 14,
-                        color: isActive ? '#f5f5f5' : '#a1a1aa',
+                        color: isActive ? '#f5f5f5' : '#6B7280',
                         fontWeight: isActive ? 500 : 400,
                       }}
                     >
@@ -368,7 +368,7 @@ export default function StoreSpy() {
             >
               Analysis failed
             </p>
-            <p style={{ color: '#a1a1aa', fontSize: 14, margin: 0 }}>{error}</p>
+            <p style={{ color: '#6B7280', fontSize: 14, margin: 0 }}>{error}</p>
           </div>
         )}
 
@@ -389,7 +389,7 @@ export default function StoreSpy() {
                   {section.title}
                 </h2>
                 <div
-                  style={{ color: '#a1a1aa', fontSize: 14, lineHeight: 1.7 }}
+                  style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.7 }}
                   dangerouslySetInnerHTML={{ __html: md(section.body) }}
                 />
               </div>
@@ -424,7 +424,7 @@ export default function StoreSpy() {
                   </h3>
                   <p
                     style={{
-                      color: '#a1a1aa',
+                      color: '#6B7280',
                       fontSize: 13,
                       lineHeight: 1.6,
                       margin: 0,
@@ -440,7 +440,7 @@ export default function StoreSpy() {
             <div style={{ textAlign: 'center' }}>
               <p
                 style={{
-                  color: '#52525b',
+                  color: '#9CA3AF',
                   fontSize: 13,
                   marginBottom: 12,
                   textTransform: 'uppercase',

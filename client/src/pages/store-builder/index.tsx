@@ -99,7 +99,7 @@ const TEMPLATES: StoreTemplate[] = [
     name: "Metro",
     niche: "Fashion & Apparel",
     description: "Urban, editorial fashion layout. Magazine-style grid with strong typography hierarchy.",
-    accentColor: "#111827",
+    accentColor: "#FAFAFA",
     bgGradient: "linear-gradient(135deg, #111827 0%, #1f2937 100%)",
     tags: ["Fashion", "Apparel", "Streetwear"],
     aov: "$70–$180",

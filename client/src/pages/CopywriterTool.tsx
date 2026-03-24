@@ -236,7 +236,7 @@ export default function CopywriterTool() {
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className="text-sm font-black leading-tight"
+            className="text-sm font-extrabold leading-tight"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Copywriter
@@ -387,7 +387,7 @@ export default function CopywriterTool() {
           <button
             onClick={handleGenerate}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-extrabold text-sm transition-all"
             style={{
               background: isLoading ? 'rgba(224,92,122,0.25)' : '#e05c7a',
               color: '#fff',
@@ -433,7 +433,7 @@ export default function CopywriterTool() {
                 <PenTool size={24} style={{ color: '#e05c7a' }} className="animate-pulse" />
               </div>
               <div className="text-center">
-                <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-extrabold mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Writing your copy pack…
                 </div>
                 <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -455,7 +455,7 @@ export default function CopywriterTool() {
               >
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <div
-                    className="text-xl font-black leading-tight"
+                    className="text-xl font-extrabold leading-tight"
                     style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
                   >
                     {result.headline}
@@ -466,7 +466,7 @@ export default function CopywriterTool() {
                   {result.subheadline}
                 </div>
                 <div
-                  className="text-xs px-3 py-1.5 rounded-lg inline-block font-black"
+                  className="text-xs px-3 py-1.5 rounded-lg inline-block font-extrabold"
                   style={{ background: '#e05c7a', color: '#fff', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   {result.cta}
@@ -543,7 +543,7 @@ export default function CopywriterTool() {
               <div className="text-5xl">✍️</div>
               <div className="text-center">
                 <div
-                  className="text-base font-black mb-2"
+                  className="text-base font-extrabold mb-2"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Generate a full copy pack in seconds

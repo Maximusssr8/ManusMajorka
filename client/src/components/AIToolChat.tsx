@@ -267,7 +267,7 @@ export default function AIToolChat({
             {toolIcon}
           </div>
           <div className="flex-1">
-            <h1 className="font-black text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <h1 className="font-extrabold text-sm" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               {toolName}
             </h1>
             <p className="text-xs text-muted-foreground hidden sm:block">{toolDescription}</p>
@@ -468,7 +468,7 @@ export default function AIToolChat({
                       </div>
                     </div>
                     <div
-                      className="w-16 h-16 rounded-xl flex items-center justify-center font-black text-sm"
+                      className="w-16 h-16 rounded-xl flex items-center justify-center font-extrabold text-sm"
                       style={{
                         background:
                           verdict === 'GO'

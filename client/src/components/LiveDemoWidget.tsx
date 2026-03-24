@@ -271,11 +271,11 @@ function ProfitDisplay({ result }: { result: ProfitResult }) {
   const statusBg = status === 'GO' ? 'rgba(34,197,94,0.08)' : status === 'CAUTION' ? 'rgba(245,158,11,0.08)' : 'rgba(239,68,68,0.08)';
 
   const rows = [
-    { label: 'Buy Price', value: `$${buy.toFixed(2)}`, color: '#94949e' },
+    { label: 'Buy Price', value: `$${buy.toFixed(2)}`, color: '#6B7280' },
     { label: 'Sell Price', value: `$${sell.toFixed(2)}`, color: '#6366F1' },
     { label: 'Gross Profit', value: `$${grossProfit.toFixed(2)}`, color: '#6366F1' },
-    { label: 'Est. AU Shipping', value: '-$9.90', color: '#94949e' },
-    { label: 'Platform Fees', value: `-$${(sell * 0.035).toFixed(2)}`, color: '#94949e' },
+    { label: 'Est. AU Shipping', value: '-$9.90', color: '#6B7280' },
+    { label: 'Platform Fees', value: `-$${(sell * 0.035).toFixed(2)}`, color: '#6B7280' },
     { label: 'Net Profit', value: `$${netProfit.toFixed(2)}`, color: netProfit > 0 ? '#22c55e' : '#ef4444' },
     { label: 'Break-even CPA', value: `$${breakEvenCpa.toFixed(2)}`, color: '#6366F1' },
   ];
@@ -285,7 +285,7 @@ function ProfitDisplay({ result }: { result: ProfitResult }) {
       {/* Margin gauge */}
       <div style={{ marginBottom: 18 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <span style={{ fontFamily: syne, fontWeight: 700, fontSize: 12, color: '#94949e', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <span style={{ fontFamily: syne, fontWeight: 700, fontSize: 12, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
             Gross Margin
           </span>
           <motion.span
@@ -333,7 +333,7 @@ function ProfitDisplay({ result }: { result: ProfitResult }) {
               background: i === rows.length - 2 ? 'rgba(99,102,241,0.04)' : 'transparent',
             }}
           >
-            <span style={{ fontFamily: dm, fontSize: 12, color: '#52525b' }}>{row.label}</span>
+            <span style={{ fontFamily: dm, fontSize: 12, color: '#9CA3AF' }}>{row.label}</span>
             <span style={{ fontFamily: mono, fontSize: 13, fontWeight: 700, color: row.color }}>{row.value}</span>
           </motion.div>
         ))}
@@ -429,7 +429,7 @@ function AdDisplay({ card }: { card: AdCard }) {
           </div>
           <div>
             <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 13, color: '#f5f5f5' }}>Majorka Brand</div>
-            <div style={{ fontSize: 11, color: '#52525b' }}>Sponsored · <span style={{ color: '#3b82f6' }}>🌐 Public</span></div>
+            <div style={{ fontSize: 11, color: '#9CA3AF' }}>Sponsored · <span style={{ color: '#3b82f6' }}>🌐 Public</span></div>
           </div>
         </div>
         {/* Body */}
@@ -440,7 +440,7 @@ function AdDisplay({ card }: { card: AdCard }) {
             </p>
           )}
           {card.body && (
-            <p style={{ fontSize: 13, color: '#94949e', lineHeight: 1.65, marginBottom: 12 }}>
+            <p style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.65, marginBottom: 12 }}>
               {card.body}
             </p>
           )}
@@ -452,7 +452,7 @@ function AdDisplay({ card }: { card: AdCard }) {
         {/* CTA row */}
         <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontSize: 10, color: '#52525b', marginBottom: 1 }}>majorka.com</div>
+            <div style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 1 }}>majorka.com</div>
             <div style={{ fontFamily: syne, fontWeight: 700, fontSize: 12, color: '#f5f5f5' }}>Majorka AI</div>
           </div>
           <div style={{
@@ -470,7 +470,7 @@ function AdDisplay({ card }: { card: AdCard }) {
       </div>
       <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
         <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e' }} />
-        <span style={{ fontSize: 11, color: '#52525b', fontFamily: dm }}>AU audience · Ready to upload to Ads Manager</span>
+        <span style={{ fontSize: 11, color: '#9CA3AF', fontFamily: dm }}>AU audience · Ready to upload to Ads Manager</span>
       </div>
     </div>
   );
@@ -504,12 +504,12 @@ function StreamingText({ text, streaming }: { text: string; streaming: boolean }
           return (
             <div key={i} style={{ display: 'flex', gap: 7, marginBottom: 3 }}>
               <span style={{ color: '#6366F1', flexShrink: 0 }}>→</span>
-              <span style={{ fontSize: 13, color: '#94949e', lineHeight: 1.65 }}>{renderInline(line.replace(/^[-•→]\s*/, ''))}</span>
+              <span style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.65 }}>{renderInline(line.replace(/^[-•→]\s*/, ''))}</span>
             </div>
           );
         }
         return (
-          <div key={i} style={{ fontSize: 13, color: '#94949e', lineHeight: 1.7, marginBottom: 2 }}>
+          <div key={i} style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.7, marginBottom: 2 }}>
             {renderInline(line)}
           </div>
         );
@@ -708,7 +708,7 @@ export default function LiveDemoWidget() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {usesLeft > 0 ? (
-              <span style={{ fontSize: 11, color: '#52525b', fontFamily: dm }}>{usesLeft} free today</span>
+              <span style={{ fontSize: 11, color: '#9CA3AF', fontFamily: dm }}>{usesLeft} free today</span>
             ) : (
               <span style={{ fontSize: 11, color: '#6366F1', fontFamily: dm }}>Sign up for unlimited</span>
             )}
@@ -741,8 +741,8 @@ export default function LiveDemoWidget() {
                 onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = '#FAFAFA'; }}
                 onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
               >
-                <t.Icon size={13} color={active ? t.accent : '#52525b'} strokeWidth={2.2} />
-                <span style={{ fontFamily: syne, fontWeight: active ? 700 : 500, fontSize: 12, color: active ? t.accent : '#52525b', whiteSpace: 'nowrap', transition: 'color 0.2s' }}>
+                <t.Icon size={13} color={active ? t.accent : '#9CA3AF'} strokeWidth={2.2} />
+                <span style={{ fontFamily: syne, fontWeight: active ? 700 : 500, fontSize: 12, color: active ? t.accent : '#9CA3AF', whiteSpace: 'nowrap', transition: 'color 0.2s' }}>
                   {t.label}
                 </span>
               </button>
@@ -753,7 +753,7 @@ export default function LiveDemoWidget() {
         {/* ── Tool sub-label + chips ── */}
         {!showingResult && (
           <div style={{ position: 'relative', zIndex: 2, padding: '12px 16px 10px' }}>
-            <p style={{ fontFamily: dm, fontSize: 12, color: '#52525b', marginBottom: 10 }}>{tab.subLabel}</p>
+            <p style={{ fontFamily: dm, fontSize: 12, color: '#9CA3AF', marginBottom: 10 }}>{tab.subLabel}</p>
             <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
               {tab.chips.map((chip, i) => (
                 <button
@@ -765,7 +765,7 @@ export default function LiveDemoWidget() {
                     borderRadius: 20,
                     padding: '5px 12px',
                     fontSize: 12,
-                    color: '#94949e',
+                    color: '#6B7280',
                     fontFamily: dm,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
@@ -780,7 +780,7 @@ export default function LiveDemoWidget() {
                   onMouseLeave={(e) => {
                     const el = e.currentTarget as HTMLElement;
                     el.style.borderColor = '#F5F5F5';
-                    el.style.color = '#94949e';
+                    el.style.color = '#6B7280';
                     el.style.background = '#F9FAFB';
                   }}
                 >
@@ -814,7 +814,7 @@ export default function LiveDemoWidget() {
                 <div className="live-dot" />
                 <div className="live-dot" />
               </div>
-              <span style={{ fontFamily: dm, fontSize: 13, color: '#52525b' }}>Maya is thinking...</span>
+              <span style={{ fontFamily: dm, fontSize: 13, color: '#9CA3AF' }}>Maya is thinking...</span>
             </motion.div>
           )}
 
@@ -900,7 +900,7 @@ export default function LiveDemoWidget() {
               flexShrink: 0,
             }}
           >
-            <ChevronRight size={16} color={inputValue.trim() && !streaming && !thinking ? '#000' : '#52525b'} />
+            <ChevronRight size={16} color={inputValue.trim() && !streaming && !thinking ? '#000' : '#9CA3AF'} />
           </button>
         </div>
 
@@ -916,7 +916,7 @@ export default function LiveDemoWidget() {
               <Lock size={30} color="#6366F1" />
               <div>
                 <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 20, color: '#f5f5f5', marginBottom: 8 }}>You've seen what Maya can do</h3>
-                <p style={{ fontFamily: dm, fontSize: 14, color: '#94949e', lineHeight: 1.6, maxWidth: 340 }}>Sign up free for unlimited queries, all 3 tools, and full access to the AI OS.</p>
+                <p style={{ fontFamily: dm, fontSize: 14, color: '#6B7280', lineHeight: 1.6, maxWidth: 340 }}>Sign up free for unlimited queries, all 3 tools, and full access to the AI OS.</p>
               </div>
               <Link
                 href="/sign-in"
@@ -925,7 +925,7 @@ export default function LiveDemoWidget() {
               >
                 Start Free — No Credit Card →
               </Link>
-              <button onClick={() => setShowSignup(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#52525b', fontSize: 12, fontFamily: dm }}>
+              <button onClick={() => setShowSignup(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF', fontSize: 12, fontFamily: dm }}>
                 or keep browsing
               </button>
             </motion.div>

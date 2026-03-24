@@ -125,7 +125,7 @@ export default function ExpansionPlanner() {
             <Globe size={15} style={{ color: '#6366F1' }} />
           </div>
           <div>
-            <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Expansion Planner
             </div>
             <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -194,7 +194,7 @@ export default function ExpansionPlanner() {
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className="w-full py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
+          className="w-full py-3 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
           style={{
             background: generating
               ? 'rgba(99,102,241,0.25)'
@@ -221,7 +221,7 @@ export default function ExpansionPlanner() {
         {result ? (
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Expansion Strategy
               </h2>
               <SaveToProduct
@@ -273,7 +273,7 @@ export default function ExpansionPlanner() {
                     <div className="flex items-center gap-2">
                       <MapPin size={14} style={{ color: '#6366F1' }} />
                       <span
-                        className="text-sm font-black"
+                        className="text-sm font-extrabold"
                         style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                       >
                         {m.name}
@@ -378,7 +378,7 @@ export default function ExpansionPlanner() {
             >
               <div className="px-4 py-3 border-b" style={{ borderColor: '#E5E7EB' }}>
                 <div
-                  className="text-xs font-black uppercase tracking-widest"
+                  className="text-xs font-extrabold uppercase tracking-widest"
                   style={{ color: '#00b4d8', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Expansion Readiness Checklist
@@ -425,7 +425,7 @@ export default function ExpansionPlanner() {
                 <div className="text-5xl">🌍</div>
                 <div className="text-center">
                   <div
-                    className="text-base font-black mb-2"
+                    className="text-base font-extrabold mb-2"
                     style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Expansion Planner

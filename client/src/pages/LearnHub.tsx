@@ -418,7 +418,7 @@ function renderMarkdown(text: string): React.ReactNode[] {
         <ul
           key={key++}
           className="list-disc list-inside space-y-1 mb-4"
-          style={{ color: '#a1a1aa' }}
+          style={{ color: '#6B7280' }}
         >
           {items.map((item, j) => (
             <li key={j} className="mb-1">
@@ -441,7 +441,7 @@ function renderMarkdown(text: string): React.ReactNode[] {
         <ol
           key={key++}
           className="list-decimal list-inside space-y-1 mb-4"
-          style={{ color: '#a1a1aa' }}
+          style={{ color: '#6B7280' }}
         >
           {items.map((item, j) => (
             <li key={j} className="mb-1">
@@ -455,7 +455,7 @@ function renderMarkdown(text: string): React.ReactNode[] {
 
     // Paragraph
     nodes.push(
-      <p key={key++} className="mb-4 leading-relaxed text-sm" style={{ color: '#a1a1aa' }}>
+      <p key={key++} className="mb-4 leading-relaxed text-sm" style={{ color: '#6B7280' }}>
         <SafeInlineText text={line} />
       </p>
     );
@@ -660,7 +660,7 @@ function PlaylistDrawer({
                   background: '#F9FAFB',
                   border: 'none',
                   cursor: 'pointer',
-                  color: '#a1a1aa',
+                  color: '#6B7280',
                 }}
                 onMouseEnter={(e) =>
                   ((e.currentTarget as HTMLButtonElement).style.background =
@@ -686,7 +686,7 @@ function PlaylistDrawer({
               {playlist.length === 0 ? (
                 <div className="text-center py-12">
                   <BookOpen size={32} style={{ color: '#3f3f46', margin: '0 auto 12px' }} />
-                  <p className="text-sm" style={{ color: '#52525b' }}>
+                  <p className="text-sm" style={{ color: '#9CA3AF' }}>
                     Your playlist is empty
                   </p>
                   <p className="text-xs mt-1" style={{ color: '#3f3f46' }}>
@@ -717,7 +717,7 @@ function PlaylistDrawer({
                     >
                       <span
                         className="text-xs font-bold flex-shrink-0"
-                        style={{ color: '#52525b', fontFamily: "'Bricolage Grotesque', sans-serif", minWidth: 20 }}
+                        style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif", minWidth: 20 }}
                       >
                         {String(idx + 1).padStart(2, '0')}
                       </span>
@@ -725,7 +725,7 @@ function PlaylistDrawer({
                         <div
                           className="text-xs font-semibold truncate"
                           style={{
-                            color: done ? '#52525b' : '#e5e5e5',
+                            color: done ? '#9CA3AF' : '#e5e5e5',
                             textDecoration: done ? 'line-through' : 'none',
                           }}
                         >
@@ -970,7 +970,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
             >
               {lesson.difficulty}
             </span>
-            <span className="text-xs" style={{ color: '#52525b' }}>
+            <span className="text-xs" style={{ color: '#9CA3AF' }}>
               {lesson.readTime} read
             </span>
             {lesson.free && (
@@ -988,7 +988,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
           >
             {lesson.title}
           </DialogTitle>
-          <p className="text-sm mt-1" style={{ color: '#71717a' }}>
+          <p className="text-sm mt-1" style={{ color: '#6B7280' }}>
             {lesson.description}
           </p>
         </DialogHeader>
@@ -1037,7 +1037,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={{
                     background: '#F9FAFB',
-                    color: '#a1a1aa',
+                    color: '#6B7280',
                     border: 'none',
                     cursor: 'pointer',
                   }}
@@ -1061,7 +1061,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={{
                     background: '#F9FAFB',
-                    color: '#a1a1aa',
+                    color: '#6B7280',
                     border: 'none',
                     cursor: 'pointer',
                   }}
@@ -1086,7 +1086,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={{
                     background: saved ? 'rgba(99,102,241,0.1)' : '#F9FAFB',
-                    color: saved ? '#6366F1' : '#71717a',
+                    color: saved ? '#6366F1' : '#6B7280',
                     border: `1px solid ${saved ? 'rgba(99,102,241,0.2)' : 'transparent'}`,
                     cursor: 'pointer',
                   }}
@@ -1178,7 +1178,7 @@ function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }
           >
             Builder Plan Required
           </DialogTitle>
-          <p className="text-sm" style={{ color: '#71717a' }}>
+          <p className="text-sm" style={{ color: '#6B7280' }}>
             Unlock all 20 lessons + AI personalisation to accelerate your dropshipping journey.
           </p>
           <button
@@ -1275,13 +1275,13 @@ function TrackCard({
                 </span>
               )}
             </div>
-            <p className="text-xs mt-1 leading-relaxed" style={{ color: '#71717a' }}>
+            <p className="text-xs mt-1 leading-relaxed" style={{ color: '#6B7280' }}>
               {track.description}
             </p>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               <span
                 className="px-2 py-0.5 rounded-full text-xs font-medium"
-                style={{ background: '#F9FAFB', color: '#71717a' }}
+                style={{ background: '#F9FAFB', color: '#6B7280' }}
               >
                 {track.lessons.length} lessons · {freeInTrack.length} free
               </span>
@@ -1325,7 +1325,7 @@ function TrackCard({
             className="mt-3 px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
             style={{
               background: hasStarted ? 'rgba(99,102,241,0.1)' : '#F9FAFB',
-              color: hasStarted ? '#6366F1' : '#71717a',
+              color: hasStarted ? '#6366F1' : '#6B7280',
               border: `1px solid ${hasStarted ? 'rgba(99,102,241,0.2)' : '#E5E7EB'}`,
               cursor: 'pointer',
               fontFamily: "'Bricolage Grotesque', sans-serif",
@@ -1411,7 +1411,7 @@ function TrackCard({
                       <div
                         className="text-sm font-medium truncate transition-colors"
                         style={{
-                          color: isCompleted ? '#52525b' : lesson.free ? '#e5e5e5' : '#71717a',
+                          color: isCompleted ? '#9CA3AF' : lesson.free ? '#e5e5e5' : '#6B7280',
                           textDecoration: isCompleted ? 'line-through' : 'none',
                         }}
                       >
@@ -1454,7 +1454,7 @@ function TrackCard({
                               : '#F9FAFB',
                             border: 'none',
                             cursor: 'pointer',
-                            color: inPlaylist ? '#6366F1' : '#71717a',
+                            color: inPlaylist ? '#6366F1' : '#6B7280',
                           }}
                           onMouseEnter={(e) =>
                             ((e.currentTarget as HTMLButtonElement).style.opacity = '1')
@@ -1634,7 +1634,7 @@ export default function LearnHub() {
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-8">
           <div>
             <h1
-              className="text-4xl md:text-5xl font-black leading-tight"
+              className="text-4xl md:text-5xl font-extrabold leading-tight"
               style={{
                 fontFamily: "'Bricolage Grotesque', sans-serif",
                 background: 'linear-gradient(135deg, #6366F1 20%, #A5B4FC 60%, #6366F1 100%)',
@@ -1645,7 +1645,7 @@ export default function LearnHub() {
             >
               Majorka Academy
             </h1>
-            <p className="text-sm mt-2" style={{ color: '#71717a' }}>
+            <p className="text-sm mt-2" style={{ color: '#6B7280' }}>
               From zero to your first $10K month — step by step.
             </p>
           </div>
@@ -1659,7 +1659,7 @@ export default function LearnHub() {
               style={{
                 background: '#F9FAFB',
                 border: '1px solid #F5F5F5',
-                color: '#a1a1aa',
+                color: '#6B7280',
                 cursor: 'pointer',
                 fontFamily: "'Bricolage Grotesque', sans-serif",
                 fontSize: 13,
@@ -1671,14 +1671,14 @@ export default function LearnHub() {
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.borderColor = '#F5F5F5';
-                (e.currentTarget as HTMLButtonElement).style.color = '#a1a1aa';
+                (e.currentTarget as HTMLButtonElement).style.color = '#6B7280';
               }}
             >
               <ListOrdered size={14} />
               Playlist
               {playlist.length > 0 && (
                 <span
-                  className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center text-xs font-black"
+                  className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full flex items-center justify-center text-xs font-extrabold"
                   style={{ background: '#6366F1', color: '#0a0a0a', fontSize: 9 }}
                 >
                   {playlist.length}
@@ -1699,7 +1699,7 @@ export default function LearnHub() {
                 <div className="relative flex items-center justify-center">
                   <CircularRing percent={overallPercent} />
                   <span
-                    className="absolute text-xs font-black"
+                    className="absolute text-xs font-extrabold"
                     style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     {overallPercent}%
@@ -1712,7 +1712,7 @@ export default function LearnHub() {
                   >
                     {completedCount} of {TOTAL_LESSONS}
                   </div>
-                  <div className="text-xs" style={{ color: '#52525b' }}>
+                  <div className="text-xs" style={{ color: '#9CA3AF' }}>
                     complete
                   </div>
                 </div>
@@ -1760,16 +1760,16 @@ export default function LearnHub() {
                         ? 'rgba(99,102,241,0.15)'
                         : `${difficultyStyle(pill).bg}`
                       : '#F9FAFB',
-                    color: active ? col : '#52525b',
+                    color: active ? col : '#9CA3AF',
                     border: active ? `1px solid ${col}40` : '1px solid #E5E7EB',
                     cursor: 'pointer',
                     fontFamily: "'Bricolage Grotesque', sans-serif",
                   }}
                   onMouseEnter={(e) => {
-                    if (!active) (e.currentTarget as HTMLButtonElement).style.color = '#a1a1aa';
+                    if (!active) (e.currentTarget as HTMLButtonElement).style.color = '#6B7280';
                   }}
                   onMouseLeave={(e) => {
-                    if (!active) (e.currentTarget as HTMLButtonElement).style.color = '#52525b';
+                    if (!active) (e.currentTarget as HTMLButtonElement).style.color = '#9CA3AF';
                   }}
                 >
                   {pill}
@@ -1783,7 +1783,7 @@ export default function LearnHub() {
         {filteredTracks.length === 0 ? (
           <div className="text-center py-16">
             <BookOpen size={36} style={{ color: '#3f3f46', margin: '0 auto 12px' }} />
-            <p className="text-sm font-medium" style={{ color: '#52525b' }}>
+            <p className="text-sm font-medium" style={{ color: '#9CA3AF' }}>
               No lessons match your search
             </p>
           </div>

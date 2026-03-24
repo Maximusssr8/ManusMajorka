@@ -119,7 +119,7 @@ function MayaActionCard({ action }: { action: any }) {
         {(action.steps ?? []).map((step: any, i: number) => (
           <div
             key={i}
-            style={{ fontSize: 13, color: '#a1a1aa', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}
+            style={{ fontSize: 13, color: '#6B7280', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}
           >
             <span style={{ color: '#6366F1' }}>{i + 1}.</span>
             {TOOL_LABELS[step.tool] || step.tool}
@@ -190,22 +190,22 @@ function MayaActionCard({ action }: { action: any }) {
           {TOOL_LABELS[tool] || tool}
         </div>
         {params.productUrl && (
-          <div style={{ color: '#52525b', fontSize: 11, marginTop: 2 }}>
+          <div style={{ color: '#9CA3AF', fontSize: 11, marginTop: 2 }}>
             Pre-loaded: {String(params.productUrl).slice(0, 40)}...
           </div>
         )}
         {params.query && (
-          <div style={{ color: '#52525b', fontSize: 11, marginTop: 2 }}>
+          <div style={{ color: '#9CA3AF', fontSize: 11, marginTop: 2 }}>
             Search: "{params.query}"
           </div>
         )}
         {params.product && (
-          <div style={{ color: '#52525b', fontSize: 11, marginTop: 2 }}>
+          <div style={{ color: '#9CA3AF', fontSize: 11, marginTop: 2 }}>
             Checking: "{params.product}"
           </div>
         )}
         {params.productName && !params.query && !params.product && !params.productUrl && (
-          <div style={{ color: '#52525b', fontSize: 11, marginTop: 2 }}>
+          <div style={{ color: '#9CA3AF', fontSize: 11, marginTop: 2 }}>
             {params.productName}
           </div>
         )}
@@ -477,7 +477,7 @@ export default function AIChat() {
       >
         <div className="flex items-center gap-3">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm"
+            className="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-sm"
             style={{
               background: 'linear-gradient(135deg, #6366F1, #f0c040)',
               color: '#FAFAFA',
@@ -488,7 +488,7 @@ export default function AIChat() {
           </div>
           <div className="flex-1">
             <h1
-              className="font-black text-sm"
+              className="font-extrabold text-sm"
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
             >
               AI Chat
@@ -791,7 +791,7 @@ export default function AIChat() {
 
                 {msg.role === 'user' && (
                   <div
-                    className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center font-black text-xs"
+                    className="w-7 h-7 shrink-0 rounded-full flex items-center justify-center font-extrabold text-xs"
                     style={{
                       background: 'linear-gradient(135deg, #6366F1, #f0c040)',
                       color: '#FAFAFA',

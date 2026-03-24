@@ -21,15 +21,15 @@ interface Props {
 }
 
 const C = {
-  bg: '#0d1017',
+  bg: '#FFFFFF',
   gold: '#6366F1',
   goldBg: 'rgba(99,102,241,0.08)',
   goldBorder: 'rgba(99,102,241,0.2)',
   glass: '#F9FAFB',
-  border: '#F5F5F5',
-  text: '#f5f5f5',
-  sub: '#a1a1aa',
-  muted: '#52525b',
+  border: '#E5E7EB',
+  text: '#0A0A0A',
+  sub: '#6B7280',
+  muted: '#9CA3AF',
   green: '#22c55e',
   amber: '#f59e0b',
   red: '#ef4444',

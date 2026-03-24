@@ -106,7 +106,7 @@ export default function ShopifyConnect({
       <h2 style={{ fontFamily: syne, fontSize: 28, fontWeight: 700, marginBottom: 8, letterSpacing: '-0.02em' }}>
         Connect Your Store
       </h2>
-      <p style={{ color: '#71717a', marginBottom: 32, fontSize: 15 }}>
+      <p style={{ color: '#6B7280', marginBottom: 32, fontSize: 15 }}>
         Connect your Shopify store to push the blueprint live in one click.
       </p>
 
@@ -133,7 +133,7 @@ export default function ShopifyConnect({
         </div>
       ) : (
         <div style={{ marginBottom: 24 }}>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#a1a1aa', marginBottom: 6 }}>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#6B7280', marginBottom: 6 }}>
             Shopify Store Domain
           </label>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -162,7 +162,7 @@ export default function ShopifyConnect({
               Connect →
             </button>
           </div>
-          <p style={{ fontSize: 12, color: '#52525b', marginTop: 6 }}>
+          <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 6 }}>
             You'll be redirected to Shopify to authorise access, then returned here.
           </p>
         </div>
@@ -176,7 +176,7 @@ export default function ShopifyConnect({
           style={{
             flex: 1, padding: 14, borderRadius: 8,
             border: '1px solid #F0F0F0',
-            background: 'transparent', color: '#a1a1aa',
+            background: 'transparent', color: '#6B7280',
             cursor: 'pointer', fontFamily: syne, fontWeight: 600,
           }}
         >
@@ -188,7 +188,7 @@ export default function ShopifyConnect({
           style={{
             flex: 2, padding: 14, borderRadius: 8, border: 'none',
             background: connected ? gold : 'rgba(99,102,241,0.15)',
-            color: connected ? '#FAFAFA' : '#52525b',
+            color: connected ? '#FAFAFA' : '#9CA3AF',
             cursor: connected && !pushing ? 'pointer' : 'not-allowed',
             fontFamily: syne, fontWeight: 700, fontSize: 15,
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,

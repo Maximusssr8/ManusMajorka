@@ -3,10 +3,10 @@ import { SEO } from '@/components/SEO';
 
 const C = {
   bg: '#FAFAFA',
-  card: '#0d0f14',
-  border: '#F9FAFB',
-  text: '#f5f5f5',
-  secondary: '#94949e',
+  card: '#FFFFFF',
+  border: '#E5E7EB',
+  text: '#0A0A0A',
+  secondary: '#6B7280',
   gold: '#6366F1',
 };
 

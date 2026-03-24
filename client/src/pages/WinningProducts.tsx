@@ -118,7 +118,7 @@ const C = {
 const TREND_MAP: Record<Trend, { emoji: string; label: string; color: string }> = {
   exploding: { emoji: '🔥', label: 'Exploding', color: '#ef4444' },
   growing:   { emoji: '📈', label: 'Growing',   color: '#22c55e' },
-  stable:    { emoji: '➡️', label: 'Stable',    color: '#a1a1aa' },
+  stable:    { emoji: '➡️', label: 'Stable',    color: '#6B7280' },
   declining: { emoji: '📉', label: 'Declining', color: '#f59e0b' },
 };
 

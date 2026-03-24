@@ -365,7 +365,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
         {/* Title + badges */}
         <div className="flex items-start gap-2 flex-wrap">
           <h3
-            className="text-sm font-black flex-1 min-w-0"
+            className="text-sm font-extrabold flex-1 min-w-0"
             style={{ color: '#f5f5f5', fontFamily: "'Bricolage Grotesque', sans-serif", lineHeight: 1.35 }}
           >
             {result.cleanTitle || result.productTitle}
@@ -388,7 +388,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
               className="px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0"
               style={{
                 background: '#E5E7EB',
-                color: '#a1a1aa',
+                color: '#6B7280',
                 border: '1px solid #F0F0F0',
               }}
             >
@@ -399,7 +399,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
 
         {/* Description */}
         {result.description && (
-          <p className="text-xs leading-relaxed" style={{ color: '#a1a1aa' }}>
+          <p className="text-xs leading-relaxed" style={{ color: '#6B7280' }}>
             {result.description.length > 120
               ? result.description.slice(0, 117) + '...'
               : result.description}
@@ -412,7 +412,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
             {result.bulletPoints.slice(0, 3).map((bp, i) => (
               <li key={i} className="flex items-start gap-2">
                 <Check size={11} style={{ color: '#f59e0b', flexShrink: 0, marginTop: 2 }} />
-                <span className="text-xs" style={{ color: '#a1a1aa' }}>
+                <span className="text-xs" style={{ color: '#6B7280' }}>
                   {bp}
                 </span>
               </li>
@@ -495,7 +495,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
             style={{
               background: 'transparent',
               border: '1px solid #F0F0F0',
-              color: '#a1a1aa',
+              color: '#6B7280',
               cursor: 'pointer',
             }}
             onMouseEnter={(e) => (e.currentTarget.style.borderColor = '#D1D5DB')}
@@ -570,12 +570,12 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
     >
       <div>
         <h3
-          className="text-sm font-black mb-0.5"
+          className="text-sm font-extrabold mb-0.5"
           style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f5f5f5' }}
         >
           Import Product
         </h3>
-        <p className="text-xs" style={{ color: '#a1a1aa' }}>
+        <p className="text-xs" style={{ color: '#6B7280' }}>
           Paste any product URL to auto-fill details
         </p>
       </div>
@@ -600,7 +600,7 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
             style={{
               background: 'transparent',
               border: '1px solid #F5F5F5',
-              color: '#a1a1aa',
+              color: '#6B7280',
               cursor: 'pointer',
             }}
           >
@@ -616,9 +616,9 @@ export function ProductImporter({ onSuccess, compact = false }: ProductImporterP
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 text-xs transition-all"
-          style={{ color: '#a1a1aa' }}
+          style={{ color: '#6B7280' }}
           onMouseEnter={(e) => (e.currentTarget.style.color = '#f59e0b')}
-          onMouseLeave={(e) => (e.currentTarget.style.color = '#a1a1aa')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = '#6B7280')}
         >
           <ExternalLink size={11} />
           View original listing

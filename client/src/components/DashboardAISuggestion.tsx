@@ -198,7 +198,7 @@ export function DashboardAISuggestion({ userProfile }: Props) {
         }}>
           Maya's Smart Actions
         </span>
-        <span style={{ fontSize: 11, color: '#52525b', marginLeft: 'auto' }}>
+        <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 'auto' }}>
           {loading ? 'Personalising...' : 'Updated daily'}
         </span>
         {!loading && (
@@ -207,12 +207,12 @@ export function DashboardAISuggestion({ userProfile }: Props) {
             title="Refresh suggestions"
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
-              color: '#52525b', padding: '2px 4px',
+              color: '#9CA3AF', padding: '2px 4px',
               display: 'flex', alignItems: 'center',
               transition: 'color 150ms ease',
             }}
             onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#6366F1')}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#52525b')}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#9CA3AF')}
           >
             <RefreshCw size={12} />
           </button>
@@ -305,7 +305,7 @@ export function DashboardAISuggestion({ userProfile }: Props) {
 
                   {/* Context */}
                   <div style={{
-                    fontSize: 11, color: '#52525b',
+                    fontSize: 11, color: '#9CA3AF',
                     fontFamily: 'DM Sans, sans-serif',
                     lineHeight: 1.5, marginBottom: 12,
                   }}>

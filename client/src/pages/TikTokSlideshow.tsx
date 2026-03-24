@@ -236,7 +236,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
         >
           <div>
             <h1
-              className="text-lg font-black flex items-center gap-2"
+              className="text-lg font-extrabold flex items-center gap-2"
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
             >
               <Smartphone size={18} style={{ color: '#6366F1' }} />
@@ -536,7 +536,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                     </div>
 
                     <p
-                      className="text-center font-black leading-tight"
+                      className="text-center font-extrabold leading-tight"
                       style={{
                         fontFamily: "'Bricolage Grotesque', sans-serif",
                         color: '#ffffff',
@@ -728,7 +728,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
                   <Smartphone size={28} style={{ color: '#6366F1' }} />
                 </div>
                 <h2
-                  className="text-base font-black mb-2"
+                  className="text-base font-extrabold mb-2"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                 >
                   No slideshow yet

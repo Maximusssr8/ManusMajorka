@@ -179,7 +179,7 @@ export default function FinancialModeler() {
               <DollarSign size={15} style={{ color: '#6366F1' }} />
             </div>
             <div>
-              <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Financial Modeler
               </div>
               <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -270,11 +270,11 @@ export default function FinancialModeler() {
           <button
             onClick={handleGenerate}
             disabled={generating}
-            className="w-full py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
+            className="w-full py-3 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
             style={{
               background: generating
                 ? '#C7D2FE'
-                : 'linear-gradient(135deg, #6366F1, #1fa85c)',
+                : 'linear-gradient(135deg, #6366F1, #4F46E5)',
               color: '#fff',
               fontFamily: "'Bricolage Grotesque', sans-serif",
               boxShadow: generating ? 'none' : '0 4px 20px #C7D2FE',
@@ -299,7 +299,7 @@ export default function FinancialModeler() {
             <div className="max-w-3xl mx-auto space-y-6">
               {/* Header */}
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Financial Model
                 </h2>
                 <SaveToProduct
@@ -356,7 +356,7 @@ export default function FinancialModeler() {
                   >
                     <Icon size={16} style={{ color, marginBottom: 8 }} />
                     <div
-                      className="text-lg font-black"
+                      className="text-lg font-extrabold"
                       style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color }}
                     >
                       {value}
@@ -381,7 +381,7 @@ export default function FinancialModeler() {
                   style={{ borderColor: '#E5E7EB' }}
                 >
                   <div
-                    className="text-xs font-black uppercase tracking-widest"
+                    className="text-xs font-extrabold uppercase tracking-widest"
                     style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Monthly P&L Statement
@@ -447,7 +447,7 @@ export default function FinancialModeler() {
                   style={{ borderColor: '#E5E7EB' }}
                 >
                   <div
-                    className="text-xs font-black uppercase tracking-widest"
+                    className="text-xs font-extrabold uppercase tracking-widest"
                     style={{ color: '#7c6af5', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     6-Month Revenue Forecast
@@ -495,7 +495,7 @@ export default function FinancialModeler() {
               <div className="text-5xl">📊</div>
               <div className="text-center">
                 <div
-                  className="text-base font-black mb-2"
+                  className="text-base font-extrabold mb-2"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Financial Model

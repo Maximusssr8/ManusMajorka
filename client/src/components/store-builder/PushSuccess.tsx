@@ -20,7 +20,7 @@ export default function PushSuccess({ result, onReset }: {
       <h2 style={{ fontFamily: syne, fontSize: 28, fontWeight: 700, marginBottom: 8, letterSpacing: '-0.02em' }}>
         {allSuccess ? 'Store Launched!' : 'Partially Pushed'}
       </h2>
-      <p style={{ color: '#71717a', marginBottom: 32, fontSize: 15 }}>
+      <p style={{ color: '#6B7280', marginBottom: 32, fontSize: 15 }}>
         {allSuccess ? 'Your blueprint has been pushed to Shopify successfully.' : 'Some steps completed. Check below for details.'}
       </p>
 
@@ -72,7 +72,7 @@ export default function PushSuccess({ result, onReset }: {
 
       <button onClick={onReset} style={{
         padding: '12px 24px', borderRadius: 8, border: '1px solid #F0F0F0',
-        background: 'transparent', color: '#a1a1aa', cursor: 'pointer', fontFamily: syne, fontWeight: 600,
+        background: 'transparent', color: '#6B7280', cursor: 'pointer', fontFamily: syne, fontWeight: 600,
       }}>
         Build Another Store
       </button>

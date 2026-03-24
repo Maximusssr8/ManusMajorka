@@ -92,7 +92,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
         style={{ cursor: 'pointer' }}
       >
         <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0"
+          className="w-9 h-9 rounded-xl flex items-center justify-center font-extrabold text-sm flex-shrink-0"
           style={{
             background: 'rgba(156,95,255,0.12)',
             color: '#9c5fff',
@@ -103,7 +103,7 @@ function CompetitorCard({ competitor, index }: { competitor: Competitor; index: 
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className="text-sm font-black leading-tight"
+            className="text-sm font-extrabold leading-tight"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
           >
             {competitor.name}
@@ -323,7 +323,7 @@ export default function CompetitorBreakdown() {
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className="text-sm font-black leading-tight"
+            className="text-sm font-extrabold leading-tight"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Competitor Breakdown
@@ -415,7 +415,7 @@ export default function CompetitorBreakdown() {
           <button
             onClick={handleGenerate}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-extrabold text-sm transition-all"
             style={{
               background: isLoading ? 'rgba(156,95,255,0.25)' : '#9c5fff',
               color: '#fff',
@@ -461,7 +461,7 @@ export default function CompetitorBreakdown() {
                 <Target size={24} style={{ color: '#9c5fff' }} className="animate-pulse" />
               </div>
               <div className="text-center">
-                <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-extrabold mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Analysing competitors…
                 </div>
                 <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -532,7 +532,7 @@ export default function CompetitorBreakdown() {
                       style={{ color: '#374151' }}
                     >
                       <span
-                        className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 mt-0.5 font-black text-xs"
+                        className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 mt-0.5 font-extrabold text-xs"
                         style={{
                           background: '#EEF2FF',
                           color: '#6366F1',
@@ -597,7 +597,7 @@ export default function CompetitorBreakdown() {
               <div className="text-5xl">🎯</div>
               <div className="text-center">
                 <div
-                  className="text-base font-black mb-2"
+                  className="text-base font-extrabold mb-2"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Understand your competition

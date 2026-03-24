@@ -83,7 +83,7 @@ function EmailCard({ email }: { email: Email }) {
         style={{ cursor: 'pointer', background: '#FAFAFA' }}
       >
         <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0"
+          className="w-9 h-9 rounded-xl flex items-center justify-center font-extrabold text-sm flex-shrink-0"
           style={{
             background: 'rgba(74,184,245,0.12)',
             color: '#4ab8f5',
@@ -150,7 +150,7 @@ function EmailCard({ email }: { email: Email }) {
           </div>
           <div className="flex items-center justify-between">
             <span
-              className="text-xs px-3 py-1.5 rounded-lg font-black"
+              className="text-xs px-3 py-1.5 rounded-lg font-extrabold"
               style={{
                 background: 'rgba(74,184,245,0.12)',
                 color: '#4ab8f5',
@@ -255,7 +255,7 @@ export default function EmailSequences() {
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className="text-sm font-black leading-tight"
+            className="text-sm font-extrabold leading-tight"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Email Sequences
@@ -364,7 +364,7 @@ export default function EmailSequences() {
           <button
             onClick={handleGenerate}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-extrabold text-sm transition-all"
             style={{
               background: isLoading ? 'rgba(74,184,245,0.25)' : '#4ab8f5',
               color: '#FAFAFA',
@@ -410,7 +410,7 @@ export default function EmailSequences() {
                 <Mail size={24} style={{ color: '#4ab8f5' }} className="animate-pulse" />
               </div>
               <div className="text-center">
-                <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-extrabold mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Building your {sequenceType}…
                 </div>
                 <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -430,7 +430,7 @@ export default function EmailSequences() {
                 }}
               >
                 <div
-                  className="text-sm font-black mb-1"
+                  className="text-sm font-extrabold mb-1"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
                 >
                   {result.sequenceName}
@@ -503,7 +503,7 @@ export default function EmailSequences() {
               <div className="text-5xl">📧</div>
               <div className="text-center">
                 <div
-                  className="text-base font-black mb-2"
+                  className="text-base font-extrabold mb-2"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Build automated email flows

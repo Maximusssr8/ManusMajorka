@@ -137,7 +137,7 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
           {label}
         </span>
         <span
-          className={`text-xs font-black ${getScoreColor(score)}`}
+          className={`text-xs font-extrabold ${getScoreColor(score)}`}
           style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
         >
           {score}
@@ -257,7 +257,7 @@ export default function NicheScorer() {
         </div>
         <div className="flex-1 min-w-0">
           <div
-            className="text-sm font-black leading-tight"
+            className="text-sm font-extrabold leading-tight"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Niche Scorer
@@ -367,7 +367,7 @@ export default function NicheScorer() {
           <button
             onClick={handleGenerate}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-extrabold text-sm transition-all"
             style={{
               background: isLoading ? 'rgba(99,102,241,0.25)' : '#6366F1',
               color: '#ffffff',
@@ -413,7 +413,7 @@ export default function NicheScorer() {
                 <BarChart2 size={24} style={{ color: '#6366F1' }} className="animate-pulse" />
               </div>
               <div className="text-center">
-                <div className="text-sm font-black mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                <div className="text-sm font-extrabold mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                   Scoring {niche}…
                 </div>
                 <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -431,7 +431,7 @@ export default function NicheScorer() {
                 style={{ background: vc.bg, border: `1.5px solid ${vc.border}` }}
               >
                 <div
-                  className={`text-4xl font-black mb-1 ${getScoreColor(result.overallScore)}`}
+                  className={`text-4xl font-extrabold mb-1 ${getScoreColor(result.overallScore)}`}
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   {result.overallScore}
@@ -443,7 +443,7 @@ export default function NicheScorer() {
                   Overall Score
                 </div>
                 <div
-                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-black"
+                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-extrabold"
                   style={{
                     background: vc.bg,
                     border: `1px solid ${vc.border}`,
@@ -554,7 +554,7 @@ export default function NicheScorer() {
                     Est. Revenue
                   </div>
                   <div
-                    className="text-xs font-black"
+                    className="text-xs font-extrabold"
                     style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     {result.estimatedMonthlyRevenue}
@@ -574,7 +574,7 @@ export default function NicheScorer() {
                     Time to Sale
                   </div>
                   <div
-                    className="text-xs font-black"
+                    className="text-xs font-extrabold"
                     style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     {result.timeToFirstSale}
@@ -652,7 +652,7 @@ export default function NicheScorer() {
                       style={{ color: '#374151' }}
                     >
                       <span
-                        className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 mt-0.5 font-black text-xs"
+                        className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 mt-0.5 font-extrabold text-xs"
                         style={{
                           background: 'rgba(99,102,241,0.15)',
                           color: '#6366F1',
@@ -674,7 +674,7 @@ export default function NicheScorer() {
               <div className="text-5xl">📊</div>
               <div className="text-center">
                 <div
-                  className="text-base font-black mb-2"
+                  className="text-base font-extrabold mb-2"
                   style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Get a data-driven go/no-go verdict

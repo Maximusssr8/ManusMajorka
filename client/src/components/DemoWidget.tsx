@@ -158,7 +158,7 @@ function renderLine(line: string, idx: number) {
         key={idx}
         style={{
           fontSize: 12,
-          color: '#94949e',
+          color: '#6B7280',
           lineHeight: 1.65,
           paddingLeft: 4,
           marginBottom: 1,
@@ -174,7 +174,7 @@ function renderLine(line: string, idx: number) {
         key={idx}
         style={{
           fontSize: 12,
-          color: '#94949e',
+          color: '#6B7280',
           lineHeight: 1.7,
           marginBottom: 1,
           fontFamily: mono,
@@ -190,7 +190,7 @@ function renderLine(line: string, idx: number) {
         key={idx}
         style={{
           fontSize: 11,
-          color: '#52525b',
+          color: '#9CA3AF',
           fontStyle: 'italic',
           lineHeight: 1.6,
           marginBottom: 2,
@@ -214,7 +214,7 @@ function renderLine(line: string, idx: number) {
   );
 
   return (
-    <div key={idx} style={{ fontSize: 13, color: '#94949e', lineHeight: 1.7, marginBottom: 2 }}>
+    <div key={idx} style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.7, marginBottom: 2 }}>
       {rendered}
     </div>
   );
@@ -424,7 +424,7 @@ export default function DemoWidget() {
                 <div className="thinking-dot" />
                 <div className="thinking-dot" />
               </div>
-              <span style={{ fontFamily: dm, fontSize: 12, color: '#94949e' }}>
+              <span style={{ fontFamily: dm, fontSize: 12, color: '#6B7280' }}>
                 Analysing market data...
               </span>
             </div>

@@ -29,12 +29,12 @@ const fmt = (n: number) =>
 const pct = (n: number) => `${n.toFixed(1)}%`;
 
 const C = {
-  bg: '#060608',
-  card: '#0c0c10',
-  border: '#F9FAFB',
-  text: '#f5f5f5',
-  secondary: '#94949e',
-  muted: '#52525b',
+  bg: '#FAFAFA',
+  card: '#FFFFFF',
+  border: '#E5E7EB',
+  text: '#0A0A0A',
+  secondary: '#6B7280',
+  muted: '#9CA3AF',
   gold: '#6366F1',
   goldDim: 'rgba(99,102,241,0.1)',
   goldBorder: 'rgba(99,102,241,0.25)',
@@ -127,14 +127,14 @@ export default function PublicProfitCalculator() {
   const labelStyle: React.CSSProperties = {
     fontFamily: dm,
     fontSize: 13,
-    color: '#a1a1aa',
+    color: '#6B7280',
     marginBottom: 8,
     display: 'block',
   };
 
   const numberInputStyle: React.CSSProperties = {
     fontFamily: dm,
-    background: '#15151a',
+    background: '#FFFFFF',
     border: '1px solid #F5F5F5',
     borderRadius: 8,
     color: C.text,
@@ -179,7 +179,7 @@ export default function PublicProfitCalculator() {
             alignItems: 'center',
             gap: 4,
             fontFamily: dm,
-            color: '#a1a1aa',
+            color: '#6B7280',
             fontSize: 14,
           }}
         >
@@ -210,7 +210,7 @@ export default function PublicProfitCalculator() {
         {value}
       </div>
       {sub && (
-        <div style={{ fontFamily: dm, fontSize: 13, color: '#a1a1aa', marginTop: 4 }}>{sub}</div>
+        <div style={{ fontFamily: dm, fontSize: 13, color: '#6B7280', marginTop: 4 }}>{sub}</div>
       )}
     </div>
   );
@@ -381,7 +381,7 @@ export default function PublicProfitCalculator() {
                 style={{
                   width: '100%',
                   fontFamily: dm,
-                  background: '#15151a',
+                  background: '#FFFFFF',
                   border: '1px solid #F5F5F5',
                   borderRadius: 8,
                   color: C.text,
@@ -459,7 +459,7 @@ export default function PublicProfitCalculator() {
               </span>
             </div>
             <p
-              style={{ fontFamily: dm, fontSize: 14, color: '#a1a1aa', margin: 0, lineHeight: 1.6 }}
+              style={{ fontFamily: dm, fontSize: 14, color: '#6B7280', margin: 0, lineHeight: 1.6 }}
             >
               {calc.verdictReason}
             </p>
@@ -540,7 +540,7 @@ export default function PublicProfitCalculator() {
                     <td
                       style={{
                         padding: 12,
-                        color: '#a1a1aa',
+                        color: '#6B7280',
                         borderBottom: `1px solid #F9FAFB`,
                       }}
                     >

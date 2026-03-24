@@ -152,7 +152,7 @@ export default function OnboardingChecklist() {
         <button
           onClick={handleDismiss}
           className="w-6 h-6 rounded flex items-center justify-center"
-          style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#52525b' }}
+          style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}
         >
           <X size={12} />
         </button>
@@ -200,7 +200,7 @@ export default function OnboardingChecklist() {
               {done ? (
                 <CheckCircle2 size={14} style={{ color: '#10b981', flexShrink: 0 }} />
               ) : (
-                <Circle size={14} style={{ color: '#52525b', flexShrink: 0 }} />
+                <Circle size={14} style={{ color: '#9CA3AF', flexShrink: 0 }} />
               )}
               <div className="flex-1 min-w-0">
                 <div

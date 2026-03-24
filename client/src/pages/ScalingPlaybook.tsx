@@ -163,7 +163,7 @@ export default function ScalingPlaybook() {
             <Rocket size={15} style={{ color: '#7c6af5' }} />
           </div>
           <div>
-            <div className="text-sm font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            <div className="text-sm font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
               Scaling Playbook
             </div>
             <div className="text-xs" style={{ color: '#9CA3AF' }}>
@@ -233,7 +233,7 @@ export default function ScalingPlaybook() {
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className="w-full py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
+          className="w-full py-3 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
           style={{
             background: generating
               ? 'rgba(124,106,245,0.25)'
@@ -309,7 +309,7 @@ export default function ScalingPlaybook() {
         {milestones.length > 0 ? (
           <div className="max-w-3xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-black" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              <h2 className="text-lg font-extrabold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Your Scaling Roadmap
               </h2>
               <button
@@ -349,7 +349,7 @@ export default function ScalingPlaybook() {
                     {/* Timeline line */}
                     <div className="flex flex-col items-center">
                       <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0"
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-extrabold flex-shrink-0"
                         style={{
                           background: `${color}15`,
                           border: `2px solid ${color}`,
@@ -452,7 +452,7 @@ export default function ScalingPlaybook() {
                 <div className="text-5xl">🚀</div>
                 <div className="text-center">
                   <div
-                    className="text-base font-black mb-2"
+                    className="text-base font-extrabold mb-2"
                     style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Scaling Playbook

@@ -226,7 +226,7 @@ export default function SaturationChecker() {
 
   const goldButton: React.CSSProperties = {
     background: '#6366F1',
-    color: '#060608',
+    color: '#FAFAFA',
     fontFamily: "'Bricolage Grotesque', sans-serif",
     fontWeight: 700,
     fontSize: '0.95rem',
@@ -304,7 +304,7 @@ export default function SaturationChecker() {
           </h1>
           <p
             style={{
-              color: '#a1a1aa',
+              color: '#6B7280',
               fontSize: '1.05rem',
               maxWidth: 520,
               margin: '0 auto',
@@ -350,7 +350,7 @@ export default function SaturationChecker() {
                 alignItems: 'center',
               }}
             >
-              <span style={{ color: '#52525b', fontSize: '0.8rem' }}>Recent:</span>
+              <span style={{ color: '#9CA3AF', fontSize: '0.8rem' }}>Recent:</span>
               {recentChecks.map((name) => (
                 <button
                   key={name}
@@ -385,7 +385,7 @@ export default function SaturationChecker() {
                   style={{
                     padding: '0.4rem 0',
                     fontSize: '0.9rem',
-                    color: i < loadingStep ? '#52525b' : i === loadingStep ? '#6366F1' : '#52525b',
+                    color: i < loadingStep ? '#9CA3AF' : i === loadingStep ? '#6366F1' : '#9CA3AF',
                     fontWeight: i === loadingStep ? 600 : 400,
                     opacity: i <= loadingStep ? 1 : 0.3,
                     transition: 'all 0.4s ease',
@@ -499,7 +499,7 @@ export default function SaturationChecker() {
                   >
                     {result.score}
                   </div>
-                  <div style={{ fontSize: '0.7rem', color: '#52525b', marginTop: 2 }}>/ 100</div>
+                  <div style={{ fontSize: '0.7rem', color: '#9CA3AF', marginTop: 2 }}>/ 100</div>
                 </div>
               </div>
 
@@ -527,7 +527,7 @@ export default function SaturationChecker() {
                   {levelConf.label}
                 </span>
               </div>
-              <p style={{ color: '#a1a1aa', fontSize: '0.95rem', margin: '0.5rem 0 0' }}>
+              <p style={{ color: '#6B7280', fontSize: '0.95rem', margin: '0.5rem 0 0' }}>
                 {levelConf.desc}
               </p>
 
@@ -538,7 +538,7 @@ export default function SaturationChecker() {
                     display: 'flex',
                     justifyContent: 'space-between',
                     fontSize: '0.7rem',
-                    color: '#52525b',
+                    color: '#9CA3AF',
                     marginBottom: 6,
                   }}
                 >
@@ -594,7 +594,7 @@ export default function SaturationChecker() {
                   Window of Opportunity
                 </div>
                 <div
-                  style={{ color: '#a1a1aa', lineHeight: 1.7, fontSize: '0.95rem' }}
+                  style={{ color: '#6B7280', lineHeight: 1.7, fontSize: '0.95rem' }}
                   dangerouslySetInnerHTML={{ __html: renderMarkdown(result.opportunity) }}
                 />
               </div>
@@ -672,7 +672,7 @@ export default function SaturationChecker() {
                 >
                   {card.title}
                 </h3>
-                <p style={{ color: '#a1a1aa', fontSize: '0.85rem', lineHeight: 1.6, margin: 0 }}>
+                <p style={{ color: '#6B7280', fontSize: '0.85rem', lineHeight: 1.6, margin: 0 }}>
                   {card.desc}
                 </p>
               </div>

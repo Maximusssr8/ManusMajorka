@@ -151,7 +151,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
           <div className="flex items-center gap-2 mb-1">
             <Map className="w-4 h-4" style={{ color: '#6366F1' }} />
             <h1
-              className="font-black text-sm"
+              className="font-extrabold text-sm"
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
             >
               Market Map
@@ -230,7 +230,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
           <Button
             onClick={handleGenerate}
             disabled={loading || !niche.trim()}
-            className="w-full font-black"
+            className="w-full font-extrabold"
             style={{
               background: loading
                 ? 'rgba(99,102,241,0.3)'
@@ -320,7 +320,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
               <div className="flex items-center justify-between">
                 <div>
                   <h2
-                    className="text-lg font-black"
+                    className="text-lg font-extrabold"
                     style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}
                   >
                     {niche} — Market Positioning Map
@@ -434,7 +434,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                     }}
                   >
                     <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black cursor-default transition-transform hover:scale-125"
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold cursor-default transition-transform hover:scale-125"
                       style={{
                         background: c.color,
                         color: '#FAFAFA',
@@ -469,7 +469,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                     }}
                   >
                     <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black border-2 cursor-default transition-transform hover:scale-125"
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-extrabold border-2 cursor-default transition-transform hover:scale-125"
                       style={{
                         background: '#F0F0F0',
                         borderColor: '#ffffff',
@@ -534,7 +534,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                   }}
                 >
                   <h3
-                    className="text-xs font-black uppercase tracking-widest mb-3"
+                    className="text-xs font-extrabold uppercase tracking-widest mb-3"
                     style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Opportunity Zone
@@ -561,7 +561,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                 >
                   <div className="flex items-center justify-between mb-3">
                     <h3
-                      className="text-xs font-black uppercase tracking-widest"
+                      className="text-xs font-extrabold uppercase tracking-widest"
                       style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                     >
                       Key Insights
@@ -594,7 +594,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
               {/* Competitor details */}
               <div>
                 <h3
-                  className="text-xs font-black uppercase tracking-widest mb-3"
+                  className="text-xs font-extrabold uppercase tracking-widest mb-3"
                   style={{ color: '#6B7280', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Competitor Details
@@ -608,7 +608,7 @@ Include 4-7 real competitors. Price and quality are 1-10 scales (1=lowest, 10=hi
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <div
-                          className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-black"
+                          className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-extrabold"
                           style={{ background: c.color, color: '#FAFAFA' }}
                         >
                           {c.name.charAt(0)}

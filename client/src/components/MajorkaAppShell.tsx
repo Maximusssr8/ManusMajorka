@@ -201,7 +201,7 @@ function NotificationBell() {
           borderRadius: 8,
           background: open ? 'rgba(99,102,241,0.1)' : '#F9FAFB',
           border: open ? '1px solid rgba(99,102,241,0.3)' : '1px solid #F9FAFB',
-          color: '#a1a1aa',
+          color: '#6B7280',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -252,7 +252,7 @@ function NotificationBell() {
           overflow: 'hidden',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', borderBottom: '1px solid #E5E7EB' }}>
-            <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: '#111827' }}>Notifications</span>
+            <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: '#FAFAFA' }}>Notifications</span>
             {unread > 0 && (
               <button onClick={markAllRead} style={{ fontSize: 11, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
                 Mark all read
@@ -272,14 +272,14 @@ function NotificationBell() {
                 {!readIds.has(n.id) && (
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#6366F1', flexShrink: 0, marginTop: 5 }} />
                 )}
-                <p style={{ fontSize: 12, color: readIds.has(n.id) ? '#52525b' : '#a1a1aa', lineHeight: 1.5, margin: 0, fontFamily: 'DM Sans, sans-serif', paddingLeft: readIds.has(n.id) ? 16 : 0 }}>
+                <p style={{ fontSize: 12, color: readIds.has(n.id) ? '#9CA3AF' : '#6B7280', lineHeight: 1.5, margin: 0, fontFamily: 'DM Sans, sans-serif', paddingLeft: readIds.has(n.id) ? 16 : 0 }}>
                   {n.text}
                 </p>
               </div>
             ))}
           </div>
           {unread === 0 && (
-            <div style={{ padding: '12px 16px', textAlign: 'center', fontSize: 12, color: '#52525b' }}>
+            <div style={{ padding: '12px 16px', textAlign: 'center', fontSize: 12, color: '#9CA3AF' }}>
               All caught up ✓
             </div>
           )}
@@ -629,7 +629,7 @@ export default function MajorkaAppShell({ children }: Props) {
           style={{ background: 'none', border: 'none', cursor: 'pointer' }}
         >
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0"
+            className="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-sm flex-shrink-0"
             style={{
               background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
               color: '#0a0a0a',
@@ -682,7 +682,7 @@ export default function MajorkaAppShell({ children }: Props) {
             className="px-1.5 py-0.5 rounded text-xs"
             style={{
               background: '#F9FAFB',
-              color: '#52525b',
+              color: '#9CA3AF',
               fontSize: 9,
               fontFamily: 'DM Mono, monospace',
             }}
@@ -789,7 +789,7 @@ export default function MajorkaAppShell({ children }: Props) {
                 />
               ) : (
                 <div
-                  className="rounded-full flex items-center justify-center font-black flex-shrink-0"
+                  className="rounded-full flex items-center justify-center font-extrabold flex-shrink-0"
                   style={{
                     width: 32, height: 32,
                     background: '#EEF2FF',
@@ -816,7 +816,7 @@ export default function MajorkaAppShell({ children }: Props) {
                     className="flex-shrink-0"
                     style={{
                       background: isPro ? '#6366F1' : '#E5E7EB',
-                      color: isPro ? 'white' : '#71717a',
+                      color: isPro ? 'white' : '#6B7280',
                       fontFamily: "'Bricolage Grotesque', sans-serif",
                       fontWeight: 700,
                       fontSize: 10,
@@ -847,7 +847,7 @@ export default function MajorkaAppShell({ children }: Props) {
               style={{
                 borderRadius: 6,
                 background: 'transparent',
-                color: '#52525b',
+                color: '#9CA3AF',
                 border: 'none',
                 cursor: 'pointer',
                 fontFamily: 'DM Sans, sans-serif',
@@ -858,7 +858,7 @@ export default function MajorkaAppShell({ children }: Props) {
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-                (e.currentTarget as HTMLButtonElement).style.color = '#52525b';
+                (e.currentTarget as HTMLButtonElement).style.color = '#9CA3AF';
               }}
             >
               <LogOut size={12} />
@@ -885,7 +885,7 @@ export default function MajorkaAppShell({ children }: Props) {
                     }}
                     className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs transition-all"
                     style={{
-                      color: '#a1a1aa',
+                      color: '#6B7280',
                       cursor: 'pointer',
                       background: 'transparent',
                       border: 'none',
@@ -904,7 +904,7 @@ export default function MajorkaAppShell({ children }: Props) {
                     }}
                     className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs transition-all"
                     style={{
-                      color: '#a1a1aa',
+                      color: '#6B7280',
                       cursor: 'pointer',
                       background: 'transparent',
                       border: 'none',
@@ -923,7 +923,7 @@ export default function MajorkaAppShell({ children }: Props) {
                     }}
                     className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs transition-all"
                     style={{
-                      color: '#a1a1aa',
+                      color: '#6B7280',
                       cursor: 'pointer',
                       background: 'transparent',
                       border: 'none',
@@ -990,14 +990,14 @@ export default function MajorkaAppShell({ children }: Props) {
               className="flex items-center gap-3 px-4 py-3"
               style={{ borderBottom: '1px solid #E5E7EB' }}
             >
-              <Search size={16} style={{ color: '#52525b', flexShrink: 0 }} />
+              <Search size={16} style={{ color: '#9CA3AF', flexShrink: 0 }} />
               <input
                 ref={searchInputRef}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search tools..."
                 className="flex-1 bg-transparent outline-none text-sm"
-                style={{ color: '#111827', fontFamily: 'DM Sans, sans-serif' }}
+                style={{ color: '#FAFAFA', fontFamily: 'DM Sans, sans-serif' }}
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Escape') {
@@ -1033,7 +1033,7 @@ export default function MajorkaAppShell({ children }: Props) {
                       background: 'transparent',
                       border: 'none',
                       cursor: 'pointer',
-                      color: '#111827',
+                      color: '#FAFAFA',
                     }}
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.background = 'rgba(99,102,241,0.06)')
@@ -1053,18 +1053,18 @@ export default function MajorkaAppShell({ children }: Props) {
                       >
                         {tool.label}
                       </div>
-                      <div className="text-xs truncate" style={{ color: '#52525b' }}>
+                      <div className="text-xs truncate" style={{ color: '#9CA3AF' }}>
                         {tool.description}
                       </div>
                     </div>
-                    <ArrowUpRight size={12} style={{ color: '#52525b', flexShrink: 0 }} />
+                    <ArrowUpRight size={12} style={{ color: '#9CA3AF', flexShrink: 0 }} />
                   </button>
                 ))}
               </div>
             )}
             {searchQuery && searchResults.length === 0 && (
               <div className="px-4 py-6 text-center">
-                <p className="text-sm" style={{ color: '#52525b' }}>
+                <p className="text-sm" style={{ color: '#9CA3AF' }}>
                   No tools found for "{searchQuery}"
                 </p>
               </div>
@@ -1132,7 +1132,7 @@ export default function MajorkaAppShell({ children }: Props) {
           </button>
           <div className="flex items-center gap-2 flex-1">
             <div
-              className="w-6 h-6 rounded-md flex items-center justify-center font-black text-xs"
+              className="w-6 h-6 rounded-md flex items-center justify-center font-extrabold text-xs"
               style={{
                 background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
                 color: '#fff',
@@ -1143,7 +1143,7 @@ export default function MajorkaAppShell({ children }: Props) {
             </div>
             <span
               className="font-bold text-sm uppercase tracking-widest"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#111827', letterSpacing: '0.1em' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#FAFAFA', letterSpacing: '0.1em' }}
             >
               MAJORKA
             </span>
