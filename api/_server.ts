@@ -340,7 +340,7 @@ app.get("/api/creators", async (req: Request, res: Response) => {
   try {
     const niche = String(req.query.niche || '');
     const region = String(req.query.region || '');
-    const limit = Math.min(50, parseInt(String(req.query.limit || '20')));
+    const limit = Math.min(200, parseInt(String(req.query.limit || '100')));
 
     const SURL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://ievekuazsjbdrltsdksn.supabase.co';
     const SKEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';

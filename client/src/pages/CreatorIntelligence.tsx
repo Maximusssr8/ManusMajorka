@@ -163,7 +163,7 @@ export default function CreatorIntelligence() {
           {(searchQ || filterNiche || filterRegion || filterEngagement) && (
             <button onClick={() => { setSearchQ(''); setFilterNiche(''); setFilterRegion(''); setFilterEngagement(''); }}
               style={{ width: '100%', marginTop: 8, height: 30, background: 'none', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 11, color: '#9CA3AF', cursor: 'pointer' }}>
-              \u2715 Reset filters
+              ✕ Reset filters
             </button>
           )}
         </div>
@@ -206,7 +206,7 @@ export default function CreatorIntelligence() {
                     <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 8 }}>
                       <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: '#EEF2FF', color: '#6366F1' }}>{c.niche}</span>
                       <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: eng.bg, color: eng.color }}>{c.engagement_signal}</span>
-                      {c.contact_hint && <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: '#ECFDF5', color: '#065F46' }}>Has contact</span>}
+                      {c.contact_hint && <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: '#ECFDF5', color: '#065F46' }}>Find on TikTok</span>}
                     </div>
                     {c.promoting_products.length > 0 && (
                       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const, marginBottom: 10 }}>

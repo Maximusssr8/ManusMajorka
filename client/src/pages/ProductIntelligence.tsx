@@ -105,7 +105,7 @@ export default function ProductIntelligence() {
               <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                 <span>{t === 'trending' ? '🔥 Trending Today' : t === 'database' ? '🗄 Full Database' : '🔍 Scout'}</span>
                 {tab === t && <span style={{ fontSize: 9, fontWeight: 600, color: t === 'trending' ? '#F59E0B' : t === 'database' ? '#6366F1' : '#059669', letterSpacing: '0.04em' }}>
-                  {t === 'trending' ? 'TOP 200 · HIGHEST VELOCITY' : t === 'database' ? '595+ PRODUCTS · ALL NICHES' : 'AI-POWERED SEARCH'}
+                  {t === 'trending' ? 'TOP 200 · HIGHEST VELOCITY' : t === 'database' ? '145+ PRODUCTS · ALL NICHES' : 'AI-POWERED SEARCH'}
                 </span>}
               </span>
             </button>
@@ -116,12 +116,12 @@ export default function ProductIntelligence() {
       <div style={{ padding: '0 24px 60px', maxWidth: 1200, margin: '0 auto' }}>
         {tab === 'trending' && (
           <Suspense fallback={<div style={{ textAlign: 'center', padding: 60, color: C.muted }}>Loading...</div>}>
-            <FullDatabase presetFilter="trending" />
+            <FullDatabase key="trending" presetFilter="trending" />
           </Suspense>
         )}
         {tab === 'database' && (
           <Suspense fallback={<div style={{ textAlign: 'center', padding: 60, color: C.muted }}>Loading...</div>}>
-            <FullDatabase />
+            <FullDatabase key="database" presetFilter="all" />
           </Suspense>
         )}
         {tab === 'scout' && (
