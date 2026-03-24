@@ -9,7 +9,6 @@ import { supabase } from '@/lib/supabase';
 import { Copy } from 'lucide-react';
 import { Link, useParams } from 'wouter';
 import { SEO } from '@/components/SEO';
-import { supabase } from '@/lib/supabase';
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const C = {

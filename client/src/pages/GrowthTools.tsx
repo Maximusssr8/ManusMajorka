@@ -426,6 +426,7 @@ function HashtagTool() {
 
 // ── Main export ────────────────────────────────────────────────────────────
 export default function GrowthTools() {
+  const isMobile = useIsMobile();
   return (
     <div style={{ background: '#FAFAFA', minHeight: '100vh' }}>
       {/* Header */}

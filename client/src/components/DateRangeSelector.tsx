@@ -2,6 +2,7 @@
  * DateRangeSelector — pill-button date range picker for Majorka analytics pages
  */
 
+export type Range = DateRange;
 export type DateRange = 'today' | '7d' | '30d' | '90d';
 
 const OPTIONS: { label: string; value: DateRange }[] = [

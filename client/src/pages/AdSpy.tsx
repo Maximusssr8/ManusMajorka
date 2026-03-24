@@ -1,7 +1,4 @@
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { useChat } from '@ai-sdk/react';
-import type { UIMessage } from 'ai';
-import { DefaultChatTransport } from 'ai';
 import {
   Check,
   ChevronDown,
@@ -327,7 +324,7 @@ function AdSpyContent() {
   const [result, setResult] = useState<AdsResult | null>(null);
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState('');
-  const [waitingForResponse, setWaitingForResponse] = useState(false);
+  
   const [lastSearchInput, setLastSearchInput] = useState('');
 
   // Pre-fill from active product if nothing typed
@@ -338,65 +335,47 @@ function AdSpyContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeProduct]);
 
-  const { sendMessage, status, messages } = useChat({
-    transport: new DefaultChatTransport({
-      api: '/api/chat',
-      prepareSendMessagesRequest({ messages }) {
-        return {
-          body: {
-            messages: messages.map((m: UIMessage) => ({
-              role: m.role,
-              content: m.parts
-                .filter((p: any) => p.type === 'text')
-                .map((p: any) => p.text)
-                .join(''),
-            })),
-            systemPrompt: AD_SPY_SYSTEM_PROMPT,
-          },
-        };
-      },
-    }),
-  });
 
-  useEffect(() => {
-    if (status === 'streaming' || status === 'submitted') setWaitingForResponse(true);
-  }, [status]);
-
-  useEffect(() => {
-    if (status !== 'ready' || !generating || !waitingForResponse) return;
-    const lastMsg = messages[messages.length - 1];
-    if (lastMsg?.role === 'assistant') {
-      const text = lastMsg.parts
-        .filter((p: any) => p.type === 'text')
-        .map((p: any) => p.text)
-        .join('');
+  const doSearch = async (query: string) => {
+    if (!query.trim()) return;
+    setGenerating(true);
+    setGenError('');
+    setResult(null);
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          stream: false,
+          messages: [{ role: 'user', content: `Find winning ads for: ${query}` }],
+          systemPrompt: AD_SPY_SYSTEM_PROMPT,
+        }),
+      });
+      const data = await res.json();
+      const text = data.response || data.message || data.content || '';
       const parsed = parseAds(text);
       if (parsed) {
         setResult(parsed);
       } else {
         setGenError('Could not parse ad results. Please try again.');
       }
-    } else {
-      setGenError('No response received. Please try again.');
+    } catch {
+      setGenError('Network error. Please try again.');
+    } finally {
+      setGenerating(false);
     }
-    setGenerating(false);
-    setWaitingForResponse(false);
-  }, [status, generating, waitingForResponse, messages]);
+  };
 
   const handleSearch = useCallback(async () => {
     if (!searchInput.trim()) {
       toast.error('Enter a niche or keyword first');
       return;
     }
-    setGenerating(true);
-    setGenError('');
-    setResult(null);
     setLastSearchInput(searchInput.trim());
-    sendMessage({ text: `Find winning ads for: ${searchInput.trim()}` });
-    setWaitingForResponse(true);
-  }, [searchInput, sendMessage]);
+    void doSearch(searchInput.trim());
+  }, [searchInput]);
 
-  const isLoading = generating || status === 'streaming' || status === 'submitted';
+  const isLoading = generating;
 
   return (
     <div

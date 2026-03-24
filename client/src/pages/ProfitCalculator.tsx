@@ -76,6 +76,7 @@ function ProfitGauge({ value, color }: { value: number; color: string }) {
 
 // ── Component ───────────────────────────────────────────────────────────────
 export default function ProfitCalculator() {
+  const isMobile = useIsMobile();
   const { region } = useRegion();
   // Inputs
   const [productCost, setProductCost] = useState(12);

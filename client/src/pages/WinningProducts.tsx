@@ -1592,6 +1592,7 @@ function FullReportModal({
   onToggleWatchlist: (p: WinningProduct) => void;
   allProducts: WinningProduct[];
 }) {
+  const isMobile = useIsMobile();
   const weekData = useMemo(
     () => generateWeekData(product.est_daily_revenue_aud ?? 500, product.id),
     [product.id, product.est_daily_revenue_aud],
@@ -2349,6 +2350,7 @@ function TrendingNowBar({ products, onSelect }: { products: WinningProduct[]; on
 // ── Market Signals Bar ────────────────────────────────────────────────────────
 
 function MarketSignalsBar({ products }: { products: WinningProduct[] }) {
+  const isMobile = useIsMobile();
   const signals = useMemo(() => {
     const sigs: string[] = [];
 
@@ -2904,6 +2906,7 @@ function CardGrid({
 // ── Main Component ────────────────────────────────────────────────────────────
 
 function WinningProducts() {
+  const isMobile = useIsMobile();
   const { session, user } = useAuth();
   const token = session?.access_token;
   const userId = session?.user?.id;

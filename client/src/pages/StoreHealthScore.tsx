@@ -102,7 +102,6 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
 }
 
 function LoadingAnimation({ storeUrl }: { storeUrl: string }) {
-  const { session } = useAuth();
     const [step, setStep] = useState(0);
 
   // CSS animation via useEffect-driven step progression
@@ -520,6 +519,7 @@ function ResultsScreen({ result, storeUrl }: { result: HealthScoreResult; storeU
 }
 
 export default function StoreHealthScore() {
+  const { session } = useAuth();
   const [storeUrl, setStoreUrl] = useState('');
   const [phase, setPhase] = useState<'input' | 'loading' | 'result'>('input');
   const [result, setResult] = useState<HealthScoreResult | null>(null);

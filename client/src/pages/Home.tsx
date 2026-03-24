@@ -1187,7 +1187,7 @@ export default function Home() {
 
       {/* ═══ NAV ═══════════════════════════════════════════════════════════ */}
       <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(250,250,250,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(229,231,235,0.8)', boxShadow: navShadow ? '0 1px 12px #E5E7EB' : 'none', transition: 'box-shadow 0.3s' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? '0 16px' : '0 24px', padding: '0 max(calc((100vw - 1200px) / 2), 24px)', height: 64, display: 'flex', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', flexDirection: isMobile ? 'column' as const : 'row' as const }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? '0 16px' : '0 max(calc((100vw - 1200px) / 2), 24px)', height: 64, display: 'flex', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', flexDirection: isMobile ? 'column' as const : 'row' as const }}>
           {/* Left: wordmark */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 24, height: 24, borderRadius: 6, background: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: '#fff' }}>M</div>

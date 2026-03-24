@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/hooks/useIsMobile';
 import JSZip from 'jszip';
 import {
   AlertTriangle,
@@ -52,6 +53,7 @@ async function getVscDarkPlus() {
 getVscDarkPlus();
 // Synchronous fallback — populated after first async load
 function useVscDarkPlus() {
+  const isMobile = useIsMobile();
   const [style, setStyle] = useState<any>(_vscDarkPlus);
   useEffect(() => { getVscDarkPlus().then(setStyle); }, []);
   return style;

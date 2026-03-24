@@ -212,6 +212,7 @@ interface FullDatabaseProps {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps) {
+  const isMobile = useIsMobile();
   // Use growth-rate sort for trending, score for full database
   const { region } = useRegion();
   const [products, setProducts] = useState<Product[]>([]);

@@ -214,9 +214,6 @@ function renderLine(line: string, idx: number) {
   );
 
   return (
-    <>
-      <title>Demo Dashboard — Majorka</title>
-      <meta name="robots" content="noindex, nofollow" />
     <div key={idx} style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.7, marginBottom: 2 }}>
       {rendered}
     </div>
@@ -296,9 +293,6 @@ export default function DemoWidget() {
   const currentLines = RESPONSE_LINES[promptIdx];
 
   return (
-    <>
-      <title>Demo Dashboard — Majorka</title>
-      <meta name="robots" content="noindex, nofollow" />
     <div style={{ maxWidth: 620, width: '100%', minWidth: 0 }}>
       <style>{DEMO_STYLES}</style>
 
