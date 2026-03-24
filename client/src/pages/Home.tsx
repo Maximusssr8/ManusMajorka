@@ -535,7 +535,7 @@ function FloatingCTA() {
       animation: 'float-cta 0.4s ease-out',
     }} className="floating-cta-bar">
       <span style={{ fontSize: 14, fontWeight: 600, color: C.text, flex: 1 }}>
-        <span className="hide-mobile">🔥 Join 2,400+ AU sellers · Find your first winner →</span>
+        <span className="hide-mobile">🔥 Join 2,400+ AU dropshippers · Find your first winner →</span>
         <span className="hide-desktop">Find your winner →</span>
       </span>
       <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', borderRadius: 10, padding: '10px 22px', fontFamily: syne, fontWeight: 800, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
@@ -834,6 +834,7 @@ function getScoreStyle(score: number) {
 }
 
 function DemoSection() {
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState<'products' | 'builder' | 'spy'>('products');
   const brico = "'Bricolage Grotesque', sans-serif";
 
@@ -1177,7 +1178,7 @@ export default function Home() {
     <div style={{ background: C.bg, color: C.text, fontFamily: dm, overflowX: 'hidden', minHeight: '100vh' }}>
       <SEO
         title="Majorka — AI Ecommerce OS for Dropshippers"
-        description="Find winning products, build Shopify stores and launch AU dropshipping campaigns with AI. Trusted by 2,400+ AU sellers."
+        description="Find winning products, build Shopify stores and launch AU dropshipping campaigns with AI. Trusted by 2,400+ AU dropshippers."
         path="/"
         ogImage="/og-image.svg"
       />

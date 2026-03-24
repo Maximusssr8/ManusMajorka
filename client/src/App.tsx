@@ -293,45 +293,64 @@ function Router() {
 function LegalPage({ title, slug }: { title: string; slug: string }) {
   const content: Record<string, string[]> = {
     privacy: [
-      'Majorka Pty Ltd ("we", "us") is committed to protecting your privacy in accordance with the Australian Privacy Act 1988.',
-      'We collect personal information such as name, email, and usage data to provide and improve our service.',
-      'Your data is stored securely and never sold to third parties. We use it solely to operate the platform and communicate with you.',
-      'You may request access to, correction of, or deletion of your personal data by emailing hello@majorka.io.',
-      'We use cookies and analytics tools (PostHog) to understand how users interact with Majorka. You may opt out at any time.',
-      'By using Majorka, you consent to this policy. We may update it — continued use constitutes acceptance.',
+      'Majorka Pty Ltd ("Majorka", "we", "us", "our") is committed to protecting your personal information in accordance with the Australian Privacy Act 1988 (Cth) and the Australian Privacy Principles (APPs).',
+      'We collect personal information including your name, email address, billing details, usage data, and product research activity. This information is collected when you create an account, purchase a subscription, or interact with our platform.',
+      'We use your information to: provide and improve the Majorka platform; process payments via Stripe; send product updates and marketing communications (with your consent); analyse platform usage via PostHog session recording and analytics; comply with legal obligations; and prevent fraud.',
+      'Third-party processors: We share limited data with trusted service providers necessary to operate the platform. These include Stripe (payments, PCI-DSS compliant, USA), Supabase (database hosting, Australia/USA), Vercel (hosting infrastructure, USA), PostHog (product analytics, EU/USA), and Anthropic (AI processing, USA). Each provider is contractually bound to handle your data in accordance with applicable privacy laws.',
+      'Data retention: We retain your account data for as long as your account is active, plus 7 years for financial records as required by Australian law. You may request deletion of non-financial data at any time.',
+      'International data transfers: Some of our processors store data outside Australia. Where data is transferred internationally, we ensure adequate protections are in place consistent with the APPs.',
+      'Your rights: You have the right to access, correct, or request deletion of your personal data. You may also withdraw marketing consent at any time. To exercise these rights, email privacy@majorka.io.',
+      'Cookies: We use essential cookies (authentication, session management), analytics cookies (PostHog), and preference cookies (theme, region). You can opt out of analytics cookies via your browser settings or our cookie preferences.',
+      'Data security: We implement industry-standard security including TLS encryption in transit, AES-256 encryption at rest, access controls, and regular security audits.',
+      'Data breach notification: In the event of an eligible data breach affecting your information, we will notify you and the OAIC as required by the Notifiable Data Breaches scheme.',
+      'Questions or complaints: Contact us at privacy@majorka.io. If you are not satisfied with our response, you may lodge a complaint with the Office of the Australian Information Commissioner (oaic.gov.au).',
+      'Last updated: March 2026. This policy may be updated — we will notify you of material changes via email.',
     ],
     terms: [
-      'These Terms of Service govern your use of Majorka (majorka.io), operated by Majorka Pty Ltd (ABN pending), Gold Coast, QLD, Australia.',
-      'By creating an account, you agree to use the platform lawfully and not to misuse AI tools, resell access, or reverse-engineer the service.',
-      'Subscription fees are charged in AUD. Cancellations take effect at the end of the current billing period. No refunds for partial months.',
-      'Majorka provides AI-generated content for informational purposes. We do not guarantee specific business outcomes.',
-      'Australian Consumer Law applies. Nothing in these terms limits your rights under the Competition and Consumer Act 2010.',
-      'We may suspend accounts that breach these terms. For disputes, contact hello@majorka.io before seeking legal remedies.',
+      'These Terms of Service ("Terms") form a legally binding agreement between you ("User") and Majorka Pty Ltd ("Majorka"), Gold Coast, QLD, Australia. By creating an account or using the platform at majorka.io, you agree to these Terms.',
+      'Services: Majorka provides an AI-powered ecommerce intelligence and product research platform for dropshippers. We reserve the right to modify, suspend, or discontinue features at any time with reasonable notice.',
+      'Eligibility: You must be 18 years or older and have legal capacity to enter contracts in your jurisdiction. By registering, you confirm you meet these requirements.',
+      'Acceptable use: You agree not to: reverse engineer, scrape, or resell access to Majorka; use the platform for illegal purposes; share account credentials; generate content that violates third-party rights; or attempt to circumvent our access controls or paywalls.',
+      'Subscriptions and billing: Subscriptions are billed monthly in AUD via Stripe. Your subscription renews automatically unless cancelled before the renewal date. Prices may change with 30 days notice. You are responsible for all charges on your account.',
+      'AI-generated content: Majorka uses AI to generate product insights, ad copy, trend analysis, and other content. This content is provided for informational purposes only. We do not guarantee specific business outcomes, revenue, or profits from using AI-generated recommendations.',
+      'Intellectual property: Majorka and its underlying technology, data, and design are owned by Majorka Pty Ltd. AI-generated outputs created using our platform are provided to you for your business use. You retain ownership of data you upload to the platform.',
+      'Limitation of liability: To the maximum extent permitted by law, Majorka is not liable for indirect, incidental, or consequential damages. Our total liability to you in any month shall not exceed the subscription fees paid in that month.',
+      'Australian Consumer Law: Nothing in these Terms limits your rights under the Competition and Consumer Act 2010 (Cth) or Australian Consumer Law. These statutory rights apply regardless of any other provision in these Terms.',
+      'Account termination: We may suspend or terminate your account for breach of these Terms, non-payment, or abuse of the platform. You may cancel your account at any time via account settings. Termination does not entitle you to a refund except as provided in our Refund Policy.',
+      'Dispute resolution: For disputes, please contact hello@majorka.io first. We commit to responding within 5 business days. If unresolved, disputes are governed by the laws of Queensland, Australia, and subject to the exclusive jurisdiction of Queensland courts.',
+      'Privacy: Our Privacy Policy forms part of these Terms and governs how we handle your personal information.',
+      'Updates: We may update these Terms. Material changes will be communicated via email with 14 days notice. Continued use after the notice period constitutes acceptance.',
+      'Contact: Majorka Pty Ltd · Gold Coast, QLD, Australia · hello@majorka.io',
     ],
     'cookie-policy': [
       'Majorka uses cookies and similar technologies to provide, protect, and improve our service.',
-      'Essential cookies: Required for core functionality — authentication, session management, and security. These cannot be disabled.',
-      'Analytics cookies: We use PostHog to understand how users interact with our platform. This data helps us improve the product. You may opt out via your browser settings.',
-      'We do not use advertising cookies or sell cookie data to third parties.',
-      'By continuing to use Majorka, you consent to our use of cookies as described in this policy.',
-      'For questions about our cookie practices, contact hello@majorka.io.',
+      'Essential cookies: Required for core functionality — authentication, session management, security, and remembering your preferences. These cannot be disabled without affecting platform functionality.',
+      'Analytics cookies: We use PostHog to understand how users interact with our platform. This data is used to improve features and user experience. PostHog data is pseudonymised and stored in the EU. You may opt out via your browser settings or by emailing privacy@majorka.io.',
+      'Preference cookies: We store your theme preference (light/dark), selected region, and display settings to provide a consistent experience.',
+      'We do not use advertising cookies, tracking pixels, or sell cookie data to third parties.',
+      'Cookie consent: By continuing to use Majorka, you consent to our use of essential cookies. For analytics cookies, you consent by not opting out via browser settings.',
+      'Managing cookies: You can control and delete cookies via your browser settings. Note that disabling essential cookies will affect platform functionality.',
+      'For questions about our cookie practices, contact privacy@majorka.io.',
     ],
     'refund-policy': [
-      'We offer a 7-day money-back guarantee on your first subscription payment if you are not satisfied with Majorka.',
-      'To request a refund, email hello@majorka.io within 7 days of your first charge with your account email and reason.',
-      'Refunds are processed within 5-10 business days to your original payment method.',
-      'Subsequent billing periods are non-refundable unless required by Australian Consumer Law.',
-      'If you experience a technical issue preventing you from using the platform, contact us immediately — we will resolve it or issue a credit.',
-      'This policy does not affect your rights under the Australian Consumer Law.',
+      'Majorka offers a 14-day money-back guarantee on your first subscription payment. If you are not satisfied with our platform for any reason within the first 14 days, we will refund your payment in full — no questions asked.',
+      'To request a refund: Email hello@majorka.io within 14 days of your first charge. Include your account email address and the payment reference number (from your Stripe receipt). We will process your refund within 2 business days.',
+      'Refunds are credited to your original payment method within 5-10 business days depending on your bank or card issuer.',
+      'After the 14-day guarantee period: Subscription fees for subsequent billing periods are non-refundable, except where required by Australian Consumer Law. We do not offer pro-rata refunds for partial months.',
+      'Exceptions: If you experience a verified technical issue that prevented you from using the platform during your subscription period, contact us promptly. We will investigate and issue a credit or refund at our discretion.',
+      'Annual subscriptions (if applicable): Annual plans include a 30-day money-back guarantee from the date of purchase.',
+      'Chargebacks: If you initiate a chargeback rather than contacting us first, your account will be suspended pending resolution. We always prefer to resolve disputes directly.',
+      'Australian Consumer Law: This refund policy does not limit any rights you have under the Australian Consumer Law, including rights relating to major failures or goods/services not as described.',
+      'To request a refund or for billing questions, contact hello@majorka.io.',
     ],
   };
-  const paragraphs = content[slug] || [];
+    const paragraphs = content[slug] || [];
   return (
     <div style={{ minHeight: '100vh', background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif', padding: '80px 24px' }}>
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
         <a href="/" style={{ color: '#6366F1', fontSize: 13, textDecoration: 'none', display: 'inline-block', marginBottom: 32 }}>← Back to Majorka</a>
         <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 36, fontWeight: 800, marginBottom: 8, color: '#0A0A0A' }}>{title}</h1>
-        <p style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 48 }}>Last updated: March 2025 · Majorka Pty Ltd · Gold Coast, QLD, Australia</p>
+        <p style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 48 }}>Last updated: March 2026 · Majorka Pty Ltd · Gold Coast, QLD, Australia</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {paragraphs.map((p, i) => (
             <p key={i} style={{ fontSize: 15, lineHeight: 1.8, color: '#6B7280', borderLeft: '2px solid rgba(99,102,241,0.2)', paddingLeft: 20 }}>{p}</p>

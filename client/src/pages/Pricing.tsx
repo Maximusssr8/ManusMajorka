@@ -1395,7 +1395,7 @@ export default function Pricing() {
           Australia {'\uD83C\uDDE6\uD83C\uDDFA'}
         </p>
         <p style={{ color: C.muted, fontSize: 11, marginTop: 4 }}>
-          ABN: [pending] &middot; Australian Consumer Law applies
+          Australian Consumer Law applies · Gold Coast, QLD
         </p>
       </footer>
     </div>

@@ -108,7 +108,7 @@ export default function DropshippingAustralia() {
     <div style={{ background: C.bg, minHeight: '100vh', color: C.text, fontFamily: dmSans }}>
       <SEO
         title="Dropshipping Australia 2025 — Find Winning Products with AI | Majorka"
-        description="The #1 AI platform for Australian dropshippers. Find winning products, source suppliers, and build stores in minutes. Join 2,400+ AU sellers."
+        description="The #1 AI platform for Australian dropshippers. Find winning products, source suppliers, and build stores in minutes. Join 2,400+ AU dropshippers."
         path="/dropshipping-australia"
       />
 
@@ -154,7 +154,7 @@ export default function DropshippingAustralia() {
               See Top 47 Products
             </Link>
           </div>
-          <p style={{ color: C.muted, fontSize: 12, marginTop: 16 }}>No credit card required · 2,400+ AU sellers · Free tier forever</p>
+          <p style={{ color: C.muted, fontSize: 12, marginTop: 16 }}>No credit card required · 2,400+ AU dropshippers · Free tier forever</p>
         </section>
 
         {/* ── STATS STRIP ── */}
