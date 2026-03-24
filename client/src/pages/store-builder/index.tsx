@@ -351,6 +351,7 @@ export default function StoreBuilder() {
   const [buildState, setBuildState] = useState<'idle' | 'building' | 'done'>('idle');
   const [buildStep, setBuildStep] = useState(0);
   const [shopifyModal, setShopifyModal] = useState(false);
+  const [downloadToast, setDownloadToast] = useState<string | null>(null);
   const [shopDomain, setShopDomain] = useState('');
   const [shopDomainError, setShopDomainError] = useState('');
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
@@ -971,10 +972,25 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
                   </button>
                 </div>
                 <button
-                  onClick={() => {
+                  onClick={async () => {
+                    // Use cached preview HTML if available, else fetch fresh
+                    let html = previewHtml;
                     const tpl = TEMPLATES.find(t => t.id === selectedTemplate);
-                    if (tpl) {
-                      navigator.clipboard.writeText(`<!-- ${storeName || tpl.name} Store \u2014 Built with Majorka -->\n<!-- Template: ${tpl.name} | Niche: ${tpl.niche} -->`);
+                    if (!html && tpl) {
+                      setDownloadToast('⏳ Fetching HTML…');
+                      try {
+                        const res = await fetch('/api/store-builder/preview', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ template: selectedTemplate, storeName: storeName || tpl.name + ' Store', storeTagline: storeTagline || 'Trending products, fast delivery', niche: NICHES.find(n => n.id === selectedNiche)?.label || customNiche || 'General', primaryColor: tpl.accentColor }),
+                        });
+                        html = await res.text();
+                      } catch { setDownloadToast('❌ Could not fetch HTML'); setTimeout(() => setDownloadToast(null), 3000); return; }
+                    }
+                    if (html) {
+                      await navigator.clipboard.writeText(html);
+                      setDownloadToast('📋 Copied to clipboard! (' + Math.round(html.length / 1024) + 'KB)');
+                      setTimeout(() => setDownloadToast(null), 3500);
                     }
                   }}
                   style={{ marginTop: 16, background: 'none', border: 'none', color: '#9CA3AF', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
@@ -986,6 +1002,13 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
           </div>
         )}
       </div>
+
+      {/* Download / Clipboard toast */}
+      {downloadToast && (
+        <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', background: '#0A0A0A', color: 'white', padding: '12px 24px', borderRadius: 10, fontSize: 13, fontWeight: 500, zIndex: 9999, boxShadow: '0 4px 20px rgba(0,0,0,0.3)', whiteSpace: 'nowrap' as const }}>
+          {downloadToast}
+        </div>
+      )}
 
       {/* Shopify Connect Modal */}
       {shopifyModal && (
