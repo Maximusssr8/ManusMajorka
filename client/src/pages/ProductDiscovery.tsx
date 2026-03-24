@@ -76,9 +76,9 @@ function CopyBtn({ text }: { text: string }) {
       }}
       className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg transition-all flex-shrink-0"
       style={{
-        background: copied ? 'rgba(45,202,114,0.1)' : 'rgba(255,255,255,0.05)',
-        border: `1px solid ${copied ? 'rgba(45,202,114,0.3)' : 'rgba(255,255,255,0.08)'}`,
-        color: copied ? 'rgba(45,202,114,0.8)' : 'rgba(240,237,232,0.4)',
+        background: copied ? '#D1FAE5' : '#F5F7FF',
+        border: `1px solid ${copied ? '#A7F3D0' : '#E0E7FF'}`,
+        color: copied ? '#065F46' : '#6366F1',
         cursor: 'pointer',
       }}
     >
@@ -114,7 +114,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
   return (
     <div
       className="rounded-2xl overflow-hidden"
-      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
+      style={{ background: '#F9FAFB', border: '1px solid #E5E7EB' }}
     >
       <button
         onClick={() => setExpanded(!expanded)}
@@ -126,13 +126,13 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
           style={{
             background:
               product.score >= 75
-                ? 'rgba(45,202,114,0.15)'
+                ? '#D1FAE5'
                 : product.score >= 50
                   ? 'rgba(99,102,241,0.15)'
                   : 'rgba(224,92,122,0.15)',
             color: product.score >= 75 ? '#2dca72' : product.score >= 50 ? '#6366F1' : '#e05c7a',
-            border: `1px solid ${product.score >= 75 ? 'rgba(45,202,114,0.3)' : product.score >= 50 ? 'rgba(99,102,241,0.3)' : 'rgba(224,92,122,0.3)'}`,
-            fontFamily: 'Syne, sans-serif',
+            border: `1px solid ${product.score >= 75 ? '#6EE7B7' : product.score >= 50 ? '#C7D2FE' : '#FECACA'}`,
+            fontFamily: "'Bricolage Grotesque', sans-serif",
           }}
         >
           {product.score}
@@ -140,11 +140,11 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-black leading-tight"
-            style={{ fontFamily: 'Syne, sans-serif', color: '#f0ede8' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
           >
             {product.name}
           </div>
-          <div className="text-xs mt-0.5" style={{ color: 'rgba(240,237,232,0.4)' }}>
+          <div className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
             {product.niche} · {product.avgPrice}
           </div>
         </div>
@@ -169,48 +169,48 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
             {TREND_ICONS[product.trendDirection]} {product.trendDirection}
           </span>
           {expanded ? (
-            <ChevronUp size={13} style={{ color: 'rgba(240,237,232,0.3)' }} />
+            <ChevronUp size={13} style={{ color: '#9CA3AF' }} />
           ) : (
-            <ChevronDown size={13} style={{ color: 'rgba(240,237,232,0.3)' }} />
+            <ChevronDown size={13} style={{ color: '#9CA3AF' }} />
           )}
         </div>
       </button>
       {expanded && (
         <div className="px-4 pb-4 space-y-3">
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.06)' }} />
+          <div style={{ height: 1, background: '#E5E7EB' }} />
           <div className="grid grid-cols-2 gap-3">
             <div className="p-3 rounded-xl" style={{ background: 'rgba(0,0,0,0.2)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Problem Solved
               </div>
-              <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.75)' }}>
+              <div className="text-xs leading-relaxed" style={{ color: '#4B5563' }}>
                 {product.problemSolved}
               </div>
             </div>
             <div className="p-3 rounded-xl" style={{ background: 'rgba(0,0,0,0.2)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Target Audience
               </div>
-              <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.75)' }}>
+              <div className="text-xs leading-relaxed" style={{ color: '#4B5563' }}>
                 {product.targetAudience}
               </div>
             </div>
             <div className="p-3 rounded-xl" style={{ background: 'rgba(0,0,0,0.2)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Est. Margin
               </div>
               <div
                 className="text-sm font-black"
-                style={{ color: '#2dca72', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 {product.estimatedMargin}
               </div>
@@ -218,11 +218,11 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
             <div className="p-3 rounded-xl" style={{ background: 'rgba(0,0,0,0.2)' }}>
               <div
                 className="text-xs font-bold uppercase tracking-wider mb-1"
-                style={{ color: 'rgba(240,237,232,0.35)', fontFamily: 'Syne, sans-serif' }}
+                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
                 Suppliers
               </div>
-              <div className="text-xs" style={{ color: 'rgba(240,237,232,0.75)' }}>
+              <div className="text-xs" style={{ color: '#4B5563' }}>
                 {product.suppliers}
               </div>
             </div>
@@ -236,11 +236,11 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
           >
             <div
               className="text-xs font-bold uppercase tracking-wider mb-1"
-              style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Why Now
             </div>
-            <div className="text-xs leading-relaxed" style={{ color: 'rgba(240,237,232,0.75)' }}>
+            <div className="text-xs leading-relaxed" style={{ color: '#4B5563' }}>
               {product.whyNow}
             </div>
           </div>
@@ -252,7 +252,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
                   src={url}
                   alt={product.name}
                   className="w-24 h-16 object-cover rounded-lg flex-shrink-0"
-                  style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+                  style={{ border: '1px solid #E5E7EB' }}
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).style.display = 'none';
                   }}
@@ -262,7 +262,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
           )}
           <div
             className="flex gap-2 pt-2 mt-1"
-            style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ borderTop: '1px solid #E5E7EB' }}
           >
             <button
               onClick={() => {
@@ -277,9 +277,9 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
               }}
               className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-bold"
               style={{
-                background: 'rgba(45,202,114,0.1)',
-                border: '1px solid rgba(45,202,114,0.25)',
-                color: '#2dca72',
+                background: '#EEF2FF',
+                border: '1px solid #C7D2FE',
+                color: '#6366F1',
                 cursor: 'pointer',
               }}
             >
@@ -424,18 +424,18 @@ export default function ProductDiscovery() {
       >
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{ background: 'rgba(45,202,114,0.15)', border: '1px solid rgba(45,202,114,0.3)' }}
+          style={{ background: '#EEF2FF', border: '1px solid #C7D2FE' }}
         >
-          <Search size={15} style={{ color: '#2dca72' }} />
+          <Search size={15} style={{ color: '#6366F1' }} />
         </div>
         <div className="flex-1 min-w-0">
           <div
             className="text-sm font-black leading-tight"
-            style={{ fontFamily: 'Syne, sans-serif' }}
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
             Product Discovery
           </div>
-          <div className="text-xs" style={{ color: 'rgba(240,237,232,0.35)' }}>
+          <div className="text-xs" style={{ color: '#9CA3AF' }}>
             AI-powered product research · Real-time market data · Opportunity scoring
           </div>
         </div>
@@ -447,9 +447,9 @@ export default function ProductDiscovery() {
             }}
             className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: 'rgba(240,237,232,0.5)',
+              background: '#F9FAFB',
+              border: '1px solid #E5E7EB',
+              color: '#6B7280',
               cursor: 'pointer',
             }}
           >
@@ -467,12 +467,12 @@ export default function ProductDiscovery() {
         {/* LEFT: Input panel */}
         <div
           className="w-full lg:w-72 flex-shrink-0 overflow-y-auto border-b lg:border-b-0 lg:border-r p-4 space-y-4"
-          style={{ borderColor: 'rgba(255,255,255,0.07)' }}
+          style={{ borderColor: '#E5E7EB' }}
         >
           <div>
             <div
               className="text-xs font-bold uppercase tracking-widest mb-3"
-              style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Research Parameters
             </div>
@@ -480,7 +480,7 @@ export default function ProductDiscovery() {
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Niche / Category *
                 </label>
@@ -496,16 +496,16 @@ export default function ProductDiscovery() {
                   placeholder="e.g. Pet accessories, Home gym…"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#f0ede8',
+                    background: '#F9FAFB',
+                    border: '1px solid #E5E7EB',
+                    color: '#374151',
                   }}
                 />
               </div>
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Price Range (AUD)
                 </label>
@@ -515,16 +515,16 @@ export default function ProductDiscovery() {
                   placeholder="e.g. 20-80"
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#f0ede8',
+                    background: '#F9FAFB',
+                    border: '1px solid #E5E7EB',
+                    color: '#374151',
                   }}
                 />
               </div>
               <div>
                 <label
                   className="block text-xs font-semibold mb-1.5"
-                  style={{ color: 'rgba(240,237,232,0.6)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#374151', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Target Market
                 </label>
@@ -533,9 +533,9 @@ export default function ProductDiscovery() {
                   onChange={(e) => setTargetMarket(e.target.value)}
                   className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
                   style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#f0ede8',
+                    background: '#F9FAFB',
+                    border: '1px solid #E5E7EB',
+                    color: '#374151',
                   }}
                 >
                   {['Australia', 'United States', 'United Kingdom', 'Canada', 'Global'].map((m) => (
@@ -552,7 +552,7 @@ export default function ProductDiscovery() {
           <div>
             <div
               className="text-xs font-bold uppercase tracking-widest mb-2"
-              style={{ color: 'rgba(240,237,232,0.3)', fontFamily: 'Syne, sans-serif' }}
+              style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
             >
               Quick Start
             </div>
@@ -563,9 +563,9 @@ export default function ProductDiscovery() {
                   onClick={() => handleGenerate(n)}
                   className="text-xs px-2.5 py-1 rounded-lg transition-all"
                   style={{
-                    background: niche === n ? 'rgba(45,202,114,0.1)' : 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${niche === n ? 'rgba(45,202,114,0.3)' : 'rgba(255,255,255,0.07)'}`,
-                    color: niche === n ? '#2dca72' : 'rgba(240,237,232,0.45)',
+                    background: niche === n ? '#EEF2FF' : '#F5F7FF',
+                    border: `1px solid ${niche === n ? '#C7D2FE' : '#E5E7EB'}`,
+                    color: niche === n ? '#6366F1' : '#6B7280',
                     cursor: 'pointer',
                   }}
                 >
@@ -578,11 +578,12 @@ export default function ProductDiscovery() {
           <button
             onClick={() => handleGenerate()}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm transition-all"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm transition-all"
             style={{
-              background: isLoading ? 'rgba(45,202,114,0.25)' : '#2dca72',
-              color: '#080a0e',
-              fontFamily: 'Syne, sans-serif',
+              background: isLoading ? '#C7D2FE' : '#6366F1',
+              color: 'white',
+              fontFamily: "'Bricolage Grotesque', sans-serif",
+              fontWeight: 700,
               cursor: isLoading ? 'not-allowed' : 'pointer',
             }}
           >
@@ -601,9 +602,9 @@ export default function ProductDiscovery() {
             <div
               className="text-xs p-3 rounded-xl"
               style={{
-                background: 'rgba(224,92,122,0.1)',
-                border: '1px solid rgba(224,92,122,0.25)',
-                color: 'rgba(224,92,122,0.9)',
+                background: '#FEF2F2',
+                border: '1px solid #FECACA',
+                color: '#DC2626',
               }}
             >
               {genError}
@@ -615,7 +616,7 @@ export default function ProductDiscovery() {
         <div className="flex-1 overflow-y-auto p-5">
           {isLoading && !result && (
             <div className="space-y-4 animate-fade-in p-4 max-w-3xl">
-              <div className="text-sm font-black mb-2" style={{ fontFamily: 'Syne, sans-serif' }}>
+              <div className="text-sm font-black mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                 Researching {niche}…
               </div>
               <div className="skeleton-shimmer h-16 w-full rounded-2xl" />
@@ -632,20 +633,20 @@ export default function ProductDiscovery() {
               <div
                 className="p-4 rounded-2xl"
                 style={{
-                  background: 'rgba(45,202,114,0.05)',
-                  border: '1px solid rgba(45,202,114,0.15)',
+                  background: '#F8F8FF',
+                  border: '1px solid #E0E7FF',
                 }}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#2dca72', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Market Overview
                   </div>
                   <CopyBtn text={result.summary} />
                 </div>
-                <div className="text-sm leading-relaxed" style={{ color: 'rgba(240,237,232,0.8)' }}>
+                <div className="text-sm leading-relaxed" style={{ color: '#374151' }}>
                   {result.summary}
                 </div>
               </div>
@@ -662,12 +663,12 @@ export default function ProductDiscovery() {
                   <Star size={12} style={{ color: '#6366F1' }} />
                   <div
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: '#6366F1', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Top Pick
                   </div>
                 </div>
-                <div className="text-sm leading-relaxed" style={{ color: 'rgba(240,237,232,0.8)' }}>
+                <div className="text-sm leading-relaxed" style={{ color: '#374151' }}>
                   {result.topPick}
                 </div>
               </div>
@@ -679,7 +680,7 @@ export default function ProductDiscovery() {
               <div>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-3"
-                  style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                  style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   {result.products.length} Product Opportunities
                 </div>
@@ -695,19 +696,19 @@ export default function ProductDiscovery() {
                 <div
                   className="p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    background: '#F9FAFB',
+                    border: '1px solid #E5E7EB',
                   }}
                 >
                   <div
                     className="text-xs font-bold uppercase tracking-widest mb-2"
-                    style={{ color: 'rgba(240,237,232,0.4)', fontFamily: 'Syne, sans-serif' }}
+                    style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
                   >
                     Market Context
                   </div>
                   <div
                     className="text-xs leading-relaxed"
-                    style={{ color: 'rgba(240,237,232,0.6)' }}
+                    style={{ color: '#374151' }}
                   >
                     {result.marketContext}
                   </div>
@@ -726,14 +727,14 @@ export default function ProductDiscovery() {
                   width: 56,
                   height: 56,
                   borderRadius: 16,
-                  background: 'rgba(45,202,114,0.1)',
-                  border: '1px solid rgba(45,202,114,0.25)',
+                  background: '#EEF2FF',
+                  border: '1px solid #C7D2FE',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Search size={24} style={{ color: '#2dca72' }} />
+                <Search size={24} style={{ color: '#6366F1' }} />
               </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
@@ -743,13 +744,13 @@ export default function ProductDiscovery() {
               >
                 <div
                   className="text-base font-black mb-2"
-                  style={{ fontFamily: 'Syne, sans-serif' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
                 >
                   Find your next winning product
                 </div>
                 <div
                   className="text-xs max-w-xs leading-relaxed"
-                  style={{ color: 'rgba(240,237,232,0.35)' }}
+                  style={{ color: '#9CA3AF' }}
                 >
                   Click a quick-start chip or enter a niche to get 5 scored product opportunities
                   with margin estimates, competition analysis, and supplier leads.
@@ -769,12 +770,12 @@ export default function ProductDiscovery() {
                     transition={{ delay: 0.2 + i * 0.1, duration: 0.35 }}
                     className="flex items-center gap-2 p-3 rounded-xl"
                     style={{
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.06)',
+                      background: '#F9FAFB',
+                      border: '1px solid #E5E7EB',
                     }}
                   >
-                    <span style={{ color: '#2dca72' }}>{icon}</span>
-                    <span className="text-xs" style={{ color: 'rgba(240,237,232,0.5)' }}>
+                    <span style={{ color: '#6366F1' }}>{icon}</span>
+                    <span className="text-xs" style={{ color: '#6B7280' }}>
                       {label}
                     </span>
                   </motion.div>
