@@ -228,7 +228,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
             <br />
             <span style={{ color: '#6366F1' }}>operating system.</span>
           </h2>
-          <p className="text-base mb-8" style={{ color: '#6B7280', lineHeight: 1.7 }}>
+          <p className="text-base mb-8" style={{ color: 'rgba(255,255,255,0.75)', lineHeight: 1.7 }}>
             50+ AI tools built specifically for Australian sellers. Research, build, launch, and
             scale — all from one platform.
           </p>
@@ -239,9 +239,9 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
               <div key={i} className="flex items-start gap-3">
                 <div
                   className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-                  style={{ background: 'rgba(99,102,241,0.15)' }}
+                  style={{ background: 'rgba(255,255,255,0.15)' }}
                 >
-                  <svg width="10" height="10" viewBox="0 0 20 20" fill="#6366F1">
+                  <svg width="10" height="10" viewBox="0 0 20 20" fill="white">
                     <path
                       fillRule="evenodd"
                       d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -249,7 +249,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                     />
                   </svg>
                 </div>
-                <span className="text-sm" style={{ color: '#374151' }}>
+                <span className="text-sm" style={{ color: 'rgba(255,255,255,0.85)' }}>
                   {feat}
                 </span>
               </div>
@@ -265,8 +265,8 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                 key={label}
                 className="rounded-xl p-3"
                 style={{
-                  background: '#F5F5F5',
-                  border: '1px solid #D1D5DB',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.15)',
                 }}
               >
                 <div className="flex items-center gap-2 mb-1">
@@ -278,7 +278,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                     {stat}
                   </span>
                 </div>
-                <span className="text-xs" style={{ color: '#9CA3AF' }}>
+                <span className="text-xs" style={{ color: 'rgba(255,255,255,0.6)' }}>
                   {label}
                 </span>
               </div>
@@ -294,8 +294,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
           <div
             className="absolute inset-0"
             style={{
-              background:
-                'radial-gradient(ellipse at 50% 60%, rgba(99,102,241,0.08) 0%, transparent 60%)',
+              background: 'transparent',
             }}
           />
         </div>
