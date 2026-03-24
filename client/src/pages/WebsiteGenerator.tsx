@@ -4330,7 +4330,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
             paddingLeft: 16, paddingRight: 16, gap: 10, flexShrink: 0,
             boxShadow: '0 -1px 4px #F9FAFB',
           }}>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#6366F1', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>M</div>
+            <img src="/majorka-logo.jpg" alt="Majorka" width={28} height={28} style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 7, flexShrink: 0, display: 'block' }} draggable={false} />
             <span style={{ fontSize: 11, color: '#9CA3AF', fontFamily: 'DM Sans, sans-serif', marginRight: 4, flexShrink: 0 }}>Maya</span>
             {suggestion.href ? (
               <a

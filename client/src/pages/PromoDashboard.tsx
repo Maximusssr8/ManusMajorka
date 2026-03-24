@@ -1454,7 +1454,7 @@ export default function PromoDashboard() {
             <span /><span /><span />
           </button>
           <div className="mobile-logo">
-            <div className="logo-icon">M</div>
+            <img src="/majorka-logo.jpg" alt="Majorka" className="logo-icon" style={{ objectFit: 'contain', borderRadius: 7 }} draggable={false} />
             <span className="logo-name">majorka</span>
           </div>
           <div className="mobile-store-live">
@@ -1475,7 +1475,7 @@ export default function PromoDashboard() {
             {/* Logo */}
             <div className="sidebar-logo">
               <div className="sidebar-logo-mark">
-                <div className="logo-icon">M</div>
+                <img src="/majorka-logo.jpg" alt="Majorka" className="logo-icon" style={{ objectFit: 'contain', borderRadius: 7 }} draggable={false} />
                 <div>
                   <div className="logo-name">majorka</div>
                   <div className="logo-tagline">AI Ecommerce OS</div>
