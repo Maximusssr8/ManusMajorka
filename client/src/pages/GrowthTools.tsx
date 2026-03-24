@@ -4,11 +4,11 @@ import { useState, useRef } from 'react';
 const brico = "'Bricolage Grotesque', sans-serif";
 
 // ── AI caller ──────────────────────────────────────────────────────────────
-async function callAI(tool: string, params: Record<string, string>): Promise<string> {
+async function callAI(tool: string, params: Record<string, string | undefined>): Promise<string> {
   const r = await fetch('/api/ai/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ tool, ...params }),
+    body: JSON.stringify({ tool, ...Object.fromEntries(Object.entries(params).filter(([,v]) => v !== undefined)) }),
   });
   const d = await r.json();
   return d.result || d.content || d.text || '';

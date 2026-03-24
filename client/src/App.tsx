@@ -262,6 +262,17 @@ function Router() {
                 </ProtectedRoute>
               )}
             </Route>
+            
+            {/* ── Sidebar route aliases — must come before catch-all ─────────────── */}
+            <Route path="/app/product-intelligence">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
+            <Route path="/app/video-intelligence">{() => { window.location.replace('/app/videos'); return null; }}</Route>
+            <Route path="/app/spy-tools">{() => { window.location.replace('/app/spy'); return null; }}</Route>
+            <Route path="/app/shop-spy">{() => { window.location.replace('/app/spy'); return null; }}</Route>
+            <Route path="/app/shop-intelligence">{() => { window.location.replace('/app/spy'); return null; }}</Route>
+            <Route path="/app/store-builder">{() => { window.location.replace('/store-builder'); return null; }}</Route>
+            <Route path="/app/growth-tools">{() => { window.location.replace('/app/growth'); return null; }}</Route>
+            <Route path="/app/livestream">{() => { window.location.replace('/app/videos'); return null; }}</Route>
+            <Route path="/app/ai-chat">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
             <Route path="/app/:tool">
               {() => (
                 <ProtectedRoute>

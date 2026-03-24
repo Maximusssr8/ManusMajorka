@@ -642,8 +642,7 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                     setStep('form');
                     setError(null);
                   }}
-                  className="rounded-xl font-medium px-6 py-3 text-sm transition-colors" style={{ background: '#EEF2FF', color: '#6366F1', border: '1px solid #C7D2FE' }}
-                  style={{ border: 'none', cursor: 'pointer' }}
+                  className="rounded-xl font-medium px-6 py-3 text-sm transition-colors" style={{ background: '#EEF2FF', color: '#6366F1', border: '1px solid #C7D2FE', cursor: 'pointer' }}
                   whileTap={{ scale: 0.97 }}
                 >
                   Back to sign in

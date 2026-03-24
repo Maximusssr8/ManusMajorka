@@ -22,7 +22,8 @@ const REGIONS = ['AU', 'US', 'UK', 'CA', 'DE', 'SG'];
 export default function Alerts() {
   const { session, isPro } = useAuth();
   const isMobile = useIsMobile();
-  const [alerts, setAlerts] = useState<Alert[]>([]);
+    const [showModal, setShowModal] = useState(false);
+const [alerts, setAlerts] = useState<Alert[]>([]);
   const [history, setHistory] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'active' | 'history'>('active');

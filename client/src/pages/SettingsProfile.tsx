@@ -49,6 +49,8 @@ interface HealthStatus {
   stripe: boolean;
   database: boolean;
   shopify: boolean;
+  tiktok: boolean;
+  aliexpress: boolean;
 }
 
 const INTEGRATION_LABELS: Record<keyof HealthStatus, string> = {
