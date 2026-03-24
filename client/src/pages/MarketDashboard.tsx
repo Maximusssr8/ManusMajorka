@@ -35,7 +35,7 @@ function QuickActions({
   const pt = encodeURIComponent(productTitle);
   const cat = encodeURIComponent(category);
   const actions = [
-    { label: 'Generate Ads', path: `/app/meta-ads?product=${pt}&price=${priceAud}&category=${cat}`, color: '#a78bfa' },
+    { label: 'Generate Ads', path: `/app/growth?product=${pt}&category=${cat}`, color: '#a78bfa' },
     { label: 'Build Store', path: `/app/website-generator?niche=${cat}&product=${pt}`, color: '#34d399' },
     { label: 'Check Profit', path: `/app/profit-calculator?price=${priceAud}`, color: '#6366F1' },
     { label: 'Find Creators', path: `/app/creators?category=${cat}`, color: '#38bdf8' },
@@ -79,7 +79,7 @@ interface CategoryRanking {
   category_name: string;
   total_products: number;
   total_gmv_aud: number;
-  revenue_growth_rate: number;
+  winning_score: number;
   top_product_title: string;
   creator_count: number;
   competition_level: string;
@@ -194,16 +194,16 @@ export default function MarketDashboard() {
     try {
       const [pr, cr, tv, st1, st2, st3, st4] = await Promise.all([
         supabase.from('winning_products').select('id,product_title,category,price_aud,winning_score,trend,competition_level,est_daily_revenue_aud,units_per_day,image_url').order('winning_score', { ascending: false }).limit(5),
-        supabase.from('category_rankings').select('*').order('revenue_growth_rate', { ascending: false }).limit(3),
-        supabase.from('au_creators').select('id,username,display_name,avatar_url,follower_count,gmv_30d_aud,gmv_growth_rate,top_categories,is_verified,location,revenue_sparkline').order('gmv_30d_aud', { ascending: false }).limit(1),
+        supabase.from('winning_products').select('*').order('winning_score', { ascending: false }).limit(3),
+        supabase.from('creators').select('id,username,display_name,avatar_url,follower_count,gmv_30d_aud,gmv_growth_rate,top_categories,is_verified,location,revenue_sparkline').order('gmv_30d_aud', { ascending: false }).limit(1),
         supabase.from('winning_products').select('id', { count: 'exact', head: true }),
-        supabase.from('au_creators').select('id', { count: 'exact', head: true }),
+        supabase.from('creators').select('id', { count: 'exact', head: true }),
         supabase.from('winning_products').select('winning_score'),
         supabase.from('winning_products').select('id', { count: 'exact', head: true }).eq('trend', 'exploding'),
       ]);
 
       setProducts((pr.data ?? []) as WinningProduct[]);
-      setCategories((cr.data ?? []) as CategoryRanking[]);
+      setCategories(([]) as CategoryRanking[]);
       setTopCreator(((tv.data ?? [])[0] as AuCreator) ?? null);
 
       const scores = (st3.data ?? []) as { winning_score: number }[];
@@ -279,7 +279,7 @@ export default function MarketDashboard() {
                 style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}
               >
                 <c.icon size={18} style={{ color: c.color }} className="mb-2" />
-                <p className="text-sm font-semibold leading-tight" style={{ color: '#e2e8f0', fontFamily: 'DM Sans, sans-serif' }}>{c.label}</p>
+                <p className="text-sm font-semibold leading-tight" style={{ color: '#0F172A', fontFamily: 'DM Sans, sans-serif' }}>{c.label}</p>
                 <p className="text-xs mt-1" style={{ color: '#64748b' }}>{c.sub}</p>
               </button>
             ))}
@@ -321,7 +321,7 @@ export default function MarketDashboard() {
                     >
                       <td className="px-4 py-3 text-sm font-mono" style={{ color: '#475569' }}>{i + 1}</td>
                       <td className="px-4 py-3">
-                        <p className="text-sm font-medium" style={{ color: '#e2e8f0', fontFamily: 'DM Sans, sans-serif' }}>{p.product_title}</p>
+                        <p className="text-sm font-medium" style={{ color: '#0F172A', fontFamily: 'DM Sans, sans-serif' }}>{p.product_title}</p>
                         <p className="text-xs" style={{ color: '#475569' }}>${p.price_aud?.toFixed(2)} AUD</p>
                         <QuickActions productTitle={p.product_title} priceAud={p.price_aud ?? 0} category={p.category ?? ''} />
                       </td>
@@ -361,7 +361,7 @@ export default function MarketDashboard() {
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>{cat.category_name}</p>
+                        <p className="text-sm font-semibold" style={{ color: '#0F172A' }}>{cat.category_name}</p>
                         <TrendBadge trend={cat.trend ?? 'growing'} />
                       </div>
                       <p className="text-xs" style={{ color: '#475569' }}>
@@ -373,8 +373,8 @@ export default function MarketDashboard() {
                       <p className="text-lg font-bold" style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                         {fmtAUD(cat.total_gmv_aud)}
                       </p>
-                      <p className="text-xs" style={{ color: cat.revenue_growth_rate >= 0 ? '#22c55e' : '#ef4444' }}>
-                        {cat.revenue_growth_rate >= 0 ? '+' : ''}{cat.revenue_growth_rate?.toFixed(1)}% growth
+                      <p className="text-xs" style={{ color: cat.winning_score >= 0 ? '#22c55e' : '#ef4444' }}>
+                        {cat.winning_score >= 0 ? '+' : ''}{cat.winning_score?.toFixed(1)}% growth
                       </p>
                     </div>
                   </div>
@@ -403,7 +403,7 @@ export default function MarketDashboard() {
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-semibold truncate" style={{ color: '#e2e8f0' }}>{topCreator.display_name}</p>
+                      <p className="text-sm font-semibold truncate" style={{ color: '#0F172A' }}>{topCreator.display_name}</p>
                       {topCreator.is_verified && <span className="text-xs" style={{ color: '#38bdf8' }}>✓</span>}
                     </div>
                     <p className="text-xs" style={{ color: '#475569' }}>@{topCreator.username}</p>

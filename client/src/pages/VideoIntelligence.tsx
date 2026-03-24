@@ -112,13 +112,15 @@ export default function VideoIntelligence() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: aiTab === 'script' ? 'TikTok Script' : aiTab === 'live' ? 'Livestream Script' : 'TikTok Script',
+          tool: aiTab === 'hooks' ? 'hook-generator' : aiTab === 'live' ? 'livestream-script' : 'tiktok-script',
+          productName: aiProduct || selectedNiche || 'trending product',
           niche: selectedNiche || 'general',
-          product: aiProduct || selectedNiche || 'trending product',
+          audience: 'Australian dropshippers',
+          platform: 'TikTok',
         }),
       });
       const d = await r.json();
-      setAiOutput(d.content || d.result || 'No output. Try again.');
+      setAiOutput(d.result || d.content || d.output || 'No output. Try again.');
     } catch { setAiOutput('Error — try again.'); }
     setAiLoading(false);
   };

@@ -42,7 +42,7 @@ From there, use the **Validate** tool to score the opportunity, then **Supplier 
 
 ## Tips for New Users
 
-- Use the **AI Chat Co-founder** for open-ended strategy questions.
+- Use the **Maya AI (AI Chat)** for open-ended strategy questions.
 - Save your best tool outputs using the bookmark icon — they're stored in your dashboard.
 - Beginner Mode (toggle in the sidebar) simplifies tool labels and adds helpful tooltips.`,
   },
@@ -421,7 +421,7 @@ Scaling an Australian dropshipping store to $10K/month is achievable in 3–6 mo
 - Ignoring email — 30%+ of revenue should come from email by month 4
 - Not tracking CAC and LTV — make decisions on data, not gut feel
 
-Use Majorka's **AI Chat Co-founder** as your ongoing strategic advisor throughout every phase. Ask it anything: "Should I expand to Google now?", "My ROAS dropped — what do I check?", "Is it time to hire a VA?"`,
+Use Majorka's **Maya AI (AI Chat)** as your ongoing strategic advisor throughout every phase. Ask it anything: "Should I expand to Google now?", "My ROAS dropped — what do I check?", "Is it time to hire a VA?"`,
   },
 ];
 
@@ -723,7 +723,7 @@ function ArticleContent({ content }: { content: string }) {
         <h3
           key={i}
           className="text-base font-bold mt-5 mb-2"
-          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#e5e5e5' }}
+          style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#1E293B' }}
         >
           {line.slice(4)}
         </h3>
@@ -789,7 +789,7 @@ function ArticleContent({ content }: { content: string }) {
 
     // Regular paragraph
     elements.push(
-      <p key={i} className="text-sm leading-relaxed mb-4" style={{ color: '#6B7280' }}>
+      <p key={i} className="text-sm leading-relaxed mb-4" style={{ color: '#374151' }}>
         <InlineMarkdown text={line} />
       </p>
     );
@@ -878,16 +878,26 @@ function InlineMarkdown({ text }: { text: string }) {
   while (remaining.length > 0) {
     const boldMatch = remaining.match(/\*\*(.+?)\*\*/);
     const codeMatch = remaining.match(/`(.+?)`/);
+    const linkMatch = remaining.match(/\[([^\]]+)\]\(([^)]+)\)/);
 
     let firstMatch: RegExpMatchArray | null = null;
-    let type: 'bold' | 'code' | null = null;
+    let type: 'bold' | 'code' | 'link' | null = null;
 
-    if (boldMatch && (!codeMatch || boldMatch.index! <= codeMatch.index!)) {
-      firstMatch = boldMatch;
-      type = 'bold';
-    } else if (codeMatch) {
-      firstMatch = codeMatch;
-      type = 'code';
+    const matches = [
+      boldMatch && { m: boldMatch, t: 'bold' as const },
+      codeMatch && { m: codeMatch, t: 'code' as const },
+      linkMatch && { m: linkMatch, t: 'link' as const },
+    ].filter(Boolean) as Array<{ m: RegExpMatchArray; t: 'bold' | 'code' | 'link' }>;
+
+    if (matches.length > 0) {
+      const earliest = matches.reduce((a, b) => (a.m.index! <= b.m.index! ? a : b));
+      firstMatch = earliest.m;
+      type = earliest.t;
+    }
+
+    if (!firstMatch || firstMatch.index === undefined) {
+      parts.push(<span key={key++}>{remaining}</span>);
+      break;
     }
 
     if (!firstMatch || firstMatch.index === undefined) {
@@ -902,9 +912,22 @@ function InlineMarkdown({ text }: { text: string }) {
 
     if (type === 'bold') {
       parts.push(
-        <strong key={key++} style={{ color: '#e5e5e5', fontWeight: 600 }}>
+        <strong key={key++} style={{ color: '#0F172A', fontWeight: 700 }}>
           {firstMatch[1]}
         </strong>
+      );
+    } else if (type === 'link') {
+      const linkText = firstMatch[1];
+      const linkUrl = firstMatch[2];
+      const isInternal = linkUrl.startsWith('/');
+      parts.push(
+        <a key={key++} href={linkUrl} style={{ color: '#6366F1', fontWeight: 600, textDecoration: 'none' }}
+          onMouseEnter={e => (e.currentTarget.style.textDecoration = 'underline')}
+          onMouseLeave={e => (e.currentTarget.style.textDecoration = 'none')}
+          {...(!isInternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        >
+          {linkText}
+        </a>
       );
     } else {
       parts.push(

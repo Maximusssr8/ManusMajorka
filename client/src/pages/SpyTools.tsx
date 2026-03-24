@@ -8,16 +8,26 @@ const VideoIntelligence = lazy(() => import('./VideoIntelligence'));
 type TabKey = 'ads' | 'creators' | 'videos' | 'competitors';
 
 const SEED_ADS = [
-  { id: 1, platform: 'Facebook', product: 'Posture Corrector Pro', runningDays: 47, spendPerDay: 312, gradient: 'linear-gradient(135deg,#F3F4F6,#16213e)', niche: 'Health' },
-  { id: 2, platform: 'TikTok', product: 'LED Desk Lamp RGB', runningDays: 23, spendPerDay: 187, gradient: 'linear-gradient(135deg,#0f0f23,#1a1a3e)', niche: 'Tech' },
-  { id: 3, platform: 'Instagram', product: 'Vitamin C Serum 30ml', runningDays: 61, spendPerDay: 445, gradient: 'linear-gradient(135deg,#fdf4ff,#fce7f3)', niche: 'Beauty' },
-  { id: 4, platform: 'Facebook', product: 'Weighted Blanket 8kg', runningDays: 38, spendPerDay: 276, gradient: 'linear-gradient(135deg,#1c1917,#292524)', niche: 'Home' },
-  { id: 5, platform: 'TikTok', product: 'Smart Plug 4-Pack', runningDays: 15, spendPerDay: 134, gradient: 'linear-gradient(135deg,#0a0a1a,#1a1a3e)', niche: 'Tech' },
-  { id: 6, platform: 'Google', product: 'Pet GPS Tracker', runningDays: 52, spendPerDay: 389, gradient: 'linear-gradient(135deg,#ecfdf5,#d1fae5)', niche: 'Pets' },
-  { id: 7, platform: 'Facebook', product: 'Resistance Bands Set', runningDays: 29, spendPerDay: 198, gradient: 'linear-gradient(135deg,#064e3b,#065f46)', niche: 'Fitness' },
-  { id: 8, platform: 'TikTok', product: 'Rose Quartz Face Roller', runningDays: 44, spendPerDay: 267, gradient: 'linear-gradient(135deg,#fff1f2,#ffe4e6)', niche: 'Beauty' },
-  { id: 9, platform: 'Instagram', product: 'Bamboo Cutting Board Set', runningDays: 18, spendPerDay: 143, gradient: 'linear-gradient(135deg,#f0fdf4,#dcfce7)', niche: 'Kitchen' },
-  { id: 10, platform: 'Google', product: 'Blue Light Glasses', runningDays: 71, spendPerDay: 521, gradient: 'linear-gradient(135deg,#eff6ff,#dbeafe)', niche: 'Health' },
+  { id:1, platform:'Facebook', product:'Posture Corrector Pro', runningDays:47, spendPerDay:312, niche:'Health',
+    hook:"This $29 posture fix sold 11,000 units last month 🤯", body:"Physios HATE this but Australians are obsessed. Fix your hunchback in 2 weeks or your money back.", cta:"Shop Now", bg:'#FFF7ED', accent:'#EA580C' },
+  { id:2, platform:'TikTok', product:'LED Desk Lamp RGB', runningDays:23, spendPerDay:187, niche:'Tech',
+    hook:"POV: Your home office finally looks like a setup tour 👀", body:"16 million colours, 3 brightness levels, USB-C. £24 anywhere else, $29 AUD here.", cta:"Get Yours", bg:'#EEF2FF', accent:'#6366F1' },
+  { id:3, platform:'Instagram', product:'Vitamin C Serum 30ml', runningDays:61, spendPerDay:445, niche:'Beauty',
+    hook:"I was embarrassed to go out without makeup. Then I tried this.", body:"Dermatologist-tested 20% Vitamin C. Dark spots visibly reduced in 14 days. Now I leave the house bare-faced.", cta:"Try Risk-Free", bg:'#FDF4FF', accent:'#A855F7' },
+  { id:4, platform:'Facebook', product:'Weighted Blanket 8kg', runningDays:38, spendPerDay:276, niche:'Home',
+    hook:"My anxiety went down 60% after one week of using this", body:"8kg deep-pressure therapy blanket. Used by 3,200+ Australians with anxiety and insomnia. Ships in 2 days.", cta:"Order Today", bg:'#F0FDF4', accent:'#16A34A' },
+  { id:5, platform:'TikTok', product:'Smart Plug 4-Pack', runningDays:15, spendPerDay:134, niche:'Tech',
+    hook:"Wait… you can turn your dumb TV into a smart TV for $19?", body:"Control any appliance from your phone. Works with Siri, Alexa, Google. Pack of 4. Aussie plug compatible.", cta:"Add to Cart", bg:'#ECFDF5', accent:'#059669' },
+  { id:6, platform:'Instagram', product:'Silk Pillowcase Set', runningDays:29, spendPerDay:198, niche:'Beauty',
+    hook:"I switched pillowcases and woke up without frizzy hair 😭", body:"100% mulberry silk. Dermatologists say it reduces hair breakage and skin creasing overnight. Gift-ready packaging.", cta:"Shop the Set", bg:'#FFF1F2', accent:'#E11D48' },
+  { id:7, platform:'Facebook', product:'Car Seat Gap Filler', runningDays:52, spendPerDay:89, niche:'Auto',
+    hook:"This $15 thing paid for itself the first week I used it", body:"Stop losing your phone/wallet in the seat gap forever. Fits 99% of car models. 2-pack so you cover both sides.", cta:"Get 2-Pack", bg:'#F8FAFC', accent:'#334155' },
+  { id:8, platform:'TikTok', product:'Mini Projector 4K', runningDays:31, spendPerDay:267, niche:'Tech',
+    hook:"Hotel room → home cinema in 10 seconds flat 🎬", body:"1080p native, 120'' screen, built-in speaker. Sold 4,200 in the last 3 months. Free Prime shipping.", cta:"Watch Demo", bg:'#EFF6FF', accent:'#2563EB' },
+  { id:9, platform:'Facebook', product:'Bamboo Cutting Board Set', runningDays:44, spendPerDay:156, niche:'Kitchen',
+    hook:"My wife threw out our plastic cutting boards after seeing this", body:"3-piece bamboo set with juice grooves, handles, and non-slip feet. Naturally antibacterial. Ships same day.", cta:"Shop Set", bg:'#FEFCE8', accent:'#CA8A04' },
+  { id:10, platform:'Instagram', product:'Resistance Band Kit', runningDays:19, spendPerDay:223, niche:'Fitness',
+    hook:"Personal trainers don't want you to know this builds muscle", body:"5-level resistance bands replace a full gym. Used by 12,000+ Aussies at home. Free workout guide included.", cta:"Start Training", bg:'#F0FDFA', accent:'#0D9488' },
 ];
 
 const PLATFORM_COLORS: Record<string, string> = {
@@ -339,8 +349,11 @@ export default function SpyTools() {
                   onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px #E5E7EB'; }}
                   onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 2px 8px #F5F5F5'; }}
                 >
-                  <div style={{ height: 180, background: ad.gradient, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ fontSize: 48, opacity: 0.3 }}>📦</span>
+                  <div style={{ height: 180, background: ad.bg || '#F9FAFB', position: 'relative', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', padding: 16, flexDirection: 'column', gap: 8 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: ad.accent || '#374151', fontFamily: '"Bricolage Grotesque", sans-serif', lineHeight: 1.4, maxWidth: '100%' }}>{ad.hook || ad.product}</div>
+                    <div style={{ fontSize: 11, color: '#6B7280', lineHeight: 1.5 }}>{ad.body ? ad.body.slice(0,80) + '…' : ''}</div>
+                    <div style={{ marginTop: 'auto', display: 'inline-block', background: ad.accent || '#6366F1', color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 99 }}>{ad.cta || 'Shop Now'}</div>
+                    <span style={{ display: 'none' }}>📦</span>
                     <div style={{
                       position: 'absolute', top: 10, left: 10,
                       background: PLATFORM_COLORS[ad.platform] || '#333', color: 'white',
@@ -439,8 +452,10 @@ export default function SpyTools() {
             background: 'white', borderRadius: 16, maxWidth: 480, width: '100%', overflow: 'hidden',
             boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
           }} onClick={e => e.stopPropagation()}>
-            <div style={{ height: 300, background: viewAd.gradient, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: 72, opacity: 0.3 }}>📦</span>
+            <div style={{ height: 300, background: viewAd.bg || '#F9FAFB', position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, padding: 24, justifyContent: 'center' }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: viewAd.accent || '#374151', fontFamily: '"Bricolage Grotesque", sans-serif', lineHeight: 1.5 }}>{viewAd.hook || viewAd.product}</div>
+              <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.6 }}>{viewAd.body || ''}</div>
+              <div style={{ display: 'inline-block', background: viewAd.accent || '#6366F1', color: 'white', fontSize: 12, fontWeight: 700, padding: '6px 16px', borderRadius: 99, alignSelf: 'flex-start' }}>{viewAd.cta || 'Shop Now'}</div>
               <div style={{
                 position: 'absolute', top: 14, left: 14,
                 background: PLATFORM_COLORS[viewAd.platform] || '#333', color: 'white',

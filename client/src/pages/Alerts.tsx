@@ -104,10 +104,39 @@ export default function Alerts() {
             {[1,2,3].map(i => <div key={i} style={{ height: 72, borderRadius: 12, background: '#F3F4F6', animation: 'shimmer 1.5s infinite' }} />)}
           </div>
         ) : tab === 'active' && alerts.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '48px 24px', background: C.card, border: `1px solid ${C.border}`, borderRadius: 16 }}>
-            <BellOff size={32} style={{ color: C.muted, margin: '0 auto 12px', display: 'block' }} />
-            <p style={{ fontFamily: brico, fontSize: 16, color: C.text, marginBottom: 6 }}>No alerts yet</p>
-            <p style={{ color: C.sub, fontSize: 13 }}>Create your first alert to get notified when opportunities arise</p>
+          <div>
+            {/* Email notice */}
+            <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.18)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Bell size={15} style={{ color: '#6366F1', flexShrink: 0 }} />
+              <span style={{ fontSize: 12, color: '#374151' }}>Alerts are delivered to your account email. Make sure notifications are enabled in <a href="/app/settings/profile" style={{ color: '#6366F1', fontWeight: 600 }}>Settings → Notifications</a>.</span>
+            </div>
+            {/* Suggested starter alerts */}
+            <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 24, marginBottom: 16 }}>
+              <p style={{ fontFamily: brico, fontSize: 15, color: C.text, marginBottom: 4, fontWeight: 700 }}>Start with a suggested alert</p>
+              <p style={{ color: C.sub, fontSize: 12, marginBottom: 16 }}>One click to set up — we'll notify you when it triggers.</p>
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+                {[
+                  { icon: '🔥', label: 'Trending: Posture & Health products exploding', type: 'trending', preview: 'Notifies when a product in Health niche passes score 80+' },
+                  { icon: '💰', label: 'Price drop: LED lights below $15 AUD', type: 'price_drop', preview: 'Notifies when product price drops 20%+ in a week' },
+                  { icon: '🏆', label: 'New competitor: Watch for new Shopify stores in Beauty', type: 'competitor', preview: 'Notifies when a new competitor store appears in your niche' },
+                ].map((s, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: '#F9FAFB', borderRadius: 10, border: '1px solid #E5E7EB', cursor: 'default' }}>
+                    <span style={{ fontSize: 20 }}>{s.icon}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{s.label}</div>
+                      <div style={{ fontSize: 11, color: C.sub }}>{s.preview}</div>
+                    </div>
+                    <button onClick={() => setShowModal(true)}
+                      style={{ flexShrink: 0, height: 30, padding: '0 12px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                      + Set Up
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ textAlign: 'center', padding: '24px', color: C.sub, fontSize: 12 }}>
+              Or create a custom alert using the <strong style={{ color: C.text }}>+ New Alert</strong> button above.
+            </div>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>

@@ -216,6 +216,20 @@ Description: [90 chars max, include AU shipping]
 
 EMAIL SUBJECT LINE:
 [Under 50 chars, create urgency without being spammy]`;
+      } else if (tool === 'hook-generator') {
+      prompt = \`Generate 5 high-converting TikTok hooks for a product called "\${productName || niche}".
+Each hook should be 3-7 words max and trigger curiosity, FOMO, or a strong emotion.
+Format:
+1. [hook]
+2. [hook]
+3. [hook]
+4. [hook]
+5. [hook]
+Then give a brief (1 sentence) explanation of why each hook works psychologically.\`;
+    } else if (tool === 'livestream-script') {
+      prompt = \`Write a 5-minute TikTok livestream script for selling "\${productName || niche}" to Australian dropshipping customers.
+Structure: Opening hook (30s) → Product demo (2min) → Testimonials/social proof (1min) → Scarcity close (90s) → CTA.
+Use conversational Australian English. Include stage directions in [brackets].\`;
     } else if (tool === 'hashtags') {
       prompt = `Research and generate hashtags for the "${niche || productName}" niche targeting Australian audiences on TikTok and Instagram.
 

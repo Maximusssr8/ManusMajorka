@@ -48,6 +48,7 @@ interface HealthStatus {
   supabase: boolean;
   stripe: boolean;
   database: boolean;
+  shopify: boolean;
 }
 
 const INTEGRATION_LABELS: Record<keyof HealthStatus, string> = {
@@ -365,7 +366,7 @@ export default function SettingsProfile() {
                     </label>
                     <input
                       type="text"
-                      placeholder="My Shopify Store"
+                      placeholder="e.g. FitAU Pro, Glow Beauty"
                       value={form.businessName}
                       onChange={(e) => setForm({ ...form, businessName: e.target.value })}
                       className={inputClass}

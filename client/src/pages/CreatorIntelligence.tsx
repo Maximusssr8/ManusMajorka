@@ -96,7 +96,7 @@ export default function CreatorIntelligence() {
 
   const selectStyle = {
     width: '100%', height: 34, padding: '0 8px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12,
-    background: 'white', marginBottom: 8, cursor: 'pointer',
+    background: 'white', marginBottom: 8, cursor: 'pointer', color: '#374151',
   };
 
   return (
@@ -127,22 +127,27 @@ export default function CreatorIntelligence() {
         {/* LEFT \u2014 Filters */}
         <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, padding: 16, height: 'fit-content' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 12 }}>Filters</div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#6B7280', marginBottom: 4 }}>Search</div>
           <input value={searchQ} onChange={e => setSearchQ(e.target.value)} placeholder="Search @handle..."
             style={{ width: '100%', height: 34, padding: '0 10px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, color: '#374151', background: '#FAFAFA', boxSizing: 'border-box' as const, marginBottom: 8 }} />
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#6B7280', marginBottom: 4 }}>Niche</div>
           <select value={filterNiche} onChange={e => setFilterNiche(e.target.value)} style={selectStyle}>
             <option value="">All Niches</option>
             {NICHES.map(n => <option key={n} value={n}>{n.charAt(0).toUpperCase() + n.slice(1)}</option>)}
           </select>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#6B7280', marginBottom: 4 }}>Region</div>
           <select value={filterRegion} onChange={e => setFilterRegion(e.target.value)} style={selectStyle}>
             <option value="">All Regions</option>
             {Object.entries(REGION_FLAGS).map(([code, flag]) => <option key={code} value={code}>{flag} {code}</option>)}
           </select>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#6B7280', marginBottom: 4 }}>Engagement</div>
           <select value={filterEngagement} onChange={e => setFilterEngagement(e.target.value)} style={selectStyle}>
             <option value="">All Engagement</option>
             <option value="HIGH">HIGH</option>
             <option value="MEDIUM">MEDIUM</option>
             <option value="LOW">LOW</option>
           </select>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#6B7280', marginBottom: 4 }}>Sort By</div>
           <select value={sortBy} onChange={e => setSortBy(e.target.value as typeof sortBy)} style={selectStyle}>
             <option value="engagement">Sort: Engagement</option>
             <option value="followers">Sort: Followers</option>
