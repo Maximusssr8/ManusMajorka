@@ -3,6 +3,7 @@
  * No framer-motion, no SVG gauges, no localStorage, no CountUp.
  */
 
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { Helmet } from 'react-helmet-async';
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { ProductImage } from '@/components/ProductImage';
@@ -643,6 +644,7 @@ function DetailDrawer({
   onToggleWatchlist: (p: WinningProduct) => void;
   token: string | undefined;
 }) {
+  const isMobile = useIsMobile();
   const [analysis, setAnalysis] = useState('');
   const [analysing, setAnalysing] = useState(false);
   const [analysisOpen, setAnalysisOpen] = useState(false);
@@ -1724,7 +1726,7 @@ function FullReportModal({
           {product.price_aud != null && costEstimate != null && (
             <div style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.15)', borderRadius: 14, padding: '16px 18px', marginBottom: 20 }}>
               <div style={{ fontSize: 10, color: C.green, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>💰 Profit Snapshot (3× markup)</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, 1fr)', gap: 10 }}>
                 {[
                   { label: 'Sell Price', value: fmtAUD(product.price_aud) },
                   { label: 'Est. COGS', value: fmtAUD(costEstimate) },
@@ -2383,7 +2385,7 @@ function MarketSignalsBar({ products }: { products: WinningProduct[] }) {
   return (
     <div style={{
       marginBottom: 20, background: '#F9FAFB', border: `1px solid ${C.border}`,
-      borderRadius: 12, padding: '10px 16px', overflowX: 'auto', display: 'flex', gap: 24, alignItems: 'center',
+      borderRadius: 12, padding: '10px 16px', overflowX: 'auto', display: 'flex', gap: isMobile ? 12 : 24, alignItems: 'center',
     }}>
       <span style={{ fontSize: 10, fontWeight: 700, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', flexShrink: 0 }}>Signals</span>
       {signals.map((s, i) => (
@@ -3639,7 +3641,7 @@ function WinningProducts() {
         </div>
 
         {/* ── Sidebar + Content Flex Layout ──────────────────────────── */}
-        <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', gap: isMobile ? 12 : 24, alignItems: 'flex-start' }}>
 
         {/* ── Filter Sidebar (desktop only) ──────────────────────────── */}
         <FilterSidebar

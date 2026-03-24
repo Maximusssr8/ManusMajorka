@@ -4,6 +4,7 @@
  * Revenue-first, data-dense, no gamification.
  */
 
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { Helmet } from 'react-helmet-async';
 import {
   BarChart3,
@@ -29,6 +30,7 @@ function QuickActions({
   priceAud: number;
   category: string;
 }) {
+  const isMobile = useIsMobile();
   const [, nav] = useLocation();
   const pt = encodeURIComponent(productTitle);
   const cat = encodeURIComponent(category);

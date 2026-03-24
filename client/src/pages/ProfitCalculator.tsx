@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { Helmet } from 'react-helmet-async';
 import { Calculator, Share2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -38,6 +39,7 @@ function ProfitGauge({ value, color }: { value: number; color: string }) {
   const bgEnd = polar(startAngle + totalSweep);
   const bgPath = `M ${bgStart.x} ${bgStart.y} A ${R} ${R} 0 1 1 ${bgEnd.x} ${bgEnd.y}`;
 
+  const isMobile = useIsMobile();
   const [animatedValue, setAnimatedValue] = useState(0);
 
   useEffect(() => {
@@ -220,7 +222,7 @@ export default function ProfitCalculator() {
       </div>
 
       {/* Two-column layout */}
-      <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }} className="profit-calc-grid">
+      <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: isMobile ? 16 : 32 }} className="profit-calc-grid">
         {/* ── LEFT: Inputs ─────────────────────────────────────────────── */}
         <div>
           <div style={cardStyle}>

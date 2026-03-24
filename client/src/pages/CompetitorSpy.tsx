@@ -4,6 +4,7 @@
  * Bloomberg terminal style — clean, data-dense, no gamification.
  */
 
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { Eye, Loader2, Search, Trash2, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -40,6 +41,7 @@ const PROGRESS_STEPS = [
 
 // ── Competitor Quick Actions ──────────────────────────────────────────────────
 function CompetitorQuickActions({ query }: { query: string }) {
+  const isMobile = useIsMobile();
   const [, nav] = useLocation();
   // Extract likely niche from query (first significant word)
   const niche = encodeURIComponent(query.split(/\s+/).slice(0, 3).join(' '));

@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/lib/supabase';
@@ -76,6 +77,7 @@ function ShopTypeBadge({ type }: { type: string }) {
 }
 
 export default function ShopIntelligence() {
+  const isMobile = useIsMobile();
   const [, navigate] = useLocation();
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
@@ -158,7 +160,7 @@ export default function ShopIntelligence() {
     return (
       <div style={{ minHeight: '100vh', background: C.bg, position: 'relative', overflow: 'hidden' }}>
         <Helmet><title>Shop Intelligence — Majorka</title></Helmet>
-        <div style={{ filter: 'blur(8px)', pointerEvents: 'none', opacity: 0.4, padding: '40px 32px' }}>
+        <div style={{ filter: 'blur(8px)', pointerEvents: 'none', opacity: 0.4, padding: isMobile ? '20px 16px' : '40px 32px' }}>
           <div style={{ marginBottom: 24 }}>
             <div style={{ fontSize: 28, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: C.text }}>Shop Intelligence</div>
             <div style={{ fontSize: 14, color: C.muted, marginTop: 4 }}>Discover top performing Shopify stores in your niche</div>
@@ -195,7 +197,7 @@ export default function ShopIntelligence() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: C.bg, padding: '32px 24px' }}>
+    <div style={{ minHeight: '100vh', background: C.bg, padding: isMobile ? '16px' : '32px 24px' }}>
       <Helmet><title>Shop Intelligence — Majorka</title></Helmet>
 
       {/* Header */}

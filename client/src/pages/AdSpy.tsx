@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { useChat } from '@ai-sdk/react';
 import type { UIMessage } from 'ai';
 import { DefaultChatTransport } from 'ai';
@@ -162,6 +163,7 @@ function AdCard({
   searchInput: string;
   activeProductName?: string;
 }) {
+  const isMobile = useIsMobile();
   const [copied, setCopied] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [, navigate] = useLocation();

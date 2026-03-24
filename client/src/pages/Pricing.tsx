@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { useState, useEffect } from 'react';
 import CountUp from 'react-countup';
 import { useInView } from 'react-intersection-observer';
@@ -532,6 +533,7 @@ const FAQS = [
 ];
 
 export default function Pricing() {
+  const isMobile = useIsMobile();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [annual, setAnnual] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -858,7 +860,7 @@ export default function Pricing() {
             margin: '0 auto',
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: 24,
+            gap: isMobile ? 12 : 24,
             alignItems: 'start',
           }}
         >
@@ -912,7 +914,7 @@ export default function Pricing() {
 
               {/* Price */}
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
-                <span style={{ fontFamily: syne, fontWeight: 800, fontSize: 48, color: C.text }}>
+                <span style={{ fontFamily: syne, fontWeight: 800, fontSize: isMobile ? 30 : 48, color: C.text }}>
                   {getDisplayPrice(plan)}
                 </span>
                 <span style={{ color: C.muted, fontSize: 15 }}>
@@ -1297,7 +1299,7 @@ export default function Pricing() {
       <section
         className="pricing-bottom-cta"
         style={{
-          padding: '80px 24px',
+          padding: isMobile ? '40px 16px' : '80px 24px',
           background: `linear-gradient(135deg, rgba(99,102,241,0.10) 0%, rgba(99,102,241,0.03) 60%, ${C.bg} 100%)`,
           borderTop: `1px solid ${C.goldBorder}`,
           textAlign: 'center',

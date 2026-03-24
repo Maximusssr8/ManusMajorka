@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/hooks/useIsMobile';
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { DateRangeSelector, DateRange, getDateRangeStart } from '@/components/DateRangeSelector';
@@ -169,6 +170,7 @@ function ScoreBadge({ score }: { score: number }) {
 }
 
 function SupplierDropdown({ product }: { product: Product }) {
+  const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -426,7 +428,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         onFiltersChange={setAdvancedFilters}
       />
       {/* ── PAGE HEADER ── */}
-      <div style={{ padding: '24px 24px 0', maxWidth: 1400, margin: '0 auto' }}>
+      <div style={{ padding: isMobile ? '16px 16px 0' : '24px 24px 0', maxWidth: 1400, margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
           <div>
             <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#0A0A0A', margin: 0 }}>
@@ -545,7 +547,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         <ProductStatCards products={filtered} />
 
         {/* KaloData-style Tab Bar */}
-        <div style={{ display: 'flex', gap: 0, borderBottom: '2px solid #F3F4F6', marginBottom: 16, overflowX: 'auto' }}>
+        <div style={{ display: 'flex', gap: 0, borderBottom: '2px solid #F3F4F6', marginBottom: 16, overflowX: 'auto' as const }}>
           {TAB_FILTERS.map(t => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
               style={{ height: 42, padding: '0 20px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === t.id ? 700 : 500, color: activeTab === t.id ? '#6366F1' : '#9CA3AF', borderBottom: activeTab === t.id ? '3px solid #6366F1' : '3px solid transparent', whiteSpace: 'nowrap' as const, transition: 'all 150ms', marginBottom: -2, minWidth: 120 }}>
@@ -556,8 +558,9 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       </div>
 
       {/* ── TABLE WRAPPER ── */}
-      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 24px 40px', overflowX: 'auto' }}>
-        <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', boxShadow: '0 1px 4px #F5F5F5' }}>
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: isMobile ? '0 0 80px' : '0 24px 40px', overflowX: 'hidden' }}>
+        <div style={{ overflowX: 'auto' as const }}>
+            <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: isMobile ? 0 : 12, overflow: 'hidden', boxShadow: '0 1px 4px #F5F5F5' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 1080 }}>
 
             {/* ── STICKY HEADER ── */}
@@ -821,6 +824,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               )}
             </tbody>
           </table>
+        </div>
         </div>
       </div>
 

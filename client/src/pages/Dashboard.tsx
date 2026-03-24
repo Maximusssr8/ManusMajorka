@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -86,6 +87,7 @@ const GOAL_TOOL_MAP: Record<string, string[]> = {
 const DEFAULT_RECOMMENDED = ['product-discovery', 'website-generator', 'meta-ads', 'ai-chat'];
 
 export default function Dashboard() {
+  const isMobile = useIsMobile();
   const [location, setLocation] = useLocation();
   const { user, isAuthenticated, loading } = useAuth();
   const isToolPage = location.startsWith('/app/') && location !== '/app';

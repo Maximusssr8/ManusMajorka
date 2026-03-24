@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { motion } from 'framer-motion';
 import {
   BarChart2,
@@ -123,7 +124,7 @@ const GLOBAL_STYLES = `
   /* Demo spy grid mobile */
   .spy-grid { grid-template-columns: 1fr !important; }
   /* Footer grid mobile */
-  .footer-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important; gap: 32px !important; }
+  .footer-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important; gap: isMobile ? 16 : 32px !important; }
 }
 @media (min-width: 769px) { .hide-desktop { display: none !important; } }
 
@@ -278,8 +279,8 @@ function StatsBar() {
   };
 
   return (
-    <section ref={ref as React.RefCallback<HTMLElement>} style={{ background: '#F9FAFB', borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB', padding: '64px 24px', overflowX: 'hidden' }}>
-      <div className="grid-2-mobile" style={{ maxWidth: 960, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, textAlign: 'center' }}>
+    <section ref={ref as React.RefCallback<HTMLElement>} style={{ background: '#F9FAFB', borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB', padding: isMobile ? '40px 16px' : '64px 24px', overflowX: 'hidden' }}>
+      <div className="grid-2-mobile" style={{ maxWidth: 960, margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: isMobile ? 12 : 24, textAlign: 'center' }}>
         {STATS_BASE.map((stat, i) => {
           const Icon = stat.icon;
           const currentVal = liveValues[stat.key] ?? stat.end;
@@ -313,7 +314,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div style={{ borderBottom: `1px solid ${C.border}`, overflow: 'hidden' }}>
-      <button onClick={() => setOpen(!open)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 0', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', minHeight: 48 }}>
+      <button onClick={() => setOpen(!open)} style={{ width: '100%', display: 'flex', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', flexDirection: isMobile ? 'column' as const : 'row' as const, padding: '20px 0', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', minHeight: 48 }}>
         <span style={{ fontFamily: syne, fontWeight: 700, fontSize: 16, color: C.text, paddingRight: 16 }}>{q}</span>
         <span style={{ color: C.gold, fontSize: 22, fontWeight: 300, flexShrink: 0, transform: open ? 'rotate(45deg)' : 'rotate(0deg)', transition: 'transform 0.25s' }}>+</span>
       </button>
@@ -344,8 +345,8 @@ function EmailCapture() {
 
   if (status === 'success') {
     return (
-      <div style={{ background: C.elevated, border: `1px solid ${C.goldBorder}`, borderRadius: 20, padding: '48px 32px', textAlign: 'center', maxWidth: 560, margin: '0 auto' }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
+      <div style={{ background: C.elevated, border: `1px solid ${C.goldBorder}`, borderRadius: 20, padding: isMobile ? '32px 16px' : '48px 32px', textAlign: 'center', maxWidth: 560, margin: '0 auto' }}>
+        <div style={{ fontSize: isMobile ? 30 : 48, marginBottom: 16 }}>✅</div>
         <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 22, color: C.text, marginBottom: 12 }}>You're in! Check your inbox.</h3>
         <p style={{ color: C.secondary, fontSize: 15, lineHeight: 1.6 }}>While you wait, <Link href="/app" style={{ color: C.gold, textDecoration: 'underline' }}>try the tools free →</Link></p>
       </div>
@@ -353,7 +354,7 @@ function EmailCapture() {
   }
 
   return (
-    <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 20, padding: '48px 32px', maxWidth: 560, margin: '0 auto', boxShadow: '0 4px 16px #E5E7EB' }}>
+    <div style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 20, padding: isMobile ? '32px 16px' : '48px 32px', maxWidth: 560, margin: '0 auto', boxShadow: '0 4px 16px #E5E7EB' }}>
       <div style={{ textAlign: 'center', marginBottom: 28 }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 100, padding: '5px 14px', marginBottom: 16 }}>
           <span style={{ fontSize: 11, fontWeight: 600, color: C.gold }}>FREE PRODUCT GUIDE</span>
@@ -441,7 +442,7 @@ function WeeklyWinnersSection() {
                 {overlayOpacity > 0 && (
                   <div style={{ position: 'absolute', inset: 0, background: `rgba(8,10,14,${overlayOpacity})`, borderRadius: 14, zIndex: 1 }} />
                 )}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div style={{ display: 'flex', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', flexDirection: isMobile ? 'column' as const : 'row' as const, marginBottom: 8 }}>
                   <span style={{ fontSize: 16 }}>{prod.badge}</span>
                   {i === 0 && <span style={{ fontSize: 10, fontWeight: 700, background: C.goldDim, color: C.gold, border: `1px solid ${C.goldBorder}`, borderRadius: 6, padding: '2px 6px', fontFamily: syne }}>#{i + 1}</span>}
                 </div>
@@ -457,7 +458,7 @@ function WeeklyWinnersSection() {
         {/* Form */}
         {status === 'success' ? (
           <div style={{ textAlign: 'center', padding: '28px 24px', background: C.elevated, border: `1px solid ${C.goldBorder}`, borderRadius: 16, maxWidth: 600, margin: '0 auto' }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>🎉</div>
+            <div style={{ fontSize: isMobile ? 26 : 40, marginBottom: 12 }}>🎉</div>
             <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 20, color: C.text, marginBottom: 8 }}>You're in! Check your inbox.</h3>
             <p style={{ color: C.secondary, fontSize: 14 }}>First report arrives Monday. We'll also send one now so you know what to expect.</p>
           </div>
@@ -757,7 +758,7 @@ function HowItWorksSection() {
           </h2>
         </div>
 
-        <div className="grid-1-mobile" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+        <div className="grid-1-mobile" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? 12 : 24 }}>
           {[
             {
               num: '01', Icon: Search, color: '#6366F1', bg: '#EEF2FF',
@@ -1067,8 +1068,8 @@ function DemoModal({ onClose }: { onClose: () => void }) {
     );
     return (
       <div style={{ marginTop: 20, textAlign: "center" as const }}>
-        <div style={{ fontSize: 56, marginBottom: 12 }}>🎉</div>
-        <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 32, color: "#0A0A0A", marginBottom: 4 }}>
+        <div style={{ fontSize: isMobile ? 34 : 56, marginBottom: 12 }}>🎉</div>
+        <div style={{ fontFamily: brico, fontWeight: 800, fontSize: isMobile ? 22 : 32, color: "#0A0A0A", marginBottom: 4 }}>
           First Sale: <span style={{ color: "#10B981" }}>$84.00</span>
         </div>
         <div style={{ fontSize: 14, color: "#6B7280", marginBottom: 20 }}>Within 6 hours of store launch · Customer from Sydney, NSW</div>
@@ -1099,7 +1100,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
           ))}
         </div>
         <div style={{ padding: "24px 28px 28px" }}>
-          <div style={{ fontSize: 36, marginBottom: 10 }}>{current.icon}</div>
+          <div style={{ fontSize: isMobile ? 24 : 36, marginBottom: 10 }}>{current.icon}</div>
           <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: "#0A0A0A", marginBottom: 4 }}>{current.title}</div>
           <div style={{ fontSize: 13, color: "#6B7280" }}>{current.subtitle}</div>
           {renderContent()}
@@ -1118,6 +1119,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
 
 // ── Main Home ─────────────────────────────────────────────────────────────────
 export default function Home() {
+  const isMobile = useIsMobile();
   const [annual, setAnnual] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
   const pricingCardsRef = useRef<HTMLDivElement>(null);
@@ -1178,7 +1180,7 @@ export default function Home() {
 
       {/* ═══ NAV ═══════════════════════════════════════════════════════════ */}
       <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(250,250,250,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(229,231,235,0.8)', boxShadow: navShadow ? '0 1px 12px #E5E7EB' : 'none', transition: 'box-shadow 0.3s' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 max(calc((100vw - 1200px) / 2), 24px)', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? '0 16px' : '0 24px', padding: '0 max(calc((100vw - 1200px) / 2), 24px)', height: 64, display: 'flex', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', flexDirection: isMobile ? 'column' as const : 'row' as const }}>
           {/* Left: wordmark */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 24, height: 24, borderRadius: 6, background: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: '#fff' }}>M</div>
@@ -1282,7 +1284,7 @@ export default function Home() {
             {/* Browser content */}
             <div style={{ background: 'white' }}>
               {/* Mini header */}
-              <div style={{ background: '#FAFAFA', borderBottom: '1px solid #E5E7EB', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ background: '#FAFAFA', borderBottom: '1px solid #E5E7EB', padding: '12px 20px', display: 'flex', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', flexDirection: isMobile ? 'column' as const : 'row' as const }}>
                 <span style={{ fontWeight: 600, fontSize: 14, color: '#FAFAFA' }}>Product Intelligence</span>
                 <span style={{ fontSize: 12, color: '#6B7280' }}>🇦🇺 AU Market · Live Data</span>
               </div>
@@ -1325,16 +1327,16 @@ export default function Home() {
       </section>
 
       {/* ═══ TRUST BAR ════════════════════════════════════════════════════ */}
-      <div style={{ padding: '48px 24px', borderTop: '1px solid #F3F4F6', borderBottom: '1px solid #F3F4F6', background: '#FAFAFA' }}>
+      <div style={{ padding: isMobile ? '28px 16px' : '48px 24px', borderTop: '1px solid #F3F4F6', borderBottom: '1px solid #F3F4F6', background: '#FAFAFA' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 32 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 24, marginBottom: 32 }}>
             <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
             <span style={{ fontSize: 13, color: '#9CA3AF', fontWeight: 500, whiteSpace: 'nowrap', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
               Powering stores worldwide
             </span>
             <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 48, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: isMobile ? 24 : 48, flexWrap: 'wrap' }}>
             {['Shopify', 'AliExpress', 'TikTok Shop', 'Meta Ads', 'Google Ads', 'DHL'].map(name => (
               <div key={name}
                 style={{ fontSize: 15, fontWeight: 700, color: '#374151', opacity: 0.35, filter: 'grayscale(1)', transition: 'opacity 200ms', letterSpacing: '0', cursor: 'default', userSelect: 'none' }}
@@ -1408,12 +1410,12 @@ export default function Home() {
           </div>
 
           {/* Cards */}
-          <div ref={pricingCardsRef} className="grid-1-mobile" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, textAlign: 'left' }}>
+          <div ref={pricingCardsRef} className="grid-1-mobile" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? 12 : 24, textAlign: 'left' }}>
             {/* Free */}
             <div data-pricing-card style={{ opacity: 0, transform: 'translateY(20px)', transition: 'opacity 400ms, transform 400ms', background: 'white', border: '1px solid #E5E7EB', borderRadius: 20, padding: 32 }}>
               <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: '#6B7280', marginBottom: 16 }}>Free</div>
               <div style={{ marginBottom: 4 }}>
-                <span style={{ fontSize: 56, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', lineHeight: 1 }}>$0</span>
+                <span style={{ fontSize: isMobile ? 34 : 56, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', lineHeight: 1 }}>$0</span>
                 <span style={{ fontSize: 16, color: '#6B7280', marginLeft: 4 }}>/month</span>
               </div>
               <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 24 }}>Get started with essential tools.</p>
@@ -1444,7 +1446,7 @@ export default function Home() {
               <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: '#6366F1', color: 'white', fontSize: 12, fontWeight: 700, padding: '5px 16px', borderRadius: 999, whiteSpace: 'nowrap' }}>⭐ Most Popular</div>
               <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: '#6B7280', marginBottom: 16 }}>Builder</div>
               <div style={{ marginBottom: 4 }}>
-                <span style={{ fontSize: 56, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', lineHeight: 1 }}>${annual ? 79 : 99}</span>
+                <span style={{ fontSize: isMobile ? 34 : 56, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', lineHeight: 1 }}>${annual ? 79 : 99}</span>
                 <span style={{ fontSize: 16, color: '#6B7280', marginLeft: 4 }}>/month</span>
               </div>
               {annual && <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 4 }}>billed ${79 * 12} annually</div>}
@@ -1475,7 +1477,7 @@ export default function Home() {
             <div data-pricing-card style={{ opacity: 0, transform: 'translateY(20px)', transition: 'opacity 400ms, transform 400ms', background: 'white', border: '1px solid #E5E7EB', borderRadius: 20, padding: 32 }}>
               <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: '#6B7280', marginBottom: 16 }}>Scale</div>
               <div style={{ marginBottom: 4 }}>
-                <span style={{ fontSize: 56, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', lineHeight: 1 }}>${annual ? 159 : 199}</span>
+                <span style={{ fontSize: isMobile ? 34 : 56, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', lineHeight: 1 }}>${annual ? 159 : 199}</span>
                 <span style={{ fontSize: 16, color: '#6B7280', marginLeft: 4 }}>/month</span>
               </div>
               {annual && <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 4 }}>billed ${159 * 12} annually</div>}
@@ -1506,7 +1508,7 @@ export default function Home() {
       </section>
 
       {/* ═══ FAQ ════════════════════════════════════════════════════════════ */}
-      <section id="faq" style={{ padding: '80px 24px' }}>
+      <section id="faq" style={{ padding: isMobile ? '40px 16px' : '80px 24px' }}>
         <div style={{ maxWidth: 680, margin: '0 auto' }}>
           <motion.h2 variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', letterSpacing: '-0.025em', textAlign: 'center', marginBottom: 48 }}>
             Common questions.
@@ -1516,7 +1518,7 @@ export default function Home() {
       </section>
 
       {/* ═══ EMAIL CAPTURE ═════════════════════════════════════════════════ */}
-      <section id="guide" style={{ padding: '80px 24px', background: '#FAFAFA', borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB' }}>
+      <section id="guide" style={{ padding: isMobile ? '40px 16px' : '80px 24px', background: '#FAFAFA', borderTop: '1px solid #E5E7EB', borderBottom: '1px solid #E5E7EB' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.15 }} style={{ textAlign: 'center', marginBottom: 40 }}>
             <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.4rem, 3.5vw, 2.2rem)', letterSpacing: '-0.025em', marginBottom: 12 }}>Free resources. No catch.</h2>
@@ -1560,8 +1562,8 @@ export default function Home() {
 
       {/* ═══ FOOTER ════════════════════════════════════════════════════════ */}
       <footer style={{ background: '#0A0A0A', padding: '80px 24px 40px', color: '#6B7280' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 48, marginBottom: 64 }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? '0 16px' : '0 24px' }}>
+          <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: isMobile ? 24 : 48, marginBottom: 64 }}>
             {/* Col 1: Brand */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>

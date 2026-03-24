@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { useState, useRef } from 'react';
 
 const brico = "'Bricolage Grotesque', sans-serif";
@@ -15,6 +16,7 @@ async function callAI(tool: string, params: Record<string, string>): Promise<str
 
 // ── Copy button ────────────────────────────────────────────────────────────
 function CopyBtn({ text, small }: { text: string; small?: boolean }) {
+  const isMobile = useIsMobile();
   const [done, setDone] = useState(false);
   const copy = () => {
     navigator.clipboard.writeText(text);
@@ -439,7 +441,7 @@ export default function GrowthTools() {
         {/* Individual tools 3-col grid */}
         <div style={{ marginBottom: 12 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 14 }}>Individual Tools</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, 1fr)', gap: 14 }}>
             <AdCopyTool />
             <DescriptionTool />
             <EmailTool />

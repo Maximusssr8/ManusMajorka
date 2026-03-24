@@ -1,3 +1,4 @@
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { lazy, Suspense, useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 
@@ -60,6 +61,7 @@ const C = { bg: '#FAFAFA', surface: '#FFFFFF', border: '#E5E7EB', accent: '#6366
 const brico = "'Bricolage Grotesque', sans-serif";
 
 function CompetitorSpy() {
+  const isMobile = useIsMobile();
   const [selectedStore, setSelectedStore] = useState<string | null>(null);
   const [products, setProducts] = useState<any[]>([]);
   const [stores, setStores] = useState<any[]>(STORES.map(s => ({ ...s, product_count: 0 })));

@@ -2,6 +2,7 @@
  * Alerts Engine — Smart threshold alerts for product/trend/competitor monitoring
  * Route: /app/alerts
  */
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { Bell, BellOff, Plus, Trash2, TrendingUp, ShoppingBag, Store } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -20,6 +21,7 @@ const REGIONS = ['AU', 'US', 'UK', 'CA', 'DE', 'SG'];
 
 export default function Alerts() {
   const { session, isPro } = useAuth();
+  const isMobile = useIsMobile();
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [history, setHistory] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,7 +67,7 @@ export default function Alerts() {
   ];
 
   if (!isPro) return (
-    <div style={{ padding: '48px 32px', textAlign: 'center', background: C.bg, minHeight: '100vh' }}>
+    <div style={{ padding: isMobile ? '24px 16px' : '48px 32px', textAlign: 'center', background: C.bg, minHeight: '100vh' }}>
       <Bell size={40} style={{ color: C.indigo, margin: '0 auto 16px' }} />
       <h2 style={{ fontFamily: brico, fontSize: 22, color: C.text, marginBottom: 8 }}>Smart Alerts</h2>
       <p style={{ color: C.sub, fontSize: 14, maxWidth: 400, margin: '0 auto 24px' }}>Set up intelligent alerts for trending products, price drops, and competitor moves. Available on Builder and Scale plans.</p>
@@ -74,8 +76,8 @@ export default function Alerts() {
   );
 
   return (
-    <div style={{ background: C.bg, minHeight: '100vh', padding: '32px' }}>
-      <div style={{ maxWidth: 800, margin: '0 auto' }}>
+    <div style={{ background: C.bg, minHeight: '100vh', padding: isMobile ? '16px' : '32px' }}>
+      <div style={{ maxWidth: 800, margin: '0 auto', width: '100%' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
           <div>
@@ -136,8 +138,8 @@ export default function Alerts() {
 
         {/* Create Alert Modal */}
         {showCreate && (
-          <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setShowCreate(false)}>
-            <div style={{ background: 'white', borderRadius: 20, padding: 28, width: '100%', maxWidth: 480, maxHeight: '90vh', overflowY: 'auto' as const }} onClick={e => e.stopPropagation()}>
+          <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? 0 : 20 }} onClick={() => setShowCreate(false)}>
+            <div style={{ background: 'white', borderRadius: isMobile ? 0 : 20, padding: isMobile ? '24px 20px' : 28, width: '100%', maxWidth: 480, maxHeight: '100dvh', overflowY: 'auto' as const, marginTop: isMobile ? 'auto' : 0 }} onClick={e => e.stopPropagation()}>
               <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 20 }}>Create Alert</h3>
               {/* Alert type selector */}
               <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8, marginBottom: 20 }}>
