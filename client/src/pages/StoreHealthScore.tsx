@@ -1,3 +1,4 @@
+import { useAuth } from '@/_core/hooks/useAuth';
 /**
  * StoreHealthScore — FREE public lead-gen tool at /store-health
  * No login required. Rate limited at 3/IP/day on the backend.
@@ -101,7 +102,8 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
 }
 
 function LoadingAnimation({ storeUrl }: { storeUrl: string }) {
-  const [step, setStep] = useState(0);
+  const { session } = useAuth();
+    const [step, setStep] = useState(0);
 
   // CSS animation via useEffect-driven step progression
   const stepRef = useRef(step);
@@ -599,7 +601,7 @@ export default function StoreHealthScore() {
             fontFamily: dm,
           }}
         >
-          Sign In →
+          {session ? 'Go to Dashboard →' : 'Sign In →'}
         </Link>
       </nav>
 

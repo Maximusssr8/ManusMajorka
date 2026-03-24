@@ -107,7 +107,7 @@ export default function DropshippingAustralia() {
   return (
     <div style={{ background: C.bg, minHeight: '100vh', color: C.text, fontFamily: dmSans }}>
       <SEO
-        title="Dropshipping Australia 2025 — Find Winning Products with AI | Majorka"
+        title="Dropshipping Australia 2026 — Find Winning Products with AI | Majorka"
         description="The #1 AI platform for Australian dropshippers. Find winning products, source suppliers, and build stores in minutes. Join 2,400+ AU dropshippers."
         path="/dropshipping-australia"
       />
@@ -141,7 +141,7 @@ export default function DropshippingAustralia() {
           </div>
           <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 20 }}>
             The Smartest Way to<br />
-            <span style={{ background: `linear-gradient(135deg, ${C.gold}, #A5B4FC)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' as const, color: '#6366F1' }}>Dropship in Australia</span> in 2025
+            <span style={{ background: `linear-gradient(135deg, ${C.gold}, #A5B4FC)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' as const, color: '#6366F1' }}>Dropship in Australia</span> in 2026
           </h1>
           <p style={{ color: C.secondary, fontSize: 'clamp(15px, 2vw, 18px)', maxWidth: 620, margin: '0 auto 36px', lineHeight: 1.65 }}>
             Majorka is the <strong style={{ color: C.text }}>AI-powered product intelligence platform</strong> built exclusively for Australian dropshippers. Find winning products, source AU-ready suppliers, and launch profitable stores — faster than your competition.
@@ -160,7 +160,7 @@ export default function DropshippingAustralia() {
         {/* ── STATS STRIP ── */}
         <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 80 }}>
           {[
-            { label: 'AU ecommerce market', value: '$13B+', note: '2025 estimate' },
+            { label: 'AU ecommerce market', value: '$13B+', note: '2026 estimate' },
             { label: 'Smartphone penetration', value: '88%', note: 'AU consumers' },
             { label: 'TikTok Shop AU launched', value: '2024', note: 'New sales channel' },
             { label: 'AU dropshippers on Majorka', value: '2,400+', note: 'Active sellers' },

@@ -107,8 +107,8 @@ export default function WinningProductsAustralia() {
   return (
     <div style={{ background: C.bg, minHeight: '100vh', color: C.text, fontFamily: dmSans }}>
       <SEO
-        title="47 Winning Products to Dropship in Australia (2025) | Majorka"
-        description="The definitive list of winning dropshipping products in Australia for 2025. Real revenue data, AU-specific suppliers, margins, and trend analysis. Updated weekly by Majorka AI."
+        title="47 Winning Products to Dropship in Australia (2026) | Majorka"
+        description="The definitive list of winning dropshipping products in Australia for 2026. Real revenue data, AU-specific suppliers, margins, and trend analysis. Updated weekly by Majorka AI."
         path="/winning-products-australia"
       />
 
@@ -158,7 +158,7 @@ export default function WinningProductsAustralia() {
         {/* ── TOP 10 TABLE ── */}
         <section style={{ marginBottom: 80 }}>
           <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.5rem, 3vw, 2.2rem)', marginBottom: 8, letterSpacing: '-0.02em' }}>
-            Top 10 <span style={{ color: C.gold }}>Winning Products</span> in Australia (2025)
+            Top 10 <span style={{ color: C.gold }}>Winning Products</span> in Australia (2026)
           </h2>
           <p style={{ color: C.secondary, fontSize: 14, marginBottom: 28 }}>
             Revenue data aggregated from TikTok Shop AU, Amazon AU, eBay AU sold listings, and AliExpress AU order volume. Margins reflect typical dropshipping cost structure.

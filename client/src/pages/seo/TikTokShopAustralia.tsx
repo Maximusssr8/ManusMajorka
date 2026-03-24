@@ -91,7 +91,7 @@ export default function TikTokShopAustralia() {
     <div style={{ background: C.bg, minHeight: '100vh', color: C.text, fontFamily: dmSans }}>
       <SEO
         title="TikTok Shop Australia — Find Winning Products with AI | Majorka"
-        description="Discover the best TikTok Shop Australia products in 2025. AI-powered product research for AU TikTok dropshippers. See real revenue data, trending niches, and supplier intel."
+        description="Discover the best TikTok Shop Australia products in 2026. AI-powered product research for AU TikTok dropshippers. See real revenue data, trending niches, and supplier intel."
         path="/tiktok-shop-australia"
       />
 
@@ -123,7 +123,7 @@ export default function TikTokShopAustralia() {
           </div>
           <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(2rem, 5vw, 3.5rem)', lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 20 }}>
             TikTok Shop Australia:<br />
-            <span style={{ background: `linear-gradient(135deg, ${C.gold}, #A5B4FC)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>The Complete 2025 Guide</span>
+            <span style={{ background: `linear-gradient(135deg, ${C.gold}, #A5B4FC)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>The Complete 2026 Guide</span>
           </h1>
           <p style={{ color: C.secondary, fontSize: 'clamp(15px, 2vw, 18px)', maxWidth: 640, margin: '0 auto 36px', lineHeight: 1.65 }}>
             TikTok Shop launched in Australia in 2024 — and it's already <strong style={{ color: C.text }}>the fastest-growing ecommerce channel</strong> in the country. This guide covers everything you need to know about <strong style={{ color: C.text }}>TikTok dropshipping Australia</strong>: how TikTok Shop AU works, what products are winning, and how to find them before your competitors.

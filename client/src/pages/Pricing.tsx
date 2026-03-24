@@ -324,7 +324,6 @@ function EmotionalComparisonTable() {
           >
             <span style={{ fontSize: 12 }}>⚡</span>
             <span style={{ fontSize: 12, color: '#6366F1', fontWeight: 600 }}>
-              Builder plan — 23 spots remaining this month
             </span>
           </div>
         </div>
@@ -570,7 +569,7 @@ export default function Pricing() {
     if (plan.price === '$0') return '$0';
     const base = parseInt(plan.price.replace('$', ''));
     if (annual) {
-      const monthlyEquiv = Math.round((base * 10) / 12); // 10 months = 2 free
+      const monthlyEquiv = Math.round(base * 0.8); // Save 20%
       return `$${monthlyEquiv}`;
     }
     return plan.price;
@@ -847,7 +846,7 @@ export default function Pricing() {
             ))}
           </div>
           <div className="pricing-trust-badges" style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 20, flexWrap: 'wrap' }}>
-            {['Secure checkout', 'Australian Consumer Law', 'Afterpay coming soon', 'Cancel anytime'].map(badge => (
+            {['Secure checkout', '14-day money-back guarantee', 'Australian Consumer Law', 'Cancel anytime'].map(badge => (
               <span key={badge} style={{ fontSize: 12, color: '#6B7280', display: 'flex', alignItems: 'center', gap: 4 }}>{badge}</span>
             ))}
           </div>
@@ -927,7 +926,7 @@ export default function Pricing() {
                     ${parseInt(plan.price.replace('$', '')) * 12}/yr
                   </span>{' '}
                   <span style={{ color: '#6366F1', fontWeight: 700 }}>
-                    ${getAnnualTotal(plan)}/yr — save ${parseInt(plan.price.replace('$', '')) * 2}
+                    ${getAnnualTotal(plan)}/yr — save ${Math.round(parseInt(plan.price.replace('$', '')) * 12 * 0.2)}
                   </span>
                 </div>
               )}
