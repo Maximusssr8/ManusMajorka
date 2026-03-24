@@ -1,6 +1,6 @@
 /**
  * MajorkaLogo — canonical logomark + wordmark component.
- * Use wherever you need the Majorka brand identity.
+ * Uses the official Majorka gradient-M mark.
  */
 
 interface MajorkaLogoProps {
@@ -8,13 +8,13 @@ interface MajorkaLogoProps {
   size?: number;
   /** Wordmark font size in px (default 18) */
   wordmarkSize?: number;
-  /** Wordmark colour (default #0F172A for light bg, pass 'white' for dark bg) */
+  /** Wordmark colour — default dark for light bg, pass 'white' for dark bg */
   wordmarkColor?: string;
   /** Hide the text wordmark — icon only */
   iconOnly?: boolean;
   /** Gap between icon and wordmark */
   gap?: number;
-  /** href to wrap the logo in a link (optional) */
+  /** Wrap in an <a> link */
   href?: string;
 }
 
@@ -26,10 +26,7 @@ export default function MajorkaLogo({
   gap = 10,
   href,
 }: MajorkaLogoProps) {
-  // Unique gradient id per instance to avoid SVG gradient conflicts
-  const gradId = `lg-${size}-${wordmarkColor.replace(/[^a-z0-9]/gi, '')}`;
-
-  const logo = (
+  const inner = (
     <span
       style={{
         display: 'inline-flex',
@@ -37,38 +34,26 @@ export default function MajorkaLogo({
         gap,
         textDecoration: 'none',
         userSelect: 'none',
-        cursor: href ? 'pointer' : 'default',
       }}
     >
-      {/* SVG Logomark */}
-      <svg
+      {/* Gradient-M logomark */}
+      <img
+        src="/majorka-logo.jpg"
+        alt="Majorka"
         width={size}
         height={size}
-        viewBox="0 0 32 32"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        style={{ flexShrink: 0 }}
-      >
-        <defs>
-          <linearGradient id={gradId} x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#818CF8" />
-            <stop offset="100%" stopColor="#6366F1" />
-          </linearGradient>
-        </defs>
-        {/* Rounded square background */}
-        <rect width="32" height="32" rx="9" fill={`url(#${gradId})`} />
-        {/* Stylised M — mountain / waveform peaks */}
-        <path
-          d="M7 22V10L13.5 18L16 14L18.5 18L25 10V22"
-          stroke="white"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-        />
-      </svg>
+        style={{
+          width: size,
+          height: size,
+          objectFit: 'contain',
+          display: 'block',
+          flexShrink: 0,
+          // White bg on the image — clip with border-radius so it's circular/square
+          borderRadius: Math.round(size * 0.28),
+        }}
+        draggable={false}
+      />
 
-      {/* Wordmark */}
       {!iconOnly && (
         <span
           style={{
@@ -89,10 +74,10 @@ export default function MajorkaLogo({
   if (href) {
     return (
       <a href={href} style={{ textDecoration: 'none' }}>
-        {logo}
+        {inner}
       </a>
     );
   }
 
-  return logo;
+  return inner;
 }

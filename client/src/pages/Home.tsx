@@ -1190,19 +1190,7 @@ export default function Home() {
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? '0 16px' : '0 max(calc((100vw - 1200px) / 2), 24px)', height: 64, display: 'flex', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', flexDirection: isMobile ? 'column' as const : 'row' as const }}>
           {/* Left: wordmark */}
           <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', userSelect: 'none' }}>
-            {/* Logomark — indigo gradient square with M */}
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="lg-nav" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="#818CF8"/>
-                  <stop offset="100%" stopColor="#6366F1"/>
-                </linearGradient>
-              </defs>
-              <rect width="32" height="32" rx="9" fill="url(#lg-nav)"/>
-              {/* Stylised M — two peaks */}
-              <path d="M7 22V10L13.5 18L16 14L18.5 18L25 10V22" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-            </svg>
-            {/* Wordmark */}
+            <img src="/majorka-logo.jpg" alt="Majorka" width={36} height={36} style={{ width: 36, height: 36, objectFit: 'contain', display: 'block', borderRadius: 10, flexShrink: 0 }} draggable={false} />
             <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 18, color: '#0F172A', letterSpacing: '-0.02em', lineHeight: 1 }}>Majorka</span>
           </a>
           {/* Center: nav links */}
@@ -1586,16 +1574,7 @@ export default function Home() {
             {/* Col 1: Brand */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <linearGradient id="lg-footer" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-                      <stop offset="0%" stopColor="#818CF8"/>
-                      <stop offset="100%" stopColor="#6366F1"/>
-                    </linearGradient>
-                  </defs>
-                  <rect width="32" height="32" rx="9" fill="url(#lg-footer)"/>
-                  <path d="M7 22V10L13.5 18L16 14L18.5 18L25 10V22" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                </svg>
+                <img src="/majorka-logo.jpg" alt="Majorka" width={36} height={36} style={{ width: 36, height: 36, objectFit: 'contain', display: 'block', borderRadius: 10, flexShrink: 0 }} draggable={false} />
                 <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 18, color: 'white', letterSpacing: '-0.02em' }}>Majorka</span>
               </div>
               <p style={{ fontSize: 14, lineHeight: 1.7, color: '#6B7280', maxWidth: 240, marginBottom: 24 }}>The AI OS for AU ecommerce. Find winners, build stores, scale fast.</p>
