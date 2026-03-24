@@ -124,7 +124,7 @@ const GLOBAL_STYLES = `
   /* Demo spy grid mobile */
   .spy-grid { grid-template-columns: 1fr !important; }
   /* Footer grid mobile */
-  .footer-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important; gap: isMobile ? 16 : 32px !important; }
+  .footer-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important; gap: 16px !important; }
 }
 @media (min-width: 769px) { .hide-desktop { display: none !important; } }
 
@@ -254,6 +254,7 @@ function SocialProofCounter() {
 }
 
 function StatsBar() {
+  const isMobile = useIsMobile();
   const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.15 });
   const [liveValues, setLiveValues] = useState<Record<string, number>>(() =>
     Object.fromEntries(STATS_BASE.map((s) => [s.key, s.end]))
@@ -311,6 +312,7 @@ function StatsBar() {
 }
 
 function FAQItem({ q, a }: { q: string; a: string }) {
+  const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
   return (
     <div style={{ borderBottom: `1px solid ${C.border}`, overflow: 'hidden' }}>
@@ -326,6 +328,7 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 }
 
 function EmailCapture() {
+  const isMobile = useIsMobile();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -386,6 +389,7 @@ const WEEKLY_PRODUCTS = [
 ];
 
 function WeeklyWinnersSection() {
+  const isMobile = useIsMobile();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errMsg, setErrMsg] = useState('');
@@ -736,6 +740,7 @@ function BentoFeaturesSection() {
 
 // ── How It Works ──────────────────────────────────────────────────────────────
 function HowItWorksSection() {
+  const isMobile = useIsMobile();
   const brico = "'Bricolage Grotesque', sans-serif";
   const steps = [
     { Icon: Search, title: 'Find a Winner', desc: 'Browse trending AU products with real revenue data and supplier links.' },
@@ -976,6 +981,7 @@ function DemoSection() {
 
 // ── Demo Modal ────────────────────────────────────────────────────────────────
 function DemoModal({ onClose }: { onClose: () => void }) {
+  const isMobile = useIsMobile();
   const [step, setStep] = useState(0);
   const brico = "'Bricolage Grotesque', sans-serif";
 
