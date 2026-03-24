@@ -101,14 +101,13 @@ const NAV_SECTIONS: NavSection[] = [
       { label: 'Video Intel', path: '/app/video-intelligence', icon: Play, badge: 'NEW', tooltip: 'Top-performing product videos — what drives real sales.' },
       { label: 'Alerts', path: '/app/alerts', icon: Bell, tooltip: 'Smart alerts for trending products, price drops, and competitor moves.' },
       { label: 'Ad Intelligence', path: '/app/ad-spy', icon: Target, tooltip: 'Spy on winning TikTok & Meta ads in your niche.' },
-      { label: 'Livestream', path: '/app/livestream', icon: Radio, badge: 'NEW', tooltip: 'Track trending niches and GMV across TikTok Live sessions.' },
+      // Livestream — coming soon, hidden until feature is built
     ],
   },
   {
     label: 'COMPETE',
     items: [
-      { label: 'Shop Spy', path: '/app/spy-tools', icon: Eye, tooltip: 'Market overview, trending video hooks, shareable reports.' },
-      { label: 'Shop Intelligence', path: '/app/shop-intelligence', icon: Store, tooltip: 'Discover top performing Shopify stores and analyse competitor strategy.' },
+      { label: 'Spy Tools', path: '/app/spy', icon: Eye, tooltip: 'Browse winning ads, creator inspiration, and competitor products.' },
     ],
   },
   {
@@ -660,15 +659,6 @@ export default function MajorkaAppShell({ children }: Props) {
           >
             Majorka
           </span>
-        </button>
-        <button
-          onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
-          title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', padding: 4, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'color 0.2s', minHeight: 28 }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#6366F1')}
-          onMouseLeave={e => (e.currentTarget.style.color = '#6B7280')}
-        >
-          {theme === 'light' ? createElement(Moon, { size: 14 }) : createElement(Sun, { size: 14 })}
         </button>
         <NotificationBell />
       </div>

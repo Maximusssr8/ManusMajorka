@@ -723,7 +723,7 @@ function PlaylistDrawer({
                       </span>
                       <div className="flex-1 min-w-0">
                         <div
-                          className="text-xs font-semibold truncate"
+                          className="text-xs font-semibold" style={{ overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", lineHeight: 1.4 }}
                           style={{
                             color: done ? '#9CA3AF' : '#e5e5e5',
                             textDecoration: done ? 'line-through' : 'none',

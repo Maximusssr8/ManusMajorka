@@ -606,11 +606,14 @@ function DashboardHome() {
     });
   }, []);
 
-  const chartData = [
-    { day: 'Mon', rev: 2100 }, { day: 'Tue', rev: 3400 }, { day: 'Wed', rev: 2800 },
-    { day: 'Thu', rev: 4200 }, { day: 'Fri', rev: 5100 }, { day: 'Sat', rev: 4600 },
-    { day: 'Sun', rev: 6200 },
-  ];
+  // Generate last 7 days with real dates
+  const chartData = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    const day = d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric' });
+    const revs = [2100, 3400, 2800, 4200, 5100, 4600, 6200];
+    return { day, rev: revs[i] };
+  });
 
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB', padding: '0' }}>
@@ -688,7 +691,7 @@ function DashboardHome() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
                 <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#6B7280' }} axisLine={false} tickLine={false} />
-                <YAxis hide />
+                <YAxis width={46} tick={{ fill: '#9CA3AF', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${(v/1000).toFixed(1)}k`} />
                 <Tooltip contentStyle={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12 }} formatter={(v: any) => [`$${(v / 1000).toFixed(1)}k`, 'Revenue']} />
                 <Area type="monotone" dataKey="rev" stroke="#6366F1" strokeWidth={2.5} fill="url(#indigo-grad)" dot={{ fill: '#6366F1', r: 3 }} activeDot={{ r: 5 }} />
               </AreaChart>

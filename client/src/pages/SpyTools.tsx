@@ -164,7 +164,7 @@ function CompetitorSpy() {
               onMouseLeave={e => { if (selectedStore !== s.domain) e.currentTarget.style.background = 'white'; }}>
               <img src={`https://www.google.com/s2/favicons?domain=${s.domain}&sz=32`} alt={s.name} style={{ width: 16, height: 16, borderRadius: 3 }} onError={(e: any) => (e.currentTarget.style.display = 'none')} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: selectedStore === s.domain ? '#6366F1' : '#0A0A0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{s.name}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: selectedStore === s.domain ? '#6366F1' : '#0A0A0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, direction: 'ltr' as const }}>{s.name}</div>
               </div>
               {(s.product_count || 0) > 0 && (
                 <span style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF' }}>{s.product_count}</span>

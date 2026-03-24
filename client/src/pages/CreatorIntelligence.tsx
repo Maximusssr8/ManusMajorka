@@ -189,7 +189,7 @@ export default function CreatorIntelligence() {
                         {initial}
                       </div>
                       <div style={{ minWidth: 0 }}>
-                        <a href={c.profile_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+                        <a href={`https://www.tiktok.com/search?q=${encodeURIComponent(c.handle || '')}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
                           style={{ fontSize: 13, fontWeight: 700, color: '#6366F1', textDecoration: 'none', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                           {c.handle}
                         </a>
@@ -209,7 +209,7 @@ export default function CreatorIntelligence() {
                       </div>
                     )}
                     <div style={{ display: 'flex', gap: 6 }}>
-                      <a href={c.profile_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+                      <a href={`https://www.tiktok.com/search?q=${encodeURIComponent(c.handle || '')}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
                         style={{ flex: 1, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F5F5F5', border: 'none', borderRadius: 7, fontSize: 11, fontWeight: 600, color: '#374151', textDecoration: 'none', cursor: 'pointer' }}>
                         View Profile
                       </a>
@@ -247,7 +247,7 @@ export default function CreatorIntelligence() {
                 </div>
                 <div>
                   <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 15, color: '#0A0A0A' }}>{selected.display_name}</div>
-                  <a href={selected.profile_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#6366F1' }}>{selected.handle}</a>
+                  <a href={`https://www.tiktok.com/search?q=${encodeURIComponent(selected.handle || '')}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#6366F1' }}>{selected.handle} ↗</a>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>

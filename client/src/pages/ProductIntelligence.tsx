@@ -102,7 +102,12 @@ export default function ProductIntelligence() {
                 transition: 'all 150ms',
               }}
             >
-              {t === 'trending' ? '🔥 Trending Today' : t === 'database' ? '🗄 Full Database' : '🔍 Scout'}
+              <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                <span>{t === 'trending' ? '🔥 Trending Today' : t === 'database' ? '🗄 Full Database' : '🔍 Scout'}</span>
+                {tab === t && <span style={{ fontSize: 9, fontWeight: 600, color: t === 'trending' ? '#F59E0B' : t === 'database' ? '#6366F1' : '#059669', letterSpacing: '0.04em' }}>
+                  {t === 'trending' ? 'TOP 50 · SORTED BY VELOCITY' : t === 'database' ? '595 PRODUCTS · ALL TIME' : 'AI-POWERED SEARCH'}
+                </span>}
+              </span>
             </button>
           ))}
         </div>
