@@ -269,9 +269,15 @@ function Router() {
             <Route path="/app/spy-tools">{() => { window.location.replace('/app/spy'); return null; }}</Route>
             <Route path="/app/shop-spy">{() => { window.location.replace('/app/spy'); return null; }}</Route>
             <Route path="/app/shop-intelligence">{() => { window.location.replace('/app/spy'); return null; }}</Route>
+            <Route path="/app/store-intelligence">{() => { window.location.replace('/app/spy'); return null; }}</Route>
             <Route path="/app/store-builder">{() => { window.location.replace('/store-builder'); return null; }}</Route>
             <Route path="/app/growth-tools">{() => { window.location.replace('/app/growth'); return null; }}</Route>
             <Route path="/app/livestream">{() => { window.location.replace('/app/videos'); return null; }}</Route>
+            <Route path="/app/live">{() => { window.location.replace('/app/videos'); return null; }}</Route>
+            <Route path="/app/ads">{() => { window.location.replace('/app/ad-spy'); return null; }}</Route>
+            <Route path="/app/creator-intel">{() => { window.location.replace('/app/creators'); return null; }}</Route>
+            <Route path="/app/academy">{() => { window.location.replace('/app/learn'); return null; }}</Route>
+            <Route path="/app/intelligence/database">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/ai-chat">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
             <Route path="/app/:tool">
               {() => (

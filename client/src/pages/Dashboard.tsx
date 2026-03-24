@@ -631,7 +631,7 @@ function DashboardHome() {
               Upgrade to Builder &rarr;
             </button>
           )}
-          <button onClick={() => setLocation('/app/intelligence/database')} style={{ height: 38, padding: '0 18px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'transform 150ms' }}
+          <button onClick={() => setLocation('/app/intelligence')} style={{ height: 38, padding: '0 18px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'transform 150ms' }}
             onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.02)')}
             onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}>
             <Package size={14} /> Find Products
@@ -700,7 +700,7 @@ function DashboardHome() {
             <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#0A0A0A', marginBottom: 16 }}>Quick Actions</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {([
-                { icon: Search, label: 'Find Winning Products', path: '/app/intelligence/database', color: '#6366F1' },
+                { icon: Search, label: 'Find Winning Products', path: '/app/intelligence', color: '#6366F1' },
                 { icon: Globe, label: 'Build a Shopify Store', path: '/app/store-builder', color: '#8B5CF6' },
                 { icon: Eye, label: 'Spy on Competitors', path: '/app/competitor-spy', color: '#0891B2' },
                 { icon: BarChart2, label: 'Profit Calculator', path: '/app/profit-calculator', color: '#059669' },
@@ -728,7 +728,7 @@ function DashboardHome() {
           <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, overflow: 'hidden' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid #F5F5F5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#0A0A0A' }}>Top Products Today</div>
-              <button onClick={() => setLocation('/app/intelligence/database')} style={{ fontSize: 13, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>View all &rarr;</button>
+              <button onClick={() => setLocation('/app/intelligence')} style={{ fontSize: 13, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>View all &rarr;</button>
             </div>
             {loading ? (
               <div style={{ padding: '0 24px' }}>
@@ -744,6 +744,12 @@ function DashboardHome() {
               </div>
             ) : (
               <div>
+                {products.length === 0 ? (
+                  <div style={{ padding: '32px 24px', textAlign: 'center', color: '#9CA3AF', fontSize: 13 }}>
+                    <div style={{ fontSize: 24, marginBottom: 8 }}>📊</div>
+                    Loading product data...
+                  </div>
+                ) : null}
                 {(products.slice(0, 5)).map((p: any, i: number) => {
                   const score = p.winning_score ?? p.opportunity_score ?? 0;
                   const revenue = p.est_monthly_revenue_aud ?? 0;
@@ -752,7 +758,7 @@ function DashboardHome() {
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px', borderBottom: i < 4 ? '1px solid #F9FAFB' : 'none', cursor: 'pointer', transition: 'background 150ms' }}
                       onMouseEnter={e => (e.currentTarget.style.background = '#F5F3FF')}
                       onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                      onClick={() => setLocation('/app/intelligence/database')}
+                      onClick={() => setLocation('/app/intelligence')}
                     >
                       <div style={{ width: 40, height: 40, borderRadius: 8, background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>
                         {(p.product_title ?? p.name ?? 'P').charAt(0)}
@@ -779,7 +785,7 @@ function DashboardHome() {
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, opacity: 0.75, marginBottom: 12 }}>AI Insight</div>
             <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, lineHeight: 1.4, marginBottom: 12 }}>Posture correctors trending +140% this week in AU</div>
             <div style={{ fontSize: 13, opacity: 0.8, lineHeight: 1.6, flex: 1 }}>High TikTok engagement, low AU saturation. Estimated $8-12k/mo at 55% margin.</div>
-            <button onClick={() => setLocation('/app/intelligence/database')} style={{ marginTop: 20, padding: '10px 16px', background: 'rgba(255,255,255,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(8px)', transition: 'background 150ms' }}
+            <button onClick={() => setLocation('/app/intelligence')} style={{ marginTop: 20, padding: '10px 16px', background: 'rgba(255,255,255,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(8px)', transition: 'background 150ms' }}
               onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.3)')}
               onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.2)')}
             >Explore this niche &rarr;</button>
@@ -794,7 +800,7 @@ function DashboardHome() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 10 }}>
             {([
-              { icon: Search, label: 'Product Intel', path: '/app/intelligence/database', color: '#6366F1' },
+              { icon: Search, label: 'Product Intel', path: '/app/intelligence', color: '#6366F1' },
               { icon: Globe, label: 'Store Builder', path: '/app/store-builder', color: '#8B5CF6' },
               { icon: Eye, label: 'Competitor Spy', path: '/app/competitor-spy', color: '#0891B2' },
               { icon: BarChart2, label: 'Market Intel', path: '/app/market-intel', color: '#059669' },

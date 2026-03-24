@@ -216,7 +216,20 @@ Description: [90 chars max, include AU shipping]
 
 EMAIL SUBJECT LINE:
 [Under 50 chars, create urgency without being spammy]`;
-      } else if (tool === 'hook-generator') {
+      } else if (tool === 'lesson-content') {
+      prompt = `Write a detailed educational lesson titled "${productName || 'Dropshipping Fundamentals'}".
+
+Topic overview: ${niche || 'ecommerce and dropshipping in Australia'}
+
+Format:
+- Use ## for section headings
+- Use **bold** for key terms
+- Use bullet lists for tips and features
+- Include 2-3 Australian examples with AUD pricing where relevant
+- End with ## Key Takeaways containing 3 numbered actionable points
+
+Length: 400-600 words. Start with a brief intro, then dive into the content.`;
+    } else if (tool === 'hook-generator') {
       prompt = `Generate 5 high-converting TikTok hooks for a product called "\${productName || niche}".
 Each hook should be 3-7 words max and trigger curiosity, FOMO, or a strong emotion.
 Format:

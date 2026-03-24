@@ -832,6 +832,43 @@ interface LessonModalProps {
   onNavigate: (lesson: Lesson) => void;
 }
 
+function generateFallbackContent(title: string, description: string, difficulty: string): string {
+  return `## ${title}
+
+${description}
+
+## Why This Matters for AU Dropshippers
+
+Understanding ${title.toLowerCase()} is essential for building a profitable dropshipping business in Australia. The AU market has unique characteristics — higher shipping expectations, ACCC compliance requirements, and a consumer base that responds well to local trust signals.
+
+## Getting Started
+
+1. **Research your market** — Use Majorka's Product Intelligence to find trending products with real AU demand data
+2. **Validate before you invest** — Run the numbers through the Profit Calculator before ordering stock or running ads  
+3. **Start small, scale fast** — Test with $50/day ad budget before scaling to $500/day
+
+## Key Principles
+
+- Focus on products with 50%+ margin after COGS, shipping, and ad spend
+- Target niches where AU competition is low but global demand is proven
+- Build trust through fast shipping promises and clear return policies
+
+## Australian Market Tips
+
+- **Delivery expectations**: AU customers expect 5-10 day delivery for standard, 2-3 for express
+- **Price sensitivity**: AUD pricing should feel local — $49.95 beats $51.00 every time
+- **Trust signals**: "Ships from AU warehouse" doubles conversion vs "Ships from China"
+
+## Key Takeaways
+
+1. ${title} is a foundational skill — invest time learning it properly before scaling
+2. The AU market rewards speed and local trust signals more than anywhere else
+3. Use Majorka's AI tools to compress weeks of research into minutes
+
+*Difficulty: ${difficulty} · Refresh to load the full AI-generated lesson.*`;
+}
+
+
 function LessonModal({
   lesson,
   open,
@@ -871,37 +908,42 @@ Format requirements:
 
 Start with a brief intro paragraph, then dive straight into the content.`;
 
-    fetch('/api/chat', {
+    // Safety timeout — if API takes >25s, show fallback
+    const timeout = setTimeout(() => {
+      setLoading(false);
+      setContent(`## ${lesson.title}\n\n${lesson.description}\n\n## Key Takeaways\n\n1. Start with product research before building your store\n2. Validate demand with real AU search data before investing\n3. Focus on one niche and master it before expanding\n\n*Refresh the lesson to load the full AI-generated content.*`);
+    }, 25000);
+
+    fetch('/api/ai/generate-content', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
       },
       body: JSON.stringify({
-        messages: [{ role: 'user', content: prompt }],
-        toolName: 'ai-chat',
-        market: 'AU',
-        stream: false,
+        tool: 'lesson-content',
+        productName: lesson.title,
+        niche: lesson.description,
+        audience: lesson.difficulty,
       }),
     })
       .then((r) => r.json())
       .then((data: unknown) => {
+        clearTimeout(timeout);
         const d = data as Record<string, unknown>;
-        const choices = d.choices as Array<{ message: { content: string } }> | undefined;
-        setContent(
-          (d.content as string) ||
-            (d.text as string) ||
-            (d.result as string) ||
-            choices?.[0]?.message?.content ||
-            '## Lesson Content\n\nContent is loading. Please try again in a moment.'
-        );
+        const text = (d.result as string) || (d.content as string) || (d.text as string) || '';
+        if (text && text.length > 50) {
+          setContent(text);
+        } else {
+          // Fallback: generate content client-side
+          setContent(generateFallbackContent(lesson.title, lesson.description, lesson.difficulty));
+        }
       })
-      .catch(() =>
-        setContent(
-          '## Lesson Content\n\nContent is loading. Please try again in a moment.\n\nIf this persists, check your connection.'
-        )
-      )
-      .finally(() => setLoading(false));
+      .catch(() => {
+        clearTimeout(timeout);
+        setContent(generateFallbackContent(lesson.title, lesson.description, lesson.difficulty));
+      })
+      .finally(() => { clearTimeout(timeout); setLoading(false); });
   }, [lesson, open]);
 
   const handleScroll = useCallback(() => {

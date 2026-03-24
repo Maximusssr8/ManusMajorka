@@ -9,22 +9,25 @@ interface ProductImageProps {
   style?: React.CSSProperties;
 }
 
+const BLOCKED = ['picsum.photos', 'placeholder.com', 'via.placeholder', 'pexels.com', 'unsplash.com', 'images.unsplash', 'loremflickr'];
+const ALI_DOMAINS = ['ae01.alicdn.com', 'ae-pic-a1.aliexpress-media.com', 'aliexpress-media.com'];
+
+function isValidUrl(url?: string | null): boolean {
+  if (!url || typeof url !== 'string' || url.trim() === '') return false;
+  if (BLOCKED.some(d => url.includes(d))) return false;
+  return url.startsWith('http');
+}
+
+/** Route AliExpress CDN images through our proxy to fix AVIF/format 404s */
+function resolveImgSrc(url: string): string {
+  if (ALI_DOMAINS.some(d => url.includes(d))) {
+    return `/api/proxy-img?url=${encodeURIComponent(url)}`;
+  }
+  return url;
+}
+
 export function ProductImage({ src, alt = 'Product', size = 44, borderRadius = 8, style }: ProductImageProps) {
   const [errored, setErrored] = useState(false);
-
-  const isValidUrl = (url?: string | null): boolean => {
-    if (!url || typeof url !== 'string') return false;
-    if (url.trim() === '') return false;
-    // Block all stock/fake image sources — only real product CDN images allowed
-    if (url.includes('picsum.photos')) return false;
-    if (url.includes('placeholder.com')) return false;
-    if (url.includes('via.placeholder')) return false;
-    if (url.includes('pexels.com')) return false;
-    if (url.includes('unsplash.com')) return false;
-    if (url.includes('images.unsplash')) return false;
-    if (url.includes('loremflickr')) return false;
-    return url.startsWith('http');
-  };
 
   if (!isValidUrl(src) || errored) {
     return <NoImage size={size} />;
@@ -32,18 +35,16 @@ export function ProductImage({ src, alt = 'Product', size = 44, borderRadius = 8
 
   return (
     <img
-      src={src!}
+      src={resolveImgSrc(src!)}
       alt={alt}
       onError={() => setErrored(true)}
       style={{
         width: size,
         height: size,
-        borderRadius,
         objectFit: 'cover',
-        flexShrink: 0,
-        border: '1px solid #F3F4F6',
-        background: '#F9FAFB',
+        borderRadius,
         display: 'block',
+        flexShrink: 0,
         ...style,
       }}
     />
