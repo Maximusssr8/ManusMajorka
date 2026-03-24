@@ -98,6 +98,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: 'Creator Intel', path: '/app/creators', icon: Users, tooltip: 'Find top TikTok creators promoting products in your niche.' },
       { label: 'Video Intel', path: '/app/video-intelligence', icon: Play, badge: 'NEW', tooltip: 'Top-performing product videos — what drives real sales.' },
+      { label: 'Alerts', path: '/app/alerts', icon: Bell, tooltip: 'Smart alerts for trending products, price drops, and competitor moves.' },
       { label: 'Ad Intelligence', path: '/app/ad-spy', icon: Target, tooltip: 'Spy on winning TikTok & Meta ads in your niche.' },
       { label: 'Livestream', path: '/app/livestream', icon: Radio, badge: 'NEW', tooltip: 'Track trending niches and GMV across TikTok Live sessions.' },
     ],

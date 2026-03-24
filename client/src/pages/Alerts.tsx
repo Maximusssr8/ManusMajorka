@@ -1,0 +1,198 @@
+/**
+ * Alerts Engine — Smart threshold alerts for product/trend/competitor monitoring
+ * Route: /app/alerts
+ */
+import { Bell, BellOff, Plus, Trash2, TrendingUp, ShoppingBag, Store } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+
+const brico = "'Bricolage Grotesque', sans-serif";
+const dm = 'DM Sans, sans-serif';
+const C = { bg: '#F9FAFB', card: '#FFFFFF', border: '#E5E7EB', text: '#0A0A0A', sub: '#6B7280', muted: '#9CA3AF', indigo: '#6366F1', indigoBg: '#EEF2FF', indigoBorder: '#C7D2FE' };
+
+type AlertType = 'trending' | 'price_drop' | 'competitor';
+interface Alert { id: string; alert_type: AlertType; config: Record<string, unknown>; is_active: boolean; last_triggered_at: string | null; created_at: string; }
+
+const NICHES = ['Health & Wellness', 'Beauty', 'Fitness', 'Tech & Gadgets', 'Pet Care', 'Kitchen', 'Fashion', 'Outdoor & Sports', 'Home & Sleep'];
+const REGIONS = ['AU', 'US', 'UK', 'CA', 'DE', 'SG'];
+
+export default function Alerts() {
+  const { session, isPro } = useAuth();
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [history, setHistory] = useState<Alert[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<'active' | 'history'>('active');
+  const [showCreate, setShowCreate] = useState(false);
+  const [alertType, setAlertType] = useState<AlertType>('trending');
+  const [form, setForm] = useState<Record<string, string>>({ niche: 'Health & Wellness', region: 'AU', threshold: '50', category: 'Beauty', store_domain: '' });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => { loadAlerts(); }, [session]);
+
+  async function loadAlerts() {
+    if (!session) { setLoading(false); return; }
+    const { data } = await supabase.from('user_alerts').select('*').order('created_at', { ascending: false });
+    setAlerts((data || []).filter((a: Alert) => a.is_active));
+    setHistory((data || []).filter((a: Alert) => a.last_triggered_at));
+    setLoading(false);
+  }
+
+  async function createAlert() {
+    if (!session) return;
+    setSaving(true);
+    let config: Record<string, unknown> = {};
+    if (alertType === 'trending') config = { niche: form.niche, region: form.region };
+    else if (alertType === 'price_drop') config = { threshold: parseFloat(form.threshold) };
+    else config = { store_domain: form.store_domain, category: form.category };
+    const { error } = await supabase.from('user_alerts').insert({ user_id: session.user.id, alert_type: alertType, config, is_active: true });
+    if (error) toast.error('Failed to create alert');
+    else { toast.success('Alert created!'); setShowCreate(false); loadAlerts(); }
+    setSaving(false);
+  }
+
+  async function deleteAlert(id: string) {
+    await supabase.from('user_alerts').update({ is_active: false }).eq('id', id);
+    setAlerts(prev => prev.filter(a => a.id !== id));
+    toast.success('Alert removed');
+  }
+
+  const ALERT_TYPES = [
+    { type: 'trending' as AlertType, icon: TrendingUp, label: 'Trending Alert', desc: 'Notify me when a new product reaches early velocity in a niche' },
+    { type: 'price_drop' as AlertType, icon: ShoppingBag, label: 'Price Drop Alert', desc: 'Notify me when a tracked product drops below a price threshold' },
+    { type: 'competitor' as AlertType, icon: Store, label: 'Competitor Alert', desc: 'Notify me when a competitor store lists a new product' },
+  ];
+
+  if (!isPro) return (
+    <div style={{ padding: '48px 32px', textAlign: 'center', background: C.bg, minHeight: '100vh' }}>
+      <Bell size={40} style={{ color: C.indigo, margin: '0 auto 16px' }} />
+      <h2 style={{ fontFamily: brico, fontSize: 22, color: C.text, marginBottom: 8 }}>Smart Alerts</h2>
+      <p style={{ color: C.sub, fontSize: 14, maxWidth: 400, margin: '0 auto 24px' }}>Set up intelligent alerts for trending products, price drops, and competitor moves. Available on Builder and Scale plans.</p>
+      <a href="/pricing" style={{ display: 'inline-flex', padding: '12px 28px', background: C.indigo, color: 'white', borderRadius: 10, fontSize: 14, fontWeight: 600, textDecoration: 'none', fontFamily: brico }}>Upgrade to Enable Alerts →</a>
+    </div>
+  );
+
+  return (
+    <div style={{ background: C.bg, minHeight: '100vh', padding: '32px' }}>
+      <div style={{ maxWidth: 800, margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
+          <div>
+            <h1 style={{ fontFamily: brico, fontSize: 26, fontWeight: 800, color: C.text, marginBottom: 4 }}>Smart Alerts</h1>
+            <p style={{ color: C.sub, fontSize: 14 }}>{alerts.length} active alert{alerts.length !== 1 ? 's' : ''} · Get notified when opportunities emerge</p>
+          </div>
+          <button onClick={() => setShowCreate(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', background: C.indigo, color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: brico }}>
+            <Plus size={14} /> New Alert
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div style={{ display: 'flex', gap: 4, marginBottom: 20 }}>
+          {(['active', 'history'] as const).map(t => (
+            <button key={t} onClick={() => setTab(t)} style={{ padding: '7px 18px', borderRadius: 20, fontSize: 13, cursor: 'pointer', transition: 'all 150ms', fontFamily: dm, fontWeight: tab === t ? 600 : 400, background: tab === t ? C.indigoBg : 'transparent', color: tab === t ? C.indigo : C.sub, border: `1px solid ${tab === t ? C.indigoBorder : 'transparent'}` }}>
+              {t === 'active' ? `Active (${alerts.length})` : `History (${history.length})`}
+            </button>
+          ))}
+        </div>
+
+        {/* Alert List */}
+        {loading ? (
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
+            {[1,2,3].map(i => <div key={i} style={{ height: 72, borderRadius: 12, background: '#F3F4F6', animation: 'shimmer 1.5s infinite' }} />)}
+          </div>
+        ) : tab === 'active' && alerts.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '48px 24px', background: C.card, border: `1px solid ${C.border}`, borderRadius: 16 }}>
+            <BellOff size={32} style={{ color: C.muted, margin: '0 auto 12px', display: 'block' }} />
+            <p style={{ fontFamily: brico, fontSize: 16, color: C.text, marginBottom: 6 }}>No alerts yet</p>
+            <p style={{ color: C.sub, fontSize: 13 }}>Create your first alert to get notified when opportunities arise</p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
+            {(tab === 'active' ? alerts : history).map(alert => {
+              const cfg = alert.config as Record<string, string>;
+              const TypeIcon = alert.alert_type === 'trending' ? TrendingUp : alert.alert_type === 'price_drop' ? ShoppingBag : Store;
+              const typeLabel = alert.alert_type === 'trending' ? 'Trending Alert' : alert.alert_type === 'price_drop' ? 'Price Drop Alert' : 'Competitor Alert';
+              const cfgText = alert.alert_type === 'trending' ? `${cfg.niche} · ${cfg.region}` : alert.alert_type === 'price_drop' ? `Below $${cfg.threshold} AUD` : `${cfg.store_domain} · ${cfg.category}`;
+              return (
+                <div key={alert.id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: C.indigoBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <TypeIcon size={16} style={{ color: C.indigo }} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: brico, fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 2 }}>{typeLabel}</div>
+                    <div style={{ fontSize: 12, color: C.sub }}>{cfgText}</div>
+                    {alert.last_triggered_at && <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Last triggered: {new Date(alert.last_triggered_at).toLocaleDateString('en-AU')}</div>}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 100, background: '#ECFDF5', color: '#059669' }}>ACTIVE</span>
+                    {tab === 'active' && <button onClick={() => deleteAlert(alert.id)} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #FEE2E2', background: '#FEF2F2', color: '#DC2626', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={12} /></button>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Create Alert Modal */}
+        {showCreate && (
+          <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }} onClick={() => setShowCreate(false)}>
+            <div style={{ background: 'white', borderRadius: 20, padding: 28, width: '100%', maxWidth: 480, maxHeight: '90vh', overflowY: 'auto' as const }} onClick={e => e.stopPropagation()}>
+              <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 20 }}>Create Alert</h3>
+              {/* Alert type selector */}
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8, marginBottom: 20 }}>
+                {ALERT_TYPES.map(at => (
+                  <label key={at.type} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 14px', border: `1px solid ${alertType === at.type ? C.indigoBorder : C.border}`, borderRadius: 10, cursor: 'pointer', background: alertType === at.type ? C.indigoBg : 'white' }}>
+                    <input type="radio" name="alertType" value={at.type} checked={alertType === at.type} onChange={() => setAlertType(at.type)} style={{ marginTop: 2 }} />
+                    <div>
+                      <div style={{ fontFamily: dm, fontWeight: 600, fontSize: 13, color: C.text, marginBottom: 2 }}>{at.label}</div>
+                      <div style={{ fontSize: 12, color: C.sub }}>{at.desc}</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+              {/* Config fields */}
+              {alertType === 'trending' && (
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: C.sub }}>Niche
+                    <select value={form.niche} onChange={e => setForm(f => ({ ...f, niche: e.target.value }))} style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none' }}>
+                      {NICHES.map(n => <option key={n}>{n}</option>)}
+                    </select>
+                  </label>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: C.sub }}>Region
+                    <select value={form.region} onChange={e => setForm(f => ({ ...f, region: e.target.value }))} style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none' }}>
+                      {REGIONS.map(r => <option key={r}>{r}</option>)}
+                    </select>
+                  </label>
+                </div>
+              )}
+              {alertType === 'price_drop' && (
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.sub }}>Alert when price drops below ($AUD)
+                  <input type="number" value={form.threshold} onChange={e => setForm(f => ({ ...f, threshold: e.target.value }))} placeholder="50" style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none', boxSizing: 'border-box' as const }} />
+                </label>
+              )}
+              {alertType === 'competitor' && (
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: C.sub }}>Competitor Store Domain
+                    <input value={form.store_domain} onChange={e => setForm(f => ({ ...f, store_domain: e.target.value }))} placeholder="competitor.myshopify.com" style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none', boxSizing: 'border-box' as const }} />
+                  </label>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: C.sub }}>Category to Watch
+                    <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none' }}>
+                      {NICHES.map(n => <option key={n}>{n}</option>)}
+                    </select>
+                  </label>
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
+                <button onClick={() => setShowCreate(false)} style={{ flex: 1, padding: '11px', border: `1px solid ${C.border}`, borderRadius: 10, background: 'white', color: C.sub, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: dm }}>Cancel</button>
+                <button onClick={createAlert} disabled={saving} style={{ flex: 2, padding: '11px', background: C.indigo, color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', fontFamily: brico }}>
+                  {saving ? 'Creating…' : 'Create Alert'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

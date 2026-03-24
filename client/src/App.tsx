@@ -39,6 +39,7 @@ const MarketDashboard = lazy(() => import('./pages/MarketDashboard'));
 const CreatorIntelligence = lazy(() => import('./pages/CreatorIntelligence'));
 const VideoIntelligence = lazy(() => import('./pages/VideoIntelligence'));
 const ProductIntelligence = lazy(() => import('./pages/ProductIntelligence'));
+const Alerts = lazy(() => import('./pages/Alerts'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const AdminControlPanel = lazy(() => import('./pages/AdminControlPanel'));
 const AdminSubscribers = lazy(() => import('./pages/AdminSubscribers'));
@@ -226,6 +227,7 @@ function Router() {
 
             {/* New consolidated routes */}
             <Route path="/app/intelligence">{() => <ProtectedRoute><ProductIntelligence /></ProtectedRoute>}</Route>
+            <Route path="/app/alerts">{() => <ProtectedRoute><Alerts /></ProtectedRoute>}</Route>
             <Route path="/app/spy">{() => <ProtectedRoute><SpyTools /></ProtectedRoute>}</Route>
             <Route path="/app/growth">{() => <ProtectedRoute><GrowthTools /></ProtectedRoute>}</Route>
             <Route path="/app/profit">{() => <ProtectedRoute><ProfitCalculator /></ProtectedRoute>}</Route>
