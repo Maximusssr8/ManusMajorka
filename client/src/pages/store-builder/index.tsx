@@ -310,16 +310,23 @@ function TemplateCard({ template, selected, onClick }: { template: StoreTemplate
         <button
           onClick={async (e) => {
             e.stopPropagation();
+            // Open window synchronously (must be in user-event call stack for popup-blocker to allow)
+            const win = window.open('about:blank', '_blank');
+            if (!win) { alert('Please allow popups for this site to preview templates.'); return; }
+            win.document.write('<html><body style="background:#0f0f0f;color:white;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><p>⚡ Loading preview…</p></body></html>');
             try {
               const res = await fetch('/api/store-builder/preview', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ template: template.id, storeName: template.name + ' Store', niche: template.niche }),
+                body: JSON.stringify({ template: template.id, storeName: template.name + ' Store', niche: template.niche, storeTagline: template.description.slice(0, 60) }),
               });
               const html = await res.text();
-              const blob = new Blob([html], { type: 'text/html' });
-              window.open(URL.createObjectURL(blob), '_blank');
-            } catch { /* silent */ }
+              win.document.open();
+              win.document.write(html);
+              win.document.close();
+            } catch (err) {
+              win.document.write('<html><body style="padding:40px;font-family:sans-serif"><h2>Preview failed</h2><p>' + String(err) + '</p></body></html>');
+            }
           }}
           style={{ width: '100%', marginTop: 10, height: 32, background: '#F5F5F5', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 12, fontWeight: 500, cursor: 'pointer' }}
         >
@@ -855,10 +862,11 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
               {/* Open Full Preview button */}
               <button onClick={() => {
                 if (!previewHtml) return;
-                const blob = new Blob([previewHtml], { type: 'text/html' });
-                window.open(URL.createObjectURL(blob), '_blank');
+                const win = window.open('about:blank', '_blank');
+                if (!win) return;
+                win.document.open(); win.document.write(previewHtml); win.document.close();
               }} style={{ width: "100%", height: 38, background: "none", border: "1px solid #6366F1", color: "#6366F1", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", marginTop: 10 }}>
-                {"\u2197"} Open Full Preview
+                ↗ Open Full Preview
               </button>
             </div>
           </div>

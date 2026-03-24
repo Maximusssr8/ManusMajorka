@@ -3,6 +3,7 @@ import { Router, Request } from 'express';
 import { expandStoreBrief } from '../lib/website-api';
 import { requireSubscription } from '../middleware/requireSubscription';
 import { storeBuilderSchema, validateBody } from '../lib/validators';
+import { buildStoreHTML } from '../lib/storeTemplate';
 
 const router = Router();
 
@@ -207,8 +208,6 @@ router.post('/preview', async (req, res) => {
       primaryColor?: string;
       products?: Array<{ product_title?: string; image_url?: string | null; price_aud?: number }>;
     };
-
-    const { buildStoreHTML } = await import('../lib/storeTemplate');
 
     const html = buildStoreHTML({
       template,
