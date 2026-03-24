@@ -89,8 +89,12 @@ function getProductPrice(p: Product) {
 function getSupplierUrl(p: Product) {
   return p.aliexpress_url || `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(getProductName(p))}&shipCountry=au`;
 }
-function getGrowthRate(p: Product) {
-  return p.growth_rate_pct || (p.winning_score || 50) - 30 + Math.floor(((p.id as number || 0) * 17) % 40);
+function getGrowthRate(p: Product): number {
+  if (p.growth_rate_pct !== null && p.growth_rate_pct !== undefined) return p.growth_rate_pct;
+  // Deterministic fallback from string ID (UUID-safe)
+  const seed = String(p.id || '').split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) & 0xFFFF, 0);
+  const base = (p.winning_score || 50) - 30;
+  return Math.round(base + ((seed % 40) - 20) / 2);
 }
 
 function generateSparkline(id: string | number, baseRev: number, score: number): number[] {
@@ -244,17 +248,17 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       params.set('sortBy', sortBy);
       params.set('sortDir', sortDir);
       params.set('limit', '200');
-      if (niche !== 'All Niches') params.set('niche', niche);
+      // niche filtering done client-side after fetching all products
       if (search) params.set('search', search);
 
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData?.session?.access_token;
-      const res = await fetch(`/api/trend-signals?${params}`, {
+      const res = await fetch(`/api/products?${params}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (res.ok) {
         const data = await res.json();
-        const rows: Product[] = Array.isArray(data) ? data : (data.products || data.data || []);
+        const rows: Product[] = Array.isArray(data) ? data : (Array.isArray(data?.products) ? data.products : []);
         setProducts(rows);
         if (rows[0]?.updated_at) setLastUpdated(rows[0].updated_at);
       }

@@ -170,7 +170,7 @@ export default function CreatorIntelligence() {
                           style={{ fontSize: 13, fontWeight: 700, color: '#6366F1', textDecoration: 'none', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                           {c.handle}
                         </a>
-                        <div style={{ fontSize: 11, color: '#9CA3AF' }}>{c.est_followers} followers \u00B7 {REGION_FLAGS[c.region_code] || ''} {c.region_code}</div>
+                        <div style={{ fontSize: 11, color: '#9CA3AF' }}>{c.est_followers} followers · {REGION_FLAGS[c.region_code] || ''} {c.region_code}</div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' as const, marginBottom: 8 }}>
@@ -256,7 +256,7 @@ export default function CreatorIntelligence() {
                   <div style={{ fontSize: 12, color: '#065F46', wordBreak: 'break-all' as const }}>{selected.contact_hint}</div>
                   <button onClick={() => navigator.clipboard.writeText(selected.contact_hint!)}
                     style={{ marginTop: 6, fontSize: 10, color: '#065F46', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>
-                    Copy \u2192
+                    Copy →
                   </button>
                 </div>
               )}
@@ -270,7 +270,7 @@ export default function CreatorIntelligence() {
                   <div style={{ fontSize: 12, color: '#374151', lineHeight: 1.6, whiteSpace: 'pre-wrap' as const }}>{outreach}</div>
                   <button onClick={() => navigator.clipboard.writeText(outreach)}
                     style={{ marginTop: 8, fontSize: 10, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>
-                    Copy message \u2192
+                    Copy message →
                   </button>
                 </div>
               )}

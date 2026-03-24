@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 import { Copy } from 'lucide-react';
 import { Link, useParams } from 'wouter';
 import { SEO } from '@/components/SEO';
@@ -91,6 +92,8 @@ export default function ProductReport() {
 
   const [product, setProduct] = useState<WinningProduct | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => { supabase.auth.getSession().then(({ data }) => setIsLoggedIn(!!data.session)); }, []);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -237,7 +240,7 @@ export default function ProductReport() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 24px' }}>
             {[
               { k: 'AU Relevance', v: `${product.au_relevance}%` },
-              { k: 'Competition', v: compMap[product.competition_level ?? ''] ?? '—' },
+              { k: 'Competition', v: compMap[product.competition_level ?? ''] ?? (product.competition_level ? product.competition_level : 'Moderate') },
               { k: 'Platform', v: product.platform },
               { k: 'Category', v: product.category ?? '—' },
             ].map(({ k, v }) => (
@@ -265,16 +268,16 @@ export default function ProductReport() {
           </div>
         )}
 
-        {/* Divider + upsell */}
+        {/* Divider + upsell (only shown to non-logged-in visitors) */}
         <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 28, marginBottom: 24 }}>
-          <div style={{ background: 'rgba(99,102,241,0.06)', border: `1px solid ${C.goldBorder}`, borderRadius: 16, padding: '24px 20px', textAlign: 'center', marginBottom: 20 }}>
+          {!isLoggedIn && <div style={{ background: 'rgba(99,102,241,0.06)', border: `1px solid ${C.goldBorder}`, borderRadius: 16, padding: '24px 20px', textAlign: 'center', marginBottom: 20 }}>
             <div style={{ fontSize: 20, marginBottom: 8 }}>🔒</div>
             <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 16, color: C.text, marginBottom: 8 }}>Full supplier data, competitor analysis, and 40+ more products like this →</h3>
             <p style={{ color: C.secondary, fontSize: 13, marginBottom: 20 }}>Get access to real-time AU market intelligence. Free plan available.</p>
             <Link href="/sign-in" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: 'white', borderRadius: 12, padding: '14px 32px', fontFamily: syne, fontWeight: 800, fontSize: 15, textDecoration: 'none' }}>
               Find More Winners on Majorka — Free →
             </Link>
-          </div>
+          </div>}
 
           {/* Share button */}
           <div style={{ textAlign: 'center' }}>

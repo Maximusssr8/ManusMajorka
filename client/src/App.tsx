@@ -32,6 +32,13 @@ const Affiliate = lazy(() => import('./pages/Affiliate'));
 const KnowledgeBase = lazy(() => import('./pages/KnowledgeBase'));
 const LearnHub = lazy(() => import('./pages/LearnHub'));
 const AdSpy = lazy(() => import('./pages/AdSpy'));
+const ProfitCalculator = lazy(() => import('./pages/ProfitCalculator'));
+const GrowthTools = lazy(() => import('./pages/GrowthTools'));
+const SpyTools = lazy(() => import('./pages/SpyTools'));
+const MarketDashboard = lazy(() => import('./pages/MarketDashboard'));
+const CreatorIntelligence = lazy(() => import('./pages/CreatorIntelligence'));
+const VideoIntelligence = lazy(() => import('./pages/VideoIntelligence'));
+const ProductIntelligence = lazy(() => import('./pages/ProductIntelligence'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const AdminControlPanel = lazy(() => import('./pages/AdminControlPanel'));
 const AdminSubscribers = lazy(() => import('./pages/AdminSubscribers'));
@@ -200,22 +207,16 @@ function Router() {
                 </ProtectedRoute>
               )}
             </Route>
-            <Route path="/app/settings">
-              {() => (
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              )}
-            </Route>
+            <Route path="/app/settings">{() => <ProtectedRoute><SettingsProfile /></ProtectedRoute>}</Route>
 
             {/* Redirects for consolidated pages */}
             <Route path="/app/trend-signals">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/winning-products">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             {/* Both routes render WebsiteGenerator — ToolPage handles both via location check */}
             <Route path="/app/product-discovery">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
-            <Route path="/app/market">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
-            <Route path="/app/creators">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
-            <Route path="/app/videos">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+            <Route path="/app/market">{() => <ProtectedRoute><MarketDashboard /></ProtectedRoute>}</Route>
+            <Route path="/app/creators">{() => <ProtectedRoute><CreatorIntelligence /></ProtectedRoute>}</Route>
+            <Route path="/app/videos">{() => <ProtectedRoute><VideoIntelligence /></ProtectedRoute>}</Route>
             <Route path="/app/meta-ads">{() => { window.location.replace('/app/growth'); return null; }}</Route>
             <Route path="/app/copywriter">{() => { window.location.replace('/app/growth'); return null; }}</Route>
             <Route path="/app/brand-dna">{() => { window.location.replace('/app/growth'); return null; }}</Route>
@@ -224,10 +225,10 @@ function Router() {
             <Route path="/app/profit-check">{() => { window.location.replace('/app/profit'); return null; }}</Route>
 
             {/* New consolidated routes */}
-            <Route path="/app/intelligence">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
-            <Route path="/app/spy">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
-            <Route path="/app/growth">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
-            <Route path="/app/profit">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+            <Route path="/app/intelligence">{() => <ProtectedRoute><ProductIntelligence /></ProtectedRoute>}</Route>
+            <Route path="/app/spy">{() => <ProtectedRoute><SpyTools /></ProtectedRoute>}</Route>
+            <Route path="/app/growth">{() => <ProtectedRoute><GrowthTools /></ProtectedRoute>}</Route>
+            <Route path="/app/profit">{() => <ProtectedRoute><ProfitCalculator /></ProtectedRoute>}</Route>
 
             <Route path="/app/shops/:id">
               {() => (

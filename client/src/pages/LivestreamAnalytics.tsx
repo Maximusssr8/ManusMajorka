@@ -23,7 +23,7 @@ export default function LivestreamAnalytics() {
             <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#0A0A0A', margin: 0 }}>
               Livestream Analytics
             </h1>
-            <span style={{ fontSize: 10, fontWeight: 700, color: '#7C3AED', background: '#F3E8FF', padding: '3px 8px', borderRadius: 20 }}>LIVE</span>
+            <span style={{ fontSize: 10, fontWeight: 700, color: '#7C3AED', background: '#F3E8FF', padding: '3px 8px', borderRadius: 20 }}>DEMO</span>
           </div>
           <p style={{ fontSize: 13, color: '#6B7280', margin: 0 }}>
             Track trending niches, top products, and GMV across TikTok Live sessions globally
@@ -56,7 +56,7 @@ export default function LivestreamAnalytics() {
             <div key={n.niche} style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, padding: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                 <span style={{ fontFamily: brico, fontWeight: 700, fontSize: 14, color: '#0A0A0A' }}>{n.niche}</span>
-                <span style={{ fontSize: 9, fontWeight: 700, color: '#DC2626', background: '#FEF2F2', padding: '2px 8px', borderRadius: 10 }}>LIVE</span>
+                <span style={{ fontSize: 9, fontWeight: 700, color: '#DC2626', background: '#FEF2F2', padding: '2px 8px', borderRadius: 10 }}>DEMO</span>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 {[

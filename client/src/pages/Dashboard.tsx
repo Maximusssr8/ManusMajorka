@@ -619,7 +619,7 @@ function DashboardHome() {
           <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 800, fontSize: 26, color: '#0A0A0A', marginBottom: 4 }}>
             {getGreeting()}, {firstName} <span role="img" aria-label="wave">👋</span>
           </div>
-          <div style={{ fontSize: 13, color: '#6B7280' }}>{formatDate()} &middot; {plan === 'free' ? 'Free Plan' : plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan'}</div>
+          <div style={{ fontSize: 13, color: '#6B7280' }}>{formatDate()} &middot; {plan === 'free' ? 'Free Plan' : plan === 'builder' ? 'Builder Plan' : plan === 'scale' ? 'Scale Plan' : plan === 'pro' ? 'Scale Plan' : (plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan')}</div>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {plan === 'free' && (
