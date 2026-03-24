@@ -2,10 +2,10 @@ import crypto from 'crypto';
 
 export function getShopifyConfig() {
   return {
-    apiKey: process.env.SHOPIFY_API_KEY || '',
-    apiSecret: process.env.SHOPIFY_API_SECRET || '',
-    scopes: (process.env.SHOPIFY_SCOPES || 'write_products,write_content,read_themes,write_themes').split(','),
-    redirectUri: process.env.SHOPIFY_REDIRECT_URI || 'https://majorka.io/api/shopify/callback',
+    apiKey: (process.env.SHOPIFY_API_KEY || '').trim(),
+    apiSecret: (process.env.SHOPIFY_API_SECRET || '').trim(),
+    scopes: (process.env.SHOPIFY_SCOPES || 'write_products,write_content,read_themes,write_themes').trim().split(',').map(s => s.trim()),
+    redirectUri: (process.env.SHOPIFY_REDIRECT_URI || 'https://www.majorka.io/api/shopify/callback').trim(),
   };
 }
 
