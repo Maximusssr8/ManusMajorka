@@ -529,7 +529,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
                       justifyContent: 'center',
                     }}
                   >
-                    <span style={{ fontSize: 10, color: '#3f3f46', fontStyle: 'italic' }}>
+                    <span style={{ fontSize: 10, color: '#6B7280', fontStyle: 'italic' }}>
                       {col.key === 'done'
                         ? 'Nothing done yet'
                         : col.key === 'inprogress'
@@ -552,14 +552,14 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
           marginTop: 12,
         }}
       >
-        <p style={{ fontSize: 10, color: '#3f3f46' }}>
+        <p style={{ fontSize: 10, color: '#6B7280' }}>
           Click any card to cycle it through the columns
         </p>
         <button
           onClick={resetBoard}
           style={{
             fontSize: 10,
-            color: '#3f3f46',
+            color: '#6B7280',
             background: 'none',
             border: '1px solid #F9FAFB',
             borderRadius: 6,
@@ -572,7 +572,7 @@ export default function LaunchReadiness({ userId }: LaunchReadinessProps = {}) {
             (e.currentTarget as HTMLButtonElement).style.borderColor = '#D1D5DB';
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.color = '#3f3f46';
+            (e.currentTarget as HTMLButtonElement).style.color = '#6B7280';
             (e.currentTarget as HTMLButtonElement).style.borderColor = '#F9FAFB';
           }}
         >

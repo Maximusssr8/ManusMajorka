@@ -805,8 +805,8 @@ export default function Pricing() {
             Annual
             <span
               style={{
-                background: 'rgba(34,197,94,0.15)',
-                color: '#22c55e',
+                background: 'rgba(99,102,241,0.15)',
+                color: '#6366F1',
                 fontSize: 10,
                 fontWeight: 800,
                 padding: '2px 8px',
@@ -924,7 +924,7 @@ export default function Pricing() {
                   <span style={{ textDecoration: 'line-through', color: C.muted }}>
                     ${parseInt(plan.price.replace('$', '')) * 12}/yr
                   </span>{' '}
-                  <span style={{ color: '#22c55e', fontWeight: 700 }}>
+                  <span style={{ color: '#6366F1', fontWeight: 700 }}>
                     ${getAnnualTotal(plan)}/yr — save ${parseInt(plan.price.replace('$', '')) * 2}
                   </span>
                 </div>
@@ -941,7 +941,7 @@ export default function Pricing() {
                     background: plan.highlight
                       ? `linear-gradient(135deg, ${C.gold}, #4F46E5)`
                       : 'transparent',
-                    color: plan.highlight ? '#000' : C.text,
+                    color: plan.highlight ? '#FAFAFA' : C.text,
                     border: plan.highlight ? 'none' : `1px solid ${C.border}`,
                     borderRadius: 10,
                     padding: '13px 20px',
@@ -1057,7 +1057,7 @@ export default function Pricing() {
                     }}
                   >
                     <span
-                      style={{ color: '#22c55e', fontWeight: 700, flexShrink: 0, marginTop: 1 }}
+                      style={{ color: '#6366F1', fontWeight: 700, flexShrink: 0, marginTop: 1 }}
                     >
                       {'\u2713'}
                     </span>
@@ -1192,7 +1192,7 @@ export default function Pricing() {
                     fontSize: 13,
                     color:
                       row.builder === '\u2713'
-                        ? '#22c55e'
+                        ? '#6366F1'
                         : row.builder === '\u2717'
                           ? C.muted
                           : C.gold,
@@ -1207,7 +1207,7 @@ export default function Pricing() {
                     fontSize: 13,
                     color:
                       row.scale === '\u2713'
-                        ? '#22c55e'
+                        ? '#6366F1'
                         : row.scale === '\u2717'
                           ? C.muted
                           : C.gold,

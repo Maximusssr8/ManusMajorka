@@ -234,7 +234,7 @@ export default function Account() {
           {/* Header */}
           <div
             className="flex items-center justify-between px-6 py-4 border-b"
-            style={{ borderColor: '#F9FAFB' }}
+            style={{ borderColor: '#E5E7EB' }}
           >
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4" style={{ color: '#6366F1' }} />
@@ -336,7 +336,7 @@ export default function Account() {
           {/* Actions */}
           <div
             className="px-6 py-4 border-t flex flex-col sm:flex-row gap-3"
-            style={{ borderColor: '#F9FAFB' }}
+            style={{ borderColor: '#E5E7EB' }}
           >
             {!isActive ? (
               <Button
@@ -406,7 +406,7 @@ export default function Account() {
         {/* Info card */}
         <div
           className="rounded-2xl p-5 border text-sm text-muted-foreground"
-          style={{ background: '#FAFAFA', borderColor: '#F9FAFB' }}
+          style={{ background: '#FAFAFA', borderColor: '#E5E7EB' }}
         >
           <p className="flex items-start gap-2">
             <Calendar className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#6366F1' }} />
