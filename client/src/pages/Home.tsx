@@ -984,145 +984,314 @@ function DemoSection() {
 function DemoModal({ onClose }: { onClose: () => void }) {
   const isMobile = useIsMobile();
   const [step, setStep] = useState(0);
+  const [scanLine, setScanLine] = useState(0);
+  const [buildLines, setBuildLines] = useState<string[]>([]);
+  const [counterVal, setCounterVal] = useState(0);
   const brico = "'Bricolage Grotesque', sans-serif";
 
   const STEPS = [
-    {
-      icon: "🔍",
-      title: "Searching market...",
-      subtitle: "Scanning 50,000+ products for trending opportunities",
-    },
-    {
-      icon: "📊",
-      title: "Found it. Posture Corrector Pro.",
-      subtitle: "High demand · Low competition · 62% margin",
-    },
-    {
-      icon: "⚡",
-      title: "Building your Shopify store...",
-      subtitle: "AI generates theme, copy, and product listings",
-    },
-    {
-      icon: "💰",
-      title: "Your store is live. First sale!",
-      subtitle: "Within 6 hours of launch · Customer from Sydney, NSW",
-    },
+    { label: 'Market Scan',     color: '#6366F1' },
+    { label: 'Winner Found',    color: '#8B5CF6' },
+    { label: 'Building Store',  color: '#0891B2' },
+    { label: 'Live & Selling',  color: '#059669' },
   ];
+
+  const BUILD_LOG = [
+    '▸ Connecting to Shopify API...',
+    '▸ Creating store: posture-pro.myshopify.com',
+    '▸ Applying AI-generated theme...',
+    '▸ Importing product from AliExpress...',
+    '▸ Writing product descriptions with Claude...',
+    '▸ Generating 3 hero images...',
+    '▸ Setting up AUD pricing ($49.95)...',
+    '▸ Configuring Stripe + Afterpay...',
+    '▸ Launching Meta ad campaign...',
+    '✓ Store is live.',
+  ];
+
+  // Step 0: scan animation
+  useEffect(() => {
+    if (step !== 0) return;
+    const t = setInterval(() => setScanLine(p => p < 4 ? p + 1 : p), 320);
+    return () => clearInterval(t);
+  }, [step]);
+
+  // Step 2: terminal build log
+  useEffect(() => {
+    if (step !== 2) { setBuildLines([]); return; }
+    let i = 0;
+    const t = setInterval(() => {
+      i++;
+      setBuildLines(BUILD_LOG.slice(0, i));
+      if (i >= BUILD_LOG.length) clearInterval(t);
+    }, 420);
+    return () => clearInterval(t);
+  }, [step]);
+
+  // Step 3: revenue counter
+  useEffect(() => {
+    if (step !== 3) { setCounterVal(0); return; }
+    let v = 0;
+    const t = setInterval(() => {
+      v += 3;
+      setCounterVal(v);
+      if (v >= 84) clearInterval(t);
+    }, 28);
+    return () => clearInterval(t);
+  }, [step]);
 
   // Auto-advance
   useEffect(() => {
-    if (step < STEPS.length - 1) {
-      const t = setTimeout(() => setStep(s => s + 1), 2200);
+    const delays = [2800, 3200, 4800, 99999];
+    if (step < 3) {
+      const t = setTimeout(() => setStep(s => s + 1), delays[step]);
       return () => clearTimeout(t);
     }
   }, [step]);
 
-  const current = STEPS[step];
+  const SCAN_PRODUCTS = [
+    { name: 'Posture Corrector Pro', score: 94, trend: '↑ 340%', winner: true },
+    { name: 'LED Strip Lights RGB',  score: 81, trend: '↑ 128%', winner: false },
+    { name: 'Air Fryer 11-in-1',    score: 78, trend: '→ Stable', winner: false },
+    { name: 'Smart Watch GPS',       score: 72, trend: '↑ 67%',  winner: false },
+    { name: 'Bamboo Desk Organiser', score: 69, trend: '↑ 44%',  winner: false },
+  ];
 
-  const renderContent = () => {
-    if (step === 0) return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 16 }}>
-        {["Posture Corrector Pro", "LED Strip Lights RGB", "Air Fryer 11-in-1", "Smart Watch GPS"].map((p, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 16px", background: i === 0 ? "#EEF2FF" : "#FAFAFA", borderRadius: 8, border: i === 0 ? "1px solid #C7D2FE" : "1px solid #F0F0F0" }}>
-            <div style={{ width: 32, height: 32, borderRadius: 6, background: "linear-gradient(135deg, #EEF2FF, #E0E7FF)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>📦</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#111111" }}>{p}</div>
-              <div style={{ fontSize: 11, color: "#9CA3AF" }}>Analysing AU demand...</div>
-            </div>
-            {i === 0 && <span style={{ fontSize: 11, fontWeight: 700, background: "#6366F1", color: "white", padding: "2px 8px", borderRadius: 999 }}>WINNER 🔥</span>}
-          </div>
-        ))}
-      </div>
-    );
-    if (step === 1) return (
-      <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
-        {[
-          { label: "Est. Revenue", value: "$41.2k/mo", color: "#10B981" },
-          { label: "Competitors", value: "Only 3", color: "#6366F1" },
-          { label: "Margin", value: "62%", color: "#8B5CF6" },
-          { label: "TikTok Views", value: "4.2M+", color: "#F59E0B" },
-          { label: "Source Price", value: "$12", color: "#0891B2" },
-          { label: "Sell Price", value: "$49.95", color: "#10B981" },
-        ].map((m, i) => (
-          <div key={i} style={{ background: "#FAFAFA", borderRadius: 8, padding: "12px", border: "1px solid #F0F0F0" }}>
-            <div style={{ fontSize: 10, color: "#9CA3AF", textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 4 }}>{m.label}</div>
-            <div style={{ fontSize: 18, fontWeight: 800, fontFamily: brico, color: m.color }}>{m.value}</div>
-          </div>
-        ))}
-      </div>
-    );
-    if (step === 2) return (
-      <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
-        {[
-          { done: true, spinning: false, text: "Niche identified: Posture & Wellness" },
-          { done: true, spinning: false, text: "Shopify store created" },
-          { done: true, spinning: false, text: "Hero product imported from AliExpress" },
-          { done: false, spinning: true, text: "Generating product descriptions..." },
-          { done: false, spinning: false, text: "Setting up payment gateway" },
-        ].map((item, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: item.spinning ? "rgba(99,102,241,0.06)" : "transparent", borderRadius: 6 }}>
-            <span style={{ fontSize: 14, minWidth: 20 }}>{item.done ? "✅" : item.spinning ? "⟳" : "○"}</span>
-            <span style={{ fontSize: 13, color: item.done ? "#374151" : item.spinning ? "#6366F1" : "#9CA3AF" }}>{item.text}</span>
-          </div>
-        ))}
-        <div style={{ marginTop: 8 }}>
-          <div style={{ height: 6, background: "#F3F4F6", borderRadius: 999 }}>
-            <div style={{ height: "100%", width: "65%", background: "linear-gradient(90deg, #6366F1, #8B5CF6)", borderRadius: 999 }} />
-          </div>
-          <div style={{ fontSize: 12, color: "#6366F1", marginTop: 4, textAlign: "right" as const }}>65% complete</div>
-        </div>
-      </div>
-    );
-    return (
-      <div style={{ marginTop: 20, textAlign: "center" as const }}>
-        <div style={{ fontSize: isMobile ? 34 : 56, marginBottom: 12 }}>🎉</div>
-        <div style={{ fontFamily: brico, fontWeight: 800, fontSize: isMobile ? 22 : 32, color: "#0A0A0A", marginBottom: 4 }}>
-          First Sale: <span style={{ color: "#10B981" }}>$84.00</span>
-        </div>
-        <div style={{ fontSize: 14, color: "#6B7280", marginBottom: 20 }}>Within 6 hours of store launch · Customer from Sydney, NSW</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
-          {[
-            { label: "Profit", value: "$52.10", color: "#10B981" },
-            { label: "Margin", value: "62%", color: "#6366F1" },
-            { label: "Time to sale", value: "6 hrs", color: "#8B5CF6" },
-          ].map((s, i) => (
-            <div key={i} style={{ background: "#FAFAFA", borderRadius: 10, padding: "14px", border: "1px solid #F0F0F0" }}>
-              <div style={{ fontSize: 10, color: "#9CA3AF", textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 4 }}>{s.label}</div>
-              <div style={{ fontSize: 22, fontWeight: 800, fontFamily: brico, color: s.color }}>{s.value}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
+  const stepColors = ['#6366F1', '#8B5CF6', '#0891B2', '#059669'];
+  const acc = stepColors[step];
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
-      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)" }} onClick={onClose} />
-      <div style={{ position: "relative", background: "white", borderRadius: 20, width: "100%", maxWidth: "min(520px, calc(100vw - 32px))", maxHeight: "90vh", overflowY: "auto", boxShadow: "0 40px 80px rgba(0,0,0,0.2)" }}>
-        <button onClick={onClose} style={{ position: "absolute", top: 16, right: 16, width: 32, height: 32, borderRadius: "50%", border: "none", background: "#F5F5F5", cursor: "pointer", fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>×</button>
-        <div style={{ display: "flex", gap: 6, padding: "24px 28px 0" }}>
-          {STEPS.map((_, i) => (
-            <div key={i} style={{ height: 3, flex: 1, borderRadius: 999, background: i <= step ? "#6366F1" : "#F3F4F6", transition: "background 0.3s" }} />
-          ))}
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? 0 : 24 }}>
+      {/* Backdrop */}
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(9,9,18,0.75)', backdropFilter: 'blur(10px)' }} onClick={onClose} />
+
+      {/* Modal */}
+      <div style={{
+        position: 'relative', background: '#FFFFFF',
+        borderRadius: isMobile ? '20px 20px 0 0' : 20,
+        width: '100%', maxWidth: isMobile ? '100%' : 580,
+        maxHeight: isMobile ? '92vh' : '88vh',
+        overflowY: 'auto',
+        boxShadow: '0 40px 120px rgba(0,0,0,0.35)',
+        ...(isMobile ? { position: 'fixed', bottom: 0, left: 0, right: 0 } : {}),
+      }}>
+
+        {/* Header — dark indigo gradient */}
+        <div style={{ background: 'linear-gradient(135deg, #0F1117 0%, #1E1B4B 50%, #312E81 100%)', padding: isMobile ? '20px 20px 24px' : '24px 28px 28px', borderRadius: isMobile ? '20px 20px 0 0' : '20px 20px 0 0' }}>
+          {/* Close */}
+          <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, width: 30, height: 30, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.12)', cursor: 'pointer', color: 'white', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+
+          {/* Step pills */}
+          <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' as const }}>
+            {STEPS.map((s, i) => (
+              <div key={i} style={{
+                padding: '4px 12px', borderRadius: 999, fontSize: 11, fontWeight: 700,
+                background: i === step ? s.color : 'rgba(255,255,255,0.08)',
+                color: i === step ? 'white' : 'rgba(255,255,255,0.4)',
+                border: `1px solid ${i === step ? s.color : 'rgba(255,255,255,0.1)'}`,
+                transition: 'all 0.3s',
+                letterSpacing: '0.04em',
+              }}>
+                {i < step ? '✓ ' : i === step ? '● ' : ''}{s.label}
+              </div>
+            ))}
+          </div>
+
+          {/* Progress bar */}
+          <div style={{ height: 3, background: 'rgba(255,255,255,0.1)', borderRadius: 999, marginBottom: 20 }}>
+            <div style={{ height: '100%', width: `${((step + 1) / STEPS.length) * 100}%`, background: `linear-gradient(90deg, ${acc}, ${acc}cc)`, borderRadius: 999, transition: 'width 0.6s cubic-bezier(0.4,0,0.2,1)' }} />
+          </div>
+
+          {/* Title */}
+          <div style={{ fontFamily: brico, fontWeight: 800, fontSize: isMobile ? 20 : 24, color: 'white', marginBottom: 6 }}>
+            {step === 0 && 'Scanning 50,000+ products…'}
+            {step === 1 && '🏆 Winner identified'}
+            {step === 2 && '⚙️ Building your store…'}
+            {step === 3 && '🎉 First sale in 6 hours'}
+          </div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>
+            {step === 0 && 'AI ranks every product by margin, demand, and AU relevance'}
+            {step === 1 && 'Posture Corrector Pro — 62% margin · TikTok trending · Low competition'}
+            {step === 2 && 'AI writes copy, imports product, configures payments. Done in minutes.'}
+            {step === 3 && 'Real customer from Sydney. $52.10 profit on the first order.'}
+          </div>
         </div>
-        <div style={{ padding: "24px 28px 28px" }}>
-          <div style={{ fontSize: isMobile ? 24 : 36, marginBottom: 10 }}>{current.icon}</div>
-          <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: "#0A0A0A", marginBottom: 4 }}>{current.title}</div>
-          <div style={{ fontSize: 13, color: "#6B7280" }}>{current.subtitle}</div>
-          {renderContent()}
-        </div>
-        <div style={{ padding: "16px 28px", borderTop: "1px solid #F5F5F5", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 12, color: "#9CA3AF" }}>Step {step + 1} of {STEPS.length}</span>
-          {step < STEPS.length - 1
-            ? <button onClick={() => setStep(s => s + 1)} style={{ padding: "8px 20px", background: "#6366F1", color: "white", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Next →</button>
-            : <a href="/app" style={{ padding: "8px 20px", background: "#6366F1", color: "white", borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Start for Free →</a>
-          }
+
+        {/* Body */}
+        <div style={{ padding: isMobile ? '20px' : '24px 28px 28px' }}>
+
+          {/* ── STEP 0: Product scan ── */}
+          {step === 0 && (
+            <div>
+              {/* Scan bar */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#F5F3FF', borderRadius: 10, marginBottom: 14, border: '1px solid #DDD6FE' }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#6366F1', animation: 'demoPulse 1.2s ease-in-out infinite' }} />
+                <span style={{ fontSize: 12, fontWeight: 600, color: '#6366F1', letterSpacing: '0.04em' }}>LIVE SCAN IN PROGRESS</span>
+                <span style={{ marginLeft: 'auto', fontSize: 11, color: '#9CA3AF' }}>{scanLine * 10_240 + 1_280} products analysed</span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                {SCAN_PRODUCTS.map((p, i) => (
+                  <div key={i} style={{
+                    display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px',
+                    background: p.winner ? '#F5F3FF' : '#FAFAFA',
+                    borderRadius: 10,
+                    border: p.winner ? '1.5px solid #C4B5FD' : '1px solid #F0F0F0',
+                    opacity: i <= scanLine ? 1 : 0.25,
+                    transform: i <= scanLine ? 'translateX(0)' : 'translateX(-8px)',
+                    transition: `opacity 0.4s ${i * 0.1}s, transform 0.4s ${i * 0.1}s`,
+                  }}>
+                    {/* Score ring */}
+                    <div style={{ width: 38, height: 38, borderRadius: '50%', border: `2.5px solid ${p.winner ? '#6366F1' : '#E5E7EB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: brico, fontWeight: 800, fontSize: 12, color: p.winner ? '#6366F1' : '#6B7280', flexShrink: 0 }}>
+                      {p.score}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#111827', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
+                      <div style={{ fontSize: 11, color: p.winner ? '#6366F1' : '#9CA3AF', fontWeight: p.winner ? 600 : 400 }}>{p.trend}</div>
+                    </div>
+                    {p.winner && (
+                      <span style={{ fontSize: 10, fontWeight: 800, background: '#6366F1', color: 'white', padding: '3px 9px', borderRadius: 999, letterSpacing: '0.06em', flexShrink: 0 }}>WINNER</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── STEP 1: Product card ── */}
+          {step === 1 && (
+            <div>
+              {/* Product card — looks like Majorka's real UI */}
+              <div style={{ border: '1.5px solid #E5E7EB', borderRadius: 14, overflow: 'hidden', marginBottom: 16 }}>
+                <div style={{ background: 'linear-gradient(135deg, #EEF2FF, #F5F3FF)', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <div style={{ width: 56, height: 56, borderRadius: 12, background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, flexShrink: 0 }}>🦺</div>
+                  <div>
+                    <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 16, color: '#0F172A', marginBottom: 2 }}>Posture Corrector Pro</div>
+                    <div style={{ fontSize: 12, color: '#6B7280' }}>Health & Wellness · AliExpress · Ships AUS</div>
+                  </div>
+                  <div style={{ marginLeft: 'auto', textAlign: 'right' as const, flexShrink: 0 }}>
+                    <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 28, color: '#6366F1', lineHeight: 1 }}>94</div>
+                    <div style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600 }}>WIN SCORE</div>
+                  </div>
+                </div>
+                <div style={{ padding: '14px 20px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                  {[
+                    { label: 'Sell Price', value: '$49.95', color: '#0F172A' },
+                    { label: 'Cost', value: '$12.00', color: '#6B7280' },
+                    { label: 'Margin', value: '62%', color: '#059669' },
+                    { label: 'TikTok Views', value: '4.2M+', color: '#6366F1' },
+                    { label: 'Competition', value: 'Low', color: '#059669' },
+                    { label: 'Monthly Rev.', value: '$41k', color: '#8B5CF6' },
+                  ].map((s, i) => (
+                    <div key={i} style={{ textAlign: 'center' as const }}>
+                      <div style={{ fontSize: 10, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 3 }}>{s.label}</div>
+                      <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 15, color: s.color }}>{s.value}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Why winning */}
+              <div style={{ background: '#F9FAFB', borderRadius: 10, padding: '12px 14px', border: '1px solid #E5E7EB' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 8 }}>🤖 Why It's Winning</div>
+                {['Post-pandemic posture awareness driving 340% YoY search growth', 'Only 3 serious competitors selling AU — massive gap', 'TikTok organic reach still wide open for this category'].map((t, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, alignItems: 'flex-start' }}>
+                    <span style={{ color: '#6366F1', fontSize: 12, marginTop: 1, flexShrink: 0 }}>▸</span>
+                    <span style={{ fontSize: 12, color: '#374151', lineHeight: 1.5 }}>{t}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── STEP 2: Terminal build log ── */}
+          {step === 2 && (
+            <div>
+              <div style={{ background: '#0D1117', borderRadius: 12, padding: '16px 18px', fontFamily: "'Geist Mono', 'Fira Code', monospace", fontSize: 12, minHeight: 200 }}>
+                {/* Terminal chrome */}
+                <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+                  {['#FF5F57','#FFBD2E','#28C840'].map(c => <div key={c} style={{ width: 11, height: 11, borderRadius: '50%', background: c }} />)}
+                  <span style={{ marginLeft: 8, color: '#6B7280', fontSize: 11 }}>majorka — store-builder — zsh</span>
+                </div>
+                {buildLines.map((line, i) => (
+                  <div key={i} style={{ color: line.startsWith('✓') ? '#4ADE80' : '#94A3B8', marginBottom: 5, display: 'flex', gap: 8 }}>
+                    <span style={{ color: '#6366F1', flexShrink: 0 }}>$</span>
+                    <span>{line}</span>
+                  </div>
+                ))}
+                {buildLines.length < BUILD_LOG.length && (
+                  <div style={{ color: '#6366F1', animation: 'termBlink 1s step-end infinite' }}>▊</div>
+                )}
+              </div>
+              {/* Progress bar */}
+              <div style={{ marginTop: 14 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <span style={{ fontSize: 12, color: '#6B7280' }}>Store build progress</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#0891B2' }}>{Math.round((buildLines.length / BUILD_LOG.length) * 100)}%</span>
+                </div>
+                <div style={{ height: 6, background: '#F3F4F6', borderRadius: 999 }}>
+                  <div style={{ height: '100%', width: `${(buildLines.length / BUILD_LOG.length) * 100}%`, background: 'linear-gradient(90deg, #0891B2, #6366F1)', borderRadius: 999, transition: 'width 0.4s ease' }} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── STEP 3: First sale ── */}
+          {step === 3 && (
+            <div>
+              {/* Sale notification */}
+              <div style={{ background: 'linear-gradient(135deg, #ECFDF5, #D1FAE5)', border: '1.5px solid #6EE7B7', borderRadius: 14, padding: '20px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(135deg, #059669, #10B981)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 }}>💸</div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#059669', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 4 }}>New Sale — posture-pro.myshopify.com</div>
+                  <div style={{ fontFamily: brico, fontWeight: 800, fontSize: isMobile ? 26 : 32, color: '#064E3B', lineHeight: 1 }}>
+                    ${counterVal.toFixed(2)} AUD
+                  </div>
+                  <div style={{ fontSize: 12, color: '#059669', marginTop: 4 }}>Sophie T. · Sydney, NSW · 6 hrs after launch</div>
+                </div>
+              </div>
+              {/* Stats */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+                {[
+                  { label: 'Profit', value: '$52.10', color: '#059669', bg: '#ECFDF5' },
+                  { label: 'Margin', value: '62%',    color: '#6366F1', bg: '#EEF2FF' },
+                  { label: 'Time to sale', value: '6h 14m', color: '#8B5CF6', bg: '#F5F3FF' },
+                ].map((s, i) => (
+                  <div key={i} style={{ background: s.bg, borderRadius: 10, padding: '14px 12px', textAlign: 'center' as const }}>
+                    <div style={{ fontSize: 10, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 4 }}>{s.label}</div>
+                    <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 17, color: s.color }}>{s.value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Footer CTA */}
+          <div style={{ marginTop: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 5 }}>
+              {STEPS.map((_, i) => (
+                <div key={i} onClick={() => setStep(i)} style={{ width: i === step ? 20 : 6, height: 6, borderRadius: 999, background: i === step ? acc : '#E5E7EB', cursor: 'pointer', transition: 'all 0.3s' }} />
+              ))}
+            </div>
+            {step < 3
+              ? <button onClick={() => setStep(s => s + 1)} style={{ padding: '10px 22px', background: acc, color: 'white', border: 'none', borderRadius: 9, fontSize: 14, fontWeight: 700, cursor: 'pointer', letterSpacing: '-0.01em', transition: 'opacity 150ms' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.88')} onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}>
+                  Next →
+                </button>
+              : <a href="/sign-up" style={{ padding: '10px 22px', background: '#059669', color: 'white', borderRadius: 9, fontSize: 14, fontWeight: 700, textDecoration: 'none', display: 'inline-block', letterSpacing: '-0.01em' }}>
+                  Start for Free →
+                </a>
+            }
+          </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes termBlink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+      `}</style>
     </div>
   );
 }
+
 
 // ── Main Home ─────────────────────────────────────────────────────────────────
 export default function Home() {
