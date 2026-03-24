@@ -650,20 +650,15 @@ export default function MajorkaAppShell({ children }: Props) {
           style={{ background: 'none', border: 'none', cursor: 'pointer' }}
         >
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-sm flex-shrink-0"
-            style={{
-              background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-              color: '#FFFFFF',
-              fontFamily: "'Bricolage Grotesque', sans-serif",
-            }}
+            className="flex-shrink-0"
           >
-            M
+            <img src="/majorka-logo.jpg" alt="Majorka" width={32} height={32} style={{ width: 32, height: 32, objectFit: 'contain', borderRadius: 8, display: 'block' }} draggable={false} />
           </div>
           <span
-            className="font-bold text-sm uppercase tracking-widest"
-            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: 'var(--sidebar-text, #111827)', letterSpacing: '0.12em' }}
+            className="font-bold text-sm"
+            style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: 'var(--sidebar-text, #111827)', letterSpacing: '-0.01em', fontSize: 15, fontWeight: 800 }}
           >
-            MAJORKA
+            Majorka
           </span>
         </button>
         <button
@@ -1152,21 +1147,12 @@ export default function MajorkaAppShell({ children }: Props) {
             <Menu size={15} />
           </button>
           <div className="flex items-center gap-2 flex-1">
-            <div
-              className="w-6 h-6 rounded-md flex items-center justify-center font-extrabold text-xs"
-              style={{
-                background: 'linear-gradient(135deg, #6366F1, #4F46E5)',
-                color: '#fff',
-                fontFamily: "'Bricolage Grotesque', sans-serif",
-              }}
-            >
-              M
-            </div>
+            <img src="/majorka-logo.jpg" alt="Majorka" width={28} height={28} style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 7, display: 'block', flexShrink: 0 }} draggable={false} />
             <span
-              className="font-bold text-sm uppercase tracking-widest"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#111827', letterSpacing: '0.1em' }}
+              className="font-bold text-sm"
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#111827', letterSpacing: '-0.01em', fontSize: 15, fontWeight: 800 }}
             >
-              MAJORKA
+              Majorka
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
