@@ -51,10 +51,10 @@ interface HealthStatus {
 }
 
 const INTEGRATION_LABELS: Record<keyof HealthStatus, string> = {
-  anthropic: 'Anthropic AI',
-  tavily: 'Tavily Search',
-  firecrawl: 'Firecrawl Scraper',
-  supabase: 'Supabase Auth',
+  shopify: 'Shopify Store',
+  tiktok: 'TikTok Shop',
+  aliexpress: 'AliExpress Supplier',
+  zendrop: 'Zendrop Fulfillment',
   stripe: 'Stripe Payments',
   database: 'Database',
 };

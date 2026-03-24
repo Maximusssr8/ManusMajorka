@@ -133,7 +133,7 @@ export default function ShopIntelligence() {
 
       const data = await res.json();
       setShops(data.shops || []);
-      setTotal(data.total || 0);
+      setTotal(data.total || (Array.isArray(data) ? data.length : (data.shops || data.data || []).length) || 0);
       setPages(data.pages || 1);
       setPage(p);
     } catch (err: any) {
@@ -204,7 +204,7 @@ export default function ShopIntelligence() {
           Shop Intelligence
         </div>
         <div style={{ fontSize: 14, color: C.muted }}>
-          Discover top performing Shopify stores in the AU market · {total} stores tracked
+          Discover top performing Shopify stores in the AU market{total > 0 ? ` · ${total} stores tracked` : ''}
         </div>
       </div>
 

@@ -125,7 +125,7 @@ export default function VideoIntelligence() {
         <div>
           <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#0A0A0A', margin: 0 }}>Video Intelligence</h1>
           <p style={{ fontSize: 12, color: '#9CA3AF', margin: '3px 0 0' }}>
-            {loading ? 'Loading…' : `${allVideos.length} tracked videos · AI script generator`}
+            {loading ? 'Loading…' : `${videos.length} videos tracked`}
           </p>
         </div>
         <button onClick={triggerRefresh} disabled={refreshing}

@@ -336,7 +336,7 @@ function getDemoChartData(range: string) {
     const d = new Date(today);
     d.setDate(d.getDate() - (count - 1 - i));
     return {
-      date: d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' }),
+      date: days <= 7 ? ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()] : d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' }),
       revenue: days === 1 ? Math.round(rev / 24 * (i * 1.7 + 4)) : rev,
     };
   });
@@ -478,7 +478,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
             </defs>
             <CartesianGrid strokeDasharray="3 4" stroke="#F9FAFB" vertical={false} />
             <XAxis dataKey="date" tick={{ fill: '#9CA3AF', fontSize: 10, fontFamily: UI }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-            <YAxis tick={{ fill: '#9CA3AF', fontSize: 10, fontFamily: UI }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${(v / 1000).toFixed(1)}k`} />
+            <YAxis width={45} tick={{ fill: '#9CA3AF', fontSize: 10, fontFamily: UI }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${(v / 1000).toFixed(1)}k`} />
             <Tooltip content={<SalesTooltip />} cursor={{ stroke: 'rgba(99,102,241,0.2)', strokeWidth: 1 }} />
             <Area type="monotone" dataKey="revenue" stroke="#6366F1" strokeWidth={1.8} fill="url(#goldGrad)" dot={false} activeDot={{ r: 3, fill: '#6366F1', strokeWidth: 0 }} />
           </AreaChart>

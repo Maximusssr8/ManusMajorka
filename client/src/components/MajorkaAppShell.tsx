@@ -98,14 +98,14 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: 'Creator Intel', path: '/app/creators', icon: Users, tooltip: 'Find top TikTok creators promoting products in your niche.' },
       { label: 'Video Intel', path: '/app/video-intelligence', icon: Play, badge: 'NEW', tooltip: 'Top-performing product videos — what drives real sales.' },
-      { label: 'Ad Intelligence', path: '/app/ad-spy', icon: Target, tooltip: 'Spy on winning TikTok & Meta ads in your niche.', badge: 'SOON' },
+      { label: 'Ad Intelligence', path: '/app/ad-spy', icon: Target, tooltip: 'Spy on winning TikTok & Meta ads in your niche.' },
       { label: 'Livestream', path: '/app/livestream', icon: Radio, badge: 'NEW', tooltip: 'Track trending niches and GMV across TikTok Live sessions.' },
     ],
   },
   {
     label: 'COMPETE',
     items: [
-      { label: 'Shop Spy', path: '/app/spy-tools', icon: Eye, tooltip: 'Market overview, trending video hooks, shareable reports.', badge: 'SOON' },
+      { label: 'Shop Spy', path: '/app/spy-tools', icon: Eye, tooltip: 'Market overview, trending video hooks, shareable reports.' },
       { label: 'Shop Intelligence', path: '/app/shop-intelligence', icon: Store, tooltip: 'Discover top performing Shopify stores and analyse competitor strategy.' },
     ],
   },
@@ -471,9 +471,28 @@ export default function MajorkaAppShell({ children }: Props) {
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase();
-    return allTools
-      .filter((t) => t.label.toLowerCase().includes(q) || t.description.toLowerCase().includes(q))
-      .slice(0, 6);
+    // Expanded keywords map for common search terms
+    const ALIASES: Record<string, string[]> = {
+      'ad copy': ['/app/growth'], 'ads': ['/app/ad-spy', '/app/growth'],
+      'profit': ['/app/profit'], 'margin': ['/app/profit'],
+      'creator': ['/app/creators'], 'video': ['/app/videos'],
+      'market': ['/app/market'], 'shop': ['/app/spy-tools'],
+      'spy': ['/app/ad-spy', '/app/spy-tools'], 'competitor': ['/app/spy-tools'],
+      'trend': ['/app/intelligence'], 'product': ['/app/intelligence'],
+      'supplier': ['/app/profit'], 'settings': ['/app/settings'],
+      'billing': ['/app/settings'], 'shopify': ['/app/profit'],
+    };
+    const aliasMatches = Object.entries(ALIASES)
+      .filter(([key]) => key.includes(q) || q.includes(key))
+      .flatMap(([, paths]) => paths);
+    const fromAliases = NAV_SECTIONS.flatMap(s => s.items)
+      .filter(item => aliasMatches.includes(item.path))
+      .map(item => ({ id: item.path, label: item.label, description: item.tooltip || '', path: item.path, icon: item.icon }));
+    const fromTools = allTools
+      .filter((t) => t.label.toLowerCase().includes(q) || t.description.toLowerCase().includes(q));
+    const combined = [...fromAliases, ...fromTools];
+    const seen = new Set<string>();
+    return combined.filter(t => { if (seen.has(t.path)) return false; seen.add(t.path); return true; }).slice(0, 6);
   }, [searchQuery]);
 
   // Keyboard shortcut for search

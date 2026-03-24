@@ -43,7 +43,7 @@ const QUICK_CHIPS = [
 const STARTER_CARDS = [
   { emoji: '🔥', label: "What's the #1 product to dropship in AU right now?" },
   { emoji: '💰', label: 'I want to start selling LED face masks — run the full analysis' },
-  { emoji: '🛍️', label: 'Build me a store for [paste product URL]' },
+  { emoji: '🛍️', label: 'Build me a Shopify store for a fitness product under $50 AUD' },
   { emoji: '📈', label: 'Is the massage gun niche still viable in Australia?' },
 ];
 
