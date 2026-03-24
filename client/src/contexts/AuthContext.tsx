@@ -42,6 +42,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refetchOnWindowFocus: false,
     enabled: !!session,
     staleTime: 0,
+    // Prevent TRPC failures from crashing the entire app
+    throwOnError: false,
   });
 
   const refetchMe = useRef<() => void>(() => {});

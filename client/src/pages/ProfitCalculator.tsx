@@ -414,28 +414,6 @@ export default function ProfitCalculator() {
         </button>
       </div>
 
-      {/* Supplier Search Section */}
-      <div style={{ maxWidth: 1200, margin: '32px auto 0' }}>
-        <div style={cardStyle}>
-          <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 18, color: '#0A0A0A', marginBottom: 16, marginTop: 0 }}>Find Suppliers</h3>
-          <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
-            <input placeholder="Search AliExpress for suppliers..." value={supplierSearch} onChange={e => setSupplierSearch(e.target.value)}
-              style={{ flex: 1, height: 44, padding: '0 14px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 14, outline: 'none', fontFamily: 'DM Sans, sans-serif' }}
-              onFocus={e => (e.currentTarget.style.borderColor = '#6366F1')}
-              onBlur={e => (e.currentTarget.style.borderColor = '#E5E7EB')}
-              onKeyDown={e => { if (e.key === 'Enter' && supplierSearch.trim()) window.open(`https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(supplierSearch)}&shipCountry=au`, '_blank'); }}
-            />
-            <button onClick={() => { if (supplierSearch.trim()) window.open(`https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(supplierSearch)}&shipCountry=au`, '_blank'); }}
-              style={{ height: 44, padding: '0 20px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms' }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#4F46E5'; e.currentTarget.style.transform = 'scale(1.02)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#6366F1'; e.currentTarget.style.transform = ''; }}>
-              Search
-            </button>
-          </div>
-          <p style={{ fontSize: 13, color: '#9CA3AF', margin: 0 }}>Enter a product name to find AU-shipping suppliers on AliExpress and Alibaba.</p>
-        </div>
-      </div>
-
       {/* Responsive CSS */}
       <style>{`
         @media (max-width: 768px) {

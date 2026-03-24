@@ -768,6 +768,39 @@ html.dark, [data-theme="dark"] {
   --search-bg: rgba(255,255,255,0.03);
 }
 
+
+/* ── Dark mode content area ─────────────────────────────────── */
+html.dark .dashboard-bg {
+  background: #0F1117;
+  color: #F1F5F9;
+}
+html.dark .glass-card,
+html.dark [style*="background: #FFFFFF"],
+html.dark [style*="background: '#FFFFFF'"] {
+  background: #1A2130 !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+html.dark [style*="background: #FAFAFA"],
+html.dark [style*="background: '#FAFAFA'"] {
+  background: #141924 !important;
+}
+html.dark [style*="color: #0A0A0A"],
+html.dark [style*="color: '#0A0A0A'"],
+html.dark [style*="color: #111827"] {
+  color: #F1F5F9 !important;
+}
+html.dark [style*="color: #374151"] {
+  color: #CBD5E1 !important;
+}
+html.dark [style*="color: #6B7280"],
+html.dark [style*="color: #9CA3AF"] {
+  color: #94A3B8 !important;
+}
+html.dark [style*="border: 1px solid #E5E7EB"],
+html.dark [style*="border-color: #E5E7EB"] {
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
 /* ── Button interactions ───────────────────────────────────── */
 .btn-interact {
   transition: transform 150ms ease, box-shadow 150ms ease;

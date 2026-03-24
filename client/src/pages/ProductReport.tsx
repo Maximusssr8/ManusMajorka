@@ -261,7 +261,7 @@ export default function ProductReport() {
         {product.ad_angle && (
           <div style={{ background: 'rgba(99,102,241,0.04)', border: `1px solid ${C.goldBorder}`, borderRadius: 16, padding: '24px 20px', marginBottom: 28 }}>
             <h3 style={{ fontFamily: syne, fontWeight: 700, fontSize: 14, color: C.gold, marginBottom: 12 }}>🎯 Winning Ad Angle</h3>
-            <p style={{ fontSize: 14, color: C.text, lineHeight: 1.7, fontStyle: 'italic' }}>"{product.ad_angle}"</p>
+            <p style={{ fontSize: 14, color: C.text, lineHeight: 1.7, fontStyle: 'italic' }}>{product.ad_angle && !product.ad_angle.includes('_') ? `"${product.ad_angle}"` : `"Highlight the key benefit: show how this product solves a real problem your target customer faces daily. Lead with the transformation, not the product."`}</p>
           </div>
         )}
 

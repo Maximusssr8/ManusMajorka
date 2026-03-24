@@ -388,8 +388,18 @@ export default function ProductDiscovery() {
         throw new Error(errData.error || `Server error: ${response.status}`);
       }
 
-      const resData = await response.json();
-      const fullText = resData.reply ?? '';
+      let fullText = '';
+      // Handle both streaming text and JSON responses
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        const resData = await response.json();
+        fullText = resData.reply ?? resData.content ?? resData.text ?? '';
+      } else {
+        // Plain text / streaming — read as text
+        fullText = await response.text();
+        // Strip SSE data: prefix if present
+        fullText = fullText.replace(/^data: /gm, '').trim();
+      }
 
       if (!fullText.trim()) {
         setGenError('No response received. Please try again.');
@@ -399,7 +409,7 @@ export default function ProductDiscovery() {
           setResult(parsed);
           localStorage.setItem('majorka_milestone_research', 'true');
         } else {
-          setGenError('Could not parse results. Please try again.');
+          setGenError('Analysis complete but could not parse structured results. Try a different niche.');
         }
       }
     } catch (err: any) {

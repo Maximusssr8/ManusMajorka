@@ -194,13 +194,14 @@ interface FullDatabaseProps {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps) {
+  // Use growth-rate sort for trending, score for full database
   const { region } = useRegion();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [niche, setNiche] = useState('All Niches');
-  const [sortBy, setSortBy] = useState('winning_score');
+  const [sortBy, setSortBy] = useState(presetFilter === 'trending' ? 'orders_count' : 'winning_score');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [opportunityFilter, setOpportunityFilter] = useState('All');
   const [verifiedOnly, setVerifiedOnly] = useState(false);

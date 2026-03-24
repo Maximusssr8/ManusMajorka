@@ -98,14 +98,14 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: 'Creator Intel', path: '/app/creators', icon: Users, tooltip: 'Find top TikTok creators promoting products in your niche.' },
       { label: 'Video Intel', path: '/app/video-intelligence', icon: Play, badge: 'NEW', tooltip: 'Top-performing product videos — what drives real sales.' },
-      { label: 'Ad Intelligence', path: '/app/ad-spy', icon: Target, tooltip: 'Spy on winning TikTok & Meta ads in your niche.' },
+      { label: 'Ad Intelligence', path: '/app/ad-spy', icon: Target, tooltip: 'Spy on winning TikTok & Meta ads in your niche.', badge: 'SOON' },
       { label: 'Livestream', path: '/app/livestream', icon: Radio, badge: 'NEW', tooltip: 'Track trending niches and GMV across TikTok Live sessions.' },
     ],
   },
   {
     label: 'COMPETE',
     items: [
-      { label: 'Shop Spy', path: '/app/spy-tools', icon: Eye, tooltip: 'Market overview, trending video hooks, shareable reports.' },
+      { label: 'Shop Spy', path: '/app/spy-tools', icon: Eye, tooltip: 'Market overview, trending video hooks, shareable reports.', badge: 'SOON' },
       { label: 'Shop Intelligence', path: '/app/shop-intelligence', icon: Store, tooltip: 'Discover top performing Shopify stores and analyse competitor strategy.' },
     ],
   },
@@ -120,7 +120,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: 'ACCOUNT',
     items: [
-      { label: 'Academy', path: '/app/learn', icon: GraduationCap, tooltip: 'Learn dropshipping for your market.' },
+      { label: 'Academy', path: '/app/learn', icon: GraduationCap, tooltip: 'Learn dropshipping for your market.', badge: 'SOON' },
       { label: 'Settings', path: '/app/settings', icon: Settings, tooltip: 'Account settings, plan, and billing.' },
     ],
   },
@@ -1200,7 +1200,7 @@ export default function MajorkaAppShell({ children }: Props) {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto pb-16 lg:pb-0 dashboard-bg min-w-0">{children}</div>
+        <div className="flex-1 overflow-y-auto pb-16 lg:pb-0 dashboard-bg min-w-0" style={{ background: theme === 'dark' ? '#0F1117' : undefined, color: theme === 'dark' ? '#F1F5F9' : undefined }}>{children}</div>
 
         {/* Mobile bottom tab bar */}
         <nav
