@@ -162,6 +162,15 @@ function useAnimatedNumber(target: number, duration = 600): number {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function PromoDashboard() {
+  // SEO: prevent indexing of demo page
+  useEffect(() => {
+    document.title = 'Demo Dashboard — Majorka';
+    const meta = document.createElement('meta');
+    meta.name = 'robots';
+    meta.content = 'noindex, nofollow';
+    document.head.appendChild(meta);
+    return () => { document.head.removeChild(meta); };
+  }, []);
   const params = new URLSearchParams(window.location.search);
   const nameParam = params.get('name') || 'Maximus';
   const revenueParam = params.get('revenue') ? parseFloat(params.get('revenue')!) : 18420.60;

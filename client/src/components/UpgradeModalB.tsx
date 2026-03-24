@@ -29,6 +29,9 @@ export default function UpgradeModalB({
   };
 
   return (
+    <>
+      <title>Demo Dashboard — Majorka</title>
+      <meta name="robots" content="noindex, nofollow" />
     <div
       className="fixed inset-0 z-[300] flex items-center justify-center"
       style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(12px)' }}

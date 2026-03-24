@@ -281,6 +281,9 @@ function ProfitDisplay({ result }: { result: ProfitResult }) {
   ];
 
   return (
+    <>
+      <title>Demo Dashboard — Majorka</title>
+      <meta name="robots" content="noindex, nofollow" />
     <div style={{ padding: '4px 0' }}>
       {/* Margin gauge */}
       <div style={{ marginBottom: 18 }}>
@@ -367,6 +370,9 @@ function ProfitDisplay({ result }: { result: ProfitResult }) {
 function ProductScoutDisplay({ cards, streaming }: { cards: ProductCard[]; streaming: boolean }) {
   if (!cards.length && !streaming) return null;
   return (
+    <>
+      <title>Demo Dashboard — Majorka</title>
+      <meta name="robots" content="noindex, nofollow" />
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {cards.map((card, i) => (
         <div
@@ -413,6 +419,9 @@ function ProductScoutDisplay({ cards, streaming }: { cards: ProductCard[]; strea
 
 function AdDisplay({ card }: { card: AdCard }) {
   return (
+    <>
+      <title>Demo Dashboard — Majorka</title>
+      <meta name="robots" content="noindex, nofollow" />
     <div className="ad-card-anim" style={{ animationDelay: '0.1s' }}>
       {/* Facebook ad mockup */}
       <div style={{
@@ -677,6 +686,9 @@ export default function LiveDemoWidget() {
   const showingResult = hasResult || thinking || streaming;
 
   return (
+    <>
+      <title>Demo Dashboard — Majorka</title>
+      <meta name="robots" content="noindex, nofollow" />
     <div style={{ maxWidth: 680, width: '100%', minWidth: 0 }}>
       <style>{STYLES}</style>
 

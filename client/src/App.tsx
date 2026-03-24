@@ -345,6 +345,12 @@ function LegalPage({ title, slug }: { title: string; slug: string }) {
     ],
   };
     const paragraphs = content[slug] || [];
+  // Set page title
+  useEffect(() => {
+    const prev = document.title;
+    document.title = `${title} — Majorka`;
+    return () => { document.title = prev; };
+  }, [title]);
   return (
     <div style={{ minHeight: '100vh', background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif', padding: '80px 24px' }}>
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
@@ -358,6 +364,11 @@ function LegalPage({ title, slug }: { title: string; slug: string }) {
         </div>
         <div style={{ marginTop: 60, padding: '24px', background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 12 }}>
           <p style={{ fontSize: 14, color: '#6B7280' }}>Questions? Email us at <a href="mailto:hello@majorka.io" style={{ color: '#6366F1' }}>hello@majorka.io</a></p>
+          <div style={{ marginTop: 16, display: 'flex', gap: 16, flexWrap: 'wrap' as const }}>
+            {[['Privacy Policy', '/privacy'], ['Terms of Service', '/terms'], ['Refund Policy', '/refund-policy'], ['Cookie Policy', '/cookies']].map(([label, href]) => (
+              <a key={href} href={href} style={{ fontSize: 12, color: '#9CA3AF', textDecoration: 'none' }}>{label}</a>
+            ))}
+          </div>
         </div>
       </div>
     </div>
