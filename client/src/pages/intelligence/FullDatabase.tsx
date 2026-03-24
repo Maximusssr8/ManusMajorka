@@ -322,7 +322,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     { id: 'all', label: '\uD83D\uDD25 All Products' },
     { id: 'revenue', label: '\uD83D\uDCC8 Best Revenue', sortOverride: 'est_monthly_revenue_aud' },
     { id: 'margin', label: '\uD83D\uDCB0 High Margin', filter: (p: Product) => (p.estimated_margin_pct || p.profit_margin || 0) >= 50 },
-    { id: 'tiktok', label: '\uD83D\uDCF1 TikTok Viral', filter: (p: Product) => (p.tags || []).includes('VIRAL') || !!p.tiktok_signal },
+    { id: 'tiktok', label: '📲 TikTok Signal', filter: (p: Product) => !!p.tiktok_signal || (p.tags || []).includes('tiktok-trending') },
     { id: 'au', label: '\uD83C\uDDE6\uD83C\uDDFA AU Demand', filter: (p: Product) => (p.tags || []).includes('AU DEMAND') || (p.tags || []).includes('AU BEST SELLERS') },
     { id: 'new', label: '\uD83C\uDD95 New Today', filter: (p: Product) => { const t = p.updated_at; return t ? Date.now() - new Date(t).getTime() < 86400000 : false; } },
   ];
@@ -584,7 +584,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   Product <SortIcon col="name" />
                 </th>
                 <th style={thStyle('est_monthly_revenue_aud', 120, 'right')} onClick={() => handleSort('est_monthly_revenue_aud')}>
-                  Revenue/mo <SortIcon col="est_monthly_revenue_aud" />
+                  Est. Revenue/mo <SortIcon col="est_monthly_revenue_aud" />
                 </th>
                 <th style={{ ...thStyle('trend', 140, 'center'), cursor: 'default' }}>30-Day Trend</th>
                 <th style={thStyle('orders_count', 90, 'right')} onClick={() => handleSort('orders_count')}>
@@ -925,6 +925,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
   const [creatorsLoading, setCreatorsLoading] = useState(false);
   const name = p.name || p.product_title || 'Product';
   const revenue = p.est_monthly_revenue_aud || 0;
+  const isEstimated = !p.orders_count || p.orders_count === 0;
   const margin = p.estimated_margin_pct || p.profit_margin || 0;
   const orders = p.orders_count || 0;
   const score = p.winning_score || 0;
