@@ -7,6 +7,7 @@ import {
   Activity,
   ArrowUpRight,
   BarChart3,
+  Bell,
   BookOpen,
   Brain,
   Calculator,
