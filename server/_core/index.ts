@@ -30,6 +30,7 @@ import { registerWebsiteRoutes } from '../lib/website-api';
 import cookieParser from 'cookie-parser';
 import shopifyRouter from '../routes/shopify';
 import storeBuilderRouter from '../routes/store-builder';
+import apifyRouter from '../routes/apify';
 import { appRouter } from '../routers';
 import { registerChatRoutes } from './chat';
 import { createContext } from './context';
@@ -219,6 +220,7 @@ async function startServer() {
   app.use(cookieParser());
   app.use('/api/shopify', shopifyRouter);
   app.use('/api/store-builder', storeBuilderRouter);
+  app.use('/api/apify', apifyRouter);
   // Cron endpoints (Vercel cron + manual refresh)
   const cronRouter = (await import('../routes/cron')).default;
   app.use('/api/cron', cronRouter);

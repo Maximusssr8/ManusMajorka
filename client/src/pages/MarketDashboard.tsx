@@ -198,6 +198,53 @@ export default function MarketDashboard() {
   const [topCreator, setTopCreator] = useState<AuCreator | null>(null);
   const [stats, setStats] = useState<MarketStats>({ totalProducts: 0, activeCreators: 0, avgScore: 0, explodingTrends: 0 });
   const [loading, setLoading] = useState(true);
+  const [isScale, setIsScale] = useState(false);
+  const [productsCachedAt, setProductsCachedAt] = useState<string | null>(null);
+  const [refreshingProducts, setRefreshingProducts] = useState(false);
+  const [refreshError, setRefreshError] = useState('');
+
+  // Check subscription plan
+  useEffect(() => {
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      try {
+        const res = await fetch('/api/subscription/me', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        const data = await res.json();
+        const plan = (data.plan || 'free').toLowerCase();
+        setIsScale(plan === 'scale');
+      } catch { /* ignore */ }
+    })();
+  }, []);
+
+  // Fetch cache status
+  useEffect(() => {
+    fetch('/api/apify/cache-status')
+      .then(r => r.json())
+      .then(d => { if (d.products_cached_at) setProductsCachedAt(d.products_cached_at); })
+      .catch(() => {});
+  }, []);
+
+  const triggerProductRefresh = async () => {
+    setRefreshingProducts(true);
+    setRefreshError('');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/apify/refresh-products', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session?.access_token || ''}` },
+      });
+      if (!res.ok) throw new Error('Refresh failed');
+      setProductsCachedAt(new Date().toISOString());
+      await fetchAll();
+    } catch {
+      setRefreshError('Refresh failed — try again');
+    } finally {
+      setRefreshingProducts(false);
+    }
+  };
 
   useEffect(() => {
     void fetchAll();
@@ -257,10 +304,29 @@ export default function MarketDashboard() {
             <p className="text-sm mt-0.5" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>
               Live TikTok Shop data — Australian market
             </p>
+            <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
+              Last updated: {productsCachedAt ? (() => {
+                const mins = Math.round((Date.now() - new Date(productsCachedAt).getTime()) / 60000);
+                if (mins < 1) return 'just now';
+                if (mins < 60) return `${mins} min${mins === 1 ? '' : 's'} ago`;
+                return `${Math.round(mins / 60)}h ago`;
+              })() : 'just now'}
+            </p>
+            {refreshError && <p className="text-xs" style={{ color: '#EF4444' }}>{refreshError}</p>}
           </div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
             <span className="text-xs" style={{ color: '#64748b' }}>Live</span>
+            {isScale && (
+              <button onClick={triggerProductRefresh} disabled={refreshingProducts}
+                style={{ height: 30, padding: '0 10px', background: refreshingProducts ? '#9CA3AF' : 'white', color: refreshingProducts ? 'white' : '#6366F1', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: refreshingProducts ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                {refreshingProducts ? (
+                  <><span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>{'\u21BB'}</span> Refreshing...</>
+                ) : (
+                  <>{'\u21BB'} Refresh</>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>

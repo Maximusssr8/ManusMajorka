@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import React from 'react';
 import { DateRangeSelector, getDateRangeStart, type Range } from '@/components/DateRangeSelector';
 import { exportCSV } from '@/lib/exportCsv';
+import { supabase } from '@/lib/supabase';
 
 const brico = "'Bricolage Grotesque', sans-serif";
 const NICHES = ['beauty','fitness','home decor','pet care','tech accessories','fashion','health','kitchen','outdoor','baby'];
@@ -36,6 +37,33 @@ export default function CreatorIntelligence() {
   const [outreach, setOutreach] = useState('');
   const [outreachLoading, setOutreachLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [isScale, setIsScale] = useState(false);
+  const [cachedAt, setCachedAt] = useState<string | null>(null);
+  const [refreshError, setRefreshError] = useState('');
+
+  // Check subscription plan
+  useEffect(() => {
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      try {
+        const res = await fetch('/api/subscription/me', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        const data = await res.json();
+        const plan = (data.plan || 'free').toLowerCase();
+        setIsScale(plan === 'scale');
+      } catch { /* ignore */ }
+    })();
+  }, []);
+
+  // Fetch cache status
+  useEffect(() => {
+    fetch('/api/apify/cache-status')
+      .then(r => r.json())
+      .then(d => { if (d.creators_cached_at) setCachedAt(d.creators_cached_at); })
+      .catch(() => {});
+  }, []);
 
   const [searchQ, setSearchQ] = useState('');
   const [filterNiche, setFilterNiche] = useState('');
@@ -62,8 +90,22 @@ export default function CreatorIntelligence() {
 
   const triggerRefresh = async () => {
     setRefreshing(true);
-    await fetch('/api/admin/refresh-creators', { method: 'POST' });
-    setTimeout(() => { fetchCreators(filterNiche, filterRegion); setRefreshing(false); }, 5000);
+    setRefreshError('');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch('/api/apify/refresh-creators', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session?.access_token || ''}` },
+      });
+      if (!res.ok) throw new Error('Refresh failed');
+      const data = await res.json();
+      setCachedAt(new Date().toISOString());
+      await fetchCreators(filterNiche, filterRegion);
+    } catch {
+      setRefreshError('Refresh failed — try again');
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const generateOutreach = async (c: Creator) => {
@@ -117,6 +159,17 @@ export default function CreatorIntelligence() {
             <p style={{ fontSize: 13, color: '#6B7280', marginTop: 4, marginBottom: 0 }}>
               Find TikTok creators promoting products in your niche. Contact hints FREE (KaloData charges $90+/mo).
             </p>
+            {cachedAt && (
+              <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 4, marginBottom: 0 }}>
+                Last updated: {(() => {
+                  const mins = Math.round((Date.now() - new Date(cachedAt).getTime()) / 60000);
+                  if (mins < 1) return 'just now';
+                  if (mins < 60) return `${mins} min${mins === 1 ? '' : 's'} ago`;
+                  return `${Math.round(mins / 60)}h ago`;
+                })()}
+              </p>
+            )}
+            {refreshError && <p style={{ fontSize: 11, color: '#EF4444', marginTop: 2, marginBottom: 0 }}>{refreshError}</p>}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <DateRangeSelector value={dateRange} onChange={handleDateRange} />
@@ -124,10 +177,16 @@ export default function CreatorIntelligence() {
               style={{ border: '1px solid #E5E7EB', background: 'white', color: '#374151', borderRadius: 8, padding: '6px 14px', fontSize: 13, cursor: 'pointer' }}>
               {'⬇'} Export CSV
             </button>
-            <button onClick={triggerRefresh} disabled={refreshing}
-              style={{ height: 36, padding: '0 16px', background: refreshing ? '#9CA3AF' : '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: refreshing ? 'wait' : 'pointer' }}>
-              {refreshing ? '\u27F3 Refreshing...' : '\u21BB Refresh Creators'}
-            </button>
+            {isScale && (
+              <button onClick={triggerRefresh} disabled={refreshing}
+                style={{ height: 32, padding: '0 12px', background: refreshing ? '#9CA3AF' : 'white', color: refreshing ? 'white' : '#6366F1', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: refreshing ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                {refreshing ? (
+                  <><span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>{'\u21BB'}</span> Refreshing...</>
+                ) : (
+                  <>{'\u21BB'} Refresh from TikTok</>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>
