@@ -567,13 +567,14 @@ export default function MajorkaAppShell({ children }: Props) {
           className="w-full flex items-center gap-2 text-sm transition-all relative"
           style={{
             borderRadius: 8,
-            background: active ? '#EEF2FF' : 'transparent',
+            background: active ? 'rgba(99,102,241,0.08)' : 'transparent',
             color: active ? '#6366F1' : '#374151',
             fontFamily: 'DM Sans, sans-serif',
             border: 'none',
+            borderLeft: active ? '3px solid #6366F1' : '3px solid transparent',
             cursor: 'pointer',
             position: 'relative' as const,
-            paddingLeft: 12,
+            paddingLeft: active ? 9 : 12,
             paddingRight: 12,
             paddingTop: 8,
             paddingBottom: 8,

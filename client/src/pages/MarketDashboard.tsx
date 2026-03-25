@@ -271,10 +271,10 @@ export default function MarketDashboard() {
             <div
               key={s.label}
               className="rounded-xl p-4"
-              style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}
+              style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
             >
               <p className="text-xs mb-1" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>{s.label}</p>
-              <p className="text-2xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#fff' }}>{s.value}</p>
+              <p className="text-2xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A' }}>{s.value}</p>
               <p className="text-xs mt-0.5" style={{ color: '#475569' }}>{s.sub}</p>
             </div>
           ))}
@@ -289,7 +289,7 @@ export default function MarketDashboard() {
                 key={c.path}
                 onClick={() => nav(c.path)}
                 className="rounded-xl p-4 text-left transition-all duration-150 hover:scale-[1.02] hover:border-opacity-30"
-                style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}
+                style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
               >
                 <c.icon size={18} style={{ color: c.color }} className="mb-2" />
                 <p className="text-sm font-semibold leading-tight" style={{ color: '#0F172A', fontFamily: 'DM Sans, sans-serif' }}>{c.label}</p>
@@ -307,7 +307,7 @@ export default function MarketDashboard() {
           </div>
           <div
             className="rounded-xl overflow-hidden"
-            style={{ border: '1px solid #E5E7EB' }}
+            style={{ border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
           >
             {loading ? (
               <div className="p-6 text-center text-sm" style={{ color: '#475569' }}>Loading…</div>
@@ -370,7 +370,7 @@ export default function MarketDashboard() {
                   <div
                     key={cat.id}
                     className="rounded-xl p-4 flex items-center justify-between"
-                    style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}
+                    style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
@@ -403,11 +403,11 @@ export default function MarketDashboard() {
               <button onClick={() => nav('/app/creators')} className="text-xs" style={{ color: '#6366F1' }}>All →</button>
             </div>
             {loading ? (
-              <div className="rounded-xl p-4 text-sm" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', color: '#475569' }}>Loading…</div>
+              <div className="rounded-xl p-4 text-sm" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)', color: '#475569' }}>Loading…</div>
             ) : topCreator ? (
               <div
                 className="rounded-xl p-5"
-                style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}
+                style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
               >
                 <div className="flex items-start gap-3 mb-4">
                   <div
@@ -454,7 +454,7 @@ export default function MarketDashboard() {
                 </button>
               </div>
             ) : (
-              <div className="rounded-xl p-4 text-sm" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', color: '#475569' }}>
+              <div className="rounded-xl p-4 text-sm" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)', color: '#475569' }}>
                 No creator data yet
               </div>
             )}

@@ -260,7 +260,8 @@ function PersonalisedFeed() {
     <div style={{
       background: 'white',
       border: '1px solid #F0F0F0',
-      borderRadius: 16, padding: 20, marginBottom: 24
+      borderRadius: 16, padding: 20, marginBottom: 24,
+      boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 15, fontWeight: 700, color: '#0A0A0A', margin: 0 }}>
@@ -449,7 +450,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       {/* KPI row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" style={{ marginBottom: 12 }}>
         {kpiCards.map((k) => (
-          <div key={k.label} style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px' }}>
+          <div key={k.label} style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 9 }}>
               <k.icon size={12} style={{ color: '#9CA3AF' }} />
               <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 500, letterSpacing: '0.01em' }}>{k.label}</span>
@@ -468,7 +469,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       </div>
 
       {/* Revenue area chart */}
-      <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '18px 14px 10px', marginBottom: 12 }}>
+      <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '18px 14px 10px', marginBottom: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
         <div style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', marginBottom: 12, fontFamily: "'Bricolage Grotesque', sans-serif", letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>Revenue</div>
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
@@ -488,7 +489,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       </div>
 
       {/* Top Products */}
-      <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '18px 20px', marginBottom: 12 }}>
+      <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '18px 20px', marginBottom: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Top Products</span>
           <a href="/app/winning-products" style={{ fontSize: 12, color: '#6366F1', textDecoration: 'none', fontWeight: 500 }}>View all →</a>
@@ -537,7 +538,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       </div>
 
       {/* Recent Orders */}
-      <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '18px 20px' }}>
+      <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '18px 20px', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Recent Orders</span>
           <span style={{ fontSize: 11, color: '#9CA3AF' }}>Updated just now</span>
@@ -653,9 +654,9 @@ function DashboardHome() {
             { label: 'Avg Margin', value: '57%', delta: 'Across all products', icon: Percent, positive: true, color: '#8B5CF6' },
             { label: 'Hot Products', value: '23', delta: 'Score 80+', icon: Zap, positive: true, color: '#F59E0B' },
           ] as const).map((card, i) => (
-            <div key={i} style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '22px 24px', cursor: 'default', transition: 'box-shadow 200ms, border-color 200ms' }}
+            <div key={i} style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '22px 24px', cursor: 'default', transition: 'box-shadow 200ms, border-color 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
               onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px #E5E7EB'; e.currentTarget.style.borderColor = '#E0E7FF'; }}
-              onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#F0F0F0'; }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)'; e.currentTarget.style.borderColor = '#F0F0F0'; }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
                 <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' as const, color: '#6B7280' }}>{card.label}</span>
@@ -673,7 +674,7 @@ function DashboardHome() {
         <div className="chart-insight-grid">
 
           {/* Revenue trend chart */}
-          <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px 28px' }}>
+          <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px 28px', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div>
                 <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#0A0A0A' }}>Revenue Trend</div>
@@ -699,7 +700,7 @@ function DashboardHome() {
           </div>
 
           {/* Quick actions */}
-          <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px' }}>
+          <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
             <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#0A0A0A', marginBottom: 16 }}>Quick Actions</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {([
@@ -728,7 +729,7 @@ function DashboardHome() {
         <div className="products-ai-grid">
 
           {/* Top products */}
-          <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, overflow: 'hidden' }}>
+          <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid #F5F5F5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#0A0A0A' }}>Top Products Today</div>
               <button onClick={() => setLocation('/app/intelligence')} style={{ fontSize: 13, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>View all &rarr;</button>
@@ -796,7 +797,7 @@ function DashboardHome() {
         </div>
 
         {/* Row 4: Tools grid */}
-        <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px' }}>
+        <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#0A0A0A' }}>Your Tools</div>
             <span style={{ fontSize: 12, color: '#6B7280' }}>20+ AI tools</span>

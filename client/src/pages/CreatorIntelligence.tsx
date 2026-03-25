@@ -1,5 +1,6 @@
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import { DateRangeSelector, getDateRangeStart, type Range } from '@/components/DateRangeSelector';
 import { exportCSV } from '@/lib/exportCsv';
 
@@ -27,6 +28,7 @@ const ENGAGEMENT_STYLE: Record<string, { bg: string; color: string }> = {
 };
 
 export default function CreatorIntelligence() {
+  React.useEffect(() => { document.title = 'Creator Intelligence | Majorka'; }, []);
   const isMobile = useIsMobile();
   const [creators, setCreators] = useState<Creator[]>([]);
   const [loading, setLoading] = useState(false);

@@ -1,5 +1,6 @@
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useState, useRef } from 'react';
+import React from 'react';
 
 const brico = "'Bricolage Grotesque', sans-serif";
 
@@ -426,6 +427,7 @@ function HashtagTool() {
 
 // ── Main export ────────────────────────────────────────────────────────────
 export default function GrowthTools() {
+  React.useEffect(() => { document.title = 'Growth Tools | Majorka'; }, []);
   const isMobile = useIsMobile();
   return (
     <div style={{ background: '#FAFAFA', minHeight: '100vh' }}>

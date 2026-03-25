@@ -12,6 +12,7 @@ import {
   Search,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import { toast } from 'sonner';
 import { useLocation } from 'wouter';
 import { useActiveProduct } from '@/hooks/useActiveProduct';
@@ -612,5 +613,6 @@ function AdSpyContent() {
 // ── Export ────────────────────────────────────────────────────────────────────
 
 export default function AdSpy() {
+  React.useEffect(() => { document.title = 'Ad Intelligence | Majorka'; }, []);
   return <AdSpyContent />;
 }

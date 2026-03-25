@@ -1,5 +1,6 @@
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useEffect, useState, useMemo } from 'react';
+import React from 'react';
 import { DateRangeSelector, getDateRangeStart, type Range } from '@/components/DateRangeSelector';
 import { exportCSV } from '@/lib/exportCsv';
 
@@ -36,6 +37,7 @@ interface Video {
 }
 
 export default function VideoIntelligence() {
+  React.useEffect(() => { document.title = 'Video Intelligence | Majorka'; }, []);
   const isMobile = useIsMobile();
   const [allVideos, setAllVideos] = useState<Video[]>([]);
   const [loading, setLoading]     = useState(true);

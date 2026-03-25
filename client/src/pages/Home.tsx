@@ -164,7 +164,7 @@ const dm = "'DM Sans', sans-serif";
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const STATS_BASE = [
-  { key: 'sellers', end: 2400, suffix: '+', prefix: '', label: 'Active Sellers', icon: Users, live: true, tickEvery: 30000, tickBy: 1 },
+  { key: 'sellers', end: 500, suffix: '+', prefix: '', label: 'AU Dropshippers', icon: Users, live: true, tickEvery: 30000, tickBy: 1 },
   { key: 'markets', end: 7, suffix: '', prefix: '', label: 'Markets Supported', icon: DollarSign, live: false, display: (_n: number) => '7' },
   { key: 'joiners', end: 47, suffix: ' this week', prefix: '', label: 'New Joiners', icon: Package, live: true, tickEvery: 60000, tickBy: 1 },
   { key: 'rating', end: 4.9, suffix: '★', prefix: '', label: 'Average Rating', icon: BarChart2, live: false, display: () => '4.9★' },
@@ -248,7 +248,7 @@ function SocialProofCounter() {
   return (
     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 100, padding: '6px 18px' }}>
       <div style={{ width: 8, height: 8, borderRadius: '50%', background: C.green, animation: 'pulse-ring 2s ease-in-out infinite' }} />
-      <span style={{ fontSize: 13, fontWeight: 600, color: '#059669' }}>Join {count.toLocaleString()}+ sellers worldwide using Majorka</span>
+      <span style={{ fontSize: 13, fontWeight: 600, color: '#059669' }}>Join 500+ AU sellers using Majorka</span>
     </div>
   );
 }
@@ -535,7 +535,7 @@ function FloatingCTA() {
       animation: 'float-cta 0.4s ease-out',
     }} className="floating-cta-bar">
       <span style={{ fontSize: 14, fontWeight: 600, color: C.text, flex: 1 }}>
-        <span className="hide-mobile">🔥 Join 2,400+ AU dropshippers · Find your first winner →</span>
+        <span className="hide-mobile">🔥 Join 500+ AU dropshippers · Find your first winner →</span>
         <span className="hide-desktop">Find your winner →</span>
       </span>
       <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', borderRadius: 10, padding: '10px 22px', fontFamily: syne, fontWeight: 800, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
@@ -1477,7 +1477,7 @@ export default function Home() {
     <div style={{ background: C.bg, color: C.text, fontFamily: dm, overflowX: 'hidden', minHeight: '100vh' }}>
       <SEO
         title="Majorka — AI Ecommerce OS for Dropshippers"
-        description="Find winning products, build Shopify stores and launch AU dropshipping campaigns with AI. Trusted by 2,400+ AU dropshippers."
+        description="Find winning products, build Shopify stores and launch AU dropshipping campaigns with AI. Trusted by 500+ AU dropshippers."
         path="/"
         ogImage="/og-image.svg"
       />
@@ -1552,20 +1552,20 @@ export default function Home() {
           {/* Pill badge */}
           <div style={{ opacity: 0, animation: 'fadeIn 0.4s ease 0.1s both' }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid #E5E7EB', background: 'white', color: '#6B7280', fontSize: 13, padding: '6px 14px', borderRadius: 999, marginBottom: 24 }}>
-              ✦ Built for Dropshippers Worldwide
+              ✦ Built for Australian Dropshippers
             </span>
           </div>
 
           {/* H1 */}
           <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 'clamp(32px, 7vw, 72px)', lineHeight: 1.1, letterSpacing: '-0.03em', margin: '0 0 0', opacity: 0, animation: 'fadeInUp 0.5s ease 0.2s both', overflowWrap: 'break-word' as const, wordBreak: 'break-word' as const }}>
-            The <span style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI Operating System</span>
+            The Only <span style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI Tool</span> That Finds
             <br />
-            <span style={{ color: '#0A0A0A' }}>for Ecommerce Winners.</span>
+            <span style={{ color: '#0A0A0A' }}>AU Winners Before Your Competitors Do.</span>
           </h1>
 
           {/* Subheading */}
           <p style={{ fontSize: 18, color: '#6B7280', maxWidth: 520, margin: '20px auto 0', lineHeight: 1.6, fontFamily: dm, opacity: 0, animation: 'fadeInUp 0.5s ease 0.3s both' }}>
-            Find winning products, build a Shopify store in 60 seconds, and spy on competitors — built for dropshippers worldwide.
+            Real TikTok Shop data. Real AliExpress suppliers. Real-time market signals — all in one platform built for Australian dropshippers.
           </p>
 
           {/* CTA row */}
@@ -1653,7 +1653,7 @@ export default function Home() {
                         <td style={{ padding: '10px 20px', fontWeight: 500 }}>{row.product}</td>
                         <td style={{ padding: '10px 20px' }}>{row.margin}</td>
                         <td style={{ padding: '10px 20px' }}>
-                          <span style={{ background: scoreBg, color: scoreColor, border: `1px solid ${scoreBorder}`, fontWeight: 700, borderRadius: 6, padding: '3px 8px', fontSize: 12 }}>{row.score}</span>
+                          <span style={{ background: scoreBg, color: scoreColor, border: `1px solid ${scoreBorder}`, fontWeight: 700, borderRadius: 6, padding: '3px 8px', fontSize: 12, animation: 'scorePulse 3s ease-in-out infinite' }}>{row.score}</span>
                         </td>
                         <td style={{ padding: '10px 20px' }}>
                           <button style={{ fontSize: 11, padding: '4px 10px', background: '#6366F1', color: 'white', borderRadius: 6, border: 'none', cursor: 'pointer', fontWeight: 500 }}>Build Store →</button>
@@ -1674,7 +1674,7 @@ export default function Home() {
           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 24, marginBottom: 32 }}>
             <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
             <span style={{ fontSize: 13, color: '#9CA3AF', fontWeight: 500, whiteSpace: 'nowrap', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-              Powering stores worldwide
+              Powering AU stores
             </span>
             <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
           </div>
@@ -1915,11 +1915,11 @@ export default function Home() {
               <p style={{ fontSize: 14, lineHeight: 1.7, color: '#6B7280', maxWidth: 240, marginBottom: 24 }}>The AI OS for AU ecommerce. Find winners, build stores, scale fast.</p>
               <div style={{ display: 'flex', gap: 12 }}>
                 {[
-                  { icon: '𝕏', href: 'https://twitter.com/majorkaio' },
-                  { icon: 'in', href: 'https://linkedin.com/company/majorka' },
-                  { icon: 'TT', href: 'https://tiktok.com/@majorkaio' },
-                ].map(({ icon, href }) => (
-                  <a key={icon} href={href} target="_blank" rel="noopener noreferrer" style={{ width: 36, height: 36, borderRadius: 8, border: '1px solid #27272A', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#6B7280', transition: '150ms', textDecoration: 'none' }}
+                  { key: 'x', icon: <span>𝕏</span>, href: 'https://twitter.com/majorkaio' },
+                  { key: 'li', icon: <span>in</span>, href: 'https://linkedin.com/company/majorka' },
+                  { key: 'tt', icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{ width: 16, height: 16 }}><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.77a4.85 4.85 0 01-1.01-.08z"/></svg>, href: 'https://tiktok.com/@majorkaio' },
+                ].map(({ key, icon, href }) => (
+                  <a key={key} href={href} target="_blank" rel="noopener noreferrer" style={{ width: 36, height: 36, borderRadius: 8, border: '1px solid #27272A', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#6B7280', transition: '150ms', textDecoration: 'none' }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.color = '#6366F1'; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = '#27272A'; e.currentTarget.style.color = '#6B7280'; }}
                   >{icon}</a>

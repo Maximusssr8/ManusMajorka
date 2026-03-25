@@ -3,6 +3,20 @@ import Anthropic from '@anthropic-ai/sdk';
 
 const router = Router();
 
+// ── Simple in-memory rate limiter: 10 AI requests per user per minute ──────
+const aiRateMap = new Map<string, { count: number; reset: number }>();
+function checkAIRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const entry = aiRateMap.get(userId);
+  if (!entry || now > entry.reset) {
+    aiRateMap.set(userId, { count: 1, reset: now + 60_000 });
+    return true; // allowed
+  }
+  if (entry.count >= 10) return false; // rate limited
+  entry.count++;
+  return true;
+}
+
 function getClient() {
   return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 }
@@ -89,6 +103,11 @@ Only output the JSON. No markdown. No code blocks.`
 // Unified /generate endpoint for Growth Tools
 router.post('/generate', async (req, res) => {
   try {
+    // Rate limit: 10 AI calls per user per minute
+    const userId = (req as any).user?.userId || (req as any).user?.sub || (req.ip ?? 'anon');
+    if (!checkAIRateLimit(userId)) {
+      return res.status(429).json({ error: 'Too many requests. Please wait a moment before generating more content.' });
+    }
     const { tool, platform, tone, features, audience, templateType, brandName, niche } = req.body;
     const productName = req.body.productName || req.body.product || req.body.name || "the product";
 

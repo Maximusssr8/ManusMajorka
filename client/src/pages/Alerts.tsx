@@ -5,6 +5,7 @@
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { Bell, BellOff, Plus, Trash2, TrendingUp, ShoppingBag, Store } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import React from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,6 +21,7 @@ const NICHES = ['Health & Wellness', 'Beauty', 'Fitness', 'Tech & Gadgets', 'Pet
 const REGIONS = ['AU', 'US', 'UK', 'CA', 'DE', 'SG'];
 
 export default function Alerts() {
+  React.useEffect(() => { document.title = 'Smart Alerts | Majorka'; }, []);
   const { session, isPro } = useAuth();
   const isMobile = useIsMobile();
 const [alerts, setAlerts] = useState<Alert[]>([]);
