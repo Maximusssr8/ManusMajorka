@@ -339,3 +339,45 @@ export async function getTikTokCacheStatus(): Promise<{ cached_at: string | null
     return { cached_at: data.fetched_at, fresh: new Date(data.expires_at) > new Date() };
   } catch { return { cached_at: null, fresh: false }; }
 }
+
+// ── Live search (no cache — always fresh) ─────────────────────────────────
+
+export async function searchVideos(query: string): Promise<any[]> {
+  try {
+    const raw = await runApifyRaw({
+      searchQueries: [query],
+      resultsPerPage: 20,
+      maxRequestRetries: 2,
+      shouldDownloadVideos: false,
+      shouldDownloadCovers: false,
+      maxProfilesPerQuery: 10,
+    });
+    if (!raw.length) return [];
+    const mapped = raw.map((item: any) => {
+      const author = item.authorMeta || {};
+      const handle = author.name || author.uniqueId || '';
+      const hashtags = Array.isArray(item.hashtags)
+        ? item.hashtags.map(extractHashtagName).filter(Boolean)
+        : [];
+      return {
+        id: item.id || String(Date.now()),
+        title: (item.text || '').slice(0, 120),
+        creator: author.nickName || author.nickname || handle,
+        creatorHandle: handle,
+        creatorProfileUrl: `https://www.tiktok.com/@${handle}`,
+        playCount: Number(item.playCount) || 0,
+        likes: Number(item.diggCount) || 0,
+        shares: Number(item.shareCount) || 0,
+        comments: Number(item.commentCount) || 0,
+        videoUrl: item.webVideoUrl || '',
+        postedAt: item.createTimeISO || '',
+        hashtags,
+        thumbnail: item.videoMeta?.coverUrl || item.videoMeta?.originalCoverUrl || '',
+      };
+    });
+    mapped.sort((a: any, b: any) => b.playCount - a.playCount);
+    return mapped;
+  } catch {
+    return [];
+  }
+}

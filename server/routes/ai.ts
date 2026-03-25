@@ -175,6 +175,39 @@ AU-SPECIFIC: #tag1 #tag2 #tag3 #tag4 #tag5`;
       prompt = `Generate 5 memorable store name ideas for a ${n} dropshipping store targeting Australian customers.
 Requirements: memorable, likely .com.au available, professional, not generic.
 Format: numbered list, one name per line, include a brief (3-word) tagline after each name.`;
+    } else if (tool === 'ads_studio') {
+      const { productName: pn, platforms: plats, creativeType: ct, prompt: userPrompt } = req.body;
+      const SYSTEM = `You are Maya, an expert TikTok and social media ad creative director specialising in the Australian ecommerce market. You create high-converting ad scripts, hooks, and creative concepts for dropshippers and DTC brands.
+
+Your ad creative follows these principles:
+- Hook in first 3 seconds (pattern interrupt)
+- Problem → Agitate → Solution structure
+- Social proof integration
+- Clear AU-relevant CTA
+- Platform-native feel (not salesy)
+- Specific numbers and outcomes over vague claims
+
+For TikTok specifically:
+- Conversational, authentic tone
+- Trending audio suggestions
+- UGC-style over polished production
+- Comment bait endings
+
+Always format output with clear sections:
+## HOOK OPTIONS (give 3 variations)
+## SCRIPT (full word-for-word)
+## ON-SCREEN TEXT (overlay suggestions)
+## CAPTION + HASHTAGS
+## CREATIVE DIRECTION (what to film/show)
+## AU-SPECIFIC ANGLES (localisation tips)`;
+      const message2 = await client.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1500,
+        system: SYSTEM,
+        messages: [{ role: 'user', content: userPrompt || `Generate a ${ct} ad for ${pn} targeting ${(plats || ['TikTok']).join(', ')}` }],
+      });
+      const result2 = message2.content[0].type === 'text' ? message2.content[0].text : '';
+      return res.json({ result: result2 });
     } else {
       return res.status(400).json({ error: 'Unknown tool: ' + tool });
     }
@@ -367,5 +400,46 @@ router.post('/supplier-search', async (req: Request, res: Response) => {
     res.json({ results, product });
   } catch (err: any) {
     res.status(500).json({ error: err.message, results: [] });
+  }
+});
+
+// ── GET /api/ai/saved-outputs — load saved ad creatives ──────────────────
+router.get('/saved-outputs', async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.userId || (req as any).user?.sub;
+    if (!userId) return res.status(401).json({ error: 'auth required' });
+    const { getSupabaseAdmin } = await import('../_core/supabase');
+    const sb = getSupabaseAdmin();
+    const { data } = await sb
+      .from('saved_outputs')
+      .select('id, product_name, creative_type, output, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    res.json({ outputs: data || [] });
+  } catch (err: any) {
+    res.json({ outputs: [] });
+  }
+});
+
+// ── POST /api/ai/save-output — save an ad creative ────────────────────────
+router.post('/save-output', async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.userId || (req as any).user?.sub;
+    if (!userId) return res.status(401).json({ error: 'auth required' });
+    const { productName, creativeType, output } = req.body;
+    if (!output) return res.status(400).json({ error: 'output required' });
+    const { getSupabaseAdmin } = await import('../_core/supabase');
+    const sb = getSupabaseAdmin();
+    const { error } = await sb.from('saved_outputs').insert({
+      user_id: userId,
+      product_name: productName || 'Untitled',
+      creative_type: creativeType || 'general',
+      output,
+    });
+    if (error) throw error;
+    res.json({ ok: true });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
   }
 });

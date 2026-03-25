@@ -87,8 +87,42 @@ export default function VideoIntelligence() {
   const [toast, setToast]         = useState('');
   const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<Range>(() => (localStorage.getItem('majorka_video_daterange') as Range) || '30d');
+  // Search
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [searchResults, setSearchResults] = useState<Video[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleDateRange = (v: Range) => { localStorage.setItem('majorka_video_daterange', v); setDateRange(v); };
+
+  const handleSearchInput = (val: string) => {
+    setSearchInput(val);
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    if (!val.trim()) { setSearchQuery(''); setSearchResults([]); return; }
+    searchTimerRef.current = setTimeout(() => runSearch(val.trim()), 500);
+  };
+
+  const runSearch = async (q: string) => {
+    setSearchQuery(q);
+    setSearchLoading(true);
+    setSearchResults([]);
+    try {
+      const r = await fetch(`/api/videos/search?q=${encodeURIComponent(q)}`);
+      const d = await r.json();
+      setSearchResults((d.videos || []).map((v: any) => ({
+        title: v.title || '', url: v.videoUrl || v.url || '', product_mentioned: q,
+        niche: q, hook_text: v.title || null, engagement_signal: v.playCount > 500000 ? 'VIRAL' : v.playCount > 100000 ? 'HIGH' : 'MEDIUM',
+        format: 'REVIEW', region_code: 'AU', thumbnail: v.thumbnail || '',
+        playCount: v.playCount || 0, likes: v.likes || 0, shares: v.shares || 0,
+        comments: v.comments || 0, creator: v.creator || '', creatorHandle: v.creatorHandle || '',
+        creatorProfileUrl: v.creatorProfileUrl || '',
+      })));
+    } catch { setSearchResults([]); }
+    setSearchLoading(false);
+  };
+
+  const clearSearch = () => { setSearchInput(''); setSearchQuery(''); setSearchResults([]); };
 
   // Load ALL videos once from real TikTok data, filter client-side
   useEffect(() => {
@@ -228,7 +262,80 @@ export default function VideoIntelligence() {
         </div>
       </div>
 
+      {/* ── Search Bar ─────────────────────────────────────────────── */}
+      <div style={{ padding: '12px 28px', background: '#FAFAFA', borderBottom: '1px solid #F3F4F6' }}>
+        <div style={{ maxWidth: 680, display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div style={{ flex: 1, position: 'relative' as const }}>
+            <span style={{ position: 'absolute' as const, left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: '#9CA3AF', pointerEvents: 'none' as const }}>🔍</span>
+            <input
+              value={searchInput}
+              onChange={e => handleSearchInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && searchInput.trim() && runSearch(searchInput.trim())}
+              placeholder="Search product videos… e.g. 'dog cooling mat', 'LED face mask', 'posture corrector'"
+              style={{ width: '100%', height: 40, paddingLeft: 38, paddingRight: searchInput ? 36 : 12, border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, color: '#0A0A0A', background: 'white', outline: 'none', boxSizing: 'border-box' as const, fontFamily: '-apple-system, sans-serif' }}
+            />
+            {searchInput && (
+              <button onClick={clearSearch} style={{ position: 'absolute' as const, right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: '#9CA3AF', padding: 2 }}>✕</button>
+            )}
+          </div>
+          <button onClick={() => searchInput.trim() && runSearch(searchInput.trim())}
+            style={{ height: 40, padding: '0 18px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+            Search
+          </button>
+        </div>
+        {searchQuery && !searchLoading && (
+          <div style={{ marginTop: 6, fontSize: 12, color: '#6366F1' }}>
+            {searchResults.length > 0 ? `${searchResults.length} results for "${searchQuery}"` : `No videos found for "${searchQuery}" — try a broader search`}
+            <button onClick={clearSearch} style={{ marginLeft: 10, fontSize: 11, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>clear</button>
+          </div>
+        )}
+      </div>
+
       <div style={{ padding: '20px 28px', maxWidth: 1360, margin: '0 auto' }}>
+
+        {/* ── Search loading skeleton ───────────────────────────────── */}
+        {searchLoading && (
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 13, color: '#6366F1', fontWeight: 600, marginBottom: 12 }}>Searching TikTok for "{searchInput}"…</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
+              {[1,2,3,4,5,6].map(i => (
+                <div key={i} style={{ borderRadius: 12, overflow: 'hidden', background: '#F9FAFB', border: '1px solid #E5E7EB' }}>
+                  <div style={{ height: 140, background: 'linear-gradient(90deg, #E5E7EB 25%, #F3F4F6 50%, #E5E7EB 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s ease-in-out infinite' }} />
+                  <div style={{ padding: 10 }}>
+                    <div style={{ height: 10, borderRadius: 5, background: 'linear-gradient(90deg, #E5E7EB 25%, #F3F4F6 50%, #E5E7EB 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s ease-in-out infinite', marginBottom: 6 }} />
+                    <div style={{ height: 8, width: '60%', borderRadius: 5, background: 'linear-gradient(90deg, #E5E7EB 25%, #F3F4F6 50%, #E5E7EB 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s ease-in-out infinite' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Search results grid ───────────────────────────────────── */}
+        {!searchLoading && searchQuery && searchResults.length > 0 && (
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#0A0A0A', marginBottom: 14 }}>Results for "{searchQuery}"</div>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
+              {searchResults.map((v, i) => (
+              <a key={i} href={v.url || v.creatorProfileUrl || '#'} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'block', background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', textDecoration: 'none', transition: 'box-shadow 0.15s' }}>
+                {v.thumbnail && <img src={v.thumbnail} alt="" style={{ width: '100%', height: 140, objectFit: 'cover' as const }} onError={e => ((e.target as HTMLImageElement).style.display = 'none')} />}
+                <div style={{ padding: '10px 12px' }}>
+                  <div style={{ fontSize: 12, color: '#0A0A0A', fontWeight: 500, lineHeight: 1.4, marginBottom: 6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{v.title}</div>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' as const }}>
+                    <span style={{ fontSize: 11, color: '#6366F1', fontWeight: 600 }}>▶ {v.playCount >= 1000000 ? `${(v.playCount/1000000).toFixed(1)}M` : v.playCount >= 1000 ? `${(v.playCount/1000).toFixed(0)}K` : v.playCount}</span>
+                    <span style={{ fontSize: 10, color: '#9CA3AF' }}>{v.creator || v.creatorHandle}</span>
+                  </div>
+                </div>
+              </a>
+            ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Niche pills (hidden when searching) ───────────────────── */}
+        {!searchQuery && <></>}
+        {!searchQuery && <div>
 
         {/* ── Niche pills ─────────────────────────────────────────── */}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 18 }}>
@@ -456,6 +563,7 @@ export default function VideoIntelligence() {
           </div>
 
         </div>
+      </div>{/* end !searchQuery wrapper */}
       </div>
 
       {/* Toast */}

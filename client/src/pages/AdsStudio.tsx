@@ -1,505 +1,257 @@
-import {
-  ChevronDown,
-  ChevronUp,
-  Copy,
-  Download,
-  FileJson,
-  Image as ImageIcon,
-  Loader2,
-  Wand2,
-} from 'lucide-react';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { useProduct } from '../contexts/ProductContext';
+import { useState, useEffect, useRef } from 'react';
+import { supabase } from '@/lib/supabase';
 
-// Uses /api/chat AI endpoint for campaign generation
+const brico = "'Bricolage Grotesque', sans-serif";
 
-type AdSet = {
-  variation: number;
-  angle: string;
-  hook: string;
-  primary_text: string;
-  headline: string;
-  description: string;
-  cta: string;
-  image_prompt: string;
-  psychology: string;
-  generated_image_url?: string;
-};
-type Campaign = {
-  ad_sets: AdSet[];
-  video_script?: { hook_3s: string; body_7s: string; cta_5s: string; caption: string };
-  targeting?: {
-    age_range: string;
-    interests: string[];
-    behaviors: string[];
-    lookalike_note: string;
-  };
-  budget_strategy?: {
-    daily_budget: number;
-    testing_phase: string;
-    scaling_trigger: string;
-    expected_roas: string;
-  };
-  has_images?: boolean;
-};
+const PLATFORMS = ['TikTok', 'Instagram', 'Facebook', 'YouTube'] as const;
+type Platform = typeof PLATFORMS[number];
 
-const ANGLE_COLORS: Record<string, string> = {
-  'Pain Point': 'border-red-800/50 bg-red-900/10',
-  'Social Proof': 'border-emerald-800/50 bg-emerald-900/10',
-  'FOMO/Urgency': 'border-orange-800/50 bg-orange-900/10',
-  Curiosity: 'border-[#6366F1]/30 bg-[#6366F1]/5',
-  Transformation: 'border-[#6366F1]/20 bg-[#6366F1]/5',
-};
+const CREATIVE_TYPES = [
+  { id: 'ugc_script', label: '🎬 UGC Video Script', desc: 'Word-for-word UGC creator script' },
+  { id: 'hook_script', label: '🪝 Hook + Script', desc: '3 hooks + full video script' },
+  { id: 'ad_copy', label: '📝 Ad Copy (Static)', desc: 'Headlines, body, CTA for image ads' },
+  { id: 'video_concepts', label: '💡 Video Concepts', desc: 'Creative ideas list' },
+  { id: 'campaign_brief', label: '📋 Full Campaign Brief', desc: 'Complete paid campaign plan' },
+] as const;
 
-function AdCard({ ad }: { ad: AdSet }) {
-  const [open, setOpen] = useState(false);
-  const colorClass = ANGLE_COLORS[ad.angle] || 'border-gray-200 bg-gray-50';
-  const copy = (t: string) => {
-    navigator.clipboard.writeText(t);
-    toast.success('Copied!');
-  };
+interface SavedOutput {
+  id: string;
+  product_name: string;
+  creative_type: string;
+  output: string;
+  created_at: string;
+}
+
+interface MarkdownProps { text: string }
+function MayaMarkdown({ text }: MarkdownProps) {
+  const lines = text.split('\n');
   return (
-    <div className={`border rounded-xl overflow-hidden ${colorClass}`}>
-      <div className="p-5">
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <span className="text-xs text-neutral-400 uppercase tracking-wider">
-              Variation {ad.variation}
-            </span>
-            <h3 className="text-gray-900 font-bold text-lg mt-0.5">{ad.angle}</h3>
-          </div>
-          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-            {ad.cta?.replace(/_/g, ' ')}
-          </span>
-        </div>
-        {ad.generated_image_url ? (
-          <img
-            src={ad.generated_image_url}
-            alt={ad.headline}
-            className="w-full rounded-lg aspect-video object-cover mb-4"
-          />
-        ) : (
-          <div className="bg-gray-100 rounded-lg p-3 mb-4 flex items-start gap-2">
-            <ImageIcon className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-            <p className="text-gray-500 text-xs italic">{ad.image_prompt}</p>
-          </div>
-        )}
-        <div className="space-y-2">
-          {[
-            ['Hook', ad.hook],
-            ['Primary Text', ad.primary_text],
-            ['Headline', ad.headline],
-          ].map(([label, val]) => (
-            <div key={label} className="bg-gray-50 rounded-lg p-3">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-400 uppercase">{label}</span>
-                <button onClick={() => copy(val)} className="text-gray-400 hover:text-gray-900">
-                  <Copy className="w-3 h-3" />
-                </button>
-              </div>
-              <p
-                className={`${label === 'Hook' ? 'text-gray-900 font-semibold' : 'text-gray-700 text-sm'}`}
-              >
-                {val}
-              </p>
-            </div>
-          ))}
-        </div>
-        <button
-          onClick={() => setOpen(!open)}
-          className="mt-3 text-xs text-neutral-500 hover:text-neutral-300 flex items-center gap-1"
-        >
-          Why this works{' '}
-          {open ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-        </button>
-        {open && <p className="mt-2 text-xs text-neutral-400 italic">{ad.psychology}</p>}
-      </div>
+    <div style={{ fontFamily: '-apple-system, sans-serif', fontSize: 13, color: '#1F2937', lineHeight: 1.7 }}>
+      {lines.map((line, i) => {
+        if (line.startsWith('## ')) return <h3 key={i} style={{ fontFamily: brico, fontWeight: 700, fontSize: 14, color: '#6366F1', margin: '16px 0 6px', letterSpacing: '0.02em' }}>{line.slice(3)}</h3>;
+        if (line.startsWith('# ')) return <h2 key={i} style={{ fontFamily: brico, fontWeight: 800, fontSize: 16, color: '#0A0A0A', margin: '20px 0 8px' }}>{line.slice(2)}</h2>;
+        if (line.startsWith('**') && line.endsWith('**')) return <p key={i} style={{ fontWeight: 700, color: '#0A0A0A', margin: '8px 0 2px' }}>{line.slice(2, -2)}</p>;
+        if (line.startsWith('- ') || line.startsWith('• ')) return <div key={i} style={{ display: 'flex', gap: 8, margin: '3px 0' }}><span style={{ color: '#6366F1', flexShrink: 0 }}>•</span><span>{line.slice(2)}</span></div>;
+        if (line.match(/^\d+\. /)) return <div key={i} style={{ display: 'flex', gap: 8, margin: '3px 0' }}><span style={{ color: '#6366F1', flexShrink: 0, fontWeight: 600 }}>{line.match(/^(\d+)\./)?.[1]}.</span><span>{line.replace(/^\d+\. /, '')}</span></div>;
+        if (line === '') return <div key={i} style={{ height: 6 }} />;
+        return <p key={i} style={{ margin: '2px 0' }}>{line}</p>;
+      })}
     </div>
   );
 }
 
 export default function AdsStudio() {
-  const { activeProduct } = useProduct();
-  const [productDesc, setProductDesc] = useState(
-    activeProduct?.description || activeProduct?.name || ''
-  );
-  const [objective, setObjective] = useState('PURCHASE');
-  const [budget, setBudget] = useState('20');
+  const [productName, setProductName] = useState('');
+  const [productUrl, setProductUrl] = useState('');
+  const [audience, setAudience] = useState('');
+  const [price, setPrice] = useState('');
+  const [benefit, setBenefit] = useState('');
+  const [platforms, setPlatforms] = useState<Platform[]>(['TikTok']);
+  const [creativeType, setCreativeType] = useState('hook_script');
+  const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [campaign, setCampaign] = useState<Campaign | null>(null);
-  const [note, setNote] = useState<string | null>(null);
-  const [showScript, setShowScript] = useState(false);
+  const [savedOutputs, setSavedOutputs] = useState<SavedOutput[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [token, setToken] = useState('');
+  const [userId, setUserId] = useState('');
+  const outputRef = useRef<HTMLDivElement>(null);
 
-  const generate = async () => {
-    const desc = productDesc.trim();
-    if (!desc) {
-      toast.error('Enter a product description');
-      return;
-    }
-    setLoading(true);
-    setCampaign(null);
-    try {
-      const product = activeProduct
-        ? { title: activeProduct.name, description: activeProduct.description || desc }
-        : { title: desc, description: desc };
-      const prompt = `Generate a Meta (Facebook/Instagram) ad campaign for this product. Return ONLY valid JSON, no markdown, no explanation.
-
-Product: ${product.title}
-Description: ${product.description}
-Objective: ${objective}
-Daily budget: $${parseFloat(budget) || 20} AUD
-
-Return this JSON structure:
-{"ad_sets":[{"variation":1,"angle":"Pain Point","hook":"...","primary_text":"...","headline":"...","description":"...","cta":"SHOP_NOW","image_prompt":"...","psychology":"..."},{"variation":2,"angle":"Social Proof","hook":"...","primary_text":"...","headline":"...","description":"...","cta":"SHOP_NOW","image_prompt":"...","psychology":"..."},{"variation":3,"angle":"FOMO/Urgency","hook":"...","primary_text":"...","headline":"...","description":"...","cta":"SHOP_NOW","image_prompt":"...","psychology":"..."}],"video_script":{"hook_3s":"...","body_7s":"...","cta_5s":"...","caption":"..."},"targeting":{"age_range":"...","interests":["..."],"behaviors":["..."],"lookalike_note":"..."},"budget_strategy":{"daily_budget":${parseFloat(budget) || 20},"testing_phase":"...","scaling_trigger":"...","expected_roas":"..."}}
-
-Use AU English. Make hooks punchy and specific to the product. Each ad_set must have a different angle.`;
-
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          toolName: 'ai-chat',
-          messages: [{ role: 'user', content: prompt }],
-          stream: false,
-        }),
-      });
-      const data = await res.json() as { reply?: string };
-      if (!data.reply) throw new Error('No response from AI');
-      const cleaned = (data.reply || '').replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
-      const parsed = JSON.parse(cleaned) as Campaign;
-      setCampaign(parsed);
-    } catch (e: any) {
-      toast.error(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const exportJSON = () => {
-    if (!campaign) return;
-    const blob = new Blob([JSON.stringify(campaign, null, 2)], { type: 'application/json' });
-    const a = Object.assign(document.createElement('a'), {
-      href: URL.createObjectURL(blob),
-      download: 'meta-campaign.json',
+  useEffect(() => {
+    document.title = 'Ads Studio | Majorka';
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        setToken(data.session.access_token);
+        setUserId(data.session.user.id);
+        loadSaved(data.session.access_token);
+      }
     });
-    a.click();
-  };
+  }, []);
+
+  async function loadSaved(tok: string) {
+    try {
+      const r = await fetch('/api/ai/saved-outputs', { headers: { Authorization: `Bearer ${tok}` } });
+      if (!r.ok) return;
+      const d = await r.json();
+      setSavedOutputs((d.outputs || []).slice(0, 20));
+    } catch {}
+  }
+
+  async function generate() {
+    if (!productName.trim()) return;
+    setLoading(true);
+    setOutput('');
+    setSaved(false);
+
+    const typeLabel = CREATIVE_TYPES.find(t => t.id === creativeType)?.label || creativeType;
+    const prompt = `Generate a ${typeLabel} for the following product:
+
+Product: ${productName}
+${productUrl ? `URL: ${productUrl}` : ''}
+Target Audience: ${audience || 'Australian dropshipping customers'}
+Price: ${price || 'not specified'}
+Key Benefit: ${benefit || 'not specified'}
+Platforms: ${platforms.join(', ')}
+
+Follow the Maya Ads Studio format exactly.`;
+
+    try {
+      const r = await fetch('/api/ai/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ tool: 'ads_studio', prompt, productName, platforms, creativeType }),
+      });
+      const d = await r.json();
+      const result = d.result || d.content || '';
+      setOutput(result);
+      if (outputRef.current) outputRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch {
+      setOutput('Failed to generate — please try again.');
+    }
+    setLoading(false);
+  }
+
+  async function saveOutput() {
+    if (!output || !userId) return;
+    setSaving(true);
+    try {
+      const r = await fetch('/api/ai/save-output', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ productName, creativeType, output }),
+      });
+      if (r.ok) {
+        setSaved(true);
+        loadSaved(token);
+      }
+    } catch {}
+    setSaving(false);
+  }
+
+  function togglePlatform(p: Platform) {
+    setPlatforms(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
+  }
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen">
-      <div className="lg:w-80 xl:w-96 bg-neutral-950 border-b lg:border-b-0 lg:border-r border-neutral-800 p-6 flex-shrink-0">
-        <h1 className="text-xl font-bold text-white mb-1">Ads Studio</h1>
-        <p className="text-neutral-400 text-sm mb-6">Generate 3 Meta ad variations with AI</p>
-        <div className="space-y-5">
-          <div>
-            <Label className="text-neutral-300 mb-2 block text-sm">Product</Label>
-            {activeProduct && (
-              <div className="mb-2 text-xs text-[#6366F1] bg-[#6366F1]/10 border border-[#6366F1]/20 px-3 py-2 rounded-lg">
-                Active: {activeProduct.name}
-              </div>
-            )}
-            <textarea
-              value={productDesc}
-              onChange={(e) => setProductDesc(e.target.value)}
-              placeholder="Describe your product..."
-              rows={4}
-              className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-gray-900 text-sm resize-none focus:outline-none focus:border-[#6366F1]"
-            />
-          </div>
-          <div>
-            <Label className="text-neutral-300 mb-2 block text-sm">Objective</Label>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                ['PURCHASE', 'Purchase'],
-                ['TRAFFIC', 'Traffic'],
-                ['AWARENESS', 'Awareness'],
-              ].map(([val, label]) => (
-                <button
-                  key={val}
-                  onClick={() => setObjective(val)}
-                  className={`py-2 rounded-lg text-xs font-medium transition-colors ${objective === val ? 'bg-[#6366F1] text-black' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <Label className="text-neutral-300 mb-2 block text-sm">Daily Budget (AUD)</Label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">$</span>
-              <Input
-                value={budget}
-                onChange={(e) => setBudget(e.target.value)}
-                type="number"
-                className="pl-7 bg-white border-gray-300 text-gray-900"
-              />
-            </div>
-          </div>
-          <Button
-            onClick={generate}
-            disabled={loading}
-            className="w-full text-black font-semibold py-2.5"
-            style={{ background: '#6366F1' }}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Wand2 className="w-4 h-4 mr-2" />
-                Generate Campaign
-              </>
-            )}
-          </Button>
+    <div style={{ minHeight: '100vh', background: '#F9FAFB', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+      {/* Header */}
+      <div style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '16px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#0A0A0A', margin: 0 }}>Ads Studio</h1>
+          <p style={{ fontSize: 12, color: '#9CA3AF', margin: '3px 0 0' }}>Generate scroll-stopping ad creatives with Maya AI</p>
         </div>
+        <span style={{ fontSize: 11, fontWeight: 700, color: '#6366F1', background: '#EEF2FF', padding: '4px 10px', borderRadius: 20, border: '1px solid #C7D2FE' }}>Powered by Maya AI</span>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6">
-        {loading && (
-          <div className="flex flex-col items-center justify-center h-64 text-center">
-            <div className="w-12 h-12 border-2 border-[#6366F1]/30 border-t-[#6366F1] rounded-full animate-spin mb-4" />
-            <p className="text-gray-900 font-medium">Generating your ad campaign...</p>
-            <p className="text-neutral-400 text-sm mt-1">Creating 3 unique creative variations</p>
-          </div>
-        )}
-        {!loading && !campaign && (
-          <div className="flex flex-col items-center gap-8 py-8 px-4 max-w-md mx-auto">
-            {/* Explanation text */}
-            <div className="text-center">
-              <p className="font-semibold text-gray-900 mb-1" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
-                Preview: What your ad pack looks like
-              </p>
-              <p className="text-sm text-neutral-400">
-                Fill in your product details to generate 5 variations like this.
-              </p>
+      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr 280px', gap: 0, height: 'calc(100vh - 61px)', overflow: 'hidden' }}>
+
+        {/* LEFT: Input Panel */}
+        <div style={{ background: 'white', borderRight: '1px solid #E5E7EB', overflowY: 'auto' as const, padding: 20 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 14 }}>Product Details</div>
+
+          {[
+            { label: 'Product Name *', value: productName, set: setProductName, placeholder: 'e.g. LED Light Therapy Face Mask', required: true },
+            { label: 'Product URL', value: productUrl, set: setProductUrl, placeholder: 'https://yourstore.com/product' },
+            { label: 'Target Audience', value: audience, set: setAudience, placeholder: 'e.g. Women 25–40, AU' },
+            { label: 'Price Point', value: price, set: setPrice, placeholder: 'e.g. $39.99 AUD' },
+          ].map(({ label, value, set, placeholder, required }) => (
+            <div key={label} style={{ marginBottom: 12 }}>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#374151', marginBottom: 4 }}>{label}</label>
+              <input value={value} onChange={e => set(e.target.value)} placeholder={placeholder}
+                style={{ width: '100%', height: 36, padding: '0 10px', border: `1px solid ${required && !value ? '#FCA5A5' : '#E5E7EB'}`, borderRadius: 7, fontSize: 13, color: '#0A0A0A', background: '#FAFAFA', outline: 'none', boxSizing: 'border-box' as const }} />
             </div>
+          ))}
 
-            {/* Realistic Facebook Ad Preview Card */}
-            <div
-              className="w-full rounded-2xl overflow-hidden"
-              style={{
-                background: '#1c1e21',
-                border: '1px solid #6366F1',
-                boxShadow: '0 0 24px rgba(99,102,241,0.12)',
-                maxWidth: 360,
-              }}
-            >
-              {/* FB Post Header */}
-              <div className="flex items-center gap-3 p-4">
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-sm flex-shrink-0"
-                  style={{ background: '#6366F1', color: '#000', fontFamily: "'Bricolage Grotesque', sans-serif" }}
-                >
-                  M
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-bold text-white leading-tight">Your Brand</div>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-xs text-neutral-400">Sponsored</span>
-                    <span className="text-neutral-600">·</span>
-                    <svg width="10" height="10" viewBox="0 0 16 16" fill="#1877f2">
-                      <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm.93 9.412l-1 4.246a.999.999 0 0 1-1.916-.162l-.9-4.083H4a1 1 0 0 1 0-2h2c.435 0 .82.279.943.696l.468 1.686.916-3.893A1 1 0 0 1 9.29 5.5h2.2a1 1 0 0 1 0 2H9.93z"/>
-                    </svg>
-                  </div>
-                </div>
-                <div className="text-neutral-500 text-xl leading-none">···</div>
-              </div>
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#374151', marginBottom: 4 }}>Key Benefit</label>
+            <textarea value={benefit} onChange={e => setBenefit(e.target.value)} placeholder="e.g. reduces back pain in 10 minutes, visible results in 7 days"
+              rows={2} style={{ width: '100%', padding: '8px 10px', border: '1px solid #E5E7EB', borderRadius: 7, fontSize: 13, color: '#0A0A0A', background: '#FAFAFA', outline: 'none', resize: 'none' as const, boxSizing: 'border-box' as const }} />
+          </div>
 
-              {/* Primary text */}
-              <div className="px-4 pb-3">
-                <p className="text-sm text-neutral-200 leading-relaxed">
-                  Tired of paying too much? This{' '}
-                  <span className="text-[#6366F1] font-semibold">limited-time deal</span> ships
-                  free to Australia. Join 10,000+ happy customers. 🇦🇺
-                </p>
-              </div>
-
-              {/* Product image placeholder */}
-              <div
-                className="w-full flex flex-col items-center justify-center gap-2"
-                style={{
-                  height: 180,
-                  background: 'linear-gradient(135deg, #F3F4F6 0%, #16213e 50%, #0f3460 100%)',
-                }}
-              >
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)' }}
-                >
-                  <ImageIcon className="w-6 h-6 text-[#6366F1] opacity-60" />
-                </div>
-                <span className="text-xs text-neutral-500">AI-generated product image</span>
-              </div>
-
-              {/* Headline + CTA row */}
-              <div
-                className="flex items-center justify-between px-4 py-3"
-                style={{ background: '#2d2f33', borderTop: '1px solid #F9FAFB' }}
-              >
-                <div className="flex-1 min-w-0 pr-3">
-                  <div className="text-xs text-neutral-400 uppercase tracking-wide truncate">
-                    majorka.com.au
-                  </div>
-                  <div
-                    className="text-sm font-bold text-white leading-tight mt-0.5 truncate"
-                    style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
-                  >
-                    🔥 Buy 2 Get 1 Free — Today Only
-                  </div>
-                  <div className="text-xs text-neutral-400 mt-0.5 truncate">
-                    Free AU shipping · Afterpay available
-                  </div>
-                </div>
-                <button
-                  className="flex-shrink-0 text-xs font-bold px-4 py-2 rounded-lg"
-                  style={{
-                    background: '#6366F1',
-                    color: '#000',
-                    cursor: 'default',
-                    fontFamily: "'Bricolage Grotesque', sans-serif",
-                  }}
-                >
-                  Shop Now
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Platforms</label>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+              {PLATFORMS.map(p => (
+                <button key={p} onClick={() => togglePlatform(p)}
+                  style={{ height: 28, padding: '0 12px', background: platforms.includes(p) ? '#6366F1' : 'white', color: platforms.includes(p) ? 'white' : '#374151', border: `1px solid ${platforms.includes(p) ? '#6366F1' : '#E5E7EB'}`, borderRadius: 20, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                  {p}
                 </button>
-              </div>
-
-              {/* FB reactions bar */}
-              <div
-                className="flex items-center justify-between px-4 py-2 text-xs text-neutral-500"
-                style={{ borderTop: '1px solid #F9FAFB' }}
-              >
-                <span>👍 ❤️ 😮 &nbsp; 2.4k</span>
-                <span>148 comments · 312 shares</span>
-              </div>
-            </div>
-
-            <p className="text-xs text-neutral-600 text-center">
-              This is a sample preview. Your actual ad copy and image will be AI-generated from
-              your product details.
-            </p>
-          </div>
-        )}
-        {campaign && (
-          <div className="space-y-6 max-w-4xl">
-            {note && (
-              <div className="bg-yellow-900/20 border border-yellow-800/40 rounded-lg px-4 py-3 text-yellow-300 text-sm">
-                {note}
-              </div>
-            )}
-            <div className="flex flex-wrap gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-neutral-700 text-neutral-300"
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    campaign.ad_sets
-                      .map(
-                        (a) =>
-                          `[${a.angle}]\nHook: ${a.hook}\nPrimary: ${a.primary_text}\nHeadline: ${a.headline}`
-                      )
-                      .join('\n\n')
-                  );
-                  toast.success('Copied!');
-                }}
-              >
-                <Copy className="w-4 h-4 mr-2" />
-                Copy All Copy
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-neutral-700 text-neutral-300"
-                onClick={exportJSON}
-              >
-                <FileJson className="w-4 h-4 mr-2" />
-                Export JSON
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-              {campaign.ad_sets?.map((ad, i) => (
-                <AdCard key={i} ad={ad} />
               ))}
             </div>
-            {campaign.video_script && (
-              <div className="border border-gray-200 rounded-xl">
-                <button
-                  onClick={() => setShowScript(!showScript)}
-                  className="w-full flex items-center justify-between p-5 text-left"
-                >
-                  <span className="text-gray-900 font-semibold">15-Second Video Script</span>
-                  {showScript ? (
-                    <ChevronUp className="w-4 h-4 text-neutral-400" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4 text-neutral-400" />
-                  )}
-                </button>
-                {showScript && (
-                  <div className="px-5 pb-5 space-y-3 border-t border-gray-200 pt-4">
-                    {[
-                      ['0-3s Hook', campaign.video_script.hook_3s],
-                      ['3-10s Body', campaign.video_script.body_7s],
-                      ['10-15s CTA', campaign.video_script.cta_5s],
-                      ['Caption', campaign.video_script.caption],
-                    ].map(([label, val]) => (
-                      <div key={label} className="bg-gray-50 rounded-lg p-3">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs text-gray-400 uppercase">{label}</span>
-                          <button
-                            onClick={() => {
-                              navigator.clipboard.writeText(val);
-                              toast.success('Copied!');
-                            }}
-                            className="text-gray-400 hover:text-gray-900"
-                          >
-                            <Copy className="w-3 h-3" />
-                          </button>
-                        </div>
-                        <p className="text-gray-700 text-sm">{val}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-            {campaign.targeting && (
-              <div className="border border-gray-200 rounded-xl p-5">
-                <h3 className="text-gray-900 font-semibold mb-4">Targeting Suggestions</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-neutral-400 text-xs uppercase mb-1">Age Range</p>
-                    <p className="text-gray-900">{campaign.targeting.age_range}</p>
-                  </div>
-                  <div>
-                    <p className="text-neutral-400 text-xs uppercase mb-1">Interests</p>
-                    <div className="flex flex-wrap gap-1">
-                      {campaign.targeting.interests?.map((i) => (
-                        <span
-                          key={i}
-                          className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full"
-                        >
-                          {i}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                {campaign.targeting.lookalike_note && (
-                  <p className="mt-4 text-neutral-500 text-sm bg-gray-50 rounded-lg p-3">
-                    💡 {campaign.targeting.lookalike_note}
-                  </p>
-                )}
-              </div>
-            )}
           </div>
-        )}
+
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Creative Type</label>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 6 }}>
+              {CREATIVE_TYPES.map(ct => (
+                <button key={ct.id} onClick={() => setCreativeType(ct.id)}
+                  style={{ textAlign: 'left' as const, padding: '8px 12px', background: creativeType === ct.id ? '#EEF2FF' : 'white', border: `1px solid ${creativeType === ct.id ? '#6366F1' : '#E5E7EB'}`, borderRadius: 8, cursor: 'pointer' }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: creativeType === ct.id ? '#6366F1' : '#0A0A0A' }}>{ct.label}</div>
+                  <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 1 }}>{ct.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button onClick={generate} disabled={loading || !productName.trim()}
+            style={{ width: '100%', height: 44, background: loading || !productName.trim() ? '#C7D2FE' : 'linear-gradient(135deg, #6366F1, #8B5CF6)', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: loading || !productName.trim() ? 'not-allowed' : 'pointer', fontFamily: brico }}>
+            {loading ? 'Maya is thinking…' : 'Generate with Maya →'}
+          </button>
+        </div>
+
+        {/* CENTER: Output Panel */}
+        <div ref={outputRef} style={{ overflowY: 'auto' as const, padding: 24 }}>
+          {loading ? (
+            <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', height: '60%', gap: 16 }}>
+              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>✨</div>
+              <div style={{ fontFamily: brico, fontSize: 16, fontWeight: 700, color: '#0A0A0A' }}>Maya is crafting your ads<span style={{ animation: 'pulse 1s infinite' }}>...</span></div>
+              <div style={{ fontSize: 13, color: '#9CA3AF' }}>Generating {CREATIVE_TYPES.find(t => t.id === creativeType)?.label} for {productName}</div>
+            </div>
+          ) : output ? (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <div style={{ fontFamily: brico, fontSize: 15, fontWeight: 700, color: '#0A0A0A' }}>{CREATIVE_TYPES.find(t => t.id === creativeType)?.label} — {productName}</div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={generate} style={{ height: 32, padding: '0 14px', background: 'white', color: '#6366F1', border: '1px solid #C7D2FE', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>↻ Regenerate</button>
+                  <button onClick={() => { navigator.clipboard.writeText(output); }} style={{ height: 32, padding: '0 14px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Copy All</button>
+                  <button onClick={saveOutput} disabled={saving || saved} style={{ height: 32, padding: '0 14px', background: saved ? '#D1FAE5' : '#EEF2FF', color: saved ? '#059669' : '#6366F1', border: `1px solid ${saved ? '#6EE7B7' : '#C7D2FE'}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: saving || saved ? 'default' : 'pointer' }}>
+                    {saved ? '✓ Saved' : saving ? 'Saving…' : '💾 Save'}
+                  </button>
+                </div>
+              </div>
+              <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, padding: '20px 24px' }}>
+                <MayaMarkdown text={output} />
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', height: '60%', gap: 12, color: '#9CA3AF' }}>
+              <div style={{ fontSize: 48 }}>✨</div>
+              <div style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, color: '#D1D5DB' }}>Your ads will appear here</div>
+              <div style={{ fontSize: 13, textAlign: 'center' as const, maxWidth: 320 }}>Fill in the product details on the left and click Generate to create scroll-stopping ad creatives</div>
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT: Saved Outputs */}
+        <div style={{ background: 'white', borderLeft: '1px solid #E5E7EB', overflowY: 'auto' as const, padding: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 12 }}>Saved Creatives</div>
+          {savedOutputs.length === 0 ? (
+            <div style={{ fontSize: 12, color: '#D1D5DB', textAlign: 'center' as const, padding: '20px 0' }}>No saved creatives yet</div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+              {savedOutputs.map(s => (
+                <button key={s.id} onClick={() => { setOutput(s.output); setProductName(s.product_name); setCreativeType(s.creative_type); setSaved(true); }}
+                  style={{ textAlign: 'left' as const, padding: '10px 12px', background: '#FAFAFA', border: '1px solid #E5E7EB', borderRadius: 8, cursor: 'pointer', transition: 'background 0.1s' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = '#EEF2FF')}
+                  onMouseLeave={e => (e.currentTarget.style.background = '#FAFAFA')}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#0A0A0A', marginBottom: 3 }}>{s.product_name}</div>
+                  <div style={{ fontSize: 10, color: '#6366F1' }}>{CREATIVE_TYPES.find(t => t.id === s.creative_type)?.label || s.creative_type}</div>
+                  <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 2 }}>{new Date(s.created_at).toLocaleDateString('en-AU')}</div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

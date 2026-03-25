@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { fetchRealVideos, getTikTokCacheStatus } from '../lib/tiktokData';
+import { fetchRealVideos, getTikTokCacheStatus, searchVideos } from '../lib/tiktokData';
 
 const router = Router();
 
@@ -13,6 +13,19 @@ router.get('/real', async (_req: Request, res: Response) => {
   } catch (err: any) {
     console.error('[videos/real]', err.message);
     res.json({ videos: [], count: 0, last_synced: null });
+  }
+});
+
+// GET /api/videos/search?q=term — live Apify search, no cache
+router.get('/search', async (req: Request, res: Response) => {
+  const q = String(req.query.q || '').trim();
+  if (!q) return res.status(400).json({ error: 'q required', videos: [] });
+  try {
+    const videos = await searchVideos(q);
+    res.json({ videos, count: videos.length, query: q });
+  } catch (err: any) {
+    console.error('[videos/search]', err.message);
+    res.json({ videos: [], count: 0, query: q });
   }
 });
 

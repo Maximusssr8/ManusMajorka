@@ -115,7 +115,8 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: 'Maya AI', path: '/app/ai-chat', icon: MessageSquare, badge: 'AI', tooltip: 'Your AI ecommerce advisor — ask anything about products, niches, and strategy.' },
       { label: 'Store Builder AI', path: '/app/store-builder', icon: Globe, badge: 'AI', tooltip: 'Build a complete Shopify-ready store in 60 seconds with 17 templates.' },
-      { label: 'Growth Tools', path: '/app/growth-tools', icon: Zap, tooltip: 'Ad Studio, Copy Studio, and Brand DNA — one place.' },
+      { label: 'Ads Studio', path: '/app/ads-studio', icon: Zap, badge: 'AI', tooltip: 'Generate scroll-stopping TikTok & Meta ad creatives with Maya AI.' },
+      { label: 'Growth Tools', path: '/app/growth-tools', icon: Zap, tooltip: 'Copy Studio, Brand DNA — one place.' },
       { label: 'Profit Calculator', path: '/app/profit', icon: DollarSign, tooltip: 'Model unit economics, margins and break-even CPA.' },
     ],
   },

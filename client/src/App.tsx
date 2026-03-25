@@ -34,6 +34,7 @@ const Affiliate = lazy(() => import('./pages/Affiliate'));
 const KnowledgeBase = lazy(() => import('./pages/KnowledgeBase'));
 const LearnHub = lazy(() => import('./pages/LearnHub'));
 const AdSpy = lazy(() => import('./pages/AdSpy'));
+const AdsStudio = lazy(() => import('./pages/AdsStudio'));
 const ProfitCalculator = lazy(() => import('./pages/ProfitCalculator'));
 const GrowthTools = lazy(() => import('./pages/GrowthTools'));
 const SpyTools = lazy(() => import('./pages/SpyTools'));
@@ -199,6 +200,7 @@ function Router() {
               )}
             </Route>
             <Route path="/app/ad-spy">{() => <ProtectedRoute><AppLayout><AdSpy /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/ads-studio">{() => <ProtectedRoute><AppLayout><AdsStudio /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/learn">
               {() => (
                 <ProtectedRoute>
