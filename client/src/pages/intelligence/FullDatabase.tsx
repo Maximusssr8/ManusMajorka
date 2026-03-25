@@ -181,7 +181,7 @@ function SupplierDropdown({ product }: { product: Product }) {
   const links = [
     { label: 'AliExpress', url: getSupplierUrl(product) },
     { label: 'TikTok Shop', url: `https://www.tiktok.com/search?q=${encodeURIComponent(getProductName(product))}` },
-    { label: 'Alibaba', url: `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(getProductName(product))}&shipToCountry=AU` },
+    { label: 'Alibaba', url: `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(getProductName(product))}&shipToCountry=AU&sortType=BEST_MATCH` },
   ];
   return (
     <div ref={ref} style={{ position: 'relative' }}>
@@ -918,10 +918,10 @@ function SupplierFinder({ productName, aliUrl }: { productName: string; aliUrl?:
       {/* Static quick links */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 10 }}>
         {[
-          { label: '🛒 AliExpress', url: aliUrl || `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(productName)}&shipCountry=au` },
-          { label: '🏭 Alibaba', url: `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(productName)}&shipToCountry=AU` },
-          { label: '🎵 TikTok Shop', url: `https://www.tiktok.com/search?q=${encodeURIComponent(productName)}` },
-          { label: '📦 CJ Dropship', url: `https://cjdropshipping.com/search.html?q=${encodeURIComponent(productName)}` },
+          { label: '🛒 AliExpress', url: aliUrl || `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(productName)}&shipCountry=au&SortType=total_tranpro_desc` },
+          { label: '🏭 Alibaba', url: `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(productName)}&shipToCountry=AU&sortType=BEST_MATCH` },
+          { label: '🎵 TikTok Shop', url: `https://www.tiktok.com/shop/search?keyword=${encodeURIComponent(productName)}&region=AU` },
+          { label: '📦 CJ Dropship', url: `https://app.cjdropshipping.com/product-select.html?keyword=${encodeURIComponent(productName)}` },
         ].map(({ label, url }) => (
           <a key={label} href={url} target="_blank" rel="noopener noreferrer"
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 10px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, color: '#374151', fontWeight: 500, textDecoration: 'none' }}>
@@ -978,7 +978,10 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
   const orders = p.orders_count || 0;
   const score = p.winning_score || 0;
   const price = p.estimated_retail_aud || p.price_aud || 0;
-  const cost = p.cost_price_aud || p.supplier_cost_aud || 0;
+  // Derive cost from margin + price for accuracy (avoid stale seeded cost fields)
+  const storedCost = p.cost_price_aud || p.supplier_cost_aud || 0;
+  const marginPct = typeof margin === 'number' && margin > 0 ? margin : 60;
+  const cost = storedCost > 0 ? storedCost : Math.round(price * (1 - marginPct / 100) * 100) / 100;
   const productCategory = p.niche || p.category || '';
 
   // Fetch "Why Trending" brief
@@ -1062,10 +1065,10 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: '#F0F0F0', borderRadius: 10, overflow: 'hidden', marginBottom: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: '#F0F0F0', borderRadius: 10, overflow: 'hidden', marginBottom: 8 }}>
             {[
-              { label: 'AliExpress Cost', val: `$${cost.toFixed(2)}` },
-              { label: 'Est. Retail', val: `$${price.toFixed(0)}` },
+              { label: 'AliExpress Cost', val: cost > 0 ? `~$${cost.toFixed(2)}` : '—' },
+              { label: 'Suggested Retail', val: price > 0 ? `$${price.toFixed(0)}` : '—' },
               { label: 'Gross Margin', val: `${margin}%` },
               { label: 'Monthly Revenue', val: `$${revenue >= 1000 ? (revenue / 1000).toFixed(1) + 'k' : revenue}` },
               { label: 'Monthly Orders', val: orders.toLocaleString() },
@@ -1076,6 +1079,16 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                 <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: '#0A0A0A' }}>{val}</div>
               </div>
             ))}
+          </div>
+          {/* Direct supplier links under pricing grid */}
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 20 }}>
+            {p.aliexpress_url && (
+              <a href={String(p.aliexpress_url)} target="_blank" rel="noopener noreferrer"
+                style={{ fontSize: 11, color: '#e8590c', background: '#fff5f0', border: '1px solid #fcd0be', padding: '4px 10px', borderRadius: 6, textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                🛒 View on AliExpress ↗
+              </a>
+            )}
+            <span style={{ fontSize: 10, color: '#9CA3AF', display: 'flex', alignItems: 'center' }}>Cost shown is estimated — verify on AliExpress</span>
           </div>
           {(() => {
             const sb = p.score_breakdown;
@@ -1147,9 +1160,10 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
               <>
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
                   {matchedCreators.map((c: any, i: number) => {
-                    const creatorNiche = c.niche || p.category || 'product review';
-                    const searchQuery = encodeURIComponent(`${name} ${creatorNiche} review`);
-                    const tiktokSearch = `https://www.tiktok.com/search?q=${searchQuery}`;
+                    const creatorNiche = c.niche || p.category || 'dropshipping';
+                    // User search (not content search) for finding creator profiles
+                    const searchQuery = encodeURIComponent(`${creatorNiche} ${name.split(' ').slice(0, 3).join(' ')}`);
+                    const tiktokSearch = `https://www.tiktok.com/search/user?q=${searchQuery}`;
                     return (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8 }}>
                         <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#EEF2FF', color: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
@@ -1173,18 +1187,18 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                     );
                   })}
                 </div>
-                <a href={`https://www.tiktok.com/search?q=${encodeURIComponent(name + ' review australia')}`} target="_blank" rel="noopener noreferrer"
+                <a href={`https://www.tiktok.com/search/user?q=${encodeURIComponent((p.category || name.split(' ').slice(0, 2).join(' ')) + ' dropship review')}`} target="_blank" rel="noopener noreferrer"
                   style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 600, padding: '10px 14px', background: '#EEF2FF', borderRadius: 8, border: '1px solid #C7D2FE' }}>
                   <span>🔍</span>
-                  <span>Search all TikTok creators for "{name.slice(0, 30)}{name.length > 30 ? '…' : ''}"</span>
+                  <span>Search TikTok creators in {p.category || 'this niche'}</span>
                   <span style={{ marginLeft: 'auto' }}>→</span>
                 </a>
               </>
             ) : (
-              <a href={`https://www.tiktok.com/search?q=${encodeURIComponent(name + ' review')}`} target="_blank" rel="noopener noreferrer"
+              <a href={`https://www.tiktok.com/search/user?q=${encodeURIComponent((p.category || 'ecommerce') + ' ' + name.split(' ').slice(0, 2).join(' '))}`} target="_blank" rel="noopener noreferrer"
                 style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 600, padding: '10px 14px', background: '#EEF2FF', borderRadius: 8, border: '1px solid #C7D2FE' }}>
                 <span>🔍</span>
-                <span>Find TikTok creators for this product</span>
+                <span>Search TikTok creators for this niche</span>
                 <span style={{ marginLeft: 'auto' }}>→</span>
               </a>
             )}
