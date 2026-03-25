@@ -221,6 +221,10 @@ async function startServer() {
   app.use('/api/shopify', shopifyRouter);
   app.use('/api/store-builder', storeBuilderRouter);
   app.use('/api/apify', apifyRouter);
+  const creatorsRealRouter = (await import('../routes/creators')).default;
+  app.use('/api/creators', creatorsRealRouter);
+  const videosRealRouter = (await import('../routes/videos')).default;
+  app.use('/api/videos', videosRealRouter);
   // Cron endpoints (Vercel cron + manual refresh)
   const cronRouter = (await import('../routes/cron')).default;
   app.use('/api/cron', cronRouter);

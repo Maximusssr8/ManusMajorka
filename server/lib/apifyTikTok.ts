@@ -13,7 +13,7 @@ function getToken(): string | null {
 
 // ── Apify run helper ────────────────────────────────────────────────────────
 
-async function runApifyActor(actorId: string, input: Record<string, unknown>): Promise<any[]> {
+export async function runApifyActor(actorId: string, input: Record<string, unknown>): Promise<any[]> {
   const token = getToken();
   if (!token) { console.error('[apify-tiktok] No APIFY_API_KEY/TOKEN'); return []; }
 
@@ -75,7 +75,7 @@ async function runApifyActor(actorId: string, input: Record<string, unknown>): P
 
 // ── Supabase cache helper ───────────────────────────────────────────────────
 
-async function getCachedOrFetch(cacheKey: string, fetcher: () => Promise<any>, ttlHours = 6): Promise<any> {
+export async function getCachedOrFetch(cacheKey: string, fetcher: () => Promise<any>, ttlHours = 6): Promise<any> {
   try {
     const sb = getSupabaseAdmin();
 

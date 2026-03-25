@@ -1,0 +1,57 @@
+import { Router, Request, Response } from 'express';
+import { requireAuth } from '../middleware/requireAuth';
+import { fetchRealCreators, fetchRawTikTokData, getTikTokCacheStatus } from '../lib/tiktokData';
+
+const router = Router();
+const ADMIN_EMAILS = ['maximusmajorka@gmail.com'];
+
+/** Inline plan check — admin email OR active subscription */
+async function checkAccess(req: Request): Promise<boolean> {
+  const email = (req as any).user?.email || '';
+  if (ADMIN_EMAILS.includes(email)) return true;
+  const userId = (req as any).user?.userId;
+  if (!userId) return false;
+  const SURL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+  const SKEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  try {
+    const res = await fetch(
+      `${SURL}/rest/v1/user_subscriptions?user_id=eq.${userId}&select=status&limit=1`,
+      { headers: { apikey: SKEY, Authorization: `Bearer ${SKEY}` } }
+    );
+    const rows = await res.json().catch(() => []);
+    const sub = Array.isArray(rows) ? rows[0] : null;
+    return ['active', 'trialing'].includes(sub?.status || '');
+  } catch {
+    return false;
+  }
+}
+
+// GET /api/creators/real
+router.get('/real', async (_req: Request, res: Response) => {
+  try {
+    const creators = await fetchRealCreators();
+    const status = await getTikTokCacheStatus();
+    res.json({ creators, count: creators.length, last_synced: status.cached_at });
+  } catch (err: any) {
+    console.error('[creators/real]', err.message);
+    res.json({ creators: [], count: 0, last_synced: null });
+  }
+});
+
+// POST /api/creators/refresh
+router.post('/refresh', requireAuth, async (req: Request, res: Response) => {
+  try {
+    if (!(await checkAccess(req))) {
+      res.status(403).json({ error: 'Scale plan required' });
+      return;
+    }
+    const raw = await fetchRawTikTokData(true); // bypass cache
+    const count = Array.isArray(raw) ? raw.length : 0;
+    res.json({ count, synced_at: new Date().toISOString() });
+  } catch (err: any) {
+    console.error('[creators/refresh]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+export default router;

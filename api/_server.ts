@@ -38,6 +38,8 @@ import productsRouter from "../server/routes/products";
 import aliexpressRouter from "../server/routes/aliexpress";
 import userRouter from "../server/routes/user";
 import apifyRouter from "../server/routes/apify";
+import creatorsRouter from "../server/routes/creators";
+import videosRouter from "../server/routes/videos";
 import { registerGenerationRoutes } from "../server/routes/generation";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
 import { getProductByIdPublic } from "../server/db";
@@ -501,6 +503,8 @@ app.use('/api/products', productsRouter);
 app.use('/api/aliexpress', aliexpressRouter);
 app.use('/api/user', userRouter);
 app.use('/api/apify', apifyRouter);
+app.use('/api/creators', creatorsRouter);
+app.use('/api/videos', videosRouter);
 
 // ── Product import with AI Brain ─────────────────────────────────────────────
 app.post("/api/import-product", async (req: Request, res: Response) => {

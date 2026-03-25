@@ -34,6 +34,42 @@ interface Video {
   region_code: string;
   created_at?: string;
   scraped_at?: string;
+  thumbnail?: string;
+  playCount?: number;
+  likes?: number;
+  shares?: number;
+  comments?: number;
+  creator?: string;
+  creatorHandle?: string;
+  creatorProfileUrl?: string;
+}
+
+const NICHE_KEYWORDS: Record<string, string[]> = {
+  beauty: ['beauty', 'skincare', 'makeup', 'glow'],
+  fitness: ['fitness', 'gym', 'workout', 'exercise'],
+  'home decor': ['home', 'homedecor', 'kitchen', 'cleaning'],
+  'tech accessories': ['tech', 'gadget', 'gadgets', 'iphone'],
+  'pet care': ['pets', 'dog', 'cat', 'puppy'],
+  fashion: ['fashion', 'outfit', 'ootd', 'style'],
+  health: ['health', 'wellness', 'supplement'],
+  kitchen: ['kitchen', 'cooking', 'recipe', 'food'],
+};
+
+function detectVideoNiche(hashtags: string[]): string {
+  const lower = hashtags.map(h => h.toLowerCase());
+  for (const [niche, keywords] of Object.entries(NICHE_KEYWORDS)) {
+    if (lower.some(h => keywords.some(k => h.includes(k)))) return niche;
+  }
+  return 'general';
+}
+
+function detectVideoFormat(title: string, hashtags: string[]): string {
+  const text = (title + ' ' + hashtags.join(' ')).toLowerCase();
+  if (text.includes('unbox') || text.includes('haul')) return 'UNBOXING';
+  if (text.includes('review') || text.includes('honest')) return 'REVIEW';
+  if (text.includes('demo') || text.includes('tutorial') || text.includes('how to')) return 'DEMO';
+  if (text.includes('pov') || text.includes('storytime')) return 'POV';
+  return 'LIFESTYLE';
 }
 
 export default function VideoIntelligence() {
@@ -49,16 +85,40 @@ export default function VideoIntelligence() {
   const [copied, setCopied]       = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [toast, setToast]         = useState('');
+  const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<Range>(() => (localStorage.getItem('majorka_video_daterange') as Range) || '30d');
 
   const handleDateRange = (v: Range) => { localStorage.setItem('majorka_video_daterange', v); setDateRange(v); };
 
-  // Load ALL videos once, filter client-side
+  // Load ALL videos once from real TikTok data, filter client-side
   useEffect(() => {
     setLoading(true);
-    fetch('/api/videos?limit=50')
+    fetch('/api/videos/real')
       .then(r => r.json())
-      .then(d => setAllVideos(Array.isArray(d.videos) ? d.videos : []))
+      .then(d => {
+        if (d.last_synced) setLastSynced(d.last_synced);
+        const mapped: Video[] = (d.videos || []).map((v: any) => ({
+          id: v.id,
+          title: v.title || '',
+          url: v.videoUrl || '',
+          product_mentioned: v.title ? v.title.slice(0, 80) : 'TikTok Video',
+          niche: v.hashtags?.length > 0 ? detectVideoNiche(v.hashtags) : 'general',
+          hook_text: v.title || null,
+          engagement_signal: v.playCount >= 1_000_000 ? 'VIRAL' : v.playCount >= 100_000 ? 'HIGH' : 'MEDIUM',
+          format: detectVideoFormat(v.title || '', v.hashtags || []),
+          region_code: 'AU',
+          created_at: v.postedAt || undefined,
+          thumbnail: v.thumbnail || undefined,
+          playCount: v.playCount || 0,
+          likes: v.likes || 0,
+          shares: v.shares || 0,
+          comments: v.comments || 0,
+          creator: v.creator || '',
+          creatorHandle: v.creatorHandle || '',
+          creatorProfileUrl: v.creatorProfileUrl || '',
+        }));
+        setAllVideos(mapped);
+      })
       .catch(() => setAllVideos([]))
       .finally(() => setLoading(false));
   }, []);
@@ -147,6 +207,11 @@ export default function VideoIntelligence() {
           <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#0A0A0A', margin: 0 }}>Video Intelligence</h1>
           <p style={{ fontSize: 12, color: '#9CA3AF', margin: '3px 0 0' }}>
             {loading ? 'Loading…' : `${videos.length} videos tracked`}
+            {lastSynced && !loading && (() => {
+              const mins = Math.round((Date.now() - new Date(lastSynced).getTime()) / 60000);
+              const ago = mins < 1 ? 'just now' : mins < 60 ? `${mins}m ago` : `${Math.round(mins / 60)}h ago`;
+              return <span style={{ marginLeft: 8, color: '#D1D5DB' }}>· Last synced {ago}</span>;
+            })()}
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -244,8 +309,14 @@ export default function VideoIntelligence() {
                       onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 16px #E5E7EB')}
                       onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}>
 
-                      {/* Thumbnail strip */}
-                      <div style={{ height: 6, background: `linear-gradient(90deg, ${fmt.color}33, ${fmt.color}11)` }} />
+                      {/* Thumbnail */}
+                      {v.thumbnail ? (
+                        <div style={{ aspectRatio: '16/9', overflow: 'hidden', background: '#F3F4F6' }}>
+                          <img src={v.thumbnail} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                        </div>
+                      ) : (
+                        <div style={{ height: 6, background: `linear-gradient(90deg, ${fmt.color}33, ${fmt.color}11)` }} />
+                      )}
 
                       <div style={{ padding: '14px 16px' }}>
                         {/* Format + signal row */}
@@ -270,16 +341,25 @@ export default function VideoIntelligence() {
                           </div>
                         )}
 
+                        {/* Stats row */}
+                        {(v.playCount || v.likes) && (
+                          <div style={{ display: 'flex', gap: 8, marginBottom: 8, fontSize: 10, color: '#9CA3AF' }}>
+                            {v.playCount ? <span>{'▶'} {v.playCount >= 1_000_000 ? `${(v.playCount/1_000_000).toFixed(1)}M` : v.playCount >= 1_000 ? `${(v.playCount/1_000).toFixed(0)}K` : v.playCount}</span> : null}
+                            {v.likes ? <span>{'♥'} {v.likes >= 1_000_000 ? `${(v.likes/1_000_000).toFixed(1)}M` : v.likes >= 1_000 ? `${(v.likes/1_000).toFixed(0)}K` : v.likes}</span> : null}
+                            {v.comments ? <span>{'💬'} {v.comments >= 1_000 ? `${(v.comments/1_000).toFixed(0)}K` : v.comments}</span> : null}
+                          </div>
+                        )}
+
                         {/* Footer */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div style={{ display: 'flex', gap: 4 }}>
                             <span style={{ fontSize: 9, color: '#9CA3AF', background: '#F5F5F5', padding: '1px 6px', borderRadius: 8, textTransform: 'capitalize' as const }}>{v.niche}</span>
-                            <span style={{ fontSize: 9, color: '#9CA3AF', background: '#F5F5F5', padding: '1px 6px', borderRadius: 8 }}>{v.region_code}</span>
+                            {v.creatorHandle && <span style={{ fontSize: 9, color: '#6366F1', background: '#EEF2FF', padding: '1px 6px', borderRadius: 8 }}>@{v.creatorHandle}</span>}
                           </div>
                           <a href={v.url} target="_blank" rel="noopener noreferrer"
                             style={{ fontSize: 11, color: '#6366F1', fontWeight: 700, textDecoration: 'none' }}
                             onClick={e => e.stopPropagation()}>
-                            Open →
+                            Watch Video →
                           </a>
                         </div>
                       </div>

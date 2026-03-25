@@ -57,13 +57,7 @@ export default function CreatorIntelligence() {
     })();
   }, []);
 
-  // Fetch cache status
-  useEffect(() => {
-    fetch('/api/apify/cache-status')
-      .then(r => r.json())
-      .then(d => { if (d.creators_cached_at) setCachedAt(d.creators_cached_at); })
-      .catch(() => {});
-  }, []);
+  // Cache status is now returned from /api/creators/real
 
   const [searchQ, setSearchQ] = useState('');
   const [filterNiche, setFilterNiche] = useState('');
@@ -73,15 +67,30 @@ export default function CreatorIntelligence() {
   const [dateRange, setDateRange] = useState<Range>(() => (localStorage.getItem('majorka_creator_daterange') as Range) || '30d');
   const handleDateRange = (v: Range) => { localStorage.setItem('majorka_creator_daterange', v); setDateRange(v); };
 
-  const fetchCreators = useCallback(async (niche = '', region = '') => {
+  const formatFollowers = (n: number) => {
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+    if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+    return String(n);
+  };
+
+  const fetchCreators = useCallback(async (_niche = '', _region = '') => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ limit: '50' });
-      if (niche) params.set('niche', niche);
-      if (region) params.set('region', region);
-      const r = await fetch(`/api/creators?${params}`);
+      const r = await fetch('/api/creators/real');
       const data = await r.json();
-      setCreators(data.creators && data.creators.length > 0 ? data.creators : []);
+      if (data.last_synced) setCachedAt(data.last_synced);
+      const mapped: Creator[] = (data.creators || []).map((c: any) => ({
+        handle: c.handle ? `@${c.handle}` : '',
+        display_name: c.nickname || c.handle || '',
+        profile_url: c.profileUrl || '',
+        niche: c.niche || 'general',
+        region_code: 'AU',
+        est_followers: formatFollowers(c.followers || 0),
+        promoting_products: (c.hashtags || []).slice(0, 3),
+        engagement_signal: (c.engagement || 'Low').toUpperCase(),
+        contact_hint: c.profileUrl || null,
+      }));
+      setCreators(mapped);
     } catch { setCreators([]); }
     setLoading(false);
   }, []);
@@ -93,12 +102,11 @@ export default function CreatorIntelligence() {
     setRefreshError('');
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch('/api/apify/refresh-creators', {
+      const res = await fetch('/api/creators/refresh', {
         method: 'POST',
         headers: { Authorization: `Bearer ${session?.access_token || ''}` },
       });
       if (!res.ok) throw new Error('Refresh failed');
-      const data = await res.json();
       setCachedAt(new Date().toISOString());
       await fetchCreators(filterNiche, filterRegion);
     } catch {
@@ -145,13 +153,7 @@ export default function CreatorIntelligence() {
 
   return (
     <div style={{ background: '#FAFAFA', minHeight: '100vh', display: 'flex', flexDirection: 'column' as const }}>
-      {/* ⚠️ Sample data disclaimer */}
-      <div style={{ background: '#FFF7ED', borderBottom: '1px solid #FED7AA', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-        <span style={{ fontSize: 16 }}>⚠️</span>
-        <span style={{ fontSize: 12, color: '#92400E', lineHeight: 1.5 }}>
-          <strong>Creator data sourced from public TikTok profiles.</strong> Follower ranges are estimated. Contact creators directly via TikTok — use the "Find on TikTok" button on each card.
-        </span>
-      </div>
+      {/* Real TikTok data via Apify */}
       <div style={{ padding: '24px 24px 0', maxWidth: 1400, margin: '0 auto', width: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
           <div>
@@ -235,12 +237,12 @@ export default function CreatorIntelligence() {
             <div style={{ padding: 60, textAlign: 'center' as const, color: '#9CA3AF', fontSize: 14 }}>Loading creators...</div>
           ) : filtered.length === 0 ? (
             <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, padding: 60, textAlign: 'center' as const }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>{'👤'}</div>
-              <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 16, color: '#0A0A0A', marginBottom: 6 }}>No creators yet</div>
-              <div style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 16 }}>Click "Refresh Creators" to scrape TikTok creators for your niche</div>
+              <div style={{ width: 32, height: 32, border: '3px solid #E5E7EB', borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }} />
+              <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 16, color: '#0A0A0A', marginBottom: 6 }}>Syncing TikTok data...</div>
+              <div style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 16 }}>Check back in a minute. Data refreshes every 6 hours.</div>
               <button onClick={triggerRefresh} disabled={refreshing}
                 style={{ height: 38, padding: '0 20px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                Start Scraping
+                {refreshing ? 'Refreshing...' : 'Refresh Now'}
               </button>
             </div>
           ) : (
