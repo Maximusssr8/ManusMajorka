@@ -243,15 +243,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     sortBy: 'revenue' as 'revenue' | 'score' | 'margin' | 'growth' | 'newest',
   });
 
-  // Plan check — real subscription API
+  // Plan check — uses onAuthStateChange so it fires even if session loads after mount
   const [userPlan, setUserPlan] = useState<'free' | 'builder' | 'scale'>('free');
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
-      const email = data.session?.user?.email;
-      const token = data.session?.access_token;
-      // Admin bypass
-      if (email === 'maximusmajorka@gmail.com') { setUserPlan('scale'); return; }
-      // Real subscription check
+    async function checkPlan(token: string | undefined) {
       if (!token) return;
       try {
         const res = await fetch('/api/subscription/me', {
@@ -259,12 +254,25 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         });
         if (res.ok) {
           const sub = await res.json();
-          if (sub.status === 'active') {
-            setUserPlan(sub.plan === 'scale' ? 'scale' : sub.plan === 'builder' ? 'builder' : 'free');
+          if (['active', 'trialing'].includes(sub.status || '')) {
+            const p = (sub.plan || '').toLowerCase();
+            setUserPlan(p === 'scale' ? 'scale' : p === 'builder' ? 'builder' : 'free');
           }
         }
-      } catch { /* silently fail — stay on free */ }
+      } catch { /* silently fail */ }
+    }
+
+    // Run immediately in case session already exists
+    supabase.auth.getSession().then(({ data }) => {
+      checkPlan(data.session?.access_token);
     });
+
+    // Also subscribe to auth changes — fires when session hydrates after mount
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      checkPlan(session?.access_token);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   // Debounce search

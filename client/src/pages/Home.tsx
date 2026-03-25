@@ -1497,7 +1497,7 @@ export default function Home() {
           {/* ── Center: Nav links (desktop only) ── */}
           {!isMobile && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              {[['#features', 'Features'], ['#pricing', 'Pricing'], ['/dropshipping-australia', 'Blog']].map(([href, label]) => (
+              {[['#features', 'Features'], ['#pricing', 'Pricing']].map(([href, label]) => (
                 <a key={label} href={href} style={{ color: '#6B7280', textDecoration: 'none', fontSize: 14, fontWeight: 500, padding: '6px 12px', borderRadius: 7, transition: 'color 120ms, background 120ms' }}
                   onMouseEnter={(e) => { e.currentTarget.style.color = '#111827'; e.currentTarget.style.background = '#F3F4F6'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.background = 'transparent'; }}>
@@ -1533,7 +1533,7 @@ export default function Home() {
         {/* ── Mobile drawer ── */}
         {isMobile && mobileMenuOpen && (
           <div style={{ borderTop: '1px solid #E5E7EB', background: 'rgba(250,250,250,0.97)', padding: '8px 16px 16px' }}>
-            {[['#features', 'Features'], ['#pricing', 'Pricing'], ['/dropshipping-australia', 'Blog'], ['/sign-in', 'Log in']].map(([href, label]) => (
+            {[['#features', 'Features'], ['#pricing', 'Pricing'], ['/sign-in', 'Log in']].map(([href, label]) => (
               <a key={label} href={href} onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', color: '#374151', textDecoration: 'none', fontSize: 15, fontWeight: 500, padding: '12px 8px', borderBottom: '1px solid #F3F4F6' }}>{label}</a>
             ))}
           </div>
