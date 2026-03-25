@@ -18,11 +18,11 @@ const POLL_INTERVAL_MS = 3000;
 const MAX_POLLS = 18; // 54s max — under Vercel maxDuration=300 but safe
 
 const SEARCH_QUERIES = [
-  'tiktokmademebuyit',
-  'australianshopping',
-  'productreview dropshipping',
-  'ecommerce australia',
-  'winning products 2025',
+  'tiktokmademebuyit australia',
+  'amazon finds australia 2025',
+  'products i cant live without',
+  'tiktok shop australia review',
+  'satisfying products that actually work',
 ];
 
 const NICHE_MAP: Record<string, string> = {
@@ -33,8 +33,9 @@ const NICHE_MAP: Record<string, string> = {
   pets: 'pets', dog: 'pets', cat: 'pets',
   fashion: 'fashion', outfit: 'fashion', ootd: 'fashion',
   food: 'food', recipe: 'food', cooking: 'food',
-  lifestyle: 'lifestyle', dropshipping: 'ecommerce', ecommerce: 'ecommerce',
-  shopify: 'ecommerce', tiktokmademebuyit: 'general', productreview: 'general',
+  lifestyle: 'lifestyle', outdoor: 'outdoor', sports: 'sports', camping: 'outdoor',
+  health: 'health', wellness: 'health', vitamins: 'health', supplements: 'health',
+  tiktokmademebuyit: 'general', amazonfinds: 'general', productreview: 'general',
 };
 
 
