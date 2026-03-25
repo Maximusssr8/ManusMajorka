@@ -936,16 +936,19 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
   const [matchedCreators, setMatchedCreators] = useState<any[]>([]);
   const [creatorsLoading, setCreatorsLoading] = useState(false);
   const name = p.name || p.product_title || 'Product';
-  const revenue = p.est_monthly_revenue_aud || 0;
-  const isEstimated = !p.orders_count || p.orders_count === 0;
   const margin = p.estimated_margin_pct || p.profit_margin || 0;
   const orders = p.orders_count || 0;
   const score = p.winning_score || 0;
   const price = p.estimated_retail_aud || p.price_aud || 0;
-  // Derive cost from margin + price for accuracy (avoid stale seeded cost fields)
+  // Cost: use stored value if set, else derive from price × (1 - margin%)
   const storedCost = p.cost_price_aud || p.supplier_cost_aud || 0;
-  const marginPct = typeof margin === 'number' && margin > 0 ? margin : 60;
+  const marginPct = typeof margin === 'number' && margin > 0 ? margin : 64;
   const cost = storedCost > 0 ? storedCost : Math.round(price * (1 - marginPct / 100) * 100) / 100;
+  // Monthly revenue: recalc from current price if stored value looks stale (< price or 0)
+  const storedRevenue = p.est_monthly_revenue_aud || 0;
+  const unitsPerDay = p.units_per_day || Math.max(1, Math.round(score / 12));
+  const revenue = storedRevenue > price ? storedRevenue : Math.round(price * unitsPerDay * 30 * 100) / 100;
+  const isEstimated = !p.orders_count || p.orders_count === 0;
   const productCategory = p.niche || p.category || '';
 
   // Fetch "Why Trending" brief
@@ -1110,63 +1113,77 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
           </div>
 
           {/* Creator Types to Target */}
-          <div style={{ marginBottom: 20 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-              <div style={{ fontFamily: brico, fontSize: 13, color: '#6366F1', fontWeight: 700 }}>🎯 Creator Types to Target</div>
-              <span style={{ fontSize: 10, color: '#9CA3AF', background: '#F3F4F6', padding: '2px 8px', borderRadius: 10 }}>Sample archetypes</span>
-            </div>
-            <p style={{ fontSize: 11, color: '#9CA3AF', margin: '0 0 10px', lineHeight: 1.5 }}>
-              These are creator profile types that perform well for this product. Click <strong>Find on TikTok</strong> to search for real accounts in this niche.
-            </p>
-            {creatorsLoading ? (
-              <div style={{ fontSize: 12, color: '#9CA3AF', padding: '8px 0' }}>Finding creators…</div>
-            ) : matchedCreators.length > 0 ? (
-              <>
-                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
-                  {matchedCreators.map((c: any, i: number) => {
-                    const creatorNiche = c.niche || p.category || 'dropshipping';
-                    // User search (not content search) for finding creator profiles
-                    const searchQuery = encodeURIComponent(creatorNiche);
-                    const tiktokSearch = c.profile_url && c.profile_url.startsWith('https://') ? c.profile_url : c.handle ? `https://www.tiktok.com/@${String(c.handle).replace(/^@/, '')}` : `https://www.tiktok.com/tag/${searchQuery}`;
-                    return (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8 }}>
-                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#EEF2FF', color: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
-                          {(c.display_name || c.handle || 'U')[0].toUpperCase()}
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontFamily: dm, fontSize: 13, fontWeight: 600, color: '#0A0A0A' }}>
-                            {c.display_name || c.handle}
-                            <span style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 400, marginLeft: 6 }}>archetype</span>
-                          </div>
-                          <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2 }}>
-                            {c.niche && <span style={{ fontSize: 10, color: '#6366F1', background: '#EEF2FF', padding: '1px 6px', borderRadius: 10 }}>{c.niche}</span>}
-                            <span style={{ fontSize: 10, color: '#9CA3AF' }}>creator type</span>
-                          </div>
-                        </div>
-                        <a href={tiktokSearch} target="_blank" rel="noopener noreferrer"
-                          style={{ fontSize: 11, color: '#6366F1', textDecoration: 'none', fontWeight: 600, flexShrink: 0, padding: '3px 8px', border: '1px solid #E5E7EB', borderRadius: 6, background: 'white', whiteSpace: 'nowrap' as const }}>
-                          Find on TikTok →
-                        </a>
+          {(() => {
+            const cat = (p.niche || p.category || '').toLowerCase();
+            const pName = name;
+            const creatorMap: Record<string, Array<{ type: string; desc: string; search: string }>> = {
+              'beauty': [
+                { type: 'Skincare Reviewer', desc: 'Before/after routines, product demos', search: `${pName} skincare review` },
+                { type: 'Glow-Up Creator', desc: 'Transformation content, beauty hacks', search: `${pName} beauty hack` },
+                { type: 'Dermatology Educator', desc: 'Science-backed skincare advice', search: `${pName} skin benefits` },
+              ],
+              'health': [
+                { type: 'Wellness Influencer', desc: 'Daily health routines, self-care', search: `${pName} health benefits` },
+                { type: 'Fitness Creator', desc: 'Workout demos, recovery tips', search: `${pName} fitness` },
+                { type: 'Biohacker', desc: 'Optimisation and performance content', search: `${pName} review` },
+              ],
+              'fitness': [
+                { type: 'Home Workout Creator', desc: 'No-gym training routines', search: `${pName} workout` },
+                { type: 'Physio / PT', desc: 'Injury prevention, rehab advice', search: `${pName} exercise` },
+                { type: 'Sports Enthusiast', desc: 'Sport-specific training tips', search: `${pName} training` },
+              ],
+              'pet': [
+                { type: 'Pet Parent Creator', desc: 'Day-in-the-life with pets, cute content', search: `${pName} dog cat` },
+                { type: 'Vet / Animal Educator', desc: 'Pet health, care tips', search: `${pName} pet care` },
+                { type: 'Pet Unboxing Creator', desc: 'Product hauls and honest reviews', search: `${pName} unboxing` },
+              ],
+              'home': [
+                { type: 'Home Organiser', desc: 'Declutter, clean, organise routines', search: `${pName} home organisation` },
+                { type: 'Interior Aesthetic', desc: 'Room makeovers, decor hauls', search: `${pName} home decor` },
+                { type: 'Clean With Me', desc: 'Cleaning routines and hacks', search: `${pName} cleaning hack` },
+              ],
+              'kitchen': [
+                { type: 'Food Creator', desc: 'Recipes, meal prep, cooking hacks', search: `${pName} kitchen hack` },
+                { type: 'Meal Prep Influencer', desc: 'Batch cooking, time-saving tips', search: `${pName} meal prep` },
+                { type: 'Product Reviewer', desc: 'Kitchen gadget unboxing & tests', search: `${pName} review` },
+              ],
+              'electronics': [
+                { type: 'Tech Reviewer', desc: 'Unboxing, specs, honest opinions', search: `${pName} review` },
+                { type: 'Productivity Creator', desc: 'Work-from-home setups, efficiency', search: `${pName} setup` },
+                { type: 'Gaming / EDC Creator', desc: 'Everyday carry, gadget showcase', search: `${pName} gadget` },
+              ],
+            };
+            // Match category
+            let archetypes = creatorMap['home']; // default
+            for (const [key, types] of Object.entries(creatorMap)) {
+              if (cat.includes(key)) { archetypes = types; break; }
+            }
+            return (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontFamily: brico, fontSize: 13, color: '#6366F1', fontWeight: 700, marginBottom: 10 }}>🎯 Creator Types to Target</div>
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 7 }}>
+                  {archetypes.map(({ type, desc, search }) => (
+                    <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: '#0A0A0A' }}>{type}</div>
+                        <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>{desc}</div>
                       </div>
-                    );
-                  })}
+                      <a href={`https://www.tiktok.com/search?q=${encodeURIComponent(search)}`} target="_blank" rel="noopener noreferrer"
+                        style={{ fontSize: 11, color: '#6366F1', textDecoration: 'none', fontWeight: 600, flexShrink: 0, padding: '4px 10px', border: '1px solid #C7D2FE', borderRadius: 6, background: '#EEF2FF', whiteSpace: 'nowrap' as const }}>
+                        Search TikTok →
+                      </a>
+                    </div>
+                  ))}
                 </div>
-                <a href={`https://www.tiktok.com/tag/${encodeURIComponent(p.category || 'dropshipping')}`} target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 600, padding: '10px 14px', background: '#EEF2FF', borderRadius: 8, border: '1px solid #C7D2FE' }}>
+                <a href={`https://www.tiktok.com/search?q=${encodeURIComponent(pName + ' review')}`} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 600, padding: '10px 14px', background: '#EEF2FF', borderRadius: 8, border: '1px solid #C7D2FE' }}>
                   <span>🔍</span>
-                  <span>Search TikTok creators in {p.category || 'this niche'}</span>
+                  <span>Search all TikTok content for this product</span>
                   <span style={{ marginLeft: 'auto' }}>→</span>
                 </a>
-              </>
-            ) : (
-              <a href={`https://www.tiktok.com/tag/${encodeURIComponent(p.category || 'ecommerce')}`} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 600, padding: '10px 14px', background: '#EEF2FF', borderRadius: 8, border: '1px solid #C7D2FE' }}>
-                <span>🔍</span>
-                <span>Search TikTok creators for this niche</span>
-                <span style={{ marginLeft: 'auto' }}>→</span>
-              </a>
-            )}
-          </div>
+              </div>
+            );
+          })()}
 
           <SupplierFinder productName={name} />
           <div style={{ marginBottom: 20 }}>
