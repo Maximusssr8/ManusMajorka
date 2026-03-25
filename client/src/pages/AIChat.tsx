@@ -13,6 +13,9 @@ interface Message {
 }
 
 // ── Inline markdown renderer (no external deps) ───────────────────────────────
+// Detect emoji-prefixed bullet lines (✅ ⚠️ 🔥 📈 etc.)
+const EMOJI_BULLET_RE = /^(\u2705|\u274c|\u26a0\ufe0f|\u2757|\uD83D[\uDC00-\uDFFF]|\uD83E[\uDD00-\uDDFF]|\uD83C[\uDF00-\uDFFF]|[\u2600-\u27FF])\s+/;
+
 function renderInline(text: string): React.ReactNode {
   const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
   return (
@@ -30,6 +33,19 @@ function renderInline(text: string): React.ReactNode {
   );
 }
 
+// Detect plain-text section headers: short line (≤50 chars), no ending punctuation, next line has content
+function isPlainHeader(line: string, nextLine: string | undefined): boolean {
+  if (line.length > 60 || line.trim().length === 0) return false;
+  if (line.startsWith("-") || line.startsWith("*") || line.match(/^\d+\./)) return false;
+  if (line.match(/[.!?,:;]$/)) return false; // ends with punctuation = not a header
+  if (EMOJI_BULLET_RE.test(line)) return false;
+  // Must look like a title: mostly title case or ALL CAPS words
+  const words = line.trim().split(" ");
+  if (words.length > 8) return false;
+  const titleWords = words.filter(w => w.length > 2 && w[0] === w[0].toUpperCase());
+  return titleWords.length >= Math.min(2, words.length);
+}
+
 function renderMarkdown(text: string): React.ReactNode {
   const lines = text.split("\n");
   const nodes: React.ReactNode[] = [];
@@ -37,41 +53,71 @@ function renderMarkdown(text: string): React.ReactNode {
 
   while (i < lines.length) {
     const line = lines[i];
+    const trimmed = line.trim();
 
-    if (!line.trim()) { nodes.push(<div key={`gap-${i}`} style={{ height: 4 }} />); i++; continue; }
+    if (!trimmed) { nodes.push(<div key={`gap-${i}`} style={{ height: 6 }} />); i++; continue; }
 
+    // Explicit ## headers
     if (line.startsWith("### ")) {
-      nodes.push(<div key={i} style={{ fontFamily: brico, fontWeight: 700, fontSize: 14, color: "#E0E7FF", marginBottom: 4, marginTop: 8 }}>{line.slice(4)}</div>);
+      nodes.push(<div key={i} style={{ fontFamily: brico, fontWeight: 700, fontSize: 13, color: "#A5B4FC", marginBottom: 4, marginTop: 10, letterSpacing: "0.03em" }}>{line.slice(4)}</div>);
       i++; continue;
     }
     if (line.startsWith("## ")) {
-      nodes.push(<div key={i} style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: "#E0E7FF", marginBottom: 6, marginTop: 10 }}>{line.slice(3)}</div>);
+      nodes.push(<div key={i} style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: "#E0E7FF", marginBottom: 6, marginTop: 12, borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 4 }}>{line.slice(3)}</div>);
+      i++; continue;
+    }
+    if (line.startsWith("# ")) {
+      nodes.push(<div key={i} style={{ fontFamily: brico, fontWeight: 800, fontSize: 16, color: "#F0EEFF", marginBottom: 8, marginTop: 12 }}>{line.slice(2)}</div>);
       i++; continue;
     }
 
+    // Plain-text implicit headers (e.g. "What's Working Right Now" with no ## prefix)
+    if (isPlainHeader(trimmed, lines[i + 1])) {
+      nodes.push(<div key={i} style={{ fontFamily: brico, fontWeight: 800, fontSize: 14, color: "#C4B5FD", marginBottom: 5, marginTop: 12, letterSpacing: "0.01em" }}>{trimmed}</div>);
+      i++; continue;
+    }
+
+    // Markdown bullets (- or * or •)
     if (line.match(/^[\-\*•] /)) {
       const content = line.replace(/^[\-\*•] /, "");
       nodes.push(
-        <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 3 }}>
-          <span style={{ color: "#818CF8", flexShrink: 0, marginTop: 1 }}>•</span>
-          <span style={{ lineHeight: 1.6 }}>{renderInline(content)}</span>
+        <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 4 }}>
+          <span style={{ color: "#818CF8", flexShrink: 0, marginTop: 2, fontSize: 10 }}>▸</span>
+          <span style={{ lineHeight: 1.6, fontSize: 14 }}>{renderInline(content)}</span>
         </div>
       );
       i++; continue;
     }
 
+    // Emoji bullet lines (✅ ⚠️ 🔥 etc.)
+    const emojiMatch = trimmed.match(/^(\S+)\s+(.*)/);
+    if (emojiMatch && EMOJI_BULLET_RE.test(trimmed)) {
+      const [, emoji, content] = emojiMatch;
+      const isPositive = ["✅","🟢","💚","🎯","🔥","📈","💡","⭐"].some(e => trimmed.startsWith(e));
+      const isWarning = ["⚠️","🔴","❌","🚫","⛔","😬"].some(e => trimmed.startsWith(e));
+      nodes.push(
+        <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 4, padding: "4px 8px", borderRadius: 6, background: isPositive ? "rgba(34,197,94,0.06)" : isWarning ? "rgba(239,68,68,0.06)" : "rgba(255,255,255,0.03)" }}>
+          <span style={{ flexShrink: 0, fontSize: 14, marginTop: 1 }}>{emoji}</span>
+          <span style={{ lineHeight: 1.6, fontSize: 14, color: isPositive ? "#86EFAC" : isWarning ? "#FCA5A5" : "#D1D5DB" }}>{renderInline(content)}</span>
+        </div>
+      );
+      i++; continue;
+    }
+
+    // Numbered list
     if (line.match(/^\d+\. /)) {
       const num = line.match(/^(\d+)\. /)?.[1];
       const content = line.replace(/^\d+\. /, "");
       nodes.push(
-        <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 3 }}>
-          <span style={{ color: "#818CF8", flexShrink: 0, fontWeight: 700, minWidth: 18 }}>{num}.</span>
-          <span style={{ lineHeight: 1.6 }}>{renderInline(content)}</span>
+        <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 4 }}>
+          <span style={{ color: "#818CF8", flexShrink: 0, fontWeight: 700, minWidth: 18, fontSize: 13 }}>{num}.</span>
+          <span style={{ lineHeight: 1.6, fontSize: 14 }}>{renderInline(content)}</span>
         </div>
       );
       i++; continue;
     }
 
+    // Code block
     if (line.startsWith("```")) {
       const codeLines: string[] = [];
       i++;
@@ -84,7 +130,7 @@ function renderMarkdown(text: string): React.ReactNode {
       i++; continue;
     }
 
-    nodes.push(<p key={i} style={{ margin: "0 0 4px 0", lineHeight: 1.6 }}>{renderInline(line)}</p>);
+    nodes.push(<p key={i} style={{ margin: "0 0 5px 0", lineHeight: 1.65, fontSize: 14, color: "#D1D5DB" }}>{renderInline(line)}</p>);
     i++;
   }
 
