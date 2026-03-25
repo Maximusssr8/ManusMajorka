@@ -206,7 +206,7 @@ export default function VideoIntelligence() {
         <div>
           <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#0A0A0A', margin: 0 }}>Video Intelligence</h1>
           <p style={{ fontSize: 12, color: '#9CA3AF', margin: '3px 0 0' }}>
-            {loading ? 'Loading…' : `${videos.length} videos tracked`}
+            {loading ? 'Loading…' : `${allVideos.length} videos tracked`}
             {lastSynced && !loading && (() => {
               const mins = Math.round((Date.now() - new Date(lastSynced).getTime()) / 60000);
               const ago = mins < 1 ? 'just now' : mins < 60 ? `${mins}m ago` : `${Math.round(mins / 60)}h ago`;

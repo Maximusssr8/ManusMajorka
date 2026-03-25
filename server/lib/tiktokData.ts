@@ -37,6 +37,21 @@ const NICHE_MAP: Record<string, string> = {
   shopify: 'ecommerce', tiktokmademebuyit: 'general', productreview: 'general',
 };
 
+
+// ── In-memory cache (per Lambda instance, survives warm re-invocations) ───
+const _memCache = new Map<string, { items: any[]; expiresAt: number }>();
+
+function memRead(key: string): any[] | null {
+  const entry = _memCache.get(key);
+  if (!entry) return null;
+  if (Date.now() > entry.expiresAt) { _memCache.delete(key); return null; }
+  return entry.items;
+}
+
+function memWrite(key: string, items: any[], ttlHours = 6): void {
+  _memCache.set(key, { items, expiresAt: Date.now() + ttlHours * 3600 * 1000 });
+}
+
 export interface Creator {
   id: string;
   handle: string;
@@ -183,8 +198,12 @@ async function writeCache(key: string, items: any[], ttlHours = 6): Promise<void
 
 export async function fetchRawTikTokData(bypassCache = false): Promise<any[]> {
   if (!bypassCache) {
+    // L1: in-memory (sub-millisecond on warm Lambda)
+    const mem = memRead('tiktok_raw_au');
+    if (mem) { console.log('[tiktokData] Mem-cache hit:', mem.length, 'items'); return mem; }
+    // L2: Supabase (persistent, ~1-2s)
     const cached = await readCache('tiktok_raw_au');
-    if (cached) return cached;
+    if (cached) { memWrite('tiktok_raw_au', cached); return cached; }
   }
 
   const items = await runApifyRaw({
@@ -196,7 +215,7 @@ export async function fetchRawTikTokData(bypassCache = false): Promise<any[]> {
     shouldDownloadSlideshowImages: false,
   });
 
-  if (items.length > 0) await writeCache('tiktok_raw_au', items);
+  if (items.length > 0) { memWrite('tiktok_raw_au', items); await writeCache('tiktok_raw_au', items); }
   return items;
 }
 
@@ -298,7 +317,7 @@ export async function fetchRealVideos(): Promise<Video[]> {
         videoUrl: item.webVideoUrl || '',
         postedAt: item.createTimeISO || '',
         hashtags,
-        thumbnail: Array.isArray(item.mediaUrls) && item.mediaUrls.length > 0 ? item.mediaUrls[0] : '',
+        thumbnail: item.videoMeta?.coverUrl || item.videoMeta?.originalCoverUrl || '',
       };
     });
 
