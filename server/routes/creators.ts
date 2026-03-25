@@ -31,6 +31,8 @@ router.get('/real', async (_req: Request, res: Response) => {
   try {
     const creators = await fetchRealCreators();
     const status = await getTikTokCacheStatus();
+    // CDN edge cache: 5 min fresh, 1hr stale-while-revalidate — sub-50ms on cached edge
+    res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
     res.json({ creators, count: creators.length, last_synced: status.cached_at });
   } catch (err: any) {
     console.error('[creators/real]', err.message);
