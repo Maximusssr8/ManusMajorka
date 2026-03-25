@@ -128,22 +128,32 @@ export async function updateSubscriptionStatus(
 export async function getProductsByUserId(userId: string) {
   const db = getDb();
   if (!db) return [];
-  return db
-    .select()
-    .from(products)
-    .where(eq(products.userId, userId))
-    .orderBy(desc(products.updatedAt));
+  try {
+    return await db
+      .select()
+      .from(products)
+      .where(eq(products.userId, userId))
+      .orderBy(desc(products.updatedAt));
+  } catch (e: any) {
+    console.warn('[db] getProductsByUserId failed (table may not exist):', e.message?.slice(0, 100));
+    return [];
+  }
 }
 
 export async function getProductById(productId: string, userId: string) {
   const db = getDb();
   if (!db) return undefined;
-  const result = await db
-    .select()
-    .from(products)
-    .where(and(eq(products.id, productId), eq(products.userId, userId)))
-    .limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  try {
+    const result = await db
+      .select()
+      .from(products)
+      .where(and(eq(products.id, productId), eq(products.userId, userId)))
+      .limit(1);
+    return result.length > 0 ? result[0] : undefined;
+  } catch (e: any) {
+    console.warn('[db] getProductById failed:', e.message?.slice(0, 100));
+    return undefined;
+  }
 }
 
 export async function getProductByIdPublic(productId: string) {
@@ -156,8 +166,13 @@ export async function getProductByIdPublic(productId: string) {
 export async function createProduct(data: InsertProduct) {
   const db = getDb();
   if (!db) throw new Error('Database not available');
-  const result = await db.insert(products).values(data).returning();
-  return result[0];
+  try {
+    const result = await db.insert(products).values(data).returning();
+    return result[0];
+  } catch (e: any) {
+    console.error('[db] createProduct failed:', e.message?.slice(0, 100));
+    throw new Error('Failed to create product: ' + e.message?.slice(0, 80));
+  }
 }
 
 export async function updateProduct(
