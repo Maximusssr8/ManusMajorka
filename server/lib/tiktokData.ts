@@ -75,11 +75,17 @@ export async function fetchRawTikTokData(bypassCache = false): Promise<any[]> {
     // Search multiple hashtags, 20 results each to get ~100 items
     const input = {
       hashtags: HASHTAGS,
-      resultsPerPage: 20,
+      resultsPerPage: 30,
+      maxRequestRetries: 3,
       shouldDownloadVideos: false,
       shouldDownloadCovers: false,
+      shouldDownloadSubtitles: false,
+      shouldDownloadSlideshowImages: false,
     };
+    console.log('[tiktokData] Starting Apify run with input:', JSON.stringify(input));
     const items = await runApifyActor('clockworks~tiktok-scraper', input);
+    console.log('[tiktokData] Apify returned', items.length, 'items');
+    if (items.length > 0) console.log('[tiktokData] Sample item keys:', Object.keys(items[0]));
     return items;
   };
 

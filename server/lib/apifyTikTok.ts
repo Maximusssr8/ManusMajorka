@@ -21,11 +21,11 @@ export async function runApifyActor(actorId: string, input: Record<string, unkno
     console.log(`[apify-tiktok] Starting actor ${actorId}`);
 
     const startRes = await fetch(
-      `https://api.apify.com/v2/acts/${actorId}/runs?token=${token}`,
+      `https://api.apify.com/v2/acts/${actorId}/runs?token=${token}&memory=256`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input, memory: 256 }),
+        body: JSON.stringify(input),
         signal: AbortSignal.timeout(15000),
       }
     );
