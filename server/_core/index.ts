@@ -121,16 +121,8 @@ async function startServer() {
     res.json(agentLog);
   });
 
-  // Run DB migrations (non-fatal — gracefully skips if DB unreachable locally)
-  import('../lib/migrate-winning-products').then(({ runWinningProductsMigration }) => {
-    runWinningProductsMigration().catch(console.warn);
-  });
-  import('../migrations/runGeneratedStores').then(({ runGeneratedStoresMigration }) => {
-    runGeneratedStoresMigration().catch(console.warn);
-  });
-  import('../migrations/runUserOnboarding').then(({ runUserOnboardingMigration }) => {
-    runUserOnboardingMigration().catch(console.warn);
-  });
+  // DB migrations disabled on auto-startup — all tables already exist in Supabase.
+  // Run migrations manually via POST /api/internal/run-intel-migration if needed.
 
   // One-time intelligence tables migration endpoint
   app.post('/api/internal/run-intel-migration', async (req, res) => {
