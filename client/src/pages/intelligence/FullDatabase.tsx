@@ -780,12 +780,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         {/* Price */}
                         <td style={tdStyle('right')}>
                           <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A' }}>${price.toFixed(0)}</div>
-                          <div style={{ fontSize: 10, color: '#9CA3AF' }}>
-                            {(() => {
-                              const c = p.cost_price_aud || p.supplier_cost_aud;
-                              return c && c > 0 ? `cost ~$${c.toFixed(0)}` : region.currency;
-                            })()}
-                          </div>
+                          <div style={{ fontSize: 10, color: '#9CA3AF' }}>{region.currency}</div>
                         </td>
 
                         {/* Margin */}
@@ -894,71 +889,20 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 function SupplierFinder({ productName }: { productName: string }) {
   const enc = encodeURIComponent(productName);
   const suppliers = [
-    {
-      label: 'AliExpress',
-      icon: '🛒',
-      desc: 'Search all listings',
-      url: `https://www.aliexpress.com/wholesale?SearchText=${enc}&shipCountry=au&SortType=total_tranpro_desc`,
-      color: '#e8590c',
-      bg: '#fff5f0',
-      border: '#fcd0be',
-    },
-    {
-      label: 'Alibaba',
-      icon: '🏭',
-      desc: 'Bulk / wholesale',
-      url: `https://www.alibaba.com/trade/search?SearchText=${enc}&shipToCountry=AU&sortType=BEST_MATCH`,
-      color: '#e8590c',
-      bg: '#fff5f0',
-      border: '#fcd0be',
-    },
-    {
-      label: 'CJ Dropship',
-      icon: '📦',
-      desc: 'No MOQ dropship',
-      url: `https://cjdropshipping.com/search.html?q=${enc}`,
-      color: '#059669',
-      bg: '#F0FDF4',
-      border: '#BBF7D0',
-    },
-    {
-      label: 'DHgate',
-      icon: '🔧',
-      desc: 'Low MOQ wholesale',
-      url: `https://www.dhgate.com/wholesale/search.do?searchkey=${enc}&pt=Home`,
-      color: '#2563EB',
-      bg: '#EFF6FF',
-      border: '#BFDBFE',
-    },
-    {
-      label: 'Temu',
-      icon: '🏷️',
-      desc: 'Ultra-low prices',
-      url: `https://www.temu.com/search_result.html?search_key=${enc}`,
-      color: '#7C3AED',
-      bg: '#F5F3FF',
-      border: '#DDD6FE',
-    },
-    {
-      label: 'Made-in-China',
-      icon: '🏗️',
-      desc: 'Factory direct',
-      url: `https://www.made-in-china.com/multi-search/q-${enc.replace(/%20/g, '+')}.html`,
-      color: '#DC2626',
-      bg: '#FEF2F2',
-      border: '#FECACA',
-    },
+    { label: 'AliExpress', icon: '🛒', desc: 'Search all listings', color: '#e8590c', bg: '#fff5f0', border: '#fcd0be', url: `https://www.aliexpress.com/wholesale?SearchText=${enc}&shipCountry=au&SortType=total_tranpro_desc` },
+    { label: 'Alibaba', icon: '🏭', desc: 'Bulk / wholesale', color: '#e8590c', bg: '#fff5f0', border: '#fcd0be', url: `https://www.alibaba.com/trade/search?SearchText=${enc}&shipToCountry=AU&sortType=BEST_MATCH` },
+    { label: 'CJ Dropship', icon: '📦', desc: 'No MOQ dropship', color: '#059669', bg: '#F0FDF4', border: '#BBF7D0', url: `https://cjdropshipping.com/search.html?q=${enc}` },
+    { label: 'DHgate', icon: '🔧', desc: 'Low MOQ wholesale', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', url: `https://www.dhgate.com/wholesale/search.do?searchkey=${enc}&pt=Home` },
+    { label: 'Temu', icon: '🏷️', desc: 'Ultra-low prices', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE', url: `https://www.temu.com/search_result.html?search_key=${enc}` },
+    { label: 'Made-in-China', icon: '🏗️', desc: 'Factory direct', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA', url: `https://www.made-in-china.com/multi-search/q-${enc.replace(/%20/g, '+')}.html` },
   ];
-
   return (
     <div style={{ marginBottom: 20 }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: '#0A0A0A', marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Find Suppliers</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
         {suppliers.map(({ label, icon, desc, url, color, bg, border }) => (
           <a key={label} href={url} target="_blank" rel="noopener noreferrer"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 11px', background: bg, border: `1px solid ${border}`, borderRadius: 8, textDecoration: 'none', transition: 'opacity 0.15s' }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '0.8')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}>
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 11px', background: bg, border: `1px solid ${border}`, borderRadius: 8, textDecoration: 'none' }}>
             <span style={{ fontSize: 16 }}>{icon}</span>
             <div style={{ minWidth: 0 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color }}>{label}</div>
@@ -969,10 +913,11 @@ function SupplierFinder({ productName }: { productName: string }) {
         ))}
       </div>
       <div style={{ marginTop: 8, fontSize: 10, color: '#9CA3AF', textAlign: 'center' as const }}>
-        All links search for: <em>{productName.slice(0, 40)}{productName.length > 40 ? '…' : ''}</em>
+        Searching: <em>{productName.slice(0, 50)}{productName.length > 50 ? '…' : ''}</em>
       </div>
     </div>
   );
+}
 
 function formatFollowers(n: string | number): string {
   const num = typeof n === 'string' ? parseInt(n.replace(/[^0-9]/g, ''), 10) : n;
@@ -1086,7 +1031,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: '#F0F0F0', borderRadius: 10, overflow: 'hidden', marginBottom: 8 }}>
             {[
-              { label: 'Supplier Cost (est.)', val: cost > 0 ? `~$${cost.toFixed(2)} AUD` : '—' },
+              { label: 'AliExpress Cost', val: cost > 0 ? `~$${cost.toFixed(2)}` : '—' },
               { label: 'Suggested Retail', val: price > 0 ? `$${price.toFixed(0)}` : '—' },
               { label: 'Gross Margin', val: `${margin}%` },
               { label: 'Monthly Revenue', val: `$${revenue >= 1000 ? (revenue / 1000).toFixed(1) + 'k' : revenue}` },
@@ -1107,7 +1052,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                 🛒 View on AliExpress ↗
               </a>
             )}
-            <span style={{ fontSize: 10, color: '#9CA3AF', display: 'flex', alignItems: 'center' }}>Supplier cost sourced from Tavily/AliExpress data — your sell price is up to you</span>
+            <span style={{ fontSize: 10, color: '#9CA3AF', display: 'flex', alignItems: 'center' }}>Cost shown is estimated — verify on AliExpress</span>
           </div>
           {(() => {
             const sb = p.score_breakdown;
