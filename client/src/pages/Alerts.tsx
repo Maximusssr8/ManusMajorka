@@ -22,7 +22,6 @@ const REGIONS = ['AU', 'US', 'UK', 'CA', 'DE', 'SG'];
 export default function Alerts() {
   const { session, isPro } = useAuth();
   const isMobile = useIsMobile();
-    const [showModal, setShowModal] = useState(false);
 const [alerts, setAlerts] = useState<Alert[]>([]);
   const [history, setHistory] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -127,7 +126,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
                       <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{s.label}</div>
                       <div style={{ fontSize: 11, color: C.sub }}>{s.preview}</div>
                     </div>
-                    <button onClick={() => setShowModal(true)}
+                    <button onClick={() => setShowCreate(true)}
                       style={{ flexShrink: 0, height: 30, padding: '0 12px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                       + Set Up
                     </button>

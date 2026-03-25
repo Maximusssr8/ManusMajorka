@@ -1589,14 +1589,41 @@ export default function LearnHub() {
     [progress, userId, checkTrackCompletion]
   );
 
+  // Plan check — dual-listener pattern (same as FullDatabase)
+  const [userPlan, setUserPlan] = useState<'free' | 'builder' | 'scale'>('free');
+  useEffect(() => {
+    async function checkPlan(token: string | undefined) {
+      if (!token) return;
+      try {
+        const res = await fetch('/api/subscription/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const sub = await res.json();
+          if (['active', 'trialing'].includes(sub.status || '')) {
+            const p = (sub.plan || '').toLowerCase();
+            setUserPlan(p === 'scale' ? 'scale' : p === 'builder' ? 'builder' : 'free');
+          }
+        }
+      } catch { /* silently fail */ }
+    }
+    supabase.auth.getSession().then(({ data }) => checkPlan(data.session?.access_token));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      checkPlan(session?.access_token);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   const handleLessonClick = useCallback((lesson: Lesson) => {
-    if (!lesson.free) {
+    // Scale and Builder plans have full access; free users only get free lessons
+    const hasPaid = userPlan === 'scale' || userPlan === 'builder';
+    if (!lesson.free && !hasPaid) {
       setUpgradeOpen(true);
       return;
     }
     setSelectedLesson(lesson);
     setLessonModalOpen(true);
-  }, []);
+  }, [userPlan]);
 
   const handlePlaylistToggle = useCallback((lessonId: string) => {
     setPlaylist((prev) => {

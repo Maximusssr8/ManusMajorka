@@ -127,13 +127,50 @@ Niche: ${niche || 'General'}
 
 In 4 sections (Target Customer / Best Ad Angle / Seasonal / Risk Factors):
 Be specific to the Australian market. Keep each section 2-3 sentences. No bullet points.`;
+    } else if (tool === 'tiktok_hooks' || tool === 'tiktok-hooks') {
+      const p = req.body.product || req.body.productName || req.body.name || 'the product';
+      const n = req.body.niche || '';
+      prompt = `Generate 5 high-converting TikTok hooks for "${p}"${n ? ` in the ${n} niche` : ''}.
+Each hook is 3-7 words. Trigger curiosity, FOMO, or strong emotion. No [brackets] or placeholders.
+Format:
+Hook 1: [hook text]
+Hook 2: [hook text]
+Hook 3: [hook text]
+Hook 4: [hook text]
+Hook 5: [hook text]
+Why it works: [1 sentence per hook]`;
+    } else if (tool === 'product_description' || tool === 'product-description') {
+      const p = req.body.product || req.body.productName || 'the product';
+      const aud = req.body.audience || 'Australian shoppers';
+      prompt = `Write a Shopify product description for "${p}" targeting ${aud}.
+Format: Bold title, 2 benefit-focused paragraphs, 5 bullet points, shipping note. Under 300 words.`;
+    } else if (tool === 'email_subject_lines' || tool === 'email-subject-lines') {
+      const p = req.body.product || req.body.productName || 'the product';
+      const brand = req.body.brand || 'our store';
+      prompt = `Write 5 high open-rate email subject lines for a ${req.body.type || 'launch'} email about "${p}" from "${brand}".
+Format: numbered list, one subject line per line. Include emojis. Target Australian shoppers.`;
+    } else if (tool === 'hashtags') {
+      const p = req.body.product || req.body.productName || '';
+      const n = req.body.niche || p;
+      prompt = `Generate hashtag packs for the "${n}" niche targeting Australian TikTok and Instagram audiences.
+Format:
+MEGA (10M+ posts): #tag1 #tag2 #tag3 #tag4 #tag5
+MACRO (1M-10M posts): #tag1 #tag2 #tag3 #tag4 #tag5
+MICRO (100K-1M posts): #tag1 #tag2 #tag3 #tag4 #tag5
+NICHE (under 100K posts): #tag1 #tag2 #tag3 #tag4 #tag5
+AU-SPECIFIC: #tag1 #tag2 #tag3 #tag4 #tag5`;
+    } else if (tool === 'store_name' || tool === 'store-name') {
+      const n = req.body.niche || req.body.product || 'general';
+      prompt = `Generate 5 memorable store name ideas for a ${n} dropshipping store targeting Australian customers.
+Requirements: memorable, likely .com.au available, professional, not generic.
+Format: numbered list, one name per line, include a brief (3-word) tagline after each name.`;
     } else {
-      return res.status(400).json({ error: 'Unknown tool' });
+      return res.status(400).json({ error: 'Unknown tool: ' + tool });
     }
 
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 500,
+      max_tokens: 600,
       messages: [{ role: 'user', content: prompt }],
     });
 
@@ -230,17 +267,18 @@ Format:
 
 Length: 400-600 words. Start with a brief intro, then dive into the content.`;
     } else if (tool === 'hook-generator') {
-      prompt = `Generate 5 high-converting TikTok hooks for a product called "\${productName || niche}".
-Each hook should be 3-7 words max and trigger curiosity, FOMO, or a strong emotion.
-Format:
-1. [hook]
-2. [hook]
-3. [hook]
-4. [hook]
-5. [hook]
-Then give a brief (1 sentence) explanation of why each hook works psychologically.`;
+      prompt = `Generate 5 high-converting TikTok video hooks for "${productName || niche || 'this product'}".
+Each hook must be 3-7 words. No brackets, no placeholders, write real hooks.
+Trigger one of: curiosity, FOMO, social proof, or shock.
+Format exactly:
+Hook 1: [actual hook text here]
+Hook 2: [actual hook text here]
+Hook 3: [actual hook text here]
+Hook 4: [actual hook text here]
+Hook 5: [actual hook text here]
+Why it works: [one sentence per hook explaining the psychology]`;
     } else if (tool === 'livestream-script') {
-      prompt = `Write a 5-minute TikTok livestream script for selling "\${productName || niche}" to Australian dropshipping customers.
+      prompt = `Write a 5-minute TikTok livestream script for selling "${productName || niche || 'this product'}" to Australian dropshipping customers.
 Structure: Opening hook (30s) → Product demo (2min) → Testimonials/social proof (1min) → Scarcity close (90s) → CTA.
 Use conversational Australian English. Include stage directions in [brackets].`;
     } else if (tool === 'hashtags') {

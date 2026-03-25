@@ -341,26 +341,39 @@ function AdSpyContent() {
     setGenerating(true);
     setGenError('');
     setResult(null);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 25000); // 25s timeout
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           stream: false,
           messages: [{ role: 'user', content: `Find winning ads for: ${query}` }],
           systemPrompt: AD_SPY_SYSTEM_PROMPT,
         }),
       });
+      clearTimeout(timeout);
+      if (!res.ok) {
+        setGenError(`Search failed (${res.status}). Please try again.`);
+        return;
+      }
       const data = await res.json();
       const text = data.response || data.message || data.content || '';
       const parsed = parseAds(text);
       if (parsed) {
         setResult(parsed);
       } else {
-        setGenError('Could not parse ad results. Please try again.');
+        setGenError('No results found for that keyword. Try a different niche or product type.');
       }
-    } catch {
-      setGenError('Network error. Please try again.');
+    } catch (err: any) {
+      clearTimeout(timeout);
+      if (err?.name === 'AbortError') {
+        setGenError('Search timed out. The AI took too long — please try a shorter keyword.');
+      } else {
+        setGenError('Network error. Please check your connection and try again.');
+      }
     } finally {
       setGenerating(false);
     }
