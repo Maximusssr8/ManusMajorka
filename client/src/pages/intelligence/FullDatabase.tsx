@@ -243,12 +243,27 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     sortBy: 'revenue' as 'revenue' | 'score' | 'margin' | 'growth' | 'newest',
   });
 
-  // Plan check (simple)
+  // Plan check — real subscription API
   const [userPlan, setUserPlan] = useState<'free' | 'builder' | 'scale'>('free');
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(async ({ data }) => {
       const email = data.session?.user?.email;
-      if (email === 'maximusmajorka@gmail.com') setUserPlan('scale');
+      const token = data.session?.access_token;
+      // Admin bypass
+      if (email === 'maximusmajorka@gmail.com') { setUserPlan('scale'); return; }
+      // Real subscription check
+      if (!token) return;
+      try {
+        const res = await fetch('/api/subscription/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const sub = await res.json();
+          if (sub.status === 'active') {
+            setUserPlan(sub.plan === 'scale' ? 'scale' : sub.plan === 'builder' ? 'builder' : 'free');
+          }
+        }
+      } catch { /* silently fail — stay on free */ }
     });
   }, []);
 
@@ -602,7 +617,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   Score <SortIcon col="winning_score" />
                 </th>
                 <th style={{ ...thStyle('creators', 84, 'center'), cursor: 'default' }}>Creators</th>
-                <th style={{ ...thStyle('actions', 170, 'center'), cursor: 'default' }}>Actions</th>
+                <th style={{ ...thStyle('actions', 240, 'center'), cursor: 'default' }}>Actions</th>
               </tr>
             </thead>
 
@@ -759,7 +774,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         <td style={tdStyle('center')}>
                           {userPlan === 'free' ? (
                             <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
-                              <div style={{ filter: 'blur(4px)', fontSize: 14, fontWeight: 700, color: '#0A0A0A', userSelect: 'none' as const }}>
+                              <div style={{ filter: 'none', fontSize: 14, fontWeight: 700, color: '#0A0A0A', userSelect: 'auto' as const }}>
                                 {Math.floor(50 + (score * 8))}
                               </div>
                               <div title="Upgrade to see creator counts" style={{ position: 'absolute', top: -2, right: -2, fontSize: 10 }}>{'\uD83D\uDD12'}</div>
