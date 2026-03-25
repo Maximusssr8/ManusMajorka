@@ -1,14 +1,21 @@
 /**
  * Shared TikTok data layer — ONE Apify run feeds both Creator Intel and Video Intel.
- * Actor: clockworks/tiktok-scraper (via apify-client SDK)
+ * Actor: clockworks/tiktok-scraper
  *
- * Key findings from testing:
- * - searchQueries: 5s/query (much faster than hashtags: 27s)
- * - hashtag objects are {name: "..."}, not plain strings
- * - apify-client SDK is more reliable than raw REST for this actor
+ * Uses raw REST API (same pattern as apifyAliExpress.ts which is proven to work).
+ * apify-client SDK was unreliable in the CJS-bundled Vercel Lambda.
+ *
+ * Key learnings:
+ * - Input fields must be FLAT in POST body (not nested under {input: {...}})
+ * - searchQueries mode: ~5s per query (much faster than hashtags: ~27s)
+ * - Hashtag objects: {name: "..."} — always extract .name
  */
-import { ApifyClient } from 'apify-client';
+
 import { getSupabaseAdmin } from '../_core/supabase';
+
+const ACTOR = 'clockworks~tiktok-scraper';
+const POLL_INTERVAL_MS = 3000;
+const MAX_POLLS = 18; // 54s max — under Vercel maxDuration=300 but safe
 
 const SEARCH_QUERIES = [
   'tiktokmademebuyit',
@@ -58,7 +65,83 @@ export interface Video {
   thumbnail: string;
 }
 
-// ── Supabase cache helpers ─────────────────────────────────────────────────
+// ── Raw REST Apify call ────────────────────────────────────────────────────
+
+async function runApifyRaw(input: Record<string, unknown>): Promise<any[]> {
+  const token = process.env.APIFY_API_KEY || process.env.APIFY_API_TOKEN;
+  if (!token) {
+    console.error('[tiktokData] No APIFY token set');
+    return [];
+  }
+
+  console.log('[tiktokData] Token present:', !!token, 'len:', token.length);
+  console.log('[tiktokData] Input:', JSON.stringify(input));
+
+  // Start actor run — body IS the input (flat, not nested)
+  let startData: any;
+  try {
+    const startRes = await fetch(
+      `https://api.apify.com/v2/acts/${ACTOR}/runs?token=${token}&memory=256`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+        signal: AbortSignal.timeout(20000),
+      }
+    );
+    console.log('[tiktokData] Start response status:', startRes.status);
+    const startText = await startRes.text();
+    console.log('[tiktokData] Start response (first 500):', startText.slice(0, 500));
+    if (!startRes.ok) return [];
+    startData = JSON.parse(startText);
+  } catch (err: any) {
+    console.error('[tiktokData] Start run error:', err.message);
+    return [];
+  }
+
+  const runId = startData?.data?.id;
+  if (!runId) {
+    console.error('[tiktokData] No run ID in response');
+    return [];
+  }
+  console.log('[tiktokData] Run started:', runId);
+
+  // Poll for completion
+  for (let i = 0; i < MAX_POLLS; i++) {
+    await new Promise(r => setTimeout(r, POLL_INTERVAL_MS));
+    try {
+      const statusRes = await fetch(
+        `https://api.apify.com/v2/acts/${ACTOR}/runs/${runId}?token=${token}`,
+        { signal: AbortSignal.timeout(10000) }
+      );
+      const statusData: any = await statusRes.json();
+      const status = statusData?.data?.status;
+      console.log(`[tiktokData] Poll ${i + 1}: ${status}`);
+
+      if (status === 'SUCCEEDED') {
+        const datasetId = statusData.data.defaultDatasetId;
+        const itemsRes = await fetch(
+          `https://api.apify.com/v2/datasets/${datasetId}/items?token=${token}&clean=true`,
+          { signal: AbortSignal.timeout(15000) }
+        );
+        const items = await itemsRes.json();
+        console.log('[tiktokData] Items fetched:', Array.isArray(items) ? items.length : 'not array');
+        return Array.isArray(items) ? items : [];
+      }
+      if (status === 'FAILED' || status === 'ABORTED' || status === 'TIMED-OUT') {
+        console.error('[tiktokData] Run', status);
+        return [];
+      }
+    } catch (err: any) {
+      console.warn('[tiktokData] Poll error:', err.message);
+    }
+  }
+
+  console.warn('[tiktokData] Poll timeout after', MAX_POLLS, 'attempts');
+  return [];
+}
+
+// ── Supabase cache ─────────────────────────────────────────────────────────
 
 async function readCache(key: string): Promise<any[] | null> {
   try {
@@ -69,71 +152,52 @@ async function readCache(key: string): Promise<any[] | null> {
       .eq('cache_key', key)
       .single();
     if (error || !data) return null;
-    if (new Date(data.expires_at) < new Date()) return null; // expired
+    if (new Date(data.expires_at) < new Date()) {
+      console.log('[tiktokData] Cache expired for', key);
+      return null;
+    }
+    console.log('[tiktokData] Cache hit:', key);
     return Array.isArray(data.data) ? data.data : null;
-  } catch { return null; }
+  } catch (e) {
+    console.warn('[tiktokData] Cache read error (table may not exist):', e);
+    return null;
+  }
 }
 
 async function writeCache(key: string, items: any[], ttlHours = 6): Promise<void> {
+  if (!items.length) return; // never cache empty
   try {
-    if (!items.length) return; // never cache empty results
     const sb = getSupabaseAdmin();
     const expiresAt = new Date(Date.now() + ttlHours * 3600 * 1000).toISOString();
     await sb.from('apify_cache').upsert(
       { cache_key: key, data: items, fetched_at: new Date().toISOString(), expires_at: expiresAt },
       { onConflict: 'cache_key' }
     );
-  } catch (e) { console.warn('[tiktokData] Cache write failed (table may not exist):', e); }
+    console.log('[tiktokData] Cache written:', key, items.length, 'items');
+  } catch (e) {
+    console.warn('[tiktokData] Cache write error:', e);
+  }
 }
 
-// ── Raw data fetch ─────────────────────────────────────────────────────────
+// ── Raw data fetch (cached 6h) ─────────────────────────────────────────────
 
 export async function fetchRawTikTokData(bypassCache = false): Promise<any[]> {
   if (!bypassCache) {
     const cached = await readCache('tiktok_raw_au');
-    if (cached) {
-      console.log('[tiktokData] Cache hit —', cached.length, 'items');
-      return cached;
-    }
+    if (cached) return cached;
   }
 
-  const token = process.env.APIFY_API_KEY || process.env.APIFY_API_TOKEN;
-  if (!token) {
-    console.error('[tiktokData] No APIFY token');
-    return [];
-  }
-
-  console.log('[apify-tiktok] Token exists:', !!token, '| key length:', token?.length);
-  console.log('[apify-tiktok] Starting Apify run (searchQueries, 5 terms)...');
-  const client = new ApifyClient({ token });
-
-  const input = {
+  const items = await runApifyRaw({
     searchQueries: SEARCH_QUERIES,
     resultsPerPage: 20,
     shouldDownloadVideos: false,
     shouldDownloadCovers: false,
     shouldDownloadSubtitles: false,
     shouldDownloadSlideshowImages: false,
-  };
-  console.log('[apify-tiktok] Input being sent:', JSON.stringify(input));
+  });
 
-  try {
-    const run = await client.actor('clockworks/tiktok-scraper').call(input, { waitSecs: 55 });
-
-    console.log('[tiktokData] Run', run.id, 'status:', run.status);
-    const { items } = await client.dataset(run.defaultDatasetId).listItems();
-    console.log('[tiktokData] Apify returned', items.length, 'items');
-
-    if (items.length > 0) {
-      await writeCache('tiktok_raw_au', items);
-    }
-
-    return items;
-  } catch (err: any) {
-    console.error('[apify-tiktok] Run FAILED:', err.message);
-    console.error('[apify-tiktok] Full error:', JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
-    return [];
-  }
+  if (items.length > 0) await writeCache('tiktok_raw_au', items);
+  return items;
 }
 
 // ── Niche detection ────────────────────────────────────────────────────────
@@ -150,8 +214,7 @@ function detectNiche(hashtags: any[]): string {
     const mapped = NICHE_MAP[tag];
     if (mapped) counts[mapped] = (counts[mapped] || 0) + 1;
   }
-  let best = 'general';
-  let bestCount = 0;
+  let best = 'general', bestCount = 0;
   for (const [niche, count] of Object.entries(counts)) {
     if (count > bestCount) { best = niche; bestCount = count; }
   }
@@ -167,8 +230,9 @@ export async function fetchRealCreators(): Promise<Creator[]> {
   const authorMap = new Map<string, { meta: any; videos: any[] }>();
   for (const item of raw) {
     const author = item.authorMeta;
-    if (!author?.id && !author?.name) continue;
+    if (!author) continue;
     const key = author.id || author.name;
+    if (!key) continue;
     const existing = authorMap.get(key);
     if (existing) { existing.videos.push(item); }
     else { authorMap.set(key, { meta: author, videos: [item] }); }
@@ -234,8 +298,7 @@ export async function fetchRealVideos(): Promise<Video[]> {
         videoUrl: item.webVideoUrl || '',
         postedAt: item.createTimeISO || '',
         hashtags,
-        thumbnail: Array.isArray(item.mediaUrls) && item.mediaUrls.length > 0
-          ? item.mediaUrls[0] : '',
+        thumbnail: Array.isArray(item.mediaUrls) && item.mediaUrls.length > 0 ? item.mediaUrls[0] : '',
       };
     });
 
