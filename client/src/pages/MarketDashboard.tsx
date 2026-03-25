@@ -364,7 +364,11 @@ export default function MarketDashboard() {
               {loading ? (
                 <div className="p-4 text-sm" style={{ color: '#475569' }}>Loading…</div>
               ) : categories.length === 0 ? (
-                <div className="p-4 text-sm" style={{ color: '#475569' }}>No category data yet</div>
+                <div style={{ textAlign: 'center' as const, padding: '32px 16px' }}>
+                  <div style={{ fontSize: 32, marginBottom: 8 }}>📊</div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A', marginBottom: 4 }}>Category data loading</div>
+                  <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>Category rankings update nightly from TikTok Shop signals</div>
+                </div>
               ) : (
                 categories.map((cat) => (
                   <div

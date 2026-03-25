@@ -1228,6 +1228,13 @@ TABLES:
 - `SHOPIFY_REDIRECT_URI`
 - `SHOPIFY_SCOPES`
 
+### Upstash Rate Limiting (AI endpoints)
+- `UPSTASH_REDIS_REST_URL` — from upstash.com → your DB → REST API tab
+- `UPSTASH_REDIS_REST_TOKEN` — from upstash.com → your DB → REST API tab
+- Rate limiter: sliding window 10 req/user/60s on `/api/ai/generate`
+- Code: `server/lib/ratelimit.ts` (fails open if env vars not set — safe to deploy without)
+- To activate: create free Redis DB at upstash.com → copy URL + TOKEN → add to Vercel env vars
+
 ### Key files
 - `server/lib/shopify.ts` — OAuth client, HMAC verification
 - `server/routes/shopify.ts` — auth, callback, status, disconnect

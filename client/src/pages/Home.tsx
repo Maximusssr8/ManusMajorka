@@ -1497,7 +1497,7 @@ export default function Home() {
           {/* ── Center: Nav links (desktop only) ── */}
           {!isMobile && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              {[['#features', 'Features'], ['#pricing', 'Pricing']].map(([href, label]) => (
+              {[['https://majorka.io/#features', 'Features'], ['https://majorka.io/#pricing', 'Pricing']].map(([href, label]) => (
                 <a key={label} href={href} style={{ color: '#6B7280', textDecoration: 'none', fontSize: 14, fontWeight: 500, padding: '6px 12px', borderRadius: 7, transition: 'color 120ms, background 120ms' }}
                   onMouseEnter={(e) => { e.currentTarget.style.color = '#111827'; e.currentTarget.style.background = '#F3F4F6'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.background = 'transparent'; }}>
@@ -1533,7 +1533,7 @@ export default function Home() {
         {/* ── Mobile drawer ── */}
         {isMobile && mobileMenuOpen && (
           <div style={{ borderTop: '1px solid #E5E7EB', background: 'rgba(250,250,250,0.97)', padding: '8px 16px 16px' }}>
-            {[['#features', 'Features'], ['#pricing', 'Pricing'], ['/sign-in', 'Log in']].map(([href, label]) => (
+            {[['https://majorka.io/#features', 'Features'], ['https://majorka.io/#pricing', 'Pricing'], ['/sign-in', 'Log in']].map(([href, label]) => (
               <a key={label} href={href} onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', color: '#374151', textDecoration: 'none', fontSize: 15, fontWeight: 500, padding: '12px 8px', borderBottom: '1px solid #F3F4F6' }}>{label}</a>
             ))}
           </div>
@@ -1714,6 +1714,51 @@ export default function Home() {
           [Testimonials section — add real customer quotes here]
         </div>
       )}
+
+      {/* ═══ COMPARISON TABLE ════════════════════════════════════════════ */}
+      <section style={{ padding: '80px 24px', background: 'white' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto' }}>
+          <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', letterSpacing: '-0.025em', textAlign: 'center', marginBottom: 8, color: '#0A0A0A' }}>
+            Why teams switch to Majorka
+          </h2>
+          <p style={{ textAlign: 'center', color: '#6B7280', fontSize: 15, marginBottom: 40, maxWidth: 520, margin: '0 auto 40px' }}>
+            One platform replaces your entire stack — at a fraction of the cost.
+          </p>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #E5E7EB' }}>
+                  <th style={{ textAlign: 'left', padding: '12px 16px', color: '#9CA3AF', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Feature</th>
+                  <th style={{ textAlign: 'center', padding: '12px 16px', color: '#6366F1', fontSize: 13, fontWeight: 700 }}>Majorka</th>
+                  <th style={{ textAlign: 'center', padding: '12px 16px', color: '#9CA3AF', fontSize: 13, fontWeight: 600 }}>Minea</th>
+                  <th style={{ textAlign: 'center', padding: '12px 16px', color: '#9CA3AF', fontSize: 13, fontWeight: 600 }}>Sell The Trend</th>
+                  <th style={{ textAlign: 'center', padding: '12px 16px', color: '#9CA3AF', fontSize: 13, fontWeight: 600 }}>Manual Research</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { feature: 'AI Winning Product Score', majorka: true, minea: false, stt: false, manual: false },
+                  { feature: 'TikTok Shop Data', majorka: true, minea: true, stt: false, manual: false },
+                  { feature: 'AliExpress Supplier Match', majorka: true, minea: false, stt: true, manual: true },
+                  { feature: 'Competitor Store Spy', majorka: true, minea: true, stt: true, manual: false },
+                  { feature: 'AI Store Builder', majorka: true, minea: false, stt: false, manual: false },
+                  { feature: 'AU Market Optimised', majorka: true, minea: false, stt: false, manual: false },
+                  { feature: 'Profit Calculator', majorka: true, minea: false, stt: true, manual: true },
+                  { feature: 'Free Plan Available', majorka: true, minea: false, stt: false, manual: true },
+                ].map((row, i) => (
+                  <tr key={row.feature} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
+                    <td style={{ padding: '12px 16px', fontWeight: 500, color: '#374151' }}>{row.feature}</td>
+                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.majorka ? <span style={{ color: '#6366F1', fontWeight: 700 }}>✓</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
+                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.minea ? <span style={{ color: '#22C55E' }}>✓</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
+                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.stt ? <span style={{ color: '#22C55E' }}>✓</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
+                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.manual ? <span style={{ color: '#22C55E' }}>✓</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
       {/* ═══ TRUST BADGES ══════════════════════════════════════════════════ */}
       <section style={{ padding: '32px 24px', background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
@@ -1930,7 +1975,7 @@ export default function Home() {
             <div>
               <h4 style={{ fontSize: 13, fontWeight: 700, color: 'white', marginBottom: 16, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Product</h4>
               {[
-                { label: 'Features', href: '/#features' },
+                { label: 'Features', href: 'https://majorka.io/#features' },
                 { label: 'Pricing', href: '/pricing' },
                 { label: 'Store Builder', href: '/store-builder' },
                 { label: 'Product Intelligence', href: '/app/intelligence' },
@@ -1946,7 +1991,6 @@ export default function Home() {
             <div>
               <h4 style={{ fontSize: 13, fontWeight: 700, color: 'white', marginBottom: 16, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Company</h4>
               {[
-                { label: 'About', href: '#' },
                 { label: 'Academy', href: '/app/learn' },
                 { label: 'Affiliate', href: '/app/affiliate' },
                 { label: 'Contact', href: 'mailto:hello@majorka.io' },
