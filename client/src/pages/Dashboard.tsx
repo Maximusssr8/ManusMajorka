@@ -115,7 +115,7 @@ export default function Dashboard() {
   }, [location, isToolPage]);
 
   return (
-    <MajorkaAppShell>
+    <>
       <div data-tour="dashboard" className="h-full">
         {isToolPage ? <ToolPage /> : <DashboardHome />}
       </div>
@@ -123,7 +123,7 @@ export default function Dashboard() {
       {user && <WelcomeModal userName={user.name ?? undefined} />}
       {showRegionOnboarding && <OnboardingRegionModal onComplete={() => setShowRegionOnboarding(false)} />}
       <ProductTour />
-    </MajorkaAppShell>
+    </>
   );
 }
 

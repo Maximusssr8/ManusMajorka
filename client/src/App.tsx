@@ -7,6 +7,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { capture } from '@/lib/posthog';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import MajorkaAppShell from './components/MajorkaAppShell';
 import { AuthProvider } from './contexts/AuthContext';
 import { MarketProvider } from './contexts/MarketContext';
 import { ProductProvider } from './contexts/ProductContext';
@@ -105,6 +106,15 @@ const LOADING_BAR_CSS = `
   }
 `;
 
+// Wraps any app page with the persistent sidebar shell
+function AppLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <MajorkaAppShell>
+      {children}
+    </MajorkaAppShell>
+  );
+}
+
 function Router() {
   const [location] = useLocation();
   const [showBar, setShowBar] = useState(false);
@@ -182,42 +192,42 @@ function Router() {
             <Route path="/app/knowledge-base">
               {() => (
                 <ProtectedRoute>
-                  <KnowledgeBase />
+                  <AppLayout><KnowledgeBase /></AppLayout>
                 </ProtectedRoute>
               )}
             </Route>
-            <Route path="/app/ad-spy">{() => <ProtectedRoute><AdSpy /></ProtectedRoute>}</Route>
+            <Route path="/app/ad-spy">{() => <ProtectedRoute><AppLayout><AdSpy /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/learn">
               {() => (
                 <ProtectedRoute>
-                  <LearnHub />
+                  <AppLayout><LearnHub /></AppLayout>
                 </ProtectedRoute>
               )}
             </Route>
             <Route path="/app/admin">
               {() => (
                 <ProtectedRoute>
-                  <AdminControlPanel />
+                  <AppLayout><AdminControlPanel /></AppLayout>
                 </ProtectedRoute>
               )}
             </Route>
             <Route path="/app">
               {() => (
                 <ProtectedRoute>
-                  <Dashboard />
+                  <AppLayout><Dashboard /></AppLayout>
                 </ProtectedRoute>
               )}
             </Route>
-            <Route path="/app/settings">{() => <ProtectedRoute><SettingsProfile /></ProtectedRoute>}</Route>
+            <Route path="/app/settings">{() => <ProtectedRoute><AppLayout><SettingsProfile /></AppLayout></ProtectedRoute>}</Route>
 
             {/* Redirects for consolidated pages */}
             <Route path="/app/trend-signals">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/winning-products">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             {/* Both routes render WebsiteGenerator — ToolPage handles both via location check */}
             <Route path="/app/product-discovery">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
-            <Route path="/app/market">{() => <ProtectedRoute><MarketDashboard /></ProtectedRoute>}</Route>
-            <Route path="/app/creators">{() => <ProtectedRoute><CreatorIntelligence /></ProtectedRoute>}</Route>
-            <Route path="/app/videos">{() => <ProtectedRoute><VideoIntelligence /></ProtectedRoute>}</Route>
+            <Route path="/app/market">{() => <ProtectedRoute><AppLayout><MarketDashboard /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/creators">{() => <ProtectedRoute><AppLayout><CreatorIntelligence /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/videos">{() => <ProtectedRoute><AppLayout><VideoIntelligence /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/meta-ads">{() => { window.location.replace('/app/growth'); return null; }}</Route>
             <Route path="/app/copywriter">{() => { window.location.replace('/app/growth'); return null; }}</Route>
             <Route path="/app/brand-dna">{() => { window.location.replace('/app/growth'); return null; }}</Route>
@@ -226,11 +236,11 @@ function Router() {
             <Route path="/app/profit-check">{() => { window.location.replace('/app/profit'); return null; }}</Route>
 
             {/* New consolidated routes */}
-            <Route path="/app/intelligence">{() => <ProtectedRoute><ProductIntelligence /></ProtectedRoute>}</Route>
-            <Route path="/app/alerts">{() => <ProtectedRoute><Alerts /></ProtectedRoute>}</Route>
-            <Route path="/app/spy">{() => <ProtectedRoute><SpyTools /></ProtectedRoute>}</Route>
-            <Route path="/app/growth">{() => <ProtectedRoute><GrowthTools /></ProtectedRoute>}</Route>
-            <Route path="/app/profit">{() => <ProtectedRoute><ProfitCalculator /></ProtectedRoute>}</Route>
+            <Route path="/app/intelligence">{() => <ProtectedRoute><AppLayout><ProductIntelligence /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/alerts">{() => <ProtectedRoute><AppLayout><Alerts /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/spy">{() => <ProtectedRoute><AppLayout><SpyTools /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/growth">{() => <ProtectedRoute><AppLayout><GrowthTools /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/profit">{() => <ProtectedRoute><AppLayout><ProfitCalculator /></AppLayout></ProtectedRoute>}</Route>
 
             <Route path="/app/shops/:id">
               {() => (
@@ -282,7 +292,7 @@ function Router() {
             <Route path="/app/:tool">
               {() => (
                 <ProtectedRoute>
-                  <Dashboard />
+                  <AppLayout><Dashboard /></AppLayout>
                 </ProtectedRoute>
               )}
             </Route>
