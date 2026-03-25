@@ -973,8 +973,7 @@ function SupplierFinder({ productName }: { productName: string }) {
       </div>
     </div>
   );
-}: { productName: string; aliUrl?: string }) {
-  const [results, setResults] = useState<Array<{ title: string; url: string; snippet: string }>>([]);
+>>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
 
