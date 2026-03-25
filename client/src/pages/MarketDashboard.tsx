@@ -201,8 +201,8 @@ export default function MarketDashboard() {
     try {
       // Use API endpoints (service role key) — avoids RLS blocks on anon key
       const [prodRes, creatorRes] = await Promise.all([
-        fetch('/api/products?limit=10&sortBy=winning_score&sortDir=desc'),
-        fetch('/api/creators?limit=100'),
+        fetch('/api/products?limit=200&sortBy=winning_score&sortDir=desc'),
+        fetch('/api/creators?limit=200'),
       ]);
 
       const prodJson = prodRes.ok ? await prodRes.json() : {};
