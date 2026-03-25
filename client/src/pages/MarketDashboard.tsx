@@ -198,8 +198,11 @@ export default function MarketDashboard() {
         fetch('/api/creators?limit=100'),
       ]);
 
-      const prodData = prodRes.ok ? await prodRes.json() : { products: [], total: 0 };
-      const creatorData = creatorRes.ok ? await creatorRes.json() : { creators: [] };
+      const prodJson = prodRes.ok ? await prodRes.json() : {};
+      const creatorJson = creatorRes.ok ? await creatorRes.json() : {};
+
+      const prodData = { products: prodJson.products || [], total: prodJson.total || 0 };
+      const creatorData = { creators: creatorJson.creators || [], total: creatorJson.total || 0 };
 
       const prods: WinningProduct[] = (prodData.products || []) as WinningProduct[];
       const creators = (creatorData.creators || []);
@@ -325,7 +328,7 @@ export default function MarketDashboard() {
                       <td className="px-4 py-3 text-sm font-mono" style={{ color: '#475569' }}>{i + 1}</td>
                       <td className="px-4 py-3">
                         <p className="text-sm font-medium" style={{ color: '#0F172A', fontFamily: 'DM Sans, sans-serif' }}>{p.product_title}</p>
-                        <p className="text-xs" style={{ color: '#475569' }}>${p.price_aud?.toFixed(2)} AUD</p>
+                        <p className="text-xs" style={{ color: '#475569' }}>${(p.price_aud ?? 0).toFixed(2)} AUD</p>
                         <QuickActions productTitle={p.product_title} priceAud={p.price_aud ?? 0} category={p.category ?? ''} />
                       </td>
                       <td className="px-4 py-3 text-xs" style={{ color: '#94a3b8' }}>{p.category}</td>
@@ -377,7 +380,7 @@ export default function MarketDashboard() {
                         {fmtAUD(cat.total_gmv_aud)}
                       </p>
                       <p className="text-xs" style={{ color: cat.winning_score >= 0 ? '#22c55e' : '#ef4444' }}>
-                        {cat.winning_score >= 0 ? '+' : ''}{cat.winning_score?.toFixed(1)}% growth
+                        {cat.winning_score >= 0 ? '+' : ''}{(cat.winning_score ?? 0).toFixed(1)}% growth
                       </p>
                     </div>
                   </div>
