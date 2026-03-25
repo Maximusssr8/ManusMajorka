@@ -19,7 +19,7 @@ const SIGNAL_META: Record<string, { label: string; color: string; bg: string; do
   MEDIUM: { label: '📊 MEDIUM', color: '#B45309', bg: '#FEF3C7',  dot: '#D97706' },
 };
 
-const NICHES = ['beauty','fitness','home decor','pet care','tech accessories','fashion','health','kitchen'];
+const NICHES = ['beauty','fitness','home decor','pet care','health','kitchen'];
 
 interface Video {
   id?: string;

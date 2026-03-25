@@ -593,7 +593,7 @@ function DashboardHome() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       const token = data?.session?.access_token;
-      fetch('/api/products/search?limit=5&sort=winning_score&order=desc', {
+      fetch('/api/products?limit=5&sortBy=winning_score&sortDir=desc', {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
         .then(r => r.json())
@@ -750,7 +750,7 @@ function DashboardHome() {
                 {products.length === 0 ? (
                   <div style={{ padding: '32px 24px', textAlign: 'center', color: '#9CA3AF', fontSize: 13 }}>
                     <div style={{ fontSize: 24, marginBottom: 8 }}>📊</div>
-                    Loading product data...
+                    No products found. Check back soon →
                   </div>
                 ) : null}
                 {(products.slice(0, 5)).map((p: any, i: number) => {

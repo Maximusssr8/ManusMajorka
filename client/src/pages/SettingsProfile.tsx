@@ -249,7 +249,7 @@ export default function SettingsProfile() {
   ];
 
   return (
-    <MajorkaAppShell>
+    <>
       <div className="h-full overflow-auto" style={{ background: '#FAFAFA' }}>
         <div className="max-w-3xl mx-auto px-6 py-8">
           {/* Header */}
@@ -804,6 +804,6 @@ export default function SettingsProfile() {
           )}
         </div>
       </div>
-    </MajorkaAppShell>
+    </>
   );
 }

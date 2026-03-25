@@ -191,14 +191,14 @@ function CompetitorSpy() {
           ) : products.length === 0 ? (
             <div style={{ padding: 40, textAlign: 'center' as const }}>
               <div style={{ fontSize: 36, marginBottom: 12 }}>🕵️</div>
-              <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 16, color: '#0A0A0A', marginBottom: 6 }}>No spy data yet</div>
-              <div style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 16 }}>Click "Refresh Stores" to scrape AU competitor stores</div>
-              <button onClick={triggerRefresh} disabled={refreshing}
-                style={{ height: 38, padding: '0 20px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms' }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.02)'; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = ''; }}>
-                Start Scraping
-              </button>
+              <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 16, color: '#0A0A0A', marginBottom: 6 }}>Competitor data pipeline warming up</div>
+              <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 8, lineHeight: 1.6 }}>
+                We're building live store tracking for 20 AU competitor stores.<br />
+                Data is collected nightly — check back tomorrow for your first snapshot.
+              </div>
+              <div style={{ fontSize: 11, color: '#9CA3AF', padding: '8px 16px', background: '#F9FAFB', borderRadius: 8, display: 'inline-block', border: '1px solid #E5E7EB' }}>
+                🔄 Next data refresh: tonight at 00:00 AEST
+              </div>
             </div>
           ) : (
             <div style={{ maxHeight: 700, overflowY: 'auto' as const }}>

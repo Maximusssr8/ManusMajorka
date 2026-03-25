@@ -192,31 +192,34 @@ export default function MarketDashboard() {
 
   async function fetchAll() {
     try {
-      const [pr, cr, tv, st1, st2, st3, st4] = await Promise.all([
-        supabase.from('winning_products').select('id,product_title,category,price_aud,winning_score,trend,competition_level,est_daily_revenue_aud,units_per_day,image_url').order('winning_score', { ascending: false }).limit(5),
-        supabase.from('winning_products').select('*').order('winning_score', { ascending: false }).limit(3),
-        supabase.from('creators').select('id,username,display_name,avatar_url,follower_count,gmv_30d_aud,gmv_growth_rate,top_categories,is_verified,location,revenue_sparkline').order('gmv_30d_aud', { ascending: false }).limit(1),
-        supabase.from('winning_products').select('id', { count: 'exact', head: true }),
-        supabase.from('creators').select('id', { count: 'exact', head: true }),
-        supabase.from('winning_products').select('winning_score'),
-        supabase.from('winning_products').select('id', { count: 'exact', head: true }).eq('trend', 'exploding'),
+      // Use API endpoints (service role key) — avoids RLS blocks on anon key
+      const [prodRes, creatorRes] = await Promise.all([
+        fetch('/api/products?limit=10&sortBy=winning_score&sortDir=desc'),
+        fetch('/api/creators?limit=100'),
       ]);
 
-      setProducts((pr.data ?? []) as WinningProduct[]);
-      setCategories(([]) as CategoryRanking[]);
-      setTopCreator(((tv.data ?? [])[0] as AuCreator) ?? null);
+      const prodData = prodRes.ok ? await prodRes.json() : { products: [], total: 0 };
+      const creatorData = creatorRes.ok ? await creatorRes.json() : { creators: [] };
 
-      const scores = (st3.data ?? []) as { winning_score: number }[];
-      const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b.winning_score, 0) / scores.length) : 0;
+      const prods: WinningProduct[] = (prodData.products || []) as WinningProduct[];
+      const creators = (creatorData.creators || []);
+
+      setProducts(prods.slice(0, 5));
+      setCategories([] as CategoryRanking[]);
+      setTopCreator((creators[0] as AuCreator) ?? null);
+
+      const scores = prods.map((p: any) => p.winning_score || 0).filter(Boolean);
+      const avg = scores.length ? Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length) : 0;
+      const rising = prods.filter((p: any) => p.trend === 'rising' || p.tiktok_signal).length;
 
       setStats({
-        totalProducts: st1.count ?? 0,
-        activeCreators: st2.count ?? 0,
+        totalProducts: prodData.total || prods.length,
+        activeCreators: creatorData.total || creators.length,
         avgScore: avg,
-        explodingTrends: st4.count ?? 0,
+        explodingTrends: rising,
       });
     } catch {
-      // graceful fallback — tables may not exist yet
+      // graceful fallback
     } finally {
       setLoading(false);
     }
