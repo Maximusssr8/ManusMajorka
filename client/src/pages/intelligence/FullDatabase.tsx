@@ -262,9 +262,11 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      params.set('sortBy', sortBy);
+      params.set('sortBy', presetFilter === 'trending' ? 'orders_count' : sortBy);
       params.set('sortDir', sortDir);
       params.set('limit', '200');
+      // Trending Today: add trending=true to get only rising/tiktok products
+      if (presetFilter === 'trending') params.set('trending', 'true');
       // niche filtering done client-side after fetching all products
       if (search) params.set('search', search);
 
@@ -284,7 +286,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     } finally {
       setLoading(false);
     }
-  }, [niche, search, sortBy, sortDir]);
+  }, [niche, search, sortBy, sortDir, presetFilter]);
 
   useEffect(() => { loadProducts(); }, [loadProducts]);
 

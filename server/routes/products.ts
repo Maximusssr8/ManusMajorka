@@ -128,17 +128,39 @@ async function pexelsFallback(query: string): Promise<ProductResult[]> {
 router.get('/', async (req: Request, res: Response) => {
   const limit = Math.min(500, Number(req.query.limit) || 200);
   const hasVideo = req.query.hasVideo === 'true';
+  const trending = req.query.trending === 'true';
+  const rawSort = String(req.query.sortBy || '');
+  const sortDir = req.query.sortDir === 'asc';
+
+  // Map client sort keys to DB columns
+  const SORT_MAP: Record<string, string> = {
+    orders_count:             'orders_count',
+    winning_score:            'winning_score',
+    score:                    'winning_score',
+    est_monthly_revenue_aud:  'est_monthly_revenue_aud',
+    revenue:                  'est_monthly_revenue_aud',
+    price_aud:                'price_aud',
+    sold_count:               'sold_count',
+    profit_margin:            'profit_margin',
+    au_relevance:             'au_relevance',
+  };
+  const sortCol = SORT_MAP[rawSort] || (trending ? 'orders_count' : 'winning_score');
 
   const supabase = getSupabase();
   try {
     let query = supabase
       .from('winning_products')
       .select('*')
-      .order('winning_score', { ascending: false })
+      .order(sortCol, { ascending: sortDir })
       .limit(limit);
 
     if (hasVideo) {
       query = query.not('tiktok_product_url', 'is', null);
+    }
+
+    // Trending Today: only products with rising trend or tiktok signal
+    if (trending) {
+      query = query.or('trend.eq.rising,tiktok_signal.eq.true');
     }
 
     const { data, error } = await query;
