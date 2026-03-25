@@ -4,8 +4,8 @@
  */
 import { getSupabaseAdmin } from '../_core/supabase';
 
-const POLL_INTERVAL_MS = 3000;
-const MAX_POLLS = 20;
+const POLL_INTERVAL_MS = 2500;
+const MAX_POLLS = 15;
 
 function getToken(): string | null {
   return process.env.APIFY_API_KEY || process.env.APIFY_API_TOKEN || null;

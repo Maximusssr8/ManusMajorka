@@ -51,13 +51,22 @@ router.post('/refresh-creators', requireAuth, async (req: Request, res: Response
     const SURL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
     const SKEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
-    const creatorsRes = await fetch(`${SURL}/rest/v1/creators?select=handle&limit=200`, {
-      headers: { apikey: SKEY, Authorization: `Bearer ${SKEY}` },
-    });
+    // Only fetch creators with verified real TikTok profile URLs (not search/archetype entries)
+    // This keeps the Apify run small enough to finish within Vercel's 60s timeout
+    const creatorsRes = await fetch(
+      `${SURL}/rest/v1/creators?select=handle,profile_url&limit=200&profile_url=like.https://www.tiktok.com/@*`,
+      { headers: { apikey: SKEY, Authorization: `Bearer ${SKEY}` } }
+    );
     const creatorsData = await creatorsRes.json();
     const handles: string[] = (Array.isArray(creatorsData) ? creatorsData : [])
-      .map((c: any) => c.handle)
-      .filter(Boolean);
+      .map((c: any) => {
+        // Extract handle from profile_url (most reliable) or use handle column
+        const url = c.profile_url || '';
+        const match = url.match(/tiktok\.com\/@([^/?]+)/);
+        return match ? match[1] : (c.handle || '').replace(/^@/, '');
+      })
+      .filter(Boolean)
+      .slice(0, 20); // Safety cap at 20 handles
 
     if (!handles.length) {
       res.json({ updated: 0, failed: 0, message: 'No creator handles found' });
