@@ -891,7 +891,89 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
 // ─── Product Detail Drawer ────────────────────────────────────────────────────
 // ── Supplier Finder — live Tavily search ───────────────────────────────────
-function SupplierFinder({ productName, aliUrl }: { productName: string; aliUrl?: string }) {
+function SupplierFinder({ productName }: { productName: string }) {
+  const enc = encodeURIComponent(productName);
+  const suppliers = [
+    {
+      label: 'AliExpress',
+      icon: '🛒',
+      desc: 'Search all listings',
+      url: `https://www.aliexpress.com/wholesale?SearchText=${enc}&shipCountry=au&SortType=total_tranpro_desc`,
+      color: '#e8590c',
+      bg: '#fff5f0',
+      border: '#fcd0be',
+    },
+    {
+      label: 'Alibaba',
+      icon: '🏭',
+      desc: 'Bulk / wholesale',
+      url: `https://www.alibaba.com/trade/search?SearchText=${enc}&shipToCountry=AU&sortType=BEST_MATCH`,
+      color: '#e8590c',
+      bg: '#fff5f0',
+      border: '#fcd0be',
+    },
+    {
+      label: 'CJ Dropship',
+      icon: '📦',
+      desc: 'No MOQ dropship',
+      url: `https://cjdropshipping.com/search.html?q=${enc}`,
+      color: '#059669',
+      bg: '#F0FDF4',
+      border: '#BBF7D0',
+    },
+    {
+      label: 'DHgate',
+      icon: '🔧',
+      desc: 'Low MOQ wholesale',
+      url: `https://www.dhgate.com/wholesale/search.do?searchkey=${enc}&pt=Home`,
+      color: '#2563EB',
+      bg: '#EFF6FF',
+      border: '#BFDBFE',
+    },
+    {
+      label: 'Temu',
+      icon: '🏷️',
+      desc: 'Ultra-low prices',
+      url: `https://www.temu.com/search_result.html?search_key=${enc}`,
+      color: '#7C3AED',
+      bg: '#F5F3FF',
+      border: '#DDD6FE',
+    },
+    {
+      label: 'Made-in-China',
+      icon: '🏗️',
+      desc: 'Factory direct',
+      url: `https://www.made-in-china.com/multi-search/q-${enc.replace(/%20/g, '+')}.html`,
+      color: '#DC2626',
+      bg: '#FEF2F2',
+      border: '#FECACA',
+    },
+  ];
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#0A0A0A', marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Find Suppliers</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+        {suppliers.map(({ label, icon, desc, url, color, bg, border }) => (
+          <a key={label} href={url} target="_blank" rel="noopener noreferrer"
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 11px', background: bg, border: `1px solid ${border}`, borderRadius: 8, textDecoration: 'none', transition: 'opacity 0.15s' }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.8')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}>
+            <span style={{ fontSize: 16 }}>{icon}</span>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color }}>{label}</div>
+              <div style={{ fontSize: 10, color: '#9CA3AF' }}>{desc}</div>
+            </div>
+            <span style={{ marginLeft: 'auto', color: '#9CA3AF', fontSize: 10, flexShrink: 0 }}>↗</span>
+          </a>
+        ))}
+      </div>
+      <div style={{ marginTop: 8, fontSize: 10, color: '#9CA3AF', textAlign: 'center' as const }}>
+        All links search for: <em>{productName.slice(0, 40)}{productName.length > 40 ? '…' : ''}</em>
+      </div>
+    </div>
+  );
+}: { productName: string; aliUrl?: string }) {
   const [results, setResults] = useState<Array<{ title: string; url: string; snippet: string }>>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -1203,7 +1285,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             )}
           </div>
 
-          <SupplierFinder productName={name} aliUrl={p.aliexpress_url} />
+          <SupplierFinder productName={name} />
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#0A0A0A', marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>AI Market Analysis</div>
             {!aiAnalysis ? (

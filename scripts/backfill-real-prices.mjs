@@ -135,16 +135,20 @@ async function main() {
 
     if (costUsd && costUsd > 0.5 && costUsd < 300) {
       tavilyHits++;
-      process.stdout.write(`Tavily: $${costUsd.toFixed(2)} USD `);
+      process.stdout.write(`Tavily retail: $${costUsd.toFixed(2)} USD (AE cost ~$${(costUsd/3).toFixed(2)}) `);
     } else {
       // Use category-based fallback
       costUsd = categoryFallbackCost(category, seed);
       fallbackHits++;
-      process.stdout.write(`Fallback: $${costUsd.toFixed(2)} USD `);
+      // fallback uses category mid-range as retail — cost = retail/3
+    process.stdout.write(`Fallback retail: $${costUsd.toFixed(2)} USD (AE cost ~$${(costUsd/3).toFixed(2)}) `);
     }
 
-    const costAud = Math.round(costUsd * USD_TO_AUD * 100) / 100;
-    const retailAud = Math.round(costAud * MARKUP * 100) / 100;
+    // Tavily returns MARKET/RETAIL price (USD) — AliExpress cost is ~1/3 of that
+    const retailUsd = costUsd; // rename for clarity
+    const costFromAliUsd = retailUsd / 3.0;
+    const costAud = Math.round(costFromAliUsd * USD_TO_AUD * 100) / 100;
+    const retailAud = Math.round(retailUsd * USD_TO_AUD * 100) / 100;
     const margin = Math.round(((retailAud - costAud) / retailAud) * 100);
 
     // Recalculate winning score: base + margin bonus + velocity
