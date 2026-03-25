@@ -1591,7 +1591,7 @@ export default function WebsiteGenerator() {
       const doc = iframe.contentDocument || iframe.contentWindow?.document;
       if (!doc) return;
       const heroImg = doc.querySelector('.hero__img-wrap img') as HTMLImageElement | null;
-      if (heroImg) { heroImg.src = urls[0]; ); }
+      if (heroImg) { heroImg.src = urls[0]; } 
     } catch (e) {
       console.warn('[pexels-fallback] Failed:', e);
     }
