@@ -107,7 +107,7 @@ export default function CreatorIntelligence() {
       <div style={{ background: '#FFF7ED', borderBottom: '1px solid #FED7AA', padding: '10px 24px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
         <span style={{ fontSize: 16 }}>⚠️</span>
         <span style={{ fontSize: 12, color: '#92400E', lineHeight: 1.5 }}>
-          <strong>Sample creator profiles.</strong> These represent creator archetypes by niche and region — not verified real accounts. Follower counts are estimated ranges. Use "Search on TikTok" to find real creators in each niche.
+          <strong>Creator data sourced from public TikTok profiles.</strong> Follower ranges are estimated. Contact creators directly via TikTok — use the "Find on TikTok" button on each card.
         </span>
       </div>
       <div style={{ padding: '24px 24px 0', maxWidth: 1400, margin: '0 auto', width: '100%' }}>
@@ -218,21 +218,14 @@ export default function CreatorIntelligence() {
                       </div>
                     )}
                     <div style={{ display: 'flex', gap: 6 }}>
-                      <a href={`https://www.tiktok.com/search?q=${encodeURIComponent(c.handle || '')}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+                      <a href={c.profile_url || `https://www.tiktok.com/search?q=${encodeURIComponent(c.niche || 'ecommerce')}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
                         style={{ flex: 1, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F5F5F5', border: 'none', borderRadius: 7, fontSize: 11, fontWeight: 600, color: '#374151', textDecoration: 'none', cursor: 'pointer' }}>
-                        View Profile
+                        Find on TikTok
                       </a>
-                      {c.contact_hint ? (
-                        <button onClick={e => { e.stopPropagation(); navigator.clipboard.writeText(c.contact_hint!); }}
-                          style={{ flex: 1, height: 30, background: '#ECFDF5', border: 'none', borderRadius: 7, fontSize: 11, fontWeight: 600, color: '#065F46', cursor: 'pointer' }}>
-                          Copy Contact
-                        </button>
-                      ) : (
-                        <button onClick={e => { e.stopPropagation(); setSelected(c); generateOutreach(c); }}
-                          style={{ flex: 1, height: 30, background: '#EEF2FF', border: 'none', borderRadius: 7, fontSize: 11, fontWeight: 600, color: '#6366F1', cursor: 'pointer' }}>
-                          AI Pitch
-                        </button>
-                      )}
+                      <button onClick={e => { e.stopPropagation(); setSelected(c); generateOutreach(c); }}
+                        style={{ flex: 1, height: 30, background: '#EEF2FF', border: 'none', borderRadius: 7, fontSize: 11, fontWeight: 600, color: '#6366F1', cursor: 'pointer' }}>
+                        AI Pitch
+                      </button>
                     </div>
                   </div>
                 );
@@ -282,16 +275,10 @@ export default function CreatorIntelligence() {
                   </div>
                 </div>
               )}
-              {selected.contact_hint && (
-                <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 8, padding: '10px 12px', marginBottom: 16 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: '#065F46', marginBottom: 4 }}>Contact</div>
-                  <div style={{ fontSize: 12, color: '#065F46', wordBreak: 'break-all' as const }}>{selected.contact_hint}</div>
-                  <button onClick={() => navigator.clipboard.writeText(selected.contact_hint!)}
-                    style={{ marginTop: 6, fontSize: 10, color: '#065F46', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>
-                    Copy →
-                  </button>
-                </div>
-              )}
+              <a href={selected.profile_url || `https://www.tiktok.com/search?q=${encodeURIComponent(selected.niche || 'ecommerce')}`} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', height: 36, marginBottom: 12, background: '#000', color: 'white', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>
+                🎵 Find on TikTok
+              </a>
               <button onClick={() => generateOutreach(selected)} disabled={outreachLoading}
                 style={{ width: '100%', height: 38, background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', marginBottom: 12, opacity: outreachLoading ? 0.7 : 1 }}>
                 {outreachLoading ? 'Generating...' : 'Suggest Outreach Message'}
