@@ -110,16 +110,23 @@ interface MarketStats {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function fmtAUD(val: number): string {
-  if (val >= 1_000_000) return `$${(val / 1_000_000).toFixed(1)}M`;
-  if (val >= 1_000) return `$${(val / 1_000).toFixed(1)}k`;
-  return `$${val.toFixed(0)}`;
+function fmtAUD(val: number | string | null | undefined): string {
+  if (val == null) return '$0';
+  const v = Number(val);
+  if (isNaN(v)) return '$0';
+  if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000) return `$${(v / 1_000).toFixed(1)}k`;
+  return `$${v.toFixed(0)}`;
 }
 
-function fmtFollowers(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}k`;
-  return String(n);
+function fmtFollowers(n: number | string | null | undefined): string {
+  if (n == null) return '0';
+  if (typeof n === 'string') return n || '0';
+  const v = Number(n);
+  if (isNaN(v)) return '0';
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000) return `${(v / 1_000).toFixed(0)}k`;
+  return String(v);
 }
 
 function TrendBadge({ trend }: { trend: string }) {
@@ -413,14 +420,14 @@ export default function MarketDashboard() {
                       {topCreator.is_verified && <span className="text-xs" style={{ color: '#38bdf8' }}>✓</span>}
                     </div>
                     <p className="text-xs" style={{ color: '#475569' }}>@{topCreator.username}</p>
-                    <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>{fmtFollowers(topCreator.follower_count)} followers · {topCreator.location}</p>
+                    <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>{fmtFollowers((topCreator as any).follower_count ?? (topCreator as any).est_followers)} followers · {topCreator.location}</p>
                   </div>
                 </div>
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <p className="text-xs" style={{ color: '#64748b' }}>30-day GMV</p>
                     <p className="text-xl font-bold" style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
-                      {fmtAUD(topCreator.gmv_30d_aud)}
+                      {fmtAUD((topCreator as any).gmv_30d_aud ?? (topCreator as any).est_monthly_revenue_aud ?? 0)}
                     </p>
                   </div>
                   <MiniSparkline data={parseSparkline(topCreator.revenue_sparkline)} />
