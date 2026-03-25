@@ -180,7 +180,7 @@ function SupplierDropdown({ product }: { product: Product }) {
   }, []);
   const links = [
     { label: 'AliExpress', url: getSupplierUrl(product) },
-    { label: 'TikTok Shop', url: `https://www.tiktok.com/search?q=${encodeURIComponent(getProductName(product))}` },
+    { label: 'TikTok Shop', url: `https://www.tiktok.com/shop/search?keyword=${encodeURIComponent(getProductName(product))}` },
     { label: 'Alibaba', url: `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(getProductName(product))}&shipToCountry=AU&sortType=BEST_MATCH` },
   ];
   return (
@@ -190,7 +190,7 @@ function SupplierDropdown({ product }: { product: Product }) {
         Supplier <span style={{ fontSize: 9 }}>&#9662;</span>
       </button>
       {open && (
-        <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 100, background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', minWidth: 160, marginTop: 4, overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '100%', right: 0, zIndex: 100, background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', minWidth: 160, marginTop: 4, overflow: 'hidden' }}>
           {links.map(l => (
             <a key={l.label} href={l.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
               style={{ display: 'block', padding: '8px 14px', fontSize: 13, color: '#374151', textDecoration: 'none' }}
