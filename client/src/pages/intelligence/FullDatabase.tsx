@@ -1132,39 +1132,61 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             )}
           </div>
 
-          {/* Matched Creators */}
+          {/* Creator Types to Target */}
           <div style={{ marginBottom: 20 }}>
-            <div style={{ fontFamily: brico, fontSize: 13, color: '#6366F1', fontWeight: 700, marginBottom: 10 }}>🎯 Matched Creators</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <div style={{ fontFamily: brico, fontSize: 13, color: '#6366F1', fontWeight: 700 }}>🎯 Creator Types to Target</div>
+              <span style={{ fontSize: 10, color: '#9CA3AF', background: '#F3F4F6', padding: '2px 8px', borderRadius: 10 }}>Sample archetypes</span>
+            </div>
+            <p style={{ fontSize: 11, color: '#9CA3AF', margin: '0 0 10px', lineHeight: 1.5 }}>
+              These are creator profile types that perform well for this product. Click <strong>Find on TikTok</strong> to search for real accounts in this niche.
+            </p>
             {creatorsLoading ? (
               <div style={{ fontSize: 12, color: '#9CA3AF', padding: '8px 0' }}>Finding creators…</div>
             ) : matchedCreators.length > 0 ? (
               <>
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
-                  {matchedCreators.map((c: any, i: number) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8 }}>
-                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#EEF2FF', color: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
-                        {(c.handle || c.display_name || 'U')[0].toUpperCase()}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: dm, fontSize: 13, fontWeight: 600, color: '#0A0A0A' }}>{c.display_name || c.handle}</div>
-                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2 }}>
-                          {c.niche && <span style={{ fontSize: 10, color: '#6366F1', background: '#EEF2FF', padding: '1px 6px', borderRadius: 10 }}>{c.niche}</span>}
-                          <span style={{ fontSize: 10, color: '#9CA3AF' }}>{formatFollowers(c.est_followers || c.followers_count || 0)}</span>
+                  {matchedCreators.map((c: any, i: number) => {
+                    const creatorNiche = c.niche || p.category || 'product review';
+                    const searchQuery = encodeURIComponent(`${name} ${creatorNiche} review`);
+                    const tiktokSearch = `https://www.tiktok.com/search?q=${searchQuery}`;
+                    return (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#EEF2FF', color: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
+                          {(c.display_name || c.handle || 'U')[0].toUpperCase()}
                         </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontFamily: dm, fontSize: 13, fontWeight: 600, color: '#0A0A0A' }}>
+                            {c.display_name || c.handle}
+                            <span style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 400, marginLeft: 6 }}>archetype</span>
+                          </div>
+                          <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 2 }}>
+                            {c.niche && <span style={{ fontSize: 10, color: '#6366F1', background: '#EEF2FF', padding: '1px 6px', borderRadius: 10 }}>{c.niche}</span>}
+                            <span style={{ fontSize: 10, color: '#9CA3AF' }}>creator type</span>
+                          </div>
+                        </div>
+                        <a href={tiktokSearch} target="_blank" rel="noopener noreferrer"
+                          style={{ fontSize: 11, color: '#6366F1', textDecoration: 'none', fontWeight: 600, flexShrink: 0, padding: '3px 8px', border: '1px solid #E5E7EB', borderRadius: 6, background: 'white', whiteSpace: 'nowrap' as const }}>
+                          Find on TikTok →
+                        </a>
                       </div>
-                      {c.profile_url && (
-                        <a href={c.profile_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#6366F1', textDecoration: 'none', fontWeight: 600, flexShrink: 0 }}>View →</a>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
-                <a href={`https://www.tiktok.com/search?q=${encodeURIComponent(name)}+affiliate`} target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'block', marginTop: 10, fontSize: 13, color: '#6366F1', textDecoration: 'none' }}>
-                  Find more creators on TikTok →
+                <a href={`https://www.tiktok.com/search?q=${encodeURIComponent(name + ' review australia')}`} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 600, padding: '10px 14px', background: '#EEF2FF', borderRadius: 8, border: '1px solid #C7D2FE' }}>
+                  <span>🔍</span>
+                  <span>Search all TikTok creators for "{name.slice(0, 30)}{name.length > 30 ? '…' : ''}"</span>
+                  <span style={{ marginLeft: 'auto' }}>→</span>
                 </a>
               </>
             ) : (
-              <div style={{ fontSize: 12, color: '#9CA3AF' }}>No matched creators found for this niche</div>
+              <a href={`https://www.tiktok.com/search?q=${encodeURIComponent(name + ' review')}`} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 600, padding: '10px 14px', background: '#EEF2FF', borderRadius: 8, border: '1px solid #C7D2FE' }}>
+                <span>🔍</span>
+                <span>Find TikTok creators for this product</span>
+                <span style={{ marginLeft: 'auto' }}>→</span>
+              </a>
             )}
           </div>
 
