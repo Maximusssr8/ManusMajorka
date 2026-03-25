@@ -103,21 +103,22 @@ export async function fetchRawTikTokData(bypassCache = false): Promise<any[]> {
     return [];
   }
 
-  console.log('[tiktokData] Starting Apify run (searchQueries, 5 terms)...');
+  console.log('[apify-tiktok] Token exists:', !!token, '| key length:', token?.length);
+  console.log('[apify-tiktok] Starting Apify run (searchQueries, 5 terms)...');
   const client = new ApifyClient({ token });
 
+  const input = {
+    searchQueries: SEARCH_QUERIES,
+    resultsPerPage: 20,
+    shouldDownloadVideos: false,
+    shouldDownloadCovers: false,
+    shouldDownloadSubtitles: false,
+    shouldDownloadSlideshowImages: false,
+  };
+  console.log('[apify-tiktok] Input being sent:', JSON.stringify(input));
+
   try {
-    const run = await client.actor('clockworks/tiktok-scraper').call(
-      {
-        searchQueries: SEARCH_QUERIES,
-        resultsPerPage: 20,
-        shouldDownloadVideos: false,
-        shouldDownloadCovers: false,
-        shouldDownloadSubtitles: false,
-        shouldDownloadSlideshowImages: false,
-      },
-      { waitSecs: 55 } // just under Vercel 60s limit
-    );
+    const run = await client.actor('clockworks/tiktok-scraper').call(input, { waitSecs: 55 });
 
     console.log('[tiktokData] Run', run.id, 'status:', run.status);
     const { items } = await client.dataset(run.defaultDatasetId).listItems();
@@ -129,7 +130,8 @@ export async function fetchRawTikTokData(bypassCache = false): Promise<any[]> {
 
     return items;
   } catch (err: any) {
-    console.error('[tiktokData] Apify run failed:', err.message);
+    console.error('[apify-tiktok] Run FAILED:', err.message);
+    console.error('[apify-tiktok] Full error:', JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
     return [];
   }
 }
