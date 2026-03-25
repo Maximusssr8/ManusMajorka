@@ -584,23 +584,23 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       </div>
 
       {/* ── TABLE WRAPPER ── */}
-      <div style={{ maxWidth: 1400, margin: '0 auto', padding: isMobile ? '0 0 80px' : '0 24px 40px', overflowX: 'hidden' }}>
-        <div style={{ overflowX: 'auto' as const }}>
-            <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: isMobile ? 0 : 12, overflow: 'hidden', boxShadow: '0 1px 4px #F5F5F5' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 1080 }}>
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: isMobile ? '0 0 80px' : '0 24px 40px', overflowX: 'visible' }}>
+        <div style={{ overflowX: 'auto' as const, borderRadius: isMobile ? 0 : 12, border: '1px solid #E5E7EB', boxShadow: '0 1px 4px #F5F5F5' }}>
+            <div style={{ background: 'white' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 1250 }}>
 
             {/* ── STICKY HEADER ── */}
             <colgroup>
-              <col style={{ width: 40 }} />
-              <col style={{ width: 240 }} />
-              <col style={{ width: 110 }} />
+              <col style={{ width: 44 }} />
+              <col style={{ width: 290 }} />
               <col style={{ width: 120 }} />
-              <col style={{ width: 80 }} />
-              <col style={{ width: 80 }} />
-              <col style={{ width: 80 }} />
-              <col style={{ width: 80 }} />
-              <col style={{ width: 80 }} />
-              <col style={{ width: 186 }} />
+              <col style={{ width: 140 }} />
+              <col style={{ width: 90 }} />
+              <col style={{ width: 90 }} />
+              <col style={{ width: 84 }} />
+              <col style={{ width: 68 }} />
+              <col style={{ width: 84 }} />
+              <col style={{ width: 240 }} />
             </colgroup>
             <thead>
               <tr style={{ background: 'rgba(250,250,250,0.98)', borderBottom: '2px solid #F3F4F6', height: 42, position: 'sticky' as const, top: 0, zIndex: 10 }}>
