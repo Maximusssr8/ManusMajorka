@@ -32,10 +32,9 @@ export interface CJProduct {
 // ── Auth ──────────────────────────────────────────────────────────────────
 
 async function getCJToken(): Promise<string | null> {
-  const email = process.env.CJ_API_EMAIL;
-  const key = process.env.CJ_API_KEY;
-  if (!email || !key) {
-    console.warn('[CJ] CJ_API_EMAIL / CJ_API_KEY not set');
+  const apiKey = process.env.CJ_API_KEY;
+  if (!apiKey) {
+    console.warn('[CJ] CJ_API_KEY not set');
     return null;
   }
 
@@ -46,7 +45,7 @@ async function getCJToken(): Promise<string | null> {
     const res = await fetch(`${CJ_BASE}/authentication/getAccessToken`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password: key }),
+      body: JSON.stringify({ apiKey }),
       signal: AbortSignal.timeout(10000),
     });
     const data: any = await res.json();
@@ -55,7 +54,7 @@ async function getCJToken(): Promise<string | null> {
       return null;
     }
     _token = data.data.accessToken;
-    _tokenExpiry = Date.now() + 23 * 3600 * 1000; // 23h (token valid 24h)
+    _tokenExpiry = Date.now() + 14 * 24 * 3600 * 1000; // 14 days (avoid auth QPS limit of 1/300s)
     console.log('[CJ] Token obtained');
     return _token;
   } catch (err: any) {

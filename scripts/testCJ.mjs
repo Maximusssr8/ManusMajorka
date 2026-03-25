@@ -11,23 +11,22 @@ for (const line of env.split('\n')) {
   if (k && !k.startsWith('#')) process.env[k.trim()] = v.join('=').trim();
 }
 
-const email = process.env.CJ_API_EMAIL;
-const key = process.env.CJ_API_KEY;
+const apiKey = process.env.CJ_API_KEY;
 const USD_TO_AUD = 1.55;
 
-if (!email || !key) {
-  console.error('❌ CJ_API_EMAIL or CJ_API_KEY not set in .env.local');
-  console.error('Add them first: go to developers.cjdropshipping.com → API credentials');
+if (!apiKey) {
+  console.error('❌ CJ_API_KEY not set in .env.local');
+  console.error('Set: CJ_API_KEY=CJ5267635@api@49fba1b7fbab49e59522e3e18bf1147f');
   process.exit(1);
 }
 
-console.log('Testing CJ API with email:', email);
+console.log('Testing CJ API with key:', apiKey.slice(0, 20) + '...');
 
 // Step 1: Get token
 const authRes = await fetch('https://developers.cjdropshipping.com/api2.0/v1/authentication/getAccessToken', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ email, password: key }),
+  body: JSON.stringify({ apiKey }),
 });
 const authData = await authRes.json();
 

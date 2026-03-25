@@ -668,3 +668,42 @@ router.post('/:id/why-trending', requireAuth, async (req: Request, res: Response
 });
 
 export default router;
+
+// ── GET /api/products/cj — CJ Dropshipping top products (cached 12hr) ────────
+router.get('/cj', async (_req: Request, res: Response) => {
+  try {
+    const { fetchCJProducts } = await import('../lib/cjProducts');
+    const { getSupabaseAdmin } = await import('../_core/supabase');
+    const sb = getSupabaseAdmin();
+    const CACHE_KEY = 'cj_products_au';
+
+    // Check cache first
+    try {
+      const { data: cached } = await sb
+        .from('apify_cache')
+        .select('data, expires_at')
+        .eq('cache_key', CACHE_KEY)
+        .single();
+      if (cached && new Date(cached.expires_at) > new Date() && Array.isArray(cached.data) && cached.data.length > 0) {
+        res.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=3600');
+        return res.json({ products: cached.data, count: cached.data.length, source: 'cache' });
+      }
+    } catch {}
+
+    // Fetch live from CJ
+    const products = await fetchCJProducts();
+    if (products.length > 0) {
+      const expiresAt = new Date(Date.now() + 12 * 3600 * 1000).toISOString();
+      await sb.from('apify_cache').upsert(
+        { cache_key: CACHE_KEY, data: products, fetched_at: new Date().toISOString(), expires_at: expiresAt },
+        { onConflict: 'cache_key' }
+      ).catch(() => {});
+    }
+
+    res.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=3600');
+    res.json({ products, count: products.length, source: 'live' });
+  } catch (err: any) {
+    console.error('[products/cj]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
