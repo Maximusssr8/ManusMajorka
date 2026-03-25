@@ -50,6 +50,7 @@ const SharedReport = lazy(() => import('./pages/SharedReport'));
 const ShopDetail = lazy(() => import('./pages/ShopDetail'));
 const ProductSearch = lazy(() => import('./pages/ProductSearch'));
 const StoreHealthScore = lazy(() => import('./pages/StoreHealthScore'));
+const AIChat = lazy(() => import('./pages/AIChat'));
 // SEO landing pages
 const DropshippingAustralia = lazy(() => import('./pages/seo/DropshippingAustralia'));
 const TikTokShopAustralia = lazy(() => import('./pages/seo/TikTokShopAustralia'));
@@ -280,7 +281,7 @@ function Router() {
             <Route path="/app/shop-spy">{() => { window.location.replace('/app/spy'); return null; }}</Route>
             <Route path="/app/shop-intelligence">{() => { window.location.replace('/app/spy'); return null; }}</Route>
             <Route path="/app/store-intelligence">{() => { window.location.replace('/app/spy'); return null; }}</Route>
-            <Route path="/app/store-builder">{() => { window.location.replace('/store-builder'); return null; }}</Route>
+            <Route path="/app/store-builder">{() => <ProtectedRoute><AppLayout><StoreBuilder /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/growth-tools">{() => { window.location.replace('/app/growth'); return null; }}</Route>
             <Route path="/app/livestream">{() => { window.location.replace('/app/videos'); return null; }}</Route>
             <Route path="/app/live">{() => { window.location.replace('/app/videos'); return null; }}</Route>
@@ -288,7 +289,7 @@ function Router() {
             <Route path="/app/creator-intel">{() => { window.location.replace('/app/creators'); return null; }}</Route>
             <Route path="/app/academy">{() => { window.location.replace('/app/learn'); return null; }}</Route>
             <Route path="/app/intelligence/database">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
-            <Route path="/app/ai-chat">{() => <ProtectedRoute><Dashboard /></ProtectedRoute>}</Route>
+            <Route path="/app/ai-chat">{() => <ProtectedRoute><AppLayout><AIChat /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/:tool">
               {() => (
                 <ProtectedRoute>
