@@ -54,6 +54,7 @@ import('../server/migrations/runUserOnboarding').then(({ runUserOnboardingMigrat
 });
 
 const app = express();
+app.set('trust proxy', 1); // Trust Vercel's load balancer for req.ip
 
 // ── Stripe webhook must receive raw body — register BEFORE express.json() ─────
 app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {

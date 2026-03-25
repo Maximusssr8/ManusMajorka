@@ -92,7 +92,9 @@ Only output the JSON. No markdown. No code blocks.`
 router.post('/generate', async (req, res) => {
   try {
     // Rate limit: 10 AI calls per user per 60s (Upstash sliding window)
-    const userId = (req as any).user?.userId || (req as any).user?.sub || (req.ip ?? 'anon');
+    const forwarded = req.headers['x-forwarded-for'];
+    const clientIp = (Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0]) || req.ip || req.socket?.remoteAddress || 'anon';
+    const userId = (req as any).user?.userId || (req as any).user?.sub || clientIp;
     const rl = await checkRateLimit(String(userId));
     if (!rl.allowed) {
       res.setHeader('Retry-After', String(rl.retryAfter ?? 60));
