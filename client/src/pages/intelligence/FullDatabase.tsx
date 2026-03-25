@@ -1156,8 +1156,8 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                   {matchedCreators.map((c: any, i: number) => {
                     const creatorNiche = c.niche || p.category || 'dropshipping';
                     // User search (not content search) for finding creator profiles
-                    const searchQuery = encodeURIComponent(`${creatorNiche} ${name.split(' ').slice(0, 3).join(' ')}`);
-                    const tiktokSearch = `https://www.tiktok.com/search/user?q=${searchQuery}`;
+                    const searchQuery = encodeURIComponent(creatorNiche);
+                    const tiktokSearch = c.profile_url && c.profile_url.startsWith('https://') ? c.profile_url : c.handle ? `https://www.tiktok.com/@${String(c.handle).replace(/^@/, '')}` : `https://www.tiktok.com/tag/${searchQuery}`;
                     return (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8 }}>
                         <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#EEF2FF', color: '#6366F1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>
@@ -1181,7 +1181,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                     );
                   })}
                 </div>
-                <a href={`https://www.tiktok.com/search/user?q=${encodeURIComponent((p.category || name.split(' ').slice(0, 2).join(' ')) + ' dropship review')}`} target="_blank" rel="noopener noreferrer"
+                <a href={`https://www.tiktok.com/tag/${encodeURIComponent(p.category || 'dropshipping')}`} target="_blank" rel="noopener noreferrer"
                   style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 600, padding: '10px 14px', background: '#EEF2FF', borderRadius: 8, border: '1px solid #C7D2FE' }}>
                   <span>🔍</span>
                   <span>Search TikTok creators in {p.category || 'this niche'}</span>
@@ -1189,7 +1189,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                 </a>
               </>
             ) : (
-              <a href={`https://www.tiktok.com/search/user?q=${encodeURIComponent((p.category || 'ecommerce') + ' ' + name.split(' ').slice(0, 2).join(' '))}`} target="_blank" rel="noopener noreferrer"
+              <a href={`https://www.tiktok.com/tag/${encodeURIComponent(p.category || 'ecommerce')}`} target="_blank" rel="noopener noreferrer"
                 style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#6366F1', textDecoration: 'none', fontWeight: 600, padding: '10px 14px', background: '#EEF2FF', borderRadius: 8, border: '1px solid #C7D2FE' }}>
                 <span>🔍</span>
                 <span>Search TikTok creators for this niche</span>
