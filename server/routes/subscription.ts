@@ -22,7 +22,7 @@ router.get('/me', requireAuth, async (req: Request, res: Response) => {
     // Admin bypass
     const email = (req as any).user?.email || '';
     if (email === 'maximusmajorka@gmail.com') {
-      res.json({ plan: 'pro', status: 'active' });
+      res.json({ plan: 'scale', status: 'active' });
       return;
     }
 

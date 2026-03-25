@@ -256,7 +256,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           const sub = await res.json();
           if (['active', 'trialing'].includes(sub.status || '')) {
             const p = (sub.plan || '').toLowerCase();
-            setUserPlan(p === 'scale' ? 'scale' : p === 'builder' ? 'builder' : 'free');
+            setUserPlan(p === 'scale' || p === 'pro' ? 'scale' : p === 'builder' ? 'builder' : 'free');
           }
         }
       } catch { /* silently fail */ }
@@ -800,21 +800,15 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                           </div>
                         </td>
 
-                        {/* Creators — PRO gate */}
+                        {/* Creators — link to Creator Intel filtered by niche */}
                         <td style={tdStyle('center')}>
-                          {userPlan === 'free' ? (
-                            <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
-                              <div style={{ filter: 'none', fontSize: 14, fontWeight: 700, color: '#0A0A0A', userSelect: 'auto' as const }}>
-                                {Math.floor(50 + (score * 8))}
-                              </div>
-                              <div title="Upgrade to see creator counts" style={{ position: 'absolute', top: -2, right: -2, fontSize: 10 }}>{'\uD83D\uDD12'}</div>
-                            </div>
-                          ) : (
-                            <div>
-                              <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A' }}>{Math.floor(50 + (score * 8))}</div>
-                              <div style={{ fontSize: 10, color: '#9CA3AF' }}>creators</div>
-                            </div>
-                          )}
+                          <a
+                            href={`/app/creators?niche=${encodeURIComponent(p.category || p.niche || 'general')}`}
+                            onClick={e => { e.stopPropagation(); }}
+                            style={{ fontSize: 11, color: '#6366F1', textDecoration: 'none', fontWeight: 600, padding: '3px 8px', border: '1px solid #E5E7EB', borderRadius: 6, background: 'white', whiteSpace: 'nowrap' as const, display: 'inline-block' }}
+                          >
+                            Find →
+                          </a>
                         </td>
 
                         {/* Actions */}
