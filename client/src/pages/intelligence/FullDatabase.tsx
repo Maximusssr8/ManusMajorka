@@ -585,7 +585,29 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
       {/* ── TABLE WRAPPER ── */}
       <div style={{ maxWidth: 1400, margin: '0 auto', padding: isMobile ? '0 0 80px' : '0 24px 40px', overflowX: 'visible' }}>
-        <div style={{ overflowX: 'auto' as const, borderRadius: isMobile ? 0 : 12, border: '1px solid #E5E7EB', boxShadow: '0 1px 4px #F5F5F5' }}>
+        {/* Scroll hint wrapper */}
+        <div style={{ position: 'relative' as const }}>
+          {/* Right-edge fade — indicates more content to scroll */}
+          <div
+            id="table-scroll-fade"
+            style={{
+              position: 'absolute' as const, top: 0, right: 0, bottom: 0, width: 48, zIndex: 5,
+              background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.95))',
+              borderRadius: '0 12px 12px 0', pointerEvents: 'none' as const,
+              transition: 'opacity 200ms',
+            }}
+          />
+        <div
+          style={{ overflowX: 'auto' as const, borderRadius: isMobile ? 0 : 12, border: '1px solid #E5E7EB', boxShadow: '0 1px 4px #F5F5F5' }}
+          onScroll={(e) => {
+            const el = e.currentTarget;
+            const fade = document.getElementById('table-scroll-fade');
+            if (fade) {
+              const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4;
+              fade.style.opacity = atEnd ? '0' : '1';
+            }
+          }}
+        >
             <div style={{ background: 'white' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 1250 }}>
 
@@ -852,6 +874,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           </table>
         </div>
         </div>
+        </div>{/* /scroll-hint-wrapper */}
       </div>
 
       {/* ── PRODUCT DETAIL DRAWER ── */}
