@@ -333,9 +333,9 @@ export default function VideoIntelligence() {
           </div>
         )}
 
-        {/* ── Niche pills (hidden when searching) ───────────────────── */}
-        {!searchQuery && <></>}
-        {!searchQuery && <div>
+        {/* ── Default feed hidden when search active ─────────────── */}
+        {!searchQuery && (
+        <>
 
         {/* ── Niche pills ─────────────────────────────────────────── */}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 18 }}>
@@ -563,7 +563,8 @@ export default function VideoIntelligence() {
           </div>
 
         </div>
-      </div>{/* end !searchQuery wrapper */}
+      </>
+        )}{/* end !searchQuery conditional */}
       </div>
 
       {/* Toast */}
