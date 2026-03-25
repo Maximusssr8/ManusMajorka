@@ -638,7 +638,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   Sold <SortIcon col="orders_count" />
                 </th>
                 <th style={thStyle('price', 90, 'right')} onClick={() => handleSort('price')}>
-                  Avg Price <SortIcon col="price" />
+                  Sell Price <SortIcon col="price" />
                 </th>
                 <th style={thStyle('estimated_margin_pct', 84, 'right')} onClick={() => handleSort('estimated_margin_pct')}>
                   Margin <SortIcon col="estimated_margin_pct" />
@@ -780,7 +780,12 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         {/* Price */}
                         <td style={tdStyle('right')}>
                           <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A' }}>${price.toFixed(0)}</div>
-                          <div style={{ fontSize: 10, color: '#9CA3AF' }}>{region.currency}</div>
+                          <div style={{ fontSize: 10, color: '#9CA3AF' }}>
+                            {(() => {
+                              const c = p.cost_price_aud || p.supplier_cost_aud;
+                              return c && c > 0 ? `cost ~$${c.toFixed(0)}` : region.currency;
+                            })()}
+                          </div>
                         </td>
 
                         {/* Margin */}
@@ -1061,7 +1066,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: '#F0F0F0', borderRadius: 10, overflow: 'hidden', marginBottom: 8 }}>
             {[
-              { label: 'AliExpress Cost', val: cost > 0 ? `~$${cost.toFixed(2)}` : '—' },
+              { label: 'Supplier Cost (est.)', val: cost > 0 ? `~$${cost.toFixed(2)} AUD` : '—' },
               { label: 'Suggested Retail', val: price > 0 ? `$${price.toFixed(0)}` : '—' },
               { label: 'Gross Margin', val: `${margin}%` },
               { label: 'Monthly Revenue', val: `$${revenue >= 1000 ? (revenue / 1000).toFixed(1) + 'k' : revenue}` },
@@ -1082,7 +1087,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                 🛒 View on AliExpress ↗
               </a>
             )}
-            <span style={{ fontSize: 10, color: '#9CA3AF', display: 'flex', alignItems: 'center' }}>Cost shown is estimated — verify on AliExpress</span>
+            <span style={{ fontSize: 10, color: '#9CA3AF', display: 'flex', alignItems: 'center' }}>Supplier cost sourced from Tavily/AliExpress data — your sell price is up to you</span>
           </div>
           {(() => {
             const sb = p.score_breakdown;
