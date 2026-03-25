@@ -1591,7 +1591,7 @@ export default function WebsiteGenerator() {
       const doc = iframe.contentDocument || iframe.contentWindow?.document;
       if (!doc) return;
       const heroImg = doc.querySelector('.hero__img-wrap img') as HTMLImageElement | null;
-      if (heroImg) { heroImg.src = urls[0]; console.log('[pexels-fallback] Swapped hero to:', urls[0].slice(0, 60)); }
+      if (heroImg) { heroImg.src = urls[0]; ); }
     } catch (e) {
       console.warn('[pexels-fallback] Failed:', e);
     }
@@ -1659,7 +1659,6 @@ export default function WebsiteGenerator() {
               cropped.width = cropW; cropped.height = cropH;
               cctx.drawImage(canvas, cropX, 0, cropW, cropH, 0, 0, cropW, cropH);
               img.src = cropped.toDataURL('image/jpeg', 0.92);
-              console.log('[hero-enhance] Collage detected — cropped to centre');
             }
           } else if (IS_WATERMARK) {
             // Paint fade-to-black gradient over bottom strip
@@ -1669,7 +1668,6 @@ export default function WebsiteGenerator() {
             ctx.fillStyle = grad;
             ctx.fillRect(0, canvas.height - wmH, canvas.width, wmH);
             img.src = canvas.toDataURL('image/jpeg', 0.92);
-            console.log('[hero-enhance] Watermark detected — gradient overlay applied');
           }
         }
       } catch (e) {
@@ -1706,7 +1704,6 @@ export default function WebsiteGenerator() {
         if (heroImg && !heroImg.dataset.pexelsFallbackWired) {
           heroImg.dataset.pexelsFallbackWired = '1';
           heroImg.onerror = () => {
-            console.log('[hero-onerror] Image failed, trying Pexels fallback for:', storeName || niche);
             tryPexelsFallback(iframe, storeName || niche || 'product lifestyle');
           };
         }
@@ -1871,7 +1868,6 @@ export default function WebsiteGenerator() {
     if (!niche.trim()) { toast.error('Please enter a niche first'); return; }
     // Hard double-fire guard
     if (generatingRef.current) {
-      console.log('[generate] blocked — already in progress');
       return;
     }
     // Delegate to handleGenerateWithParams for explicit value passing (avoids stale closure)
@@ -2081,7 +2077,6 @@ export default function WebsiteGenerator() {
     imageUrl?: string;
     description?: string;
   }) => {
-    console.log('[auto-gen] Triggering with:', params);
     if (!params.niche.trim()) { toast.error('Niche is required'); return; }
     if (generatingRef.current) return;
 
@@ -2170,7 +2165,6 @@ export default function WebsiteGenerator() {
                 setProgressSteps(GEN_STEPS.map(s => ({ label: s.label, done: true })));
                 toast.success('🚀 Store generated!');
                 const elapsed = ((Date.now() - genStartRef.current) / 1000).toFixed(1);
-                console.log(`[gen] Done in ${elapsed}s — ${finalHtml.length} chars`);
               }
               if (payload.error) throw new Error(payload.error);
             } catch (parseErr) {
@@ -2745,7 +2739,6 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
       });
     });
     document.addEventListener('mouseup',clawSelHandler);
-    console.log('[Majorka Editor] Edit mode: '+count+' elements made editable');
   };
 
   window.clawDisableEdit=function(){

@@ -6,6 +6,7 @@ import AlmostWonModal from '@/components/AlmostWonModal';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { capture } from '@/lib/posthog';
 import ErrorBoundary from './components/ErrorBoundary';
+import CookieBanner from './components/CookieBanner';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import MajorkaAppShell from './components/MajorkaAppShell';
 import { AuthProvider } from './contexts/AuthContext';
@@ -445,6 +446,7 @@ function App() {
           </MarketProvider>
         </AuthProvider>
       </ThemeProvider>
+      <CookieBanner />
     </ErrorBoundary>
   );
 }
