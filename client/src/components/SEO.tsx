@@ -7,7 +7,7 @@ interface SEOProps {
   ogImage?: string;
 }
 
-const BASE_URL = 'https://majorka.io';
+const BASE_URL = 'https://www.majorka.io';
 
 export function SEO({ title, description, path = '/', ogImage = '/og-image.png' }: SEOProps) {
   const url = `${BASE_URL}${path}`;
