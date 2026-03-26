@@ -125,7 +125,8 @@ async function pexelsFallback(query: string): Promise<ProductResult[]> {
 }
 
 // GET /api/products?hasVideo=true&limit=200
-router.get('/', async (req: Request, res: Response) => {
+// Requires authentication — either a valid Supabase JWT or the service role key
+router.get('/', requireAuth, async (req: Request, res: Response) => {
   const limit = Math.min(500, Number(req.query.limit) || 200);
   const hasVideo = req.query.hasVideo === 'true';
   const trending = req.query.trending === 'true';

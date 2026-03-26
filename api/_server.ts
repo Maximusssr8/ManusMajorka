@@ -185,30 +185,9 @@ app.get("/api/pexels/search", async (req: Request, res: Response) => {
   }
 });
 
-// ── API health check ──────────────────────────────────────────────────────────
+// ── API health check — minimal public ping only ───────────────────────────────
 app.get("/api/health", (_req: Request, res: Response) => {
-  const stripeKey = process.env.STRIPE_SECRET_KEY || '';
-  const stripeMode = stripeKey.startsWith('sk_live_') ? 'live' : 'test';
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
-  res.json({
-    status: 'ok',
-    version: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || 'local',
-    uptime: Math.floor(process.uptime()),
-    anthropic: !!process.env.ANTHROPIC_API_KEY,
-    tavily: !!process.env.TAVILY_API_KEY,
-    firecrawl: !!process.env.FIRECRAWL_API_KEY,
-    supabase: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-    stripe: {
-      configured: !!stripeKey,
-      mode: stripeMode,
-      live_mode: stripeMode === 'live',
-      webhook_configured: webhookSecret.length > 0,
-      webhook_looks_valid: webhookSecret.startsWith('whsec_'),
-    },
-    sentry: !!SENTRY_DSN,
-    database: !!process.env.DATABASE_URL,
-    ts: new Date().toISOString(),
-  });
+  res.json({ status: 'ok', ts: new Date().toISOString() });
 });
 
 // One-time intelligence tables migration endpoint
