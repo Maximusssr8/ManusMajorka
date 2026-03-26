@@ -1,6 +1,43 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
+import { Link, Bookmark, Lock, Upload, Image, X, Save, Store, Check } from 'lucide-react';
+import { useLocation } from 'wouter';
+
+// ── Draft types ──────────────────────────────────────────────
+interface StoreDraft {
+  id: string;
+  name: string;
+  step: number;
+  niche: string;
+  templateId: string | null;
+  importedProduct: object | null;
+  customisations: { storeName: string; storeTagline: string };
+  uploadedImages: Record<string, string>;
+  savedAt: string;
+}
+
+function loadDrafts(): StoreDraft[] {
+  try {
+    const raw = localStorage.getItem('majorka_store_drafts');
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+function saveDrafts(drafts: StoreDraft[]) {
+  localStorage.setItem('majorka_store_drafts', JSON.stringify(drafts));
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
+}
 
 const STEP_LABELS = ['Choose a Template', 'Pick Your Niche', 'Customise Your Store', 'Connect & Launch'];
 const accent = '#6366F1';
@@ -356,7 +393,37 @@ export default function StoreBuilder() {
   const [shopDomainError, setShopDomainError] = useState('');
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
-  const { session } = useAuth();
+  const { session, isPro, subPlan } = useAuth();
+  const [, navigate] = useLocation();
+
+  // Enhancement 1: Product Source Modal
+  const [productSourceModal, setProductSourceModal] = useState(false);
+  const [productSourceChoice, setProductSourceChoice] = useState<'url' | 'saved' | null>(null);
+  const [importedProductUrl, setImportedProductUrl] = useState('');
+  const [importedProduct, setImportedProduct] = useState<{ title?: string; description?: string; images?: string[]; price?: string } | null>(null);
+  const [savedProducts, setSavedProducts] = useState<Array<{ id: string; title: string; image_url?: string; price_aud?: string }>>([]);
+  const [extracting, setExtracting] = useState(false);
+
+  // Enhancement 2: Image Editor
+  const [imageEditorOpen, setImageEditorOpen] = useState(false);
+  const [selectedImageSlot, setSelectedImageSlot] = useState<string | null>(null);
+  const [uploadedImages, setUploadedImages] = useState<Record<string, string>>({});
+  const [imageToast, setImageToast] = useState<string | null>(null);
+  const [imageEditorTab, setImageEditorTab] = useState<'product' | 'upload' | 'ai'>('product');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Enhancement 3: Subscription Gate
+  const canExport = isPro || subPlan === 'scale' || subPlan === 'builder';
+
+  // Pre-fill store name from imported product
+  useEffect(() => {
+    if (importedProduct?.title && !storeName) {
+      setStoreName(importedProduct.title.slice(0, 40));
+    }
+    if (importedProduct?.description && !storeTagline) {
+      setStoreTagline(importedProduct.description.slice(0, 80));
+    }
+  }, [importedProduct]);
 
   const previewTemplate = async (templateId: string) => {
     try {
@@ -753,7 +820,7 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
             {/* Next button */}
             <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end" }}>
               <button
-                onClick={() => { if (selectedNiche) setCurrentStep(2); }}
+                onClick={() => { if (selectedNiche) setProductSourceModal(true); }}
                 disabled={!selectedNiche}
                 style={{ height: 44, padding: "0 32px", background: selectedNiche ? "#6366F1" : "#E5E7EB", color: selectedNiche ? "white" : "#9CA3AF", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: selectedNiche ? "pointer" : "not-allowed", transition: "all 200ms" }}
               >
@@ -810,6 +877,48 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
                     <option value="GBP">{"\u{1F1EC}\u{1F1E7}"} British Pound (GBP)</option>
                     <option value="NZD">{"\u{1F1F3}\u{1F1FF}"} New Zealand Dollar (NZD)</option>
                   </select>
+                </div>
+              </div>
+
+              {/* Store Images — Image Editor */}
+              <div style={{ marginTop: 28 }}>
+                <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 10 }}>Store Images</label>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' as const }}>
+                  {[
+                    { key: 'hero', label: 'Hero Image' },
+                    { key: 'product1', label: 'Product Image 1' },
+                    { key: 'product2', label: 'Product Image 2' },
+                    { key: 'banner', label: 'Banner' },
+                  ].map(slot => {
+                    const imgSrc = uploadedImages[slot.key]
+                      || (slot.key === 'product1' && importedProduct?.images?.[0])
+                      || (slot.key === 'product2' && importedProduct?.images?.[1])
+                      || null;
+                    return (
+                      <div
+                        key={slot.key}
+                        style={{ width: 80, height: 80, borderRadius: 8, border: '1px solid #E5E7EB', background: '#F3F4F6', position: 'relative' as const, overflow: 'hidden', cursor: 'pointer', flexShrink: 0 }}
+                        onClick={() => { setSelectedImageSlot(slot.key); setImageEditorOpen(true); setImageEditorTab('product'); }}
+                      >
+                        {imgSrc ? (
+                          <img src={imgSrc} alt={slot.label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                            <Image size={16} color="#9CA3AF" />
+                            <span style={{ fontSize: 9, color: '#9CA3AF', textAlign: 'center', padding: '0 4px', lineHeight: 1.2 }}>{slot.label}</span>
+                          </div>
+                        )}
+                        {/* Hover overlay */}
+                        <div
+                          style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 150ms' }}
+                          onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+                          onMouseLeave={e => (e.currentTarget.style.opacity = '0')}
+                        >
+                          <span style={{ color: 'white', fontSize: 11, fontWeight: 600 }}>Replace</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -964,46 +1073,70 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
                 <div style={{ fontSize: 64, marginBottom: 16 }}>{"\u{1F389}"}</div>
                 <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 24, color: "#0A0A0A", marginBottom: 8 }}>{storeName} is live!</div>
                 <div style={{ fontSize: 14, color: "#6B7280", marginBottom: 24 }}>Your Majorka-built store is ready. Connect to Shopify or download your store files.</div>
-                <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+
+                {/* Export area — gated by subscription */}
+                <div style={{ position: 'relative' as const }}>
+                  {!canExport && (
+                    <div style={{ background: 'rgba(248,249,255,0.96)', borderRadius: 12, padding: 24, textAlign: 'center', border: '1px solid #E0E7FF', position: 'absolute' as const, inset: 0, zIndex: 10, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center' }}>
+                      <Lock size={24} color="#6366F1" style={{ marginBottom: 12 }} />
+                      <div style={{ fontWeight: 700, fontSize: 16, color: '#0A0A0A', marginBottom: 4 }}>Export to Shopify requires a paid plan</div>
+                      <div style={{ color: '#6B7280', fontSize: 14, marginTop: 4 }}>From $99/mo AUD</div>
+                      <button
+                        onClick={() => navigate('/pricing')}
+                        style={{ marginTop: 16, background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', color: 'white', border: 'none', borderRadius: 10, padding: '12px 28px', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}
+                      >
+                        Upgrade Now
+                      </button>
+                      <button
+                        onClick={() => window.location.reload()}
+                        style={{ marginTop: 10, background: 'none', border: 'none', color: '#9CA3AF', fontSize: 12, cursor: 'pointer' }}
+                      >
+                        Already subscribed? Refresh the page
+                      </button>
+                    </div>
+                  )}
+
+                  <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+                    <button
+                      onClick={() => setShopifyModal(true)}
+                      style={{ height: 44, padding: "0 24px", background: "#6366F1", color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
+                    >
+                      Connect Shopify {"\u2192"}
+                    </button>
+                    <button
+                      onClick={handleDownloadZip}
+                      style={{ height: 44, padding: "0 24px", background: "white", color: "#374151", border: "1px solid #E5E7EB", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
+                    >
+                      Download Store HTML
+                    </button>
+                  </div>
                   <button
-                    onClick={() => setShopifyModal(true)}
-                    style={{ height: 44, padding: "0 24px", background: "#6366F1", color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
+                    onClick={async () => {
+                      // Use cached preview HTML if available, else fetch fresh
+                      let html = previewHtml;
+                      const tpl = TEMPLATES.find(t => t.id === selectedTemplate);
+                      if (!html && tpl) {
+                        setDownloadToast('\u23F3 Fetching HTML\u2026');
+                        try {
+                          const res = await fetch('/api/store-builder/preview', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ template: selectedTemplate, storeName: storeName || tpl.name + ' Store', storeTagline: storeTagline || 'Trending products, fast delivery', niche: NICHES.find(n => n.id === selectedNiche)?.label || customNiche || 'General', primaryColor: tpl.accentColor }),
+                          });
+                          html = await res.text();
+                        } catch { setDownloadToast('\u274C Could not fetch HTML'); setTimeout(() => setDownloadToast(null), 3000); return; }
+                      }
+                      if (html) {
+                        await navigator.clipboard.writeText(html);
+                        setDownloadToast('\uD83D\uDCCB Copied to clipboard! (' + Math.round(html.length / 1024) + 'KB)');
+                        setTimeout(() => setDownloadToast(null), 3500);
+                      }
+                    }}
+                    style={{ marginTop: 16, background: 'none', border: 'none', color: '#9CA3AF', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
                   >
-                    Connect Shopify {"\u2192"}
-                  </button>
-                  <button
-                    onClick={handleDownloadZip}
-                    style={{ height: 44, padding: "0 24px", background: "white", color: "#374151", border: "1px solid #E5E7EB", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
-                  >
-                    Download Store HTML
+                    or copy store HTML to clipboard
                   </button>
                 </div>
-                <button
-                  onClick={async () => {
-                    // Use cached preview HTML if available, else fetch fresh
-                    let html = previewHtml;
-                    const tpl = TEMPLATES.find(t => t.id === selectedTemplate);
-                    if (!html && tpl) {
-                      setDownloadToast('⏳ Fetching HTML…');
-                      try {
-                        const res = await fetch('/api/store-builder/preview', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ template: selectedTemplate, storeName: storeName || tpl.name + ' Store', storeTagline: storeTagline || 'Trending products, fast delivery', niche: NICHES.find(n => n.id === selectedNiche)?.label || customNiche || 'General', primaryColor: tpl.accentColor }),
-                        });
-                        html = await res.text();
-                      } catch { setDownloadToast('❌ Could not fetch HTML'); setTimeout(() => setDownloadToast(null), 3000); return; }
-                    }
-                    if (html) {
-                      await navigator.clipboard.writeText(html);
-                      setDownloadToast('📋 Copied to clipboard! (' + Math.round(html.length / 1024) + 'KB)');
-                      setTimeout(() => setDownloadToast(null), 3500);
-                    }
-                  }}
-                  style={{ marginTop: 16, background: 'none', border: 'none', color: '#9CA3AF', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
-                >
-                  or copy store HTML to clipboard
-                </button>
               </div>
             )}
           </div>
@@ -1014,6 +1147,265 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
       {downloadToast && (
         <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', background: '#0A0A0A', color: 'white', padding: '12px 24px', borderRadius: 10, fontSize: 13, fontWeight: 500, zIndex: 9999, boxShadow: '0 4px 20px rgba(0,0,0,0.3)', whiteSpace: 'nowrap' as const }}>
           {downloadToast}
+        </div>
+      )}
+
+      {/* Product Source Modal */}
+      {productSourceModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 24 }}>
+          <div style={{ background: 'white', borderRadius: 20, padding: 32, maxWidth: 560, width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', position: 'relative' }}>
+            <h3 style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#0A0A0A', marginBottom: 8 }}>Where are your products from?</h3>
+            <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 20 }}>Import product data to pre-fill your store, or skip to customise manually.</p>
+
+            {/* Two tiles */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+              <div
+                onClick={() => setProductSourceChoice('url')}
+                style={{
+                  background: productSourceChoice === 'url' ? '#EEF2FF' : '#F8F9FF',
+                  border: productSourceChoice === 'url' ? '2px solid #6366F1' : '2px solid transparent',
+                  borderRadius: 12, padding: 20, cursor: 'pointer', transition: 'all 150ms',
+                }}
+              >
+                <Link size={22} color="#6366F1" style={{ marginBottom: 10 }} />
+                <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A', marginBottom: 4 }}>Import from URL</div>
+                <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.5 }}>Paste an AliExpress or TikTok Shop link — AI extracts title, images & pricing</div>
+              </div>
+              <div
+                onClick={() => {
+                  setProductSourceChoice('saved');
+                  // Fetch saved products
+                  (async () => {
+                    try {
+                      const s = await (await import('@/lib/supabase')).supabase.auth.getSession();
+                      const token = s.data.session?.access_token || '';
+                      const res = await fetch('/api/products?limit=20&sortBy=winning_score', {
+                        headers: { Authorization: `Bearer ${token}` },
+                      });
+                      if (res.ok) {
+                        const data = await res.json();
+                        setSavedProducts(Array.isArray(data) ? data : data.data || []);
+                      }
+                    } catch { /* silent */ }
+                  })();
+                }}
+                style={{
+                  background: productSourceChoice === 'saved' ? '#EEF2FF' : '#F8F9FF',
+                  border: productSourceChoice === 'saved' ? '2px solid #6366F1' : '2px solid transparent',
+                  borderRadius: 12, padding: 20, cursor: 'pointer', transition: 'all 150ms',
+                }}
+              >
+                <Bookmark size={22} color="#6366F1" style={{ marginBottom: 10 }} />
+                <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A', marginBottom: 4 }}>From My Products</div>
+                <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.5 }}>Pick from products you have already found in Majorka</div>
+              </div>
+            </div>
+
+            {/* URL input when Tile A selected */}
+            {productSourceChoice === 'url' && (
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    type="text"
+                    placeholder="https://aliexpress.com/item/..."
+                    value={importedProductUrl}
+                    onChange={e => setImportedProductUrl(e.target.value)}
+                    style={{ flex: 1, height: 40, padding: '0 12px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, color: '#0A0A0A', outline: 'none', boxSizing: 'border-box' as const }}
+                  />
+                  <button
+                    onClick={async () => {
+                      if (!importedProductUrl.trim()) return;
+                      setExtracting(true);
+                      try {
+                        const res = await fetch(`/api/products/extract-url?url=${encodeURIComponent(importedProductUrl.trim())}`);
+                        if (res.ok) {
+                          const data = await res.json();
+                          setImportedProduct({ title: data.title || data.product_title, description: data.description, images: data.images || data.product_images, price: data.price_aud || data.price });
+                        } else {
+                          // Store URL anyway
+                          setImportedProduct({ title: importedProductUrl.trim() });
+                        }
+                      } catch {
+                        setImportedProduct({ title: importedProductUrl.trim() });
+                      }
+                      setExtracting(false);
+                      setProductSourceModal(false);
+                      setCurrentStep(2);
+                    }}
+                    disabled={extracting}
+                    style={{ height: 40, padding: '0 16px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: extracting ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' as const }}
+                  >
+                    {extracting ? 'Extracting...' : 'Extract'}
+                  </button>
+                </div>
+                {importedProduct && <div style={{ marginTop: 8, fontSize: 12, color: '#22C55E', fontWeight: 500 }}>Product imported: {importedProduct.title?.slice(0, 50)}</div>}
+              </div>
+            )}
+
+            {/* Saved products list when Tile B selected */}
+            {productSourceChoice === 'saved' && (
+              <div style={{ maxHeight: 200, overflowY: 'auto' as const, marginBottom: 16, border: '1px solid #E5E7EB', borderRadius: 8 }}>
+                {savedProducts.length === 0 ? (
+                  <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: '#9CA3AF' }}>No saved products found</div>
+                ) : (
+                  savedProducts.map(p => (
+                    <div
+                      key={p.id}
+                      onClick={() => {
+                        setImportedProduct({ title: p.title, images: p.image_url ? [p.image_url] : undefined, price: p.price_aud });
+                        if (p.title) setStoreName(p.title.slice(0, 40));
+                        setProductSourceModal(false);
+                        setCurrentStep(2);
+                      }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', cursor: 'pointer', borderBottom: '1px solid #F3F4F6', transition: 'background 100ms' }}
+                      onMouseEnter={e => (e.currentTarget.style.background = '#F9FAFB')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      {p.image_url ? (
+                        <img src={p.image_url} alt="" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ width: 40, height: 40, borderRadius: 6, background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: '#9CA3AF' }}>
+                          <Image size={16} />
+                        </div>
+                      )}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 500, color: '#0A0A0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.title}</div>
+                        {p.price_aud && <div style={{ fontSize: 11, color: '#6B7280' }}>${p.price_aud} AUD</div>}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
+            {/* Skip link */}
+            <div style={{ textAlign: 'center' }}>
+              <button
+                onClick={() => {
+                  setProductSourceModal(false);
+                  setCurrentStep(2);
+                }}
+                style={{ background: 'none', border: 'none', color: '#9CA3AF', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                Skip — I'll add products later
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Editor Modal */}
+      {imageEditorOpen && selectedImageSlot && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 24 }}>
+          <div style={{ background: 'white', borderRadius: 16, padding: 28, maxWidth: 480, width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h4 style={{ fontFamily: brico, fontWeight: 800, fontSize: 18, color: '#0A0A0A' }}>
+                Replace: {selectedImageSlot === 'hero' ? 'Hero Image' : selectedImageSlot === 'product1' ? 'Product Image 1' : selectedImageSlot === 'product2' ? 'Product Image 2' : 'Banner'}
+              </h4>
+              <button onClick={() => { setImageEditorOpen(false); setSelectedImageSlot(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+                <X size={18} color="#6B7280" />
+              </button>
+            </div>
+
+            {/* Tabs */}
+            <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#F3F4F6', borderRadius: 8, padding: 3 }}>
+              {(['product', 'upload', 'ai'] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setImageEditorTab(tab)}
+                  style={{
+                    flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                    fontSize: 12, fontWeight: 600,
+                    background: imageEditorTab === tab ? 'white' : 'transparent',
+                    color: imageEditorTab === tab ? '#0A0A0A' : '#6B7280',
+                    boxShadow: imageEditorTab === tab ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  }}
+                >
+                  {tab === 'product' ? 'From Product' : tab === 'upload' ? 'Upload' : 'AI Generate'}
+                </button>
+              ))}
+            </div>
+
+            {/* Tab content */}
+            {imageEditorTab === 'product' && (
+              <div>
+                {importedProduct?.images && importedProduct.images.length > 0 ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                    {importedProduct.images.map((img, i) => (
+                      <img
+                        key={i}
+                        src={img}
+                        alt={`Product ${i + 1}`}
+                        onClick={() => {
+                          setUploadedImages(prev => ({ ...prev, [selectedImageSlot!]: img }));
+                          setImageEditorOpen(false);
+                          setSelectedImageSlot(null);
+                          setImageToast('Image saved — will be used in export');
+                          setTimeout(() => setImageToast(null), 3000);
+                        }}
+                        style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 8, cursor: 'pointer', border: '2px solid transparent', transition: 'border 150ms' }}
+                        onMouseEnter={e => (e.currentTarget.style.border = '2px solid #6366F1')}
+                        onMouseLeave={e => (e.currentTarget.style.border = '2px solid transparent')}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ padding: 32, textAlign: 'center', color: '#9CA3AF', fontSize: 13 }}>No product imported yet</div>
+                )}
+              </div>
+            )}
+
+            {imageEditorTab === 'upload' && (
+              <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      const dataUrl = reader.result as string;
+                      setUploadedImages(prev => ({ ...prev, [selectedImageSlot!]: dataUrl }));
+                      setImageEditorOpen(false);
+                      setSelectedImageSlot(null);
+                      setImageToast('Image saved — will be used in export');
+                      setTimeout(() => setImageToast(null), 3000);
+                    };
+                    reader.readAsDataURL(file);
+                  }}
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{ padding: '12px 24px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}
+                >
+                  <Upload size={16} /> Choose Image
+                </button>
+                <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 10 }}>JPG, PNG, or WebP — max 5MB</p>
+              </div>
+            )}
+
+            {imageEditorTab === 'ai' && (
+              <div style={{ padding: 32, textAlign: 'center' }}>
+                <button
+                  disabled
+                  style={{ padding: '12px 24px', background: '#E5E7EB', color: '#9CA3AF', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'not-allowed' }}
+                >
+                  AI Generate
+                </button>
+                <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 10 }}>Coming soon</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Image toast */}
+      {imageToast && (
+        <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', background: '#059669', color: 'white', padding: '10px 20px', borderRadius: 10, fontSize: 13, fontWeight: 500, zIndex: 9999, boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+          {imageToast}
         </div>
       )}
 
