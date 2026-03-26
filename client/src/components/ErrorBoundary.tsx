@@ -20,6 +20,20 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
+    // Auto-reload on chunk load failures (stale deploys) — once only to avoid reload loops
+    const isChunkError = error.message?.includes('dynamically imported') ||
+      error.message?.includes('Failed to fetch') ||
+      error.message?.includes('Loading chunk') ||
+      error.name === 'ChunkLoadError';
+    if (isChunkError) {
+      const reloadKey = 'majorka_chunk_reload';
+      const lastReload = sessionStorage.getItem(reloadKey);
+      if (!lastReload) {
+        sessionStorage.setItem(reloadKey, Date.now().toString());
+        window.location.reload();
+        return;
+      }
+    }
     console.error('[ErrorBoundary]', error, info);
   }
 

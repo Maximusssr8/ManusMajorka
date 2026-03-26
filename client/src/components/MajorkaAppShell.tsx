@@ -381,31 +381,24 @@ function PWAInstallBanner() {
 function ShopifyStatusIndicator() {
   const [connected, setConnected] = useState(false);
   const [shop, setShop] = useState<string | null>(null);
+  const [location] = useLocation();
 
   useEffect(() => {
     fetch('/api/shopify/status')
       .then(r => r.json())
       .then(d => {
-        if (d.connected) {
-          setConnected(true);
-          setShop(d.shop || null);
-        }
+        if (d.connected) { setConnected(true); setShop(d.shop || null); }
       })
       .catch(() => {});
   }, []);
 
+  // Only show when connected (status indicator) OR on store-builder related pages
+  const storePages = ['/app/store-builder', '/app/my-stores', '/app/stores', '/app/website'];
+  const onStorePage = storePages.some(p => location.startsWith(p));
+  if (!connected && !onStorePage) return null;
+
   return (
-    <div style={{
-      margin: '8px 12px 0',
-      padding: '8px 12px',
-      background: connected ? '#ECFDF5' : '#EEF2FF',
-      border: `1px solid ${connected ? '#A7F3D0' : '#C7D2FE'}`,
-      borderRadius: 8,
-      display: 'flex',
-      alignItems: 'center',
-      gap: 8,
-      fontSize: 11,
-    }}>
+    <div style={{ margin: '8px 12px 0', padding: '8px 12px', background: connected ? '#ECFDF5' : '#EEF2FF', border: `1px solid ${connected ? '#A7F3D0' : '#C7D2FE'}`, borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8, fontSize: 11 }}>
       <span style={{ width: 7, height: 7, borderRadius: '50%', background: connected ? '#10B981' : '#6366F1', display: 'inline-block', flexShrink: 0 }} />
       <span style={{ fontWeight: 600, color: connected ? '#065F46' : '#4338CA', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
         {connected ? (shop || 'Store Connected') : 'Connect Shopify'}

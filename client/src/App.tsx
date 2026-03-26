@@ -230,6 +230,8 @@ function Router() {
             {/* Both routes render WebsiteGenerator — ToolPage handles both via location check */}
             <Route path="/app/product-discovery">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/market">{() => <ProtectedRoute><AppLayout><MarketDashboard /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/market-intel">{() => { window.location.replace('/app/market'); return null; }}</Route>
+            <Route path="/app/market-dashboard">{() => { window.location.replace('/app/market'); return null; }}</Route>
             <Route path="/app/creators">{() => <ProtectedRoute><AppLayout><CreatorIntelligence /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/videos">{() => <ProtectedRoute><AppLayout><VideoIntelligence /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/meta-ads">{() => { window.location.replace('/app/growth'); return null; }}</Route>
@@ -280,6 +282,7 @@ function Router() {
             {/* ── Sidebar route aliases — must come before catch-all ─────────────── */}
             <Route path="/app/product-intelligence">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/video-intelligence">{() => { window.location.replace('/app/videos'); return null; }}</Route>
+            <Route path="/app/video-intel">{() => { window.location.replace('/app/videos'); return null; }}</Route>
             <Route path="/app/spy-tools">{() => { window.location.replace('/app/spy'); return null; }}</Route>
             <Route path="/app/shop-spy">{() => { window.location.replace('/app/spy'); return null; }}</Route>
             <Route path="/app/shop-intelligence">{() => { window.location.replace('/app/spy'); return null; }}</Route>
