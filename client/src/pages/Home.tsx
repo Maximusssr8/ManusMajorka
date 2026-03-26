@@ -1994,6 +1994,7 @@ export default function Home() {
                 { label: 'Academy', href: '/app/learn' },
                 { label: 'Affiliate', href: '/app/affiliate' },
                 { label: 'Contact', href: 'mailto:hello@majorka.io' },
+                { label: 'Support', href: 'mailto:support@majorka.io' },
               ].map(link => (
                 <a key={link.label} href={link.href} style={{ display: 'block', fontSize: 14, color: '#6B7280', marginBottom: 10, textDecoration: 'none', transition: 'color 150ms' }}
                   onMouseEnter={e => (e.currentTarget.style.color = 'white')}

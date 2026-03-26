@@ -355,7 +355,7 @@ button, [role="button"] {
 /* ── Standardised Button Colours ── */
 
 .btn-gold {
-  background: linear-gradient(135deg, #6366F1, #f0c040);
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
   color: #080a0e;
   font-family: "Bricolage Grotesque", sans-serif;
   font-weight: 800;
