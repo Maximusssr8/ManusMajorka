@@ -536,7 +536,7 @@ export default function Pricing() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [annual, setAnnual] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [stripeConfigured, setStripeConfigured] = useState<boolean | null>(null);
+  const [stripeConfigured, setStripeConfigured] = useState<boolean | null>(true);
   const [currentPlan, setCurrentPlan] = useState<string>('free');
   const { session } = useAuth();
 

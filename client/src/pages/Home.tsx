@@ -248,7 +248,7 @@ function SocialProofCounter() {
   return (
     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 100, padding: '6px 18px' }}>
       <div style={{ width: 8, height: 8, borderRadius: '50%', background: C.green, animation: 'pulse-ring 2s ease-in-out infinite' }} />
-      <span style={{ fontSize: 13, fontWeight: 600, color: '#059669' }}>Join 500+ AU sellers using Majorka</span>
+      <span style={{ fontSize: 13, fontWeight: 600, color: '#059669' }}>Join 500+ sellers using Majorka</span>
     </div>
   );
 }
@@ -535,7 +535,7 @@ function FloatingCTA() {
       animation: 'float-cta 0.4s ease-out',
     }} className="floating-cta-bar">
       <span style={{ fontSize: 14, fontWeight: 600, color: C.text, flex: 1 }}>
-        <span className="hide-mobile">🔥 Join 500+ AU dropshippers · Find your first winner →</span>
+        <span className="hide-mobile">🔥 Join 500+ sellers worldwide · Find your first winner →</span>
         <span className="hide-desktop">Find your winner →</span>
       </span>
       <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', borderRadius: 10, padding: '10px 22px', fontFamily: syne, fontWeight: 800, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
@@ -1477,7 +1477,7 @@ export default function Home() {
     <div style={{ background: C.bg, color: C.text, fontFamily: dm, overflowX: 'hidden', minHeight: '100vh' }}>
       <SEO
         title="Majorka — AI Ecommerce OS for Dropshippers"
-        description="Find winning products, build Shopify stores and launch AU dropshipping campaigns with AI. Trusted by 500+ AU dropshippers."
+        description="Find winning products, build Shopify stores and launch ecommerce campaigns with AI. Trusted by 500+ sellers worldwide."
         path="/"
         ogImage="/og-image.svg"
       />
@@ -1520,7 +1520,7 @@ export default function Home() {
               {isMobile ? 'Sign up' : 'Start Free →'}
             </Link>
             {isMobile && (
-              <button onClick={() => setMobileMenuOpen(prev => !prev)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6 }}>
+              <button onClick={() => setMobileMenuOpen(prev => !prev)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151', padding: '6px', display: 'flex' as const, alignItems: 'center', justifyContent: 'center', borderRadius: 6 }}>
                 {mobileMenuOpen
                   ? <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 4L16 16M4 16L16 4" stroke="#374151" strokeWidth="2" strokeLinecap="round"/></svg>
                   : <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="#374151" strokeWidth="2" strokeLinecap="round"/></svg>
@@ -1552,7 +1552,7 @@ export default function Home() {
           {/* Pill badge */}
           <div style={{ opacity: 0, animation: 'fadeIn 0.4s ease 0.1s both' }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', border: '1px solid #E5E7EB', background: 'white', color: '#6B7280', fontSize: 13, padding: '6px 14px', borderRadius: 999, marginBottom: 24 }}>
-              ✦ Built for Australian Dropshippers
+              ✦ Built for Ecommerce Winners
             </span>
           </div>
 
@@ -1560,12 +1560,12 @@ export default function Home() {
           <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 'clamp(32px, 7vw, 72px)', lineHeight: 1.1, letterSpacing: '-0.03em', margin: '0 0 0', opacity: 0, animation: 'fadeInUp 0.5s ease 0.2s both', overflowWrap: 'break-word' as const, wordBreak: 'break-word' as const }}>
             The Only <span style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI Tool</span> That Finds
             <br />
-            <span style={{ color: '#0A0A0A' }}>AU Winners Before Your Competitors Do.</span>
+            <span style={{ color: '#0A0A0A' }}>Find Winning Products Before Your Competitors Do.</span>
           </h1>
 
           {/* Subheading */}
           <p style={{ fontSize: 18, color: '#6B7280', maxWidth: 520, margin: '20px auto 0', lineHeight: 1.6, fontFamily: dm, opacity: 0, animation: 'fadeInUp 0.5s ease 0.3s both' }}>
-            Real TikTok Shop data. Real AliExpress suppliers. Real-time market signals — all in one platform built for Australian dropshippers.
+            Real TikTok Shop data. Real AliExpress suppliers. Real-time market signals — all in one platform built for ecommerce sellers.
           </p>
 
           {/* CTA row */}
@@ -1607,7 +1607,7 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            <span style={{ fontSize: 13, color: '#6B7280', marginLeft: 12 }}>★★★★★ Trusted by 500+ AU dropshippers</span>
+            <span style={{ fontSize: 13, color: '#6B7280', marginLeft: 12 }}>★★★★★ Trusted by 500+ sellers worldwide</span>
           </div>
         </div>
 

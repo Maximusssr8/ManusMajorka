@@ -579,13 +579,19 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         <ProductStatCards products={filtered} />
 
         {/* KaloData-style Tab Bar */}
-        <div style={{ display: 'flex', gap: 0, borderBottom: '2px solid #F3F4F6', marginBottom: 16, overflowX: 'auto' as const }}>
-          {TAB_FILTERS.map(t => (
-            <button key={t.id} onClick={() => setActiveTab(t.id)}
-              style={{ height: 42, padding: '0 20px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === t.id ? 700 : 500, color: activeTab === t.id ? '#6366F1' : '#9CA3AF', borderBottom: activeTab === t.id ? '3px solid #6366F1' : '3px solid transparent', whiteSpace: 'nowrap' as const, transition: 'all 150ms', marginBottom: -2, minWidth: 120 }}>
-              {t.label}
-            </button>
-          ))}
+        <style>{`.tab-scroll-container::-webkit-scrollbar { display: none; }`}</style>
+        <div style={{ position: 'relative' as const, marginBottom: 16 }}>
+          <div className="tab-scroll-container" style={{ display: 'flex', gap: 0, borderBottom: '2px solid #F3F4F6', marginBottom: 0, overflowX: 'auto' as const, WebkitOverflowScrolling: 'touch' as const, scrollbarWidth: 'none' as const, msOverflowStyle: 'none' as const }}>
+            {TAB_FILTERS.map(t => (
+              <button key={t.id} onClick={() => setActiveTab(t.id)}
+                style={{ height: 42, padding: '0 20px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: activeTab === t.id ? 700 : 500, color: activeTab === t.id ? '#6366F1' : '#9CA3AF', borderBottom: activeTab === t.id ? '3px solid #6366F1' : '3px solid transparent', whiteSpace: 'nowrap' as const, transition: 'all 150ms', marginBottom: -2, minWidth: 120 }}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+          {isMobile && (
+            <div style={{ position: 'absolute' as const, right: 0, top: 0, width: 40, height: '100%', background: 'linear-gradient(to left, #F9FAFB, transparent)', pointerEvents: 'none' as const }} />
+          )}
         </div>
       </div>
 
