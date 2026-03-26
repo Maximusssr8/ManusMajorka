@@ -341,7 +341,7 @@ export default function MarketDashboard() {
           {[
             { label: 'Products Tracked', value: loading ? '—' : String(stats.totalProducts), sub: 'TikTok Shop' },
             { label: 'Active Creators',  value: loading ? '—' : String(stats.activeCreators), sub: 'global partners' },
-            { label: 'Avg Win Score',    value: loading ? '—' : String(stats.avgScore),       sub: 'out of 100' },
+            { label: 'Avg Dropship Score', value: loading ? '—' : String(stats.avgScore),       sub: 'out of 100' },
             { label: 'Exploding Trends', value: loading ? '—' : String(stats.explodingTrends), sub: 'right now 🔥' },
           ].map((s) => (
             <div
@@ -393,7 +393,7 @@ export default function MarketDashboard() {
               <table className="w-full">
                 <thead>
                   <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
-                    {['#', 'Product', 'Category', 'Rev/day', 'Score', 'Trend'].map((h) => (
+                    {['#', 'Product', 'Category', 'Rev/day', 'Dropship Score', 'Trend'].map((h) => (
                       <th key={h} className="text-left px-4 py-2.5 text-xs font-medium" style={{ color: '#475569' }}>{h}</th>
                     ))}
                   </tr>

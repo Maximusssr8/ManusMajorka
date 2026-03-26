@@ -581,6 +581,187 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
   );
 }
 
+interface LeaderboardProduct {
+  id: string;
+  product_title: string;
+  category?: string;
+  winning_score?: number;
+  est_daily_revenue_aud?: number;
+  trend?: string;
+  image_url?: string;
+}
+
+const CATEGORY_COLORS: Record<string, { bg: string; color: string }> = {
+  'Health & Beauty': { bg: '#FCE7F3', color: '#DB2777' },
+  'Pet': { bg: '#DCFCE7', color: '#16A34A' },
+  'Tech': { bg: '#DBEAFE', color: '#2563EB' },
+  'Kitchen': { bg: '#FEF3C7', color: '#D97706' },
+  'Fitness': { bg: '#EDE9FE', color: '#7C3AED' },
+  'Home': { bg: '#E0F2FE', color: '#0284C7' },
+  'Fashion': { bg: '#FFF1F2', color: '#E11D48' },
+  'Baby': { bg: '#F0FDF4', color: '#15803D' },
+  'Outdoor': { bg: '#ECFDF5', color: '#059669' },
+};
+
+function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setLocation: (p: string) => void }) {
+  const [leaderboard, setLeaderboard] = useState<LeaderboardProduct[]>([]);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        const token = data?.session?.access_token;
+        const res = await fetch('/api/products?limit=10&sortBy=winning_score&sortDir=desc', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (res.ok) {
+          const d = await res.json();
+          const arr = Array.isArray(d) ? d : Array.isArray(d?.products) ? d.products : [];
+          setLeaderboard(arr.slice(0, 10));
+        }
+      } catch { /* silent */ }
+      setLeaderboardLoading(false);
+    };
+    fetchLeaderboard();
+    const interval = setInterval(fetchLeaderboard, 30 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const getRankDisplay = (i: number) => {
+    if (i === 0) return <span style={{ fontSize: 18 }}>🥇</span>;
+    if (i === 1) return <span style={{ fontSize: 18 }}>🥈</span>;
+    if (i === 2) return <span style={{ fontSize: 18 }}>🥉</span>;
+    return <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 700 }}>#{i + 1}</span>;
+  };
+
+  const getScoreTier = (score: number) => {
+    if (score >= 80) return { bg: '#DCFCE7', color: '#059669', label: '🔥 Hot' };
+    if (score >= 60) return { bg: '#FEF9C3', color: '#D97706', label: '📈 Rising' };
+    return { bg: '#F3F4F6', color: '#6B7280', label: '' };
+  };
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', display: 'inline-block', marginRight: 8 }} />
+          <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 17, fontWeight: 700, color: '#0A0A0A' }}>This Week&apos;s Leaders</span>
+        </div>
+        <button onClick={() => setLocation('/app/product-intelligence')} style={{ fontSize: 13, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>View all →</button>
+      </div>
+
+      {leaderboardLoading ? (
+        <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: i < 4 ? '1px solid #F9FAFB' : 'none' }}>
+              <div style={{ width: 24, height: 14, borderRadius: 4, background: 'linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 50%, #F3F4F6 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+              <div style={{ width: 36, height: 36, borderRadius: 6, background: 'linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 50%, #F3F4F6 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite', flexShrink: 0 }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ height: 13, width: '55%', borderRadius: 4, background: 'linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 50%, #F3F4F6 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite', marginBottom: 6 }} />
+                <div style={{ height: 10, width: '30%', borderRadius: 4, background: 'linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 50%, #F3F4F6 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : leaderboard.length === 0 ? (
+        <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '32px 24px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 13 }}>
+          No products yet — data loads shortly
+        </div>
+      ) : isMobile ? (
+        /* Mobile: horizontal scroll strip */
+        <div style={{ display: 'flex', gap: 12, overflowX: 'auto' as const, paddingBottom: 8, scrollbarWidth: 'none' as const }}>
+          {leaderboard.map((p, i) => {
+            const score = p.winning_score ?? 0;
+            const tier = getScoreTier(score);
+            return (
+              <div key={p.id} onClick={() => setLocation('/app/product-intelligence')} style={{ flexShrink: 0, width: 160, background: 'white', border: '1px solid #F0F0F0', borderRadius: 12, padding: 12, cursor: 'pointer' }}>
+                <div style={{ marginBottom: 8 }}>{getRankDisplay(i)}</div>
+                {p.image_url ? (
+                  <img src={p.image_url} alt="" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover' as const, marginBottom: 8, border: '1px solid #E5E7EB' }} onError={e => { e.currentTarget.style.display = 'none'; }} />
+                ) : (
+                  <div style={{ width: 40, height: 40, borderRadius: 6, background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#6366F1', marginBottom: 8 }}>
+                    {(p.product_title || 'P').charAt(0)}
+                  </div>
+                )}
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#0A0A0A', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, marginBottom: 6, lineHeight: 1.4 }}>{p.product_title}</div>
+                <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 12, background: tier.bg, color: tier.color }}>{score}/100</span>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        /* Desktop: table layout */
+        <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid #F0F0F0' }}>
+                {['#', 'Product', 'Category', 'Dropship Score', 'Est. Rev/Day', 'Trend', ''].map(h => (
+                  <th key={h} style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', padding: '10px 16px', textAlign: 'left' as const, whiteSpace: 'nowrap' as const }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {leaderboard.map((p, i) => {
+                const score = p.winning_score ?? 0;
+                const tier = getScoreTier(score);
+                const cat = p.category ?? 'General';
+                const catStyle = CATEGORY_COLORS[cat] ?? { bg: '#F3F4F6', color: '#6B7280' };
+                const truncTitle = (p.product_title || '').length > 32 ? (p.product_title || '').slice(0, 32) + '...' : (p.product_title || '');
+                return (
+                  <tr key={p.id} style={{ borderBottom: i < leaderboard.length - 1 ? '1px solid #F9FAFB' : 'none', cursor: 'pointer', transition: 'background 120ms' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFF')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'white')}
+                    onClick={() => setLocation('/app/product-intelligence')}>
+                    <td style={{ padding: '10px 16px', width: 40 }}>{getRankDisplay(i)}</td>
+                    <td style={{ padding: '10px 16px' }}>
+                      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                        {p.image_url ? (
+                          <img src={p.image_url} alt="" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover' as const, flexShrink: 0, border: '1px solid #E5E7EB' }} onError={e => { e.currentTarget.style.display = 'none'; }} />
+                        ) : (
+                          <div style={{ width: 36, height: 36, borderRadius: 6, background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#6366F1', flexShrink: 0 }}>
+                            {(p.product_title || 'P').charAt(0)}
+                          </div>
+                        )}
+                        <span style={{ fontSize: 13, fontWeight: 600, color: '#0A0A0A' }}>{truncTitle}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding: '10px 16px' }}>
+                      <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 20, background: catStyle.bg, color: catStyle.color, fontWeight: 600 }}>{cat}</span>
+                    </td>
+                    <td style={{ padding: '10px 16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ width: 60, height: 6, background: '#F3F4F6', borderRadius: 3, overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${Math.min(100, score)}%`, background: tier.color, borderRadius: 3 }} />
+                        </div>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: tier.color }}>{score}/100</span>
+                        {tier.label && <span style={{ fontSize: 11, color: tier.color }}>{tier.label}</span>}
+                      </div>
+                    </td>
+                    <td style={{ padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#374151' }}>
+                      ${p.est_daily_revenue_aud?.toFixed(0) || '—'}
+                    </td>
+                    <td style={{ padding: '10px 16px' }}>
+                      {(p.trend === 'rising' || p.trend === 'exploding') ? (
+                        <span style={{ fontSize: 12, color: '#059669', fontWeight: 600 }}>↑ Rising</span>
+                      ) : (
+                        <span style={{ fontSize: 12, color: '#6B7280' }}>→ Steady</span>
+                      )}
+                    </td>
+                    <td style={{ padding: '10px 16px' }}>
+                      <button onClick={e => { e.stopPropagation(); setLocation('/app/product-intelligence'); }} style={{ background: '#EEF2FF', color: '#6366F1', borderRadius: 6, padding: '4px 8px', fontSize: 12, border: 'none', cursor: 'pointer', fontWeight: 600 }}>→</button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function DashboardHome() {
   const { user, isPro, subPlan } = useAuth();
   const [, setLocation] = useLocation();
@@ -660,7 +841,7 @@ function DashboardHome() {
             { label: 'Products Found', value: '192', delta: '+12 this week', icon: Package, positive: true, color: '#6366F1', hero: false },
             { label: 'Est. Best Revenue', value: '$41.2k', delta: 'Top product / mo', icon: TrendingUp, positive: true, color: '#10B981', hero: true },
             { label: 'Avg Margin', value: '57%', delta: 'Across all products', icon: Percent, positive: true, color: '#8B5CF6', hero: false },
-            { label: 'Hot Products', value: '23', delta: 'Score 80+', icon: Zap, positive: true, color: '#F59E0B', hero: false },
+            { label: 'Hot Products', value: '23', delta: 'Dropship Score 80+', icon: Zap, positive: true, color: '#F59E0B', hero: false },
           ] as const).map((card, i) => (
             <div key={i} style={{
               background: card.hero ? 'linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%)' : 'white',
@@ -686,6 +867,9 @@ function DashboardHome() {
             </div>
           ))}
         </div>
+
+        {/* This Week's Leaders — leaderboard */}
+        <LeaderboardSection isMobile={isMobile} setLocation={setLocation} />
 
         {/* Row 2: Wide chart + Quick actions */}
         <div className="chart-insight-grid">
@@ -818,7 +1002,7 @@ function DashboardHome() {
               )}
               <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 16, lineHeight: 1.4, marginBottom: 8, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>{products[0].product_title}</div>
               <div style={{ display: 'flex', gap: 12, fontSize: 12, opacity: 0.85, marginBottom: 8 }}>
-                <span>Score <strong style={{ color: 'white' }}>{products[0].winning_score}</strong></span>
+                <span>Dropship Score <strong style={{ color: 'white' }}>{products[0].winning_score}</strong></span>
                 <span>{products[0].category}</span>
                 {products[0].profit_margin && <span>{products[0].profit_margin}% margin</span>}
               </div>

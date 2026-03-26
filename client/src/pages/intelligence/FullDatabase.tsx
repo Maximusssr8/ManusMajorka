@@ -9,6 +9,9 @@ import { ProductImage } from '@/components/ProductImage';
 import { VelocityBadge } from '@/components/VelocityBadge';
 import type { FilterState } from '@/components/ProductFilterSidebar';
 import { useRegion } from '@/context/RegionContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLocation } from 'wouter';
+import { Lock, Copy, Megaphone } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Product {
@@ -159,12 +162,12 @@ function ScoreBadge({ score }: { score: number }) {
     ? { bg: '#FFFBEB', color: '#D97706', prefix: '' }
     : { bg: '#FEF2F2', color: '#DC2626', prefix: '' };
   return (
-    <div title={`Opportunity Score: ${score}/100 — Top ${score >= 85 ? '10' : score >= 75 ? '25' : '40'}% of products this week`}
+    <div title={`Dropship Score: ${score}/100 — Top ${score >= 85 ? '10' : score >= 75 ? '25' : '40'}% of products this week`}
       style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', cursor: 'help', flexShrink: 0 }}>
       <div style={{ padding: '4px 10px', borderRadius: 20, background: tier.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 13, color: tier.color }}>{tier.prefix}{score}</span>
       </div>
-      <span style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>Score</span>
+      <span style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>Dropship</span>
     </div>
   );
 }
@@ -215,6 +218,9 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const isMobile = useIsMobile();
   // Use growth-rate sort for trending, score for full database
   const { region } = useRegion();
+  const { isPro, subPlan } = useAuth();
+  const [, setLocation] = useLocation();
+  const canSeeFinancials = isPro || subPlan === 'scale' || subPlan === 'builder';
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -585,6 +591,14 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
       {/* ── TABLE WRAPPER ── */}
       <div style={{ maxWidth: 1400, margin: '0 auto', padding: isMobile ? '0 0 80px' : '0 24px 40px', overflowX: 'visible' }}>
+        {/* Blur gate banner */}
+        {!canSeeFinancials && (
+          <div style={{ background: 'linear-gradient(135deg, #EEF2FF, #F5F3FF)', border: '1px solid #C7D2FE', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <Lock size={16} style={{ color: '#6366F1', flexShrink: 0 }} />
+            <span style={{ fontSize: 13, color: '#3730A3', flex: 1 }}>Margin, revenue &amp; cost data is available on Builder plan and above</span>
+            <button onClick={() => setLocation('/pricing')} style={{ background: '#6366F1', color: 'white', borderRadius: 6, padding: '5px 12px', fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>Unlock now →</button>
+          </div>
+        )}
         {/* Scroll hint wrapper */}
         <div style={{ position: 'relative' as const }}>
           {/* Right-edge fade — indicates more content to scroll */}
@@ -643,8 +657,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 <th style={thStyle('estimated_margin_pct', 84, 'right')} onClick={() => handleSort('estimated_margin_pct')}>
                   Margin <SortIcon col="estimated_margin_pct" />
                 </th>
-                <th style={thStyle('winning_score', 68, 'center')} onClick={() => handleSort('winning_score')}>
-                  Score <SortIcon col="winning_score" />
+                <th style={thStyle('winning_score', 68, 'center')} onClick={() => handleSort('winning_score')} title="Score based on: demand signals, margin potential, competition level, trend velocity">
+                  Dropship Score <SortIcon col="winning_score" />
                 </th>
                 <th style={{ ...thStyle('creators', 84, 'center'), cursor: 'default' }}>Creators</th>
                 <th style={{ ...thStyle('actions', 240, 'center'), cursor: 'default' }}>Actions</th>
@@ -754,12 +768,20 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
                         {/* Revenue */}
                         <td style={tdStyle('right')}>
-                          <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: revenue >= 10000 ? '#059669' : revenue >= 3000 ? '#0A0A0A' : '#9CA3AF' }}>
-                            ${revenue >= 1000 ? `${(revenue / 1000).toFixed(1)}k` : revenue.toLocaleString()}
-                          </div>
-                          <div style={{ fontSize: 11, fontWeight: 600, color: isPositive ? '#059669' : '#EF4444', marginTop: 2 }}>
-                            {isPositive ? '\u2191' : '\u2193'} {Math.abs(growth)}%
-                          </div>
+                          {canSeeFinancials ? (
+                            <>
+                              <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: revenue >= 10000 ? '#059669' : revenue >= 3000 ? '#0A0A0A' : '#9CA3AF' }}>
+                                ${revenue >= 1000 ? `${(revenue / 1000).toFixed(1)}k` : revenue.toLocaleString()}
+                              </div>
+                              <div style={{ fontSize: 11, fontWeight: 600, color: isPositive ? '#059669' : '#EF4444', marginTop: 2 }}>
+                                {isPositive ? '\u2191' : '\u2193'} {Math.abs(growth)}%
+                              </div>
+                            </>
+                          ) : (
+                            <span style={{ filter: 'blur(5px)', userSelect: 'none' as const, cursor: 'pointer', display: 'inline-block' }} title="Upgrade to see revenue data" onClick={e => { e.stopPropagation(); setLocation('/pricing'); }}>
+                              $X,XXX
+                            </span>
+                          )}
                         </td>
 
                         {/* Sparkline */}
@@ -785,12 +807,20 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
                         {/* Margin */}
                         <td style={tdStyle('center')}>
-                          <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: margin >= 50 ? '#059669' : margin >= 35 ? '#D97706' : '#EF4444' }}>
-                            {margin}%
-                          </div>
-                          <div style={{ height: 3, background: '#F3F4F6', borderRadius: 2, marginTop: 4, width: 48, margin: '4px auto 0' }}>
-                            <div style={{ height: '100%', width: `${Math.min(100, margin)}%`, background: margin >= 50 ? '#059669' : margin >= 35 ? '#D97706' : '#EF4444', borderRadius: 2 }} />
-                          </div>
+                          {canSeeFinancials ? (
+                            <>
+                              <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: margin >= 50 ? '#059669' : margin >= 35 ? '#D97706' : '#EF4444' }}>
+                                {margin}%
+                              </div>
+                              <div style={{ height: 3, background: '#F3F4F6', borderRadius: 2, marginTop: 4, width: 48, margin: '4px auto 0' }}>
+                                <div style={{ height: '100%', width: `${Math.min(100, margin)}%`, background: margin >= 50 ? '#059669' : margin >= 35 ? '#D97706' : '#EF4444', borderRadius: 2 }} />
+                              </div>
+                            </>
+                          ) : (
+                            <span style={{ filter: 'blur(5px)', userSelect: 'none' as const, cursor: 'pointer', display: 'inline-block' }} title="Upgrade to see margin data" onClick={e => { e.stopPropagation(); setLocation('/pricing'); }}>
+                              XX%
+                            </span>
+                          )}
                         </td>
 
                         {/* Score */}
@@ -927,6 +957,92 @@ function formatFollowers(n: string | number): string {
   return String(num);
 }
 
+const AUDIENCE_MAP: Record<string, string[]> = {
+  beauty: ['Women 25-44 interested in skincare', 'Makeup enthusiasts 18-35', 'Mothers with young children'],
+  health: ['Health-conscious adults 28-50', 'Fitness enthusiasts 18-35', 'Women 25-44 wellness interest'],
+  fitness: ['Gym-goers 18-35', 'Home workout enthusiasts 25-45', 'Weight loss journey 28-45'],
+  tech: ['Tech enthusiasts 18-40', 'Work from home professionals 28-45', 'Gadget buyers 25-45'],
+  kitchen: ['Home cooks 28-50', 'Meal prep enthusiasts 25-45', 'New homeowners 25-40'],
+  home: ['Homeowners 28-55', 'Interior design enthusiasts 25-45', 'New renters 22-35'],
+  pet: ['Dog owners 25-54', 'Cat owners 18-45', 'Pet parents interested in animal welfare 25-50'],
+  baby: ['Parents with children under 5', 'Expecting mothers 25-35', 'Grandparents 50-65'],
+  fashion: ['Fashion-forward women 18-35', 'Trend followers 18-30', 'Style enthusiasts 22-40'],
+  outdoor: ['Outdoor enthusiasts 25-50', 'Hikers and campers 22-45', 'Adventure seekers 20-40'],
+  default: ['Online shoppers 25-45', 'Value-conscious buyers 28-50', 'Impulse buyers 18-40'],
+};
+
+function AudienceSuggestions({ category, productTitle }: { category: string; productTitle: string }) {
+  const [, setLocation] = useLocation();
+  const [copiedSet, setCopiedSet] = useState<Set<string>>(new Set());
+
+  const catKey = category.toLowerCase();
+  let audiences = AUDIENCE_MAP.default;
+  for (const [key, vals] of Object.entries(AUDIENCE_MAP)) {
+    if (key !== 'default' && catKey.includes(key)) { audiences = vals; break; }
+  }
+
+  const handleCopy = (audience: string) => {
+    navigator.clipboard.writeText(audience);
+    setCopiedSet(prev => {
+      const next = new Set(prev);
+      next.add(audience);
+      return next;
+    });
+    setTimeout(() => {
+      setCopiedSet(prev => {
+        const next = new Set(prev);
+        next.delete(audience);
+        return next;
+      });
+    }, 1500);
+  };
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ fontWeight: 700, fontSize: 13, color: '#374151', marginBottom: 4 }}>Suggested Meta Audiences</div>
+      <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 10 }}>Based on product category · click to copy</div>
+      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 8 }}>
+        {audiences.map(audience => {
+          const isCopied = copiedSet.has(audience);
+          return (
+            <button
+              key={audience}
+              onClick={e => { e.stopPropagation(); handleCopy(audience); }}
+              title="Click to copy for Meta Ads Manager"
+              style={{
+                background: isCopied ? '#DCFCE7' : '#EEF2FF',
+                border: '1px solid #C7D2FE',
+                borderRadius: 20,
+                padding: '6px 12px',
+                fontSize: 12,
+                fontWeight: 500,
+                color: '#3730A3',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                transition: 'background 200ms',
+              }}
+            >
+              <Copy size={11} style={{ color: '#6366F1' }} />
+              {audience}
+            </button>
+          );
+        })}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
+        <button
+          onClick={e => { e.stopPropagation(); setLocation(`/app/ads-studio?product=${encodeURIComponent(productTitle)}&category=${encodeURIComponent(category)}&audience=${encodeURIComponent(audiences[0] || '')}`); }}
+          style={{ background: 'linear-gradient(135deg, #7C3AED, #6366F1)', color: 'white', borderRadius: 10, padding: '10px 20px', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, border: 'none' }}
+        >
+          <Megaphone size={15} />
+          Generate Ad →
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClose: () => void }) {
   const [aiAnalysis, setAiAnalysis] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
@@ -1039,7 +1155,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
               { label: 'Gross Margin', val: `${margin}%` },
               { label: 'Monthly Revenue', val: `$${revenue >= 1000 ? (revenue / 1000).toFixed(1) + 'k' : revenue}` },
               { label: 'Monthly Orders', val: orders.toLocaleString() },
-              { label: 'AI Score', val: `${score}/100` },
+              { label: 'Dropship Score', val: `${score}/100` },
             ].map(({ label, val }) => (
               <div key={label} style={{ padding: '12px 16px', background: 'white' }}>
                 <div style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 3 }}>{label}</div>
@@ -1057,6 +1173,31 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             )}
             <span style={{ fontSize: 10, color: '#9CA3AF', display: 'flex', alignItems: 'center' }}>Cost shown is estimated — verify on AliExpress</span>
           </div>
+          {/* Dropship Score visual bar */}
+          {(() => {
+            const s = score;
+            const tier = s >= 80
+              ? { bg: '#DCFCE7', color: '#059669', label: '🔥 Hot' }
+              : s >= 60
+              ? { bg: '#FEF9C3', color: '#D97706', label: '📈 Rising' }
+              : s >= 40
+              ? { bg: '#F3F4F6', color: '#6B7280', label: '➡️ Steady' }
+              : { bg: '#FEF2F2', color: '#DC2626', label: '⚠️ Risky' };
+            return (
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#0A0A0A', marginBottom: 8, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Dropship Score</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: tier.color }}>{s}/100</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: tier.color, background: tier.bg, padding: '3px 10px', borderRadius: 12 }}>{tier.label}</span>
+                </div>
+                <div style={{ height: 6, background: '#F3F4F6', borderRadius: 3, marginTop: 8, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${Math.min(100, s)}%`, background: `linear-gradient(90deg, ${tier.color}, ${tier.color}cc)`, borderRadius: 3, transition: 'width 0.6s ease' }} />
+                </div>
+                <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 4 }}>Based on: demand signals, margin potential, competition level, trend velocity</div>
+              </div>
+            );
+          })()}
+
           {(() => {
             const sb = p.score_breakdown;
             const margin = typeof p.profit_margin === 'number' ? p.profit_margin : 50;
@@ -1111,6 +1252,9 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
               <p style={{ fontFamily: dm, fontSize: 13, color: '#9CA3AF', margin: 0 }}>Brief unavailable</p>
             )}
           </div>
+
+          {/* Suggested Meta Audiences */}
+          <AudienceSuggestions category={p.niche || p.category || ''} productTitle={name} />
 
           {/* Creator Types to Target */}
           {(() => {
