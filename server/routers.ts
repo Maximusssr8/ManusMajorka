@@ -181,7 +181,12 @@ export const appRouter = router({
   /** User profile management */
   profile: router({
     get: protectedProcedure.query(async ({ ctx }) => {
-      return await getUserProfile(ctx.user.id);
+      try {
+        return await getUserProfile(ctx.user.id);
+      } catch {
+        // user_profiles table may not exist yet — return null gracefully
+        return null;
+      }
     }),
 
     update: protectedProcedure

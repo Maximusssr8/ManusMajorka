@@ -1,4 +1,12 @@
 
+// ── Mermaid isMobile shim ────────────────────────────────────────────────────
+// @streamdown/mermaid bundles Mermaid.js which calls the `is-mobile` package's
+// isMobile() as a global at runtime. Vite tree-shakes it out. Shim it before
+// any lazy chunk can reference it.
+if (typeof (window as any).isMobile === 'undefined') {
+  (window as any).isMobile = () => typeof window !== 'undefined' && window.innerWidth < 768;
+}
+
 // ── Stale chunk reload fix ───────────────────────────────────────────────────
 // After a new deploy, old lazily-loaded JS chunks no longer exist (hash mismatch).
 // Catch the failed dynamic import and force a hard reload once so the browser
