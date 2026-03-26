@@ -326,7 +326,7 @@ export default function AIChat() {
         </div>
 
         {/* ── Input ────────────────────────────────────────────────────────── */}
-        <div style={{ padding: "12px 24px 20px", flexShrink: 0, borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(13,17,23,0.98)" }}>
+        <div style={{ padding: "12px 24px max(20px, env(safe-area-inset-bottom, 20px))", flexShrink: 0, borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(13,17,23,0.98)" }}>
           <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 16, padding: "12px 16px", display: "flex", gap: 12, alignItems: "flex-end" }}>
             <textarea
               ref={textareaRef}
