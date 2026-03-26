@@ -515,7 +515,7 @@ const FAQS = [
   },
   {
     q: 'Is there a free trial for Builder or Scale?',
-    a: "Yes. Both paid plans include a 7-day free trial with no credit card required. Explore all 50+ tools and decide if it's right for you before being charged.",
+    a: "Yes. Both paid plans include a 14-day money-back guarantee. If you're not happy within 14 days of your first payment, we'll refund you in full — no questions asked.",
   },
   {
     q: 'What happens to my data if I downgrade?',

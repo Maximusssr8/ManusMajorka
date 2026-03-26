@@ -57,6 +57,7 @@ import('../server/migrations/runUserOnboarding').then(({ runUserOnboardingMigrat
 });
 
 const app = express();
+app.disable('x-powered-by'); // Don't expose Express in response headers
 app.set('trust proxy', 1); // Trust Vercel's load balancer for req.ip
 
 // ── Stripe webhook must receive raw body — register BEFORE express.json() ─────

@@ -229,7 +229,7 @@ const FAQ = [
   { q: 'What makes this different from other AI tools?', a: 'Majorka is region-native. It supports multi-currency pricing, local shipping carriers, tax compliance, and payment methods (Afterpay, Klarna, Zip, Stripe) across 7 markets. No more converting currencies or adapting generic advice.' },
   { q: 'Can I cancel anytime?', a: 'Yes, absolutely. No lock-in contracts. Cancel from your dashboard anytime. You retain access until the end of your billing period.' },
   { q: 'Do you support Shopify?', a: 'Yes. Website Generator exports production-ready Shopify Liquid theme files as a ZIP. All landing pages include trust signals, local payment badges, and mobile-optimised layouts ready for your store.' },
-  { q: 'Is there a free trial?', a: 'Yes. The Starter plan is free forever with 5 AI credits per day and access to core tools. Paid plans include a 7-day free trial with no credit card required.' },
+  { q: 'Is there a free trial?', a: 'Yes. The Starter plan is free forever with 5 AI credits per day and access to core tools. Paid plans include a 14-day money-back guarantee — no questions asked.' },
 ];
 
 const LOGO_STRIP = ['Shopify', 'AliExpress', 'Meta', 'Google', 'TikTok', 'DHL', 'Stripe', 'Klarna', 'Afterpay', 'Amazon', 'Canva'];
@@ -367,7 +367,7 @@ function EmailCapture() {
       </div>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <input type="text" placeholder="First name (optional)" value={name} onChange={(e) => setName(e.target.value)} style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 10, padding: '12px 16px', color: '#0A0A0A', fontSize: 14, fontFamily: dm, outline: 'none', minHeight: 48 }} />
-        <input type="email" placeholder="Your email address" required value={email} onChange={(e) => setEmail(e.target.value)} style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 10, padding: '12px 16px', color: '#0A0A0A', fontSize: 14, fontFamily: dm, outline: 'none', minHeight: 48 }} />
+        <input type="email" autoComplete="email" placeholder="Your email address" required value={email} onChange={(e) => setEmail(e.target.value)} style={{ background: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: 10, padding: '12px 16px', color: '#0A0A0A', fontSize: 14, fontFamily: dm, outline: 'none', minHeight: 48 }} />
         <button type="submit" disabled={status === 'loading'} style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#fff', borderRadius: 10, padding: '14px 20px', fontFamily: syne, fontWeight: 800, fontSize: 15, border: 'none', cursor: status === 'loading' ? 'wait' : 'pointer', opacity: status === 'loading' ? 0.7 : 1, transition: 'opacity 0.2s', minHeight: 48 }}>
           {status === 'loading' ? 'Sending...' : 'Send Me the Guide'}
         </button>
@@ -913,7 +913,7 @@ function HowItWorksSection() {
               num: '03', Icon: TrendingUp, color: '#10B981', bg: '#ECFDF5',
               title: 'Launch, spy & scale',
               desc: 'Use Spy Tools to monitor competitor ads. Track profit with the calculator. Scale what works, cut what does not.',
-              stat: { label: '14-day free trial', value: 'Free' },
+              stat: { label: '14-day guarantee', value: 'Free' },
               tag: 'Results',
             },
           ].map((step, i) => {
@@ -1740,7 +1740,7 @@ export default function Home() {
                   { feature: 'AI Winning Product Score', majorka: true, minea: false, stt: false, manual: false },
                   { feature: 'TikTok Shop Data', majorka: true, minea: true, stt: false, manual: false },
                   { feature: 'AliExpress Supplier Match', majorka: true, minea: false, stt: true, manual: true },
-                  { feature: 'Competitor Store Spy', majorka: true, minea: true, stt: true, manual: false },
+                  { feature: 'Competitor Ad Spy', majorka: true, minea: true, stt: false, manual: false },
                   { feature: 'AI Store Builder', majorka: true, minea: false, stt: false, manual: false },
                   { feature: 'AU Market Optimised', majorka: true, minea: false, stt: false, manual: false },
                   { feature: 'Profit Calculator', majorka: true, minea: false, stt: true, manual: true },
@@ -1767,7 +1767,7 @@ export default function Home() {
             { icon: '🔒', label: 'SSL Encrypted' },
             { icon: '🌍', label: 'Global Platform' },
             { icon: '💳', label: 'Cancel Anytime' },
-            { icon: '🤝', label: '7-Day Money Back' },
+            { icon: '🤝', label: '14-Day Money Back' },
           ].map((badge, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, color: '#6B7280', fontSize: 13, fontWeight: 500 }}>
               <span style={{ fontSize: 16 }}>{badge.icon}</span>

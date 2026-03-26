@@ -1,0 +1,11 @@
+Contact: mailto:security@majorka.io
+Expires: 2027-03-26T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://www.majorka.io/.well-known/security.txt
+Policy: https://www.majorka.io/responsible-disclosure
+
+# Majorka Responsible Disclosure Policy
+# We appreciate security researchers who responsibly disclose vulnerabilities.
+# Please email security@majorka.io with your findings.
+# We aim to acknowledge reports within 2 business days.
+# We do not currently offer a bug bounty program but will credit researchers (if desired).

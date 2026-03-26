@@ -9,7 +9,7 @@ interface SEOProps {
 
 const BASE_URL = 'https://majorka.io';
 
-export function SEO({ title, description, path = '/', ogImage = '/og-image.svg' }: SEOProps) {
+export function SEO({ title, description, path = '/', ogImage = '/og-image.png' }: SEOProps) {
   const url = `${BASE_URL}${path}`;
   const imageUrl = ogImage.startsWith('http') ? ogImage : `${BASE_URL}${ogImage}`;
 
