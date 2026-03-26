@@ -415,6 +415,62 @@ export default function StoreBuilder() {
   // Enhancement 3: Subscription Gate
   const canExport = isPro || subPlan === 'scale' || subPlan === 'builder';
 
+  // Enhancement 4: Drafts
+  const [draftSaved, setDraftSaved] = useState(false);
+  const [draftId, setDraftId] = useState<string | null>(null);
+  const [drafts, setDrafts] = useState<StoreDraft[]>(() => loadDrafts());
+
+  // Image slot hover state
+  const [hoveredSlot, setHoveredSlot] = useState<string | null>(null);
+
+  // Toast for drafts
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(null), 2000);
+  };
+
+  const handleSaveDraft = () => {
+    const id = draftId || crypto.randomUUID();
+    const draft: StoreDraft = {
+      id,
+      name: storeName || 'Untitled Store',
+      step: currentStep,
+      niche: selectedNiche || customNiche,
+      templateId: selectedTemplate || null,
+      importedProduct: importedProduct,
+      customisations: { storeName, storeTagline },
+      uploadedImages,
+      savedAt: new Date().toISOString(),
+    };
+    const existing = loadDrafts();
+    const idx = existing.findIndex(d => d.id === id);
+    if (idx >= 0) existing[idx] = draft; else existing.unshift(draft);
+    saveDrafts(existing);
+    setDrafts(existing);
+    setDraftId(id);
+    setDraftSaved(true);
+    showToast('Draft saved');
+  };
+
+  const loadDraft = (draft: StoreDraft) => {
+    setSelectedTemplate(draft.templateId || '');
+    setSelectedNiche(draft.niche);
+    setStoreName(draft.customisations.storeName);
+    setStoreTagline(draft.customisations.storeTagline);
+    setUploadedImages(draft.uploadedImages);
+    setImportedProduct(draft.importedProduct as typeof importedProduct);
+    setDraftId(draft.id);
+    setCurrentStep(draft.step);
+  };
+
+  const deleteDraft = (id: string) => {
+    const updated = loadDrafts().filter(d => d.id !== id);
+    saveDrafts(updated);
+    setDrafts(updated);
+  };
+
   // Pre-fill store name from imported product
   useEffect(() => {
     if (importedProduct?.title && !storeName) {
@@ -702,8 +758,28 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
               </p>
             </div>
 
+            {/* My Drafts */}
+            {drafts.length > 0 && (
+              <div style={{ marginBottom: 24 }}>
+                <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 16, color: '#0A0A0A', marginBottom: 12 }}>Continue Where You Left Off</div>
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+                  {drafts.slice(0, 3).map(d => (
+                    <div key={d.id} style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 12, padding: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <Store size={24} color="#6366F1" />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: '#0A0A0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{d.name || 'Untitled Store'}</div>
+                        <div style={{ fontSize: 12, color: '#9CA3AF' }}>Step {d.step + 1} of 4 · Saved {timeAgo(d.savedAt)}</div>
+                      </div>
+                      <button onClick={() => loadDraft(d)} style={{ height: 32, padding: '0 14px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Continue</button>
+                      <button onClick={() => deleteDraft(d.id)} style={{ background: 'none', border: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: '4px 8px' }}>Delete</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Search + filter bar */}
-            <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 24 }}>
+            <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" as const, marginBottom: 24 }}>
               <input
                 type="text"
                 placeholder="Search templates..."
@@ -818,7 +894,13 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
             </div>
 
             {/* Next button */}
-            <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end" }}>
+            <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end", gap: 10 }}>
+              <button
+                onClick={handleSaveDraft}
+                style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, padding: '8px 14px', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: '#374151' }}
+              >
+                <Save size={13} color="#6B7280" /> Save Draft
+              </button>
               <button
                 onClick={() => { if (selectedNiche) setProductSourceModal(true); }}
                 disabled={!selectedNiche}
@@ -897,24 +979,23 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
                     return (
                       <div
                         key={slot.key}
-                        style={{ width: 80, height: 80, borderRadius: 8, border: '1px solid #E5E7EB', background: '#F3F4F6', position: 'relative' as const, overflow: 'hidden', cursor: 'pointer', flexShrink: 0 }}
+                        style={{ width: 90, height: 90, borderRadius: 10, border: '2px dashed #E5E7EB', background: imgSrc ? 'transparent' : '#FAFAFA', position: 'relative' as const, overflow: 'hidden', cursor: 'pointer', flexShrink: 0 }}
                         onClick={() => { setSelectedImageSlot(slot.key); setImageEditorOpen(true); setImageEditorTab('product'); }}
+                        onMouseEnter={() => setHoveredSlot(slot.key)}
+                        onMouseLeave={() => setHoveredSlot(null)}
                       >
                         {imgSrc ? (
-                          <img src={imgSrc} alt={slot.label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <img src={imgSrc} alt={slot.label} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} />
                         ) : (
                           <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                             <Image size={16} color="#9CA3AF" />
-                            <span style={{ fontSize: 9, color: '#9CA3AF', textAlign: 'center', padding: '0 4px', lineHeight: 1.2 }}>{slot.label}</span>
+                            <span style={{ fontSize: 9, color: '#9CA3AF', textAlign: 'center' as const, padding: '0 4px', lineHeight: 1.2 }}>{slot.label}</span>
                           </div>
                         )}
-                        {/* Hover overlay */}
                         <div
-                          style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 150ms' }}
-                          onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
-                          onMouseLeave={e => (e.currentTarget.style.opacity = '0')}
+                          style={{ position: 'absolute' as const, inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: hoveredSlot === slot.key ? 1 : 0, transition: 'opacity 150ms' }}
                         >
-                          <span style={{ color: 'white', fontSize: 11, fontWeight: 600 }}>Replace</span>
+                          <span style={{ color: 'white', fontSize: 11, fontWeight: 700 }}>Replace</span>
                         </div>
                       </div>
                     );
@@ -922,7 +1003,13 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
                 </div>
               </div>
 
-              <div style={{ marginTop: 28, display: "flex", justifyContent: "flex-end" }}>
+              <div style={{ marginTop: 28, display: "flex", justifyContent: "flex-end", gap: 10 }}>
+                <button
+                  onClick={handleSaveDraft}
+                  style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, padding: '8px 14px', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: '#374151' }}
+                >
+                  <Save size={13} color="#6B7280" /> Save Draft
+                </button>
                 <button
                   onClick={() => { if (storeName.trim()) setCurrentStep(3); }}
                   disabled={!storeName.trim()}
@@ -1005,44 +1092,90 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
 
             {buildState === "idle" && (
               <>
-                {/* Summary card */}
-                <div style={{ background: "#FAFAFA", border: "1px solid #E5E7EB", borderRadius: 14, padding: "20px 24px", marginBottom: 24 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "#9CA3AF", textTransform: "uppercase" as const, letterSpacing: "0.06em", marginBottom: 12 }}>Store Summary</div>
+                {/* Review Summary Card */}
+                <div style={{ background: '#F8F9FF', border: '1px solid #E0E7FF', borderRadius: 14, padding: 24, marginBottom: 20 }}>
+                  <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 18, color: '#0A0A0A', marginBottom: 16 }}>Review Your Store</div>
                   {[
-                    { label: "Template", value: TEMPLATES.find(t => t.id === selectedTemplate)?.name ?? "\u2014" },
-                    { label: "Niche", value: NICHES.find(n => n.id === selectedNiche)?.label ?? customNiche ?? "\u2014" },
-                    { label: "Store Name", value: storeName || "\u2014" },
-                    { label: "Currency", value: "AUD \u{1F1E6}\u{1F1FA}" },
-                  ].map((row, i) => (
-                    <div key={i} style={{ display: "flex", justifyContent: "space-between", paddingBottom: i < 3 ? 10 : 0, marginBottom: i < 3 ? 10 : 0, borderBottom: i < 3 ? "1px solid #F3F4F6" : "none" }}>
-                      <span style={{ fontSize: 13, color: "#6B7280" }}>{row.label}</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: "#0A0A0A" }}>{row.value}</span>
+                    { label: `Template selected: ${TEMPLATES.find(t => t.id === selectedTemplate)?.name ?? 'None'}`, ok: !!selectedTemplate },
+                    { label: `Niche / category: ${NICHES.find(n => n.id === selectedNiche)?.label ?? customNiche ?? 'Not set'}`, ok: !!selectedNiche },
+                    { label: importedProduct ? 'Product linked' : 'Product linked', ok: !!importedProduct, hint: !importedProduct ? 'Optional \u2014 you can add products later' : undefined, warn: !importedProduct },
+                    { label: 'Images customised', ok: Object.keys(uploadedImages).length > 0, hint: Object.keys(uploadedImages).length === 0 ? 'Using template defaults' : undefined, grey: Object.keys(uploadedImages).length === 0 },
+                  ].map((item, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, fontSize: 13 }}>
+                      <div style={{
+                        width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                        background: item.ok ? '#DCFCE7' : item.warn ? '#FEF9C3' : '#F3F4F6',
+                      }}>
+                        <Check size={12} color={item.ok ? '#16A34A' : item.warn ? '#CA8A04' : '#9CA3AF'} />
+                      </div>
+                      <div>
+                        <span style={{ color: '#0A0A0A', fontWeight: 500 }}>{item.label}</span>
+                        {item.hint && <span style={{ color: item.warn ? '#CA8A04' : '#9CA3AF', marginLeft: 6 }}>{item.hint}</span>}
+                      </div>
                     </div>
                   ))}
                 </div>
 
-                {/* Launch options */}
-                <div className="sb-launch-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
-                  <div style={{ padding: "20px", border: "2px solid #6366F1", borderRadius: 12, textAlign: "center", background: "#EEF2FF" }}>
-                    <div style={{ fontSize: 28, marginBottom: 8 }}>{"\u{1F3EA}"}</div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "#0A0A0A", marginBottom: 4 }}>Connect Shopify</div>
-                    <div style={{ fontSize: 12, color: "#6B7280" }}>OAuth connection — store deploys directly</div>
-                  </div>
-                  <div style={{ padding: "20px", border: "2px solid #E5E7EB", borderRadius: 12, textAlign: "center", background: "white" }}>
-                    <div style={{ fontSize: 28, marginBottom: 8 }}>{"\u{1F4E6}"}</div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "#0A0A0A", marginBottom: 4 }}>Download Files</div>
-                    <div style={{ fontSize: 12, color: "#6B7280" }}>ZIP export — upload to any Shopify store</div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={startBuild}
-                  style={{ width: "100%", height: 52, background: "#6366F1", color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: "pointer", transition: "all 150ms" }}
-                  onMouseEnter={e => (e.currentTarget.style.background = "#4F46E5")}
-                  onMouseLeave={e => (e.currentTarget.style.background = "#6366F1")}
-                >
-                  Build My Store {"\u2192"}
-                </button>
+                {/* Subscription gate or export buttons */}
+                {!canExport ? (
+                  <>
+                    <div style={{ background: 'linear-gradient(135deg, #EEF2FF, #F5F3FF)', border: '1px solid #C7D2FE', borderRadius: 12, padding: 20, display: 'flex', alignItems: 'flex-start', gap: 16, marginBottom: 20 }}>
+                      <Lock size={20} color="#6366F1" style={{ marginTop: 2, flexShrink: 0 }} />
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: 14, color: '#1E1B4B' }}>Export to Shopify is available on Scale plan & above</div>
+                        <div style={{ fontSize: 13, color: '#6B7280', marginTop: 4 }}>You are one step away \u2014 upgrade to publish your store directly.</div>
+                        <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+                          <button
+                            onClick={() => navigate('/pricing')}
+                            style={{ height: 38, padding: '0 20px', background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                          >
+                            Upgrade Now
+                          </button>
+                          <button
+                            onClick={() => { handleDownloadZip(); }}
+                            style={{ height: 38, padding: '0 20px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                          >
+                            Download HTML instead
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <button onClick={handleSaveDraft} style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, padding: '8px 14px', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: '#374151' }}>
+                        <Save size={13} color="#6B7280" /> Save Draft
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Launch options */}
+                    <div className="sb-launch-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
+                      <div style={{ padding: "20px", border: "2px solid #6366F1", borderRadius: 12, textAlign: "center" as const, background: "#EEF2FF" }}>
+                        <div style={{ fontSize: 28, marginBottom: 8 }}>{"\u{1F3EA}"}</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: "#0A0A0A", marginBottom: 4 }}>Connect Shopify</div>
+                        <div style={{ fontSize: 12, color: "#6B7280" }}>OAuth connection \u2014 store deploys directly</div>
+                      </div>
+                      <div style={{ padding: "20px", border: "2px solid #E5E7EB", borderRadius: 12, textAlign: "center" as const, background: "white" }}>
+                        <div style={{ fontSize: 28, marginBottom: 8 }}>{"\u{1F4E6}"}</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: "#0A0A0A", marginBottom: 4 }}>Download Files</div>
+                        <div style={{ fontSize: 12, color: "#6B7280" }}>ZIP export \u2014 upload to any Shopify store</div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 10 }}>
+                      <button onClick={handleSaveDraft} style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, padding: '8px 14px', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: '#374151' }}>
+                        <Save size={13} color="#6B7280" /> Save Draft
+                      </button>
+                      <button
+                        onClick={startBuild}
+                        style={{ flex: 1, height: 52, background: "#6366F1", color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: "pointer", transition: "all 150ms" }}
+                        onMouseEnter={e => (e.currentTarget.style.background = "#4F46E5")}
+                        onMouseLeave={e => (e.currentTarget.style.background = "#6366F1")}
+                      >
+                        Build My Store {"\u2192"}
+                      </button>
+                    </div>
+                  </>
+                )}
               </>
             )}
 
@@ -1406,6 +1539,13 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
       {imageToast && (
         <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', background: '#059669', color: 'white', padding: '10px 20px', borderRadius: 10, fontSize: 13, fontWeight: 500, zIndex: 9999, boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
           {imageToast}
+        </div>
+      )}
+
+      {/* Toast notification */}
+      {toastMsg && (
+        <div style={{ position: 'fixed' as const, top: 24, right: 24, background: '#059669', color: 'white', padding: '10px 20px', borderRadius: 10, fontSize: 13, fontWeight: 500, zIndex: 9999, boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
+          {toastMsg}
         </div>
       )}
 
