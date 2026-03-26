@@ -657,23 +657,32 @@ function DashboardHome() {
         {/* Row 1: 4 stat cards */}
         <div className="stats-grid-responsive" style={{ gap: 16, marginBottom: 20 }}>
           {([
-            { label: 'Products Found', value: '192', delta: '+12 this week', icon: Package, positive: true, color: '#6366F1' },
-            { label: 'Est. Best Revenue', value: '$41.2k', delta: 'Posture Corrector', icon: TrendingUp, positive: true, color: '#10B981' },
-            { label: 'Avg Margin', value: '57%', delta: 'Across all products', icon: Percent, positive: true, color: '#8B5CF6' },
-            { label: 'Hot Products', value: '23', delta: 'Score 80+', icon: Zap, positive: true, color: '#F59E0B' },
+            { label: 'Products Found', value: '192', delta: '+12 this week', icon: Package, positive: true, color: '#6366F1', hero: false },
+            { label: 'Est. Best Revenue', value: '$41.2k', delta: 'Top product / mo', icon: TrendingUp, positive: true, color: '#10B981', hero: true },
+            { label: 'Avg Margin', value: '57%', delta: 'Across all products', icon: Percent, positive: true, color: '#8B5CF6', hero: false },
+            { label: 'Hot Products', value: '23', delta: 'Score 80+', icon: Zap, positive: true, color: '#F59E0B', hero: false },
           ] as const).map((card, i) => (
-            <div key={i} style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '22px 24px', cursor: 'default', transition: 'box-shadow 200ms, border-color 200ms', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}
-              onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px #E5E7EB'; e.currentTarget.style.borderColor = '#E0E7FF'; }}
-              onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)'; e.currentTarget.style.borderColor = '#F0F0F0'; }}
+            <div key={i} style={{
+              background: card.hero ? 'linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%)' : 'white',
+              border: card.hero ? '1.5px solid #6EE7B7' : '1px solid #F0F0F0',
+              borderLeft: card.hero ? '4px solid #10B981' : undefined,
+              borderRadius: 14,
+              padding: '22px 24px',
+              cursor: 'default',
+              transition: 'box-shadow 200ms, border-color 200ms',
+              boxShadow: card.hero ? '0 2px 8px rgba(16,185,129,0.10), 0 1px 3px rgba(0,0,0,0.06)' : '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = card.hero ? '0 4px 20px rgba(16,185,129,0.18)' : '0 4px 16px #E5E7EB'; }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = card.hero ? '0 2px 8px rgba(16,185,129,0.10), 0 1px 3px rgba(0,0,0,0.06)' : '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)'; }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' as const, color: '#6B7280' }}>{card.label}</span>
-                <div style={{ width: 34, height: 34, borderRadius: 9, background: `${card.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' as const, color: card.hero ? '#065F46' : '#6B7280' }}>{card.label}</span>
+                <div style={{ width: 34, height: 34, borderRadius: 9, background: `${card.color}${card.hero ? '25' : '15'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <card.icon size={16} color={card.color} />
                 </div>
               </div>
-              <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 800, fontSize: 30, color: '#0A0A0A', lineHeight: 1, marginBottom: 8 }}>{card.value}</div>
-              <div style={{ fontSize: 12, color: card.positive ? '#059669' : '#EF4444' }}>&uarr; {card.delta}</div>
+              <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 800, fontSize: card.hero ? 36 : 30, color: card.hero ? '#065F46' : '#0A0A0A', lineHeight: 1, marginBottom: 8 }}>{card.value}</div>
+              <div style={{ fontSize: 12, color: card.positive ? (card.hero ? '#059669' : '#059669') : '#EF4444' }}>&uarr; {card.delta}</div>
             </div>
           ))}
         </div>
