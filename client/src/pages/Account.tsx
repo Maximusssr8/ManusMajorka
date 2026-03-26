@@ -157,7 +157,7 @@ export default function Account() {
             onClick={() => setLocation(isActive ? '/app' : '/')}
           >
             <ArrowLeft className="w-4 h-4" />
-            {isActive ? 'Back to Dashboard' : 'Back to Home'}
+            {isActive ? 'Dashboard' : 'Home'}
           </button>
           <div className="flex items-center gap-2">
             <div

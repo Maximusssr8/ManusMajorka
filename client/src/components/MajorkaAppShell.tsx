@@ -81,49 +81,24 @@ interface NavSection {
   items: NavItem[];
 }
 
+// ── Flat sidebar — 9 items, no section labels, merged overlapping tools ───────
 const NAV_SECTIONS: NavSection[] = [
   {
     items: [
-      { label: 'Home', path: '/app', exact: true, icon: Home },
-    ],
-  },
-  {
-    label: 'DISCOVER',
-    items: [
-      { label: 'Product Intelligence', path: '/app/product-intelligence', icon: Flame, tooltip: 'Trending products + full database + AI scout — all in one.' },
-      { label: 'Market Intel', path: '/app/market', icon: Globe, tooltip: 'Category trends, niche opportunities, and market-level demand data.' },
-    ],
-  },
-  {
-    label: 'INTELLIGENCE',
-    items: [
-      { label: 'Creator Intel', path: '/app/creators', icon: Users, tooltip: 'Find top TikTok creators promoting products in your niche.' },
-      { label: 'Video Intel', path: '/app/video-intelligence', icon: Play, badge: 'NEW', tooltip: 'Top-performing product videos — what drives real sales.' },
+      { label: 'Home', path: '/app', exact: true, icon: Home, tooltip: 'Your dashboard — activity, top products, quick access.' },
+      { label: 'Products', path: '/app/product-intelligence', icon: Search, tooltip: 'Find winning products — trending, database, AI scout.' },
+      { label: 'Market', path: '/app/market', icon: BarChart3, tooltip: 'Category trends, niche demand data, and market-level signals.' },
+      { label: 'Creators & Video', path: '/app/creators', icon: Play, tooltip: 'Top TikTok creators and highest-performing product videos.' },
+      { label: 'Ad Spy', path: '/app/ad-spy', icon: Eye, tooltip: 'Spy on winning ads and competitor products.' },
       { label: 'Alerts', path: '/app/alerts', icon: Bell, tooltip: 'Smart alerts for trending products, price drops, and competitor moves.' },
-      { label: 'Ad Intelligence', path: '/app/ad-spy', icon: Target, tooltip: 'Spy on winning TikTok & Meta ads in your niche.' },
-      // Livestream — coming soon, hidden until feature is built
+      { label: 'Maya AI', path: '/app/ai-chat', icon: Sparkles, badge: 'AI', tooltip: 'Your AI ecommerce advisor — ask anything.' },
+      { label: 'Store Builder', path: '/app/store-builder', icon: Store, badge: 'AI', tooltip: 'Build a Shopify-ready store in 60 seconds.' },
+      { label: 'Ads Studio', path: '/app/ads-studio', icon: Megaphone, badge: 'AI', tooltip: 'Generate Meta and TikTok ad creatives with Maya.' },
+      { label: 'Profit Calc', path: '/app/profit', icon: DollarSign, tooltip: 'Model unit economics, margins and break-even CPA.' },
     ],
   },
   {
-    label: 'COMPETE',
     items: [
-      { label: 'Spy Tools', path: '/app/spy', icon: Eye, tooltip: 'Browse winning ads, creator inspiration, and competitor products.' },
-    ],
-  },
-  {
-    label: 'BUILD',
-    items: [
-      { label: 'Maya AI', path: '/app/ai-chat', icon: MessageSquare, badge: 'AI', tooltip: 'Your AI ecommerce advisor — ask anything about products, niches, and strategy.' },
-      { label: 'Store Builder AI', path: '/app/store-builder', icon: Globe, badge: 'AI', tooltip: 'Build a complete Shopify-ready store in 60 seconds with 17 templates.' },
-      { label: 'Ads Studio', path: '/app/ads-studio', icon: Zap, badge: 'AI', tooltip: 'Generate scroll-stopping TikTok & Meta ad creatives with Maya AI.' },
-      { label: 'Growth Tools', path: '/app/growth-tools', icon: Zap, tooltip: 'Copy Studio, Brand DNA — one place.' },
-      { label: 'Profit Calculator', path: '/app/profit', icon: DollarSign, tooltip: 'Model unit economics, margins and break-even CPA.' },
-    ],
-  },
-  {
-    label: 'ACCOUNT',
-    items: [
-      { label: 'Academy', path: '/app/learn', icon: GraduationCap, tooltip: 'Learn dropshipping for your market.', badge: 'SOON' },
       { label: 'Settings', path: '/app/settings', icon: Settings, tooltip: 'Account settings, plan, and billing.' },
     ],
   },
@@ -526,6 +501,18 @@ export default function MajorkaAppShell({ children }: Props) {
     if (path === '/app/my-products') {
       return location.startsWith('/app/my-products') || location.startsWith('/app/product-hub');
     }
+    // "Creators & Video" item covers both /app/creators and /app/videos
+    if (path === '/app/creators') {
+      return location.startsWith('/app/creators') || location.startsWith('/app/videos') || location.startsWith('/app/video-intel') || location.startsWith('/app/creator-intel');
+    }
+    // "Products" item covers product-intelligence + intelligence + winning-products
+    if (path === '/app/product-intelligence') {
+      return location.startsWith('/app/product-intelligence') || location.startsWith('/app/intelligence') || location.startsWith('/app/winning-products');
+    }
+    // "Ad Spy" covers /app/ad-spy + /app/spy
+    if (path === '/app/ad-spy') {
+      return location.startsWith('/app/ad-spy') || location.startsWith('/app/spy');
+    }
     return exact ? location === path : location === path || location.startsWith(path + '/');
   };
 
@@ -703,7 +690,7 @@ export default function MajorkaAppShell({ children }: Props) {
         {/* Nav sections */}
         {NAV_SECTIONS.map((section, si) => (
           <div key={si} className="mb-1">
-            {section.label && (
+            {section.label ? (
               <>
                 {si > 0 && <div style={{ borderTop: '1px solid #F0F0F0', margin: '4px 0' }} />}
                 <div style={{ padding: '8px 16px 4px' }}>
@@ -712,7 +699,9 @@ export default function MajorkaAppShell({ children }: Props) {
                   </span>
                 </div>
               </>
-            )}
+            ) : si > 0 ? (
+              <div style={{ borderTop: '1px solid #F3F4F6', margin: '6px 8px' }} />
+            ) : null}
             {section.items.map((item) => navItem(item))}
           </div>
         ))}

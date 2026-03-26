@@ -685,8 +685,8 @@ function DashboardHome() {
           <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px 28px', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div>
-                <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#0A0A0A' }}>Revenue Trend</div>
-                <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>Est. combined weekly revenue from tracked products</div>
+                <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#0A0A0A' }}>Market Revenue Trend</div>
+                <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>Estimated AU market weekly revenue across tracked products — not your store revenue</div>
               </div>
               <span style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Bricolage Grotesque, sans-serif', color: '#6366F1' }}>{loading ? '—' : fmtWeekly}</span>
             </div>
@@ -707,26 +707,30 @@ function DashboardHome() {
             </ResponsiveContainer>
           </div>
 
-          {/* Quick actions */}
+          {/* Workflow guide */}
           <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
-            <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#0A0A0A', marginBottom: 16 }}>Quick Actions</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#0A0A0A', marginBottom: 4 }}>Your Workflow</div>
+            <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>The fastest path from zero to first sale</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {([
-                { icon: Search, label: 'Find Winning Products', path: '/app/intelligence', color: '#6366F1' },
-                { icon: Globe, label: 'Build a Shopify Store', path: '/app/store-builder', color: '#8B5CF6' },
-                { icon: Eye, label: 'Spy on Competitors', path: '/app/competitor-spy', color: '#0891B2' },
-                { icon: BarChart2, label: 'Profit Calculator', path: '/app/profit-calculator', color: '#059669' },
-                { icon: Megaphone, label: 'Write Ad Copy', path: '/app/ads-studio', color: '#D97706' },
-              ] as const).map((action, i) => (
-                <button key={i} onClick={() => setLocation(action.path)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', borderRadius: 9, background: '#FAFAFA', border: '1px solid #F0F0F0', cursor: 'pointer', transition: 'all 150ms', textAlign: 'left' as const }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#EEF2FF'; e.currentTarget.style.borderColor = `${action.color}40`; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = '#FAFAFA'; e.currentTarget.style.borderColor = '#F0F0F0'; }}
-                >
-                  <div style={{ width: 30, height: 30, borderRadius: 8, background: `${action.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <action.icon size={14} color={action.color} />
+                { step: '1', icon: Search, label: 'Find a winning product', sub: 'Filter by niche, margin & trend', path: '/app/product-intelligence', done: products.length > 0, color: '#6366F1' },
+                { step: '2', icon: BarChart2, label: 'Run the numbers', sub: 'Check margins before buying stock', path: '/app/profit', done: false, color: '#8B5CF6' },
+                { step: '3', icon: Eye, label: 'Spy on competitor ads', sub: 'See what\'s working before spending', path: '/app/ad-spy', done: false, color: '#0891B2' },
+                { step: '4', icon: Megaphone, label: 'Generate your ad creative', sub: 'Maya writes Meta + TikTok ads', path: '/app/ads-studio', done: false, color: '#7C3AED' },
+                { step: '5', icon: Globe, label: 'Build your store', sub: 'Live Shopify store in 60 seconds', path: '/app/store-builder', done: false, color: '#059669' },
+              ] as const).map((s, i) => (
+                <button key={i} onClick={() => setLocation(s.path)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 9, background: '#FAFAFA', border: '1px solid #F0F0F0', cursor: 'pointer', textAlign: 'left' as const }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#EEF2FF'; e.currentTarget.style.borderColor = `${s.color}40`; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#FAFAFA'; e.currentTarget.style.borderColor = '#F0F0F0'; }}>
+                  <div style={{ width: 22, height: 22, borderRadius: '50%', background: s.done ? '#ECFDF5' : `${s.color}15`, border: `1.5px solid ${s.done ? '#10B981' : s.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {s.done ? <span style={{ fontSize: 10, color: '#10B981' }}>✓</span> : <span style={{ fontSize: 9, fontWeight: 700, color: s.color }}>{s.step}</span>}
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 500, color: '#374151' }}>{action.label}</span>
-                  <ArrowRight size={12} color="#9CA3AF" style={{ marginLeft: 'auto' }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#0A0A0A', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.label}</div>
+                    <div style={{ fontSize: 10, color: '#9CA3AF' }}>{s.sub}</div>
+                  </div>
+                  <ArrowRight size={12} color="#D1D5DB" style={{ flexShrink: 0 }} />
                 </button>
               ))}
             </div>
