@@ -203,6 +203,8 @@ export default function MarketDashboard() {
   const [refreshingProducts, setRefreshingProducts] = useState(false);
   const [refreshError, setRefreshError] = useState('');
 
+  useEffect(() => { document.title = 'Market Intelligence | Majorka'; }, []);
+
   // Check subscription plan
   useEffect(() => {
     (async () => {

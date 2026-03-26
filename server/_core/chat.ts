@@ -1026,6 +1026,20 @@ export function registerChatRoutes(app: Application) {
         return;
       }
 
+      // ── Input length limits ──────────────────────────────────────────────
+      // Reject any single message over 10k chars
+      for (const m of messages) {
+        const content = typeof m.content === 'string' ? m.content : JSON.stringify(m.content);
+        if (content && content.length > 10000) {
+          res.status(400).json({ error: 'Message too long' });
+          return;
+        }
+      }
+      // Truncate history to last 50 messages
+      if (messages.length > 50) {
+        messages = messages.slice(-50);
+      }
+
       // Normalise messages
       messages = messages
         .map((m: any) => ({

@@ -51,6 +51,13 @@ function renderMarkdown(md: string): string {
   return html;
 }
 
+// ── XSS sanitizer for rendered markdown HTML ─────────────────────────────────
+const safeHtml = (html: string) =>
+  html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '');
+
 // ── Types ────────────────────────────────────────────────────────────────────
 
 type SaturationLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'OVERSATURATED';
@@ -595,7 +602,7 @@ export default function SaturationChecker() {
                 </div>
                 <div
                   style={{ color: '#6B7280', lineHeight: 1.7, fontSize: '0.95rem' }}
-                  dangerouslySetInnerHTML={{ __html: renderMarkdown(result.opportunity) }}
+                  dangerouslySetInnerHTML={{ __html: safeHtml(renderMarkdown(result.opportunity)) }}
                 />
               </div>
             )}
@@ -617,7 +624,7 @@ export default function SaturationChecker() {
                   </h2>
                   <div
                     style={{ fontSize: '0.9rem' }}
-                    dangerouslySetInnerHTML={{ __html: renderMarkdown(section.body) }}
+                    dangerouslySetInnerHTML={{ __html: safeHtml(renderMarkdown(section.body)) }}
                   />
                 </div>
               ))}

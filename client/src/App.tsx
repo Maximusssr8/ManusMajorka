@@ -294,6 +294,7 @@ function Router() {
             <Route path="/app/ads">{() => { window.location.replace('/app/ad-spy'); return null; }}</Route>
             <Route path="/app/creator-intel">{() => { window.location.replace('/app/creators'); return null; }}</Route>
             <Route path="/app/academy">{() => { window.location.replace('/app/learn'); return null; }}</Route>
+            <Route path="/app/maya">{() => { window.location.replace('/app/ai-chat'); return null; }}</Route>
             <Route path="/app/intelligence/database">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/ai-chat">{() => <ProtectedRoute><AppLayout><AIChat /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/:tool">

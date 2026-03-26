@@ -177,8 +177,8 @@ export default function ProfitCalculator() {
         <input type="range" min={min} max={max} step={step} value={value} onChange={e => onChange(parseFloat(e.target.value))} style={sliderStyle} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'DM Sans, sans-serif', color: '#6B7280', fontSize: 14 }}>
           {prefix && <span>{prefix}</span>}
-          <input type="number" min={min} max={max} step={step} value={value}
-            onChange={e => { const v = parseFloat(e.target.value); if (!isNaN(v)) onChange(Math.min(max, Math.max(min, v))); }}
+          <input type="number" min={0} max={999999} step={step} value={value}
+            onChange={e => { const v = parseFloat(e.target.value); if (!isNaN(v)) onChange(Math.min(999999, Math.max(0, v))); }}
             style={numberInputStyle} />
           {suffix && <span>{suffix}</span>}
         </div>

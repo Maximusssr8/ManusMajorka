@@ -1,10 +1,11 @@
 import { Router, Request, Response } from 'express';
+import { requireAuth } from '../middleware/requireAuth';
 import { fetchRealVideos, getTikTokCacheStatus, searchVideos } from '../lib/tiktokData';
 
 const router = Router();
 
 // GET /api/videos/real
-router.get('/real', async (_req: Request, res: Response) => {
+router.get('/real', requireAuth, async (_req: Request, res: Response) => {
   try {
     const videos = await fetchRealVideos();
     const status = await getTikTokCacheStatus();
@@ -17,7 +18,7 @@ router.get('/real', async (_req: Request, res: Response) => {
 });
 
 // GET /api/videos/search?q=term — live Apify search, no cache
-router.get('/search', async (req: Request, res: Response) => {
+router.get('/search', requireAuth, async (req: Request, res: Response) => {
   const q = String(req.query.q || '').trim();
   if (!q) return res.status(400).json({ error: 'q required', videos: [] });
   try {

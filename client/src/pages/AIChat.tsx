@@ -183,6 +183,10 @@ export default function AIChat() {
   const sendMessage = async (text?: string) => {
     const content = (text ?? input).trim();
     if (!content || loading) return;
+    if (content.length > 10000) {
+      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant' as const, content: 'Message too long (max 10,000 characters). Please shorten your message.', ts: new Date() }]);
+      return;
+    }
 
     const userMsg: Message = { id: Date.now().toString(), role: "user", content, ts: new Date() };
     setMessages(prev => [...prev, userMsg]);

@@ -27,7 +27,7 @@ async function checkAccess(req: Request): Promise<boolean> {
 }
 
 // GET /api/creators/real
-router.get('/real', async (_req: Request, res: Response) => {
+router.get('/real', requireAuth, async (_req: Request, res: Response) => {
   try {
     const creators = await fetchRealCreators();
     const status = await getTikTokCacheStatus();

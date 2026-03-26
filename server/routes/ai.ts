@@ -91,6 +91,13 @@ Only output the JSON. No markdown. No code blocks.`
 // Unified /generate endpoint for Growth Tools
 router.post('/generate', async (req, res) => {
   try {
+    // Input size guard — reject oversized payloads before any processing
+    const MAX_INPUT_CHARS = 10000;
+    const inputStr = JSON.stringify(req.body);
+    if (inputStr.length > MAX_INPUT_CHARS * 3) {
+      return res.status(400).json({ error: 'Request payload too large' });
+    }
+
     // Rate limit: 10 AI calls per user per 60s (Upstash sliding window)
     const forwarded = req.headers['x-forwarded-for'];
     const clientIp = (Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0]) || req.ip || req.socket?.remoteAddress || 'anon';
@@ -393,7 +400,7 @@ router.post('/supplier-search', async (req: Request, res: Response) => {
     const { product } = req.body;
     if (!product) return res.status(400).json({ error: 'product required' });
 
-    const TAVILY_KEY = process.env.TAVILY_API_KEY || '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';
+    const TAVILY_KEY = process.env.TAVILY_API_KEY || '';
     const query = `${product} supplier wholesale dropship AliExpress buy bulk`;
 
     const r = await fetch('https://api.tavily.com/search', {
