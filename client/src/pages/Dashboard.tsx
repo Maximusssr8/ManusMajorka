@@ -759,7 +759,8 @@ function DashboardHome() {
                 {products.length === 0 ? (
                   <div style={{ padding: '32px 24px', textAlign: 'center', color: '#9CA3AF', fontSize: 13 }}>
                     <div style={{ fontSize: 24, marginBottom: 8 }}>📊</div>
-                    No products found. Check back soon →
+                    <p style={{ marginBottom: 12 }}>No products yet — let's find your first winner.</p>
+                    <a href="/app/intelligence" style={{ color: '#6366F1', fontWeight: 600, textDecoration: 'none', fontSize: 13 }}>Browse Product Intelligence →</a>
                   </div>
                 ) : null}
                 {(products.slice(0, 5)).map((p: any, i: number) => {

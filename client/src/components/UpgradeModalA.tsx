@@ -177,7 +177,7 @@ export default function UpgradeModalA({
                 className="w-full py-2.5 rounded-lg text-xs font-bold transition-all"
                 style={{
                   background: plan.popular
-                    ? 'linear-gradient(135deg, #6366F1, #f0c040)'
+                    ? 'linear-gradient(135deg, #6366F1, #8B5CF6)'
                     : '#F9FAFB',
                   color: plan.popular ? '#FAFAFA' : '#0A0A0A',
                   border: plan.popular ? 'none' : '1px solid #F0F0F0',

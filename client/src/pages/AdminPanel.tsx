@@ -443,7 +443,7 @@ export default function AdminPanel() {
               width: 28,
               height: 28,
               borderRadius: 8,
-              background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+              background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

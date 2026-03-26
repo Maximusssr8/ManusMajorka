@@ -123,7 +123,7 @@ export default function ProjectManager() {
   };
 
   const priorityColor = (p: string) =>
-    p === 'high' ? '#ff6b6b' : p === 'medium' ? '#f0c040' : '#9CA3AF';
+    p === 'high' ? '#ff6b6b' : p === 'medium' ? '#F59E0B' : '#9CA3AF';
 
   return (
     <div

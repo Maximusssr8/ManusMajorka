@@ -139,7 +139,7 @@ export default function RadialOrbitalTimeline({ timelineData }: RadialOrbitalTim
           <div
             className="absolute w-16 h-16 rounded-full flex items-center justify-center z-10"
             style={{
-              background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+              background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
               boxShadow: '0 0 40px rgba(99,102,241,0.5)',
             }}
           >

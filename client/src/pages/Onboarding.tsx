@@ -395,7 +395,7 @@ export default function Onboarding() {
         >
           <motion.div
             className="h-full"
-            style={{ background: `linear-gradient(90deg, ${GOLD}, #f0c040)` }}
+            style={{ background: `linear-gradient(90deg, ${GOLD}, #8B5CF6)` }}
             animate={{ width: `${((typeof step === 'number' ? step : 5) / 5) * 100}%` }}
             transition={{ duration: 0.4, ease: 'easeOut' }}
           />

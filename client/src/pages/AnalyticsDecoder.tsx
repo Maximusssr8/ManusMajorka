@@ -293,7 +293,7 @@ export default function AnalyticsDecoder() {
                             ? '#6366F1'
                             : kpi.trend === 'down'
                               ? '#ff6b6b'
-                              : '#f0c040',
+                              : '#F59E0B',
                       }}
                     >
                       {kpi.trend === 'up' ? (

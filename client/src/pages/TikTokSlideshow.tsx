@@ -346,7 +346,7 @@ Return ONLY the updated JSON. Same structure, better content.`,
             disabled={generating || !productName.trim()}
             className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-40"
             style={{
-              background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+              background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
               color: '#FAFAFA',
               fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: generating ? 'wait' : 'pointer',

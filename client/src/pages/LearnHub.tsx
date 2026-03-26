@@ -363,7 +363,7 @@ function SafeInlineText({ text }: { text: string }) {
             borderRadius: '4px',
             fontFamily: 'monospace',
             fontSize: '0.85em',
-            color: '#f0c040',
+            color: '#F59E0B',
           }}
         >
           {match[4]}
@@ -508,7 +508,7 @@ function CircularRing({ percent }: { percent: number }) {
 
 // ── Confetti (CSS-only) ───────────────────────────────────────────────────────
 
-const CONFETTI_COLORS = ['#6366F1', '#f0c040', '#22c55e', '#a855f7', '#3b82f6', '#f59e0b'];
+const CONFETTI_COLORS = ['#6366F1', '#F59E0B', '#22c55e', '#a855f7', '#3b82f6', '#f59e0b'];
 
 function ConfettiBurst({ active }: { active: boolean }) {
   const pieces = useMemo(
@@ -995,7 +995,7 @@ Start with a brief intro paragraph, then dive straight into the content.`;
             className="h-full transition-all duration-200"
             style={{
               width: `${readProgress}%`,
-              background: 'linear-gradient(90deg, #6366F1, #f0c040)',
+              background: 'linear-gradient(90deg, #6366F1, #8B5CF6)',
             }}
           />
         </div>
@@ -1352,7 +1352,7 @@ function TrackCard({
             style={{
               background: trackComplete
                 ? 'linear-gradient(90deg, #4ade80, #22c55e)'
-                : 'linear-gradient(90deg, #6366F1, #f0c040)',
+                : 'linear-gradient(90deg, #6366F1, #8B5CF6)',
             }}
           />
         </div>

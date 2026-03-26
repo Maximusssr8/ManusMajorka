@@ -105,7 +105,7 @@ export default function MarketIntel() {
         <div className="flex items-center gap-3">
           <div
             className="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-sm"
-            style={{ background: 'linear-gradient(135deg, #6366F1, #f0c040)', color: '#FAFAFA' }}
+            style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', color: '#FAFAFA' }}
           >
             I
           </div>

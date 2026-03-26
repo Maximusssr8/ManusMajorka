@@ -888,7 +888,7 @@ function FileTree({
                   fontFamily: 'monospace',
                 }}
               >
-                <FileCode size={12} style={{ color: fileName.endsWith('.json') ? '#f0c040' : '#9c5fff' }} />
+                <FileCode size={12} style={{ color: fileName.endsWith('.json') ? '#F59E0B' : '#9c5fff' }} />
                 <span>{fileName}</span>
               </button>
             );
@@ -3233,7 +3233,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
                 {/* Recommendation */}
                 {analysisResult.recommendation && (
                   <div className="text-xs font-semibold" style={{ color: '#9CA3AF' }}>
-                    Recommendation: <span style={{ color: '#f0c040' }}>{analysisResult.recommendation}</span>
+                    Recommendation: <span style={{ color: '#F59E0B' }}>{analysisResult.recommendation}</span>
                   </div>
                 )}
               </div>
@@ -3556,7 +3556,7 @@ h1{font-size:clamp(32px,5vw,56px);letter-spacing:-1.5px;line-height:1.08;margin-
               onClick={handleGenerate}
               disabled={generating}
               className="mjk-gen-btn w-full rounded-xl font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-60"
-              style={{ height: 56, background: generating ? 'rgba(99,102,241,0.25)' : 'linear-gradient(135deg, #6366F1, #f0c040)', color: '#FAFAFA', fontFamily: "'Bricolage Grotesque', sans-serif", boxShadow: generating ? 'none' : '0 4px 24px rgba(99,102,241,0.35)', cursor: generating ? 'not-allowed' : 'pointer', border: 'none', fontSize: 14 }}
+              style={{ height: 56, background: generating ? 'rgba(99,102,241,0.25)' : 'linear-gradient(135deg, #6366F1, #8B5CF6)', color: '#FAFAFA', fontFamily: "'Bricolage Grotesque', sans-serif", boxShadow: generating ? 'none' : '0 4px 24px rgba(99,102,241,0.35)', cursor: generating ? 'not-allowed' : 'pointer', border: 'none', fontSize: 14 }}
             >
               {generating ? (
                 <>

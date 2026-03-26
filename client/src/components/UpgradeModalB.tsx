@@ -134,7 +134,7 @@ export default function UpgradeModalB({
             onClick={() => handleUpgrade('builder')}
             className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all mb-2"
             style={{
-              background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+              background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
               color: '#FAFAFA',
               fontFamily: "'Bricolage Grotesque', sans-serif",
               cursor: 'pointer',

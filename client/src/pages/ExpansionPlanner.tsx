@@ -198,7 +198,7 @@ export default function ExpansionPlanner() {
           style={{
             background: generating
               ? 'rgba(99,102,241,0.25)'
-              : 'linear-gradient(135deg, #6366F1, #f0c040)',
+              : 'linear-gradient(135deg, #6366F1, #F59E0B)',
             color: '#FAFAFA',
             fontFamily: "'Bricolage Grotesque', sans-serif",
             boxShadow: generating ? 'none' : '0 4px 20px rgba(99,102,241,0.3)',
@@ -291,7 +291,7 @@ export default function ExpansionPlanner() {
                         style={{
                           background:
                             m.score >= 70 ? 'rgba(99,102,241,0.18)' : 'rgba(240,192,64,0.12)',
-                          color: m.score >= 70 ? '#6366F1' : '#f0c040',
+                          color: m.score >= 70 ? '#6366F1' : '#F59E0B',
                         }}
                       >
                         {m.score}/100
@@ -398,7 +398,7 @@ export default function ExpansionPlanner() {
                   {item.ready ? (
                     <CheckCircle2 size={14} style={{ color: '#6366F1' }} />
                   ) : (
-                    <AlertTriangle size={14} style={{ color: '#f0c040' }} />
+                    <AlertTriangle size={14} style={{ color: '#F59E0B' }} />
                   )}
                   <span className="text-xs" style={{ color: '#6B7280' }}>
                     {item.item}

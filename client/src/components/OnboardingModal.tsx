@@ -233,7 +233,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
             className="h-full transition-all duration-500"
             style={{
               width: `${progress}%`,
-              background: 'linear-gradient(90deg, #6366F1, #f0c040)',
+              background: 'linear-gradient(90deg, #6366F1, #8B5CF6)',
             }}
           />
         </div>
@@ -302,7 +302,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
                 style={{
                   background: selectedLevel
-                    ? 'linear-gradient(135deg, #6366F1, #f0c040)'
+                    ? 'linear-gradient(135deg, #6366F1, #8B5CF6)'
                     : '#F9FAFB',
                   color: selectedLevel ? '#FAFAFA' : '#9CA3AF',
                   fontFamily: "'Bricolage Grotesque', sans-serif",
@@ -395,7 +395,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all disabled:opacity-40"
                   style={{
                     background: selectedGoal
-                      ? 'linear-gradient(135deg, #6366F1, #f0c040)'
+                      ? 'linear-gradient(135deg, #6366F1, #8B5CF6)'
                       : '#F9FAFB',
                     color: selectedGoal ? '#FAFAFA' : '#9CA3AF',
                     fontFamily: "'Bricolage Grotesque', sans-serif",
@@ -537,7 +537,7 @@ export default function OnboardingModal({ userName }: OnboardingModalProps) {
                     disabled={importing || !importUrl.trim()}
                     className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all disabled:opacity-50"
                     style={{
-                      background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+                      background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
                       color: '#FAFAFA',
                       fontFamily: "'Bricolage Grotesque', sans-serif",
                       cursor: importing || !importUrl.trim() ? 'not-allowed' : 'pointer',

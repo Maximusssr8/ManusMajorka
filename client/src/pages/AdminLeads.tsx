@@ -356,7 +356,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
               onClick={() => setTab('outreach')}
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all"
               style={{
-                background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+                background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
                 color: '#FAFAFA',
                 fontFamily: "'Bricolage Grotesque', sans-serif",
                 cursor: 'pointer',
@@ -390,7 +390,7 @@ Be extremely specific. Real subreddit names, real Facebook group names, real has
                 disabled={generating}
                 className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold transition-all disabled:opacity-40"
                 style={{
-                  background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+                  background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
                   color: '#FAFAFA',
                   fontFamily: "'Bricolage Grotesque', sans-serif",
                   cursor: 'pointer',

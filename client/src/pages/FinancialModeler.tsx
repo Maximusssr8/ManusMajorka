@@ -333,7 +333,7 @@ export default function FinancialModeler() {
                   {
                     label: 'ROAS',
                     value: `${result.roas.toFixed(1)}x`,
-                    color: result.roas >= 2 ? '#6366F1' : result.roas >= 1 ? '#f0c040' : '#ff6b6b',
+                    color: result.roas >= 2 ? '#6366F1' : result.roas >= 1 ? '#F59E0B' : '#ff6b6b',
                     icon: Target,
                   },
                   {

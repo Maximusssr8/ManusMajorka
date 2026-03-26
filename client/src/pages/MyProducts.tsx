@@ -264,7 +264,7 @@ export default function MyProducts() {
               }}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all"
               style={{
-                background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+                background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
                 color: '#FAFAFA',
                 fontFamily: "'Bricolage Grotesque', sans-serif",
                 cursor: 'pointer',
@@ -344,7 +344,7 @@ export default function MyProducts() {
                   disabled={importing || !importUrl.trim()}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
                   style={{
-                    background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+                    background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
                     color: '#FAFAFA',
                     fontFamily: "'Bricolage Grotesque', sans-serif",
                     cursor: importing ? 'not-allowed' : 'pointer',
@@ -451,7 +451,7 @@ export default function MyProducts() {
                     disabled={isSubmitting}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-all disabled:opacity-60"
                     style={{
-                      background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+                      background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
                       color: '#FAFAFA',
                       fontFamily: "'Bricolage Grotesque', sans-serif",
                       cursor: isSubmitting ? 'not-allowed' : 'pointer',
@@ -539,7 +539,7 @@ export default function MyProducts() {
               disabled={isSubmitting}
               className="px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-60"
               style={{
-                background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+                background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
                 color: '#FAFAFA',
                 fontFamily: "'Bricolage Grotesque', sans-serif",
                 cursor: isSubmitting ? 'not-allowed' : 'pointer',

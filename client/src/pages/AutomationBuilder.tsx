@@ -102,7 +102,7 @@ export default function AutomationBuilder() {
   };
 
   const diffColor = (d: string) =>
-    d === 'easy' ? '#6366F1' : d === 'medium' ? '#f0c040' : '#ff6b6b';
+    d === 'easy' ? '#6366F1' : d === 'medium' ? '#F59E0B' : '#ff6b6b';
 
   return (
     <div
@@ -211,7 +211,7 @@ export default function AutomationBuilder() {
           style={{
             background: generating
               ? 'rgba(255,180,0,0.25)'
-              : 'linear-gradient(135deg, #ffb400, #f0c040)',
+              : 'linear-gradient(135deg, #ffb400, #F59E0B)',
             color: '#FAFAFA',
             fontFamily: "'Bricolage Grotesque', sans-serif",
             boxShadow: generating ? 'none' : '0 4px 20px rgba(255,180,0,0.3)',

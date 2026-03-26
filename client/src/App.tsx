@@ -68,7 +68,7 @@ function LoadingFallback() {
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-lg animate-pulse"
           style={{
-            background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+            background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
             color: '#FAFAFA',
             fontFamily: "'Bricolage Grotesque', sans-serif",
           }}

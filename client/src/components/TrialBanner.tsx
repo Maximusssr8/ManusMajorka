@@ -34,7 +34,7 @@ export default function TrialBanner({ className }: TrialBannerProps) {
         onClick={() => trackUpgradeClicked({ source: 'trial_banner', plan: 'free' })}
         className="text-xs font-bold px-3 py-1 rounded-lg flex-shrink-0 transition-all"
         style={{
-          background: 'linear-gradient(135deg, #6366F1, #f0c040)',
+          background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
           color: '#FAFAFA',
           textDecoration: 'none',
           fontFamily: "'Bricolage Grotesque', sans-serif",
