@@ -30,7 +30,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
   const [tab, setTab] = useState<'active' | 'history'>('active');
   const [showCreate, setShowCreate] = useState(false);
   const [alertType, setAlertType] = useState<AlertType>('trending');
-  const [form, setForm] = useState<Record<string, string>>({ niche: 'Health & Wellness', region: 'AU', threshold: '50', category: 'Beauty', store_domain: '' });
+  const [form, setForm] = useState<Record<string, string>>({ niche: 'Health & Wellness', region: 'US', threshold: '50', category: 'Beauty', store_domain: '' });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => { loadAlerts(); }, [session]);

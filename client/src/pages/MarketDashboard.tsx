@@ -181,8 +181,8 @@ function parseSparkline(raw: string | number[] | null | undefined): number[] {
 // ── Quick access cards ────────────────────────────────────────────────────────
 
 const QUICK_CARDS = [
-  { label: 'Trending Products', sub: 'Top AU winners right now', icon: Flame, path: '/app/winning-products', color: '#ef4444' },
-  { label: 'Creator Intel',     sub: 'Find AU TikTok partners',   icon: Users,  path: '/app/creators',         color: '#6366F1' },
+  { label: 'Trending Products', sub: 'Top winners right now', icon: Flame, path: '/app/winning-products', color: '#ef4444' },
+  { label: 'Creator Intel',     sub: 'Find TikTok partners',   icon: Users,  path: '/app/creators',         color: '#6366F1' },
   { label: 'Video Intel',       sub: 'Top-converting videos',     icon: Play,   path: '/app/videos',           color: '#a78bfa' },
   { label: 'Competitor Spy',    sub: 'Research any competitor',   icon: Eye,    path: '/app/competitor-spy',   color: '#38bdf8' },
   { label: 'Market Trends',     sub: 'Category performance',      icon: TrendingUp, path: '/app/market-intel', color: '#34d399' },
@@ -300,10 +300,13 @@ export default function MarketDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#fff' }}>
-              AU Market Intelligence
+              Market Intelligence
             </h1>
             <p className="text-sm mt-0.5" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>
-              Live TikTok Shop data — Australian market
+              Live TikTok Shop data — global markets
+            </p>
+            <p className="text-xs mt-0.5" style={{ color: '#94a3b8', fontFamily: 'DM Sans, sans-serif' }}>
+              Showing data for your selected market — change market in the sidebar
             </p>
             <p className="text-xs mt-0.5" style={{ color: '#9CA3AF' }}>
               Last updated: {productsCachedAt ? (() => {
@@ -336,8 +339,8 @@ export default function MarketDashboard() {
         {/* ── Market Stats ─────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { label: 'Products Tracked', value: loading ? '—' : String(stats.totalProducts), sub: 'AU TikTok Shop' },
-            { label: 'Active Creators',  value: loading ? '—' : String(stats.activeCreators), sub: 'AU partners' },
+            { label: 'Products Tracked', value: loading ? '—' : String(stats.totalProducts), sub: 'TikTok Shop' },
+            { label: 'Active Creators',  value: loading ? '—' : String(stats.activeCreators), sub: 'global partners' },
             { label: 'Avg Win Score',    value: loading ? '—' : String(stats.avgScore),       sub: 'out of 100' },
             { label: 'Exploding Trends', value: loading ? '—' : String(stats.explodingTrends), sub: 'right now 🔥' },
           ].map((s) => (

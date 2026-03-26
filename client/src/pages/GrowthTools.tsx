@@ -49,7 +49,7 @@ function Output({ text, label }: { text: string; label?: string }) {
 function LaunchPack() {
   const [product, setProduct] = useState('');
   const [niche, setNiche] = useState('');
-  const [region, setRegion] = useState('AU');
+  const [region, setRegion] = useState('US');
   const [loading, setLoading] = useState(false);
   const [pack, setPack] = useState<Record<string, string>>({});
   const [progress, setProgress] = useState(0);
@@ -211,7 +211,7 @@ function AdCopyTool() {
   const run = async () => {
     if (!product.trim()) return;
     setLoading(true);
-    setResult(await callAI('ad_copy', { product, platform, tone, region: 'AU' }));
+    setResult(await callAI('ad_copy', { product, platform, tone, region: 'US' }));
     setLoading(false);
   };
 
@@ -250,7 +250,7 @@ function AdCopyTool() {
 function DescriptionTool() {
   const [product, setProduct] = useState('');
   const [features, setFeatures] = useState('');
-  const [audience, setAudience] = useState('AU Shoppers (General)');
+  const [audience, setAudience] = useState('US Shoppers (General)');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState('');
 
@@ -270,7 +270,7 @@ function DescriptionTool() {
           style={{ padding: '10px 12px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, background: '#FAFAFA', color: '#0A0A0A', resize: 'none' as const, fontFamily: 'inherit' }} />
         <select value={audience} onChange={e => setAudience(e.target.value)}
           style={{ height: 38, padding: '0 10px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, background: 'white', cursor: 'pointer', color: '#374151' }}>
-          {['AU Shoppers (General)','US Shoppers (General)','Beauty Enthusiasts','Fitness & Health','Pet Owners','Tech Lovers','Home Improvers'].map(a => <option key={a}>{a}</option>)}
+          {['US Shoppers (General)','AU Shoppers (General)','Beauty Enthusiasts','Fitness & Health','Pet Owners','Tech Lovers','Home Improvers'].map(a => <option key={a}>{a}</option>)}
         </select>
         <button onClick={run} disabled={loading || !product.trim()}
           style={{ height: 38, background: loading ? '#9CA3AF' : '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer' }}>
@@ -291,7 +291,7 @@ function EmailTool() {
 
   const run = async () => {
     setLoading(true);
-    setResult(await callAI('email_template', { brand: brand || 'our store', type, region: 'AU' }));
+    setResult(await callAI('email_template', { brand: brand || 'our store', type, region: 'US' }));
     setLoading(false);
   };
 
@@ -364,7 +364,7 @@ function NameTool() {
   const run = async () => {
     if (!niche.trim()) return;
     setLoading(true);
-    setResult(await callAI('store_name', { niche, region: 'AU' }));
+    setResult(await callAI('store_name', { niche, region: 'US' }));
     setLoading(false);
   };
 
@@ -392,7 +392,7 @@ function HashtagTool() {
   const run = async () => {
     if (!product.trim()) return;
     setLoading(true);
-    setResult(await callAI('hashtags', { product, niche: product, region: 'AU' }));
+    setResult(await callAI('hashtags', { product, niche: product, region: 'US' }));
     setLoading(false);
   };
 

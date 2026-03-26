@@ -8,10 +8,14 @@ import { Search, Play } from 'lucide-react';
 
 // Real TikTok creators — shown immediately while live data loads
 const FALLBACK_CREATORS = [
+  { handle: '@charlidamelio', display_name: 'Charli D Amelio', profile_url: 'https://www.tiktok.com/@charlidamelio', niche: 'fashion', region_code: 'US', est_followers: '153M', promoting_products: ['fashion', 'beauty', 'lifestyle'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@charlidamelio' },
+  { handle: '@khaby.lame', display_name: 'Khaby Lame', profile_url: 'https://www.tiktok.com/@khaby.lame', niche: 'general', region_code: 'US', est_followers: '162M', promoting_products: ['lifestyle', 'humor', 'products'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@khaby.lame' },
+  { handle: '@brentrivera', display_name: 'Brent Rivera', profile_url: 'https://www.tiktok.com/@brentrivera', niche: 'fitness', region_code: 'US', est_followers: '40M', promoting_products: ['fitness', 'wellness', 'gadgets'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@brentrivera' },
+  { handle: '@addisonre', display_name: 'Addison Rae', profile_url: 'https://www.tiktok.com/@addisonre', niche: 'beauty', region_code: 'US', est_followers: '88M', promoting_products: ['beauty', 'fashion', 'skincare'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@addisonre' },
+  { handle: '@zachking', display_name: 'Zach King', profile_url: 'https://www.tiktok.com/@zachking', niche: 'tech', region_code: 'US', est_followers: '80M', promoting_products: ['tech', 'gadgets', 'creative'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@zachking' },
   { handle: '@keeohh', display_name: 'Keeoh', profile_url: 'https://www.tiktok.com/@keeohh', niche: 'ecommerce', region_code: 'AU', est_followers: '2.1M', promoting_products: ['dropshipping', 'ecommerce', 'productreview'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@keeohh' },
   { handle: '@hayden.bowles', display_name: 'Hayden Bowles', profile_url: 'https://www.tiktok.com/@hayden.bowles', niche: 'ecommerce', region_code: 'US', est_followers: '1.2M', promoting_products: ['dropshipping', 'shopify', 'ecommerce'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@hayden.bowles' },
   { handle: '@shimbarovsky', display_name: 'Shimbarovsky', profile_url: 'https://www.tiktok.com/@shimbarovsky', niche: 'dropshipping', region_code: 'US', est_followers: '850K', promoting_products: ['dropshipping', 'productreview', 'tiktokmademebuyit'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@shimbarovsky' },
-  { handle: '@officialsebastianghiorghiu', display_name: 'Sebastian Ghiorghiu', profile_url: 'https://www.tiktok.com/@officialsebastianghiorghiu', niche: 'ecommerce', region_code: 'US', est_followers: '900K', promoting_products: ['dropshipping', 'ecommerce', 'shopify'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@officialsebastianghiorghiu' },
   { handle: '@ryanoscott_', display_name: 'Ryan Scott', profile_url: 'https://www.tiktok.com/@ryanoscott_', niche: 'ecommerce', region_code: 'AU', est_followers: '180K', promoting_products: ['australianshopping', 'dropshipping', 'ecommerce'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@ryanoscott_' },
   { handle: '@ecomhunt', display_name: 'Ecomhunt', profile_url: 'https://www.tiktok.com/@ecomhunt', niche: 'dropshipping', region_code: 'US', est_followers: '120K', promoting_products: ['dropshipping', 'winningproducts', 'ecommerce'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@ecomhunt' },
   { handle: '@dropship_unlocked', display_name: 'Dropship Unlocked', profile_url: 'https://www.tiktok.com/@dropship_unlocked', niche: 'dropshipping', region_code: 'AU', est_followers: '95K', promoting_products: ['dropshipping', 'shopify', 'ecommerce'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@dropship_unlocked' },
@@ -376,7 +380,7 @@ export default function CreatorIntelligence() {
               Find Your Next Viral Partner
             </h1>
             <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginTop: 8, marginBottom: 16 }}>
-              50,000+ creators tracked across 7 markets
+              50,000+ creators tracked globally — find your next viral partner
             </p>
 
             {/* Date range pills */}

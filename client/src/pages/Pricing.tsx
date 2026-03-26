@@ -342,7 +342,7 @@ const PLANS = [
     features: [
       '3 AI demos per day',
       'Preview tools only',
-      'AU market defaults',
+      'Market defaults & localisation',
       'Community support',
     ],
     notIncluded: [

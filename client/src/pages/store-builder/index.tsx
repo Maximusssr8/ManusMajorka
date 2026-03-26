@@ -420,6 +420,10 @@ export default function StoreBuilder() {
   const [draftId, setDraftId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<StoreDraft[]>(() => loadDrafts());
 
+  // Target Market
+  const [targetMarket, setTargetMarket] = useState('US');
+  const [currency, setCurrency] = useState('USD');
+
   // Image slot hover state
   const [hoveredSlot, setHoveredSlot] = useState<string | null>(null);
 
@@ -516,6 +520,7 @@ export default function StoreBuilder() {
           storeTagline: storeTagline || 'Trending products delivered fast',
           niche: NICHES.find(n => n.id === selectedNiche)?.label || customNiche || 'General',
           primaryColor: tpl?.accentColor || '#6366F1',
+          targetMarket,
         }),
       });
       const html = await res.text();
@@ -754,7 +759,7 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
                 Choose a template
               </h2>
               <p style={{ fontSize: 14, color: "#6B7280" }}>
-                Each template is built for a specific niche and pre-optimised for AU conversions. You can customise colours and copy after selecting.
+                Each template is built for a specific niche and optimised for global conversions. You can customise colours and copy after selecting.
               </p>
             </div>
 
@@ -952,13 +957,47 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
                   <label style={{ fontSize: 13, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>Currency</label>
                   <select
                     style={{ width: "100%", height: 44, padding: "0 14px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 14, color: "#0A0A0A", background: "white", outline: "none", boxSizing: "border-box" as const, cursor: "pointer" }}
-                    defaultValue="AUD"
+                    value={currency}
+                    onChange={e => setCurrency(e.target.value)}
                   >
-                    <option value="AUD">{"\u{1F1E6}\u{1F1FA}"} Australian Dollar (AUD)</option>
                     <option value="USD">{"\u{1F1FA}\u{1F1F8}"} US Dollar (USD)</option>
+                    <option value="AUD">{"\u{1F1E6}\u{1F1FA}"} Australian Dollar (AUD)</option>
                     <option value="GBP">{"\u{1F1EC}\u{1F1E7}"} British Pound (GBP)</option>
+                    <option value="CAD">{"\u{1F1E8}\u{1F1E6}"} Canadian Dollar (CAD)</option>
                     <option value="NZD">{"\u{1F1F3}\u{1F1FF}"} New Zealand Dollar (NZD)</option>
                   </select>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>Target Market</label>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+                    {([
+                      { code: 'GLOBAL', flag: '\u{1F30D}', label: 'Global' },
+                      { code: 'US', flag: '\u{1F1FA}\u{1F1F8}', label: 'US' },
+                      { code: 'AU', flag: '\u{1F1E6}\u{1F1FA}', label: 'AU' },
+                      { code: 'UK', flag: '\u{1F1EC}\u{1F1E7}', label: 'UK' },
+                      { code: 'CA', flag: '\u{1F1E8}\u{1F1E6}', label: 'CA' },
+                      { code: 'NZ', flag: '\u{1F1F3}\u{1F1FF}', label: 'NZ' },
+                    ] as const).map(m => (
+                      <button
+                        key={m.code}
+                        type="button"
+                        onClick={() => {
+                          setTargetMarket(m.code);
+                          const currencyMap: Record<string, string> = { US: 'USD', AU: 'AUD', UK: 'GBP', CA: 'CAD', NZ: 'NZD', GLOBAL: 'USD' };
+                          setCurrency(currencyMap[m.code] || 'USD');
+                        }}
+                        style={{
+                          padding: '8px 14px', borderRadius: 8, border: `1px solid ${targetMarket === m.code ? '#6366F1' : '#E5E7EB'}`,
+                          background: targetMarket === m.code ? '#EEF2FF' : 'white', cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                          color: targetMarket === m.code ? '#6366F1' : '#374151', transition: 'all 150ms',
+                          fontFamily: "'Bricolage Grotesque', sans-serif",
+                        }}
+                      >
+                        {m.flag} {m.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 

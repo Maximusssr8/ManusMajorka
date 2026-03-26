@@ -32,7 +32,7 @@ Head to **Settings → Profile** to update your business context at any time. Th
 
 ## Choosing Your Market
 
-Majorka supports multiple markets: AU, US, EU, UK, ASIA, and GLOBAL. You can switch markets using the Market Selector at the bottom of the sidebar. By default, you're set to AU — Australian English, AUD pricing, AU shipping rates, and ACCC compliance guidance built in.
+Majorka supports all major markets: US, UK, AU, CA, EU, and more. Set your target market during onboarding — all pricing, trends, and recommendations update accordingly. Default market is Global.
 
 ## Your First Product Research Session
 
@@ -103,7 +103,7 @@ You can switch markets at any time without losing your data — it's a session-l
 
 **Population:** ~27M | **Ecommerce market:** ~$63B AUD/year
 
-Australia is Majorka's home market. All defaults — AUD pricing, Australia Post shipping rates, Afterpay/Zip integration, ACCC compliance, GST (10%) — are built for the AU market. Australian consumers are price-savvy but brand-loyal once trust is established. Key platforms: Shopify AU, Amazon AU, eBay AU, Catch, THE ICONIC.
+Majorka covers all major dropshipping markets. Select your target market to see region-specific products, pricing, shipping, and compliance guidance. Australian consumers are price-savvy but brand-loyal once trust is established. Key platforms: Shopify AU, Amazon AU, eBay AU, Catch, THE ICONIC.
 
 Best for: dropshippers based in Australia, brands wanting to build a loyal AU customer base, products in health, pet, home, and outdoor niches.
 

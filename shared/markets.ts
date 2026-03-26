@@ -92,7 +92,7 @@ export const MARKETS: Record<MarketCode, Market> = {
   }
 }
 
-export const DEFAULT_MARKET: MarketCode = 'AU'
+export const DEFAULT_MARKET: MarketCode = 'GLOBAL'
 
 export const MARKET_CODES = Object.keys(MARKETS) as MarketCode[]
 
