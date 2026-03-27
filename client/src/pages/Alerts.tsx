@@ -30,7 +30,8 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
   const [tab, setTab] = useState<'active' | 'history'>('active');
   const [showCreate, setShowCreate] = useState(false);
   const [alertType, setAlertType] = useState<AlertType>('trending');
-  const [form, setForm] = useState<Record<string, string>>({ niche: 'Health & Wellness', region: 'US', threshold: '50', category: 'Beauty', store_domain: '' });
+  const [form, setForm] = useState<Record<string, string>>({ niche: 'Health & Wellness', region: 'AU', threshold: '50', category: 'Beauty', store_domain: '' });
+  const [domainError, setDomainError] = useState('');
   const [saving, setSaving] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
@@ -49,7 +50,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
     setSaving(true);
     let config: Record<string, unknown> = {};
     if (alertType === 'trending') config = { niche: form.niche, region: form.region };
-    else if (alertType === 'price_drop') config = { threshold: parseFloat(form.threshold) };
+    else if (alertType === 'price_drop') config = { threshold: parseFloat(form.threshold), keyword: form.niche || '' };
     else config = { store_domain: form.store_domain, category: form.category };
     const { error } = await supabase.from('user_alerts').insert({ user_id: session.user.id, alert_type: alertType, config, is_active: true });
     if (error) toast.error('Failed to create alert');
@@ -108,12 +109,24 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
               {t === 'active' ? `Active (${alerts.length})` : `History (${history.length})`}
             </button>
           ))}
+          <span style={{ marginLeft: 'auto', fontSize: 11, color: C.muted, alignSelf: 'center', paddingRight: 4 }}>
+            {alerts.length}/10 alerts used
+          </span>
         </div>
 
         {/* Alert List */}
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
             {[1,2,3].map(i => <div key={i} style={{ height: 72, borderRadius: 12, background: '#F3F4F6', animation: 'shimmer 1.5s infinite' }} />)}
+          </div>
+        ) : tab === 'history' && history.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '48px 20px' }}>
+            <div style={{ fontSize: 36, marginBottom: 12 }}>📬</div>
+            <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 6 }}>No alerts have fired yet</div>
+            <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.6, maxWidth: 340, margin: '0 auto' }}>
+              When an alert triggers — a trending product, price drop, or competitor move — it will appear here with a timestamp and details.
+            </div>
+            <div style={{ marginTop: 20, fontSize: 12, color: C.muted }}>Checks run hourly while your alerts are active.</div>
           </div>
         ) : tab === 'active' && alerts.length === 0 ? (
           <div>
@@ -156,7 +169,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
               const cfg = alert.config as Record<string, string>;
               const TypeIcon = alert.alert_type === 'trending' ? TrendingUp : alert.alert_type === 'price_drop' ? ShoppingBag : Store;
               const typeLabel = alert.alert_type === 'trending' ? 'Trending Alert' : alert.alert_type === 'price_drop' ? 'Price Drop Alert' : 'Competitor Alert';
-              const cfgText = alert.alert_type === 'trending' ? `${cfg.niche} · ${cfg.region}` : alert.alert_type === 'price_drop' ? `Below $${cfg.threshold} AUD` : `${cfg.store_domain} · ${cfg.category}`;
+              const cfgText = alert.alert_type === 'trending' ? `${cfg.niche} · ${cfg.region}` : alert.alert_type === 'price_drop' ? `${cfg.keyword ? cfg.keyword + ' · ' : ''}Below $${cfg.threshold} AUD` : `${cfg.store_domain} · ${cfg.category}`;
               return (
                 <div key={alert.id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14 }}>
                   <div style={{ width: 40, height: 40, borderRadius: 10, background: C.indigoBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -223,14 +236,31 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
                 </div>
               )}
               {alertType === 'price_drop' && (
-                <label style={{ fontSize: 12, fontWeight: 600, color: C.sub }}>Alert when price drops below ($AUD)
-                  <input type="number" value={form.threshold} onChange={e => setForm(f => ({ ...f, threshold: e.target.value }))} placeholder="50" style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none', boxSizing: 'border-box' as const }} />
-                </label>
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: C.sub }}>Product keyword or niche to watch
+                    <input value={form.niche} onChange={e => setForm(f => ({ ...f, niche: e.target.value }))} placeholder="e.g. posture corrector, LED lamp, dog toys" style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none', boxSizing: 'border-box' as const }} />
+                  </label>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: C.sub }}>Alert when supplier price drops below ($AUD)
+                    <input type="number" value={form.threshold} onChange={e => setForm(f => ({ ...f, threshold: e.target.value }))} placeholder="50" style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none', boxSizing: 'border-box' as const }} />
+                  </label>
+                  <div style={{ fontSize: 11, color: C.muted, background: '#F9FAFB', borderRadius: 8, padding: '8px 10px' }}>
+                    💡 Watches products matching your keyword in the Majorka database. Triggers when any matching product's cost price drops below your threshold.
+                  </div>
+                </div>
               )}
               {alertType === 'competitor' && (
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
                   <label style={{ fontSize: 12, fontWeight: 600, color: C.sub }}>Competitor Store Domain
-                    <input value={form.store_domain} onChange={e => setForm(f => ({ ...f, store_domain: e.target.value }))} placeholder="competitor.myshopify.com" style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none', boxSizing: 'border-box' as const }} />
+                    <input value={form.store_domain}
+                      onChange={e => {
+                        const val = e.target.value.toLowerCase().replace(/^https?:\/\//,'').replace(/\/.*$/,'');
+                        setForm(f => ({ ...f, store_domain: val }));
+                        const isValid = /^[a-z0-9-]+(\.[a-z0-9-]+)+$/.test(val) || val === '';
+                        setDomainError(val && !isValid ? 'Enter a valid domain (e.g. store.myshopify.com)' : '');
+                      }}
+                      placeholder="competitor.myshopify.com"
+                      style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${domainError ? '#EF4444' : C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none', boxSizing: 'border-box' as const }} />
+                    {domainError && <span style={{ fontSize: 11, color: '#EF4444', marginTop: 3, display: 'block' }}>{domainError}</span>}
                   </label>
                   <label style={{ fontSize: 12, fontWeight: 600, color: C.sub }}>Category to Watch
                     <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} style={{ display: 'block', width: '100%', marginTop: 4, padding: '8px 12px', border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 14, fontFamily: dm, outline: 'none' }}>
@@ -241,7 +271,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
               )}
               <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
                 <button onClick={() => setShowCreate(false)} style={{ flex: 1, padding: '11px', border: `1px solid ${C.border}`, borderRadius: 10, background: 'white', color: C.sub, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: dm }}>Cancel</button>
-                <button onClick={createAlert} disabled={saving} style={{ flex: 2, padding: '11px', background: C.indigo, color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: saving ? 'wait' : 'pointer', fontFamily: brico }}>
+                <button onClick={createAlert} disabled={saving || !!domainError} style={{ flex: 2, padding: '11px', background: C.indigo, color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: (saving || !!domainError) ? 'not-allowed' : 'pointer', fontFamily: brico, opacity: domainError ? 0.6 : 1 }}>
                   {saving ? 'Creating…' : 'Create Alert'}
                 </button>
               </div>
