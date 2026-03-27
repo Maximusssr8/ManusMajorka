@@ -153,21 +153,79 @@ function TypingDots() {
   );
 }
 
-const SUGGESTED_PROMPTS = [
-  "What products should I test this week?",
-  "Write me a TikTok hook for my product",
-  "How do I improve my store conversion rate?",
-  "Find me a winning product under $20 cost",
-];
+// ── Copy button for assistant messages ────────────────────────────────────────
+function CopyMsgButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      onClick={() => { navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); }); }}
+      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: 4, fontSize: 11, color: copied ? '#10B981' : '#6B7280', display: 'flex', alignItems: 'center', gap: 3, transition: 'color 200ms', marginTop: 4 }}
+    >
+      {copied ? '✓ Copied' : '⎘ Copy'}
+    </button>
+  );
+}
 
 export default function AIChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userNiche, setUserNiche] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => { document.title = "Maya AI | Majorka"; }, []);
+
+  // FIX 4: Fetch user niche for dynamic chips
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) return;
+      supabase.from('user_profiles').select('main_goal, experience_level').eq('user_id', session.user.id).single()
+        .then(({ data }) => {
+          if (data?.main_goal) setUserNiche(data.main_goal.split(',')[0].trim());
+        });
+    });
+  }, []);
+
+  // FIX 5: Load chat history from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('maya_chat_history');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(parsed.map((m: Message) => ({ ...m, ts: new Date(m.ts) })));
+        }
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  // FIX 5: Save to localStorage when messages change (debounced)
+  useEffect(() => {
+    if (messages.length === 0) return;
+    const timeout = setTimeout(() => {
+      try {
+        const toSave = messages.slice(-20);
+        localStorage.setItem('maya_chat_history', JSON.stringify(toSave));
+      } catch { /* ignore */ }
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [messages]);
+
+  // FIX 4: Dynamic prompt chips based on user niche
+  const suggestedPrompts = userNiche
+    ? [
+        `What ${userNiche} products should I test this week?`,
+        `Write me a TikTok hook for a ${userNiche} product`,
+        "How do I improve my store conversion rate?",
+        `Find me a winning ${userNiche} product under $20 cost`,
+      ]
+    : [
+        "What products should I test this week?",
+        "Write me a TikTok hook for my product",
+        "How do I improve my store conversion rate?",
+        "Find me a winning product under $20 cost",
+      ];
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -204,13 +262,58 @@ export default function AIChat() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers,
-        body: JSON.stringify({ message: content, history, stream: false }),
+        body: JSON.stringify({ message: content, history, stream: true }),
       });
 
-      const data = await res.json();
-      const reply = data.reply || data.response || data.message || data.content || "I couldn't generate a response right now. Please try again.";
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
 
-      setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "assistant", content: reply, ts: new Date() }]);
+      // Stream the response word by word
+      const assistantId = (Date.now() + 1).toString();
+      setMessages(prev => [...prev, { id: assistantId, role: "assistant", content: "", ts: new Date() }]);
+
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder();
+      let fullText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6).trim();
+            if (data === '[DONE]') break;
+            try {
+              const parsed = JSON.parse(data);
+              const token = parsed.token || parsed.text || parsed.delta || parsed.content || '';
+              if (token) {
+                fullText += token;
+                setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: fullText } : m));
+              }
+            } catch {
+              if (data && data !== '[DONE]' && !data.startsWith('{')) {
+                fullText += data;
+                setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: fullText } : m));
+              }
+            }
+          }
+        }
+      }
+
+      // If nothing streamed, try parsing as regular JSON fallback
+      if (!fullText) {
+        try {
+          const text = decoder.decode();
+          const fallback = JSON.parse(text);
+          const reply = fallback.reply || fallback.response || fallback.message || "I couldn't generate a response right now.";
+          setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: reply } : m));
+        } catch {
+          setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: "I couldn't generate a response right now. Please try again." } : m));
+        }
+      }
     } catch {
       setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: "assistant", content: "Connection error. Please check your internet and try again.", ts: new Date() }]);
     } finally {
@@ -256,7 +359,7 @@ export default function AIChat() {
           </div>
           {messages.length > 0 && (
             <button
-              onClick={() => setMessages([])}
+              onClick={() => { setMessages([]); localStorage.removeItem('maya_chat_history'); }}
               style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, cursor: "pointer", color: "#9CA3AF", fontSize: 12, fontFamily: dm, transition: "all 150ms" }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(239,68,68,0.4)"; e.currentTarget.style.color = "#F87171"; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "#9CA3AF"; }}
@@ -280,7 +383,7 @@ export default function AIChat() {
                 <div style={{ fontFamily: dm, fontSize: 14, color: "#6B7280" }}>Ask me anything about products, marketing, or your Shopify store</div>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, width: "100%", maxWidth: 520 }}>
-                {SUGGESTED_PROMPTS.map(prompt => (
+                {suggestedPrompts.map(prompt => (
                   <button
                     key={prompt}
                     onClick={() => sendMessage(prompt)}
@@ -316,6 +419,9 @@ export default function AIChat() {
                 }}>
                   {msg.role === "user" ? msg.content : renderMarkdown(msg.content)}
                 </div>
+                {msg.role === "assistant" && msg.content && (
+                  <CopyMsgButton text={msg.content} />
+                )}
                 <span style={{ fontFamily: dm, fontSize: 11, color: "#374151", marginTop: 4 }}>{fmtTime(msg.ts)}</span>
               </div>
             </div>
