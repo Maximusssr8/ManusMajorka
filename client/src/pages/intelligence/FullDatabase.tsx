@@ -71,8 +71,27 @@ function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
+function cleanProductTitle(raw: string): string {
+  let t = raw.trim();
+  // Remove leading year patterns like "2024 New", "2025 Upgrade", "New 2024"
+  t = t.replace(/^(20\d{2}\s+(new|upgrade|updated|style|version|hot|popular)\s+)/i, '');
+  t = t.replace(/^(new\s+20\d{2}\s+)/i, '');
+  // Remove size/volume variant prefixes like "350ml/500ml/600ml/750ml "
+  t = t.replace(/^(\d+\s*[a-z]+\/)+\d+\s*[a-z]+\s+/i, '');
+  // Truncate at spec dumps: first occurrence of capacity/spec patterns mid-title
+  const specPat = /\s+(USB|Type-C|Bluetooth|WiFi|\d+ml\/\d+ml|\d+[Ww]\s|BPA-Free|LED\s+\d+|IPX\d|\d+000mAh)/;
+  const specIdx = t.search(specPat);
+  if (specIdx > 20) t = t.slice(0, specIdx);
+  // Remove trailing junk: " - AU", " | ", "& More"
+  t = t.replace(/\s*[-|&]\s*(AU|more|etc\.?)$/i, '');
+  // Capitalise first letter
+  t = t.charAt(0).toUpperCase() + t.slice(1);
+  return t.trim() || raw;
+}
+
 function getProductName(p: Product) {
-  return p.name || p.product_title || 'Unknown Product';
+  const raw = p.name || p.product_title || 'Unknown Product';
+  return cleanProductTitle(raw);
 }
 function getProductNiche(p: Product) {
   return p.niche || p.category || p.search_keyword || 'General';

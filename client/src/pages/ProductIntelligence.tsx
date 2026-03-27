@@ -79,7 +79,7 @@ export default function ProductIntelligence() {
             )}
             <div style={{ display: 'flex', gap: 16, fontSize: 12, color: C.muted }}>
               <span>
-                <strong style={{ color: C.accent, fontFamily: brico }}>{products.length || '192'}</strong> products
+                <strong style={{ color: C.accent, fontFamily: brico }}>{products.length > 0 ? products.length : '—'}</strong> products
               </span>
               <span>
                 <strong style={{ color: C.accent, fontFamily: brico }}>6h</strong> refresh
