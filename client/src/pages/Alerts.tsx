@@ -32,6 +32,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
   const [alertType, setAlertType] = useState<AlertType>('trending');
   const [form, setForm] = useState<Record<string, string>>({ niche: 'Health & Wellness', region: 'US', threshold: '50', category: 'Beauty', store_domain: '' });
   const [saving, setSaving] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   useEffect(() => { loadAlerts(); }, [session]);
 
@@ -57,6 +58,15 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
   }
 
   async function deleteAlert(id: string) {
+    // First click: set as pending (show confirm state on card)
+    if (pendingDelete !== id) {
+      setPendingDelete(id);
+      // Auto-cancel confirm after 4s
+      setTimeout(() => setPendingDelete(prev => prev === id ? null : prev), 4000);
+      return;
+    }
+    // Second click: confirmed — delete
+    setPendingDelete(null);
     await supabase.from('user_alerts').update({ is_active: false }).eq('id', id);
     setAlerts(prev => prev.filter(a => a.id !== id));
     toast.success('Alert removed');
@@ -110,7 +120,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
             {/* Email notice */}
             <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.18)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
               <Bell size={15} style={{ color: '#6366F1', flexShrink: 0 }} />
-              <span style={{ fontSize: 12, color: '#374151' }}>Alerts are delivered to your account email. Make sure notifications are enabled in <a href="/app/settings/profile" style={{ color: '#6366F1', fontWeight: 600 }}>Settings → Notifications</a>.</span>
+              <span style={{ fontSize: 12, color: '#374151' }}>Alerts are delivered to your account email. Make sure notifications are enabled in <a href="/app/settings/notifications" style={{ color: '#6366F1', fontWeight: 600 }}>Settings → Notifications</a>.</span>
             </div>
             {/* Suggested starter alerts */}
             <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 24, marginBottom: 16 }}>
@@ -155,11 +165,24 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontFamily: brico, fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 2 }}>{typeLabel}</div>
                     <div style={{ fontSize: 12, color: C.sub }}>{cfgText}</div>
-                    {alert.last_triggered_at && <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Last triggered: {new Date(alert.last_triggered_at).toLocaleDateString('en-AU')}</div>}
+                    {alert.last_triggered_at
+                      ? <div style={{ fontSize: 11, color: '#059669', marginTop: 2 }}>✓ Last triggered: {new Date(alert.last_triggered_at).toLocaleDateString('en-AU')}</div>
+                      : <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>⏳ Monitoring — checks run hourly · no trigger yet</div>
+                    }
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 100, background: '#ECFDF5', color: '#059669' }}>ACTIVE</span>
-                    {tab === 'active' && <button onClick={() => deleteAlert(alert.id)} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #FEE2E2', background: '#FEF2F2', color: '#DC2626', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={12} /></button>}
+                    {tab === 'active' && (
+                      pendingDelete === alert.id ? (
+                        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                          <span style={{ fontSize: 11, color: '#DC2626', fontWeight: 600 }}>Delete?</span>
+                          <button onClick={() => deleteAlert(alert.id)} style={{ height: 26, padding: '0 8px', borderRadius: 6, border: 'none', background: '#DC2626', color: 'white', cursor: 'pointer', fontSize: 11, fontWeight: 700 }}>Yes</button>
+                          <button onClick={() => setPendingDelete(null)} style={{ height: 26, padding: '0 8px', borderRadius: 6, border: '1px solid #E5E7EB', background: 'white', color: '#374151', cursor: 'pointer', fontSize: 11 }}>No</button>
+                        </div>
+                      ) : (
+                        <button onClick={() => deleteAlert(alert.id)} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #FEE2E2', background: '#FEF2F2', color: '#DC2626', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} title="Delete alert"><Trash2 size={12} /></button>
+                      )
+                    )}
                   </div>
                 </div>
               );
