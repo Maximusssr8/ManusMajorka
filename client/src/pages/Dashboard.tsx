@@ -648,7 +648,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
           <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981', display: 'inline-block', marginRight: 8 }} />
           <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 17, fontWeight: 700, color: '#0A0A0A' }}>This Week&apos;s Leaders</span>
         </div>
-        <button onClick={() => setLocation('/app/product-intelligence')} style={{ fontSize: 13, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>View all →</button>
+        <button onClick={() => setLocation('/app/intelligence')} style={{ fontSize: 13, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>View all →</button>
       </div>
 
       {leaderboardLoading ? (
@@ -675,7 +675,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
             const score = p.winning_score ?? 0;
             const tier = getScoreTier(score);
             return (
-              <div key={p.id} onClick={() => setLocation('/app/product-intelligence')} style={{ flexShrink: 0, width: 160, background: 'white', border: '1px solid #F0F0F0', borderRadius: 12, padding: 12, cursor: 'pointer' }}>
+              <div key={p.id} onClick={() => setLocation('/app/intelligence')} style={{ flexShrink: 0, width: 160, background: 'white', border: '1px solid #F0F0F0', borderRadius: 12, padding: 12, cursor: 'pointer' }}>
                 <div style={{ marginBottom: 8 }}>{getRankDisplay(i)}</div>
                 {p.image_url ? (
                   <img src={p.image_url} alt="" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover' as const, marginBottom: 8, border: '1px solid #E5E7EB' }} onError={e => { e.currentTarget.style.display = 'none'; }} />
@@ -712,7 +712,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
                   <tr key={p.id} style={{ borderBottom: i < leaderboard.length - 1 ? '1px solid #F9FAFB' : 'none', cursor: 'pointer', transition: 'background 120ms' }}
                     onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFF')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'white')}
-                    onClick={() => setLocation('/app/product-intelligence')}>
+                    onClick={() => setLocation('/app/intelligence')}>
                     <td style={{ padding: '10px 16px', width: 40 }}>{getRankDisplay(i)}</td>
                     <td style={{ padding: '10px 16px' }}>
                       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -749,7 +749,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
                       )}
                     </td>
                     <td style={{ padding: '10px 16px' }}>
-                      <button onClick={e => { e.stopPropagation(); setLocation('/app/product-intelligence'); }} style={{ background: '#EEF2FF', color: '#6366F1', borderRadius: 6, padding: '4px 8px', fontSize: 12, border: 'none', cursor: 'pointer', fontWeight: 600 }}>→</button>
+                      <button onClick={e => { e.stopPropagation(); setLocation('/app/intelligence'); }} style={{ background: '#EEF2FF', color: '#6366F1', borderRadius: 6, padding: '4px 8px', fontSize: 12, border: 'none', cursor: 'pointer', fontWeight: 600 }}>→</button>
                     </td>
                   </tr>
                 );
@@ -858,18 +858,18 @@ function DashboardHome() {
         {/* Row 1: 4 stat cards */}
         <div className="stats-grid-responsive" style={{ gap: 16, marginBottom: 20 }}>
           {([
-            { label: 'Products in DB', value: totalProducts !== null ? totalProducts.toString() : '—', delta: 'Total tracked products', icon: Package, positive: true, color: '#6366F1', hero: false },
-            { label: 'Best Est. Revenue', value: bestRevenue, delta: 'Highest in DB / month', icon: TrendingUp, positive: true, color: '#10B981', hero: true },
-            { label: 'Avg Margin', value: avgMargin, delta: 'Across top 5 products', icon: Percent, positive: true, color: '#8B5CF6', hero: false },
-            { label: 'Hot Products', value: '23', delta: 'Dropship Score 80+', icon: Zap, positive: true, color: '#F59E0B', hero: false },
+            { label: 'Products in DB', value: totalProducts !== null ? totalProducts.toString() : '—', delta: 'Total tracked products', icon: Package, positive: true, color: '#6366F1', hero: false, path: '/app/intelligence' },
+            { label: 'Best Est. Revenue', value: bestRevenue, delta: 'Highest in DB / month', icon: TrendingUp, positive: true, color: '#10B981', hero: true, path: '/app/intelligence' },
+            { label: 'Avg Margin', value: avgMargin, delta: 'Across top 5 products', icon: Percent, positive: true, color: '#8B5CF6', hero: false, path: '/app/intelligence' },
+            { label: 'Hot Products', value: products.filter((p: any) => (p.winning_score || 0) >= 80).length || '—', delta: 'Dropship Score 80+', icon: Zap, positive: true, color: '#F59E0B', hero: false, path: '/app/intelligence' },
           ]).map((card, i) => (
-            <div key={i} style={{
+            <div key={i} onClick={() => card.path && setLocation(card.path)} style={{
               background: card.hero ? 'linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%)' : 'white',
               border: card.hero ? '1.5px solid #6EE7B7' : '1px solid #F0F0F0',
               borderLeft: card.hero ? '4px solid #10B981' : undefined,
               borderRadius: 14,
               padding: '22px 24px',
-              cursor: 'default',
+              cursor: 'pointer',
               transition: 'box-shadow 200ms, border-color 200ms',
               boxShadow: card.hero ? '0 2px 8px rgba(16,185,129,0.10), 0 1px 3px rgba(0,0,0,0.06)' : '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
             }}
@@ -1044,7 +1044,7 @@ function DashboardHome() {
         <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#0A0A0A' }}>Your Tools</div>
-            <span style={{ fontSize: 12, color: '#6B7280' }}>20+ AI tools</span>
+            <span style={{ fontSize: 12, color: '#6B7280' }}>10 AI tools</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 10 }}>
             {([

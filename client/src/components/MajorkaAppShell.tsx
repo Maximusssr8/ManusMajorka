@@ -131,9 +131,8 @@ export const PHASE_BEGINNER_LABELS: Record<string, string> = {
 // ── NotificationBell component ────────────────────────────────────────────────
 
 const INITIAL_NOTIFICATIONS = [
-  { id: '1', text: '🔥 New trending product detected: Silicone Air Fryer Liners — $5,100/day' },
-  { id: '2', text: '📦 Your watchlist product price dropped 12%' },
-  { id: '3', text: '💡 New trend signal: Portable Neck Fans are exploding in AU' },
+  { id: '1', text: '🔥 New trending product detected: Silicone Air Fryer Liners trending on TikTok Shop' },
+  { id: '3', text: '💡 New trend signal: Portable Neck Fans are growing fast this season' },
   { id: '4', text: '🎉 Welcome to Majorka! Complete your profile to unlock all features' },
 ];
 

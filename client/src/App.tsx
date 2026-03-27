@@ -284,7 +284,7 @@ function Router() {
             </Route>
             
             {/* ── Sidebar route aliases — must come before catch-all ─────────────── */}
-            <Route path="/app/product-intelligence">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
+            <Route path="/app/product-intelligence">{() => <ProtectedRoute><AppLayout><ProductIntelligence /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/video-intelligence">{() => { window.location.replace('/app/videos'); return null; }}</Route>
             <Route path="/app/video-intel">{() => { window.location.replace('/app/videos'); return null; }}</Route>
             <Route path="/app/spy-tools">{() => { window.location.replace('/app/spy'); return null; }}</Route>
