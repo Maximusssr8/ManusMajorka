@@ -90,6 +90,9 @@ export default function ProfitCalculator() {
   const [afterpayEnabled, setAfterpayEnabled] = useState(false);
 
   const [saved, setSaved] = useState(false);
+  const [returnRate, setReturnRate] = useState(0); // % of orders returned
+  const [showSavedList, setShowSavedList] = useState(false);
+  const [savedCalcs, setSavedCalcs] = useState<any[]>([]);
 
   // Auto-fill from URL params
   useEffect(() => {
@@ -128,7 +131,8 @@ export default function ProfitCalculator() {
     const grossProfit = sellingPrice - adjustedCost - shippingCost;
     const platformFeeAmt = sellingPrice * (platformFeeRate / 100);
     const paymentFeeAmt = sellingPrice * (PAYMENT_PROCESSING_RATE / 100);
-    const netProfit = grossProfit - platformFeeAmt - paymentFeeAmt - afterpayFee;
+    const returnCostPerUnit = returnRate > 0 ? (sellingPrice * (returnRate / 100)) * 0.5 : 0; // 50% of sale price lost per return
+    const netProfit = grossProfit - platformFeeAmt - paymentFeeAmt - afterpayFee - returnCostPerUnit;
     const dailyProfit = netProfit * unitsPerDay - adSpendPerDay;
     const monthlyProfit = dailyProfit * 30;
     const marginPct = sellingPrice > 0 ? (netProfit / sellingPrice) * 100 : 0;
@@ -160,7 +164,7 @@ export default function ProfitCalculator() {
     }
 
     return { netProfit, dailyProfit, monthlyProfit, marginPct, roas, breakEvenCpa, totalCostsPerUnit, netMarginPct, projections, verdictColor, verdictLabel, verdictReason, platformFeeAmt, paymentFeeAmt, afterpayFee };
-  }, [productCost, sellingPrice, unitsPerDay, adSpendPerDay, shippingCost, platformFeeRate, gstEnabled, afterpayEnabled]);
+  }, [productCost, sellingPrice, unitsPerDay, adSpendPerDay, shippingCost, platformFeeRate, gstEnabled, afterpayEnabled, returnRate]);
 
   // ── Shared styles ───────────────────────────────────────────────────────
   const cardStyle: React.CSSProperties = { background: '#FFFFFF', border: '1px solid #F0F0F0', borderRadius: 16, padding: '24px' };
@@ -212,6 +216,13 @@ export default function ProfitCalculator() {
           <p style={{ fontSize: 14, color: '#6B7280', margin: 0, marginTop: 2 }}>Model your unit economics for the {region.name} market</p>
         </div>
       </div>
+
+      {/* Input validation warnings */}
+      {productCost >= sellingPrice && sellingPrice > 0 && (
+        <div style={{ maxWidth: 1200, margin: '0 auto 12px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8, padding: '8px 16px', fontSize: 12, color: '#DC2626', fontWeight: 500 }}>
+          ⚠️ Product cost (${productCost}) is higher than or equal to selling price (${sellingPrice}) — this will produce a negative margin.
+        </div>
+      )}
 
       {/* Key metrics row */}
       <div style={{ maxWidth: 1200, margin: '0 auto 24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
@@ -296,6 +307,19 @@ export default function ProfitCalculator() {
                 </button>
               </div>
 
+              {/* Return Rate Input */}
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#0A0A0A' }}>Return Rate ({returnRate}%)</div>
+                  <input type="number" value={returnRate} min={0} max={50}
+                    onChange={e => setReturnRate(Math.min(50, Math.max(0, Number(e.target.value))))}
+                    style={{ width: 64, height: 28, padding: '0 8px', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 13, textAlign: 'right' as const, outline: 'none' }} />
+                </div>
+                <input type="range" min={0} max={30} step={1} value={returnRate} onChange={e => setReturnRate(Number(e.target.value))}
+                  style={{ width: '100%', margin: '4px 0' }} />
+                <div style={{ fontSize: 11, color: '#9CA3AF' }}>AU ecommerce avg: 10–20% · 0% = no returns modelled</div>
+              </div>
+
               {/* Afterpay Toggle */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                 <div>
@@ -331,7 +355,10 @@ export default function ProfitCalculator() {
           {/* Monthly Projections */}
           <div style={cardStyle} id="profit-results-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 16, fontWeight: 600, color: '#0A0A0A', margin: 0 }}>Monthly Profit Projections</h3>
+              <div>
+                <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 16, fontWeight: 600, color: '#0A0A0A', margin: 0 }}>Monthly Profit Projections</h3>
+                <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 2 }}>Based on 30-day month</div>
+              </div>
               <button onClick={() => {
                 const summary = [
                   'Profit Calculator Results', '────────────────────────',
@@ -394,7 +421,9 @@ export default function ProfitCalculator() {
             const existing = JSON.parse(localStorage.getItem('majorka_saved_calcs') || '[]');
             existing.unshift(calcData);
             localStorage.setItem('majorka_saved_calcs', JSON.stringify(existing.slice(0, 10)));
+            setSavedCalcs(existing.slice(0, 10));
             setSaved(true);
+            toast.success('Calculation saved!');
             setTimeout(() => setSaved(false), 2000);
           }}
           style={{ height: 40, padding: '0 20px', background: saved ? '#059669' : 'white', color: saved ? 'white' : '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 200ms' }}
