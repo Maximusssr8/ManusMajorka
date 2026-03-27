@@ -18,11 +18,16 @@ const POLL_INTERVAL_MS = 3000;
 const MAX_POLLS = 18; // 54s max — under Vercel maxDuration=300 but safe
 
 const SEARCH_QUERIES = [
-  'tiktokmademebuyit australia',
-  'amazon finds australia 2025',
-  'products i cant live without',
-  'tiktok shop australia review',
-  'satisfying products that actually work',
+  'product review must have 2025',
+  'tiktok made me buy it worth it',
+  'unboxing haul products review',
+  'best gadgets products under 30',
+  'honest product review posture fitness',
+  'kitchen gadgets that actually work',
+  'pet products dogs love',
+  'home organization products review',
+  'satisfying cleaning products unboxing',
+  'wireless gadgets tech review 2025',
 ];
 
 const NICHE_MAP: Record<string, string> = {

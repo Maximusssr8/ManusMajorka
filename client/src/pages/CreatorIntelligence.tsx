@@ -19,6 +19,15 @@ const FALLBACK_CREATORS = [
   { handle: '@ryanoscott_', display_name: 'Ryan Scott', profile_url: 'https://www.tiktok.com/@ryanoscott_', niche: 'ecommerce', region_code: 'AU', est_followers: '180K', promoting_products: ['australianshopping', 'dropshipping', 'ecommerce'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@ryanoscott_' },
   { handle: '@ecomhunt', display_name: 'Ecomhunt', profile_url: 'https://www.tiktok.com/@ecomhunt', niche: 'dropshipping', region_code: 'US', est_followers: '120K', promoting_products: ['dropshipping', 'winningproducts', 'ecommerce'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@ecomhunt' },
   { handle: '@dropship_unlocked', display_name: 'Dropship Unlocked', profile_url: 'https://www.tiktok.com/@dropship_unlocked', niche: 'dropshipping', region_code: 'AU', est_followers: '95K', promoting_products: ['dropshipping', 'shopify', 'ecommerce'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@dropship_unlocked' },
+  { handle: '@cookingwithshereen', display_name: 'Cooking With Shereen', profile_url: 'https://www.tiktok.com/@cookingwithshereen', niche: 'kitchen', region_code: 'AU', est_followers: '1.1M', promoting_products: ['kitchen', 'cooking', 'homefinds'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@cookingwithshereen' },
+  { handle: '@aussie_shopper', display_name: 'Aussie Shopper', profile_url: 'https://www.tiktok.com/@aussie_shopper', niche: 'general', region_code: 'AU', est_followers: '340K', promoting_products: ['amazonfinds', 'tiktokmademebuyit', 'productreview'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@aussie_shopper' },
+  { handle: '@thehealthproject.au', display_name: 'The Health Project AU', profile_url: 'https://www.tiktok.com/@thehealthproject.au', niche: 'health', region_code: 'AU', est_followers: '290K', promoting_products: ['supplements', 'wellness', 'healthproducts'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@thehealthproject.au' },
+  { handle: '@petsofaustralia', display_name: 'Pets of Australia', profile_url: 'https://www.tiktok.com/@petsofaustralia', niche: 'pet care', region_code: 'AU', est_followers: '215K', promoting_products: ['petproducts', 'dogaccessories', 'catcare'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@petsofaustralia' },
+  { handle: '@techfindsau', display_name: 'Tech Finds AU', profile_url: 'https://www.tiktok.com/@techfindsau', niche: 'tech', region_code: 'AU', est_followers: '178K', promoting_products: ['techgadgets', 'smartdevices', 'productreview'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@techfindsau' },
+  { handle: '@homeinspo.au', display_name: 'Home Inspo AU', profile_url: 'https://www.tiktok.com/@homeinspo.au', niche: 'home', region_code: 'AU', est_followers: '385K', promoting_products: ['homedecor', 'homefinds', 'cleaning'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@homeinspo.au' },
+  { handle: '@productjunkie.au', display_name: 'Product Junkie AU', profile_url: 'https://www.tiktok.com/@productjunkie.au', niche: 'general', region_code: 'AU', est_followers: '128K', promoting_products: ['productreview', 'tiktokmademebuyit', 'deals'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@productjunkie.au' },
+  { handle: '@acko_msp', display_name: 'Acko', profile_url: 'https://www.tiktok.com/@acko_msp', niche: 'dropshipping', region_code: 'AU', est_followers: '92K', promoting_products: ['dropshipping', 'shopify', 'onlinebusiness'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@acko_msp' },
+  { handle: '@shopwithme.au', display_name: 'Shop With Me AU', profile_url: 'https://www.tiktok.com/@shopwithme.au', niche: 'fashion', region_code: 'AU', est_followers: '460K', promoting_products: ['fashion', 'ootd', 'australianshopping'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@shopwithme.au' },
 ];
 
 const brico = "'Bricolage Grotesque', sans-serif";
@@ -391,7 +400,7 @@ export default function CreatorIntelligence() {
               Find Your Next Viral Partner
             </h1>
             <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginTop: 8, marginBottom: 16 }}>
-              50,000+ creators tracked globally — find your next viral partner
+              Global creator network — find your next viral partner
             </p>
 
             {/* Date range pills */}

@@ -240,7 +240,7 @@ export default function VideoIntelligence() {
         <div>
           <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 20, color: '#0A0A0A', margin: 0 }}>Video Intelligence</h1>
           <p style={{ fontSize: 12, color: '#9CA3AF', margin: '3px 0 0' }}>
-            {loading ? 'Loading…' : `${allVideos.length} videos tracked`}
+            {loading ? 'Loading...' : `${allVideos.length} videos tracked`}
             {lastSynced && !loading && (() => {
               const mins = Math.round((Date.now() - new Date(lastSynced).getTime()) / 60000);
               const ago = mins < 1 ? 'just now' : mins < 60 ? `${mins}m ago` : `${Math.round(mins / 60)}h ago`;
@@ -385,24 +385,31 @@ export default function VideoIntelligence() {
                 ))}
               </div>
             ) : videos.length === 0 ? (
-              <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 16, padding: '60px 24px', textAlign: 'center' as const }}>
-                <div style={{ fontSize: 48, marginBottom: 12 }}>🎬</div>
-                <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#0A0A0A', marginBottom: 6 }}>
-                  {selectedNiche ? `No videos for "${selectedNiche}" yet` : 'No videos loaded'}
+              <div style={{ textAlign: 'center' as const, padding: '60px 20px', maxWidth: 480, margin: '0 auto' }}>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>🎬</div>
+                <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 20, color: '#0A0A0A', marginBottom: 8 }}>
+                  {selectedNiche ? `No videos for "${selectedNiche}" yet` : 'No videos loaded yet'}
                 </div>
-                <div style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 20, maxWidth: 320, margin: '0 auto 20px' }}>
-                  {selectedNiche ? 'Try a different niche or click All to see all videos' : 'Click Refresh to scrape trending TikTok product videos'}
+                <div style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.6, marginBottom: 24 }}>
+                  {selectedNiche
+                    ? 'Try a different niche or click All to see all videos'
+                    : <>Click <strong>Scrape Now</strong> to pull the latest TikTok product videos from our data pipeline. Takes ~20 seconds.</>}
                 </div>
                 {selectedNiche ? (
                   <button onClick={() => setSelectedNiche('')}
-                    style={{ height: 36, padding: '0 20px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                    style={{ height: 44, padding: '0 28px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
                     Show all videos
                   </button>
                 ) : (
                   <button onClick={triggerRefresh} disabled={refreshing}
-                    style={{ height: 36, padding: '0 20px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                    Scrape Now
+                    style={{ height: 44, padding: '0 28px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+                    🔄 Scrape Now
                   </button>
+                )}
+                {!selectedNiche && (
+                  <div style={{ marginTop: 16, fontSize: 12, color: '#9CA3AF' }}>
+                    Or use the search bar above to find product videos instantly
+                  </div>
                 )}
               </div>
             ) : (
