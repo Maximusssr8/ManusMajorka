@@ -238,13 +238,33 @@ Generate the full output following your exact format with all sections.`;
         body: JSON.stringify({ tool: 'ads_studio', prompt, productName, platforms, creativeType }),
       });
       const d = await r.json();
+      if (!r.ok) {
+        const errMsg = r.status === 429
+          ? '⚠️ Usage limit reached — please wait a moment before generating more.'
+          : r.status === 401 || r.status === 403
+          ? '🔒 Please log in again to continue.'
+          : `❌ Server error (${r.status}) — please try again in a moment.`;
+        setOutput(errMsg);
+        setSections([{ header: 'Generation Failed', body: errMsg }]);
+        setLoading(false);
+        return;
+      }
       const result = d.result || d.content || '';
+      if (!result) {
+        setOutput('⚠️ No output received — please try again.');
+        setSections([{ header: 'Empty Response', body: 'The AI returned an empty response. Please try again.' }]);
+        setLoading(false);
+        return;
+      }
       setOutput(result);
       setSections(parseOutputSections(result));
       setTimeout(() => outputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-    } catch {
-      setOutput('Failed to generate — please try again.');
-      setSections([{ header: 'Error', body: 'Failed to generate — please try again.' }]);
+    } catch (err: any) {
+      const msg = err?.name === 'AbortError'
+        ? '⏱ Request timed out — please try again.'
+        : '❌ Connection error — check your internet and try again.';
+      setOutput(msg);
+      setSections([{ header: 'Connection Error', body: msg }]);
     }
     setLoading(false);
   }

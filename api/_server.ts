@@ -33,6 +33,7 @@ import aiRouter from "../server/routes/ai";
 import cronRouter from "../server/routes/cron";
 import subscriptionRouter from "../server/routes/subscription";
 import adminApiRouter from "../server/routes/admin";
+import { requireAuth } from "../server/middleware/requireAuth";
 import shopsRouter from "../server/routes/shops";
 import productsRouter from "../server/routes/products";
 import aliexpressRouter from "../server/routes/aliexpress";
