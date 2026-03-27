@@ -3,7 +3,7 @@ import { useEffect, useState, useMemo } from 'react';
 import React from 'react';
 import { DateRangeSelector, getDateRangeStart, type Range } from '@/components/DateRangeSelector';
 import { exportCSV } from '@/lib/exportCsv';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabase';
 
 const brico = "'Bricolage Grotesque', sans-serif";
 
