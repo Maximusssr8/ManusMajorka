@@ -351,6 +351,17 @@ export default function SettingsProfile() {
                 </div>
               </div>
 
+              {/* Onboarding prompt when profile is empty */}
+              {!form.businessName && !form.targetNiche && (
+                <div style={{ background: 'linear-gradient(135deg, #EEF2FF, #F5F3FF)', border: '1px solid #C7D2FE', borderRadius: 12, padding: '14px 16px', marginBottom: 4, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                  <span style={{ fontSize: 20, flexShrink: 0 }}>✏️</span>
+                  <div>
+                    <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 13, color: '#4338CA', marginBottom: 3 }}>Complete your business profile</div>
+                    <div style={{ fontSize: 12, color: '#6366F1', lineHeight: 1.5 }}>Maya AI and Market Intel use your niche &amp; business details to personalise results. Fill in the fields below to get better recommendations.</div>
+                  </div>
+                </div>
+              )}
+
               <div className={sectionCard} style={sectionCardStyle}>
                 <div
                   className="text-xs font-bold uppercase tracking-widest mb-4"

@@ -788,6 +788,13 @@ function DashboardHome() {
     });
   }, []);
 
+  // Total product count from DB (for KPI card)
+  const [totalProducts, setTotalProducts] = React.useState<number | null>(null);
+  React.useEffect(() => {
+    supabase.from('winning_products').select('id', { count: 'exact', head: true })
+      .then(({ count }) => { if (count !== null) setTotalProducts(count); });
+  }, []);
+
   // Real weekly opportunity — sum from actual tracked products
   const totalDailyRevOpp = products.reduce((sum: number, p: any) => sum + (p.est_daily_revenue_aud ?? p.est_daily_revenue ?? 0), 0);
   const weeklyRevOpp = Math.round(totalDailyRevOpp * 7);
@@ -851,9 +858,9 @@ function DashboardHome() {
         {/* Row 1: 4 stat cards */}
         <div className="stats-grid-responsive" style={{ gap: 16, marginBottom: 20 }}>
           {([
-            { label: 'Products Found', value: '192', delta: '+12 this week', icon: Package, positive: true, color: '#6366F1', hero: false },
-            { label: 'Est. Best Revenue', value: bestRevenue, delta: 'Top product / mo', icon: TrendingUp, positive: true, color: '#10B981', hero: true },
-            { label: 'Avg Margin', value: avgMargin, delta: 'Across all products', icon: Percent, positive: true, color: '#8B5CF6', hero: false },
+            { label: 'Products in DB', value: totalProducts !== null ? totalProducts.toString() : '—', delta: 'Total tracked products', icon: Package, positive: true, color: '#6366F1', hero: false },
+            { label: 'Best Est. Revenue', value: bestRevenue, delta: 'Highest in DB / month', icon: TrendingUp, positive: true, color: '#10B981', hero: true },
+            { label: 'Avg Margin', value: avgMargin, delta: 'Across top 5 products', icon: Percent, positive: true, color: '#8B5CF6', hero: false },
             { label: 'Hot Products', value: '23', delta: 'Dropship Score 80+', icon: Zap, positive: true, color: '#F59E0B', hero: false },
           ]).map((card, i) => (
             <div key={i} style={{
@@ -915,7 +922,10 @@ function DashboardHome() {
 
           {/* Workflow guide */}
           <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
-            <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#0A0A0A', marginBottom: 4 }}>Your Workflow</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#0A0A0A' }}>Your Workflow</div>
+              <span style={{ fontSize: 11, color: '#6366F1', fontWeight: 600, background: '#EEF2FF', padding: '2px 8px', borderRadius: 20 }}>Click any step →</span>
+            </div>
             <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>The fastest path from zero to first sale</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {([
@@ -926,9 +936,9 @@ function DashboardHome() {
                 { step: '5', icon: Globe, label: 'Build your store', sub: 'Live Shopify store in 60 seconds', path: '/app/store-builder', done: false, color: '#059669' },
               ] as const).map((s, i) => (
                 <button key={i} onClick={() => setLocation(s.path)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 9, background: '#FAFAFA', border: '1px solid #F0F0F0', cursor: 'pointer', textAlign: 'left' as const }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#EEF2FF'; e.currentTarget.style.borderColor = `${s.color}40`; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = '#FAFAFA'; e.currentTarget.style.borderColor = '#F0F0F0'; }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 9, background: s.done ? '#F0FDF4' : '#FAFAFA', border: `1px solid ${s.done ? '#BBF7D0' : '#F0F0F0'}`, borderLeft: `3px solid ${s.done ? '#10B981' : s.color}`, cursor: 'pointer', textAlign: 'left' as const, transition: 'all 150ms' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#EEF2FF'; e.currentTarget.style.borderColor = `${s.color}60`; e.currentTarget.style.borderLeftColor = s.color; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = s.done ? '#F0FDF4' : '#FAFAFA'; e.currentTarget.style.borderColor = s.done ? '#BBF7D0' : '#F0F0F0'; e.currentTarget.style.borderLeftColor = s.done ? '#10B981' : s.color; }}>
                   <div style={{ width: 22, height: 22, borderRadius: '50%', background: s.done ? '#ECFDF5' : `${s.color}15`, border: `1.5px solid ${s.done ? '#10B981' : s.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {s.done ? <span style={{ fontSize: 10, color: '#10B981' }}>✓</span> : <span style={{ fontSize: 9, fontWeight: 700, color: s.color }}>{s.step}</span>}
                   </div>

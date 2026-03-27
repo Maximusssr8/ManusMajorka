@@ -449,9 +449,23 @@ Generate the full output following your exact format with all sections.`;
         <div style={{ background: 'white', borderLeft: '1px solid #E5E7EB', overflowY: 'auto' as const, padding: 14 }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 10 }}>Saved Creatives</div>
           {savedOutputs.length === 0 ? (
-            <div style={{ fontSize: 12, color: '#D1D5DB', textAlign: 'center' as const, padding: '20px 0', lineHeight: 1.6 }}>
-              No saved ads yet<br />
-              <span style={{ fontSize: 10 }}>Generate and save to build your creative library</span>
+            <div>
+              <div style={{ fontSize: 11, color: '#9CA3AF', textAlign: 'center' as const, padding: '12px 0 16px', lineHeight: 1.6 }}>
+                Generate an ad pack to start your library
+              </div>
+              {/* Example cards */}
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#D1D5DB', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 8 }}>Example outputs</div>
+              {[
+                { product: 'LED Face Mask Pro', type: 'Facebook Carousel', date: 'Example' },
+                { product: 'Posture Corrector Belt', type: 'TikTok Hook Pack', date: 'Example' },
+                { product: 'Portable Blender', type: 'UGC Brief', date: 'Example' },
+              ].map((ex, i) => (
+                <div key={i} style={{ padding: '8px 10px', background: '#F9FAFB', border: '1px dashed #E5E7EB', borderRadius: 7, marginBottom: 6, opacity: 0.7 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#374151', marginBottom: 2 }}>{ex.product}</div>
+                  <div style={{ fontSize: 10, color: '#6366F1' }}>{ex.type}</div>
+                  <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>{ex.date}</div>
+                </div>
+              ))}
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 6 }}>

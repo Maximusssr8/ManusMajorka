@@ -14,7 +14,13 @@ export function ProductStatCards({ products }: StatCardsProps) {
   const bestMargin = Math.max(...products.map((p: any) => p.estimated_margin_pct || p.profit_margin || 0));
   const avgMargin = Math.round(products.reduce((sum: number, p: any) => sum + (p.estimated_margin_pct || p.profit_margin || 0), 0) / products.length);
   const highScore = products.filter((p: any) => (p.winning_score || 0) >= 80).length;
-  const viralCount = products.filter((p: any) => (p.tags || []).includes('VIRAL')).length;
+  // "Trending" = tiktok_signal true, or trend='up', or score>=80, or VIRAL tag
+  const trendingCount = products.filter((p: any) =>
+    p.tiktok_signal === true ||
+    p.trend === 'up' ||
+    (p.winning_score || 0) >= 80 ||
+    (p.tags || []).includes('VIRAL')
+  ).length;
 
   const formatRev = (v: number) => v >= 1000000 ? `$${(v / 1000000).toFixed(1)}m` : v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`;
 
@@ -22,7 +28,7 @@ export function ProductStatCards({ products }: StatCardsProps) {
     {
       icon: '\uD83D\uDD25',
       label: 'Trending Now',
-      value: viralCount.toString(),
+      value: trendingCount.toString(),
       sub: `${highScore} products score 80+`,
       color: '#7C3AED',
       bg: '#F3E8FF',
