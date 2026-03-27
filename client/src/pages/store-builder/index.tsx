@@ -14,6 +14,7 @@ interface StoreDraft {
   importedProduct: object | null;
   customisations: { storeName: string; storeTagline: string };
   uploadedImages: Record<string, string>;
+  currency?: string;
   savedAt: string;
 }
 
@@ -400,7 +401,7 @@ export default function StoreBuilder() {
   const [productSourceModal, setProductSourceModal] = useState(false);
   const [productSourceChoice, setProductSourceChoice] = useState<'url' | 'saved' | null>(null);
   const [importedProductUrl, setImportedProductUrl] = useState('');
-  const [importedProduct, setImportedProduct] = useState<{ title?: string; description?: string; images?: string[]; price?: string } | null>(null);
+  const [importedProduct, setImportedProduct] = useState<{ title?: string; description?: string; images?: string[]; price?: string; source_url?: string; product_id?: string } | null>(null);
   const [savedProducts, setSavedProducts] = useState<Array<{ id: string; title: string; image_url?: string; price_aud?: string }>>([]);
   const [extracting, setExtracting] = useState(false);
 
@@ -421,8 +422,14 @@ export default function StoreBuilder() {
   const [drafts, setDrafts] = useState<StoreDraft[]>(() => loadDrafts());
 
   // Target Market
-  const [targetMarket, setTargetMarket] = useState('US');
-  const [currency, setCurrency] = useState('USD');
+  const [targetMarket, setTargetMarket] = useState<string>(() => {
+    return localStorage.getItem('majorka_region') || 'US';
+  });
+  const [currency, setCurrency] = useState<string>(() => {
+    const region = localStorage.getItem('majorka_region') || 'US';
+    const map: Record<string, string> = { AU: 'AUD', US: 'USD', UK: 'GBP', CA: 'CAD', NZ: 'NZD', GLOBAL: 'USD' };
+    return map[region] || 'USD';
+  });
 
   // Image slot hover state
   const [hoveredSlot, setHoveredSlot] = useState<string | null>(null);
@@ -446,6 +453,7 @@ export default function StoreBuilder() {
       importedProduct: importedProduct,
       customisations: { storeName, storeTagline },
       uploadedImages,
+      currency,
       savedAt: new Date().toISOString(),
     };
     const existing = loadDrafts();
@@ -465,6 +473,7 @@ export default function StoreBuilder() {
     setStoreTagline(draft.customisations.storeTagline);
     setUploadedImages(draft.uploadedImages);
     setImportedProduct(draft.importedProduct as typeof importedProduct);
+    if (draft.currency) setCurrency(draft.currency);
     setDraftId(draft.id);
     setCurrentStep(draft.step);
   };
@@ -585,6 +594,7 @@ export default function StoreBuilder() {
   const handleDownloadZip = () => {
     const tpl = TEMPLATES.find(t => t.id === selectedTemplate);
     if (!tpl) return;
+    setDownloadToast('Preparing download...');
 
     const htmlContent = `<!DOCTYPE html>
 <html lang="en">
@@ -626,13 +636,13 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
 <section class="hero">
   <h1>${storeName || 'Your Store'}</h1>
   <p>${storeTagline || 'Discover amazing products curated for you'}</p>
-  <button class="cta-btn" style="font-size:16px;padding:14px 40px;">Shop the Collection \\u2192</button>
+  <button class="cta-btn" style="font-size:16px;padding:14px 40px;">Shop the Collection →</button>
 </section>
 <div class="trust-bar">
-  <span>\\u{1F69A} Free Shipping Over $75</span>
-  <span>\\u2B50 4.9/5 from 2,400+ Reviews</span>
-  <span>\\u{1F512} Secure Checkout</span>
-  <span>\\u{1F1E6}\\u{1F1FA} Australian Owned</span>
+  <span>🚚 Free Shipping Over $75</span>
+  <span>⭐ 4.9/5 from 2,400+ Reviews</span>
+  <span>🔒 Secure Checkout</span>
+  <span>🇦🇺 Australian Owned</span>
 </div>
 <section class="products">
   <h2>Featured Products</h2>
@@ -642,7 +652,7 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
     <div class="product-card"><div class="product-img" style="aspect-ratio:4/3;background:linear-gradient(135deg,${tpl.accentColor}22,${tpl.accentColor}44);display:flex;align-items:center;justify-content:center;font-size:32px;color:${tpl.accentColor}">&#128722;</div><div class="product-body"><div class="product-name">Premium Product 3</div><div class="product-price">$120.00 AUD</div><button class="cta-btn" style="width:100%">Add to Cart</button></div></div>
   </div>
 </section>
-<footer><p>\\u00A9 2026 ${storeName || tpl.name}. Built with Majorka. All rights reserved.</p></footer>
+<footer><p>© 2026 ${storeName || tpl.name}. Built with Majorka. All rights reserved.</p></footer>
 </body>
 </html>`;
 
@@ -655,6 +665,8 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    setDownloadToast('HTML downloaded!');
+    setTimeout(() => setDownloadToast(null), 3000);
   };
 
   return (
@@ -1125,7 +1137,7 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
               <p style={{ fontSize: 14, color: "#6B7280" }}>
                 {buildState === "done"
                   ? "Majorka has built your complete Shopify store. Connect it or download the files."
-                  : "Final step \u2014 choose how to launch your store."}
+                  : "Final step — choose how to launch your store."}
               </p>
             </div>
 
@@ -1137,7 +1149,7 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
                   {[
                     { label: `Template selected: ${TEMPLATES.find(t => t.id === selectedTemplate)?.name ?? 'None'}`, ok: !!selectedTemplate },
                     { label: `Niche / category: ${NICHES.find(n => n.id === selectedNiche)?.label ?? customNiche ?? 'Not set'}`, ok: !!selectedNiche },
-                    { label: importedProduct ? 'Product linked' : 'Product linked', ok: !!importedProduct, hint: !importedProduct ? 'Optional \u2014 you can add products later' : undefined, warn: !importedProduct },
+                    { label: importedProduct ? 'Product linked' : 'Product linked', ok: !!(importedProduct && importedProduct.title && importedProduct.title.length > 0 && !importedProduct.title.startsWith('http')), hint: !importedProduct ? 'Optional — you can add products later' : undefined, warn: !importedProduct },
                     { label: 'Images customised', ok: Object.keys(uploadedImages).length > 0, hint: Object.keys(uploadedImages).length === 0 ? 'Using template defaults' : undefined, grey: Object.keys(uploadedImages).length === 0 },
                   ].map((item, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, fontSize: 13 }}>
@@ -1162,7 +1174,7 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
                       <Lock size={20} color="#6366F1" style={{ marginTop: 2, flexShrink: 0 }} />
                       <div>
                         <div style={{ fontWeight: 700, fontSize: 14, color: '#1E1B4B' }}>Export to Shopify is available on Scale plan & above</div>
-                        <div style={{ fontSize: 13, color: '#6B7280', marginTop: 4 }}>You are one step away \u2014 upgrade to publish your store directly.</div>
+                        <div style={{ fontSize: 13, color: '#6B7280', marginTop: 4 }}>You are one step away — upgrade to publish your store directly.</div>
                         <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
                           <button
                             onClick={() => navigate('/pricing')}
@@ -1192,12 +1204,12 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
                       <div style={{ padding: "20px", border: "2px solid #6366F1", borderRadius: 12, textAlign: "center" as const, background: "#EEF2FF" }}>
                         <div style={{ fontSize: 28, marginBottom: 8 }}>{"\u{1F3EA}"}</div>
                         <div style={{ fontSize: 14, fontWeight: 700, color: "#0A0A0A", marginBottom: 4 }}>Connect Shopify</div>
-                        <div style={{ fontSize: 12, color: "#6B7280" }}>OAuth connection \u2014 store deploys directly</div>
+                        <div style={{ fontSize: 12, color: "#6B7280" }}>Enter your Shopify domain to begin connection</div>
                       </div>
                       <div style={{ padding: "20px", border: "2px solid #E5E7EB", borderRadius: 12, textAlign: "center" as const, background: "white" }}>
                         <div style={{ fontSize: 28, marginBottom: 8 }}>{"\u{1F4E6}"}</div>
                         <div style={{ fontSize: 14, fontWeight: 700, color: "#0A0A0A", marginBottom: 4 }}>Download Files</div>
-                        <div style={{ fontSize: 12, color: "#6B7280" }}>ZIP export \u2014 upload to any Shopify store</div>
+                        <div style={{ fontSize: 12, color: "#6B7280" }}>ZIP export — upload to any Shopify store</div>
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: 10 }}>
@@ -1390,19 +1402,23 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
                       setExtracting(true);
                       try {
                         const res = await fetch(`/api/products/extract-url?url=${encodeURIComponent(importedProductUrl.trim())}`);
-                        if (res.ok) {
-                          const data = await res.json();
-                          setImportedProduct({ title: data.title || data.product_title, description: data.description, images: data.images || data.product_images, price: data.price_aud || data.price });
+                        const data = await res.json();
+                        if (res.ok && data.title) {
+                          setImportedProduct({ title: data.title, description: data.description, images: data.images || [], price: data.price_aud || data.price });
+                          setProductSourceModal(false);
+                          setCurrentStep(2);
+                        } else if (res.ok && data.product_id) {
+                          setImportedProduct({ title: '', description: '', images: [], price: undefined, source_url: importedProductUrl.trim(), product_id: data.product_id });
+                          setExtracting(false);
+                          setProductSourceModal(false);
+                          setCurrentStep(2);
                         } else {
-                          // Store URL anyway
-                          setImportedProduct({ title: importedProductUrl.trim() });
+                          alert('Could not extract product details from that URL. Please check it\'s a valid AliExpress product URL, or skip and add products later.');
                         }
                       } catch {
-                        setImportedProduct({ title: importedProductUrl.trim() });
+                        alert('Connection error. Please try again or skip to add products later.');
                       }
                       setExtracting(false);
-                      setProductSourceModal(false);
-                      setCurrentStep(2);
                     }}
                     disabled={extracting}
                     style={{ height: 40, padding: '0 16px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: extracting ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' as const }}

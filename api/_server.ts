@@ -812,6 +812,41 @@ Be specific and creative. No generic filler.`;
   }
 });
 
+// ── Product URL Extraction ────────────────────────────────────────────────────
+app.get("/api/products/extract-url", async (req: Request, res: Response) => {
+  try {
+    const url = String(req.query.url || '').trim();
+    if (!url || !url.startsWith('http')) {
+      res.status(400).json({ error: 'Invalid URL' });
+      return;
+    }
+
+    const idMatch = url.match(/\/item\/(\d+)|\/i\/(\d+)|itemId=(\d+)/);
+    const productId = idMatch ? (idMatch[1] || idMatch[2] || idMatch[3]) : null;
+
+    if (productId) {
+      res.json({
+        product_id: productId,
+        source_url: url,
+        title: null,
+        description: null,
+        images: [],
+        price_aud: null,
+        extracted: false,
+        message: 'Product ID extracted. Title and images require manual entry.'
+      });
+    } else {
+      res.status(422).json({
+        error: 'Could not extract product ID from URL',
+        message: 'Please ensure this is a valid AliExpress product URL',
+        extracted: false,
+      });
+    }
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Sentry error handler — must be before other error handlers
 if (SENTRY_DSN) {
   app.use(Sentry.expressErrorHandler());
