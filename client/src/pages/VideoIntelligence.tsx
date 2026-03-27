@@ -170,8 +170,27 @@ export default function VideoIntelligence() {
     });
   }, [allVideos, selectedNiche, dateRange]);
 
+  // Filter out hashtag aggregation page titles — these are not real hooks
+  const isJunkHook = (text: string) => {
+    const t = text.toLowerCase();
+    return (
+      t.startsWith('#') ||
+      t.includes('viral hashtag') ||
+      t.includes('trending hashtag') ||
+      t.includes('how to go viral') ||
+      t.includes('how to get') ||
+      t.includes('20 products') ||
+      t.includes('products set to go') ||
+      t.includes('como ir viral') ||
+      t.includes('cómo ir viral') ||
+      (t.includes('viral') && t.includes('2024') && t.includes('product') && t.length < 40) ||
+      t.includes('hashtags for') ||
+      t.includes('hashtags 2025') ||
+      t.includes('hashtags 2026')
+    );
+  };
   const hooks = useMemo(() =>
-    allVideos.filter(v => v.hook_text && v.hook_text.length > 15)
+    allVideos.filter(v => v.hook_text && v.hook_text.length > 15 && !isJunkHook(v.hook_text))
       .filter(v => !selectedNiche || v.niche?.toLowerCase() === selectedNiche.toLowerCase())
       .slice(0, 12),
     [allVideos, selectedNiche]

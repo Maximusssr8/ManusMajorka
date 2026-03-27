@@ -353,14 +353,15 @@ app.get("/api/creators", async (req: Request, res: Response) => {
 // ── Creator Outreach AI endpoint ────────────────────────────────────────────
 app.post("/api/creators/outreach", async (req: Request, res: Response) => {
   try {
-    const { handle, niche, product_category, products = [] } = req.body;
+    const { handle, niche, product_category, products = [], pitch_product } = req.body;
     if (!handle) { res.status(400).json({ error: 'handle required' }); return; }
 
     const Anthropic = (await import('@anthropic-ai/sdk')).default;
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
     const productList = products.length ? products.join(', ') : product_category || niche;
-    const prompt = `Write a short, friendly TikTok creator outreach DM (under 120 words) from a dropshipping brand to @${handle} who creates ${niche} content. Mention they promote ${productList}. Ask about a paid collaboration for a product in their niche. Be casual, not corporate. No emojis overdone. End with a clear CTA. Don't use "I hope this message finds you well."`;
+    const specificProduct = pitch_product ? `The specific product they want to pitch is: "${pitch_product}". ` : '';
+    const prompt = `Write a short, friendly TikTok creator outreach DM (under 120 words) from a dropshipping brand to @${handle} who creates ${niche} content. ${specificProduct}They promote: ${productList}. Ask about a paid collaboration. Reference their specific niche naturally. Be casual and personal, not corporate template. No excessive emojis. End with a clear CTA. Don't use "I hope this message finds you well." Don't say "lifestyle brand that focuses on products people actually use" — be specific.`;
 
     const msg = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',

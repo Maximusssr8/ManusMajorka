@@ -110,6 +110,7 @@ export default function CreatorIntelligence() {
   const [selected, setSelected] = useState<Creator | null>(null);
   const [outreach, setOutreach] = useState('');
   const [outreachLoading, setOutreachLoading] = useState(false);
+  const [pitchProduct, setPitchProduct] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [isScale, setIsScale] = useState(false);
   const [cachedAt, setCachedAt] = useState<string | null>(null);
@@ -137,6 +138,7 @@ export default function CreatorIntelligence() {
   const [filterRegion, setFilterRegion] = useState('');
   const [filterEngagement, setFilterEngagement] = useState('');
   const [sortBy, setSortBy] = useState<'followers' | 'engagement' | 'recent'>('followers');
+  const [csvToast, setCsvToast] = useState('');
   const [dateRange, setDateRange] = useState<Range>(() => (localStorage.getItem('majorka_creator_daterange') as Range) || '30d');
   const handleDateRange = (v: Range) => { localStorage.setItem('majorka_creator_daterange', v); setDateRange(v); };
   const [nicheFilter, setNicheFilter] = useState('ALL');
@@ -192,14 +194,15 @@ export default function CreatorIntelligence() {
     }
   };
 
-  const generateOutreach = async (c: Creator) => {
+  const generateOutreach = async (c: Creator, productOverride?: string) => {
     setOutreachLoading(true);
     setOutreach('');
     try {
+      const product = productOverride || pitchProduct || '';
       const r = await fetch('/api/creators/outreach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ handle: c.handle, niche: c.niche, product_category: c.niche, products: c.promoting_products }),
+        body: JSON.stringify({ handle: c.handle, niche: c.niche, product_category: c.niche, products: c.promoting_products, pitch_product: product }),
       });
       const d = await r.json();
       setOutreach(d.message || 'Could not generate outreach. Try again.');
@@ -207,13 +210,30 @@ export default function CreatorIntelligence() {
     setOutreachLoading(false);
   };
 
-  // Apply niche pill filter mapping
+  // Apply niche pill filter mapping — map pill labels to niche field values
+  const PILL_TO_NICHE: Record<string, string[]> = {
+    beauty: ['beauty', 'skincare', 'makeup'],
+    tech: ['tech', 'tech accessories'],
+    fitness: ['fitness', 'gym', 'sport'],
+    home: ['home', 'home decor', 'kitchen', 'cleaning'],
+    fashion: ['fashion', 'style', 'ootd'],
+    pet: ['pet', 'pet care', 'pets'],
+    kitchen: ['kitchen', 'cooking', 'food'],
+    health: ['health', 'wellness', 'supplement'],
+    outdoor: ['outdoor', 'sports', 'camping'],
+    ecommerce: ['ecommerce', 'dropshipping'],
+    dropshipping: ['dropshipping', 'ecommerce'],
+    lifestyle: ['lifestyle', 'general'],
+  };
   const nicheFilterValue = nicheFilter === 'ALL' ? '' : nicheFilter.toLowerCase();
 
   const filtered = creators.filter(c => {
     if (searchQ && !c.handle.toLowerCase().includes(searchQ.toLowerCase()) && !c.display_name.toLowerCase().includes(searchQ.toLowerCase()) && !c.niche.toLowerCase().includes(searchQ.toLowerCase())) return false;
     if (filterNiche && c.niche !== filterNiche) return false;
-    if (nicheFilterValue && !c.niche.toLowerCase().includes(nicheFilterValue)) return false;
+    if (nicheFilterValue) {
+      const allowed = PILL_TO_NICHE[nicheFilterValue] || [nicheFilterValue];
+      if (!allowed.some(a => c.niche.toLowerCase().includes(a))) return false;
+    }
     if (filterRegion && c.region_code !== filterRegion) return false;
     if (filterEngagement && c.engagement_signal !== filterEngagement) return false;
     if (c.created_at) {
@@ -403,25 +423,21 @@ export default function CreatorIntelligence() {
               Global creator network — find your next viral partner
             </p>
 
-            {/* Date range pills */}
+            {/* Sync status badge */}
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
-              {dateRangeOptions.map(opt => {
-                const isActive = dateRange === opt.value;
+              {[{ label: '🟢 Live database' }].map(opt => {
                 return (
-                  <button
-                    key={opt.value}
-                    onClick={() => handleDateRange(opt.value)}
+                  <span
+                    key={opt.label}
                     style={{
-                      padding: '6px 16px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                      padding: '6px 16px', borderRadius: 20,
                       fontSize: 12, fontWeight: 600, fontFamily: dmSans,
-                      background: isActive ? '#6366F1' : 'rgba(255,255,255,0.08)',
-                      color: isActive ? 'white' : 'rgba(255,255,255,0.5)',
-                      boxShadow: isActive ? '0 0 12px rgba(99,102,241,0.5)' : 'none',
-                      transition: 'all 0.2s ease',
+                      background: 'rgba(255,255,255,0.08)',
+                      color: 'rgba(255,255,255,0.7)',
                     }}
                   >
                     {opt.label}
-                  </button>
+                  </span>
                 );
               })}
             </div>
@@ -434,12 +450,19 @@ export default function CreatorIntelligence() {
               borderRadius: 10, padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 6,
             }}>
               <span style={{ fontSize: 20 }}>👥</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>{filtered.length} creators tracked</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'white' }}>{filtered.length} creator{filtered.length !== 1 ? 's' : ''} tracked</span>
             </div>
-            <button onClick={() => exportCSV(filtered.map(c => ({ username: c.handle, platform: 'TikTok', niche: c.niche, followers: c.est_followers, engagement_rate: c.engagement_signal, profile_url: c.profile_url })), 'creators')}
-              style={{ border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.7)', borderRadius: 8, padding: '6px 14px', fontSize: 12, cursor: 'pointer', fontWeight: 600 }}>
-              Export CSV
-            </button>
+            <div style={{ position: 'relative' as const }}>
+              <button onClick={() => { exportCSV(filtered.map(c => ({ username: c.handle, platform: 'TikTok', niche: c.niche, followers: c.est_followers, engagement_rate: c.engagement_signal, profile_url: c.profile_url })), 'creators'); setCsvToast(`✅ Exported ${filtered.length} creator${filtered.length !== 1 ? 's' : ''}`); setTimeout(() => setCsvToast(''), 3000); }}
+                style={{ border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.7)', borderRadius: 8, padding: '6px 14px', fontSize: 12, cursor: 'pointer', fontWeight: 600 }}>
+                Export CSV
+              </button>
+              {csvToast && (
+                <div style={{ position: 'absolute' as const, top: '110%', right: 0, background: '#065F46', color: 'white', borderRadius: 8, padding: '6px 12px', fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap' as const, zIndex: 100 }}>
+                  {csvToast}
+                </div>
+              )}
+            </div>
             {isScale && (
               <button onClick={triggerRefresh} disabled={refreshing}
                 style={{ padding: '6px 14px', background: refreshing ? 'rgba(255,255,255,0.1)' : 'rgba(99,102,241,0.2)', color: 'white', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: refreshing ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -650,6 +673,17 @@ export default function CreatorIntelligence() {
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', height: 36, marginBottom: 12, background: '#000', color: 'white', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', boxSizing: 'border-box' as const }}>
                 🎵 Find on TikTok
               </a>
+              <div style={{ marginBottom: 8 }}>
+                <input
+                  value={pitchProduct}
+                  onChange={e => setPitchProduct(e.target.value)}
+                  placeholder="Your product (e.g. posture corrector, LED lamp…)"
+                  style={{ width: '100%', height: 34, padding: '0 10px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, outline: 'none', boxSizing: 'border-box' as const, color: '#374151' }}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#6366F1'; }}
+                  onBlur={e => { e.currentTarget.style.borderColor = '#E5E7EB'; }}
+                />
+                <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 3 }}>Optional — makes the pitch specific to your product</div>
+              </div>
               <button onClick={() => generateOutreach(selected)} disabled={outreachLoading}
                 style={{ width: '100%', height: 38, background: 'linear-gradient(135deg, #7C3AED, #6366F1)', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', marginBottom: 12, opacity: outreachLoading ? 0.7 : 1 }}>
                 {outreachLoading ? 'Generating...' : 'AI Pitch Message'}
