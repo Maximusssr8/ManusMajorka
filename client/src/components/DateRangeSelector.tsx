@@ -3,10 +3,10 @@
  */
 
 export type Range = DateRange;
-export type DateRange = 'today' | '7d' | '30d' | '90d';
+export type DateRange = 'all' | '7d' | '30d' | '90d';
 
 const OPTIONS: { label: string; value: DateRange }[] = [
-  { label: 'Today', value: 'today' },
+  { label: 'All Time', value: 'all' },
   { label: '7 Days', value: '7d' },
   { label: '30 Days', value: '30d' },
   { label: '90 Days', value: '90d' },
@@ -59,10 +59,7 @@ export function DateRangeSelector({
 
 export function getDateRangeStart(range: DateRange): Date {
   const now = new Date();
-  if (range === 'today') {
-    now.setHours(0, 0, 0, 0);
-    return now;
-  }
+  if (range === 'all') { now.setFullYear(2020); return now; }
   if (range === '7d') { now.setDate(now.getDate() - 7); return now; }
   if (range === '30d') { now.setDate(now.getDate() - 30); return now; }
   now.setDate(now.getDate() - 90);

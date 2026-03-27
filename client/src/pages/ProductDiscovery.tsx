@@ -53,12 +53,35 @@ function parseResult(text: string): DiscoveryResult | null {
       .replace(/```json\s*/gi, '')
       .replace(/```\s*/g, '')
       .trim();
+    // Try full JSON object first
     const start = stripped.indexOf('{');
     const end = stripped.lastIndexOf('}');
-    if (start === -1 || end === -1) return null;
-    const parsed = JSON.parse(stripped.slice(start, end + 1));
-    if (!parsed.products || !Array.isArray(parsed.products)) return null;
-    return parsed as DiscoveryResult;
+    if (start !== -1 && end !== -1) {
+      try {
+        const parsed = JSON.parse(stripped.slice(start, end + 1));
+        if (parsed.products && Array.isArray(parsed.products) && parsed.products.length > 0) {
+          return parsed as DiscoveryResult;
+        }
+      } catch { /* fall through to array parse */ }
+    }
+    // Try array of products directly
+    const arrStart = stripped.indexOf('[');
+    const arrEnd = stripped.lastIndexOf(']');
+    if (arrStart !== -1 && arrEnd !== -1) {
+      try {
+        const arr = JSON.parse(stripped.slice(arrStart, arrEnd + 1));
+        if (Array.isArray(arr) && arr.length > 0) {
+          return { products: arr } as DiscoveryResult;
+        }
+      } catch { /* fall through */ }
+    }
+    // Try to extract individual product objects line by line
+    const productMatches = stripped.match(/\{[^{}]+\}/g);
+    if (productMatches && productMatches.length >= 2) {
+      const products = productMatches.map(m => { try { return JSON.parse(m); } catch { return null; } }).filter(Boolean);
+      if (products.length > 0) return { products } as DiscoveryResult;
+    }
+    return null;
   } catch {
     return null;
   }

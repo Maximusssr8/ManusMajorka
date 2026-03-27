@@ -227,7 +227,12 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const [searchInput, setSearchInput] = useState('');
   const [niche, setNiche] = useState('All Niches');
   const [sortBy, setSortBy] = useState(presetFilter === 'trending' ? 'orders_count' : 'winning_score');
-  const [dateRange, setDateRange] = useState<DateRange>(() => (localStorage.getItem('majorka_db_daterange') as DateRange) || '30d');
+  const [dateRange, setDateRange] = useState<DateRange>(() => {
+    const stored = localStorage.getItem('majorka_db_daterange') as DateRange;
+    // Migrate old 'today' value (would show 0 results) to 'all'
+    if (!stored || stored === 'today' || stored === '30d') return 'all';
+    return stored;
+  });
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [opportunityFilter, setOpportunityFilter] = useState('All');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
@@ -360,9 +365,27 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
   // Client-side filter
   const filtered = products.filter(p => {
-    // Date range filter
-    const pDate = (p as any).scraped_at || (p as any).created_at;
-    if (pDate && new Date(pDate) < getDateRangeStart(dateRange)) return false;
+    // Search filter — match against title, niche, category, keyword
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      const name = (p.product_title || (p as any).name || '').toLowerCase();
+      const cat = (p.category || p.niche || p.search_keyword || '').toLowerCase();
+      const tags = ((p.tags || []) as string[]).join(' ').toLowerCase();
+      if (!name.includes(q) && !cat.includes(q) && !tags.includes(q)) return false;
+    }
+
+    // Niche dropdown filter
+    if (niche !== 'All Niches') {
+      const pNiche = getProductNiche(p).toLowerCase();
+      const nicheQ = niche.toLowerCase();
+      if (!pNiche.includes(nicheQ) && !(p.category || '').toLowerCase().includes(nicheQ)) return false;
+    }
+
+    // Date range filter — only apply if dateRange is not 'all' (skip if records are older)
+    if (dateRange !== 'all') {
+      const pDate = (p as any).scraped_at || (p as any).created_at;
+      if (pDate && new Date(pDate) < getDateRangeStart(dateRange)) return false;
+    }
 
     if (verifiedOnly && (p.orders_count || 0) < 500) return false;
 
@@ -372,8 +395,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       const margin = getProductMargin(p);
       const growth = getGrowthRate(p);
       const nStr = getProductNiche(p).toLowerCase();
-      if (opportunityFilter === 'Viral' && !(growth > 20 || (p.social_buzz_score || 0) > 70)) return false;
-      if (opportunityFilter === 'High Margin' && margin < 40) return false;
+      if (opportunityFilter === 'Viral' && !(p.tiktok_signal || (p.tags || []).includes('VIRAL') || (p.winning_score || 0) >= 85)) return false;
+      if (opportunityFilter === 'High Margin' && !(margin >= 45 || (p.profit_margin || 0) >= 45)) return false;
       if (opportunityFilter === 'AU Best Sellers' && orders < 50) return false;
       if (opportunityFilter === 'TikTok' && !p.tiktok_signal && !nStr.includes('tiktok')) return false;
       if (opportunityFilter === 'New Today') {
