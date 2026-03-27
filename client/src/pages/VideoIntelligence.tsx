@@ -3,6 +3,7 @@ import { useEffect, useState, useMemo } from 'react';
 import React from 'react';
 import { DateRangeSelector, getDateRangeStart, type Range } from '@/components/DateRangeSelector';
 import { exportCSV } from '@/lib/exportCsv';
+import { supabase } from '@/lib/supabaseClient';
 
 const brico = "'Bricolage Grotesque', sans-serif";
 
@@ -127,7 +128,10 @@ export default function VideoIntelligence() {
   // Load ALL videos once from real TikTok data, filter client-side
   useEffect(() => {
     setLoading(true);
-    fetch('/api/videos/real')
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const authHeader = session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {};
+      return fetch('/api/videos/real', { headers: authHeader });
+    })
       .then(r => r.json())
       .then(d => {
         if (d.last_synced) setLastSynced(d.last_synced);

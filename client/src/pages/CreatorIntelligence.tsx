@@ -646,19 +646,39 @@ export default function CreatorIntelligence() {
                   <a href={getTikTokUrl(selected)} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#6366F1', textDecoration: 'none' }}>{selected.handle} ↗</a>
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
-                {[
+              {(() => {
+                // Deterministic estimates based on follower count + engagement signal
+                const followers = parseFollowerCount(selected.est_followers);
+                const engRate = selected.engagement_signal === 'HIGH' ? '8–12%' : selected.engagement_signal === 'MEDIUM' ? '3–7%' : '1–3%';
+                const avgViews = followers >= 1_000_000
+                  ? `${(followers * (selected.engagement_signal === 'HIGH' ? 0.08 : 0.04) / 1000).toFixed(0)}K`
+                  : followers >= 100_000
+                  ? `${(followers * (selected.engagement_signal === 'HIGH' ? 0.10 : 0.05) / 1000).toFixed(0)}K`
+                  : `${(followers * 0.12 / 1000).toFixed(0)}K`;
+                const collabLow = followers >= 1_000_000 ? '$1,500' : followers >= 500_000 ? '$800' : followers >= 100_000 ? '$300' : '$80';
+                const collabHigh = followers >= 1_000_000 ? '$5,000' : followers >= 500_000 ? '$2,000' : followers >= 100_000 ? '$800' : '$300';
+                const stats = [
                   { label: 'Followers', value: selected.est_followers },
                   { label: 'Region', value: `${REGION_FLAGS[selected.region_code] || ''} ${selected.region_code}` },
+                  { label: 'Est. Engagement', value: engRate, hint: 'est.' },
+                  { label: 'Est. Avg Views', value: avgViews, hint: 'est.' },
                   { label: 'Niche', value: selected.niche },
-                  { label: 'Engagement', value: selected.engagement_signal },
-                ].map(s => (
-                  <div key={s.label} style={{ background: '#F8F9FC', borderRadius: 8, padding: '8px 10px' }}>
-                    <div style={{ fontSize: 10, color: '#9CA3AF' }}>{s.label}</div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#0A0A0A' }}>{s.value}</div>
+                  { label: 'Est. Collab Cost', value: `${collabLow}–${collabHigh}`, hint: 'est.' },
+                ];
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
+                    {stats.map(s => (
+                      <div key={s.label} style={{ background: '#F8F9FC', borderRadius: 8, padding: '8px 10px' }}>
+                        <div style={{ fontSize: 10, color: '#9CA3AF', display: 'flex', gap: 4, alignItems: 'center' }}>
+                          {s.label}
+                          {s.hint && <span style={{ fontSize: 9, color: '#D1D5DB', background: '#F3F4F6', padding: '0 4px', borderRadius: 3 }}>est.</span>}
+                        </div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: '#0A0A0A' }}>{s.value}</div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                );
+              })()}
               {selected.promoting_products.length > 0 && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontSize: 11, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Promoting:</div>
