@@ -20,7 +20,7 @@ import {
   X,
   Eye,
 } from 'lucide-react';
-import React, { createElement, useEffect, useRef, useState } from 'react';
+import React, { createElement, useEffect, useMemo, useRef, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import CountUp from 'react-countup';
 import { useInView } from 'react-intersection-observer';
@@ -665,8 +665,8 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
           ))}
         </div>
       ) : leaderboard.length === 0 ? (
-        <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '32px 24px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 13 }}>
-          No products yet — data loads shortly
+        <div style={{ padding: '24px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 13, background: 'white', border: '1px solid #F0F0F0', borderRadius: 14 }}>
+          Product leaderboard loading...
         </div>
       ) : isMobile ? (
         /* Mobile: horizontal scroll strip */
@@ -805,6 +805,19 @@ function DashboardHome() {
     return { day, rev: Math.round((totalDailyRevOpp || 4500) * growthFactors[i]) };
   });
 
+  const bestRevenue = useMemo(() => {
+    if (!products.length) return '$41.2k';
+    const top = Math.max(...(products as any[]).map((p: any) => p.est_monthly_revenue_aud || (p.est_daily_revenue_aud ? p.est_daily_revenue_aud * 30 : 0)));
+    return top > 0 ? `$${(top / 1000).toFixed(1)}k` : '$41.2k';
+  }, [products]);
+
+  const avgMargin = useMemo(() => {
+    const margins = (products as any[]).map((p: any) => p.profit_margin).filter((m: any) => m && m > 0);
+    if (!margins.length) return '57%';
+    const avg = Math.round(margins.reduce((a: number, b: number) => a + b, 0) / margins.length);
+    return `${avg}%`;
+  }, [products]);
+
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB', padding: '0' }}>
 
@@ -839,10 +852,10 @@ function DashboardHome() {
         <div className="stats-grid-responsive" style={{ gap: 16, marginBottom: 20 }}>
           {([
             { label: 'Products Found', value: '192', delta: '+12 this week', icon: Package, positive: true, color: '#6366F1', hero: false },
-            { label: 'Est. Best Revenue', value: '$41.2k', delta: 'Top product / mo', icon: TrendingUp, positive: true, color: '#10B981', hero: true },
-            { label: 'Avg Margin', value: '57%', delta: 'Across all products', icon: Percent, positive: true, color: '#8B5CF6', hero: false },
+            { label: 'Est. Best Revenue', value: bestRevenue, delta: 'Top product / mo', icon: TrendingUp, positive: true, color: '#10B981', hero: true },
+            { label: 'Avg Margin', value: avgMargin, delta: 'Across all products', icon: Percent, positive: true, color: '#8B5CF6', hero: false },
             { label: 'Hot Products', value: '23', delta: 'Dropship Score 80+', icon: Zap, positive: true, color: '#F59E0B', hero: false },
-          ] as const).map((card, i) => (
+          ]).map((card, i) => (
             <div key={i} style={{
               background: card.hero ? 'linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%)' : 'white',
               border: card.hero ? '1.5px solid #6EE7B7' : '1px solid #F0F0F0',

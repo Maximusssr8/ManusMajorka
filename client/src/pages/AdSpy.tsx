@@ -327,6 +327,7 @@ function AdSpyContent() {
   const [genError, setGenError] = useState('');
   
   const [lastSearchInput, setLastSearchInput] = useState('');
+  const [loadingMsg, setLoadingMsg] = useState('Scanning ad databases...');
 
   // Pre-fill from active product if nothing typed
   useEffect(() => {
@@ -336,6 +337,18 @@ function AdSpyContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeProduct]);
 
+  // Rotate loading messages while generating
+  useEffect(() => {
+    if (!generating) return;
+    const msgs = ['Scanning ad databases...', 'Analysing winning creatives...', 'Building your ad intelligence report...'];
+    let idx = 0;
+    setLoadingMsg(msgs[0]);
+    const interval = setInterval(() => {
+      idx = (idx + 1) % msgs.length;
+      setLoadingMsg(msgs[idx]);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [generating]);
 
   const doSearch = async (query: string) => {
     if (!query.trim()) return;
@@ -343,7 +356,7 @@ function AdSpyContent() {
     setGenError('');
     setResult(null);
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 25000); // 25s timeout
+    const timeout = setTimeout(() => controller.abort(), 45000); // 45s timeout
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -520,10 +533,15 @@ function AdSpyContent() {
       <div className="flex-1 overflow-y-auto px-5 pb-6">
         {/* Loading skeletons */}
         {isLoading && !result && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <ShimmerCard key={i} />
-            ))}
+          <div>
+            <div style={{ textAlign: 'center' as const, padding: '16px 0 20px', fontSize: 13, color: '#6B7280', fontWeight: 500 }}>
+              {loadingMsg}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <ShimmerCard key={i} />
+              ))}
+            </div>
           </div>
         )}
 
@@ -540,18 +558,33 @@ function AdSpyContent() {
             >
               {genError}
             </div>
-            <button
-              onClick={handleSearch}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold"
-              style={{
-                background: '#F9FAFB',
-                border: '1px solid #F0F0F0',
-                color: '#374151',
-                cursor: 'pointer',
-              }}
-            >
-              <RefreshCw size={13} /> Try Again
-            </button>
+            {genError.toLowerCase().includes('timed out') && (
+              <div style={{ textAlign: 'center' as const, maxWidth: 400 }}>
+                <div style={{ color: '#EF4444', fontWeight: 600, marginBottom: 8, fontSize: 13 }}>Search took too long — try one of these:</div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const, justifyContent: 'center' }}>
+                  {['wireless earbuds', 'led strip lights', 'posture corrector', 'massage gun', 'phone stand'].map(kw => (
+                    <button key={kw} onClick={() => { setSearchInput(kw); void doSearch(kw); }}
+                      style={{ padding: '6px 12px', background: '#F3F4F6', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: '#374151' }}>
+                      {kw}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {!genError.toLowerCase().includes('timed out') && (
+              <button
+                onClick={handleSearch}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold"
+                style={{
+                  background: '#F9FAFB',
+                  border: '1px solid #F0F0F0',
+                  color: '#374151',
+                  cursor: 'pointer',
+                }}
+              >
+                <RefreshCw size={13} /> Try Again
+              </button>
+            )}
           </div>
         )}
 
@@ -601,6 +634,19 @@ function AdSpyContent() {
               >
                 Enter a product niche or keyword above to discover high-performing ads from
                 Facebook, TikTok, and Instagram.
+              </div>
+            </div>
+            <div style={{ marginTop: 32, textAlign: 'center' as const }}>
+              <div style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 12 }}>Popular searches</div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const, justifyContent: 'center' }}>
+                {['LED strip lights', 'wireless earbuds', 'posture corrector', 'massage gun', 'portable blender'].map(kw => (
+                  <button key={kw} onClick={() => { setSearchInput(kw); void doSearch(kw); }}
+                    style={{ padding: '8px 16px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 20, fontSize: 13, fontWeight: 500, cursor: 'pointer', color: '#374151', transition: 'border-color 150ms, color 150ms' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.color = '#6366F1'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#E5E7EB'; e.currentTarget.style.color = '#374151'; }}>
+                    {kw}
+                  </button>
+                ))}
               </div>
             </div>
           </div>

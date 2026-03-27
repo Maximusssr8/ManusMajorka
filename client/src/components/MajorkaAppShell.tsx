@@ -643,7 +643,6 @@ export default function MajorkaAppShell({ children }: Props) {
             Majorka
           </span>
         </button>
-        <NotificationBell />
       </div>
 
       {/* Search bar */}

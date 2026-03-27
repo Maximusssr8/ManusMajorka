@@ -157,8 +157,8 @@ export default function CreatorIntelligence() {
         contact_hint: c.profileUrl || null,
         image_url: c.avatarUrl || null,
       }));
-      setCreators(mapped);
-    } catch { setCreators([]); }
+      setCreators(mapped.length > 0 ? mapped : FALLBACK_CREATORS as any);
+    } catch { setCreators(FALLBACK_CREATORS as any); }
     setLoading(false);
   }, []);
 
@@ -505,13 +505,12 @@ export default function CreatorIntelligence() {
             <div style={{ padding: 60, textAlign: 'center' as const, color: '#9CA3AF', fontSize: 14 }}>Loading creators...</div>
           ) : filtered.length === 0 ? (
             <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 16, padding: 60, textAlign: 'center' as const }}>
-              <div style={{ width: 32, height: 32, border: '3px solid #E5E7EB', borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }} />
-              <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 16, color: '#0A0A0A', marginBottom: 6 }}>Syncing TikTok data...</div>
-              <div style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 16 }}>Check back in a minute. Data refreshes every 6 hours.</div>
-              <button onClick={triggerRefresh} disabled={refreshing}
-                style={{ height: 38, padding: '0 20px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
-                {refreshing ? 'Refreshing...' : 'Refresh Now'}
-              </button>
+              <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#0A0A0A', marginBottom: 8 }}>Creator data refreshing</div>
+              <div style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 20, maxWidth: 380, margin: '0 auto 20px' }}>Our system syncs TikTok creator data every 6 hours. Check back soon — or try the Video Intel tab to browse trending content now.</div>
+              <a href="/app/videos" style={{ display: 'inline-block', height: 38, lineHeight: '38px', padding: '0 20px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', textDecoration: 'none' }}>
+                Browse Video Intel →
+              </a>
+              <div style={{ fontSize: 11, color: '#D1D5DB', marginTop: 16 }}>Last sync: checking...</div>
             </div>
           ) : (
             <>
