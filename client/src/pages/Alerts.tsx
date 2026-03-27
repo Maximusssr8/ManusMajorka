@@ -34,6 +34,18 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
   const [domainError, setDomainError] = useState('');
   const [saving, setSaving] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  const [testSending, setTestSending] = useState(false);
+  const [testSent, setTestSent] = useState(false);
+
+  async function sendTestNotification() {
+    setTestSending(true);
+    try {
+      const { data: { session: sess } } = await supabase.auth.getSession();
+      const authHeader = sess?.access_token ? { Authorization: `Bearer ${sess.access_token}` } : {};
+      const r = await fetch('/api/alerts/test-notification', { method: 'POST', headers: authHeader });
+      if (r.ok) { setTestSent(true); setTimeout(() => setTestSent(false), 5000); }
+    } catch { /* ignore */ } finally { setTestSending(false); }
+  }
 
   useEffect(() => { loadAlerts(); }, [session]);
 
@@ -133,7 +145,11 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
             {/* Email notice */}
             <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.18)', borderRadius: 12, padding: '12px 16px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
               <Bell size={15} style={{ color: '#6366F1', flexShrink: 0 }} />
-              <span style={{ fontSize: 12, color: '#374151' }}>Alerts are delivered to your account email. Make sure notifications are enabled in <a href="/app/settings/notifications" style={{ color: '#6366F1', fontWeight: 600 }}>Settings → Notifications</a>.</span>
+              <span style={{ fontSize: 12, color: '#374151', flex: 1 }}>Alerts are delivered to your account email. Make sure notifications are enabled in <a href="/app/settings/notifications" style={{ color: '#6366F1', fontWeight: 600 }}>Settings → Notifications</a>.</span>
+              <button onClick={sendTestNotification} disabled={testSending || testSent}
+                style={{ flexShrink: 0, height: 28, padding: '0 10px', background: testSent ? '#059669' : '#6366F1', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: testSending || testSent ? 'default' : 'pointer', whiteSpace: 'nowrap' as const }}>
+                {testSent ? '✓ Sent!' : testSending ? 'Sending…' : 'Test Email'}
+              </button>
             </div>
             {/* Suggested starter alerts */}
             <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: 24, marginBottom: 16 }}>

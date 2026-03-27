@@ -825,4 +825,41 @@ app.use(
   })
 );
 
+// ── Alerts Test Notification ──────────────────────────────────────────────────
+app.post("/api/alerts/test-notification", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const email = (req as any).user?.email;
+    if (!email) { res.status(400).json({ error: 'No email on account' }); return; }
+
+    const RESEND_KEY = process.env.RESEND_API_KEY;
+    if (!RESEND_KEY) { res.status(503).json({ error: 'Email service not configured' }); return; }
+
+    const { Resend } = require('resend');
+    const resend = new Resend(RESEND_KEY);
+
+    await resend.emails.send({
+      from: 'Majorka Alerts <alerts@majorka.io>',
+      to: email,
+      subject: '✅ Majorka Alerts — Test Notification',
+      html: `
+        <div style="font-family: -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; color: #0A0A0A;">
+          <div style="background: linear-gradient(135deg, #6366F1, #8B5CF6); border-radius: 12px; padding: 24px; margin-bottom: 24px; text-align: center;">
+            <div style="font-size: 32px; margin-bottom: 8px;">🔔</div>
+            <h1 style="color: white; font-size: 20px; margin: 0;">Test Alert Delivered</h1>
+          </div>
+          <p style="color: #374151; font-size: 15px; line-height: 1.6; margin: 0 0 16px;">Your Majorka alerts are configured correctly and email notifications are working.</p>
+          <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 12px 16px; margin-bottom: 24px;">
+            <p style="color: #166534; font-size: 13px; margin: 0;">✅ Alert delivery confirmed — ${new Date().toLocaleString('en-AU', { timeZone: 'Australia/Brisbane' })} AEST</p>
+          </div>
+          <p style="color: #6B7280; font-size: 12px; margin: 0;">Sent to: ${email} · <a href="https://www.majorka.io/app/settings/notifications" style="color: #6366F1;">Manage notifications</a></p>
+        </div>
+      `,
+    });
+
+    res.json({ success: true, sent_to: email });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default app;
