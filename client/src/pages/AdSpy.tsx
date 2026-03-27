@@ -523,8 +523,14 @@ function AdSpyContent() {
         {/* Loading skeletons */}
         {isLoading && !result && (
           <div>
-            <div style={{ textAlign: 'center' as const, padding: '16px 0 20px', fontSize: 13, color: '#6B7280', fontWeight: 500 }}>
-              {loadingMsg}
+            <div style={{ textAlign: 'center' as const, padding: '16px 0 12px' }}>
+              <div style={{ fontSize: 13, color: '#6B7280', fontWeight: 500, marginBottom: 10 }}>{loadingMsg}</div>
+              <button
+                onClick={() => { setGenerating(false); setGenError('Search cancelled.'); }}
+                style={{ fontSize: 11, color: '#9CA3AF', background: 'none', border: '1px solid #E5E7EB', borderRadius: 6, padding: '4px 12px', cursor: 'pointer' }}
+              >
+                ✕ Cancel
+              </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
@@ -549,14 +555,16 @@ function AdSpyContent() {
             </div>
             {genError.toLowerCase().includes('timed out') && (
               <div style={{ textAlign: 'center' as const, maxWidth: 400 }}>
-                <div style={{ color: '#EF4444', fontWeight: 600, marginBottom: 8, fontSize: 13 }}>Search took too long — try one of these:</div>
+                <div style={{ color: '#6B7280', fontSize: 13, marginBottom: 8 }}>Try a shorter or simpler keyword:</div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const, justifyContent: 'center' }}>
-                  {['wireless earbuds', 'led strip lights', 'posture corrector', 'massage gun', 'phone stand'].map(kw => (
-                    <button key={kw} onClick={() => { setSearchInput(kw); void doSearch(kw); }}
-                      style={{ padding: '6px 12px', background: '#F3F4F6', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: '#374151' }}>
-                      {kw}
-                    </button>
-                  ))}
+                  {['dog toys', 'led lamp', 'back support', 'face mask', 'phone grip']
+                    .filter(kw => kw.toLowerCase() !== lastSearchInput.toLowerCase())
+                    .map(kw => (
+                      <button key={kw} onClick={() => { setSearchInput(kw); void doSearch(kw); }}
+                        style={{ padding: '6px 12px', background: '#F3F4F6', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', color: '#374151' }}>
+                        {kw}
+                      </button>
+                    ))}
                 </div>
               </div>
             )}
