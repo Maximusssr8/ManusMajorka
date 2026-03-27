@@ -574,10 +574,24 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           </div>
 
           {/* 500+ orders toggle */}
-          <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#6B7280', cursor: 'pointer', marginLeft: 'auto' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#6B7280', cursor: 'pointer' }}>
             <input type="checkbox" checked={verifiedOnly} onChange={e => setVerifiedOnly(e.target.checked)} style={{ accentColor: '#6366F1', width: 14, height: 14 }} />
             500+ orders only
           </label>
+
+          {/* Clear filters — shown whenever a filter is active */}
+          {(searchInput || niche !== 'All Niches' || opportunityFilter !== 'All' || verifiedOnly) && (
+            <button
+              onClick={() => { setSearchInput(''); setNiche('All Niches'); setOpportunityFilter('All'); setVerifiedOnly(false); }}
+              style={{ height: 32, padding: '0 12px', background: '#FEF2F2', color: '#EF4444', border: '1px solid #FECACA', borderRadius: 16, fontSize: 12, fontWeight: 600, cursor: 'pointer', marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, transition: 'all 150ms' }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#FEE2E2'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#FEF2F2'; }}>
+              ✕ Clear filters
+            </button>
+          )}
+          {!(searchInput || niche !== 'All Niches' || opportunityFilter !== 'All' || verifiedOnly) && (
+            <span style={{ marginLeft: 'auto' }} />
+          )}
         </div>
 
         {/* Trend + Sort filter bar */}
