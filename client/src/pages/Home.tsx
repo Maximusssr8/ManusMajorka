@@ -1560,7 +1560,7 @@ export default function Home() {
           <h1 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 'clamp(32px, 7vw, 72px)', lineHeight: 1.1, letterSpacing: '-0.03em', margin: '0 0 0', opacity: 0, animation: 'fadeInUp 0.5s ease 0.2s both', overflowWrap: 'break-word' as const, wordBreak: 'break-word' as const }}>
             The Only <span style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI Tool</span> That Finds
             <br />
-            <span style={{ color: '#0A0A0A' }}>Find Winning Products Before Your Competitors Do.</span>
+            <span style={{ color: '#0A0A0A' }}>Winning Products Before Your Competitors Do.</span>
           </h1>
 
           {/* Subheading */}
@@ -1809,7 +1809,7 @@ export default function Home() {
               <div style={{ height: 1, background: '#F3F4F6', margin: '24px 0' }} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[
-                  { text: '10 product searches/day', on: true },
+                  { text: '5 AI credits/day', on: true },
                   { text: 'Basic store builder (1 store)', on: true },
                   { text: 'Market filters (7 regions)', on: true },
                   { text: 'Product Intelligence', on: false },
@@ -1930,7 +1930,7 @@ export default function Home() {
             </p>
             <div className="stack-mobile" style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 28 }}>
               <Link
-                href="/sign-in"
+                href="/sign-up"
                 style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 14, padding: '18px 52px', fontFamily: syne, fontWeight: 800, fontSize: 'clamp(15px, 2vw, 18px)', textDecoration: 'none', boxShadow: `0 0 60px rgba(99,102,241,0.35), 0 4px 24px rgba(0,0,0,0.3)`, minHeight: 56, minWidth: 200, transition: 'transform 0.2s, box-shadow 0.2s' }}
                 className="btn-shimmer"
                 onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = 'translateY(-3px)'; el.style.boxShadow = '0 0 80px rgba(99,102,241,0.5), 0 8px 32px rgba(0,0,0,0.4)'; }}
