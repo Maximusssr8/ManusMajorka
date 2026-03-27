@@ -1376,7 +1376,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
                   <div style={{ fontFamily: brico, fontWeight: 800, fontSize: isMobile ? 26 : 32, color: '#064E3B', lineHeight: 1 }}>
                     ${counterVal.toFixed(2)} AUD
                   </div>
-                  <div style={{ fontSize: 12, color: '#059669', marginTop: 4 }}>Sophie T. · Sydney, NSW · 6 hrs after launch</div>
+                  <div style={{ fontSize: 12, color: '#059669', marginTop: 4 }}>Illustrative example · results vary by product &amp; market</div>
                 </div>
               </div>
               {/* Stats */}
@@ -1497,7 +1497,7 @@ export default function Home() {
           {/* ── Center: Nav links (desktop only) ── */}
           {!isMobile && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              {[['https://majorka.io/#features', 'Features'], ['https://majorka.io/#pricing', 'Pricing']].map(([href, label]) => (
+              {[['https://majorka.io/#features', 'Features'], ['https://majorka.io/#pricing', 'Pricing'], ['/blog', 'Blog']].map(([href, label]) => (
                 <a key={label} href={href} style={{ color: '#6B7280', textDecoration: 'none', fontSize: 14, fontWeight: 500, padding: '6px 12px', borderRadius: 7, transition: 'color 120ms, background 120ms' }}
                   onMouseEnter={(e) => { e.currentTarget.style.color = '#111827'; e.currentTarget.style.background = '#F3F4F6'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.background = 'transparent'; }}>
@@ -1533,7 +1533,7 @@ export default function Home() {
         {/* ── Mobile drawer ── */}
         {isMobile && mobileMenuOpen && (
           <div style={{ borderTop: '1px solid #E5E7EB', background: 'rgba(250,250,250,0.97)', padding: '8px 16px 16px' }}>
-            {[['https://majorka.io/#features', 'Features'], ['https://majorka.io/#pricing', 'Pricing'], ['/sign-in', 'Log in']].map(([href, label]) => (
+            {[['https://majorka.io/#features', 'Features'], ['https://majorka.io/#pricing', 'Pricing'], ['/blog', 'Blog'], ['/sign-in', 'Log in']].map(([href, label]) => (
               <a key={label} href={href} onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', color: '#374151', textDecoration: 'none', fontSize: 15, fontWeight: 500, padding: '12px 8px', borderBottom: '1px solid #F3F4F6' }}>{label}</a>
             ))}
           </div>
@@ -1588,7 +1588,7 @@ export default function Home() {
                   <path d="M1 1L9 6L1 11V1Z" fill="white" stroke="white" strokeWidth="1" strokeLinejoin="round"/>
                 </svg>
               </span>
-              Watch a Demo
+              See How It Works
             </button>
           </div>
 
@@ -1977,9 +1977,9 @@ export default function Home() {
               {[
                 { label: 'Features', href: 'https://majorka.io/#features' },
                 { label: 'Pricing', href: '/pricing' },
-                { label: 'Store Builder', href: '/store-builder' },
-                { label: 'Product Intelligence', href: '/app/intelligence' },
-                { label: 'Competitor Spy', href: '/app/spy' },
+                { label: 'Store Builder', href: '/sign-up?ref=store-builder' },
+                { label: 'Product Intelligence', href: '/sign-up?ref=intelligence' },
+                { label: 'Competitor Spy', href: '/sign-up?ref=spy' },
               ].map(link => (
                 <a key={link.label} href={link.href} style={{ display: 'block', fontSize: 14, color: '#6B7280', marginBottom: 10, textDecoration: 'none', transition: 'color 150ms' }}
                   onMouseEnter={e => (e.currentTarget.style.color = 'white')}
@@ -1991,8 +1991,8 @@ export default function Home() {
             <div>
               <h4 style={{ fontSize: 13, fontWeight: 700, color: 'white', marginBottom: 16, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Company</h4>
               {[
-                { label: 'Academy', href: '/app/learn' },
-                { label: 'Affiliate', href: '/app/affiliate' },
+                { label: 'Blog', href: '/blog' },
+                { label: 'About', href: '/about' },
                 { label: 'Contact', href: 'mailto:hello@majorka.io' },
                 { label: 'Support', href: 'mailto:support@majorka.io' },
               ].map(link => (
