@@ -35,23 +35,7 @@ interface AdsResult {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const AD_SPY_SYSTEM_PROMPT = `You are an ad intelligence researcher. When given a product niche, find and describe winning ads from Facebook, TikTok, and Instagram.
-
-For each ad found (return 6 total, 2 per platform), provide this JSON:
-{
-  "ads": [
-    {
-      "platform": "Facebook|TikTok|Instagram",
-      "hook": "First line or hook of the ad",
-      "bodyText": "Main ad copy (2-3 sentences)",
-      "cta": "CTA button text",
-      "angle": "Pain Point|Curiosity|Social Proof|Benefit|Scarcity",
-      "whyItWorks": "Brief explanation of why this ad format works",
-      "targetAudience": "Who this ad targets"
-    }
-  ]
-}
-Return ONLY valid JSON.`;
+// System prompt moved to server-side /api/ad-spy/search endpoint
 
 const PLATFORM_STYLES: Record<string, { bg: string; text: string; border: string; label: string }> =
   {
@@ -83,24 +67,7 @@ const ANGLE_COLORS: Record<string, string> = {
   Scarcity: '#f97316',
 };
 
-// ── Utilities ─────────────────────────────────────────────────────────────────
-
-function parseAds(text: string): AdsResult | null {
-  try {
-    const stripped = text
-      .replace(/```json\s*/gi, '')
-      .replace(/```\s*/g, '')
-      .trim();
-    const start = stripped.indexOf('{');
-    const end = stripped.lastIndexOf('}');
-    if (start === -1 || end === -1) return null;
-    const parsed = JSON.parse(stripped.slice(start, end + 1));
-    if (!parsed.ads || !Array.isArray(parsed.ads)) return null;
-    return parsed as AdsResult;
-  } catch {
-    return null;
-  }
-}
+// Parsing now handled server-side in /api/ad-spy/search
 
 // ── Shimmer skeleton ──────────────────────────────────────────────────────────
 
@@ -324,6 +291,7 @@ function AdSpyContent() {
   const [searchInput, setSearchInput] = useState('');
   const [result, setResult] = useState<AdsResult | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const [genError, setGenError] = useState('');
   
   const [lastSearchInput, setLastSearchInput] = useState('');
@@ -355,38 +323,57 @@ function AdSpyContent() {
     setGenerating(true);
     setGenError('');
     setResult(null);
+    setCooldown(0);
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 45000); // 45s timeout
+    const timeout = setTimeout(() => controller.abort(), 35000);
     try {
-      const res = await fetch('/api/chat', {
+      const { supabase } = await import('@/lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
+      const authHeader = session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {};
+      const res = await fetch('/api/ad-spy/search', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeader },
         signal: controller.signal,
-        body: JSON.stringify({
-          stream: false,
-          messages: [{ role: 'user', content: `Find winning ads for: ${query}` }],
-          systemPrompt: AD_SPY_SYSTEM_PROMPT,
-        }),
+        body: JSON.stringify({ query }),
       });
       clearTimeout(timeout);
+      const data = await res.json();
       if (!res.ok) {
-        setGenError(`Search failed (${res.status}). Please try again.`);
+        if (res.status === 429 && data.remaining) {
+          setCooldown(data.remaining);
+          setGenError(data.message || 'Please wait before searching again.');
+          let remaining = data.remaining;
+          const interval = setInterval(() => {
+            remaining--;
+            setCooldown(remaining);
+            if (remaining <= 0) { clearInterval(interval); setCooldown(0); }
+          }, 1000);
+        } else if (res.status === 429) {
+          setGenError('Too many searches — please wait a minute before trying again.');
+        } else {
+          setGenError(data.message || 'Search failed. Please try again.');
+        }
         return;
       }
-      const data = await res.json();
-      const text = data.response || data.message || data.content || '';
-      const parsed = parseAds(text);
+      const parsed = data.ads ? data as AdsResult & { query?: string } : null;
       if (parsed) {
         setResult(parsed);
+        setCooldown(20);
+        let remaining = 20;
+        const interval = setInterval(() => {
+          remaining--;
+          setCooldown(remaining);
+          if (remaining <= 0) { clearInterval(interval); setCooldown(0); }
+        }, 1000);
       } else {
-        setGenError('No results found for that keyword. Try a different niche or product type.');
+        setGenError('No ad briefs generated. Try a more specific product keyword.');
       }
     } catch (err: any) {
       clearTimeout(timeout);
       if (err?.name === 'AbortError') {
-        setGenError('Search timed out. The AI took too long — please try a shorter keyword.');
+        setGenError('Search timed out. Please try again.');
       } else {
-        setGenError('Network error. Please check your connection and try again.');
+        setGenError('Connection error. Please check your internet and try again.');
       }
     } finally {
       setGenerating(false);
@@ -428,7 +415,7 @@ function AdSpyContent() {
             Ad Spy
           </div>
           <div className="text-xs" style={{ color: '#9CA3AF' }}>
-            Find winning ads in your niche
+            AI-generated ad creative briefs + links to real ad libraries
           </div>
         </div>
         {result && (
@@ -502,27 +489,29 @@ function AdSpyContent() {
             onBlur={(e) => (e.target.style.borderColor = '#F0F0F0')}
           />
           <button
-            onClick={handleSearch}
-            disabled={isLoading}
+            onClick={cooldown > 0 ? undefined : handleSearch}
+            disabled={isLoading || cooldown > 0}
             className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-extrabold transition-all disabled:opacity-60"
             style={{
-              background: isLoading
+              background: (isLoading || cooldown > 0)
                 ? 'rgba(245,158,11,0.25)'
                 : 'linear-gradient(135deg, #f59e0b, #d97706)',
-              color: isLoading ? '#6B7280' : '#FAFAFA',
+              color: (isLoading || cooldown > 0) ? '#6B7280' : '#FAFAFA',
               fontFamily: "'Bricolage Grotesque', sans-serif",
-              cursor: isLoading ? 'not-allowed' : 'pointer',
+              cursor: (isLoading || cooldown > 0) ? 'not-allowed' : 'pointer',
               border: 'none',
               whiteSpace: 'nowrap',
             }}
           >
             {isLoading ? (
               <>
-                <Loader2 size={15} className="animate-spin" /> Searching…
+                <Loader2 size={15} className="animate-spin" /> Analysing…
               </>
+            ) : cooldown > 0 ? (
+              `Wait ${cooldown}s`
             ) : (
               <>
-                <Search size={15} /> Search Ads
+                <Search size={15} /> Find Ads
               </>
             )}
           </button>
@@ -591,12 +580,21 @@ function AdSpyContent() {
         {/* Results */}
         {result && !isLoading && (
           <div>
+            <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 8, padding: '8px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 13 }}>✨</span>
+              <span style={{ fontSize: 11, color: '#166534', lineHeight: 1.4 }}>
+                <strong>AI Creative Briefs</strong> — These are AI-generated ad angles based on proven patterns, not scraped real ads.{' '}
+                For real competitor ads: <a href={`https://www.facebook.com/ads/library/?q=${encodeURIComponent(lastSearchInput || '')}&active_status=active&ad_type=all&country=AU`} target="_blank" rel="noopener noreferrer" style={{ color: '#166534', fontWeight: 700 }}>Facebook Ad Library ↗</a>
+                {' · '}
+                <a href="https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en" target="_blank" rel="noopener noreferrer" style={{ color: '#166534', fontWeight: 700 }}>TikTok Creative Center ↗</a>
+              </span>
+            </div>
             <div className="flex items-center justify-between mb-4">
               <div
                 className="text-xs font-bold uppercase tracking-widest"
                 style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
               >
-                {result.ads.length} Winning Ads Found — "{lastSearchInput}"
+                {result.ads.length} Ad Briefs Generated — "{lastSearchInput}"
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -626,14 +624,14 @@ function AdSpyContent() {
             </div>
             <div className="text-center">
               <div className="text-base font-extrabold mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
-                Spy on winning ads
+                Generate winning ad angles
               </div>
               <div
                 className="text-xs max-w-xs leading-relaxed"
                 style={{ color: '#9CA3AF' }}
               >
-                Enter a product niche or keyword above to discover high-performing ads from
-                Facebook, TikTok, and Instagram.
+                Enter a product keyword to generate AI-powered ad creative briefs
+                for Facebook, TikTok, and Instagram.
               </div>
             </div>
             <div style={{ marginTop: 32, textAlign: 'center' as const }}>

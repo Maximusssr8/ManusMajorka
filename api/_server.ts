@@ -722,6 +722,96 @@ app.post("/api/store/checkout", async (req: Request, res: Response) => {
   }
 });
 
+// ── Ad Spy Search ────────────────────────────────────────────────────────────
+const adSpySearchCache = new Map<string, { ts: number; result: any }>();
+const adSpyUserCooldown = new Map<string, number>();
+
+app.post("/api/ad-spy/search", async (req: Request, res: Response) => {
+  try {
+    const { query } = req.body;
+    if (!query || typeof query !== 'string' || query.trim().length < 2) {
+      res.status(400).json({ error: 'Query required' });
+      return;
+    }
+    const q = query.trim().slice(0, 80);
+
+    // Per-user cooldown: 20s between searches
+    const userId = (req as any).user?.userId || req.ip || 'anon';
+    const lastSearch = adSpyUserCooldown.get(userId) || 0;
+    const cooldownMs = 20000;
+    const elapsed = Date.now() - lastSearch;
+    if (elapsed < cooldownMs) {
+      const remaining = Math.ceil((cooldownMs - elapsed) / 1000);
+      res.status(429).json({ error: 'cooldown', remaining, message: `Please wait ${remaining}s before searching again.` });
+      return;
+    }
+
+    // Cache by query key (case-insensitive, 1h TTL)
+    const cacheKey = q.toLowerCase().replace(/\s+/g, '-');
+    const cached = adSpySearchCache.get(cacheKey);
+    if (cached && Date.now() - cached.ts < 3600000) {
+      res.json({ ...cached.result, cached: true });
+      return;
+    }
+
+    adSpyUserCooldown.set(userId, Date.now());
+
+    const Anthropic = require('@anthropic-ai/sdk');
+    const client = new Anthropic.default({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+    const systemPrompt = `You are an ad creative researcher. Generate 6 realistic ad creative briefs (2 each for Facebook, TikTok, Instagram) for the product/niche provided. These are AI-generated creative angles based on proven ad patterns — NOT real scraped ads.
+
+Return ONLY valid JSON in this exact format:
+{
+  "ads": [
+    {
+      "platform": "Facebook",
+      "hook": "Hook line (max 15 words)",
+      "bodyText": "Ad body copy 2-3 sentences. Be specific to the product.",
+      "cta": "Shop Now",
+      "angle": "Pain Point",
+      "whyItWorks": "Why this angle works (1-2 sentences)",
+      "targetAudience": "Specific audience segment"
+    }
+  ]
+}
+Angles to use: Pain Point, Curiosity, Social Proof, Benefit, Scarcity, Transformation.
+Be specific and creative. No generic filler.`;
+
+    const msg = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1500,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: `Generate winning ad creative briefs for: ${q}` }],
+    });
+
+    const text = msg.content[0].type === 'text' ? msg.content[0].text : '';
+    const stripped = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+    const start = stripped.indexOf('{');
+    const end = stripped.lastIndexOf('}');
+    if (start === -1 || end === -1) {
+      res.status(500).json({ error: 'parse_error', message: 'Could not generate ad briefs. Try again.' });
+      return;
+    }
+    const parsed = JSON.parse(stripped.slice(start, end + 1));
+    if (!parsed.ads || !Array.isArray(parsed.ads)) {
+      res.status(500).json({ error: 'parse_error', message: 'Invalid response format.' });
+      return;
+    }
+
+    const result = { ads: parsed.ads, query: q, generated_at: new Date().toISOString() };
+    adSpySearchCache.set(cacheKey, { ts: Date.now(), result });
+    res.json(result);
+
+  } catch (err: any) {
+    if (err?.status === 429 || err?.message?.includes('rate')) {
+      res.status(429).json({ error: 'rate_limit', message: 'AI rate limit reached. Please try again in a minute.' });
+    } else {
+      res.status(500).json({ error: 'server_error', message: 'Search failed. Please try again.' });
+    }
+  }
+});
+
 // Sentry error handler — must be before other error handlers
 if (SENTRY_DSN) {
   app.use(Sentry.expressErrorHandler());

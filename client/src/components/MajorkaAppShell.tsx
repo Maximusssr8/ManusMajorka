@@ -278,8 +278,8 @@ function getDefaultPhaseState(): Record<string, boolean> {
   } catch {
     /* ignore */
   }
-  // New users: Phase 1 open, 2+3 closed
-  return { discover: true, build: false, spy: false };
+  // New users: Phase 1 open, 2+3 closed. spy is always accessible (not phase-gated).
+  return { discover: true, build: false, spy: true };
 }
 
 // ── Usage helper ──────────────────────────────────────────────────────────────
