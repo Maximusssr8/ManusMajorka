@@ -596,7 +596,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       </div>
 
       {/* ── TABLE WRAPPER ── */}
-      <div style={{ maxWidth: 1400, margin: '0 auto', padding: isMobile ? '0 0 80px' : '0 24px 40px', overflowX: 'visible' }}>
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: isMobile ? '0 0 80px' : '0 24px 40px' }}>
         {/* Blur gate banner */}
         {!canSeeFinancials && (
           <div style={{ background: 'linear-gradient(135deg, #EEF2FF, #F5F3FF)', border: '1px solid #C7D2FE', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
@@ -629,45 +629,47 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           }}
         >
             <div style={{ background: 'white' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 1250 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: isMobile ? 800 : 1100 }}>
 
             {/* ── STICKY HEADER ── */}
             <colgroup>
-              <col style={{ width: 44 }} />
-              <col style={{ width: 290 }} />
-              <col style={{ width: 120 }} />
-              <col style={{ width: 140 }} />
-              <col style={{ width: 90 }} />
-              <col style={{ width: 90 }} />
-              <col style={{ width: 84 }} />
-              <col style={{ width: 68 }} />
-              <col style={{ width: 84 }} />
-              <col style={{ width: 240 }} />
+              <col style={{ width: isMobile ? 32 : 40 }} />       {/* # */}
+              <col style={{ width: isMobile ? 220 : 280 }} />     {/* Product */}
+              <col style={{ width: isMobile ? 90 : 110 }} />      {/* Revenue */}
+              <col style={{ width: isMobile ? 100 : 130 }} />     {/* 30-Day Trend */}
+              <col style={{ width: isMobile ? 70 : 80 }} />       {/* Sold */}
+              <col style={{ width: isMobile ? 70 : 80 }} />       {/* Sell Price */}
+              <col style={{ width: isMobile ? 68 : 78 }} />       {/* Margin */}
+              <col style={{ width: isMobile ? 80 : 96 }} />       {/* Dropship Score */}
+              <col style={{ width: isMobile ? 60 : 70 }} />       {/* Creators */}
+              <col />                                              {/* Actions — fills remaining space */}
             </colgroup>
             <thead>
               <tr style={{ background: 'rgba(250,250,250,0.98)', borderBottom: '2px solid #F3F4F6', height: 42, position: 'sticky' as const, top: 0, zIndex: 10 }}>
-                <th style={{ ...thStyle('rank', 44, 'center'), cursor: 'default' }}>#</th>
-                <th style={thStyle('name', 290)} onClick={() => handleSort('name')}>
+                <th style={{ ...thStyle('rank', isMobile ? 32 : 40, 'center'), cursor: 'default' }}>#</th>
+                <th style={thStyle('name', isMobile ? 220 : 280)} onClick={() => handleSort('name')}>
                   Product <SortIcon col="name" />
                 </th>
-                <th style={thStyle('est_monthly_revenue_aud', 120, 'right')} onClick={() => handleSort('est_monthly_revenue_aud')}>
-                  Est. Revenue/mo <SortIcon col="est_monthly_revenue_aud" />
+                <th style={thStyle('est_monthly_revenue_aud', isMobile ? 90 : 110, 'right')} onClick={() => handleSort('est_monthly_revenue_aud')}>
+                  Rev/mo <SortIcon col="est_monthly_revenue_aud" />
                 </th>
-                <th style={{ ...thStyle('trend', 140, 'center'), cursor: 'default' }}>30-Day Trend</th>
-                <th style={thStyle('orders_count', 90, 'right')} onClick={() => handleSort('orders_count')}>
+                <th style={{ ...thStyle('trend', isMobile ? 100 : 130, 'center'), cursor: 'default' }}>Trend</th>
+                <th style={thStyle('orders_count', isMobile ? 70 : 80, 'right')} onClick={() => handleSort('orders_count')}>
                   Sold <SortIcon col="orders_count" />
                 </th>
-                <th style={thStyle('price', 90, 'right')} onClick={() => handleSort('price')}>
-                  Sell Price <SortIcon col="price" />
+                <th style={thStyle('price', isMobile ? 70 : 80, 'right')} onClick={() => handleSort('price')}>
+                  Price <SortIcon col="price" />
                 </th>
-                <th style={thStyle('estimated_margin_pct', 84, 'right')} onClick={() => handleSort('estimated_margin_pct')}>
+                <th style={thStyle('estimated_margin_pct', isMobile ? 68 : 78, 'right')} onClick={() => handleSort('estimated_margin_pct')}>
                   Margin <SortIcon col="estimated_margin_pct" />
                 </th>
-                <th style={thStyle('winning_score', 68, 'center')} onClick={() => handleSort('winning_score')} title="Score based on: demand signals, margin potential, competition level, trend velocity">
-                  Dropship Score <SortIcon col="winning_score" />
+                <th style={thStyle('winning_score', isMobile ? 80 : 96, 'center')} onClick={() => handleSort('winning_score')} title="Score based on: demand signals, margin potential, competition level, trend velocity">
+                  Score <SortIcon col="winning_score" />
                 </th>
-                <th style={{ ...thStyle('creators', 84, 'center'), cursor: 'default' }}>Creators</th>
-                <th style={{ ...thStyle('actions', 240, 'center'), cursor: 'default' }}>Actions</th>
+                <th style={{ ...thStyle('creators', isMobile ? 60 : 70, 'center'), cursor: 'default' }}>
+                  {isMobile ? '👤' : 'Creators'}
+                </th>
+                <th style={{ ...thStyle('actions', 0, 'center'), cursor: 'default', minWidth: isMobile ? 120 : 200 }}>Actions</th>
               </tr>
             </thead>
 
@@ -723,7 +725,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                       <tr
                         onClick={() => setDetailProduct(p)}
                         style={{
-                          height: 72,
+                          height: isMobile ? 60 : 72,
                           borderBottom: '1px solid #F3F4F6',
                           cursor: 'pointer',
                           transition: 'background 120ms',
@@ -740,13 +742,13 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
                         {/* Product */}
                         <td style={tdStyle()}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <ProductImage src={p.image_url} alt={name} size={44} />
+                          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 10 }}>
+                            <ProductImage src={p.image_url} alt={name} size={isMobile ? 36 : 44} />
                             <div style={{ minWidth: 0 }}>
-                              <div style={{ fontWeight: 600, fontSize: 13, color: '#0A0A0A', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                              <div style={{ fontWeight: 600, fontSize: isMobile ? 12 : 13, color: '#0A0A0A', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
                                 {name}
                               </div>
-                              {p.velocity_label && p.velocity_label !== 'UNKNOWN' && (
+                              {!isMobile && p.velocity_label && p.velocity_label !== 'UNKNOWN' && (
                                 <div style={{ marginTop: 3 }}>
                                   <VelocityBadge
                                     label={p.velocity_label}
@@ -850,14 +852,16 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         {/* Actions */}
                         <td style={tdStyle('center')}>
                           <div style={{ display: 'flex', gap: 4, justifyContent: 'center', alignItems: 'center', flexWrap: 'nowrap' as const }} onClick={e => e.stopPropagation()}>
-                            <a href={`/product/${slugify(name)}`} style={{ height: 28, padding: '0 10px', background: 'white', color: '#6366F1', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const, textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
-                              View Report
-                            </a>
+                            {!isMobile && (
+                              <a href={`/product/${slugify(name)}`} style={{ height: 28, padding: '0 8px', background: 'white', color: '#6366F1', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const, textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
+                                Report
+                              </a>
+                            )}
                             <button onClick={() => { window.location.href = `/app/store-builder?product=${encodeURIComponent(name)}&niche=${encodeURIComponent(getProductNiche(p))}`; }}
-                              style={{ height: 28, padding: '0 10px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
-                              Build Store
+                              style={{ height: 28, padding: isMobile ? '0 8px' : '0 10px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
+                              {isMobile ? 'Build' : 'Build Store'}
                             </button>
-                            <SupplierDropdown product={p} />
+                            {!isMobile && <SupplierDropdown product={p} />}
                             <button
                               onClick={() => setExpandedProduct(isExpanded ? null : (p.id || idx))}
                               style={{ height: 28, width: 28, background: isExpanded ? '#EEF2FF' : 'white', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isExpanded ? '#6366F1' : '#6B7280', transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 200ms, color 150ms' }}>
