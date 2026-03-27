@@ -18,6 +18,8 @@ import { RegionProvider } from './context/RegionContext';
 
 // Lazy-loaded page components for code splitting
 const Home = lazy(() => import('./pages/Home'));
+const Blog = lazy(() => import('./pages/Blog'));
+const About = lazy(() => import('./pages/About'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Account = lazy(() => import('./pages/Account'));
 const SignIn = lazy(() => import('./pages/SignIn'));
@@ -145,6 +147,8 @@ function Router() {
         >
           <Switch>
             <Route path="/" component={Home} />
+            <Route path="/blog" component={Blog} />
+            <Route path="/about" component={About} />
             <Route path="/pricing" component={Pricing} />
             <Route path="/store-builder" component={StoreBuilder} />
             <Route path="/login" component={SignIn} />
