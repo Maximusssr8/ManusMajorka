@@ -185,7 +185,7 @@ const QUICK_CARDS = [
   { label: 'Creator Intel',     sub: 'Find TikTok partners',   icon: Users,  path: '/app/creators',         color: '#6366F1' },
   { label: 'Video Intel',       sub: 'Top-converting videos',     icon: Play,   path: '/app/videos',           color: '#a78bfa' },
   { label: 'Competitor Spy',    sub: 'Research any competitor',   icon: Eye,    path: '/app/competitor-spy',   color: '#38bdf8' },
-  { label: 'Market Trends',     sub: 'Category performance',      icon: TrendingUp, path: '/app/market-intel', color: '#34d399' },
+  { label: 'Category Rankings',  sub: 'Top niches by demand',       icon: TrendingUp, path: '/app/intelligence', color: '#34d399' },
   { label: 'Academy',           sub: '20 lessons to $10k/mo',     icon: BookOpen, path: '/app/learn',          color: '#fb923c' },
 ];
 
@@ -270,19 +270,33 @@ export default function MarketDashboard() {
       const prods: WinningProduct[] = (prodData.products || []) as WinningProduct[];
       const creators = (creatorData.creators || []);
 
-      setProducts(prods.slice(0, 5));
+      const topProds = prods
+        .slice(0, 10)
+        .sort((a: any, b: any) => {
+          const scoreDiff = (b.winning_score || 0) - (a.winning_score || 0);
+          if (scoreDiff !== 0) return scoreDiff;
+          return String(a.id).localeCompare(String(b.id));
+        })
+        .slice(0, 5);
+      setProducts(topProds);
       setCategories([] as CategoryRanking[]);
-      setTopCreator((creators[0] as AuCreator) ?? null);
+      const validCreators = (creators as AuCreator[]).filter((c: any) =>
+        c.display_name &&
+        c.display_name !== 'Tiktokshopcreator Uk' &&
+        (c.est_followers || c.follower_count) &&
+        c.display_name.length > 3
+      );
+      setTopCreator(validCreators[0] ?? null);
 
       const scores = prods.map((p: any) => p.winning_score || 0).filter(Boolean);
       const avg = scores.length ? Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length) : 0;
       const rising = prods.filter((p: any) => p.trend === 'rising' || p.tiktok_signal).length;
 
       setStats({
-        totalProducts: Math.max(prodData.total || prods.length, 147),
-        activeCreators: Math.max(creatorData.total || creators.length, 91),
-        avgScore: avg || 81,
-        explodingTrends: Math.max(rising, 31),
+        totalProducts: prodData.total || prods.length,
+        activeCreators: creatorData.total || creators.length,
+        avgScore: avg || 0,
+        explodingTrends: rising,
       });
     } catch {
       // graceful fallback
@@ -335,6 +349,20 @@ export default function MarketDashboard() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Region switcher */}
+      <div style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '8px 24px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#6B7280' }}>
+        <span>Viewing:</span>
+        {['\u{1F30D} Global', '\u{1F1E6}\u{1F1FA} AU', '\u{1F1FA}\u{1F1F8} US', '\u{1F1EC}\u{1F1E7} UK'].map(r => {
+          const isActive = r === '\u{1F30D} Global';
+          return (
+            <button key={r} style={{ padding: '3px 10px', borderRadius: 12, border: `1px solid ${isActive ? '#6366F1' : '#E5E7EB'}`, background: isActive ? '#EEF2FF' : 'white', color: isActive ? '#6366F1' : '#6B7280', fontSize: 11, fontWeight: isActive ? 600 : 400, cursor: 'pointer' }}>
+              {r}
+            </button>
+          );
+        })}
+        <span style={{ marginLeft: 'auto', color: '#9CA3AF' }}>Data shown for all markets</span>
       </div>
 
       <div className="p-6 space-y-8">
@@ -502,14 +530,14 @@ export default function MarketDashboard() {
                       {topCreator.is_verified && <span className="text-xs" style={{ color: '#38bdf8' }}>✓</span>}
                     </div>
                     <p className="text-xs" style={{ color: '#475569' }}>@{topCreator.username}</p>
-                    <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>{fmtFollowers((topCreator as any).follower_count ?? (topCreator as any).est_followers)} followers · {topCreator.location}</p>
+                    <p className="text-xs mt-0.5" style={{ color: '#64748b' }}>{((topCreator as any).follower_count || (topCreator as any).est_followers) ? `${fmtFollowers((topCreator as any).follower_count ?? (topCreator as any).est_followers)} followers` : '—'} · {topCreator.location}</p>
                   </div>
                 </div>
                 <div className="flex items-center justify-between mb-3">
                   <div>
                     <p className="text-xs" style={{ color: '#64748b' }}>30-day GMV</p>
                     <p className="text-xl font-bold" style={{ color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
-                      {fmtAUD((topCreator as any).gmv_30d_aud ?? (topCreator as any).est_monthly_revenue_aud ?? 0)}
+                      {((topCreator as any).gmv_30d_aud || (topCreator as any).est_monthly_revenue_aud) ? fmtAUD((topCreator as any).gmv_30d_aud ?? (topCreator as any).est_monthly_revenue_aud) : '—'}
                     </p>
                   </div>
                   <MiniSparkline data={parseSparkline(topCreator.revenue_sparkline)} />

@@ -406,6 +406,13 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
           {/* Results */}
           {result && !loading && (
             <div>
+              {/* AI disclaimer */}
+              <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 8, padding: '8px 12px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 14 }}>{'\u26A0\uFE0F'}</span>
+                <span style={{ fontSize: 11, color: '#92400E', lineHeight: 1.4 }}>
+                  <strong>AI-generated estimate</strong> — This analysis is synthesised by AI and may not reflect real competitor data. Verify key figures independently before making business decisions.
+                </span>
+              </div>
               {/* Result header */}
               <div
                 className="flex items-center justify-between mb-4 px-4 py-3 rounded-xl"

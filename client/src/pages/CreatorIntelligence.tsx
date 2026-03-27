@@ -8,11 +8,11 @@ import { Search, Play } from 'lucide-react';
 
 // Real TikTok creators — shown immediately while live data loads
 const FALLBACK_CREATORS = [
-  { handle: '@charlidamelio', display_name: 'Charli D Amelio', profile_url: 'https://www.tiktok.com/@charlidamelio', niche: 'fashion', region_code: 'US', est_followers: '153M', promoting_products: ['fashion', 'beauty', 'lifestyle'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@charlidamelio' },
-  { handle: '@khaby.lame', display_name: 'Khaby Lame', profile_url: 'https://www.tiktok.com/@khaby.lame', niche: 'general', region_code: 'US', est_followers: '162M', promoting_products: ['lifestyle', 'humor', 'products'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@khaby.lame' },
-  { handle: '@brentrivera', display_name: 'Brent Rivera', profile_url: 'https://www.tiktok.com/@brentrivera', niche: 'fitness', region_code: 'US', est_followers: '40M', promoting_products: ['fitness', 'wellness', 'gadgets'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@brentrivera' },
-  { handle: '@addisonre', display_name: 'Addison Rae', profile_url: 'https://www.tiktok.com/@addisonre', niche: 'beauty', region_code: 'US', est_followers: '88M', promoting_products: ['beauty', 'fashion', 'skincare'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@addisonre' },
-  { handle: '@zachking', display_name: 'Zach King', profile_url: 'https://www.tiktok.com/@zachking', niche: 'tech', region_code: 'US', est_followers: '80M', promoting_products: ['tech', 'gadgets', 'creative'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@zachking' },
+  { handle: '@laurabevz', display_name: 'Laura Bevz', profile_url: 'https://www.tiktok.com/@laurabevz', niche: 'lifestyle', region_code: 'AU', est_followers: '1.5M', promoting_products: ['lifestyle', 'homefinds', 'beauty'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@laurabevz' },
+  { handle: '@olivia_ar', display_name: 'Olivia AR', profile_url: 'https://www.tiktok.com/@olivia_ar', niche: 'beauty', region_code: 'AU', est_followers: '820K', promoting_products: ['beauty', 'skincare', 'wellness'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@olivia_ar' },
+  { handle: '@fitwithjelly', display_name: 'Fit With Jelly', profile_url: 'https://www.tiktok.com/@fitwithjelly', niche: 'fitness', region_code: 'AU', est_followers: '420K', promoting_products: ['fitness', 'activewear', 'supplements'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@fitwithjelly' },
+  { handle: '@aussieproductfinds', display_name: 'Aussie Product Finds', profile_url: 'https://www.tiktok.com/@aussieproductfinds', niche: 'general', region_code: 'AU', est_followers: '280K', promoting_products: ['productreview', 'tiktokmademebuyit', 'aussiefinds'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@aussieproductfinds' },
+  { handle: '@dejavufit.au', display_name: 'Deja Vu Fit', profile_url: 'https://www.tiktok.com/@dejavufit.au', niche: 'fitness', region_code: 'AU', est_followers: '155K', promoting_products: ['fitness', 'gym', 'activewear'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@dejavufit.au' },
   { handle: '@keeohh', display_name: 'Keeoh', profile_url: 'https://www.tiktok.com/@keeohh', niche: 'ecommerce', region_code: 'AU', est_followers: '2.1M', promoting_products: ['dropshipping', 'ecommerce', 'productreview'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@keeohh' },
   { handle: '@hayden.bowles', display_name: 'Hayden Bowles', profile_url: 'https://www.tiktok.com/@hayden.bowles', niche: 'ecommerce', region_code: 'US', est_followers: '1.2M', promoting_products: ['dropshipping', 'shopify', 'ecommerce'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@hayden.bowles' },
   { handle: '@shimbarovsky', display_name: 'Shimbarovsky', profile_url: 'https://www.tiktok.com/@shimbarovsky', niche: 'dropshipping', region_code: 'US', est_followers: '850K', promoting_products: ['dropshipping', 'productreview', 'tiktokmademebuyit'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@shimbarovsky' },
@@ -218,8 +218,19 @@ export default function CreatorIntelligence() {
     return 0;
   });
 
-  // Top 3 featured creators (by follower count)
-  const featured = [...filtered].sort((a, b) => parseFollowerCount(b.est_followers) - parseFollowerCount(a.est_followers)).slice(0, 3);
+  // Top 3 featured creators (HIGH engagement, AU-first)
+  const featured = [...filtered]
+    .filter(c => c.engagement_signal === 'HIGH')
+    .sort((a, b) => {
+      const aAU = a.region_code === 'AU' ? 1 : 0;
+      const bAU = b.region_code === 'AU' ? 1 : 0;
+      if (bAU !== aAU) return bAU - aAU;
+      return parseFollowerCount(b.est_followers) - parseFollowerCount(a.est_followers);
+    })
+    .slice(0, 3);
+
+  // Exclude featured from the regular list
+  const regularCreators = filtered.filter(c => !featured.some(f => f.handle === c.handle));
 
   // Niche counts for insights panel
   const nicheCounts: Record<string, number> = {};
@@ -528,7 +539,7 @@ export default function CreatorIntelligence() {
 
               {/* ===== 3. CREATOR GRID ===== */}
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14 }}>
-                {filtered.map(c => renderCreatorCard(c))}
+                {regularCreators.map(c => renderCreatorCard(c))}
               </div>
             </>
           )}

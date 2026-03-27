@@ -317,7 +317,7 @@ export default function VideoIntelligence() {
             <div style={{ fontSize: 13, fontWeight: 700, color: '#0A0A0A', marginBottom: 14 }}>Results for "{searchQuery}"</div>
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
               {searchResults.map((v, i) => (
-              <a key={i} href={v.url || v.creatorProfileUrl || '#'} target="_blank" rel="noopener noreferrer"
+              <a key={i} href={v.url || v.creatorProfileUrl || `https://www.tiktok.com/search?q=${encodeURIComponent(v.title || v.product_mentioned || '')}`} target="_blank" rel="noopener noreferrer"
                 style={{ display: 'block', background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', textDecoration: 'none', transition: 'box-shadow 0.15s' }}>
                 {v.thumbnail && <img src={v.thumbnail} alt="" style={{ width: '100%', height: 140, objectFit: 'cover' as const }} onError={e => ((e.target as HTMLImageElement).style.display = 'none')} />}
                 <div style={{ padding: '10px 12px' }}>
@@ -463,10 +463,10 @@ export default function VideoIntelligence() {
                             <span style={{ fontSize: 9, color: '#9CA3AF', background: '#F5F5F5', padding: '1px 6px', borderRadius: 8, textTransform: 'capitalize' as const }}>{v.niche}</span>
                             {v.creatorHandle && <span style={{ fontSize: 9, color: '#6366F1', background: '#EEF2FF', padding: '1px 6px', borderRadius: 8 }}>@{v.creatorHandle}</span>}
                           </div>
-                          <a href={v.url} target="_blank" rel="noopener noreferrer"
+                          <a href={v.url || `https://www.tiktok.com/search?q=${encodeURIComponent(v.title || v.product_mentioned || '')}`} target="_blank" rel="noopener noreferrer"
                             style={{ fontSize: 11, color: '#6366F1', fontWeight: 700, textDecoration: 'none' }}
                             onClick={e => e.stopPropagation()}>
-                            Watch Video →
+                            {v.url ? 'Watch Video \u2192' : 'Search TikTok \u2192'}
                           </a>
                         </div>
                       </div>
