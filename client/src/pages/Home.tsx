@@ -565,7 +565,7 @@ const BENTO_CARDS = [
   },
   {
     key: 'D', Icon: BarChart3, title: 'Market Intelligence',
-    desc: 'Real-time market data. Know what is selling, where demand is spiking, and which niches are about to blow up.',
+    desc: 'AI-powered market research. Know what is selling, where demand is spiking, and which niches are about to blow up.',
     gridColumn: '2 / 3', gridRow: '2 / 3',
   },
   {
@@ -700,7 +700,7 @@ function BentoFeaturesSection() {
               <span style={{ fontSize: 11, fontWeight: 700, color: '#6366F1', letterSpacing: '0.08em' }}>PRODUCT INTELLIGENCE</span>
             </div>
             <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 800, color: '#F8FAFC', marginBottom: 6, letterSpacing: '-0.01em' }}>Find winners before anyone else</h3>
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 16, lineHeight: 1.6 }}>Real margin data, TikTok signals, and supplier links — updated every 6 hours.</p>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 16, lineHeight: 1.6 }}>AI-estimated margin data, trend signals, and supplier links — refreshed regularly.</p>
             {/* Mini product table */}
             <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 10, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px 36px', gap: 0, padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
@@ -716,7 +716,7 @@ function BentoFeaturesSection() {
             </div>
             <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ADE80', animation: 'demoPulse 2s ease-in-out infinite' }} />
-              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: mono }}>Live market data · Updated every 6 hours</span>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: mono }}>AI research data · Refreshed regularly</span>
             </div>
           </div>
 
@@ -873,7 +873,7 @@ function HowItWorksSection() {
   const isMobile = useIsMobile();
   const brico = "'Bricolage Grotesque', sans-serif";
   const steps = [
-    { Icon: Search, title: 'Find a Winner', desc: 'Browse trending AU products with real revenue data and supplier links.' },
+    { Icon: Search, title: 'Find a Winner', desc: 'Browse trending AU products with AI-estimated revenue data and supplier links.' },
     { Icon: Zap, title: 'Build Your Store', desc: 'Describe your niche. AI builds your entire Shopify store in under 60 seconds.' },
     { Icon: TrendingUp, title: 'Launch & Scale', desc: 'Run spy tools, monitor competitors, and optimise with the profit calculator.' },
   ];
@@ -898,7 +898,7 @@ function HowItWorksSection() {
             {
               num: '01', Icon: Search, color: '#6366F1', bg: '#EEF2FF',
               title: 'Find a winning product',
-              desc: 'AI scans 50k+ products for AU demand signals. See real revenue estimates, supplier links, and TikTok trend data — in seconds.',
+              desc: 'AI scans 50k+ products for AU demand signals. See AI-estimated revenue data, supplier links, and trend signals — in seconds.',
               stat: { label: 'Products analysed', value: '50,000+' },
               tag: 'Free feature',
             },
@@ -1006,7 +1006,7 @@ function DemoSection() {
             <div>
               <div style={{ background: '#0F0F11', padding: '12px 20px', borderBottom: '1px solid #1F1F23', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: 600, fontSize: 14, color: 'white' }}>Product Intelligence</span>
-                <span style={{ fontSize: 12, color: '#6B7280' }}>{'\u{1F1E6}\u{1F1FA}'} AU Market · Live Data</span>
+                <span style={{ fontSize: 12, color: '#6B7280' }}>{'\u{1F1E6}\u{1F1FA}'} AU Market · AI Research</span>
               </div>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 640 }}>
@@ -1565,7 +1565,7 @@ export default function Home() {
 
           {/* Subheading */}
           <p style={{ fontSize: 18, color: '#6B7280', maxWidth: 520, margin: '20px auto 0', lineHeight: 1.6, fontFamily: dm, opacity: 0, animation: 'fadeInUp 0.5s ease 0.3s both' }}>
-            Real TikTok Shop data. Real AliExpress suppliers. Real-time market signals — all in one platform built for ecommerce sellers.
+            AI-powered product research. AliExpress supplier sourcing. Market demand signals — all in one platform built for ecommerce sellers.
           </p>
 
           {/* CTA row */}
@@ -1628,7 +1628,7 @@ export default function Home() {
               {/* Mini header */}
               <div style={{ background: '#FAFAFA', borderBottom: '1px solid #E5E7EB', padding: '12px 20px', display: 'flex', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', flexDirection: isMobile ? 'column' as const : 'row' as const }}>
                 <span style={{ fontWeight: 600, fontSize: 14, color: '#FAFAFA' }}>Product Intelligence</span>
-                <span style={{ fontSize: 12, color: '#6B7280' }}>🇦🇺 AU Market · Live Data</span>
+                <span style={{ fontSize: 12, color: '#6B7280' }}>🇦🇺 AU Market · AI Research</span>
               </div>
               {/* Table */}
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>

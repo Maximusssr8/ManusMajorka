@@ -704,7 +704,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             {/* ── STICKY HEADER ── */}
             <colgroup>
               <col style={{ width: isMobile ? 32 : 40 }} />       {/* # */}
-              <col style={{ width: isMobile ? 220 : 280 }} />     {/* Product */}
+              <col style={{ width: isMobile ? 170 : 210 }} />     {/* Product */}
               <col style={{ width: isMobile ? 90 : 110 }} />      {/* Revenue */}
               <col style={{ width: isMobile ? 100 : 130 }} />     {/* 30-Day Trend */}
               <col style={{ width: isMobile ? 70 : 80 }} />       {/* Sold */}
@@ -717,7 +717,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             <thead>
               <tr style={{ background: 'rgba(250,250,250,0.98)', borderBottom: '2px solid #F3F4F6', height: 42, position: 'sticky' as const, top: 0, zIndex: 10 }}>
                 <th style={{ ...thStyle('rank', isMobile ? 32 : 40, 'center'), cursor: 'default' }}>#</th>
-                <th style={thStyle('name', isMobile ? 180 : 220)} onClick={() => handleSort('name')}>
+                <th style={thStyle('name', isMobile ? 170 : 210)} onClick={() => handleSort('name')}>
                   Product <SortIcon col="name" />
                 </th>
                 <th style={thStyle('est_monthly_revenue_aud', isMobile ? 90 : 110, 'right')} onClick={() => handleSort('est_monthly_revenue_aud')} title="Estimated monthly revenue = price × est. units/day × 30. Based on AI-estimated demand signals, not live sales data.">
@@ -1122,6 +1122,7 @@ function AudienceSuggestions({ category, productTitle }: { category: string; pro
 }
 
 function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClose: () => void }) {
+  const [, setLocation] = useLocation();
   const [aiAnalysis, setAiAnalysis] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
   const [copied, setCopied] = useState(false);
