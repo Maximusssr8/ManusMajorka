@@ -97,7 +97,10 @@ function getProductNiche(p: Product) {
   return p.niche || p.category || p.search_keyword || 'General';
 }
 function getProductRevenue(p: Product) {
-  return p.est_monthly_revenue_aud || 0;
+  // Always derive from price × units_per_day × 30 (stored value may be market-wide)
+  const price = p.price_aud || 0;
+  const upd = p.units_per_day || Math.max(1, Math.round((p.winning_score || 50) / 12));
+  return Math.round(price * upd * 30 * 100) / 100;
 }
 function getProductMargin(p: Product) {
   return p.estimated_margin_pct || p.profit_margin || 0;
@@ -202,7 +205,7 @@ function SupplierDropdown({ product }: { product: Product }) {
   }, []);
   const links = [
     { label: 'AliExpress', url: getSupplierUrl(product) },
-    { label: 'TikTok Shop', url: `https://www.tiktok.com/shop/search?keyword=${encodeURIComponent(getProductName(product))}` },
+    { label: 'TikTok Shop', url: `https://www.tiktok.com/shop/search?keyword=${encodeURIComponent(getProductName(product).split(' ').slice(0, 5).join(' ').slice(0, 40))}` },
     { label: 'Alibaba', url: `https://www.alibaba.com/trade/search?SearchText=${encodeURIComponent(getProductName(product))}&shipToCountry=AU&sortType=BEST_MATCH` },
   ];
   return (
@@ -244,6 +247,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
+  const [isFiltering, setIsFiltering] = useState(false);
   const [niche, setNiche] = useState('All Niches');
   const [sortBy, setSortBy] = useState(presetFilter === 'trending' ? 'orders_count' : 'winning_score');
   const [dateRange, setDateRange] = useState<DateRange>(() => {
@@ -305,9 +309,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     return () => subscription.unsubscribe();
   }, []);
 
-  // Debounce search
+  // Debounce search — show filtering skeleton during debounce
   useEffect(() => {
-    const t = setTimeout(() => setSearch(searchInput), 300);
+    if (searchInput !== search) setIsFiltering(true);
+    const t = setTimeout(() => { setSearch(searchInput); setIsFiltering(false); }, 300);
     return () => clearTimeout(t);
   }, [searchInput]);
 
@@ -461,7 +466,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       });
     }
     result.sort((a, b) => {
-      if (filters.sortBy === 'revenue') return (b.est_monthly_revenue_aud || 0) - (a.est_monthly_revenue_aud || 0);
+      if (filters.sortBy === 'revenue') return getProductRevenue(b) - getProductRevenue(a);
       if (filters.sortBy === 'score') return (b.winning_score || 0) - (a.winning_score || 0);
       if (filters.sortBy === 'margin') return (b.profit_margin || 0) - (a.profit_margin || 0);
       if (filters.sortBy === 'newest') return new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime();
@@ -530,7 +535,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         {lastUpdated && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, fontSize: 12, color: '#9CA3AF' }}>
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981', display: 'inline-block', animation: 'pulse 2s ease-in-out infinite' }} />
-            <span>{filtered.length} products</span>
+            <span>{filteredProducts.length} products</span>
             <span>&middot;</span>
             <span>Updated {new Date(lastUpdated).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' })}</span>
             <span>&middot;</span>
@@ -703,7 +708,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             <thead>
               <tr style={{ background: 'rgba(250,250,250,0.98)', borderBottom: '2px solid #F3F4F6', height: 42, position: 'sticky' as const, top: 0, zIndex: 10 }}>
                 <th style={{ ...thStyle('rank', isMobile ? 32 : 40, 'center'), cursor: 'default' }}>#</th>
-                <th style={thStyle('name', isMobile ? 220 : 280)} onClick={() => handleSort('name')}>
+                <th style={thStyle('name', isMobile ? 180 : 220)} onClick={() => handleSort('name')}>
                   Product <SortIcon col="name" />
                 </th>
                 <th style={thStyle('est_monthly_revenue_aud', isMobile ? 90 : 110, 'right')} onClick={() => handleSort('est_monthly_revenue_aud')}>
@@ -725,13 +730,13 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 <th style={{ ...thStyle('creators', isMobile ? 60 : 70, 'center'), cursor: 'default' }}>
                   {isMobile ? '👤' : 'Creators'}
                 </th>
-                <th style={{ ...thStyle('actions', 0, 'center'), cursor: 'default', minWidth: isMobile ? 120 : 200 }}>Actions</th>
+                <th style={{ ...thStyle('actions', 0, 'center'), cursor: 'default', minWidth: isMobile ? 120 : 185 }}>Actions</th>
               </tr>
             </thead>
 
             {/* ── BODY ── */}
             <tbody>
-              {loading ? (
+              {loading || isFiltering ? (
                 Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i} style={{ height: 72, borderBottom: '1px solid #F3F4F6' }}>
                     <td style={{ padding: '0 12px' }}><div style={{ height: 14, background: '#F3F4F6', borderRadius: 6, width: '60%', animation: 'shimmer 1.5s ease-in-out infinite' }} /></td>
@@ -913,7 +918,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                                 Report
                               </a>
                             )}
-                            <button onClick={() => { window.location.href = `/app/store-builder?product=${encodeURIComponent(name)}&niche=${encodeURIComponent(getProductNiche(p))}`; }}
+                            <button onClick={() => setLocation(`/app/store-builder?product=${encodeURIComponent(name)}&niche=${encodeURIComponent(getProductNiche(p))}`)}
                               style={{ height: 28, padding: isMobile ? '0 8px' : '0 10px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
                               {isMobile ? 'Build' : 'Build Store'}
                             </button>
@@ -1126,10 +1131,10 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
   const storedCost = p.cost_price_aud || p.supplier_cost_aud || 0;
   const marginPct = typeof margin === 'number' && margin > 0 ? margin : 64;
   const cost = storedCost > 0 ? storedCost : Math.round(price * (1 - marginPct / 100) * 100) / 100;
-  // Monthly revenue: recalc from current price if stored value looks stale (< price or 0)
-  const storedRevenue = p.est_monthly_revenue_aud || 0;
+  // Monthly revenue: always derive from price × units_per_day × 30
+  // stored est_monthly_revenue_aud may reflect market-wide demand (all sellers), not per-listing
   const unitsPerDay = p.units_per_day || Math.max(1, Math.round(score / 12));
-  const revenue = storedRevenue > price ? storedRevenue : Math.round(price * unitsPerDay * 30 * 100) / 100;
+  const revenue = Math.round(price * unitsPerDay * 30 * 100) / 100;
   const isEstimated = !p.orders_count || p.orders_count === 0;
   const productCategory = p.niche || p.category || '';
 
@@ -1325,7 +1330,8 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
           {/* Creator Types to Target */}
           {(() => {
             const cat = (p.niche || p.category || '').toLowerCase();
-            const pName = name;
+            // Cap TikTok search query to first 5 words or 40 chars — raw AliExpress titles break search URLs
+            const pName = name.split(' ').slice(0, 5).join(' ').slice(0, 40);
             const creatorMap: Record<string, Array<{ type: string; desc: string; search: string }>> = {
               'beauty': [
                 { type: 'Skincare Reviewer', desc: 'Before/after routines, product demos', search: `${pName} skincare review` },
@@ -1410,12 +1416,12 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             )}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <button onClick={() => { window.location.href = `/app/store-builder?product=${encodeURIComponent(name)}&niche=${encodeURIComponent(p.niche || p.category || '')}`; }}
+            <button onClick={() => setLocation(`/app/store-builder?product=${encodeURIComponent(name)}&niche=${encodeURIComponent(p.niche || p.category || '')}`)}
               style={{ width: '100%', height: 46, background: '#6366F1', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: brico }}>
-              Build Store for This Product {'\u2192'}
+              Build Store for This Product →
             </button>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              <button onClick={() => { window.location.href = `/app/profit?product=${encodeURIComponent(name)}&cost=${cost}&margin=${margin}`; }}
+              <button onClick={() => setLocation(`/app/profit-calculator?product=${encodeURIComponent(name)}&cost=${cost}&margin=${margin}`)}
                 style={{ height: 40, background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>
                 Profit Calc
               </button>

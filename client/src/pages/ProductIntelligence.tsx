@@ -105,7 +105,7 @@ export default function ProductIntelligence() {
               <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                 <span>{t === 'trending' ? '🔥 Trending Today' : t === 'database' ? '🗄 Full Database' : '🔍 Scout'}</span>
                 {tab === t && <span style={{ fontSize: 9, fontWeight: 600, color: t === 'trending' ? '#F59E0B' : t === 'database' ? '#6366F1' : '#059669', letterSpacing: '0.04em' }}>
-                  {t === 'trending' ? 'RISING TREND · TIKTOK SIGNALS' : t === 'database' ? '131 PRODUCTS · SORTED BY AI SCORE' : 'AI-POWERED SEARCH'}
+                  {t === 'trending' ? 'RISING TREND · TIKTOK SIGNALS' : t === 'database' ? 'FULL DATABASE · SORTED BY AI SCORE' : 'AI-POWERED SEARCH'}
                 </span>}
               </span>
             </button>
