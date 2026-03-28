@@ -135,14 +135,7 @@ const TOP_PRODUCTS = [
   { img: IMG.uv,      name: 'UV Sanitiser Box Steriliser',  revenue: 8420,  border: 'rgba(255,255,255,0.08)' },
 ];
 
-// ── Achievement badges ───────────────────────────────────────────────────────
-const BADGES = [
-  { emoji: '\u{1F48E}', title: '$100K Club',     sub: '84.3% there',       color: A,   progress: '84.3%' },
-  { emoji: '\u{1F525}', title: '14-Day Streak',  sub: 'Active streak',     color: G,   progress: null },
-  { emoji: '\u{1F30F}', title: 'Global Seller',  sub: '4 countries',       color: I,   progress: null },
-  { emoji: '\u2B50',    title: 'Rising Star',    sub: 'Top 5% this month', color: V,   progress: null },
-  { emoji: '\u{1F680}', title: '$1K Day',        sub: 'Mar 22 \u00B7 Unlocked', color: A, progress: null },
-];
+
 
 type Range = '7D' | '30D' | '90D';
 
@@ -273,15 +266,7 @@ export default function RevenuePage() {
                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: G, boxShadow: `0 0 8px ${G}`, animation: 'glowPulse 2s ease-in-out infinite' }} />
                 <span style={{ fontSize: 11, color: G, fontWeight: 700 }}>LIVE</span>
               </div>
-              {isMarketing && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(245,158,11,.1)', border: '1px solid rgba(245,158,11,.2)', borderRadius: 999, padding: '5px 10px' }}>
-                  <Trophy size={11} color={A} />
-                  <span style={{ fontSize: 11, color: A, fontWeight: 700 }}>#47 {'\u{1F1E6}\u{1F1FA}'}</span>
-                </div>
-              )}
-              <button onClick={handleShare} style={{ marginLeft: 'auto', background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 8, padding: '6px 10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, color: '#9CA3AF', fontSize: 12 }}>
-                <Share2 size={13} /> Share
-              </button>
+
             </div>
 
             {/* Label */}
@@ -318,26 +303,7 @@ export default function RevenuePage() {
               )}
             </div>
 
-            {/* $25K Milestone progress bar */}
-            {isMarketing && (
-              <div style={{ marginTop: 4 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <span style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 600 }}>{'\u{1F3AF}'} $100K Goal {'\u2014'} 84.3%</span>
-                </div>
-                <div style={{ width: '100%', height: 6, background: 'rgba(255,255,255,.06)', borderRadius: 999, overflow: 'hidden' as const }}>
-                  <div style={{
-                    height: '100%',
-                    borderRadius: 999,
-                    background: 'linear-gradient(90deg, #22C55E, #4ADE80)',
-                    width: progressReady ? '84.3%' : '0%',
-                    transition: 'width 1.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                  }} />
-                </div>
-                <div style={{ fontSize: 12, color: G, marginTop: 6, fontWeight: 600 }}>
-                  Only $15,708.50 to go!
-                </div>
-              </div>
-            )}
+
           </div>
 
           {/* RIGHT — Chart card */}
@@ -372,29 +338,7 @@ export default function RevenuePage() {
         </div>
       </div>
 
-      {/* ═══ ACHIEVEMENT BADGES ═══════════════════════════════════════════════ */}
-      {isMarketing && (
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? '16px 16px 0' : '24px 48px 0' }}>
-          <div style={{ display: 'flex', gap: 10, overflowX: 'auto' as const, paddingBottom: 4, scrollbarWidth: 'none' as const }}>
-            {BADGES.map(b => (
-              <div key={b.title} className="rev-card" style={{
-                ...glass, minWidth: 140, borderRadius: 14, padding: '14px 16px', flexShrink: 0,
-                borderColor: `${b.color}30`, boxShadow: `0 0 20px ${b.color}10`,
-                transition: 'border-color 150ms, transform 150ms',
-              }}>
-                <div style={{ fontSize: 28, marginBottom: 8 }}>{b.emoji}</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 2 }}>{b.title}</div>
-                <div style={{ fontSize: 11, color: '#6B7280' }}>{b.sub}</div>
-                {b.progress && (
-                  <div style={{ marginTop: 8, height: 3, background: 'rgba(255,255,255,.06)', borderRadius: 999, overflow: 'hidden' as const }}>
-                    <div style={{ height: '100%', borderRadius: 999, background: b.color, width: b.progress }} />
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+
 
       {/* ═══ STAT CARDS (5) ════════════════════════════════════════════════════ */}
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: isMobile ? '16px 16px 0' : '24px 48px 0' }}>
