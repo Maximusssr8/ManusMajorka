@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 import { requireAuth } from '../middleware/requireAuth';
 import { createClient } from '@supabase/supabase-js';
+import { cacheGet, cacheSet, cacheInvalidatePrefix, TTL } from '../lib/redisCache';
 
 const router = Router();
 
@@ -133,6 +134,15 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
   const rawSort = String(req.query.sortBy || '');
   const sortDir = req.query.sortDir === 'asc';
 
+  // Redis cache key based on query params — 5 min TTL
+  const cacheKey = `products:list:${limit}:${hasVideo}:${trending}:${rawSort}:${sortDir}`;
+  const cached = await cacheGet<{ products: unknown[]; total: number }>(cacheKey);
+  if (cached) {
+    res.setHeader('X-Cache', 'HIT');
+    res.json(cached);
+    return;
+  }
+
   // Map client sort keys to DB columns
   const SORT_MAP: Record<string, string> = {
     orders_count:             'orders_count',
@@ -166,7 +176,11 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
 
     const { data, error } = await query;
     if (error) { res.status(500).json({ error: error.message, products: [] }); return; }
-    res.json({ products: data || [], total: (data || []).length });
+    const result = { products: data || [], total: (data || []).length };
+    // Cache for 5 min — products don't change that often
+    await cacheSet(cacheKey, result, TTL.PRODUCTS_LIST);
+    res.setHeader('X-Cache', 'MISS');
+    res.json(result);
   } catch (err: any) {
     res.status(500).json({ error: err.message, products: [] });
   }
@@ -390,6 +404,8 @@ router.post('/refresh', async (req: Request, res: Response) => {
       const { runProductPipeline } = await import('../lib/productPipeline');
       const result = await runProductPipeline(true);
       refreshState.lastRun = Date.now();
+      // Bust the product list cache so fresh data is served immediately
+      await cacheInvalidatePrefix('products:list');
       console.log('[Refresh] Complete:', result);
     } catch (err) {
       console.error('[Refresh] Error:', err);

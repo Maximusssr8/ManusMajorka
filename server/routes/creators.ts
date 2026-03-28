@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { requireAuth } from '../middleware/requireAuth';
 import { fetchRealCreators, fetchRawTikTokData, getTikTokCacheStatus } from '../lib/tiktokData';
+import { cacheGet, cacheSet, TTL } from '../lib/redisCache';
 
 const router = Router();
 const ADMIN_EMAILS = ['maximusmajorka@gmail.com'];
@@ -29,11 +30,22 @@ async function checkAccess(req: Request): Promise<boolean> {
 // GET /api/creators/real
 router.get('/real', requireAuth, async (_req: Request, res: Response) => {
   try {
+    // Redis cache — 1 hour TTL (Apify data, expensive to re-fetch)
+    const cacheKey = 'creators:real';
+    const cached = await cacheGet<{ creators: unknown[]; count: number; last_synced: unknown }>(cacheKey);
+    if (cached) {
+      res.setHeader('X-Cache', 'HIT');
+      res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
+      res.json(cached);
+      return;
+    }
     const creators = await fetchRealCreators();
     const status = await getTikTokCacheStatus();
-    // CDN edge cache: 5 min fresh, 1hr stale-while-revalidate — sub-50ms on cached edge
+    const result = { creators, count: creators.length, last_synced: status.cached_at };
+    await cacheSet(cacheKey, result, TTL.CREATORS);
+    res.setHeader('X-Cache', 'MISS');
     res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
-    res.json({ creators, count: creators.length, last_synced: status.cached_at });
+    res.json(result);
   } catch (err: any) {
     console.error('[creators/real]', err.message);
     res.json({ creators: [], count: 0, last_synced: null });
