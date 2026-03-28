@@ -542,6 +542,12 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             <span>Auto-refreshes every 6h</span>
           </div>
         )}
+        {/* Data transparency note */}
+        <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 12, padding: '6px 12px', background: '#F9FAFB', borderRadius: 6, border: '1px solid #F3F4F6', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <span>ℹ️</span>
+          <span>Revenue, orders &amp; margins are AI-estimated demand signals — not live scraped data. Use for product research; verify pricing on the supplier platform before ordering.</span>
+        </div>
+
         {refreshMsg && (
           <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 10, padding: '6px 12px', background: '#F9FAFB', borderRadius: 6, border: '1px solid #E5E7EB', display: 'inline-block' }}>
             {refreshMsg}
@@ -711,14 +717,14 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 <th style={thStyle('name', isMobile ? 180 : 220)} onClick={() => handleSort('name')}>
                   Product <SortIcon col="name" />
                 </th>
-                <th style={thStyle('est_monthly_revenue_aud', isMobile ? 90 : 110, 'right')} onClick={() => handleSort('est_monthly_revenue_aud')}>
-                  Rev/mo <SortIcon col="est_monthly_revenue_aud" />
+                <th style={thStyle('est_monthly_revenue_aud', isMobile ? 90 : 110, 'right')} onClick={() => handleSort('est_monthly_revenue_aud')} title="Estimated monthly revenue = price × est. units/day × 30. Based on AI-estimated demand signals, not live sales data.">
+                  Est. Rev <SortIcon col="est_monthly_revenue_aud" />
                 </th>
                 <th style={{ ...thStyle('trend', isMobile ? 100 : 130, 'center'), cursor: 'default' }}>Trend</th>
-                <th style={thStyle('orders_count', isMobile ? 70 : 80, 'right')} onClick={() => handleSort('orders_count')}>
-                  Sold <SortIcon col="orders_count" />
+                <th style={thStyle('orders_count', isMobile ? 70 : 80, 'right')} onClick={() => handleSort('orders_count')} title="Estimated monthly orders based on AI demand signals. Not live scraped data.">
+                  Est. Sold <SortIcon col="orders_count" />
                 </th>
-                <th style={thStyle('price', isMobile ? 70 : 80, 'right')} onClick={() => handleSort('price')}>
+                <th style={thStyle('price', isMobile ? 70 : 80, 'right')} onClick={() => handleSort('price')} title="Suggested retail price in AUD. May differ from live AliExpress prices.">
                   Price <SortIcon col="price" />
                 </th>
                 <th style={thStyle('estimated_margin_pct', isMobile ? 68 : 78, 'right')} onClick={() => handleSort('estimated_margin_pct')}>
@@ -863,7 +869,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         {/* Orders */}
                         <td style={tdStyle('right')}>
                           <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A' }}>
-                            {orders >= 1000 ? `${(orders / 1000).toFixed(1)}k` : orders.toLocaleString()}
+                            ~{orders >= 1000 ? `${(orders / 1000).toFixed(1)}k` : orders.toLocaleString()}
                           </div>
                           <div style={{ fontSize: 10, color: '#9CA3AF' }}>orders/mo</div>
                         </td>
@@ -1221,11 +1227,11 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: '#F0F0F0', borderRadius: 10, overflow: 'hidden', marginBottom: 8 }}>
             {[
-              { label: 'AliExpress Cost', val: cost > 0 ? `~$${cost.toFixed(2)}` : '—' },
-              { label: 'Suggested Retail', val: price > 0 ? `$${price.toFixed(0)}` : '—' },
-              { label: 'Gross Margin', val: `${margin}%` },
-              { label: 'Monthly Revenue', val: `$${revenue >= 1000 ? (revenue / 1000).toFixed(1) + 'k' : revenue}` },
-              { label: 'Monthly Orders', val: orders.toLocaleString() },
+              { label: 'Est. Supplier Cost', val: cost > 0 ? `~$${cost.toFixed(2)} est.` : '—' },
+              { label: 'Suggested Retail', val: price > 0 ? `$${price.toFixed(0)} est.` : '—' },
+              { label: 'Est. Margin', val: `~${margin}%` },
+              { label: 'Est. Monthly Rev', val: `~$${revenue >= 1000 ? (revenue / 1000).toFixed(1) + 'k' : revenue}` },
+              { label: 'Est. Monthly Orders', val: `~${orders.toLocaleString()}` },
               { label: 'Dropship Score', val: `${score}/100` },
             ].map(({ label, val }) => (
               <div key={label} style={{ padding: '12px 16px', background: 'white' }}>
