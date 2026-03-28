@@ -9,7 +9,7 @@ function getClient() {
   return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 }
 
-router.post('/generate-ads', async (req, res) => {
+router.post('/generate-ads', requireAuth, async (req, res) => {
   const { productName, price, audience } = req.body;
   if (!productName) return res.status(400).json({ error: 'productName required' });
 
@@ -48,7 +48,7 @@ Only output the JSON array. No markdown.`
   }
 });
 
-router.post('/generate-copy', async (req, res) => {
+router.post('/generate-copy', requireAuth, async (req, res) => {
   const { productName, price, niche } = req.body;
   if (!productName) return res.status(400).json({ error: 'productName required' });
 
@@ -89,7 +89,7 @@ Only output the JSON. No markdown. No code blocks.`
 });
 
 // Unified /generate endpoint for Growth Tools
-router.post('/generate', async (req, res) => {
+router.post('/generate', requireAuth, async (req, res) => {
   try {
     // Input size guard — reject oversized payloads before any processing
     const MAX_INPUT_CHARS = 10000;
@@ -254,7 +254,7 @@ ALWAYS output in this EXACT format with these EXACT section headers (include all
 });
 
 // Content Creator tools endpoint
-router.post('/generate-content', async (req, res) => {
+router.post('/generate-content', requireAuth, async (req, res) => {
   try {
     const { tool, productName, benefit, niche, audience, platform } = req.body;
 
@@ -395,7 +395,7 @@ CAPTION: This is a game changer #australia #${(niche || 'product').replace(/\s/g
 export default router;
 
 // POST /api/ai/supplier-search — Tavily live supplier search
-router.post('/supplier-search', async (req: Request, res: Response) => {
+router.post('/supplier-search', requireAuth, async (req: Request, res: Response) => {
   try {
     const { product } = req.body;
     if (!product) return res.status(400).json({ error: 'product required' });
@@ -425,7 +425,7 @@ router.post('/supplier-search', async (req: Request, res: Response) => {
 });
 
 // ── GET /api/ai/saved-outputs — load saved ad creatives ──────────────────
-router.get('/saved-outputs', async (req: Request, res: Response) => {
+router.get('/saved-outputs', requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.userId || (req as any).user?.sub;
     if (!userId) return res.status(401).json({ error: 'auth required' });
@@ -444,7 +444,7 @@ router.get('/saved-outputs', async (req: Request, res: Response) => {
 });
 
 // ── POST /api/ai/save-output — save an ad creative ────────────────────────
-router.post('/save-output', async (req: Request, res: Response) => {
+router.post('/save-output', requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.userId || (req as any).user?.sub;
     if (!userId) return res.status(401).json({ error: 'auth required' });

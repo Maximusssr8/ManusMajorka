@@ -1267,7 +1267,7 @@ router.post('/patch-datahub-metrics', async (req: Request, res: Response) => {
 });
 
 // ── GET /api/admin/aliexpress-status — check AliExpress integration health ────
-router.get('/aliexpress-status', async (_req: Request, res: Response) => {
+router.get('/aliexpress-status', requireAuth, requireAdmin, async (_req: Request, res: Response) => {
   const { isAuthorized } = await import('../lib/aliexpress');
   res.json({
     authorized: isAuthorized(),
@@ -1360,7 +1360,7 @@ router.post('/backfill-ali-images', requireAuth, requireAdmin, async (req: Reque
 
 // POST /api/admin/test-tiktok-scraper
 // Body: { keyword: "wireless earbuds" }
-router.post('/test-tiktok-scraper', async (req: Request, res: Response) => {
+router.post('/test-tiktok-scraper', requireAuth, requireAdmin, async (req: Request, res: Response) => {
   try {
     const keyword = String(req.body?.keyword || 'LED strip lights');
     console.log(`[admin] testing TikTok scraper for: "${keyword}"`);
@@ -1391,7 +1391,7 @@ router.post('/test-tiktok-scraper', async (req: Request, res: Response) => {
 });
 
 // POST /api/admin/run-competitor-spy
-router.post('/run-competitor-spy', async (req: Request, res: Response) => {
+router.post('/run-competitor-spy', requireAuth, requireAdmin, async (req: Request, res: Response) => {
   res.json({ message: 'Competitor spy started — check server logs for progress', status: 'running' });
 
   (async () => {
@@ -1407,7 +1407,7 @@ router.post('/run-competitor-spy', async (req: Request, res: Response) => {
 });
 
 // POST /api/admin/refresh-creators
-router.post('/refresh-creators', async (req: Request, res: Response) => {
+router.post('/refresh-creators', requireAuth, requireAdmin, async (req: Request, res: Response) => {
   res.json({ message: 'Creator refresh started', status: 'running' });
   (async () => {
     try {
@@ -1421,7 +1421,7 @@ router.post('/refresh-creators', async (req: Request, res: Response) => {
 });
 
 // POST /api/admin/refresh-videos
-router.post('/refresh-videos', async (req: Request, res: Response) => {
+router.post('/refresh-videos', requireAuth, requireAdmin, async (req: Request, res: Response) => {
   res.json({ message: 'Video refresh started', status: 'running' });
   (async () => {
     try {

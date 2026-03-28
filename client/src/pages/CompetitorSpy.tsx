@@ -29,6 +29,12 @@ interface WatchlistEntry {
 
 // ── Analysis progress steps ───────────────────────────────────────────────────
 
+// Minimal XSS sanitizer for AI-generated markdown output
+const sanitizeHtml = (html: string) =>
+  html.replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+\s*=/gi, '');
+
 const PROGRESS_STEPS = [
   'Searching TikTok Shop…',
   'Analysing product catalogue…',
@@ -244,7 +250,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               return (
                 <div key={j} className="flex gap-2 text-sm" style={{ color: '#94a3b8', fontFamily: 'DM Sans, sans-serif' }}>
                   <span style={{ color: '#475569', flexShrink: 0 }}>·</span>
-                  <span dangerouslySetInnerHTML={{ __html: line.slice(2).replace(/\*\*(.+?)\*\*/g, '<strong style="color:#111111">$1</strong>') }} />
+                  <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(line.slice(2).replace(/\*\*(.+?)\*\*/g, '<strong style="color:#111111">$1</strong>')) }} />
                 </div>
               );
             }
@@ -252,13 +258,13 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               return (
                 <div key={j} className="flex gap-2 text-sm" style={{ color: '#94a3b8', fontFamily: 'DM Sans, sans-serif' }}>
                   <span className="font-mono flex-shrink-0" style={{ color: '#475569', minWidth: 20 }}>{line.match(/^\d+/)?.[0]}.</span>
-                  <span dangerouslySetInnerHTML={{ __html: line.replace(/^\d+\.\s*/, '').replace(/\*\*(.+?)\*\*/g, '<strong style="color:#111111">$1</strong>') }} />
+                  <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(line.replace(/^\d+\.\s*/, '').replace(/\*\*(.+?)\*\*/g, '<strong style="color:#111111">$1</strong>')) }} />
                 </div>
               );
             }
             return (
               <p key={j} className="text-sm" style={{ color: '#94a3b8', fontFamily: 'DM Sans, sans-serif', lineHeight: '1.6' }}
-                dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.+?)\*\*/g, '<strong style="color:#111111">$1</strong>') }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(line.replace(/\*\*(.+?)\*\*/g, '<strong style="color:#111111">$1</strong>')) }}
               />
             );
           })}

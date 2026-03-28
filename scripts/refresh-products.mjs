@@ -5,7 +5,7 @@
 const RAPIDAPI_KEY = '72000f9eeamsh375c31f96187909p1caf20jsn4494e614ec1b';
 const PEXELS_KEY = 'EZjK9XGsizihc0Kr0mTGiQoglCY5kGQfOQ3QIKOLLODImTaxlg5ztpFB';
 const SUPABASE_URL = 'https://ievekuazsjbdrltsdksn.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlldmVrdWF6c2piZHJsdHNka3NuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjAyMTQ0MCwiZXhwIjoyMDg3NTk3NDQwfQ.VTbTM5BCyAq843T1z1DRpkPI-0X7ZkAoD6K2q3sVX9Q';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 const AU_KEYWORDS = [
   'posture corrector', 'weighted blanket', 'LED desk lamp',
@@ -38,7 +38,7 @@ const NICHE_MAP = {
   'nail art kit': 'Beauty', 'face roller': 'Skincare',
 };
 
-const TAVILY_KEY = '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';
+const TAVILY_KEY = process.env.TAVILY_API_KEY || '';
 
 const AU_HIGH_DEMAND = ['dog','cat','pet','outdoor','garden','camping','beach','sun','pool','bbq','fitness','wellness','home office','coffee','skin','hair'];
 const AU_LOW_DEMAND = ['snow','winter coat','heating pad','fur lined','christmas sweater','us plug','american'];

@@ -8,10 +8,10 @@ import { createClient } from '@supabase/supabase-js';
 
 const sb = createClient(
   'https://ievekuazsjbdrltsdksn.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlldmVrdWF6c2piZHJsdHNka3NuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjAyMTQ0MCwiZXhwIjoyMDg3NTk3NDQwfQ.VTbTM5BCyAq843T1z1DRpkPI-0X7ZkAoD6K2q3sVX9Q'
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 );
 
-const TAVILY_KEY = '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';
+const TAVILY_KEY = process.env.TAVILY_API_KEY || '';
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 // Returns { image_url, aliexpress_url, aliexpress_id } or null
