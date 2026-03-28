@@ -67,6 +67,24 @@ router.get('/refresh-trends', async (req: Request, res: Response) => {
     return res.status(401).json({ error: 'unauthorized' });
   }
 
+  // Staleness guard — skip if data is < 20 hours old
+  try {
+    const sb = getSupabaseAdmin();
+    const { data: latest } = await sb
+      .from('winning_products')
+      .select('updated_at')
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .single();
+    if (latest?.updated_at) {
+      const ageHours = (Date.now() - new Date(latest.updated_at).getTime()) / 3_600_000;
+      if (ageHours < 20) {
+        console.log(`[cron] refresh-trends skipped — data is ${ageHours.toFixed(1)}h old (< 20h)`);
+        return res.json({ skipped: true, ageHours: Math.round(ageHours), reason: 'data is fresh' });
+      }
+    }
+  } catch { /* proceed if staleness check fails */ }
+
   const tavily_key = process.env.TAVILY_API_KEY;
   if (!tavily_key) {
     return res.status(503).json({ error: 'TAVILY_API_KEY not configured' });
@@ -246,6 +264,25 @@ router.get('/refresh-products', async (req: Request, res: Response) => {
   if (!verifyCronSecret(req)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
+
+  // Staleness guard — skip if any product was updated in last 20 hours
+  try {
+    const sb = getSupabaseAdmin();
+    const { data: latest } = await sb
+      .from('winning_products')
+      .select('last_refreshed')
+      .not('last_refreshed', 'is', null)
+      .order('last_refreshed', { ascending: false })
+      .limit(1)
+      .single();
+    if (latest?.last_refreshed) {
+      const ageHours = (Date.now() - new Date(latest.last_refreshed).getTime()) / 3_600_000;
+      if (ageHours < 20) {
+        console.log(`[cron] refresh-products skipped — last refresh ${ageHours.toFixed(1)}h ago (< 20h)`);
+        return res.json({ skipped: true, ageHours: Math.round(ageHours), reason: 'products are fresh' });
+      }
+    }
+  } catch { /* proceed if staleness check fails */ }
 
   console.log('[cron] Product refresh started');
   res.json({ status: 'started', message: 'Product refresh pipeline running' });

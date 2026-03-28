@@ -1214,7 +1214,11 @@ export function registerChatRoutes(app: Application) {
       // Detect AI SDK requests (CopywriterTool, AudienceProfiler, etc. send aiSdk:true)
       const useAiSdkProtocol = req.body.aiSdk === true;
       // Tools that need more tokens for complex outputs
-      const maxTokens = toolName === 'website-generator' ? 8192 : 4096;
+      // Cap tokens by tool — website-generator needs room, AI chat is conversational, others moderate
+      const maxTokens = toolName === 'website-generator' ? 6000
+        : toolName === 'ai-chat' ? 2048
+        : toolName === 'ads_studio' ? 2000
+        : 2000;
 
       if (wantStream) {
         const client = getAnthropicClient();
