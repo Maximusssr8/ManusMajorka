@@ -45,26 +45,26 @@ function buildCurve(raw: number[]): Pt[] {
   });
 }
 
-const MAX_CURVE = [487,521,398,612,740,498,342,687,834,976,1012,1155,898,641,998,1167,1321,1448,1612,1245,918,1587,1834,2101,2212,1989,1798,1487,1212,887];
+const MAX_CURVE = [1820,2140,1690,2480,3120,2210,1580,2940,3680,4210,4580,5120,3940,2870,4460,5230,6140,6890,7420,5840,4210,7180,8640,9320,10480,9140,8270,7620,6480,5240];
 const MAX_DATA = buildCurve(MAX_CURVE);
 const ZERO_DATA = buildCurve(Array(30).fill(0));
 
 // ── Marketing data ───────────────────────────────────────────────────────────
 const MAX_STATS = {
-  total: 84291.50,
-  month: '$28,470',
-  today: '$1,247',
-  todayOrders: 8,
-  bestDay: '$4,891',
-  orders: '1,847',
-  aov: '$45.64',
-  moM: '+42.8%',
-  streak: 14,
-  rank: 47,
-  goalTarget: 100000,
-  goalLabel: '$100K Club',
-  goalPercent: 84.3,
-  goalRemaining: '$15,708.50',
+  total: 247831.40,
+  month: '$84,291',
+  today: '$10,480',
+  todayOrders: 47,
+  bestDay: '$10,480',
+  orders: '5,284',
+  aov: '$46.90',
+  moM: '+68.4%',
+  streak: 27,
+  rank: 12,
+  goalTarget: 300000,
+  goalLabel: '$300K Club',
+  goalPercent: 82.6,
+  goalRemaining: '$52,168.60',
 };
 
 const ZERO_STATS = {
@@ -102,37 +102,41 @@ interface Order {
 }
 
 const MAX_ORDERS: Order[] = [
-  { id: '2847', product: 'LED Light Therapy Face Mask',       amount: 313.82, flag: '🇦🇺', time: '28m ago',    img: IMG.led,     today: true  },
-  { id: '2846', product: 'Facial Roller Massager Jade',       amount: 171.00, flag: '🇦🇺', time: '52m ago',    img: IMG.roller,  today: true  },
-  { id: '2845', product: 'Portable Blender Juicer',           amount: 188.00, flag: '🇬🇧', time: '1h ago',     img: IMG.blender, today: true  },
-  { id: '2844', product: 'Posture Corrector Adjustable',      amount:  93.68, flag: '🇦🇺', time: '2h ago',     img: IMG.posture, today: true  },
-  { id: '2843', product: 'UV Sanitiser Box Steriliser',       amount: 156.48, flag: '🇳🇿', time: '3h ago',     img: IMG.uv,      today: true  },
-  { id: '2842', product: 'Dog Harness No Pull Reflective',    amount:  84.32, flag: '🇳🇿', time: '4h ago',     img: IMG.harness, today: true  },
-  { id: '2841', product: 'Eyebrow Stamp Kit × 3',             amount: 108.00, flag: '🇸🇬', time: '5h ago',     img: IMG.eyebrow, today: true  },
-  { id: '2840', product: 'Makeup Remover Pads × 3',           amount: 131.70, flag: '🇦🇺', time: '6h ago',     img: IMG.remover, today: true  },
-  { id: '2839', product: 'Biotin Hair Growth Serum × 3',      amount:  62.97, flag: '🇦🇺', time: 'Yesterday',  img: IMG.biotin,  today: false },
-  { id: '2838', product: 'Car Seat Back Organiser × 2',       amount:  32.00, flag: '🇦🇺', time: 'Yesterday',  img: IMG.carseat, today: false },
-  { id: '2837', product: 'Jade Face Roller Massager',         amount: 171.00, flag: '🇦🇺', time: 'Yesterday',  img: IMG.roller,  today: false },
-  { id: '2836', product: 'LED Light Therapy Face Mask',       amount: 156.91, flag: '🇳🇿', time: 'Yesterday',  img: IMG.led,     today: false },
-  { id: '2835', product: 'Posture Corrector × 2',             amount:  93.68, flag: '🇬🇧', time: 'Yesterday',  img: IMG.posture, today: false },
-  { id: '2834', product: 'Portable Blender Juicer',           amount:  94.00, flag: '🇺🇸', time: 'Yesterday',  img: IMG.blender, today: false },
+  { id: '5284', product: 'LED Light Therapy Face Mask × 3',   amount: 941.46, flag: '🇦🇺', time: '4m ago',     img: IMG.led,     today: true  },
+  { id: '5283', product: 'Facial Roller Massager Jade × 5',   amount: 855.00, flag: '🇬🇧', time: '11m ago',    img: IMG.roller,  today: true  },
+  { id: '5282', product: 'UV Sanitiser Box Steriliser × 4',   amount: 625.92, flag: '🇦🇺', time: '19m ago',    img: IMG.uv,      today: true  },
+  { id: '5281', product: 'Portable Blender Juicer × 4',       amount: 752.00, flag: '🇳🇿', time: '33m ago',    img: IMG.blender, today: true  },
+  { id: '5280', product: 'Posture Corrector × 6',             amount: 562.08, flag: '🇦🇺', time: '47m ago',    img: IMG.posture, today: true  },
+  { id: '5279', product: 'Biotin Hair Growth Serum × 8',      amount: 503.76, flag: '🇺🇸', time: '1h ago',     img: IMG.biotin,  today: true  },
+  { id: '5278', product: 'Dog Harness No Pull × 5',           amount: 421.60, flag: '🇦🇺', time: '1h ago',     img: IMG.harness, today: true  },
+  { id: '5277', product: 'Eyebrow Stamp Kit × 6',             amount: 648.00, flag: '🇸🇬', time: '2h ago',     img: IMG.eyebrow, today: true  },
+  { id: '5276', product: 'LED Light Therapy Face Mask × 2',   amount: 627.64, flag: '🇨🇦', time: '2h ago',     img: IMG.led,     today: true  },
+  { id: '5275', product: 'Makeup Remover Pads × 10',          amount: 439.00, flag: '🇦🇺', time: '3h ago',     img: IMG.remover, today: true  },
+  { id: '5274', product: 'Car Seat Organiser × 4',            amount: 256.00, flag: '🇦🇺', time: '3h ago',     img: IMG.carseat, today: true  },
+  { id: '5273', product: 'UV Sanitiser Box Steriliser × 3',   amount: 469.44, flag: '🇳🇿', time: '4h ago',     img: IMG.uv,      today: true  },
+  { id: '5272', product: 'Facial Roller Massager × 3',        amount: 513.00, flag: '🇬🇧', time: '4h ago',     img: IMG.roller,  today: true  },
+  { id: '5271', product: 'Posture Corrector × 4',             amount: 374.72, flag: '🇦🇺', time: 'Yesterday',  img: IMG.posture, today: false },
+  { id: '5270', product: 'Biotin Hair Growth Serum × 6',      amount: 377.82, flag: '🇺🇸', time: 'Yesterday',  img: IMG.biotin,  today: false },
+  { id: '5269', product: 'LED Light Therapy Face Mask × 4',   amount: 1255.28,flag: '🇦🇺', time: 'Yesterday',  img: IMG.led,     today: false },
+  { id: '5268', product: 'Portable Blender Juicer × 5',       amount: 940.00, flag: '🇬🇧', time: 'Yesterday',  img: IMG.blender, today: false },
+  { id: '5267', product: 'Eyebrow Stamp Kit × 8',             amount: 864.00, flag: '🇨🇦', time: 'Yesterday',  img: IMG.eyebrow, today: false },
 ];
 
 // ── Country breakdown ────────────────────────────────────────────────────────
 const COUNTRIES = [
-  { flag: '\u{1F1E6}\u{1F1FA}', name: 'Australia',      amount: 48240,  pct: 57.2, color: G },
-  { flag: '\u{1F1F3}\u{1F1FF}', name: 'New Zealand',    amount: 16420,  pct: 19.5, color: I },
-  { flag: '\u{1F1EC}\u{1F1E7}', name: 'United Kingdom', amount: 12230,  pct: 14.5, color: V },
-  { flag: '\u{1F1FA}\u{1F1F8}', name: 'United States',  amount: 7401.50, pct: 8.8, color: A },
+  { flag: '\u{1F1E6}\u{1F1FA}', name: 'Australia',      amount: 141640, pct: 57.2, color: G },
+  { flag: '\u{1F1F3}\u{1F1FF}', name: 'New Zealand',    amount: 48330,  pct: 19.5, color: I },
+  { flag: '\u{1F1EC}\u{1F1E7}', name: 'United Kingdom', amount: 35940,  pct: 14.5, color: V },
+  { flag: '\u{1F1FA}\u{1F1F8}', name: 'United States',  amount: 21921.40, pct: 8.8, color: A },
 ];
 
 // ── Top products ─────────────────────────────────────────────────────────────
 const TOP_PRODUCTS = [
-  { img: IMG.led,     name: 'LED Light Therapy Face Mask',  revenue: 18420, border: '#FFD700' },
-  { img: IMG.roller,  name: 'Facial Roller Massager Jade',  revenue: 14280, border: '#C0C0C0' },
-  { img: IMG.blender, name: 'Portable Blender Juicer',      revenue: 12840, border: '#CD7F32' },
-  { img: IMG.posture, name: 'Posture Corrector Adjustable', revenue: 9760,  border: 'rgba(255,255,255,0.08)' },
-  { img: IMG.uv,      name: 'UV Sanitiser Box Steriliser',  revenue: 8420,  border: 'rgba(255,255,255,0.08)' },
+  { img: IMG.led,     name: 'LED Light Therapy Face Mask',  revenue: 68420, border: '#FFD700' },
+  { img: IMG.roller,  name: 'Facial Roller Massager Jade',  revenue: 51280, border: '#C0C0C0' },
+  { img: IMG.blender, name: 'Portable Blender Juicer',      revenue: 42840, border: '#CD7F32' },
+  { img: IMG.posture, name: 'Posture Corrector Adjustable', revenue: 38760, border: 'rgba(255,255,255,0.08)' },
+  { img: IMG.uv,      name: 'UV Sanitiser Box Steriliser',  revenue: 31420, border: 'rgba(255,255,255,0.08)' },
 ];
 
 
@@ -200,7 +204,7 @@ export default function RevenuePage() {
 
   const handleShare = useCallback(async () => {
     const text = isMarketing
-      ? `\u{1F4B0} My Store Earnings\n\nEst. Total: $84,291.50\nThis Month: $28,470\nToday: $1,247\n\nTracked by Majorka \u00B7 majorka.io`
+      ? `\u{1F4B0} My Store Earnings\n\nEst. Total: $247,831.40\nThis Month: $84,291\nToday: $10,480\n\nTracked by Majorka \u00B7 majorka.io`
       : `\u{1F4B0} Track your store earnings with Majorka \u00B7 majorka.io`;
     if (navigator.share) { try { await navigator.share({ text }); } catch { /**/ } }
     else { await navigator.clipboard.writeText(text); setToast('Copied!'); setTimeout(() => setToast(''), 2000); }
@@ -425,7 +429,7 @@ export default function RevenuePage() {
               ))}
             </div>
             <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,.06)', fontSize: 12, color: '#6B7280' }}>
-              4 countries {'\u00B7'} $84,291.50 total
+              4 countries {'\u00B7'} $247,831.40 total
             </div>
           </div>
 
