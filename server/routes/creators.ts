@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { requireAuth } from '../middleware/requireAuth';
 import { fetchRealCreators, fetchRawTikTokData, getTikTokCacheStatus } from '../lib/tiktokData';
 import { cacheGet, cacheSet, TTL } from '../lib/redisCache';
+import { checkUsageLimit, incrementUsage } from '../lib/usageLimits';
+import type { Plan } from '../../shared/plans';
 
 const router = Router();
 const ADMIN_EMAILS = ['maximusmajorka@gmail.com'];
@@ -28,8 +30,18 @@ async function checkAccess(req: Request): Promise<boolean> {
 }
 
 // GET /api/creators/real
-router.get('/real', requireAuth, async (_req: Request, res: Response) => {
+router.get('/real', requireAuth, async (req: Request, res: Response) => {
   try {
+    // Usage enforcement
+    const userId = (req as any).user?.userId;
+    if (userId) {
+      const plan = ((req as any).subscription?.plan || 'builder') as Plan;
+      const usage = await checkUsageLimit(userId, 'creator_searches', plan);
+      if (!usage.allowed) {
+        res.status(429).json({ error: 'limit_exceeded', used: usage.used, limit: usage.limit, message: `You've used ${usage.used}/${usage.limit} creator searches this month. Upgrade to Scale for unlimited.` });
+        return;
+      }
+    }
     // Redis cache — 1 hour TTL (Apify data, expensive to re-fetch)
     const cacheKey = 'creators:real';
     const cached = await cacheGet<{ creators: unknown[]; count: number; last_synced: unknown }>(cacheKey);
@@ -46,6 +58,9 @@ router.get('/real', requireAuth, async (_req: Request, res: Response) => {
     res.setHeader('X-Cache', 'MISS');
     res.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=3600');
     res.json(result);
+    // Increment usage after successful response
+    const uid = (req as any).user?.userId;
+    if (uid) incrementUsage(uid, 'creator_searches').catch(() => {});
   } catch (err: any) {
     console.error('[creators/real]', err.message);
     res.json({ creators: [], count: 0, last_synced: null });

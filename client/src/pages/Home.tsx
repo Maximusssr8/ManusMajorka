@@ -359,7 +359,7 @@ function EmailCapture() {
       <div style={{ background: C.elevated, border: `1px solid ${C.goldBorder}`, borderRadius: 20, padding: isMobile ? '32px 16px' : '48px 32px', textAlign: 'center', maxWidth: 560, margin: '0 auto' }}>
         <div style={{ fontSize: isMobile ? 30 : 48, marginBottom: 16 }}>✅</div>
         <h3 style={{ fontFamily: syne, fontWeight: 800, fontSize: 22, color: C.text, marginBottom: 12 }}>You're in! Check your inbox.</h3>
-        <p style={{ color: C.secondary, fontSize: 15, lineHeight: 1.6 }}>While you wait, <Link href="/app" style={{ color: C.gold, textDecoration: 'underline' }}>try the tools free →</Link></p>
+        <p style={{ color: C.secondary, fontSize: 15, lineHeight: 1.6 }}>While you wait, <Link href="/app" style={{ color: C.gold, textDecoration: 'underline' }}>go to the app →</Link></p>
       </div>
     );
   }
@@ -911,7 +911,7 @@ function HowItWorksSection() {
               title: 'Find a winning product',
               desc: 'AI scans 50k+ products for demand signals. See AI-estimated revenue data, supplier links, and trend signals — in seconds.',
               stat: { label: 'Products analysed', value: '50,000+' },
-              tag: 'Free feature',
+              tag: 'Included',
             },
             {
               num: '02', Icon: Zap, color: '#8B5CF6', bg: '#F3E8FF',
@@ -924,7 +924,7 @@ function HowItWorksSection() {
               num: '03', Icon: TrendingUp, color: '#10B981', bg: '#ECFDF5',
               title: 'Launch, spy & scale',
               desc: 'Use Spy Tools to monitor competitor ads. Track profit with the calculator. Scale what works, cut what does not.',
-              stat: { label: '14-day guarantee', value: 'Free' },
+              stat: { label: '14-day guarantee', value: 'Included' },
               tag: 'Results',
             },
           ].map((step, i) => {
@@ -1527,7 +1527,7 @@ export default function Home() {
               Log in
             </Link>
             <Link href="/sign-up" style={{ background: '#6366F1', color: '#fff', borderRadius: 8, padding: '8px 18px', fontWeight: 600, fontSize: 14, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', letterSpacing: '-0.01em', whiteSpace: 'nowrap' as const }}>
-              Start Free →
+              Get Started →
             </Link>
             {/* Hamburger — always in DOM, CSS shows on mobile only */}
             <button
@@ -1943,7 +1943,7 @@ export default function Home() {
               Your competitors are already using AI. <span className="gold-text">Are you?</span>
             </h2>
             <p style={{ color: C.secondary, fontSize: 'clamp(15px, 2vw, 18px)', marginBottom: 44, lineHeight: 1.65 }}>
-              Start free. No credit card. Upgrade when you're ready.
+              No contracts. Cancel anytime.
             </p>
             <div className="stack-mobile" style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 28 }}>
               <Link

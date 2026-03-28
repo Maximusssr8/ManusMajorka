@@ -3,6 +3,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import { requireAuth } from '../middleware/requireAuth';
 import { createClient } from '@supabase/supabase-js';
 import { cacheGet, cacheSet, cacheInvalidatePrefix, TTL } from '../lib/redisCache';
+import { checkUsageLimit, incrementUsage } from '../lib/usageLimits';
+import type { Plan } from '../../shared/plans';
 
 const router = Router();
 
@@ -195,6 +197,17 @@ const whyTrendingCache = new Map<string, { brief: string; at: number }>();
 
 // GET /api/products/search?q=QUERY
 router.get('/search', requireAuth, async (req: Request, res: Response) => {
+  // Usage enforcement
+  const userId = (req as any).user?.userId;
+  if (userId) {
+    const plan = ((req as any).subscription?.plan || 'builder') as Plan;
+    const usage = await checkUsageLimit(userId, 'product_searches', plan);
+    if (!usage.allowed) {
+      res.status(429).json({ error: 'limit_exceeded', used: usage.used, limit: usage.limit, message: `You've used ${usage.used}/${usage.limit} product searches this month. Upgrade to Scale for unlimited.` });
+      return;
+    }
+  }
+
   const query = (req.query.q as string || '').trim();
   if (!query || query.length < 2) {
     res.status(400).json({ error: 'Query required (min 2 chars)' });
@@ -340,8 +353,8 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
   }
 
   // Log search analytics (non-blocking)
-  const userId = (req as any).user?.id ?? null;
-  supabase.from('search_analytics').insert({ query: cacheKey, results_count: results.length, user_id: userId }).then(() => {}).catch(() => {});
+  const analyticsUserId = (req as any).user?.id ?? null;
+  supabase.from('search_analytics').insert({ query: cacheKey, results_count: results.length, user_id: analyticsUserId }).then(() => {}).catch(() => {});
 
   // Auto-populate winning_products from popular searches (3+ times in 24h)
   (async () => {
@@ -375,6 +388,9 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
     query,
     source: results[0]?.source ?? 'none',
   });
+  // Increment usage after successful response
+  const uid = (req as any).user?.userId;
+  if (uid) incrementUsage(uid, 'product_searches').catch(() => {});
 });
 
 // ── POST /api/products/refresh — trigger real data pipeline ────────────────────

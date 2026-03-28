@@ -4,6 +4,7 @@ import { expandStoreBrief } from '../lib/website-api';
 import { requireSubscription } from '../middleware/requireSubscription';
 import { storeBuilderSchema, validateBody } from '../lib/validators';
 import { buildStoreHTML } from '../lib/storeTemplate';
+import { getPlanLimit, type Plan } from '../../shared/plans';
 
 const router = Router();
 
@@ -29,6 +30,20 @@ router.post('/generate', async (req, res) => {
     const rl = rateLimit(`store-gen:${userId}`, 10, 60 * 60 * 1000);
     if (!rl.allowed) {
       return res.status(429).json({ error: 'rate_limit_exceeded', message: 'Too many requests. Try again in 1 hour.' });
+    }
+
+    // Store count limit enforcement
+    try {
+      const supabase = getSupabaseAdmin();
+      const { data: storeRows } = await supabase.from('generated_stores').select('id').eq('user_id', userId);
+      const storeCount = storeRows?.length ?? 0;
+      const plan = ((req as any).subscription?.plan || 'builder') as Plan;
+      const limit = getPlanLimit(plan, 'store_builder');
+      if (storeCount >= limit) {
+        return res.status(429).json({ error: 'limit_exceeded', used: storeCount, limit, message: `You have ${storeCount}/${limit} stores. Upgrade to Scale for unlimited stores.` });
+      }
+    } catch {
+      // Non-fatal — proceed if check fails
     }
 
     const validation = validateBody(storeBuilderSchema, req.body);

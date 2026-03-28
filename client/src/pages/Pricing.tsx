@@ -1094,7 +1094,7 @@ export default function Pricing() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 100px 100px 100px',
+                gridTemplateColumns: '1fr 140px 140px',
                 background: C.elevated,
                 padding: '14px 24px',
                 borderBottom: `1px solid ${C.border}`,
@@ -1128,43 +1128,28 @@ export default function Pricing() {
               ))}
             </div>
             {[
-              { label: 'AI Credits/day', starter: '5', builder: 'Unlimited', scale: 'Unlimited' },
-              { label: 'All 50+ Tools', starter: '\u2717', builder: '\u2713', scale: '\u2713' },
-              { label: 'Full Launch Kit', starter: '\u2717', builder: '\u2713', scale: '\u2713' },
-              { label: 'Meta + TikTok Ads', starter: '\u2717', builder: '\u2713', scale: '\u2713' },
-              { label: 'Financial Modeler', starter: '\u2717', builder: '\u2713', scale: '\u2713' },
-              { label: 'Priority AI', starter: '\u2717', builder: '\u2717', scale: '\u2713' },
-              {
-                label: 'White-label Export',
-                starter: '\u2717',
-                builder: '\u2717',
-                scale: '\u2713',
-              },
-              { label: 'API Access', starter: '\u2717', builder: '\u2717', scale: '\u2713' },
-              { label: 'Support', starter: 'Community', builder: 'Priority', scale: 'Dedicated' },
-              { label: 'Afterpay / Zip', starter: '\u2717', builder: '\u2713', scale: '\u2713' },
+              { label: 'AI Credits/day', builder: 'Unlimited', scale: 'Unlimited' },
+              { label: 'All 50+ Tools', builder: '\u2713', scale: '\u2713' },
+              { label: 'Full Launch Kit', builder: '\u2713', scale: '\u2713' },
+              { label: 'Meta + TikTok Ads', builder: '\u2713', scale: '\u2713' },
+              { label: 'Financial Modeler', builder: '\u2713', scale: '\u2713' },
+              { label: 'Priority AI', builder: '\u2717', scale: '\u2713' },
+              { label: 'White-label Export', builder: '\u2717', scale: '\u2713' },
+              { label: 'API Access', builder: '\u2717', scale: '\u2713' },
+              { label: 'Support', builder: 'Priority', scale: 'Dedicated' },
+              { label: 'Afterpay / Zip', builder: '\u2713', scale: '\u2713' },
             ].map((row, i) => (
               <div
                 key={i}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '1fr 100px 100px 100px',
+                  gridTemplateColumns: '1fr 140px 140px',
                   padding: '14px 24px',
                   borderBottom: `1px solid ${C.border}`,
                   background: i % 2 === 0 ? 'transparent' : '#FAFAFA',
                 }}
               >
                 <span style={{ fontSize: 14, color: C.secondary }}>{row.label}</span>
-                <span
-                  style={{
-                    textAlign: 'center',
-                    fontSize: 13,
-                    color: row.starter === '\u2717' ? C.muted : C.secondary,
-                    fontWeight: row.starter === '\u2713' ? 700 : 400,
-                  }}
-                >
-                  {row.starter}
-                </span>
                 <span
                   style={{
                     textAlign: 'center',

@@ -155,7 +155,7 @@ async function upsertSubscription(data: {
   userId: string;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
-  plan: string;
+  plan: string | null;
   status: string;
   currentPeriodEnd?: Date;
 }) {
@@ -283,7 +283,7 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
       await upsertSubscription({
         userId,
         stripeSubscriptionId: stripeSub.id,
-        plan: '',
+        plan: null,
         status: 'cancelled',
         currentPeriodEnd: periodEnd,
       });

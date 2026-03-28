@@ -775,6 +775,25 @@ app.post("/api/ad-spy/search", async (req: Request, res: Response) => {
       return;
     }
 
+    // Usage enforcement — ad_intel
+    {
+      const month = new Date().toISOString().slice(0, 7);
+      const SURL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+      const SKEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+      if (SURL && SKEY) {
+        const sbUsage = createClient(SURL, SKEY);
+        const { data: usageRow } = await sbUsage.from('usage_tracking')
+          .select('count').eq('user_id', userId).eq('feature', 'ad_intel').eq('month', month).single();
+        const used = usageRow?.count ?? 0;
+        const userPlan = ((req as any).user?.plan || 'builder') as string;
+        const limit = userPlan === 'scale' ? 999999 : 50;
+        if (used >= limit) {
+          res.status(429).json({ error: 'limit_exceeded', used, limit, message: `You've used ${used}/${limit} ad intelligence searches this month. Upgrade to Scale for unlimited.` });
+          return;
+        }
+      }
+    }
+
     // Cache by query key (case-insensitive, 1h TTL)
     const cacheKey = q.toLowerCase().replace(/\s+/g, '-');
     const cached = adSpySearchCache.get(cacheKey);
@@ -831,6 +850,23 @@ Be specific and creative. No generic filler.`;
     const result = { ads: parsed.ads, query: q, generated_at: new Date().toISOString() };
     adSpySearchCache.set(cacheKey, { ts: Date.now(), result });
     res.json(result);
+
+    // Increment ad_intel usage
+    {
+      const month = new Date().toISOString().slice(0, 7);
+      const SURL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+      const SKEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+      if (SURL && SKEY) {
+        const sbInc = createClient(SURL, SKEY);
+        const { data: row } = await sbInc.from('usage_tracking')
+          .select('id, count').eq('user_id', userId).eq('feature', 'ad_intel').eq('month', month).single();
+        if (row) {
+          await sbInc.from('usage_tracking').update({ count: row.count + 1, updated_at: new Date().toISOString() }).eq('id', row.id);
+        } else {
+          await sbInc.from('usage_tracking').insert({ user_id: userId, feature: 'ad_intel', month, count: 1 });
+        }
+      }
+    }
 
   } catch (err: any) {
     if (err?.status === 429 || err?.message?.includes('rate')) {
