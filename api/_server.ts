@@ -898,55 +898,6 @@ app.post("/api/alerts/test-notification", requireAuth, async (req: Request, res:
   }
 });
 
-// ── One-time DB fix endpoint (remove after use) ───────────────────────────────
-app.post('/api/admin/fix-revenue-inflation', async (req: Request, res: Response) => {
-  const authHeader = req.headers['authorization'] || '';
-  const token = authHeader.replace('Bearer ', '');
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-  if (!token || token !== serviceKey) return res.status(401).json({ error: 'Unauthorized' });
 
-  const { createClient } = require('@supabase/supabase-js');
-  const supa = createClient(
-    process.env.VITE_SUPABASE_URL || 'https://ievekuazsjbdrltsdksn.supabase.co',
-    serviceKey,
-  );
-
-  try {
-    // Fix 1: fetch AliExpress products and update those with inflated revenue
-    const { data: rows, error: fetchErr } = await supa
-      .from('winning_products')
-      .select('id, orders_count, price_aud, est_monthly_revenue_aud')
-      .eq('platform', 'aliexpress')
-      .gt('orders_count', 0)
-      .gt('price_aud', 0);
-
-    if (fetchErr) return res.status(500).json({ error: fetchErr.message });
-
-    const inflated = (rows || []).filter((p: any) =>
-      p.est_monthly_revenue_aud > p.orders_count * p.price_aud * 1.5
-    );
-
-    let r1Count = 0;
-    for (const p of inflated) {
-      const correct = Math.round(p.orders_count * p.price_aud * 100) / 100;
-      await supa.from('winning_products').update({ est_monthly_revenue_aud: correct }).eq('id', p.id);
-      r1Count++;
-    }
-
-    // Fix 2: relabel fake TikTok Shop AU → AliExpress
-    const { data: r2, error: r2err } = await supa
-      .from('winning_products')
-      .update({ platform: 'AliExpress', tiktok_signal: false })
-      .eq('platform', 'TikTok Shop AU')
-      .or('tiktok_product_url.is.null,tiktok_product_url.eq.')
-      .select('id');
-
-    if (r2err) return res.status(500).json({ error: r2err.message, step: 'platform_fix' });
-
-    return res.json({ ok: true, revenue_fixed: r1Count, platform_fixed: (r2 || []).length });
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message });
-  }
-});
 
 export default app;
