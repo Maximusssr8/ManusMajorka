@@ -319,7 +319,7 @@ export default function MarketDashboard() {
               Market Intelligence
             </h1>
             <p className="text-sm mt-0.5" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>
-              Live TikTok Shop data — global markets
+              AI-powered market signals — global markets
             </p>
             <p className="text-xs mt-0.5" style={{ color: '#94a3b8', fontFamily: 'DM Sans, sans-serif' }}>
               Showing data for your selected market — change market in the sidebar

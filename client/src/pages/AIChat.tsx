@@ -291,12 +291,21 @@ export default function AIChat() {
               const token = parsed.token || parsed.text || parsed.delta || parsed.content || '';
               if (token) {
                 fullText += token;
-                setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: fullText } : m));
+                // Strip ACTION blocks before rendering — complete blocks stripped, partial blocks hidden
+                const displayText = fullText
+                  .replace(/<<<ACTION>>>[\s\S]*?<<<END_ACTION>>>/g, '')
+                  .replace(/<<<ACTION>>>[\s\S]*$/g, '')
+                  .trim();
+                setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: displayText } : m));
               }
             } catch {
               if (data && data !== '[DONE]' && !data.startsWith('{')) {
                 fullText += data;
-                setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: fullText } : m));
+                const displayText = fullText
+                  .replace(/<<<ACTION>>>[\s\S]*?<<<END_ACTION>>>/g, '')
+                  .replace(/<<<ACTION>>>[\s\S]*$/g, '')
+                  .trim();
+                setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: displayText } : m));
               }
             }
           }

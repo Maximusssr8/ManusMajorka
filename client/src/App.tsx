@@ -230,6 +230,7 @@ function Router() {
             <Route path="/app/settings">{() => <ProtectedRoute><AppLayout><SettingsProfile /></AppLayout></ProtectedRoute>}</Route>
 
             {/* Redirects for consolidated pages */}
+            <Route path="/app/products">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/trend-signals">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/winning-products">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             {/* Both routes render WebsiteGenerator — ToolPage handles both via location check */}

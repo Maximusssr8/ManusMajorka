@@ -81,6 +81,14 @@ const GLOBAL_STYLES = `
 .social-icon-btn:hover { border-color: rgba(99,102,241,0.35); color: #6366F1; background: rgba(99,102,241,0.06); }
 .feature-big:hover { border-color: rgba(99,102,241,0.25) !important; transform: translateY(-3px); }
 
+/* Nav: hamburger always in DOM, CSS shows/hides — no JS hydration delay */
+.nav-hamburger { display: none; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; color: #374151; padding: 6px; border-radius: 6px; }
+.nav-desktop-only { display: flex; }
+@media (max-width: 768px) {
+  .nav-hamburger { display: flex !important; }
+  .nav-desktop-only { display: none !important; }
+}
+
 @media (max-width: 768px) {
   .hide-mobile   { display: none !important; }
   .stack-mobile  { flex-direction: column !important; align-items: stretch !important; }
@@ -1494,39 +1502,38 @@ export default function Home() {
             <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 16, color: '#0F172A', letterSpacing: '-0.02em' }}>Majorka</span>
           </a>
 
-          {/* ── Center: Nav links (desktop only) ── */}
-          {!isMobile && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              {[['https://majorka.io/#features', 'Features'], ['https://majorka.io/#pricing', 'Pricing'], ['/blog', 'Blog']].map(([href, label]) => (
-                <a key={label} href={href} style={{ color: '#6B7280', textDecoration: 'none', fontSize: 14, fontWeight: 500, padding: '6px 12px', borderRadius: 7, transition: 'color 120ms, background 120ms' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = '#111827'; e.currentTarget.style.background = '#F3F4F6'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.background = 'transparent'; }}>
-                  {label}
-                </a>
-              ))}
-            </div>
-          )}
+          {/* ── Center: Nav links (desktop only via CSS) ── */}
+          <div className="nav-desktop-only" style={{ alignItems: 'center', gap: 2 }}>
+            {[['https://majorka.io/#features', 'Features'], ['https://majorka.io/#pricing', 'Pricing'], ['/blog', 'Blog']].map(([href, label]) => (
+              <a key={label} href={href} style={{ color: '#6B7280', textDecoration: 'none', fontSize: 14, fontWeight: 500, padding: '6px 12px', borderRadius: 7, transition: 'color 120ms, background 120ms' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#111827'; e.currentTarget.style.background = '#F3F4F6'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.background = 'transparent'; }}>
+                {label}
+              </a>
+            ))}
+          </div>
 
           {/* ── Right: CTA ── */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-            {!isMobile && (
-              <Link href="/sign-in" style={{ color: '#6B7280', textDecoration: 'none', fontSize: 14, fontWeight: 500, padding: '6px 12px', borderRadius: 7, transition: 'color 120ms, background 120ms' }}
-                onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.color = '#111827'; e.currentTarget.style.background = '#F3F4F6'; }}
-                onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.background = 'transparent'; }}>
-                Log in
-              </Link>
-            )}
-            <Link href="/sign-up" style={{ background: '#6366F1', color: '#fff', borderRadius: 8, padding: '8px 18px', fontWeight: 600, fontSize: 14, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', letterSpacing: '-0.01em', whiteSpace: 'nowrap' as const }}>
-              {isMobile ? 'Sign up' : 'Start Free →'}
+            <Link href="/sign-in" className="nav-desktop-only" style={{ alignItems: 'center', color: '#6B7280', textDecoration: 'none', fontSize: 14, fontWeight: 500, padding: '6px 12px', borderRadius: 7, transition: 'color 120ms, background 120ms' }}
+              onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.color = '#111827'; e.currentTarget.style.background = '#F3F4F6'; }}
+              onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.color = '#6B7280'; e.currentTarget.style.background = 'transparent'; }}>
+              Log in
             </Link>
-            {isMobile && (
-              <button onClick={() => setMobileMenuOpen(prev => !prev)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#374151', padding: '6px', display: 'flex' as const, alignItems: 'center', justifyContent: 'center', borderRadius: 6 }}>
-                {mobileMenuOpen
-                  ? <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 4L16 16M4 16L16 4" stroke="#374151" strokeWidth="2" strokeLinecap="round"/></svg>
-                  : <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="#374151" strokeWidth="2" strokeLinecap="round"/></svg>
-                }
-              </button>
-            )}
+            <Link href="/sign-up" style={{ background: '#6366F1', color: '#fff', borderRadius: 8, padding: '8px 18px', fontWeight: 600, fontSize: 14, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', letterSpacing: '-0.01em', whiteSpace: 'nowrap' as const }}>
+              Start Free →
+            </Link>
+            {/* Hamburger — always in DOM, CSS shows on mobile only */}
+            <button
+              className="nav-hamburger"
+              onClick={() => setMobileMenuOpen(prev => !prev)}
+              aria-label="Open menu"
+            >
+              {mobileMenuOpen
+                ? <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 4L18 18M4 18L18 4" stroke="#374151" strokeWidth="2.2" strokeLinecap="round"/></svg>
+                : <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 6h16M3 11h16M3 16h16" stroke="#374151" strokeWidth="2.2" strokeLinecap="round"/></svg>
+              }
+            </button>
           </div>
         </div>
 

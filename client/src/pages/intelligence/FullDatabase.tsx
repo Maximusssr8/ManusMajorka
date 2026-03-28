@@ -545,11 +545,18 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             <span>Auto-refreshes every 6h</span>
           </div>
         )}
-        {/* Data transparency banner */}
-        <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 16, padding: '10px 14px', background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-          <span style={{ flexShrink: 0, fontSize: 14 }}>ℹ️</span>
-          <span><strong style={{ color: '#374151' }}>Research data, not live sales data.</strong> Revenue, order counts, prices &amp; margins are AI-estimated demand signals derived from product research — not scraped live figures. All values are marked "est." Use as a starting point; verify current pricing and demand directly on AliExpress or TikTok Shop before ordering stock.</span>
-        </div>
+        {/* Data transparency banner — collapsed on mobile */}
+        {isMobile ? (
+          <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 12, padding: '7px 10px', background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ flexShrink: 0 }}>ℹ️</span>
+            <span><strong style={{ color: '#374151' }}>AI-estimated data</strong> — not live sales figures. Use as research starting point.</span>
+          </div>
+        ) : (
+          <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 16, padding: '10px 14px', background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+            <span style={{ flexShrink: 0, fontSize: 14 }}>ℹ️</span>
+            <span><strong style={{ color: '#374151' }}>Research data, not live sales data.</strong> Revenue, order counts, prices &amp; margins are AI-estimated demand signals derived from product research — not scraped live figures. All values are marked "est." Use as a starting point; verify current pricing and demand directly on AliExpress or TikTok Shop before ordering stock.</span>
+          </div>
+        )}
 
         {refreshMsg && (
           <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 10, padding: '6px 12px', background: '#F9FAFB', borderRadius: 6, border: '1px solid #E5E7EB', display: 'inline-block' }}>
