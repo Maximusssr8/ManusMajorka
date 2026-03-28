@@ -77,32 +77,45 @@ const ZERO_STATS = {
   moM: '--',
 };
 
+// Real AliExpress CDN product images
+const IMG = {
+  led:     'https://ae01.alicdn.com/kf/S56b8292bb1034f12b95122d6a2e9f657T.jpg',
+  roller:  'https://ae01.alicdn.com/kf/Se1692d9a2dab4002afa945e25a7e89918.jpg',
+  blender: 'https://ae01.alicdn.com/kf/Sb5b53898025f4c59a6366d3bd8529c04k.jpg',
+  posture: 'https://ae01.alicdn.com/kf/Sea30a04945c6486983aee7760c023540j.jpg',
+  uv:      'https://ae01.alicdn.com/kf/Sabdc305bec394a5f979f67b7f4f4bb7as.jpg',
+  harness: 'https://ae01.alicdn.com/kf/HTB1prW_fi0TMKJjSZFNq6y_1FXa2/Nylon-Reflective-No-Pull-Large-Dog-Harness-Quick-Fit-Pet-Harnesses-Vest-Adjustable-For-Large-Dogs.jpg',
+  eyebrow: 'https://ae01.alicdn.com/kf/A5c10248f9a5447d390691851d9af89fbD/Eyebrow-Stamp-Stencil-Kit-1-Pcs-Eye-Brow-Stamp-Shaping-Kit-Long-Lasting-Waterproof-Eyebrow-Makeup.jpg',
+  remover: 'https://ae01.alicdn.com/kf/Sc00b8cf6a00043668cf9aeedee786fd2t.jpg',
+  biotin:  'https://ae01.alicdn.com/kf/S87552200055646d98092cfde2606cf0aH.jpg',
+  carseat: 'https://ae01.alicdn.com/kf/S804729d31cc648ecbdb0bd742bc273a6T.jpg',
+};
+
 interface Order {
   id: string;
   product: string;
   amount: number;
   flag: string;
   time: string;
-  color: string;
-  emoji: string;
+  img: string;
   today: boolean;
 }
 
 const MAX_ORDERS: Order[] = [
-  { id: '2847', product: 'LED Light Therapy Face Mask',    amount: 313.82, flag: '\u{1F1E6}\u{1F1FA}', time: '28m ago',   color: '#EC4899', emoji: '\u2728', today: true  },
-  { id: '2846', product: 'Facial Roller Massager Jade',    amount: 171.00, flag: '\u{1F1E6}\u{1F1FA}', time: '52m ago',   color: '#34D399', emoji: '\u{1F486}', today: true  },
-  { id: '2845', product: 'Portable Blender Juicer',        amount: 188.00, flag: '\u{1F1EC}\u{1F1E7}', time: '1h ago',    color: '#22C55E', emoji: '\u{1F964}', today: true  },
-  { id: '2844', product: 'Posture Corrector Adjustable',   amount:  93.68, flag: '\u{1F1E6}\u{1F1FA}', time: '2h ago',    color: '#6366F1', emoji: '\u{1F4AA}', today: true  },
-  { id: '2843', product: 'UV Sanitiser Box Steriliser',    amount: 156.48, flag: '\u{1F1F3}\u{1F1FF}', time: '3h ago',    color: '#38BDF8', emoji: '\u{1F52C}', today: true  },
-  { id: '2842', product: 'Dog Harness No Pull',            amount:  84.32, flag: '\u{1F1F3}\u{1F1FF}', time: '4h ago',    color: '#F59E0B', emoji: '\u{1F43E}', today: true  },
-  { id: '2841', product: 'Eyebrow Stamp Kit \u00D7 3',     amount: 108.00, flag: '\u{1F1F8}\u{1F1EC}', time: '5h ago',    color: '#F472B6', emoji: '\u{1F484}', today: true  },
-  { id: '2840', product: 'Makeup Remover Pads \u00D7 3',   amount: 131.70, flag: '\u{1F1E6}\u{1F1FA}', time: '6h ago',    color: '#A78BFA', emoji: '\u{1F33F}', today: true  },
-  { id: '2839', product: 'Biotin Hair Growth Serum \u00D7 3', amount: 62.97, flag: '\u{1F1E6}\u{1F1FA}', time: 'Yesterday', color: '#4ADE80', emoji: '\u{1F331}', today: false },
-  { id: '2838', product: 'Car Seat Back Organiser \u00D7 2',  amount: 32.00, flag: '\u{1F1E6}\u{1F1FA}', time: 'Yesterday', color: '#FB923C', emoji: '\u{1F697}', today: false },
-  { id: '2837', product: 'Jade Face Roller',                amount: 171.00, flag: '\u{1F1E6}\u{1F1FA}', time: 'Yesterday', color: '#34D399', emoji: '\u{1F486}', today: false },
-  { id: '2836', product: 'LED Face Mask',                   amount: 156.91, flag: '\u{1F1F3}\u{1F1FF}', time: 'Yesterday', color: '#EC4899', emoji: '\u2728', today: false },
-  { id: '2835', product: 'Posture Corrector \u00D7 2',      amount:  93.68, flag: '\u{1F1EC}\u{1F1E7}', time: 'Yesterday', color: '#6366F1', emoji: '\u{1F4AA}', today: false },
-  { id: '2834', product: 'Portable Blender',                amount:  94.00, flag: '\u{1F1FA}\u{1F1F8}', time: 'Yesterday', color: '#22C55E', emoji: '\u{1F964}', today: false },
+  { id: '2847', product: 'LED Light Therapy Face Mask',       amount: 313.82, flag: '🇦🇺', time: '28m ago',    img: IMG.led,     today: true  },
+  { id: '2846', product: 'Facial Roller Massager Jade',       amount: 171.00, flag: '🇦🇺', time: '52m ago',    img: IMG.roller,  today: true  },
+  { id: '2845', product: 'Portable Blender Juicer',           amount: 188.00, flag: '🇬🇧', time: '1h ago',     img: IMG.blender, today: true  },
+  { id: '2844', product: 'Posture Corrector Adjustable',      amount:  93.68, flag: '🇦🇺', time: '2h ago',     img: IMG.posture, today: true  },
+  { id: '2843', product: 'UV Sanitiser Box Steriliser',       amount: 156.48, flag: '🇳🇿', time: '3h ago',     img: IMG.uv,      today: true  },
+  { id: '2842', product: 'Dog Harness No Pull Reflective',    amount:  84.32, flag: '🇳🇿', time: '4h ago',     img: IMG.harness, today: true  },
+  { id: '2841', product: 'Eyebrow Stamp Kit × 3',             amount: 108.00, flag: '🇸🇬', time: '5h ago',     img: IMG.eyebrow, today: true  },
+  { id: '2840', product: 'Makeup Remover Pads × 3',           amount: 131.70, flag: '🇦🇺', time: '6h ago',     img: IMG.remover, today: true  },
+  { id: '2839', product: 'Biotin Hair Growth Serum × 3',      amount:  62.97, flag: '🇦🇺', time: 'Yesterday',  img: IMG.biotin,  today: false },
+  { id: '2838', product: 'Car Seat Back Organiser × 2',       amount:  32.00, flag: '🇦🇺', time: 'Yesterday',  img: IMG.carseat, today: false },
+  { id: '2837', product: 'Jade Face Roller Massager',         amount: 171.00, flag: '🇦🇺', time: 'Yesterday',  img: IMG.roller,  today: false },
+  { id: '2836', product: 'LED Light Therapy Face Mask',       amount: 156.91, flag: '🇳🇿', time: 'Yesterday',  img: IMG.led,     today: false },
+  { id: '2835', product: 'Posture Corrector × 2',             amount:  93.68, flag: '🇬🇧', time: 'Yesterday',  img: IMG.posture, today: false },
+  { id: '2834', product: 'Portable Blender Juicer',           amount:  94.00, flag: '🇺🇸', time: 'Yesterday',  img: IMG.blender, today: false },
 ];
 
 // ── Country breakdown ────────────────────────────────────────────────────────
@@ -115,11 +128,11 @@ const COUNTRIES = [
 
 // ── Top products ─────────────────────────────────────────────────────────────
 const TOP_PRODUCTS = [
-  { emoji: '\u2728', name: 'LED Light Therapy Face Mask',  revenue: 18420, border: '#FFD700' },
-  { emoji: '\u{1F486}', name: 'Facial Roller Massager Jade',  revenue: 14280, border: '#C0C0C0' },
-  { emoji: '\u{1F964}', name: 'Portable Blender Juicer',      revenue: 12840, border: '#CD7F32' },
-  { emoji: '\u{1F4AA}', name: 'Posture Corrector Adjustable', revenue: 9760, border: 'transparent' },
-  { emoji: '\u{1F52C}', name: 'UV Sanitiser Box Steriliser',  revenue: 8420, border: 'transparent' },
+  { img: IMG.led,     name: 'LED Light Therapy Face Mask',  revenue: 18420, border: '#FFD700' },
+  { img: IMG.roller,  name: 'Facial Roller Massager Jade',  revenue: 14280, border: '#C0C0C0' },
+  { img: IMG.blender, name: 'Portable Blender Juicer',      revenue: 12840, border: '#CD7F32' },
+  { img: IMG.posture, name: 'Posture Corrector Adjustable', revenue: 9760,  border: 'rgba(255,255,255,0.08)' },
+  { img: IMG.uv,      name: 'UV Sanitiser Box Steriliser',  revenue: 8420,  border: 'rgba(255,255,255,0.08)' },
 ];
 
 // ── Achievement badges ───────────────────────────────────────────────────────
@@ -489,7 +502,7 @@ export default function RevenuePage() {
                   <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(255,255,255,.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#6B7280', fontFamily: brico, flexShrink: 0 }}>
                     {i + 1}
                   </div>
-                  <span style={{ fontSize: 18, flexShrink: 0 }}>{p.emoji}</span>
+                  <img src={p.img} alt={p.name} style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.08)' }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#E5E7EB', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.name}</div>
                     <div style={{ fontSize: 10, color: '#4B5563', marginTop: 2 }}>est.</div>
@@ -547,16 +560,16 @@ export default function RevenuePage() {
                   onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99,102,241,.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
                   onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,.08)'; (e.currentTarget as HTMLElement).style.transform = 'none'; }}
                 >
-                  <div style={{
-                    width: isMobile ? 40 : 48, height: isMobile ? 40 : 48,
-                    borderRadius: 14, flexShrink: 0,
-                    background: `${o.color}18`,
-                    border: `1.5px solid ${o.color}30`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: isMobile ? 18 : 22,
-                  }}>
-                    {o.emoji}
-                  </div>
+                  <img
+                    src={o.img}
+                    alt={o.product}
+                    style={{
+                      width: isMobile ? 44 : 52, height: isMobile ? 44 : 52,
+                      borderRadius: 12, flexShrink: 0,
+                      objectFit: 'cover',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                    }}
+                  />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{
                       fontSize: isMobile ? 13 : 14, fontWeight: 600, color: '#F1F5F9',
