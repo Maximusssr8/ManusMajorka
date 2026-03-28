@@ -1421,6 +1421,27 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
               </div>
             )}
           </div>
+          {/* Data source transparency */}
+          <div style={{ marginBottom: 12, padding: '10px 14px', background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0' }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.07em', marginBottom: 6 }}>Data Sources</div>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 4 }}>
+              {[
+                { field: 'Product name & image', source: 'AliExpress listing', real: true },
+                { field: 'AliExpress item ID', source: p.aliexpress_id ? `#${p.aliexpress_id}` : 'Not available', real: !!p.aliexpress_id },
+                { field: 'Retail price', source: 'AI estimated — verify on AliExpress', real: false },
+                { field: 'Supplier cost', source: 'AI estimated — verify on Alibaba', real: false },
+                { field: 'Monthly orders', source: 'AI demand signal (est.)', real: false },
+                { field: 'Revenue estimate', source: `price × est. units/day × 30`, real: false },
+                { field: 'Dropship score', source: 'AI composite score', real: false },
+              ].map(({ field, source, real }) => (
+                <div key={field} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 11, color: '#6B7280', flex: 1 }}>{field}</span>
+                  <span style={{ fontSize: 10, fontWeight: 600, color: real ? '#059669' : '#9CA3AF', background: real ? '#DCFCE7' : '#F3F4F6', padding: '1px 6px', borderRadius: 4, whiteSpace: 'nowrap' as const }}>{source}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <button onClick={() => setLocation(`/app/store-builder?product=${encodeURIComponent(name)}&niche=${encodeURIComponent(p.niche || p.category || '')}`)}
               style={{ width: '100%', height: 46, background: '#6366F1', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: brico }}>

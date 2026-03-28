@@ -898,4 +898,47 @@ app.post("/api/alerts/test-notification", requireAuth, async (req: Request, res:
   }
 });
 
+// ── One-time DB fix endpoint (remove after use) ───────────────────────────────
+app.post('/api/admin/fix-revenue-inflation', async (req: Request, res: Response) => {
+  const authHeader = req.headers['authorization'] || '';
+  const token = authHeader.replace('Bearer ', '');
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  if (!token || token !== serviceKey) return res.status(401).json({ error: 'Unauthorized' });
+
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) return res.status(500).json({ error: 'DATABASE_URL not set' });
+
+  try {
+    const postgres = require('postgres');
+    const sql = postgres(dbUrl, { ssl: 'prefer' });
+
+    // Fix 1: recalculate inflated revenue
+    const r1 = await sql`
+      UPDATE winning_products
+      SET est_monthly_revenue_aud = ROUND((orders_count * price_aud)::numeric, 2)
+      WHERE platform = 'aliexpress'
+        AND orders_count > 0
+        AND price_aud > 0
+        AND est_monthly_revenue_aud > (orders_count * price_aud * 1.5)
+      RETURNING id`;
+
+    // Fix 2: relabel fake TikTok Shop AU
+    const r2 = await sql`
+      UPDATE winning_products
+      SET platform = 'AliExpress', tiktok_signal = false
+      WHERE platform = 'TikTok Shop AU'
+        AND (tiktok_product_url IS NULL OR tiktok_product_url = '')
+      RETURNING id`;
+
+    await sql.end();
+    return res.json({
+      ok: true,
+      revenue_fixed: r1.length,
+      platform_fixed: r2.length,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 export default app;
