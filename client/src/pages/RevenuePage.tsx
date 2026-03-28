@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  ArrowUpRight,
   DollarSign,
   Share2,
   ShoppingBag,
+  Star,
   TrendingUp,
   Wallet,
   Zap,
@@ -10,6 +12,7 @@ import {
 import {
   Area,
   AreaChart,
+  CartesianGrid,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -18,461 +21,473 @@ import {
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useLocation } from 'wouter';
 
-// ── Chart data generator ─────────────────────────────────────────────────────
-interface ChartPoint {
-  day: string;
-  revenue: number;
-}
+// ── Palette ──────────────────────────────────────────────────────────────────
+const C = {
+  bg: '#070B14',
+  surface: '#0E1420',
+  surfaceHover: '#141C2E',
+  border: 'rgba(255,255,255,0.07)',
+  borderGlow: 'rgba(99,102,241,0.3)',
+  green: '#22C55E',
+  greenDim: '#16A34A',
+  greenBg: 'rgba(34,197,94,0.1)',
+  indigo: '#6366F1',
+  indigoDim: 'rgba(99,102,241,0.15)',
+  violet: '#8B5CF6',
+  white: '#FFFFFF',
+  muted: '#6B7280',
+  mutedLight: '#9CA3AF',
+  text: '#F1F5F9',
+};
 
-function generate30DayData(): ChartPoint[] {
-  const data: ChartPoint[] = [];
+const brico = "'Bricolage Grotesque', sans-serif";
+const geist = "'DM Sans', sans-serif";
+
+// ── Chart data ────────────────────────────────────────────────────────────────
+interface ChartPoint { day: string; revenue: number; }
+
+function buildChartData(): ChartPoint[] {
+  // Deterministic curve — no Math.random()
+  const CURVE = [
+    52, 61, 48, 73, 80, 58, 44, // week 1 (slow start, weekend dips)
+    94, 112, 127, 138, 155, 103, 88, // week 2 (ramp)
+    169, 187, 211, 228, 243, 178, 142, // week 3 (peak zone)
+    267, 289, 301, 312, 287, 241, 198, 176, // week 4+ (slight pullback)
+    163, // day 30
+  ];
   const now = new Date();
-  for (let i = 29; i >= 0; i--) {
+  return CURVE.map((revenue, i) => {
     const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    const dayIndex = 30 - i; // 1..30
-    const dow = d.getDay(); // 0=Sun, 6=Sat
-    const isWeekend = dow === 0 || dow === 6;
-
-    // Growth curve: starts low, peaks day 22-26, slight pullback
-    let base: number;
-    if (dayIndex <= 5) {
-      base = 40 + Math.random() * 40; // $40-80
-    } else if (dayIndex <= 15) {
-      base = 80 + (dayIndex - 5) * 15 + Math.random() * 30; // ramp up
-    } else if (dayIndex <= 26) {
-      base = 220 + (dayIndex - 15) * 10 + Math.random() * 40; // peak zone
-    } else {
-      base = 260 - (dayIndex - 26) * 20 + Math.random() * 30; // pullback
-    }
-
-    if (isWeekend) base *= 0.8;
-    const revenue = Math.round(base * 100) / 100;
+    d.setDate(d.getDate() - (29 - i));
     const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    data.push({ day: label, revenue });
-  }
-  return data;
+    return { day: label, revenue };
+  });
 }
 
-const CHART_DATA = generate30DayData();
+const ALL_DATA = buildChartData();
 
-// ── Demo orders ──────────────────────────────────────────────────────────────
-interface DemoOrder {
-  id: string;
-  product: string;
-  amount: number;
-  country: string;
-  time: string;
-}
-
-const DEMO_ORDERS: DemoOrder[] = [
-  { id: '#1,847', product: 'LED Light Therapy Face Mask', amount: 156.91, country: '\u{1F1E6}\u{1F1FA}', time: '2 hours ago' },
-  { id: '#1,846', product: 'Dog Harness No Pull Reflective', amount: 21.08, country: '\u{1F1F3}\u{1F1FF}', time: '3 hours ago' },
-  { id: '#1,845', product: 'Posture Corrector Adjustable', amount: 46.84, country: '\u{1F1E6}\u{1F1FA}', time: '5 hours ago' },
-  { id: '#1,844', product: 'Portable Blender Juicer', amount: 94.00, country: '\u{1F1EC}\u{1F1E7}', time: '6 hours ago' },
-  { id: '#1,843', product: 'Reusable Makeup Remover Pads', amount: 40.92, country: '\u{1F1E6}\u{1F1FA}', time: '8 hours ago' },
-  { id: '#1,842', product: 'UV Sanitiser Box Steriliser', amount: 31.20, country: '\u{1F1FA}\u{1F1F8}', time: '9 hours ago' },
-  { id: '#1,841', product: 'Facial Roller Massager Jade', amount: 171.00, country: '\u{1F1E6}\u{1F1FA}', time: '11 hours ago' },
-  { id: '#1,840', product: 'Car Seat Back Organiser', amount: 16.00, country: '\u{1F1E6}\u{1F1FA}', time: '12 hours ago' },
-  { id: '#1,839', product: 'Eyebrow Stamp Kit Professional', amount: 12.00, country: '\u{1F1F8}\u{1F1EC}', time: '14 hours ago' },
-  { id: '#1,838', product: 'Biotin Hair Growth Serum', amount: 5.21, country: '\u{1F1E6}\u{1F1FA}', time: '16 hours ago' },
+// ── Demo orders ───────────────────────────────────────────────────────────────
+const DEMO_ORDERS = [
+  { id: '1847', product: 'LED Light Therapy Face Mask', amount: 156.91, flag: '🇦🇺', time: '2h ago' },
+  { id: '1846', product: 'Dog Harness No Pull Reflective', amount: 21.08, flag: '🇳🇿', time: '3h ago' },
+  { id: '1845', product: 'Posture Corrector Adjustable', amount: 46.84, flag: '🇦🇺', time: '5h ago' },
+  { id: '1844', product: 'Portable Blender Juicer', amount: 94.00, flag: '🇬🇧', time: '6h ago' },
+  { id: '1843', product: 'Reusable Makeup Remover Pads', amount: 40.92, flag: '🇦🇺', time: '8h ago' },
+  { id: '1842', product: 'UV Sanitiser Box Steriliser', amount: 31.20, flag: '🇺🇸', time: '9h ago' },
+  { id: '1841', product: 'Facial Roller Massager Jade', amount: 171.00, flag: '🇦🇺', time: '11h ago' },
+  { id: '1840', product: 'Car Seat Back Organiser', amount: 16.00, flag: '🇦🇺', time: '12h ago' },
+  { id: '1839', product: 'Eyebrow Stamp Kit Professional', amount: 12.00, flag: '🇸🇬', time: '14h ago' },
+  { id: '1838', product: 'Biotin Hair Growth Serum', amount: 5.21, flag: '🇦🇺', time: '16h ago' },
 ];
 
-// ── Stats config ─────────────────────────────────────────────────────────────
-const STATS = [
-  { label: 'This Month', value: '$3,240', icon: TrendingUp },
-  { label: 'Today', value: '$187', icon: DollarSign },
-  { label: 'Best Day', value: '$891', icon: Zap },
-  { label: 'Total Orders', value: '847', icon: ShoppingBag },
-] as const;
+type Range = '7D' | '30D' | '90D';
 
-// ── Time range type ──────────────────────────────────────────────────────────
-type TimeRange = '7D' | '30D' | '90D';
-
-// ── Custom tooltip ───────────────────────────────────────────────────────────
-interface TooltipPayloadEntry {
-  value: number;
-  payload: ChartPoint;
-}
-
-function CustomTooltip({ active, payload }: { active?: boolean; payload?: TooltipPayloadEntry[] }) {
+// ── Custom tooltip ────────────────────────────────────────────────────────────
+function ChartTooltip({ active, payload }: { active?: boolean; payload?: { value: number; payload: ChartPoint }[] }) {
   if (!active || !payload?.length) return null;
-  const entry = payload[0];
+  const { day, revenue } = payload[0].payload;
   return (
     <div style={{
-      background: '#1a1a1a',
-      border: '1px solid rgba(212,175,55,0.3)',
-      borderRadius: 8,
-      padding: '8px 12px',
-      fontSize: 13,
-      color: '#f0ede8',
+      background: '#0E1420',
+      border: `1px solid ${C.borderGlow}`,
+      borderRadius: 10,
+      padding: '10px 14px',
+      boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
     }}>
-      {entry.payload.day} &middot; <span style={{ color: '#d4af37', fontWeight: 700 }}>${entry.value.toFixed(2)}</span>
+      <div style={{ fontSize: 11, color: C.muted, marginBottom: 4 }}>{day}</div>
+      <div style={{ fontSize: 18, fontWeight: 800, color: C.green, fontFamily: brico }}>
+        ${revenue.toFixed(2)}
+      </div>
     </div>
   );
 }
 
-// ── Main component ───────────────────────────────────────────────────────────
+// ── Main ──────────────────────────────────────────────────────────────────────
 export default function RevenuePage() {
   const isMobile = useIsMobile();
   const [, navigate] = useLocation();
-  const [displayAmount, setDisplayAmount] = useState(0);
-  const [timeRange, setTimeRange] = useState<TimeRange>('30D');
+  const [display, setDisplay] = useState(0);
+  const [range, setRange] = useState<Range>('30D');
   const [toast, setToast] = useState('');
   const animRef = useRef<number | null>(null);
+  const TARGET = 12847.50;
 
   // Animated counter
   useEffect(() => {
-    const target = 12847.50;
-    const duration = 1500;
-    const startTime = performance.now();
-
+    const start = performance.now();
+    const dur = 1600;
     function tick(now: number) {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      // Ease out cubic
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplayAmount(eased * target);
-      if (progress < 1) {
-        animRef.current = requestAnimationFrame(tick);
-      }
+      const t = Math.min((now - start) / dur, 1);
+      const ease = 1 - Math.pow(1 - t, 4); // ease out quart — snappier
+      setDisplay(ease * TARGET);
+      if (t < 1) animRef.current = requestAnimationFrame(tick);
     }
-
     animRef.current = requestAnimationFrame(tick);
-    return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-    };
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
   }, []);
 
-  // Filter chart data by range
-  const chartData = timeRange === '7D' ? CHART_DATA.slice(-7) : CHART_DATA;
+  const chartData = range === '7D' ? ALL_DATA.slice(-7) : ALL_DATA;
 
-  // Share handler
   const handleShare = useCallback(async () => {
-    const shareText = `\u{1F4B0} My Store Earnings\n\nEst. Total: $12,847.50\nThis Month: $3,240\nToday: $187\n\nTracked by Majorka \u00B7 majorka.io`;
+    const text = `💰 My Store Earnings\n\nEst. Total: $12,847.50\nThis Month: $3,240\nToday: $187\n\nTracked by Majorka · majorka.io`;
     if (navigator.share) {
-      try {
-        await navigator.share({ text: shareText });
-      } catch {
-        // User cancelled
-      }
+      try { await navigator.share({ text }); } catch { /* cancelled */ }
     } else {
-      await navigator.clipboard.writeText(shareText);
-      setToast('Share link copied!');
-      setTimeout(() => setToast(''), 2000);
+      await navigator.clipboard.writeText(text);
+      setToast('Copied to clipboard!');
+      setTimeout(() => setToast(''), 2200);
     }
   }, []);
 
-  const gold = '#d4af37';
-  const syne = "'Syne', sans-serif";
-  const bricolage = "'Bricolage Grotesque', sans-serif";
+  // Month-over-month change (+18%)
+  const moM = '+18.4%';
+
+  const px = isMobile ? 16 : 28;
 
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#0A0A0A',
-      color: '#f0ede8',
-      fontFamily: "'DM Sans', sans-serif",
-      paddingBottom: 'env(safe-area-inset-bottom, 24px)',
+      background: C.bg,
+      color: C.text,
+      fontFamily: geist,
+      paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)',
+      overflowX: 'hidden',
     }}>
+
       {/* Toast */}
       {toast && (
         <div style={{
-          position: 'fixed',
-          top: 20,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: '#22c55e',
-          color: '#fff',
-          padding: '10px 20px',
-          borderRadius: 8,
-          fontSize: 13,
-          fontWeight: 600,
-          zIndex: 9999,
-          animation: 'fadeIn 0.2s ease',
+          position: 'fixed', top: 20, left: '50%', transform: 'translateX(-50%)',
+          background: C.green, color: '#fff', padding: '10px 20px', borderRadius: 999,
+          fontSize: 13, fontWeight: 600, zIndex: 9999, whiteSpace: 'nowrap' as const,
+          boxShadow: '0 4px 20px rgba(34,197,94,0.4)',
         }}>
-          {toast}
+          ✓ {toast}
         </div>
       )}
 
-      {/* Demo mode banner */}
+      {/* Demo banner */}
       <div style={{
-        background: 'rgba(245,158,11,0.12)',
-        borderBottom: '1px solid rgba(245,158,11,0.2)',
-        padding: '8px 16px',
-        textAlign: 'center',
-        fontSize: 12,
-        color: '#f59e0b',
-        fontWeight: 500,
+        background: 'rgba(245,158,11,0.08)',
+        borderBottom: '1px solid rgba(245,158,11,0.15)',
+        padding: '9px 16px', textAlign: 'center', fontSize: 12, color: '#F59E0B', fontWeight: 500,
       }}>
-        {'\u{1F4CA}'} Demo Mode — Connect your Shopify store to see real earnings
+        📊 Demo Mode — Connect your Shopify store to see real earnings
       </div>
 
-      {/* Header */}
-      <div style={{ padding: isMobile ? '24px 16px 20px' : '32px 32px 24px', textAlign: 'center', position: 'relative' }}>
-        {/* Top left: Wallet icon */}
-        <div style={{ position: 'absolute', top: isMobile ? 24 : 32, left: isMobile ? 16 : 32 }}>
-          <Wallet size={20} color={gold} />
-        </div>
+      {/* ── Hero card ── */}
+      <div style={{ padding: `28px ${px}px 0` }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #12183a 0%, #1a1040 50%, #0d1526 100%)',
+          border: `1px solid ${C.borderGlow}`,
+          borderRadius: 24,
+          padding: isMobile ? '28px 20px 24px' : '36px 32px 28px',
+          position: 'relative' as const,
+          overflow: 'hidden' as const,
+          boxShadow: '0 0 80px rgba(99,102,241,0.12), 0 20px 40px rgba(0,0,0,0.4)',
+        }}>
+          {/* Glow orbs */}
+          <div style={{
+            position: 'absolute' as const, top: -40, right: -40, width: 200, height: 200,
+            background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)',
+            pointerEvents: 'none' as const,
+          }} />
+          <div style={{
+            position: 'absolute' as const, bottom: -30, left: -20, width: 160, height: 160,
+            background: 'radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 70%)',
+            pointerEvents: 'none' as const,
+          }} />
 
-        {/* Top right: Live badge + Share */}
-        <div style={{ position: 'absolute', top: isMobile ? 24 : 32, right: isMobile ? 16 : 32, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e' }} />
-            <span style={{ fontSize: 11, color: '#22c55e', fontWeight: 600 }}>Live</span>
+          {/* Top row */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{
+                background: C.indigoDim, border: `1px solid ${C.borderGlow}`,
+                borderRadius: 10, padding: 8,
+              }}>
+                <Wallet size={16} color={C.indigo} />
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 600, color: C.mutedLight }}>Revenue</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.25)',
+                borderRadius: 999, padding: '4px 10px',
+              }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: C.green, boxShadow: `0 0 6px ${C.green}` }} />
+                <span style={{ fontSize: 11, color: C.green, fontWeight: 700 }}>LIVE</span>
+              </div>
+              <button onClick={handleShare} style={{
+                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 10, padding: '7px 10px', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 5, color: C.mutedLight, fontSize: 12,
+              }}>
+                <Share2 size={13} /> Share
+              </button>
+            </div>
           </div>
-          <button
-            onClick={handleShare}
-            style={{
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 8,
-              padding: '6px 10px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-              color: '#9CA3AF',
-              fontSize: 11,
-            }}
-          >
-            <Share2 size={12} /> Share
-          </button>
-        </div>
 
-        {/* Earnings display */}
-        <div style={{
-          fontSize: 11,
-          color: '#6B7280',
-          fontFamily: syne,
-          letterSpacing: '0.1em',
-          textTransform: 'uppercase',
-          marginBottom: 8,
-        }}>
-          EST. TOTAL EARNINGS
-        </div>
-        <div style={{
-          fontSize: isMobile ? 40 : 52,
-          fontWeight: 800,
-          color: gold,
-          fontFamily: bricolage,
-          lineHeight: 1.1,
-          marginBottom: 8,
-        }}>
-          ${displayAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-        </div>
-        <div style={{ fontSize: 12, color: '#52525b' }}>
-          Across all active stores &middot; Demo Mode
+          {/* Balance label */}
+          <div style={{ fontSize: 11, color: C.muted, letterSpacing: '0.12em', textTransform: 'uppercase' as const, marginBottom: 6 }}>
+            Est. Total Earnings
+          </div>
+
+          {/* The big number */}
+          <div style={{
+            fontSize: isMobile ? 44 : 60,
+            fontWeight: 900,
+            fontFamily: brico,
+            lineHeight: 1,
+            marginBottom: 12,
+            background: `linear-gradient(135deg, ${C.green} 0%, #4ADE80 100%)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            filter: 'drop-shadow(0 0 24px rgba(34,197,94,0.3))',
+          }}>
+            ${display.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+
+          {/* MoM badge */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              background: C.greenBg, border: '1px solid rgba(34,197,94,0.2)',
+              borderRadius: 999, padding: '4px 10px',
+            }}>
+              <ArrowUpRight size={12} color={C.green} />
+              <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>{moM} vs last month</span>
+            </div>
+            <span style={{ fontSize: 12, color: C.muted }}>· Demo data</span>
+          </div>
         </div>
       </div>
 
-      {/* Stats row */}
+      {/* ── 4 Stat cards ── */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
-        gap: 12,
-        padding: isMobile ? '0 16px 20px' : '0 32px 24px',
+        gap: 10, padding: `16px ${px}px 0`,
       }}>
-        {STATS.map((stat) => (
-          <div key={stat.label} style={{
-            background: '#141414',
-            border: '1px solid rgba(212,175,55,0.2)',
-            borderRadius: 12,
-            padding: isMobile ? '14px 12px' : '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 8,
+        {[
+          { label: 'This Month', value: '$3,240', sub: '+12% vs prev', Icon: TrendingUp, color: C.green },
+          { label: 'Today', value: '$187', sub: '3 orders', Icon: DollarSign, color: C.indigo },
+          { label: 'Best Day', value: '$891', sub: 'Mar 24', Icon: Star, color: '#F59E0B' },
+          { label: 'Total Orders', value: '847', sub: 'all time', Icon: ShoppingBag, color: C.violet },
+        ].map((s) => (
+          <div key={s.label} style={{
+            background: C.surface,
+            border: `1px solid ${C.border}`,
+            borderRadius: 16,
+            padding: isMobile ? '14px 12px' : '18px 16px',
           }}>
-            <stat.icon size={16} color={gold} style={{ opacity: 0.7 }} />
-            <div style={{ fontSize: isMobile ? 20 : 24, fontWeight: 700, color: gold, fontFamily: bricolage }}>
-              {stat.value}
+            <div style={{
+              width: 32, height: 32, borderRadius: 8,
+              background: `${s.color}18`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10,
+            }}>
+              <s.Icon size={15} color={s.color} />
             </div>
-            <div style={{ fontSize: 11, color: '#52525b', fontWeight: 500 }}>
-              {stat.label}
+            <div style={{ fontSize: isMobile ? 22 : 26, fontWeight: 800, color: C.white, fontFamily: brico, lineHeight: 1 }}>
+              {s.value}
             </div>
+            <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>{s.label}</div>
+            <div style={{ fontSize: 11, color: s.color, marginTop: 2, fontWeight: 500 }}>{s.sub}</div>
           </div>
         ))}
       </div>
 
-      {/* Chart section */}
-      <div style={{ padding: isMobile ? '0 16px 20px' : '0 32px 24px' }}>
+      {/* ── Revenue Chart ── */}
+      <div style={{ padding: `16px ${px}px 0` }}>
         <div style={{
-          background: '#141414',
-          border: '1px solid rgba(255,255,255,0.06)',
-          borderRadius: 12,
-          padding: isMobile ? '16px 12px' : '20px',
+          background: C.surface, border: `1px solid ${C.border}`,
+          borderRadius: 20, padding: isMobile ? '16px 12px' : '22px 20px',
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#f0ede8' }}>30-Day Revenue Trend</div>
-            <div style={{ display: 'flex', gap: 4 }}>
-              {(['7D', '30D', '90D'] as TimeRange[]).map((range) => (
-                <button
-                  key={range}
-                  onClick={() => setTimeRange(range)}
-                  style={{
-                    padding: '4px 10px',
-                    borderRadius: 6,
-                    border: 'none',
-                    fontSize: 11,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    background: timeRange === range ? 'rgba(212,175,55,0.15)' : 'transparent',
-                    color: timeRange === range ? gold : '#52525b',
-                  }}
-                >
-                  {range}
+          {/* Chart header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: C.white }}>Revenue Trend</div>
+              <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Daily earnings</div>
+            </div>
+            <div style={{
+              display: 'flex', gap: 4,
+              background: C.bg, borderRadius: 10, padding: 3, border: `1px solid ${C.border}`,
+            }}>
+              {(['7D', '30D', '90D'] as Range[]).map((r) => (
+                <button key={r} onClick={() => setRange(r)} style={{
+                  padding: '5px 12px', borderRadius: 8, border: 'none',
+                  fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                  background: range === r ? C.indigo : 'transparent',
+                  color: range === r ? '#fff' : C.muted,
+                  transition: 'all 150ms',
+                }}>
+                  {r}
                 </button>
               ))}
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={isMobile ? 160 : 220}>
-            <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+
+          {/* Recharts */}
+          <ResponsiveContainer width="100%" height={isMobile ? 150 : 210}>
+            <AreaChart data={chartData} margin={{ top: 8, right: 4, left: -18, bottom: 0 }}>
               <defs>
-                <linearGradient id="revGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.4} />
-                  <stop offset="100%" stopColor="#d4af37" stopOpacity={0.05} />
+                <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={C.green} stopOpacity={0.25} />
+                  <stop offset="100%" stopColor={C.green} stopOpacity={0.01} />
                 </linearGradient>
               </defs>
-              <XAxis dataKey="day" tick={{ fontSize: 10, fill: '#52525b' }} axisLine={false} tickLine={false} interval={timeRange === '7D' ? 0 : 4} />
-              <YAxis tick={{ fontSize: 10, fill: '#52525b' }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${v}`} />
-              <Tooltip content={<CustomTooltip />} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+              <XAxis
+                dataKey="day"
+                tick={{ fontSize: 10, fill: C.muted }}
+                axisLine={false} tickLine={false}
+                interval={range === '7D' ? 0 : 4}
+              />
+              <YAxis
+                tick={{ fontSize: 10, fill: C.muted }}
+                axisLine={false} tickLine={false}
+                tickFormatter={(v: number) => `$${v}`}
+              />
+              <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'rgba(99,102,241,0.3)', strokeWidth: 1, strokeDasharray: '4 4' }} />
               <Area
-                type="monotone"
-                dataKey="revenue"
-                stroke="#8B5CF6"
-                strokeWidth={2}
-                fill="url(#revGradient)"
-                dot={false}
-                activeDot={{ r: 4, fill: gold, stroke: '#0A0A0A', strokeWidth: 2 }}
+                type="monotone" dataKey="revenue"
+                stroke={C.green} strokeWidth={2.5}
+                fill="url(#greenGrad)" dot={false}
+                activeDot={{ r: 5, fill: C.green, stroke: C.bg, strokeWidth: 2 }}
               />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Connected Stores — empty state */}
-      <div style={{ padding: isMobile ? '0 16px 20px' : '0 32px 24px' }}>
-        <div style={{
-          background: '#141414',
-          border: '1px solid rgba(212,175,55,0.2)',
-          borderRadius: 12,
-          padding: isMobile ? '28px 16px' : '32px 24px',
-          textAlign: 'center',
-        }}>
-          <div style={{ fontSize: 36, marginBottom: 12 }}>{'\u{1F4B3}'}</div>
-          <div style={{ fontSize: 16, fontWeight: 600, color: '#f0ede8', marginBottom: 6 }}>No stores connected</div>
-          <div style={{ fontSize: 13, color: '#52525b', marginBottom: 20 }}>
-            Connect your Shopify store to track real earnings
-          </div>
-          <button
-            onClick={() => navigate('/app/store-builder')}
-            style={{
-              padding: '12px 24px',
-              borderRadius: 8,
-              border: 'none',
-              background: '#6366F1',
-              color: '#fff',
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: 'pointer',
-              fontFamily: syne,
-              transition: 'transform 150ms ease',
-            }}
-            onMouseEnter={(e) => { (e.target as HTMLElement).style.transform = 'scale(1.02)'; }}
-            onMouseLeave={(e) => { (e.target as HTMLElement).style.transform = 'scale(1)'; }}
-          >
-            Connect Shopify &rarr;
-          </button>
+      {/* ── Recent Orders ── */}
+      <div style={{ padding: `16px ${px}px 0` }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.white }}>Recent Orders</div>
+          <div style={{ fontSize: 11, color: C.muted }}>Demo data</div>
         </div>
-      </div>
-
-      {/* Recent Orders */}
-      <div style={{ padding: isMobile ? '0 16px 20px' : '0 32px 24px' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#f0ede8', marginBottom: 12 }}>Recent Orders</div>
         <div style={{
-          background: '#141414',
-          border: '1px solid rgba(255,255,255,0.06)',
-          borderRadius: 12,
-          overflow: 'hidden',
+          background: C.surface, border: `1px solid ${C.border}`,
+          borderRadius: 20, overflow: 'hidden',
         }}>
-          {DEMO_ORDERS.map((order, i) => (
-            <div
-              key={order.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: isMobile ? 8 : 12,
-                padding: isMobile ? '10px 12px' : '12px 16px',
-                borderBottom: i < DEMO_ORDERS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-              }}
+          {DEMO_ORDERS.map((o, i) => (
+            <div key={o.id} style={{
+              display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 12,
+              padding: isMobile ? '12px 14px' : '14px 18px',
+              borderBottom: i < DEMO_ORDERS.length - 1 ? `1px solid ${C.border}` : 'none',
+              transition: 'background 150ms',
+            }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = C.surfaceHover; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
             >
-              <span style={{ fontSize: 12, fontWeight: 600, color: gold, minWidth: 50, fontFamily: "'DM Mono', monospace" }}>
-                {order.id}
-              </span>
-              <span style={{
-                flex: 1,
-                fontSize: 13,
-                color: '#f0ede8',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                maxWidth: isMobile ? 140 : 'none',
+              {/* Order # pill */}
+              <div style={{
+                background: C.indigoDim, border: `1px solid ${C.borderGlow}`,
+                borderRadius: 6, padding: '2px 7px', fontSize: 11,
+                fontWeight: 700, color: C.indigo, minWidth: 46, textAlign: 'center' as const,
               }}>
-                {order.product.length > 30 ? order.product.slice(0, 30) + '...' : order.product}
+                #{o.id}
+              </div>
+
+              {/* Product name */}
+              <span style={{
+                flex: 1, fontSize: isMobile ? 12 : 13, color: C.text,
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const,
+              }}>
+                {o.product}
               </span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#22c55e', minWidth: 64, textAlign: 'right' }}>
-                ${order.amount.toFixed(2)}
+
+              {/* Amount */}
+              <span style={{
+                fontSize: isMobile ? 14 : 15, fontWeight: 800, color: C.green,
+                fontFamily: brico, minWidth: 60, textAlign: 'right' as const,
+              }}>
+                ${o.amount.toFixed(2)}
               </span>
-              <span style={{ fontSize: 14, minWidth: 24, textAlign: 'center' }}>{order.country}</span>
-              <span style={{ fontSize: 11, color: '#52525b', minWidth: isMobile ? 60 : 80, textAlign: 'right' }}>
-                {order.time}
+
+              {/* Flag */}
+              <span style={{ fontSize: 16, minWidth: 22, textAlign: 'center' as const }}>{o.flag}</span>
+
+              {/* Time */}
+              <span style={{
+                fontSize: 11, color: C.muted,
+                minWidth: isMobile ? 46 : 56, textAlign: 'right' as const,
+              }}>
+                {o.time}
               </span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Withdrawal section */}
-      <div style={{ padding: isMobile ? '0 16px 32px' : '0 32px 40px' }}>
+      {/* ── Connect store CTA ── */}
+      <div style={{ padding: `16px ${px}px 0` }}>
         <div style={{
-          background: '#141414',
-          border: '1px solid rgba(212,175,55,0.2)',
-          borderRadius: 12,
-          padding: isMobile ? '24px 16px' : '28px 24px',
+          background: 'linear-gradient(135deg, #0d1526 0%, #1a1040 100%)',
+          border: `1px solid ${C.borderGlow}`,
+          borderRadius: 20,
+          padding: isMobile ? '24px 18px' : '28px 24px',
           textAlign: 'center',
+          position: 'relative' as const, overflow: 'hidden' as const,
         }}>
-          <div style={{ fontSize: 12, color: '#52525b', marginBottom: 6 }}>Available Balance</div>
-          <div style={{ fontSize: 28, fontWeight: 800, color: gold, fontFamily: bricolage, marginBottom: 16 }}>
-            $12,847.50
+          <div style={{
+            position: 'absolute' as const, top: -20, right: -20, width: 120, height: 120,
+            background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)',
+            pointerEvents: 'none' as const,
+          }} />
+          <Zap size={28} color={C.indigo} style={{ marginBottom: 12 }} />
+          <div style={{ fontSize: 16, fontWeight: 700, color: C.white, marginBottom: 6 }}>Connect your store</div>
+          <div style={{ fontSize: 13, color: C.muted, marginBottom: 20, lineHeight: 1.5 }}>
+            Link your Shopify store to replace demo data with your real orders and revenue.
           </div>
           <button
-            onClick={() => alert('Withdrawal requests coming soon \u00B7 Connect your Shopify store to enable payouts')}
+            onClick={() => navigate('/app/store-builder')}
             style={{
-              padding: '14px 32px',
-              borderRadius: 8,
-              border: 'none',
-              background: gold,
-              color: '#0A0A0A',
-              fontSize: 14,
-              fontWeight: 700,
-              cursor: 'pointer',
-              fontFamily: syne,
-              marginBottom: 12,
-              transition: 'transform 150ms ease',
+              padding: '13px 28px', borderRadius: 12, border: 'none',
+              background: C.indigo, color: '#fff',
+              fontSize: 14, fontWeight: 700, cursor: 'pointer',
+              fontFamily: brico, letterSpacing: '-0.01em',
+              boxShadow: '0 4px 20px rgba(99,102,241,0.3)',
             }}
-            onMouseEnter={(e) => { (e.target as HTMLElement).style.transform = 'scale(1.02)'; }}
-            onMouseLeave={(e) => { (e.target as HTMLElement).style.transform = 'scale(1)'; }}
           >
-            Request Withdrawal
+            Connect Shopify →
           </button>
-          <div style={{ fontSize: 11, color: '#52525b' }}>
-            Withdrawals processed within 2-3 business days
+        </div>
+      </div>
+
+      {/* ── Withdrawal ── */}
+      <div style={{ padding: `16px ${px}px 0` }}>
+        <div style={{
+          background: C.surface, border: `1px solid ${C.border}`,
+          borderRadius: 20, padding: isMobile ? '22px 16px' : '26px 24px',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' as const, gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 12, color: C.muted, marginBottom: 4 }}>Available to withdraw</div>
+              <div style={{ fontSize: isMobile ? 28 : 34, fontWeight: 900, fontFamily: brico, color: C.white }}>
+                $12,847.50
+              </div>
+              <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>Processed within 2-3 business days</div>
+            </div>
+            <button
+              onClick={() => alert('Withdrawal requests coming soon · Connect your Shopify store to enable payouts')}
+              style={{
+                padding: '14px 24px', borderRadius: 12, border: 'none',
+                background: C.greenBg, border: `1px solid rgba(34,197,94,0.25)` as unknown as undefined,
+                color: C.green, fontSize: 14, fontWeight: 700,
+                cursor: 'pointer', fontFamily: brico,
+                display: 'flex', alignItems: 'center', gap: 6,
+              } as React.CSSProperties}
+            >
+              <DollarSign size={16} />
+              Request Withdrawal
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Keyframe animation for toast */}
-      <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(-8px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }`}</style>
+      <div style={{ height: 24 }} />
     </div>
   );
 }
