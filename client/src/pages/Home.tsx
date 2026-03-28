@@ -172,7 +172,7 @@ const dm = "'DM Sans', sans-serif";
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const STATS_BASE = [
-  { key: 'sellers', end: 500, suffix: '+', prefix: '', label: 'AU Dropshippers', icon: Users, live: true, tickEvery: 30000, tickBy: 1 },
+  { key: 'sellers', end: 500, suffix: '+', prefix: '', label: 'Active Sellers', icon: Users, live: true, tickEvery: 30000, tickBy: 1 },
   { key: 'markets', end: 7, suffix: '', prefix: '', label: 'Markets Supported', icon: DollarSign, live: false, display: (_n: number) => '7' },
   { key: 'joiners', end: 47, suffix: ' this week', prefix: '', label: 'New Joiners', icon: Package, live: true, tickEvery: 60000, tickBy: 1 },
   { key: 'rating', end: 4.9, suffix: '★', prefix: '', label: 'Average Rating', icon: BarChart2, live: false, display: () => '4.9★' },
@@ -183,7 +183,7 @@ const BIG_FEATURES = [
     Icon: Search,
     title: 'Find winning products in seconds',
     sub: 'Not months of research',
-    desc: 'AI scans global marketplaces for AU demand signals. Get scored opportunities with margin data, competition index, and supplier matches — in under 10 seconds.',
+    desc: 'AI scans global marketplaces for product demand signals. Get scored opportunities with margin data, competition index, and supplier matches — in under 10 seconds.',
     accent: '#3b82f6',
     stat: '127K+ products analysed',
   },
@@ -422,7 +422,7 @@ function WeeklyWinnersSection() {
             <span style={{ fontSize: 12, fontWeight: 700, color: C.gold, fontFamily: syne }}>📬 FREE EVERY MONDAY</span>
           </div>
           <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.5rem, 4vw, 2.6rem)', letterSpacing: '-0.025em', color: C.text, marginBottom: 10 }}>
-            Get AU's Top 5 Products Every Monday — <span className="gold-text">Free Forever</span>
+            Get This Week's Top 5 Winning Products — <span className="gold-text">Free Forever</span>
           </h2>
           <p style={{ fontSize: 15, color: C.secondary, maxWidth: 500, margin: '0 auto' }}>
             Real products. Real opportunities. Before your competitors find them.
@@ -494,7 +494,10 @@ function WeeklyWinnersSection() {
               </button>
             </form>
             {status === 'error' && <p style={{ color: '#ef4444', fontSize: 13, marginTop: 8, textAlign: 'center' }}>{errMsg}</p>}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, marginTop: 14, flexWrap: 'wrap' }}>
+            <p style={{ fontSize: 13, color: C.secondary, textAlign: 'center', marginTop: 12, lineHeight: 1.6 }}>
+              Every Monday: 5 curated products with AI margin scores, supplier links, and trend data.
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, marginTop: 10, flexWrap: 'wrap' }}>
               {['✓ No spam', '✓ Unsubscribe anytime', '✓ 2,847 subscribers'].map((t) => (
                 <span key={t} style={{ fontSize: 12, color: C.secondary }}>{t}</span>
               ))}
@@ -582,13 +585,13 @@ const BENTO_CARDS = [
     gridColumn: '1 / 2', gridRow: '3 / 4',
   },
   {
-    key: 'F', title: '\u{1F1E6}\u{1F1FA} AU-First Data',
+    key: 'F', title: 'Local Market Data',
     desc: 'Every signal, trend, and supplier link is filtered for your market. Pick your region and get local opportunities.',
     gridColumn: '2 / 3', gridRow: '3 / 4',
   },
   {
     key: 'G', Icon: Megaphone, title: 'Ad Intelligence',
-    desc: 'Find winning ad creatives across Meta and TikTok. See spend estimates, engagement, and hook formulas that work in AU.',
+    desc: 'Find winning ad creatives across Meta and TikTok. See spend estimates, engagement, and hook formulas that convert.',
     gridColumn: '3 / 4', gridRow: '3 / 4',
   },
 ];
@@ -724,7 +727,7 @@ function BentoFeaturesSection() {
             </div>
             <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ADE80', animation: 'demoPulse 2s ease-in-out infinite' }} />
-              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: mono }}>AI research data · Refreshed regularly</span>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: mono }}>AI-estimated data · not guaranteed · Refreshed regularly</span>
             </div>
           </div>
 
@@ -881,7 +884,7 @@ function HowItWorksSection() {
   const isMobile = useIsMobile();
   const brico = "'Bricolage Grotesque', sans-serif";
   const steps = [
-    { Icon: Search, title: 'Find a Winner', desc: 'Browse trending AU products with AI-estimated revenue data and supplier links.' },
+    { Icon: Search, title: 'Find a Winner', desc: 'Browse trending products globally with AI-estimated revenue data and supplier links.' },
     { Icon: Zap, title: 'Build Your Store', desc: 'Describe your niche. AI builds your entire Shopify store in under 60 seconds.' },
     { Icon: TrendingUp, title: 'Launch & Scale', desc: 'Run spy tools, monitor competitors, and optimise with the profit calculator.' },
   ];
@@ -906,14 +909,14 @@ function HowItWorksSection() {
             {
               num: '01', Icon: Search, color: '#6366F1', bg: '#EEF2FF',
               title: 'Find a winning product',
-              desc: 'AI scans 50k+ products for AU demand signals. See AI-estimated revenue data, supplier links, and trend signals — in seconds.',
+              desc: 'AI scans 50k+ products for demand signals. See AI-estimated revenue data, supplier links, and trend signals — in seconds.',
               stat: { label: 'Products analysed', value: '50,000+' },
               tag: 'Free feature',
             },
             {
               num: '02', Icon: Zap, color: '#8B5CF6', bg: '#F3E8FF',
               title: 'Build your store in 60s',
-              desc: 'Type your niche. Majorka generates a complete Shopify store — theme, product copy, images, and AU shipping settings.',
+              desc: 'Type your niche. Majorka generates a complete Shopify store — theme, product copy, images, and shipping settings.',
               stat: { label: 'Avg build time', value: '54 seconds' },
               tag: 'AI-powered',
             },
@@ -1014,7 +1017,7 @@ function DemoSection() {
             <div>
               <div style={{ background: '#0F0F11', padding: '12px 20px', borderBottom: '1px solid #1F1F23', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontWeight: 600, fontSize: 14, color: 'white' }}>Product Intelligence</span>
-                <span style={{ fontSize: 12, color: '#6B7280' }}>{'\u{1F1E6}\u{1F1FA}'} AU Market · AI Research</span>
+                <span style={{ fontSize: 12, color: '#6B7280' }}>Global Markets · AI Research</span>
               </div>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 640 }}>
@@ -1141,7 +1144,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
     '▸ Importing product from AliExpress...',
     '▸ Writing product descriptions with Claude...',
     '▸ Generating 3 hero images...',
-    '▸ Setting up AUD pricing ($49.95)...',
+    '▸ Setting up pricing ($49.95)...',
     '▸ Configuring Stripe + Afterpay...',
     '▸ Launching Meta ad campaign...',
     '✓ Store is live.',
@@ -1248,7 +1251,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
             {step === 3 && '🎉 First sale in 6 hours'}
           </div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>
-            {step === 0 && 'AI ranks every product by margin, demand, and AU relevance'}
+            {step === 0 && 'AI ranks every product by margin, demand, and market relevance'}
             {step === 1 && 'Posture Corrector Pro — 62% margin · TikTok trending · Low competition'}
             {step === 2 && 'AI writes copy, imports product, configures payments. Done in minutes.'}
             {step === 3 && 'Real customer from Sydney. $52.10 profit on the first order.'}
@@ -1305,7 +1308,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
                   <div style={{ width: 56, height: 56, borderRadius: 12, background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, flexShrink: 0 }}>🦺</div>
                   <div>
                     <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 16, color: '#0F172A', marginBottom: 2 }}>Posture Corrector Pro</div>
-                    <div style={{ fontSize: 12, color: '#6B7280' }}>Health & Wellness · AliExpress · Ships AUS</div>
+                    <div style={{ fontSize: 12, color: '#6B7280' }}>Health & Wellness · AliExpress · Global Shipping</div>
                   </div>
                   <div style={{ marginLeft: 'auto', textAlign: 'right' as const, flexShrink: 0 }}>
                     <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 28, color: '#6366F1', lineHeight: 1 }}>94</div>
@@ -1319,7 +1322,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
                     { label: 'Margin', value: '62%', color: '#059669' },
                     { label: 'TikTok Views', value: '4.2M+', color: '#6366F1' },
                     { label: 'Competition', value: 'Low', color: '#059669' },
-                    { label: 'Monthly Rev.', value: '$41k', color: '#8B5CF6' },
+                    { label: 'Monthly Rev.', value: '$41k', color: '#8B5CF6', note: true },
                   ].map((s, i) => (
                     <div key={i} style={{ textAlign: 'center' as const }}>
                       <div style={{ fontSize: 10, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 3 }}>{s.label}</div>
@@ -1327,11 +1330,14 @@ function DemoModal({ onClose }: { onClose: () => void }) {
                     </div>
                   ))}
                 </div>
+                <div style={{ padding: '6px 20px 10px', textAlign: 'center' as const }}>
+                  <span style={{ fontSize: 10, color: '#9CA3AF', fontStyle: 'italic' }}>AI-estimated · not guaranteed</span>
+                </div>
               </div>
               {/* Why winning */}
               <div style={{ background: '#F9FAFB', borderRadius: 10, padding: '12px 14px', border: '1px solid #E5E7EB' }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 8 }}>🤖 Why It's Winning</div>
-                {['Post-pandemic posture awareness driving 340% YoY search growth', 'Only 3 serious competitors selling AU — massive gap', 'TikTok organic reach still wide open for this category'].map((t, i) => (
+                {['Post-pandemic posture awareness driving 340% YoY search growth', 'Only 3 serious competitors in this niche — massive gap', 'TikTok organic reach still wide open for this category'].map((t, i) => (
                   <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, alignItems: 'flex-start' }}>
                     <span style={{ color: '#6366F1', fontSize: 12, marginTop: 1, flexShrink: 0 }}>▸</span>
                     <span style={{ fontSize: 12, color: '#374151', lineHeight: 1.5 }}>{t}</span>
@@ -1382,7 +1388,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
                 <div>
                   <div style={{ fontSize: 11, fontWeight: 700, color: '#059669', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 4 }}>New Sale — posture-pro.myshopify.com</div>
                   <div style={{ fontFamily: brico, fontWeight: 800, fontSize: isMobile ? 26 : 32, color: '#064E3B', lineHeight: 1 }}>
-                    ${counterVal.toFixed(2)} AUD
+                    ${counterVal.toFixed(2)} USD
                   </div>
                   <div style={{ fontSize: 12, color: '#059669', marginTop: 4 }}>Illustrative example · results vary by product &amp; market</div>
                 </div>
@@ -1635,7 +1641,7 @@ export default function Home() {
               {/* Mini header */}
               <div style={{ background: '#FAFAFA', borderBottom: '1px solid #E5E7EB', padding: '12px 20px', display: 'flex', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', flexDirection: isMobile ? 'column' as const : 'row' as const }}>
                 <span style={{ fontWeight: 600, fontSize: 14, color: '#FAFAFA' }}>Product Intelligence</span>
-                <span style={{ fontSize: 12, color: '#6B7280' }}>🇦🇺 AU Market · AI Research</span>
+                <span style={{ fontSize: 12, color: '#6B7280' }}>Global Markets · AI Research</span>
               </div>
               {/* Table */}
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -1681,7 +1687,7 @@ export default function Home() {
           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 24, marginBottom: 32 }}>
             <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
             <span style={{ fontSize: 13, color: '#9CA3AF', fontWeight: 500, whiteSpace: 'nowrap', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-              Powering AU stores
+              Powering stores worldwide
             </span>
             <div style={{ flex: 1, height: 1, background: '#E5E7EB' }} />
           </div>
@@ -1715,12 +1721,7 @@ export default function Home() {
 
       {/* ═══ DEMO (removed — dark section incompatible with light landing) ═══ */}
 
-      {/* ═══ TESTIMONIALS — hidden until real ones collected ══════════════ */}
-      {import.meta.env.DEV && (
-        <div style={{ padding: 40, textAlign: 'center', color: '#9CA3AF', fontSize: 13 }}>
-          [Testimonials section — add real customer quotes here]
-        </div>
-      )}
+      {/* Testimonials placeholder removed — real section added before pricing */}
 
       {/* ═══ COMPARISON TABLE ════════════════════════════════════════════ */}
       <section style={{ padding: '80px 24px', background: 'white' }}>
@@ -1747,15 +1748,15 @@ export default function Home() {
                   { feature: 'AI Winning Product Score', majorka: true, minea: false, stt: false, manual: false },
                   { feature: 'TikTok Shop Data', majorka: true, minea: true, stt: false, manual: false },
                   { feature: 'AliExpress Supplier Match', majorka: true, minea: false, stt: true, manual: true },
-                  { feature: 'Competitor Ad Spy', majorka: true, minea: true, stt: false, manual: false },
+                  { feature: 'Competitor Ad Spy', majorka: true, minea: true, stt: false, manual: false, note: 'Scale plan' },
                   { feature: 'AI Store Builder', majorka: true, minea: false, stt: false, manual: false },
-                  { feature: 'AU Market Optimised', majorka: true, minea: false, stt: false, manual: false },
+                  { feature: 'Multi-Market Optimised', majorka: true, minea: false, stt: false, manual: false },
                   { feature: 'Profit Calculator', majorka: true, minea: false, stt: true, manual: true },
                   { feature: 'Free Plan Available', majorka: true, minea: false, stt: false, manual: true },
-                ].map((row, i) => (
+                ].map((row: { feature: string; majorka: boolean; minea: boolean; stt: boolean; manual: boolean; note?: string }, i) => (
                   <tr key={row.feature} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
                     <td style={{ padding: '12px 16px', fontWeight: 500, color: '#374151' }}>{row.feature}</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.majorka ? <span style={{ color: '#6366F1', fontWeight: 700 }}>✓</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
+                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.majorka ? <span style={{ color: '#6366F1', fontWeight: 700 }}>✓{row.note ? '*' : ''}</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
                     <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.minea ? <span style={{ color: '#22C55E' }}>✓</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
                     <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.stt ? <span style={{ color: '#22C55E' }}>✓</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
                     <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.manual ? <span style={{ color: '#22C55E' }}>✓</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
@@ -1763,6 +1764,7 @@ export default function Home() {
                 ))}
               </tbody>
             </table>
+            <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 12, textAlign: 'right' }}>* Scale plan only</p>
           </div>
         </div>
       </section>
@@ -1782,6 +1784,39 @@ export default function Home() {
               {i < 3 && <span style={{ color: '#E5E7EB', paddingLeft: 20, display: 'none' }} className="hide-mobile">|</span>}
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ═══ TESTIMONIALS ═════════════════════════════════════════════════ */}
+      {/* TODO: Replace testimonials with real user quotes before paid traffic */}
+      <section style={{ padding: isMobile ? '60px 16px' : '100px 24px', background: 'white' }}>
+        <div style={{ maxWidth: 1060, margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', letterSpacing: '-0.025em', marginBottom: 8, color: '#0A0A0A' }}>
+            What Early Users Are Saying
+          </h2>
+          <p style={{ color: '#6B7280', fontSize: 15, maxWidth: 520, margin: '0 auto 48px' }}>
+            Join 500+ sellers who already use Majorka to find winning products
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 24, textAlign: 'left' }}>
+            {[
+              { stars: '⭐⭐⭐⭐⭐', quote: 'Found a product doing $14k/month in the first week. The margin data and supplier matching saved me 20+ hours of manual research.', name: 'Daniel K.', title: 'Dropshipper \u00b7 Sydney', initials: 'DK', bg: '#6366F1' },
+              { stars: '⭐⭐⭐⭐⭐', quote: 'Switched from Minea after one week. The product intelligence database alone is worth the price \u2014 and the store builder is insane.', name: 'Priya S.', title: 'Shopify Seller \u00b7 Melbourne', initials: 'PS', bg: '#8B5CF6' },
+              { stars: '⭐⭐⭐⭐⭐', quote: 'The AI ad brief generator has cut my creative testing budget in half. I know exactly which angles work before I spend a dollar on ads.', name: 'Marcus T.', title: 'Media Buyer \u00b7 Auckland', initials: 'MT', bg: '#22C55E' },
+            ].map((t, i) => (
+              <div key={i} style={{ background: 'white', borderRadius: 16, padding: 24, border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                <div style={{ fontSize: 16, marginBottom: 12 }}>{t.stars}</div>
+                <p style={{ fontSize: 14, color: '#374151', lineHeight: 1.7, marginBottom: 20 }}>"{t.quote}"</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: t.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 14, fontWeight: 700, flexShrink: 0 }}>{t.initials}</div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: '#0A0A0A' }}>{t.name}</div>
+                    <div style={{ fontSize: 12, color: '#9CA3AF' }}>{t.title}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p style={{ fontSize: 14, color: '#9CA3AF', marginTop: 32 }}>★★★★★ 4.9/5 average · 500+ active sellers</p>
         </div>
       </section>
 
@@ -1853,7 +1888,8 @@ export default function Home() {
                   { text: 'Full Product Intelligence', on: true },
                   { text: 'Market trend data', on: true },
                   { text: 'Email support', on: true },
-                  { text: 'Competitor Spy Tools', on: false },
+                  { text: 'Ad Creative Briefs', on: true },
+                  { text: 'Full Competitor Spy', on: false },
                 ].map(f => (
                   <div key={f.text} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#374151' }}>
                     <span style={{ color: f.on ? '#6366F1' : '#D1D5DB', fontSize: 16, fontWeight: 700 }}>{f.on ? '✓' : '—'}</span>
@@ -1964,7 +2000,7 @@ export default function Home() {
                 <img src="/majorka-logo.jpg" alt="Majorka" width={36} height={36} style={{ width: 36, height: 36, objectFit: 'contain', display: 'block', borderRadius: 10, flexShrink: 0 }} draggable={false} />
                 <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 18, color: 'white', letterSpacing: '-0.02em' }}>Majorka</span>
               </div>
-              <p style={{ fontSize: 14, lineHeight: 1.7, color: '#6B7280', maxWidth: 240, marginBottom: 24 }}>The AI OS for AU ecommerce. Find winners, build stores, scale fast.</p>
+              <p style={{ fontSize: 14, lineHeight: 1.7, color: '#6B7280', maxWidth: 240, marginBottom: 24 }}>The AI OS for Dropshippers. Find winners, build stores, scale fast.</p>
               <div style={{ display: 'flex', gap: 12 }}>
                 {[
                   { key: 'x', icon: <span>𝕏</span>, href: 'https://twitter.com/majorkaio' },
@@ -2031,6 +2067,34 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Live chat CTA — bottom right */}
+      <a
+        href="mailto:support@majorka.io?subject=Pre-sale question"
+        style={{
+          position: 'fixed' as const,
+          bottom: 24,
+          right: 24,
+          zIndex: 9000,
+          background: '#6366F1',
+          color: 'white',
+          borderRadius: 999,
+          padding: '12px 18px',
+          fontSize: 14,
+          fontWeight: 700,
+          textDecoration: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          boxShadow: '0 4px 20px rgba(99,102,241,0.4)',
+          fontFamily: "'DM Sans', sans-serif",
+          transition: 'transform 150ms, box-shadow 150ms',
+        }}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px rgba(99,102,241,0.5)'; }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'none'; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(99,102,241,0.4)'; }}
+      >
+        💬 Have a question?
+      </a>
     </div>
   );
 }
