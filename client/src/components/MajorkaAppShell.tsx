@@ -390,9 +390,9 @@ export default function MajorkaAppShell({ children }: Props) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
-      return (localStorage.getItem('majorka-theme') as 'light' | 'dark') || 'light';
+      return (localStorage.getItem('majorka-theme') as 'light' | 'dark') || 'dark';
     }
-    return 'light';
+    return 'dark';
   });
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -625,7 +625,7 @@ export default function MajorkaAppShell({ children }: Props) {
       {/* Logo */}
       <div
         className="flex items-center gap-2.5 px-3 flex-shrink-0"
-        style={{ borderBottom: '1px solid #F0F0F0', height: 64 }}
+        style={{ borderBottom: '1px solid var(--sidebar-border, rgba(255,255,255,0.07))', height: 64 }}
       >
         <button
           onClick={() => setLocation('/app')}
@@ -1182,7 +1182,7 @@ export default function MajorkaAppShell({ children }: Props) {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto overflow-x-auto pb-16 lg:pb-0 dashboard-bg" style={{ background: theme === 'dark' ? '#0F1117' : undefined, color: theme === 'dark' ? '#F1F5F9' : undefined }}>{children}</div>
+        <div className="flex-1 overflow-y-auto overflow-x-auto pb-16 lg:pb-0 dashboard-bg" style={{ background: theme === 'dark' ? '#060A12' : '#F9FAFB', color: theme === 'dark' ? '#F1F5F9' : undefined }}>{children}</div>
 
         {/* Mobile bottom tab bar — dark premium theme */}
         <nav
