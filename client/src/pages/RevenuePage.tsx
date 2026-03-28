@@ -470,19 +470,31 @@ export default function RevenuePage() {
               </div>
               <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>Processed within 2-3 business days</div>
             </div>
-            <button
-              onClick={() => alert('Withdrawal requests coming soon · Connect your Shopify store to enable payouts')}
-              style={{
-                padding: '14px 24px', borderRadius: 12, border: 'none',
-                background: C.greenBg, border: `1px solid rgba(34,197,94,0.25)` as unknown as undefined,
-                color: C.green, fontSize: 14, fontWeight: 700,
-                cursor: 'pointer', fontFamily: brico,
-                display: 'flex', alignItems: 'center', gap: 6,
-              } as React.CSSProperties}
-            >
-              <DollarSign size={16} />
-              Request Withdrawal
-            </button>
+            <div style={{ position: 'relative' as const, display: 'inline-block' }}>
+              <button
+                disabled
+                title="Connect your Shopify store to enable withdrawals"
+                style={{
+                  padding: '14px 24px', borderRadius: 12,
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: 'rgba(255,255,255,0.04)',
+                  color: C.muted, fontSize: 14, fontWeight: 700,
+                  cursor: 'not-allowed', fontFamily: brico,
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  opacity: 0.55,
+                }}
+              >
+                <DollarSign size={16} />
+                Request Withdrawal
+              </button>
+              <span style={{
+                position: 'absolute' as const, bottom: -22, left: '50%',
+                transform: 'translateX(-50%)',
+                fontSize: 10, color: C.muted, whiteSpace: 'nowrap' as const,
+              }}>
+                Connect Shopify to enable
+              </span>
+            </div>
           </div>
         </div>
       </div>
