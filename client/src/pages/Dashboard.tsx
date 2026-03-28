@@ -258,10 +258,10 @@ function PersonalisedFeed() {
 
   return (
     <div style={{
-      background: '#0E1420',
-      border: '1px solid rgba(255,255,255,.06)',
+      background: 'white',
+      border: '1px solid #F0F0F0',
       borderRadius: 16, padding: 20, marginBottom: 24,
-      boxShadow: 'none'
+      boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <h3 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 15, fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
@@ -271,10 +271,10 @@ function PersonalisedFeed() {
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {products.map((p, i) => (
-          <div key={String(p.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: 'rgba(255,255,255,.03)', borderRadius: 8 }}>
+          <div key={String(p.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', background: '#F9FAFB', borderRadius: 8 }}>
             <span style={{ fontSize: 11, color: '#6B7280', width: 20 }}>#{i+1}</span>
             <ProductImage src={p.image_url ? String(p.image_url) : undefined} alt="" size={32} />
-            <span style={{ flex: 1, fontSize: 13, color: '#F1F5F9', fontWeight: 500 }}>{String(p.product_title ?? '')}</span>
+            <span style={{ flex: 1, fontSize: 13, color: '#0A0A0A', fontWeight: 500 }}>{String(p.product_title ?? '')}</span>
             <span style={{ fontSize: 13, fontWeight: 700, color: '#6366F1' }}>
               ${Math.round((Number(p.est_daily_revenue_aud) || 0) * 30 / 1000)}k/mo
             </span>
@@ -391,7 +391,7 @@ function MiniSparkSvg({ data, color = '#22c55e' }: { data: number[]; color?: str
 function SalesTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,.07)', borderRadius: 8, padding: '8px 12px', fontFamily: UI, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+    <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, padding: '8px 12px', fontFamily: UI, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
       <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 2 }}>{label}</div>
       <div style={{ fontSize: 14, fontWeight: 600, color: '#6366F1' }}>${payload[0].value.toLocaleString()}</div>
     </div>
@@ -432,7 +432,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
         <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
           Sales Overview
         </span>
-        <div style={{ display: 'flex', gap: 3, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.07)', borderRadius: 8, padding: 3 }}>
+        <div style={{ display: 'flex', gap: 3, background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: 3 }}>
           {RANGE_OPTIONS.map((r) => (
             <button key={r.key} onClick={() => setRange(r.key)} style={{
               padding: '4px 11px', borderRadius: 6, border: 'none', cursor: 'pointer',
@@ -450,7 +450,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       {/* KPI row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" style={{ marginBottom: 12 }}>
         {kpiCards.map((k) => (
-          <div key={k.label} style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,.07)', borderRadius: 12, padding: '14px 16px', boxShadow: 'none' }}>
+          <div key={k.label} style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 9 }}>
               <k.icon size={12} style={{ color: '#9CA3AF' }} />
               <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 500, letterSpacing: '0.01em' }}>{k.label}</span>
@@ -469,7 +469,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       </div>
 
       {/* Revenue area chart */}
-      <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,.07)', borderRadius: 14, padding: '18px 14px 10px', marginBottom: 12, boxShadow: 'none' }}>
+      <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '18px 14px 10px', marginBottom: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
         <div style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', marginBottom: 12, fontFamily: "'Bricolage Grotesque', sans-serif", letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>Revenue</div>
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
@@ -489,7 +489,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       </div>
 
       {/* Top Products */}
-      <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,.07)', borderRadius: 14, padding: '18px 20px', marginBottom: 12, boxShadow: 'none' }}>
+      <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '18px 20px', marginBottom: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Top Products</span>
           <a href="/app/winning-products" style={{ fontSize: 12, color: '#6366F1', textDecoration: 'none', fontWeight: 500 }}>View all →</a>
@@ -497,7 +497,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,.06)' }}>
+              <tr style={{ borderBottom: '1px solid #F0F0F0' }}>
                 {['#', 'Product', 'Category', 'Units Sold', 'Revenue', 'vs last period'].map((h) => (
                   <th key={h} style={{ padding: '6px 10px', textAlign: h === 'Units Sold' || h === 'Revenue' ? 'right' as const : 'left' as const, color: '#9CA3AF', fontWeight: 600, fontSize: 10, letterSpacing: '0.07em', textTransform: 'uppercase' as const, fontFamily: UI, whiteSpace: 'nowrap' as const }}>
                     {h}
@@ -509,14 +509,14 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
               {DEMO_PRODUCTS.map((p, i) => {
                 const cc = CAT_CFG[p.cat] ?? { bg: 'rgba(113,113,122,0.12)', text: '#6B7280' };
                 return (
-                  <tr key={p.rank} style={{ borderBottom: '1px solid rgba(255,255,255,.03)' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,.04)')}
+                  <tr key={p.rank} style={{ borderBottom: '1px solid #F9FAFB' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFA')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                     <td style={{ padding: '9px 10px', color: '#6B7280', fontSize: 12, fontWeight: 600, fontVariantNumeric: 'tabular-nums', width: 28 }}>{i + 1}</td>
                     <td style={{ padding: '9px 10px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ fontSize: 16, lineHeight: 1 }}>{p.emoji}</span>
-                        <span style={{ fontSize: 13, color: '#CBD5E1', fontWeight: 500, whiteSpace: 'nowrap' as const }}>{p.name}</span>
+                        <span style={{ fontSize: 13, color: '#374151', fontWeight: 500, whiteSpace: 'nowrap' as const }}>{p.name}</span>
                       </div>
                     </td>
                     <td style={{ padding: '9px 10px' }}>
@@ -538,7 +538,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
       </div>
 
       {/* Recent Orders */}
-      <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,.07)', borderRadius: 14, padding: '18px 20px', boxShadow: 'none' }}>
+      <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 14, padding: '18px 20px', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Recent Orders</span>
           <span style={{ fontSize: 11, color: '#9CA3AF' }}>Updated just now</span>
@@ -548,7 +548,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
             const sc = STATUS_CFG[o.status];
             return (
               <div key={o.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 4px', borderRadius: 8, transition: 'background 0.1s' }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,.04)')}
+                onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFA')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}>
                 {/* Avatar */}
                 <div style={{ width: 30, height: 30, borderRadius: '50%', background: o.color + '22', border: `1px solid ${o.color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -557,7 +557,7 @@ function SalesOverview({ orderCount }: { orderCount: number }) {
                 {/* Name + product */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: '#CBD5E1' }}>{o.customer}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>{o.customer}</span>
                     <span style={{ fontSize: 11, color: '#6B7280', fontWeight: 400 }}>{o.id}</span>
                   </div>
                   <span style={{ fontSize: 11, color: '#6B7280', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{o.product}</span>
@@ -638,7 +638,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
   const getScoreTier = (score: number) => {
     if (score >= 80) return { bg: '#DCFCE7', color: '#059669', label: '🔥 Hot' };
     if (score >= 60) return { bg: '#FEF9C3', color: '#D97706', label: '📈 Rising' };
-    return { bg: 'rgba(255,255,255,.08)', color: '#6B7280', label: '' };
+    return { bg: '#F3F4F6', color: '#6B7280', label: '' };
   };
 
   return (
@@ -652,9 +652,9 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
       </div>
 
       {leaderboardLoading ? (
-        <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,.06)', borderRadius: 14, overflow: 'hidden', boxShadow: 'none' }}>
+        <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: i < 4 ? '1px solid rgba(255,255,255,.03)' : 'none' }}>
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderBottom: i < 4 ? '1px solid #F9FAFB' : 'none' }}>
               <div style={{ width: 24, height: 14, borderRadius: 4, background: 'linear-gradient(90deg, rgba(255,255,255,.06) 25%, rgba(255,255,255,.10) 50%, rgba(255,255,255,.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
               <div style={{ width: 36, height: 36, borderRadius: 6, background: 'linear-gradient(90deg, rgba(255,255,255,.06) 25%, rgba(255,255,255,.10) 50%, rgba(255,255,255,.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite', flexShrink: 0 }} />
               <div style={{ flex: 1 }}>
@@ -665,7 +665,7 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
           ))}
         </div>
       ) : leaderboard.length === 0 ? (
-        <div style={{ padding: '24px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 13, background: '#0E1420', border: '1px solid rgba(255,255,255,.06)', borderRadius: 14 }}>
+        <div style={{ padding: '24px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 13, background: 'white', border: '1px solid #F0F0F0', borderRadius: 14 }}>
           Product leaderboard loading...
         </div>
       ) : isMobile ? (
@@ -675,16 +675,16 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
             const score = p.winning_score ?? 0;
             const tier = getScoreTier(score);
             return (
-              <div key={p.id} onClick={() => setLocation('/app/intelligence')} style={{ flexShrink: 0, width: 160, background: '#0E1420', border: '1px solid rgba(255,255,255,.06)', borderRadius: 12, padding: 12, cursor: 'pointer' }}>
+              <div key={p.id} onClick={() => setLocation('/app/intelligence')} style={{ flexShrink: 0, width: 160, background: 'white', border: '1px solid #F0F0F0', borderRadius: 12, padding: 12, cursor: 'pointer' }}>
                 <div style={{ marginBottom: 8 }}>{getRankDisplay(i)}</div>
                 {p.image_url ? (
-                  <img src={p.image_url} alt="" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover' as const, marginBottom: 8, border: '1px solid rgba(255,255,255,.07)' }} onError={e => { e.currentTarget.style.display = 'none'; }} />
+                  <img src={p.image_url} alt="" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover' as const, marginBottom: 8, border: '1px solid #E5E7EB' }} onError={e => { e.currentTarget.style.display = 'none'; }} />
                 ) : (
                   <div style={{ width: 40, height: 40, borderRadius: 6, background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#6366F1', marginBottom: 8 }}>
                     {(p.product_title || 'P').charAt(0)}
                   </div>
                 )}
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#F1F5F9', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, marginBottom: 6, lineHeight: 1.4 }}>{p.product_title}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#0A0A0A', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, marginBottom: 6, lineHeight: 1.4 }}>{p.product_title}</div>
                 <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 12, background: tier.bg, color: tier.color }}>{score}/100</span>
               </div>
             );
@@ -692,10 +692,10 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
         </div>
       ) : (
         /* Desktop: table layout */
-        <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,.06)', borderRadius: 14, overflow: 'hidden', boxShadow: 'none' }}>
+        <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,.06)' }}>
+              <tr style={{ borderBottom: '1px solid #F0F0F0' }}>
                 {['#', 'Product', 'Category', 'Dropship Score', 'Est. Rev/Day', 'Trend', ''].map(h => (
                   <th key={h} style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', padding: '10px 16px', textAlign: 'left' as const, whiteSpace: 'nowrap' as const }}>{h}</th>
                 ))}
@@ -706,24 +706,24 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
                 const score = p.winning_score ?? 0;
                 const tier = getScoreTier(score);
                 const cat = p.category ?? 'General';
-                const catStyle = CATEGORY_COLORS[cat] ?? { bg: 'rgba(255,255,255,.08)', color: '#6B7280' };
+                const catStyle = CATEGORY_COLORS[cat] ?? { bg: '#F3F4F6', color: '#6B7280' };
                 const truncTitle = (p.product_title || '').length > 32 ? (p.product_title || '').slice(0, 32) + '...' : (p.product_title || '');
                 return (
-                  <tr key={p.id} style={{ borderBottom: i < leaderboard.length - 1 ? '1px solid rgba(255,255,255,.03)' : 'none', cursor: 'pointer', transition: 'background 120ms' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,.08)')}
+                  <tr key={p.id} style={{ borderBottom: i < leaderboard.length - 1 ? '1px solid #F9FAFB' : 'none', cursor: 'pointer', transition: 'background 120ms' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#F5F3FF')}
                     onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                     onClick={() => setLocation('/app/intelligence')}>
                     <td style={{ padding: '10px 16px', width: 40 }}>{getRankDisplay(i)}</td>
                     <td style={{ padding: '10px 16px' }}>
                       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                         {p.image_url ? (
-                          <img src={p.image_url} alt="" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover' as const, flexShrink: 0, border: '1px solid rgba(255,255,255,.07)' }} onError={e => { e.currentTarget.style.display = 'none'; }} />
+                          <img src={p.image_url} alt="" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover' as const, flexShrink: 0, border: '1px solid #E5E7EB' }} onError={e => { e.currentTarget.style.display = 'none'; }} />
                         ) : (
                           <div style={{ width: 36, height: 36, borderRadius: 6, background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#6366F1', flexShrink: 0 }}>
                             {(p.product_title || 'P').charAt(0)}
                           </div>
                         )}
-                        <span style={{ fontSize: 13, fontWeight: 600, color: '#F1F5F9' }}>{truncTitle}</span>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: '#0A0A0A' }}>{truncTitle}</span>
                       </div>
                     </td>
                     <td style={{ padding: '10px 16px' }}>
@@ -731,14 +731,14 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
                     </td>
                     <td style={{ padding: '10px 16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div style={{ width: 60, height: 6, background: 'rgba(255,255,255,.08)', borderRadius: 3, overflow: 'hidden' }}>
+                        <div style={{ width: 60, height: 6, background: '#F3F4F6', borderRadius: 3, overflow: 'hidden' }}>
                           <div style={{ height: '100%', width: `${Math.min(100, score)}%`, background: tier.color, borderRadius: 3 }} />
                         </div>
                         <span style={{ fontSize: 13, fontWeight: 700, color: tier.color }}>{score}/100</span>
                         {tier.label && <span style={{ fontSize: 11, color: tier.color }}>{tier.label}</span>}
                       </div>
                     </td>
-                    <td style={{ padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#CBD5E1' }}>
+                    <td style={{ padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#374151' }}>
                       ${p.est_daily_revenue_aud?.toFixed(0) || '—'}
                     </td>
                     <td style={{ padding: '10px 16px' }}>
@@ -826,10 +826,10 @@ function DashboardHome() {
   }, [products]);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#060A12', padding: '0' }}>
+    <div style={{ minHeight: '100vh', background: '#F9FAFB', padding: '0' }}>
 
       {/* ── Page header ──────────────────────────────────────────── */}
-      <div style={{ background: '#0B0F1E', borderBottom: '1px solid rgba(255,255,255,.08)', padding: '28px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+      <div style={{ background: 'white', borderBottom: '1px solid #F0F0F0', padding: '28px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 800, fontSize: 26, color: '#FFFFFF', marginBottom: 4 }}>
             {getGreeting()}, {firstName} <span role="img" aria-label="wave">👋</span>
@@ -844,7 +844,7 @@ function DashboardHome() {
               Upgrade to Builder &rarr;
             </button>
           )}
-          <button onClick={() => setLocation('/app/intelligence')} style={{ height: 38, padding: '0 18px', background: 'rgba(255,255,255,.06)', color: '#CBD5E1', border: '1px solid rgba(255,255,255,.07)', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'transform 150ms' }}
+          <button onClick={() => setLocation('/app/intelligence')} style={{ height: 38, padding: '0 18px', background: '#F9FAFB', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, transition: 'transform 150ms' }}
             onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.02)')}
             onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}>
             <Package size={14} /> Find Products
@@ -864,14 +864,14 @@ function DashboardHome() {
             { label: 'Hot Products', value: products.filter((p: any) => (p.winning_score || 0) >= 80).length || '—', delta: 'Dropship Score 80+', icon: Zap, positive: true, color: '#F59E0B', hero: false, path: '/app/intelligence' },
           ]).map((card, i) => (
             <div key={i} onClick={() => card.path && setLocation(card.path)} style={{
-              background: card.hero ? 'linear-gradient(135deg, #0f2d1f 0%, #0a2318 100%)' : '#0E1420',
-              border: card.hero ? '1.5px solid #6EE7B7' : '1px solid rgba(255,255,255,.06)',
+              background: card.hero ? 'linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%)' : 'white',
+              border: card.hero ? '1.5px solid #6EE7B7' : '1px solid #F0F0F0',
               borderLeft: card.hero ? '4px solid #10B981' : undefined,
               borderRadius: 14,
               padding: '22px 24px',
               cursor: 'pointer',
               transition: 'box-shadow 200ms, border-color 200ms',
-              boxShadow: 'none',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)',
             }}
               onMouseEnter={e => { e.currentTarget.style.boxShadow = card.hero ? '0 4px 20px rgba(16,185,129,0.12)' : '0 4px 16px rgba(99,102,241,0.08)'; }}
               onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; }}
@@ -882,7 +882,7 @@ function DashboardHome() {
                   <card.icon size={16} color={card.color} />
                 </div>
               </div>
-              <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 800, fontSize: card.hero ? 36 : 30, color: card.hero ? '#4ADE80' : '#F1F5F9', lineHeight: 1, marginBottom: 8 }}>{card.value}</div>
+              <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 800, fontSize: card.hero ? 36 : 30, color: card.hero ? '#059669' : '#374151', lineHeight: 1, marginBottom: 8 }}>{card.value}</div>
               <div style={{ fontSize: 12, color: card.positive ? (card.hero ? '#059669' : '#059669') : '#EF4444' }}>&uarr; {card.delta}</div>
             </div>
           ))}
@@ -895,7 +895,7 @@ function DashboardHome() {
         <div className="chart-insight-grid">
 
           {/* Revenue trend chart */}
-          <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,.06)', borderRadius: 14, padding: '24px 28px', boxShadow: 'none' }}>
+          <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px 28px', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div>
                 <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#FFFFFF' }}>Market Revenue Trend</div>
@@ -914,14 +914,14 @@ function DashboardHome() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,.06)" />
                 <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#6B7280' }} axisLine={false} tickLine={false} />
                 <YAxis width={46} tick={{ fill: '#9CA3AF', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${(v/1000).toFixed(1)}k`} />
-                <Tooltip contentStyle={{ background: '#0E1420', border: '1px solid rgba(255,255,255,.07)', borderRadius: 8, fontSize: 12 }} formatter={(v: any) => [`$${(v / 1000).toFixed(1)}k`, 'Revenue']} />
+                <Tooltip contentStyle={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12 }} formatter={(v: any) => [`$${(v / 1000).toFixed(1)}k`, 'Revenue']} />
                 <Area type="monotone" dataKey="rev" stroke="#6366F1" strokeWidth={2.5} fill="url(#indigo-grad)" dot={{ fill: '#6366F1', r: 3 }} activeDot={{ r: 5 }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
 
           {/* Workflow guide */}
-          <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,.06)', borderRadius: 14, padding: '24px', boxShadow: 'none' }}>
+          <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
               <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#FFFFFF' }}>Your Workflow</div>
               <span style={{ fontSize: 11, color: '#6366F1', fontWeight: 600, background: '#EEF2FF', padding: '2px 8px', borderRadius: 20 }}>Click any step →</span>
@@ -936,14 +936,14 @@ function DashboardHome() {
                 { step: '5', icon: Globe, label: 'Build your store', sub: 'Live Shopify store in 60 seconds', path: '/app/store-builder', done: false, color: '#059669' },
               ] as const).map((s, i) => (
                 <button key={i} onClick={() => setLocation(s.path)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 9, background: s.done ? 'rgba(16,185,129,.08)' : 'rgba(255,255,255,.03)', border: `1px solid ${s.done ? 'rgba(16,185,129,.2)' : 'rgba(255,255,255,.06)'}`, borderLeft: `3px solid ${s.done ? '#10B981' : s.color}`, cursor: 'pointer', textAlign: 'left' as const, transition: 'all 150ms' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,.08)'; e.currentTarget.style.borderColor = `${s.color}60`; e.currentTarget.style.borderLeftColor = s.color; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = s.done ? 'rgba(16,185,129,.08)' : 'rgba(255,255,255,.03)'; e.currentTarget.style.borderColor = s.done ? 'rgba(16,185,129,.2)' : 'rgba(255,255,255,.06)'; e.currentTarget.style.borderLeftColor = s.done ? '#10B981' : s.color; }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 9, background: s.done ? 'rgba(16,185,129,.08)' : '#F9FAFB', border: `1px solid ${s.done ? 'rgba(16,185,129,.2)' : '#F0F0F0'}`, borderLeft: `3px solid ${s.done ? '#10B981' : s.color}`, cursor: 'pointer', textAlign: 'left' as const, transition: 'all 150ms' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#F5F3FF'; e.currentTarget.style.borderColor = `${s.color}60`; e.currentTarget.style.borderLeftColor = s.color; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = s.done ? 'rgba(16,185,129,.08)' : '#F9FAFB'; e.currentTarget.style.borderColor = s.done ? 'rgba(16,185,129,.2)' : '#F0F0F0'; e.currentTarget.style.borderLeftColor = s.done ? '#10B981' : s.color; }}>
                   <div style={{ width: 22, height: 22, borderRadius: '50%', background: s.done ? 'rgba(16,185,129,.12)' : `${s.color}15`, border: `1.5px solid ${s.done ? '#10B981' : s.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {s.done ? <span style={{ fontSize: 10, color: '#10B981' }}>✓</span> : <span style={{ fontSize: 9, fontWeight: 700, color: s.color }}>{s.step}</span>}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#F1F5F9', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.label}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#0A0A0A', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.label}</div>
                     <div style={{ fontSize: 10, color: '#9CA3AF' }}>{s.sub}</div>
                   </div>
                   <ArrowRight size={12} color="#D1D5DB" style={{ flexShrink: 0 }} />
@@ -957,15 +957,15 @@ function DashboardHome() {
         <div className="products-ai-grid">
 
           {/* Top products */}
-          <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,.06)', borderRadius: 14, overflow: 'hidden', boxShadow: 'none' }}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid #F0F0F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#FFFFFF' }}>Top Products Today</div>
               <button onClick={() => setLocation('/app/intelligence')} style={{ fontSize: 13, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>View all &rarr;</button>
             </div>
             {loading ? (
               <div style={{ padding: '0 24px' }}>
                 {[1, 2, 3, 4, 5].map(i => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,.03)' }}>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 0', borderBottom: '1px solid #F9FAFB' }}>
                     <div style={{ width: 40, height: 40, borderRadius: 8, background: 'linear-gradient(90deg, rgba(255,255,255,.06) 25%, rgba(255,255,255,.10) 50%, rgba(255,255,255,.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite', flexShrink: 0 }} />
                     <div style={{ flex: 1 }}>
                       <div style={{ height: 13, width: '60%', borderRadius: 4, background: 'linear-gradient(90deg, rgba(255,255,255,.06) 25%, rgba(255,255,255,.10) 50%, rgba(255,255,255,.06) 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite', marginBottom: 6 }} />
@@ -988,25 +988,25 @@ function DashboardHome() {
                   const revenue = p.est_monthly_revenue_aud ?? 0;
                   const margin = p.profit_margin ?? 0;
                   return (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px', borderBottom: i < 4 ? '1px solid rgba(255,255,255,.03)' : 'none', cursor: 'pointer', transition: 'background 150ms' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,.08)')}
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px', borderBottom: i < 4 ? '1px solid #F9FAFB' : 'none', cursor: 'pointer', transition: 'background 150ms' }}
+                      onMouseEnter={e => (e.currentTarget.style.background = '#F5F3FF')}
                       onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                       onClick={() => setLocation('/app/intelligence')}
                     >
                       {p.image_url ? (
-                        <img src={String(p.image_url)} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,.07)', background: 'rgba(255,255,255,.04)' }} onError={e => { e.currentTarget.style.display = 'none'; (e.currentTarget.nextSibling as HTMLElement)?.style && ((e.currentTarget.nextSibling as HTMLElement).style.display = 'flex'); }} />
+                        <img src={String(p.image_url)} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0, border: '1px solid #E5E7EB', background: '#FAFAFA' }} onError={e => { e.currentTarget.style.display = 'none'; (e.currentTarget.nextSibling as HTMLElement)?.style && ((e.currentTarget.nextSibling as HTMLElement).style.display = 'flex'); }} />
                       ) : null}
                       <div style={{ width: 40, height: 40, borderRadius: 8, background: 'linear-gradient(135deg, #EEF2FF, #E0E7FF)', display: p.image_url ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#6366F1', flexShrink: 0 }}>
                         {(p.product_title ?? p.name ?? 'P').charAt(0)}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#F1F5F9', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.product_title ?? p.name}</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: '#0A0A0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.product_title ?? p.name}</div>
                         <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{margin > 0 ? `${margin}% margin · ` : ''}{p.category ?? 'General'}</div>
                       </div>
                       <div style={{ textAlign: 'right' as const, flexShrink: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: '#F1F5F9' }}>${(revenue / 1000).toFixed(1)}k/mo</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: '#0A0A0A' }}>${(revenue / 1000).toFixed(1)}k/mo</div>
                         <div style={{ marginTop: 4 }}>
-                          <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: '50px', ...(score >= 80 ? { background: '#6366F1', color: 'white' } : score >= 65 ? { background: 'transparent', border: '1.5px solid #6366F1', color: '#6366F1' } : { background: 'rgba(255,255,255,.08)', color: '#9CA3AF' }) }}>{score}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: '50px', ...(score >= 80 ? { background: '#6366F1', color: 'white' } : score >= 65 ? { background: 'transparent', border: '1.5px solid #6366F1', color: '#6366F1' } : { background: '#F3F4F6', color: '#9CA3AF' }) }}>{score}</span>
                         </div>
                       </div>
                     </div>
@@ -1041,7 +1041,7 @@ function DashboardHome() {
         </div>
 
         {/* Row 4: Tools grid */}
-        <div style={{ background: '#0E1420', border: '1px solid rgba(255,255,255,.06)', borderRadius: 14, padding: '24px', boxShadow: 'none' }}>
+        <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#FFFFFF' }}>Your Tools</div>
             <span style={{ fontSize: 12, color: '#6B7280' }}>10 AI tools</span>
@@ -1059,14 +1059,14 @@ function DashboardHome() {
               { icon: BookOpen, label: 'Learn Hub', path: '/app/learn', color: '#F59E0B' },
               { icon: ShoppingBag, label: 'My Products', path: '/app/my-products', color: '#374151' },
             ] as const).map((tool, i) => (
-              <button key={i} onClick={() => setLocation(tool.path)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '16px 8px', borderRadius: 10, background: 'rgba(255,255,255,.03)', border: '1px solid rgba(255,255,255,.06)', cursor: 'pointer', transition: 'all 150ms' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,.08)'; e.currentTarget.style.borderColor = `${tool.color}30`; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,.03)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.06)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+              <button key={i} onClick={() => setLocation(tool.path)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '16px 8px', borderRadius: 10, background: '#F9FAFB', border: '1px solid #F0F0F0', cursor: 'pointer', transition: 'all 150ms' }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#F5F3FF'; e.currentTarget.style.borderColor = `${tool.color}30`; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#F9FAFB'; e.currentTarget.style.borderColor = '#F0F0F0'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: `${tool.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <tool.icon size={18} color={tool.color} />
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 600, color: '#CBD5E1', textAlign: 'center', lineHeight: 1.3 }}>{tool.label}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#374151', textAlign: 'center', lineHeight: 1.3 }}>{tool.label}</span>
               </button>
             ))}
           </div>
