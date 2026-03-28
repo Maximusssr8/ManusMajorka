@@ -1103,19 +1103,19 @@ export default function MajorkaAppShell({ children }: Props) {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-h-0">
-        {/* Mobile top bar */}
+        {/* Mobile top bar — dark premium theme */}
         <div
           className="flex items-center gap-3 px-4 border-b flex-shrink-0 lg:hidden"
-          style={{ background: 'var(--sidebar-bg, #FFFFFF)', borderColor: 'var(--sidebar-border, #E5E7EB)', height: 48 }}
+          style={{ background: '#0B0F1E', borderColor: 'rgba(255,255,255,0.08)', height: 52 }}
         >
           <button
             onClick={() => setMobileOpen(true)}
             aria-label="Open navigation menu"
             className="w-8 h-8 rounded-md flex items-center justify-center"
             style={{
-              background: '#F3F4F6',
-              color: '#374151',
-              border: 'none',
+              background: 'rgba(255,255,255,0.07)',
+              color: '#94A3B8',
+              border: '1px solid rgba(255,255,255,0.08)',
               cursor: 'pointer',
             }}
           >
@@ -1125,7 +1125,7 @@ export default function MajorkaAppShell({ children }: Props) {
             <img src="/majorka-logo.jpg" alt="Majorka" width={28} height={28} style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: 7, display: 'block', flexShrink: 0 }} draggable={false} />
             <span
               className="font-bold text-sm"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#111827', letterSpacing: '-0.01em', fontSize: 15, fontWeight: 800 }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#F1F5F9', letterSpacing: '-0.01em', fontSize: 15, fontWeight: 800 }}
             >
               Majorka
             </span>
@@ -1138,9 +1138,9 @@ export default function MajorkaAppShell({ children }: Props) {
               }}
               className="w-8 h-8 rounded-md flex items-center justify-center"
               style={{
-                background: '#F3F4F6',
-                color: '#6B7280',
-                border: 'none',
+                background: 'rgba(255,255,255,0.07)',
+                color: '#94A3B8',
+                border: '1px solid rgba(255,255,255,0.08)',
                 cursor: 'pointer',
               }}
             >
@@ -1153,9 +1153,9 @@ export default function MajorkaAppShell({ children }: Props) {
         {/* Desktop top header bar */}
         <div
           className="hidden lg:flex items-center justify-between px-6 flex-shrink-0"
-          style={{ height: 56, background: 'white', borderBottom: '1px solid #F0F0F0' }}
+          style={{ height: 56, background: '#0B0F1E', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
         >
-          <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 18, fontWeight: 700, color: '#111111' }}>
+          <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 18, fontWeight: 700, color: '#F1F5F9' }}>
             {(() => {
               const allItems = NAV_SECTIONS.flatMap(s => s.items);
               const current = allItems.find(item => isActive(item.path, item.exact));
@@ -1166,9 +1166,9 @@ export default function MajorkaAppShell({ children }: Props) {
             <button
               onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
               title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-              style={{ width: 36, height: 36, borderRadius: '50%', border: '1px solid #F0F0F0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', transition: 'background 150ms' }}
-              onMouseEnter={e => (e.currentTarget.style.background = '#F5F5F5')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'white')}
+              style={{ width: 36, height: 36, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', transition: 'background 150ms' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
             >
               {theme === 'light' ? createElement(Moon, { size: 16 }) : createElement(Sun, { size: 16 })}
             </button>
@@ -1184,13 +1184,18 @@ export default function MajorkaAppShell({ children }: Props) {
 
         <div className="flex-1 overflow-y-auto overflow-x-auto pb-16 lg:pb-0 dashboard-bg" style={{ background: theme === 'dark' ? '#0F1117' : undefined, color: theme === 'dark' ? '#F1F5F9' : undefined }}>{children}</div>
 
-        {/* Mobile bottom tab bar */}
+        {/* Mobile bottom tab bar — dark premium theme */}
         <nav
           aria-label="Mobile navigation"
           className="fixed bottom-0 left-0 right-0 z-40 lg:hidden"
-          style={{ background: '#FFFFFF', borderTop: '1px solid #E5E7EB' }}
+          style={{
+            background: '#0B0F1E',
+            borderTop: '1px solid rgba(255,255,255,0.08)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+          }}
         >
-          <div className="flex items-center justify-around" style={{ paddingTop: 8, paddingBottom: 10 }}>
+          <div className="flex items-center justify-around" style={{ paddingTop: 8, paddingBottom: 'calc(10px + env(safe-area-inset-bottom, 0px))' }}>
             {MOBILE_TABS.map((tab) => {
               const active = tab.exact ? location === tab.path : location.startsWith(tab.path);
               const Icon = tab.icon;
@@ -1202,14 +1207,23 @@ export default function MajorkaAppShell({ children }: Props) {
                   style={{
                     gap: 3,
                     padding: '4px 12px',
-                    color: active ? '#6366F1' : '#374151',
+                    color: active ? '#6366F1' : '#475569',
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
                     transition: 'color 0.15s',
                     minWidth: 56,
+                    position: 'relative' as const,
                   }}
                 >
+                  {active && (
+                    <div style={{
+                      position: 'absolute' as const, top: -1, left: '50%', transform: 'translateX(-50%)',
+                      width: 24, height: 2, borderRadius: 999,
+                      background: '#6366F1',
+                      boxShadow: '0 0 8px rgba(99,102,241,0.6)',
+                    }}/>
+                  )}
                   <Icon size={18} strokeWidth={active ? 2.5 : 1.75} />
                   <span
                     style={{
