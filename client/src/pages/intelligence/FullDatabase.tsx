@@ -382,7 +382,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     { id: 'all', label: '\uD83D\uDD25 All Products' },
     { id: 'revenue', label: '\uD83D\uDCC8 Best Revenue', sortOverride: 'est_monthly_revenue_aud' },
     { id: 'margin', label: '\uD83D\uDCB0 High Margin', filter: (p: Product) => (p.estimated_margin_pct || p.profit_margin || 0) >= 50 },
-    { id: 'tiktok', label: '📲 TikTok Signal', filter: (p: Product) => !!p.tiktok_signal || (p.tags || []).includes('tiktok-trending') },
+    { id: 'tiktok', label: '📲 TikTok Trending', filter: (p: Product) => !!p.tiktok_signal || (p.tags || []).includes('tiktok-trending') },
     { id: 'au', label: '\uD83C\uDDE6\uD83C\uDDFA AU Demand', filter: (p: Product) => (p.tags || []).includes('AU DEMAND') || (p.tags || []).includes('AU BEST SELLERS') },
     { id: 'new', label: '\uD83C\uDD95 New Today', filter: (p: Product) => { const t = p.updated_at; return t ? Date.now() - new Date(t).getTime() < 86400000 : false; } },
   ];
@@ -542,10 +542,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             <span>Auto-refreshes every 6h</span>
           </div>
         )}
-        {/* Data transparency note */}
-        <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 12, padding: '6px 12px', background: '#F9FAFB', borderRadius: 6, border: '1px solid #F3F4F6', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-          <span>ℹ️</span>
-          <span>Revenue, orders &amp; margins are AI-estimated demand signals — not live scraped data. Use for product research; verify pricing on the supplier platform before ordering.</span>
+        {/* Data transparency banner */}
+        <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 16, padding: '10px 14px', background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+          <span style={{ flexShrink: 0, fontSize: 14 }}>ℹ️</span>
+          <span><strong style={{ color: '#374151' }}>Research data, not live sales data.</strong> Revenue, order counts, prices &amp; margins are AI-estimated demand signals derived from product research — not scraped live figures. All values are marked "est." Use as a starting point; verify current pricing and demand directly on AliExpress or TikTok Shop before ordering stock.</span>
         </div>
 
         {refreshMsg && (
@@ -846,11 +846,9 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                           {canSeeFinancials ? (
                             <>
                               <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: revenue >= 10000 ? '#059669' : revenue >= 3000 ? '#0A0A0A' : '#9CA3AF' }}>
-                                ${revenue >= 1000 ? `${(revenue / 1000).toFixed(1)}k` : revenue.toLocaleString()}
+                                ~${revenue >= 1000 ? `${(revenue / 1000).toFixed(1)}k` : revenue.toLocaleString()}
                               </div>
-                              <div style={{ fontSize: 11, fontWeight: 600, color: isPositive ? '#059669' : '#EF4444', marginTop: 2 }}>
-                                {isPositive ? '\u2191' : '\u2193'} {Math.abs(growth)}%
-                              </div>
+                              <div style={{ fontSize: 10, color: '#9CA3AF' }}>est./mo</div>
                             </>
                           ) : (
                             <span style={{ filter: 'blur(5px)', userSelect: 'none' as const, cursor: 'pointer', display: 'inline-block' }} title="Upgrade to see revenue data" onClick={e => { e.stopPropagation(); setLocation('/pricing'); }}>
@@ -871,7 +869,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                           <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A' }}>
                             ~{orders >= 1000 ? `${(orders / 1000).toFixed(1)}k` : orders.toLocaleString()}
                           </div>
-                          <div style={{ fontSize: 10, color: '#9CA3AF' }}>orders/mo</div>
+                          <div style={{ fontSize: 10, color: '#9CA3AF' }}>est./mo</div>
                         </td>
 
                         {/* Price */}
@@ -1208,7 +1206,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
         </div>
         <div style={{ padding: 20 }}>
           <h2 style={{ fontFamily: brico, fontWeight: 700, fontSize: 17, color: '#0A0A0A', marginBottom: 6, lineHeight: 1.4 }}>{name}</h2>
-          <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 18 }}>{p.niche || p.category} &middot; {(p.rating || 4.2).toFixed(1)}&#9733; &middot; {orders.toLocaleString()}+ orders</div>
+          <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 18 }}>{p.niche || p.category} &middot; ~{orders.toLocaleString()} est. orders/mo &middot; AI-estimated data</div>
 
           {/* Large 30-day revenue trend sparkline */}
           <div style={{ marginBottom: 20, padding: 16, background: '#F9FAFB', borderRadius: 10, border: '1px solid #E5E7EB' }}>
@@ -1248,7 +1246,9 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                 🛒 View on AliExpress ↗
               </a>
             )}
-            <span style={{ fontSize: 10, color: '#9CA3AF', display: 'flex', alignItems: 'center' }}>Cost shown is estimated — verify on AliExpress</span>
+            <span style={{ fontSize: 11, color: '#9CA3AF', display: 'flex', alignItems: 'center', gap: 4 }}>
+              ℹ️ Prices &amp; costs are AI-estimated — verify live on AliExpress before sourcing
+            </span>
           </div>
           {/* Dropship Score visual bar */}
           {(() => {
