@@ -97,8 +97,11 @@ function getProductNiche(p: Product) {
   return p.niche || p.category || p.search_keyword || 'General';
 }
 function getProductRevenue(p: Product) {
-  // Always derive from price × units_per_day × 30 (stored value may be market-wide)
+  // Prefer DB-stored est_monthly_revenue_aud (now clean: orders_count × price_aud)
+  // Fall back to orders_count/30 × price × 30 = orders_count × price, or units_per_day × price × 30
+  if (p.est_monthly_revenue_aud && p.est_monthly_revenue_aud > 0) return p.est_monthly_revenue_aud;
   const price = p.price_aud || 0;
+  if (p.orders_count && p.orders_count > 0) return Math.round(p.orders_count * price * 100) / 100;
   const upd = p.units_per_day || Math.max(1, Math.round((p.winning_score || 50) / 12));
   return Math.round(price * upd * 30 * 100) / 100;
 }
@@ -1135,10 +1138,13 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
   const storedCost = p.cost_price_aud || p.supplier_cost_aud || 0;
   const marginPct = typeof margin === 'number' && margin > 0 ? margin : 64;
   const cost = storedCost > 0 ? storedCost : Math.round(price * (1 - marginPct / 100) * 100) / 100;
-  // Monthly revenue: always derive from price × units_per_day × 30
-  // stored est_monthly_revenue_aud may reflect market-wide demand (all sellers), not per-listing
-  const unitsPerDay = p.units_per_day || Math.max(1, Math.round(score / 12));
-  const revenue = Math.round(price * unitsPerDay * 30 * 100) / 100;
+  // Monthly revenue: prefer DB-stored value (now clean: orders_count × price_aud)
+  // units_per_day may be inflated; est_monthly_revenue_aud is authoritative
+  const revenue = p.est_monthly_revenue_aud && p.est_monthly_revenue_aud > 0
+    ? p.est_monthly_revenue_aud
+    : p.orders_count && p.orders_count > 0
+      ? Math.round(p.orders_count * price * 100) / 100
+      : Math.round(price * (p.units_per_day || Math.max(1, Math.round(score / 12))) * 30 * 100) / 100;
   const isEstimated = !p.orders_count || p.orders_count === 0;
   const productCategory = p.niche || p.category || '';
 
@@ -1431,7 +1437,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                 { field: 'Retail price', source: 'AI estimated — verify on AliExpress', real: false },
                 { field: 'Supplier cost', source: 'AI estimated — verify on Alibaba', real: false },
                 { field: 'Monthly orders', source: 'AI demand signal (est.)', real: false },
-                { field: 'Revenue estimate', source: `price × est. units/day × 30`, real: false },
+                { field: 'Revenue estimate', source: 'orders_count × price (est.)', real: false },
                 { field: 'Dropship score', source: 'AI composite score', real: false },
               ].map(({ field, source, real }) => (
                 <div key={field} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
