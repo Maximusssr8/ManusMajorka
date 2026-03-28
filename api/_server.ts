@@ -905,37 +905,45 @@ app.post('/api/admin/fix-revenue-inflation', async (req: Request, res: Response)
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
   if (!token || token !== serviceKey) return res.status(401).json({ error: 'Unauthorized' });
 
-  const dbUrl = process.env.DATABASE_URL;
-  if (!dbUrl) return res.status(500).json({ error: 'DATABASE_URL not set' });
+  const { createClient } = require('@supabase/supabase-js');
+  const supa = createClient(
+    process.env.VITE_SUPABASE_URL || 'https://ievekuazsjbdrltsdksn.supabase.co',
+    serviceKey,
+  );
 
   try {
-    const postgres = require('postgres');
-    const sql = postgres(dbUrl, { ssl: 'prefer' });
+    // Fix 1: fetch AliExpress products and update those with inflated revenue
+    const { data: rows, error: fetchErr } = await supa
+      .from('winning_products')
+      .select('id, orders_count, price_aud, est_monthly_revenue_aud')
+      .eq('platform', 'aliexpress')
+      .gt('orders_count', 0)
+      .gt('price_aud', 0);
 
-    // Fix 1: recalculate inflated revenue
-    const r1 = await sql`
-      UPDATE winning_products
-      SET est_monthly_revenue_aud = ROUND((orders_count * price_aud)::numeric, 2)
-      WHERE platform = 'aliexpress'
-        AND orders_count > 0
-        AND price_aud > 0
-        AND est_monthly_revenue_aud > (orders_count * price_aud * 1.5)
-      RETURNING id`;
+    if (fetchErr) return res.status(500).json({ error: fetchErr.message });
 
-    // Fix 2: relabel fake TikTok Shop AU
-    const r2 = await sql`
-      UPDATE winning_products
-      SET platform = 'AliExpress', tiktok_signal = false
-      WHERE platform = 'TikTok Shop AU'
-        AND (tiktok_product_url IS NULL OR tiktok_product_url = '')
-      RETURNING id`;
+    const inflated = (rows || []).filter((p: any) =>
+      p.est_monthly_revenue_aud > p.orders_count * p.price_aud * 1.5
+    );
 
-    await sql.end();
-    return res.json({
-      ok: true,
-      revenue_fixed: r1.length,
-      platform_fixed: r2.length,
-    });
+    let r1Count = 0;
+    for (const p of inflated) {
+      const correct = Math.round(p.orders_count * p.price_aud * 100) / 100;
+      await supa.from('winning_products').update({ est_monthly_revenue_aud: correct }).eq('id', p.id);
+      r1Count++;
+    }
+
+    // Fix 2: relabel fake TikTok Shop AU → AliExpress
+    const { data: r2, error: r2err } = await supa
+      .from('winning_products')
+      .update({ platform: 'AliExpress', tiktok_signal: false })
+      .eq('platform', 'TikTok Shop AU')
+      .or('tiktok_product_url.is.null,tiktok_product_url.eq.')
+      .select('id');
+
+    if (r2err) return res.status(500).json({ error: r2err.message, step: 'platform_fix' });
+
+    return res.json({ ok: true, revenue_fixed: r1Count, platform_fixed: (r2 || []).length });
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
   }
