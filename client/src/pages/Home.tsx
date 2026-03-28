@@ -986,20 +986,20 @@ function DemoSection() {
   ];
 
   return (
-    <section style={{ background: '#0A0A0A', padding: '120px 24px' }}>
+    <section style={{ background: '#0A0A0A', padding: isMobile ? '60px 16px' : '120px 24px' }}>
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div style={{ textAlign: 'center' }}>
-          <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(28px,5vw,48px)', color: 'white' }}>See it in action</h2>
-          <p style={{ fontSize: 17, color: '#A1A1AA', maxWidth: 560, margin: '12px auto 48px' }}>Watch Majorka find a winning product and build a store in 60 seconds.</p>
+          <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(24px,5vw,48px)', color: 'white' }}>See it in action</h2>
+          <p style={{ fontSize: isMobile ? 15 : 17, color: '#A1A1AA', maxWidth: 560, margin: '12px auto 32px' }}>Watch Majorka find a winning product and build a store in 60 seconds.</p>
         </div>
 
         {/* Tab row */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
-          <div style={{ display: 'inline-flex', background: '#111113', border: '1px solid #27272A', borderRadius: 10, padding: 4 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24, overflowX: 'auto', paddingBottom: 4 }}>
+          <div style={{ display: 'inline-flex', background: '#111113', border: '1px solid #27272A', borderRadius: 10, padding: 4, flexShrink: 0 }}>
             {tabs.map(tab => (
               <button key={tab.key} onClick={() => setActiveTab(tab.key)}
                 style={{
-                  padding: '8px 20px', borderRadius: 7, fontSize: 14, cursor: 'pointer', border: 'none', transition: 'all 150ms',
+                  padding: isMobile ? '8px 14px' : '8px 20px', borderRadius: 7, fontSize: isMobile ? 12 : 14, cursor: 'pointer', border: 'none', transition: 'all 150ms', whiteSpace: 'nowrap' as const,
                   background: activeTab === tab.key ? 'white' : 'transparent',
                   color: activeTab === tab.key ? '#FAFAFA' : '#6B7280',
                   fontWeight: activeTab === tab.key ? 600 : 500,
@@ -1019,41 +1019,63 @@ function DemoSection() {
                 <span style={{ fontWeight: 600, fontSize: 14, color: 'white' }}>Product Intelligence</span>
                 <span style={{ fontSize: 12, color: '#6B7280' }}>Global Markets · AI Research</span>
               </div>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 640 }}>
-                  <thead>
-                    <tr style={{ background: '#0F0F11' }}>
-                      {['#', 'Product', 'Margin', 'Score', ''].map(h => (
-                        <th key={h} style={{ padding: '10px 20px', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6B7280', textAlign: 'left', fontWeight: 600 }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {DEMO_PRODUCTS.map(row => {
-                      const ss = getScoreStyle(row.score);
-                      return (
-                        <tr key={row.rank} style={{ borderBottom: '1px solid #1F1F23', fontSize: 13, color: '#E5E7EB' }}
-                          onMouseEnter={e => (e.currentTarget.style.background = '#FAFAFA')}
-                          onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                        >
-                          <td style={{ padding: '12px 20px', color: '#6B7280' }}>{row.rank}</td>
-                          <td style={{ padding: '12px 20px', fontWeight: 500 }}>{row.product}</td>
-                          <td style={{ padding: '12px 20px' }}>{row.margin}</td>
-                          <td style={{ padding: '12px 20px' }}>
-                            <span style={{ ...ss, borderRadius: 5, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>{row.score}</span>
-                          </td>
-                          <td style={{ padding: '12px 20px' }}>
-                            <button style={{ background: 'rgba(99,102,241,0.15)', color: '#A5B4FC', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 6, fontSize: 11, padding: '4px 10px', cursor: 'pointer' }}
-                              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.25)')}
-                              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.15)')}
-                            >Build Store</button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              {isMobile ? (
+                /* Mobile: product cards instead of table */
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '0 4px 8px' }}>
+                  {DEMO_PRODUCTS.map(row => {
+                    const ss = getScoreStyle(row.score);
+                    return (
+                      <div key={row.rank} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', background: '#111113', borderRadius: 10, border: '1px solid #1F1F23' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: '#E5E7EB', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{row.product}</div>
+                          <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Margin: {row.margin}</div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 10 }}>
+                          <span style={{ ...ss, borderRadius: 5, padding: '2px 7px', fontSize: 11, fontWeight: 700 }}>{row.score}</span>
+                          <button style={{ background: 'rgba(99,102,241,0.15)', color: '#A5B4FC', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 6, fontSize: 11, padding: '4px 8px', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>View</button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                /* Desktop: full table */
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 560 }}>
+                    <thead>
+                      <tr style={{ background: '#0F0F11' }}>
+                        {['#', 'Product', 'Margin', 'Score', ''].map(h => (
+                          <th key={h} style={{ padding: '10px 20px', fontSize: 11, textTransform: 'uppercase' as const, letterSpacing: '0.08em', color: '#6B7280', textAlign: 'left', fontWeight: 600 }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {DEMO_PRODUCTS.map(row => {
+                        const ss = getScoreStyle(row.score);
+                        return (
+                          <tr key={row.rank} style={{ borderBottom: '1px solid #1F1F23', fontSize: 13, color: '#E5E7EB' }}
+                            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
+                            onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                          >
+                            <td style={{ padding: '12px 20px', color: '#6B7280' }}>{row.rank}</td>
+                            <td style={{ padding: '12px 20px', fontWeight: 500 }}>{row.product}</td>
+                            <td style={{ padding: '12px 20px' }}>{row.margin}</td>
+                            <td style={{ padding: '12px 20px' }}>
+                              <span style={{ ...ss, borderRadius: 5, padding: '2px 8px', fontSize: 11, fontWeight: 700 }}>{row.score}</span>
+                            </td>
+                            <td style={{ padding: '12px 20px' }}>
+                              <button style={{ background: 'rgba(99,102,241,0.15)', color: '#A5B4FC', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 6, fontSize: 11, padding: '4px 10px', cursor: 'pointer' }}
+                                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.25)')}
+                                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(99,102,241,0.15)')}
+                              >Build Store</button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
 
@@ -1092,7 +1114,7 @@ function DemoSection() {
           {/* Tab 3: Spy Tools */}
           {activeTab === 'spy' && (
             <div style={{ padding: 24 }}>
-              <div className="spy-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div className="spy-grid" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
                 {[
                   { platform: 'Meta Ad', product: 'Neck Massager Pro', spend: '~$2,400/day' },
                   { platform: 'TikTok Ad', product: 'LED Ring Light Kit', spend: '~$1,800/day' },
@@ -1724,48 +1746,81 @@ export default function Home() {
       {/* Testimonials placeholder removed — real section added before pricing */}
 
       {/* ═══ COMPARISON TABLE ════════════════════════════════════════════ */}
-      <section style={{ padding: '80px 24px', background: 'white' }}>
+      <section style={{ padding: isMobile ? '48px 16px' : '80px 24px', background: 'white' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
           <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', letterSpacing: '-0.025em', textAlign: 'center', marginBottom: 8, color: '#0A0A0A' }}>
             Why teams switch to Majorka
           </h2>
-          <p style={{ textAlign: 'center', color: '#6B7280', fontSize: 15, marginBottom: 40, maxWidth: 520, margin: '0 auto 40px' }}>
+          <p style={{ textAlign: 'center', color: '#6B7280', fontSize: 15, maxWidth: 520, margin: '0 auto 32px' }}>
             One platform replaces your entire stack — at a fraction of the cost.
           </p>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-              <thead>
-                <tr style={{ borderBottom: '2px solid #E5E7EB' }}>
-                  <th style={{ textAlign: 'left', padding: '12px 16px', color: '#9CA3AF', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Feature</th>
-                  <th style={{ textAlign: 'center', padding: '12px 16px', color: '#6366F1', fontSize: 13, fontWeight: 700 }}>Majorka</th>
-                  <th style={{ textAlign: 'center', padding: '12px 16px', color: '#9CA3AF', fontSize: 13, fontWeight: 600 }}>Minea</th>
-                  <th style={{ textAlign: 'center', padding: '12px 16px', color: '#9CA3AF', fontSize: 13, fontWeight: 600 }}>Sell The Trend</th>
-                  <th style={{ textAlign: 'center', padding: '12px 16px', color: '#9CA3AF', fontSize: 13, fontWeight: 600 }}>Manual Research</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { feature: 'AI Winning Product Score', majorka: true, minea: false, stt: false, manual: false },
-                  { feature: 'TikTok Shop Data', majorka: true, minea: true, stt: false, manual: false },
-                  { feature: 'AliExpress Supplier Match', majorka: true, minea: false, stt: true, manual: true },
-                  { feature: 'Competitor Ad Spy', majorka: true, minea: true, stt: false, manual: false, note: 'Scale plan' },
-                  { feature: 'AI Store Builder', majorka: true, minea: false, stt: false, manual: false },
-                  { feature: 'Multi-Market Optimised', majorka: true, minea: false, stt: false, manual: false },
-                  { feature: 'Profit Calculator', majorka: true, minea: false, stt: true, manual: true },
-                  { feature: 'Money-Back Guarantee', majorka: true, minea: false, stt: false, manual: true },
-                ].map((row: { feature: string; majorka: boolean; minea: boolean; stt: boolean; manual: boolean; note?: string }, i) => (
-                  <tr key={row.feature} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
-                    <td style={{ padding: '12px 16px', fontWeight: 500, color: '#374151' }}>{row.feature}</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.majorka ? <span style={{ color: '#6366F1', fontWeight: 700 }}>✓{row.note ? '*' : ''}</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.minea ? <span style={{ color: '#22C55E' }}>✓</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.stt ? <span style={{ color: '#22C55E' }}>✓</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.manual ? <span style={{ color: '#22C55E' }}>✓</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
+
+          {isMobile ? (
+            /* ── Mobile: feature card list showing Majorka vs competitors ── */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {[
+                { feature: 'AI Winning Product Score', majorka: true, others: false },
+                { feature: 'TikTok Shop Data', majorka: true, others: 'Some' },
+                { feature: 'AliExpress Supplier Match', majorka: true, others: 'Some' },
+                { feature: 'Competitor Ad Spy', majorka: true, others: 'Some', note: 'Scale plan' },
+                { feature: 'AI Store Builder', majorka: true, others: false },
+                { feature: 'Multi-Market Optimised', majorka: true, others: false },
+                { feature: 'Profit Calculator', majorka: true, others: 'Some' },
+                { feature: 'Money-Back Guarantee', majorka: true, others: false },
+              ].map((row, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderRadius: 10, background: '#FAFAFA', border: '1px solid #F0F0F0' }}>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: '#374151', flex: 1, paddingRight: 12 }}>{row.feature}{row.note ? <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 6 }}>({row.note})</span> : null}</span>
+                  <div style={{ display: 'flex', gap: 20, flexShrink: 0 }}>
+                    <div style={{ textAlign: 'center', minWidth: 52 }}>
+                      <div style={{ fontSize: 10, color: '#6366F1', fontWeight: 700, marginBottom: 2 }}>MAJORKA</div>
+                      <span style={{ color: '#6366F1', fontWeight: 800, fontSize: 16 }}>✓</span>
+                    </div>
+                    <div style={{ textAlign: 'center', minWidth: 52 }}>
+                      <div style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, marginBottom: 2 }}>OTHERS</div>
+                      <span style={{ color: row.others ? '#94A3B8' : '#D1D5DB', fontWeight: 600, fontSize: 14 }}>{row.others === 'Some' ? '~' : row.others ? '✓' : '—'}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 4, textAlign: 'right' }}>~ = some competitors only · * Scale plan</p>
+            </div>
+          ) : (
+            /* ── Desktop: full 5-col table ── */
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, minWidth: 560 }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #E5E7EB' }}>
+                    <th style={{ textAlign: 'left', padding: '12px 16px', color: '#9CA3AF', fontSize: 12, fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>Feature</th>
+                    <th style={{ textAlign: 'center', padding: '12px 16px', color: '#6366F1', fontSize: 13, fontWeight: 700 }}>Majorka</th>
+                    <th style={{ textAlign: 'center', padding: '12px 16px', color: '#9CA3AF', fontSize: 13, fontWeight: 600 }}>Minea</th>
+                    <th style={{ textAlign: 'center', padding: '12px 16px', color: '#9CA3AF', fontSize: 13, fontWeight: 600 }}>Sell The Trend</th>
+                    <th style={{ textAlign: 'center', padding: '12px 16px', color: '#9CA3AF', fontSize: 13, fontWeight: 600 }}>Manual Research</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 12, textAlign: 'right' }}>* Scale plan only</p>
-          </div>
+                </thead>
+                <tbody>
+                  {[
+                    { feature: 'AI Winning Product Score', majorka: true, minea: false, stt: false, manual: false },
+                    { feature: 'TikTok Shop Data', majorka: true, minea: true, stt: false, manual: false },
+                    { feature: 'AliExpress Supplier Match', majorka: true, minea: false, stt: true, manual: true },
+                    { feature: 'Competitor Ad Spy', majorka: true, minea: true, stt: false, manual: false, note: 'Scale plan' },
+                    { feature: 'AI Store Builder', majorka: true, minea: false, stt: false, manual: false },
+                    { feature: 'Multi-Market Optimised', majorka: true, minea: false, stt: false, manual: false },
+                    { feature: 'Profit Calculator', majorka: true, minea: false, stt: true, manual: true },
+                    { feature: 'Money-Back Guarantee', majorka: true, minea: false, stt: false, manual: true },
+                  ].map((row: { feature: string; majorka: boolean; minea: boolean; stt: boolean; manual: boolean; note?: string }, i) => (
+                    <tr key={row.feature} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
+                      <td style={{ padding: '12px 16px', fontWeight: 500, color: '#374151' }}>{row.feature}</td>
+                      <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.majorka ? <span style={{ color: '#6366F1', fontWeight: 700 }}>✓{row.note ? '*' : ''}</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
+                      <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.minea ? <span style={{ color: '#22C55E' }}>✓</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
+                      <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.stt ? <span style={{ color: '#22C55E' }}>✓</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
+                      <td style={{ padding: '12px 16px', textAlign: 'center' }}>{row.manual ? <span style={{ color: '#22C55E' }}>✓</span> : <span style={{ color: '#D1D5DB' }}>—</span>}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 12, textAlign: 'right' }}>* Scale plan only</p>
+            </div>
+          )}
         </div>
       </section>
 
