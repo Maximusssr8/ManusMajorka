@@ -26,6 +26,8 @@ interface AuthContextValue {
   subPlan: string;
   subStatus: string;
   isPro: boolean;
+  isBuilder: boolean;
+  isScale: boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -33,7 +35,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
-  const [subPlan, setSubPlan] = useState<string>('free');
+  const [subPlan, setSubPlan] = useState<string>('');
   const [subStatus, setSubStatus] = useState<string>('inactive');
   const utils = trpc.useUtils();
 
@@ -163,11 +165,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
       .then(r => r.json())
       .then((d: { plan?: string; status?: string }) => {
-        setSubPlan(d.plan || 'free');
+        setSubPlan(d.plan || '');
         setSubStatus(d.status || 'inactive');
       })
       .catch(() => {
-        setSubPlan('free');
+        setSubPlan('');
         setSubStatus('inactive');
       });
   }, [session?.access_token]);
@@ -179,7 +181,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await utils.auth.me.invalidate();
   }, [utils]);
 
-  const isPro = ['pro', 'builder', 'scale'].includes(subPlan.toLowerCase()) && ['active', 'trialing'].includes(subStatus.toLowerCase());
+  const isPro = ['builder', 'scale'].includes(subPlan.toLowerCase()) && ['active'].includes(subStatus.toLowerCase());
+  const isBuilder = subPlan.toLowerCase() === 'builder' && subStatus.toLowerCase() === 'active';
+  const isScale = subPlan.toLowerCase() === 'scale' && subStatus.toLowerCase() === 'active';
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -193,6 +197,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subPlan,
       subStatus,
       isPro,
+      isBuilder,
+      isScale,
     }),
     [
       session,
@@ -205,6 +211,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subPlan,
       subStatus,
       isPro,
+      isBuilder,
+      isScale,
     ]
   );
 

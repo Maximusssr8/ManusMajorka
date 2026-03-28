@@ -20,10 +20,10 @@ declare global {
 const BYPASS_EMAILS = ['maximusmajorka@gmail.com'];
 
 // Valid active statuses
-const ACTIVE_STATUSES = ['active', 'trialing', 'Active', 'Trialing'];
+const ACTIVE_STATUSES = ['active', 'Active'];
 
 // Valid paid plans (case-insensitive)
-const PAID_PLANS = ['pro', 'builder', 'scale', 'Pro', 'Builder', 'Scale'];
+const PAID_PLANS = ['builder', 'scale', 'Builder', 'Scale'];
 
 function getSupabaseAdmin() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
@@ -72,7 +72,7 @@ export const requireSubscription = async (
   const supabase = getSupabaseAdmin();
   if (!supabase) {
     // No service role key — fail open so users aren't blocked on misconfiguration
-    req.subscription = { status: 'active', plan: 'pro', userId: user.userId };
+    req.subscription = { status: 'active', plan: 'builder', userId: user.userId };
     next();
     return;
   }
@@ -112,8 +112,7 @@ export const requireSubscription = async (
     }
 
     const statusOk = ACTIVE_STATUSES.includes(data.status) ||
-      data.status?.toLowerCase() === 'active' ||
-      data.status?.toLowerCase() === 'trialing';
+      data.status?.toLowerCase() === 'active';
 
     const planOk = PAID_PLANS.map(p => p.toLowerCase()).includes(data.plan?.toLowerCase());
 

@@ -335,71 +335,49 @@ function EmotionalComparisonTable() {
 // ── Plan data ───────────────────────────────────────────────────────────────
 const PLANS = [
   {
-    name: 'Starter',
-    price: '$0',
-    period: 'AUD/mo',
-    description: "Taste what's possible. Upgrade to build.",
-    features: [
-      '3 AI demos per day',
-      'Preview tools only',
-      'Market defaults & localisation',
-      'Community support',
-    ],
-    notIncluded: [
-      'All 50+ tools',
-      'Full Launch Kit',
-      'Financial Modeler',
-      'Meta + TikTok Ads Pack',
-      'API access',
-    ],
-    cta: 'Try a Demo Free',
-    ctaHref: '/app',
-    highlight: false,
-    badge: null,
-    afterpay: false,
-  },
-  {
     name: 'Builder',
     price: '$99',
     period: 'AUD/mo',
-    description: 'Everything you need to run a winning AU ecommerce business.',
+    description: 'Everything you need to run a winning ecommerce business.',
     features: [
-      'Unlimited AI credits',
-      'All 50+ tools',
-      'Full Launch Kit',
-      'Meta + TikTok Ads Pack',
-      'Email Sequences',
-      'Financial Modeler',
-      'Priority support',
+      '50 product searches/month',
+      '50 video searches/month',
+      '50 ad intelligence searches/month',
+      '50 creator searches/month',
+      '5 competitor shop spy/month',
+      '3 stores in Store Builder',
+      '5 alerts max',
+      '20 Ads Studio generations/month',
     ],
-    notIncluded: ['White-label export', 'API access', 'Custom domain support'],
-    cta: 'Start Free Trial',
+    notIncluded: ['Niche Signal Tracking', 'API access', 'Priority support'],
+    cta: 'Get Started',
     ctaHref: null, // handled via Stripe
     highlight: true,
     badge: 'Most Popular',
     afterpay: true,
-    plan: 'builder',  // server maps 'builder' → STRIPE_BUILDER_PRICE_ID env var
+    plan: 'builder',
   },
   {
     name: 'Scale',
     price: '$199',
     period: 'AUD/mo',
-    description: 'For serious operators who need full control and priority AI.',
+    description: 'For serious operators who need full control and unlimited access.',
     features: [
       'Everything in Builder',
-      'Priority AI (faster responses)',
+      'Unlimited searches (all tools)',
+      'Unlimited Competitor Shop Spy',
+      'Unlimited Store Builder',
+      'Niche Signal Tracking',
       'API access',
-      'White-label export',
-      'Custom domain support',
-      'Dedicated account manager',
+      'Priority support',
     ],
     notIncluded: [],
-    cta: 'Start Free Trial',
+    cta: 'Subscribe',
     ctaHref: null, // handled via Stripe
     highlight: false,
     badge: null,
     afterpay: true,
-    plan: 'scale',  // server maps 'scale' → STRIPE_SCALE_PRICE_ID env var
+    plan: 'scale',
   },
 ];
 
@@ -514,12 +492,12 @@ const FAQS = [
     a: 'Yes, absolutely. No lock-in contracts. Cancel from your dashboard anytime. Australian Consumer Law applies, and you retain access to paid features until the end of your current billing period.',
   },
   {
-    q: 'Is there a free trial for Builder or Scale?',
-    a: "Yes. Both paid plans include a 14-day money-back guarantee. If you're not happy within 14 days of your first payment, we'll refund you in full — no questions asked.",
+    q: 'Is there a money-back guarantee?',
+    a: "Yes. Both plans include a 14-day money-back guarantee. If you're not happy within 14 days of your first payment, we'll refund you in full — no questions asked.",
   },
   {
     q: 'What happens to my data if I downgrade?',
-    a: 'Your data is never deleted. If you downgrade to Starter, your saved outputs, products, and conversation history remain intact \u2014 you just lose access to premium tools until you re-upgrade.',
+    a: 'Your data is never deleted. If you cancel, your saved outputs, products, and conversation history remain intact \u2014 you just lose access until you re-subscribe.',
   },
   {
     q: 'Do you offer refunds?',
@@ -537,7 +515,7 @@ export default function Pricing() {
   const [annual, setAnnual] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [stripeConfigured, setStripeConfigured] = useState<boolean | null>(true);
-  const [currentPlan, setCurrentPlan] = useState<string>('free');
+  const [currentPlan, setCurrentPlan] = useState<string>('');
   const { session } = useAuth();
 
   // Check Stripe config + current subscription status
@@ -559,7 +537,7 @@ export default function Pricing() {
       .then((r) => r.json())
       .then((d) => {
         setStripeConfigured(d.stripeConfigured ?? false);
-        setCurrentPlan(d.plan ?? 'free');
+        setCurrentPlan(d.plan ?? '');
       })
       .catch(() => setStripeConfigured(false));
   }, [session]);
@@ -577,7 +555,7 @@ export default function Pricing() {
   const getAnnualTotal = (plan: (typeof PLANS)[number]) => {
     if (plan.price === '$0') return null;
     const base = parseInt(plan.price.replace('$', ''));
-    return base * 10; // 2 months free
+    return base * 10; // 2 months savings
   };
 
   const handleProCheckout = async (plan?: string) => {
@@ -632,7 +610,7 @@ export default function Pricing() {
     >
       <SEO
         title="Pricing — Majorka AI Ecommerce OS"
-        description="Start free, upgrade when ready. Builder $99/mo AUD. Scale $199/mo AUD. No lock-in."
+        description="Builder $99/mo AUD. Scale $199/mo AUD. No lock-in. 14-day money-back guarantee."
         path="/pricing"
       />
 
@@ -754,7 +732,7 @@ export default function Pricing() {
             marginBottom: 32,
           }}
         >
-          Start free, upgrade when you're ready. No hidden fees.
+          Simple pricing. No hidden fees. 14-day money-back guarantee.
         </p>
 
         {/* Monthly / Annual toggle */}
@@ -855,7 +833,7 @@ export default function Pricing() {
         <div
           className="pricing-cards-grid"
           style={{
-            maxWidth: 1050,
+            maxWidth: 740,
             margin: '0 auto',
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
@@ -1313,13 +1291,13 @@ export default function Pricing() {
             marginBottom: 16,
           }}
         >
-          Not sure yet? Start for free.
+          Ready to scale your business?
         </h2>
         <p style={{ color: C.secondary, fontSize: 16, marginBottom: 36 }}>
-          No credit card required. Upgrade when you're ready. Afterpay available.
+          14-day money-back guarantee. Afterpay available.
         </p>
         <Link
-          href="/app"
+          href="/sign-up?plan=builder"
           style={{
             display: 'inline-block',
             background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`,
@@ -1334,7 +1312,7 @@ export default function Pricing() {
             marginBottom: 24,
           }}
         >
-          Get Started Free {'\u2192'}
+          Get Started {'\u2192'}
         </Link>
         <div
           style={{

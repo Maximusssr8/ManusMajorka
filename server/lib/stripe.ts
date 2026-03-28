@@ -28,11 +28,11 @@ export function isStripeConfigured(): boolean {
 
 export function planToPriceId(plan: string): string | null {
   const map: Record<string, string | undefined> = {
-    pro:     process.env.STRIPE_PRO_PRICE_ID,
+    pro:     process.env.STRIPE_BUILDER_PRICE_ID, // legacy pro → builder
     builder: process.env.STRIPE_BUILDER_PRICE_ID,
     scale:   process.env.STRIPE_SCALE_PRICE_ID,
   };
-  return map[plan.toLowerCase()] ?? process.env.STRIPE_PRO_PRICE_ID ?? null;
+  return map[plan.toLowerCase()] ?? process.env.STRIPE_BUILDER_PRICE_ID ?? null;
 }
 
 // ── Checkout session ──────────────────────────────────────────────────────────
@@ -139,11 +139,11 @@ export async function getSubscriptionStatus(userId: string): Promise<Subscriptio
     .single();
 
   if (!data) {
-    return { plan: 'free', status: 'active', periodEnd: null, stripeCustomerId: null };
+    return { plan: '', status: 'inactive', periodEnd: null, stripeCustomerId: null };
   }
   return {
-    plan: data.plan ?? 'free',
-    status: data.status ?? 'active',
+    plan: data.plan ?? '',
+    status: data.status ?? 'inactive',
     periodEnd: data.current_period_end ?? null,
     stripeCustomerId: data.stripe_customer_id ?? null,
   };
@@ -186,15 +186,15 @@ export function constructWebhookEvent(payload: Buffer, signature: string): Strip
 
 // ── Price ID → Plan name mapping ─────────────────────────────────────────────
 function priceIdToPlan(priceId: string | undefined | null): string {
-  if (!priceId) return 'pro';
+  if (!priceId) return 'builder';
   const map: Record<string, string> = {
-    [process.env.STRIPE_PRO_PRICE_ID     ?? '']: 'pro',
+    [process.env.STRIPE_PRO_PRICE_ID     ?? '']: 'builder', // legacy pro → builder
     [process.env.STRIPE_BUILDER_PRICE_ID ?? '']: 'builder',
     [process.env.STRIPE_SCALE_PRICE_ID   ?? '']: 'scale',
   };
   // Remove empty-string key so unknown prices fall through cleanly
   delete map[''];
-  return map[priceId] ?? 'pro';
+  return map[priceId] ?? 'builder';
 }
 
 export async function handleWebhook(rawBody: Buffer, signature: string): Promise<boolean> {
@@ -216,7 +216,7 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
       const customerId =
         typeof session.customer === 'string' ? session.customer : session.customer?.id;
 
-      let plan = 'pro';
+      let plan = 'builder';
       let periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
       if (subscriptionId) {
@@ -255,10 +255,10 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
 
       const priceId = stripeSub.items.data[0]?.price?.id;
       const periodEnd = new Date(stripeSub.current_period_end * 1000);
-      const isActive = ['active', 'trialing'].includes(stripeSub.status);
-      const status = isActive ? (stripeSub.status === 'trialing' ? 'trialing' : 'active')
+      const isActive = stripeSub.status === 'active';
+      const status = isActive ? 'active'
         : stripeSub.status === 'canceled' ? 'cancelled' : 'expired';
-      const plan = isActive ? priceIdToPlan(priceId) : 'free';
+      const plan = isActive ? priceIdToPlan(priceId) : '';
 
       await upsertSubscription({
         userId,
@@ -283,7 +283,7 @@ export async function handleWebhook(rawBody: Buffer, signature: string): Promise
       await upsertSubscription({
         userId,
         stripeSubscriptionId: stripeSub.id,
-        plan: 'free',
+        plan: '',
         status: 'cancelled',
         currentPeriodEnd: periodEnd,
       });

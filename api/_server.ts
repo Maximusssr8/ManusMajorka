@@ -34,6 +34,9 @@ import cronRouter from "../server/routes/cron";
 import subscriptionRouter from "../server/routes/subscription";
 import adminApiRouter from "../server/routes/admin";
 import { requireAuth } from "../server/middleware/requireAuth";
+import { createClient } from "@supabase/supabase-js";
+import { getUsageSummary } from "../server/lib/usageLimits";
+import type { Plan } from "../shared/plans";
 import shopsRouter from "../server/routes/shops";
 import productsRouter from "../server/routes/products";
 import aliexpressRouter from "../server/routes/aliexpress";
@@ -190,6 +193,31 @@ app.get("/api/pexels/search", async (req: Request, res: Response) => {
 // ── API health check — minimal public ping only ───────────────────────────────
 app.get("/api/health", (_req: Request, res: Response) => {
   res.json({ status: 'ok', ts: new Date().toISOString() });
+});
+
+// ── Usage tracking — GET /api/usage/me ──────────────────────────────────────
+app.get("/api/usage/me", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.userId;
+    const email = (req as any).user?.email;
+    const SURL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+    const SKEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+    const sb = createClient(SURL, SKEY);
+
+    let plan: Plan = 'builder';
+    if (email === 'maximusmajorka@gmail.com') {
+      plan = 'scale';
+    } else {
+      const { data: sub } = await sb.from('user_subscriptions')
+        .select('plan').eq('user_id', userId).single();
+      plan = (sub?.plan?.toLowerCase() as Plan) || 'builder';
+    }
+
+    const summary = await getUsageSummary(userId, plan);
+    res.json({ plan, usage: summary, month: new Date().toISOString().slice(0, 7) });
+  } catch {
+    res.json({ plan: 'builder', usage: {}, month: '' });
+  }
 });
 
 // One-time intelligence tables migration endpoint

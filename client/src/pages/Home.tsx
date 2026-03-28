@@ -237,7 +237,7 @@ const FAQ = [
   { q: 'What makes this different from other AI tools?', a: 'Majorka is region-native. It supports multi-currency pricing, local shipping carriers, tax compliance, and payment methods (Afterpay, Klarna, Zip, Stripe) across 7 markets. No more converting currencies or adapting generic advice.' },
   { q: 'Can I cancel anytime?', a: 'Yes, absolutely. No lock-in contracts. Cancel from your dashboard anytime. You retain access until the end of your billing period.' },
   { q: 'Do you support Shopify?', a: 'Yes. Website Generator exports production-ready Shopify Liquid theme files as a ZIP. All landing pages include trust signals, local payment badges, and mobile-optimised layouts ready for your store.' },
-  { q: 'Is there a free trial?', a: 'Yes. The Starter plan is free forever with 5 AI credits per day and access to core tools. Paid plans include a 14-day money-back guarantee — no questions asked.' },
+  { q: 'Is there a money-back guarantee?', a: 'Yes. All paid plans include a 14-day money-back guarantee — no questions asked. Cancel anytime from your dashboard.' },
 ];
 
 const LOGO_STRIP = ['Shopify', 'AliExpress', 'Meta', 'Google', 'TikTok', 'DHL', 'Stripe', 'Klarna', 'Afterpay', 'Amazon', 'Canva'];
@@ -550,7 +550,7 @@ function FloatingCTA() {
         <span className="hide-desktop">Find your winner →</span>
       </span>
       <Link href="/sign-in" style={{ background: `linear-gradient(135deg, ${C.gold}, #4F46E5)`, color: '#000', borderRadius: 10, padding: '10px 22px', fontFamily: syne, fontWeight: 800, fontSize: 14, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
-        Start Free
+        Get Started
       </Link>
       <button onClick={dismiss} style={{ background: 'none', border: 'none', color: C.secondary, cursor: 'pointer', fontSize: 18, flexShrink: 0, padding: '4px 6px' }}>×</button>
     </div>
@@ -1422,7 +1422,7 @@ function DemoModal({ onClose }: { onClose: () => void }) {
                   Next →
                 </button>
               : <a href="/sign-up" style={{ padding: '10px 22px', background: '#059669', color: 'white', borderRadius: 9, fontSize: 14, fontWeight: 700, textDecoration: 'none', display: 'inline-block', letterSpacing: '-0.01em' }}>
-                  Start for Free →
+                  Get Started →
                 </a>
             }
           </div>
@@ -1584,7 +1584,7 @@ export default function Home() {
           {/* CTA row */}
           <div className="hero-cta-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 36, opacity: 0, animation: 'fadeInUp 0.5s ease 0.4s both' }}>
             <Link href="/sign-up" style={{ background: '#6366F1', color: 'white', height: 48, padding: '0 28px', borderRadius: 10, fontWeight: 600, fontSize: 15, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', transition: 'background 150ms, transform 150ms' }} onMouseEnter={(e) => { e.currentTarget.style.background = '#4F46E5'; e.currentTarget.style.transform = 'scale(1.02)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = '#6366F1'; e.currentTarget.style.transform = 'scale(1)'; }}>
-              Start for Free →
+              Get Started →
             </Link>
             <button
               onClick={() => setShowDemo(true)}
@@ -1752,7 +1752,7 @@ export default function Home() {
                   { feature: 'AI Store Builder', majorka: true, minea: false, stt: false, manual: false },
                   { feature: 'Multi-Market Optimised', majorka: true, minea: false, stt: false, manual: false },
                   { feature: 'Profit Calculator', majorka: true, minea: false, stt: true, manual: true },
-                  { feature: 'Free Plan Available', majorka: true, minea: false, stt: false, manual: true },
+                  { feature: 'Money-Back Guarantee', majorka: true, minea: false, stt: false, manual: true },
                 ].map((row: { feature: string; majorka: boolean; minea: boolean; stt: boolean; manual: boolean; note?: string }, i) => (
                   <tr key={row.feature} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
                     <td style={{ padding: '12px 16px', fontWeight: 500, color: '#374151' }}>{row.feature}</td>
@@ -1839,40 +1839,11 @@ export default function Home() {
           </div>
 
           {/* Cards */}
-          <div ref={pricingCardsRef} className="grid-1-mobile" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? 12 : 24, textAlign: 'left' }}>
-            {/* Free */}
-            <div data-pricing-card style={{ opacity: 0, transform: 'translateY(20px)', transition: 'opacity 400ms, transform 400ms', background: 'white', border: '1px solid #E5E7EB', borderRadius: 20, padding: 32 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: '#6B7280', marginBottom: 16 }}>Free</div>
-              <div style={{ marginBottom: 4 }}>
-                <span style={{ fontSize: isMobile ? 34 : 56, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', lineHeight: 1 }}>$0</span>
-                <span style={{ fontSize: 16, color: '#6B7280', marginLeft: 4 }}>/month</span>
-              </div>
-              <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 24 }}>Get started with essential tools.</p>
-              <div style={{ height: 1, background: '#F3F4F6', margin: '24px 0' }} />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {[
-                  { text: '5 AI credits/day', on: true },
-                  { text: 'Basic store builder (1 store)', on: true },
-                  { text: 'Market filters (7 regions)', on: true },
-                  { text: 'Product Intelligence', on: false },
-                  { text: 'Competitor Spy Tools', on: false },
-                  { text: 'Priority support', on: false },
-                ].map(f => (
-                  <div key={f.text} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#374151' }}>
-                    <span style={{ color: f.on ? '#6366F1' : '#D1D5DB', fontSize: 16, fontWeight: 700 }}>{f.on ? '✓' : '—'}</span>
-                    <span style={{ color: f.on ? '#374151' : '#9CA3AF' }}>{f.text}</span>
-                  </div>
-                ))}
-              </div>
-              <Link href="/sign-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 44, borderRadius: 10, fontWeight: 600, fontSize: 15, width: '100%', cursor: 'pointer', transition: 'all 150ms', marginTop: 28, background: 'white', border: '1px solid #E5E7EB', color: '#374151', textDecoration: 'none' }}
-                onMouseEnter={e => (e.currentTarget.style.background = '#F9FAFB')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'white')}
-              >Start Free</Link>
-            </div>
+          <div ref={pricingCardsRef} className="grid-1-mobile" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 12 : 24, textAlign: 'left', maxWidth: 740, margin: '0 auto' }}>
 
             {/* Builder — Most Popular */}
             <div data-pricing-card style={{ opacity: 0, transform: 'translateY(20px)', transition: 'opacity 400ms, transform 400ms', background: 'white', border: '2px solid #6366F1', borderRadius: 20, padding: 32, boxShadow: '0 0 0 4px rgba(99,102,241,0.08), 0 24px 48px rgba(99,102,241,0.12)', position: 'relative' }}>
-              <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: '#6366F1', color: 'white', fontSize: 12, fontWeight: 700, padding: '5px 16px', borderRadius: 999, whiteSpace: 'nowrap' }}>⭐ Most Popular</div>
+              <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: '#6366F1', color: 'white', fontSize: 12, fontWeight: 700, padding: '5px 16px', borderRadius: 999, whiteSpace: 'nowrap' }}>Most Popular</div>
               <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: '#6B7280', marginBottom: 16 }}>Builder</div>
               <div style={{ marginBottom: 4 }}>
                 <span style={{ fontSize: isMobile ? 34 : 56, fontWeight: 800, fontFamily: "'Bricolage Grotesque', sans-serif", color: '#0A0A0A', lineHeight: 1 }}>${annual ? 79 : 99}</span>
@@ -1883,16 +1854,18 @@ export default function Home() {
               <div style={{ height: 1, background: '#F3F4F6', margin: '24px 0' }} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[
-                  { text: 'Unlimited product searches', on: true },
-                  { text: 'AI store builder (unlimited)', on: true },
-                  { text: 'Full Product Intelligence', on: true },
-                  { text: 'Market trend data', on: true },
-                  { text: 'Email support', on: true },
-                  { text: 'Ad Creative Briefs', on: true },
+                  { text: '50 product searches/month', on: true },
+                  { text: '50 video searches/month', on: true },
+                  { text: '50 ad intelligence searches/month', on: true },
+                  { text: '50 creator searches/month', on: true },
+                  { text: '5 competitor shop spy/month', on: true },
+                  { text: '3 stores in Store Builder', on: true },
+                  { text: '20 Ads Studio generations/month', on: true },
                   { text: 'Full Competitor Spy', on: false },
+                  { text: 'API access', on: false },
                 ].map(f => (
                   <div key={f.text} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#374151' }}>
-                    <span style={{ color: f.on ? '#6366F1' : '#D1D5DB', fontSize: 16, fontWeight: 700 }}>{f.on ? '✓' : '—'}</span>
+                    <span style={{ color: f.on ? '#6366F1' : '#D1D5DB', fontSize: 16, fontWeight: 700 }}>{f.on ? '\u2713' : '\u2014'}</span>
                     <span style={{ color: f.on ? '#374151' : '#9CA3AF' }}>{f.text}</span>
                   </div>
                 ))}
@@ -1900,7 +1873,7 @@ export default function Home() {
               <Link href="/sign-up?plan=builder" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 44, borderRadius: 10, fontWeight: 600, fontSize: 15, width: '100%', cursor: 'pointer', transition: 'all 150ms', marginTop: 28, background: '#6366F1', color: 'white', border: 'none', textDecoration: 'none', boxShadow: '0 4px 12px rgba(99,102,241,0.3)' }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#4F46E5')}
                 onMouseLeave={e => (e.currentTarget.style.background = '#6366F1')}
-              >Start Free Trial</Link>
+              >Get Started</Link>
             </div>
 
             {/* Scale */}
@@ -1916,14 +1889,15 @@ export default function Home() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {[
                   { text: 'Everything in Builder', on: true },
-                  { text: 'Competitor Spy Tools', on: true },
-                  { text: 'Shop Intelligence', on: true },
+                  { text: 'Unlimited searches (all tools)', on: true },
+                  { text: 'Unlimited Competitor Shop Spy', on: true },
+                  { text: 'Unlimited Store Builder', on: true },
+                  { text: 'Niche Signal Tracking', on: true },
                   { text: 'API access', on: true },
                   { text: 'Priority support', on: true },
-                  { text: 'Custom reporting', on: true },
                 ].map(f => (
                   <div key={f.text} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: '#374151' }}>
-                    <span style={{ color: f.on ? '#6366F1' : '#D1D5DB', fontSize: 16, fontWeight: 700 }}>{f.on ? '✓' : '—'}</span>
+                    <span style={{ color: f.on ? '#6366F1' : '#D1D5DB', fontSize: 16, fontWeight: 700 }}>{f.on ? '\u2713' : '\u2014'}</span>
                     <span style={{ color: f.on ? '#374151' : '#9CA3AF' }}>{f.text}</span>
                   </div>
                 ))}
@@ -1931,7 +1905,7 @@ export default function Home() {
               <Link href="/sign-up?plan=scale" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 44, borderRadius: 10, fontWeight: 600, fontSize: 15, width: '100%', cursor: 'pointer', transition: 'all 150ms', marginTop: 28, background: '#0A0A0A', color: 'white', border: 'none', textDecoration: 'none' }}
                 onMouseEnter={e => (e.currentTarget.style.background = '#1A1A1A')}
                 onMouseLeave={e => (e.currentTarget.style.background = '#0A0A0A')}
-              >Start Free Trial</Link>
+              >Subscribe</Link>
             </div>
           </div>
         </div>
@@ -1979,7 +1953,7 @@ export default function Home() {
                 onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = 'translateY(-3px)'; el.style.boxShadow = '0 0 80px rgba(99,102,241,0.5), 0 8px 32px rgba(0,0,0,0.4)'; }}
                 onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.transform = ''; el.style.boxShadow = '0 0 60px rgba(99,102,241,0.35), 0 4px 24px rgba(0,0,0,0.3)'; }}
               >
-                Get Started Free →
+                Get Started →
               </Link>
             </div>
             <SocialProofCounter />

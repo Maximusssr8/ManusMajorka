@@ -35,6 +35,10 @@ import { appRouter } from '../routers';
 import { registerChatRoutes } from './chat';
 import { createContext } from './context';
 import { serveStatic, setupVite } from './vite';
+import { createClient } from '@supabase/supabase-js';
+import { getUsageSummary } from '../lib/usageLimits';
+import type { Plan } from '../../shared/plans';
+import { requireAuth } from '../middleware/requireAuth';
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -220,6 +224,31 @@ async function startServer() {
   // Cron endpoints (Vercel cron + manual refresh)
   const cronRouter = (await import('../routes/cron')).default;
   app.use('/api/cron', cronRouter);
+  // ── Usage tracking — GET /api/usage/me ────────────────────────────────────
+  app.get('/api/usage/me', requireAuth, async (req, res) => {
+    try {
+      const userId = (req as any).user?.userId;
+      const email = (req as any).user?.email;
+      const SURL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+      const SKEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+      const sb = createClient(SURL, SKEY);
+
+      let plan: Plan = 'builder';
+      if (email === 'maximusmajorka@gmail.com') {
+        plan = 'scale';
+      } else {
+        const { data: sub } = await sb.from('user_subscriptions')
+          .select('plan').eq('user_id', userId).single();
+        plan = (sub?.plan?.toLowerCase() as Plan) || 'builder';
+      }
+
+      const summary = await getUsageSummary(userId, plan);
+      res.json({ plan, usage: summary, month: new Date().toISOString().slice(0, 7) });
+    } catch {
+      res.json({ plan: 'builder', usage: {}, month: '' });
+    }
+  });
+
   // Subscription + Admin
   const subscriptionRouter = (await import('../routes/subscription')).default;
   app.use('/api/subscription', subscriptionRouter);

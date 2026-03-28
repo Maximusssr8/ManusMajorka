@@ -15,14 +15,14 @@ router.get('/me', requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.userId || (req as any).user?.sub;
     if (!userId) {
-      res.json({ plan: 'free', status: 'inactive' });
+      res.json({ plan: '', status: 'inactive', subscribed: false });
       return;
     }
 
     // Admin bypass
     const email = (req as any).user?.email || '';
     if (email === 'maximusmajorka@gmail.com') {
-      res.json({ plan: 'scale', status: 'active' });
+      res.json({ plan: 'scale', status: 'active', subscribed: true });
       return;
     }
 
@@ -33,20 +33,29 @@ router.get('/me', requireAuth, async (req: Request, res: Response) => {
       .single();
 
     if (error || !data) {
-      res.json({ plan: 'free', status: 'inactive' });
+      res.json({ plan: '', status: 'inactive', subscribed: false });
       return;
     }
 
     // Check expiry
     if (data.current_period_end && new Date(data.current_period_end) < new Date()) {
-      res.json({ plan: 'free', status: 'expired' });
+      res.json({ plan: '', status: 'expired', subscribed: false });
       return;
     }
 
-    res.json({ plan: data.plan || 'free', status: data.status || 'inactive' });
+    const plan = data.plan?.toLowerCase() || '';
+    const status = data.status?.toLowerCase() || 'inactive';
+    const isValid = ['builder', 'scale'].includes(plan) && status === 'active';
+
+    if (!isValid) {
+      res.json({ plan: '', status: 'inactive', subscribed: false });
+      return;
+    }
+
+    res.json({ plan, status, subscribed: true });
   } catch (err) {
     console.error('[subscription/me]', err);
-    res.json({ plan: 'free', status: 'inactive' });
+    res.json({ plan: '', status: 'inactive', subscribed: false });
   }
 });
 
