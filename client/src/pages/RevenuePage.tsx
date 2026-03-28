@@ -45,16 +45,16 @@ const ALL_DATA: Pt[] = RAW_CURVE.map((revenue, i) => {
 
 // ── Demo orders ───────────────────────────────────────────────────────────────
 const ORDERS = [
-  { id: '1847', product: 'LED Light Therapy Face Mask',    amount: 156.91, flag: '🇦🇺', time: '2h ago',  status: 'paid' },
-  { id: '1846', product: 'Dog Harness No Pull Reflective', amount:  21.08, flag: '🇳🇿', time: '3h ago',  status: 'paid' },
-  { id: '1845', product: 'Posture Corrector Adjustable',   amount:  46.84, flag: '🇦🇺', time: '5h ago',  status: 'paid' },
-  { id: '1844', product: 'Portable Blender Juicer',        amount:  94.00, flag: '🇬🇧', time: '6h ago',  status: 'paid' },
-  { id: '1843', product: 'Reusable Makeup Remover Pads',   amount:  40.92, flag: '🇦🇺', time: '8h ago',  status: 'paid' },
-  { id: '1842', product: 'UV Sanitiser Box Steriliser',    amount:  31.20, flag: '🇺🇸', time: '9h ago',  status: 'paid' },
-  { id: '1841', product: 'Facial Roller Massager Jade',    amount: 171.00, flag: '🇦🇺', time: '11h ago', status: 'paid' },
-  { id: '1840', product: 'Car Seat Back Organiser',        amount:  16.00, flag: '🇦🇺', time: '12h ago', status: 'paid' },
-  { id: '1839', product: 'Eyebrow Stamp Kit Professional', amount:  12.00, flag: '🇸🇬', time: '14h ago', status: 'paid' },
-  { id: '1838', product: 'Biotin Hair Growth Serum',       amount:   5.21, flag: '🇦🇺', time: '16h ago', status: 'paid' },
+  { id: '1847', product: 'LED Light Therapy Face Mask',    amount: 156.91, flag: '🇦🇺', time: '2h ago',  color: '#EC4899', emoji: '✨' },
+  { id: '1846', product: 'Dog Harness No Pull Reflective', amount:  21.08, flag: '🇳🇿', time: '3h ago',  color: '#F59E0B', emoji: '🐾' },
+  { id: '1845', product: 'Posture Corrector Adjustable',   amount:  46.84, flag: '🇦🇺', time: '5h ago',  color: '#6366F1', emoji: '💪' },
+  { id: '1844', product: 'Portable Blender Juicer',        amount:  94.00, flag: '🇬🇧', time: '6h ago',  color: '#22C55E', emoji: '🥤' },
+  { id: '1843', product: 'Reusable Makeup Remover Pads',   amount:  40.92, flag: '🇦🇺', time: '8h ago',  color: '#A78BFA', emoji: '🌿' },
+  { id: '1842', product: 'UV Sanitiser Box Steriliser',    amount:  31.20, flag: '🇺🇸', time: '9h ago',  color: '#38BDF8', emoji: '🔬' },
+  { id: '1841', product: 'Facial Roller Massager Jade',    amount: 171.00, flag: '🇦🇺', time: '11h ago', color: '#34D399', emoji: '💆' },
+  { id: '1840', product: 'Car Seat Back Organiser',        amount:  16.00, flag: '🇦🇺', time: '12h ago', color: '#FB923C', emoji: '🚗' },
+  { id: '1839', product: 'Eyebrow Stamp Kit Professional', amount:  12.00, flag: '🇸🇬', time: '14h ago', color: '#F472B6', emoji: '💄' },
+  { id: '1838', product: 'Biotin Hair Growth Serum',       amount:   5.21, flag: '🇦🇺', time: '16h ago', color: '#4ADE80', emoji: '🌱' },
 ];
 
 type Range = '7D' | '30D' | '90D';
@@ -280,66 +280,85 @@ export default function RevenuePage() {
 
       {/* ═══ ORDERS ════════════════════════════════════════════════════════ */}
       <div style={{ maxWidth:1200, margin:'0 auto', padding: isMobile ? '16px 16px 0' : '24px 48px 0' }}>
-        {/* Section header */}
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
           <div>
-            <div style={{ fontSize: isMobile ? 14 : 16, fontWeight:800, color:'#fff', fontFamily:brico }}>Recent Orders</div>
-            <div style={{ fontSize:11, color:'#4B5563', marginTop:2 }}>Demo data · 10 most recent</div>
+            <div style={{ fontSize: isMobile ? 15 : 18, fontWeight:900, color:'#fff', fontFamily:brico, letterSpacing:'-0.01em' }}>Recent Orders</div>
+            <div style={{ fontSize:11, color:'#374151', marginTop:3 }}>Demo data · Last 10 transactions</div>
           </div>
-          <div style={{ fontSize:11, color:'#4B5563', display:'flex', alignItems:'center', gap:4 }}>
-            <div style={{ width:6, height:6, borderRadius:'50%', background:G }}/>
-            {ORDERS.length} orders
+          <div style={{ display:'flex', alignItems:'center', gap:6, background:'rgba(34,197,94,.08)', border:'1px solid rgba(34,197,94,.15)', borderRadius:999, padding:'5px 12px' }}>
+            <div style={{ width:6, height:6, borderRadius:'50%', background:G, boxShadow:`0 0 6px ${G}` }}/>
+            <span style={{ fontSize:11, color:G, fontWeight:700 }}>10 orders today</span>
           </div>
         </div>
 
-        {/* Table */}
-        <div style={{ background:'#0E1420', border:'1px solid rgba(255,255,255,.07)', borderRadius:20, overflow:'hidden' }}>
-          {/* Header row */}
-          {!isMobile && (
-            <div style={{ display:'grid', gridTemplateColumns:'80px 1fr 100px 50px 80px 60px', gap:0, padding:'10px 20px', borderBottom:'1px solid rgba(255,255,255,.06)' }}>
-              {['Order','Product','Amount','','Time','Status'].map(h => (
-                <div key={h} style={{ fontSize:10, color:'#374151', fontWeight:700, letterSpacing:'.08em', textTransform:'uppercase' as const, textAlign: h==='Amount' ? 'right' as const : 'left' as const }}>{h}</div>
-              ))}
-            </div>
-          )}
-
-          {ORDERS.map((o, i) => (
+        {/* Feed */}
+        <div style={{ display:'flex', flexDirection:'column' as const, gap:8 }}>
+          {ORDERS.map((o) => (
             <div key={o.id} className="rev-order-row" style={{
-              display:'grid',
-              gridTemplateColumns: isMobile ? 'auto 1fr auto auto' : '80px 1fr 100px 50px 80px 60px',
-              gap: isMobile ? '0 10px' : 0,
-              alignItems:'center',
-              padding: isMobile ? '12px 14px' : '13px 20px',
-              borderBottom: i<ORDERS.length-1 ? '1px solid rgba(255,255,255,.04)' : 'none',
-              transition:'background 120ms',
-            }}>
-              {/* Order ID */}
-              <div style={{ fontSize: isMobile ? 11 : 12, fontWeight:700, color:I, fontFamily:"'DM Mono',monospace", background:'rgba(99,102,241,.1)', borderRadius:6, padding:'3px 8px', width:'fit-content' }}>
-                #{o.id}
+              background:'#0E1420',
+              border:'1px solid rgba(255,255,255,.06)',
+              borderRadius:16,
+              padding: isMobile ? '14px 16px' : '16px 20px',
+              display:'flex', alignItems:'center', gap: isMobile ? 12 : 16,
+              transition:'border-color 150ms, transform 150ms',
+              cursor:'default',
+            }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99,102,241,.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,.06)'; (e.currentTarget as HTMLElement).style.transform = 'none'; }}
+            >
+              {/* Product avatar */}
+              <div style={{
+                width: isMobile ? 40 : 48, height: isMobile ? 40 : 48,
+                borderRadius: 14, flexShrink: 0,
+                background: `${o.color}18`,
+                border: `1.5px solid ${o.color}30`,
+                display:'flex', alignItems:'center', justifyContent:'center',
+                fontSize: isMobile ? 18 : 22,
+              }}>
+                {o.emoji}
               </div>
 
-              {/* Product */}
-              <div style={{ fontSize: isMobile ? 12 : 13, color:'#E2E8F0', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' as const, paddingLeft: isMobile ? 0 : 12 }}>
-                {o.product}
-              </div>
-
-              {/* Amount */}
-              <div style={{ fontSize: isMobile ? 15 : 16, fontWeight:900, color:G, fontFamily:brico, textAlign: isMobile ? 'right' as const : 'right' as const }}>
-                ${o.amount.toFixed(2)}
-              </div>
-
-              {/* Flag (desktop) or flag (mobile after amount) */}
-              <div style={{ fontSize:16, textAlign:'center' as const }}>{o.flag}</div>
-
-              {/* Time (desktop only) */}
-              {!isMobile && <div style={{ fontSize:11, color:'#4B5563' }}>{o.time}</div>}
-
-              {/* Status (desktop only) */}
-              {!isMobile && (
-                <div style={{ display:'flex', justifyContent:'flex-end' }}>
-                  <span style={{ fontSize:10, fontWeight:700, color:G, background:'rgba(34,197,94,.1)', border:'1px solid rgba(34,197,94,.2)', borderRadius:999, padding:'3px 8px', letterSpacing:'.04em' }}>PAID</span>
+              {/* Product info */}
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{
+                  fontSize: isMobile ? 13 : 14,
+                  fontWeight: 600,
+                  color: '#F1F5F9',
+                  overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' as const,
+                  marginBottom: 4,
+                }}>
+                  {o.product}
                 </div>
-              )}
+                <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                  <span style={{ fontSize:11, color:'#374151', fontFamily:"'DM Mono',monospace" }}>#{o.id}</span>
+                  <span style={{ fontSize:10, color:'#374151' }}>·</span>
+                  <span style={{ fontSize:11, color:'#374151' }}>{o.time}</span>
+                  <span style={{ fontSize:14 }}>{o.flag}</span>
+                </div>
+              </div>
+
+              {/* Right: amount + status */}
+              <div style={{ display:'flex', flexDirection:'column' as const, alignItems:'flex-end', gap:5, flexShrink:0 }}>
+                <div style={{
+                  fontSize: isMobile ? 17 : 20,
+                  fontWeight: 900,
+                  color: '#FFFFFF',
+                  fontFamily: brico,
+                  letterSpacing: '-0.01em',
+                  lineHeight: 1,
+                }}>
+                  <span style={{ color:G, fontSize:'0.7em', verticalAlign:'super' }}>$</span>{o.amount.toFixed(2)}
+                </div>
+                <div style={{
+                  fontSize:10, fontWeight:700, color:G,
+                  background:'rgba(34,197,94,.1)',
+                  border:'1px solid rgba(34,197,94,.2)',
+                  borderRadius:999, padding:'2px 8px',
+                  letterSpacing:'.06em',
+                }}>
+                  PAID
+                </div>
+              </div>
             </div>
           ))}
         </div>
