@@ -45,19 +45,26 @@ function buildCurve(raw: number[]): Pt[] {
   });
 }
 
-const MAX_CURVE = [189,214,178,256,310,198,152,287,334,376,412,455,298,241,398,467,521,548,612,445,318,587,634,701,812,689,598,487,412,287];
+const MAX_CURVE = [487,521,398,612,740,498,342,687,834,976,1012,1155,898,641,998,1167,1321,1448,1612,1245,918,1587,1834,2101,2212,1989,1798,1487,1212,887];
 const MAX_DATA = buildCurve(MAX_CURVE);
 const ZERO_DATA = buildCurve(Array(30).fill(0));
 
 // ── Marketing data ───────────────────────────────────────────────────────────
 const MAX_STATS = {
-  total: 24847.50,
-  month: '$8,241',
-  today: '$287',
-  bestDay: '$1,891',
-  aov: '$64.20',
-  orders: '387',
-  moM: '+34.2%',
+  total: 84291.50,
+  month: '$28,470',
+  today: '$1,247',
+  todayOrders: 8,
+  bestDay: '$4,891',
+  orders: '1,847',
+  aov: '$45.64',
+  moM: '+42.8%',
+  streak: 14,
+  rank: 47,
+  goalTarget: 100000,
+  goalLabel: '$100K Club',
+  goalPercent: 84.3,
+  goalRemaining: '$15,708.50',
 };
 
 const ZERO_STATS = {
@@ -82,41 +89,45 @@ interface Order {
 }
 
 const MAX_ORDERS: Order[] = [
-  { id: '2847', product: 'LED Light Therapy Face Mask',    amount: 156.91, flag: '\u{1F1E6}\u{1F1FA}', time: '34m ago',  color: '#EC4899', emoji: '\u2728', today: true  },
-  { id: '2846', product: 'UV Sanitiser Box Steriliser',    amount:  63.24, flag: '\u{1F1E6}\u{1F1FA}', time: '1h ago',   color: '#38BDF8', emoji: '\u{1F52C}', today: true  },
-  { id: '2845', product: 'Posture Corrector Adjustable',   amount:  46.84, flag: '\u{1F1F3}\u{1F1FF}', time: '2h ago',   color: '#6366F1', emoji: '\u{1F4AA}', today: true  },
-  { id: '2844', product: 'Biotin Hair Growth Serum',       amount:  20.01, flag: '\u{1F1E6}\u{1F1FA}', time: '3h ago',   color: '#4ADE80', emoji: '\u{1F331}', today: true  },
-  { id: '2843', product: 'Facial Roller Massager Jade',    amount: 171.00, flag: '\u{1F1E6}\u{1F1FA}', time: 'Yesterday', color: '#34D399', emoji: '\u{1F486}', today: false },
-  { id: '2842', product: 'Portable Blender Juicer',        amount:  94.00, flag: '\u{1F1EC}\u{1F1E7}', time: 'Yesterday', color: '#22C55E', emoji: '\u{1F964}', today: false },
-  { id: '2841', product: 'Dog Harness No Pull Reflective', amount:  42.16, flag: '\u{1F1F3}\u{1F1FF}', time: 'Yesterday', color: '#F59E0B', emoji: '\u{1F43E}', today: false },
-  { id: '2840', product: 'Reusable Makeup Remover Pads',   amount:  40.92, flag: '\u{1F1E6}\u{1F1FA}', time: 'Yesterday', color: '#A78BFA', emoji: '\u{1F33F}', today: false },
-  { id: '2839', product: 'Eyebrow Stamp Kit Professional', amount:  36.00, flag: '\u{1F1F8}\u{1F1EC}', time: 'Yesterday', color: '#F472B6', emoji: '\u{1F484}', today: false },
-  { id: '2838', product: 'Car Seat Back Organiser',        amount:  16.00, flag: '\u{1F1E6}\u{1F1FA}', time: 'Yesterday', color: '#FB923C', emoji: '\u{1F697}', today: false },
+  { id: '2847', product: 'LED Light Therapy Face Mask',    amount: 313.82, flag: '\u{1F1E6}\u{1F1FA}', time: '28m ago',   color: '#EC4899', emoji: '\u2728', today: true  },
+  { id: '2846', product: 'Facial Roller Massager Jade',    amount: 171.00, flag: '\u{1F1E6}\u{1F1FA}', time: '52m ago',   color: '#34D399', emoji: '\u{1F486}', today: true  },
+  { id: '2845', product: 'Portable Blender Juicer',        amount: 188.00, flag: '\u{1F1EC}\u{1F1E7}', time: '1h ago',    color: '#22C55E', emoji: '\u{1F964}', today: true  },
+  { id: '2844', product: 'Posture Corrector Adjustable',   amount:  93.68, flag: '\u{1F1E6}\u{1F1FA}', time: '2h ago',    color: '#6366F1', emoji: '\u{1F4AA}', today: true  },
+  { id: '2843', product: 'UV Sanitiser Box Steriliser',    amount: 156.48, flag: '\u{1F1F3}\u{1F1FF}', time: '3h ago',    color: '#38BDF8', emoji: '\u{1F52C}', today: true  },
+  { id: '2842', product: 'Dog Harness No Pull',            amount:  84.32, flag: '\u{1F1F3}\u{1F1FF}', time: '4h ago',    color: '#F59E0B', emoji: '\u{1F43E}', today: true  },
+  { id: '2841', product: 'Eyebrow Stamp Kit \u00D7 3',     amount: 108.00, flag: '\u{1F1F8}\u{1F1EC}', time: '5h ago',    color: '#F472B6', emoji: '\u{1F484}', today: true  },
+  { id: '2840', product: 'Makeup Remover Pads \u00D7 3',   amount: 131.70, flag: '\u{1F1E6}\u{1F1FA}', time: '6h ago',    color: '#A78BFA', emoji: '\u{1F33F}', today: true  },
+  { id: '2839', product: 'Biotin Hair Growth Serum \u00D7 3', amount: 62.97, flag: '\u{1F1E6}\u{1F1FA}', time: 'Yesterday', color: '#4ADE80', emoji: '\u{1F331}', today: false },
+  { id: '2838', product: 'Car Seat Back Organiser \u00D7 2',  amount: 32.00, flag: '\u{1F1E6}\u{1F1FA}', time: 'Yesterday', color: '#FB923C', emoji: '\u{1F697}', today: false },
+  { id: '2837', product: 'Jade Face Roller',                amount: 171.00, flag: '\u{1F1E6}\u{1F1FA}', time: 'Yesterday', color: '#34D399', emoji: '\u{1F486}', today: false },
+  { id: '2836', product: 'LED Face Mask',                   amount: 156.91, flag: '\u{1F1F3}\u{1F1FF}', time: 'Yesterday', color: '#EC4899', emoji: '\u2728', today: false },
+  { id: '2835', product: 'Posture Corrector \u00D7 2',      amount:  93.68, flag: '\u{1F1EC}\u{1F1E7}', time: 'Yesterday', color: '#6366F1', emoji: '\u{1F4AA}', today: false },
+  { id: '2834', product: 'Portable Blender',                amount:  94.00, flag: '\u{1F1FA}\u{1F1F8}', time: 'Yesterday', color: '#22C55E', emoji: '\u{1F964}', today: false },
 ];
 
 // ── Country breakdown ────────────────────────────────────────────────────────
 const COUNTRIES = [
-  { flag: '\u{1F1E6}\u{1F1FA}', name: 'Australia',      amount: 14218, pct: 57.2, color: G },
-  { flag: '\u{1F1F3}\u{1F1FF}', name: 'New Zealand',    amount: 4847,  pct: 19.5, color: I },
-  { flag: '\u{1F1EC}\u{1F1E7}', name: 'United Kingdom', amount: 3612,  pct: 14.5, color: V },
-  { flag: '\u{1F1FA}\u{1F1F8}', name: 'United States',  amount: 2170,  pct: 8.7,  color: A },
+  { flag: '\u{1F1E6}\u{1F1FA}', name: 'Australia',      amount: 48240,  pct: 57.2, color: G },
+  { flag: '\u{1F1F3}\u{1F1FF}', name: 'New Zealand',    amount: 16420,  pct: 19.5, color: I },
+  { flag: '\u{1F1EC}\u{1F1E7}', name: 'United Kingdom', amount: 12230,  pct: 14.5, color: V },
+  { flag: '\u{1F1FA}\u{1F1F8}', name: 'United States',  amount: 7401.50, pct: 8.8, color: A },
 ];
 
 // ── Top products ─────────────────────────────────────────────────────────────
 const TOP_PRODUCTS = [
-  { emoji: '\u2728', name: 'LED Light Therapy Face Mask',  revenue: 4180, border: '#FFD700' },
-  { emoji: '\u{1F486}', name: 'Facial Roller Massager Jade',  revenue: 3762, border: '#C0C0C0' },
-  { emoji: '\u{1F964}', name: 'Portable Blender Juicer',      revenue: 3104, border: '#CD7F32' },
-  { emoji: '\u{1F4AA}', name: 'Posture Corrector Adjustable', revenue: 2890, border: 'transparent' },
-  { emoji: '\u{1F52C}', name: 'UV Sanitiser Box Steriliser',  revenue: 2640, border: 'transparent' },
+  { emoji: '\u2728', name: 'LED Light Therapy Face Mask',  revenue: 18420, border: '#FFD700' },
+  { emoji: '\u{1F486}', name: 'Facial Roller Massager Jade',  revenue: 14280, border: '#C0C0C0' },
+  { emoji: '\u{1F964}', name: 'Portable Blender Juicer',      revenue: 12840, border: '#CD7F32' },
+  { emoji: '\u{1F4AA}', name: 'Posture Corrector Adjustable', revenue: 9760, border: 'transparent' },
+  { emoji: '\u{1F52C}', name: 'UV Sanitiser Box Steriliser',  revenue: 8420, border: 'transparent' },
 ];
 
 // ── Achievement badges ───────────────────────────────────────────────────────
 const BADGES = [
-  { emoji: '\u{1F48E}', title: '$25K Club',      sub: 'Unlocking',       color: A,   progress: '99.4%' },
-  { emoji: '\u{1F525}', title: '14-Day Streak',  sub: 'Active streak',   color: G,   progress: null },
-  { emoji: '\u{1F30F}', title: 'Global Seller',  sub: '4 countries',     color: I,   progress: null },
-  { emoji: '\u2B50',    title: 'Rising Star',    sub: 'Top 5% this month', color: V, progress: null },
+  { emoji: '\u{1F48E}', title: '$100K Club',     sub: '84.3% there',       color: A,   progress: '84.3%' },
+  { emoji: '\u{1F525}', title: '14-Day Streak',  sub: 'Active streak',     color: G,   progress: null },
+  { emoji: '\u{1F30F}', title: 'Global Seller',  sub: '4 countries',       color: I,   progress: null },
+  { emoji: '\u2B50',    title: 'Rising Star',    sub: 'Top 5% this month', color: V,   progress: null },
   { emoji: '\u{1F680}', title: '$1K Day',        sub: 'Mar 22 \u00B7 Unlocked', color: A, progress: null },
 ];
 
@@ -183,7 +194,7 @@ export default function RevenuePage() {
 
   const handleShare = useCallback(async () => {
     const text = isMarketing
-      ? `\u{1F4B0} My Store Earnings\n\nEst. Total: $24,847.50\nThis Month: $8,241\nToday: $287\n\nTracked by Majorka \u00B7 majorka.io`
+      ? `\u{1F4B0} My Store Earnings\n\nEst. Total: $84,291.50\nThis Month: $28,470\nToday: $1,247\n\nTracked by Majorka \u00B7 majorka.io`
       : `\u{1F4B0} Track your store earnings with Majorka \u00B7 majorka.io`;
     if (navigator.share) { try { await navigator.share({ text }); } catch { /**/ } }
     else { await navigator.clipboard.writeText(text); setToast('Copied!'); setTimeout(() => setToast(''), 2000); }
@@ -298,19 +309,19 @@ export default function RevenuePage() {
             {isMarketing && (
               <div style={{ marginTop: 4 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <span style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 600 }}>{'\u{1F3AF}'} $25K Goal {'\u2014'} 99.4%</span>
+                  <span style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 600 }}>{'\u{1F3AF}'} $100K Goal {'\u2014'} 84.3%</span>
                 </div>
                 <div style={{ width: '100%', height: 6, background: 'rgba(255,255,255,.06)', borderRadius: 999, overflow: 'hidden' as const }}>
                   <div style={{
                     height: '100%',
                     borderRadius: 999,
                     background: 'linear-gradient(90deg, #22C55E, #4ADE80)',
-                    width: progressReady ? '99.4%' : '0%',
+                    width: progressReady ? '84.3%' : '0%',
                     transition: 'width 1.2s cubic-bezier(0.4, 0, 0.2, 1)',
                   }} />
                 </div>
                 <div style={{ fontSize: 12, color: G, marginTop: 6, fontWeight: 600 }}>
-                  Only $152.50 to go!
+                  Only $15,708.50 to go!
                 </div>
               </div>
             )}
@@ -377,7 +388,7 @@ export default function RevenuePage() {
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(5,1fr)', gap: isMobile ? 10 : 14 }}>
           {[
             { label: 'This Month', value: stats.month,   sub: isMarketing ? '+12% vs prev' : 'No store connected', Icon: TrendingUp, color: G },
-            { label: 'Today',      value: stats.today,   sub: isMarketing ? '4 orders' : '\u2014',                  Icon: DollarSign, color: I },
+            { label: 'Today',      value: stats.today,   sub: isMarketing ? '8 orders' : '\u2014',                  Icon: DollarSign, color: I },
             { label: 'Best Day',   value: stats.bestDay, sub: isMarketing ? 'Mar 22' : '\u2014',                    Icon: Star,       color: A },
             { label: 'Avg Order',  value: stats.aov,     sub: isMarketing ? 'per transaction' : '\u2014',           Icon: ShoppingCart, color: V },
             { label: 'All Orders', value: stats.orders,  sub: isMarketing ? 'all time' : 'no orders yet',           Icon: ShoppingBag, color: '#64748B' },
@@ -457,7 +468,7 @@ export default function RevenuePage() {
               ))}
             </div>
             <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,.06)', fontSize: 12, color: '#6B7280' }}>
-              4 countries {'\u00B7'} $24,847.50 total
+              4 countries {'\u00B7'} $84,291.50 total
             </div>
           </div>
 
@@ -498,12 +509,12 @@ export default function RevenuePage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div>
             <div style={{ fontSize: isMobile ? 15 : 18, fontWeight: 900, color: '#fff', fontFamily: brico, letterSpacing: '-0.01em' }}>Recent Orders</div>
-            <div style={{ fontSize: 11, color: '#374151', marginTop: 3 }}>{isMarketing ? 'Last 10 transactions' : 'No orders yet'}</div>
+            <div style={{ fontSize: 11, color: '#374151', marginTop: 3 }}>{isMarketing ? 'Last 14 transactions' : 'No orders yet'}</div>
           </div>
           {isMarketing && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(34,197,94,.08)', border: '1px solid rgba(34,197,94,.15)', borderRadius: 999, padding: '5px 12px' }}>
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: G, boxShadow: `0 0 6px ${G}` }} />
-              <span style={{ fontSize: 11, color: G, fontWeight: 700 }}>4 orders today</span>
+              <span style={{ fontSize: 11, color: G, fontWeight: 700 }}>8 orders today</span>
             </div>
           )}
         </div>
