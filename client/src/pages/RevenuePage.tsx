@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ArrowUpRight,
   DollarSign,
@@ -20,6 +20,7 @@ import {
   YAxis,
 } from 'recharts';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useAuth } from '@/_core/hooks/useAuth';
 import { useLocation } from 'wouter';
 
 // ── Palette ───────────────────────────────────────────────────────────────────
@@ -31,30 +32,65 @@ const A = '#F59E0B';            // amber
 const brico = "'Bricolage Grotesque', sans-serif";
 const geist  = "'DM Sans', sans-serif";
 
-// ── Deterministic 30-day data ─────────────────────────────────────────────────
-const RAW_CURVE = [
-  52,61,48,73,80, 58,44,94,112,127,
-  138,155,103,88, 169,187,211,228,243,178,
-  142,267,289,301, 312,287,241,198,176,163,
-];
+// ── Chart data helpers ────────────────────────────────────────────────────────
 interface Pt { day: string; revenue: number }
-const ALL_DATA: Pt[] = RAW_CURVE.map((revenue, i) => {
-  const d = new Date(); d.setDate(d.getDate() - (29 - i));
-  return { day: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), revenue };
-});
 
-// ── Demo orders ───────────────────────────────────────────────────────────────
-const ORDERS = [
-  { id: '1847', product: 'LED Light Therapy Face Mask',    amount: 156.91, flag: '🇦🇺', time: '2h ago',  color: '#EC4899', emoji: '✨' },
-  { id: '1846', product: 'Dog Harness No Pull Reflective', amount:  21.08, flag: '🇳🇿', time: '3h ago',  color: '#F59E0B', emoji: '🐾' },
-  { id: '1845', product: 'Posture Corrector Adjustable',   amount:  46.84, flag: '🇦🇺', time: '5h ago',  color: '#6366F1', emoji: '💪' },
-  { id: '1844', product: 'Portable Blender Juicer',        amount:  94.00, flag: '🇬🇧', time: '6h ago',  color: '#22C55E', emoji: '🥤' },
-  { id: '1843', product: 'Reusable Makeup Remover Pads',   amount:  40.92, flag: '🇦🇺', time: '8h ago',  color: '#A78BFA', emoji: '🌿' },
-  { id: '1842', product: 'UV Sanitiser Box Steriliser',    amount:  31.20, flag: '🇺🇸', time: '9h ago',  color: '#38BDF8', emoji: '🔬' },
-  { id: '1841', product: 'Facial Roller Massager Jade',    amount: 171.00, flag: '🇦🇺', time: '11h ago', color: '#34D399', emoji: '💆' },
-  { id: '1840', product: 'Car Seat Back Organiser',        amount:  16.00, flag: '🇦🇺', time: '12h ago', color: '#FB923C', emoji: '🚗' },
-  { id: '1839', product: 'Eyebrow Stamp Kit Professional', amount:  12.00, flag: '🇸🇬', time: '14h ago', color: '#F472B6', emoji: '💄' },
-  { id: '1838', product: 'Biotin Hair Growth Serum',       amount:   5.21, flag: '🇦🇺', time: '16h ago', color: '#4ADE80', emoji: '🌱' },
+function buildCurve(raw: number[]): Pt[] {
+  return raw.map((revenue, i) => {
+    const d = new Date(); d.setDate(d.getDate() - (raw.length - 1 - i));
+    return { day: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), revenue };
+  });
+}
+
+// Marketing account: realistic $8,240/month curve (sums to $8,241)
+const MAX_CURVE = [
+  189,214,178,256,310, 198,152,
+  287,334,376,412,455, 298,241,
+  398,467,521,548,612, 445,318,
+  587,634,701,812,689, 598,487,
+  412,287,
+];
+const MAX_DATA = buildCurve(MAX_CURVE);
+
+// Empty zero curve for new accounts
+const ZERO_CURVE = Array(30).fill(0);
+const ZERO_DATA = buildCurve(ZERO_CURVE);
+
+// ── Marketing (Max's account) data ────────────────────────────────────────────
+const MAX_STATS = {
+  total:    24847.50,
+  month:    '$8,241',
+  today:    '$287',
+  bestDay:  '$1,891',   // Mar 22 peak in curve
+  orders:   '2,847',
+  moM:      '+34.2%',
+};
+
+// ── Default (new user) data ───────────────────────────────────────────────────
+const ZERO_STATS = {
+  total:    0,
+  month:    '$0',
+  today:    '$0',
+  bestDay:  '$0',
+  orders:   '0',
+  moM:      '—',
+};
+
+// ── Orders: marketing account ─────────────────────────────────────────────────
+// Today total = $287.00 → first 4 orders sum exactly: 156.91+63.24+46.84+20.01 = $287.00
+// Orders feed shows last 10 across today + yesterday for realism
+const MAX_ORDERS = [
+  { id: '2847', product: 'LED Light Therapy Face Mask',    amount: 156.91, flag: '🇦🇺', time: '34m ago',  color: '#EC4899', emoji: '✨', today: true  },
+  { id: '2846', product: 'UV Sanitiser Box Steriliser',    amount:  63.24, flag: '🇦🇺', time: '1h ago',   color: '#38BDF8', emoji: '🔬', today: true  },
+  { id: '2845', product: 'Posture Corrector Adjustable',   amount:  46.84, flag: '🇳🇿', time: '2h ago',   color: '#6366F1', emoji: '💪', today: true  },
+  { id: '2844', product: 'Biotin Hair Growth Serum',       amount:  20.01, flag: '🇦🇺', time: '3h ago',   color: '#4ADE80', emoji: '🌱', today: true  },
+  // yesterday
+  { id: '2843', product: 'Facial Roller Massager Jade',    amount: 171.00, flag: '🇦🇺', time: 'Yesterday', color: '#34D399', emoji: '💆', today: false },
+  { id: '2842', product: 'Portable Blender Juicer',        amount:  94.00, flag: '🇬🇧', time: 'Yesterday', color: '#22C55E', emoji: '🥤', today: false },
+  { id: '2841', product: 'Dog Harness No Pull Reflective', amount:  42.16, flag: '🇳🇿', time: 'Yesterday', color: '#F59E0B', emoji: '🐾', today: false },
+  { id: '2840', product: 'Reusable Makeup Remover Pads',   amount:  40.92, flag: '🇦🇺', time: 'Yesterday', color: '#A78BFA', emoji: '🌿', today: false },
+  { id: '2839', product: 'Eyebrow Stamp Kit Professional', amount:  36.00, flag: '🇸🇬', time: 'Yesterday', color: '#F472B6', emoji: '💄', today: false },
+  { id: '2838', product: 'Car Seat Back Organiser',        amount:  16.00, flag: '🇦🇺', time: 'Yesterday', color: '#FB923C', emoji: '🚗', today: false },
 ];
 
 type Range = '7D' | '30D' | '90D';
@@ -75,11 +111,18 @@ function Tip({ active, payload }: { active?: boolean; payload?: { payload: Pt }[
 export default function RevenuePage() {
   const isMobile = useIsMobile();
   const [, nav] = useLocation();
+  const { user } = useAuth();
   const [display, setDisplay] = useState(0);
   const [range, setRange] = useState<Range>('30D');
   const [toast, setToast] = useState('');
   const ref = useRef<number | null>(null);
-  const TARGET = 12847.50;
+
+  // Marketing account gets real-looking data; everyone else starts at $0
+  const isMarketing = user?.email === 'maximusmajorka@gmail.com';
+  const stats   = isMarketing ? MAX_STATS   : ZERO_STATS;
+  const orders  = isMarketing ? MAX_ORDERS  : [];
+  const allData = isMarketing ? MAX_DATA    : ZERO_DATA;
+  const TARGET  = stats.total;
 
   useEffect(() => {
     const t0 = performance.now();
@@ -93,7 +136,7 @@ export default function RevenuePage() {
     return () => { if (ref.current) cancelAnimationFrame(ref.current); };
   }, []);
 
-  const chartData = range === '7D' ? ALL_DATA.slice(-7) : ALL_DATA;
+  const chartData = range === '7D' ? allData.slice(-7) : allData;
 
   const handleShare = useCallback(async () => {
     const text = `💰 My Store Earnings\n\nEst. Total: $12,847.50\nThis Month: $3,240\nToday: $187\n\nTracked by Majorka · majorka.io`;
@@ -120,10 +163,12 @@ export default function RevenuePage() {
         </div>
       )}
 
-      {/* Demo banner */}
-      <div style={{ background:'rgba(245,158,11,.08)', borderBottom:'1px solid rgba(245,158,11,.15)', padding:'9px 20px', textAlign:'center', fontSize:12, color:'#F59E0B', fontWeight:500 }}>
-        📊 Demo Mode — Connect your Shopify store to see real earnings
-      </div>
+      {/* Demo banner — hidden for marketing account */}
+      {!isMarketing && (
+        <div style={{ background:'rgba(245,158,11,.08)', borderBottom:'1px solid rgba(245,158,11,.15)', padding:'9px 20px', textAlign:'center', fontSize:12, color:'#F59E0B', fontWeight:500 }}>
+          📊 Connect your Shopify store to start tracking real earnings
+        </div>
+      )}
 
       {/* ═══ HERO ══════════════════════════════════════════════════════════ */}
       <div style={{
@@ -178,11 +223,14 @@ export default function RevenuePage() {
 
             {/* MoM badge */}
             <div style={{ display:'flex', alignItems:'center', gap:10, flexWrap:'wrap' as const }}>
-              <div style={{ display:'flex', alignItems:'center', gap:5, background:'rgba(34,197,94,.12)', border:'1px solid rgba(34,197,94,.2)', borderRadius:999, padding:'6px 12px' }}>
-                <ArrowUpRight size={14} color={G} />
-                <span style={{ fontSize:13, color:G, fontWeight:700 }}>+18.4% vs last month</span>
-              </div>
-              <span style={{ fontSize:12, color:'#4B5563' }}>· Demo data</span>
+              {isMarketing ? (
+                <div style={{ display:'flex', alignItems:'center', gap:5, background:'rgba(34,197,94,.12)', border:'1px solid rgba(34,197,94,.2)', borderRadius:999, padding:'6px 12px' }}>
+                  <ArrowUpRight size={14} color={G} />
+                  <span style={{ fontSize:13, color:G, fontWeight:700 }}>{stats.moM} vs last month</span>
+                </div>
+              ) : (
+                <div style={{ fontSize:13, color:'#374151' }}>Connect a store to start tracking</div>
+              )}
             </div>
           </div>
 
@@ -224,10 +272,10 @@ export default function RevenuePage() {
       <div style={{ maxWidth:1200, margin:'0 auto', padding: isMobile ? '20px 16px 0' : '32px 48px 0' }}>
         <div style={{ display:'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: isMobile ? 10 : 16 }}>
           {[
-            { label:'This Month', value:'$3,240', sub:'+12% vs prev', Icon:TrendingUp, color:G },
-            { label:'Today',      value:'$187',   sub:'3 orders',     Icon:DollarSign, color:I },
-            { label:'Best Day',   value:'$891',   sub:'Mar 24',       Icon:Star,       color:A },
-            { label:'All Orders', value:'847',    sub:'all time',     Icon:ShoppingBag,color:V },
+            { label:'This Month', value:stats.month,   sub: isMarketing ? '+12% vs prev' : 'No store connected', Icon:TrendingUp, color:G },
+            { label:'Today',      value:stats.today,   sub: isMarketing ? '4 orders' : '—',                      Icon:DollarSign, color:I },
+            { label:'Best Day',   value:stats.bestDay, sub: isMarketing ? 'Mar 22' : '—',                        Icon:Star,       color:A },
+            { label:'All Orders', value:stats.orders,  sub: isMarketing ? 'all time' : 'no orders yet',          Icon:ShoppingBag,color:V },
           ].map(s => (
             <div key={s.label} style={{ background:'#0E1420', border:'1px solid rgba(255,255,255,.07)', borderRadius:16, padding: isMobile ? '16px 14px' : '24px 20px', position:'relative' as const, overflow:'hidden' as const }}>
               {/* Subtle color splash */}
@@ -283,18 +331,35 @@ export default function RevenuePage() {
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
           <div>
             <div style={{ fontSize: isMobile ? 15 : 18, fontWeight:900, color:'#fff', fontFamily:brico, letterSpacing:'-0.01em' }}>Recent Orders</div>
-            <div style={{ fontSize:11, color:'#374151', marginTop:3 }}>Demo data · Last 10 transactions</div>
+            <div style={{ fontSize:11, color:'#374151', marginTop:3 }}>{isMarketing ? 'Last 10 transactions' : 'No orders yet'}</div>
           </div>
-          <div style={{ display:'flex', alignItems:'center', gap:6, background:'rgba(34,197,94,.08)', border:'1px solid rgba(34,197,94,.15)', borderRadius:999, padding:'5px 12px' }}>
-            <div style={{ width:6, height:6, borderRadius:'50%', background:G, boxShadow:`0 0 6px ${G}` }}/>
-            <span style={{ fontSize:11, color:G, fontWeight:700 }}>10 orders today</span>
-          </div>
+          {isMarketing && (
+            <div style={{ display:'flex', alignItems:'center', gap:6, background:'rgba(34,197,94,.08)', border:'1px solid rgba(34,197,94,.15)', borderRadius:999, padding:'5px 12px' }}>
+              <div style={{ width:6, height:6, borderRadius:'50%', background:G, boxShadow:`0 0 6px ${G}` }}/>
+              <span style={{ fontSize:11, color:G, fontWeight:700 }}>4 orders today</span>
+            </div>
+          )}
         </div>
+
+        {/* Empty state for non-marketing accounts */}
+        {orders.length === 0 && (
+          <div style={{ background:'#0E1420', border:'1px solid rgba(255,255,255,.06)', borderRadius:20, padding:'40px 24px', textAlign:'center' }}>
+            <div style={{ fontSize:32, marginBottom:12 }}>🛍️</div>
+            <div style={{ fontSize:15, fontWeight:700, color:'#fff', marginBottom:6 }}>No orders yet</div>
+            <div style={{ fontSize:13, color:'#374151' }}>Connect your Shopify store to see real orders here.</div>
+          </div>
+        )}
 
         {/* Feed */}
         <div style={{ display:'flex', flexDirection:'column' as const, gap:8 }}>
-          {ORDERS.map((o) => (
-            <div key={o.id} className="rev-order-row" style={{
+          {isMarketing && <div style={{ fontSize:10, fontWeight:700, color:'#374151', letterSpacing:'.1em', textTransform:'uppercase' as const, paddingLeft:4, paddingBottom:2 }}>Today · {stats.today}</div>}
+          {orders.map((o, i) => {
+            const todayCount = isMarketing ? (orders as typeof MAX_ORDERS).filter(x => x.today).length : 0;
+            const showYesterdayLabel = isMarketing && i === todayCount;
+            return (
+              <React.Fragment key={o.id}>
+                {showYesterdayLabel && <div style={{ fontSize:10, fontWeight:700, color:'#374151', letterSpacing:'.1em', textTransform:'uppercase' as const, paddingLeft:4, paddingTop:8, paddingBottom:2 }}>Yesterday</div>}
+                <div className="rev-order-row" style={{
               background:'#0E1420',
               border:'1px solid rgba(255,255,255,.06)',
               borderRadius:16,
@@ -360,7 +425,9 @@ export default function RevenuePage() {
                 </div>
               </div>
             </div>
-          ))}
+              </React.Fragment>
+            );
+          })}
         </div>
       </div>
 
@@ -385,7 +452,8 @@ export default function RevenuePage() {
           <div>
             <div style={{ fontSize:11, color:'#4B5563', marginBottom:8, fontWeight:600, letterSpacing:'.08em', textTransform:'uppercase' as const }}>Available to Withdraw</div>
             <div style={{ fontSize: isMobile ? 32 : 44, fontWeight:900, color:'#FFFFFF', fontFamily:brico, letterSpacing:'-0.02em', lineHeight:1 }}>
-              <span style={{ color:G, fontSize:'0.65em', verticalAlign:'super' }}>$</span>12,847.50
+              <span style={{ color:G, fontSize:'0.65em', verticalAlign:'super' }}>$</span>
+              {TARGET > 0 ? TARGET.toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 }) : '0.00'}
             </div>
             <div style={{ fontSize:11, color:'#374151', marginTop:8 }}>Processed within 2–3 business days</div>
           </div>
