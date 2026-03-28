@@ -40,6 +40,7 @@ import {
   TrendingUp,
   User,
   Users,
+  Wallet,
   X,
   Zap,
 } from 'lucide-react';
@@ -99,6 +100,7 @@ const NAV_SECTIONS: NavSection[] = [
   },
   {
     items: [
+      { label: 'Revenue', path: '/app/revenue', icon: Wallet, tooltip: 'Track your store earnings and order revenue.' },
       { label: 'Settings', path: '/app/settings', icon: Settings, tooltip: 'Account settings, plan, and billing.' },
     ],
   },
@@ -111,7 +113,7 @@ const MOBILE_TABS: NavItem[] = [
   { label: 'Home', path: '/app', icon: Home, exact: true },
   { label: 'Products', path: '/app/trend-signals', icon: TrendingUp },
   { label: 'Maya', path: '/app/ai-chat', icon: MessageSquare },
-  { label: 'Tools', path: '/app/product-discovery', icon: Search },
+  { label: 'Revenue', path: '/app/revenue', icon: Wallet },
   { label: 'Account', path: '/account', icon: User },
 ];
 

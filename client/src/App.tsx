@@ -55,6 +55,7 @@ const ShopDetail = lazy(() => import('./pages/ShopDetail'));
 const ProductSearch = lazy(() => import('./pages/ProductSearch'));
 const StoreHealthScore = lazy(() => import('./pages/StoreHealthScore'));
 const AIChat = lazy(() => import('./pages/AIChat'));
+const RevenuePage = lazy(() => import('./pages/RevenuePage'));
 // SEO landing pages
 const DropshippingAustralia = lazy(() => import('./pages/seo/DropshippingAustralia'));
 const TikTokShopAustralia = lazy(() => import('./pages/seo/TikTokShopAustralia'));
@@ -301,6 +302,7 @@ function Router() {
             <Route path="/app/maya">{() => { window.location.replace('/app/ai-chat'); return null; }}</Route>
             <Route path="/app/intelligence/database">{() => { window.location.replace('/app/intelligence'); return null; }}</Route>
             <Route path="/app/ai-chat">{() => <ProtectedRoute><AppLayout><AIChat /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/revenue">{() => <ProtectedRoute><AppLayout><RevenuePage /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/:tool">
               {() => (
                 <ProtectedRoute>
