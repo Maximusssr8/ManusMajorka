@@ -871,4 +871,105 @@ router.post('/update-campaign', requireAuth, async (req, res) => {
 // Need express import for raw body parsing on webhook
 import express from 'express';
 
+// ── GET /api/meta/pixel-health — pixel health check with EMQ + event stats ──
+const pixelHealthCache = new Map<string, { data: Record<string, unknown>; timestamp: number }>();
+const PIXEL_HEALTH_CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+
+router.get('/pixel-health', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ error: 'unauthorized' });
+
+    const supabase = getSupabaseAdmin();
+    const { data: conn } = await supabase
+      .from('meta_connections')
+      .select('access_token, pixel_id')
+      .eq('user_id', userId)
+      .single();
+
+    if (!conn || !conn.pixel_id) {
+      return res.json({ connected: false });
+    }
+
+    const cacheKey = `${userId}_${conn.pixel_id}`;
+    const cached = pixelHealthCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < PIXEL_HEALTH_CACHE_TTL) {
+      return res.json(cached.data);
+    }
+
+    const token = conn.access_token;
+    const pixelId = conn.pixel_id;
+    let emq: number | null = null;
+    let events = { purchase: 0, addToCart: 0, checkout: 0 };
+    let browserEvents = { purchase: 0, addToCart: 0, checkout: 0 };
+    let serverEvents = { purchase: 0, addToCart: 0, checkout: 0 };
+
+    // Fetch EMQ score
+    try {
+      const emqRes = await fetch(
+        `https://graph.facebook.com/${META_API_VERSION}/${pixelId}?fields=event_match_quality_score&access_token=${token}`
+      );
+      if (emqRes.ok) {
+        const emqData = (await emqRes.json()) as { event_match_quality_score?: number };
+        emq = emqData.event_match_quality_score ?? null;
+      }
+    } catch {
+      // EMQ fetch failed — leave as null
+    }
+
+    // Fetch event stats
+    try {
+      const statsRes = await fetch(
+        `https://graph.facebook.com/${META_API_VERSION}/${pixelId}/stats?fields=data&access_token=${token}`
+      );
+      if (statsRes.ok) {
+        const statsData = (await statsRes.json()) as { data?: Array<{ event: string; count: number; type?: string }> };
+        const entries = statsData.data || [];
+        for (const entry of entries) {
+          const evt = entry.event?.toLowerCase() || '';
+          const count = entry.count || 0;
+          const isBrowser = entry.type === 'browser' || !entry.type;
+          const isServer = entry.type === 'server';
+
+          if (evt === 'purchase') {
+            events.purchase += count;
+            if (isBrowser) browserEvents.purchase += count;
+            if (isServer) serverEvents.purchase += count;
+          } else if (evt === 'addtocart') {
+            events.addToCart += count;
+            if (isBrowser) browserEvents.addToCart += count;
+            if (isServer) serverEvents.addToCart += count;
+          } else if (evt === 'initiatecheckout') {
+            events.checkout += count;
+            if (isBrowser) browserEvents.checkout += count;
+            if (isServer) serverEvents.checkout += count;
+          }
+        }
+      }
+    } catch {
+      // Stats fetch failed — leave as zeros
+    }
+
+    const status: 'healthy' | 'partial' | 'inactive' =
+      emq !== null && emq >= 80 ? 'healthy' :
+      emq !== null && emq >= 60 ? 'partial' :
+      'inactive';
+
+    const result = {
+      connected: true,
+      emq,
+      events,
+      status,
+      browserEvents,
+      serverEvents,
+    };
+
+    pixelHealthCache.set(cacheKey, { data: result, timestamp: Date.now() });
+    return res.json(result);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return res.status(500).json({ error: message });
+  }
+});
+
 export default router;

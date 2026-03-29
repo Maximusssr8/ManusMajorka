@@ -611,6 +611,14 @@ export default function MajorkaAppShell({ children }: Props) {
               );
             })()}
           </span>
+          {/* Ads Manager recommendation badge */}
+          {item.path === '/app/ads-manager' && (() => {
+            try {
+              const count = parseInt(localStorage.getItem('majorka_ads_recs_count') || '0', 10);
+              if (count > 0) return <span style={{ position: 'absolute' as const, top: 4, right: 4, width: 8, height: 8, background: '#EF4444', borderRadius: '50%' }} />;
+            } catch { /* ignore */ }
+            return null;
+          })()}
           {active && (
             <div
               style={{ position: 'absolute', left: 0, top: '20%', bottom: '20%', width: 3, background: '#6366F1', borderRadius: '0 4px 4px 0' }}
