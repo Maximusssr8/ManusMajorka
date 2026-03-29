@@ -1128,6 +1128,135 @@ function AudienceSuggestions({ category, productTitle }: { category: string; pro
   );
 }
 
+// ── Shipping presets by category ─────────────────────────────────────────────
+function getShippingDefault(category: string): number {
+  const cat = (category || '').toLowerCase();
+  if (/jewel|accessor|cosmetic|beauty|makeup|serum|vitamin|supplement|skincare/.test(cat)) return 9;
+  if (/pet|toy|kids|baby|stationery/.test(cat)) return 11;
+  if (/electronic|tech|gadget|phone|camera|drone/.test(cat)) return 15;
+  if (/kitchen|home|outdoor|fitness|sport|gym/.test(cat)) return 13;
+  if (/fashion|cloth|apparel|shoe|bag/.test(cat)) return 10;
+  return 12;
+}
+// Ad spend default by category $/day
+function getAdSpendDefault(category: string): number {
+  const cat = (category || '').toLowerCase();
+  if (/health|wellness|supplement|vitamin|weight/.test(cat)) return 45;
+  if (/beauty|makeup|skincare|cosmetic/.test(cat)) return 40;
+  if (/electronic|tech|gadget/.test(cat)) return 55;
+  if (/pet/.test(cat)) return 35;
+  if (/home|kitchen/.test(cat)) return 30;
+  if (/fashion|cloth|apparel/.test(cat)) return 35;
+  return 40;
+}
+
+// ── Mini Profit Widget (embedded in drawer) ───────────────────────────────────
+function MiniProfitWidget({ sellPrice, supplierCost, category, productName }: {
+  sellPrice: number; supplierCost: number; category: string; productName: string;
+}) {
+  const [, setLocation] = useLocation();
+  const [sell, setSell] = useState(Math.round(sellPrice * 100) / 100);
+  const [cost, setCost] = useState(Math.round(supplierCost * 100) / 100);
+  const [adSpend, setAdSpend] = useState(getAdSpendDefault(category));
+  const [units, setUnits] = useState(4);
+  const shipping = getShippingDefault(category);
+
+  // Live calculations
+  const grossMargin = sell > 0 ? ((sell - cost - shipping) / sell) * 100 : 0;
+  const netPerUnit  = sell - cost - shipping - (adSpend / Math.max(units, 1));
+  const monthlyProfit = netPerUnit * units * 30;
+  const breakEvenCPA  = sell - cost - shipping;
+  const viable = grossMargin >= 30;
+
+  const fmtNum = (n: number) => n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  const openFullCalc = () => {
+    setLocation(`/app/profit?price=${sell}&cost=${cost}&units=${units}&ads=${adSpend}`);
+  };
+
+  const pill = (label: string, val: string, color: string, bg: string) => (
+    <div style={{ background: bg, borderRadius: 10, padding: '10px 14px', textAlign: 'center' as const }}>
+      <div style={{ fontSize: 10, color, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, marginBottom: 4 }}>{label}</div>
+      <div style={{ fontFamily: brico, fontWeight: 900, fontSize: 18, color, lineHeight: 1 }}>{val}</div>
+    </div>
+  );
+
+  return (
+    <div style={{ marginBottom: 20, background: '#F0F4FF', border: '1px solid #C7D2FE', borderRadius: 14, padding: '16px 16px 14px', position: 'relative' as const }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+        <div>
+          <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 14, color: '#1E1B4B' }}>💰 Quick Profit Model</div>
+          <div style={{ fontSize: 11, color: '#6366F1', marginTop: 2 }}>Pre-filled from product data · adjust to model</div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: viable ? '#DCFCE7' : '#FEF2F2', border: `1px solid ${viable ? '#86EFAC' : '#FECACA'}`, borderRadius: 999, padding: '4px 10px' }}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: viable ? '#22C55E' : '#EF4444' }} />
+          <span style={{ fontSize: 10, fontWeight: 800, color: viable ? '#059669' : '#DC2626' }}>{viable ? 'VIABLE' : 'TIGHT'}</span>
+        </div>
+      </div>
+
+      {/* Inputs row */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+        {[
+          { label: 'Sell Price (AUD)', val: sell, set: setSell, hint: 'Your retail price' },
+          { label: 'Supplier Cost (AUD)', val: cost, set: setCost, hint: 'From AliExpress' },
+          { label: 'Ad Spend / Day', val: adSpend, set: setAdSpend, hint: 'Category default' },
+          { label: 'Units / Day', val: units, set: setUnits, hint: 'Sales volume estimate' },
+        ].map(({ label, val, set, hint }) => (
+          <div key={label}>
+            <div style={{ fontSize: 10, color: '#4B5563', fontWeight: 700, marginBottom: 4, letterSpacing: '.04em' }}>{label}</div>
+            <div style={{ display: 'flex', alignItems: 'center', background: 'white', border: '1px solid #C7D2FE', borderRadius: 8, overflow: 'hidden', height: 36 }}>
+              <span style={{ padding: '0 8px', fontSize: 12, color: '#6366F1', fontWeight: 700 }}>$</span>
+              <input
+                type="number"
+                min={0}
+                step={label.includes('Units') ? 1 : 0.5}
+                value={val}
+                onChange={e => set(parseFloat(e.target.value) || 0)}
+                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13, fontWeight: 700, color: '#111827', fontFamily: brico, background: 'transparent', width: '100%', padding: '0 6px 0 0' }}
+              />
+            </div>
+            <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>{hint}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Shipping note */}
+      <div style={{ fontSize: 10, color: '#6366F1', background: 'rgba(99,102,241,0.06)', borderRadius: 6, padding: '4px 8px', marginBottom: 12 }}>
+        📦 Shipping est.: <strong>${shipping.toFixed(2)} AUD</strong> ({category || 'standard'} weight · auto-estimated)
+      </div>
+
+      {/* Metric pills */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 }}>
+        {pill('Net Margin', `${Math.max(0, grossMargin).toFixed(1)}%`, viable ? '#059669' : '#D97706', viable ? '#DCFCE7' : '#FEF9C3')}
+        {pill('Monthly Profit', `$${monthlyProfit > 0 ? fmtNum(monthlyProfit) : '0.00'}`, '#6366F1', '#EEF2FF')}
+        {pill('Break-even CPA', `$${breakEvenCPA > 0 ? breakEvenCPA.toFixed(2) : '—'}`, '#8B5CF6', '#F3E8FF')}
+      </div>
+
+      {/* What this means */}
+      <div style={{ fontSize: 12, color: '#374151', background: 'rgba(255,255,255,0.7)', borderRadius: 8, padding: '8px 12px', marginBottom: 12, lineHeight: 1.5 }}>
+        {grossMargin >= 40
+          ? `Strong ${grossMargin.toFixed(0)}% margin. At ${units} units/day you'd pocket ~$${fmtNum(monthlyProfit)}/mo. Room to scale ad spend.`
+          : grossMargin >= 25
+          ? `Workable ${grossMargin.toFixed(0)}% margin. Keep ad spend lean — max CPA $${breakEvenCPA.toFixed(2)} before losing money.`
+          : `Thin margin (${grossMargin.toFixed(0)}%). Consider raising sell price or finding a cheaper supplier before launching ads.`
+        }
+      </div>
+
+      {/* CTA */}
+      <button
+        onClick={openFullCalc}
+        style={{ width: '100%', height: 40, background: '#6366F1', color: 'white', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: brico, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+      >
+        Open Full Calculator with These Numbers →
+      </button>
+      <div style={{ fontSize: 10, color: '#9CA3AF', textAlign: 'center' as const, marginTop: 6 }}>
+        All figures are estimates — verify cost &amp; shipping before sourcing
+      </div>
+    </div>
+  );
+}
+
 function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClose: () => void }) {
   const [, setLocation] = useLocation();
   const [aiAnalysis, setAiAnalysis] = useState('');
@@ -1264,6 +1393,14 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
               ℹ️ Prices &amp; costs are AI-estimated — verify live on AliExpress before sourcing
             </span>
           </div>
+          {/* ── Inline Profit Model ── */}
+          <MiniProfitWidget
+            sellPrice={price > 0 ? price : 39.95}
+            supplierCost={cost > 0 ? cost : Math.round(price * 0.3 * 100) / 100}
+            category={productCategory}
+            productName={name}
+          />
+
           {/* Dropship Score visual bar */}
           {(() => {
             const s = score;
@@ -1462,7 +1599,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
               Build Store for This Product →
             </button>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              <button onClick={() => setLocation(`/app/profit-calculator?product=${encodeURIComponent(name)}&cost=${cost}&margin=${margin}`)}
+              <button onClick={() => setLocation(`/app/profit?price=${price > 0 ? price : 39.95}&cost=${cost > 0 ? cost : Math.round((price || 40) * 0.3 * 100) / 100}&units=4&ads=${getAdSpendDefault(productCategory)}`)}
                 style={{ height: 40, background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>
                 Profit Calc
               </button>
