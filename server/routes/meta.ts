@@ -599,6 +599,275 @@ router.get('/campaigns', requireAuth, async (req, res) => {
   }
 });
 
+// ── Campaign insights cache ────────────────────────────────────────────────
+const insightsCache = new Map<string, { data: Record<string, unknown>; fetchedAt: number }>();
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+
+// ── POST /api/meta/create-campaign — full campaign creation with adset ─────
+router.post('/create-campaign', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ error: 'unauthorized' });
+
+    const { name, objective, daily_budget, products, targeting, ad_copy } = req.body as {
+      name: string;
+      objective?: string;
+      daily_budget?: number;
+      products?: Array<{ id: string; title: string; image_url?: string }>;
+      targeting?: Record<string, unknown>;
+      ad_copy?: Record<string, unknown>;
+    };
+
+    if (!name) return res.status(400).json({ error: 'Campaign name required' });
+
+    const supabase = getSupabaseAdmin();
+
+    // Check Meta connection
+    const { data: meta } = await supabase
+      .from('meta_connections')
+      .select('access_token, ad_account_id')
+      .eq('user_id', userId)
+      .single();
+
+    const campaignRow = {
+      user_id: userId,
+      name,
+      objective: objective || 'OUTCOME_SALES',
+      status: 'draft',
+      daily_budget_aud: daily_budget || null,
+      product_ids: (products || []).map((p) => p.id),
+      targeting: targeting || {},
+      ad_copy: ad_copy || {},
+    };
+
+    if (meta?.access_token && meta?.ad_account_id) {
+      try {
+        // 1. Create campaign on Meta
+        const adAccountId = meta.ad_account_id.startsWith('act_') ? meta.ad_account_id : `act_${meta.ad_account_id}`;
+        const campaignRes = await fetch(
+          `https://graph.facebook.com/${META_API_VERSION}/${adAccountId}/campaigns`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name,
+              objective: 'OUTCOME_SALES',
+              special_ad_categories: [],
+              status: 'ACTIVE',
+              access_token: meta.access_token,
+            }),
+          }
+        );
+
+        if (!campaignRes.ok) {
+          const err = await campaignRes.text();
+          console.error('[meta/create-campaign] Campaign creation failed:', err);
+          // Fall through to save as draft
+        } else {
+          const campaignData = (await campaignRes.json()) as { id?: string };
+          const metaCampaignId = campaignData.id;
+
+          if (metaCampaignId) {
+            // 2. Create AdSet
+            try {
+              await fetch(
+                `https://graph.facebook.com/${META_API_VERSION}/${adAccountId}/adsets`,
+                {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    name: `${name} — AdSet`,
+                    campaign_id: metaCampaignId,
+                    daily_budget: Math.round((daily_budget || 20) * 100), // cents
+                    billing_event: 'IMPRESSIONS',
+                    optimization_goal: 'OFFSITE_CONVERSIONS',
+                    bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
+                    targeting: { geo_locations: { countries: ['AU'] } },
+                    status: 'ACTIVE',
+                    access_token: meta.access_token,
+                  }),
+                }
+              );
+            } catch (adsetErr: unknown) {
+              console.error('[meta/create-campaign] AdSet creation failed:', adsetErr instanceof Error ? adsetErr.message : adsetErr);
+            }
+
+            // 3. Save to DB with meta_campaign_id
+            const { data: saved, error: saveErr } = await supabase
+              .from('ad_campaigns')
+              .insert({ ...campaignRow, meta_campaign_id: metaCampaignId, status: 'active' })
+              .select()
+              .single();
+
+            if (saveErr) return res.status(500).json({ error: saveErr.message });
+            return res.json({ success: true, campaign_id: saved.id, meta_campaign_id: metaCampaignId });
+          }
+        }
+      } catch (metaErr: unknown) {
+        console.error('[meta/create-campaign] Meta API error:', metaErr instanceof Error ? metaErr.message : metaErr);
+      }
+    }
+
+    // Save as draft if Meta not configured or API failed
+    const { data: saved, error: saveErr } = await supabase
+      .from('ad_campaigns')
+      .insert(campaignRow)
+      .select()
+      .single();
+
+    if (saveErr) return res.status(500).json({ error: saveErr.message });
+    return res.json({ success: true, campaign_id: saved.id, draft: true });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return res.status(500).json({ error: message });
+  }
+});
+
+// ── GET /api/meta/campaign-insights — fetch live metrics ───────────────────
+router.get('/campaign-insights', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ error: 'unauthorized' });
+
+    const campaignId = req.query.campaign_id as string;
+    if (!campaignId) return res.status(400).json({ error: 'campaign_id required' });
+
+    // Check cache
+    const cached = insightsCache.get(campaignId);
+    if (cached && Date.now() - cached.fetchedAt < CACHE_TTL) {
+      return res.json(cached.data);
+    }
+
+    const supabase = getSupabaseAdmin();
+    const { data: meta } = await supabase
+      .from('meta_connections')
+      .select('access_token')
+      .eq('user_id', userId)
+      .single();
+
+    if (!meta?.access_token) {
+      return res.status(400).json({ error: 'Meta not connected' });
+    }
+
+    const insightsRes = await fetch(
+      `https://graph.facebook.com/${META_API_VERSION}/${campaignId}/insights?fields=spend,impressions,reach,clicks,ctr,actions,cost_per_action_type,frequency&date_preset=last_7d&access_token=${meta.access_token}`
+    );
+
+    if (!insightsRes.ok) {
+      const err = await insightsRes.text();
+      console.error('[meta/campaign-insights]', err);
+      return res.status(400).json({ error: 'Failed to fetch insights' });
+    }
+
+    const insightsData = (await insightsRes.json()) as { data?: Array<Record<string, unknown>> };
+    const row = insightsData.data?.[0] || {};
+
+    // Extract purchase metrics from actions array
+    const actions = (row.actions || []) as Array<{ action_type: string; value: string }>;
+    const purchases = actions.find((a) => a.action_type === 'purchase')?.value || '0';
+    const costPerActions = (row.cost_per_action_type || []) as Array<{ action_type: string; value: string }>;
+    const cpc = costPerActions.find((a) => a.action_type === 'link_click')?.value || '0';
+
+    const result = {
+      spend: parseFloat(String(row.spend || '0')),
+      impressions: parseInt(String(row.impressions || '0'), 10),
+      reach: parseInt(String(row.reach || '0'), 10),
+      clicks: parseInt(String(row.clicks || '0'), 10),
+      ctr: parseFloat(String(row.ctr || '0')),
+      purchases: parseInt(purchases, 10),
+      purchase_roas: 0,
+      cpc: parseFloat(cpc),
+      cpm: parseFloat(String(row.spend || '0')) / Math.max(1, parseInt(String(row.impressions || '0'), 10)) * 1000,
+      frequency: parseFloat(String(row.frequency || '0')),
+    };
+
+    // Cache result
+    insightsCache.set(campaignId, { data: result, fetchedAt: Date.now() });
+
+    return res.json(result);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return res.status(500).json({ error: message });
+  }
+});
+
+// ── POST /api/meta/update-campaign — update status or budget ───────────────
+router.post('/update-campaign', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) return res.status(401).json({ error: 'unauthorized' });
+
+    const { campaign_id, status, budget_multiplier } = req.body as {
+      campaign_id: string;
+      status?: string;
+      budget_multiplier?: number;
+    };
+
+    if (!campaign_id) return res.status(400).json({ error: 'campaign_id required' });
+
+    const supabase = getSupabaseAdmin();
+
+    // Get campaign
+    const { data: campaign } = await supabase
+      .from('ad_campaigns')
+      .select('meta_campaign_id, daily_budget_aud')
+      .eq('id', campaign_id)
+      .eq('user_id', userId)
+      .single();
+
+    if (!campaign) return res.status(404).json({ error: 'Campaign not found' });
+
+    // Get Meta connection
+    const { data: meta } = await supabase
+      .from('meta_connections')
+      .select('access_token')
+      .eq('user_id', userId)
+      .single();
+
+    const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
+
+    if (status) {
+      updates.status = status.toLowerCase();
+    }
+
+    if (budget_multiplier && campaign.daily_budget_aud) {
+      updates.daily_budget_aud = Math.round(campaign.daily_budget_aud * budget_multiplier * 100) / 100;
+    }
+
+    // Update Meta API if connected
+    if (campaign.meta_campaign_id && meta?.access_token) {
+      try {
+        const metaUpdates: Record<string, unknown> = { access_token: meta.access_token };
+        if (status) metaUpdates.status = status.toUpperCase();
+
+        await fetch(
+          `https://graph.facebook.com/${META_API_VERSION}/${campaign.meta_campaign_id}`,
+          {
+            method: 'POST', // Meta uses POST for updates
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(metaUpdates),
+          }
+        );
+      } catch (metaErr: unknown) {
+        console.error('[meta/update-campaign] Meta update failed:', metaErr instanceof Error ? metaErr.message : metaErr);
+      }
+    }
+
+    // Update local DB
+    const { error: updateErr } = await supabase
+      .from('ad_campaigns')
+      .update(updates)
+      .eq('id', campaign_id)
+      .eq('user_id', userId);
+
+    if (updateErr) return res.status(500).json({ error: updateErr.message });
+    return res.json({ success: true, updates });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unknown error';
+    return res.status(500).json({ error: message });
+  }
+});
+
 // Need express import for raw body parsing on webhook
 import express from 'express';
 
