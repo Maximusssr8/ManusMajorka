@@ -1182,7 +1182,7 @@ export default function MajorkaAppShell({ children }: Props) {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto overflow-x-auto pb-16 lg:pb-0 dashboard-bg" style={{ background: theme === 'dark' ? '#060A12' : undefined, color: theme === 'dark' ? '#F1F5F9' : undefined }}>{children}</div>
+        <div className="flex-1 overflow-y-auto overflow-x-auto pb-16 lg:pb-0 dashboard-bg" style={{ background: location === '/app/revenue' ? 'transparent' : (theme === 'dark' ? '#060A12' : undefined), color: theme === 'dark' ? '#F1F5F9' : undefined }}>{children}</div>
 
         {/* Mobile bottom tab bar */}
         <nav

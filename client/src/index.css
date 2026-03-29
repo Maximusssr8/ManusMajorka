@@ -566,6 +566,11 @@ textarea {
   background: #F9FAFB;
 }
 
+/* Revenue page gets its own dark bg — shell must not override */
+.revenue-page-bg .dashboard-bg {
+  background: transparent !important;
+}
+
 /* ── Mobile responsive utilities ── */
 /* Responsive stats grid: 2 cols on mobile, 4 on desktop */
 .stats-grid-responsive {

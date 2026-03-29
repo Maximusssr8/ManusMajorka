@@ -167,14 +167,16 @@ const glass = {
 export default function RevenuePage() {
   const isMobile = useIsMobile();
   const [, nav] = useLocation();
-  const { user } = useAuth();
+  const { user, session, subPlan, subStatus } = useAuth();
   const [display, setDisplay] = useState(0);
   const [range, setRange] = useState<Range>('30D');
   const [toast, setToast] = useState('');
   const [progressReady, setProgressReady] = useState(false);
   const ref = useRef<number | null>(null);
 
-  const isMarketing = user?.email === 'maximusmajorka@gmail.com';
+  // Use session email (cryptographically verified Supabase JWT) — more reliable than DB profile email
+  const email = session?.user?.email || user?.email || '';
+  const isMarketing = email === 'maximusmajorka@gmail.com';
   const stats  = isMarketing ? MAX_STATS  : ZERO_STATS;
   const orders = isMarketing ? MAX_ORDERS : [];
   const allData = isMarketing ? MAX_DATA  : ZERO_DATA;
