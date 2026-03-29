@@ -47,6 +47,14 @@ function md(text: string): string {
   );
 }
 
+// Minimal XSS sanitizer for AI-generated markdown output
+const sanitizeHtml = (html: string) =>
+  html.replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+\s*=/gi, '')
+      .replace(/on\w+="[^"]*"/gi, '')
+      .replace(/on\w+='[^']*'/gi, '');
+
 // ── Split report into sections by ## headers ─────────────────────────────────
 
 function splitSections(report: string): { title: string; body: string }[] {
@@ -390,7 +398,7 @@ export default function StoreSpy() {
                 </h2>
                 <div
                   style={{ color: '#6B7280', fontSize: 14, lineHeight: 1.7 }}
-                  dangerouslySetInnerHTML={{ __html: md(section.body) }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(md(section.body)) }}
                 />
               </div>
             ))}

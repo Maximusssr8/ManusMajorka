@@ -6,6 +6,8 @@ import { exportCSV } from '@/lib/exportCsv';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/_core/hooks/useAuth';
 import UpgradeModal from '@/components/UpgradeModal';
+import UsageMeter from '@/components/UsageMeter';
+import { PLAN_LIMITS } from '@shared/plans';
 import { useLocation } from 'wouter';
 
 const brico = "'Bricolage Grotesque', sans-serif";
@@ -294,6 +296,10 @@ export default function VideoIntelligence() {
             {refreshing ? 'Scraping…' : 'Refresh'}
           </button>
         </div>
+      </div>
+
+      <div style={{ padding: '0 28px', paddingTop: 12 }}>
+        <UsageMeter feature="video_searches" limit={PLAN_LIMITS.builder.video_searches} label="video searches" />
       </div>
 
       {/* ── Search Bar ─────────────────────────────────────────────── */}

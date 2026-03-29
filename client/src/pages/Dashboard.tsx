@@ -814,18 +814,27 @@ function DashboardHome() {
   // Real weekly opportunity — sum from actual tracked products
   const totalDailyRevOpp = products.reduce((sum: number, p: any) => sum + (p.est_daily_revenue_aud ?? p.est_daily_revenue ?? 0), 0);
   const weeklyRevOpp = Math.round(totalDailyRevOpp * 7);
-  const fmtWeekly = weeklyRevOpp >= 1_000_000
-    ? `$${(weeklyRevOpp / 1_000_000).toFixed(1)}M`
-    : weeklyRevOpp >= 1_000
-    ? `$${(weeklyRevOpp / 1_000).toFixed(1)}k`
-    : `$${weeklyRevOpp}`;
+  // Fallback: if API returns 0, compute from price x units_per_day x 7 for top 20
+  const estimatedWeeklyOpp = weeklyRevOpp > 0 ? weeklyRevOpp : (() => {
+    const sorted = [...products].sort((a: any, b: any) => ((b as any).winning_score || 0) - ((a as any).winning_score || 0));
+    return Math.round(sorted.slice(0, 20).reduce((sum: number, p: any) => {
+      const price = (p as any).price_aud || (p as any).estimated_retail_aud || 0;
+      const upd = (p as any).units_per_day || 4;
+      return sum + price * upd * 7;
+    }, 0));
+  })();
+  const fmtWeeklyDisplay = estimatedWeeklyOpp >= 1_000_000
+    ? `~$${(estimatedWeeklyOpp / 1_000_000).toFixed(1)}M`
+    : estimatedWeeklyOpp >= 1_000
+    ? `~$${(estimatedWeeklyOpp / 1_000).toFixed(1)}k`
+    : `~$${estimatedWeeklyOpp}`;
   // Distribute across 7 days with slight growth curve (proportional to real total)
   const chartData = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
     const day = d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric' });
     const growthFactors = [0.82, 0.88, 0.90, 0.94, 0.97, 1.02, 1.06];
-    return { day, rev: Math.round((totalDailyRevOpp || 4500) * growthFactors[i]) };
+    return { day, rev: Math.round((estimatedWeeklyOpp / 7 || 4500) * growthFactors[i]) };
   });
 
   const bestRevenue = useMemo(() => {
@@ -914,12 +923,12 @@ function DashboardHome() {
           <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px 28px', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div>
-                <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#FFFFFF' }}>Market Revenue Trend</div>
-                <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>Estimated AU market weekly revenue across tracked products — not your store revenue</div>
+                <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#FFFFFF' }}>Est. Market Opportunity</div>
+                <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>Estimated weekly revenue across tracked products — not your store revenue</div>
               </div>
               <div style={{ textAlign: 'right' as const }}>
-                <span style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Bricolage Grotesque, sans-serif', color: '#6366F1' }}>{loading ? '—' : weeklyRevOpp === 0 ? 'N/A' : fmtWeekly}</span>
-                {!loading && weeklyRevOpp === 0 && <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>Connect store to track</div>}
+                <span style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Bricolage Grotesque, sans-serif', color: '#6366F1' }}>{loading ? '—' : estimatedWeeklyOpp === 0 ? 'N/A' : fmtWeeklyDisplay}</span>
+                {!loading && estimatedWeeklyOpp === 0 && <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>Connect store to track</div>}
               </div>
             </div>
             <ResponsiveContainer width="100%" height={140}>

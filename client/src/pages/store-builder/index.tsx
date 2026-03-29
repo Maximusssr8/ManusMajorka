@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
 import UpgradeModal from '@/components/UpgradeModal';
+import UsageMeter from '@/components/UsageMeter';
+import { PLAN_LIMITS } from '@shared/plans';
 import { Link, Bookmark, Lock, Upload, Image, X, Save, Store, Check } from 'lucide-react';
 import { useLocation } from 'wouter';
 
@@ -729,6 +731,10 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
             );
           })}
         </div>
+      </div>
+
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '12px 24px 0' }}>
+        <UsageMeter feature="store_builder" limit={PLAN_LIMITS.builder.store_builder} label="stores" />
       </div>
 
       {/* Content */}

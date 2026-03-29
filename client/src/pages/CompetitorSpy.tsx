@@ -34,7 +34,9 @@ interface WatchlistEntry {
 const sanitizeHtml = (html: string) =>
   html.replace(/<script[\s\S]*?<\/script>/gi, '')
       .replace(/javascript:/gi, '')
-      .replace(/on\w+\s*=/gi, '');
+      .replace(/on\w+\s*=/gi, '')
+      .replace(/on\w+="[^"]*"/gi, '')
+      .replace(/on\w+='[^']*'/gi, '');
 
 const PROGRESS_STEPS = [
   'Searching TikTok Shop…',

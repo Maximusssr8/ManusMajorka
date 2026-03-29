@@ -7,30 +7,32 @@ import { supabase } from '@/lib/supabase';
 import { Search, Play } from 'lucide-react';
 import { useAuth } from '@/_core/hooks/useAuth';
 import UpgradeModal from '@/components/UpgradeModal';
+import UsageMeter from '@/components/UsageMeter';
+import { PLAN_LIMITS } from '@shared/plans';
 import { useLocation } from 'wouter';
 
 // Real TikTok creators — shown immediately while live data loads
 const FALLBACK_CREATORS = [
-  { handle: '@laurabevz', display_name: 'Laura Bevz', profile_url: 'https://www.tiktok.com/@laurabevz', niche: 'lifestyle', region_code: 'AU', est_followers: '1.5M', promoting_products: ['lifestyle', 'homefinds', 'beauty'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@laurabevz' },
-  { handle: '@olivia_ar', display_name: 'Olivia AR', profile_url: 'https://www.tiktok.com/@olivia_ar', niche: 'beauty', region_code: 'AU', est_followers: '820K', promoting_products: ['beauty', 'skincare', 'wellness'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@olivia_ar' },
-  { handle: '@fitwithjelly', display_name: 'Fit With Jelly', profile_url: 'https://www.tiktok.com/@fitwithjelly', niche: 'fitness', region_code: 'AU', est_followers: '420K', promoting_products: ['fitness', 'activewear', 'supplements'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@fitwithjelly' },
-  { handle: '@aussieproductfinds', display_name: 'Aussie Product Finds', profile_url: 'https://www.tiktok.com/@aussieproductfinds', niche: 'general', region_code: 'AU', est_followers: '280K', promoting_products: ['productreview', 'tiktokmademebuyit', 'aussiefinds'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@aussieproductfinds' },
-  { handle: '@dejavufit.au', display_name: 'Deja Vu Fit', profile_url: 'https://www.tiktok.com/@dejavufit.au', niche: 'fitness', region_code: 'AU', est_followers: '155K', promoting_products: ['fitness', 'gym', 'activewear'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@dejavufit.au' },
-  { handle: '@keeohh', display_name: 'Keeoh', profile_url: 'https://www.tiktok.com/@keeohh', niche: 'ecommerce', region_code: 'AU', est_followers: '2.1M', promoting_products: ['dropshipping', 'ecommerce', 'productreview'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@keeohh' },
-  { handle: '@hayden.bowles', display_name: 'Hayden Bowles', profile_url: 'https://www.tiktok.com/@hayden.bowles', niche: 'ecommerce', region_code: 'US', est_followers: '1.2M', promoting_products: ['dropshipping', 'shopify', 'ecommerce'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@hayden.bowles' },
-  { handle: '@shimbarovsky', display_name: 'Shimbarovsky', profile_url: 'https://www.tiktok.com/@shimbarovsky', niche: 'dropshipping', region_code: 'US', est_followers: '850K', promoting_products: ['dropshipping', 'productreview', 'tiktokmademebuyit'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@shimbarovsky' },
-  { handle: '@ryanoscott_', display_name: 'Ryan Scott', profile_url: 'https://www.tiktok.com/@ryanoscott_', niche: 'ecommerce', region_code: 'AU', est_followers: '180K', promoting_products: ['australianshopping', 'dropshipping', 'ecommerce'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@ryanoscott_' },
-  { handle: '@ecomhunt', display_name: 'Ecomhunt', profile_url: 'https://www.tiktok.com/@ecomhunt', niche: 'dropshipping', region_code: 'US', est_followers: '120K', promoting_products: ['dropshipping', 'winningproducts', 'ecommerce'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@ecomhunt' },
-  { handle: '@dropship_unlocked', display_name: 'Dropship Unlocked', profile_url: 'https://www.tiktok.com/@dropship_unlocked', niche: 'dropshipping', region_code: 'AU', est_followers: '95K', promoting_products: ['dropshipping', 'shopify', 'ecommerce'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@dropship_unlocked' },
-  { handle: '@cookingwithshereen', display_name: 'Cooking With Shereen', profile_url: 'https://www.tiktok.com/@cookingwithshereen', niche: 'kitchen', region_code: 'AU', est_followers: '1.1M', promoting_products: ['kitchen', 'cooking', 'homefinds'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@cookingwithshereen' },
-  { handle: '@aussie_shopper', display_name: 'Aussie Shopper', profile_url: 'https://www.tiktok.com/@aussie_shopper', niche: 'general', region_code: 'AU', est_followers: '340K', promoting_products: ['amazonfinds', 'tiktokmademebuyit', 'productreview'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@aussie_shopper' },
-  { handle: '@thehealthproject.au', display_name: 'The Health Project AU', profile_url: 'https://www.tiktok.com/@thehealthproject.au', niche: 'health', region_code: 'AU', est_followers: '290K', promoting_products: ['supplements', 'wellness', 'healthproducts'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@thehealthproject.au' },
-  { handle: '@petsofaustralia', display_name: 'Pets of Australia', profile_url: 'https://www.tiktok.com/@petsofaustralia', niche: 'pet care', region_code: 'AU', est_followers: '215K', promoting_products: ['petproducts', 'dogaccessories', 'catcare'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@petsofaustralia' },
-  { handle: '@techfindsau', display_name: 'Tech Finds AU', profile_url: 'https://www.tiktok.com/@techfindsau', niche: 'tech', region_code: 'AU', est_followers: '178K', promoting_products: ['techgadgets', 'smartdevices', 'productreview'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@techfindsau' },
-  { handle: '@homeinspo.au', display_name: 'Home Inspo AU', profile_url: 'https://www.tiktok.com/@homeinspo.au', niche: 'home', region_code: 'AU', est_followers: '385K', promoting_products: ['homedecor', 'homefinds', 'cleaning'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@homeinspo.au' },
-  { handle: '@productjunkie.au', display_name: 'Product Junkie AU', profile_url: 'https://www.tiktok.com/@productjunkie.au', niche: 'general', region_code: 'AU', est_followers: '128K', promoting_products: ['productreview', 'tiktokmademebuyit', 'deals'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@productjunkie.au' },
-  { handle: '@acko_msp', display_name: 'Acko', profile_url: 'https://www.tiktok.com/@acko_msp', niche: 'dropshipping', region_code: 'AU', est_followers: '92K', promoting_products: ['dropshipping', 'shopify', 'onlinebusiness'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@acko_msp' },
-  { handle: '@shopwithme.au', display_name: 'Shop With Me AU', profile_url: 'https://www.tiktok.com/@shopwithme.au', niche: 'fashion', region_code: 'AU', est_followers: '460K', promoting_products: ['fashion', 'ootd', 'australianshopping'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@shopwithme.au' },
+  { handle: '@laurabevz', display_name: 'Laura Bevz', profile_url: 'https://www.tiktok.com/@laurabevz', niche: 'lifestyle', region_code: 'AU', est_followers: '1.5M', promoting_products: ['lifestyle', 'homefinds', 'beauty'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@laurabevz', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Laura Bevz')}&background=6366F1&color=fff&size=80` },
+  { handle: '@olivia_ar', display_name: 'Olivia AR', profile_url: 'https://www.tiktok.com/@olivia_ar', niche: 'beauty', region_code: 'AU', est_followers: '820K', promoting_products: ['beauty', 'skincare', 'wellness'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@olivia_ar', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Olivia AR')}&background=6366F1&color=fff&size=80` },
+  { handle: '@fitwithjelly', display_name: 'Fit With Jelly', profile_url: 'https://www.tiktok.com/@fitwithjelly', niche: 'fitness', region_code: 'AU', est_followers: '420K', promoting_products: ['fitness', 'activewear', 'supplements'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@fitwithjelly', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Fit With Jelly')}&background=6366F1&color=fff&size=80` },
+  { handle: '@aussieproductfinds', display_name: 'Aussie Product Finds', profile_url: 'https://www.tiktok.com/@aussieproductfinds', niche: 'general', region_code: 'AU', est_followers: '280K', promoting_products: ['productreview', 'tiktokmademebuyit', 'aussiefinds'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@aussieproductfinds', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Aussie Product Finds')}&background=6366F1&color=fff&size=80` },
+  { handle: '@dejavufit.au', display_name: 'Deja Vu Fit', profile_url: 'https://www.tiktok.com/@dejavufit.au', niche: 'fitness', region_code: 'AU', est_followers: '155K', promoting_products: ['fitness', 'gym', 'activewear'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@dejavufit.au', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Deja Vu Fit')}&background=6366F1&color=fff&size=80` },
+  { handle: '@keeohh', display_name: 'Keeoh', profile_url: 'https://www.tiktok.com/@keeohh', niche: 'ecommerce', region_code: 'AU', est_followers: '2.1M', promoting_products: ['dropshipping', 'ecommerce', 'productreview'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@keeohh', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Keeoh')}&background=6366F1&color=fff&size=80` },
+  { handle: '@hayden.bowles', display_name: 'Hayden Bowles', profile_url: 'https://www.tiktok.com/@hayden.bowles', niche: 'ecommerce', region_code: 'US', est_followers: '1.2M', promoting_products: ['dropshipping', 'shopify', 'ecommerce'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@hayden.bowles', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Hayden Bowles')}&background=6366F1&color=fff&size=80` },
+  { handle: '@shimbarovsky', display_name: 'Shimbarovsky', profile_url: 'https://www.tiktok.com/@shimbarovsky', niche: 'dropshipping', region_code: 'US', est_followers: '850K', promoting_products: ['dropshipping', 'productreview', 'tiktokmademebuyit'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@shimbarovsky', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Shimbarovsky')}&background=6366F1&color=fff&size=80` },
+  { handle: '@ryanoscott_', display_name: 'Ryan Scott', profile_url: 'https://www.tiktok.com/@ryanoscott_', niche: 'ecommerce', region_code: 'AU', est_followers: '180K', promoting_products: ['australianshopping', 'dropshipping', 'ecommerce'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@ryanoscott_', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Ryan Scott')}&background=6366F1&color=fff&size=80` },
+  { handle: '@ecomhunt', display_name: 'Ecomhunt', profile_url: 'https://www.tiktok.com/@ecomhunt', niche: 'dropshipping', region_code: 'US', est_followers: '120K', promoting_products: ['dropshipping', 'winningproducts', 'ecommerce'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@ecomhunt', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Ecomhunt')}&background=6366F1&color=fff&size=80` },
+  { handle: '@dropship_unlocked', display_name: 'Dropship Unlocked', profile_url: 'https://www.tiktok.com/@dropship_unlocked', niche: 'dropshipping', region_code: 'AU', est_followers: '95K', promoting_products: ['dropshipping', 'shopify', 'ecommerce'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@dropship_unlocked', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Dropship Unlocked')}&background=6366F1&color=fff&size=80` },
+  { handle: '@cookingwithshereen', display_name: 'Cooking With Shereen', profile_url: 'https://www.tiktok.com/@cookingwithshereen', niche: 'kitchen', region_code: 'AU', est_followers: '1.1M', promoting_products: ['kitchen', 'cooking', 'homefinds'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@cookingwithshereen', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Cooking With Shereen')}&background=6366F1&color=fff&size=80` },
+  { handle: '@aussie_shopper', display_name: 'Aussie Shopper', profile_url: 'https://www.tiktok.com/@aussie_shopper', niche: 'general', region_code: 'AU', est_followers: '340K', promoting_products: ['amazonfinds', 'tiktokmademebuyit', 'productreview'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@aussie_shopper', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Aussie Shopper')}&background=6366F1&color=fff&size=80` },
+  { handle: '@thehealthproject.au', display_name: 'The Health Project AU', profile_url: 'https://www.tiktok.com/@thehealthproject.au', niche: 'health', region_code: 'AU', est_followers: '290K', promoting_products: ['supplements', 'wellness', 'healthproducts'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@thehealthproject.au', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('The Health Project AU')}&background=6366F1&color=fff&size=80` },
+  { handle: '@petsofaustralia', display_name: 'Pets of Australia', profile_url: 'https://www.tiktok.com/@petsofaustralia', niche: 'pet care', region_code: 'AU', est_followers: '215K', promoting_products: ['petproducts', 'dogaccessories', 'catcare'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@petsofaustralia', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Pets of Australia')}&background=6366F1&color=fff&size=80` },
+  { handle: '@techfindsau', display_name: 'Tech Finds AU', profile_url: 'https://www.tiktok.com/@techfindsau', niche: 'tech', region_code: 'AU', est_followers: '178K', promoting_products: ['techgadgets', 'smartdevices', 'productreview'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@techfindsau', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Tech Finds AU')}&background=6366F1&color=fff&size=80` },
+  { handle: '@homeinspo.au', display_name: 'Home Inspo AU', profile_url: 'https://www.tiktok.com/@homeinspo.au', niche: 'home', region_code: 'AU', est_followers: '385K', promoting_products: ['homedecor', 'homefinds', 'cleaning'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@homeinspo.au', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Home Inspo AU')}&background=6366F1&color=fff&size=80` },
+  { handle: '@productjunkie.au', display_name: 'Product Junkie AU', profile_url: 'https://www.tiktok.com/@productjunkie.au', niche: 'general', region_code: 'AU', est_followers: '128K', promoting_products: ['productreview', 'tiktokmademebuyit', 'deals'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@productjunkie.au', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Product Junkie AU')}&background=6366F1&color=fff&size=80` },
+  { handle: '@acko_msp', display_name: 'Acko', profile_url: 'https://www.tiktok.com/@acko_msp', niche: 'dropshipping', region_code: 'AU', est_followers: '92K', promoting_products: ['dropshipping', 'shopify', 'onlinebusiness'], engagement_signal: 'MEDIUM', contact_hint: 'https://www.tiktok.com/@acko_msp', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Acko')}&background=6366F1&color=fff&size=80` },
+  { handle: '@shopwithme.au', display_name: 'Shop With Me AU', profile_url: 'https://www.tiktok.com/@shopwithme.au', niche: 'fashion', region_code: 'AU', est_followers: '460K', promoting_products: ['fashion', 'ootd', 'australianshopping'], engagement_signal: 'HIGH', contact_hint: 'https://www.tiktok.com/@shopwithme.au', avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent('Shop With Me AU')}&background=6366F1&color=fff&size=80` },
 ];
 
 const brico = "'Bricolage Grotesque', sans-serif";
@@ -75,6 +77,7 @@ interface Creator {
   contact_hint: string | null;
   created_at?: string;
   image_url?: string;
+  avatar_url?: string;
 }
 
 const REGION_FLAGS: Record<string, string> = { AU: '\u{1F1E6}\u{1F1FA}', US: '\u{1F1FA}\u{1F1F8}', UK: '\u{1F1EC}\u{1F1E7}', CA: '\u{1F1E8}\u{1F1E6}', NZ: '\u{1F1F3}\u{1F1FF}', DE: '\u{1F1E9}\u{1F1EA}', SG: '\u{1F1F8}\u{1F1EC}' };
@@ -327,14 +330,26 @@ export default function CreatorIntelligence() {
             boxShadow: tier ? tier.ring : ENGAGEMENT_RING[c.engagement_signal] || ENGAGEMENT_RING.LOW,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             overflow: 'hidden',
-            background: c.image_url ? 'transparent' : getNicheGradient(c.niche),
+            background: (c.avatar_url || c.image_url) ? 'transparent' : getNicheGradient(c.niche),
             marginBottom: 10,
           }}>
-            {c.image_url ? (
-              <img src={c.image_url} alt={c.display_name} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} />
-            ) : (
-              <span style={{ fontSize: 22, fontWeight: 800, color: 'white', fontFamily: brico }}>{initials}</span>
-            )}
+            {(c.avatar_url || c.image_url) ? (
+              <img
+                src={c.avatar_url || c.image_url}
+                alt={c.display_name}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' as const }}
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; const next = (e.target as HTMLImageElement).nextElementSibling; if (next) (next as HTMLElement).style.display = 'flex'; }}
+              />
+            ) : null}
+            <div style={{
+              width: 64, height: 64, borderRadius: '50%',
+              background: getNicheGradient(c.niche),
+              display: (c.avatar_url || c.image_url) ? 'none' : 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              color: 'white', fontWeight: 800, fontSize: 22, fontFamily: brico,
+            }}>
+              {c.display_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
+            </div>
           </div>
 
           {/* Niche chip */}
@@ -497,6 +512,10 @@ export default function CreatorIntelligence() {
         {refreshError && <p style={{ fontSize: 11, color: '#EF4444', maxWidth: 1400, margin: '4px auto 0' }}>{refreshError}</p>}
       </div>
 
+      <div style={{ maxWidth: 1400, margin: '0 auto', width: '100%', padding: '12px 24px 0' }}>
+        <UsageMeter feature="creator_searches" limit={PLAN_LIMITS.builder.creator_searches} label="creator searches" />
+      </div>
+
       {/* ===== 2. GLASSMORPHISM FILTER BAR ===== */}
       <div style={{ maxWidth: 1400, margin: '0 auto', width: '100%', padding: '16px 24px 0' }}>
         <div style={{
@@ -641,16 +660,28 @@ export default function CreatorIntelligence() {
               <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
                 <div style={{
                   width: 48, height: 48, borderRadius: '50%',
-                  background: selected.image_url ? 'transparent' : getNicheGradient(selected.niche),
+                  background: (selected.avatar_url || selected.image_url) ? 'transparent' : getNicheGradient(selected.niche),
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   overflow: 'hidden',
                   boxShadow: ENGAGEMENT_RING[selected.engagement_signal] || ENGAGEMENT_RING.LOW,
                 }}>
-                  {selected.image_url ? (
-                    <img src={selected.image_url} alt={selected.display_name} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} />
-                  ) : (
-                    <span style={{ fontSize: 18, fontWeight: 700, color: 'white' }}>{selected.display_name.charAt(0)}</span>
-                  )}
+                  {(selected.avatar_url || selected.image_url) ? (
+                    <img
+                      src={selected.avatar_url || selected.image_url}
+                      alt={selected.display_name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' as const }}
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; const next = (e.target as HTMLImageElement).nextElementSibling; if (next) (next as HTMLElement).style.display = 'flex'; }}
+                    />
+                  ) : null}
+                  <div style={{
+                    width: 48, height: 48, borderRadius: '50%',
+                    background: getNicheGradient(selected.niche),
+                    display: (selected.avatar_url || selected.image_url) ? 'none' : 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    color: 'white', fontWeight: 700, fontSize: 18,
+                  }}>
+                    {selected.display_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
+                  </div>
                 </div>
                 <div>
                   <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 15, color: '#0A0A0A' }}>{selected.display_name}</div>

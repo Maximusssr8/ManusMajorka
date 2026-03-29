@@ -16,6 +16,8 @@ import React from 'react';
 import { toast } from 'sonner';
 import { useLocation } from 'wouter';
 import { useActiveProduct } from '@/hooks/useActiveProduct';
+import UsageMeter from '@/components/UsageMeter';
+import { PLAN_LIMITS } from '@shared/plans';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -435,6 +437,10 @@ function AdSpyContent() {
             <RefreshCw size={11} /> New Search
           </button>
         )}
+      </div>
+
+      <div style={{ padding: '0 20px', paddingTop: 8 }}>
+        <UsageMeter feature="ad_intel" limit={PLAN_LIMITS.builder.ad_intel} label="ad searches" />
       </div>
 
       {/* Active Product Banner */}

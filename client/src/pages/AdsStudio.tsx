@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/_core/hooks/useAuth';
 import UpgradeModal from '@/components/UpgradeModal';
+import UsageMeter from '@/components/UsageMeter';
+import { PLAN_LIMITS } from '@shared/plans';
 import { useLocation } from 'wouter';
 
 const brico = "'Bricolage Grotesque', sans-serif";
@@ -311,6 +313,10 @@ Generate the full output following your exact format with all sections.`;
           <span style={{ fontSize: 11, color: '#2563EB', background: '#EFF6FF', padding: '4px 10px', borderRadius: 20, border: '1px solid #BFDBFE', fontWeight: 700 }}>📘 Meta-First</span>
           <span style={{ fontSize: 11, fontWeight: 700, color: '#6366F1', background: '#EEF2FF', padding: '4px 10px', borderRadius: 20, border: '1px solid #C7D2FE' }}>✨ Maya AI</span>
         </div>
+      </div>
+
+      <div style={{ padding: '0 28px', paddingTop: 8 }}>
+        <UsageMeter feature="ads_studio" limit={PLAN_LIMITS.builder.ads_studio} label="ad generations" />
       </div>
 
       {/* ── 3-col layout ───────────────────────────────────────────────── */}

@@ -41,6 +41,7 @@ const Onboarding = lazy(() => import('./pages/Onboarding'));
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
 const PublicProfitCalculator = lazy(() => import('./pages/PublicProfitCalculator'));
 const Affiliate = lazy(() => import('./pages/Affiliate'));
+const PublicProfitShare = lazy(() => import('./pages/PublicProfitShare'));
 const KnowledgeBase = lazy(() => import('./pages/KnowledgeBase'));
 const LearnHub = lazy(() => import('./pages/LearnHub'));
 const AdSpy = lazyWithRetry(() => import('./pages/AdSpy'));
@@ -192,6 +193,7 @@ function Router() {
             <Route path="/app/settings/profile" component={SettingsProfile} />
             <Route path="/store/:slug" component={Storefront} />
             <Route path="/tools/profit-calculator" component={PublicProfitCalculator} />
+            <Route path="/share/profit">{() => <PublicProfitShare />}</Route>
             <Route path="/app/affiliate">
               {() => (
                 <ProtectedRoute>

@@ -12,6 +12,9 @@ import { useRegion } from '@/context/RegionContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation } from 'wouter';
 import { Lock, Copy, Megaphone } from 'lucide-react';
+import UpgradeModal from '@/components/UpgradeModal';
+import UsageMeter from '@/components/UsageMeter';
+import { PLAN_LIMITS } from '@shared/plans';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Product {
@@ -243,9 +246,11 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const isMobile = useIsMobile();
   // Use growth-rate sort for trending, score for full database
   const { region } = useRegion();
-  const { isPro, subPlan } = useAuth();
+  const { isPro, subPlan, session } = useAuth();
   const [, setLocation] = useLocation();
   const canSeeFinancials = isPro || subPlan === 'scale' || subPlan === 'builder';
+  const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -478,6 +483,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     return result;
   }, [filtered, filters]);
 
+  const displayProducts = (!canSeeFinancials && !isAdmin) ? filteredProducts.slice(0, 10) : filteredProducts;
+
   const niches = ['All Niches', ...Array.from(new Set(products.map(p => getProductNiche(p)).filter(Boolean)))].slice(0, 16);
 
   const FILTERS = ['All', 'Viral', 'High Margin', 'AU Best Sellers', 'TikTok', 'New Today'];
@@ -533,6 +540,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             </button>
           </div>
         </div>
+
+        <UsageMeter feature="product_searches" limit={PLAN_LIMITS.builder.product_searches} label="product searches" />
 
         {/* Freshness bar */}
         {lastUpdated && (
@@ -675,11 +684,15 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       {/* ── TABLE WRAPPER ── */}
       <div style={{ maxWidth: 1400, margin: '0 auto', padding: isMobile ? '0 0 80px' : '0 24px 40px' }}>
         {/* Blur gate banner */}
-        {!canSeeFinancials && (
-          <div style={{ background: 'linear-gradient(135deg, #EEF2FF, #F5F3FF)', border: '1px solid #C7D2FE', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            <Lock size={16} style={{ color: '#6366F1', flexShrink: 0 }} />
-            <span style={{ fontSize: 13, color: '#3730A3', flex: 1 }}>Margin, revenue &amp; cost data is available on Builder plan and above</span>
-            <button onClick={() => setLocation('/pricing')} style={{ background: '#6366F1', color: 'white', borderRadius: 6, padding: '5px 12px', fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>Unlock now →</button>
+        {!canSeeFinancials && !isAdmin && (
+          <div style={{background:'linear-gradient(135deg,#EEF2FF,#F3E8FF)',border:'1px solid #C7D2FE',borderRadius:12,padding:'14px 20px',marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap' as const,gap:10}}>
+            <div>
+              <div style={{fontFamily:brico,fontWeight:800,fontSize:15,color:'#1E1B4B'}}>Showing 10 of {filteredProducts.length} products</div>
+              <div style={{fontSize:13,color:'#4B5563',marginTop:2}}>Unlock full database, margins, and revenue data on Builder plan</div>
+            </div>
+            <button onClick={()=>setShowUpgrade(true)} style={{padding:'10px 20px',background:'#6366F1',color:'white',border:'none',borderRadius:9,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:brico,whiteSpace:'nowrap' as const}}>
+              Unlock All {filteredProducts.length} →
+            </button>
           </div>
         )}
         {/* Scroll hint wrapper */}
@@ -776,7 +789,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                   </td>
                 </tr>
               ) : (
-                filteredProducts.map((p, idx) => {
+                displayProducts.map((p, idx) => {
                   const name = getProductName(p);
                   const revenue = getProductRevenue(p);
                   const margin = getProductMargin(p);
@@ -988,6 +1001,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
       {/* ── PRODUCT DETAIL DRAWER ── */}
       {detailProduct && <ProductDetailDrawer product={detailProduct} onClose={() => setDetailProduct(null)} />}
+
+      {showUpgrade && <UpgradeModal isOpen={showUpgrade} onClose={() => setShowUpgrade(false)} feature="Full Product Database" reason="Access all products, margins, and revenue data" />}
 
       <style>{`
         @keyframes fadeInRow { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
@@ -1214,7 +1229,7 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
     : `Negative or sub-15% margin at current settings. Don't launch ads yet — adjust sell price or source a cheaper supplier first.`;
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/app/profit?price=${sell}&cost=${cost}&units=${units}&ads=${adSpend}&product=${encodeURIComponent(productName)}`;
+    const url = `${window.location.origin}/share/profit?price=${sell}&cost=${cost}&units=${units}&ads=${adSpend}&product=${encodeURIComponent(productName)}`;
     try { await navigator.clipboard.writeText(url); } catch { /**/ }
     setShared(true);
     setTimeout(() => setShared(false), 2000);

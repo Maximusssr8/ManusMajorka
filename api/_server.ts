@@ -64,6 +64,30 @@ const app = express();
 app.disable('x-powered-by'); // Don't expose Express in response headers
 app.set('trust proxy', 1); // Trust Vercel's load balancer for req.ip
 
+// ═══ CORS Lockdown ═══
+const ALLOWED_ORIGINS = [
+  'https://majorka.io',
+  'https://www.majorka.io',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:3001',
+];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
+  next();
+});
+
 // ── Stripe webhook must receive raw body — register BEFORE express.json() ─────
 app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
   const signature = req.headers["stripe-signature"];
@@ -217,6 +241,28 @@ app.get("/api/usage/me", requireAuth, async (req: Request, res: Response) => {
     res.json({ plan, usage: summary, month: new Date().toISOString().slice(0, 7) });
   } catch {
     res.json({ plan: 'builder', usage: {}, month: '' });
+  }
+});
+
+// ── Single feature usage — GET /api/usage/:feature ──────────────────────────
+app.get("/api/usage/:feature", requireAuth, async (req: Request, res: Response) => {
+  const { feature } = req.params;
+  const userId = (req as any).user?.userId;
+  const month = new Date().toISOString().slice(0, 7);
+  try {
+    const SURL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+    const SKEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+    const supabaseAdmin = createClient(SURL, SKEY);
+    const { data } = await supabaseAdmin
+      .from('usage_tracking')
+      .select('count')
+      .eq('user_id', userId)
+      .eq('feature', feature)
+      .eq('month', month)
+      .single();
+    res.json({ count: data?.count ?? 0 });
+  } catch {
+    res.json({ count: 0 });
   }
 });
 
