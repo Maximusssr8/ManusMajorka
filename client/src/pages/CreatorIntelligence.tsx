@@ -5,6 +5,9 @@ import { DateRangeSelector, getDateRangeStart, type Range } from '@/components/D
 import { exportCSV } from '@/lib/exportCsv';
 import { supabase } from '@/lib/supabase';
 import { Search, Play } from 'lucide-react';
+import { useAuth } from '@/_core/hooks/useAuth';
+import UpgradeModal from '@/components/UpgradeModal';
+import { useLocation } from 'wouter';
 
 // Real TikTok creators — shown immediately while live data loads
 const FALLBACK_CREATORS = [
@@ -103,6 +106,8 @@ function getTikTokUrl(c: Creator): string {
 }
 
 export default function CreatorIntelligence() {
+  const { subPlan, subStatus, session } = useAuth();
+  const [, setLocation] = useLocation();
   React.useEffect(() => { document.title = 'Creator Intelligence | Majorka'; }, []);
   const isMobile = useIsMobile();
   const [creators, setCreators] = useState<Creator[]>([]);
@@ -402,6 +407,12 @@ export default function CreatorIntelligence() {
       </div>
     );
   };
+
+  const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
+  const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
+  if (!isAdmin && !isPaid) {
+    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app/dashboard')} feature="Creator Intelligence" reason="Discover top creators and influencers" />;
+  }
 
   return (
     <div style={{ background: '#F8F9FC', minHeight: '100vh', display: 'flex', flexDirection: 'column' as const, fontFamily: dmSans }}>

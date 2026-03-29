@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Route, Switch, useLocation } from 'wouter';
 import { Toaster } from '@/components/ui/sonner';
 import AlmostWonModal from '@/components/AlmostWonModal';
@@ -16,11 +16,19 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { MayaProvider } from './context/MayaContext';
 import { RegionProvider } from './context/RegionContext';
 
+function lazyWithRetry(factory: () => Promise<any>) {
+  return lazy(() =>
+    factory().catch(() =>
+      new Promise(resolve => setTimeout(() => resolve(factory()), 1500))
+    )
+  );
+}
+
 // Lazy-loaded page components for code splitting
 const Home = lazy(() => import('./pages/Home'));
 const Blog = lazy(() => import('./pages/Blog'));
 const About = lazy(() => import('./pages/About'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Dashboard = lazyWithRetry(() => import('./pages/Dashboard'));
 const Account = lazy(() => import('./pages/Account'));
 const SignIn = lazy(() => import('./pages/SignIn'));
 const SettingsProfile = lazy(() => import('./pages/SettingsProfile'));
@@ -28,22 +36,22 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Storefront = lazy(() => import('./pages/Storefront'));
 const AdminLeads = lazy(() => import('./pages/AdminLeads'));
-const StoreBuilder = lazy(() => import('./pages/store-builder/index'));
+const StoreBuilder = lazyWithRetry(() => import('./pages/store-builder/index'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail'));
 const PublicProfitCalculator = lazy(() => import('./pages/PublicProfitCalculator'));
 const Affiliate = lazy(() => import('./pages/Affiliate'));
 const KnowledgeBase = lazy(() => import('./pages/KnowledgeBase'));
 const LearnHub = lazy(() => import('./pages/LearnHub'));
-const AdSpy = lazy(() => import('./pages/AdSpy'));
-const AdsStudio = lazy(() => import('./pages/AdsStudio'));
-const ProfitCalculator = lazy(() => import('./pages/ProfitCalculator'));
-const GrowthTools = lazy(() => import('./pages/GrowthTools'));
-const SpyTools = lazy(() => import('./pages/SpyTools'));
-const MarketDashboard = lazy(() => import('./pages/MarketDashboard'));
-const CreatorIntelligence = lazy(() => import('./pages/CreatorIntelligence'));
-const VideoIntelligence = lazy(() => import('./pages/VideoIntelligence'));
-const ProductIntelligence = lazy(() => import('./pages/ProductIntelligence'));
+const AdSpy = lazyWithRetry(() => import('./pages/AdSpy'));
+const AdsStudio = lazyWithRetry(() => import('./pages/AdsStudio'));
+const ProfitCalculator = lazyWithRetry(() => import('./pages/ProfitCalculator'));
+const GrowthTools = lazyWithRetry(() => import('./pages/GrowthTools'));
+const SpyTools = lazyWithRetry(() => import('./pages/SpyTools'));
+const MarketDashboard = lazyWithRetry(() => import('./pages/MarketDashboard'));
+const CreatorIntelligence = lazyWithRetry(() => import('./pages/CreatorIntelligence'));
+const VideoIntelligence = lazyWithRetry(() => import('./pages/VideoIntelligence'));
+const ProductIntelligence = lazyWithRetry(() => import('./pages/ProductIntelligence'));
 const Alerts = lazy(() => import('./pages/Alerts'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const AdminControlPanel = lazy(() => import('./pages/AdminControlPanel'));
@@ -54,8 +62,8 @@ const SharedReport = lazy(() => import('./pages/SharedReport'));
 const ShopDetail = lazy(() => import('./pages/ShopDetail'));
 const ProductSearch = lazy(() => import('./pages/ProductSearch'));
 const StoreHealthScore = lazy(() => import('./pages/StoreHealthScore'));
-const AIChat = lazy(() => import('./pages/AIChat'));
-const RevenuePage = lazy(() => import('./pages/RevenuePage'));
+const AIChat = lazyWithRetry(() => import('./pages/AIChat'));
+const RevenuePage = lazyWithRetry(() => import('./pages/RevenuePage'));
 // SEO landing pages
 const DropshippingAustralia = lazy(() => import('./pages/seo/DropshippingAustralia'));
 const TikTokShopAustralia = lazy(() => import('./pages/seo/TikTokShopAustralia'));
@@ -97,6 +105,20 @@ function LoadingFallback() {
 }
 
 
+class ChunkErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() {
+    if (this.state.hasError) {
+      return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',flexDirection:'column',gap:16}}>
+        <div style={{fontSize:16,fontWeight:600}}>Something went wrong loading this page.</div>
+        <button onClick={() => window.location.reload()} style={{padding:'10px 20px',background:'#6366F1',color:'white',border:'none',borderRadius:8,cursor:'pointer',fontSize:14}}>Reload</button>
+      </div>;
+    }
+    return this.props.children;
+  }
+}
+
 // Gold loading bar on route change
 const LOADING_BAR_CSS = `
   .page-loading-bar {
@@ -136,6 +158,7 @@ function Router() {
     <>
       <style>{LOADING_BAR_CSS}</style>
       {showBar && <div className="page-loading-bar" key={location + '-bar'} />}
+    <ChunkErrorBoundary>
     <Suspense fallback={<LoadingFallback />}>
       <AnimatePresence mode="wait">
         <motion.div
@@ -328,6 +351,7 @@ function Router() {
         </motion.div>
       </AnimatePresence>
     </Suspense>
+    </ChunkErrorBoundary>
     </>
   );
 }

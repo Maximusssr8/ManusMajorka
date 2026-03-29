@@ -158,112 +158,142 @@ export async function executeTool(name: string, input: Record<string, unknown>):
 
   switch (name) {
     case 'web_search': {
-      const query = input.query as string;
-      const results = await tv.search(query, {
-        maxResults: 5,
-        includeAnswer: true,
-      });
-      return JSON.stringify({
-        answer: results.answer || null,
-        sources: results.results.map((r) => ({
-          title: r.title,
-          url: r.url,
-          snippet: r.content.slice(0, 250),
-        })),
-      });
+      try {
+        const query = input.query as string;
+        const results = await tv.search(query, {
+          maxResults: 5,
+          includeAnswer: true,
+        });
+        return JSON.stringify({
+          answer: results.answer || null,
+          sources: results.results.map((r) => ({
+            title: r.title,
+            url: r.url,
+            snippet: r.content.slice(0, 250),
+          })),
+        });
+      } catch (err: unknown) {
+        console.error('[ai-tools] web_search failed:', err instanceof Error ? err.message : err);
+        return JSON.stringify({ error: 'Web search failed. Please try again.' });
+      }
     }
 
     case 'product_research': {
-      const niche = input.niche as string;
-      const market = (input.market as string) || 'AU';
-      const results = await tv.search(
-        `trending ${niche} products dropshipping ${market} 2025 high demand low competition`,
-        { maxResults: 5, includeAnswer: true }
-      );
-      return JSON.stringify({
-        niche,
-        market,
-        answer: results.answer || null,
-        insights: results.results.map((r) => ({
-          title: r.title,
-          snippet: r.content.slice(0, 300),
-          url: r.url,
-        })),
-      });
+      try {
+        const niche = input.niche as string;
+        const market = (input.market as string) || 'AU';
+        const results = await tv.search(
+          `trending ${niche} products dropshipping ${market} 2025 high demand low competition`,
+          { maxResults: 5, includeAnswer: true }
+        );
+        return JSON.stringify({
+          niche,
+          market,
+          answer: results.answer || null,
+          insights: results.results.map((r) => ({
+            title: r.title,
+            snippet: r.content.slice(0, 300),
+            url: r.url,
+          })),
+        });
+      } catch (err: unknown) {
+        console.error('[ai-tools] product_research failed:', err instanceof Error ? err.message : err);
+        return JSON.stringify({ error: 'Product research failed. Please try again.' });
+      }
     }
 
     case 'competitor_analysis': {
-      const url = input.url as string;
-      const domain = url.replace(/https?:\/\//, '').split('/')[0];
-      const results = await tv.search(
-        `${domain} store products pricing reviews strategy analysis`,
-        { maxResults: 5, includeAnswer: true }
-      );
-      return JSON.stringify({
-        domain,
-        analysis: results.answer || null,
-        sources: results.results.slice(0, 3).map((r) => ({
-          title: r.title,
-          url: r.url,
-          snippet: r.content.slice(0, 250),
-        })),
-      });
+      try {
+        const url = input.url as string;
+        const domain = url.replace(/https?:\/\//, '').split('/')[0];
+        const results = await tv.search(
+          `${domain} store products pricing reviews strategy analysis`,
+          { maxResults: 5, includeAnswer: true }
+        );
+        return JSON.stringify({
+          domain,
+          analysis: results.answer || null,
+          sources: results.results.slice(0, 3).map((r) => ({
+            title: r.title,
+            url: r.url,
+            snippet: r.content.slice(0, 250),
+          })),
+        });
+      } catch (err: unknown) {
+        console.error('[ai-tools] competitor_analysis failed:', err instanceof Error ? err.message : err);
+        return JSON.stringify({ error: 'Competitor analysis failed. Please try again.' });
+      }
     }
 
     case 'supplier_finder': {
-      const product = input.product as string;
-      const budget = input.budget as string | undefined;
-      const query = `${product} supplier wholesale Alibaba Australia dropship ${budget ? `under ${budget}` : ''} 2025`;
-      const results = await tv.search(query, {
-        maxResults: 5,
-        includeAnswer: true,
-      });
-      return JSON.stringify({
-        product,
-        budget: budget || 'not specified',
-        suppliers: results.answer || null,
-        sources: results.results.slice(0, 3).map((r) => ({
-          title: r.title,
-          url: r.url,
-        })),
-      });
+      try {
+        const product = input.product as string;
+        const budget = input.budget as string | undefined;
+        const query = `${product} supplier wholesale Alibaba Australia dropship ${budget ? `under ${budget}` : ''} 2025`;
+        const results = await tv.search(query, {
+          maxResults: 5,
+          includeAnswer: true,
+        });
+        return JSON.stringify({
+          product,
+          budget: budget || 'not specified',
+          suppliers: results.answer || null,
+          sources: results.results.slice(0, 3).map((r) => ({
+            title: r.title,
+            url: r.url,
+          })),
+        });
+      } catch (err: unknown) {
+        console.error('[ai-tools] supplier_finder failed:', err instanceof Error ? err.message : err);
+        return JSON.stringify({ error: 'Supplier search failed. Please try again.' });
+      }
     }
 
     case 'trend_scout': {
-      const category = (input.category as string) || 'ecommerce';
-      const results = await tv.search(
-        `trending products TikTok viral Australia 2025 ${category} dropshipping opportunity`,
-        { maxResults: 6, includeAnswer: true }
-      );
-      return JSON.stringify({
-        category,
-        trends: results.answer || null,
-        sources: results.results.slice(0, 4).map((r) => ({
-          title: r.title,
-          url: r.url,
-          snippet: r.content.slice(0, 200),
-        })),
-      });
+      try {
+        const category = (input.category as string) || 'ecommerce';
+        const results = await tv.search(
+          `trending products TikTok viral Australia 2025 ${category} dropshipping opportunity`,
+          { maxResults: 6, includeAnswer: true }
+        );
+        return JSON.stringify({
+          category,
+          trends: results.answer || null,
+          sources: results.results.slice(0, 4).map((r) => ({
+            title: r.title,
+            url: r.url,
+            snippet: r.content.slice(0, 200),
+          })),
+        });
+      } catch (err: unknown) {
+        console.error('[ai-tools] trend_scout failed:', err instanceof Error ? err.message : err);
+        return JSON.stringify({ error: 'Trend scouting failed. Please try again.' });
+      }
     }
 
     case 'ad_angle_generator': {
-      const product = input.product as string;
-      const audience = (input.audience as string) || 'AU audience';
-      const platform = (input.platform as string) || 'both';
-      const results = await tv.search(
-        `best ${platform} ad angles hooks ${product} ${audience} 2025 high converting`,
-        { maxResults: 4, includeAnswer: true }
-      );
-      return JSON.stringify({
-        product,
-        audience,
-        platform,
-        insights: results.answer || null,
-        sources: results.results.slice(0, 3).map((r) => ({
-          title: r.title,
-          url: r.url,
-        })),
-      });
+      try {
+        const product = input.product as string;
+        const audience = (input.audience as string) || 'AU audience';
+        const platform = (input.platform as string) || 'both';
+        const results = await tv.search(
+          `best ${platform} ad angles hooks ${product} ${audience} 2025 high converting`,
+          { maxResults: 4, includeAnswer: true }
+        );
+        return JSON.stringify({
+          product,
+          audience,
+          platform,
+          insights: results.answer || null,
+          sources: results.results.slice(0, 3).map((r) => ({
+            title: r.title,
+            url: r.url,
+          })),
+        });
+      } catch (err: unknown) {
+        console.error('[ai-tools] ad_angle_generator failed:', err instanceof Error ? err.message : err);
+        return JSON.stringify({ error: 'Ad angle generation failed. Please try again.' });
+      }
     }
 
     default:

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
+import UpgradeModal from '@/components/UpgradeModal';
 import { Link, Bookmark, Lock, Upload, Image, X, Save, Store, Check } from 'lucide-react';
 import { useLocation } from 'wouter';
 
@@ -394,7 +395,7 @@ export default function StoreBuilder() {
   const [shopDomainError, setShopDomainError] = useState('');
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
-  const { session, isPro, subPlan } = useAuth();
+  const { session, isPro, subPlan, subStatus } = useAuth();
   const [, navigate] = useLocation();
 
   // Enhancement 1: Product Source Modal
@@ -668,6 +669,12 @@ footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: cent
     setDownloadToast('HTML downloaded!');
     setTimeout(() => setDownloadToast(null), 3000);
   };
+
+  const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
+  const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
+  if (!isAdmin && !isPaid) {
+    return <UpgradeModal isOpen={true} onClose={() => navigate('/app/dashboard')} feature="Store Builder" reason="Build and launch your Shopify store" />;
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#FAFAFA', color: '#0A0A0A', fontFamily: "'DM Sans', sans-serif" }}>

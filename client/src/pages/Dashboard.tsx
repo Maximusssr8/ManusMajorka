@@ -606,21 +606,31 @@ const CATEGORY_COLORS: Record<string, { bg: string; color: string }> = {
 function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setLocation: (p: string) => void }) {
   const [leaderboard, setLeaderboard] = useState<LeaderboardProduct[]>([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+  const [leaderboardError, setLeaderboardError] = useState(false);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
         const { data } = await supabase.auth.getSession();
         const token = data?.session?.access_token;
         const res = await fetch('/api/products?limit=10&sortBy=winning_score&sortDir=desc', {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
+          signal: controller.signal,
         });
+        clearTimeout(timeout);
         if (res.ok) {
           const d = await res.json();
           const arr = Array.isArray(d) ? d : Array.isArray(d?.products) ? d.products : [];
           setLeaderboard(arr.slice(0, 10));
+          setLeaderboardError(false);
+        } else {
+          setLeaderboardError(true);
         }
-      } catch { /* silent */ }
+      } catch {
+        setLeaderboardError(true);
+      }
       setLeaderboardLoading(false);
     };
     fetchLeaderboard();
@@ -664,9 +674,13 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
             </div>
           ))}
         </div>
+      ) : leaderboardError ? (
+        <div style={{ padding: '24px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 13, background: 'white', border: '1px solid #F0F0F0', borderRadius: 14 }}>
+          Could not load leaderboard
+        </div>
       ) : leaderboard.length === 0 ? (
         <div style={{ padding: '24px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 13, background: 'white', border: '1px solid #F0F0F0', borderRadius: 14 }}>
-          Product leaderboard loading...
+          No products tracked yet
         </div>
       ) : isMobile ? (
         /* Mobile: horizontal scroll strip */
@@ -763,13 +777,15 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
 }
 
 function DashboardHome() {
-  const { user, isPro, subPlan } = useAuth();
+  const { user, isPro, subPlan, subStatus } = useAuth();
   const [, setLocation] = useLocation();
+  const isMobile = useIsMobile();
 
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const firstName = user?.name?.split(' ')[0] ?? 'there';
-  const plan = subPlan ?? 'free';
+  const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
+  const planLabel = subPlan ? (subPlan.charAt(0).toUpperCase() + subPlan.slice(1) + ' Plan') : null;
 
 
   useEffect(() => {
@@ -834,10 +850,10 @@ function DashboardHome() {
           <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 800, fontSize: 26, color: '#FFFFFF', marginBottom: 4 }}>
             {getGreeting()}, {firstName} <span role="img" aria-label="wave">👋</span>
           </div>
-          <div style={{ fontSize: 13, color: '#6B7280' }}>{formatDate()} &middot; {plan === 'free' ? 'Free Plan' : plan === 'builder' ? 'Builder Plan' : plan === 'scale' ? 'Scale Plan' : plan === 'pro' ? 'Scale Plan' : (plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan')}</div>
+          <div style={{ fontSize: 13, color: '#6B7280' }}>{formatDate()}{planLabel ? ` \u00b7 ${planLabel}` : ''}</div>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          {plan === 'free' && (
+          {!isPaid && (
             <button onClick={() => setLocation('/pricing')} style={{ height: 38, padding: '0 18px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'transform 150ms' }}
               onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.02)')}
               onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}>
@@ -861,7 +877,7 @@ function DashboardHome() {
             { label: 'Products in DB', value: totalProducts !== null ? totalProducts.toString() : '—', delta: 'Total tracked products', icon: Package, positive: true, color: '#6366F1', hero: false, path: '/app/intelligence' },
             { label: 'Best Est. Revenue', value: bestRevenue, delta: 'Highest in DB / month', icon: TrendingUp, positive: true, color: '#10B981', hero: true, path: '/app/intelligence' },
             { label: 'Avg Margin', value: avgMargin, delta: 'Across top 5 products', icon: Percent, positive: true, color: '#8B5CF6', hero: false, path: '/app/intelligence' },
-            { label: 'Hot Products', value: products.filter((p: any) => (p.winning_score || 0) >= 80).length || '—', delta: 'Dropship Score 80+', icon: Zap, positive: true, color: '#F59E0B', hero: false, path: '/app/intelligence' },
+            { label: 'Hot Products', value: loading ? '—' : products.filter((p: any) => (p.winning_score || 0) >= 80).length.toString(), delta: 'Dropship Score 80+', icon: Zap, positive: true, color: '#F59E0B', hero: false, path: '/app/intelligence' },
           ]).map((card, i) => (
             <div key={i} onClick={() => card.path && setLocation(card.path)} style={{
               background: card.hero ? 'linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%)' : 'white',
@@ -901,7 +917,10 @@ function DashboardHome() {
                 <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#FFFFFF' }}>Market Revenue Trend</div>
                 <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>Estimated AU market weekly revenue across tracked products — not your store revenue</div>
               </div>
-              <span style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Bricolage Grotesque, sans-serif', color: '#6366F1' }}>{loading ? '—' : fmtWeekly}</span>
+              <div style={{ textAlign: 'right' as const }}>
+                <span style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Bricolage Grotesque, sans-serif', color: '#6366F1' }}>{loading ? '—' : weeklyRevOpp === 0 ? 'N/A' : fmtWeekly}</span>
+                {!loading && weeklyRevOpp === 0 && <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>Connect store to track</div>}
+              </div>
             </div>
             <ResponsiveContainer width="100%" height={140}>
               <AreaChart data={chartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>

@@ -330,7 +330,14 @@ Be specific and creative. No generic filler.`;
         res.status(500).json({ error: 'parse_error', message: 'Could not generate ad briefs. Try again.' });
         return;
       }
-      const parsed = JSON.parse(stripped.slice(start, end + 1));
+      let parsed: { ads?: unknown[] };
+      try {
+        parsed = JSON.parse(stripped.slice(start, end + 1));
+      } catch (parseErr: unknown) {
+        console.error('[ad-spy] JSON.parse failed:', parseErr instanceof Error ? parseErr.message : parseErr);
+        res.status(500).json({ error: 'parse_error', message: 'Could not parse ad briefs. Try again.' });
+        return;
+      }
       if (!parsed.ads || !Array.isArray(parsed.ads)) {
         res.status(500).json({ error: 'parse_error', message: 'Invalid response format.' });
         return;
@@ -341,6 +348,7 @@ Be specific and creative. No generic filler.`;
       res.json(result);
 
     } catch (err: any) {
+      console.error('[ad-spy] search error:', err?.message || err);
       if (err?.status === 429 || err?.message?.includes('rate')) {
         res.status(429).json({ error: 'rate_limit', message: 'AI rate limit reached. Please try again in a minute.' });
       } else {

@@ -4,6 +4,9 @@ import React from 'react';
 import { DateRangeSelector, getDateRangeStart, type Range } from '@/components/DateRangeSelector';
 import { exportCSV } from '@/lib/exportCsv';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/_core/hooks/useAuth';
+import UpgradeModal from '@/components/UpgradeModal';
+import { useLocation } from 'wouter';
 
 const brico = "'Bricolage Grotesque', sans-serif";
 
@@ -74,6 +77,8 @@ function detectVideoFormat(title: string, hashtags: string[]): string {
 }
 
 export default function VideoIntelligence() {
+  const { subPlan, subStatus, session } = useAuth();
+  const [, setLocation] = useLocation();
   React.useEffect(() => { document.title = 'Video Intelligence | Majorka'; }, []);
   const isMobile = useIsMobile();
   const [allVideos, setAllVideos] = useState<Video[]>([]);
@@ -254,6 +259,12 @@ export default function VideoIntelligence() {
     setToast(msg);
     setTimeout(() => setToast(''), 4000);
   };
+
+  const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
+  const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
+  if (!isAdmin && !isPaid) {
+    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app/dashboard')} feature="Video Intelligence" reason="Analyse trending videos and content" />;
+  }
 
   return (
     <div style={{ background: '#FAFAFA', minHeight: '100vh' }}>
