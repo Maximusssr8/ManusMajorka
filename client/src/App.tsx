@@ -46,6 +46,7 @@ const KnowledgeBase = lazy(() => import('./pages/KnowledgeBase'));
 const LearnHub = lazy(() => import('./pages/LearnHub'));
 const AdSpy = lazyWithRetry(() => import('./pages/AdSpy'));
 const AdsStudio = lazyWithRetry(() => import('./pages/AdsStudio'));
+const AdsManager = lazyWithRetry(() => import('./pages/AdsManager'));
 const ProfitCalculator = lazyWithRetry(() => import('./pages/ProfitCalculator'));
 const GrowthTools = lazyWithRetry(() => import('./pages/GrowthTools'));
 const SpyTools = lazyWithRetry(() => import('./pages/SpyTools'));
@@ -231,6 +232,7 @@ function Router() {
             </Route>
             <Route path="/app/ad-spy">{() => <ProtectedRoute><AppLayout><AdSpy /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/ads-studio">{() => <ProtectedRoute><AppLayout><AdsStudio /></AppLayout></ProtectedRoute>}</Route>
+            <Route path="/app/ads-manager">{() => <ProtectedRoute><AppLayout><AdsManager /></AppLayout></ProtectedRoute>}</Route>
             <Route path="/app/learn">
               {() => (
                 <ProtectedRoute>

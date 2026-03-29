@@ -174,4 +174,127 @@ router.post('/products', async (req, res) => {
   }
 });
 
+// ── POST /api/shopify/sync — sync Shopify product catalog ───────────────────
+router.post('/sync', async (req, res) => {
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data: { user } } = await supabase.auth.getUser(getToken(req));
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { data: conn } = await supabase
+      .from('shopify_connections')
+      .select('shop_domain, access_token')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!conn?.access_token) {
+      return res.status(400).json({ error: 'Shopify not connected' });
+    }
+
+    // Fetch products from Shopify
+    const shopifyRes = await fetch(
+      `https://${conn.shop_domain}/admin/api/2024-01/products.json?limit=250`,
+      {
+        headers: {
+          'X-Shopify-Access-Token': conn.access_token,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!shopifyRes.ok) {
+      const err = await shopifyRes.text();
+      return res.status(400).json({ error: 'Failed to fetch Shopify products', details: err });
+    }
+
+    const shopifyData = (await shopifyRes.json()) as {
+      products: Array<{
+        id: number;
+        title: string;
+        handle: string;
+        variants: Array<{ price: string }>;
+        image?: { src: string } | null;
+        status: string;
+      }>;
+    };
+
+    const products = (shopifyData.products || []).map((p) => ({
+      user_id: user.id,
+      shopify_product_id: String(p.id),
+      title: p.title,
+      price_aud: parseFloat(p.variants?.[0]?.price || '0'),
+      image_url: p.image?.src || null,
+      product_url: `https://${conn.shop_domain}/products/${p.handle}`,
+      inventory_status: p.status || 'active',
+      synced_at: new Date().toISOString(),
+    }));
+
+    // Upsert all products
+    if (products.length > 0) {
+      const { error: upsertErr } = await supabase
+        .from('shopify_product_catalog')
+        .upsert(products, { onConflict: 'user_id,shopify_product_id' });
+
+      if (upsertErr) {
+        return res.status(500).json({ error: 'Failed to sync products', details: upsertErr.message });
+      }
+    }
+
+    return res.json({ synced: products.length, products });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/shopify/catalog — user's synced products ───────────────────────
+router.get('/catalog', async (req, res) => {
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data: { user } } = await supabase.auth.getUser(getToken(req));
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { data, error } = await supabase
+      .from('shopify_product_catalog')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('synced_at', { ascending: false });
+
+    if (error) return res.status(500).json({ error: error.message });
+    return res.json({ products: data || [] });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/shopify/sync-status — last sync time + product count ───────────
+router.get('/sync-status', async (req, res) => {
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data: { user } } = await supabase.auth.getUser(getToken(req));
+    if (!user) return res.json({ synced: false, count: 0, lastSync: null });
+
+    const { data, error } = await supabase
+      .from('shopify_product_catalog')
+      .select('synced_at')
+      .eq('user_id', user.id)
+      .order('synced_at', { ascending: false })
+      .limit(1);
+
+    if (error || !data?.length) return res.json({ synced: false, count: 0, lastSync: null });
+
+    const { count } = await supabase
+      .from('shopify_product_catalog')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id);
+
+    return res.json({
+      synced: true,
+      count: count || 0,
+      lastSync: data[0].synced_at,
+    });
+  } catch {
+    return res.json({ synced: false, count: 0, lastSync: null });
+  }
+});
+
 export default router;
