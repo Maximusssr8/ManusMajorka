@@ -1128,131 +1128,221 @@ function AudienceSuggestions({ category, productTitle }: { category: string; pro
   );
 }
 
-// ── Shipping presets by category ─────────────────────────────────────────────
+// ── Category lookup tables ────────────────────────────────────────────────────
 function getShippingDefault(category: string): number {
-  const cat = (category || '').toLowerCase();
-  if (/jewel|accessor|cosmetic|beauty|makeup|serum|vitamin|supplement|skincare/.test(cat)) return 9;
-  if (/pet|toy|kids|baby|stationery/.test(cat)) return 11;
-  if (/electronic|tech|gadget|phone|camera|drone/.test(cat)) return 15;
-  if (/kitchen|home|outdoor|fitness|sport|gym/.test(cat)) return 13;
-  if (/fashion|cloth|apparel|shoe|bag/.test(cat)) return 10;
-  return 12;
+  const c = (category || '').toLowerCase();
+  if (/jewel|accessor|cosmetic|beauty|makeup|serum|vitamin|supplement|skincare/.test(c)) return 8.99;
+  if (/baby|kids|toy|stationery/.test(c)) return 11.99;
+  if (/pet/.test(c)) return 11.99;
+  if (/electronic|tech|gadget|phone|camera|drone/.test(c)) return 13.99;
+  if (/fashion|cloth|apparel|shoe|bag/.test(c)) return 11.99;
+  if (/fitness|sport|gym|outdoor/.test(c)) return 13.99;
+  if (/kitchen|home|garden/.test(c)) return 13.99;
+  return 13.99;
 }
-// Ad spend default by category $/day
 function getAdSpendDefault(category: string): number {
-  const cat = (category || '').toLowerCase();
-  if (/health|wellness|supplement|vitamin|weight/.test(cat)) return 45;
-  if (/beauty|makeup|skincare|cosmetic/.test(cat)) return 40;
-  if (/electronic|tech|gadget/.test(cat)) return 55;
-  if (/pet/.test(cat)) return 35;
-  if (/home|kitchen/.test(cat)) return 30;
-  if (/fashion|cloth|apparel/.test(cat)) return 35;
+  const c = (category || '').toLowerCase();
+  if (/fashion|cloth|apparel/.test(c)) return 35;
+  if (/beauty|makeup|skincare|cosmetic/.test(c)) return 45;
+  if (/home|garden|kitchen/.test(c)) return 40;
+  if (/electronic|tech|gadget/.test(c)) return 55;
+  if (/fitness|sport|gym/.test(c)) return 40;
+  if (/pet/.test(c)) return 35;
+  if (/baby|kids|toy/.test(c)) return 30;
+  if (/health|wellness|supplement|vitamin/.test(c)) return 45;
   return 40;
 }
+function getReturnRateDefault(category: string): number {
+  const c = (category || '').toLowerCase();
+  if (/fashion|cloth|apparel|shoe/.test(c)) return 12;
+  if (/electronic|tech|gadget/.test(c)) return 10;
+  if (/beauty|makeup|skincare|cosmetic/.test(c)) return 6;
+  return 7;
+}
 
-// ── Mini Profit Widget (embedded in drawer) ───────────────────────────────────
-function MiniProfitWidget({ sellPrice, supplierCost, category, productName }: {
+// ── Full embedded Profit Calculator ──────────────────────────────────────────
+function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
   sellPrice: number; supplierCost: number; category: string; productName: string;
 }) {
   const [, setLocation] = useLocation();
-  const [sell, setSell] = useState(Math.round(sellPrice * 100) / 100);
-  const [cost, setCost] = useState(Math.round(supplierCost * 100) / 100);
+  const [open, setOpen] = useState(true);
+  const [shared, setShared] = useState(false);
+
+  // Inputs — auto-populated from product
+  const [sell, setSell]       = useState(Math.max(sellPrice > 0 ? sellPrice : (supplierCost * 2.8), 9.99));
+  const [cost, setCost]       = useState(supplierCost > 0 ? supplierCost : Math.round(sell / 2.8 * 100) / 100);
   const [adSpend, setAdSpend] = useState(getAdSpendDefault(category));
-  const [units, setUnits] = useState(4);
-  const shipping = getShippingDefault(category);
+  const [units, setUnits]     = useState(4);
+  const [returnRate, setReturnRate] = useState(getReturnRateDefault(category));
+  const [shipping]            = useState(getShippingDefault(category));
+  const PLATFORM_FEE = 2;      // Shopify 2%
+  const PAYMENT_FEE  = 1.75;   // Stripe AU
 
-  // Live calculations
-  const grossMargin = sell > 0 ? ((sell - cost - shipping) / sell) * 100 : 0;
-  const netPerUnit  = sell - cost - shipping - (adSpend / Math.max(units, 1));
-  const monthlyProfit = netPerUnit * units * 30;
-  const breakEvenCPA  = sell - cost - shipping;
-  const viable = grossMargin >= 30;
+  // ── Calculations ──────────────────────────────────────────────────────────
+  const platformCost = sell * (PLATFORM_FEE / 100);
+  const paymentCost  = sell * (PAYMENT_FEE / 100);
+  const returnCost   = cost * (returnRate / 100);
+  const adCostPerUnit = adSpend / Math.max(units, 0.1);
+  const netPerUnit   = sell - cost - shipping - platformCost - paymentCost - returnCost - adCostPerUnit;
+  const grossMargin  = sell > 0 ? (netPerUnit / sell) * 100 : 0;
+  const dailyProfit  = netPerUnit * units;
+  const monthlyProfit = dailyProfit * 30;
+  const breakEvenCPA = sell - cost - shipping - platformCost - paymentCost - returnCost;
+  const roas         = adSpend > 0 ? (sell * units) / adSpend : 0;
 
-  const fmtNum = (n: number) => n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const viable = grossMargin >= 40 ? 'high' : grossMargin >= 25 ? 'viable' : 'risky';
+  const viableConfig = {
+    high:   { label: 'Highly Viable', color: '#059669', bg: '#DCFCE7', border: '#86EFAC' },
+    viable: { label: 'Viable',        color: '#D97706', bg: '#FEF9C3', border: '#FDE68A' },
+    risky:  { label: 'Risky',         color: '#DC2626', bg: '#FEF2F2', border: '#FECACA' },
+  }[viable];
 
-  const openFullCalc = () => {
-    setLocation(`/app/profit?price=${sell}&cost=${cost}&units=${units}&ads=${adSpend}`);
+  const fmtAUD = (n: number) => `$${Math.abs(n).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${n < 0 ? ' loss' : ''}`;
+
+  const projections = [
+    { label: '100 orders/mo',  units: Math.round(100 / 30), monthly: Math.round(netPerUnit * 100 * 10) / 10 },
+    { label: '500 orders/mo',  units: Math.round(500 / 30), monthly: Math.round(netPerUnit * 500 * 10) / 10 },
+    { label: '1,000 orders/mo',units: Math.round(1000 / 30), monthly: Math.round(netPerUnit * 1000 * 10) / 10 },
+  ];
+
+  const insight = grossMargin >= 45
+    ? `Excellent ${grossMargin.toFixed(0)}% margin. Strong product. At ${units} units/day → ${fmtAUD(monthlyProfit)}/mo. Scale ad spend aggressively once profitable.`
+    : grossMargin >= 30
+    ? `Solid ${grossMargin.toFixed(0)}% margin. Keep ad CPA below ${fmtAUD(breakEvenCPA)}. Consider a higher sell price to boost headroom.`
+    : grossMargin >= 15
+    ? `Thin ${grossMargin.toFixed(0)}% margin. Raise sell price or negotiate a lower supplier cost. Max CPA = ${fmtAUD(breakEvenCPA)}.`
+    : `Negative or sub-15% margin at current settings. Don't launch ads yet — adjust sell price or source a cheaper supplier first.`;
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/app/profit?price=${sell}&cost=${cost}&units=${units}&ads=${adSpend}&product=${encodeURIComponent(productName)}`;
+    try { await navigator.clipboard.writeText(url); } catch { /**/ }
+    setShared(true);
+    setTimeout(() => setShared(false), 2000);
   };
 
-  const pill = (label: string, val: string, color: string, bg: string) => (
-    <div style={{ background: bg, borderRadius: 10, padding: '10px 14px', textAlign: 'center' as const }}>
-      <div style={{ fontSize: 10, color, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, marginBottom: 4 }}>{label}</div>
-      <div style={{ fontFamily: brico, fontWeight: 900, fontSize: 18, color, lineHeight: 1 }}>{val}</div>
+  const numInput = (label: string, val: number, set: (v: number) => void, prefix = '$', hint = '', step = 0.5) => (
+    <div>
+      <div style={{ fontSize: 10, color: '#4B5563', fontWeight: 700, marginBottom: 4, letterSpacing: '.04em', textTransform: 'uppercase' as const }}>{label}</div>
+      <div style={{ display: 'flex', alignItems: 'center', background: 'white', border: '1px solid #C7D2FE', borderRadius: 8, height: 36, overflow: 'hidden' }}>
+        <span style={{ padding: '0 8px', fontSize: 12, color: '#6366F1', fontWeight: 700, flexShrink: 0 }}>{prefix}</span>
+        <input type="number" min={0} step={step} value={val}
+          onChange={e => set(parseFloat(e.target.value) || 0)}
+          style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13, fontWeight: 700, color: '#111827', fontFamily: brico, background: 'transparent', padding: '0 6px 0 0', minWidth: 0 }}
+        />
+      </div>
+      {hint && <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>{hint}</div>}
+    </div>
+  );
+
+  const metric = (label: string, val: string, color: string, bg: string) => (
+    <div style={{ background: bg, borderRadius: 10, padding: '10px 12px', textAlign: 'center' as const }}>
+      <div style={{ fontSize: 9, color, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, marginBottom: 4 }}>{label}</div>
+      <div style={{ fontFamily: brico, fontWeight: 900, fontSize: 17, color, lineHeight: 1 }}>{val}</div>
     </div>
   );
 
   return (
-    <div style={{ marginBottom: 20, background: '#F0F4FF', border: '1px solid #C7D2FE', borderRadius: 14, padding: '16px 16px 14px', position: 'relative' as const }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+    <div style={{ marginBottom: 20, background: '#F0F4FF', border: '1px solid #C7D2FE', borderRadius: 16, overflow: 'hidden' as const }}>
+      {/* Collapsible header */}
+      <button onClick={() => setOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' as const }}>
         <div>
-          <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 14, color: '#1E1B4B' }}>💰 Quick Profit Model</div>
-          <div style={{ fontSize: 11, color: '#6366F1', marginTop: 2 }}>Pre-filled from product data · adjust to model</div>
+          <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 14, color: '#1E1B4B' }}>💰 Profit Analysis</div>
+          <div style={{ fontSize: 11, color: '#6366F1', marginTop: 1 }}>Auto-filled from product · all values editable</div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: viable ? '#DCFCE7' : '#FEF2F2', border: `1px solid ${viable ? '#86EFAC' : '#FECACA'}`, borderRadius: 999, padding: '4px 10px' }}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: viable ? '#22C55E' : '#EF4444' }} />
-          <span style={{ fontSize: 10, fontWeight: 800, color: viable ? '#059669' : '#DC2626' }}>{viable ? 'VIABLE' : 'TIGHT'}</span>
-        </div>
-      </div>
-
-      {/* Inputs row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
-        {[
-          { label: 'Sell Price (AUD)', val: sell, set: setSell, hint: 'Your retail price' },
-          { label: 'Supplier Cost (AUD)', val: cost, set: setCost, hint: 'From AliExpress' },
-          { label: 'Ad Spend / Day', val: adSpend, set: setAdSpend, hint: 'Category default' },
-          { label: 'Units / Day', val: units, set: setUnits, hint: 'Sales volume estimate' },
-        ].map(({ label, val, set, hint }) => (
-          <div key={label}>
-            <div style={{ fontSize: 10, color: '#4B5563', fontWeight: 700, marginBottom: 4, letterSpacing: '.04em' }}>{label}</div>
-            <div style={{ display: 'flex', alignItems: 'center', background: 'white', border: '1px solid #C7D2FE', borderRadius: 8, overflow: 'hidden', height: 36 }}>
-              <span style={{ padding: '0 8px', fontSize: 12, color: '#6366F1', fontWeight: 700 }}>$</span>
-              <input
-                type="number"
-                min={0}
-                step={label.includes('Units') ? 1 : 0.5}
-                value={val}
-                onChange={e => set(parseFloat(e.target.value) || 0)}
-                style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13, fontWeight: 700, color: '#111827', fontFamily: brico, background: 'transparent', width: '100%', padding: '0 6px 0 0' }}
-              />
-            </div>
-            <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>{hint}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: viableConfig.bg, border: `1px solid ${viableConfig.border}`, borderRadius: 999, padding: '4px 10px' }}>
+            <div style={{ width: 5, height: 5, borderRadius: '50%', background: viableConfig.color }} />
+            <span style={{ fontSize: 10, fontWeight: 800, color: viableConfig.color }}>{viableConfig.label}</span>
           </div>
-        ))}
-      </div>
-
-      {/* Shipping note */}
-      <div style={{ fontSize: 10, color: '#6366F1', background: 'rgba(99,102,241,0.06)', borderRadius: 6, padding: '4px 8px', marginBottom: 12 }}>
-        📦 Shipping est.: <strong>${shipping.toFixed(2)} AUD</strong> ({category || 'standard'} weight · auto-estimated)
-      </div>
-
-      {/* Metric pills */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 }}>
-        {pill('Net Margin', `${Math.max(0, grossMargin).toFixed(1)}%`, viable ? '#059669' : '#D97706', viable ? '#DCFCE7' : '#FEF9C3')}
-        {pill('Monthly Profit', `$${monthlyProfit > 0 ? fmtNum(monthlyProfit) : '0.00'}`, '#6366F1', '#EEF2FF')}
-        {pill('Break-even CPA', `$${breakEvenCPA > 0 ? breakEvenCPA.toFixed(2) : '—'}`, '#8B5CF6', '#F3E8FF')}
-      </div>
-
-      {/* What this means */}
-      <div style={{ fontSize: 12, color: '#374151', background: 'rgba(255,255,255,0.7)', borderRadius: 8, padding: '8px 12px', marginBottom: 12, lineHeight: 1.5 }}>
-        {grossMargin >= 40
-          ? `Strong ${grossMargin.toFixed(0)}% margin. At ${units} units/day you'd pocket ~$${fmtNum(monthlyProfit)}/mo. Room to scale ad spend.`
-          : grossMargin >= 25
-          ? `Workable ${grossMargin.toFixed(0)}% margin. Keep ad spend lean — max CPA $${breakEvenCPA.toFixed(2)} before losing money.`
-          : `Thin margin (${grossMargin.toFixed(0)}%). Consider raising sell price or finding a cheaper supplier before launching ads.`
-        }
-      </div>
-
-      {/* CTA */}
-      <button
-        onClick={openFullCalc}
-        style={{ width: '100%', height: 40, background: '#6366F1', color: 'white', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: brico, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
-      >
-        Open Full Calculator with These Numbers →
+          <span style={{ fontSize: 16, color: '#6366F1', fontWeight: 700, transform: open ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform .2s' }}>⌃</span>
+        </div>
       </button>
-      <div style={{ fontSize: 10, color: '#9CA3AF', textAlign: 'center' as const, marginTop: 6 }}>
-        All figures are estimates — verify cost &amp; shipping before sourcing
-      </div>
+
+      {open && (
+        <div style={{ padding: '0 16px 16px', borderTop: '1px solid #C7D2FE' }}>
+
+          {/* Inputs — 4 fields in 2×2 grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 14, marginBottom: 10 }}>
+            {numInput('Sell Price (AUD)',     sell,     setSell,     '$', 'What you charge customers')}
+            {numInput('Supplier Cost (AUD)',  cost,     setCost,     '$', 'AliExpress cost incl. freight')}
+            {numInput('Ad Spend / Day',       adSpend,  setAdSpend,  '$', `${category || 'category'} default`)}
+            {numInput('Units / Day',          units,    setUnits,    '#', 'Est. daily sales', 1)}
+          </div>
+
+          {/* Return rate slider */}
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <span style={{ fontSize: 10, color: '#4B5563', fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '.04em' }}>Return Rate</span>
+              <span style={{ fontSize: 11, color: '#6366F1', fontWeight: 700 }}>{returnRate}%</span>
+            </div>
+            <input type="range" min={0} max={25} step={1} value={returnRate} onChange={e => setReturnRate(+e.target.value)}
+              style={{ width: '100%', accentColor: '#6366F1' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: '#9CA3AF' }}>
+              <span>0%</span><span>Category default: {getReturnRateDefault(category)}%</span><span>25%</span>
+            </div>
+          </div>
+
+          {/* Auto-calculated fixed costs */}
+          <div style={{ background: 'rgba(99,102,241,0.06)', borderRadius: 8, padding: '8px 12px', marginBottom: 14, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 4, fontSize: 10, color: '#374151' }}>
+            <div><span style={{ color: '#9CA3AF' }}>Shipping</span><br /><strong>${shipping.toFixed(2)}</strong></div>
+            <div><span style={{ color: '#9CA3AF' }}>Shopify fee</span><br /><strong>{PLATFORM_FEE}% = ${platformCost.toFixed(2)}</strong></div>
+            <div><span style={{ color: '#9CA3AF' }}>Stripe fee</span><br /><strong>{PAYMENT_FEE}% = ${paymentCost.toFixed(2)}</strong></div>
+          </div>
+
+          {/* 5 key metrics */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+            {metric('Net Margin',      `${Math.max(-99, grossMargin).toFixed(1)}%`, viableConfig.color, viableConfig.bg)}
+            {metric('Monthly Profit',  fmtAUD(monthlyProfit),    '#6366F1', '#EEF2FF')}
+            {metric('Daily Profit',    fmtAUD(dailyProfit),       '#8B5CF6', '#F3E8FF')}
+            {metric('Break-even CPA',  `$${breakEvenCPA > 0 ? breakEvenCPA.toFixed(2) : '—'}`, '#0891B2', '#ECFEFF')}
+          </div>
+          <div style={{ background: '#EEF2FF', borderRadius: 10, padding: '10px 12px', marginBottom: 14, textAlign: 'center' as const }}>
+            <div style={{ fontSize: 9, color: '#6366F1', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, marginBottom: 4 }}>ROAS (Return on Ad Spend)</div>
+            <div style={{ fontFamily: brico, fontWeight: 900, fontSize: 22, color: roas >= 2 ? '#059669' : roas >= 1 ? '#D97706' : '#DC2626' }}>{roas > 0 ? `${roas.toFixed(2)}x` : '—'}</div>
+            <div style={{ fontSize: 10, color: '#6B7280', marginTop: 2 }}>{roas >= 3 ? 'Excellent' : roas >= 2 ? 'Good' : roas >= 1 ? 'Breakeven zone' : 'Loss-making at current spend'}</div>
+          </div>
+
+          {/* What this means */}
+          <div style={{ background: 'white', border: '1px solid #E0E7FF', borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: '#6366F1', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '.06em' }}>💡 What This Means</div>
+            <div style={{ fontSize: 12, color: '#374151', lineHeight: 1.6 }}>{insight}</div>
+          </div>
+
+          {/* Monthly Profit Projections */}
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: '#0A0A0A', marginBottom: 8, textTransform: 'uppercase' as const, letterSpacing: '.07em' }}>Monthly Profit Projections</div>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 4 }}>
+              {projections.map(proj => {
+                const pos = proj.monthly > 0;
+                return (
+                  <div key={proj.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', background: pos ? '#F0FDF4' : '#FEF2F2', borderRadius: 8, border: `1px solid ${pos ? '#BBF7D0' : '#FECACA'}` }}>
+                    <span style={{ fontSize: 12, color: '#374151', fontWeight: 500 }}>{proj.label}</span>
+                    <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 14, color: pos ? '#059669' : '#DC2626' }}>{fmtAUD(proj.monthly)}/mo</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 6, textAlign: 'center' as const }}>
+              Based on ${sell} sell · ${cost} cost · ${adSpend}/day ads · {returnRate}% returns
+            </div>
+          </div>
+
+          {/* CTAs */}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={() => setLocation(`/app/profit?price=${sell}&cost=${cost}&units=${units}&ads=${adSpend}`)}
+              style={{ flex: 1, height: 40, background: '#6366F1', color: 'white', border: 'none', borderRadius: 9, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: brico }}>
+              Open Full Calculator →
+            </button>
+            <button onClick={handleShare}
+              style={{ width: 40, height: 40, background: shared ? '#DCFCE7' : 'white', color: shared ? '#059669' : '#6B7280', border: '1px solid #C7D2FE', borderRadius: 9, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s', flexShrink: 0 }}>
+              {shared ? '✓' : '↗'}
+            </button>
+          </div>
+          <div style={{ fontSize: 10, color: '#9CA3AF', textAlign: 'center' as const, marginTop: 6 }}>
+            All figures are estimates — verify cost &amp; shipping before sourcing
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1393,10 +1483,10 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
               ℹ️ Prices &amp; costs are AI-estimated — verify live on AliExpress before sourcing
             </span>
           </div>
-          {/* ── Inline Profit Model ── */}
-          <MiniProfitWidget
+          {/* ── Inline Profit Analysis ── */}
+          <ProductProfitCalc
             sellPrice={price > 0 ? price : 39.95}
-            supplierCost={cost > 0 ? cost : Math.round(price * 0.3 * 100) / 100}
+            supplierCost={cost > 0 ? cost : Math.round((price || 40) * 0.3 * 100) / 100}
             category={productCategory}
             productName={name}
           />
@@ -1601,7 +1691,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               <button onClick={() => setLocation(`/app/profit?price=${price > 0 ? price : 39.95}&cost=${cost > 0 ? cost : Math.round((price || 40) * 0.3 * 100) / 100}&units=4&ads=${getAdSpendDefault(productCategory)}`)}
                 style={{ height: 40, background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>
-                Profit Calc
+                Full Profit Calc
               </button>
               <button onClick={() => { navigator.clipboard.writeText(JSON.stringify({ name, score, margin, revenue }, null, 2)); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
                 style={{ height: 40, background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>
