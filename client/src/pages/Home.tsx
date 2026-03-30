@@ -1437,7 +1437,7 @@ export default function Home() {
               <a key={label} href={href} style={{ color: 'rgba(255,255,255,0.55)', textDecoration: 'none', fontSize: 14, fontWeight: 500, padding: '6px 12px', borderRadius: 7, transition: 'color 120ms, background 120ms' }}
                 onMouseEnter={(e) => { e.currentTarget.style.color = '#F8FAFC'; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; e.currentTarget.style.background = 'transparent'; }}>
-                {label}
+                {label}{label === 'Blog' && <span style={{ fontSize: 9, background: 'rgba(99,102,241,0.2)', color: '#818CF8', borderRadius: 4, padding: '1px 5px', fontWeight: 700, marginLeft: 4 }}>SOON</span>}
               </a>
             ))}
           </div>
@@ -1467,7 +1467,7 @@ export default function Home() {
         {isMobile && mobileMenuOpen && (
           <div style={{ borderTop: `1px solid ${C.border}`, background: 'rgba(4,6,9,0.97)', padding: '8px 16px 16px' }}>
             {[['https://majorka.io/#features', 'Features'], ['https://majorka.io/#pricing', 'Pricing'], ['/blog', 'Blog'], ['/sign-in', 'Log in']].map(([href, label]) => (
-              <a key={label} href={href} onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: 15, fontWeight: 500, padding: '12px 8px', borderBottom: `1px solid ${C.border}` }}>{label}</a>
+              <a key={label} href={href} onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: 15, fontWeight: 500, padding: '12px 8px', borderBottom: `1px solid ${C.border}` }}>{label}{label === 'Blog' && <span style={{ fontSize: 9, background: 'rgba(99,102,241,0.2)', color: '#818CF8', borderRadius: 4, padding: '1px 5px', fontWeight: 700, marginLeft: 6 }}>SOON</span>}</a>
             ))}
           </div>
         )}
@@ -1482,7 +1482,7 @@ export default function Home() {
 
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 720, margin: '0 auto', padding: '0 24px' }}>
           {/* H1 */}
-          <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(32px, 7vw, 72px)', lineHeight: 1.1, letterSpacing: '-0.03em', margin: '0 0 0', opacity: 0, animation: 'fadeInUp 0.5s ease 0.2s both', overflowWrap: 'break-word' as const, wordBreak: 'break-word' as const }}>
+          <h1 style={{ fontFamily: syne, fontWeight: 800, fontSize: 'clamp(32px, 7vw, 72px)', lineHeight: 1.1, letterSpacing: '-0.03em', margin: '0 0 0', opacity: 0, animation: 'fadeInUp 0.5s ease 0.2s both', wordBreak: 'keep-all' as const, overflowWrap: 'normal' as const }}>
             <span style={{ color: '#F8FAFC' }}>Find Products That Sell.</span>
             <br />
             <span style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Build Stores That Convert.</span>
@@ -1504,13 +1504,8 @@ export default function Home() {
               onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#6366F1'; e.currentTarget.style.boxShadow = '0 0 0 4px rgba(99,102,241,0.10)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.boxShadow = 'none'; }}
             >
-              <span style={{ position: 'relative', width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid rgba(99,102,241,0.35)', animation: 'pulse-ring 2s ease-in-out infinite' }} />
-                <svg width="10" height="12" viewBox="0 0 10 12" fill="none" style={{ marginLeft: 2 }}>
-                  <path d="M1 1L9 6L1 11V1Z" fill="white" stroke="white" strokeWidth="1" strokeLinejoin="round"/>
-                </svg>
-              </span>
-              See How It Works
+              <span style={{ fontSize: 16 }}>🖥️</span>
+              Take a Tour
             </button>
           </div>
 

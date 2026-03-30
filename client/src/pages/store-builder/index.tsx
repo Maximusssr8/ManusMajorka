@@ -43,6 +43,32 @@ const TEMPLATES = [
   { id: 'high-energy', name: 'High Energy', style: 'Bright · Sale-focused · Impulsive', bestFor: ['General', 'Impulse buys', 'Seasonal'], bg: '#FFF7ED', accent: '#DC2626', font: 'sans-serif', preview: { bg: '#FFF7ED', text: '#1C1917', btn: '#DC2626' } },
 ];
 
+const REVIEW_TEMPLATES = [
+  { name: 'Sarah M.', rating: 5, text: 'Absolutely love this! Exactly what I was looking for. Delivery was super fast too.', date: '2 weeks ago' },
+  { name: 'James T.', rating: 5, text: 'Really impressive quality for the price. Already ordered a second one for a gift.', date: '3 weeks ago' },
+  { name: 'Priya K.', rating: 5, text: 'Shipping was quicker than expected and the packaging was really nice. Very happy!', date: '1 month ago' },
+  { name: 'Daniel W.', rating: 4, text: 'Does exactly what it says. Simple, effective, and great value. Would recommend.', date: '3 weeks ago' },
+  { name: 'Emma R.', rating: 5, text: 'Bought as a gift and the recipient absolutely loved it. Presentation was beautiful.', date: '1 week ago' },
+  { name: 'Marcus O.', rating: 5, text: 'Great product. Even better than I expected from the photos. Solid construction.', date: '2 months ago' },
+  { name: 'Liam H.', rating: 4, text: 'Good quality, fast shipping, easy to use. Nothing to complain about honestly.', date: '1 month ago' },
+  { name: 'Olivia S.', rating: 5, text: "This solved a problem I didn't even know I had. Now I use it every single day!", date: '2 weeks ago' },
+  { name: 'Noah B.', rating: 5, text: 'Excellent customer service when I had a question. Product is great too!', date: '3 weeks ago' },
+  { name: 'Isabella C.', rating: 5, text: 'Looks even better in person. The quality is obvious the moment you unbox it.', date: '1 week ago' },
+  { name: 'Ethan F.', rating: 4, text: 'Value for money is excellent. Premium feel without the premium price tag.', date: '5 weeks ago' },
+  { name: 'Mia J.', rating: 5, text: 'Third time buying from here. Consistent quality every time. Trust this store completely.', date: '2 weeks ago' },
+  { name: 'Alex D.', rating: 5, text: 'Was skeptical at first but this totally exceeded my expectations. Brilliant product.', date: '1 month ago' },
+  { name: 'Charlotte P.', rating: 4, text: 'Arrived well-packaged and in perfect condition. Happy with the purchase overall.', date: '3 weeks ago' },
+  { name: 'Ryan M.', rating: 5, text: 'Exactly as described. No surprises, just a genuinely good product. Will buy again.', date: '2 months ago' },
+];
+
+function getStoreReviews(storeName: string): typeof REVIEW_TEMPLATES {
+  const hash = storeName.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  const indices = [hash % 15, (hash * 7 + 3) % 15, (hash * 13 + 7) % 15];
+  const unique = [...new Set(indices)];
+  while (unique.length < 3) unique.push((unique[unique.length - 1] + 1) % 15);
+  return unique.slice(0, 3).map(i => REVIEW_TEMPLATES[i]);
+}
+
 interface WinningProduct {
   id: string;
   product_title: string;
@@ -208,15 +234,15 @@ function StorePreview({ copy, template, products, storeName, primaryColor, isMob
           </div>
         </div>
 
-        {/* Testimonials */}
+        {/* Customer Reviews */}
         <div style={{ padding: '30px 24px' }}>
-          <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 16, textAlign: 'center' as const }}>What Customers Say</h3>
+          <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 16, textAlign: 'center' as const }}>What Our Customers Say</h3>
           <div style={{ display: 'grid', gridTemplateColumns: isMobilePreview ? '1fr' : 'repeat(3, 1fr)', gap: 12 }}>
-            {['A. M.', 'Happy Buyer', 'First Purchase'].map((name, i) => (
-              <div key={i} style={{ padding: 16, borderRadius: 10, border: `1px solid ${borderColor}`, background: surfaceColor }}>
-                <div style={{ fontSize: 12, marginBottom: 6 }}>★★★★★</div>
-                <div style={{ fontSize: 12, color: mutedColor, marginBottom: 8 }}>Great product! Exactly what I needed. Fast shipping too.</div>
-                <div style={{ fontSize: 11, fontWeight: 600 }}>{name}</div>
+            {getStoreReviews(storeName).map((review, i) => (
+              <div key={i} style={{ padding: 14, borderRadius: 10, border: `1px solid ${borderColor}`, background: surfaceColor }}>
+                <div style={{ fontSize: 12, color: primaryColor, marginBottom: 6 }}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</div>
+                <div style={{ fontSize: 12, color: textColor, marginBottom: 8, lineHeight: 1.5 }}>{review.text}</div>
+                <div style={{ fontSize: 11, color: mutedColor }}>{review.name} · {review.date}</div>
               </div>
             ))}
           </div>

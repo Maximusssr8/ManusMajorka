@@ -457,7 +457,7 @@ function AdSpyContent() {
             Ad Spy
           </div>
           <div className="text-xs" style={{ color: '#9CA3AF' }}>
-            AI-generated ad creative briefs + links to real ad libraries
+            AI-generated ad briefs based on proven patterns for your niche
           </div>
         </div>
         {result && (
@@ -554,7 +554,9 @@ function AdSpyContent() {
                 <Loader2 size={15} className="animate-spin" /> Analysing…
               </>
             ) : cooldown > 0 ? (
-              `Wait ${cooldown}s`
+              <>
+                <Search size={15} /> Find Ads
+              </>
             ) : (
               <>
                 <Search size={15} /> Find Ads
@@ -562,6 +564,11 @@ function AdSpyContent() {
             )}
           </button>
         </div>
+        {cooldown > 0 && (
+          <div style={{ fontSize: 12, color: '#9CA3AF', paddingLeft: 4 }}>
+            Try again in a moment...
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -661,6 +668,9 @@ function AdSpyContent() {
                 />
               ))}
             </div>
+            <div style={{ textAlign: 'center' as const, fontSize: 11, color: '#9CA3AF', marginTop: 16, padding: '8px 12px', background: '#F9FAFB', borderRadius: 8, border: '1px solid #F0F0F0' }}>
+              Results are AI-generated ad frameworks, not real competitor data
+            </div>
           </div>
         )}
 
@@ -678,7 +688,7 @@ function AdSpyContent() {
             </div>
             <div className="text-center">
               <div className="text-base font-extrabold mb-2" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
-                Generate winning ad angles
+                Ad Brief Generator
               </div>
               <div
                 className="text-xs max-w-xs leading-relaxed"
