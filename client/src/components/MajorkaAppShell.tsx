@@ -387,6 +387,7 @@ function ShopifyStatusIndicator() {
 export default function MajorkaAppShell({ children }: Props) {
   const [location, setLocation] = useLocation();
   const { user, isAuthenticated, loading, session, isPro, subPlan } = useAuth();
+  const isAdminUser = session?.user?.email === 'maximusmajorka@gmail.com';
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -826,7 +827,7 @@ export default function MajorkaAppShell({ children }: Props) {
                       borderRadius: 4,
                     }}
                   >
-                    {isPro ? subPlan.charAt(0).toUpperCase() + subPlan.slice(1).toLowerCase() : 'Free'}
+                    {isAdminUser ? 'Scale' : isPro ? subPlan.charAt(0).toUpperCase() + subPlan.slice(1).toLowerCase() : 'Free'}
                   </span>
                 </div>
                 {(user?.email ?? session?.user?.email) && (
