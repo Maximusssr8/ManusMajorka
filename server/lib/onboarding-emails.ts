@@ -11,8 +11,8 @@ function getResend(): Resend | null {
   return new Resend(key);
 }
 
-const FROM = 'Majorka AI <hello@majorka.ai>';
-const APP_URL = process.env.VITE_APP_URL ?? 'https://majorka.ai';
+const FROM = 'Majorka AI <hello@majorka.io>';
+const APP_URL = process.env.VITE_APP_URL ?? 'https://majorka.io';
 
 // ── Email 1 — Day 0: Welcome ──────────────────────────────────────────────────
 

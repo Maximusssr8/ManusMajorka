@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
-import { Redirect } from 'wouter';
+import { Redirect, useLocation } from 'wouter';
 import { useAuth } from '@/contexts/AuthContext';
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
+  const [location] = useLocation();
 
   if (loading) {
     return (
@@ -17,6 +18,12 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   }
 
   if (!isAuthenticated) return <Redirect to="/sign-in" />;
+
+  // If onboarding not completed and not already on onboarding page, redirect
+  const onboarded = localStorage.getItem('majorka_onboarded');
+  if (!onboarded && !location.startsWith('/onboarding')) {
+    return <Redirect to="/onboarding" />;
+  }
 
   return <>{children}</>;
 }

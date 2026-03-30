@@ -147,7 +147,7 @@ export function registerAffiliateRoutes(app: Express) {
       const { Resend } = await import('resend');
       const resend = new Resend(process.env.RESEND_API_KEY);
       await resend.emails.send({
-        from: 'Majorka AI <hello@majorka.ai>',
+        from: 'Majorka AI <hello@majorka.io>',
         to: cleanEmail,
         subject: '📦 Your FREE AU Product Research Playbook',
         html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;background:#080a0e;color:#fff">
@@ -176,7 +176,7 @@ export function registerAffiliateRoutes(app: Express) {
       const { Resend } = await import('resend');
       const resend = new Resend(process.env.RESEND_API_KEY);
       resend.emails.send({
-        from: 'Majorka AI <hello@majorka.ai>',
+        from: 'Majorka AI <hello@majorka.io>',
         to: 'maximusmajorka@gmail.com',
         subject: `New lead: ${cleanEmail}`,
         html: `<p>New subscriber: <strong>${cleanEmail}</strong>${name ? ` (${name})` : ''}<br>Source: ${source || 'homepage'}</p>`,

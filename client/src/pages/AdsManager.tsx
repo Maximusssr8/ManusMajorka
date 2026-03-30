@@ -1405,8 +1405,25 @@ export default function AdsManager() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Loader2 size={24} style={{ color: C.indigo, animation: 'spin 1s linear infinite' }} />
+      <div style={{ minHeight: '100vh', background: C.bg, color: C.text, fontFamily: FONT_BODY }}>
+        <div style={{ padding: '28px 32px', maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ height: 28, width: '35%', background: 'rgba(255,255,255,0.08)', borderRadius: 8, marginBottom: 8, animation: 'pulse 1.5s ease-in-out infinite' }} />
+          <div style={{ height: 14, width: '55%', background: 'rgba(255,255,255,0.04)', borderRadius: 6, marginBottom: 32 }} />
+          <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+            {[1,2,3,4].map(i => (
+              <div key={i} style={{ height: 36, width: 100, background: 'rgba(255,255,255,0.06)', borderRadius: 8, animation: 'pulse 1.5s ease-in-out infinite' }} />
+            ))}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
+            {[1,2,3,4,5,6].map(i => (
+              <div key={i} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 12, padding: 20, border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ height: 16, width: '60%', background: 'rgba(255,255,255,0.08)', borderRadius: 6, marginBottom: 12, animation: 'pulse 1.5s ease-in-out infinite' }} />
+                <div style={{ height: 12, width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: 4, marginBottom: 8 }} />
+                <div style={{ height: 12, width: '80%', background: 'rgba(255,255,255,0.05)', borderRadius: 4 }} />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

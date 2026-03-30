@@ -776,6 +776,57 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
   );
 }
 
+function DailyBrief() {
+  const [brief, setBrief] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+  const { session } = useAuth();
+
+  useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    const niche = localStorage.getItem('majorka_niche') || 'ecommerce';
+    const cacheKey = `majorka_daily_brief_${today}_${niche}`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) { setBrief(cached); return; }
+
+    if (!session?.access_token) return;
+    setLoading(true);
+
+    fetch('/api/daily-brief', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({ niche }),
+    })
+      .then(r => r.json())
+      .then(d => {
+        const text = d.brief || '';
+        if (text) localStorage.setItem(cacheKey, text);
+        setBrief(text);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [session?.access_token]);
+
+  if (!brief && !loading) return null;
+
+  return (
+    <div style={{ background: 'linear-gradient(135deg,rgba(99,102,241,0.08),rgba(139,92,246,0.04))', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 14, padding: '18px 20px', marginBottom: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+        <span style={{ fontFamily: "'Bricolage Grotesque',sans-serif", fontWeight: 700, fontSize: 15, color: '#374151' }}>
+          Your Daily Brief
+        </span>
+        <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 'auto' }}>
+          {new Date().toLocaleDateString('en-AU', { weekday: 'short', month: 'short', day: 'numeric' })}
+        </span>
+      </div>
+      {loading ? (
+        <div style={{ height: 60, background: 'rgba(99,102,241,0.06)', borderRadius: 8 }} />
+      ) : (
+        <div style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.7, whiteSpace: 'pre-wrap' as const }}>{brief}</div>
+      )}
+    </div>
+  );
+}
+
 function DashboardHome() {
   const { user, isPro, subPlan, subStatus } = useAuth();
   const [, setLocation] = useLocation();
@@ -879,6 +930,7 @@ function DashboardHome() {
 
       {/* ── Widget grid ──────────────────────────────────────────── */}
       <div style={{ padding: 'clamp(16px, 3vw, 32px)', maxWidth: 1400, margin: '0 auto' }}>
+        <DailyBrief />
 
         {/* Row 1: 4 stat cards */}
         <div className="stats-grid-responsive" style={{ gap: 16, marginBottom: 20 }}>
