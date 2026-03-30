@@ -2,6 +2,7 @@ import { Router } from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 
 import { checkRateLimit } from '../lib/ratelimit';
+import { requireAuth } from '../middleware/requireAuth';
 
 const router = Router();
 
