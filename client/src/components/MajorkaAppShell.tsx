@@ -95,6 +95,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: 'Maya AI', path: '/app/ai-chat', icon: Sparkles, badge: 'AI', tooltip: 'Your AI ecommerce advisor — ask anything.' },
       { label: 'Store Builder', path: '/app/store-builder', icon: Store, badge: 'AI', tooltip: 'Build a Shopify-ready store in 60 seconds.' },
       { label: 'Ads Studio', path: '/app/ads-studio', icon: Megaphone, badge: 'AI', tooltip: 'Generate Meta and TikTok ad creatives with Maya.' },
+      { label: 'Ads Manager', path: '/app/ads-manager', icon: Target, badge: 'NEW', tooltip: 'Create and manage Meta ad campaigns, pixel, and CAPI.' },
       { label: 'Profit Calc', path: '/app/profit', icon: DollarSign, tooltip: 'Model unit economics, margins and break-even CPA.' },
     ],
   },
@@ -610,6 +611,14 @@ export default function MajorkaAppShell({ children }: Props) {
               );
             })()}
           </span>
+          {/* Ads Manager recommendation badge */}
+          {item.path === '/app/ads-manager' && (() => {
+            try {
+              const count = parseInt(localStorage.getItem('majorka_ads_recs_count') || '0', 10);
+              if (count > 0) return <span style={{ position: 'absolute' as const, top: 4, right: 4, width: 8, height: 8, background: '#EF4444', borderRadius: '50%' }} />;
+            } catch { /* ignore */ }
+            return null;
+          })()}
           {active && (
             <div
               style={{ position: 'absolute', left: 0, top: '20%', bottom: '20%', width: 3, background: '#6366F1', borderRadius: '0 4px 4px 0' }}

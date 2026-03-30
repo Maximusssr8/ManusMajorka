@@ -1,5 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "github": {
+    "silent": true,
+    "deploymentEnabled": {
+      "main": false
+    }
+  },
   "buildCommand": "vite build && node scripts/build-api.mjs",
   "outputDirectory": "dist/public",
   "framework": null,

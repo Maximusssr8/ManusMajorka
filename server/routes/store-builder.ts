@@ -1,12 +1,28 @@
 import { Router, Request } from 'express';
+import Anthropic from '@anthropic-ai/sdk';
 
 import { expandStoreBrief } from '../lib/website-api';
 import { requireSubscription } from '../middleware/requireSubscription';
+import { requireAuth } from '../middleware/requireAuth';
 import { storeBuilderSchema, validateBody } from '../lib/validators';
 import { buildStoreHTML } from '../lib/storeTemplate';
 import { getPlanLimit, type Plan } from '../../shared/plans';
 
 const router = Router();
+
+// ── Niche → category mapping ────────────────────────────────────
+function nicheToCategory(niche: string): string {
+  const map: Record<string, string> = {
+    'Pet Products': 'pet',
+    'Beauty & Skincare': 'beauty',
+    'Home & Garden': 'home',
+    'Fashion': 'fashion',
+    'Electronics': 'electronics',
+    'Fitness': 'fitness',
+    'Baby & Kids': 'baby',
+  };
+  return map[niche] || '';
+}
 
 function getSupabaseAdmin() {
   const { createClient } = require('@supabase/supabase-js');
@@ -276,6 +292,214 @@ router.post('/preview', async (req, res) => {
     res.send(html);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ── GET /api/store-builder/products-for-niche ──────────────────
+router.get('/products-for-niche', requireAuth, async (req, res) => {
+  try {
+    const { niche } = req.query;
+    const supabase = getSupabaseAdmin();
+    let query = supabase
+      .from('winning_products')
+      .select('id,product_title,image_url,price_aud,supplier_cost_aud,cost_price_aud,winning_score,trend,category')
+      .order('winning_score', { ascending: false })
+      .limit(12);
+
+    if (niche && niche !== 'General') {
+      const cat = nicheToCategory(niche as string);
+      if (cat) {
+        query = query.ilike('category', `%${cat}%`);
+      }
+    }
+
+    const { data, error } = await query;
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ products: data || [] });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: msg });
+  }
+});
+
+// ── POST /api/store-builder/generate-copy ──────────────────────
+router.post('/generate-copy', requireAuth, async (req, res) => {
+  try {
+    const { rateLimit } = await import('../lib/rate-limit');
+    const userId = req.user?.userId || 'anon';
+    const rl = rateLimit(`store-copy:${userId}`, 10, 60 * 60 * 1000);
+    if (!rl.allowed) {
+      return res.status(429).json({ error: 'Rate limit exceeded. Try again in 1 hour.' });
+    }
+
+    const { storeName, niche, targetMarket, tone, products } = req.body as {
+      storeName?: string;
+      niche?: string;
+      targetMarket?: string;
+      tone?: string;
+      products?: Array<{ id?: string; product_title?: string; price_aud?: number }>;
+    };
+
+    if (!storeName || !niche) {
+      return res.status(400).json({ error: 'storeName and niche are required' });
+    }
+
+    const productList = (products || [])
+      .map((p) => `- ${p.product_title || 'Product'} ($${p.price_aud || 0})`)
+      .join('\n');
+
+    const prompt = `Generate store copy for a ${tone || 'Professional'} ${niche} dropshipping store called "${storeName}" targeting ${targetMarket || 'Global'} customers.
+Products:
+${productList || '(no products selected yet)'}
+
+Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
+{
+  "tagline": "8 words max",
+  "hero_headline": "10 words max",
+  "hero_subheading": "20 words max, benefit-focused",
+  "hero_cta": "4 words max",
+  "about_text": "40 words about the store",
+  "trust_badges": ["badge1", "badge2", "badge3", "badge4"],
+  "faq": [
+    {"question": "...", "answer": "..."},
+    {"question": "...", "answer": "..."},
+    {"question": "...", "answer": "..."},
+    {"question": "...", "answer": "..."},
+    {"question": "...", "answer": "..."}
+  ],
+  "meta_title": "60 chars max",
+  "meta_description": "160 chars max",
+  "products": [
+    {
+      "id": "product_id_here",
+      "seo_title": "SEO optimised title",
+      "description": "80 words, benefit-focused",
+      "bullet_points": ["benefit 1", "benefit 2", "benefit 3"]
+    }
+  ]
+}`;
+
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const msg = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 2000,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const text = (msg.content[0] as { type: string; text: string }).text;
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const copy = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+
+    res.json({ copy });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: msg });
+  }
+});
+
+// ── GET /api/store-builder/check-subdomain ─────────────────────
+router.get('/check-subdomain', async (req, res) => {
+  try {
+    const { slug } = req.query;
+    if (!slug || typeof slug !== 'string') {
+      return res.json({ available: false, error: 'slug required' });
+    }
+    const supabase = getSupabaseAdmin();
+    const { data } = await supabase
+      .from('generated_stores')
+      .select('id')
+      .eq('subdomain', slug)
+      .single();
+    res.json({ available: !data });
+  } catch {
+    res.json({ available: true });
+  }
+});
+
+// ── POST /api/store-builder/publish ────────────────────────────
+router.post('/publish', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user!.userId;
+    const {
+      storeName, niche, targetMarket, tone, primaryColor,
+      templateId, selectedProducts, generatedCopy, subdomain,
+      customDomain, mode,
+    } = req.body as {
+      storeName?: string; niche?: string; targetMarket?: string;
+      tone?: string; primaryColor?: string; templateId?: string;
+      selectedProducts?: unknown[]; generatedCopy?: Record<string, unknown>;
+      subdomain?: string; customDomain?: string; mode?: string;
+    };
+
+    if (!storeName) return res.status(400).json({ error: 'storeName required' });
+    if (!subdomain) return res.status(400).json({ error: 'subdomain required' });
+
+    // Validate subdomain format
+    if (!/^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/.test(subdomain)) {
+      return res.status(400).json({ error: 'Subdomain must be 3-30 lowercase alphanumeric characters or hyphens' });
+    }
+
+    const supabase = getSupabaseAdmin();
+
+    // Check uniqueness
+    const { data: existing } = await supabase
+      .from('generated_stores')
+      .select('id')
+      .eq('subdomain', subdomain)
+      .single();
+    if (existing) {
+      return res.status(409).json({ error: 'Subdomain already taken' });
+    }
+
+    // Store count limit check
+    const { data: storeRows } = await supabase
+      .from('generated_stores')
+      .select('id')
+      .eq('user_id', userId);
+    const storeCount = storeRows?.length ?? 0;
+
+    // Default to builder plan limit
+    const plan = ((req as Record<string, unknown>).subscription as { plan?: string })?.plan || 'builder';
+    const limit = getPlanLimit(plan as Plan, 'store_builder');
+    if (storeCount >= limit) {
+      return res.status(429).json({
+        error: 'limit_exceeded',
+        used: storeCount,
+        limit,
+        message: `You have ${storeCount}/${limit} stores. Upgrade to Scale for unlimited stores.`,
+      });
+    }
+
+    const { data: store, error } = await supabase
+      .from('generated_stores')
+      .insert({
+        user_id: userId,
+        store_name: storeName,
+        niche,
+        target_market: targetMarket,
+        tone,
+        primary_color: primaryColor || '#6366F1',
+        template: templateId,
+        selected_products: selectedProducts || [],
+        generated_copy: generatedCopy || {},
+        subdomain,
+        custom_domain: customDomain || null,
+        mode: mode || 'ai',
+        published: true,
+      })
+      .select('id, subdomain')
+      .single();
+
+    if (error) return res.status(500).json({ error: error.message });
+
+    res.json({
+      success: true,
+      storeId: store?.id,
+      liveUrl: `https://${subdomain}.majorka.io`,
+    });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: msg });
   }
 });
 

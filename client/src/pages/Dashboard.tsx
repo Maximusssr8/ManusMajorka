@@ -606,21 +606,31 @@ const CATEGORY_COLORS: Record<string, { bg: string; color: string }> = {
 function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setLocation: (p: string) => void }) {
   const [leaderboard, setLeaderboard] = useState<LeaderboardProduct[]>([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+  const [leaderboardError, setLeaderboardError] = useState(false);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
         const { data } = await supabase.auth.getSession();
         const token = data?.session?.access_token;
         const res = await fetch('/api/products?limit=10&sortBy=winning_score&sortDir=desc', {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
+          signal: controller.signal,
         });
+        clearTimeout(timeout);
         if (res.ok) {
           const d = await res.json();
           const arr = Array.isArray(d) ? d : Array.isArray(d?.products) ? d.products : [];
           setLeaderboard(arr.slice(0, 10));
+          setLeaderboardError(false);
+        } else {
+          setLeaderboardError(true);
         }
-      } catch { /* silent */ }
+      } catch {
+        setLeaderboardError(true);
+      }
       setLeaderboardLoading(false);
     };
     fetchLeaderboard();
@@ -664,9 +674,13 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
             </div>
           ))}
         </div>
+      ) : leaderboardError ? (
+        <div style={{ padding: '24px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 13, background: 'white', border: '1px solid #F0F0F0', borderRadius: 14 }}>
+          Could not load leaderboard
+        </div>
       ) : leaderboard.length === 0 ? (
         <div style={{ padding: '24px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 13, background: 'white', border: '1px solid #F0F0F0', borderRadius: 14 }}>
-          Product leaderboard loading...
+          No products tracked yet
         </div>
       ) : isMobile ? (
         /* Mobile: horizontal scroll strip */
@@ -763,13 +777,15 @@ function LeaderboardSection({ isMobile, setLocation }: { isMobile: boolean; setL
 }
 
 function DashboardHome() {
-  const { user, isPro, subPlan } = useAuth();
+  const { user, isPro, subPlan, subStatus } = useAuth();
   const [, setLocation] = useLocation();
+  const isMobile = useIsMobile();
 
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const firstName = user?.name?.split(' ')[0] ?? 'there';
-  const plan = subPlan ?? 'free';
+  const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
+  const planLabel = subPlan ? (subPlan.charAt(0).toUpperCase() + subPlan.slice(1) + ' Plan') : null;
 
 
   useEffect(() => {
@@ -798,18 +814,27 @@ function DashboardHome() {
   // Real weekly opportunity — sum from actual tracked products
   const totalDailyRevOpp = products.reduce((sum: number, p: any) => sum + (p.est_daily_revenue_aud ?? p.est_daily_revenue ?? 0), 0);
   const weeklyRevOpp = Math.round(totalDailyRevOpp * 7);
-  const fmtWeekly = weeklyRevOpp >= 1_000_000
-    ? `$${(weeklyRevOpp / 1_000_000).toFixed(1)}M`
-    : weeklyRevOpp >= 1_000
-    ? `$${(weeklyRevOpp / 1_000).toFixed(1)}k`
-    : `$${weeklyRevOpp}`;
+  // Fallback: if API returns 0, compute from price x units_per_day x 7 for top 20
+  const estimatedWeeklyOpp = weeklyRevOpp > 0 ? weeklyRevOpp : (() => {
+    const sorted = [...products].sort((a: any, b: any) => ((b as any).winning_score || 0) - ((a as any).winning_score || 0));
+    return Math.round(sorted.slice(0, 20).reduce((sum: number, p: any) => {
+      const price = (p as any).price_aud || (p as any).estimated_retail_aud || 0;
+      const upd = (p as any).units_per_day || 4;
+      return sum + price * upd * 7;
+    }, 0));
+  })();
+  const fmtWeeklyDisplay = estimatedWeeklyOpp >= 1_000_000
+    ? `~$${(estimatedWeeklyOpp / 1_000_000).toFixed(1)}M`
+    : estimatedWeeklyOpp >= 1_000
+    ? `~$${(estimatedWeeklyOpp / 1_000).toFixed(1)}k`
+    : `~$${estimatedWeeklyOpp}`;
   // Distribute across 7 days with slight growth curve (proportional to real total)
   const chartData = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
     const day = d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric' });
     const growthFactors = [0.82, 0.88, 0.90, 0.94, 0.97, 1.02, 1.06];
-    return { day, rev: Math.round((totalDailyRevOpp || 4500) * growthFactors[i]) };
+    return { day, rev: Math.round((estimatedWeeklyOpp / 7 || 4500) * growthFactors[i]) };
   });
 
   const bestRevenue = useMemo(() => {
@@ -834,10 +859,10 @@ function DashboardHome() {
           <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 800, fontSize: 26, color: '#FFFFFF', marginBottom: 4 }}>
             {getGreeting()}, {firstName} <span role="img" aria-label="wave">👋</span>
           </div>
-          <div style={{ fontSize: 13, color: '#6B7280' }}>{formatDate()} &middot; {plan === 'free' ? 'Free Plan' : plan === 'builder' ? 'Builder Plan' : plan === 'scale' ? 'Scale Plan' : plan === 'pro' ? 'Scale Plan' : (plan.charAt(0).toUpperCase() + plan.slice(1) + ' Plan')}</div>
+          <div style={{ fontSize: 13, color: '#6B7280' }}>{formatDate()}{planLabel ? ` \u00b7 ${planLabel}` : ''}</div>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          {plan === 'free' && (
+          {!isPaid && (
             <button onClick={() => setLocation('/pricing')} style={{ height: 38, padding: '0 18px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'transform 150ms' }}
               onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.02)')}
               onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}>
@@ -861,7 +886,7 @@ function DashboardHome() {
             { label: 'Products in DB', value: totalProducts !== null ? totalProducts.toString() : '—', delta: 'Total tracked products', icon: Package, positive: true, color: '#6366F1', hero: false, path: '/app/intelligence' },
             { label: 'Best Est. Revenue', value: bestRevenue, delta: 'Highest in DB / month', icon: TrendingUp, positive: true, color: '#10B981', hero: true, path: '/app/intelligence' },
             { label: 'Avg Margin', value: avgMargin, delta: 'Across top 5 products', icon: Percent, positive: true, color: '#8B5CF6', hero: false, path: '/app/intelligence' },
-            { label: 'Hot Products', value: products.filter((p: any) => (p.winning_score || 0) >= 80).length || '—', delta: 'Dropship Score 80+', icon: Zap, positive: true, color: '#F59E0B', hero: false, path: '/app/intelligence' },
+            { label: 'Hot Products', value: loading ? '—' : products.filter((p: any) => (p.winning_score || 0) >= 80).length.toString(), delta: 'Dropship Score 80+', icon: Zap, positive: true, color: '#F59E0B', hero: false, path: '/app/intelligence' },
           ]).map((card, i) => (
             <div key={i} onClick={() => card.path && setLocation(card.path)} style={{
               background: card.hero ? 'linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%)' : 'white',
@@ -898,10 +923,13 @@ function DashboardHome() {
           <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 14, padding: '24px 28px', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
               <div>
-                <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#FFFFFF' }}>Market Revenue Trend</div>
-                <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>Estimated AU market weekly revenue across tracked products — not your store revenue</div>
+                <div style={{ fontFamily: 'Bricolage Grotesque, sans-serif', fontWeight: 700, fontSize: 17, color: '#FFFFFF' }}>Est. Market Opportunity</div>
+                <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>Estimated weekly revenue across tracked products — not your store revenue</div>
               </div>
-              <span style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Bricolage Grotesque, sans-serif', color: '#6366F1' }}>{loading ? '—' : fmtWeekly}</span>
+              <div style={{ textAlign: 'right' as const }}>
+                <span style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Bricolage Grotesque, sans-serif', color: '#6366F1' }}>{loading ? '—' : estimatedWeeklyOpp === 0 ? 'N/A' : fmtWeeklyDisplay}</span>
+                {!loading && estimatedWeeklyOpp === 0 && <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>Connect store to track</div>}
+              </div>
             </div>
             <ResponsiveContainer width="100%" height={140}>
               <AreaChart data={chartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>

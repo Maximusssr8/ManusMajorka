@@ -72,6 +72,30 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
 
+  // ═══ CORS Lockdown ═══
+  const ALLOWED_ORIGINS = [
+    'https://majorka.io',
+    'https://www.majorka.io',
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://localhost:3001',
+  ];
+
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin && ALLOWED_ORIGINS.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    if (req.method === 'OPTIONS') {
+      res.status(204).end();
+      return;
+    }
+    next();
+  });
+
   // Security headers
   app.use((_req, res, next) => {
     res.setHeader('X-Frame-Options', 'DENY');
@@ -217,6 +241,10 @@ async function startServer() {
   app.use('/api/shopify', shopifyRouter);
   app.use('/api/store-builder', storeBuilderRouter);
   app.use('/api/apify', apifyRouter);
+  const marketplaceRouter = (await import('../routes/marketplace')).default;
+  app.use('/api/marketplace', marketplaceRouter);
+  const metaRouter = (await import('../routes/meta')).default;
+  app.use('/api/meta', metaRouter);
   const creatorsRealRouter = (await import('../routes/creators')).default;
   app.use('/api/creators', creatorsRealRouter);
   const videosRealRouter = (await import('../routes/videos')).default;
@@ -246,6 +274,28 @@ async function startServer() {
       res.json({ plan, usage: summary, month: new Date().toISOString().slice(0, 7) });
     } catch {
       res.json({ plan: 'builder', usage: {}, month: '' });
+    }
+  });
+
+  // ── Single feature usage — GET /api/usage/:feature ──────────────────────────
+  app.get('/api/usage/:feature', requireAuth, async (req, res) => {
+    const { feature } = req.params;
+    const userId = (req as any).user?.userId;
+    const month = new Date().toISOString().slice(0, 7);
+    try {
+      const SURL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+      const SKEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+      const supabaseAdmin = createClient(SURL, SKEY);
+      const { data } = await supabaseAdmin
+        .from('usage_tracking')
+        .select('count')
+        .eq('user_id', userId)
+        .eq('feature', feature)
+        .eq('month', month)
+        .single();
+      res.json({ count: data?.count ?? 0 });
+    } catch {
+      res.json({ count: 0 });
     }
   });
 
@@ -330,7 +380,14 @@ Be specific and creative. No generic filler.`;
         res.status(500).json({ error: 'parse_error', message: 'Could not generate ad briefs. Try again.' });
         return;
       }
-      const parsed = JSON.parse(stripped.slice(start, end + 1));
+      let parsed: { ads?: unknown[] };
+      try {
+        parsed = JSON.parse(stripped.slice(start, end + 1));
+      } catch (parseErr: unknown) {
+        console.error('[ad-spy] JSON.parse failed:', parseErr instanceof Error ? parseErr.message : parseErr);
+        res.status(500).json({ error: 'parse_error', message: 'Could not parse ad briefs. Try again.' });
+        return;
+      }
       if (!parsed.ads || !Array.isArray(parsed.ads)) {
         res.status(500).json({ error: 'parse_error', message: 'Invalid response format.' });
         return;
@@ -341,6 +398,7 @@ Be specific and creative. No generic filler.`;
       res.json(result);
 
     } catch (err: any) {
+      console.error('[ad-spy] search error:', err?.message || err);
       if (err?.status === 429 || err?.message?.includes('rate')) {
         res.status(429).json({ error: 'rate_limit', message: 'AI rate limit reached. Please try again in a minute.' });
       } else {

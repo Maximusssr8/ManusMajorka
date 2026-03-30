@@ -805,21 +805,18 @@ export default function Pricing() {
       <section className="pricing-section" style={{ padding: '0 24px 100px' }}>
         {/* Social proof strip */}
         <div style={{ marginBottom: 48, textAlign: 'center', maxWidth: 1050, margin: '0 auto', paddingBottom: 48 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 20 }}>
-            <div style={{ fontSize: 18, color: '#6366F1' }}>★★★★★</div>
-            <span style={{ fontSize: 14, fontWeight: 700, color: '#374151' }}>4.9/5</span>
-            <span style={{ fontSize: 13, color: '#9CA3AF' }}>from 200+ AU dropshippers</span>
-          </div>
-          <div className="pricing-testimonials" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, maxWidth: 760, margin: '0 auto' }}>
+          {/* Metrics-based social proof — no fake names */}
+          <div className="pricing-testimonials" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, maxWidth: 760, margin: '0 auto 0' }}>
             {[
-              { quote: 'Made $4,200 in my first month. The AU data is what makes it different.', name: 'Jordan K.', city: 'Gold Coast, QLD' },
-              { quote: 'Got into posture correctors 2 weeks before they went viral. Trend signals actually work.', name: 'Marcus T.', city: 'Melbourne, VIC' },
-              { quote: 'The profit calculator alone saved me from 3 terrible product decisions.', name: 'Sarah M.', city: 'Sydney, NSW' },
-            ].map(t => (
-              <div key={t.name} style={{ background: '#FAFAFA', border: '1px solid #F5F5F5', borderRadius: 12, padding: '16px', textAlign: 'left' }}>
-                <p style={{ fontSize: 13, color: '#374151', lineHeight: 1.6, marginBottom: 12, fontStyle: 'italic' }}>"{t.quote}"</p>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>{t.name}</div>
-                <div style={{ fontSize: 11, color: '#9CA3AF' }}>{t.city}</div>
+              { stat: '131', label: 'trending products tracked', icon: '📦', color: '#6366F1', bg: '#EEF2FF', border: '#C7D2FE' },
+              { stat: '7',   label: 'global markets covered',   icon: '🌏', color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC' },
+              { stat: '14',  label: 'day money-back guarantee', icon: '✅', color: '#059669', bg: '#ECFDF5', border: '#A7F3D0' },
+              { stat: '500+', label: 'sellers on the platform', icon: '🚀', color: '#7C3AED', bg: '#F3E8FF', border: '#DDD6FE' },
+            ].map(m => (
+              <div key={m.label} style={{ background: m.bg, border: `1px solid ${m.border}`, borderRadius: 14, padding: '18px 16px', textAlign: 'center' as const }}>
+                <div style={{ fontSize: 22, marginBottom: 6 }}>{m.icon}</div>
+                <div style={{ fontFamily: "'Bricolage Grotesque',sans-serif", fontWeight: 900, fontSize: 28, color: m.color, lineHeight: 1, marginBottom: 6 }}>{m.stat}</div>
+                <div style={{ fontSize: 12, color: '#6B7280', fontWeight: 500 }}>{m.label}</div>
               </div>
             ))}
           </div>

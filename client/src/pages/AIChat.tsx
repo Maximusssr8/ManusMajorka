@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Send, Sparkles, Trash2 } from "lucide-react";
 import { supabase } from "../lib/supabase";
+import { useAuth } from '@/_core/hooks/useAuth';
+import UpgradeModal from '@/components/UpgradeModal';
+import { useLocation } from 'wouter';
 
 const brico = "'Bricolage Grotesque', sans-serif";
 const dm = "'DM Sans', sans-serif";
@@ -46,7 +49,13 @@ function isPlainHeader(line: string, nextLine: string | undefined): boolean {
   return titleWords.length >= Math.min(2, words.length);
 }
 
+function stripActionBlocks(t: string): string {
+  return t.replace(/<<<ACTION>>>[\s\S]*?<<<END_ACTION>>>/g, '').replace(/<<<ACTION>>>[\s\S]*$/g, '').trim();
+}
+
 function renderMarkdown(text: string): React.ReactNode {
+  // Safety net: strip any ACTION blocks that leaked through
+  text = stripActionBlocks(text);
   const lines = text.split("\n");
   const nodes: React.ReactNode[] = [];
   let i = 0;
@@ -158,7 +167,7 @@ function CopyMsgButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <button
-      onClick={() => { navigator.clipboard.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); }); }}
+      onClick={() => { navigator.clipboard.writeText(stripActionBlocks(text)).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); }); }}
       style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: 4, fontSize: 11, color: copied ? '#10B981' : '#6B7280', display: 'flex', alignItems: 'center', gap: 3, transition: 'color 200ms', marginTop: 4 }}
     >
       {copied ? '✓ Copied' : '⎘ Copy'}
@@ -167,6 +176,8 @@ function CopyMsgButton({ text }: { text: string }) {
 }
 
 export default function AIChat() {
+  const { subPlan, subStatus, session } = useAuth();
+  const [, setLocation] = useLocation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -194,7 +205,7 @@ export default function AIChat() {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setMessages(parsed.map((m: Message) => ({ ...m, ts: new Date(m.ts) })));
+          setMessages(parsed.map((m: Message) => ({ ...m, content: stripActionBlocks(m.content), ts: new Date(m.ts) })));
         }
       }
     } catch { /* ignore */ }
@@ -317,7 +328,7 @@ export default function AIChat() {
         try {
           const text = decoder.decode();
           const fallback = JSON.parse(text);
-          const reply = fallback.reply || fallback.response || fallback.message || "I couldn't generate a response right now.";
+          const reply = stripActionBlocks(fallback.reply || fallback.response || fallback.message || "I couldn't generate a response right now.");
           setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: reply } : m));
         } catch {
           setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: "I couldn't generate a response right now. Please try again." } : m));
@@ -335,6 +346,12 @@ export default function AIChat() {
   };
 
   const fmtTime = (d: Date) => d.toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit" });
+
+  const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
+  const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
+  if (!isAdmin && !isPaid) {
+    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app/dashboard')} feature="Maya AI" reason="Your AI-powered ecommerce assistant" />;
+  }
 
   return (
     <>

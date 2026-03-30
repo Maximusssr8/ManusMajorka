@@ -1,1668 +1,1208 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
-import { Link, Bookmark, Lock, Upload, Image, X, Save, Store, Check } from 'lucide-react';
+import UpgradeModal from '@/components/UpgradeModal';
+import { Check, X, Plus, ChevronDown, ChevronUp, Loader2, ExternalLink, RefreshCw, Eye, Smartphone, Monitor, Copy, ShoppingCart } from 'lucide-react';
 import { useLocation } from 'wouter';
 
-// ── Draft types ──────────────────────────────────────────────
-interface StoreDraft {
-  id: string;
-  name: string;
-  step: number;
-  niche: string;
-  templateId: string | null;
-  importedProduct: object | null;
-  customisations: { storeName: string; storeTagline: string };
-  uploadedImages: Record<string, string>;
-  currency?: string;
-  savedAt: string;
-}
-
-function loadDrafts(): StoreDraft[] {
-  try {
-    const raw = localStorage.getItem('majorka_store_drafts');
-    return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
-}
-
-function saveDrafts(drafts: StoreDraft[]) {
-  localStorage.setItem('majorka_store_drafts', JSON.stringify(drafts));
-}
-
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  return `${days}d ago`;
-}
-
-const STEP_LABELS = ['Choose a Template', 'Pick Your Niche', 'Customise Your Store', 'Connect & Launch'];
+// ── Constants ──────────────────────────────────────────────────
 const accent = '#6366F1';
+const violet = '#8B5CF6';
 const brico = "'Bricolage Grotesque', sans-serif";
+const dmSans = "'DM Sans', sans-serif";
+const bgDark = '#060A12';
+const cardBg = 'rgba(255,255,255,0.04)';
+const cardBorder = '1px solid rgba(255,255,255,0.08)';
+const textPrimary = '#FFFFFF';
+const textSecondary = 'rgba(255,255,255,0.6)';
+const textMuted = 'rgba(255,255,255,0.35)';
 
-// ── Template data ──────────────────────────────────────────────
+type Mode = 'select' | 'ai' | 'shopify' | 'marketplace';
+type AIStep = 'setup' | 'products' | 'generating' | 'template' | 'preview' | 'publish';
 
-interface StoreTemplate {
+// ── Niche options ──────────────────────────────────────────────
+const NICHES = ['Pet Products', 'Beauty & Skincare', 'Home & Garden', 'Fashion', 'Electronics', 'Fitness', 'Baby & Kids', 'General'];
+const MARKETS = ['Australia', 'United States', 'United Kingdom', 'Global'];
+const TONES = ['Professional', 'Fun & Casual', 'Luxury', 'Minimal'];
+const COLOR_SWATCHES = [
+  { color: '#6366F1', label: 'Indigo' },
+  { color: '#8B5CF6', label: 'Violet' },
+  { color: '#F43F5E', label: 'Rose' },
+  { color: '#10B981', label: 'Emerald' },
+  { color: '#F59E0B', label: 'Amber' },
+  { color: '#06B6D4', label: 'Cyan' },
+];
+
+// ── Templates ──────────────────────────────────────────────────
+const TEMPLATES = [
+  { id: 'minimal', name: 'Minimal', style: 'White · Premium spacing · Elegant', bestFor: ['Beauty', 'Skincare', 'Fashion', 'Jewellery'], bg: '#FFFFFF', accent: '#0A0A0A', font: 'serif', preview: { bg: '#fff', text: '#0a0a0a', btn: '#0a0a0a' } },
+  { id: 'bold', name: 'Bold', style: 'Dark · High contrast · Energetic', bestFor: ['Fitness', 'Sports', 'Electronics', 'Gadgets'], bg: '#09090B', accent: '#6366F1', font: 'sans-serif', preview: { bg: '#09090B', text: '#fff', btn: '#6366F1' } },
+  { id: 'luxury', name: 'Luxury', style: 'Black · Gold accents · Sophisticated', bestFor: ['Premium', 'Watches', 'High-end Home'], bg: '#080808', accent: '#d4af37', font: 'serif', preview: { bg: '#080808', text: '#d4af37', btn: '#d4af37' } },
+  { id: 'warm', name: 'Warm', style: 'Cream · Earthy tones · Approachable', bestFor: ['Pet', 'Baby', 'Eco', 'Natural'], bg: '#FDF6EC', accent: '#B45309', font: 'sans-serif', preview: { bg: '#FDF6EC', text: '#1C1917', btn: '#B45309' } },
+  { id: 'clean', name: 'Clean', style: 'Light grey · Systematic · Trustworthy', bestFor: ['Electronics', 'Tools', 'Gadgets', 'Tech'], bg: '#F8FAFC', accent: '#0F172A', font: 'sans-serif', preview: { bg: '#F8FAFC', text: '#0F172A', btn: '#0F172A' } },
+  { id: 'high-energy', name: 'High Energy', style: 'Bright · Sale-focused · Impulsive', bestFor: ['General', 'Impulse buys', 'Seasonal'], bg: '#FFF7ED', accent: '#DC2626', font: 'sans-serif', preview: { bg: '#FFF7ED', text: '#1C1917', btn: '#DC2626' } },
+];
+
+interface WinningProduct {
   id: string;
-  name: string;
-  niche: string;
-  description: string;
-  accentColor: string;
-  bgGradient: string;
-  tags: string[];
-  aov: string;
-  cr: string;
-  typeUISkill?: string;
+  product_title: string;
+  image_url: string | null;
+  price_aud: number | null;
+  supplier_cost_aud: number | null;
+  cost_price_aud: number | null;
+  winning_score: number | null;
+  trend: string | null;
+  category: string | null;
 }
 
-const TEMPLATES: StoreTemplate[] = [
-  {
-    id: "prestige",
-    name: "Prestige",
-    niche: "Luxury & Premium",
-    description: "Dark, elegant aesthetic for high-ticket products. Bold typography, gold accents, full-screen hero.",
-    accentColor: "#B8860B",
-    bgGradient: "linear-gradient(135deg, #F3F4F6 0%, #16213e 100%)",
-    tags: ["Luxury", "High-ticket", "Premium"],
-    aov: "$180–$420",
-    cr: "2.8%",
-    typeUISkill: "luxury",
-  },
-  {
-    id: "aurora",
-    name: "Aurora",
-    niche: "Beauty & Skincare",
-    description: "Soft gradients, clean product photography focus. Perfect for cosmetics and wellness brands.",
-    accentColor: "#EC4899",
-    bgGradient: "linear-gradient(135deg, #fdf4ff 0%, #fce7f3 100%)",
-    tags: ["Beauty", "Skincare", "Wellness"],
-    aov: "$65–$120",
-    cr: "3.4%",
-    typeUISkill: "gradient",
-  },
-  {
-    id: "velocity",
-    name: "Velocity",
-    niche: "Sports & Fitness",
-    description: "High energy, bold typography, dark hero with electric accents. Built for performance brands.",
-    accentColor: "#10B981",
-    bgGradient: "linear-gradient(135deg, #064e3b 0%, #065f46 100%)",
-    tags: ["Fitness", "Sports", "Performance"],
-    aov: "$85–$160",
-    cr: "3.1%",
-    typeUISkill: "energetic",
-  },
-  {
-    id: "minimal",
-    name: "Minimal",
-    niche: "Home & Lifestyle",
-    description: "Clean whitespace, editorial layout. Products speak for themselves. Timeless and trustworthy.",
-    accentColor: "#374151",
-    bgGradient: "linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%)",
-    tags: ["Home", "Minimal", "Lifestyle"],
-    aov: "$55–$130",
-    cr: "3.8%",
-    typeUISkill: "minimal",
-  },
-  {
-    id: "neonpulse",
-    name: "Neon Pulse",
-    niche: "Tech & Gadgets",
-    description: "Futuristic dark UI with neon highlights. Converts exceptionally for electronic gadgets.",
-    accentColor: "#6366F1",
-    bgGradient: "linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%)",
-    tags: ["Tech", "Gadgets", "Electronics"],
-    aov: "$95–$250",
-    cr: "2.6%",
-    typeUISkill: "neon",
-  },
-  {
-    id: "botanical",
-    name: "Botanical",
-    niche: "Eco & Sustainable",
-    description: "Earth tones, natural textures, sustainability-focused copy. Perfect for eco-friendly products.",
-    accentColor: "#16A34A",
-    bgGradient: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
-    tags: ["Eco", "Sustainable", "Natural"],
-    aov: "$45–$95",
-    cr: "4.1%",
-    typeUISkill: "paper",
-  },
-  {
-    id: "metro",
-    name: "Metro",
-    niche: "Fashion & Apparel",
-    description: "Urban, editorial fashion layout. Magazine-style grid with strong typography hierarchy.",
-    accentColor: "#FAFAFA",
-    bgGradient: "linear-gradient(135deg, #111827 0%, #1f2937 100%)",
-    tags: ["Fashion", "Apparel", "Streetwear"],
-    aov: "$70–$180",
-    cr: "3.2%",
-    typeUISkill: "editorial",
-  },
-  {
-    id: "playful",
-    name: "Playful",
-    niche: "Kids & Toys",
-    description: "Bright, fun, high-trust design. Rounded corners and friendly typography for family products.",
-    accentColor: "#F59E0B",
-    bgGradient: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)",
-    tags: ["Kids", "Toys", "Family"],
-    aov: "$35–$85",
-    cr: "4.5%",
-    typeUISkill: "colorful",
-  },
-  {
-    id: "heritage",
-    name: "Heritage",
-    niche: "Food & Gourmet",
-    description: "Warm, artisanal aesthetic. Serif typography and rich photography for premium food brands.",
-    accentColor: "#92400E",
-    bgGradient: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
-    tags: ["Food", "Gourmet", "Artisan"],
-    aov: "$55–$110",
-    cr: "3.9%",
-    typeUISkill: "vintage",
-  },
-  {
-    id: "storm",
-    name: "Storm",
-    niche: "Outdoor & Adventure",
-    description: "Rugged, bold photography-first layout. Built for outdoor gear and adventure equipment.",
-    accentColor: "#0EA5E9",
-    bgGradient: "linear-gradient(135deg, #0c4a6e 0%, #075985 100%)",
-    tags: ["Outdoor", "Adventure", "Gear"],
-    aov: "$110–$280",
-    cr: "2.9%",
-    typeUISkill: "dramatic",
-  },
-  {
-    id: "rose",
-    name: "Rose",
-    niche: "Jewellery & Accessories",
-    description: "Feminine, elegant, luxury feel without the high-ticket price point. Perfect for accessories.",
-    accentColor: "#BE185D",
-    bgGradient: "linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%)",
-    tags: ["Jewellery", "Accessories", "Gifts"],
-    aov: "$60–$150",
-    cr: "3.6%",
-    typeUISkill: "elegant",
-  },
-  {
-    id: "clinical",
-    name: "Clinical",
-    niche: "Health & Supplements",
-    description: "Clean, clinical, high-trust layout. Medical-grade credibility for health and wellness products.",
-    accentColor: "#0891B2",
-    bgGradient: "linear-gradient(135deg, #ecfeff 0%, #cffafe 100%)",
-    tags: ["Health", "Supplements", "Wellness"],
-    aov: "$80–$200",
-    cr: "3.3%",
-    typeUISkill: "corporate",
-  },
-  {
-    id: "coastal",
-    name: "Coastal",
-    niche: "Beach & Summer",
-    description: "Fresh ocean vibes. Light and airy with sand and sky tones. Perfect for summer lifestyle brands.",
-    accentColor: "#0284C7",
-    bgGradient: "linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)",
-    tags: ["Beach", "Summer", "Lifestyle"],
-    aov: "$40–$90",
-    cr: "4.2%",
-    typeUISkill: "spacious",
-  },
-  {
-    id: "autozone",
-    name: "AutoZone",
-    niche: "Auto & Car Accessories",
-    description: "Dark, masculine design for car accessories, detailing products, and automotive gear.",
-    accentColor: "#EF4444",
-    bgGradient: "linear-gradient(135deg, #1c1917 0%, #0c0a09 100%)",
-    tags: ["Auto", "Cars", "Accessories"],
-    aov: "$70–$200",
-    cr: "2.7%",
-    typeUISkill: "bold",
-  },
-  {
-    id: "crafthaven",
-    name: "CraftHaven",
-    niche: "Art & Craft Supplies",
-    description: "Creative, artsy aesthetic for craft supplies, stationery, and DIY products.",
-    accentColor: "#7C3AED",
-    bgGradient: "linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)",
-    tags: ["Art", "Craft", "DIY"],
-    aov: "$25–$75",
-    cr: "3.9%",
-    typeUISkill: "artistic",
-  },
-  {
-    id: "noir",
-    name: "Noir",
-    niche: "Photography & Creative",
-    description: "Moody, high-contrast editorial. Dramatic black and white with single bold accent color.",
-    accentColor: "#DC2626",
-    bgGradient: "linear-gradient(135deg, #0a0a0a 0%, #171717 100%)",
-    tags: ["Photography", "Creative", "Art"],
-    aov: "$95–$350",
-    cr: "2.4%",
-    typeUISkill: "mono",
-  },
-  {
-    id: "sunrise",
-    name: "Sunrise",
-    niche: "Coffee & Beverages",
-    description: "Warm, energetic morning aesthetic. Perfect for coffee, tea, and beverage brands.",
-    accentColor: "#EA580C",
-    bgGradient: "linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)",
-    tags: ["Coffee", "Tea", "Beverages"],
-    aov: "$45–$95",
-    cr: "4.0%",
-    typeUISkill: "cafe",
-  },
-];
+interface CustomProduct {
+  id: string;
+  product_title: string;
+  image_url: string | null;
+  price_aud: number | null;
+  winning_score: null;
+  trend: null;
+  category: null;
+  isCustom: true;
+}
 
-// ── Niche data ────────────────────────────────────────────────
+type ProductItem = WinningProduct | CustomProduct;
 
-const NICHES = [
-  { id: "pets", emoji: "\u{1F43E}", label: "Pet Accessories", examples: "Collars, beds, toys, grooming" },
-  { id: "kitchen", emoji: "\u{1F3E0}", label: "Kitchen & Home", examples: "Gadgets, organizers, decor" },
-  { id: "fitness", emoji: "\u{1F4AA}", label: "Fitness & Wellness", examples: "Resistance bands, yoga, supplements" },
-  { id: "beauty", emoji: "\u2728", label: "Beauty & Skincare", examples: "Serums, tools, makeup accessories" },
-  { id: "tech", emoji: "\u{1F4F1}", label: "Tech Gadgets", examples: "Wireless, smart home, accessories" },
-  { id: "outdoor", emoji: "\u{1F3D5}\uFE0F", label: "Outdoor & Adventure", examples: "Camping, hiking, water sports" },
-  { id: "baby", emoji: "\u{1F476}", label: "Baby & Kids", examples: "Toys, clothes, nursery" },
-  { id: "fashion", emoji: "\u{1F45C}", label: "Fashion Accessories", examples: "Jewellery, bags, sunglasses" },
-];
+interface GeneratedCopy {
+  tagline?: string;
+  hero_headline?: string;
+  hero_subheading?: string;
+  hero_cta?: string;
+  about_text?: string;
+  trust_badges?: string[];
+  faq?: Array<{ question: string; answer: string }>;
+  meta_title?: string;
+  meta_description?: string;
+  products?: Array<{ id: string; seo_title: string; description: string; bullet_points: string[] }>;
+}
 
-// ── Template Card ──────────────────────────────────────────────
-
-function TemplateCard({ template, selected, onClick }: { template: StoreTemplate; selected: boolean; onClick: () => void }) {
+// ── Pill button component ──────────────────────────────────────
+function PillButton({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
   return (
-    <div
-      onClick={onClick}
-      style={{
-        borderRadius: 16,
-        border: selected ? "2px solid #6366F1" : "2px solid #F0F0F0",
-        boxShadow: selected
-          ? "0 0 0 4px rgba(99,102,241,0.12), 0 12px 32px rgba(99,102,241,0.12)"
-          : "0 2px 8px #F5F5F5",
-        cursor: "pointer",
-        overflow: "hidden",
-        transition: "all 250ms cubic-bezier(0.4,0,0.2,1)",
-        background: "white",
-        position: "relative" as const,
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.transform = "translateY(-4px)";
-        if (!selected) e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.10)";
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.transform = "translateY(0)";
-        if (!selected) e.currentTarget.style.boxShadow = "0 2px 8px #F5F5F5";
-      }}
-    >
-      {/* Preview panel */}
-      <div style={{ height: 180, background: template.bgGradient, position: "relative", padding: 14, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 13, color: template.accentColor, letterSpacing: "0.04em" }}>STORE</div>
-          <div style={{ fontSize: 9, color: template.accentColor, opacity: 0.7 }}>Shop · About · Cart</div>
-        </div>
-        <div>
-          <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 16, color: template.accentColor, marginBottom: 8, lineHeight: 1.2 }}>Featured Collection</div>
-          <div style={{ display: "inline-block", background: template.accentColor, color: "white", fontSize: 10, fontWeight: 700, padding: "4px 12px", borderRadius: 4 }}>
-            Shop Now
-          </div>
-        </div>
-        {selected && (
-          <div style={{ position: "absolute", inset: 0, background: "rgba(99,102,241,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#6366F1", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 18, fontWeight: 700 }}>{"\u2713"}</div>
-          </div>
-        )}
-        <div style={{ position: "absolute", top: 10, right: 10, background: "rgba(0,0,0,0.6)", color: "white", fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 4 }}>
-          {template.cr} CR
-        </div>
-      </div>
+    <button onClick={onClick} style={{
+      padding: '8px 16px', borderRadius: 999, border: `1px solid ${selected ? accent : 'rgba(255,255,255,0.12)'}`,
+      background: selected ? 'rgba(99,102,241,0.15)' : 'transparent', color: selected ? accent : textSecondary,
+      fontSize: 13, fontWeight: 600, cursor: 'pointer' as const, transition: 'all 150ms', fontFamily: dmSans,
+    }}>{label}</button>
+  );
+}
 
-      {/* Info panel */}
-      <div style={{ padding: "14px 16px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 2 }}>
-          <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 15, color: "#0A0A0A" }}>{template.name}</div>
-          <div style={{ fontSize: 11, color: "#9CA3AF", whiteSpace: "nowrap" as const, marginLeft: 8 }}>AOV {template.aov}</div>
-        </div>
-        <div style={{ fontSize: 10, color: "#9CA3AF", textTransform: "uppercase" as const, letterSpacing: "0.08em", marginBottom: 6 }}>{template.niche}</div>
-        <div style={{ fontSize: 12, color: "#6B7280", lineHeight: 1.55, marginBottom: 10 }}>{template.description}</div>
-        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" as const, marginBottom: 10 }}>
-          {template.tags.map(tag => (
-            <span key={tag} style={{ fontSize: 10, fontWeight: 600, color: "#6366F1", background: "#EEF2FF", padding: "2px 7px", borderRadius: 999 }}>{tag}</span>
-          ))}
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 10, borderTop: "1px solid #F5F5F5", fontSize: 12, fontWeight: 600, color: "#374151" }}>
-          <span>AOV {template.aov}</span>
-          <span>CR ~{template.cr}</span>
-        </div>
-        <button
-          onClick={async (e) => {
-            e.stopPropagation();
-            // Open window synchronously (must be in user-event call stack for popup-blocker to allow)
-            const win = window.open('about:blank', '_blank');
-            if (!win) { alert('Please allow popups for this site to preview templates.'); return; }
-            win.document.write('<html><body style="background:#0f0f0f;color:white;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><p>⚡ Loading preview…</p></body></html>');
-            try {
-              const res = await fetch('/api/store-builder/preview', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ template: template.id, storeName: template.name + ' Store', niche: template.niche, storeTagline: template.description.slice(0, 60) }),
-              });
-              const html = await res.text();
-              win.document.open();
-              win.document.write(html);
-              win.document.close();
-            } catch (err) {
-              win.document.write('<html><body style="padding:40px;font-family:sans-serif"><h2>Preview failed</h2><p>' + String(err) + '</p></body></html>');
-            }
-          }}
-          style={{ width: '100%', marginTop: 10, height: 32, background: '#F5F5F5', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 6, fontSize: 12, fontWeight: 500, cursor: 'pointer' }}
-        >
-          Preview →
-        </button>
+// ── Template mini preview ──────────────────────────────────────
+function TemplatePreview({ preview }: { preview: { bg: string; text: string; btn: string } }) {
+  return (
+    <div style={{ background: preview.bg, borderRadius: 6, padding: 8, height: 80, overflow: 'hidden' as const, position: 'relative' as const }}>
+      <div style={{ height: 6, background: preview.text, borderRadius: 2, marginBottom: 4, width: '60%', opacity: 0.8 }} />
+      <div style={{ height: 4, background: preview.text, borderRadius: 2, marginBottom: 8, width: '40%', opacity: 0.4 }} />
+      <div style={{ display: 'flex', gap: 4 }}>
+        {[1, 2, 3].map(i => <div key={i} style={{ flex: 1, background: preview.text, borderRadius: 4, height: 28, opacity: 0.1 }} />)}
+      </div>
+      <div style={{ position: 'absolute' as const, bottom: 8, left: 8 }}>
+        <div style={{ background: preview.btn, borderRadius: 3, padding: '2px 8px', fontSize: 8, color: preview.bg === '#080808' || preview.bg === '#09090B' ? '#fff' : preview.bg, fontWeight: 700 }}>Buy Now</div>
       </div>
     </div>
   );
 }
 
-// ── Main component ─────────────────────────────────────────────
+// ── Store Preview Component ────────────────────────────────────
+function StorePreview({ copy, template, products, storeName, primaryColor, isMobilePreview }: {
+  copy: GeneratedCopy;
+  template: typeof TEMPLATES[0];
+  products: ProductItem[];
+  storeName: string;
+  primaryColor: string;
+  isMobilePreview: boolean;
+}) {
+  const [expandedFaq, setExpandedFaq] = useState<number[]>([0, 1]);
+  const bgColor = template.bg;
+  const textColor = template.preview.text;
+  const btnColor = template.preview.btn;
+  const isLightBg = bgColor === '#FFFFFF' || bgColor === '#FDF6EC' || bgColor === '#F8FAFC' || bgColor === '#FFF7ED';
+  const mutedColor = isLightBg ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)';
+  const borderColor = isLightBg ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)';
+  const surfaceColor = isLightBg ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.04)';
 
-export default function StoreBuilder() {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [selectedTemplate, setSelectedTemplate] = useState('');
-  const [selectedNiche, setSelectedNiche] = useState('');
-  const [customNiche, setCustomNiche] = useState('');
-  const [storeName, setStoreName] = useState('');
-  const [storeTagline, setStoreTagline] = useState('');
-  const [templateSearch, setTemplateSearch] = useState('');
-  const [templateFilter, setTemplateFilter] = useState('All');
-  const [buildState, setBuildState] = useState<'idle' | 'building' | 'done'>('idle');
-  const [buildStep, setBuildStep] = useState(0);
-  const [shopifyModal, setShopifyModal] = useState(false);
-  const [downloadToast, setDownloadToast] = useState<string | null>(null);
-  const [shopDomain, setShopDomain] = useState('');
-  const [shopDomainError, setShopDomainError] = useState('');
-  const [previewHtml, setPreviewHtml] = useState<string | null>(null);
-  const [previewLoading, setPreviewLoading] = useState(false);
-  const { session, isPro, subPlan } = useAuth();
-  const [, navigate] = useLocation();
-
-  // Enhancement 1: Product Source Modal
-  const [productSourceModal, setProductSourceModal] = useState(false);
-  const [productSourceChoice, setProductSourceChoice] = useState<'url' | 'saved' | null>(null);
-  const [importedProductUrl, setImportedProductUrl] = useState('');
-  const [importedProduct, setImportedProduct] = useState<{ title?: string; description?: string; images?: string[]; price?: string; source_url?: string; product_id?: string } | null>(null);
-  const [savedProducts, setSavedProducts] = useState<Array<{ id: string; title: string; image_url?: string; price_aud?: string }>>([]);
-  const [extracting, setExtracting] = useState(false);
-
-  // Enhancement 2: Image Editor
-  const [imageEditorOpen, setImageEditorOpen] = useState(false);
-  const [selectedImageSlot, setSelectedImageSlot] = useState<string | null>(null);
-  const [uploadedImages, setUploadedImages] = useState<Record<string, string>>({});
-  const [imageToast, setImageToast] = useState<string | null>(null);
-  const [imageEditorTab, setImageEditorTab] = useState<'product' | 'upload' | 'ai'>('product');
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Enhancement 3: Subscription Gate
-  const canExport = isPro || subPlan === 'scale' || subPlan === 'builder';
-
-  // Enhancement 4: Drafts
-  const [draftSaved, setDraftSaved] = useState(false);
-  const [draftId, setDraftId] = useState<string | null>(null);
-  const [drafts, setDrafts] = useState<StoreDraft[]>(() => loadDrafts());
-
-  // Target Market
-  const [targetMarket, setTargetMarket] = useState<string>(() => {
-    return localStorage.getItem('majorka_region') || 'US';
-  });
-  const [currency, setCurrency] = useState<string>(() => {
-    const region = localStorage.getItem('majorka_region') || 'US';
-    const map: Record<string, string> = { AU: 'AUD', US: 'USD', UK: 'GBP', CA: 'CAD', NZ: 'NZD', GLOBAL: 'USD' };
-    return map[region] || 'USD';
-  });
-
-  // Image slot hover state
-  const [hoveredSlot, setHoveredSlot] = useState<string | null>(null);
-
-  // Toast for drafts
-  const [toastMsg, setToastMsg] = useState<string | null>(null);
-
-  const showToast = (msg: string) => {
-    setToastMsg(msg);
-    setTimeout(() => setToastMsg(null), 2000);
-  };
-
-  const handleSaveDraft = () => {
-    const id = draftId || crypto.randomUUID();
-    const draft: StoreDraft = {
-      id,
-      name: storeName || 'Untitled Store',
-      step: currentStep,
-      niche: selectedNiche || customNiche,
-      templateId: selectedTemplate || null,
-      importedProduct: importedProduct,
-      customisations: { storeName, storeTagline },
-      uploadedImages,
-      currency,
-      savedAt: new Date().toISOString(),
-    };
-    const existing = loadDrafts();
-    const idx = existing.findIndex(d => d.id === id);
-    if (idx >= 0) existing[idx] = draft; else existing.unshift(draft);
-    saveDrafts(existing);
-    setDrafts(existing);
-    setDraftId(id);
-    setDraftSaved(true);
-    showToast('Draft saved');
-  };
-
-  const loadDraft = (draft: StoreDraft) => {
-    setSelectedTemplate(draft.templateId || '');
-    setSelectedNiche(draft.niche);
-    setStoreName(draft.customisations.storeName);
-    setStoreTagline(draft.customisations.storeTagline);
-    setUploadedImages(draft.uploadedImages);
-    setImportedProduct(draft.importedProduct as typeof importedProduct);
-    if (draft.currency) setCurrency(draft.currency);
-    setDraftId(draft.id);
-    setCurrentStep(draft.step);
-  };
-
-  const deleteDraft = (id: string) => {
-    const updated = loadDrafts().filter(d => d.id !== id);
-    saveDrafts(updated);
-    setDrafts(updated);
-  };
-
-  // Pre-fill store name from imported product
-  useEffect(() => {
-    if (importedProduct?.title && !storeName) {
-      setStoreName(importedProduct.title.slice(0, 40));
-    }
-    if (importedProduct?.description && !storeTagline) {
-      setStoreTagline(importedProduct.description.slice(0, 80));
-    }
-  }, [importedProduct]);
-
-  const previewTemplate = async (templateId: string) => {
-    try {
-      const res = await fetch('/api/store-builder/preview', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          template: templateId,
-          storeName: storeName || 'Demo Store',
-          storeTagline: 'Trending products, fast delivery',
-          niche: NICHES.find(n => n.id === selectedNiche)?.label || 'General',
-        }),
-      });
-      const html = await res.text();
-      const blob = new Blob([html], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      window.open(url, '_blank');
-    } catch (err) {
-      console.warn('[StoreBuilder] Preview failed:', err);
-    }
-  };
-
-  const generatePreview = useCallback(async () => {
-    if (!selectedTemplate) return;
-    setPreviewLoading(true);
-    try {
-      const tpl = TEMPLATES.find(t => t.id === selectedTemplate);
-      const res = await fetch('/api/store-builder/preview', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          template: selectedTemplate,
-          storeName: storeName || 'My Store',
-          storeTagline: storeTagline || 'Trending products delivered fast',
-          niche: NICHES.find(n => n.id === selectedNiche)?.label || customNiche || 'General',
-          primaryColor: tpl?.accentColor || '#6366F1',
-          targetMarket,
-        }),
-      });
-      const html = await res.text();
-      setPreviewHtml(html);
-    } catch {
-      // silent fail
-    }
-    setPreviewLoading(false);
-  }, [selectedTemplate, storeName, storeTagline, selectedNiche, customNiche]);
-
-  useEffect(() => {
-    if (currentStep === 2 && selectedTemplate) generatePreview();
-  }, [currentStep, selectedTemplate]);
-
-  // Re-generate preview when store name or tagline changes (debounced 800ms)
-  useEffect(() => {
-    if (currentStep !== 2 || !selectedTemplate) return;
-    const t = setTimeout(() => generatePreview(), 800);
-    return () => clearTimeout(t);
-  }, [storeName, storeTagline]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('connected') === 'true') {
-      setCurrentStep(3);
-      window.history.replaceState({}, '', '/store-builder');
-    }
-    if (params.get('error')) {
-      console.warn('[StoreBuilder] OAuth error:', params.get('error'));
-    }
-  }, []);
-
-  const filteredTemplates = TEMPLATES.filter(t => {
-    const matchSearch = templateSearch === '' ||
-      t.name.toLowerCase().includes(templateSearch.toLowerCase()) ||
-      t.niche.toLowerCase().includes(templateSearch.toLowerCase());
-    const matchFilter = templateFilter === 'All' ||
-      t.tags.some(tag => tag.toLowerCase().includes(templateFilter.toLowerCase()));
-    return matchSearch && matchFilter;
-  });
-
-  const selectedTpl = TEMPLATES.find(t => t.id === selectedTemplate);
-
-  const BUILD_STEPS = [
-    "Selecting products for your niche...",
-    "Writing product descriptions...",
-    "Configuring theme and colours...",
-    "Setting up pages and navigation...",
-    "Finalising store settings...",
-    "Store ready! \u{1F389}",
-  ];
-
-  const startBuild = () => {
-    setBuildState('building');
-    setBuildStep(0);
-    BUILD_STEPS.forEach((_, i) => {
-      setTimeout(() => setBuildStep(i), i * 1800);
-    });
-    setTimeout(() => setBuildState('done'), BUILD_STEPS.length * 1800);
-  };
-
-  const handleDownloadZip = () => {
-    const tpl = TEMPLATES.find(t => t.id === selectedTemplate);
-    if (!tpl) return;
-    setDownloadToast('Preparing download...');
-
-    const htmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${storeName || tpl.name + ' Store'}</title>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'DM Sans', sans-serif; background: #fff; color: #0A0A0A; }
-nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 48px; border-bottom: 1px solid #F0F0F0; position: sticky; top: 0; background: white; z-index: 100; }
-.logo { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 22px; color: ${tpl.accentColor}; }
-.nav-links { display: flex; gap: 32px; font-size: 14px; font-weight: 500; color: #374151; }
-.nav-links a { text-decoration: none; color: inherit; }
-.cta-btn { background: ${tpl.accentColor}; color: white; padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; text-decoration: none; border: none; cursor: pointer; }
-.hero { background: ${tpl.bgGradient}; min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 80px 48px; }
-.hero h1 { font-family: 'Bricolage Grotesque', sans-serif; font-size: clamp(32px,6vw,72px); font-weight: 800; color: ${tpl.accentColor}; margin-bottom: 16px; }
-.hero p { font-size: 18px; max-width: 560px; margin: 0 auto 32px; opacity: 0.8; color: ${tpl.accentColor}; }
-.products { padding: 80px 48px; max-width: 1100px; margin: 0 auto; }
-.products h2 { font-family: 'Bricolage Grotesque', sans-serif; font-size: 36px; font-weight: 800; margin-bottom: 40px; text-align: center; }
-.product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-.product-card { border: 1px solid #F0F0F0; border-radius: 16px; overflow: hidden; }
-.product-img { width: 100%; height: 200px; object-fit: cover; background: #F5F5F5; }
-.product-body { padding: 16px; }
-.product-name { font-weight: 600; font-size: 15px; margin-bottom: 8px; }
-.product-price { font-weight: 700; font-size: 18px; color: ${tpl.accentColor}; margin-bottom: 12px; }
-.trust-bar { background: #F9FAFB; border-top: 1px solid #F0F0F0; border-bottom: 1px solid #F0F0F0; padding: 24px 48px; display: flex; justify-content: center; gap: 48px; font-size: 13px; font-weight: 500; color: #6B7280; }
-footer { background: #0A0A0A; color: white; padding: 40px 48px; text-align: center; font-size: 13px; opacity: 0.8; }
-@media (max-width: 768px) { nav { padding: 16px 24px; } .nav-links { display: none; } .hero { padding: 60px 24px; } .products { padding: 60px 24px; } .product-grid { grid-template-columns: 1fr; } .trust-bar { flex-direction: column; gap: 12px; text-align: center; } }
-</style>
-</head>
-<body>
-<nav>
-  <div class="logo">${storeName || tpl.name}</div>
-  <div class="nav-links"><a href="#">Shop</a><a href="#">About</a><a href="#">Contact</a></div>
-  <button class="cta-btn">Shop Now</button>
-</nav>
-<section class="hero">
-  <h1>${storeName || 'Your Store'}</h1>
-  <p>${storeTagline || 'Discover amazing products curated for you'}</p>
-  <button class="cta-btn" style="font-size:16px;padding:14px 40px;">Shop the Collection →</button>
-</section>
-<div class="trust-bar">
-  <span>🚚 Free Shipping Over $75</span>
-  <span>⭐ 4.9/5 from 2,400+ Reviews</span>
-  <span>🔒 Secure Checkout</span>
-  <span>🇦🇺 Australian Owned</span>
-</div>
-<section class="products">
-  <h2>Featured Products</h2>
-  <div class="product-grid">
-    <div class="product-card"><div class="product-img" style="aspect-ratio:4/3;background:linear-gradient(135deg,${tpl.accentColor}22,${tpl.accentColor}44);display:flex;align-items:center;justify-content:center;font-size:32px;color:${tpl.accentColor}">&#128722;</div><div class="product-body"><div class="product-name">Premium Product 1</div><div class="product-price">$89.00 AUD</div><button class="cta-btn" style="width:100%">Add to Cart</button></div></div>
-    <div class="product-card"><div class="product-img" style="aspect-ratio:4/3;background:linear-gradient(135deg,${tpl.accentColor}22,${tpl.accentColor}44);display:flex;align-items:center;justify-content:center;font-size:32px;color:${tpl.accentColor}">&#128722;</div><div class="product-body"><div class="product-name">Premium Product 2</div><div class="product-price">$65.00 AUD</div><button class="cta-btn" style="width:100%">Add to Cart</button></div></div>
-    <div class="product-card"><div class="product-img" style="aspect-ratio:4/3;background:linear-gradient(135deg,${tpl.accentColor}22,${tpl.accentColor}44);display:flex;align-items:center;justify-content:center;font-size:32px;color:${tpl.accentColor}">&#128722;</div><div class="product-body"><div class="product-name">Premium Product 3</div><div class="product-price">$120.00 AUD</div><button class="cta-btn" style="width:100%">Add to Cart</button></div></div>
-  </div>
-</section>
-<footer><p>© 2026 ${storeName || tpl.name}. Built with Majorka. All rights reserved.</p></footer>
-</body>
-</html>`;
-
-    const blob = new Blob([htmlContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${(storeName || tpl.name).toLowerCase().replace(/\s+/g, '-')}-store.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    setDownloadToast('HTML downloaded!');
-    setTimeout(() => setDownloadToast(null), 3000);
-  };
+  const containerWidth = isMobilePreview ? 375 : 800;
+  const scale = isMobilePreview ? 0.42 : 0.45;
+  const productCols = isMobilePreview ? 1 : 3;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#FAFAFA', color: '#0A0A0A', fontFamily: "'DM Sans', sans-serif" }}>
-      <Helmet>
-        <meta name="robots" content="noindex, nofollow" />
-        <title>Store Builder AI — Majorka</title>
-      </Helmet>
-      <style>{`
-        .customise-grid > *:last-child { }
-        @media (max-width: 640px) {
-          .sb-topbar { padding: 12px 16px !important; }
-          .sb-step-label { display: none !important; }
-          .sb-content { padding: 24px 16px 80px !important; }
-          .sb-template-grid { grid-template-columns: 1fr !important; }
-          .sb-customise-grid { grid-template-columns: 1fr !important; }
-          .customise-grid { grid-template-columns: 1fr !important; }
-          .customise-grid > *:last-child { display: none !important; }
-          .sb-launch-grid { grid-template-columns: 1fr !important; }
-          .sb-step4-inner { padding: 16px !important; }
-          .sb-step-label { font-size: 10px !important; max-width: 60px !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
-        }
-      `}</style>
+    <div style={{ width: containerWidth * scale, height: 600, overflow: 'hidden' as const, borderRadius: 8, border: cardBorder }}>
+      <div style={{ width: containerWidth, height: 600 / scale, transform: `scale(${scale})`, transformOrigin: 'top left' as const, background: bgColor, color: textColor, fontFamily: dmSans }}>
+        {/* Nav */}
+        <div style={{ display: 'flex', justifyContent: 'space-between' as const, alignItems: 'center' as const, padding: '12px 24px', borderBottom: `1px solid ${borderColor}` }}>
+          <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: primaryColor }}>{storeName}</div>
+          <div style={{ display: 'flex', gap: 20, fontSize: 13, color: mutedColor }}>
+            <span>Home</span><span>Products</span><span>About</span><span>Contact</span>
+          </div>
+          <ShoppingCart size={18} color={mutedColor} />
+        </div>
 
-      {/* Top bar */}
-      <div className="sb-topbar" style={{ borderBottom: '1px solid #E5E7EB', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'white' }}>
-        <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 18, color: accent, letterSpacing: '-0.02em' }}>
-          Store Builder AI
-        </span>
+        {/* Hero */}
+        <div style={{ padding: isMobilePreview ? '40px 20px' : '60px 40px', textAlign: 'center' as const, background: surfaceColor }}>
+          <h1 style={{ fontFamily: brico, fontSize: isMobilePreview ? 24 : 36, fontWeight: 700, marginBottom: 12, lineHeight: 1.2 }}>{copy.hero_headline || `The ${storeName} Collection`}</h1>
+          <p style={{ fontSize: 15, color: mutedColor, marginBottom: 20, maxWidth: 480, margin: '0 auto 20px' }}>{copy.hero_subheading || 'Premium products curated for quality and value.'}</p>
+          <button style={{ background: btnColor, color: isLightBg ? '#fff' : bgColor, padding: '12px 28px', borderRadius: 8, border: 'none', fontWeight: 700, fontSize: 14, cursor: 'pointer' as const }}>{copy.hero_cta || 'Shop Now'}</button>
+        </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-          {STEP_LABELS.map((label, i) => {
-            const isActive = currentStep === i;
-            const isDone = currentStep > i;
-            return (
-              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <div style={{
-                  width: 28, height: 28, borderRadius: '50%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: isActive ? accent : isDone ? 'rgba(99,102,241,0.15)' : '#F3F4F6',
-                  color: isActive ? 'white' : isDone ? accent : '#9CA3AF',
-                  fontSize: 11, fontWeight: 700, flexShrink: 0,
-                }}>
-                  {isDone ? '\u2713' : i + 1}
-                </div>
-                <span className="sb-step-label" style={{ fontSize: 12, color: isActive ? accent : '#9CA3AF' }}>
-                  {label}
-                </span>
-                {i < STEP_LABELS.length - 1 && (
-                  <div style={{ width: 16, height: 1, background: '#E5E7EB', margin: '0 2px' }} />
-                )}
+        {/* Social proof ticker */}
+        <div style={{ padding: '10px 0', borderTop: `1px solid ${borderColor}`, borderBottom: `1px solid ${borderColor}`, textAlign: 'center' as const, fontSize: 12, color: mutedColor, overflow: 'hidden' as const, whiteSpace: 'nowrap' as const }}>
+          500+ happy customers · Free shipping · 4.8★ rated · Secure checkout
+        </div>
+
+        {/* Products grid */}
+        {products.length > 0 && (
+          <div style={{ padding: '30px 24px' }}>
+            <h2 style={{ fontFamily: brico, fontSize: 22, fontWeight: 700, marginBottom: 20, textAlign: 'center' as const }}>Featured Products</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${productCols}, 1fr)`, gap: 16 }}>
+              {products.slice(0, 6).map((p, i) => {
+                const copyProduct = copy.products?.find(cp => cp.id === p.id);
+                const reviewCount = (parseInt(p.id?.slice(-4) || '0', 16) % 200) + 50;
+                return (
+                  <div key={p.id || i} style={{ borderRadius: 10, overflow: 'hidden' as const, border: `1px solid ${borderColor}`, background: surfaceColor }}>
+                    <div style={{ height: 120, background: isLightBg ? '#f5f5f5' : 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const }}>
+                      {p.image_url ? (
+                        <img src={p.image_url} alt={p.product_title} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                      ) : (
+                        <div style={{ fontSize: 32, opacity: 0.3 }}>📦</div>
+                      )}
+                    </div>
+                    <div style={{ padding: 12 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, overflow: 'hidden' as const, textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{copyProduct?.seo_title || p.product_title}</div>
+                      <div style={{ fontSize: 11, color: mutedColor, marginBottom: 6 }}>★★★★★ ({reviewCount})</div>
+                      <div style={{ fontWeight: 700, fontSize: 16, color: primaryColor, marginBottom: 8 }}>${(p.price_aud || 49.95).toFixed(2)}</div>
+                      <button style={{ width: '100%', padding: '8px', borderRadius: 6, border: 'none', background: btnColor, color: isLightBg ? '#fff' : bgColor, fontSize: 12, fontWeight: 700, cursor: 'pointer' as const }}>Add to Cart</button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Trust badges */}
+        {copy.trust_badges && (
+          <div style={{ display: 'flex', justifyContent: 'center' as const, gap: 24, padding: '20px 24px', borderTop: `1px solid ${borderColor}` }}>
+            {copy.trust_badges.slice(0, 4).map((badge, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center' as const, gap: 6, fontSize: 11, color: mutedColor }}>
+                <span>✓</span> {badge}
               </div>
-            );
-          })}
+            ))}
+          </div>
+        )}
+
+        {/* How it works */}
+        <div style={{ padding: '30px 24px', background: surfaceColor }}>
+          <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 16, textAlign: 'center' as const }}>How It Works</h3>
+          <div style={{ display: 'flex', justifyContent: 'center' as const, gap: 32 }}>
+            {['Browse products', 'Add to cart', 'We ship to you'].map((step, i) => (
+              <div key={i} style={{ textAlign: 'center' as const }}>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: primaryColor, color: isLightBg ? '#fff' : bgColor, display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const, fontWeight: 700, fontSize: 14, margin: '0 auto 8px' }}>{i + 1}</div>
+                <div style={{ fontSize: 12 }}>{step}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Testimonials */}
+        <div style={{ padding: '30px 24px' }}>
+          <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 16, textAlign: 'center' as const }}>What Customers Say</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobilePreview ? '1fr' : 'repeat(3, 1fr)', gap: 12 }}>
+            {['A. M.', 'Happy Buyer', 'First Purchase'].map((name, i) => (
+              <div key={i} style={{ padding: 16, borderRadius: 10, border: `1px solid ${borderColor}`, background: surfaceColor }}>
+                <div style={{ fontSize: 12, marginBottom: 6 }}>★★★★★</div>
+                <div style={{ fontSize: 12, color: mutedColor, marginBottom: 8 }}>Great product! Exactly what I needed. Fast shipping too.</div>
+                <div style={{ fontSize: 11, fontWeight: 600 }}>{name}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* FAQ */}
+        {copy.faq && copy.faq.length > 0 && (
+          <div style={{ padding: '30px 24px', background: surfaceColor }}>
+            <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 16, textAlign: 'center' as const }}>FAQ</h3>
+            {copy.faq.slice(0, 5).map((item, i) => (
+              <div key={i} style={{ borderBottom: `1px solid ${borderColor}`, padding: '12px 0' }}>
+                <div onClick={() => setExpandedFaq(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i])} style={{ display: 'flex', justifyContent: 'space-between' as const, cursor: 'pointer' as const, fontSize: 13, fontWeight: 600 }}>
+                  {item.question}
+                  <span>{expandedFaq.includes(i) ? '−' : '+'}</span>
+                </div>
+                {expandedFaq.includes(i) && <div style={{ fontSize: 12, color: mutedColor, marginTop: 8 }}>{item.answer}</div>}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Footer */}
+        <div style={{ padding: '30px 24px', borderTop: `1px solid ${borderColor}`, textAlign: 'center' as const, fontSize: 11, color: mutedColor }}>
+          © 2026 {storeName}. All rights reserved. · Privacy Policy · Terms of Service
         </div>
       </div>
+    </div>
+  );
+}
 
-      {/* Content */}
-      <div className="sb-content" style={{ maxWidth: currentStep === 0 ? 1100 : currentStep === 2 ? 900 : 680, margin: '0 auto', padding: '40px 24px 80px', transition: 'max-width 300ms' }}>
+// ── Confetti animation CSS ─────────────────────────────────────
+const confettiCSS = `
+@keyframes confetti-fall {
+  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+@keyframes progress-fill {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+`;
 
-        {/* Step indicator */}
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 40 }}>
-          {STEP_LABELS.map((label, i) => (
-            <React.Fragment key={i}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, minWidth: 80 }}>
-                <div style={{
-                  width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: i <= currentStep ? '#6366F1' : '#F3F4F6',
-                  color: i <= currentStep ? 'white' : '#9CA3AF',
-                  fontSize: 14, fontWeight: 700,
-                  boxShadow: i === currentStep ? '0 0 0 4px rgba(99,102,241,0.15)' : 'none',
-                  transition: 'all 200ms',
-                }}>
-                  {i < currentStep ? '\u2713' : i + 1}
-                </div>
-                <span className="sb-step-label" style={{
-                  fontSize: 12,
-                  fontWeight: i === currentStep ? 600 : 400,
-                  color: i <= currentStep ? '#6366F1' : '#9CA3AF',
-                  whiteSpace: 'nowrap',
-                }}>
-                  {label}
-                </span>
-              </div>
-              {i < STEP_LABELS.length - 1 && (
-                <div style={{
-                  flex: 1, height: 2,
-                  background: i < currentStep ? '#6366F1' : '#F3F4F6',
-                  transition: 'background 300ms',
-                  marginBottom: 28,
-                }} />
-              )}
-            </React.Fragment>
-          ))}
-        </div>
+// ══════════════════════════════════════════════════════════════════
+// MAIN COMPONENT
+// ══════════════════════════════════════════════════════════════════
+export default function StoreBuilder() {
+  const { session, subPlan, subStatus } = useAuth();
+  const [, setLocation] = useLocation();
 
-        {/* ── Step 1: Choose a Template ── */}
-        {currentStep === 0 && (
-          <div>
-            <div style={{ marginBottom: 24 }}>
-              <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: "clamp(22px,4vw,32px)", color: "#0A0A0A", marginBottom: 8 }}>
-                Choose a template
-              </h2>
-              <p style={{ fontSize: 14, color: "#6B7280" }}>
-                Each template is built for a specific niche and optimised for global conversions. You can customise colours and copy after selecting.
-              </p>
+  // ── Auth & subscription ──────────────────────────────────────
+  const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
+  const isBuilder = (subPlan === 'builder' && subStatus === 'active') || isAdmin;
+  const isScale = (subPlan === 'scale' && subStatus === 'active') || isAdmin;
+  const isPaid = isBuilder || isScale;
+  const storeLimit = isScale ? Infinity : isBuilder ? 3 : 0;
+
+  // ── Mode state ───────────────────────────────────────────────
+  const [mode, setMode] = useState<Mode>('select');
+  const [upgradeModal, setUpgradeModal] = useState(false);
+  const [upgradeReason, setUpgradeReason] = useState('');
+
+  // ── AI wizard state ──────────────────────────────────────────
+  const [aiStep, setAiStep] = useState<AIStep>('setup');
+  const [storeName, setStoreName] = useState('');
+  const [niche, setNiche] = useState('');
+  const [targetMarket, setTargetMarket] = useState('Australia');
+  const [tone, setTone] = useState('Professional');
+  const [primaryColor, setPrimaryColor] = useState('#6366F1');
+
+  // Products
+  const [nicheProducts, setNicheProducts] = useState<WinningProduct[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<ProductItem[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [customProductModal, setCustomProductModal] = useState(false);
+  const [customTitle, setCustomTitle] = useState('');
+  const [customImageUrl, setCustomImageUrl] = useState('');
+  const [customPrice, setCustomPrice] = useState('');
+  const [customDesc, setCustomDesc] = useState('');
+
+  // Generation
+  const [generatedCopy, setGeneratedCopy] = useState<GeneratedCopy | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [genStep, setGenStep] = useState(0);
+
+  // Template
+  const [selectedTemplate, setSelectedTemplate] = useState('bold');
+
+  // Preview
+  const [isMobilePreview, setIsMobilePreview] = useState(false);
+
+  // Publish
+  const [subdomain, setSubdomain] = useState('');
+  const [subdomainAvailable, setSubdomainAvailable] = useState<boolean | null>(null);
+  const [checkingSubdomain, setCheckingSubdomain] = useState(false);
+  const [customDomain, setCustomDomain] = useState('');
+  const [publishing, setPublishing] = useState(false);
+  const [publishResult, setPublishResult] = useState<{ success: boolean; liveUrl?: string; storeId?: string } | null>(null);
+
+  // Shopify sync
+  const [shopifyStatus, setShopifyStatus] = useState<{ connected: boolean; shop?: string }>({ connected: false });
+  const [shopifyDomain, setShopifyDomain] = useState('');
+  const [shopifyCatalog, setShopifyCatalog] = useState<Array<{ id: string; title: string; price_aud: number; image_url: string | null; inventory_status: string }>>([]);
+  const [syncing, setSyncing] = useState(false);
+  const [topProducts, setTopProducts] = useState<WinningProduct[]>([]);
+
+  // Marketplace
+  const [mpProfile, setMpProfile] = useState<{ username?: string; display_name?: string; bio?: string; avatar_url?: string } | null>(null);
+  const [mpStep, setMpStep] = useState<'onboarding' | 'dashboard'>('onboarding');
+  const [mpUsername, setMpUsername] = useState('');
+  const [mpDisplayName, setMpDisplayName] = useState('');
+  const [mpBio, setMpBio] = useState('');
+  const [mpUsernameAvail, setMpUsernameAvail] = useState<boolean | null>(null);
+  const [mpListings, setMpListings] = useState<Array<{ id: string; title: string; price_aud: number; inventory_qty: number; status: string }>>([]);
+  const [mpOrders, setMpOrders] = useState<Array<{ id: string; buyer_name: string; items: unknown; subtotal: number; status: string; created_at: string }>>([]);
+  const [mpEarnings, setMpEarnings] = useState<{ total_sales: number; total_revenue: number; net_earnings: number; pending_orders: number } | null>(null);
+
+  // Existing stores
+  const [existingStores, setExistingStores] = useState<Array<{ id: string; store_name: string; subdomain?: string; created_at: string; published?: boolean }>>([]);
+
+  const authToken = session?.access_token || '';
+  const authHeaders = { Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' };
+
+  // ── Fetch existing stores on mount ───────────────────────────
+  useEffect(() => {
+    if (!authToken) return;
+    fetch('/api/shopify/status', { headers: authHeaders })
+      .then(r => r.json())
+      .then(d => { if (d.connected) setShopifyStatus({ connected: true, shop: d.shop }); })
+      .catch(() => {});
+
+    // Load existing stores from generated_stores
+    const supabaseUrl = (import.meta as Record<string, Record<string, string>>).env?.VITE_SUPABASE_URL;
+    const supabaseKey = (import.meta as Record<string, Record<string, string>>).env?.VITE_SUPABASE_ANON_KEY;
+    if (supabaseUrl && supabaseKey) {
+      fetch(`${supabaseUrl}/rest/v1/generated_stores?select=id,store_name,subdomain,created_at,published&order=created_at.desc&limit=10`, {
+        headers: { apikey: supabaseKey, Authorization: `Bearer ${authToken}` },
+      })
+        .then(r => r.json())
+        .then(data => { if (Array.isArray(data)) setExistingStores(data); })
+        .catch(() => {});
+    }
+  }, [authToken]);
+
+  // ── Subscription gate ────────────────────────────────────────
+  if (!isPaid) {
+    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app/dashboard')} feature="Store Builder" reason="Build and launch your dropshipping store" />;
+  }
+
+  // ── Fetch products for niche ─────────────────────────────────
+  const fetchNicheProducts = async (selectedNiche: string) => {
+    setLoadingProducts(true);
+    try {
+      const res = await fetch(`/api/store-builder/products-for-niche?niche=${encodeURIComponent(selectedNiche)}`, { headers: authHeaders });
+      const data = await res.json();
+      setNicheProducts(data.products || []);
+    } catch { /* silent */ }
+    setLoadingProducts(false);
+  };
+
+  // ── Generate copy ────────────────────────────────────────────
+  const generateCopy = async () => {
+    setGenerating(true);
+    setAiStep('generating');
+    setGenStep(0);
+
+    const steps = [
+      { msg: 'Analysing your niche...', delay: 0 },
+      { msg: 'Writing your store copy...', delay: 1500 },
+      { msg: 'Optimising product descriptions...', delay: 3000 },
+      { msg: 'Almost ready...', delay: 4500 },
+    ];
+    steps.forEach((s, i) => { setTimeout(() => setGenStep(i), s.delay); });
+
+    try {
+      const res = await fetch('/api/store-builder/generate-copy', {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({
+          storeName, niche, targetMarket, tone,
+          products: selectedProducts.map(p => ({ id: p.id, product_title: p.product_title, price_aud: p.price_aud })),
+        }),
+      });
+      const data = await res.json();
+      if (data.copy) {
+        setGeneratedCopy(data.copy);
+        setTimeout(() => { setAiStep('template'); setGenerating(false); }, 1000);
+      } else {
+        setGenerating(false);
+        setAiStep('products');
+      }
+    } catch {
+      setGenerating(false);
+      setAiStep('products');
+    }
+  };
+
+  // ── Check subdomain ──────────────────────────────────────────
+  const checkSubdomain = async (slug: string) => {
+    if (!slug || slug.length < 3) { setSubdomainAvailable(null); return; }
+    setCheckingSubdomain(true);
+    try {
+      const res = await fetch(`/api/store-builder/check-subdomain?slug=${encodeURIComponent(slug)}`);
+      const data = await res.json();
+      setSubdomainAvailable(data.available);
+    } catch { setSubdomainAvailable(null); }
+    setCheckingSubdomain(false);
+  };
+
+  useEffect(() => {
+    if (!subdomain) return;
+    const t = setTimeout(() => checkSubdomain(subdomain), 500);
+    return () => clearTimeout(t);
+  }, [subdomain]);
+
+  // ── Publish store ────────────────────────────────────────────
+  const publishStore = async () => {
+    if (!subdomainAvailable) return;
+    setPublishing(true);
+    try {
+      const res = await fetch('/api/store-builder/publish', {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({
+          storeName, niche, targetMarket, tone, primaryColor,
+          templateId: selectedTemplate,
+          selectedProducts: selectedProducts.map(p => ({ id: p.id, product_title: p.product_title, price_aud: p.price_aud, image_url: p.image_url })),
+          generatedCopy, subdomain, customDomain, mode: 'ai',
+        }),
+      });
+      const data = await res.json();
+      setPublishResult(data);
+    } catch {
+      setPublishResult({ success: false });
+    }
+    setPublishing(false);
+  };
+
+  // ── Shopify handlers ─────────────────────────────────────────
+  const connectShopify = () => {
+    const domain = shopifyDomain.trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
+    if (!domain.includes('.myshopify.com')) return;
+    window.location.href = `/api/shopify/auth?shop=${encodeURIComponent(domain)}`;
+  };
+
+  const syncShopify = async () => {
+    setSyncing(true);
+    try {
+      await fetch('/api/shopify/sync', { method: 'POST', headers: authHeaders });
+      const catRes = await fetch('/api/shopify/catalog', { headers: authHeaders });
+      const catData = await catRes.json();
+      setShopifyCatalog(catData.products || []);
+    } catch { /* silent */ }
+    setSyncing(false);
+  };
+
+  const fetchTopProducts = async () => {
+    try {
+      const res = await fetch('/api/store-builder/products-for-niche?niche=General', { headers: authHeaders });
+      const data = await res.json();
+      setTopProducts((data.products || []).slice(0, 5));
+    } catch { /* silent */ }
+  };
+
+  // ── Marketplace handlers ─────────────────────────────────────
+  const fetchMpProfile = async () => {
+    try {
+      const res = await fetch('/api/marketplace/profile', { headers: authHeaders });
+      const data = await res.json();
+      if (data.profile) {
+        setMpProfile(data.profile);
+        setMpStep('dashboard');
+        // Fetch listings + orders + earnings
+        const [listRes, ordRes, earnRes] = await Promise.all([
+          fetch('/api/marketplace/listings', { headers: authHeaders }),
+          fetch('/api/marketplace/orders', { headers: authHeaders }),
+          fetch('/api/marketplace/earnings', { headers: authHeaders }),
+        ]);
+        const [listData, ordData, earnData] = await Promise.all([listRes.json(), ordRes.json(), earnRes.json()]);
+        setMpListings(listData.listings || []);
+        setMpOrders(ordData.orders || []);
+        setMpEarnings(earnData.earnings || null);
+      }
+    } catch { /* silent */ }
+  };
+
+  const checkMpUsername = async (username: string) => {
+    if (username.length < 3) { setMpUsernameAvail(null); return; }
+    try {
+      const res = await fetch(`/api/marketplace/check-username?username=${encodeURIComponent(username)}`);
+      const data = await res.json();
+      setMpUsernameAvail(data.available);
+    } catch { setMpUsernameAvail(null); }
+  };
+
+  const createMpProfile = async () => {
+    if (!mpUsername || !mpDisplayName) return;
+    try {
+      const res = await fetch('/api/marketplace/profile', {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({ username: mpUsername, display_name: mpDisplayName, bio: mpBio }),
+      });
+      const data = await res.json();
+      if (data.profile) { setMpProfile(data.profile); setMpStep('dashboard'); }
+    } catch { /* silent */ }
+  };
+
+  // ── Input style ──────────────────────────────────────────────
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '12px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)',
+    background: 'rgba(255,255,255,0.04)', color: textPrimary, fontSize: 14,
+    fontFamily: dmSans, outline: 'none', boxSizing: 'border-box',
+  };
+
+  const btnPrimary: React.CSSProperties = {
+    padding: '14px 28px', borderRadius: 10, border: 'none', cursor: 'pointer',
+    background: accent, color: '#fff', fontFamily: brico, fontWeight: 700, fontSize: 15,
+    transition: 'all 150ms',
+  };
+
+  const btnSecondary: React.CSSProperties = {
+    padding: '14px 28px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.12)',
+    background: 'transparent', color: textSecondary, fontFamily: brico, fontWeight: 600,
+    fontSize: 14, cursor: 'pointer', transition: 'all 150ms',
+  };
+
+  // ══════════════════════════════════════════════════════════════
+  // RENDER
+  // ══════════════════════════════════════════════════════════════
+  return (
+    <div style={{ minHeight: '100vh', background: bgDark, color: textPrimary, fontFamily: dmSans }}>
+      <Helmet><title>Store Builder — Majorka</title><meta name="robots" content="noindex, nofollow" /></Helmet>
+      <style>{confettiCSS}</style>
+
+      {/* Upgrade modal */}
+      {upgradeModal && <UpgradeModal isOpen={true} onClose={() => setUpgradeModal(false)} scaleOnly={true} reason={upgradeReason} feature="Majorka Marketplace" />}
+
+      {/* ══════ MODE SELECTION ══════ */}
+      {mode === 'select' && (
+        <div style={{ maxWidth: 900, margin: '0 auto', padding: '60px 24px' }}>
+          <div style={{ textAlign: 'center' as const, marginBottom: 48 }}>
+            <h1 style={{ fontFamily: brico, fontSize: 'clamp(28px, 5vw, 42px)', fontWeight: 700, marginBottom: 12 }}>Store Builder</h1>
+            <p style={{ color: textSecondary, fontSize: 16 }}>Zero to live dropshipping store in under 7 minutes.</p>
+          </div>
+
+          {/* Three mode cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 20, marginBottom: 40 }}>
+            {/* Mode A — Build with AI */}
+            <div
+              onClick={() => { setMode('ai'); setAiStep('setup'); }}
+              style={{ background: cardBg, border: cardBorder, borderRadius: 24, padding: 32, cursor: 'pointer', transition: 'all 200ms' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+            >
+              <div style={{ fontSize: 36, marginBottom: 16 }}>🤖</div>
+              <div style={{ fontFamily: brico, fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Build with AI</div>
+              <div style={{ fontSize: 13, color: accent, marginBottom: 8 }}>Zero to store in 7 minutes</div>
+              <div style={{ fontSize: 14, color: textSecondary, marginBottom: 20, lineHeight: 1.5 }}>AI builds your store from your niche and products</div>
+              <button style={{ ...btnPrimary, width: '100%' }}>Start Building →</button>
             </div>
 
-            {/* My Drafts */}
-            {drafts.length > 0 && (
-              <div style={{ marginBottom: 24 }}>
-                <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 16, color: '#0A0A0A', marginBottom: 12 }}>Continue Where You Left Off</div>
-                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
-                  {drafts.slice(0, 3).map(d => (
-                    <div key={d.id} style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 12, padding: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <Store size={24} color="#6366F1" />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#0A0A0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{d.name || 'Untitled Store'}</div>
-                        <div style={{ fontSize: 12, color: '#9CA3AF' }}>Step {d.step + 1} of 4 · Saved {timeAgo(d.savedAt)}</div>
-                      </div>
-                      <button onClick={() => loadDraft(d)} style={{ height: 32, padding: '0 14px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>Continue</button>
-                      <button onClick={() => deleteDraft(d.id)} style={{ background: 'none', border: 'none', color: '#EF4444', fontSize: 12, fontWeight: 600, cursor: 'pointer', padding: '4px 8px' }}>Delete</button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Mode B — Connect Shopify */}
+            <div
+              onClick={() => { setMode('shopify'); syncShopify(); fetchTopProducts(); }}
+              style={{ background: cardBg, border: cardBorder, borderRadius: 24, padding: 32, cursor: 'pointer', transition: 'all 200ms' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+            >
+              <div style={{ fontSize: 36, marginBottom: 16 }}>🛍️</div>
+              <div style={{ fontFamily: brico, fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Connect Shopify</div>
+              <div style={{ fontSize: 13, color: accent, marginBottom: 8 }}>Already on Shopify?</div>
+              <div style={{ fontSize: 14, color: textSecondary, marginBottom: 20, lineHeight: 1.5 }}>Sync your products and orders. Keep Shopify, add Majorka's intelligence layer.</div>
+              <button style={{ ...btnPrimary, width: '100%' }}>Connect Store →</button>
+            </div>
 
-            {/* Search + filter bar */}
-            <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" as const, marginBottom: 24 }}>
-              <input
-                type="text"
-                placeholder="Search templates..."
-                value={templateSearch}
-                onChange={e => setTemplateSearch(e.target.value)}
-                style={{ height: 38, padding: "0 14px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 14, color: "#374151", background: "white", outline: "none", minWidth: 'min(200px, 100%)', flex: "0 0 auto" }}
-                onFocus={e => (e.currentTarget.style.borderColor = "#6366F1")}
-                onBlur={e => (e.currentTarget.style.borderColor = "#E5E7EB")}
-              />
-              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {["All", "Luxury", "Fashion", "Tech", "Beauty", "Food", "Outdoor", "Kids", "Fitness", "Eco"].map(f => (
-                  <button
-                    key={f}
-                    onClick={() => setTemplateFilter(f)}
-                    style={{ height: 32, padding: "0 14px", borderRadius: 999, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 150ms",
-                      background: templateFilter === f ? "#6366F1" : "#F5F5F5",
-                      color: templateFilter === f ? "white" : "#374151",
-                    }}
-                  >{f}</button>
+            {/* Mode C — Sell on Majorka */}
+            <div
+              onClick={() => {
+                if (!isScale) { setUpgradeReason('Majorka Marketplace is available on Scale plan'); setUpgradeModal(true); return; }
+                setMode('marketplace'); fetchMpProfile();
+              }}
+              style={{ background: cardBg, border: cardBorder, borderRadius: 24, padding: 32, cursor: 'pointer', transition: 'all 200ms', position: 'relative' as const }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(139,92,246,0.4)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+            >
+              <div style={{ position: 'absolute' as const, top: 16, right: 16, background: 'rgba(139,92,246,0.15)', color: violet, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 999 }}>Scale Only</div>
+              <div style={{ fontSize: 36, marginBottom: 16 }}>🏪</div>
+              <div style={{ fontFamily: brico, fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Sell on Majorka</div>
+              <div style={{ fontSize: 13, color: violet, marginBottom: 8 }}>No Shopify needed</div>
+              <div style={{ fontSize: 14, color: textSecondary, marginBottom: 20, lineHeight: 1.5 }}>List products. We handle the storefront. 5% platform fee per sale.</div>
+              <button style={{ ...btnPrimary, width: '100%', background: violet }}>Start Selling →</button>
+            </div>
+          </div>
+
+          {/* Existing stores */}
+          {existingStores.length > 0 && (
+            <div>
+              <div style={{ textAlign: 'center' as const, color: textMuted, fontSize: 13, marginBottom: 16, cursor: 'pointer' }}>Or continue to your existing stores ↓</div>
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+                {existingStores.map(store => (
+                  <div key={store.id} style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: '14px 20px', display: 'flex', alignItems: 'center' as const, justifyContent: 'space-between' as const }}>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 14 }}>{store.store_name}</div>
+                      <div style={{ fontSize: 12, color: textMuted }}>{store.subdomain ? `${store.subdomain}.majorka.io` : 'Not published'} · {new Date(store.created_at).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' })}</div>
+                    </div>
+                    {store.published && store.subdomain && (
+                      <a href={`https://${store.subdomain}.majorka.io`} target="_blank" rel="noopener noreferrer" style={{ color: accent, fontSize: 12, fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center' as const, gap: 4 }}>
+                        <ExternalLink size={12} /> View
+                      </a>
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
+          )}
 
-            {/* Selected banner */}
-            {selectedTemplate && (
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 20px", background: "#EEF2FF", border: "1px solid #C7D2FE", borderRadius: 10, marginBottom: 20 }}>
-                <span style={{ fontSize: 14, fontWeight: 600, color: "#6366F1" }}>
-                  {"\u2713"} Template selected: {TEMPLATES.find(t => t.id === selectedTemplate)?.name} — ready for Step 2
-                </span>
-                <button
-                  onClick={() => setCurrentStep(1)}
-                  style={{ height: 36, padding: "0 20px", background: "#6366F1", color: "white", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer" }}
-                >
-                  Continue to Niche Selection {"\u2192"}
-                </button>
-              </div>
-            )}
-
-            {/* Template grid */}
-            <div className="sb-template-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
-              {filteredTemplates.map(template => (
-                <TemplateCard
-                  key={template.id}
-                  template={template}
-                  selected={selectedTemplate === template.id}
-                  onClick={() => {
-                    setSelectedTemplate(template.id);
-                    setTimeout(() => setCurrentStep(1), 500);
-                  }}
-                />
-              ))}
-              {filteredTemplates.length === 0 && (
-                <div style={{ gridColumn: "1/-1", padding: "60px 24px", textAlign: "center", color: "#9CA3AF", fontSize: 14 }}>
-                  No templates match "{templateSearch}" — <button onClick={() => { setTemplateSearch(""); setTemplateFilter("All"); }} style={{ color: "#6366F1", background: "none", border: "none", cursor: "pointer", fontSize: 14 }}>Clear filters</button>
-                </div>
-              )}
+          {/* Empty state competitive copy */}
+          {existingStores.length === 0 && isBuilder && (
+            <div style={{ textAlign: 'center' as const, padding: 32, background: 'rgba(99,102,241,0.05)', borderRadius: 16, border: '1px solid rgba(99,102,241,0.1)' }}>
+              <p style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 4 }}>Shopify takes hours and charges 2% on every sale.</p>
+              <p style={{ color: textSecondary, fontSize: 14 }}>Majorka takes 7 minutes and charges nothing. Build your first store →</p>
             </div>
+          )}
+        </div>
+      )}
+
+      {/* ══════ MODE A: AI WIZARD ══════ */}
+      {mode === 'ai' && (
+        <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
+          {/* Back button */}
+          <button onClick={() => setMode('select')} style={{ ...btnSecondary, padding: '8px 16px', fontSize: 13, marginBottom: 24 }}>← Back</button>
+
+          {/* Step indicator */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 32 }}>
+            {(['setup', 'products', 'generating', 'template', 'preview', 'publish'] as AIStep[]).map((step, i) => (
+              <div key={step} style={{ flex: 1, height: 4, borderRadius: 2, background: (['setup', 'products', 'generating', 'template', 'preview', 'publish'] as AIStep[]).indexOf(aiStep) >= i ? accent : 'rgba(255,255,255,0.08)' }} />
+            ))}
           </div>
-        )}
 
-        {/* ── Step 2: Pick Your Niche ── */}
-        {currentStep === 1 && (
-          <div>
-            <div style={{ marginBottom: 28 }}>
-              <button onClick={() => setCurrentStep(0)} style={{ fontSize: 13, color: "#6B7280", background: "none", border: "none", cursor: "pointer", marginBottom: 12, display: "flex", alignItems: "center", gap: 4 }}>
-                {"\u2190"} Back to templates
-              </button>
-              <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: "clamp(22px,4vw,32px)", color: "#0A0A0A", marginBottom: 8 }}>
-                Pick your niche
-              </h2>
-              <p style={{ fontSize: 14, color: "#6B7280" }}>
-                Choose the product category your store will focus on. This helps Majorka AI generate the right copy and product selections.
-              </p>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12, marginBottom: 20 }}>
-              {NICHES.map(niche => (
-                <div
-                  key={niche.id}
-                  onClick={() => setSelectedNiche(niche.id)}
-                  style={{
-                    padding: "20px", borderRadius: 14, cursor: "pointer", transition: "all 200ms",
-                    border: selectedNiche === niche.id ? "2px solid #6366F1" : "2px solid #F0F0F0",
-                    background: selectedNiche === niche.id ? "#EEF2FF" : "white",
-                    boxShadow: selectedNiche === niche.id ? "0 0 0 3px rgba(99,102,241,0.1)" : "none",
-                  }}
-                  onMouseEnter={e => { if (selectedNiche !== niche.id) { e.currentTarget.style.borderColor = "#C7D2FE"; e.currentTarget.style.background = "#FAFAFA"; } }}
-                  onMouseLeave={e => { if (selectedNiche !== niche.id) { e.currentTarget.style.borderColor = "#F0F0F0"; e.currentTarget.style.background = "white"; } }}
-                >
-                  <div style={{ fontSize: 28, marginBottom: 10 }}>{niche.emoji}</div>
-                  <div style={{ fontWeight: 700, fontSize: 15, color: "#0A0A0A", marginBottom: 4 }}>{niche.label}</div>
-                  <div style={{ fontSize: 12, color: "#9CA3AF" }}>{niche.examples}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Custom niche input */}
-            <div style={{ padding: "16px 20px", border: "2px dashed #E5E7EB", borderRadius: 14, display: "flex", gap: 12, alignItems: "center" }}>
-              <span style={{ fontSize: 20 }}>{"\u270F\uFE0F"}</span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6 }}>Enter a custom niche</div>
-                <input
-                  type="text"
-                  placeholder="e.g. 'LED lighting for gamers'"
-                  value={customNiche}
-                  onChange={e => { setCustomNiche(e.target.value); setSelectedNiche("custom"); }}
-                  style={{ width: "100%", height: 36, padding: "0 12px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 13, color: "#374151", background: "white", outline: "none", boxSizing: "border-box" as const }}
-                  onFocus={e => { e.currentTarget.style.borderColor = "#6366F1"; setSelectedNiche("custom"); }}
-                  onBlur={e => (e.currentTarget.style.borderColor = "#E5E7EB")}
-                />
-              </div>
-            </div>
-
-            {/* Next button */}
-            <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end", gap: 10 }}>
-              <button
-                onClick={handleSaveDraft}
-                style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, padding: '8px 14px', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: '#374151' }}
-              >
-                <Save size={13} color="#6B7280" /> Save Draft
-              </button>
-              <button
-                onClick={() => { if (selectedNiche) setProductSourceModal(true); }}
-                disabled={!selectedNiche}
-                style={{ height: 44, padding: "0 32px", background: selectedNiche ? "#6366F1" : "#E5E7EB", color: selectedNiche ? "white" : "#9CA3AF", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: selectedNiche ? "pointer" : "not-allowed", transition: "all 200ms" }}
-              >
-                Continue {"\u2192"}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ── Step 3: Customise Your Store ── */}
-        {currentStep === 2 && (
-          <div className="sb-customise-grid customise-grid" style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 32, alignItems: "flex-start" }}>
-            {/* Left: Form */}
+          {/* ── STEP 1: STORE SETUP ── */}
+          {aiStep === 'setup' && (
             <div>
-              <button onClick={() => setCurrentStep(1)} style={{ fontSize: 13, color: "#6B7280", background: "none", border: "none", cursor: "pointer", marginBottom: 20, display: "flex", alignItems: "center", gap: 4 }}>{"\u2190"} Back</button>
-              <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 28, color: "#0A0A0A", marginBottom: 8 }}>Customise your store</h2>
-              <p style={{ fontSize: 14, color: "#6B7280", marginBottom: 28 }}>Give your store its identity. You can change all of this later.</p>
+              <h2 style={{ fontFamily: brico, fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Set up your store</h2>
+              <p style={{ color: textSecondary, marginBottom: 32 }}>Tell us about your brand. AI will generate everything from this.</p>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 20 }}>
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>Store Name</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. PawsAustralia"
-                    value={storeName}
-                    onChange={e => setStoreName(e.target.value)}
-                    style={{ width: "100%", height: 44, padding: "0 14px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 14, color: "#0A0A0A", background: "white", outline: "none", boxSizing: "border-box" as const }}
-                    onFocus={e => (e.currentTarget.style.borderColor = "#6366F1")}
-                    onBlur={e => (e.currentTarget.style.borderColor = "#E5E7EB")}
-                  />
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Store Name *</label>
+                  <input value={storeName} onChange={e => setStoreName(e.target.value)} placeholder="e.g. PawsAustralia" style={inputStyle} />
                 </div>
 
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>Store Tagline</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Premium pet products, delivered to your door"
-                    value={storeTagline}
-                    onChange={e => setStoreTagline(e.target.value)}
-                    style={{ width: "100%", height: 44, padding: "0 14px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 14, color: "#0A0A0A", background: "white", outline: "none", boxSizing: "border-box" as const }}
-                    onFocus={e => (e.currentTarget.style.borderColor = "#6366F1")}
-                    onBlur={e => (e.currentTarget.style.borderColor = "#E5E7EB")}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>Currency</label>
-                  <select
-                    style={{ width: "100%", height: 44, padding: "0 14px", border: "1px solid #E5E7EB", borderRadius: 8, fontSize: 14, color: "#0A0A0A", background: "white", outline: "none", boxSizing: "border-box" as const, cursor: "pointer" }}
-                    value={currency}
-                    onChange={e => setCurrency(e.target.value)}
-                  >
-                    <option value="USD">{"\u{1F1FA}\u{1F1F8}"} US Dollar (USD)</option>
-                    <option value="AUD">{"\u{1F1E6}\u{1F1FA}"} Australian Dollar (AUD)</option>
-                    <option value="GBP">{"\u{1F1EC}\u{1F1E7}"} British Pound (GBP)</option>
-                    <option value="CAD">{"\u{1F1E8}\u{1F1E6}"} Canadian Dollar (CAD)</option>
-                    <option value="NZD">{"\u{1F1F3}\u{1F1FF}"} New Zealand Dollar (NZD)</option>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Niche *</label>
+                  <select value={niche} onChange={e => setNiche(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' as const }}>
+                    <option value="">Select a niche...</option>
+                    {NICHES.map(n => <option key={n} value={n}>{n}</option>)}
                   </select>
                 </div>
 
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>Target Market</label>
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
-                    {([
-                      { code: 'GLOBAL', flag: '\u{1F30D}', label: 'Global' },
-                      { code: 'US', flag: '\u{1F1FA}\u{1F1F8}', label: 'US' },
-                      { code: 'AU', flag: '\u{1F1E6}\u{1F1FA}', label: 'AU' },
-                      { code: 'UK', flag: '\u{1F1EC}\u{1F1E7}', label: 'UK' },
-                      { code: 'CA', flag: '\u{1F1E8}\u{1F1E6}', label: 'CA' },
-                      { code: 'NZ', flag: '\u{1F1F3}\u{1F1FF}', label: 'NZ' },
-                    ] as const).map(m => (
-                      <button
-                        key={m.code}
-                        type="button"
-                        onClick={() => {
-                          setTargetMarket(m.code);
-                          const currencyMap: Record<string, string> = { US: 'USD', AU: 'AUD', UK: 'GBP', CA: 'CAD', NZ: 'NZD', GLOBAL: 'USD' };
-                          setCurrency(currencyMap[m.code] || 'USD');
-                        }}
-                        style={{
-                          padding: '8px 14px', borderRadius: 8, border: `1px solid ${targetMarket === m.code ? '#6366F1' : '#E5E7EB'}`,
-                          background: targetMarket === m.code ? '#EEF2FF' : 'white', cursor: 'pointer', fontSize: 13, fontWeight: 600,
-                          color: targetMarket === m.code ? '#6366F1' : '#374151', transition: 'all 150ms',
-                          fontFamily: "'Bricolage Grotesque', sans-serif",
-                        }}
-                      >
-                        {m.flag} {m.label}
-                      </button>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 8 }}>Target Market</label>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
+                    {MARKETS.map(m => <PillButton key={m} label={m} selected={targetMarket === m} onClick={() => setTargetMarket(m)} />)}
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 8 }}>Brand Tone</label>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
+                    {TONES.map(t => <PillButton key={t} label={t} selected={tone === t} onClick={() => setTone(t)} />)}
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 8 }}>Primary Colour</label>
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'center' as const }}>
+                    {COLOR_SWATCHES.map(s => (
+                      <div key={s.color} onClick={() => setPrimaryColor(s.color)} style={{
+                        width: 32, height: 32, borderRadius: '50%', background: s.color, cursor: 'pointer' as const,
+                        border: primaryColor === s.color ? '3px solid #fff' : '3px solid transparent',
+                        boxShadow: primaryColor === s.color ? `0 0 0 2px ${s.color}` : 'none',
+                        transition: 'all 150ms',
+                      }} title={s.label} />
                     ))}
+                    <input type="color" value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} style={{ width: 32, height: 32, border: 'none', background: 'transparent', cursor: 'pointer' }} />
                   </div>
                 </div>
               </div>
 
-              {/* Store Images — Image Editor */}
-              <div style={{ marginTop: 28 }}>
-                <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 10 }}>Store Images</label>
-                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' as const }}>
-                  {[
-                    { key: 'hero', label: 'Hero Image' },
-                    { key: 'product1', label: 'Product Image 1' },
-                    { key: 'product2', label: 'Product Image 2' },
-                    { key: 'banner', label: 'Banner' },
-                  ].map(slot => {
-                    const imgSrc = uploadedImages[slot.key]
-                      || (slot.key === 'product1' && importedProduct?.images?.[0])
-                      || (slot.key === 'product2' && importedProduct?.images?.[1])
-                      || null;
+              <div style={{ marginTop: 32, display: 'flex', justifyContent: 'flex-end' as const }}>
+                <button
+                  onClick={() => { if (storeName && niche) { setAiStep('products'); fetchNicheProducts(niche); } }}
+                  disabled={!storeName || !niche}
+                  style={{ ...btnPrimary, opacity: !storeName || !niche ? 0.4 : 1, cursor: !storeName || !niche ? 'not-allowed' : 'pointer' }}
+                >Continue → Products</button>
+              </div>
+            </div>
+          )}
+
+          {/* ── STEP 2: PRODUCT SELECTION ── */}
+          {aiStep === 'products' && (
+            <div>
+              <h2 style={{ fontFamily: brico, fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Select products</h2>
+              <p style={{ color: textSecondary, marginBottom: 24 }}>Choose 1-10 products for your store. These are top performers in {niche}.</p>
+
+              {loadingProducts ? (
+                <div style={{ textAlign: 'center' as const, padding: 40 }}><Loader2 size={24} style={{ animation: 'spin 1s linear infinite' }} color={accent} /></div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12, marginBottom: 24 }}>
+                  {nicheProducts.map(p => {
+                    const isSelected = selectedProducts.some(sp => sp.id === p.id);
+                    const scoreColor = (p.winning_score || 0) > 70 ? '#10B981' : (p.winning_score || 0) > 50 ? '#F59E0B' : textMuted;
                     return (
-                      <div
-                        key={slot.key}
-                        style={{ width: 90, height: 90, borderRadius: 10, border: '2px dashed #E5E7EB', background: imgSrc ? 'transparent' : '#FAFAFA', position: 'relative' as const, overflow: 'hidden', cursor: 'pointer', flexShrink: 0 }}
-                        onClick={() => { setSelectedImageSlot(slot.key); setImageEditorOpen(true); setImageEditorTab('product'); }}
-                        onMouseEnter={() => setHoveredSlot(slot.key)}
-                        onMouseLeave={() => setHoveredSlot(null)}
-                      >
-                        {imgSrc ? (
-                          <img src={imgSrc} alt={slot.label} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} />
-                        ) : (
-                          <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                            <Image size={16} color="#9CA3AF" />
-                            <span style={{ fontSize: 9, color: '#9CA3AF', textAlign: 'center' as const, padding: '0 4px', lineHeight: 1.2 }}>{slot.label}</span>
+                      <div key={p.id} onClick={() => {
+                        if (isSelected) setSelectedProducts(prev => prev.filter(sp => sp.id !== p.id));
+                        else if (selectedProducts.length < 10) setSelectedProducts(prev => [...prev, p]);
+                      }} style={{
+                        background: cardBg, border: isSelected ? `2px solid ${accent}` : cardBorder, borderRadius: 14, padding: 12,
+                        cursor: 'pointer' as const, transition: 'all 150ms', position: 'relative' as const,
+                      }}>
+                        {isSelected && (
+                          <div style={{ position: 'absolute' as const, top: 8, right: 8, width: 24, height: 24, borderRadius: '50%', background: accent, display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const }}>
+                            <Check size={14} color="#fff" />
                           </div>
                         )}
-                        <div
-                          style={{ position: 'absolute' as const, inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: hoveredSlot === slot.key ? 1 : 0, transition: 'opacity 150ms' }}
-                        >
-                          <span style={{ color: 'white', fontSize: 11, fontWeight: 700 }}>Replace</span>
+                        <div style={{ width: 80, height: 80, borderRadius: 8, overflow: 'hidden' as const, background: 'rgba(255,255,255,0.05)', marginBottom: 8 }}>
+                          {p.image_url ? (
+                            <img src={p.image_url} alt={p.product_title} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                          ) : (
+                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const, fontSize: 24, opacity: 0.3 }}>📦</div>
+                          )}
+                        </div>
+                        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, overflow: 'hidden' as const, textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, lineHeight: 1.3 }}>{p.product_title}</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: accent, marginBottom: 4 }}>${(p.price_aud || 0).toFixed(2)}</div>
+                        <div style={{ display: 'flex', gap: 6, alignItems: 'center' as const }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: scoreColor, background: `${scoreColor}15`, padding: '2px 6px', borderRadius: 4 }}>{p.winning_score || 0}</span>
+                          {p.trend === 'rising' && <span style={{ fontSize: 11 }}>🔥 Trending</span>}
                         </div>
                       </div>
                     );
                   })}
-                </div>
-              </div>
 
-              <div style={{ marginTop: 28, display: "flex", justifyContent: "flex-end", gap: 10 }}>
-                <button
-                  onClick={handleSaveDraft}
-                  style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, padding: '8px 14px', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: '#374151' }}
-                >
-                  <Save size={13} color="#6B7280" /> Save Draft
-                </button>
-                <button
-                  onClick={() => { if (storeName.trim()) setCurrentStep(3); }}
-                  disabled={!storeName.trim()}
-                  style={{ height: 44, padding: "0 32px", background: storeName.trim() ? "#6366F1" : "#E5E7EB", color: storeName.trim() ? "white" : "#9CA3AF", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: storeName.trim() ? "pointer" : "not-allowed", transition: "all 200ms" }}
-                >
-                  Continue to Launch {"\u2192"}
-                </button>
-              </div>
-            </div>
-
-            {/* Right: Live preview */}
-            <div style={{ position: "sticky" as const, top: 80 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#9CA3AF", letterSpacing: "0.08em", textTransform: "uppercase" as const, marginBottom: 10 }}>Live Preview</div>
-              <div style={{ borderRadius: 14, overflow: "hidden", border: "1px solid #E5E7EB", boxShadow: "0 8px 32px rgba(0,0,0,0.10)" }}>
-                {/* Browser chrome */}
-                <div style={{ background: "#F5F5F5", padding: "8px 12px", display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ display: "flex", gap: 5 }}>
-                    {["#EF4444", "#F59E0B", "#22C55E"].map((c, i) => <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: c }} />)}
+                  {/* Add manually card */}
+                  <div onClick={() => setCustomProductModal(true)} style={{
+                    background: 'transparent', border: '2px dashed rgba(255,255,255,0.12)', borderRadius: 14, padding: 12,
+                    cursor: 'pointer' as const, display: 'flex', flexDirection: 'column' as const, alignItems: 'center' as const, justifyContent: 'center' as const, minHeight: 180,
+                  }}>
+                    <Plus size={24} color={textMuted} style={{ marginBottom: 8 }} />
+                    <div style={{ fontSize: 13, color: textMuted }}>Add Custom Product</div>
                   </div>
-                  <div style={{ flex: 1, background: "white", borderRadius: 4, padding: "3px 8px", fontSize: 10, color: "#9CA3AF" }}>
-                    {storeName ? storeName.toLowerCase().replace(/\s/g, "") : "yourstore"}.myshopify.com
-                  </div>
-                  <button onClick={generatePreview} style={{ fontSize: 10, color: "#6366F1", background: "none", border: "none", cursor: "pointer", fontWeight: 700, padding: "2px 6px" }}>
-                    {"\u21BB"} Refresh
-                  </button>
                 </div>
-                {previewLoading ? (
-                  <div style={{ height: 400, display: "flex", alignItems: "center", justifyContent: "center", background: "#FAFAFA", fontSize: 13, color: "#9CA3AF" }}>
-                    {"\u2728"} Generating preview{"\u2026"}
-                  </div>
-                ) : previewHtml ? (
-                  <iframe
-                    srcDoc={previewHtml}
-                    style={{ width: "100%", height: 400, border: "none", display: "block" }}
-                    title="Store Preview"
-                    sandbox="allow-scripts"
-                  />
-                ) : (
-                  <div style={{ height: 400, display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", background: "#FAFAFA", gap: 12 }}>
-                    <div style={{ fontSize: 32 }}>{"\u{1F3EA}"}</div>
-                    <div style={{ fontSize: 13, color: "#9CA3AF" }}>Click Refresh to preview your store</div>
-                  </div>
-                )}
-              </div>
-              {/* Sub-pages notice */}
-              <div style={{ marginTop: 10, display: "flex", gap: 8, justifyContent: "center" }}>
-                {["\u{1F3E0} Home", "\u{1F6CD}\uFE0F Products", "\u2139\uFE0F About", "\u2709\uFE0F Contact"].map(p => (
-                  <span key={p} style={{ fontSize: 10, color: "#6366F1", background: "#EEF2FF", padding: "2px 8px", borderRadius: 10, fontWeight: 600 }}>{p}</span>
-                ))}
-              </div>
-              <div style={{ marginTop: 6, fontSize: 11, color: "#9CA3AF", textAlign: "center" as const }}>
-                4 pages included {"\u00B7"} Scroll inside preview to explore
-              </div>
-              {/* Open Full Preview button */}
-              <button onClick={() => {
-                if (!previewHtml) return;
-                const win = window.open('about:blank', '_blank');
-                if (!win) return;
-                win.document.open(); win.document.write(previewHtml); win.document.close();
-              }} style={{ width: "100%", height: 38, background: "none", border: "1px solid #6366F1", color: "#6366F1", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", marginTop: 10 }}>
-                ↗ Open Full Preview
-              </button>
-            </div>
-          </div>
-        )}
+              )}
 
-        {/* ── Step 4: Connect & Launch ── */}
-        {currentStep === 3 && (
-          <div className="sb-step4-inner" style={{ maxWidth: 600, margin: "0 auto" }}>
-            <div style={{ marginBottom: 32, textAlign: "center" }}>
-              <h2 style={{ fontFamily: brico, fontWeight: 800, fontSize: 28, color: "#0A0A0A", marginBottom: 8 }}>
-                {buildState === "done" ? "Your store is ready! \u{1F389}" : "Connect & Launch"}
-              </h2>
-              <p style={{ fontSize: 14, color: "#6B7280" }}>
-                {buildState === "done"
-                  ? "Majorka has built your complete Shopify store. Connect it or download the files."
-                  : "Final step — choose how to launch your store."}
-              </p>
-            </div>
+              <div style={{ fontSize: 13, color: textMuted, marginBottom: 16 }}>{selectedProducts.length} of 10 products selected</div>
 
-            {buildState === "idle" && (
-              <>
-                {/* Review Summary Card */}
-                <div style={{ background: '#F8F9FF', border: '1px solid #E0E7FF', borderRadius: 14, padding: 24, marginBottom: 20 }}>
-                  <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 18, color: '#0A0A0A', marginBottom: 16 }}>Review Your Store</div>
-                  {[
-                    { label: `Template selected: ${TEMPLATES.find(t => t.id === selectedTemplate)?.name ?? 'None'}`, ok: !!selectedTemplate },
-                    { label: `Niche / category: ${NICHES.find(n => n.id === selectedNiche)?.label ?? customNiche ?? 'Not set'}`, ok: !!selectedNiche },
-                    { label: importedProduct ? 'Product linked' : 'Product linked', ok: !!(importedProduct && importedProduct.title && importedProduct.title.length > 0 && !importedProduct.title.startsWith('http')), hint: !importedProduct ? 'Optional — you can add products later' : undefined, warn: !importedProduct },
-                    { label: 'Images customised', ok: Object.keys(uploadedImages).length > 0, hint: Object.keys(uploadedImages).length === 0 ? 'Using template defaults' : undefined, grey: Object.keys(uploadedImages).length === 0 },
-                  ].map((item, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, fontSize: 13 }}>
-                      <div style={{
-                        width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                        background: item.ok ? '#DCFCE7' : item.warn ? '#FEF9C3' : '#F3F4F6',
-                      }}>
-                        <Check size={12} color={item.ok ? '#16A34A' : item.warn ? '#CA8A04' : '#9CA3AF'} />
-                      </div>
-                      <div>
-                        <span style={{ color: '#0A0A0A', fontWeight: 500 }}>{item.label}</span>
-                        {item.hint && <span style={{ color: item.warn ? '#CA8A04' : '#9CA3AF', marginLeft: 6 }}>{item.hint}</span>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Subscription gate or export buttons */}
-                {!canExport ? (
-                  <>
-                    <div style={{ background: 'linear-gradient(135deg, #EEF2FF, #F5F3FF)', border: '1px solid #C7D2FE', borderRadius: 12, padding: 20, display: 'flex', alignItems: 'flex-start', gap: 16, marginBottom: 20 }}>
-                      <Lock size={20} color="#6366F1" style={{ marginTop: 2, flexShrink: 0 }} />
-                      <div>
-                        <div style={{ fontWeight: 700, fontSize: 14, color: '#1E1B4B' }}>Export to Shopify is available on Scale plan & above</div>
-                        <div style={{ fontSize: 13, color: '#6B7280', marginTop: 4 }}>You are one step away — upgrade to publish your store directly.</div>
-                        <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
-                          <button
-                            onClick={() => navigate('/pricing')}
-                            style={{ height: 38, padding: '0 20px', background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
-                          >
-                            Upgrade Now
-                          </button>
-                          <button
-                            onClick={() => { handleDownloadZip(); }}
-                            style={{ height: 38, padding: '0 20px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
-                          >
-                            Download HTML instead
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <button onClick={handleSaveDraft} style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, padding: '8px 14px', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: '#374151' }}>
-                        <Save size={13} color="#6B7280" /> Save Draft
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {/* Launch options */}
-                    <div className="sb-launch-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
-                      <div style={{ padding: "20px", border: "2px solid #6366F1", borderRadius: 12, textAlign: "center" as const, background: "#EEF2FF" }}>
-                        <div style={{ fontSize: 28, marginBottom: 8 }}>{"\u{1F3EA}"}</div>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: "#0A0A0A", marginBottom: 4 }}>Connect Shopify</div>
-                        <div style={{ fontSize: 12, color: "#6B7280" }}>Enter your Shopify domain to begin connection</div>
-                      </div>
-                      <div style={{ padding: "20px", border: "2px solid #E5E7EB", borderRadius: 12, textAlign: "center" as const, background: "white" }}>
-                        <div style={{ fontSize: 28, marginBottom: 8 }}>{"\u{1F4E6}"}</div>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: "#0A0A0A", marginBottom: 4 }}>Download Files</div>
-                        <div style={{ fontSize: 12, color: "#6B7280" }}>ZIP export — upload to any Shopify store</div>
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: 10 }}>
-                      <button onClick={handleSaveDraft} style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, padding: '8px 14px', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', color: '#374151' }}>
-                        <Save size={13} color="#6B7280" /> Save Draft
-                      </button>
-                      <button
-                        onClick={startBuild}
-                        style={{ flex: 1, height: 52, background: "#6366F1", color: "white", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: "pointer", transition: "all 150ms" }}
-                        onMouseEnter={e => (e.currentTarget.style.background = "#4F46E5")}
-                        onMouseLeave={e => (e.currentTarget.style.background = "#6366F1")}
-                      >
-                        Build My Store {"\u2192"}
-                      </button>
-                    </div>
-                  </>
-                )}
-              </>
-            )}
-
-            {buildState === "building" && (
-              <div style={{ background: "white", border: "1px solid #F0F0F0", borderRadius: 16, padding: 32 }}>
-                <div style={{ marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: "#374151" }}>Building your store...</div>
-                  <div style={{ fontSize: 13, color: "#6366F1" }}>{Math.round((buildStep / (BUILD_STEPS.length - 1)) * 100)}%</div>
-                </div>
-                <div style={{ height: 6, background: "#F3F4F6", borderRadius: 999, marginBottom: 24 }}>
-                  <div style={{ height: "100%", width: `${(buildStep / (BUILD_STEPS.length - 1)) * 100}%`, background: "linear-gradient(90deg, #6366F1, #8B5CF6)", borderRadius: 999, transition: "width 0.8s ease" }} />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {BUILD_STEPS.map((step, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", borderRadius: 8, background: i === buildStep ? "rgba(99,102,241,0.06)" : "transparent", border: i === buildStep ? "1px solid rgba(99,102,241,0.15)" : "1px solid transparent" }}>
-                      <span style={{ fontSize: 16, minWidth: 20 }}>
-                        {i < buildStep ? "\u2705" : i === buildStep ? "\u27F3" : "\u25CB"}
-                      </span>
-                      <span style={{ fontSize: 13, color: i < buildStep ? "#374151" : i === buildStep ? "#6366F1" : "#9CA3AF", fontWeight: i === buildStep ? 500 : 400 }}>{step}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {buildState === "done" && (
-              <div style={{ background: "white", border: "1px solid #F0F0F0", borderRadius: 16, padding: 32, textAlign: "center" }}>
-                <div style={{ fontSize: 64, marginBottom: 16 }}>{"\u{1F389}"}</div>
-                <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 24, color: "#0A0A0A", marginBottom: 8 }}>{storeName} is live!</div>
-                <div style={{ fontSize: 14, color: "#6B7280", marginBottom: 24 }}>Your Majorka-built store is ready. Connect to Shopify or download your store files.</div>
-
-                {/* Export area — gated by subscription */}
-                <div style={{ position: 'relative' as const }}>
-                  {!canExport && (
-                    <div style={{ background: 'rgba(248,249,255,0.96)', borderRadius: 12, padding: 24, textAlign: 'center', border: '1px solid #E0E7FF', position: 'absolute' as const, inset: 0, zIndex: 10, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center' }}>
-                      <Lock size={24} color="#6366F1" style={{ marginBottom: 12 }} />
-                      <div style={{ fontWeight: 700, fontSize: 16, color: '#0A0A0A', marginBottom: 4 }}>Export to Shopify requires a paid plan</div>
-                      <div style={{ color: '#6B7280', fontSize: 14, marginTop: 4 }}>From $99/mo AUD</div>
-                      <button
-                        onClick={() => navigate('/pricing')}
-                        style={{ marginTop: 16, background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', color: 'white', border: 'none', borderRadius: 10, padding: '12px 28px', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}
-                      >
-                        Upgrade Now
-                      </button>
-                      <button
-                        onClick={() => window.location.reload()}
-                        style={{ marginTop: 10, background: 'none', border: 'none', color: '#9CA3AF', fontSize: 12, cursor: 'pointer' }}
-                      >
-                        Already subscribed? Refresh the page
-                      </button>
-                    </div>
-                  )}
-
-                  <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-                    <button
-                      onClick={() => setShopifyModal(true)}
-                      style={{ height: 44, padding: "0 24px", background: "#6366F1", color: "white", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
-                    >
-                      Connect Shopify {"\u2192"}
-                    </button>
-                    <button
-                      onClick={handleDownloadZip}
-                      style={{ height: 44, padding: "0 24px", background: "white", color: "#374151", border: "1px solid #E5E7EB", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer" }}
-                    >
-                      Download Store HTML
-                    </button>
-                  </div>
-                  <button
-                    onClick={async () => {
-                      // Use cached preview HTML if available, else fetch fresh
-                      let html = previewHtml;
-                      const tpl = TEMPLATES.find(t => t.id === selectedTemplate);
-                      if (!html && tpl) {
-                        setDownloadToast('\u23F3 Fetching HTML\u2026');
-                        try {
-                          const res = await fetch('/api/store-builder/preview', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ template: selectedTemplate, storeName: storeName || tpl.name + ' Store', storeTagline: storeTagline || 'Trending products, fast delivery', niche: NICHES.find(n => n.id === selectedNiche)?.label || customNiche || 'General', primaryColor: tpl.accentColor }),
-                          });
-                          html = await res.text();
-                        } catch { setDownloadToast('\u274C Could not fetch HTML'); setTimeout(() => setDownloadToast(null), 3000); return; }
-                      }
-                      if (html) {
-                        await navigator.clipboard.writeText(html);
-                        setDownloadToast('\uD83D\uDCCB Copied to clipboard! (' + Math.round(html.length / 1024) + 'KB)');
-                        setTimeout(() => setDownloadToast(null), 3500);
-                      }
-                    }}
-                    style={{ marginTop: 16, background: 'none', border: 'none', color: '#9CA3AF', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
-                  >
-                    or copy store HTML to clipboard
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Download / Clipboard toast */}
-      {downloadToast && (
-        <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', background: '#0A0A0A', color: 'white', padding: '12px 24px', borderRadius: 10, fontSize: 13, fontWeight: 500, zIndex: 9999, boxShadow: '0 4px 20px rgba(0,0,0,0.3)', whiteSpace: 'nowrap' as const }}>
-          {downloadToast}
-        </div>
-      )}
-
-      {/* Product Source Modal */}
-      {productSourceModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 24 }}>
-          <div style={{ background: 'white', borderRadius: 20, padding: 32, maxWidth: 560, width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', position: 'relative' }}>
-            <h3 style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#0A0A0A', marginBottom: 8 }}>Where are your products from?</h3>
-            <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 20 }}>Import product data to pre-fill your store, or skip to customise manually.</p>
-
-            {/* Two tiles */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
-              <div
-                onClick={() => setProductSourceChoice('url')}
-                style={{
-                  background: productSourceChoice === 'url' ? '#EEF2FF' : '#F8F9FF',
-                  border: productSourceChoice === 'url' ? '2px solid #6366F1' : '2px solid transparent',
-                  borderRadius: 12, padding: 20, cursor: 'pointer', transition: 'all 150ms',
-                }}
-              >
-                <Link size={22} color="#6366F1" style={{ marginBottom: 10 }} />
-                <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A', marginBottom: 4 }}>Import from URL</div>
-                <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.5 }}>Paste an AliExpress or TikTok Shop link — AI extracts title, images & pricing</div>
-              </div>
-              <div
-                onClick={() => {
-                  setProductSourceChoice('saved');
-                  // Fetch saved products
-                  (async () => {
-                    try {
-                      const s = await (await import('@/lib/supabase')).supabase.auth.getSession();
-                      const token = s.data.session?.access_token || '';
-                      const res = await fetch('/api/products?limit=20&sortBy=winning_score', {
-                        headers: { Authorization: `Bearer ${token}` },
-                      });
-                      if (res.ok) {
-                        const data = await res.json();
-                        setSavedProducts(Array.isArray(data) ? data : data.data || []);
-                      }
-                    } catch { /* silent */ }
-                  })();
-                }}
-                style={{
-                  background: productSourceChoice === 'saved' ? '#EEF2FF' : '#F8F9FF',
-                  border: productSourceChoice === 'saved' ? '2px solid #6366F1' : '2px solid transparent',
-                  borderRadius: 12, padding: 20, cursor: 'pointer', transition: 'all 150ms',
-                }}
-              >
-                <Bookmark size={22} color="#6366F1" style={{ marginBottom: 10 }} />
-                <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A', marginBottom: 4 }}>From My Products</div>
-                <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.5 }}>Pick from products you have already found in Majorka</div>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button onClick={() => setAiStep('setup')} style={btnSecondary}>← Back</button>
+                <button onClick={generateCopy} disabled={selectedProducts.length === 0} style={{ ...btnPrimary, flex: 1, opacity: selectedProducts.length === 0 ? 0.4 : 1 }}>Generate Store Copy →</button>
               </div>
             </div>
+          )}
 
-            {/* URL input when Tile A selected */}
-            {productSourceChoice === 'url' && (
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <input
-                    type="text"
-                    placeholder="https://aliexpress.com/item/..."
-                    value={importedProductUrl}
-                    onChange={e => setImportedProductUrl(e.target.value)}
-                    style={{ flex: 1, height: 40, padding: '0 12px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, color: '#0A0A0A', outline: 'none', boxSizing: 'border-box' as const }}
-                  />
-                  <button
-                    onClick={async () => {
-                      if (!importedProductUrl.trim()) return;
-                      setExtracting(true);
-                      try {
-                        const res = await fetch(`/api/products/extract-url?url=${encodeURIComponent(importedProductUrl.trim())}`);
-                        const data = await res.json();
-                        if (res.ok && data.title) {
-                          setImportedProduct({ title: data.title, description: data.description, images: data.images || [], price: data.price_aud || data.price });
-                          setProductSourceModal(false);
-                          setCurrentStep(2);
-                        } else if (res.ok && data.product_id) {
-                          setImportedProduct({ title: '', description: '', images: [], price: undefined, source_url: importedProductUrl.trim(), product_id: data.product_id });
-                          setExtracting(false);
-                          setProductSourceModal(false);
-                          setCurrentStep(2);
-                        } else {
-                          alert('Could not extract product details from that URL. Please check it\'s a valid AliExpress product URL, or skip and add products later.');
-                        }
-                      } catch {
-                        alert('Connection error. Please try again or skip to add products later.');
-                      }
-                      setExtracting(false);
-                    }}
-                    disabled={extracting}
-                    style={{ height: 40, padding: '0 16px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: extracting ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' as const }}
-                  >
-                    {extracting ? 'Extracting...' : 'Extract'}
-                  </button>
+          {/* ── STEP 3: AI GENERATION ── */}
+          {aiStep === 'generating' && (
+            <div style={{ textAlign: 'center' as const, padding: '60px 0' }}>
+              <Loader2 size={32} color={accent} style={{ animation: 'spin 1s linear infinite', marginBottom: 24 }} />
+              <h2 style={{ fontFamily: brico, fontSize: 24, fontWeight: 700, marginBottom: 12 }}>Building your store...</h2>
+              <div style={{ maxWidth: 400, margin: '0 auto', marginBottom: 24 }}>
+                <div style={{ height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 999, overflow: 'hidden' as const }}>
+                  <div style={{ height: '100%', background: `linear-gradient(90deg, ${accent}, ${violet})`, borderRadius: 999, animation: 'progress-fill 6s ease-out forwards' }} />
                 </div>
-                {importedProduct && <div style={{ marginTop: 8, fontSize: 12, color: '#22C55E', fontWeight: 500 }}>Product imported: {importedProduct.title?.slice(0, 50)}</div>}
               </div>
-            )}
-
-            {/* Saved products list when Tile B selected */}
-            {productSourceChoice === 'saved' && (
-              <div style={{ maxHeight: 200, overflowY: 'auto' as const, marginBottom: 16, border: '1px solid #E5E7EB', borderRadius: 8 }}>
-                {savedProducts.length === 0 ? (
-                  <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: '#9CA3AF' }}>No saved products found</div>
-                ) : (
-                  savedProducts.map(p => (
-                    <div
-                      key={p.id}
-                      onClick={() => {
-                        setImportedProduct({ title: p.title, images: p.image_url ? [p.image_url] : undefined, price: p.price_aud });
-                        if (p.title) setStoreName(p.title.slice(0, 40));
-                        setProductSourceModal(false);
-                        setCurrentStep(2);
-                      }}
-                      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', cursor: 'pointer', borderBottom: '1px solid #F3F4F6', transition: 'background 100ms' }}
-                      onMouseEnter={e => (e.currentTarget.style.background = '#F9FAFB')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-                    >
-                      {p.image_url ? (
-                        <img src={p.image_url} alt="" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover' }} />
-                      ) : (
-                        <div style={{ width: 40, height: 40, borderRadius: 6, background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: '#9CA3AF' }}>
-                          <Image size={16} />
-                        </div>
-                      )}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 500, color: '#0A0A0A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.title}</div>
-                        {p.price_aud && <div style={{ fontSize: 11, color: '#6B7280' }}>${p.price_aud} AUD</div>}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-
-            {/* Skip link */}
-            <div style={{ textAlign: 'center' }}>
-              <button
-                onClick={() => {
-                  setProductSourceModal(false);
-                  setCurrentStep(2);
-                }}
-                style={{ background: 'none', border: 'none', color: '#9CA3AF', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
-              >
-                Skip — I'll add products later
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Image Editor Modal */}
-      {imageEditorOpen && selectedImageSlot && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 24 }}>
-          <div style={{ background: 'white', borderRadius: 16, padding: 28, maxWidth: 480, width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h4 style={{ fontFamily: brico, fontWeight: 800, fontSize: 18, color: '#0A0A0A' }}>
-                Replace: {selectedImageSlot === 'hero' ? 'Hero Image' : selectedImageSlot === 'product1' ? 'Product Image 1' : selectedImageSlot === 'product2' ? 'Product Image 2' : 'Banner'}
-              </h4>
-              <button onClick={() => { setImageEditorOpen(false); setSelectedImageSlot(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
-                <X size={18} color="#6B7280" />
-              </button>
-            </div>
-
-            {/* Tabs */}
-            <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: '#F3F4F6', borderRadius: 8, padding: 3 }}>
-              {(['product', 'upload', 'ai'] as const).map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setImageEditorTab(tab)}
-                  style={{
-                    flex: 1, padding: '8px 12px', borderRadius: 6, border: 'none', cursor: 'pointer',
-                    fontSize: 12, fontWeight: 600,
-                    background: imageEditorTab === tab ? 'white' : 'transparent',
-                    color: imageEditorTab === tab ? '#0A0A0A' : '#6B7280',
-                    boxShadow: imageEditorTab === tab ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                  }}
-                >
-                  {tab === 'product' ? 'From Product' : tab === 'upload' ? 'Upload' : 'AI Generate'}
-                </button>
+              {['Analysing your niche...', 'Writing your store copy...', 'Optimising product descriptions...', 'Almost ready...'].map((msg, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center' as const, gap: 10, justifyContent: 'center' as const, marginBottom: 8 }}>
+                  <span style={{ fontSize: 14 }}>{i < genStep ? '✅' : i === genStep ? '⏳' : '○'}</span>
+                  <span style={{ fontSize: 14, color: i <= genStep ? textPrimary : textMuted }}>{msg}</span>
+                </div>
               ))}
             </div>
+          )}
 
-            {/* Tab content */}
-            {imageEditorTab === 'product' && (
-              <div>
-                {importedProduct?.images && importedProduct.images.length > 0 ? (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-                    {importedProduct.images.map((img, i) => (
-                      <img
-                        key={i}
-                        src={img}
-                        alt={`Product ${i + 1}`}
-                        onClick={() => {
-                          setUploadedImages(prev => ({ ...prev, [selectedImageSlot!]: img }));
-                          setImageEditorOpen(false);
-                          setSelectedImageSlot(null);
-                          setImageToast('Image saved — will be used in export');
-                          setTimeout(() => setImageToast(null), 3000);
-                        }}
-                        style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 8, cursor: 'pointer', border: '2px solid transparent', transition: 'border 150ms' }}
-                        onMouseEnter={e => (e.currentTarget.style.border = '2px solid #6366F1')}
-                        onMouseLeave={e => (e.currentTarget.style.border = '2px solid transparent')}
-                      />
-                    ))}
+          {/* ── STEP 4: TEMPLATE SELECTION ── */}
+          {aiStep === 'template' && (
+            <div>
+              <h2 style={{ fontFamily: brico, fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Choose a template</h2>
+              <p style={{ color: textSecondary, marginBottom: 24 }}>Each template is optimised for conversions. Pick one that matches your brand.</p>
+
+              {/* Competitive callout */}
+              {generatedCopy && (
+                <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 10, padding: '12px 16px', marginBottom: 20 }}>
+                  <p style={{ fontSize: 13, color: accent }}>✅ Store copy generated! Built in under 7 minutes. Powered by the same product data that found your winners.</p>
+                </div>
+              )}
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginBottom: 20 }}>
+                {TEMPLATES.map(tpl => (
+                  <div key={tpl.id} onClick={() => setSelectedTemplate(tpl.id)} style={{
+                    background: cardBg, border: selectedTemplate === tpl.id ? `2px solid ${accent}` : cardBorder, borderRadius: 16, overflow: 'hidden' as const,
+                    cursor: 'pointer' as const, transition: 'all 150ms',
+                  }}>
+                    <TemplatePreview preview={tpl.preview} />
+                    <div style={{ padding: 14 }}>
+                      <div style={{ fontFamily: brico, fontSize: 15, fontWeight: 700, marginBottom: 4 }}>{tpl.name}</div>
+                      <div style={{ fontSize: 12, color: textSecondary, marginBottom: 8 }}>{tpl.style}</div>
+                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' as const }}>
+                        {tpl.bestFor.map(tag => (
+                          <span key={tag} style={{ fontSize: 10, fontWeight: 600, color: accent, background: 'rgba(99,102,241,0.1)', padding: '2px 6px', borderRadius: 4 }}>{tag}</span>
+                        ))}
+                      </div>
+                      {selectedTemplate === tpl.id && (
+                        <div style={{ marginTop: 8, display: 'flex', alignItems: 'center' as const, gap: 6, color: accent, fontSize: 12, fontWeight: 700 }}>
+                          <Check size={14} /> Selected
+                        </div>
+                      )}
+                    </div>
                   </div>
-                ) : (
-                  <div style={{ padding: 32, textAlign: 'center', color: '#9CA3AF', fontSize: 13 }}>No product imported yet</div>
+                ))}
+              </div>
+
+              {/* Competitive callout */}
+              <div style={{ background: 'rgba(99,102,241,0.04)', border: '1px solid rgba(99,102,241,0.1)', borderRadius: 10, padding: '12px 16px', marginBottom: 24 }}>
+                <p style={{ fontSize: 12, color: textMuted }}>Every template includes urgency triggers, trust badges, and mobile-first layouts that PageFly charges $99/mo for. Included on every Majorka store.</p>
+              </div>
+
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button onClick={() => setAiStep('products')} style={btnSecondary}>← Back</button>
+                <button onClick={() => setAiStep('preview')} style={{ ...btnPrimary, flex: 1 }}>Preview Store →</button>
+              </div>
+            </div>
+          )}
+
+          {/* ── STEP 5: PREVIEW & EDIT ── */}
+          {aiStep === 'preview' && generatedCopy && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' as const, alignItems: 'center' as const, marginBottom: 20 }}>
+                <h2 style={{ fontFamily: brico, fontSize: 28, fontWeight: 700 }}>Preview your store</h2>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={() => setIsMobilePreview(false)} style={{ padding: '6px 10px', borderRadius: 6, border: !isMobilePreview ? `1px solid ${accent}` : '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: !isMobilePreview ? accent : textMuted, cursor: 'pointer' as const }}><Monitor size={16} /></button>
+                  <button onClick={() => setIsMobilePreview(true)} style={{ padding: '6px 10px', borderRadius: 6, border: isMobilePreview ? `1px solid ${accent}` : '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: isMobilePreview ? accent : textMuted, cursor: 'pointer' as const }}><Smartphone size={16} /></button>
+                  <button onClick={generateCopy} style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: textSecondary, cursor: 'pointer' as const, fontSize: 12, display: 'flex', alignItems: 'center' as const, gap: 4 }}><RefreshCw size={12} /> Regenerate</button>
+                </div>
+              </div>
+
+              {/* Colour palette switcher */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center' as const }}>
+                <span style={{ fontSize: 12, color: textMuted }}>Colour:</span>
+                {COLOR_SWATCHES.map(s => (
+                  <div key={s.color} onClick={() => setPrimaryColor(s.color)} style={{
+                    width: 24, height: 24, borderRadius: '50%', background: s.color, cursor: 'pointer' as const,
+                    border: primaryColor === s.color ? '2px solid #fff' : '2px solid transparent',
+                  }} />
+                ))}
+              </div>
+
+              {/* Preview */}
+              <div style={{ display: 'flex', justifyContent: 'center' as const, marginBottom: 24 }}>
+                <StorePreview
+                  copy={generatedCopy}
+                  template={TEMPLATES.find(t => t.id === selectedTemplate) || TEMPLATES[1]}
+                  products={selectedProducts}
+                  storeName={storeName}
+                  primaryColor={primaryColor}
+                  isMobilePreview={isMobilePreview}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button onClick={() => setAiStep('template')} style={btnSecondary}>← Back</button>
+                <button onClick={() => setAiStep('publish')} style={{ ...btnPrimary, flex: 1 }}>Go Live →</button>
+              </div>
+            </div>
+          )}
+
+          {/* ── STEP 6: GO LIVE ── */}
+          {aiStep === 'publish' && !publishResult && (
+            <div>
+              <h2 style={{ fontFamily: brico, fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Go live</h2>
+              <p style={{ color: textSecondary, marginBottom: 24 }}>Choose your store URL and publish.</p>
+
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Subdomain</label>
+                <div style={{ display: 'flex', alignItems: 'center' as const, gap: 0 }}>
+                  <input
+                    value={subdomain}
+                    onChange={e => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                    placeholder="yourstore"
+                    style={{ ...inputStyle, borderTopRightRadius: 0, borderBottomRightRadius: 0, flex: 1 }}
+                  />
+                  <div style={{ background: 'rgba(255,255,255,0.08)', padding: '12px 14px', borderRadius: '0 8px 8px 0', border: '1px solid rgba(255,255,255,0.12)', borderLeft: 'none', fontSize: 14, color: textMuted }}>.majorka.io</div>
+                </div>
+                {subdomain.length >= 3 && (
+                  <div style={{ marginTop: 6, fontSize: 12, color: subdomainAvailable === true ? '#10B981' : subdomainAvailable === false ? '#EF4444' : textMuted }}>
+                    {checkingSubdomain ? 'Checking...' : subdomainAvailable === true ? '✓ Available' : subdomainAvailable === false ? '✗ Already taken' : ''}
+                  </div>
                 )}
               </div>
-            )}
 
-            {imageEditorTab === 'upload' && (
-              <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  onChange={e => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                      const dataUrl = reader.result as string;
-                      setUploadedImages(prev => ({ ...prev, [selectedImageSlot!]: dataUrl }));
-                      setImageEditorOpen(false);
-                      setSelectedImageSlot(null);
-                      setImageToast('Image saved — will be used in export');
-                      setTimeout(() => setImageToast(null), 3000);
-                    };
-                    reader.readAsDataURL(file);
-                  }}
-                />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  style={{ padding: '12px 24px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 8 }}
-                >
-                  <Upload size={16} /> Choose Image
-                </button>
-                <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 10 }}>JPG, PNG, or WebP — max 5MB</p>
+              <div style={{ marginBottom: 24 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Custom domain (optional)</label>
+                <p style={{ fontSize: 12, color: textMuted, marginBottom: 8 }}>Point your CNAME to: stores.majorka.io</p>
+                <input value={customDomain} onChange={e => setCustomDomain(e.target.value)} placeholder="shop.yourdomain.com" style={inputStyle} />
               </div>
-            )}
 
-            {imageEditorTab === 'ai' && (
-              <div style={{ padding: 32, textAlign: 'center' }}>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button onClick={() => setAiStep('preview')} style={btnSecondary}>← Back</button>
                 <button
-                  disabled
-                  style={{ padding: '12px 24px', background: '#E5E7EB', color: '#9CA3AF', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'not-allowed' }}
+                  onClick={publishStore}
+                  disabled={!subdomainAvailable || publishing}
+                  style={{ ...btnPrimary, flex: 1, opacity: !subdomainAvailable ? 0.4 : 1, display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const, gap: 8 }}
                 >
-                  AI Generate
+                  {publishing ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Publishing...</> : 'Publish Store 🚀'}
                 </button>
-                <p style={{ fontSize: 12, color: '#9CA3AF', marginTop: 10 }}>Coming soon</p>
               </div>
-            )}
+            </div>
+          )}
+
+          {/* ── PUBLISH SUCCESS ── */}
+          {aiStep === 'publish' && publishResult && (
+            <div style={{ textAlign: 'center' as const, padding: '40px 0' }}>
+              {/* Confetti */}
+              <div style={{ position: 'fixed' as const, inset: 0, pointerEvents: 'none' as const, zIndex: 100 }}>
+                {Array.from({ length: 30 }).map((_, i) => (
+                  <div key={i} style={{
+                    position: 'absolute' as const,
+                    left: `${(i * 37) % 100}%`,
+                    top: '-10px',
+                    width: 8, height: 8,
+                    borderRadius: i % 2 === 0 ? '50%' : '0',
+                    background: [accent, violet, '#F43F5E', '#10B981', '#F59E0B', '#06B6D4'][i % 6],
+                    animation: `confetti-fall ${2 + (i % 3)}s ease-in ${(i * 0.1)}s forwards`,
+                  }} />
+                ))}
+              </div>
+
+              <div style={{ fontSize: 64, marginBottom: 16 }}>🚀</div>
+              <h2 style={{ fontFamily: brico, fontSize: 32, fontWeight: 700, marginBottom: 8 }}>Your store is live!</h2>
+              {publishResult.liveUrl && (
+                <a href={publishResult.liveUrl} target="_blank" rel="noopener noreferrer" style={{ color: accent, fontSize: 16, textDecoration: 'none', display: 'inline-flex', alignItems: 'center' as const, gap: 6, marginBottom: 24 }}>
+                  {publishResult.liveUrl} <ExternalLink size={16} />
+                </a>
+              )}
+
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'center' as const, marginTop: 24 }}>
+                <button onClick={() => {
+                  if (publishResult.liveUrl) navigator.clipboard.writeText(publishResult.liveUrl);
+                }} style={{ ...btnSecondary, display: 'flex', alignItems: 'center' as const, gap: 6 }}>
+                  <Copy size={14} /> Share your store
+                </button>
+                <button onClick={() => setLocation('/app/ads-manager')} style={btnPrimary}>Launch an Ad Campaign →</button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ══════ MODE B: SHOPIFY SYNC ══════ */}
+      {mode === 'shopify' && (
+        <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
+          <button onClick={() => setMode('select')} style={{ ...btnSecondary, padding: '8px 16px', fontSize: 13, marginBottom: 24 }}>← Back</button>
+
+          <div style={{ textAlign: 'center' as const, marginBottom: 32 }}>
+            <h2 style={{ fontFamily: brico, fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Already on Shopify? Good — keep it.</h2>
+            <p style={{ color: textSecondary, fontSize: 15 }}>Majorka gives you the product intelligence, profit tracking, and Meta ads that Shopify doesn't.</p>
           </div>
-        </div>
-      )}
 
-      {/* Image toast */}
-      {imageToast && (
-        <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', background: '#059669', color: 'white', padding: '10px 20px', borderRadius: 10, fontSize: 13, fontWeight: 500, zIndex: 9999, boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
-          {imageToast}
-        </div>
-      )}
+          {!shopifyStatus.connected ? (
+            <div style={{ background: cardBg, border: cardBorder, borderRadius: 20, padding: 32 }}>
+              <div style={{ fontSize: 36, marginBottom: 16, textAlign: 'center' as const }}>🛍️</div>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Enter your Shopify store URL</label>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                <input value={shopifyDomain} onChange={e => setShopifyDomain(e.target.value)} placeholder="yourstore.myshopify.com" style={{ ...inputStyle, flex: 1 }} />
+                <button onClick={connectShopify} style={btnPrimary}>Connect Store →</button>
+              </div>
+              <p style={{ fontSize: 12, color: textMuted }}>We request read access to products, orders, and inventory. We never modify your store without permission.</p>
+            </div>
+          ) : (
+            <div>
+              {/* Connected status */}
+              <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: 16, padding: 20, marginBottom: 24, display: 'flex', alignItems: 'center' as const, justifyContent: 'space-between' as const }}>
+                <div style={{ display: 'flex', alignItems: 'center' as const, gap: 10 }}>
+                  <Check size={18} color="#10B981" />
+                  <span style={{ fontWeight: 600 }}>Connected to {shopifyStatus.shop}</span>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={syncShopify} disabled={syncing} style={{ ...btnSecondary, padding: '8px 14px', fontSize: 12, display: 'flex', alignItems: 'center' as const, gap: 4 }}>
+                    {syncing ? <Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> : <RefreshCw size={12} />} Sync Now
+                  </button>
+                </div>
+              </div>
 
-      {/* Toast notification */}
-      {toastMsg && (
-        <div style={{ position: 'fixed' as const, top: 24, right: 24, background: '#059669', color: 'white', padding: '10px 20px', borderRadius: 10, fontSize: 13, fontWeight: 500, zIndex: 9999, boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
-          {toastMsg}
-        </div>
-      )}
-
-      {/* Shopify Connect Modal */}
-      {shopifyModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: 24 }}>
-          <div style={{ background: 'white', borderRadius: 20, padding: 40, maxWidth: 440, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-            <div style={{ fontSize: 28, marginBottom: 16, textAlign: 'center' }}>{"\u{1F3EA}"}</div>
-            <h3 style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#0A0A0A', textAlign: 'center', marginBottom: 8 }}>Connect your Shopify store</h3>
-            <p style={{ fontSize: 14, color: '#6B7280', textAlign: 'center', marginBottom: 24 }}>Enter your Shopify store URL to publish directly.</p>
-
-            {!import.meta.env.VITE_SHOPIFY_CLIENT_ID ? (
-              <div>
-                <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 12, padding: '16px 20px', marginBottom: 20 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#C2410C', marginBottom: 4 }}>Shopify Integration Coming Soon</div>
-                  <div style={{ fontSize: 13, color: '#7C2D12' }}>
-                    Direct Shopify publishing is being set up. For now, download your store files below and import them via Shopify Admin → Online Store → Themes.
+              {/* Synced products */}
+              {shopifyCatalog.length > 0 && (
+                <div style={{ marginBottom: 32 }}>
+                  <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Your Shopify Products</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+                    {shopifyCatalog.map(p => (
+                      <div key={p.id} style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: 12 }}>
+                        <div style={{ width: '100%', height: 100, borderRadius: 8, overflow: 'hidden' as const, background: 'rgba(255,255,255,0.05)', marginBottom: 8 }}>
+                          {p.image_url && <img src={p.image_url} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} />}
+                        </div>
+                        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, overflow: 'hidden' as const, textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.title}</div>
+                        <div style={{ fontSize: 12, color: accent, fontWeight: 700 }}>${p.price_aud?.toFixed(2)}</div>
+                        <span style={{ fontSize: 10, color: '#10B981', background: 'rgba(16,185,129,0.1)', padding: '2px 6px', borderRadius: 4, marginTop: 4, display: 'inline-block' }}>In Your Shopify</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <button
-                  onClick={() => setShopifyModal(false)}
-                  style={{ width: '100%', height: 44, background: '#F5F5F5', color: '#374151', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
-                >
-                  Got it
-                </button>
-              </div>
-            ) : (
-              <div>
-                <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>Shopify Store URL</label>
-                <input
-                  type="text"
-                  placeholder="yourstore.myshopify.com"
-                  value={shopDomain}
-                  onChange={e => { setShopDomain(e.target.value); setShopDomainError(''); }}
-                  style={{ width: '100%', height: 44, padding: '0 14px', border: shopDomainError ? '1px solid #EF4444' : '1px solid #E5E7EB', borderRadius: 8, fontSize: 14, color: '#0A0A0A', outline: 'none', boxSizing: 'border-box' as const, marginBottom: 6 }}
-                  onFocus={e => { if (!shopDomainError) e.currentTarget.style.borderColor = '#6366F1'; }}
-                  onBlur={e => { if (!shopDomainError) e.currentTarget.style.borderColor = '#E5E7EB'; }}
-                />
-                {shopDomainError && <div style={{ fontSize: 12, color: '#EF4444', marginBottom: 12 }}>{shopDomainError}</div>}
-                <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-                  <button
-                    onClick={() => { setShopifyModal(false); setShopDomain(''); setShopDomainError(''); }}
-                    style={{ flex: 1, height: 44, background: '#F5F5F5', color: '#374151', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => {
-                      const domain = shopDomain.trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
-                      if (!domain) { setShopDomainError('Please enter your store URL'); return; }
-                      if (!domain.includes('.')) { setShopDomainError('Please enter a valid Shopify store URL'); return; }
-                      const nonce = Math.random().toString(36).substring(2);
-                      const redirectUri = encodeURIComponent('https://majorka.io/api/shopify/callback');
-                      window.location.href = `https://${domain}/admin/oauth/authorize?client_id=${import.meta.env.VITE_SHOPIFY_CLIENT_ID}&scope=write_products,write_themes,read_orders&redirect_uri=${redirectUri}&state=${nonce}`;
-                    }}
-                    style={{ flex: 2, height: 44, background: '#6366F1', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
-                  >
-                    Connect Store {"\u2192"}
-                  </button>
+              )}
+
+              {/* Push winning products to Shopify */}
+              {topProducts.length > 0 && (
+                <div>
+                  <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Push winning products to your Shopify store</h3>
+                  <p style={{ color: textSecondary, fontSize: 13, marginBottom: 12 }}>Add Majorka's top products directly as drafts in your Shopify catalog.</p>
+                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+                    {topProducts.map(p => (
+                      <div key={p.id} style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center' as const, gap: 12 }}>
+                        <div style={{ width: 48, height: 48, borderRadius: 8, overflow: 'hidden' as const, background: 'rgba(255,255,255,0.05)', flexShrink: 0 }}>
+                          {p.image_url && <img src={p.image_url} alt={p.product_title} style={{ width: '100%', height: '100%', objectFit: 'cover' as const }} />}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, overflow: 'hidden' as const, textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{p.product_title}</div>
+                          <div style={{ fontSize: 12, color: accent }}>${(p.price_aud || 0).toFixed(2)}</div>
+                        </div>
+                        <button onClick={async () => {
+                          try {
+                            await fetch('/api/shopify/push-product', {
+                              method: 'POST', headers: authHeaders,
+                              body: JSON.stringify({ productId: p.id }),
+                            });
+                          } catch { /* silent */ }
+                        }} style={{ ...btnPrimary, padding: '8px 14px', fontSize: 12 }}>Add to Shopify</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ══════ MODE C: MARKETPLACE ══════ */}
+      {mode === 'marketplace' && (
+        <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
+          <button onClick={() => setMode('select')} style={{ ...btnSecondary, padding: '8px 16px', fontSize: 13, marginBottom: 24 }}>← Back</button>
+
+          {/* Competitive copy */}
+          <div style={{ textAlign: 'center' as const, marginBottom: 32 }}>
+            <h2 style={{ fontFamily: brico, fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Sell on Majorka</h2>
+            <p style={{ color: textSecondary, fontSize: 14, marginBottom: 8 }}>No Shopify subscription. No monthly fees. Just a 5% platform fee when you make a sale.</p>
+            <p style={{ color: textMuted, fontSize: 12 }}>Shopify Basic costs $29/mo + 2% per transaction. Majorka Marketplace costs $0/mo + 5% per sale.</p>
+          </div>
+
+          {/* Onboarding */}
+          {mpStep === 'onboarding' && (
+            <div style={{ background: cardBg, border: cardBorder, borderRadius: 20, padding: 32 }}>
+              <h3 style={{ fontFamily: brico, fontSize: 20, fontWeight: 700, marginBottom: 20 }}>Create your seller profile</h3>
+
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 16 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Display Name *</label>
+                  <input value={mpDisplayName} onChange={e => setMpDisplayName(e.target.value)} placeholder="Your brand name" style={inputStyle} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Username *</label>
+                  <input value={mpUsername} onChange={e => { const v = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''); setMpUsername(v); checkMpUsername(v); }} placeholder="your-shop-name" style={inputStyle} />
+                  <div style={{ fontSize: 12, color: textMuted, marginTop: 4 }}>Your shop URL: /shop/{mpUsername || 'username'}</div>
+                  {mpUsernameAvail !== null && <div style={{ fontSize: 12, color: mpUsernameAvail ? '#10B981' : '#EF4444', marginTop: 4 }}>{mpUsernameAvail ? '✓ Available' : '✗ Taken'}</div>}
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: textSecondary, marginBottom: 6 }}>Bio</label>
+                  <textarea value={mpBio} onChange={e => setMpBio(e.target.value)} placeholder="Tell buyers about your brand..." rows={3} style={{ ...inputStyle, resize: 'vertical' as const }} />
+                </div>
+
+                {/* Stripe placeholder */}
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 16 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Connect Stripe to receive payments</div>
+                  <p style={{ fontSize: 12, color: textMuted, marginBottom: 12 }}>Stripe Connect setup required — contact support to enable payouts.</p>
+                  <button disabled style={{ ...btnPrimary, opacity: 0.4, cursor: 'not-allowed' as const, padding: '10px 20px', fontSize: 13 }}>Connect Stripe →</button>
                 </div>
               </div>
-            )}
+
+              <div style={{ marginTop: 24 }}>
+                <button onClick={createMpProfile} disabled={!mpUsername || !mpDisplayName || mpUsernameAvail === false} style={{ ...btnPrimary, width: '100%', opacity: (!mpUsername || !mpDisplayName) ? 0.4 : 1 }}>Create Profile</button>
+              </div>
+            </div>
+          )}
+
+          {/* Seller Dashboard */}
+          {mpStep === 'dashboard' && (
+            <div>
+              {/* Stats */}
+              {mpEarnings && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+                  {[
+                    { label: 'Products', value: String(mpListings.length) },
+                    { label: 'Total Sales', value: String(mpEarnings.total_sales) },
+                    { label: 'Earnings', value: `$${(mpEarnings.net_earnings || 0).toFixed(2)}` },
+                    { label: 'Pending', value: String(mpEarnings.pending_orders) },
+                  ].map(stat => (
+                    <div key={stat.label} style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: 16, textAlign: 'center' as const }}>
+                      <div style={{ fontSize: 22, fontWeight: 700, fontFamily: brico, color: accent }}>{stat.value}</div>
+                      <div style={{ fontSize: 11, color: textMuted }}>{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Listings */}
+              <div style={{ marginBottom: 24 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' as const, alignItems: 'center' as const, marginBottom: 12 }}>
+                  <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700 }}>Your Listings</h3>
+                  <button style={{ ...btnPrimary, padding: '8px 16px', fontSize: 13 }}>+ Add New Listing</button>
+                </div>
+                {mpListings.length === 0 ? (
+                  <div style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: 32, textAlign: 'center' as const, color: textMuted }}>No listings yet. Add your first product to start selling.</div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+                    {mpListings.map(l => (
+                      <div key={l.id} style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center' as const, justifyContent: 'space-between' as const }}>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: 14 }}>{l.title}</div>
+                          <div style={{ fontSize: 12, color: textMuted }}>${l.price_aud?.toFixed(2)} · {l.inventory_qty} in stock</div>
+                        </div>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: l.status === 'active' ? '#10B981' : textMuted, background: l.status === 'active' ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.05)', padding: '3px 8px', borderRadius: 4 }}>{l.status}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Orders */}
+              <div>
+                <h3 style={{ fontFamily: brico, fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Orders</h3>
+                {mpOrders.length === 0 ? (
+                  <div style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: 32, textAlign: 'center' as const, color: textMuted }}>No orders yet.</div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+                    {mpOrders.map(o => (
+                      <div key={o.id} style={{ background: cardBg, border: cardBorder, borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center' as const, justifyContent: 'space-between' as const }}>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: 14 }}>{o.buyer_name}</div>
+                          <div style={{ fontSize: 12, color: textMuted }}>${o.subtotal?.toFixed(2)} · {new Date(o.created_at).toLocaleDateString('en-AU')}</div>
+                        </div>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: o.status === 'shipped' ? '#10B981' : '#F59E0B', background: o.status === 'shipped' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', padding: '3px 8px', borderRadius: 4 }}>{o.status}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ══════ CUSTOM PRODUCT MODAL ══════ */}
+      {customProductModal && (
+        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center' as const, justifyContent: 'center' as const, zIndex: 1000, padding: 24 }}>
+          <div style={{ background: '#0D1117', borderRadius: 20, padding: 32, maxWidth: 440, width: '90%', border: cardBorder }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' as const, alignItems: 'center' as const, marginBottom: 20 }}>
+              <h3 style={{ fontFamily: brico, fontSize: 20, fontWeight: 700 }}>Add Custom Product</h3>
+              <button onClick={() => setCustomProductModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: textMuted }}><X size={20} /></button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 14 }}>
+              <input value={customTitle} onChange={e => setCustomTitle(e.target.value)} placeholder="Product title *" style={inputStyle} />
+              <input value={customImageUrl} onChange={e => setCustomImageUrl(e.target.value)} placeholder="Image URL (optional)" style={inputStyle} />
+              <input value={customPrice} onChange={e => setCustomPrice(e.target.value)} placeholder="Price (AUD)" type="number" style={inputStyle} />
+              <textarea value={customDesc} onChange={e => setCustomDesc(e.target.value)} placeholder="Description (optional)" rows={3} style={{ ...inputStyle, resize: 'vertical' as const }} />
+            </div>
+            <button onClick={() => {
+              if (!customTitle) return;
+              const product: CustomProduct = {
+                id: `custom-${Date.now()}`,
+                product_title: customTitle,
+                image_url: customImageUrl || null,
+                price_aud: parseFloat(customPrice) || null,
+                winning_score: null,
+                trend: null,
+                category: null,
+                isCustom: true,
+              };
+              setSelectedProducts(prev => [...prev, product]);
+              setCustomTitle(''); setCustomImageUrl(''); setCustomPrice(''); setCustomDesc('');
+              setCustomProductModal(false);
+            }} disabled={!customTitle} style={{ ...btnPrimary, width: '100%', marginTop: 16, opacity: !customTitle ? 0.4 : 1 }}>Add Product</button>
           </div>
         </div>
       )}

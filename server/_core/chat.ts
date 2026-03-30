@@ -1166,13 +1166,13 @@ export function registerChatRoutes(app: Application) {
         }
       }
 
-      // ── Tavily enrichment for saturation-checker and store-spy ─────────
-      if (!webContext && (toolName === 'saturation-checker' || toolName === 'store-spy')) {
+      // ── Tavily enrichment for saturation-checker, store-spy, competitor-spy ─
+      if (!webContext && (toolName === 'saturation-checker' || toolName === 'store-spy' || toolName === 'competitor-spy')) {
         try {
           const tavilyKey = process.env.TAVILY_API_KEY;
           if (tavilyKey) {
             const lastMsg = messages[messages.length - 1]?.content || '';
-            const autoQuery = toolName === 'store-spy'
+            const autoQuery = toolName === 'store-spy' || toolName === 'competitor-spy'
               ? `${lastMsg} Shopify store competitor analysis Australia 2025`
               : `${lastMsg} market saturation competition Australia dropshipping TikTok Shop 2025`;
             const sr = await fetch('https://api.tavily.com/search', {
@@ -1188,7 +1188,7 @@ export function registerChatRoutes(app: Application) {
               .then((r) => r.json())
               .catch(() => null);
             if (sr?.results?.length > 0) {
-              const label = toolName === 'store-spy' ? 'LIVE COMPETITOR INTELLIGENCE' : 'LIVE MARKET SATURATION DATA';
+              const label = (toolName === 'store-spy' || toolName === 'competitor-spy') ? 'LIVE COMPETITOR INTELLIGENCE' : 'LIVE MARKET SATURATION DATA';
               webContext = `\n\n${label}:\n${sr.results.map((r: any, i: number) => `[${i + 1}] ${r.title}: ${r.content}`).join('\n')}`;
             }
           }

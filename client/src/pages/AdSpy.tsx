@@ -16,6 +16,8 @@ import React from 'react';
 import { toast } from 'sonner';
 import { useLocation } from 'wouter';
 import { useActiveProduct } from '@/hooks/useActiveProduct';
+import UsageMeter from '@/components/UsageMeter';
+import { PLAN_LIMITS } from '@shared/plans';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -252,33 +254,73 @@ function AdCard({
       </div>
 
       {/* Actions */}
-      <div className="px-5 pb-5 flex gap-2">
-        <button
-          onClick={handleCopy}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all"
-          style={{
-            background: copied ? '#EEF2FF' : '#F9FAFB',
-            border: `1px solid ${copied ? '#C7D2FE' : '#F5F5F5'}`,
-            color: copied ? '#6366F1' : '#6B7280',
-            cursor: 'pointer',
-          }}
-        >
-          {copied ? <Check size={12} /> : <Copy size={12} />}
-          {copied ? 'Copied!' : 'Copy Ad'}
-        </button>
-        <button
-          onClick={handleAnalyse}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all"
-          style={{
-            background: 'rgba(99,102,241,0.1)',
-            border: '1px solid rgba(99,102,241,0.25)',
-            color: '#6366F1',
-            cursor: 'pointer',
-          }}
-        >
-          <Eye size={12} />
-          Analyse &amp; Improve
-        </button>
+      <div className="px-5 pb-5 flex flex-col gap-2">
+        <div className="flex gap-2">
+          <button
+            onClick={handleCopy}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all"
+            style={{
+              background: copied ? '#EEF2FF' : '#F9FAFB',
+              border: `1px solid ${copied ? '#C7D2FE' : '#F5F5F5'}`,
+              color: copied ? '#6366F1' : '#6B7280',
+              cursor: 'pointer',
+            }}
+          >
+            {copied ? <Check size={12} /> : <Copy size={12} />}
+            {copied ? 'Copied!' : 'Copy Ad'}
+          </button>
+          <button
+            onClick={handleAnalyse}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all"
+            style={{
+              background: 'rgba(99,102,241,0.1)',
+              border: '1px solid rgba(99,102,241,0.25)',
+              color: '#6366F1',
+              cursor: 'pointer',
+            }}
+          >
+            <Eye size={12} />
+            Analyse &amp; Improve
+          </button>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              localStorage.setItem('majorka_cloned_ad', JSON.stringify({ hook: ad.hook, bodyText: ad.bodyText, cta: ad.cta, platform: ad.platform }));
+              navigate('/app/ads-manager');
+            }}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold transition-all"
+            style={{
+              background: 'rgba(34,197,94,0.08)',
+              border: '1px solid rgba(34,197,94,0.25)',
+              color: '#22C55E',
+              cursor: 'pointer',
+            }}
+          >
+            <Megaphone size={12} />
+            Clone to Campaign →
+          </button>
+          <button
+            onClick={() => {
+              try {
+                const existing = JSON.parse(localStorage.getItem('majorka_swipe_file') || '[]');
+                existing.unshift({ id: `${Date.now()}`, hook: ad.hook, bodyText: ad.bodyText, cta: ad.cta, platform: ad.platform, savedAt: new Date().toISOString() });
+                localStorage.setItem('majorka_swipe_file', JSON.stringify(existing.slice(0, 20)));
+                toast.success('Saved to Swipe File!');
+              } catch { /* ignore */ }
+            }}
+            className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-bold transition-all"
+            style={{
+              background: '#F9FAFB',
+              border: '1px solid #F5F5F5',
+              color: '#6B7280',
+              cursor: 'pointer',
+            }}
+          >
+            <Package size={12} />
+            Save
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -435,6 +477,10 @@ function AdSpyContent() {
             <RefreshCw size={11} /> New Search
           </button>
         )}
+      </div>
+
+      <div style={{ padding: '0 20px', paddingTop: 8 }}>
+        <UsageMeter feature="ad_intel" limit={PLAN_LIMITS.builder.ad_intel} label="ad searches" />
       </div>
 
       {/* Active Product Banner */}

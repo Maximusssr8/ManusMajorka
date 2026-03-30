@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/_core/hooks/useAuth';
+import UpgradeModal from '@/components/UpgradeModal';
 import { supabase } from '@/lib/supabase';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -33,7 +34,9 @@ interface WatchlistEntry {
 const sanitizeHtml = (html: string) =>
   html.replace(/<script[\s\S]*?<\/script>/gi, '')
       .replace(/javascript:/gi, '')
-      .replace(/on\w+\s*=/gi, '');
+      .replace(/on\w+\s*=/gi, '')
+      .replace(/on\w+="[^"]*"/gi, '')
+      .replace(/on\w+='[^']*'/gi, '');
 
 const PROGRESS_STEPS = [
   'Searching TikTok Shop…',
@@ -85,11 +88,13 @@ function CompetitorQuickActions({ query }: { query: string }) {
 }
 
 export default function CompetitorSpy() {
-  const { user } = useAuth();
+  const { user, subPlan, subStatus, session } = useAuth();
+  const [, setLocation] = useLocation();
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [progressStep, setProgressStep] = useState(0);
   const [result, setResult] = useState<CompetitorResult | null>(null);
+  const [error, setError] = useState('');
   const [watchlist, setWatchlist] = useState<WatchlistEntry[]>([]);
   const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -148,6 +153,7 @@ export default function CompetitorSpy() {
 
     setLoading(true);
     setResult(null);
+    setError('');
     startProgress();
 
     try {
@@ -197,14 +203,25 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
         }),
       });
 
-      const json = await res.json() as { reply?: string; error?: string };
-      if (json.reply) {
-        setResult({ query: q, timestamp: new Date().toISOString(), reply: json.reply });
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({ error: `Server error (${res.status})` }));
+        const errMsg = (errBody as { error?: string }).error ?? `Analysis failed (${res.status})`;
+        setError(errMsg);
+        toast.error(errMsg);
       } else {
-        toast.error(json.error ?? 'Research failed — please try again');
+        const json = await res.json() as { reply?: string; error?: string };
+        if (json.reply) {
+          setResult({ query: q, timestamp: new Date().toISOString(), reply: json.reply });
+        } else {
+          const errMsg = json.error ?? 'Research returned no results — try a different query';
+          setError(errMsg);
+          toast.error(errMsg);
+        }
       }
-    } catch {
-      toast.error('Network error — check connection');
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : 'Network error — check connection';
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       stopProgress();
       setLoading(false);
@@ -274,6 +291,12 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
   }
 
   const isInWatchlist = result && watchlist.some(w => w.query === result.query);
+
+  const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
+  const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
+  if (!isAdmin && !isPaid) {
+    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app/dashboard')} feature="Competitor Intelligence" reason="Analyse competitor shops and strategies" />;
+  }
 
   return (
     <div className="min-h-full" style={{ background: '#FAFAFA', color: '#0A0A0A' }}>
@@ -406,6 +429,24 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Error state */}
+          {error && !loading && !result && (
+            <div
+              className="rounded-xl p-6 text-center mb-6"
+              style={{ border: '1px solid rgba(239,68,68,0.2)', background: 'rgba(239,68,68,0.04)' }}
+            >
+              <p className="text-sm font-medium mb-2" style={{ color: '#ef4444' }}>Analysis failed</p>
+              <p className="text-xs mb-4" style={{ color: '#94a3b8' }}>{error}</p>
+              <button
+                onClick={() => { setError(''); inputRef.current?.focus(); }}
+                className="text-xs px-4 py-2 rounded-lg"
+                style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.3)' }}
+              >
+                Try again
+              </button>
             </div>
           )}
 

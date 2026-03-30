@@ -51,9 +51,10 @@ interface HealthStatus {
   shopify: boolean;
   tiktok: boolean;
   aliexpress: boolean;
+  zendrop: boolean;
 }
 
-const INTEGRATION_LABELS: Record<keyof HealthStatus, string> = {
+const INTEGRATION_LABELS: Partial<Record<keyof HealthStatus, string>> = {
   shopify: 'Shopify Store',
   tiktok: 'TikTok Shop',
   aliexpress: 'AliExpress Supplier',
@@ -88,34 +89,94 @@ export default function SettingsProfile() {
     newFeatures: true,
     marketing: false,
   });
+  const [loadingTimedOut, setLoadingTimedOut] = useState(false);
+
+  // Safety timeout: never show spinner forever
+  useEffect(() => {
+    const timer = setTimeout(() => setLoadingTimedOut(true), 4000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated) return;
+
+    // Health check with timeout — always resolve to avoid infinite loading
     setHealthLoading(true);
+    const healthTimeout = setTimeout(() => {
+      setHealthLoading(false);
+      if (!healthStatus) {
+        setHealthStatus({
+          anthropic: false, tavily: false, firecrawl: false,
+          supabase: false, stripe: false, database: false,
+          shopify: false, tiktok: false, aliexpress: false, zendrop: false,
+        });
+      }
+    }, 5000);
+
     fetch('/api/health')
       .then((res) => res.json())
-      .then((data: HealthStatus) => setHealthStatus(data))
-      .catch(() => setHealthStatus(null))
+      .then((data) => {
+        clearTimeout(healthTimeout);
+        // The /api/health endpoint returns { status, ts } — map to HealthStatus shape
+        const isOk = data?.status === 'ok';
+        setHealthStatus({
+          anthropic: isOk, tavily: isOk, firecrawl: isOk,
+          supabase: isOk, stripe: isOk, database: isOk,
+          shopify: false, tiktok: false, aliexpress: false, zendrop: false,
+          ...((typeof data === 'object' && data !== null && 'anthropic' in data) ? data : {}),
+        });
+      })
+      .catch(() => {
+        clearTimeout(healthTimeout);
+        setHealthStatus({
+          anthropic: false, tavily: false, firecrawl: false,
+          supabase: false, stripe: false, database: false,
+          shopify: false, tiktok: false, aliexpress: false, zendrop: false,
+        });
+      })
       .finally(() => setHealthLoading(false));
 
-    // Fetch subscription info
+    // Fetch subscription info with fallback — never leave subInfo as null forever
+    const subTimeout = setTimeout(() => {
+      setSubInfo((prev) => prev ?? { plan: 'free', renewalDate: 'N/A', status: 'inactive' });
+    }, 5000);
+
     supabase.auth.getSession().then(({ data: sessionData }) => {
       const token = sessionData?.session?.access_token;
+      if (!token) {
+        clearTimeout(subTimeout);
+        setSubInfo({ plan: 'free', renewalDate: 'N/A', status: 'inactive' });
+        return;
+      }
       fetch('/api/stripe/subscription-status', {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: { Authorization: `Bearer ${token}` },
       })
         .then(r => r.ok ? r.json() : null)
         .then(data => {
+          clearTimeout(subTimeout);
           if (data) {
             const planName = data.plan || 'free';
             const renewalDate = data.periodEnd
               ? new Date(data.periodEnd).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
               : 'monthly';
             setSubInfo({ plan: planName, renewalDate, status: data.status || 'inactive' });
+          } else {
+            setSubInfo({ plan: 'free', renewalDate: 'N/A', status: 'inactive' });
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          clearTimeout(subTimeout);
+          setSubInfo({ plan: 'free', renewalDate: 'N/A', status: 'inactive' });
+        });
+    }).catch(() => {
+      clearTimeout(subTimeout);
+      setSubInfo({ plan: 'free', renewalDate: 'N/A', status: 'inactive' });
     });
+
+    return () => {
+      clearTimeout(healthTimeout);
+      clearTimeout(subTimeout);
+    };
   }, [isAuthenticated]);
 
   const profileQuery = trpc.profile.get.useQuery(undefined, { enabled: isAuthenticated });
@@ -218,7 +279,7 @@ export default function SettingsProfile() {
     toast.info('To delete your account, please contact support@majorka.com');
   };
 
-  if (loading || !user) {
+  if ((loading && !loadingTimedOut) || (!user && !loadingTimedOut)) {
     return (
       <div className="flex h-screen items-center justify-center" style={{ background: '#FAFAFA' }}>
         <div
@@ -231,6 +292,22 @@ export default function SettingsProfile() {
         >
           M
         </div>
+      </div>
+    );
+  }
+
+  // If timed out with no user, redirect to login
+  if (!user && loadingTimedOut) {
+    return (
+      <div className="flex h-screen items-center justify-center flex-col gap-4" style={{ background: '#FAFAFA' }}>
+        <p className="text-sm" style={{ color: '#6B7280' }}>Unable to load your profile. Please sign in again.</p>
+        <button
+          onClick={() => setLocation('/login')}
+          className="px-4 py-2 rounded-lg text-sm font-bold"
+          style={{ background: 'linear-gradient(135deg, #6366F1, #4F46E5)', color: '#FAFAFA', border: 'none', cursor: 'pointer' }}
+        >
+          Sign In
+        </button>
       </div>
     );
   }
@@ -652,24 +729,28 @@ export default function SettingsProfile() {
             <div className="space-y-4">
               <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: 14, padding: '20px 24px', marginBottom: 20 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#6366F1', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 8 }}>Current Plan</div>
+                {!subInfo ? (
+                  <div className="animate-pulse" style={{ height: 48, background: 'rgba(99,102,241,0.08)', borderRadius: 8 }} />
+                ) : (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <div style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 22, color: '#0A0A0A' }}>
-                      {subInfo?.plan === 'scale' ? 'Scale' : subInfo?.plan === 'builder' ? 'Builder' : subInfo?.plan === 'pro' ? 'Pro' : 'Free'}
+                      {subInfo.plan === 'scale' ? 'Scale' : subInfo.plan === 'builder' ? 'Builder' : subInfo.plan === 'pro' ? 'Pro' : 'Free'}
                     </div>
                     <div style={{ fontSize: 13, color: '#6B7280', marginTop: 4 }}>
-                      {subInfo?.plan === 'free' || !subInfo?.plan
+                      {subInfo.plan === 'free' || !subInfo.plan
                         ? 'Free tier — upgrade to unlock all features'
-                        : `Renews ${subInfo?.renewalDate || 'monthly'} · ${subInfo?.status === 'active' ? 'Active' : subInfo?.status || 'Active'}`}
+                        : `Renews ${subInfo.renewalDate || 'monthly'} · ${subInfo.status === 'active' ? 'Active' : subInfo.status || 'Active'}`}
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' as const }}>
                     <div style={{ fontSize: 28, fontWeight: 800, color: '#6366F1', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
-                      {subInfo?.plan === 'scale' ? '$199' : subInfo?.plan === 'builder' ? '$99' : subInfo?.plan === 'pro' ? '$99' : '$0'}
+                      {subInfo.plan === 'scale' ? '$199' : subInfo.plan === 'builder' ? '$99' : subInfo.plan === 'pro' ? '$99' : '$0'}
                     </div>
                     <div style={{ fontSize: 12, color: '#9CA3AF' }}>AUD/month</div>
                   </div>
                 </div>
+                )}
               </div>
               <button
                 onClick={openBillingPortal}

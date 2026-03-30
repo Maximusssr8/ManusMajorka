@@ -42,6 +42,8 @@ import productsRouter from "../server/routes/products";
 import aliexpressRouter from "../server/routes/aliexpress";
 import userRouter from "../server/routes/user";
 import apifyRouter from "../server/routes/apify";
+import metaRouter from "../server/routes/meta";
+import marketplaceRouter from "../server/routes/marketplace";
 import creatorsRouter from "../server/routes/creators";
 import videosRouter from "../server/routes/videos";
 import { registerGenerationRoutes } from "../server/routes/generation";
@@ -63,6 +65,30 @@ import('../server/migrations/runUserOnboarding').then(({ runUserOnboardingMigrat
 const app = express();
 app.disable('x-powered-by'); // Don't expose Express in response headers
 app.set('trust proxy', 1); // Trust Vercel's load balancer for req.ip
+
+// ═══ CORS Lockdown ═══
+const ALLOWED_ORIGINS = [
+  'https://majorka.io',
+  'https://www.majorka.io',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:3001',
+];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
+  next();
+});
 
 // ── Stripe webhook must receive raw body — register BEFORE express.json() ─────
 app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
@@ -217,6 +243,28 @@ app.get("/api/usage/me", requireAuth, async (req: Request, res: Response) => {
     res.json({ plan, usage: summary, month: new Date().toISOString().slice(0, 7) });
   } catch {
     res.json({ plan: 'builder', usage: {}, month: '' });
+  }
+});
+
+// ── Single feature usage — GET /api/usage/:feature ──────────────────────────
+app.get("/api/usage/:feature", requireAuth, async (req: Request, res: Response) => {
+  const { feature } = req.params;
+  const userId = (req as any).user?.userId;
+  const month = new Date().toISOString().slice(0, 7);
+  try {
+    const SURL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+    const SKEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+    const supabaseAdmin = createClient(SURL, SKEY);
+    const { data } = await supabaseAdmin
+      .from('usage_tracking')
+      .select('count')
+      .eq('user_id', userId)
+      .eq('feature', feature)
+      .eq('month', month)
+      .single();
+    res.json({ count: data?.count ?? 0 });
+  } catch {
+    res.json({ count: 0 });
   }
 });
 
@@ -513,8 +561,10 @@ app.use('/api/products', productsRouter);
 app.use('/api/aliexpress', aliexpressRouter);
 app.use('/api/user', userRouter);
 app.use('/api/apify', apifyRouter);
+app.use('/api/meta', metaRouter);
 app.use('/api/creators', creatorsRouter);
 app.use('/api/videos', videosRouter);
+app.use('/api/marketplace', marketplaceRouter);
 
 // ── Product import with AI Brain ─────────────────────────────────────────────
 app.post("/api/import-product", async (req: Request, res: Response) => {
@@ -841,7 +891,14 @@ Be specific and creative. No generic filler.`;
       res.status(500).json({ error: 'parse_error', message: 'Could not generate ad briefs. Try again.' });
       return;
     }
-    const parsed = JSON.parse(stripped.slice(start, end + 1));
+    let parsed: { ads?: unknown[] };
+    try {
+      parsed = JSON.parse(stripped.slice(start, end + 1));
+    } catch (parseErr: unknown) {
+      console.error('[ad-spy] JSON.parse failed:', parseErr instanceof Error ? parseErr.message : parseErr);
+      res.status(500).json({ error: 'parse_error', message: 'Could not parse ad briefs. Try again.' });
+      return;
+    }
     if (!parsed.ads || !Array.isArray(parsed.ads)) {
       res.status(500).json({ error: 'parse_error', message: 'Invalid response format.' });
       return;
@@ -869,6 +926,7 @@ Be specific and creative. No generic filler.`;
     }
 
   } catch (err: any) {
+    console.error('[ad-spy] search error:', err?.message || err);
     if (err?.status === 429 || err?.message?.includes('rate')) {
       res.status(429).json({ error: 'rate_limit', message: 'AI rate limit reached. Please try again in a minute.' });
     } else {

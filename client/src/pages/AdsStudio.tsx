@@ -1,5 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/_core/hooks/useAuth';
+import UpgradeModal from '@/components/UpgradeModal';
+import UsageMeter from '@/components/UsageMeter';
+import { PLAN_LIMITS } from '@shared/plans';
+import { useLocation } from 'wouter';
 
 const brico = "'Bricolage Grotesque', sans-serif";
 const dm = "'DM Sans', sans-serif";
@@ -157,6 +162,8 @@ function SectionCard({ header, body, onCopy, copied }: {
 interface SavedOutput { id: string; product_name: string; creative_type: string; output: string; created_at: string; }
 
 export default function AdsStudio() {
+  const { subPlan, subStatus, session } = useAuth();
+  const [, setLocation] = useLocation();
   // Inputs
   const [productName, setProductName] = useState('');
   const [productUrl, setProductUrl] = useState('');
@@ -287,6 +294,12 @@ Generate the full output following your exact format with all sections.`;
     setPlatforms(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
   }
 
+  const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
+  const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
+  if (!isAdmin && !isPaid) {
+    return <UpgradeModal isOpen={true} onClose={() => setLocation('/app/dashboard')} feature="Ads Studio" reason="Generate high-converting ad creatives" />;
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: '#F9FAFB', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
 
@@ -300,6 +313,10 @@ Generate the full output following your exact format with all sections.`;
           <span style={{ fontSize: 11, color: '#2563EB', background: '#EFF6FF', padding: '4px 10px', borderRadius: 20, border: '1px solid #BFDBFE', fontWeight: 700 }}>📘 Meta-First</span>
           <span style={{ fontSize: 11, fontWeight: 700, color: '#6366F1', background: '#EEF2FF', padding: '4px 10px', borderRadius: 20, border: '1px solid #C7D2FE' }}>✨ Maya AI</span>
         </div>
+      </div>
+
+      <div style={{ padding: '0 28px', paddingTop: 8 }}>
+        <UsageMeter feature="ads_studio" limit={PLAN_LIMITS.builder.ads_studio} label="ad generations" />
       </div>
 
       {/* ── 3-col layout ───────────────────────────────────────────────── */}

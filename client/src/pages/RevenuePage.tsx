@@ -10,6 +10,7 @@ import {
 } from 'recharts';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuth } from '@/_core/hooks/useAuth';
+import UpgradeModal from '@/components/UpgradeModal';
 import { useLocation } from 'wouter';
 
 // ── Palette ───────────────────────────────────────────────────────────────────
@@ -126,7 +127,7 @@ const glass = {
 export default function RevenuePage() {
   const isMobile = useIsMobile();
   const [, nav] = useLocation();
-  const { user, session } = useAuth();
+  const { user, session, subPlan, subStatus } = useAuth();
   const [display, setDisplay] = useState(0);
   const [range, setRange] = useState<Range>('30D');
   const [toast, setToast] = useState('');
@@ -167,6 +168,12 @@ export default function RevenuePage() {
     if (navigator.share) { try { await navigator.share({ text }); } catch { /**/ } }
     else { await navigator.clipboard.writeText(text); setToast('Copied!'); setTimeout(() => setToast(''), 2000); }
   }, [isMarketing]);
+
+  const isAdmin = session?.user?.email === 'maximusmajorka@gmail.com';
+  const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
+  if (!isAdmin && !isPaid) {
+    return <UpgradeModal isOpen={true} onClose={() => nav('/app/dashboard')} feature="Revenue Tracking" reason="Track your store revenue and analytics" />;
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #030608 0%, #080C18 35%, #060A12 100%)', color: '#fff', fontFamily: geist, paddingBottom: 'calc(env(safe-area-inset-bottom,0px) + 80px)' }}>
