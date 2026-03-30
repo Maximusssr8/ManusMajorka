@@ -547,7 +547,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         {lastUpdated && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, fontSize: 12, color: '#9CA3AF' }}>
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981', display: 'inline-block', animation: 'pulse 2s ease-in-out infinite' }} />
-            <span>{filteredProducts.length} products</span>
+            <span>Showing {displayProducts.length} of {filteredProducts.length} products</span>
             <span>&middot;</span>
             <span>Updated {new Date(lastUpdated).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' })}</span>
             <span>&middot;</span>

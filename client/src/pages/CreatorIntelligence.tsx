@@ -363,7 +363,7 @@ export default function CreatorIntelligence() {
             {c.display_name || c.handle}
           </div>
           <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 10 }}>
-            {followerStr}
+            ~{followerStr} (est.)
           </div>
         </div>
 
@@ -587,6 +587,11 @@ export default function CreatorIntelligence() {
             </div>
           ) : (
             <>
+              {/* Disclaimer */}
+              <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 12, padding: '8px 12px', background: '#F9FAFB', borderRadius: 6, border: '1px solid #F0F0F0' }}>
+                💡 Follower counts and collab rates are AI-estimated based on niche and tier — not verified data.
+              </div>
+
               {/* ===== 4. FEATURED CREATORS ===== */}
               {featured.length > 0 && (
                 <div style={{ marginBottom: 24 }}>

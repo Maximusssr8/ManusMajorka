@@ -74,6 +74,7 @@ export default function Blog() {
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '64px 24px 48px', textAlign: 'center' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#EEF2FF', borderRadius: 20, padding: '4px 14px', marginBottom: 20 }}>
           <span style={{ fontSize: 12, fontWeight: 700, color: '#6366F1', letterSpacing: '0.06em', textTransform: 'uppercase' as const }}>Blog</span>
+          <span style={{ fontSize: 11, background: 'rgba(99,102,241,0.15)', color: '#818CF8', borderRadius: 6, padding: '2px 8px', fontWeight: 700 }}>Content Coming Soon</span>
         </div>
         <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 'clamp(28px, 5vw, 48px)', color: '#0A0A0A', marginBottom: 16, lineHeight: 1.15, letterSpacing: '-0.02em' }}>
           Ecommerce Intelligence.<br />Built for Sellers.

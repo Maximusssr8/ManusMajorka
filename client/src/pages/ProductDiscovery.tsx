@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'wouter';
 import { toast } from 'sonner';
 import { ActiveProductBanner } from '@/components/ActiveProductBanner';
 import { SaveToProduct } from '@/components/SaveToProduct';
@@ -42,10 +43,12 @@ interface DiscoveryResult {
   marketContext: string;
 }
 
-const SYSTEM_PROMPT = `You are an expert ecommerce product researcher specialising in finding winning dropshipping and private label products.
-When given a niche/category, return a JSON object with this EXACT structure (no markdown, no explanation, just raw JSON):
-{"summary":"Brief market overview","products":[{"name":"Product name","niche":"Sub-niche","problemSolved":"Problem it solves","targetAudience":"Who buys this","estimatedMargin":"e.g. 40-60%","competitionLevel":"Low|Medium|High","trendDirection":"Rising|Stable|Declining","avgPrice":"e.g. $29-49","whyNow":"Why this is a good opportunity right now","suppliers":"Where to source (AliExpress/Alibaba/etc)","score":85}],"topPick":"Name of the best product and why","marketContext":"Key market insight"}
-Return exactly 5 product ideas. Score each from 0-100 based on opportunity. Return ONLY raw JSON.`;
+const SYSTEM_PROMPT = `You are an expert ecommerce product researcher. You MUST respond with ONLY a valid JSON object — no markdown, no explanation, no code blocks, no backticks, just raw JSON.
+
+The JSON must have this EXACT structure:
+{"summary":"Brief market overview","products":[{"name":"Product name","niche":"Sub-niche","problemSolved":"Problem it solves","targetAudience":"Who buys this","estimatedMargin":"40-60%","competitionLevel":"Low|Medium|High","trendDirection":"Rising|Stable|Declining","avgPrice":"$29-49","whyNow":"Why this opportunity is good now","suppliers":"AliExpress/Alibaba/CJ Dropshipping","score":85}],"topPick":"Name of best product and why","marketContext":"Key market insight"}
+
+Return exactly 5 products. Score each 0-100. ONLY raw JSON, nothing else.`;
 
 function parseResult(text: string): DiscoveryResult | null {
   try {
@@ -125,6 +128,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
   const [expanded, setExpanded] = useState(index === 0);
   const [photos, setPhotos] = useState<string[]>([]);
   const { setProduct } = useActiveProduct();
+  const [, setLocation] = useLocation();
   const cc = COMPETITION_COLORS[product.competitionLevel] || '#6366F1';
 
   useEffect(() => {
@@ -314,7 +318,7 @@ function ProductCard({ product, index }: { product: ProductIdea; index: number }
                   'majorka_validate_prefill',
                   `${product.name} — ${product.niche}. Target: ${product.targetAudience}. Price: ${product.avgPrice}. ${product.problemSolved}`
                 );
-                window.location.href = '/app/validation-plan';
+                setLocation('/app/validation-plan');
               }}
               className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-bold"
               style={{
@@ -447,11 +451,23 @@ export default function ProductDiscovery() {
         setGenError('No response received. Please try again.');
       } else {
         const parsed = parseResult(fullText);
-        if (parsed) {
+        if (parsed && parsed.products && parsed.products.length > 0) {
           setResult(parsed);
           localStorage.setItem('majorka_milestone_research', 'true');
         } else {
-          setGenError('Analysis complete but could not parse structured results. Try a different niche.');
+          // Last resort: try to extract any JSON with products from the text
+          const jsonMatch = fullText.match(/\{[\s\S]*"products"[\s\S]*\}/);
+          if (jsonMatch) {
+            try {
+              const extracted = JSON.parse(jsonMatch[0]);
+              if (extracted.products?.length > 0) {
+                setResult(extracted);
+                localStorage.setItem('majorka_milestone_research', 'true');
+                return;
+              }
+            } catch { /* fall through */ }
+          }
+          setGenError(`Analysis complete but could not parse results. Try a different niche.`);
         }
       }
     } catch (err: any) {

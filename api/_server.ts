@@ -46,6 +46,7 @@ import metaRouter from "../server/routes/meta";
 import marketplaceRouter from "../server/routes/marketplace";
 import creatorsRouter from "../server/routes/creators";
 import videosRouter from "../server/routes/videos";
+import waitlistRouter from "../server/routes/waitlist";
 import { registerGenerationRoutes } from "../server/routes/generation";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
 import { getProductByIdPublic } from "../server/db";
@@ -565,6 +566,7 @@ app.use('/api/meta', metaRouter);
 app.use('/api/creators', creatorsRouter);
 app.use('/api/videos', videosRouter);
 app.use('/api/marketplace', marketplaceRouter);
+app.use('/api/waitlist', waitlistRouter);
 
 // ── Product import with AI Brain ─────────────────────────────────────────────
 app.post("/api/import-product", async (req: Request, res: Response) => {

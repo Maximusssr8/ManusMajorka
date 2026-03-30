@@ -90,6 +90,9 @@ export default function SettingsProfile() {
     marketing: false,
   });
   const [loadingTimedOut, setLoadingTimedOut] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
 
   // Safety timeout: never show spinner forever
   useEffect(() => {
@@ -277,6 +280,22 @@ export default function SettingsProfile() {
     )
       return;
     toast.info('To delete your account, please contact support@majorka.com');
+  };
+
+  const handlePasswordChange = async () => {
+    if (!newPassword || newPassword !== confirmPassword || newPassword.length < 8) return;
+    setChangingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      toast.success('Password updated successfully');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update password');
+    } finally {
+      setChangingPassword(false);
+    }
   };
 
   if ((loading && !loadingTimedOut) || (!user && !loadingTimedOut)) {
@@ -638,6 +657,33 @@ export default function SettingsProfile() {
               >
                 {saving ? 'Saving...' : 'Save Profile'}
               </button>
+
+              {/* ── Change Password ── */}
+              <div style={{ marginTop: 16, background: 'white', border: '1px solid #E5E7EB', borderRadius: 12, padding: 20 }}>
+                <div className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>Change Password</div>
+                <div className="text-xs mb-4" style={{ color: '#9CA3AF' }}>Must be at least 8 characters.</div>
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12, maxWidth: 420 }}>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(99,102,241,0.7)' }}>New Password</label>
+                    <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg px-4 py-3 text-sm bg-black/[0.03] border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#6366F1]/50 transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: 'rgba(99,102,241,0.7)' }}>Confirm New Password</label>
+                    <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" className="w-full rounded-lg px-4 py-3 text-sm bg-black/[0.03] border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#6366F1]/50 transition-colors" />
+                  </div>
+                  <button onClick={handlePasswordChange} disabled={changingPassword || !newPassword || newPassword !== confirmPassword || newPassword.length < 8}
+                    className="rounded-lg py-3 font-bold text-sm transition-all disabled:opacity-50"
+                    style={{ padding: '10px 24px', background: newPassword && newPassword === confirmPassword && newPassword.length >= 8 ? 'linear-gradient(135deg, #6366F1, #4F46E5)' : 'rgba(99,102,241,0.2)', color: '#FAFAFA', border: 'none', fontFamily: "'Bricolage Grotesque', sans-serif", cursor: newPassword && newPassword === confirmPassword && newPassword.length >= 8 ? 'pointer' : 'not-allowed', alignSelf: 'flex-start' as const }}>
+                    {changingPassword ? 'Updating...' : 'Update Password'}
+                  </button>
+                  {newPassword && confirmPassword && newPassword !== confirmPassword && (
+                    <div style={{ fontSize: 13, color: '#EF4444' }}>Passwords don't match</div>
+                  )}
+                  {newPassword && newPassword.length > 0 && newPassword.length < 8 && (
+                    <div style={{ fontSize: 13, color: '#F59E0B' }}>Password must be at least 8 characters</div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
@@ -780,60 +826,67 @@ export default function SettingsProfile() {
 
           {/* ── Integrations Tab ────────────────────────────────────────── */}
           {activeTab === 'integrations' && (
-            <div className={sectionCard} style={sectionCardStyle}>
-              <div
-                className="text-xs font-bold uppercase tracking-widest mb-4"
-                style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}
-              >
-                Service Status
+            <div className="space-y-4">
+              <div className={sectionCard} style={sectionCardStyle}>
+                <div className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                  Connected Services
+                </div>
+                <div className="space-y-0">
+                  {/* Shopify */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0', borderBottom: '1px solid #F0F0F0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 8, background: '#95BF47', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🛍️</div>
+                      <div>
+                        <div style={{ fontWeight: 600, color: '#0A0A0A', fontSize: 14 }}>Shopify</div>
+                        <div style={{ fontSize: 12, color: '#9CA3AF' }}>Sync products, orders, and inventory</div>
+                      </div>
+                    </div>
+                    <button onClick={() => setLocation('/app/store-builder')} style={{ padding: '8px 16px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                      Connect →
+                    </button>
+                  </div>
+                  {/* Meta Ads */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0', borderBottom: '1px solid #F0F0F0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 8, background: '#1877F2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>📘</div>
+                      <div>
+                        <div style={{ fontWeight: 600, color: '#0A0A0A', fontSize: 14 }}>Meta Ads</div>
+                        <div style={{ fontSize: 12, color: '#9CA3AF' }}>Connect Facebook & Instagram ad accounts</div>
+                      </div>
+                    </div>
+                    <button onClick={() => setLocation('/app/ads-manager')} style={{ padding: '8px 16px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+                      Set Up →
+                    </button>
+                  </div>
+                  {/* TikTok Shop */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 8, background: '#010101', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🎵</div>
+                      <div>
+                        <div style={{ fontWeight: 600, color: '#0A0A0A', fontSize: 14 }}>TikTok Shop</div>
+                        <div style={{ fontSize: 12, color: '#9CA3AF' }}>Connect TikTok Shop for product sync</div>
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 11, color: '#9CA3AF', padding: '6px 12px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, fontWeight: 600 }}>Coming Soon</span>
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2">
-                {healthLoading || !healthStatus
-                  ? (Object.keys(INTEGRATION_LABELS) as (keyof HealthStatus)[]).map((key) => (
-                      <div
-                        key={key}
-                        className="flex items-center justify-between px-4 py-3 rounded-lg"
-                        style={{
-                          background: '#FAFAFA',
-                          border: '1px solid #E5E7EB',
-                        }}
-                      >
-                        <div
-                          className="h-3 w-32 rounded animate-pulse"
-                          style={{ background: '#E5E7EB' }}
-                        />
-                        <div
-                          className="h-5 w-5 rounded animate-pulse"
-                          style={{ background: '#E5E7EB' }}
-                        />
+              {/* Service Status */}
+              <div className={sectionCard} style={sectionCardStyle}>
+                <div className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: '#9CA3AF', fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                  Service Status
+                </div>
+                <div className="space-y-2">
+                  {(Object.keys(INTEGRATION_LABELS) as (keyof HealthStatus)[]).map((key) => (
+                    <div key={key} className="flex items-center justify-between px-4 py-3 rounded-lg" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB' }}>
+                      <span className="text-sm" style={{ color: '#374151' }}>{INTEGRATION_LABELS[key]}</span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full" style={{ background: healthStatus?.[key] ? '#10b981' : '#ef4444' }} />
+                        <span className="text-xs" style={{ color: healthStatus?.[key] ? '#10b981' : '#ef4444' }}>{healthStatus?.[key] ? 'Connected' : 'Disconnected'}</span>
                       </div>
-                    ))
-                  : (Object.keys(INTEGRATION_LABELS) as (keyof HealthStatus)[]).map((key) => (
-                      <div
-                        key={key}
-                        className="flex items-center justify-between px-4 py-3 rounded-lg"
-                        style={{
-                          background: '#FAFAFA',
-                          border: '1px solid #E5E7EB',
-                        }}
-                      >
-                        <span className="text-sm" style={{ color: '#374151' }}>
-                          {INTEGRATION_LABELS[key]}
-                        </span>
-                        <div className="flex items-center gap-1.5">
-                          <div
-                            className="w-2 h-2 rounded-full"
-                            style={{ background: healthStatus[key] ? '#10b981' : '#ef4444' }}
-                          />
-                          <span
-                            className="text-xs"
-                            style={{ color: healthStatus[key] ? '#10b981' : '#ef4444' }}
-                          >
-                            {healthStatus[key] ? 'Connected' : 'Disconnected'}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}

@@ -342,8 +342,33 @@ export default function RevenuePage() {
       </div>
 
       {/* ════════════════════════════════════════════════════════════
+           EMPTY STATE FOR NON-ADMIN
+      ════════════════════════════════════════════════════════════ */}
+      {!isMarketing && (
+        <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: 24, textAlign: 'center' as const, padding: '40px 24px' }}>
+          <div style={{ fontSize: 56 }}>📊</div>
+          <div style={{ fontFamily: "'Bricolage Grotesque',sans-serif", fontWeight: 900, fontSize: 32, color: 'white', maxWidth: 400, lineHeight: 1.2 }}>
+            Your revenue dashboard is ready
+          </div>
+          <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)', maxWidth: 360, lineHeight: 1.6 }}>
+            Connect your Shopify store to see real order data, daily revenue, and profit tracking here.
+          </div>
+          <button
+            onClick={() => nav('/app/store-builder')}
+            style={{ padding: '14px 32px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer' as const, fontFamily: "'Bricolage Grotesque',sans-serif" }}
+          >
+            Connect Shopify Store →
+          </button>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>
+            Or connect Shopify in Settings → Integrations
+          </div>
+        </div>
+      )}
+
+      {/* ════════════════════════════════════════════════════════════
            STAT CARDS
       ════════════════════════════════════════════════════════════ */}
+      {isMarketing && (
       <div style={{ maxWidth:1200,margin:'0 auto',padding: isMobile ? '16px 16px 0' : '24px 52px 0' }}>
         <div style={{ display:'grid',gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(5,1fr)',gap: isMobile ? 10 : 14 }}>
           {[
@@ -376,11 +401,12 @@ export default function RevenuePage() {
           ))}
         </div>
       </div>
+      )}
 
       {/* ════════════════════════════════════════════════════════════
            MOBILE CHART
       ════════════════════════════════════════════════════════════ */}
-      {isMobile && (
+      {isMarketing && isMobile && (
         <div style={{ padding:'16px 16px 0' }}>
           <div style={{ ...glass, borderRadius:18, padding:'18px 14px' }}>
             <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14 }}>
@@ -502,6 +528,7 @@ export default function RevenuePage() {
       {/* ════════════════════════════════════════════════════════════
            ORDERS FEED
       ════════════════════════════════════════════════════════════ */}
+      {isMarketing && (
       <div style={{ maxWidth:1200,margin:'0 auto',padding: isMobile ? '16px 16px 0' : '24px 52px 0' }}>
 
         <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16 }}>
@@ -605,6 +632,8 @@ export default function RevenuePage() {
           </div>
         )}
       </div>
+
+      )}
 
       {/* ════════════════════════════════════════════════════════════
            BOTTOM ROW: Connect + Withdrawal

@@ -22,7 +22,7 @@ const REGIONS = ['AU', 'US', 'UK', 'CA', 'DE', 'SG'];
 
 export default function Alerts() {
   React.useEffect(() => { document.title = 'Smart Alerts | Majorka'; }, []);
-  const { session, isPro } = useAuth();
+  const { session, isPro, subPlan } = useAuth();
   const isMobile = useIsMobile();
 const [alerts, setAlerts] = useState<Alert[]>([]);
   const [history, setHistory] = useState<Alert[]>([]);
@@ -113,6 +113,10 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
             <Plus size={14} /> New Alert
           </button>
         </div>
+        <div style={{ fontSize: 13, color: C.sub, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span>📧</span>
+          <span>Alerts delivered to <strong style={{ color: '#374151' }}>{session?.user?.email || 'your email'}</strong> · Check your inbox</span>
+        </div>
 
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 4, marginBottom: 20 }}>
@@ -122,7 +126,7 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
             </button>
           ))}
           <span style={{ marginLeft: 'auto', fontSize: 11, color: C.muted, alignSelf: 'center', paddingRight: 4 }}>
-            {alerts.length}/10 alerts used
+            {subPlan === 'scale' ? 'Unlimited alerts' : `${alerts.length}/10 alerts used`}
           </span>
         </div>
 
@@ -198,6 +202,10 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
                       ? <div style={{ fontSize: 11, color: '#059669', marginTop: 2 }}>✓ Last triggered: {new Date(alert.last_triggered_at).toLocaleDateString('en-AU')}</div>
                       : <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>⏳ Monitoring — checks run hourly · no trigger yet</div>
                     }
+                    <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                      <span style={{ fontSize: 10, padding: '2px 8px', background: 'rgba(99,102,241,0.1)', color: '#6366F1', borderRadius: 4, fontWeight: 600 }}>📧 Email</span>
+                      <span style={{ fontSize: 10, padding: '2px 8px', background: '#F5F5F5', color: '#9CA3AF', borderRadius: 4, fontWeight: 600 }}>🔔 In-App</span>
+                    </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 100, background: '#ECFDF5', color: '#059669' }}>ACTIVE</span>
