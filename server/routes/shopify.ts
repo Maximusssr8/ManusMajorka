@@ -266,6 +266,71 @@ router.get('/catalog', async (req, res) => {
   }
 });
 
+// ── POST /api/shopify/push-product — push a winning product to Shopify ──────
+router.post('/push-product', async (req, res) => {
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data: { user } } = await supabase.auth.getUser(getToken(req));
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { productId } = req.body as { productId?: string };
+    if (!productId) return res.status(400).json({ error: 'productId required' });
+
+    const { data: conn } = await supabase
+      .from('shopify_connections')
+      .select('shop_domain, access_token')
+      .eq('user_id', user.id)
+      .single();
+    if (!conn?.access_token) {
+      return res.status(400).json({ error: 'Shopify not connected' });
+    }
+
+    const { data: product } = await supabase
+      .from('winning_products')
+      .select('product_title, image_url, price_aud, category, description')
+      .eq('id', productId)
+      .single();
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+
+    const shopifyRes = await fetch(
+      `https://${conn.shop_domain}/admin/api/2024-01/products.json`,
+      {
+        method: 'POST',
+        headers: {
+          'X-Shopify-Access-Token': conn.access_token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          product: {
+            title: product.product_title || 'New Product',
+            body_html: `<p>${product.description || product.product_title}</p>`,
+            vendor: 'Majorka',
+            product_type: product.category || 'General',
+            status: 'draft',
+            variants: [{ price: (product.price_aud || 49.99).toFixed(2), inventory_management: null }],
+            images: product.image_url ? [{ src: product.image_url }] : [],
+          },
+        }),
+      }
+    );
+
+    if (!shopifyRes.ok) {
+      const errData = await shopifyRes.json();
+      return res.status(shopifyRes.status).json({ error: 'Shopify API error', details: errData });
+    }
+
+    const result = await shopifyRes.json() as { product?: { id?: number } };
+    res.json({
+      success: true,
+      shopifyProductId: result.product?.id,
+      shopifyProductUrl: `https://${conn.shop_domain}/admin/products/${result.product?.id}`,
+    });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    res.status(500).json({ error: msg });
+  }
+});
+
 // ── GET /api/shopify/sync-status — last sync time + product count ───────────
 router.get('/sync-status', async (req, res) => {
   try {

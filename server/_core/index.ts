@@ -241,6 +241,8 @@ async function startServer() {
   app.use('/api/shopify', shopifyRouter);
   app.use('/api/store-builder', storeBuilderRouter);
   app.use('/api/apify', apifyRouter);
+  const marketplaceRouter = (await import('../routes/marketplace')).default;
+  app.use('/api/marketplace', marketplaceRouter);
   const metaRouter = (await import('../routes/meta')).default;
   app.use('/api/meta', metaRouter);
   const creatorsRealRouter = (await import('../routes/creators')).default;

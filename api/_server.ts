@@ -43,6 +43,7 @@ import aliexpressRouter from "../server/routes/aliexpress";
 import userRouter from "../server/routes/user";
 import apifyRouter from "../server/routes/apify";
 import metaRouter from "../server/routes/meta";
+import marketplaceRouter from "../server/routes/marketplace";
 import creatorsRouter from "../server/routes/creators";
 import videosRouter from "../server/routes/videos";
 import { registerGenerationRoutes } from "../server/routes/generation";
@@ -563,6 +564,7 @@ app.use('/api/apify', apifyRouter);
 app.use('/api/meta', metaRouter);
 app.use('/api/creators', creatorsRouter);
 app.use('/api/videos', videosRouter);
+app.use('/api/marketplace', marketplaceRouter);
 
 // ── Product import with AI Brain ─────────────────────────────────────────────
 app.post("/api/import-product", async (req: Request, res: Response) => {
