@@ -1124,19 +1124,6 @@ export const stages: StageGroup[] = [
         ],
       },
       {
-        id: 'niche-scorer',
-        label: 'Niche Scorer',
-        icon: Award,
-        path: '/app/niche-scorer',
-        description: 'Score and rank niches by profitability potential',
-        systemPrompt: NICHE_SCORER_PROMPT,
-        examplePrompts: [
-          'Score the pet supplements niche for Australia',
-          'Rate the opportunity for eco-friendly kitchenware in the AU market',
-          'Is the posture corrector niche viable in Australia?',
-        ],
-      },
-      {
         id: 'supplier-finder',
         label: 'Supplier Finder',
         icon: Truck,
@@ -1304,22 +1291,6 @@ export const stages: StageGroup[] = [
           'Design a $100 Facebook ad test to validate demand for a posture corrector',
           'My test ad got 2.1% CTR and 0 purchases on $80 spend. Should I kill it?',
           "What's the minimum ad spend needed to get statistically valid results?",
-        ],
-      },
-      {
-        id: 'pricing-optimizer',
-        label: 'Pricing Optimizer',
-        icon: DollarSign,
-        path: '/app/pricing-optimizer',
-        description: 'Find the optimal price point for maximum profit',
-        systemPrompt: mkPrompt(
-          'a pricing strategy expert for Australian ecommerce',
-          "Help users optimise their product pricing for the AU market. AU pricing context: Australians are price-savvy and comparison-shop heavily, GST (10%) must be included in displayed prices (it's illegal to show ex-GST to consumers), Afterpay/Zip splits payment into 4 (making higher price points more accessible — $80–200 AUD sweet spot for Afterpay), free shipping thresholds ($79–99 AUD) strongly influence purchase decisions, and AU consumers will pay premium for 'Australian owned/made' products. Analyse: AU competitor pricing landscape (check local competitors AND international competitors shipping to AU), perceived value positioning in AU context, price elasticity estimation (AU consumers are less impulse-buy than US, more considered), psychological pricing tactics that work in AU, bundle pricing strategies (push AOV above free shipping threshold), discount structures (Australians expect Click Frenzy, Black Friday, EOFY sales — plan margin accordingly), and A/B test recommendations. All prices in AUD, GST-inclusive."
-        ),
-        examplePrompts: [
-          'Competitors sell at $29–$49. My COGS is $9. What should I price at?',
-          'Should I use $34.99 or $35 for a premium skincare product?',
-          'Create a bundle pricing strategy for a 3-product skincare line',
         ],
       },
       {
@@ -1701,22 +1672,6 @@ Where this brand sits vs 3–4 AU competitors on Price (affordable↔premium) an
           'My Meta ads ROAS dropped from 3.2x to 1.4x in 2 weeks. What should I check?',
           "I'm spending $200/day on Meta with 2.1x ROAS. How do I scale to $500/day safely?",
           'My CPM is $28 and CTR is 0.9%. Is this normal for a cold audience?',
-        ],
-      },
-      {
-        id: 'profit-maximizer',
-        label: 'Profit Maximizer',
-        icon: DollarSign,
-        path: '/app/profit-maximizer',
-        description: 'Find opportunities to increase profit margins',
-        systemPrompt: mkPrompt(
-          'a profit optimisation consultant for Australian ecommerce',
-          'Help users maximise their AU ecommerce profit margins. AU-specific profit levers: shipping is a major cost centre in AU (negotiate Australia Post eParcel rates at volume, consider Sendle for small parcels, Aramex for scale), GST (10%) must be included in displayed prices, Afterpay/Zip merchant fees (4–6%) eat into margins but boost conversion, and AU consumers expect free shipping above $79–99 which compresses margins on lower-AOV orders. Analyse: cost reduction opportunities (COGS optimisation, AU shipping rate negotiation, packaging weight reduction for eParcel tiers), revenue optimisation (AOV increase above free shipping threshold, upsells, bundles), operational efficiency (3PL in AU like ShipBob AU, Shippit, eStore Logistics vs self-fulfilment), pricing strategy refinement for AU market (premium positioning vs competitive), and financial modelling in AUD. Provide specific, quantified AUD recommendations with projected impact.'
-        ),
-        examplePrompts: [
-          "I'm making $80K/month revenue but only 8% net margin. Where should I cut costs?",
-          'What upsell strategy would increase my $42 AOV to $65?',
-          'Compare the profit impact of reducing COGS by $3 vs increasing price by $5',
         ],
       },
     ],

@@ -307,8 +307,10 @@ async function startServer() {
   const shopsRouter = (await import('../routes/shops')).default;
   app.use('/api/shops', shopsRouter);
   const productsRouter = (await import('../routes/products')).default;
-  app.use('/api/products', productsRouter)
-  const { default: aliexpressRouter } = await import('../routes/aliexpress');;
+  app.use('/api/products', productsRouter);
+  const waitlistRouter = (await import('../routes/waitlist')).default;
+  app.use('/api/waitlist', waitlistRouter);
+  const { default: aliexpressRouter } = await import('../routes/aliexpress');
   const { registerGenerationRoutes } = await import('../routes/generation');
   registerGenerationRoutes(app);
   // ── Ad Spy Search ────────────────────────────────────────────────────────────

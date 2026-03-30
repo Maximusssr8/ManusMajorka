@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation } from 'wouter';
+import { toast } from 'sonner';
 import UpgradeModal from '@/components/UpgradeModal';
 import {
   Megaphone, Link2, ShoppingBag, Activity, ChevronRight,
@@ -1105,6 +1106,7 @@ export default function AdsManager() {
 
   useEffect(() => {
     if (session?.access_token) fetchAll();
+    else setLoading(false);
   }, [session?.access_token, fetchAll]);
 
   // Load swipe file from localStorage
@@ -1470,8 +1472,37 @@ export default function AdsManager() {
                   </div>
                 ) : metaStatus?.meta_not_configured ? (
                   <div>
-                    <p style={{ color: C.dim, fontSize: 13, marginBottom: 12 }}>Meta integration coming soon. Contact support for early access.</p>
-                    <Btn disabled style={{ opacity: 0.5 }}>Coming Soon</Btn>
+                    <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 12, padding: '20px 24px' }}>
+                      <div style={{ fontFamily: FONT_HEADING, fontWeight: 700, fontSize: 16, color: C.text, marginBottom: 6 }}>
+                        Meta Ads Integration — In Development
+                      </div>
+                      <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, marginBottom: 16 }}>
+                        Full Meta campaign launching is coming soon. Join the waitlist to be first when it launches.
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
+                        <input
+                          type="email"
+                          placeholder="your@email.com"
+                          id="meta-waitlist-email"
+                          style={{ flex: 1, minWidth: 200, padding: '10px 14px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, color: 'white', fontSize: 14, outline: 'none' }}
+                        />
+                        <button
+                          onClick={async () => {
+                            const emailEl = document.getElementById('meta-waitlist-email') as HTMLInputElement;
+                            const email = emailEl?.value?.trim();
+                            if (!email || !email.includes('@')) { toast.error('Please enter a valid email'); return; }
+                            try {
+                              await fetch('/api/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, feature: 'meta_ads' }) });
+                              toast.success("You're on the list! We'll notify you when Meta Ads launches.");
+                              emailEl.value = '';
+                            } catch { toast.error('Something went wrong. Try again.'); }
+                          }}
+                          style={{ padding: '10px 20px', background: C.indigo, color: 'white', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' as const, whiteSpace: 'nowrap' as const }}
+                        >
+                          Join Waitlist →
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <Btn onClick={handleMetaConnect}><Link2 size={14} /> Connect Meta Account</Btn>

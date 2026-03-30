@@ -431,14 +431,31 @@ export default function ProfitCalculator() {
           {saved ? '✓ Saved!' : 'Save Calculation'}
         </button>
         <button
-          onClick={() => {
+          onClick={async () => {
             const params = new URLSearchParams({
               cost: String(productCost), price: String(sellingPrice),
               units: String(unitsPerDay), ads: String(adSpendPerDay),
             });
-            const url = `${window.location.origin}/app/profit?${params}`;
-            navigator.clipboard.writeText(url);
-            toast.success('Share link copied to clipboard!');
+            const shareUrl = `${window.location.origin}/share/profit?${params.toString()}`;
+            try {
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(shareUrl);
+                toast.success('Share link copied to clipboard!');
+              } else {
+                const textArea = document.createElement('textarea');
+                textArea.value = shareUrl;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                toast.success('Share link copied to clipboard!');
+              }
+            } catch {
+              toast.error('Could not copy link. URL: ' + shareUrl.slice(0, 60));
+            }
           }}
           style={{ height: 40, padding: '0 20px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
         >
