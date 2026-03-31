@@ -1235,6 +1235,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 // ─── Product Detail Drawer ────────────────────────────────────────────────────
 // ── Supplier Finder — live Tavily search ───────────────────────────────────
 function SupplierFinder({ productName }: { productName: string }) {
+  const dark = document.documentElement.classList.contains('dark');
   const enc = encodeURIComponent(productName);
   const suppliers = [
     { label: 'AliExpress', icon: '🛒', desc: 'Search all listings', color: '#e8590c', bg: '#fff5f0', border: '#fcd0be', url: `https://www.aliexpress.com/wholesale?SearchText=${enc}&shipCountry=au&SortType=total_tranpro_desc` },
@@ -1246,11 +1247,11 @@ function SupplierFinder({ productName }: { productName: string }) {
   ];
   return (
     <div style={{ marginBottom: 20 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: '#0A0A0A', marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Find Suppliers</div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--cell-text, #0A0A0A)', marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Find Suppliers</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
         {suppliers.map(({ label, icon, desc, url, color, bg, border }) => (
           <a key={label} href={url} target="_blank" rel="noopener noreferrer"
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 11px', background: bg, border: `1px solid ${border}`, borderRadius: 8, textDecoration: 'none' }}>
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 11px', background: dark ? `${color}12` : bg, border: `1px solid ${dark ? `${color}30` : border}`, borderRadius: 8, textDecoration: 'none' }}>
             <span style={{ fontSize: 16 }}>{icon}</span>
             <div style={{ minWidth: 0 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color }}>{label}</div>
@@ -1467,19 +1468,20 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
     </div>
   );
 
+  const isDark = document.documentElement.classList.contains('dark');
   const metric = (label: string, val: string, color: string, bg: string) => (
-    <div style={{ background: bg, borderRadius: 10, padding: '10px 12px', textAlign: 'center' as const }}>
+    <div style={{ background: isDark ? `${color}15` : bg, borderRadius: 10, padding: '10px 12px', textAlign: 'center' as const }}>
       <div style={{ fontSize: 9, color, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, marginBottom: 4 }}>{label}</div>
       <div style={{ fontFamily: brico, fontWeight: 900, fontSize: 17, color, lineHeight: 1 }}>{val}</div>
     </div>
   );
 
   return (
-    <div style={{ marginBottom: 20, background: '#F0F4FF', border: '1px solid #C7D2FE', borderRadius: 16, overflow: 'hidden' as const }}>
+    <div style={{ marginBottom: 20, background: isDark ? 'rgba(99,102,241,0.06)' : '#F0F4FF', border: `1px solid ${isDark ? 'rgba(99,102,241,0.2)' : '#C7D2FE'}`, borderRadius: 16, overflow: 'hidden' as const }}>
       {/* Collapsible header */}
       <button onClick={() => setOpen(o => !o)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' as const }}>
         <div>
-          <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 14, color: '#1E1B4B' }}>💰 Profit Analysis</div>
+          <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 14, color: isDark ? '#C7D2FE' : '#1E1B4B' }}>💰 Profit Analysis</div>
           <div style={{ fontSize: 11, color: '#6366F1', marginTop: 1 }}>Auto-filled from product · all values editable</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1492,7 +1494,7 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
       </button>
 
       {open && (
-        <div style={{ padding: '0 16px 16px', borderTop: '1px solid #C7D2FE' }}>
+        <div style={{ padding: '0 16px 16px', borderTop: `1px solid ${isDark ? 'rgba(99,102,241,0.2)' : '#C7D2FE'}` }}>
 
           {/* Inputs — 4 fields in 2×2 grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 14, marginBottom: 10 }}>
@@ -1529,27 +1531,27 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
             {metric('Daily Profit',    fmtAUD(dailyProfit),       '#8B5CF6', '#F3E8FF')}
             {metric('Break-even CPA',  `$${breakEvenCPA > 0 ? breakEvenCPA.toFixed(2) : '—'}`, '#0891B2', '#ECFEFF')}
           </div>
-          <div style={{ background: '#EEF2FF', borderRadius: 10, padding: '10px 12px', marginBottom: 14, textAlign: 'center' as const }}>
+          <div style={{ background: isDark ? 'rgba(99,102,241,0.08)' : '#EEF2FF', borderRadius: 10, padding: '10px 12px', marginBottom: 14, textAlign: 'center' as const }}>
             <div style={{ fontSize: 9, color: '#6366F1', fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase' as const, marginBottom: 4 }}>ROAS (Return on Ad Spend)</div>
             <div style={{ fontFamily: brico, fontWeight: 900, fontSize: 22, color: roas >= 2 ? '#059669' : roas >= 1 ? '#D97706' : '#DC2626' }}>{roas > 0 ? `${roas.toFixed(2)}x` : '—'}</div>
             <div style={{ fontSize: 10, color: '#6B7280', marginTop: 2 }}>{roas >= 3 ? 'Excellent' : roas >= 2 ? 'Good' : roas >= 1 ? 'Breakeven zone' : 'Loss-making at current spend'}</div>
           </div>
 
           {/* What this means */}
-          <div style={{ background: 'white', border: '1px solid #E0E7FF', borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
+          <div style={{ background: isDark ? 'var(--card-bg, #0E1420)' : 'white', border: `1px solid ${isDark ? 'var(--border-color, #1E293B)' : '#E0E7FF'}`, borderRadius: 10, padding: '10px 14px', marginBottom: 14 }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: '#6366F1', marginBottom: 6, textTransform: 'uppercase' as const, letterSpacing: '.06em' }}>💡 What This Means</div>
-            <div style={{ fontSize: 12, color: '#374151', lineHeight: 1.6 }}>{insight}</div>
+            <div style={{ fontSize: 12, color: 'var(--cell-text, #374151)', lineHeight: 1.6 }}>{insight}</div>
           </div>
 
           {/* Monthly Profit Projections */}
           <div style={{ marginBottom: 14 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: '#0A0A0A', marginBottom: 8, textTransform: 'uppercase' as const, letterSpacing: '.07em' }}>Monthly Profit Projections</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--cell-text, #0A0A0A)', marginBottom: 8, textTransform: 'uppercase' as const, letterSpacing: '.07em' }}>Monthly Profit Projections</div>
             <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 4 }}>
               {projections.map(proj => {
                 const pos = proj.monthly > 0;
                 return (
-                  <div key={proj.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', background: pos ? '#F0FDF4' : '#FEF2F2', borderRadius: 8, border: `1px solid ${pos ? '#BBF7D0' : '#FECACA'}` }}>
-                    <span style={{ fontSize: 12, color: '#374151', fontWeight: 500 }}>{proj.label}</span>
+                  <div key={proj.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', background: isDark ? (pos ? 'rgba(5,150,105,0.1)' : 'rgba(220,38,38,0.1)') : (pos ? '#F0FDF4' : '#FEF2F2'), borderRadius: 8, border: `1px solid ${isDark ? (pos ? 'rgba(5,150,105,0.2)' : 'rgba(220,38,38,0.2)') : (pos ? '#BBF7D0' : '#FECACA')}` }}>
+                    <span style={{ fontSize: 12, color: 'var(--cell-text, #374151)', fontWeight: 500 }}>{proj.label}</span>
                     <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 14, color: pos ? '#059669' : '#DC2626' }}>{fmtAUD(proj.monthly)}/mo</span>
                   </div>
                 );

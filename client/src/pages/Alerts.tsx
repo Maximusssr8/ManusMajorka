@@ -12,7 +12,10 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const brico = "'Bricolage Grotesque', sans-serif";
 const dm = 'DM Sans, sans-serif';
-const C = { bg: '#F9FAFB', card: '#FFFFFF', border: '#E5E7EB', text: '#0A0A0A', sub: '#6B7280', muted: '#9CA3AF', indigo: '#6366F1', indigoBg: '#EEF2FF', indigoBorder: '#C7D2FE' };
+const _dark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+const C = _dark
+  ? { bg: '#060A12', card: '#0E1420', border: 'rgba(255,255,255,0.08)', text: '#E2E8F0', sub: '#94A3B8', muted: '#64748B', indigo: '#6366F1', indigoBg: 'rgba(99,102,241,0.1)', indigoBorder: 'rgba(99,102,241,0.25)' }
+  : { bg: '#F9FAFB', card: '#FFFFFF', border: '#E5E7EB', text: '#0A0A0A', sub: '#6B7280', muted: '#9CA3AF', indigo: '#6366F1', indigoBg: '#EEF2FF', indigoBorder: '#C7D2FE' };
 
 type AlertType = 'trending' | 'price_drop' | 'competitor';
 interface Alert { id: string; alert_type: AlertType; config: Record<string, unknown>; is_active: boolean; last_triggered_at: string | null; created_at: string; }
@@ -204,11 +207,11 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
                     }
                     <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
                       <span style={{ fontSize: 10, padding: '2px 8px', background: 'rgba(99,102,241,0.1)', color: '#6366F1', borderRadius: 4, fontWeight: 600 }}>📧 Email</span>
-                      <span style={{ fontSize: 10, padding: '2px 8px', background: '#F5F5F5', color: '#9CA3AF', borderRadius: 4, fontWeight: 600 }}>🔔 In-App</span>
+                      <span style={{ fontSize: 10, padding: '2px 8px', background: _dark ? 'rgba(255,255,255,0.05)' : '#F5F5F5', color: '#9CA3AF', borderRadius: 4, fontWeight: 600 }}>🔔 In-App</span>
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 100, background: '#ECFDF5', color: '#059669' }}>ACTIVE</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 100, background: _dark ? 'rgba(5,150,105,0.1)' : '#ECFDF5', color: '#059669' }}>ACTIVE</span>
                     {tab === 'active' && (
                       pendingDelete === alert.id ? (
                         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
