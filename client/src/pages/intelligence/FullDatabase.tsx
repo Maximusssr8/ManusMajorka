@@ -64,6 +64,11 @@ interface Product {
   velocity_score?: number;
   peak_in_days?: number | null;
   velocity_curve?: Array<{ signal_strength: number }>;
+  signal_score?: number;
+  quality_tier?: string;
+  data_sources?: string[];
+  tiktok_shop_signal?: boolean;
+  amazon_signal?: boolean;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -197,6 +202,34 @@ function ScoreBadge({ score }: { score: number }) {
         <span style={{ fontFamily: brico, fontWeight: 800, fontSize: 13, color: tier.color }}>{tier.prefix}{score}</span>
       </div>
       <span style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>Dropship</span>
+    </div>
+  );
+}
+
+function QualityTierBadge({ tier, score }: { tier?: string; score?: number }) {
+  const effective = tier || (score && score >= 100 ? 'viral' : score && score >= 80 ? 'winning' : score && score >= 60 ? 'rising' : 'emerging');
+  const config: Record<string, { label: string; bg: string; color: string; border: string }> = {
+    viral:    { label: 'Viral',    bg: 'rgba(239,68,68,0.12)',    color: '#EF4444', border: 'rgba(239,68,68,0.3)' },
+    winning:  { label: 'Winning',  bg: 'rgba(34,197,94,0.1)',     color: '#22C55E', border: 'rgba(34,197,94,0.25)' },
+    rising:   { label: 'Rising',   bg: 'rgba(245,158,11,0.1)',    color: '#F59E0B', border: 'rgba(245,158,11,0.25)' },
+    emerging: { label: 'Emerging', bg: 'rgba(99,102,241,0.1)',    color: '#818CF8', border: 'rgba(99,102,241,0.2)' },
+  };
+  const c = config[effective as string] || config.emerging;
+  return (
+    <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 5, background: c.bg, color: c.color, border: `1px solid ${c.border}`, whiteSpace: 'nowrap' as const }}>
+      {c.label}
+    </span>
+  );
+}
+
+function SourceBadges({ sources, isChoice }: { sources?: string[]; isChoice?: boolean }) {
+  const src = sources || [];
+  return (
+    <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' as const }}>
+      {src.includes('tiktok') && <span style={{ fontSize: 9, padding: '1px 4px', borderRadius: 3, background: 'rgba(0,0,0,0.06)', color: '#374151', fontWeight: 700 }}>TT</span>}
+      {src.includes('amazon') && <span style={{ fontSize: 9, padding: '1px 4px', borderRadius: 3, background: 'rgba(255,153,0,0.12)', color: '#B45309', fontWeight: 700 }}>AMZ</span>}
+      {src.includes('aliexpress') && <span style={{ fontSize: 9, padding: '1px 4px', borderRadius: 3, background: 'rgba(255,106,0,0.12)', color: '#C2410C', fontWeight: 700 }}>AE</span>}
+      {isChoice && <span style={{ fontSize: 9, padding: '1px 4px', borderRadius: 3, background: 'rgba(255,106,0,0.12)', color: '#C2410C', fontWeight: 700 }}>AE Choice</span>}
     </div>
   );
 }
@@ -850,8 +883,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                                   />
                                 </div>
                               )}
-                              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
-                                {tags.slice(0, 2).map(tag => {
+                              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4, alignItems: 'center' }}>
+                                <QualityTierBadge tier={p.quality_tier} score={p.signal_score || p.winning_score} />
+                                <SourceBadges sources={p.data_sources} isChoice={p.tags?.includes('aliexpress_choice')} />
+                                {tags.slice(0, 1).map(tag => {
                                   const ts = TAG_STYLE[tag] || TAG_STYLE['TRENDING'];
                                   return (
                                     <span key={tag} style={{ fontSize: 9, fontWeight: 700, color: ts.color, background: ts.bg, borderRadius: 4, padding: '1px 5px', letterSpacing: '0.04em', textTransform: 'uppercase' as const }}>
@@ -859,11 +894,6 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                                     </span>
                                   );
                                 })}
-                                {p.tags?.includes('aliexpress_choice') && (
-                                  <span style={{ fontSize: 9, fontWeight: 700, color: '#ff6a00', background: 'rgba(255,106,0,0.12)', borderRadius: 4, padding: '1px 5px', letterSpacing: '0.04em', textTransform: 'uppercase' as const }}>
-                                    AE CHOICE
-                                  </span>
-                                )}
                                 <span style={{ fontSize: 10, color: '#9CA3AF' }}>{getProductNiche(p)}</span>
                               </div>
                             </div>
@@ -1463,7 +1493,12 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
         </div>
         <div style={{ padding: 20 }}>
           <h2 style={{ fontFamily: brico, fontWeight: 700, fontSize: 17, color: '#0A0A0A', marginBottom: 6, lineHeight: 1.4 }}>{name}</h2>
-          <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 18 }}>{p.niche || p.category} &middot; ~{orders.toLocaleString()} est. orders/mo &middot; AI-estimated data</div>
+          <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 10 }}>{p.niche || p.category} &middot; ~{orders.toLocaleString()} est. orders/mo &middot; AI-estimated data</div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, alignItems: 'center', marginBottom: 16 }}>
+            <QualityTierBadge tier={p.quality_tier} score={p.signal_score || score} />
+            {(p.signal_score != null && p.signal_score > 0) && <span style={{ fontSize: 11, fontWeight: 700, color: '#6366F1', background: '#EEF2FF', padding: '2px 7px', borderRadius: 5 }}>Signal: {p.signal_score}</span>}
+            <SourceBadges sources={p.data_sources} isChoice={p.tags?.includes('aliexpress_choice')} />
+          </div>
 
           {p.tags?.includes('aliexpress_choice') && (
             <div style={{ background: 'rgba(255,106,0,0.08)', border: '1px solid rgba(255,106,0,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>

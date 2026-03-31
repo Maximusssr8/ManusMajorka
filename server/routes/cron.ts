@@ -4,6 +4,9 @@ import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 import { scrapeAliExpressCategoryPage } from '../lib/apifyAliExpressBulk';
 import { runPipeline } from '../lib/aeProductPipeline';
+import { scrapeAmazonBestsellers, AMAZON_AU_CATEGORIES } from '../lib/apifyAmazon';
+import { scrapeTikTokShopProducts } from '../lib/apifyTikTokShop';
+import { runUnifiedPipeline, type UnifiedProduct } from '../lib/unifiedPipeline';
 
 const router = Router();
 
@@ -394,6 +397,107 @@ router.get('/scrape-aliexpress-trending', async (req: Request, res: Response) =>
     res.json({ success: true, source: source.name, ...pipelineResult });
   } catch (err: any) {
     console.error('[cron/ae-trending] Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+const CRON_AUD_RATE = 1.58;
+
+// GET /api/cron/scrape-amazon — daily
+router.get('/scrape-amazon', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const supabase = getSupabaseAdmin();
+
+  try {
+    // Rotate through 2 categories per day
+    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
+    const startIdx = (dayOfYear * 2) % AMAZON_AU_CATEGORIES.length;
+    const toScrape = AMAZON_AU_CATEGORIES.slice(startIdx, startIdx + 2);
+
+    let totalAdded = 0, totalScraped = 0;
+    const errors: string[] = [];
+
+    for (const cat of toScrape) {
+      const rawProducts = await scrapeAmazonBestsellers(cat.url, cat.name, 50);
+
+      const unified: UnifiedProduct[] = rawProducts.map(p => ({
+        title: p.title,
+        price_usd: p.price_aud / CRON_AUD_RATE, // Amazon AU prices are AUD, convert back
+        image_url: p.image_url,
+        product_url: p.product_url,
+        rating: p.rating,
+        review_count: p.review_count,
+        category: p.category,
+        source: 'amazon_au',
+        is_amazon_bestseller: p.bsr < 1000,
+        amazon_bsr: p.bsr,
+      }));
+
+      const pipeResult = await runUnifiedPipeline(unified, `amazon_${cat.name}`);
+      totalAdded += pipeResult.added;
+      totalScraped += pipeResult.scraped;
+      errors.push(...pipeResult.errors.slice(0, 3));
+
+      await supabase.from('scrape_logs').insert({
+        source: `amazon_${cat.name}`,
+        products_scraped: pipeResult.scraped,
+        products_passed_filter: pipeResult.passed_filter,
+        products_added: pipeResult.added,
+        products_updated: pipeResult.updated,
+        errors: pipeResult.errors.slice(0, 10),
+        status: 'success',
+        duration_seconds: Math.round(pipeResult.duration_ms / 1000),
+      }).catch(() => {});
+    }
+
+    res.json({ success: true, scraped: totalScraped, added: totalAdded, errors: errors.slice(0, 5) });
+  } catch (err: any) {
+    console.error('[cron/amazon] Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/cron/scrape-tiktok-shop — daily
+router.get('/scrape-tiktok-shop', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const supabase = getSupabaseAdmin();
+
+  try {
+    // Search for product-related TikTok content
+    const PRODUCT_TERMS = ['pet accessory', 'skincare routine', 'home gadget', 'kitchen tool', 'fitness gear', 'baby product'];
+    const dayOfWeek = new Date().getDay();
+    const terms = PRODUCT_TERMS.slice(dayOfWeek % 3, (dayOfWeek % 3) + 3);
+
+    const rawProducts = await scrapeTikTokShopProducts(terms);
+
+    const unified: UnifiedProduct[] = rawProducts
+      .filter(p => p.title && p.title.length > 5)
+      .map(p => ({
+        title: p.title,
+        price_usd: p.price_usd,
+        image_url: p.image_url,
+        product_url: p.product_url,
+        category: p.category,
+        source: 'tiktok_shop',
+        is_tiktok_shop: true,
+      }));
+
+    const pipeResult = await runUnifiedPipeline(unified, 'tiktok_shop');
+
+    await supabase.from('scrape_logs').insert({
+      source: 'tiktok_shop',
+      products_scraped: pipeResult.scraped,
+      products_passed_filter: pipeResult.passed_filter,
+      products_added: pipeResult.added,
+      products_updated: pipeResult.updated,
+      errors: pipeResult.errors.slice(0, 10),
+      status: 'success',
+      duration_seconds: Math.round(pipeResult.duration_ms / 1000),
+    }).catch(() => {});
+
+    res.json({ success: true, ...pipeResult });
+  } catch (err: any) {
+    console.error('[cron/tiktok-shop] Error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });

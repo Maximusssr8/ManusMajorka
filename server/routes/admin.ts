@@ -1466,4 +1466,39 @@ router.post('/scrape-aliexpress', requireAuth, requireAdmin, async (req: Request
   })();
 });
 
+// POST /api/admin/run-full-scrape — triggers all scrapers
+router.post('/run-full-scrape', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+  // Respond immediately, run in background
+  res.json({ success: true, message: 'Full scrape started — check scrape_logs for results' });
+
+  (async () => {
+    try {
+      const { scrapeAmazonBestsellers, AMAZON_AU_CATEGORIES } = await import('../lib/apifyAmazon');
+      const { scrapeTikTokShopProducts } = await import('../lib/apifyTikTokShop');
+      const { runUnifiedPipeline } = await import('../lib/unifiedPipeline');
+
+      // Run Amazon for first category
+      const amazonProducts = await scrapeAmazonBestsellers(AMAZON_AU_CATEGORIES[0].url, AMAZON_AU_CATEGORIES[0].name, 30);
+      const amazonUnified = amazonProducts.map((p: any) => ({
+        title: p.title, price_usd: p.price_aud / 1.58, image_url: p.image_url,
+        product_url: p.product_url, rating: p.rating, category: p.category,
+        source: 'amazon_au', is_amazon_bestseller: p.bsr < 1000, amazon_bsr: p.bsr,
+      }));
+      const amazonResult = await runUnifiedPipeline(amazonUnified, 'admin_amazon_initial');
+      console.log('[admin/full-scrape] Amazon result:', amazonResult);
+
+      // Run TikTok
+      const ttProducts = await scrapeTikTokShopProducts(['pet accessories', 'beauty gadget']);
+      const ttUnified = ttProducts.map((p: any) => ({
+        title: p.title, price_usd: p.price_usd || 20, image_url: p.image_url,
+        category: p.category, source: 'tiktok_shop', is_tiktok_shop: true,
+      }));
+      const ttResult = await runUnifiedPipeline(ttUnified, 'admin_tiktok_initial');
+      console.log('[admin/full-scrape] TikTok result:', ttResult);
+    } catch (err: any) {
+      console.error('[admin/full-scrape] Error:', err.message);
+    }
+  })();
+});
+
 export default router;

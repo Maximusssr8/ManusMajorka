@@ -79,6 +79,14 @@
     {
       "path": "/api/cron/scrape-aliexpress-categories",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/scrape-amazon",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/scrape-tiktok-shop",
+      "schedule": "0 8 * * *"
     }
   ]
 }
