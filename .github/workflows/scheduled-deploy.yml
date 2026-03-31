@@ -42,43 +42,24 @@ jobs:
           git merge origin/dev --no-ff -m "chore: scheduled deploy $(date -u '+%Y-%m-%d %H:%M UTC')"
           git push origin main
 
-      - name: Trigger Vercel production deploy
+      - name: Install Node + pnpm
         if: steps.diff.outputs.no_changes == 'false'
-        run: |
-          SHA=$(git rev-parse HEAD)
-          echo "Deploying SHA: $SHA"
-          RESPONSE=$(curl -s -X POST "https://api.vercel.com/v13/deployments" \
-            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"name\": \"manus-majorka\",
-              \"gitSource\": {
-                \"type\": \"github\",
-                \"ref\": \"main\",
-                \"sha\": \"$SHA\",
-                \"repoId\": \"1175625068\"
-              },
-              \"target\": \"production\"
-            }")
-          DEPLOY_ID=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('id','ERROR'))")
-          STATE=$(echo "$RESPONSE" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('readyState','UNKNOWN'))")
-          echo "Deploy ID: $DEPLOY_ID"
-          echo "Initial state: $STATE"
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-          # Poll until ready (max 10 minutes)
-          for i in $(seq 1 20); do
-            sleep 30
-            STATUS=$(curl -s "https://api.vercel.com/v13/deployments/$DEPLOY_ID" \
-              -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-              | python3 -c "import sys,json; print(json.load(sys.stdin).get('readyState','UNKNOWN'))")
-            echo "[$i/20] Status: $STATUS"
-            if [ "$STATUS" = "READY" ]; then
-              echo "✅ Deployed successfully → https://www.majorka.io"
-              exit 0
-            fi
-            if [ "$STATUS" = "ERROR" ] || [ "$STATUS" = "CANCELED" ]; then
-              echo "❌ Deploy failed with status: $STATUS"
-              exit 1
-            fi
-          done
-          echo "⚠️  Timed out waiting for deploy (it may still complete)"
+      - name: Deploy to Vercel (production)
+        if: steps.diff.outputs.no_changes == 'false'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          echo "📦 Installing Vercel CLI..."
+          npm install -g vercel@latest --silent
+          
+          echo "🚀 Deploying to production..."
+          vercel --prod \
+            --token "$VERCEL_TOKEN" \
+            --yes \
+            --cwd . 2>&1
+          
+          echo "✅ Deploy triggered → https://www.majorka.io"
