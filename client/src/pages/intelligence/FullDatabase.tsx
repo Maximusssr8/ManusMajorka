@@ -544,7 +544,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   });
 
   return (
-    <div style={{ background: '#FAFAFA', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--content-bg, #FAFAFA)', minHeight: '100vh' }}>
       <ProductFilterSidebar
         open={sidebarOpen}
         onToggle={() => setSidebarOpen(o => !o)}
@@ -555,7 +555,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       <div style={{ padding: isMobile ? '16px 16px 0' : '24px 24px 0', maxWidth: 1400, margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
           <div>
-            <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: '#0A0A0A', margin: 0 }}>
+            <h1 style={{ fontFamily: brico, fontWeight: 800, fontSize: 22, color: 'var(--content-text, #0A0A0A)', margin: 0 }}>
               Product Intelligence
             </h1>
             <p style={{ fontSize: 13, color: '#6B7280', marginTop: 4, marginBottom: 0 }}>
@@ -566,7 +566,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             {!isMobile && <DateRangeSelector value={dateRange} onChange={handleDateRange} />}
             {!isMobile && (
               <button onClick={() => exportCSV(filteredProducts.map(p => ({ name: p.product_title || p.name, category: p.category, price_aud: p.price_aud, monthly_revenue: p.est_monthly_revenue_aud, margin_pct: p.profit_margin, score: p.winning_score, trend: (p as any).trend, units_per_day: p.units_per_day, aliexpress_url: p.aliexpress_url, tags: (p.tags || []).join(';') })), 'products')}
-                style={{ height: 36, padding: '0 16px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                style={{ height: 36, padding: '0 16px', background: 'var(--card-bg, white)', color: 'var(--cell-text, #374151)', border: '1px solid var(--border-color, #E5E7EB)', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                 ⬇ Export CSV
               </button>
             )}
@@ -593,19 +593,19 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         )}
         {/* Data transparency banner — collapsed on mobile */}
         {isMobile ? (
-          <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 12, padding: '7px 10px', background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 12, padding: '7px 10px', background: 'var(--card-bg-soft, #F8FAFC)', borderRadius: 8, border: '1px solid var(--border-color, #E2E8F0)', display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ flexShrink: 0 }}>ℹ️</span>
             <span><strong style={{ color: '#374151' }}>AI-estimated data</strong> — not live sales figures. Use as research starting point.</span>
           </div>
         ) : (
-          <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 16, padding: '10px 14px', background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+          <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 16, padding: '10px 14px', background: 'var(--card-bg-soft, #F8FAFC)', borderRadius: 8, border: '1px solid var(--border-color, #E2E8F0)', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
             <span style={{ flexShrink: 0, fontSize: 14 }}>ℹ️</span>
             <span><strong style={{ color: '#374151' }}>Research data, not live sales data.</strong> Revenue, order counts, prices &amp; margins are AI-estimated demand signals derived from product research — not scraped live figures. All values are marked "est." Use as a starting point; verify current pricing and demand directly on AliExpress or TikTok Shop before ordering stock.</span>
           </div>
         )}
 
         {refreshMsg && (
-          <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 10, padding: '6px 12px', background: '#F9FAFB', borderRadius: 6, border: '1px solid #E5E7EB', display: 'inline-block' }}>
+          <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 10, padding: '6px 12px', background: 'var(--card-bg-soft, #F9FAFB)', borderRadius: 6, border: '1px solid var(--border-color, #E5E7EB)', display: 'inline-block' }}>
             {refreshMsg}
           </div>
         )}
@@ -617,6 +617,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', fontSize: 14 }}>{'\uD83D\uDD0D'}</span>
             <input value={searchInput} onChange={e => setSearchInput(e.target.value)}
               placeholder="Search products..."
+              className="dark-input"
               style={{ height: 36, paddingLeft: 32, paddingRight: 12, border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, outline: 'none', background: 'white', width: 200, minWidth: 150 }}
               onFocus={e => { e.currentTarget.style.borderColor = '#6366F1'; }}
               onBlur={e => { e.currentTarget.style.borderColor = '#E5E7EB'; }} />
@@ -624,6 +625,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
           {/* Niche selector */}
           <select value={niche} onChange={e => setNiche(e.target.value)}
+            className="dark-select"
             style={{ height: 36, padding: '0 10px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, background: 'white', outline: 'none', color: '#374151', cursor: 'pointer' }}>
             {niches.map(n => <option key={n}>{n}</option>)}
           </select>
@@ -632,9 +634,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
             {FILTERS.map(f => (
               <button key={f} onClick={() => setOpportunityFilter(f)}
+                className={opportunityFilter === f ? '' : 'filter-chip-inactive'}
                 style={{ height: 32, padding: '0 12px', borderRadius: 16, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 500, transition: 'all 150ms',
-                  background: opportunityFilter === f ? '#6366F1' : '#F5F5F5',
-                  color: opportunityFilter === f ? 'white' : '#374151' }}>
+                  background: opportunityFilter === f ? '#6366F1' : 'var(--card-bg-soft, #F5F5F5)',
+                  color: opportunityFilter === f ? 'white' : 'var(--cell-text, #374151)' }}>
                 {f}
               </button>
             ))}
@@ -665,6 +668,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const, marginBottom: 16, alignItems: 'center' }}>
           {/* Category multi-select */}
           <select multiple={false} onChange={e => setFilters(f => ({ ...f, category: e.target.value ? [e.target.value] : [] }))}
+            className="dark-select"
             style={{ height: 34, padding: '0 10px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, color: '#374151', cursor: 'pointer' }}>
             <option value="">All Categories</option>
             {[...new Set(products.map(p => p.category).filter(Boolean))].map(c => (
@@ -675,6 +679,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           {/* Trend direction */}
           {(['all', 'rising', 'peaked', 'declining'] as const).map(t => (
             <button key={t} onClick={() => setFilters(f => ({ ...f, trend: t }))}
+              className={filters.trend === t ? '' : 'filter-chip-inactive'}
               style={{ height: 34, padding: '0 14px', background: filters.trend === t ? '#6366F1' : 'white', color: filters.trend === t ? 'white' : '#374151', border: `1px solid ${filters.trend === t ? '#6366F1' : '#E5E7EB'}`, borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize' as const }}>
               {t === 'all' ? 'All' : t === 'rising' ? 'Rising' : t === 'peaked' ? 'Peaked' : 'Declining'}
             </button>
@@ -682,6 +687,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
           {/* Sort by */}
           <select onChange={e => setFilters(f => ({ ...f, sortBy: e.target.value as any }))}
+            className="dark-select"
             style={{ height: 34, padding: '0 10px', background: 'white', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 12, color: '#374151', cursor: 'pointer' }}>
             <option value="revenue">Sort: Revenue</option>
             <option value="score">Sort: Score</option>
@@ -799,9 +805,9 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     key={product.id || idx}
                     onClick={() => !isBlurred && setDetailProduct(product)}
                     style={{
-                      background: 'white',
+                      background: 'var(--card-bg, white)',
                       borderRadius: 12,
-                      border: `1px solid ${detailProduct?.id === product.id ? '#6366F1' : '#F3F4F6'}`,
+                      border: `1px solid ${detailProduct?.id === product.id ? '#6366F1' : 'var(--border-color, #F3F4F6)'}`,
                       padding: 14,
                       marginBottom: 10,
                       cursor: isBlurred ? 'default' : 'pointer',
@@ -818,10 +824,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         src={product.image_url || ''}
                         alt=""
                         onError={e => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/56?text=📦'; }}
-                        style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover' as const, flexShrink: 0, background: '#F9FAFB' }}
+                        style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover' as const, flexShrink: 0, background: 'var(--card-bg-soft, #F9FAFB)' }}
                       />
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: '#111827', lineHeight: 1.3, marginBottom: 5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--cell-text, #111827)', lineHeight: 1.3, marginBottom: 5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
                           {product.product_title || product.name || 'Unknown Product'}
                         </div>
                         <div style={{ display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' as const }}>
@@ -845,9 +851,9 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         { label: '🏷 Sell Price', value: `$${price.toFixed(0)} ${region.currency}` },
                         { label: '📊 Margin', value: `~${Math.round(margin)}%` },
                       ].map(m => (
-                        <div key={m.label} style={{ background: '#F9FAFB', borderRadius: 7, padding: '7px 10px' }}>
+                        <div key={m.label} style={{ background: 'var(--card-bg-soft, #F9FAFB)', borderRadius: 7, padding: '7px 10px' }}>
                           <div style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 2 }}>{m.label}</div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{m.value}</div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--cell-text, #111827)' }}>{m.value}</div>
                         </div>
                       ))}
                     </div>
@@ -916,6 +922,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             }}
           />
         <div
+          className="products-table-container"
           style={{ overflowX: 'auto' as const, borderRadius: 12, border: '1px solid #E5E7EB', boxShadow: '0 1px 4px #F5F5F5' }}
           onScroll={(e) => {
             const el = e.currentTarget;
@@ -926,7 +933,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             }
           }}
         >
-            <div style={{ background: 'white' }}>
+            <div style={{ background: 'var(--card-bg, white)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 1280 }}>
 
             {/* ── STICKY HEADER ── */}
@@ -943,7 +950,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               <col style={{ width: isMobile ? 120 : 185 }} />       {/* Actions */}
             </colgroup>
             <thead>
-              <tr style={{ background: 'rgba(250,250,250,0.98)', borderBottom: '2px solid #F3F4F6', height: 42, position: 'sticky' as const, top: 0, zIndex: 10 }}>
+              <tr style={{ background: 'var(--table-header-bg, rgba(250,250,250,0.98))', borderBottom: '2px solid var(--table-border, #F3F4F6)', height: 42, position: 'sticky' as const, top: 0, zIndex: 10 }}>
                 <th style={{ ...thStyle('rank', isMobile ? 32 : 40, 'center'), cursor: 'default' }}>#</th>
                 <th style={thStyle('name', isMobile ? 170 : 210)} onClick={() => handleSort('name')}>
                   Product <SortIcon col="name" />
@@ -1027,11 +1034,11 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                           borderBottom: '1px solid #F3F4F6',
                           cursor: 'pointer',
                           transition: 'background 120ms',
-                          background: isExpanded ? '#FAFAFF' : 'white',
+                          background: isExpanded ? 'var(--row-hover, #FAFAFF)' : 'var(--row-bg, white)',
                           animation: `fadeInRow 0.3s ease ${idx * 0.03}s both`,
                         }}
-                        onMouseEnter={e => { if (!isExpanded) e.currentTarget.style.background = '#FAFAFF'; }}
-                        onMouseLeave={e => { if (!isExpanded) e.currentTarget.style.background = 'white'; }}
+                        onMouseEnter={e => { if (!isExpanded) e.currentTarget.style.background = 'var(--row-hover, #FAFAFF)'; }}
+                        onMouseLeave={e => { if (!isExpanded) e.currentTarget.style.background = 'var(--row-bg, white)'; }}
                       >
                         {/* # */}
                         <td style={{ ...tdStyle('center'), color: '#9CA3AF', fontSize: 12, fontWeight: 600 }}>
@@ -1043,7 +1050,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 10 }}>
                             <ProductImage src={p.image_url} alt={name} size={isMobile ? 36 : 44} />
                             <div style={{ minWidth: 0 }}>
-                              <div style={{ fontWeight: 600, fontSize: isMobile ? 12 : 13, color: '#0A0A0A', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                              <div style={{ fontWeight: 600, fontSize: isMobile ? 12 : 13, color: 'var(--cell-text, #0A0A0A)', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
                                 {name}
                               </div>
                               {!isMobile && p.velocity_label && p.velocity_label !== 'UNKNOWN' && (
@@ -1171,10 +1178,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
                       {/* ── EXPANDED SCORE BREAKDOWN ── */}
                       {isExpanded && (
-                        <tr style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
+                        <tr style={{ background: 'var(--card-bg-soft, #F9FAFB)', borderBottom: '1px solid var(--border-color, #E5E7EB)' }}>
                           <td colSpan={10} style={{ padding: '0 16px 16px' }}>
-                            <div style={{ padding: '14px 16px', background: 'white', borderRadius: 10, border: '1px solid #E5E7EB', maxWidth: 500 }}>
-                              <div style={{ fontSize: 11, fontWeight: 700, color: '#0A0A0A', marginBottom: 12, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Why this product?</div>
+                            <div style={{ padding: '14px 16px', background: 'var(--card-bg, white)', borderRadius: 10, border: '1px solid var(--border-color, #E5E7EB)', maxWidth: 500 }}>
+                              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--cell-text, #0A0A0A)', marginBottom: 12, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>Why this product?</div>
                               {[
                                 { label: 'Order Volume', v: p.score_breakdown?.order_score ?? Math.round((Math.min(orders, 5000) / 5000) * 25), max: 25 },
                                 { label: 'Margin Potential', v: p.score_breakdown?.margin_score ?? Math.round((margin / 75) * 25), max: 25 },

@@ -964,7 +964,7 @@ export default function MajorkaAppShell({ children }: Props) {
   return (
     <div
       className="flex h-screen overflow-hidden"
-      style={{ background: '#F9FAFB', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: 'var(--content-bg, #060A12)', color: 'var(--content-text, #F1F5F9)', fontFamily: 'DM Sans, sans-serif' }}
     >
       <PWAInstallBanner />
       {/* Search overlay */}
@@ -1163,7 +1163,7 @@ export default function MajorkaAppShell({ children }: Props) {
         {/* Desktop top header bar */}
         <div
           className="hidden lg:flex items-center justify-between px-6 flex-shrink-0"
-          style={{ height: 56, background: 'white', borderBottom: '1px solid #F0F0F0' }}
+          style={{ height: 56, background: 'var(--card-bg, white)', borderBottom: '1px solid var(--border-color, #F0F0F0)' }}
         >
           <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 18, fontWeight: 700, color: '#111111' }}>
             {(() => {
