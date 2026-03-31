@@ -1655,4 +1655,46 @@ router.post('/run-cj-real-products', requireAuth, requireAdmin, async (_req: Req
   });
 });
 
+// ── Phase 7: Score Recalibration ────────────────────────────────────────
+
+import { scoreProduct } from '../lib/realScoring';
+
+router.post('/recalculate-scores', requireAuth, requireAdmin, async (_req: Request, res: Response) => {
+  try {
+    const supabase = getSupabase();
+    const { data: products, error: fetchErr } = await supabase
+      .from('winning_products')
+      .select('id, product_title, name, real_orders_count, orders_count, real_rating, rating, suggested_sell_aud, price_aud, real_cost_aud, cost_price_aud');
+
+    if (fetchErr) throw new Error(fetchErr.message);
+    if (!products || products.length === 0) {
+      return res.json({ updated: 0, avgScore: 0 });
+    }
+
+    let totalScore = 0;
+    let updated = 0;
+
+    for (const p of products) {
+      const result = scoreProduct(p);
+      const { error: updateErr } = await supabase
+        .from('winning_products')
+        .update({
+          winning_score: result.score,
+          score_breakdown: result.breakdown,
+        })
+        .eq('id', p.id);
+
+      if (!updateErr) {
+        updated++;
+        totalScore += result.score;
+      }
+    }
+
+    const avgScore = updated > 0 ? Math.round(totalScore / updated) : 0;
+    res.json({ updated, avgScore });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

@@ -593,4 +593,137 @@ router.get('/collect-cj-real', async (req: Request, res: Response) => {
   });
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// PHASE 8: AUTOMATED QUALITY PIPELINE
+// ═══════════════════════════════════════════════════════════════════════════
+
+const OVERSATURATED_KEYWORDS = [
+  'phone case', 'phone mount', 'water bottle', 'posture corrector',
+  'compression socks', 'cable organizer', 'cable organiser',
+  'phone charger', 'eyebrow stamp', 'hair tie', 'basic sunglass',
+];
+
+/**
+ * Quality gate for new products.
+ * Returns {valid: true} or {valid: false, reason: "..."}.
+ */
+export function validateNewProduct(product: Record<string, any>): { valid: boolean; reason?: string } {
+  if (!product.source_url) return { valid: false, reason: 'missing source_url' };
+  const title = product.product_title || product.name || '';
+  if (title.length <= 10) return { valid: false, reason: 'title too short (≤10 chars)' };
+  if (!product.image_url) return { valid: false, reason: 'missing image_url' };
+  const hasCost = (product.real_cost_aud && product.real_cost_aud > 0) || (product.cost_price_aud && product.cost_price_aud > 0);
+  if (!hasCost) return { valid: false, reason: 'no cost data (real_cost_aud or cost_price_aud)' };
+  const titleLower = title.toLowerCase();
+  const isSlop = OVERSATURATED_KEYWORDS.some(kw => titleLower.includes(kw));
+  if (isSlop) return { valid: false, reason: `oversaturated keyword: ${OVERSATURATED_KEYWORDS.find(kw => titleLower.includes(kw))}` };
+  return { valid: true };
+}
+
+// GET /api/cron/check-dead-links
+router.get('/check-dead-links', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const logId = await logPipelineStart('quality', 'check_dead_links');
+  const startedAt = new Date().toISOString();
+
+  try {
+    const supabase = getSupabaseAdmin();
+
+    // Fetch 20 random products with link_status != 'dead' that have a source_url
+    const { data: products, error: fetchErr } = await supabase
+      .from('winning_products')
+      .select('id, source_url, aliexpress_url, link_status')
+      .neq('link_status', 'dead')
+      .not('source_url', 'is', null)
+      .limit(20);
+
+    if (fetchErr) throw new Error(fetchErr.message);
+    if (!products || products.length === 0) {
+      await logPipelineEnd(logId, { startedAt }, 'success');
+      return res.json({ checked: 0, dead: 0, verified: 0 });
+    }
+
+    let dead = 0;
+    let verified = 0;
+
+    for (const p of products) {
+      const url = p.source_url || p.aliexpress_url;
+      if (!url) continue;
+
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 3000);
+        const response = await fetch(url, {
+          method: 'HEAD',
+          redirect: 'follow',
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+
+        if (response.status === 404 || response.status === 410) {
+          await supabase.from('winning_products').update({ link_status: 'dead' }).eq('id', p.id);
+          dead++;
+        } else if (response.ok) {
+          await supabase.from('winning_products').update({
+            link_status: 'verified',
+            link_verified_at: new Date().toISOString(),
+          }).eq('id', p.id);
+          verified++;
+        }
+      } catch {
+        // Connection error = dead link
+        await supabase.from('winning_products').update({ link_status: 'dead' }).eq('id', p.id);
+        dead++;
+      }
+    }
+
+    await logPipelineEnd(logId, { startedAt, raw_collected: products.length, updated: verified, failed: dead }, 'success');
+    res.json({ checked: products.length, dead, verified });
+  } catch (err: any) {
+    await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/cron/purge-dead-products
+router.get('/purge-dead-products', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const logId = await logPipelineStart('quality', 'purge_dead_products');
+  const startedAt = new Date().toISOString();
+
+  try {
+    const supabase = getSupabaseAdmin();
+    let deleted = 0;
+
+    // Delete dead links
+    const { data: deadProducts } = await supabase
+      .from('winning_products')
+      .select('id')
+      .eq('link_status', 'dead');
+    if (deadProducts && deadProducts.length > 0) {
+      const ids = deadProducts.map((p: any) => p.id);
+      await supabase.from('winning_products').delete().in('id', ids);
+      deleted += deadProducts.length;
+    }
+
+    // Delete low-score products
+    const { data: lowScoreProducts } = await supabase
+      .from('winning_products')
+      .select('id')
+      .lt('winning_score', 35);
+    if (lowScoreProducts && lowScoreProducts.length > 0) {
+      const ids = lowScoreProducts.map((p: any) => p.id);
+      await supabase.from('winning_products').delete().in('id', ids);
+      deleted += lowScoreProducts.length;
+    }
+
+    console.log(`[cron/purge] Deleted ${deleted} products (dead links + low scores)`);
+    await logPipelineEnd(logId, { startedAt, inserted: deleted }, 'success');
+    res.json({ deleted });
+  } catch (err: any) {
+    await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

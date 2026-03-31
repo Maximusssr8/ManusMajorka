@@ -112,6 +112,14 @@
     {
       "path": "/api/cron/refresh-scores",
       "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/check-dead-links",
+      "schedule": "0 16 * * *"
+    },
+    {
+      "path": "/api/cron/purge-dead-products",
+      "schedule": "0 18 * * 0"
     }
   ]
 }
