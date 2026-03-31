@@ -175,8 +175,14 @@ client.on('guildMemberAdd', async (member) => {
   }
 })
 
-// ── Button: Join as Guest ─────────────────────────────────────────────────────
+// ── All button + slash command interactions ────────────────────────────────────
 client.on('interactionCreate', async (interaction) => {
+  // ── Self-assign role buttons ───────────────────────────────────────────────
+  if (interaction.isButton() && SELF_ASSIGN_ROLES[interaction.customId]) {
+    return handleRoleButton(interaction)
+  }
+
+  // ── Button: Join as Guest ──────────────────────────────────────────────────
   if (interaction.isButton() && interaction.customId === 'verify_guest') {
     // Assign Verified role if it exists, then guide them to sign up
     const role = getRole(interaction.guild, '👀 Verified')
@@ -231,6 +237,24 @@ client.on('interactionCreate', async (interaction) => {
     const logCh = getChannel('👥┃user-activity')
     if (logCh) logCh.send(`✅ **${interaction.user.tag}** verified as **${roleName}** (${email}, plan: ${result.plan})`)
     return
+  }
+
+  // ── /refresh-channels ──────────────────────────────────────────────────────
+  if (commandName === 'refresh-channels') {
+    const isAdmin = interaction.member?.roles?.cache?.some(r =>
+      ['👑 Owner', '⚡ Majorka Team', '🛡️ Admin', '🔨 Moderator'].includes(r.name)
+    ) || interaction.member?.permissions?.has?.('Administrator')
+    if (!isAdmin) {
+      return interaction.reply({ content: '❌ This command requires Admin or Owner role.', ephemeral: true })
+    }
+    await interaction.deferReply({ ephemeral: true })
+    try {
+      const results = await refreshAllChannels(interaction.guild)
+      const summary = results.map(r => `${r.ok ? '✅' : '❌'} #${r.channel}${r.reason ? ` (${r.reason})` : ''}`).join('\n')
+      return interaction.editReply({ content: `**Channel refresh complete:**\n${summary}` })
+    } catch (e) {
+      return interaction.editReply({ content: `❌ Failed: ${e.message}` })
+    }
   }
 
   // ── /refresh-welcome ───────────────────────────────────────────────────────
@@ -380,6 +404,19 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
 // ── HTTP bridge (Claw/n8n can POST here to send Discord messages) ─────────────
 const httpServer = http.createServer(async (req, res) => {
+  // GET /refresh-channels — refresh all channel embeds + role buttons
+  if (req.method === 'GET' && req.url === '/refresh-channels') {
+    try {
+      const all = []
+      for (const guild of client.guilds.cache.values()) {
+        const results = await refreshAllChannels(guild)
+        all.push({ guild: guild.name, results })
+      }
+      res.writeHead(200); res.end(JSON.stringify({ ok: true, all }))
+    } catch (e) { res.writeHead(500); res.end(JSON.stringify({ error: e.message })) }
+    return
+  }
+
   // GET /refresh-welcome — re-post welcome embed in all guilds
   if (req.method === 'GET' && req.url === '/refresh-welcome') {
     try {
@@ -524,6 +561,361 @@ async function postWelcomeEmbed(guild) {
   return posted
 }
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// ROLE BUTTON HANDLERS — market/experience/notification self-assign
+// ═══════════════════════════════════════════════════════════════════════════════
+const SELF_ASSIGN_ROLES = {
+  // Market roles
+  role_au:      '🇦🇺 AU Seller',
+  role_us:      '🇺🇸 US Seller',
+  role_uk:      '🇬🇧 UK Seller',
+  role_global:  '🌏 Global Seller',
+  // Experience roles (mutually exclusive — replaces others in same group)
+  role_starting:  '🌱 Just Starting',
+  role_testing:   '🧪 Testing Phase',
+  role_first_sales: '📈 First Sales',
+  role_scaling:   '🚀 Scaling',
+  role_established: '💰 Established',
+  // Notification opt-ins (toggles)
+  role_product_alerts: '🔔 Product Alerts',
+  role_niche_alerts:   '🚨 Niche Alerts',
+  role_tiktok_alerts:  '📱 TikTok Alerts',
+  role_updates:        '📣 Platform Updates',
+}
+
+const EXPERIENCE_ROLE_NAMES = [
+  '🌱 Just Starting', '🧪 Testing Phase', '📈 First Sales', '🚀 Scaling', '💰 Established'
+]
+
+// Toggle or assign a self-assign role
+async function handleRoleButton(interaction) {
+  const customId = interaction.customId
+  if (!SELF_ASSIGN_ROLES[customId]) return false
+
+  const roleName = SELF_ASSIGN_ROLES[customId]
+  const guild = interaction.guild
+  const member = interaction.member
+
+  // Ensure roles exist (create if missing)
+  let role = guild.roles.cache.find(r => r.name === roleName)
+  if (!role) {
+    try {
+      role = await guild.roles.create({ name: roleName, mentionable: false, reason: 'Self-assign role' })
+    } catch {
+      await interaction.reply({ content: `❌ Couldn't create role "${roleName}" — contact an admin.`, ephemeral: true })
+      return true
+    }
+  }
+
+  const hasRole = member.roles.cache.has(role.id)
+
+  // For experience roles: remove all others in the group first
+  if (EXPERIENCE_ROLE_NAMES.includes(roleName)) {
+    for (const expName of EXPERIENCE_ROLE_NAMES) {
+      const expRole = guild.roles.cache.find(r => r.name === expName)
+      if (expRole && member.roles.cache.has(expRole.id)) {
+        try { await member.roles.remove(expRole) } catch {}
+      }
+    }
+  }
+
+  // Toggle
+  if (hasRole && !EXPERIENCE_ROLE_NAMES.includes(roleName)) {
+    await member.roles.remove(role)
+    await interaction.reply({ content: `✅ Removed **${roleName}** role.`, ephemeral: true })
+  } else {
+    await member.roles.add(role)
+    await interaction.reply({ content: `✅ You now have the **${roleName}** role!`, ephemeral: true })
+  }
+  return true
+}
+
+// ── Channel embed builders ─────────────────────────────────────────────────────
+
+function buildGetAccessEmbed() {
+  // Embed 1: Account verification
+  const verifyEmbed = new EmbedBuilder()
+    .setTitle('🔑 Step 1 — Verify Your Majorka Account')
+    .setColor(0x6366F1)
+    .setDescription([
+      'Run `/verify your@email.com` to link your Majorka account.',
+      'The bot checks your plan and assigns your role automatically.',
+      '',
+      '**What you get by plan:**',
+      '👀 **Verified** (no account) → Community channels: wins, questions, general',
+      '✅ **Majorka Member** (any paid plan) → All Majorka Intelligence channels',
+      '🏗️ **Builder Member** ($99 AUD/mo) → + Builder private lounge',
+      '💎 **Scale Member** ($199 AUD/mo) → Full access + Scale-only channels',
+    ].join('\n'))
+
+  const verifyRow = new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setLabel('🚀 Get Majorka Account').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io/sign-up'),
+    new ButtonBuilder().setLabel('👀 Join as Guest').setCustomId('verify_guest').setStyle(ButtonStyle.Secondary),
+  )
+
+  // Embed 2: Market roles
+  const marketEmbed = new EmbedBuilder()
+    .setTitle('🌍 Step 2 — Pick Your Market(s)')
+    .setColor(0x6366F1)
+    .setDescription('Click to add or remove market roles. You can select multiple.')
+
+  const marketRow = new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId('role_au').setLabel('🇦🇺 AU Seller').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('role_us').setLabel('🇺🇸 US Seller').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('role_uk').setLabel('🇬🇧 UK Seller').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('role_global').setLabel('🌏 Global').setStyle(ButtonStyle.Secondary),
+  )
+
+  // Embed 3: Experience level
+  const expEmbed = new EmbedBuilder()
+    .setTitle('📈 Step 3 — Your Experience Level')
+    .setColor(0x6366F1)
+    .setDescription('Select your current stage. This helps others give you relevant advice.')
+
+  const expRow = new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId('role_starting').setLabel('🌱 Just Starting').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('role_testing').setLabel('🧪 Testing Phase').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('role_first_sales').setLabel('📈 First Sales').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('role_scaling').setLabel('🚀 Scaling').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('role_established').setLabel('💰 Established').setStyle(ButtonStyle.Secondary),
+  )
+
+  // Embed 4: Notification opt-ins
+  const notifEmbed = new EmbedBuilder()
+    .setTitle('🔔 Step 4 — Notification Opt-ins')
+    .setColor(0x6366F1)
+    .setDescription('Choose what you want to be pinged for. Toggle any time.')
+
+  const notifRow = new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setCustomId('role_product_alerts').setLabel('🔔 Product Alerts').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('role_niche_alerts').setLabel('🚨 Niche Alerts').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('role_tiktok_alerts').setLabel('📱 TikTok Alerts').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId('role_updates').setLabel('📣 Platform Updates').setStyle(ButtonStyle.Secondary),
+  )
+
+  return [
+    { embeds: [verifyEmbed], components: [verifyRow] },
+    { embeds: [marketEmbed], components: [marketRow] },
+    { embeds: [expEmbed],    components: [expRow] },
+    { embeds: [notifEmbed],  components: [notifRow] },
+  ]
+}
+
+function buildRulesEmbed() {
+  return {
+    embeds: [new EmbedBuilder()
+      .setTitle('📜 Majorka Community Rules')
+      .setColor(0x6366F1)
+      .setDescription([
+        '**These rules exist to keep this one of the highest-quality ecommerce communities on the internet.**',
+        '',
+        '━━━━━━━━━━━━━━━━━━━━━━━━',
+        '**THE 5 RULES**',
+        '━━━━━━━━━━━━━━━━━━━━━━━━',
+        '',
+        '**1. NO SPAM OR SELF-PROMOTION**',
+        'No affiliate links, referral codes, other Discord servers, or services without mod approval. Violations = instant ban.',
+        '',
+        '**2. USE THE RIGHT CHANNEL**',
+        'Product research → research channels. Bugs → 🐛┃bug-reports. Help → 🆘┃help-desk. General chat → 💬┃general.',
+        '',
+        '**3. NO FAKE WINS OR UNVERIFIED CLAIMS**',
+        'Don\'t post revenue screenshots you can\'t verify. Misleading the community = instant ban.',
+        '',
+        '**4. STRUCTURED POSTS IN DATA CHANNELS**',
+        'Use the format template in pinned messages. Unformatted posts get deleted.',
+        '',
+        '**5. RESPECT — ZERO TOLERANCE**',
+        'No racism, sexism, harassment, or personal attacks. DM spam = permanent ban.',
+        '',
+        '━━━━━━━━━━━━━━━━━━━━━━━━',
+        'Mods have final say. Complaints → DM @Community Manager.',
+        'Breaking rules repeatedly = permanent ban.',
+      ].join('\n'))
+    ]
+  }
+}
+
+function buildWinsEmbed() {
+  return {
+    embeds: [new EmbedBuilder()
+      .setTitle('🏆 Share Your Wins')
+      .setColor(0x6366F1)
+      .setDescription([
+        '**Any win counts — we celebrate all of it.**',
+        '',
+        '✅ First sale ever',
+        '✅ Best revenue day',
+        '✅ Best ROAS you\'ve hit',
+        '✅ First winning product found via Majorka',
+        '✅ Milestone revenue months',
+        '',
+        '**Include a Shopify/Stripe screenshot if you can.**',
+        'You can blur the exact number — just show the dashboard structure.',
+        '',
+        '*Fake screenshots = permanent ban.*',
+      ].join('\n'))
+    ]
+  }
+}
+
+function buildBugReportEmbed() {
+  return {
+    embeds: [new EmbedBuilder()
+      .setTitle('🐛 Bug Reports')
+      .setColor(0x6366F1)
+      .setDescription([
+        '**Use this format or your report will be ignored:**',
+        '',
+        '```',
+        'AFFECTED FEATURE: [Product Intelligence / Profit Calc / Ads Manager / Other]',
+        'WHAT HAPPENED: [Description]',
+        'WHAT SHOULD HAPPEN: [Expected behaviour]',
+        'STEPS TO REPRODUCE:',
+        '1. [Step 1]',
+        '2. [Step 2]',
+        'BROWSER/DEVICE: [Chrome / Safari / iOS / Android]',
+        'SEVERITY: [Blocks my work / Has workaround / Minor]',
+        '```',
+        '',
+        'Attach a screenshot if possible. Our team responds within 24 hours.',
+      ].join('\n'))
+    ],
+    components: [new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setLabel('📖 Docs').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io'),
+      new ButtonBuilder().setLabel('📧 Email Support').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io'),
+    )]
+  }
+}
+
+function buildFeatureRequestEmbed() {
+  return {
+    embeds: [new EmbedBuilder()
+      .setTitle('💭 Feature Requests')
+      .setColor(0x6366F1)
+      .setDescription([
+        '**Tell us what to build next.**',
+        '',
+        '**Format:**',
+        '```',
+        'FEATURE: [Title]',
+        '',
+        'WHAT IT DOES:',
+        '[Description]',
+        '',
+        'WHY IT\'S VALUABLE:',
+        '[Your use case]',
+        '',
+        'CURRENT WORKAROUND:',
+        '[What you do instead now]',
+        '```',
+        '',
+        'React with ⬆️ on posts you want too.',
+        'Top-voted requests reviewed monthly.',
+      ].join('\n'))
+    ],
+    components: [new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setLabel('✨ Request a Feature').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io'),
+    )]
+  }
+}
+
+function buildGeneralEmbed() {
+  return {
+    embeds: [new EmbedBuilder()
+      .setTitle('💬 General Chat')
+      .setColor(0x6366F1)
+      .setDescription([
+        'Open discussion — ecommerce, ideas, questions, banter.',
+        '',
+        '**Keep it relevant to ecommerce and building.**',
+        'Completely off-topic chat → 🎲┃off-topic (if available).',
+        '',
+        'No spam. No self-promo. See 📜┃rules for full guidelines.',
+      ].join('\n'))
+    ]
+  }
+}
+
+function buildIntroEmbed() {
+  return {
+    embeds: [new EmbedBuilder()
+      .setTitle('👋 Introduce Yourself')
+      .setColor(0x6366F1)
+      .setDescription([
+        '**New here? Drop an intro using this format:**',
+        '',
+        '```',
+        'NAME (or handle):',
+        'WHERE YOU\'RE FROM:',
+        'HOW LONG DROPSHIPPING:',
+        'CURRENT STAGE: [Just starting / Testing / First sales / Scaling / 6-figure+]',
+        'TARGET MARKET: [AU / US / UK / Multiple]',
+        'BIGGEST CHALLENGE RIGHT NOW:',
+        'WHAT YOU HOPE TO GET FROM THIS COMMUNITY:',
+        'MAJORKA USER: [Yes - plan name / No - not yet]',
+        '```',
+        '',
+        'Members who post intros get **2x XP** for their first week!',
+      ].join('\n'))
+    ]
+  }
+}
+
+// ── Master channel refresh ─────────────────────────────────────────────────────
+async function clearAndPost(channel, ...payloads) {
+  try {
+    const msgs = await channel.messages.fetch({ limit: 20 })
+    const botMsgs = msgs.filter(m => m.author.id === channel.client.user.id)
+    for (const [, m] of botMsgs) { try { await m.unpin().catch(() => {}); await m.delete() } catch {} }
+  } catch {}
+  let last = null
+  for (const payload of payloads) {
+    if (!payload) continue
+    // skip empty-title embeds
+    if (payload.embeds && payload.embeds.length === 1 && payload.embeds[0].data?.title === '') continue
+    last = await channel.send(payload)
+  }
+  if (last) try { await last.pin() } catch {}
+  return last
+}
+
+async function refreshAllChannels(guild) {
+  const find = (keyword) => guild.channels.cache.find(c =>
+    c.isTextBased() && c.name && c.name.toLowerCase().includes(keyword)
+  )
+  const results = []
+
+  const channels = [
+    { key: 'get-access', label: 'get-access', fn: async (ch) => {
+      const payloads = buildGetAccessEmbed()
+      try {
+        const msgs = await ch.messages.fetch({ limit: 20 })
+        for (const [, m] of msgs.filter(m => m.author.id === guild.client.user.id)) {
+          try { await m.unpin().catch(() => {}); await m.delete() } catch {}
+        }
+      } catch {}
+      for (const p of payloads) await ch.send(p)
+    }},
+    { key: 'rules',    label: 'rules',     fn: (ch) => clearAndPost(ch, buildRulesEmbed()) },
+    { key: 'wins',     label: 'wins',      fn: (ch) => clearAndPost(ch, buildWinsEmbed()) },
+    { key: 'bug',      label: 'bug-reports', fn: (ch) => clearAndPost(ch, buildBugReportEmbed()) },
+    { key: 'feature',  label: 'feature-requests', fn: (ch) => clearAndPost(ch, buildFeatureRequestEmbed()) },
+    { key: 'general',  label: 'general',   fn: (ch) => clearAndPost(ch, buildGeneralEmbed()) },
+    { key: 'intro',    label: 'introductions', fn: (ch) => clearAndPost(ch, buildIntroEmbed()) },
+  ]
+
+  for (const { key, label, fn } of channels) {
+    const ch = find(key)
+    if (!ch) { results.push({ channel: label, ok: false, reason: 'not found' }); continue }
+    try { await fn(ch); results.push({ channel: label, ok: true }) }
+    catch (e) { results.push({ channel: label, ok: false, reason: e.message }) }
+  }
+
+  console.log('[refresh-all]', results.map(r => `${r.ok ? '✅' : '❌'} ${r.channel}`).join(' | '))
+  return results
+}
+
 client.once('ready', async () => {
   console.log(`✅ Majorka Bot online: ${client.user.tag}`)
   loadChannels()
@@ -539,6 +931,7 @@ client.once('ready', async () => {
       .addStringOption(o => o.setName('email').setDescription('Your Majorka account email').setRequired(true)),
     new SCB().setName('stats').setDescription('Show live Majorka platform stats'),
     new SCB().setName('refresh-welcome').setDescription('Re-post the welcome embed with correct buttons (admin only)'),
+    new SCB().setName('refresh-channels').setDescription('Refresh all channel embeds and role buttons (admin only)'),
     new SCB().setName('broadcast')
       .setDescription('Post an announcement (admin only)')
       .addStringOption(o => o.setName('message').setDescription('Announcement text').setRequired(true))
