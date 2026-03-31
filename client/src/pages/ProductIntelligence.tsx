@@ -44,9 +44,11 @@ export default function ProductIntelligence() {
   const [products, setProducts] = useState<TrendProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [totalProductCount, setTotalProductCount] = useState<number>(0);
 
   useEffect(() => {
     setLoading(true);
+    // Fetch trending signals for the Trending tab
     supabase
       .from('trend_signals')
       .select('*')
@@ -58,6 +60,13 @@ export default function ProductIntelligence() {
         }
         setLastRefresh(new Date());
         setLoading(false);
+      });
+    // Fetch total count from winning_products for the header badge
+    supabase
+      .from('winning_products')
+      .select('id', { count: 'exact', head: true })
+      .then(({ count }) => {
+        if (count && count > 0) setTotalProductCount(count);
       });
   }, []);
 
@@ -79,7 +88,7 @@ export default function ProductIntelligence() {
             )}
             <div style={{ display: 'flex', gap: 16, fontSize: 12, color: C.muted }}>
               <span>
-                <strong style={{ color: C.accent, fontFamily: brico }}>{products.length > 0 ? products.length : '—'}</strong> products
+                <strong style={{ color: C.accent, fontFamily: brico }}>{totalProductCount > 0 ? totalProductCount.toLocaleString() : products.length > 0 ? products.length : '—'}</strong> products
               </span>
               <span>
                 <strong style={{ color: C.accent, fontFamily: brico }}>6h</strong> refresh

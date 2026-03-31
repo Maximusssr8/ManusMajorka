@@ -840,8 +840,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     {/* Metrics grid: 2×2 */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
                       {[
-                        { label: '💰 Est. Revenue', value: `~$${Math.round(revenue).toLocaleString()}/mo` },
-                        { label: '📦 Est. Sold', value: `~${(getProductOrders(product)).toLocaleString()}` },
+                        { label: '💰 Est. Revenue', value: `$${Math.round(revenue).toLocaleString()}/mo` },
+                        { label: '📦 Est. Sold', value: `≈${(getProductOrders(product)).toLocaleString()}` },
                         { label: '🏷 Sell Price', value: `$${price.toFixed(0)} ${region.currency}` },
                         { label: '📊 Margin', value: `~${Math.round(margin)}%` },
                       ].map(m => (
@@ -927,7 +927,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           }}
         >
             <div style={{ background: 'white' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 1100 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 1280 }}>
 
             {/* ── STICKY HEADER ── */}
             <colgroup>
@@ -940,7 +940,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               <col style={{ width: isMobile ? 68 : 78 }} />       {/* Margin */}
               <col style={{ width: isMobile ? 80 : 96 }} />       {/* Dropship Score */}
               <col style={{ width: isMobile ? 60 : 70 }} />       {/* Creators */}
-              <col />                                              {/* Actions — fills remaining space */}
+              <col style={{ width: isMobile ? 120 : 185 }} />       {/* Actions */}
             </colgroup>
             <thead>
               <tr style={{ background: 'rgba(250,250,250,0.98)', borderBottom: '2px solid #F3F4F6', height: 42, position: 'sticky' as const, top: 0, zIndex: 10 }}>
@@ -967,7 +967,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 <th style={{ ...thStyle('creators', isMobile ? 60 : 70, 'center'), cursor: 'default' }}>
                   {isMobile ? '👤' : 'Creators'}
                 </th>
-                <th style={{ ...thStyle('actions', 0, 'center'), cursor: 'default', minWidth: isMobile ? 120 : 185 }}>Actions</th>
+                <th style={{ ...thStyle('actions', isMobile ? 120 : 185, 'center'), cursor: 'default' }}>Actions</th>
               </tr>
             </thead>
 
@@ -1068,7 +1068,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                                     </span>
                                   );
                                 })}
-                                <span style={{ fontSize: 10, color: '#9CA3AF' }}>{getProductNiche(p)}</span>
+                                {/* niche span removed — tags[0] already shows category */}
                               </div>
                             </div>
                           </div>
@@ -1079,7 +1079,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                           {canSeeFinancials ? (
                             <>
                               <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: revenue >= 10000 ? '#059669' : revenue >= 3000 ? '#0A0A0A' : '#9CA3AF' }}>
-                                ~${revenue >= 1000 ? `${(revenue / 1000).toFixed(1)}k` : revenue.toLocaleString()}
+                                ${revenue >= 1000 ? `${(revenue / 1000).toFixed(1)}k` : revenue.toLocaleString()}
                               </div>
                               <div style={{ fontSize: 10, color: '#9CA3AF' }}>est./mo</div>
                             </>
@@ -1100,7 +1100,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                         {/* Orders */}
                         <td style={tdStyle('right')}>
                           <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A' }}>
-                            ~{orders >= 1000 ? `${(orders / 1000).toFixed(1)}k` : orders.toLocaleString()}
+                            ≈{orders >= 1000 ? `${(orders / 1000).toFixed(1)}k` : orders.toLocaleString()}
                           </div>
                           <div style={{ fontSize: 10, color: '#9CA3AF' }}>est./mo</div>
                         </td>
