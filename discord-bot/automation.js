@@ -436,6 +436,228 @@ async function ensureIntelligenceChannels(guild) {
 }
 
 // ── Main export: boot all automations ───────────────────────────────────────
+// ── 6:00 PM AEST — DAILY CHALLENGE ──────────────────────────────────────────
+const CHALLENGE_NICHES = ['Pet Products','Beauty & Skin','Home & Garden','Fashion','Electronics','Fitness','Baby & Kids','Kitchen']
+const CHALLENGE_SCORES = [65, 68, 70, 72, 75, 78, 80]
+
+async function postDailyChallenge(client) {
+  const ch = findChannel(client, 'daily-challenge') || findChannel(client, 'challenge') || findChannel(client, 'general')
+  if (!ch) return
+
+  const dayIndex = new Date().getUTCDate()
+  const niche = CHALLENGE_NICHES[dayIndex % CHALLENGE_NICHES.length]
+  const minScore = CHALLENGE_SCORES[dayIndex % CHALLENGE_SCORES.length]
+
+  const embed = new EmbedBuilder()
+    .setTitle('📋 DAILY CHALLENGE')
+    .setColor(0x8B5CF6)
+    .setDescription([
+      `**Today's mission:** Find a **${niche}** product with:`,
+      `✅ Opportunity score > **${minScore}**`,
+      '✅ Margin > **30%**',
+      '✅ Not in a saturated category',
+      '',
+      'Post your find in #product-research to earn today\'s badge.',
+      '**Best find gets a shoutout in tomorrow\'s morning drop.** 🏆',
+    ].join('\n'))
+    .setFooter({ text: 'Research powered by majorka.io' })
+    .setTimestamp()
+
+  const row = new ActionRowBuilder().addComponents(
+    new ButtonBuilder().setLabel('Start Research →').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io/app/products'),
+  )
+  await ch.send({ embeds: [embed], components: [row] })
+  console.log('✅ Posted daily-challenge')
+}
+
+// ── 8:00 PM AEST — COMMUNITY RECAP ──────────────────────────────────────────
+async function postCommunityRecap(client) {
+  const ch = findChannel(client, 'wins') || findChannel(client, 'general')
+  if (!ch) return
+
+  const stats = await fetchLiveStats()
+  let memberCount = 0
+  for (const g of client.guilds.cache.values()) memberCount += g.memberCount
+
+  const date = new Date().toLocaleDateString('en-AU', {
+    weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Australia/Brisbane'
+  })
+
+  // Count products added today
+  const todayProds = await sbQuery('winning_products',
+    `?select=product_title,winning_score,opportunity_score&order=winning_score.desc&created_at=gte.${new Date(Date.now()-86400000).toISOString()}&limit=1`
+  )
+  const topProductToday = todayProds[0]
+
+  const embed = new EmbedBuilder()
+    .setTitle(`🏆 COMMUNITY RECAP — ${date.toUpperCase()}`)
+    .setColor(0x6366F1)
+    .setDescription([
+      `📦 **${stats.addedToday}** products added to Majorka today`,
+      `👥 **${memberCount}** members in the community`,
+      `🔥 **${stats.trending}** products trending right now`,
+      '',
+      topProductToday
+        ? `**🥇 Top product today:** ${topProductToday.product_title}\nScore: **${topProductToday.opportunity_score || topProductToday.winning_score}/100**`
+        : `**📊 ${stats.total.toLocaleString()}** products tracked in total`,
+      '',
+      'Keep building. Tomorrow\'s drop is at **8 AM AEST**. 🔺',
+    ].join('\n'))
+    .setFooter({ text: 'majorka.io • AI-powered dropshipping intelligence' })
+    .setTimestamp()
+
+  await ch.send({ embeds: [embed] })
+  console.log('✅ Posted community-recap')
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// REAL-TIME ALERTS
+// ══════════════════════════════════════════════════════════════════════════════
+let lastAlertCheck = new Date(Date.now() - 15 * 60 * 1000).toISOString()
+const alertedProducts = new Set() // prevent duplicate alerts
+
+async function pollHighScoreAlerts(client) {
+  const ch = findChannel(client, 'trending')
+  if (!ch) return
+
+  const products = await sbQuery('winning_products',
+    `?select=id,product_title,category,winning_score,opportunity_score,why_trending,why_winning,tiktok_potential&created_at=gte.${lastAlertCheck}&order=winning_score.desc`
+  )
+  lastAlertCheck = new Date().toISOString()
+
+  const highScore = (products || []).filter(p => {
+    const score = p.opportunity_score || p.winning_score || 0
+    return score >= 90 && !alertedProducts.has(String(p.id))
+  })
+
+  for (const p of highScore.slice(0, 3)) {
+    alertedProducts.add(String(p.id))
+    if (alertedProducts.size > 500) {
+      const first = [...alertedProducts][0]
+      alertedProducts.delete(first)
+    }
+    const score = p.opportunity_score || p.winning_score
+    const embed = new EmbedBuilder()
+      .setTitle('🚨 HIGH OPPORTUNITY ALERT')
+      .setColor(0xFF0000)
+      .setDescription([
+        `**${p.product_title}** just scored **${score}/100**`,
+        '',
+        `📦 Category: **${p.category || 'General'}**`,
+        p.tiktok_potential ? `⚡ TikTok potential: **${p.tiktok_potential}**` : '',
+        `💡 ${(p.why_trending || p.why_winning || 'Strong market signals detected').slice(0, 120)}`,
+      ].filter(Boolean).join('\n'))
+      .setFooter({ text: 'Live from Majorka pipeline' })
+      .setTimestamp()
+
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setLabel('View in Majorka →').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io/app/products'),
+    )
+    await ch.send({ embeds: [embed], components: [row] }).catch(() => {})
+    console.log(`🚨 High-score alert: ${p.product_title} (${score}/100)`)
+  }
+}
+
+async function pollNicheSpikeAlerts(client) {
+  const ch = findChannel(client, 'trending')
+  if (!ch) return
+
+  const products = await sbQuery('winning_products',
+    `?select=category,id&tiktok_potential=eq.viral&is_active=eq.true&updated_at=gte.${new Date(Date.now()-6*3600000).toISOString()}`
+  )
+  if (!products?.length) return
+
+  const counts = {}
+  for (const p of products) {
+    const c = p.category || 'General'
+    counts[c] = (counts[c] || 0) + 1
+  }
+  const spikes = Object.entries(counts).filter(([, n]) => n >= 3)
+
+  for (const [niche, count] of spikes) {
+    const spikeKey = `spike-${niche}-${new Date().toISOString().slice(0,13)}`
+    if (alertedProducts.has(spikeKey)) continue
+    alertedProducts.add(spikeKey)
+
+    const embed = new EmbedBuilder()
+      .setTitle(`📈 NICHE SPIKE: ${niche.toUpperCase()}`)
+      .setColor(0xFF6B35)
+      .setDescription([
+        `**${count} products** in **${niche}** are all exploding right now.`,
+        'This could be a breakout moment — move fast.',
+        '',
+        '🎯 Early movers win in exploding niches.',
+      ].join('\n'))
+      .setFooter({ text: 'Majorka pipeline alert' })
+      .setTimestamp()
+
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setLabel(`View ${niche} Products →`).setStyle(ButtonStyle.Link)
+        .setURL(`https://www.majorka.io/app/products`),
+    )
+    await ch.send({ embeds: [embed], components: [row] }).catch(() => {})
+    console.log(`📈 Niche spike alert: ${niche} (${count} products)`)
+  }
+}
+
+const MEMBER_MILESTONES = [10, 25, 50, 100, 250, 500, 1000, 2500, 5000]
+const milestonesReached = new Set()
+
+async function checkMemberMilestone(client) {
+  let totalMembers = 0
+  for (const g of client.guilds.cache.values()) totalMembers += g.memberCount
+  if (!totalMembers) return
+
+  for (const milestone of MEMBER_MILESTONES) {
+    if (totalMembers >= milestone && !milestonesReached.has(milestone)) {
+      milestonesReached.add(milestone)
+      const ch = findChannel(client, 'general')
+      if (!ch) continue
+
+      const stats = await fetchLiveStats()
+      const embed = new EmbedBuilder()
+        .setTitle(`🎉 ${milestone.toLocaleString()} MEMBERS!`)
+        .setColor(0x6366F1)
+        .setDescription([
+          `We just hit **${milestone.toLocaleString()} members!**`,
+          'Welcome to everyone who joined.',
+          '',
+          `📦 **${stats.total.toLocaleString()}** products tracked`,
+          `🔥 **${stats.trending}** trending right now`,
+          '',
+          'The community is growing — and so is the database. 🔺',
+        ].join('\n'))
+        .setTimestamp()
+
+      await ch.send({ embeds: [embed] }).catch(() => {})
+      console.log(`🎉 Member milestone: ${milestone}`)
+    }
+  }
+}
+
+// ── Slash command data fetchers (used by bot.js commands) ────────────────────
+async function fetchTopProducts(limit = 5, niche = null) {
+  let filter = `?select=product_title,category,winning_score,opportunity_score,profit_margin,why_trending,why_winning,tiktok_potential&is_active=eq.true&order=winning_score.desc&limit=${limit}`
+  if (niche) filter += `&category=ilike.*${niche}*`
+  return sbQuery('winning_products', filter)
+}
+
+async function searchProduct(name) {
+  return sbQuery('winning_products',
+    `?select=product_title,category,winning_score,opportunity_score,profit_margin,why_trending,why_winning,best_ad_angle,ad_angle,tiktok_potential&product_title=ilike.*${encodeURIComponent(name.replace(/\s+/g,'+'))}*&limit=1`
+  )
+}
+
+async function fetchUserPlan(discordUserId) {
+  if (!SUPABASE_KEY) return null
+  // Look up by discord_user_id
+  const users = await sbQuery('users', `?discord_user_id=eq.${discordUserId}&select=id`)
+  if (!users?.length) return null
+  const subs = await sbQuery('user_subscriptions', `?user_id=eq.${users[0].id}&select=plan,status&order=created_at.desc&limit=1`)
+  return subs?.[0] || null
+}
+
+// ── Module exports ────────────────────────────────────────────────────────────
 module.exports = function bootAutomation(client) {
   console.log('🤖 Booting automation engine...')
 
@@ -457,9 +679,22 @@ module.exports = function bootAutomation(client) {
   scheduleDaily(10, 0, () => postTrendingNow(client),    'Trending Now')
   scheduleDaily(12, 0, () => postNicheSpotlight(client), 'Niche Spotlight')
   scheduleDaily(15, 0, () => postAdOfTheDay(client),     'Ad of the Day')
+  scheduleDaily(18, 0, () => postDailyChallenge(client), 'Daily Challenge')
+  scheduleDaily(20, 0, () => postCommunityRecap(client), 'Community Recap')
 
-  console.log('✅ Automation engine running')
+  // Real-time alerts (every 15 min)
+  setInterval(() => {
+    pollHighScoreAlerts(client).catch(e => console.error('[alert-high]', e.message))
+    pollNicheSpikeAlerts(client).catch(e => console.error('[alert-niche]', e.message))
+    checkMemberMilestone(client).catch(e => console.error('[alert-milestone]', e.message))
+  }, 15 * 60 * 1000)
 
-  // Return trigger functions for HTTP bridge
-  return { refreshWelcomeStats, postTodaysWinners, postTrendingNow, postNicheSpotlight, postAdOfTheDay }
+  console.log('✅ Automation engine running — 6 daily posts + real-time alerts')
+
+  // Return everything for HTTP bridge + slash commands
+  return {
+    refreshWelcomeStats, postTodaysWinners, postTrendingNow,
+    postNicheSpotlight, postAdOfTheDay, postDailyChallenge, postCommunityRecap,
+    fetchTopProducts, searchProduct, fetchUserPlan, fetchLiveStats,
+  }
 }

@@ -142,28 +142,46 @@ client.on('guildMemberAdd', async (member) => {
   const newMemberRole = member.guild.roles.cache.find(r => r.name === '👋 New Member')
   // Don't auto-assign — they get nothing until they verify
 
-  // Send welcome DM
+  // Send welcome DM with live stats
   try {
+    let memberCount = 0
+    for (const g of client.guilds.cache.values()) memberCount += g.memberCount
+
+    // Grab live product count (fire-and-forget, use fallback on error)
+    let productCount = 131
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/winning_products?select=id&limit=1`,
+        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Prefer': 'count=estimated' }, signal: AbortSignal.timeout(5000) }
+      )
+      const ct = res.headers.get('content-range')
+      if (ct) productCount = parseInt(ct.split('/')[1]) || 131
+    } catch {}
+
     const embed = new EmbedBuilder()
-      .setTitle('👋 Welcome to Majorka Community')
+      .setTitle(`Hey ${member.displayName}, welcome to Majorka! 🔺`)
       .setColor(0x6366F1)
       .setDescription([
-        `Hey ${member.displayName}! Welcome to the **Majorka** community — AI-powered dropshipping intelligence for AU · US · UK sellers.`,
+        `You just joined **${memberCount.toLocaleString()}** dropshippers using AI to find winning products.`,
         '',
-        '**Get started in 3 steps:**',
-        '1. **Verify your account** → run `/verify your@email.com` in any channel',
-        '   This assigns your plan role and unlocks premium channels.',
-        '2. **Not a member yet?** Sign up free at majorka.io — Builder & Scale plans.',
-        '3. **Introduce yourself** in #introductions and check today\'s winners in #todays-winners.',
+        '**Here\'s what to do first:**',
         '',
-        '**Questions?** Drop them in #majorka-help and the team will respond.',
+        '1️⃣ Run `/verify your@email.com` to link your Majorka account and unlock all channels',
         '',
-        'See you inside 🚀',
+        '2️⃣ Check **#🔥┃todays-winners** for today\'s top 10 products',
+        '',
+        '3️⃣ Introduce yourself in **#👋┃introductions**',
+        '',
+        '4️⃣ Don\'t have Majorka yet? Sign up at majorka.io — Builder & Scale plans available.',
+        '',
+        `Today we're tracking **${productCount.toLocaleString()}** products across AU, US and UK markets. 🌏`,
       ].join('\n'))
       .setFooter({ text: 'Majorka Community • majorka.io' })
+      .setTimestamp()
+
     const dmRow = new ActionRowBuilder().addComponents(
       new ButtonBuilder().setLabel('🚀 Open Majorka').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io'),
-      new ButtonBuilder().setLabel('✨ Join Free').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io/sign-up'),
+      new ButtonBuilder().setLabel('✨ Sign Up Free').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io/sign-up'),
     )
     await member.send({ embeds: [embed], components: [dmRow] })
   } catch {} // DMs may be disabled
@@ -273,6 +291,153 @@ client.on('interactionCreate', async (interaction) => {
     } catch (e) {
       return interaction.editReply({ content: `❌ Failed: ${e.message}` })
     }
+  }
+
+  // ── /winners ───────────────────────────────────────────────────────────────
+  if (commandName === 'winners') {
+    await interaction.deferReply()
+    const products = await automationFns?.fetchTopProducts(5) || []
+    const embed = new EmbedBuilder()
+      .setTitle('🔥 Today\'s Top 5 Winners')
+      .setColor(0xFF6B35)
+      .setFooter({ text: 'See all 10 → majorka.io/app/products' })
+      .setTimestamp()
+    if (products.length) {
+      embed.addFields(products.slice(0,5).map((p, i) => ({
+        name: `#${i+1} ${(p.product_title||'Product').slice(0,50)}`,
+        value: `📈 **${p.opportunity_score||p.winning_score||0}/100** | 💰 ~${p.profit_margin?Math.round(p.profit_margin)+'%':'40%'} | 🎯 ${p.category||'General'}\n_${(p.why_trending||p.why_winning||'').slice(0,60)}_`,
+        inline: false,
+      })))
+    } else {
+      embed.setDescription('Pipeline updating. Check back shortly or visit majorka.io/app/products')
+    }
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setLabel('View All Products →').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io/app/products')
+    )
+    return interaction.editReply({ embeds: [embed], components: [row] })
+  }
+
+  // ── /trending ──────────────────────────────────────────────────────────────
+  if (commandName === 'trending') {
+    await interaction.deferReply()
+    const niche = interaction.options.getString('niche')
+    const products = await automationFns?.fetchTopProducts(3, niche) || []
+    const title = niche ? `⚡ Trending in ${niche}` : '⚡ Top Trending Right Now'
+    const embed = new EmbedBuilder().setTitle(title).setColor(0xFF0080).setTimestamp()
+      .setFooter({ text: 'majorka.io/app/products' })
+    if (products.length) {
+      embed.addFields(products.map((p, i) => ({
+        name: `${['🥇','🥈','🥉'][i]||'•'} ${(p.product_title||'Product').slice(0,50)}`,
+        value: `Score: **${p.opportunity_score||p.winning_score||0}/100** | ${p.category||'General'}\n_${(p.why_trending||p.why_winning||'').slice(0,80)}_`,
+        inline: false,
+      })))
+    } else {
+      embed.setDescription(niche ? `No trending products in **${niche}** right now.` : 'No trending products detected.')
+    }
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setLabel('Explore All →').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io/app/products')
+    )
+    return interaction.editReply({ embeds: [embed], components: [row] })
+  }
+
+  // ── /score ─────────────────────────────────────────────────────────────────
+  if (commandName === 'score') {
+    await interaction.deferReply()
+    const name = interaction.options.getString('product')
+    const results = await automationFns?.searchProduct(name) || []
+    if (!results.length) {
+      return interaction.editReply({
+        content: `❌ **"${name}"** not found in Majorka DB.\nSearch live at https://www.majorka.io/app/products`,
+      })
+    }
+    const p = results[0]
+    const score = p.opportunity_score || p.winning_score || 0
+    const embed = new EmbedBuilder()
+      .setTitle(`📊 ${(p.product_title||name).slice(0,60)}`)
+      .setColor(score >= 80 ? 0x22C55E : score >= 60 ? 0xF59E0B : 0xEF4444)
+      .addFields(
+        { name: '📈 Opportunity Score', value: `**${score}/100**`, inline: true },
+        { name: '💰 Est. Margin', value: p.profit_margin ? `~${Math.round(p.profit_margin)}%` : '—', inline: true },
+        { name: '🎯 Niche', value: p.category || 'General', inline: true },
+        { name: '⚡ TikTok Potential', value: p.tiktok_potential || '—', inline: true },
+        { name: '💡 Why Trending', value: (p.why_trending||p.why_winning||'—').slice(0,200), inline: false },
+        { name: '🎬 Best Ad Angle', value: (p.best_ad_angle||p.ad_angle||'—').slice(0,200), inline: false },
+      )
+      .setFooter({ text: 'majorka.io' }).setTimestamp()
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setLabel('View Full Analysis →').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io/app/products')
+    )
+    return interaction.editReply({ embeds: [embed], components: [row] })
+  }
+
+  // ── /profit ────────────────────────────────────────────────────────────────
+  if (commandName === 'profit') {
+    const cost    = interaction.options.getNumber('cost')
+    const sell    = interaction.options.getNumber('sell')
+    const adspend = interaction.options.getNumber('adspend')
+    const txFee   = sell * 0.0175  // payment processing ~1.75%
+    const platformFee = sell * 0.02 // platform/fulfilment ~2%
+    const totalCosts = cost + adspend + txFee + platformFee
+    const profit  = sell - totalCosts
+    const margin  = (profit / sell) * 100
+    const roas    = sell / adspend
+    const beCPA   = sell - cost - txFee - platformFee
+    const color   = margin > 30 ? 0x22C55E : margin >= 15 ? 0xF59E0B : 0xEF4444
+    const rating  = margin > 30 ? '✅ Healthy' : margin >= 15 ? '⚠️ Tight' : '❌ Risky'
+
+    const embed = new EmbedBuilder()
+      .setTitle(`💰 Profit Calculator`)
+      .setColor(color)
+      .addFields(
+        { name: '🛒 Sell Price',     value: `$${sell.toFixed(2)}`,                      inline: true },
+        { name: '📦 Product Cost',   value: `$${cost.toFixed(2)}`,                      inline: true },
+        { name: '📢 Ad Spend/Sale',  value: `$${adspend.toFixed(2)}`,                   inline: true },
+        { name: '💳 Fees (est.)',    value: `$${(txFee+platformFee).toFixed(2)}`,       inline: true },
+        { name: '💵 Profit/Sale',    value: `**$${profit.toFixed(2)}**`,                inline: true },
+        { name: '📊 Margin',         value: `**${margin.toFixed(1)}%** ${rating}`,      inline: true },
+        { name: '📈 ROAS',           value: `**${roas.toFixed(2)}x**`,                  inline: true },
+        { name: '🎯 Break-even CPA', value: `**$${beCPA.toFixed(2)}**`,                 inline: true },
+        { name: '📋 Verdict',        value: margin > 30 ? 'Strong margins. Scale this.' : margin >= 15 ? 'Test carefully. Watch CPA.' : 'Margins too thin. Raise price or cut cost.', inline: false },
+      )
+      .setFooter({ text: 'Full analysis → majorka.io/app/profit' })
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setLabel('Open Profit Calc →').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io/app/profit')
+    )
+    return interaction.reply({ embeds: [embed], components: [row] })
+  }
+
+  // ── /plan ──────────────────────────────────────────────────────────────────
+  if (commandName === 'plan') {
+    await interaction.deferReply({ ephemeral: true })
+    const sub = await automationFns?.fetchUserPlan(interaction.user.id)
+    if (!sub) {
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setLabel('View Plans →').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io/sign-up'),
+      )
+      return interaction.editReply({
+        content: '❌ No Majorka account linked to your Discord.\nRun `/verify your@email.com` to connect your account.',
+        components: [row],
+      })
+    }
+    const planEmojis = { scale: '💎', builder: '🏗️', free: '✅' }
+    const planAccess = {
+      scale:   '✅ All channels + Scale exclusive intel + Priority support',
+      builder: '✅ Community channels + All Majorka tool channels + Builder lounge',
+      free:    '✅ Community channels only',
+    }
+    const embed = new EmbedBuilder()
+      .setTitle(`${planEmojis[sub.plan] || '✅'} Your Majorka Plan`)
+      .setColor(sub.plan === 'scale' ? 0xA855F7 : sub.plan === 'builder' ? 0x22C55E : 0x3B82F6)
+      .addFields(
+        { name: '📋 Plan',   value: `**${sub.plan?.charAt(0).toUpperCase()+sub.plan?.slice(1) || 'Free'}**`, inline: true },
+        { name: '📊 Status', value: `**${sub.status || 'active'}**`, inline: true },
+        { name: '🔓 Access', value: planAccess[sub.plan] || planAccess.free, inline: false },
+      )
+      .setFooter({ text: 'majorka.io' })
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setLabel('Open Majorka →').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io'),
+    )
+    return interaction.editReply({ embeds: [embed], components: [row] })
   }
 
   // ── /stats ─────────────────────────────────────────────────────────────────
@@ -408,11 +573,13 @@ const httpServer = http.createServer(async (req, res) => {
   if (req.method === 'GET' && req.url.startsWith('/trigger/')) {
     const post = req.url.replace('/trigger/', '')
     const map = {
-      'winners':  () => automationFns?.postTodaysWinners(client),
-      'trending': () => automationFns?.postTrendingNow(client),
-      'niche':    () => automationFns?.postNicheSpotlight(client),
-      'ad':       () => automationFns?.postAdOfTheDay(client),
-      'stats':    () => automationFns?.refreshWelcomeStats(client),
+      'winners':   () => automationFns?.postTodaysWinners(client),
+      'trending':  () => automationFns?.postTrendingNow(client),
+      'niche':     () => automationFns?.postNicheSpotlight(client),
+      'ad':        () => automationFns?.postAdOfTheDay(client),
+      'challenge': () => automationFns?.postDailyChallenge(client),
+      'recap':     () => automationFns?.postCommunityRecap(client),
+      'stats':     () => automationFns?.refreshWelcomeStats(client),
     }
     const fn = map[post]
     if (!fn || !automationFns) { res.writeHead(404); res.end(JSON.stringify({ error: 'unknown trigger or automation not ready' })); return }
@@ -956,6 +1123,19 @@ client.once('ready', async () => {
     new SCB().setName('stats').setDescription('Show live Majorka platform stats'),
     new SCB().setName('refresh-welcome').setDescription('Re-post the welcome embed with correct buttons (admin only)'),
     new SCB().setName('refresh-channels').setDescription('Refresh all channel embeds and role buttons (admin only)'),
+    new SCB().setName('winners').setDescription('Show today\'s top 5 winning products'),
+    new SCB().setName('trending')
+      .setDescription('Show trending products by niche')
+      .addStringOption(o => o.setName('niche').setDescription('Pet / beauty / home / fashion / electronics / fitness / baby / kitchen').setRequired(false)),
+    new SCB().setName('score')
+      .setDescription('Look up a product\'s opportunity score')
+      .addStringOption(o => o.setName('product').setDescription('Product name to search').setRequired(true)),
+    new SCB().setName('profit')
+      .setDescription('Calculate profit, margin, and ROAS')
+      .addNumberOption(o => o.setName('cost').setDescription('Product cost (AUD)').setRequired(true))
+      .addNumberOption(o => o.setName('sell').setDescription('Sell price (AUD)').setRequired(true))
+      .addNumberOption(o => o.setName('adspend').setDescription('Estimated ad spend per sale (AUD)').setRequired(true)),
+    new SCB().setName('plan').setDescription('Show your Majorka plan and channel access'),
     new SCB().setName('broadcast')
       .setDescription('Post an announcement (admin only)')
       .addStringOption(o => o.setName('message').setDescription('Announcement text').setRequired(true))
