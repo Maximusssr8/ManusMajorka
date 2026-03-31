@@ -55,7 +55,7 @@ export async function saveTrends(items: TrendItem[]): Promise<void> {
       breakout: item.breakout,
       checked_at: new Date().toISOString(),
     }))
-  ).catch((err: any) => console.error('[trends] Save error:', err.message));
+  ).then(null, (err: any) => console.error('[trends] Save error:', err.message));
 
   console.log(`[trends] Saved ${items.length} trending keywords`);
 }

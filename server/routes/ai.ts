@@ -396,7 +396,7 @@ CAPTION: This is a game changer #australia #${(niche || 'product').replace(/\s/g
 export default router;
 
 // POST /api/ai/supplier-search — Tavily live supplier search
-router.post('/supplier-search', requireAuth, async (req: Request, res: Response) => {
+router.post('/supplier-search', requireAuth, async (req, res) => {
   try {
     const { product } = req.body;
     if (!product) return res.status(400).json({ error: 'product required' });
@@ -410,7 +410,7 @@ router.post('/supplier-search', requireAuth, async (req: Request, res: Response)
       body: JSON.stringify({ api_key: TAVILY_KEY, query, search_depth: 'basic', max_results: 6 }),
     });
 
-    if (!r.ok) return res.json({ results: [] });
+    if (!r.ok) return res.json({ results: [] } as any);
     const data = await r.json();
 
     const results = (data.results || []).map((r: any) => ({
@@ -419,14 +419,14 @@ router.post('/supplier-search', requireAuth, async (req: Request, res: Response)
       snippet: r.content?.slice(0, 120) || '',
     }));
 
-    res.json({ results, product });
+    res.json({ results, product } as any);
   } catch (err: any) {
-    res.status(500).json({ error: err.message, results: [] });
+    res.status(500).json({ error: err.message, results: [] } as any);
   }
 });
 
 // ── GET /api/ai/saved-outputs — load saved ad creatives ──────────────────
-router.get('/saved-outputs', requireAuth, async (req: Request, res: Response) => {
+router.get('/saved-outputs', requireAuth, async (req, res) => {
   try {
     const userId = (req as any).user?.userId || (req as any).user?.sub;
     if (!userId) return res.status(401).json({ error: 'auth required' });
@@ -438,19 +438,19 @@ router.get('/saved-outputs', requireAuth, async (req: Request, res: Response) =>
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(20);
-    res.json({ outputs: data || [] });
+    res.json({ outputs: data || [] } as any);
   } catch (err: any) {
-    res.json({ outputs: [] });
+    res.json({ outputs: [] } as any);
   }
 });
 
 // ── POST /api/ai/save-output — save an ad creative ────────────────────────
-router.post('/save-output', requireAuth, async (req: Request, res: Response) => {
+router.post('/save-output', requireAuth, async (req, res) => {
   try {
     const userId = (req as any).user?.userId || (req as any).user?.sub;
     if (!userId) return res.status(401).json({ error: 'auth required' });
     const { productName, creativeType, output } = req.body;
-    if (!output) return res.status(400).json({ error: 'output required' });
+    if (!output) return res.status(400).json({ error: 'output required' } as any);
     const { getSupabaseAdmin } = await import('../_core/supabase');
     const sb = getSupabaseAdmin();
     const { error } = await sb.from('saved_outputs').insert({
@@ -460,8 +460,8 @@ router.post('/save-output', requireAuth, async (req: Request, res: Response) => 
       output,
     });
     if (error) throw error;
-    res.json({ ok: true });
+    res.json({ ok: true } as any);
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message } as any);
   }
 });

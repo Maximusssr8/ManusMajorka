@@ -26,7 +26,7 @@ export async function runScoreRefresh(): Promise<{ updated: number; boosted: num
       signal_score: newScore,
       winning_score: newWinScore,
       quality_tier: getQualityTier(newScore),
-    }).eq('id', p.id).catch(() => {});
+    }).eq('id', p.id).then(null, () => {});
     decayed++;
   }
 
@@ -43,7 +43,7 @@ export async function runScoreRefresh(): Promise<{ updated: number; boosted: num
     await supabase.from('winning_products').update({
       signal_score: newScore,
       quality_tier: getQualityTier(newScore),
-    }).eq('id', p.id).catch(() => {});
+    }).eq('id', p.id).then(null, () => {});
     boosted++;
   }
 

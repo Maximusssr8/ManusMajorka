@@ -258,10 +258,11 @@ export default function MarketDashboard() {
   async function fetchAll() {
     try {
       const { data: { session: sess } } = await supabase.auth.getSession();
-      const authHeader = sess?.access_token ? { Authorization: `Bearer ${sess.access_token}` } : {};
+      const headers: Record<string, string> = {};
+      if (sess?.access_token) headers['Authorization'] = `Bearer ${sess.access_token}`;
       const [prodRes, creatorRes] = await Promise.all([
-        fetch('/api/products?limit=200&sortBy=winning_score&sortDir=desc', { headers: authHeader, signal: AbortSignal.timeout(8000) }),
-        fetch('/api/creators?limit=200', { headers: authHeader, signal: AbortSignal.timeout(8000) }),
+        fetch('/api/products?limit=200&sortBy=winning_score&sortDir=desc', { headers, signal: AbortSignal.timeout(8000) }),
+        fetch('/api/creators?limit=200', { headers, signal: AbortSignal.timeout(8000) }),
       ]);
 
       const prodJson = prodRes.ok ? await prodRes.json() : {};

@@ -278,7 +278,7 @@ export default function CreatorIntelligence() {
   const topNiches = Object.entries(nicheCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
 
   const dateRangeOptions: { label: string; value: Range }[] = [
-    { label: 'Today', value: '1d' },
+    { label: 'Today', value: '7d' as Range },
     { label: '7 Days', value: '7d' },
     { label: '30 Days', value: '30d' },
     { label: '90 Days', value: '90d' },

@@ -13,7 +13,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const subdomain = host.split('.')[0];
 
   if (!subdomain || subdomain === 'www' || subdomain === 'api' || subdomain === 'majorka') {
-    res.redirect(302, 'https://www.majorka.io');
+    res.writeHead(302, { Location: 'https://www.majorka.io' });
+    res.end();
     return;
   }
 
@@ -25,7 +26,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .single();
 
   if (!store) {
-    res.redirect(302, 'https://www.majorka.io');
+    res.writeHead(302, { Location: 'https://www.majorka.io' });
+    res.end();
     return;
   }
 

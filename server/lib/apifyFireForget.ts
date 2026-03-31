@@ -45,7 +45,7 @@ export async function startApifyRun(
       dataset_id: data?.data?.defaultDatasetId || null,
       status: 'running',
       started_at: new Date().toISOString(),
-    }).catch((err: any) => console.error('[apify-ff] Queue insert:', err.message));
+    }).then(null, (err: any) => console.error('[apify-ff] Queue insert:', err.message));
 
     console.log(`[apify-ff] Started ${actor} for ${source}: run=${runId}`);
     return { runId };

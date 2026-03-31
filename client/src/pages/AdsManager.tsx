@@ -2142,12 +2142,12 @@ export default function AdsManager() {
                         )}
 
                         <div style={{ padding: 16 }}>
-                          {adCopy.primaryText && (
+                          {!!adCopy.primaryText && (
                             <div style={{ fontSize: 13, color: C.text, marginBottom: 6, lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }}>
-                              {String(adCopy.primaryText)}
+                              {`${adCopy.primaryText}`}
                             </div>
                           )}
-                          {adCopy.headline && <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 8 }}>{String(adCopy.headline)}</div>}
+                          {!!adCopy.headline && <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 8 }}>{`${adCopy.headline}`}</div>}
 
                           <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
                             <div><div style={{ fontSize: 11, color: C.dim }}>ROAS</div><div style={{ fontSize: 15, fontWeight: 700, color: roas > 0 ? roasColor(roas) : C.dim }}>{roas > 0 ? `${roas.toFixed(1)}x` : 'No data'}</div></div>
