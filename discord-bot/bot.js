@@ -145,25 +145,27 @@ client.on('guildMemberAdd', async (member) => {
   // Send welcome DM
   try {
     const embed = new EmbedBuilder()
-      .setTitle('👋 Welcome to Majorka AI')
+      .setTitle('👋 Welcome to Majorka Community')
       .setColor(0x6366F1)
       .setDescription([
-        `Hey ${member.displayName}! Welcome to the **Majorka** community.`,
+        `Hey ${member.displayName}! Welcome to the **Majorka** community — AI-powered dropshipping intelligence for AU · US · UK sellers.`,
         '',
-        '**Get started in 2 steps:**',
-        '1. Head to **#🔑┃get-access** and run `/verify your@email.com`',
-        '   This unlocks all the Majorka AI channels.',
-        '2. Not a member yet? [Start free](https://www.majorka.io) — no credit card.',
+        '**Get started in 3 steps:**',
+        '1. **Verify your account** → run `/verify your@email.com` in any channel',
+        '   This assigns your plan role and unlocks premium channels.',
+        '2. **Not a member yet?** Sign up free at majorka.io — Builder & Scale plans.',
+        '3. **Introduce yourself** in #introductions and check today\'s winners in #todays-winners.',
         '',
-        '**Questions?** Drop them in **#🆘┃help-desk** and the team will help.',
+        '**Questions?** Drop them in #majorka-help and the team will respond.',
         '',
         'See you inside 🚀',
       ].join('\n'))
-    const welcomeRow = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setLabel('Open Majorka →').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io'),
-      new ButtonBuilder().setLabel('Join Free →').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io/sign-up'),
+      .setFooter({ text: 'Majorka Community • majorka.io' })
+    const dmRow = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setLabel('🚀 Open Majorka').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io'),
+      new ButtonBuilder().setLabel('✨ Join Free').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io/sign-up'),
     )
-    await member.send({ embeds: [embed], components: [welcomeRow] })
+    await member.send({ embeds: [embed], components: [dmRow] })
   } catch {} // DMs may be disabled
 
   // Log to admin
@@ -229,6 +231,24 @@ client.on('interactionCreate', async (interaction) => {
     const logCh = getChannel('👥┃user-activity')
     if (logCh) logCh.send(`✅ **${interaction.user.tag}** verified as **${roleName}** (${email}, plan: ${result.plan})`)
     return
+  }
+
+  // ── /refresh-welcome ───────────────────────────────────────────────────────
+  if (commandName === 'refresh-welcome') {
+    // Admin-only check
+    const isAdmin = interaction.member?.roles?.cache?.some(r =>
+      ['👑 Owner', '⚡ Majorka Team', '🛡️ Admin', '🔨 Moderator'].includes(r.name)
+    ) || interaction.member?.permissions?.has?.('Administrator')
+    if (!isAdmin) {
+      return interaction.reply({ content: '❌ This command requires Admin or Owner role.', ephemeral: true })
+    }
+    await interaction.deferReply({ ephemeral: true })
+    try {
+      await postWelcomeEmbed(interaction.guild)
+      return interaction.editReply({ content: '✅ Welcome embed refreshed and pinned in #welcome.' })
+    } catch (e) {
+      return interaction.editReply({ content: `❌ Failed: ${e.message}` })
+    }
   }
 
   // ── /stats ─────────────────────────────────────────────────────────────────
@@ -360,6 +380,19 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
 // ── HTTP bridge (Claw/n8n can POST here to send Discord messages) ─────────────
 const httpServer = http.createServer(async (req, res) => {
+  // GET /refresh-welcome — re-post welcome embed in all guilds
+  if (req.method === 'GET' && req.url === '/refresh-welcome') {
+    try {
+      const results = []
+      for (const guild of client.guilds.cache.values()) {
+        const msg = await postWelcomeEmbed(guild)
+        results.push({ guild: guild.name, ok: !!msg })
+      }
+      res.writeHead(200); res.end(JSON.stringify({ ok: true, results }))
+    } catch (e) { res.writeHead(500); res.end(JSON.stringify({ error: e.message })) }
+    return
+  }
+
   if (req.method !== 'POST') { res.writeHead(405); res.end(); return }
   let body = ''
   req.on('data', c => body += c)
@@ -410,10 +443,117 @@ function scheduleWeeklyStats() {
 }
 
 // ── Bot ready ─────────────────────────────────────────────────────────────────
-client.once('ready', () => {
+// ── Welcome embed builder ─────────────────────────────────────────────────────
+function buildWelcomeEmbed() {
+  const embed = new EmbedBuilder()
+    .setTitle('👋 Welcome to Majorka Community')
+    .setColor(0x6366F1)
+    .setDescription([
+      '**The home of AI-powered dropshipping intelligence for AU · US · UK sellers.**',
+      '',
+      '━━━━━━━━━━━━━━━━━━━━━━━━',
+      '**GET STARTED IN 4 STEPS**',
+      '━━━━━━━━━━━━━━━━━━━━━━━━',
+      '',
+      '**STEP 1** → Read the rules in <#rules>',
+      '**STEP 2** → Grab your role in <#get-your-role>',
+      '**STEP 3** → Verify your Majorka account: `/verify your@email.com`',
+      '**STEP 4** → Check today\'s winning products in <#todays-winners>',
+      '',
+      '━━━━━━━━━━━━━━━━━━━━━━━━',
+      '**WHAT YOU GET HERE (FREE)**',
+      '━━━━━━━━━━━━━━━━━━━━━━━━',
+      '🔥 Daily top 10 products — posted every morning 8 AM AEST',
+      '📈 Trending niche alerts — when opportunity scores spike',
+      '🎵 TikTok viral product alerts — what\'s gaining momentum now',
+      '🎯 Ad breakdowns — why winning ads actually work',
+      '💰 Supplier deals — vetted, with real margin data',
+      '🏆 Community wins — real results from real members',
+      '',
+      '━━━━━━━━━━━━━━━━━━━━━━━━',
+      '**WANT THE FULL INTELLIGENCE STACK?**',
+      '━━━━━━━━━━━━━━━━━━━━━━━━',
+      'Builder & Scale plans → **majorka.io**',
+    ].join('\n'))
+    .setFooter({ text: 'Majorka Community • AI-powered dropshipping intelligence' })
+    .setTimestamp()
+
+  const row = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setLabel('🚀 Open Majorka')
+      .setStyle(ButtonStyle.Link)
+      .setURL('https://www.majorka.io'),
+    new ButtonBuilder()
+      .setLabel('👀 Join as Guest')
+      .setStyle(ButtonStyle.Link)
+      .setURL('https://www.majorka.io'),
+    new ButtonBuilder()
+      .setLabel('✨ Join Free')
+      .setStyle(ButtonStyle.Link)
+      .setURL('https://www.majorka.io/sign-up'),
+  )
+
+  return { embeds: [embed], components: [row] }
+}
+
+// ── Post or refresh welcome embed ─────────────────────────────────────────────
+async function postWelcomeEmbed(guild) {
+  // Find #welcome channel by name
+  const welcomeCh = guild.channels.cache.find(c =>
+    c.name && (c.name.includes('welcome') || c.name === '👋・welcome') && c.isTextBased()
+  )
+  if (!welcomeCh) { console.log('[welcome] No #welcome channel found'); return null }
+
+  // Delete previous bot messages in the channel (up to 20)
+  try {
+    const messages = await welcomeCh.messages.fetch({ limit: 20 })
+    const botMsgs = messages.filter(m => m.author.id === guild.client.user.id)
+    for (const [, msg] of botMsgs) {
+      try { await msg.unpin().catch(() => {}); await msg.delete() } catch {}
+    }
+  } catch {}
+
+  // Post new embed
+  const payload = buildWelcomeEmbed()
+  const posted = await welcomeCh.send(payload)
+
+  // Pin it
+  try { await posted.pin() } catch (e) { console.log('[welcome] Pin failed:', e.message) }
+
+  console.log(`✅ Welcome embed posted and pinned in #${welcomeCh.name}`)
+  return posted
+}
+
+client.once('ready', async () => {
   console.log(`✅ Majorka Bot online: ${client.user.tag}`)
   loadChannels()
   scheduleWeeklyStats()
+
+  // Register slash commands (including /refresh-welcome)
+  const { REST: DiscordREST } = require('@discordjs/rest')
+  const { Routes: DiscordRoutes } = require('discord-api-types/v10')
+  const { SlashCommandBuilder: SCB } = require('discord.js')
+  const commands = [
+    new SCB().setName('verify')
+      .setDescription('Verify your Majorka account and get your plan role')
+      .addStringOption(o => o.setName('email').setDescription('Your Majorka account email').setRequired(true)),
+    new SCB().setName('stats').setDescription('Show live Majorka platform stats'),
+    new SCB().setName('refresh-welcome').setDescription('Re-post the welcome embed with correct buttons (admin only)'),
+    new SCB().setName('broadcast')
+      .setDescription('Post an announcement (admin only)')
+      .addStringOption(o => o.setName('message').setDescription('Announcement text').setRequired(true))
+      .addStringOption(o => o.setName('channel').setDescription('Target channel name').setRequired(false)),
+    new SCB().setName('logs').setDescription('Show recent deploy logs'),
+    new SCB().setName('deploy').setDescription('Deploy Majorka to Vercel production (admin only)'),
+  ].map(c => c.toJSON())
+
+  const rest = new DiscordREST({ version: '10' }).setToken(TOKEN)
+  for (const guild of client.guilds.cache.values()) {
+    try {
+      await rest.put(DiscordRoutes.applicationGuildCommands(client.user.id, guild.id), { body: commands })
+      console.log(`✅ Slash commands registered in ${guild.name}`)
+    } catch (e) { console.error('Command registration failed:', e.message) }
+  }
 })
 
 client.login(TOKEN)
