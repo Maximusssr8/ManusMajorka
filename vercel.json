@@ -71,6 +71,14 @@
     {
       "path": "/api/cron/refresh-products",
       "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/scrape-aliexpress-trending",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/scrape-aliexpress-categories",
+      "schedule": "0 6 * * *"
     }
   ]
 }

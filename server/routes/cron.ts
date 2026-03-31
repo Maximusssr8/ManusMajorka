@@ -2,6 +2,8 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
+import { scrapeAliExpressCategoryPage } from '../lib/apifyAliExpressBulk';
+import { runPipeline } from '../lib/aeProductPipeline';
 
 const router = Router();
 
@@ -296,6 +298,104 @@ router.get('/refresh-products', async (req: Request, res: Response) => {
       console.error('[cron] refresh-products failed:', err.message);
     }
   });
+});
+
+// ── AliExpress Bulk Scraper Config ────────────────────────────────────────────
+const CATEGORY_SOURCES = [
+  { url: 'https://www.aliexpress.com/category/200000343/pet-products.html?SortType=total_tranpro_desc', name: 'Pet Products' },
+  { url: 'https://www.aliexpress.com/category/200003655/beauty-health.html?SortType=total_tranpro_desc', name: 'Beauty & Health' },
+  { url: 'https://www.aliexpress.com/category/200000783/home-improvement.html?SortType=total_tranpro_desc', name: 'Home & Garden' },
+  { url: 'https://www.aliexpress.com/category/200000506/sports-entertainment.html?SortType=total_tranpro_desc', name: 'Sports & Fitness' },
+  { url: 'https://www.aliexpress.com/category/200000340/consumer-electronics.html?SortType=total_tranpro_desc', name: 'Electronics' },
+  { url: 'https://www.aliexpress.com/category/200000345/mother-kids.html?SortType=total_tranpro_desc', name: 'Baby & Kids' },
+  { url: 'https://www.aliexpress.com/category/200000344/apparel-accessories.html?SortType=total_tranpro_desc', name: 'Fashion' },
+];
+
+const TRENDING_SOURCES = [
+  { url: 'https://www.aliexpress.com/gcp/300000604/best-sellers.html', name: 'AE Best Sellers' },
+  { url: 'https://www.aliexpress.com/p/aliexpress-choice/index.html', name: 'AliExpress Choice' },
+];
+
+// GET /api/cron/scrape-aliexpress-categories — daily
+router.get('/scrape-aliexpress-categories', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+
+  const supabase = getSupabaseAdmin();
+  const logEntry: any = {
+    source: 'aliexpress_categories',
+    run_at: new Date().toISOString(),
+    products_scraped: 0, products_added: 0, products_filtered: 0, errors: [] as string[], status: 'running',
+  };
+
+  try {
+    // Scrape 2 categories per run (rotate through categories using day-of-week modulo)
+    const dayOfWeek = new Date().getDay();
+    const toScrape = CATEGORY_SOURCES.slice(dayOfWeek % 3, (dayOfWeek % 3) + 2);
+
+    console.log(`[cron/ae-categories] Scraping ${toScrape.length} categories`);
+
+    let totalAdded = 0, totalScraped = 0, totalFiltered = 0;
+    const allErrors: string[] = [];
+
+    for (const source of toScrape) {
+      const products = await scrapeAliExpressCategoryPage(source.url, source.name);
+      const pipelineResult = await runPipeline(products, source.name);
+
+      totalScraped += pipelineResult.scraped;
+      totalAdded += pipelineResult.added;
+      totalFiltered += pipelineResult.scraped - pipelineResult.passed_filter;
+      allErrors.push(...pipelineResult.errors.slice(0, 5));
+    }
+
+    logEntry.products_scraped = totalScraped;
+    logEntry.products_added = totalAdded;
+    logEntry.products_filtered = totalFiltered;
+    logEntry.errors = allErrors;
+    logEntry.status = 'success';
+
+    // Log to scrape_logs table (fail silently if table doesn't exist)
+    await supabase.from('scrape_logs').insert(logEntry).catch(() => {});
+
+    res.json({ success: true, scraped: totalScraped, added: totalAdded, filtered: totalFiltered });
+  } catch (err: any) {
+    logEntry.status = 'failed';
+    logEntry.errors = [err.message];
+    await supabase.from('scrape_logs').insert(logEntry).catch(() => {});
+    console.error('[cron/ae-categories] Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/cron/scrape-aliexpress-trending — 6-hourly
+router.get('/scrape-aliexpress-trending', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+
+  const supabase = getSupabaseAdmin();
+
+  try {
+    // Scrape one trending source per run (rotate by hour)
+    const hour = new Date().getHours();
+    const source = TRENDING_SOURCES[hour % TRENDING_SOURCES.length];
+
+    console.log(`[cron/ae-trending] Scraping: ${source.name}`);
+
+    const products = await scrapeAliExpressCategoryPage(source.url, source.name);
+    const pipelineResult = await runPipeline(products, source.name);
+
+    await supabase.from('scrape_logs').insert({
+      source: 'aliexpress_trending',
+      products_scraped: pipelineResult.scraped,
+      products_added: pipelineResult.added,
+      products_filtered: pipelineResult.scraped - pipelineResult.passed_filter,
+      errors: pipelineResult.errors.slice(0, 5),
+      status: 'success',
+    }).catch(() => {});
+
+    res.json({ success: true, source: source.name, ...pipelineResult });
+  } catch (err: any) {
+    console.error('[cron/ae-trending] Error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 export default router;

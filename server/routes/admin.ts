@@ -3,6 +3,8 @@ import { requireAuth } from '../middleware/requireAuth';
 import { requireAdmin as requireAdminMiddleware } from '../middleware/requireAdmin';
 import { createClient } from '@supabase/supabase-js';
 import { findSupplierLinks, findTrendingBuzz } from '../lib/tavilySupplier';
+import { scrapeAliExpressCategoryPage } from '../lib/apifyAliExpressBulk';
+import { runPipeline } from '../lib/aeProductPipeline';
 
 const router = Router();
 
@@ -1437,6 +1439,29 @@ router.post('/refresh-videos', requireAuth, requireAdmin, async (req: Request, r
       }
     } catch (err) {
       console.error('[refresh-videos] fatal:', err);
+    }
+  })();
+});
+
+// POST /api/admin/scrape-aliexpress — manual trigger for testing
+router.post('/scrape-aliexpress', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+  const { source_url, category_name } = req.body;
+
+  if (!source_url) {
+    return res.status(400).json({ error: 'source_url required' });
+  }
+
+  // Fire and forget — respond immediately
+  res.json({ success: true, message: 'Scrape started in background', source_url });
+
+  // Run pipeline in background
+  (async () => {
+    try {
+      const products = await scrapeAliExpressCategoryPage(source_url, category_name || 'Manual');
+      const result = await runPipeline(products, category_name || 'Manual');
+      console.log('[admin/scrape-ae] Result:', result);
+    } catch (err: any) {
+      console.error('[admin/scrape-ae] Error:', err.message);
     }
   })();
 });

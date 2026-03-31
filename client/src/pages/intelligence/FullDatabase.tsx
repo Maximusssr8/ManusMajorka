@@ -179,6 +179,7 @@ const TAG_STYLE: Record<string, { color: string; bg: string }> = {
   'TRENDING':        { color: '#6B7280', bg: '#F5F5F5' },
   'IN THE NEWS':     { color: '#D97706', bg: '#FEF3C7' },
   'TIKTOK':          { color: '#7C3AED', bg: '#F3E8FF' },
+  'AE CHOICE':       { color: '#ff6a00', bg: 'rgba(255,106,0,0.12)' },
 };
 
 function ScoreBadge({ score }: { score: number }) {
@@ -858,6 +859,11 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                                     </span>
                                   );
                                 })}
+                                {p.tags?.includes('aliexpress_choice') && (
+                                  <span style={{ fontSize: 9, fontWeight: 700, color: '#ff6a00', background: 'rgba(255,106,0,0.12)', borderRadius: 4, padding: '1px 5px', letterSpacing: '0.04em', textTransform: 'uppercase' as const }}>
+                                    AE CHOICE
+                                  </span>
+                                )}
                                 <span style={{ fontSize: 10, color: '#9CA3AF' }}>{getProductNiche(p)}</span>
                               </div>
                             </div>
@@ -1458,6 +1464,16 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
         <div style={{ padding: 20 }}>
           <h2 style={{ fontFamily: brico, fontWeight: 700, fontSize: 17, color: '#0A0A0A', marginBottom: 6, lineHeight: 1.4 }}>{name}</h2>
           <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 18 }}>{p.niche || p.category} &middot; ~{orders.toLocaleString()} est. orders/mo &middot; AI-estimated data</div>
+
+          {p.tags?.includes('aliexpress_choice') && (
+            <div style={{ background: 'rgba(255,106,0,0.08)', border: '1px solid rgba(255,106,0,0.3)', borderRadius: 8, padding: '10px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 16 }}>&#x2705;</span>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#ff6a00' }}>AliExpress Choice</div>
+                <div style={{ fontSize: 11, color: '#9CA3AF' }}>Vetted quality · Faster shipping · Lower return rate</div>
+              </div>
+            </div>
+          )}
 
           {/* Large 30-day revenue trend sparkline */}
           <div style={{ marginBottom: 20, padding: 16, background: '#F9FAFB', borderRadius: 10, border: '1px solid #E5E7EB' }}>
