@@ -846,10 +846,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     {/* Metrics grid: 2×2 */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
                       {[
-                        { label: '💰 Est. Revenue', value: `$${Math.round(revenue).toLocaleString()}/mo` },
-                        { label: '📦 Est. Sold', value: `≈${(getProductOrders(product)).toLocaleString()}` },
-                        { label: '🏷 Sell Price', value: `$${price.toFixed(0)} ${region.currency}` },
-                        { label: '📊 Margin', value: `~${Math.round(margin)}%` },
+                        { label: '📦 Orders', value: getProductOrders(product) > 0 ? getProductOrders(product).toLocaleString() : '—' },
+                        { label: '🏷 Price', value: price > 0 ? `$${price.toFixed(0)}` : '—' },
+                        { label: '💰 Cost', value: cost > 0 ? `$${cost.toFixed(2)}` : '—' },
+                        { label: '📊 Margin', value: margin > 0 ? `${Math.round(margin)}%` : '—' },
                       ].map(m => (
                         <div key={m.label} style={{ background: 'var(--card-bg-soft, #F9FAFB)', borderRadius: 7, padding: '7px 10px' }}>
                           <div style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 2 }}>{m.label}</div>
@@ -1709,33 +1709,77 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: '#F0F0F0', borderRadius: 10, overflow: 'hidden', marginBottom: 8 }}>
-            {[
-              { label: 'Est. Supplier Cost', val: cost > 0 ? `~$${cost.toFixed(2)} est.` : '—' },
-              { label: 'Suggested Retail', val: price > 0 ? `$${price.toFixed(0)} est.` : '—' },
-              { label: 'Est. Margin', val: `~${margin}%` },
-              { label: 'Est. Monthly Rev', val: `~$${revenue >= 1000 ? (revenue / 1000).toFixed(1) + 'k' : revenue}` },
-              { label: 'Est. Monthly Orders', val: `~${orders.toLocaleString()}` },
-              { label: 'Dropship Score', val: `${score}/100` },
-            ].map(({ label, val }) => (
-              <div key={label} style={{ padding: '12px 16px', background: 'white' }}>
+          {/* ── Real Pricing Grid (no ~est labels unless genuinely estimated) ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--border, #F0F0F0)', borderRadius: 10, overflow: 'hidden', marginBottom: 8 }}>
+            {(() => {
+              const hasRealCost  = !!(p as any).real_cost_price_aud || !!(p as any).cost_price_aud;
+              const hasRealSell  = !!(p as any).real_sell_price_aud || (p as any).tiktok_shop_price_aud || price > 0;
+              const hasRealMargin = hasRealCost && hasRealSell;
+              const realCost = (p as any).real_cost_price_aud || cost;
+              const realSell = (p as any).real_sell_price_aud || (p as any).tiktok_shop_price_aud || price;
+              const realMargin = hasRealMargin
+                ? Math.round(((realSell - realCost) / realSell) * 100)
+                : margin;
+              const costLabel  = (p as any).cj_product_id ? 'Supplier Cost (CJ)' : (p as any).aliexpress_url ? 'Supplier Cost (AE)' : 'Supplier Cost';
+              const sellLabel  = (p as any).tiktok_shop_price_aud ? 'Sell Price (TikTok)' : 'Sell Price';
+              const marginLabel = hasRealMargin ? 'Gross Margin' : '~Gross Margin';
+              return [
+                { label: costLabel,   val: realCost > 0 ? `$${realCost.toFixed(2)}` : '—' },
+                { label: sellLabel,   val: realSell > 0 ? `$${realSell.toFixed(2)}` : '—' },
+                { label: marginLabel, val: realMargin > 0 ? `${realMargin}%` : '—' },
+                { label: 'Monthly Orders', val: orders > 0 ? `${orders.toLocaleString()}` : '—' },
+                { label: 'Platform Orders', val: (p as any).tiktok_shop_units_sold ? `${(p as any).tiktok_shop_units_sold.toLocaleString()} (TikTok)` : orders > 0 ? `${orders.toLocaleString()} (AliExpress)` : '—' },
+                { label: 'Dropship Score',  val: `${score}/100` },
+              ];
+            })().map(({ label, val }) => (
+              <div key={label} style={{ padding: '12px 16px', background: 'var(--card-bg, white)' }}>
                 <div style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 3 }}>{label}</div>
-                <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: '#0A0A0A' }}>{val}</div>
+                <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: 'var(--cell-text, #0A0A0A)' }}>{val}</div>
               </div>
             ))}
           </div>
-          {/* Direct supplier links under pricing grid */}
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, marginBottom: 20 }}>
-            {p.aliexpress_url && (
-              <a href={String(p.aliexpress_url)} target="_blank" rel="noopener noreferrer"
-                style={{ fontSize: 11, color: '#e8590c', background: '#fff5f0', border: '1px solid #fcd0be', padding: '4px 10px', borderRadius: 6, textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-                🛒 View on AliExpress ↗
-              </a>
-            )}
-            <span style={{ fontSize: 11, color: '#9CA3AF', display: 'flex', alignItems: 'center', gap: 4 }}>
-              ℹ️ Prices &amp; costs are AI-estimated — verify live on AliExpress before sourcing
-            </span>
-          </div>
+
+          {/* ── Market Evidence (real source links) ── */}
+          {(() => {
+            const evidence = [
+              (p as any).aliexpress_url && {
+                platform: 'AliExpress', icon: '🛒', color: '#e8590c', bg: '#fff5f0', border: '#fcd0be',
+                url: String((p as any).aliexpress_url),
+                detail: orders > 0 ? `${orders.toLocaleString()} orders` : null,
+              },
+              (p as any).tiktok_shop_url && {
+                platform: 'TikTok Shop', icon: '🎵', color: '#000000', bg: '#f0fdf4', border: '#86efac',
+                url: String((p as any).tiktok_shop_url),
+                detail: (p as any).tiktok_shop_units_sold ? `${(p as any).tiktok_shop_units_sold.toLocaleString()} sold` : null,
+              },
+              (p as any).amazon_url && {
+                platform: 'Amazon AU', icon: '📦', color: '#FF9900', bg: '#fffbeb', border: '#fde68a',
+                url: String((p as any).amazon_url),
+                detail: (p as any).amazon_bsr_rank ? `BSR #${(p as any).amazon_bsr_rank}` : null,
+              },
+              (p as any).cj_product_id && {
+                platform: 'CJ Dropshipping', icon: '✅', color: '#16a34a', bg: '#f0fdf4', border: '#86efac',
+                url: `https://cjdropshipping.com/product/-p-${(p as any).cj_product_id}.html`,
+                detail: (p as any).shipping_time_days_min ? `Ships in ${(p as any).shipping_time_days_min}–${(p as any).shipping_time_days_max || (p as any).shipping_time_days_min + 7} days` : null,
+              },
+            ].filter(Boolean) as Array<{platform:string;icon:string;color:string;bg:string;border:string;url:string;detail:string|null}>;
+
+            if (!evidence.length) return null;
+            return (
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 8 }}>📊 Market Evidence</div>
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 6 }}>
+                  {evidence.map(ev => (
+                    <a key={ev.platform} href={ev.url} target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: ev.bg, border: `1px solid ${ev.border}`, borderRadius: 8, textDecoration: 'none' }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: ev.color }}>{ev.icon} {ev.platform}</span>
+                      <span style={{ fontSize: 11, color: '#6B7280' }}>{ev.detail ? `${ev.detail} ↗` : 'View listing ↗'}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
           {/* ── Inline Profit Analysis ── */}
           <ProductProfitCalc
             sellPrice={price > 0 ? price : 39.95}
