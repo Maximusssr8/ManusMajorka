@@ -2,19 +2,79 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
-import { scrapeAliExpressCategoryPage } from '../lib/apifyAliExpressBulk';
-import { runPipeline } from '../lib/aeProductPipeline';
-import { scrapeAmazonBestsellers, AMAZON_AU_CATEGORIES } from '../lib/apifyAmazon';
-import { scrapeTikTokShopProducts } from '../lib/apifyTikTokShop';
-import { runUnifiedPipeline, type UnifiedProduct } from '../lib/unifiedPipeline';
+import { getSupabaseAdmin } from '../_core/supabase';
+// Fire-and-forget launchers
+import { launchAliExpressScrape } from '../lib/apifyAliExpressBulk';
+import { launchAmazonScrape, AMAZON_AU_CATEGORIES } from '../lib/apifyAmazon';
+import { launchTikTokScrape } from '../lib/apifyTikTokShop';
+// Pipeline modules
+import { harvestCompletedRuns } from '../pipeline/harvest';
+import { runProcessor } from '../pipeline/processor';
+import { runCleanup } from '../pipeline/cleanup';
+import { runScoreRefresh } from '../pipeline/refresh-scores';
+// New scrapers
+import { launchTikTokCCScrape } from '../scrapers/tiktok-creative-center';
+import { collectCJProducts } from '../scrapers/cj-products';
+import { fetchGoogleTrends, saveTrends } from '../scrapers/google-trends';
 
 const router = Router();
 
-function getSupabaseAdmin() {
+function getSupabaseAdminLegacy() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
   return createClient(url, key);
 }
+
+function verifyCronSecret(req: Request): boolean {
+  const auth = req.headers.authorization || '';
+  const secret = process.env.CRON_SECRET || '';
+  if (!secret) {
+    const userAgent = req.headers['user-agent'] || '';
+    const isVercelCron = userAgent.includes('vercel-cron') || req.headers['x-vercel-cron'] === '1';
+    const isLocal = (req.headers.host || '').includes('localhost');
+    return isVercelCron || isLocal;
+  }
+  return auth === `Bearer ${secret}`;
+}
+
+// Pipeline log helper
+async function logPipelineStart(pipelineType: string, source?: string): Promise<string | null> {
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data } = await supabase.from('pipeline_logs').insert({
+      pipeline_type: pipelineType,
+      source: source || pipelineType,
+      status: 'running',
+      started_at: new Date().toISOString(),
+    }).select('id').single();
+    return data?.id || null;
+  } catch {
+    return null;
+  }
+}
+
+async function logPipelineEnd(logId: string | null, stats: Record<string, any>, status: 'success' | 'failed', errorMsg?: string): Promise<void> {
+  if (!logId) return;
+  try {
+    const supabase = getSupabaseAdmin();
+    const startedAt = stats.startedAt || new Date().toISOString();
+    const durationSeconds = Math.round((Date.now() - new Date(startedAt).getTime()) / 1000);
+    await supabase.from('pipeline_logs').update({
+      status,
+      completed_at: new Date().toISOString(),
+      duration_seconds: durationSeconds,
+      raw_collected: stats.raw_collected || 0,
+      passed_filter: stats.passed_filter || 0,
+      inserted: stats.inserted || 0,
+      updated: stats.updated || 0,
+      failed: stats.failed || 0,
+      skipped: stats.skipped || 0,
+      error_message: errorMsg || null,
+    }).eq('id', logId);
+  } catch { /* fail silently */ }
+}
+
+// ── Legacy helpers ──────────────────────────────────────────────────────────
 
 function generateFallbackTrend(monthlyRevenue: number): number[] {
   const weekly = monthlyRevenue / 4;
@@ -38,19 +98,6 @@ function generateCreatorHandles(niche: string): string[] {
   return options[Math.floor(Math.random() * options.length)];
 }
 
-function verifyCronSecret(req: Request): boolean {
-  const auth = req.headers.authorization || '';
-  const secret = process.env.CRON_SECRET || '';
-  if (!secret) {
-    // No secret configured — only allow from Vercel cron (checks user-agent) or localhost
-    const userAgent = req.headers['user-agent'] || '';
-    const isVercelCron = userAgent.includes('vercel-cron') || req.headers['x-vercel-cron'] === '1';
-    const isLocal = (req.headers.host || '').includes('localhost');
-    return isVercelCron || isLocal;
-  }
-  return auth === `Bearer ${secret}`;
-}
-
 async function fetchPexelsImage(query: string): Promise<string | null> {
   const key = process.env.PEXELS_API_KEY;
   if (!key) return null;
@@ -67,14 +114,17 @@ async function fetchPexelsImage(query: string): Promise<string | null> {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// LEGACY HANDLERS (kept as-is)
+// ═══════════════════════════════════════════════════════════════════════════
+
 router.get('/refresh-trends', async (req: Request, res: Response) => {
   if (!verifyCronSecret(req)) {
     return res.status(401).json({ error: 'unauthorized' });
   }
 
-  // Staleness guard — skip if data is < 20 hours old
   try {
-    const sb = getSupabaseAdmin();
+    const sb = getSupabaseAdminLegacy();
     const { data: latest } = await sb
       .from('winning_products')
       .select('updated_at')
@@ -84,11 +134,10 @@ router.get('/refresh-trends', async (req: Request, res: Response) => {
     if (latest?.updated_at) {
       const ageHours = (Date.now() - new Date(latest.updated_at).getTime()) / 3_600_000;
       if (ageHours < 20) {
-        console.log(`[cron] refresh-trends skipped — data is ${ageHours.toFixed(1)}h old (< 20h)`);
         return res.json({ skipped: true, ageHours: Math.round(ageHours), reason: 'data is fresh' });
       }
     }
-  } catch { /* proceed if staleness check fails */ }
+  } catch { /* proceed */ }
 
   const tavily_key = process.env.TAVILY_API_KEY;
   if (!tavily_key) {
@@ -167,18 +216,15 @@ Return ONLY a JSON array of exactly 25 products. No markdown. Each object:
     });
 
     const rawText = msg.content[0].type === 'text' ? msg.content[0].text : '[]';
-    // Extract JSON array — handles markdown fences and truncated responses
     let products: any[] = [];
     try {
-      // Try full array match first
       const arrayMatch = rawText.match(/\[[\s\S]*\]/);
       if (arrayMatch) {
         products = JSON.parse(arrayMatch[0]);
       } else {
-        // Truncated — extract complete objects via regex
         const objMatches = rawText.matchAll(/\{[^{}]*"name"[^{}]*\}/g);
         for (const m of objMatches) {
-          try { products.push(JSON.parse(m[0])); } catch { /* skip malformed */ }
+          try { products.push(JSON.parse(m[0])); } catch { /* skip */ }
         }
         if (products.length === 0) throw new Error('No JSON found');
       }
@@ -190,9 +236,7 @@ Return ONLY a JSON array of exactly 25 products. No markdown. Each object:
       return res.status(500).json({ error: 'No valid products returned' });
     }
 
-    const supabase = getSupabaseAdmin();
-
-    // Fetch images for all products in parallel (Pexels free API, ~50 reqs/hr limit)
+    const supabase = getSupabaseAdminLegacy();
     const imageUrls = await Promise.allSettled(
       products.map(p => fetchPexelsImage(p.image_search_term || p.name))
     );
@@ -205,7 +249,6 @@ Return ONLY a JSON array of exactly 25 products. No markdown. Each object:
       trend_score: p.trend_score,
       dropship_viability_score: p.dropship_viability_score,
       trend_reason: p.trend_reason,
-      // New rich fields
       est_monthly_revenue_aud: p.est_monthly_revenue_aud || Math.round(p.estimated_retail_aud * (p.items_sold_monthly || 200) * 0.5),
       revenue_trend: Array.isArray(p.revenue_trend) && p.revenue_trend.length === 7 ? p.revenue_trend : generateFallbackTrend(p.est_monthly_revenue_aud || 20000),
       items_sold_monthly: p.items_sold_monthly || Math.round((p.est_monthly_revenue_aud || 20000) / (p.estimated_retail_aud || 49)),
@@ -215,64 +258,43 @@ Return ONLY a JSON array of exactly 25 products. No markdown. Each object:
       saturation_score: p.saturation_score || Math.floor(Math.random() * 5 + 4),
       winning_score: p.winning_score || Math.floor(p.trend_score * 0.8 + p.dropship_viability_score * 2),
       ad_count_est: p.ad_count_est || Math.floor(Math.random() * 200 + 20),
-      image_url: (imageUrls[i].status === 'fulfilled' && imageUrls[i].value)
-        ? imageUrls[i].value
-        : null,
+      image_url: (imageUrls[i].status === 'fulfilled' && imageUrls[i].value) ? imageUrls[i].value : null,
       refreshed_at: new Date().toISOString(),
       source: 'cron',
     }));
 
-    // Try full upsert first (with new columns)
-    let { error: upsertError } = await supabase
-      .from('trend_signals')
-      .upsert(rows, { onConflict: 'name' });
-
-    // If new columns don't exist yet, fall back to base columns only
+    let { error: upsertError } = await supabase.from('trend_signals').upsert(rows, { onConflict: 'name' });
     if (upsertError && (upsertError.message?.includes('column') || upsertError.message?.includes('schema'))) {
-      console.warn('[cron] New columns not yet in table — falling back to base columns:', upsertError.message);
       const baseRows = rows.map(({ est_monthly_revenue_aud, revenue_trend, items_sold_monthly, growth_rate_pct, creator_handles, avg_unit_price_aud, saturation_score, winning_score, ad_count_est, ...base }) => base);
-      const { error: fallbackError } = await supabase
-        .from('trend_signals')
-        .upsert(baseRows, { onConflict: 'name' });
+      const { error: fallbackError } = await supabase.from('trend_signals').upsert(baseRows, { onConflict: 'name' });
       upsertError = fallbackError;
     }
 
     if (upsertError) {
-      console.error('[cron/refresh-trends] upsert error:', upsertError.message);
       return res.json({ ok: true, count: products.length, saved: false, error: upsertError.message });
     }
-
     return res.json({ ok: true, count: products.length, saved: true, refreshed_at: new Date().toISOString() });
   } catch (err: any) {
-    console.error('[cron/refresh-trends]', err.message);
     return res.status(500).json({ error: err.message });
   }
 });
 
-// GET /api/cron/refresh-shops — weekly Sunday regeneration
 router.get('/refresh-shops', async (req: Request, res: Response) => {
-  if (!verifyCronSecret(req)) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
-  }
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
   try {
-    const supabase = getSupabaseAdmin();
+    const supabase = getSupabaseAdminLegacy();
     await supabase.from('shop_intelligence').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    res.json({ success: true, message: 'Shop data cleared — re-seed via /api/shops/seed' });
+    res.json({ success: true, message: 'Shop data cleared' });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── GET /api/cron/refresh-products — auto-refresh every 6h ────────────────────
 router.get('/refresh-products', async (req: Request, res: Response) => {
-  if (!verifyCronSecret(req)) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
 
-  // Staleness guard — skip if any product was updated in last 20 hours
   try {
-    const sb = getSupabaseAdmin();
+    const sb = getSupabaseAdminLegacy();
     const { data: latest } = await sb
       .from('winning_products')
       .select('last_refreshed')
@@ -283,27 +305,26 @@ router.get('/refresh-products', async (req: Request, res: Response) => {
     if (latest?.last_refreshed) {
       const ageHours = (Date.now() - new Date(latest.last_refreshed).getTime()) / 3_600_000;
       if (ageHours < 20) {
-        console.log(`[cron] refresh-products skipped — last refresh ${ageHours.toFixed(1)}h ago (< 20h)`);
         return res.json({ skipped: true, ageHours: Math.round(ageHours), reason: 'products are fresh' });
       }
     }
-  } catch { /* proceed if staleness check fails */ }
+  } catch { /* proceed */ }
 
-  console.log('[cron] Product refresh started');
   res.json({ status: 'started', message: 'Product refresh pipeline running' });
-
   setImmediate(async () => {
     try {
       const { runProductPipeline } = await import('../lib/productPipeline');
-      const result = await runProductPipeline();
-      console.log('[cron] refresh-products complete:', result);
+      await runProductPipeline();
     } catch (err: any) {
       console.error('[cron] refresh-products failed:', err.message);
     }
   });
 });
 
-// ── AliExpress Bulk Scraper Config ────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// FIRE-AND-FORGET SCRAPER LAUNCHERS (< 5s each)
+// ═══════════════════════════════════════════════════════════════════════════
+
 const CATEGORY_SOURCES = [
   { url: 'https://www.aliexpress.com/category/200000343/pet-products.html?SortType=total_tranpro_desc', name: 'Pet Products' },
   { url: 'https://www.aliexpress.com/category/200003655/beauty-health.html?SortType=total_tranpro_desc', name: 'Beauty & Health' },
@@ -319,185 +340,208 @@ const TRENDING_SOURCES = [
   { url: 'https://www.aliexpress.com/p/aliexpress-choice/index.html', name: 'AliExpress Choice' },
 ];
 
-// GET /api/cron/scrape-aliexpress-categories — daily
 router.get('/scrape-aliexpress-categories', async (req: Request, res: Response) => {
   if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
-
-  const supabase = getSupabaseAdmin();
-  const logEntry: any = {
-    source: 'aliexpress_categories',
-    run_at: new Date().toISOString(),
-    products_scraped: 0, products_added: 0, products_filtered: 0, errors: [] as string[], status: 'running',
-  };
+  const logId = await logPipelineStart('scrape', 'aliexpress_categories');
+  const startedAt = new Date().toISOString();
 
   try {
-    // Scrape 2 categories per run (rotate through categories using day-of-week modulo)
     const dayOfWeek = new Date().getDay();
     const toScrape = CATEGORY_SOURCES.slice(dayOfWeek % 3, (dayOfWeek % 3) + 2);
-
-    console.log(`[cron/ae-categories] Scraping ${toScrape.length} categories`);
-
-    let totalAdded = 0, totalScraped = 0, totalFiltered = 0;
-    const allErrors: string[] = [];
+    const runIds: string[] = [];
 
     for (const source of toScrape) {
-      const products = await scrapeAliExpressCategoryPage(source.url, source.name);
-      const pipelineResult = await runPipeline(products, source.name);
-
-      totalScraped += pipelineResult.scraped;
-      totalAdded += pipelineResult.added;
-      totalFiltered += pipelineResult.scraped - pipelineResult.passed_filter;
-      allErrors.push(...pipelineResult.errors.slice(0, 5));
+      const runId = await launchAliExpressScrape(source.url, source.name);
+      if (runId) runIds.push(runId);
     }
 
-    logEntry.products_scraped = totalScraped;
-    logEntry.products_added = totalAdded;
-    logEntry.products_filtered = totalFiltered;
-    logEntry.errors = allErrors;
-    logEntry.status = 'success';
-
-    // Log to scrape_logs table (fail silently if table doesn't exist)
-    await supabase.from('scrape_logs').insert(logEntry).catch(() => {});
-
-    res.json({ success: true, scraped: totalScraped, added: totalAdded, filtered: totalFiltered });
+    await logPipelineEnd(logId, { startedAt, raw_collected: runIds.length }, 'success');
+    res.json({ success: true, launched: runIds.length, runIds, message: 'Fire-and-forget: results harvested by /harvest-apify-runs' });
   } catch (err: any) {
-    logEntry.status = 'failed';
-    logEntry.errors = [err.message];
-    await supabase.from('scrape_logs').insert(logEntry).catch(() => {});
-    console.error('[cron/ae-categories] Error:', err.message);
+    await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// GET /api/cron/scrape-aliexpress-trending — 6-hourly
 router.get('/scrape-aliexpress-trending', async (req: Request, res: Response) => {
   if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
-
-  const supabase = getSupabaseAdmin();
+  const logId = await logPipelineStart('scrape', 'aliexpress_trending');
+  const startedAt = new Date().toISOString();
 
   try {
-    // Scrape one trending source per run (rotate by hour)
     const hour = new Date().getHours();
     const source = TRENDING_SOURCES[hour % TRENDING_SOURCES.length];
+    const runId = await launchAliExpressScrape(source.url, source.name);
 
-    console.log(`[cron/ae-trending] Scraping: ${source.name}`);
-
-    const products = await scrapeAliExpressCategoryPage(source.url, source.name);
-    const pipelineResult = await runPipeline(products, source.name);
-
-    await supabase.from('scrape_logs').insert({
-      source: 'aliexpress_trending',
-      products_scraped: pipelineResult.scraped,
-      products_added: pipelineResult.added,
-      products_filtered: pipelineResult.scraped - pipelineResult.passed_filter,
-      errors: pipelineResult.errors.slice(0, 5),
-      status: 'success',
-    }).catch(() => {});
-
-    res.json({ success: true, source: source.name, ...pipelineResult });
+    await logPipelineEnd(logId, { startedAt, raw_collected: runId ? 1 : 0 }, runId ? 'success' : 'failed');
+    res.json({ success: !!runId, source: source.name, runId, message: 'Fire-and-forget' });
   } catch (err: any) {
-    console.error('[cron/ae-trending] Error:', err.message);
+    await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-const CRON_AUD_RATE = 1.58;
-
-// GET /api/cron/scrape-amazon — daily
 router.get('/scrape-amazon', async (req: Request, res: Response) => {
   if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
-  const supabase = getSupabaseAdmin();
+  const logId = await logPipelineStart('scrape', 'amazon_au');
+  const startedAt = new Date().toISOString();
 
   try {
-    // Rotate through 2 categories per day
     const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
     const startIdx = (dayOfYear * 2) % AMAZON_AU_CATEGORIES.length;
     const toScrape = AMAZON_AU_CATEGORIES.slice(startIdx, startIdx + 2);
-
-    let totalAdded = 0, totalScraped = 0;
-    const errors: string[] = [];
+    const runIds: string[] = [];
 
     for (const cat of toScrape) {
-      const rawProducts = await scrapeAmazonBestsellers(cat.url, cat.name, 50);
-
-      const unified: UnifiedProduct[] = rawProducts.map(p => ({
-        title: p.title,
-        price_usd: p.price_aud / CRON_AUD_RATE, // Amazon AU prices are AUD, convert back
-        image_url: p.image_url,
-        product_url: p.product_url,
-        rating: p.rating,
-        review_count: p.review_count,
-        category: p.category,
-        source: 'amazon_au',
-        is_amazon_bestseller: p.bsr < 1000,
-        amazon_bsr: p.bsr,
-      }));
-
-      const pipeResult = await runUnifiedPipeline(unified, `amazon_${cat.name}`);
-      totalAdded += pipeResult.added;
-      totalScraped += pipeResult.scraped;
-      errors.push(...pipeResult.errors.slice(0, 3));
-
-      await supabase.from('scrape_logs').insert({
-        source: `amazon_${cat.name}`,
-        products_scraped: pipeResult.scraped,
-        products_passed_filter: pipeResult.passed_filter,
-        products_added: pipeResult.added,
-        products_updated: pipeResult.updated,
-        errors: pipeResult.errors.slice(0, 10),
-        status: 'success',
-        duration_seconds: Math.round(pipeResult.duration_ms / 1000),
-      }).catch(() => {});
+      const runId = await launchAmazonScrape(cat.url, cat.name, 50);
+      if (runId) runIds.push(runId);
     }
 
-    res.json({ success: true, scraped: totalScraped, added: totalAdded, errors: errors.slice(0, 5) });
+    await logPipelineEnd(logId, { startedAt, raw_collected: runIds.length }, 'success');
+    res.json({ success: true, launched: runIds.length, runIds, message: 'Fire-and-forget' });
   } catch (err: any) {
-    console.error('[cron/amazon] Error:', err.message);
+    await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// GET /api/cron/scrape-tiktok-shop — daily
 router.get('/scrape-tiktok-shop', async (req: Request, res: Response) => {
   if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
-  const supabase = getSupabaseAdmin();
+  const logId = await logPipelineStart('scrape', 'tiktok_shop');
+  const startedAt = new Date().toISOString();
 
   try {
-    // Search for product-related TikTok content
-    const PRODUCT_TERMS = ['pet accessory', 'skincare routine', 'home gadget', 'kitchen tool', 'fitness gear', 'baby product'];
+    const HASHTAGS = ['TikTokMadeMeBuyIt', 'TikTokShop', 'ProductReview', 'DropshippingAustralia', 'AUFinds', 'ViralProducts'];
     const dayOfWeek = new Date().getDay();
-    const terms = PRODUCT_TERMS.slice(dayOfWeek % 3, (dayOfWeek % 3) + 3);
+    const tags = HASHTAGS.slice((dayOfWeek * 2) % HASHTAGS.length, ((dayOfWeek * 2) % HASHTAGS.length) + 3);
+    const runIds: string[] = [];
 
-    const rawProducts = await scrapeTikTokShopProducts(terms);
+    for (const tag of tags) {
+      const runId = await launchTikTokScrape(tag);
+      if (runId) runIds.push(runId);
+    }
 
-    const unified: UnifiedProduct[] = rawProducts
-      .filter(p => p.title && p.title.length > 5)
-      .map(p => ({
-        title: p.title,
-        price_usd: p.price_usd,
-        image_url: p.image_url,
-        product_url: p.product_url,
-        category: p.category,
-        source: 'tiktok_shop',
-        is_tiktok_shop: true,
-      }));
-
-    const pipeResult = await runUnifiedPipeline(unified, 'tiktok_shop');
-
-    await supabase.from('scrape_logs').insert({
-      source: 'tiktok_shop',
-      products_scraped: pipeResult.scraped,
-      products_passed_filter: pipeResult.passed_filter,
-      products_added: pipeResult.added,
-      products_updated: pipeResult.updated,
-      errors: pipeResult.errors.slice(0, 10),
-      status: 'success',
-      duration_seconds: Math.round(pipeResult.duration_ms / 1000),
-    }).catch(() => {});
-
-    res.json({ success: true, ...pipeResult });
+    await logPipelineEnd(logId, { startedAt, raw_collected: runIds.length }, 'success');
+    res.json({ success: true, launched: runIds.length, runIds, message: 'Fire-and-forget' });
   } catch (err: any) {
-    console.error('[cron/tiktok-shop] Error:', err.message);
+    await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NEW PIPELINE CRON HANDLERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+router.get('/harvest-apify-runs', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const logId = await logPipelineStart('harvest', 'apify_runs');
+  const startedAt = new Date().toISOString();
+
+  try {
+    const result = await harvestCompletedRuns();
+    await logPipelineEnd(logId, { startedAt, inserted: result.harvested, skipped: result.stillRunning, failed: result.failed }, 'success');
+    res.json({ success: true, ...result });
+  } catch (err: any) {
+    await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/process-pipeline', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const logId = await logPipelineStart('process', 'pipeline');
+  const startedAt = new Date().toISOString();
+
+  try {
+    const result = await runProcessor();
+    await logPipelineEnd(logId, {
+      startedAt,
+      raw_collected: result.processed,
+      inserted: result.inserted,
+      updated: result.updated,
+      skipped: result.skipped,
+      failed: result.failed,
+    }, 'success');
+    res.json({ success: true, ...result });
+  } catch (err: any) {
+    await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/cleanup-database', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const logId = await logPipelineStart('cleanup', 'database');
+  const startedAt = new Date().toISOString();
+
+  try {
+    const result = await runCleanup();
+    await logPipelineEnd(logId, { startedAt, inserted: result.removed }, 'success');
+    res.json({ success: true, ...result });
+  } catch (err: any) {
+    await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/refresh-scores', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const logId = await logPipelineStart('refresh', 'scores');
+  const startedAt = new Date().toISOString();
+
+  try {
+    const result = await runScoreRefresh();
+    await logPipelineEnd(logId, { startedAt, updated: result.updated }, 'success');
+    res.json({ success: true, ...result });
+  } catch (err: any) {
+    await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/collect-tiktok-cc', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const logId = await logPipelineStart('scrape', 'tiktok_cc');
+  const startedAt = new Date().toISOString();
+
+  try {
+    const runId = await launchTikTokCCScrape();
+    await logPipelineEnd(logId, { startedAt, raw_collected: runId ? 1 : 0 }, runId ? 'success' : 'failed');
+    res.json({ success: !!runId, runId, message: 'Fire-and-forget' });
+  } catch (err: any) {
+    await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/collect-cj', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const logId = await logPipelineStart('collect', 'cj_api');
+  const startedAt = new Date().toISOString();
+
+  try {
+    const result = await collectCJProducts();
+    await logPipelineEnd(logId, { startedAt, inserted: result.collected, failed: result.errors.length }, result.errors.length > 0 ? 'failed' : 'success', result.errors.join('; '));
+    res.json({ success: true, ...result });
+  } catch (err: any) {
+    await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/collect-trends', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const logId = await logPipelineStart('collect', 'google_trends');
+  const startedAt = new Date().toISOString();
+
+  try {
+    const items = await fetchGoogleTrends();
+    await saveTrends(items);
+    await logPipelineEnd(logId, { startedAt, inserted: items.length }, 'success');
+    res.json({ success: true, keywords: items.length });
+  } catch (err: any) {
+    await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
     res.status(500).json({ error: err.message });
   }
 });

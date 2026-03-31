@@ -1,9 +1,9 @@
 /**
  * AliExpress Bulk Category Scraper
- * Uses Apify Playwright Scraper to extract product listings from category pages.
- * Returns array of raw product data without any enrichment.
+ * Fire-and-forget pattern: launches Apify run, returns immediately.
+ * Results harvested by server/pipeline/harvest.ts
  */
-import Anthropic from '@anthropic-ai/sdk';
+import { startApifyRun } from './apifyFireForget';
 
 export interface AEBulkProduct {
   title: string;
@@ -36,27 +36,20 @@ export interface EnrichedProduct extends AEBulkProduct {
   ad_angle: string;
 }
 
-const ACTOR = 'apify~playwright-scraper';
-const POLL_INTERVAL_MS = 8000;
-const MAX_POLLS = 45; // 6 minutes max
-
 // The page function that runs in Apify's browser context
-// Extracts product listings from AliExpress category/listing pages
 const PAGE_FUNCTION = `
 async function pageFunction(context) {
   const { page, request, log } = context;
 
   await page.waitForTimeout(3000);
 
-  // Try to extract product data from the page
   const products = await page.evaluate(() => {
     const results = [];
 
-    // AliExpress uses various product card selectors — try multiple patterns
     const cardSelectors = [
       '[class*="multi--container"]',
       '[class*="product-item"]',
-      '[class*="JIIxO"]', // dynamic class
+      '[class*="JIIxO"]',
       'a[href*="/item/"]',
     ];
 
@@ -69,12 +62,10 @@ async function pageFunction(context) {
       }
     }
 
-    // If link-based selection, get parent containers
     if (cards.length > 0 && cards[0].tagName === 'A') {
       cards = cards.map(a => a.closest('[class*="multi"]') || a.closest('[class*="product"]') || a).filter(Boolean);
     }
 
-    // Deduplicate by href
     const seen = new Set();
     cards = cards.filter(card => {
       const link = card.querySelector('a[href*="/item/"]');
@@ -86,30 +77,25 @@ async function pageFunction(context) {
 
     for (const card of cards.slice(0, 50)) {
       try {
-        // Product URL
         const link = card.querySelector('a[href*="/item/"]');
         const href = link?.href || '';
         if (!href) continue;
 
-        // Product ID from URL
         const idMatch = href.match(/\\/item\\/(\\d+)/);
         const productId = idMatch ? idMatch[1] : '';
         if (!productId) continue;
 
-        // Title — try multiple selectors
         const titleEl = card.querySelector('[class*="multi--title"]') ||
                         card.querySelector('[class*="title"]') ||
                         card.querySelector('h1,h2,h3');
         const title = titleEl?.textContent?.trim() || '';
 
-        // Price — try multiple patterns
         const priceEl = card.querySelector('[class*="multi--price-sale"]') ||
                         card.querySelector('[class*="price"]') ||
                         card.querySelector('[class*="Price"]');
         const priceText = priceEl?.textContent?.trim() || '0';
         const price = parseFloat(priceText.replace(/[^0-9.]/g, '')) || 0;
 
-        // Orders
         const ordersEl = card.querySelector('[class*="multi--trade"]') ||
                          card.querySelector('[class*="trade"]') ||
                          card.querySelector('[class*="sold"]');
@@ -117,31 +103,26 @@ async function pageFunction(context) {
         const ordersMatch = ordersText.match(/([\\d,]+)\\+?/);
         const orders = ordersMatch ? parseInt(ordersMatch[1].replace(/,/g, '')) : 0;
 
-        // Rating
         const ratingEl = card.querySelector('[class*="multi--evaluation"]') ||
                          card.querySelector('[class*="star"]') ||
                          card.querySelector('[class*="rating"]');
         const ratingText = ratingEl?.textContent?.trim() || '0';
         const rating = parseFloat(ratingText.match(/[0-9.]+/)?.[0] || '0') || 0;
 
-        // Image
         const imgEl = card.querySelector('[class*="multi--image"] img') ||
                       card.querySelector('img[src*="alicdn"]') ||
                       card.querySelector('img');
         let imageUrl = imgEl?.src || imgEl?.getAttribute('data-src') || '';
         if (imageUrl.startsWith('//')) imageUrl = 'https:' + imageUrl;
 
-        // Seller
         const sellerEl = card.querySelector('[class*="store"]') ||
                          card.querySelector('[class*="seller"]');
         const seller = sellerEl?.textContent?.trim() || 'AliExpress Seller';
 
-        // AliExpress Choice badge
         const choiceBadge = card.querySelector('[class*="choice"]') ||
                             card.querySelector('[class*="Choice"]');
         const isChoice = !!choiceBadge;
 
-        // Free shipping
         const shippingEl = card.querySelector('[class*="ship"]') ||
                            card.querySelector('[class*="delivery"]');
         const shippingText = shippingEl?.textContent?.toLowerCase() || '';
@@ -179,113 +160,58 @@ async function pageFunction(context) {
 }
 `.trim();
 
-export async function scrapeAliExpressCategoryPage(
+/**
+ * Fire-and-forget: launches Apify run, saves run_id to queue, returns immediately.
+ */
+export async function launchAliExpressScrape(
   categoryUrl: string,
   categoryName: string
-): Promise<AEBulkProduct[]> {
-  const token = process.env.APIFY_API_KEY || process.env.APIFY_API_TOKEN;
-  if (!token) {
-    console.error('[ae-bulk] No APIFY token');
-    return [];
-  }
+): Promise<string | null> {
+  const result = await startApifyRun(
+    'apify~playwright-scraper',
+    `aliexpress_web_${categoryName.toLowerCase().replace(/\s+/g, '_')}`,
+    {
+      startUrls: [{ url: categoryUrl }],
+      pageFunction: PAGE_FUNCTION,
+      maxRequestsPerCrawl: 3,
+      maxConcurrency: 1,
+      navigationTimeout: 60,
+      pageLoadTimeoutSecs: 30,
+      proxyConfiguration: { useApifyProxy: true, apifyProxyGroups: ['RESIDENTIAL'] },
+    },
+    1024
+  );
+  return result?.runId || null;
+}
 
-  console.log(`[ae-bulk] Scraping: ${categoryUrl.slice(0, 70)}`);
+/**
+ * Maps raw Apify dataset items to AEBulkProduct shape.
+ * Used by harvest pipeline after dataset is fetched.
+ */
+export function extractAEItemsFromDataset(items: any[], categoryName: string): AEBulkProduct[] {
+  // Items may be nested arrays (one per page) — flatten
+  const flat: any[] = Array.isArray(items)
+    ? items.flatMap(item => Array.isArray(item) ? item : [item])
+    : [];
 
-  try {
-    const startRes = await fetch(
-      `https://api.apify.com/v2/acts/${ACTOR}/runs?token=${token}&memory=1024`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          startUrls: [{ url: categoryUrl }],
-          pageFunction: PAGE_FUNCTION,
-          maxRequestsPerCrawl: 2,
-          maxConcurrency: 1,
-          navigationTimeout: 60,
-          pageLoadTimeoutSecs: 30,
-          proxyConfiguration: { useApifyProxy: true, apifyProxyGroups: ['RESIDENTIAL'] },
-          launchContext: {
-            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          },
-        }),
-        signal: AbortSignal.timeout(20000),
-      }
-    );
-
-    if (!startRes.ok) {
-      const errText = await startRes.text().catch(() => '');
-      console.error('[ae-bulk] Start failed:', startRes.status, errText.slice(0, 200));
-      return [];
-    }
-
-    const startData = await startRes.json() as { data?: { id: string } };
-    const runId = startData?.data?.id;
-    if (!runId) {
-      console.error('[ae-bulk] No run ID returned');
-      return [];
-    }
-
-    console.log(`[ae-bulk] Run started: ${runId}`);
-
-    // Poll for completion
-    for (let i = 0; i < MAX_POLLS; i++) {
-      await new Promise(r => setTimeout(r, POLL_INTERVAL_MS));
-
-      const statusRes = await fetch(
-        `https://api.apify.com/v2/acts/${ACTOR}/runs/${runId}?token=${token}`,
-        { signal: AbortSignal.timeout(15000) }
-      );
-      const statusData = await statusRes.json() as { data?: { status: string; datasetId?: string } };
-      const status = statusData?.data?.status;
-      const datasetId = statusData?.data?.datasetId;
-
-      console.log(`[ae-bulk] Poll ${i + 1}: ${status}`);
-
-      if (status === 'SUCCEEDED' && datasetId) {
-        const itemsRes = await fetch(
-          `https://api.apify.com/v2/datasets/${datasetId}/items?token=${token}&clean=true`,
-          { signal: AbortSignal.timeout(15000) }
-        );
-        const rawItems = await itemsRes.json() as any[];
-
-        // Items may be nested arrays (one per page) — flatten
-        const items: any[] = Array.isArray(rawItems)
-          ? rawItems.flatMap(item => Array.isArray(item) ? item : [item])
-          : [];
-
-        return items
-          .filter(item => item.title && item.price > 0)
-          .map(item => ({
-            title: String(item.title || ''),
-            price_usd: parseFloat(item.price) || 0,
-            original_price_usd: parseFloat(item.original_price) || undefined,
-            orders_count: parseInt(item.orders) || 0,
-            rating: parseFloat(item.rating) || 0,
-            review_count: parseInt(item.review_count) || 0,
-            image_url: String(item.image_url || ''),
-            product_url: String(item.product_url || ''),
-            aliexpress_product_id: String(item.product_id || ''),
-            seller_name: String(item.seller || 'AliExpress Seller'),
-            free_shipping: Boolean(item.free_shipping),
-            aliexpress_choice: Boolean(item.is_choice),
-            ships_from: 'CN',
-            category: categoryName,
-            source_url: categoryUrl,
-            scraped_at: new Date().toISOString(),
-          }));
-      }
-
-      if (['FAILED', 'ABORTED', 'TIMED-OUT'].includes(status || '')) {
-        console.error(`[ae-bulk] Run ${status}`);
-        return [];
-      }
-    }
-
-    console.error('[ae-bulk] Polling timed out');
-    return [];
-  } catch (err: any) {
-    console.error('[ae-bulk] Error:', err.message);
-    return [];
-  }
+  return flat
+    .filter(item => item.title && (item.price > 0 || item.price_usd > 0))
+    .map(item => ({
+      title: String(item.title || ''),
+      price_usd: parseFloat(item.price || item.price_usd) || 0,
+      original_price_usd: parseFloat(item.original_price) || undefined,
+      orders_count: parseInt(item.orders || item.orders_count) || 0,
+      rating: parseFloat(item.rating) || 0,
+      review_count: parseInt(item.review_count) || 0,
+      image_url: String(item.image_url || ''),
+      product_url: String(item.product_url || ''),
+      aliexpress_product_id: String(item.product_id || item.aliexpress_product_id || ''),
+      seller_name: String(item.seller || item.seller_name || 'AliExpress Seller'),
+      free_shipping: Boolean(item.free_shipping),
+      aliexpress_choice: Boolean(item.is_choice || item.aliexpress_choice),
+      ships_from: 'CN',
+      category: categoryName,
+      source_url: String(item.source_url || ''),
+      scraped_at: new Date().toISOString(),
+    }));
 }
