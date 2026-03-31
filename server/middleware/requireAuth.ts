@@ -95,3 +95,43 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     res.status(401).json({ error: 'unauthorized', message: 'Token verification failed' });
   }
 };
+
+/**
+ * requireScale — ensures the authenticated user has an active Scale plan.
+ * Admin (maximusmajorka@gmail.com) bypasses the check.
+ */
+export const requireScale = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  // First ensure authenticated
+  await new Promise<void>((resolve) => {
+    requireAuth(req, res, () => resolve());
+  });
+
+  if (!req.user) return; // requireAuth already sent 401
+
+  // Admin bypass
+  if (req.user.email === 'maximusmajorka@gmail.com') {
+    next();
+    return;
+  }
+
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data } = await supabase
+      .from('user_subscriptions')
+      .select('plan,status')
+      .eq('user_id', req.user.userId)
+      .single();
+
+    if (data?.plan === 'scale' && data?.status === 'active') {
+      next();
+      return;
+    }
+
+    res.status(403).json({
+      error: 'Scale plan required',
+      upgrade_url: 'https://www.majorka.io/pricing',
+    });
+  } catch {
+    res.status(403).json({ error: 'Scale plan required' });
+  }
+};

@@ -575,7 +575,21 @@ export default function CreatorIntelligence() {
         {/* LEFT — Cards area */}
         <div>
           {loading ? (
-            <div style={{ padding: 60, textAlign: 'center' as const, color: '#9CA3AF', fontSize: 14 }}>Loading creators...</div>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 12 }}>
+              {[1,2,3,4,5,6].map(i => (
+                <div key={i} style={{ background: 'white', borderRadius: 12, padding: 20, border: '1px solid #F0F0F0' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#F0F0F0', animation: 'pulse 1.5s ease-in-out infinite' }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ height: 14, width: '60%', background: '#F0F0F0', borderRadius: 6, marginBottom: 8, animation: 'pulse 1.5s ease-in-out infinite' }} />
+                      <div style={{ height: 10, width: '40%', background: '#F5F5F5', borderRadius: 4 }} />
+                    </div>
+                  </div>
+                  <div style={{ height: 12, width: '100%', background: '#F5F5F5', borderRadius: 4, marginBottom: 8 }} />
+                  <div style={{ height: 12, width: '80%', background: '#F5F5F5', borderRadius: 4 }} />
+                </div>
+              ))}
+            </div>
           ) : filtered.length === 0 ? (
             <div style={{ background: 'white', border: '1px solid #F0F0F0', borderRadius: 16, padding: 60, textAlign: 'center' as const }}>
               <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#0A0A0A', marginBottom: 8 }}>Creator data refreshing</div>

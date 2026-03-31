@@ -1,4 +1,5 @@
 import { Link } from 'wouter';
+import { SEO } from '@/components/SEO';
 
 const brico = "'Bricolage Grotesque', sans-serif";
 const dm = "'DM Sans', sans-serif";
@@ -6,6 +7,11 @@ const dm = "'DM Sans', sans-serif";
 export default function About() {
   return (
     <div style={{ minHeight: '100vh', background: '#FAFAFA', fontFamily: dm }}>
+      <SEO
+        title="About Majorka — AI Ecommerce Intelligence"
+        description="Majorka is an AI-powered ecommerce intelligence platform helping sellers find winning products, build stores, and scale their businesses."
+        path="/about"
+      />
       {/* Nav */}
       <nav style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(250,250,250,0.95)', backdropFilter: 'blur(16px)', borderBottom: '1px solid #ECECEC', height: 64, display: 'flex', alignItems: 'center', padding: '0 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

@@ -84,7 +84,7 @@ export const adminRouter = router({
       const { Resend } = await import('resend');
       const resend = new Resend(process.env.RESEND_API_KEY);
       const result = await resend.emails.send({
-        from: 'Majorka AI <hello@majorka.ai>',
+        from: 'Majorka AI <hello@majorka.io>',
         to: emails.slice(0, 50) as string[],
         subject: input.subject,
         html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;background:#080a0e;color:#fff"><h1 style="color:#d4af37">${input.subject}</h1><div style="color:#e5e7eb;line-height:1.6">${input.body}</div><p style="color:#6b7280;font-size:12px;margin-top:32px">Majorka AI · <a href="https://majorka.io" style="color:#d4af37">majorka.io</a></p></div>`,

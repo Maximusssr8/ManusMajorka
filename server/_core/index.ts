@@ -252,6 +252,8 @@ async function startServer() {
   // Cron endpoints (Vercel cron + manual refresh)
   const cronRouter = (await import('../routes/cron')).default;
   app.use('/api/cron', cronRouter);
+  const dailyBriefRouter = (await import('../routes/daily-brief')).default;
+  app.use('/api/daily-brief', dailyBriefRouter);
   // ── Usage tracking — GET /api/usage/me ────────────────────────────────────
   app.get('/api/usage/me', requireAuth, async (req, res) => {
     try {

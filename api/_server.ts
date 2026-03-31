@@ -47,6 +47,7 @@ import marketplaceRouter from "../server/routes/marketplace";
 import creatorsRouter from "../server/routes/creators";
 import videosRouter from "../server/routes/videos";
 import waitlistRouter from "../server/routes/waitlist";
+import dailyBriefRouter from "../server/routes/daily-brief";
 import { registerGenerationRoutes } from "../server/routes/generation";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
 import { getProductByIdPublic } from "../server/db";
@@ -549,6 +550,20 @@ registerToolsApi(app);
 registerAutomationRoutes(app);
 registerAffiliateRoutes(app);
 registerStripeRoutes(app);
+
+// ── Stripe webhook test — admin-only diagnostic endpoint ────────────────────
+app.get('/api/stripe/webhook-test', requireAuth, async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  if (user?.email !== 'maximusmajorka@gmail.com') return res.status(403).json({ error: 'Forbidden' });
+
+  res.json({
+    webhook_secret_configured: !!process.env.STRIPE_WEBHOOK_SECRET,
+    stripe_secret_configured: !!process.env.STRIPE_SECRET_KEY,
+    webhook_url: 'https://www.majorka.io/api/stripe/webhook',
+    instructions: 'Verify webhook is registered at: https://dashboard.stripe.com/webhooks',
+  });
+});
+
 registerWebsiteRoutes(app);
 registerGenerationRoutes(app);
 app.use('/api/shopify', shopifyRouter);
@@ -567,6 +582,7 @@ app.use('/api/creators', creatorsRouter);
 app.use('/api/videos', videosRouter);
 app.use('/api/marketplace', marketplaceRouter);
 app.use('/api/waitlist', waitlistRouter);
+app.use('/api/daily-brief', dailyBriefRouter);
 
 // ── Product import with AI Brain ─────────────────────────────────────────────
 app.post("/api/import-product", async (req: Request, res: Response) => {
@@ -1023,5 +1039,18 @@ app.post("/api/alerts/test-notification", requireAuth, async (req: Request, res:
 });
 
 
+
+// ── Sentry error handler (must be after all routes) ─────────────────────────
+if (SENTRY_DSN) {
+  app.use(Sentry.expressErrorHandler());
+}
+
+// ── Generic error handler — catches unhandled errors ────────────────────────
+app.use((err: any, _req: any, res: any, _next: any) => {
+  console.error('[server error]', err?.message || err);
+  if (!res.headersSent) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 export default app;

@@ -3,6 +3,10 @@ import { requireAuth } from '../middleware/requireAuth';
 import { requireAdmin as requireAdminMiddleware } from '../middleware/requireAdmin';
 import { createClient } from '@supabase/supabase-js';
 import { findSupplierLinks, findTrendingBuzz } from '../lib/tavilySupplier';
+import { launchAliExpressScrape } from '../lib/apifyAliExpressBulk';
+import { launchAmazonScrape, AMAZON_AU_CATEGORIES } from '../lib/apifyAmazon';
+import { launchTikTokScrape } from '../lib/apifyTikTokShop';
+import { getSupabaseAdmin } from '../_core/supabase';
 
 const router = Router();
 
@@ -1439,6 +1443,90 @@ router.post('/refresh-videos', requireAuth, requireAdmin, async (req: Request, r
       console.error('[refresh-videos] fatal:', err);
     }
   })();
+});
+
+// POST /api/admin/scrape-aliexpress — manual trigger (fire-and-forget)
+router.post('/scrape-aliexpress', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+  const { source_url, category_name } = req.body;
+  if (!source_url) return res.status(400).json({ error: 'source_url required' });
+
+  try {
+    const runId = await launchAliExpressScrape(source_url, category_name || 'Manual');
+    res.json({ success: !!runId, runId, message: 'Apify run started. Harvest cron will collect results.' });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/run-full-scrape — triggers all scrapers (fire-and-forget)
+router.post('/run-full-scrape', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const runIds: string[] = [];
+
+    // Launch AliExpress
+    const aeId = await launchAliExpressScrape(
+      'https://www.aliexpress.com/gcp/300000604/best-sellers.html', 'AE Best Sellers'
+    );
+    if (aeId) runIds.push(aeId);
+
+    // Launch Amazon
+    const amzId = await launchAmazonScrape(AMAZON_AU_CATEGORIES[0].url, AMAZON_AU_CATEGORIES[0].name, 30);
+    if (amzId) runIds.push(amzId);
+
+    // Launch TikTok
+    const ttId = await launchTikTokScrape('TikTokMadeMeBuyIt');
+    if (ttId) runIds.push(ttId);
+
+    res.json({ success: true, message: `Launched ${runIds.length} scrapers. Harvest cron collects results.`, runIds });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/admin/pipeline-status — pipeline monitoring dashboard data
+router.get('/pipeline-status', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const supabase = getSupabaseAdmin();
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+    const [totalCount, todayCount, weekCount, avgScore, pendingRaw, recentLogs] = await Promise.all([
+      supabase.from('winning_products').select('id', { count: 'exact', head: true }).eq('is_active', true),
+      supabase.from('winning_products').select('id', { count: 'exact', head: true }).gte('created_at', oneDayAgo),
+      supabase.from('winning_products').select('id', { count: 'exact', head: true }).gte('created_at', oneWeekAgo),
+      supabase.from('winning_products').select('winning_score').eq('is_active', true).limit(1000),
+      supabase.from('raw_scrape_results').select('id', { count: 'exact', head: true }).eq('processed', false),
+      supabase.from('pipeline_logs').select('*').order('started_at', { ascending: false }).limit(20),
+    ]);
+
+    const scores = (avgScore.data || []).map((r: any) => r.winning_score).filter(Boolean);
+    const avg = scores.length > 0 ? Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length) : 0;
+
+    const sourceMap: Record<string, { lastRun: string; added: number; status: string }> = {};
+    for (const log of (recentLogs.data || [])) {
+      const src = log.source || log.pipeline_type;
+      if (!sourceMap[src]) {
+        sourceMap[src] = {
+          lastRun: log.started_at,
+          added: log.inserted || 0,
+          status: log.status || 'unknown',
+        };
+      }
+    }
+
+    res.json({
+      total: totalCount.count || 0,
+      addedToday: todayCount.count || 0,
+      addedThisWeek: weekCount.count || 0,
+      avgScore: avg,
+      pendingRaw: pendingRaw.count || 0,
+      sources: sourceMap,
+      recentLogs: (recentLogs.data || []).slice(0, 10),
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 export default router;

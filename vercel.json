@@ -68,6 +68,50 @@
     {
       "path": "/api/cron/refresh-products",
       "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/collect-tiktok-cc",
+      "schedule": "0 */3 * * *"
+    },
+    {
+      "path": "/api/cron/scrape-tiktok-shop",
+      "schedule": "30 */3 * * *"
+    },
+    {
+      "path": "/api/cron/scrape-aliexpress-trending",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/collect-cj",
+      "schedule": "30 */6 * * *"
+    },
+    {
+      "path": "/api/cron/scrape-aliexpress-categories",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/scrape-amazon",
+      "schedule": "0 */12 * * *"
+    },
+    {
+      "path": "/api/cron/collect-trends",
+      "schedule": "0 */12 * * *"
+    },
+    {
+      "path": "/api/cron/harvest-apify-runs",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/process-pipeline",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/cleanup-database",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/refresh-scores",
+      "schedule": "0 4 * * *"
     }
   ]
 }

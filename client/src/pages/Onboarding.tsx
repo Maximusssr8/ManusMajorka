@@ -29,6 +29,7 @@ import {
   User,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { useLocation } from 'wouter';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useDocumentTitle } from '@/_core/hooks/useDocumentTitle';
@@ -267,6 +268,16 @@ export default function Onboarding() {
       .finally(() => setTaskLoading(false));
   }, [step, session, niche, customNiche, experience]);
 
+  // Auto-redirect to dashboard after completion
+  useEffect(() => {
+    if (step === 'done') {
+      const timer = setTimeout(() => {
+        navigate('/app');
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [step, navigate]);
+
   // ── Navigation helpers ────────────────────────────────────────────────────
 
   function goNext(from: number) {
@@ -315,6 +326,11 @@ export default function Onboarding() {
       businessName: storeInfo || undefined,
       country: 'Australia',
       onboardingCompleted: true,
+    }, {
+      onError: () => {
+        toast.error('Could not save your preferences. You can update them in Settings later.');
+        setStep('done');
+      },
     });
 
     capture('onboarding_completed', { niche: nicheValue, experience, goal, storeType, platform });
@@ -590,6 +606,7 @@ export default function Onboarding() {
                       border: '1px solid #F0F0F0',
                       color: '#6B7280',
                       cursor: 'pointer',
+                      flexShrink: 0,
                     }}
                   >
                     <ChevronLeft size={15} />
@@ -698,6 +715,7 @@ export default function Onboarding() {
                       border: '1px solid #F0F0F0',
                       color: '#6B7280',
                       cursor: 'pointer',
+                      flexShrink: 0,
                     }}
                   >
                     <ChevronLeft size={15} />
@@ -797,6 +815,7 @@ export default function Onboarding() {
                       border: '1px solid #F0F0F0',
                       color: '#6B7280',
                       cursor: 'pointer',
+                      flexShrink: 0,
                     }}
                   >
                     <ChevronLeft size={15} />
@@ -945,6 +964,7 @@ export default function Onboarding() {
                       border: '1px solid #F0F0F0',
                       color: '#6B7280',
                       cursor: 'pointer',
+                      flexShrink: 0,
                     }}
                   >
                     <ChevronLeft size={15} />

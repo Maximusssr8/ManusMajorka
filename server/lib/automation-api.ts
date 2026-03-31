@@ -78,7 +78,7 @@ export function registerAutomationRoutes(app: Application): void {
         const { Resend } = await import('resend');
         const resend = new Resend(process.env.RESEND_API_KEY);
         resend.emails.send({
-          from: 'Majorka AI <hello@majorka.ai>',
+          from: 'Majorka AI <hello@majorka.io>',
           to: 'maximusmajorka@gmail.com',
           subject: `🔥 New lead: ${cleanEmail}`,
           html: `<p>New subscriber: <strong>${cleanEmail}</strong>${name ? ` (${name})` : ''}<br>Source: ${source ?? 'homepage'}</p>`,
