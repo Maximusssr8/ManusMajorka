@@ -69,6 +69,26 @@ interface Product {
   data_sources?: string[];
   tiktok_shop_signal?: boolean;
   amazon_signal?: boolean;
+  // Phase 6: real data columns
+  real_orders_count?: number;
+  real_cost_aud?: number;
+  real_price_aud?: number;
+  real_rating?: number;
+  real_review_count?: number;
+  link_status?: string;
+  shipping_time_au_days?: number;
+  tiktok_potential?: string;
+  saturation_risk?: string;
+  best_ad_angle?: string;
+  target_audience?: string;
+  why_trending?: string;
+  suggested_sell_aud?: number;
+  data_source?: string;
+  source_url?: string;
+  cj_product_id?: string;
+  supplier_platform?: string;
+  supplier_url?: string;
+  supplier_name?: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -843,20 +863,47 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                       </div>
                     </div>
 
-                    {/* Metrics grid: 2×2 */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
-                      {[
-                        { label: '📦 Orders', value: getProductOrders(product) > 0 ? getProductOrders(product).toLocaleString() : '—' },
-                        { label: '🏷 Price', value: price > 0 ? `$${price.toFixed(0)}` : '—' },
-                        { label: '💰 Cost', value: cost > 0 ? `$${cost.toFixed(2)}` : '—' },
-                        { label: '📊 Margin', value: margin > 0 ? `${Math.round(margin)}%` : '—' },
-                      ].map(m => (
-                        <div key={m.label} style={{ background: 'var(--card-bg-soft, #F9FAFB)', borderRadius: 7, padding: '7px 10px' }}>
-                          <div style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 2 }}>{m.label}</div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--cell-text, #111827)' }}>{m.value}</div>
-                        </div>
-                      ))}
+                    {/* Source + TikTok badges */}
+                    <div style={{ display: 'flex', gap: 4, marginBottom: 8, flexWrap: 'wrap' as const }}>
+                      {product.data_source === 'cj_api' ? (
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(99,102,241,0.1)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.2)' }}>CJ ✅</span>
+                      ) : (product.data_source === 'aliexpress' || product.aliexpress_url) ? (
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(255,106,0,0.1)', color: '#EA580C' }}>AE{product.link_status === 'verified' ? ' ✓' : ''}</span>
+                      ) : null}
+                      {product.link_status === 'verified' && product.data_source !== 'aliexpress' && !product.aliexpress_url && (
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(34,197,94,0.1)', color: '#22C55E' }}>✓ Verified</span>
+                      )}
+                      {product.tiktok_potential === 'viral' && (
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(239,68,68,0.12)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.2)' }}>🔥 VIRAL</span>
+                      )}
+                      {product.tiktok_potential === 'high' && (
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(99,102,241,0.1)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.2)' }}>⚡ TikTok+</span>
+                      )}
                     </div>
+
+                    {/* Metrics grid: 2×2 */}
+                    {(() => {
+                      const realOrders = product.real_orders_count;
+                      const aeOrders = product.orders_count || 0;
+                      const sellPrice = product.suggested_sell_aud || product.price_aud || 0;
+                      const costPrice = product.real_cost_aud || product.cost_price_aud || 0;
+                      return (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+                          {[
+                            { label: realOrders ? '📦 Real Orders' : '📦 AE Orders', value: realOrders ? realOrders.toLocaleString() : aeOrders > 0 ? aeOrders.toLocaleString() : '—', highlight: !!realOrders },
+                            { label: '🏷 Sell', value: sellPrice > 0 ? `$${sellPrice.toFixed(0)}` : '—', highlight: false },
+                            { label: '💰 Cost', value: costPrice > 0 ? `$${costPrice.toFixed(2)}` : '—', highlight: false },
+                            { label: '📊 Margin', value: margin > 0 ? `${Math.round(margin)}%` : '—', highlight: false },
+                          ].map(m => (
+                            <div key={m.label} style={{ background: 'var(--card-bg-soft, #F9FAFB)', borderRadius: 7, padding: '7px 10px' }}>
+                              <div style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 2 }}>{m.label}</div>
+                              <div style={{ fontSize: 13, fontWeight: 700, color: m.highlight ? '#22C55E' : 'var(--cell-text, #111827)' }}>{m.value}</div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+
 
                     {/* Tier badge + source badges */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
@@ -955,15 +1002,15 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 <th style={thStyle('name', isMobile ? 170 : 210)} onClick={() => handleSort('name')} aria-sort={sortBy === 'name' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
                   Product <SortIcon col="name" />
                 </th>
-                <th style={thStyle('est_monthly_revenue_aud', isMobile ? 90 : 110, 'right')} onClick={() => handleSort('est_monthly_revenue_aud')} aria-sort={sortBy === 'est_monthly_revenue_aud' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'} title="Estimated monthly revenue = price × est. units/day × 30. Based on AI-estimated demand signals, not live sales data.">
-                  Est. Rev <SortIcon col="est_monthly_revenue_aud" />
+                <th style={thStyle('orders_count', isMobile ? 90 : 110, 'right')} onClick={() => handleSort('orders_count')} aria-sort={sortBy === 'orders_count' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'} title="Source orders — real scraped data when available">
+                  Orders <SortIcon col="orders_count" />
                 </th>
                 <th style={{ ...thStyle('trend', isMobile ? 100 : 130, 'center'), cursor: 'default' }}>Trend</th>
-                <th style={thStyle('orders_count', isMobile ? 70 : 80, 'right')} onClick={() => handleSort('orders_count')} aria-sort={sortBy === 'orders_count' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'} title="Estimated monthly orders based on AI demand signals. Not live scraped data.">
-                  Est. Sold <SortIcon col="orders_count" />
+                <th style={{ ...thStyle('source', isMobile ? 70 : 80, 'center'), cursor: 'default' }} title="Data source and link verification status">
+                  Source
                 </th>
-                <th style={thStyle('price', isMobile ? 70 : 80, 'right')} onClick={() => handleSort('price')} aria-sort={sortBy === 'price' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'} title="Suggested retail price in AUD. May differ from live AliExpress prices.">
-                  Price <SortIcon col="price" />
+                <th style={thStyle('price', isMobile ? 70 : 80, 'right')} onClick={() => handleSort('price')} aria-sort={sortBy === 'price' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'} title="Suggested sell price in AUD">
+                  Sell <SortIcon col="price" />
                 </th>
                 <th style={thStyle('estimated_margin_pct', isMobile ? 68 : 78, 'right')} onClick={() => handleSort('estimated_margin_pct')} aria-sort={sortBy === 'estimated_margin_pct' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
                   Margin <SortIcon col="estimated_margin_pct" />
@@ -1081,18 +1128,34 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                           </div>
                         </td>
 
-                        {/* Revenue */}
+                        {/* Orders */}
                         <td style={tdStyle('right')}>
                           {canSeeFinancials ? (
-                            <>
-                              <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: revenue >= 10000 ? '#059669' : revenue >= 3000 ? '#0A0A0A' : '#9CA3AF' }}>
-                                ${revenue >= 1000 ? `${(revenue / 1000).toFixed(1)}k` : revenue.toLocaleString()}
-                              </div>
-                              <div style={{ fontSize: 10, color: '#9CA3AF' }}>est./mo</div>
-                            </>
+                            (() => {
+                              const realOrd = (p as any).real_orders_count;
+                              const aeOrd = orders;
+                              if (realOrd && realOrd > 0) {
+                                return (
+                                  <>
+                                    <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: '#22C55E' }}>
+                                      {realOrd >= 1000 ? `${(realOrd / 1000).toFixed(1)}k` : realOrd.toLocaleString()}
+                                    </div>
+                                    <div style={{ fontSize: 10, color: '#22C55E' }}>real orders</div>
+                                  </>
+                                );
+                              }
+                              return (
+                                <>
+                                  <div style={{ fontFamily: brico, fontWeight: 800, fontSize: 15, color: aeOrd >= 1000 ? 'var(--cell-text, #0A0A0A)' : '#9CA3AF' }}>
+                                    {aeOrd >= 1000 ? `${(aeOrd / 1000).toFixed(1)}k` : aeOrd > 0 ? aeOrd.toLocaleString() : '—'}
+                                  </div>
+                                  <div style={{ fontSize: 10, color: '#9CA3AF' }}>AE orders</div>
+                                </>
+                              );
+                            })()
                           ) : (
-                            <span style={{ filter: 'blur(5px)', userSelect: 'none' as const, cursor: 'pointer', display: 'inline-block' }} title="Upgrade to see revenue data" onClick={e => { e.stopPropagation(); setLocation('/pricing'); }}>
-                              $X,XXX
+                            <span style={{ filter: 'blur(5px)', userSelect: 'none' as const, cursor: 'pointer', display: 'inline-block' }} title="Upgrade to see data" onClick={e => { e.stopPropagation(); setLocation('/pricing'); }}>
+                              X,XXX
                             </span>
                           )}
                         </td>
@@ -1104,18 +1167,36 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                           </div>
                         </td>
 
-                        {/* Orders */}
-                        <td style={tdStyle('right')}>
-                          <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A' }}>
-                            ≈{orders >= 1000 ? `${(orders / 1000).toFixed(1)}k` : orders.toLocaleString()}
+                        {/* Source badge */}
+                        <td style={tdStyle('center')}>
+                          <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 2 }}>
+                            {(p as any).data_source === 'cj_api' ? (
+                              <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(99,102,241,0.1)', color: '#6366F1' }}>CJ ✅</span>
+                            ) : ((p as any).data_source === 'aliexpress' || p.aliexpress_url) ? (
+                              <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(255,106,0,0.1)', color: '#EA580C' }}>AE{(p as any).link_status === 'verified' ? ' ✓' : ''}</span>
+                            ) : (
+                              <span style={{ fontSize: 10, color: '#9CA3AF' }}>—</span>
+                            )}
+                            {(p as any).tiktok_potential === 'viral' && (
+                              <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 4px', borderRadius: 3, background: 'rgba(239,68,68,0.12)', color: '#EF4444' }}>🔥 VIRAL</span>
+                            )}
+                            {(p as any).tiktok_potential === 'high' && (
+                              <span style={{ fontSize: 9, fontWeight: 700, padding: '1px 4px', borderRadius: 3, background: 'rgba(99,102,241,0.1)', color: '#6366F1' }}>⚡ TikTok+</span>
+                            )}
                           </div>
-                          <div style={{ fontSize: 10, color: '#9CA3AF' }}>est./mo</div>
                         </td>
 
-                        {/* Price */}
+                        {/* Sell Price */}
                         <td style={tdStyle('right')}>
-                          <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A' }}>${price.toFixed(0)}</div>
-                          <div style={{ fontSize: 10, color: '#9CA3AF' }}>{region.currency}</div>
+                          {(() => {
+                            const sellP = (p as any).suggested_sell_aud || price;
+                            return (
+                              <>
+                                <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--cell-text, #0A0A0A)' }}>${sellP > 0 ? sellP.toFixed(0) : '—'}</div>
+                                <div style={{ fontSize: 10, color: '#9CA3AF' }}>{region.currency}</div>
+                              </>
+                            );
+                          })()}
                         </td>
 
                         {/* Margin */}
@@ -1596,22 +1677,22 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
   const [creatorsLoading, setCreatorsLoading] = useState(false);
   const name = p.name || p.product_title || 'Product';
   const margin = p.estimated_margin_pct || p.profit_margin || 0;
-  const orders = p.orders_count || 0;
+  const orders = p.real_orders_count || p.orders_count || 0;
   const score = p.winning_score || 0;
-  const price = p.estimated_retail_aud || p.price_aud || 0;
-  // Cost: use stored value if set, else derive from price × (1 - margin%)
-  const storedCost = p.cost_price_aud || p.supplier_cost_aud || 0;
+  const price = p.suggested_sell_aud || p.estimated_retail_aud || p.price_aud || 0;
+  // Cost: prefer real_cost_aud, then stored cost, else derive
+  const storedCost = p.real_cost_aud || p.cost_price_aud || p.supplier_cost_aud || 0;
   const marginPct = typeof margin === 'number' && margin > 0 ? margin : 64;
   const cost = storedCost > 0 ? storedCost : Math.round(price * (1 - marginPct / 100) * 100) / 100;
-  // Monthly revenue: prefer DB-stored value (now clean: orders_count × price_aud)
-  // units_per_day may be inflated; est_monthly_revenue_aud is authoritative
   const revenue = p.est_monthly_revenue_aud && p.est_monthly_revenue_aud > 0
     ? p.est_monthly_revenue_aud
     : p.orders_count && p.orders_count > 0
       ? Math.round(p.orders_count * price * 100) / 100
       : Math.round(price * (p.units_per_day || Math.max(1, Math.round(score / 12))) * 30 * 100) / 100;
-  const isEstimated = !p.orders_count || p.orders_count === 0;
+  const hasRealData = !!(p.real_orders_count || p.real_cost_aud || p.real_rating);
   const productCategory = p.niche || p.category || '';
+  const supplierLink = p.supplier_url || p.aliexpress_url || null;
+  const sourceLink = p.source_url || p.aliexpress_url || null;
 
   // Fetch "Why Trending" brief
   useEffect(() => {
@@ -1677,7 +1758,12 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
         </div>
         <div style={{ padding: 20 }}>
           <h2 style={{ fontFamily: brico, fontWeight: 700, fontSize: 17, color: '#0A0A0A', marginBottom: 6, lineHeight: 1.4 }}>{name}</h2>
-          <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 10 }}>{p.niche || p.category} &middot; ~{orders.toLocaleString()} est. orders/mo &middot; AI-estimated data</div>
+          <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 10 }}>
+            {p.niche || p.category}
+            {orders > 0 && <> &middot; <span style={hasRealData ? { color: '#22C55E', fontWeight: 600 } : {}}>{orders.toLocaleString()} {hasRealData ? 'real' : 'AE'} orders</span></>}
+            {p.data_source === 'cj_api' && <> &middot; <span style={{ color: '#6366F1', fontWeight: 600 }}>CJ ✅</span></>}
+            {p.link_status === 'verified' && <> &middot; <span style={{ color: '#22C55E' }}>Verified ✓</span></>}
+          </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const, alignItems: 'center', marginBottom: 16 }}>
             <QualityTierBadge tier={p.quality_tier} score={p.signal_score || score} />
             {(p.signal_score != null && p.signal_score > 0) && <span style={{ fontSize: 11, fontWeight: 700, color: '#6366F1', background: '#EEF2FF', padding: '2px 7px', borderRadius: 5 }}>Signal: {p.signal_score}</span>}
@@ -1709,27 +1795,45 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             </div>
           </div>
 
-          {/* ── Real Pricing Grid (no ~est labels unless genuinely estimated) ── */}
+          {/* ── SUPPLIER SECTION ── */}
+          <div style={{ marginBottom: 16, padding: '14px 16px', background: 'var(--card-bg-soft, #F9FAFB)', borderRadius: 10, border: '1px solid var(--border-color, #E5E7EB)' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--cell-text, #0A0A0A)', marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>📦 Supplier</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--cell-text, #0A0A0A)' }}>
+                {p.supplier_name || (p.data_source === 'cj_api' ? 'CJ Dropshipping' : p.aliexpress_url ? 'AliExpress' : 'Unknown')}
+              </span>
+              {p.link_status === 'verified' && <span style={{ fontSize: 11, fontWeight: 700, color: '#22C55E', background: 'rgba(34,197,94,0.1)', padding: '1px 6px', borderRadius: 4 }}>✅ Verified</span>}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 4, fontSize: 13, color: 'var(--cell-text, #374151)' }}>
+              <div>Real cost: {p.real_cost_aud ? <span style={{ fontWeight: 700 }}>${p.real_cost_aud.toFixed(2)} AUD</span> : <span style={{ color: '#9CA3AF' }}>—</span>}</div>
+              {p.shipping_time_au_days && <div>Ships to AU: <span style={{ fontWeight: 700 }}>{p.shipping_time_au_days}–{p.shipping_time_au_days + 7} days</span></div>}
+            </div>
+            {supplierLink && (
+              <a href={supplierLink} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 10, fontSize: 12, fontWeight: 700, color: '#6366F1', textDecoration: 'none', padding: '6px 12px', background: 'rgba(99,102,241,0.08)', borderRadius: 6, border: '1px solid rgba(99,102,241,0.2)' }}>
+                View on {p.data_source === 'cj_api' ? 'CJ' : 'AliExpress'} →
+              </a>
+            )}
+          </div>
+
+          {/* ── PRICING GRID ── */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--border, #F0F0F0)', borderRadius: 10, overflow: 'hidden', marginBottom: 8 }}>
             {(() => {
-              const hasRealCost  = !!(p as any).real_cost_price_aud || !!(p as any).cost_price_aud;
-              const hasRealSell  = !!(p as any).real_sell_price_aud || (p as any).tiktok_shop_price_aud || price > 0;
-              const hasRealMargin = hasRealCost && hasRealSell;
-              const realCost = (p as any).real_cost_price_aud || cost;
-              const realSell = (p as any).real_sell_price_aud || (p as any).tiktok_shop_price_aud || price;
-              const realMargin = hasRealMargin
-                ? Math.round(((realSell - realCost) / realSell) * 100)
-                : margin;
-              const costLabel  = (p as any).cj_product_id ? 'Supplier Cost (CJ)' : (p as any).aliexpress_url ? 'Supplier Cost (AE)' : 'Supplier Cost';
-              const sellLabel  = (p as any).tiktok_shop_price_aud ? 'Sell Price (TikTok)' : 'Sell Price';
-              const marginLabel = hasRealMargin ? 'Gross Margin' : '~Gross Margin';
+              const realCost = p.real_cost_aud || 0;
+              const fallbackCost = p.cost_price_aud || p.supplier_cost_aud || 0;
+              const displayCost = realCost || fallbackCost;
+              const costLabel = realCost > 0 ? 'Supplier Cost' : fallbackCost > 0 ? 'Supplier Cost (est.)' : 'Supplier Cost';
+              const sellVal = p.suggested_sell_aud || p.price_aud || 0;
+              const sellLabel = p.suggested_sell_aud ? 'Suggested Sell' : 'Sell Price';
+              const calcMargin = displayCost > 0 && sellVal > 0 ? Math.round(((sellVal - displayCost) / sellVal) * 100) : (margin || 0);
+              const ordersVal = p.real_orders_count || p.orders_count || 0;
               return [
-                { label: costLabel,   val: realCost > 0 ? `$${realCost.toFixed(2)}` : '—' },
-                { label: sellLabel,   val: realSell > 0 ? `$${realSell.toFixed(2)}` : '—' },
-                { label: marginLabel, val: realMargin > 0 ? `${realMargin}%` : '—' },
-                { label: 'Monthly Orders', val: orders > 0 ? `${orders.toLocaleString()}` : '—' },
-                { label: 'Platform Orders', val: (p as any).tiktok_shop_units_sold ? `${(p as any).tiktok_shop_units_sold.toLocaleString()} (TikTok)` : orders > 0 ? `${orders.toLocaleString()} (AliExpress)` : '—' },
-                { label: 'Dropship Score',  val: `${score}/100` },
+                { label: costLabel, val: displayCost > 0 ? `$${displayCost.toFixed(2)}` : '—' },
+                { label: sellLabel, val: sellVal > 0 ? `$${sellVal.toFixed(2)}` : '—' },
+                { label: 'Margin', val: calcMargin > 0 ? `${calcMargin}%` : '—' },
+                { label: 'Source Orders', val: ordersVal > 0 ? ordersVal.toLocaleString() : '—' },
+                { label: 'Rating', val: (p.real_rating || p.rating) ? `${(p.real_rating || p.rating || 0).toFixed(1)}/5` : '—' },
+                { label: 'Dropship Score', val: `${score}/100` },
               ];
             })().map(({ label, val }) => (
               <div key={label} style={{ padding: '12px 16px', background: 'var(--card-bg, white)' }}>
@@ -1739,54 +1843,48 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             ))}
           </div>
 
-          {/* ── Market Evidence (real source links) ── */}
+          {/* ── VERIFIED MARKET DATA ── */}
           {(() => {
-            const evidence = [
-              (p as any).aliexpress_url && {
-                platform: 'AliExpress', icon: '🛒', color: '#e8590c', bg: '#fff5f0', border: '#fcd0be',
-                url: String((p as any).aliexpress_url),
-                detail: orders > 0 ? `${orders.toLocaleString()} orders` : null,
-              },
-              (p as any).tiktok_shop_url && {
-                platform: 'TikTok Shop', icon: '🎵', color: '#000000', bg: '#f0fdf4', border: '#86efac',
-                url: String((p as any).tiktok_shop_url),
-                detail: (p as any).tiktok_shop_units_sold ? `${(p as any).tiktok_shop_units_sold.toLocaleString()} sold` : null,
-              },
-              (p as any).amazon_url && {
-                platform: 'Amazon AU', icon: '📦', color: '#FF9900', bg: '#fffbeb', border: '#fde68a',
-                url: String((p as any).amazon_url),
-                detail: (p as any).amazon_bsr_rank ? `BSR #${(p as any).amazon_bsr_rank}` : null,
-              },
-              (p as any).cj_product_id && {
-                platform: 'CJ Dropshipping', icon: '✅', color: '#16a34a', bg: '#f0fdf4', border: '#86efac',
-                url: `https://cjdropshipping.com/product/-p-${(p as any).cj_product_id}.html`,
-                detail: (p as any).shipping_time_days_min ? `Ships in ${(p as any).shipping_time_days_min}–${(p as any).shipping_time_days_max || (p as any).shipping_time_days_min + 7} days` : null,
-              },
-            ].filter(Boolean) as Array<{platform:string;icon:string;color:string;bg:string;border:string;url:string;detail:string|null}>;
-
-            if (!evidence.length) return null;
+            const displayOrders = p.real_orders_count || p.orders_count;
+            const displayRating = p.real_rating || p.rating;
+            const displayReviews = p.real_review_count || p.review_count;
+            const listingUrl = p.source_url || p.aliexpress_url;
+            if (!displayOrders && !displayRating && !listingUrl) return null;
             return (
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.08em', marginBottom: 8 }}>📊 Market Evidence</div>
-                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 6 }}>
-                  {evidence.map(ev => (
-                    <a key={ev.platform} href={ev.url} target="_blank" rel="noopener noreferrer"
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: ev.bg, border: `1px solid ${ev.border}`, borderRadius: 8, textDecoration: 'none' }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: ev.color }}>{ev.icon} {ev.platform}</span>
-                      <span style={{ fontSize: 11, color: '#6B7280' }}>{ev.detail ? `${ev.detail} ↗` : 'View listing ↗'}</span>
+              <div style={{ marginBottom: 16, padding: '14px 16px', background: 'var(--card-bg-soft, #F9FAFB)', borderRadius: 10, border: '1px solid var(--border-color, #E5E7EB)' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--cell-text, #0A0A0A)', marginBottom: 10, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>📊 Verified Market Data</div>
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 6, fontSize: 13, color: 'var(--cell-text, #374151)' }}>
+                  {displayOrders && displayOrders > 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 14 }}>🛒</span>
+                      <span style={{ fontWeight: 700, color: '#22C55E' }}>{displayOrders.toLocaleString()} {p.real_orders_count ? 'real' : ''} orders</span>
+                    </div>
+                  )}
+                  {displayRating && displayRating > 0 && (
+                    <div>Rating: <span style={{ fontWeight: 700 }}>{displayRating.toFixed(1)}/5</span>{displayReviews ? ` (${displayReviews.toLocaleString()} reviews)` : ''}</div>
+                  )}
+                  {listingUrl && (
+                    <a href={listingUrl} target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 4, fontSize: 12, fontWeight: 700, color: '#6366F1', textDecoration: 'none' }}>
+                      View listing →
                     </a>
-                  ))}
+                  )}
                 </div>
               </div>
             );
           })()}
           {/* ── Inline Profit Analysis ── */}
           <ProductProfitCalc
-            sellPrice={price > 0 ? price : 39.95}
-            supplierCost={cost > 0 ? cost : Math.round((price || 40) * 0.3 * 100) / 100}
+            sellPrice={p.suggested_sell_aud || p.price_aud || (price > 0 ? price : 39.95)}
+            supplierCost={p.real_cost_aud || p.cost_price_aud || (cost > 0 ? cost : Math.round((price || 40) * 0.3 * 100) / 100)}
             category={productCategory}
             productName={name}
           />
+          {p.real_cost_aud && (
+            <div style={{ fontSize: 10, color: '#22C55E', marginTop: -14, marginBottom: 16, paddingLeft: 4 }}>
+              (real {p.data_source === 'cj_api' ? 'CJ' : 'AE'} cost)
+            </div>
+          )}
 
           {/* Dropship Score visual bar */}
           {(() => {
@@ -1847,26 +1945,28 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
               </div>
             );
           })()}
-          {/* Why This is Trending */}
-          <div style={{ borderLeft: '3px solid #6366F1', background: '#F5F3FF', borderRadius: 12, padding: '14px 16px', marginBottom: 20 }}>
-            <h4 style={{ fontFamily: brico, fontSize: 13, color: '#6366F1', fontWeight: 700, marginBottom: 8, margin: 0 }}>Why This is Trending ✨</h4>
-            {briefLoading ? (
-              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 6 }}>
-                {[1, 2, 3].map(i => (
-                  <div key={i} style={{ height: 12, borderRadius: 6, background: 'linear-gradient(90deg, #E0E7FF 25%, #EEF2FF 50%, #E0E7FF 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s ease-in-out infinite', width: i === 3 ? '70%' : '100%' }} />
-                ))}
-              </div>
-            ) : trendBrief ? (
-              <>
-                <p style={{ fontFamily: dm, fontSize: 13, color: '#374151', lineHeight: 1.6, margin: 0 }}>{trendBrief}</p>
-                <div style={{ textAlign: 'right' as const, marginTop: 6 }}>
-                  <span style={{ fontSize: 11, color: '#9CA3AF' }}>Powered by Claude</span>
+          {/* Why Trending — prefer real why_trending, fallback to AI brief */}
+          {(p.why_trending || trendBrief || briefLoading) && (
+            <div style={{ marginBottom: 20 }}>
+              {p.why_trending ? (
+                <p style={{ fontFamily: dm, fontSize: 13, color: '#9CA3AF', fontStyle: 'italic', lineHeight: 1.6, margin: 0 }}>{p.why_trending}</p>
+              ) : briefLoading ? (
+                <div style={{ borderLeft: '3px solid #6366F1', background: '#F5F3FF', borderRadius: 12, padding: '14px 16px' }}>
+                  <h4 style={{ fontFamily: brico, fontSize: 13, color: '#6366F1', fontWeight: 700, marginBottom: 8, margin: 0 }}>Why This is Trending ✨</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 6 }}>
+                    {[1, 2, 3].map(i => (
+                      <div key={i} style={{ height: 12, borderRadius: 6, background: 'linear-gradient(90deg, #E0E7FF 25%, #EEF2FF 50%, #E0E7FF 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s ease-in-out infinite', width: i === 3 ? '70%' : '100%' }} />
+                    ))}
+                  </div>
                 </div>
-              </>
-            ) : (
-              <p style={{ fontFamily: dm, fontSize: 13, color: '#9CA3AF', margin: 0 }}>Brief unavailable</p>
-            )}
-          </div>
+              ) : trendBrief ? (
+                <div style={{ borderLeft: '3px solid #6366F1', background: '#F5F3FF', borderRadius: 12, padding: '14px 16px' }}>
+                  <h4 style={{ fontFamily: brico, fontSize: 13, color: '#6366F1', fontWeight: 700, marginBottom: 8, margin: 0 }}>Why This is Trending ✨</h4>
+                  <p style={{ fontFamily: dm, fontSize: 13, color: '#374151', lineHeight: 1.6, margin: 0 }}>{trendBrief}</p>
+                </div>
+              ) : null}
+            </div>
+          )}
 
           {/* Suggested Meta Audiences */}
           <AudienceSuggestions category={p.niche || p.category || ''} productTitle={name} />
@@ -1960,17 +2060,16 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
             )}
           </div>
           {/* Data source transparency */}
-          <div style={{ marginBottom: 12, padding: '10px 14px', background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0' }}>
+          <div style={{ marginBottom: 12, padding: '10px 14px', background: 'var(--card-bg-soft, #F8FAFC)', borderRadius: 8, border: '1px solid var(--border-color, #E2E8F0)' }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.07em', marginBottom: 6 }}>Data Sources</div>
             <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 4 }}>
               {[
-                { field: 'Product name & image', source: 'AliExpress listing', real: true },
-                { field: 'AliExpress item ID', source: p.aliexpress_id ? `#${p.aliexpress_id}` : 'Not available', real: !!p.aliexpress_id },
-                { field: 'Retail price', source: 'AI estimated — verify on AliExpress', real: false },
-                { field: 'Supplier cost', source: 'AI estimated — verify on Alibaba', real: false },
-                { field: 'Monthly orders', source: 'AI demand signal (est.)', real: false },
-                { field: 'Revenue estimate', source: 'orders_count × price (est.)', real: false },
-                { field: 'Dropship score', source: 'AI composite score', real: false },
+                { field: 'Product name & image', source: p.data_source === 'cj_api' ? 'CJ API' : 'AliExpress', real: true },
+                { field: 'Orders', source: p.real_orders_count ? 'Real scraped data' : 'AI demand signal (est.)', real: !!p.real_orders_count },
+                { field: 'Supplier cost', source: p.real_cost_aud ? `Real ${p.data_source === 'cj_api' ? 'CJ' : 'AE'} cost` : 'Estimated', real: !!p.real_cost_aud },
+                { field: 'Rating', source: p.real_rating ? 'Real scraped' : p.rating ? 'Scraped' : 'Not available', real: !!(p.real_rating || p.rating) },
+                { field: 'Link status', source: p.link_status || 'unverified', real: p.link_status === 'verified' },
+                { field: 'Dropship score', source: 'Composite formula', real: true },
               ].map(({ field, source, real }) => (
                 <div key={field} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontSize: 11, color: '#6B7280', flex: 1 }}>{field}</span>
