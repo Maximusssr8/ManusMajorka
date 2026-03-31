@@ -1540,4 +1540,89 @@ router.get('/pipeline-status', requireAuth, requireAdmin, async (req: Request, r
   }
 });
 
+// POST /api/admin/run-schema-migration — execute real-data-full-schema.sql via pg pool
+// Protected by CRON_SECRET (Bearer token). Runs DDL from Vercel where pooler is reachable.
+router.post('/run-schema-migration', async (req: Request, res: Response) => {
+  // Auth: CRON_SECRET or service role key
+  const auth = (req.headers.authorization || '').replace('Bearer ', '').trim();
+  const cronSecret = process.env.CRON_SECRET || '';
+  const svcKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  if (!auth || (auth !== cronSecret && auth !== svcKey)) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  // Use pg Pool with pooler URL (works from Vercel; blocked from Mac)
+  let pg: any;
+  try { pg = require('pg'); } catch { return res.status(500).json({ error: 'pg not available' }); }
+
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) return res.status(500).json({ error: 'DATABASE_URL not set' });
+
+  const pool = new pg.Pool({ connectionString: dbUrl, ssl: { rejectUnauthorized: false }, max: 1 });
+  const results: Array<{ step: string; ok: boolean; err?: string }> = [];
+
+  const run = async (label: string, sql: string) => {
+    try {
+      await pool.query(sql);
+      results.push({ step: label, ok: true });
+    } catch (e: any) {
+      results.push({ step: label, ok: false, err: e.message?.slice(0, 200) });
+    }
+  };
+
+  // Add all new columns (IF NOT EXISTS makes these idempotent)
+  await run('source_url',               `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS source_url TEXT`);
+  await run('data_source',              `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS data_source TEXT`);
+  await run('source_product_id',        `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS source_product_id TEXT`);
+  await run('cj_product_id',            `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS cj_product_id TEXT`);
+  await run('amazon_asin',              `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS amazon_asin TEXT`);
+  await run('tiktok_shop_product_id',   `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS tiktok_shop_product_id TEXT`);
+  await run('tiktok_shop_units_sold',   `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS tiktok_shop_units_sold INT`);
+  await run('tiktok_shop_url',          `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS tiktok_shop_url TEXT`);
+  await run('tiktok_shop_price_aud',    `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS tiktok_shop_price_aud NUMERIC(10,2)`);
+  await run('tiktok_shop_seller',       `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS tiktok_shop_seller TEXT`);
+  await run('amazon_bsr_rank',          `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS amazon_bsr_rank INT`);
+  await run('amazon_bsr_category',      `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS amazon_bsr_category TEXT`);
+  await run('amazon_price_aud',         `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS amazon_price_aud NUMERIC(10,2)`);
+  await run('amazon_url',               `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS amazon_url TEXT`);
+  await run('ae_orders_count',          `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS ae_orders_count INT`);
+  await run('supplier_platform',        `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS supplier_platform TEXT`);
+  await run('supplier_url',             `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS supplier_url TEXT`);
+  await run('supplier_name',            `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS supplier_name TEXT`);
+  await run('supplier_rating_score',    `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS supplier_rating_score NUMERIC(3,2)`);
+  await run('real_cost_price_aud',      `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS real_cost_price_aud NUMERIC(10,2)`);
+  await run('real_sell_price_aud',      `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS real_sell_price_aud NUMERIC(10,2)`);
+  await run('real_margin_pct',          `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS real_margin_pct NUMERIC(5,2)`);
+  await run('shipping_time_days_min',   `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS shipping_time_days_min INT`);
+  await run('shipping_time_days_max',   `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS shipping_time_days_max INT`);
+  await run('weight_kg',                `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS weight_kg NUMERIC(6,3)`);
+  await run('inventory_count',          `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS inventory_count INT`);
+  await run('product_images',           `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS product_images TEXT[]`);
+  await run('supplier_match_confidence',`ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS supplier_match_confidence INT`);
+  await run('last_price_check',         `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS last_price_check TIMESTAMPTZ`);
+  await run('real_opportunity_score',   `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS real_opportunity_score INT`);
+  await run('demand_score',             `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS demand_score INT`);
+  await run('quality_score',            `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS quality_score INT`);
+  await run('cross_platform_score',     `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS cross_platform_score INT`);
+  await run('supplier_score_col',       `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS supplier_score INT`);
+  await run('platforms_found',          `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS platforms_found TEXT[]`);
+  await run('platform_count',           `ALTER TABLE winning_products ADD COLUMN IF NOT EXISTS platform_count INT`);
+
+  // Backfill from existing data
+  await run('backfill_source_url',      `UPDATE winning_products SET source_url = aliexpress_url, data_source = 'aliexpress', source_product_id = aliexpress_id, supplier_platform = 'aliexpress', supplier_url = aliexpress_url, real_cost_price_aud = COALESCE(cost_price_aud, supplier_cost_aud), real_sell_price_aud = price_aud, real_margin_pct = profit_margin, platforms_found = ARRAY['aliexpress'], platform_count = 1 WHERE aliexpress_url IS NOT NULL AND source_url IS NULL`);
+  await run('normalize_platform',       `UPDATE winning_products SET platform = 'aliexpress' WHERE platform = 'AliExpress'`);
+
+  // Indexes
+  await run('idx_data_source',          `CREATE INDEX IF NOT EXISTS idx_wp_data_source ON winning_products (data_source)`);
+  await run('idx_cj_product_id',        `CREATE INDEX IF NOT EXISTS idx_wp_cj_product_id ON winning_products (cj_product_id)`);
+  await run('idx_amazon_asin',          `CREATE INDEX IF NOT EXISTS idx_wp_amazon_asin ON winning_products (amazon_asin)`);
+  await run('idx_real_score',           `CREATE INDEX IF NOT EXISTS idx_wp_real_opportunity ON winning_products (real_opportunity_score DESC)`);
+
+  await pool.end().catch(() => {});
+
+  const passed = results.filter(r => r.ok).length;
+  const failed = results.filter(r => !r.ok);
+  res.json({ ok: true, passed, failed: failed.length, results, message: `${passed}/${results.length} steps succeeded` });
+});
+
 export default router;
