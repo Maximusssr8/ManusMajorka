@@ -1458,6 +1458,17 @@ router.post('/scrape-aliexpress', requireAuth, requireAdmin, async (req: Request
   }
 });
 
+// POST /api/admin/run-cj-real — pulls 100 real CJ products per category, upserts to winning_products
+router.post('/run-cj-real', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+  res.json({ success: true, message: 'CJ real data collection started in background. Check logs.' });
+  // Fire and forget (this takes ~15 minutes due to per-product detail fetches)
+  import('../lib/cjRealData').then(({ collectRealCJProducts }) => {
+    collectRealCJProducts()
+      .then(r => console.log('[admin] CJ real data complete:', r))
+      .catch(e => console.error('[admin] CJ real data error:', e.message));
+  });
+});
+
 // POST /api/admin/run-full-scrape — triggers all scrapers (fire-and-forget)
 router.post('/run-full-scrape', requireAuth, requireAdmin, async (req: Request, res: Response) => {
   try {
