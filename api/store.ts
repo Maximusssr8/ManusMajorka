@@ -1,4 +1,6 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
+import type { IncomingMessage, ServerResponse } from 'http';
+type VercelRequest = IncomingMessage & { query: Record<string, string>; body: any };
+type VercelResponse = ServerResponse & { status: (code: number) => VercelResponse; json: (data: any) => void; send: (data: any) => void };
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
