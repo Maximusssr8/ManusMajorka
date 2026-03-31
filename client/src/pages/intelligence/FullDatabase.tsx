@@ -307,6 +307,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const [refreshing, setRefreshing] = useState(false);
   const [refreshMsg, setRefreshMsg] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileDisplayCount, setMobileDisplayCount] = useState(20);
   const [advancedFilters, setAdvancedFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [activeTab, setActiveTab] = useState('all');
   const handleDateRange = (v: DateRange) => { localStorage.setItem('majorka_db_daterange', v); setDateRange(v); };
@@ -562,15 +563,17 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             </p>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <DateRangeSelector value={dateRange} onChange={handleDateRange} />
-            <button onClick={() => exportCSV(filteredProducts.map(p => ({ name: p.product_title || p.name, category: p.category, price_aud: p.price_aud, monthly_revenue: p.est_monthly_revenue_aud, margin_pct: p.profit_margin, score: p.winning_score, trend: (p as any).trend, units_per_day: p.units_per_day, aliexpress_url: p.aliexpress_url, tags: (p.tags || []).join(';') })), 'products')}
-              style={{ height: 36, padding: '0 16px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-              ⬇ Export CSV
-            </button>
+            {!isMobile && <DateRangeSelector value={dateRange} onChange={handleDateRange} />}
+            {!isMobile && (
+              <button onClick={() => exportCSV(filteredProducts.map(p => ({ name: p.product_title || p.name, category: p.category, price_aud: p.price_aud, monthly_revenue: p.est_monthly_revenue_aud, margin_pct: p.profit_margin, score: p.winning_score, trend: (p as any).trend, units_per_day: p.units_per_day, aliexpress_url: p.aliexpress_url, tags: (p.tags || []).join(';') })), 'products')}
+                style={{ height: 36, padding: '0 16px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                ⬇ Export CSV
+              </button>
+            )}
             <button onClick={handleRefresh} disabled={refreshing}
-              style={{ height: 36, padding: '0 16px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: refreshing ? 'wait' : 'pointer', opacity: refreshing ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6 }}>
+              style={{ height: isMobile ? 32 : 36, padding: isMobile ? '0 10px' : '0 16px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: refreshing ? 'wait' : 'pointer', opacity: refreshing ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ display: 'inline-block', animation: refreshing ? 'spin 1s linear infinite' : 'none' }}>{'\u21BB'}</span>
-              {refreshing ? 'Refreshing...' : 'Refresh'}
+              {isMobile ? '' : (refreshing ? 'Refreshing...' : 'Refresh')}
             </button>
           </div>
         </div>
@@ -729,7 +732,178 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             </button>
           </div>
         )}
+        {/* ── MOBILE CARD LIST ── */}
+        {isMobile && (
+          <div style={{ padding: '0 12px 80px' }}>
+            {/* Mobile search + filter bar */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'center' }}>
+              <div style={{ flex: 1, position: 'relative' as const }}>
+                <input
+                  value={searchInput}
+                  onChange={e => setSearchInput(e.target.value)}
+                  placeholder="Search products..."
+                  style={{ width: '100%', height: 40, padding: '0 12px 0 36px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 14, boxSizing: 'border-box' as const, outline: 'none' }}
+                />
+                <span style={{ position: 'absolute' as const, left: 10, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', fontSize: 15, pointerEvents: 'none' as const }}>🔍</span>
+              </div>
+              <select
+                value={niche}
+                onChange={e => setNiche(e.target.value)}
+                style={{ height: 40, padding: '0 10px', borderRadius: 8, border: '1px solid #E5E7EB', fontSize: 13, color: '#374151', background: 'white', cursor: 'pointer' }}
+              >
+                {niches.map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+
+            {/* Count */}
+            <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 12 }}>
+              {Math.min(mobileDisplayCount, displayProducts.length)} of {filteredProducts.length} products
+            </div>
+
+            {/* Card list */}
+            {(loading || isFiltering) ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} style={{ background: 'white', borderRadius: 12, border: '1px solid #F3F4F6', padding: 14, marginBottom: 10 }}>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <div style={{ width: 56, height: 56, borderRadius: 8, background: '#F3F4F6', flexShrink: 0, animation: 'shimmer 1.5s ease-in-out infinite' }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ height: 14, background: '#F3F4F6', borderRadius: 6, width: '80%', marginBottom: 8, animation: 'shimmer 1.5s ease-in-out infinite' }} />
+                      <div style={{ height: 11, background: '#F3F4F6', borderRadius: 6, width: '50%', animation: 'shimmer 1.5s ease-in-out infinite' }} />
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : displayProducts.length === 0 ? (
+              <div style={{ textAlign: 'center' as const, padding: '40px 20px', color: '#9CA3AF', fontSize: 14 }}>
+                No products found. Try a different search or filter.
+              </div>
+            ) : (
+              displayProducts.slice(0, mobileDisplayCount).map((product, idx) => {
+                const isBlurred = !canSeeFinancials && !isAdmin && idx >= 10;
+                const score = product.winning_score ?? product.signal_score ?? 0;
+                const scoreColor = score >= 80 ? '#22C55E' : score >= 60 ? '#F59E0B' : score >= 40 ? '#6366F1' : '#9CA3AF';
+                const revenue = getProductRevenue(product);
+                const margin = getProductMargin(product);
+                const price = getProductPrice(product);
+                const tier = product.quality_tier;
+                const sources: string[] = product.data_sources || [];
+                const tierConfig = {
+                  viral:    { label: '🔥 Viral',    color: '#EF4444' },
+                  winning:  { label: '🟢 Winning',  color: '#22C55E' },
+                  rising:   { label: '🟡 Rising',   color: '#F59E0B' },
+                  emerging: { label: '🔵 Emerging', color: '#818CF8' },
+                }[tier as string] || { label: '🔵 Emerging', color: '#818CF8' };
+
+                return (
+                  <div
+                    key={product.id || idx}
+                    onClick={() => !isBlurred && setDetailProduct(product)}
+                    style={{
+                      background: 'white',
+                      borderRadius: 12,
+                      border: `1px solid ${detailProduct?.id === product.id ? '#6366F1' : '#F3F4F6'}`,
+                      padding: 14,
+                      marginBottom: 10,
+                      cursor: isBlurred ? 'default' : 'pointer',
+                      filter: isBlurred ? 'blur(4px)' : 'none',
+                      userSelect: isBlurred ? 'none' as const : 'auto' as const,
+                      WebkitUserSelect: isBlurred ? 'none' as const : 'auto' as const,
+                      boxShadow: detailProduct?.id === product.id ? '0 0 0 2px #6366F1' : '0 1px 3px rgba(0,0,0,0.04)',
+                      transition: 'box-shadow 150ms',
+                    }}
+                  >
+                    {/* Top row: image + title + score */}
+                    <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+                      <img
+                        src={product.image_url || ''}
+                        alt=""
+                        onError={e => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/56?text=📦'; }}
+                        style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover' as const, flexShrink: 0, background: '#F9FAFB' }}
+                      />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#111827', lineHeight: 1.3, marginBottom: 5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                          {product.product_title || product.name || 'Unknown Product'}
+                        </div>
+                        <div style={{ display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' as const }}>
+                          {product.category && (
+                            <span style={{ fontSize: 10, fontWeight: 600, color: '#6366F1', background: 'rgba(99,102,241,0.08)', borderRadius: 4, padding: '2px 6px' }}>
+                              {product.category}
+                            </span>
+                          )}
+                          <span style={{ fontSize: 10, fontWeight: 700, color: 'white', background: scoreColor, borderRadius: 4, padding: '2px 6px' }}>
+                            {score}/100
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Metrics grid: 2×2 */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
+                      {[
+                        { label: '💰 Est. Revenue', value: `~$${Math.round(revenue).toLocaleString()}/mo` },
+                        { label: '📦 Est. Sold', value: `~${(getProductOrders(product)).toLocaleString()}` },
+                        { label: '🏷 Sell Price', value: `$${price.toFixed(0)} ${region.currency}` },
+                        { label: '📊 Margin', value: `~${Math.round(margin)}%` },
+                      ].map(m => (
+                        <div key={m.label} style={{ background: '#F9FAFB', borderRadius: 7, padding: '7px 10px' }}>
+                          <div style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 2 }}>{m.label}</div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{m.value}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Tier badge + source badges */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: tierConfig.color, background: `${tierConfig.color}18`, borderRadius: 5, padding: '2px 8px', border: `1px solid ${tierConfig.color}33` }}>
+                        {tierConfig.label}
+                      </span>
+                      <div style={{ display: 'flex', gap: 4 }}>
+                        {sources.includes('tiktok') && <span style={{ fontSize: 10, padding: '2px 5px', borderRadius: 3, background: 'rgba(0,0,0,0.06)', color: '#374151', fontWeight: 700 }}>TT</span>}
+                        {sources.includes('amazon') && <span style={{ fontSize: 10, padding: '2px 5px', borderRadius: 3, background: 'rgba(255,153,0,0.12)', color: '#D97706', fontWeight: 700 }}>AMZ</span>}
+                        {sources.includes('aliexpress') && <span style={{ fontSize: 10, padding: '2px 5px', borderRadius: 3, background: 'rgba(255,106,0,0.10)', color: '#EA580C', fontWeight: 700 }}>AE</span>}
+                        {product.tags?.includes('aliexpress_choice') && <span style={{ fontSize: 10, padding: '2px 5px', borderRadius: 3, background: 'rgba(255,106,0,0.10)', color: '#EA580C', fontWeight: 700 }}>✅</span>}
+                      </div>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        onClick={e => { e.stopPropagation(); if (!isBlurred) setDetailProduct(product); }}
+                        style={{ flex: 1, height: 36, background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                      >
+                        View Details →
+                      </button>
+                      {product.aliexpress_url && (
+                        <a
+                          href={product.aliexpress_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={e => e.stopPropagation()}
+                          style={{ height: 36, padding: '0 14px', background: '#FF6A00', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', textDecoration: 'none', whiteSpace: 'nowrap' as const }}
+                        >
+                          AE ↗
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+
+            {/* Load more */}
+            {displayProducts.length > mobileDisplayCount && (
+              <button
+                onClick={() => setMobileDisplayCount(c => c + 20)}
+                style={{ width: '100%', height: 44, background: 'white', color: '#6366F1', border: '2px solid #6366F1', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', marginTop: 4 }}
+              >
+                Load More ({displayProducts.length - mobileDisplayCount} remaining)
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Scroll hint wrapper */}
+        {!isMobile && (
         <div style={{ position: 'relative' as const }}>
           {/* Right-edge fade — indicates more content to scroll */}
           <div
@@ -742,7 +916,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             }}
           />
         <div
-          style={{ overflowX: 'auto' as const, borderRadius: isMobile ? 0 : 12, border: '1px solid #E5E7EB', boxShadow: '0 1px 4px #F5F5F5' }}
+          style={{ overflowX: 'auto' as const, borderRadius: 12, border: '1px solid #E5E7EB', boxShadow: '0 1px 4px #F5F5F5' }}
           onScroll={(e) => {
             const el = e.currentTarget;
             const fade = document.getElementById('table-scroll-fade');
@@ -753,7 +927,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           }}
         >
             <div style={{ background: 'white' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: isMobile ? 800 : 1100 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 1100 }}>
 
             {/* ── STICKY HEADER ── */}
             <colgroup>
@@ -1032,7 +1206,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           </table>
         </div>
         </div>
-        </div>{/* /scroll-hint-wrapper */}
+        </div>
+        )}
       </div>
 
       {/* ── PRODUCT DETAIL DRAWER ── */}
