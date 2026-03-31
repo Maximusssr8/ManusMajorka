@@ -1216,9 +1216,9 @@ export function registerChatRoutes(app: Application) {
       // Tools that need more tokens for complex outputs
       // Cap tokens by tool — website-generator needs room, AI chat is conversational, others moderate
       const maxTokens = toolName === 'website-generator' ? 6000
-        : toolName === 'ai-chat' ? 2048
+        : toolName === 'ai-chat' ? 4096
         : toolName === 'ads_studio' ? 2000
-        : 2000;
+        : 4000;
 
       if (wantStream) {
         const client = getAnthropicClient();

@@ -467,7 +467,21 @@ export default function ProductDiscovery() {
               }
             } catch { /* fall through */ }
           }
-          setGenError(`Analysis complete but could not parse results. Try a different niche.`);
+          // Regex fallback: extract first {...} block
+          const braceMatch = fullText.match(/\{[\s\S]*\}/);
+          if (braceMatch) {
+            try {
+              const obj = JSON.parse(braceMatch[0]);
+              if (obj.products?.length > 0) {
+                setResult(obj as DiscoveryResult);
+                localStorage.setItem('majorka_milestone_research', 'true');
+                return;
+              }
+            } catch { /* fall through */ }
+          }
+          // Show raw AI text instead of generic error (better UX)
+          setResult({ summary: fullText, products: [], topPick: '', marketContext: '' });
+          setGenError('');
         }
       }
     } catch (err: any) {
@@ -483,7 +497,7 @@ export default function ProductDiscovery() {
   return (
     <div
       className="h-full flex flex-col"
-      style={{ background: '#FAFAFA', color: '#0A0A0A', fontFamily: 'DM Sans, sans-serif' }}
+      style={{ background: 'var(--content-bg, #FAFAFA)', color: 'var(--cell-text, #0A0A0A)', fontFamily: 'DM Sans, sans-serif' }}
     >
       {/* Top bar */}
       <div
@@ -562,7 +576,7 @@ export default function ProductDiscovery() {
                     }
                   }}
                   placeholder="e.g. Pet accessories, Home gym…"
-                  className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
+                  className="w-full text-sm px-3 py-2.5 rounded-xl outline-none dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
                   style={{
                     background: '#F9FAFB',
                     border: '1px solid #E5E7EB',
@@ -581,7 +595,7 @@ export default function ProductDiscovery() {
                   value={priceRange}
                   onChange={(e) => setPriceRange(e.target.value)}
                   placeholder="e.g. 20-80"
-                  className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
+                  className="w-full text-sm px-3 py-2.5 rounded-xl outline-none dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
                   style={{
                     background: '#F9FAFB',
                     border: '1px solid #E5E7EB',
@@ -599,7 +613,7 @@ export default function ProductDiscovery() {
                 <select
                   value={targetMarket}
                   onChange={(e) => setTargetMarket(e.target.value)}
-                  className="w-full text-sm px-3 py-2.5 rounded-xl outline-none"
+                  className="w-full text-sm px-3 py-2.5 rounded-xl outline-none dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
                   style={{
                     background: '#F9FAFB',
                     border: '1px solid #E5E7EB',

@@ -109,3 +109,4 @@ temp/
 .vercel
 
 majorka-gcp-key.json
+discord-bot/node_modules

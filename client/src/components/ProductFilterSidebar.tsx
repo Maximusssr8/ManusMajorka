@@ -60,7 +60,7 @@ export function ProductFilterSidebar({ open, onToggle, categories, onFiltersChan
   const checkPill = (label: string, checked: boolean, onClick: () => void) => (
     <label key={label} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0', cursor: 'pointer' }}>
       <input type="checkbox" checked={checked} onChange={onClick} style={{ accentColor: '#6366F1', width: 14, height: 14, cursor: 'pointer' }} />
-      <span style={{ fontSize: 12, color: '#374151' }}>{label}</span>
+      <span style={{ fontSize: 12, color: 'var(--cell-text, #374151)' }}>{label}</span>
     </label>
   );
 
@@ -68,19 +68,19 @@ export function ProductFilterSidebar({ open, onToggle, categories, onFiltersChan
     <>
       {/* Toggle button */}
       <button onClick={onToggle}
-        style={{ position: 'fixed' as const, left: open ? 228 : 0, top: '50%', transform: 'translateY(-50%)', width: 20, height: 48, background: 'white', border: '1px solid #E5E7EB', borderLeft: open ? '1px solid #E5E7EB' : 'none', borderRadius: '0 8px 8px 0', cursor: 'pointer', zIndex: 50, fontSize: 10, color: '#9CA3AF', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'left 300ms ease', boxShadow: '2px 0 8px rgba(0,0,0,0.05)' }}>
+        style={{ position: 'fixed' as const, left: open ? 228 : 0, top: '50%', transform: 'translateY(-50%)', width: 20, height: 48, background: 'var(--card-bg, white)', border: '1px solid var(--border-color, #E5E7EB)', borderLeft: open ? '1px solid var(--border-color, #E5E7EB)' : 'none', borderRadius: '0 8px 8px 0', cursor: 'pointer', zIndex: 50, fontSize: 10, color: '#9CA3AF', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'left 300ms ease', boxShadow: '2px 0 8px rgba(0,0,0,0.05)' }}>
         {open ? '\u2039' : '\u203A'}
       </button>
 
       {/* Sidebar */}
       <div style={{
-        position: 'fixed' as const, left: 0, top: 0, bottom: 0, width: open ? 228 : 0, background: 'white',
-        borderRight: '1px solid #E5E7EB', overflowX: 'hidden' as const, overflowY: open ? 'auto' as const : 'hidden' as const,
-        transition: 'width 300ms ease', zIndex: 40, boxShadow: open ? '4px 0 16px #E5E7EB' : 'none',
+        position: 'fixed' as const, left: 0, top: 0, bottom: 0, width: open ? 228 : 0, background: 'var(--card-bg, white)',
+        borderRight: '1px solid var(--border-color, #E5E7EB)', overflowX: 'hidden' as const, overflowY: open ? 'auto' as const : 'hidden' as const,
+        transition: 'width 300ms ease', zIndex: 40, boxShadow: open ? '4px 0 16px rgba(0,0,0,0.1)' : 'none',
       }}>
         <div style={{ width: 228, padding: '60px 16px 24px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-            <span style={{ fontFamily: brico, fontWeight: 700, fontSize: 14, color: '#0A0A0A' }}>Filters</span>
+            <span style={{ fontFamily: brico, fontWeight: 700, fontSize: 14, color: 'var(--content-text, #0A0A0A)' }}>Filters</span>
             <button onClick={reset} style={{ fontSize: 11, color: '#6366F1', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>Reset</button>
           </div>
 

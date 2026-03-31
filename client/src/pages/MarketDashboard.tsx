@@ -260,8 +260,8 @@ export default function MarketDashboard() {
       const { data: { session: sess } } = await supabase.auth.getSession();
       const authHeader = sess?.access_token ? { Authorization: `Bearer ${sess.access_token}` } : {};
       const [prodRes, creatorRes] = await Promise.all([
-        fetch('/api/products?limit=200&sortBy=winning_score&sortDir=desc', { headers: authHeader }),
-        fetch('/api/creators?limit=200', { headers: authHeader }),
+        fetch('/api/products?limit=200&sortBy=winning_score&sortDir=desc', { headers: authHeader, signal: AbortSignal.timeout(8000) }),
+        fetch('/api/creators?limit=200', { headers: authHeader, signal: AbortSignal.timeout(8000) }),
       ]);
 
       const prodJson = prodRes.ok ? await prodRes.json() : {};
@@ -321,7 +321,7 @@ export default function MarketDashboard() {
   }
 
   return (
-    <div className="min-h-full" style={{ background: '#FAFAFA', color: '#0A0A0A' }}>
+    <div className="min-h-full" style={{ background: 'var(--content-bg, #FAFAFA)', color: 'var(--cell-text, #0A0A0A)' }}>
       <Helmet><title>Market Intelligence | Majorka</title></Helmet>
       {/* Header */}
       <div
