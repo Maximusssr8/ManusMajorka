@@ -16,6 +16,8 @@ import { runScoreRefresh } from '../pipeline/refresh-scores';
 import { launchTikTokCCScrape } from '../scrapers/tiktok-creative-center';
 import { collectCJProducts } from '../scrapers/cj-products';
 import { fetchGoogleTrends, saveTrends } from '../scrapers/google-trends';
+import { launchAEDetailScrape } from '../scrapers/aliexpress-product-detail';
+import { collectCJRealProducts } from '../scrapers/cj-real-products';
 
 const router = Router();
 
@@ -544,6 +546,51 @@ router.get('/collect-trends', async (req: Request, res: Response) => {
     await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
     res.status(500).json({ error: err.message });
   }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PHASE 2: AliExpress Product Detail Verification
+// ═══════════════════════════════════════════════════════════════════════════
+
+router.get('/ae-detail-scrape', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const logId = await logPipelineStart('scrape', 'ae_product_detail');
+  const startedAt = new Date().toISOString();
+
+  try {
+    const runId = await launchAEDetailScrape();
+    await logPipelineEnd(logId, { startedAt, raw_collected: runId ? 1 : 0 }, runId ? 'success' : 'failed');
+    res.json({ success: !!runId, runId, message: 'Fire-and-forget: AE detail scrape launched' });
+  } catch (err: any) {
+    await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PHASE 3: CJ Real Products by Category ID
+// ═══════════════════════════════════════════════════════════════════════════
+
+router.get('/collect-cj-real', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  const logId = await logPipelineStart('collect', 'cj_real_products');
+  const startedAt = new Date().toISOString();
+
+  // Fire-and-forget (takes ~20 min)
+  res.json({ success: true, message: 'CJ real products collection started' });
+  setImmediate(async () => {
+    try {
+      const result = await collectCJRealProducts();
+      await logPipelineEnd(logId, {
+        startedAt,
+        inserted: result.inserted,
+        updated: result.updated,
+        failed: result.errors.length,
+      }, result.errors.length > 0 ? 'failed' : 'success', result.errors.join('; '));
+    } catch (err: any) {
+      await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
+    }
+  });
 });
 
 export default router;
