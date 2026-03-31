@@ -16,6 +16,7 @@ In Railway dashboard → your service → **Variables**, add:
 |---|---|---|
 | `DISCORD_BOT_TOKEN` | Your bot token | Discord Developer Portal → Bot → Token |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key | Supabase dashboard → Settings → API |
+| `ANTHROPIC_API_KEY` | Claude API key for ad briefs | console.anthropic.com → API Keys |
 
 Optional (for /deploy command):
 | `VERCEL_TOKEN` | Vercel token | Vercel → Account Settings → Tokens |

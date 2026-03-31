@@ -404,6 +404,25 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
 // ── HTTP bridge (Claw/n8n can POST here to send Discord messages) ─────────────
 const httpServer = http.createServer(async (req, res) => {
+  // GET /trigger/:post — manually fire a daily post
+  if (req.method === 'GET' && req.url.startsWith('/trigger/')) {
+    const post = req.url.replace('/trigger/', '')
+    const map = {
+      'winners':  () => automationFns?.postTodaysWinners(client),
+      'trending': () => automationFns?.postTrendingNow(client),
+      'niche':    () => automationFns?.postNicheSpotlight(client),
+      'ad':       () => automationFns?.postAdOfTheDay(client),
+      'stats':    () => automationFns?.refreshWelcomeStats(client),
+    }
+    const fn = map[post]
+    if (!fn || !automationFns) { res.writeHead(404); res.end(JSON.stringify({ error: 'unknown trigger or automation not ready' })); return }
+    try {
+      await fn()
+      res.writeHead(200); res.end(JSON.stringify({ ok: true, triggered: post }))
+    } catch (e) { res.writeHead(500); res.end(JSON.stringify({ error: e.message })) }
+    return
+  }
+
   // GET /refresh-channels — refresh all channel embeds + role buttons
   if (req.method === 'GET' && req.url === '/refresh-channels') {
     try {
@@ -916,10 +935,15 @@ async function refreshAllChannels(guild) {
   return results
 }
 
+// ── Boot automation engine ────────────────────────────────────────────────────
+const bootAutomation = require('./automation')
+let automationFns = null
+
 client.once('ready', async () => {
   console.log(`✅ Majorka Bot online: ${client.user.tag}`)
   loadChannels()
   scheduleWeeklyStats()
+  automationFns = bootAutomation(client)
 
   // Register slash commands (including /refresh-welcome)
   const { REST: DiscordREST } = require('@discordjs/rest')
