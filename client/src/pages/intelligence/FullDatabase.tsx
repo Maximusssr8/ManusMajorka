@@ -952,23 +952,23 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             <thead>
               <tr style={{ background: 'var(--table-header-bg, rgba(250,250,250,0.98))', borderBottom: '2px solid var(--table-border, #F3F4F6)', height: 42, position: 'sticky' as const, top: 0, zIndex: 10 }}>
                 <th style={{ ...thStyle('rank', isMobile ? 32 : 40, 'center'), cursor: 'default' }}>#</th>
-                <th style={thStyle('name', isMobile ? 170 : 210)} onClick={() => handleSort('name')}>
+                <th style={thStyle('name', isMobile ? 170 : 210)} onClick={() => handleSort('name')} aria-sort={sortBy === 'name' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
                   Product <SortIcon col="name" />
                 </th>
-                <th style={thStyle('est_monthly_revenue_aud', isMobile ? 90 : 110, 'right')} onClick={() => handleSort('est_monthly_revenue_aud')} title="Estimated monthly revenue = price × est. units/day × 30. Based on AI-estimated demand signals, not live sales data.">
+                <th style={thStyle('est_monthly_revenue_aud', isMobile ? 90 : 110, 'right')} onClick={() => handleSort('est_monthly_revenue_aud')} aria-sort={sortBy === 'est_monthly_revenue_aud' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'} title="Estimated monthly revenue = price × est. units/day × 30. Based on AI-estimated demand signals, not live sales data.">
                   Est. Rev <SortIcon col="est_monthly_revenue_aud" />
                 </th>
                 <th style={{ ...thStyle('trend', isMobile ? 100 : 130, 'center'), cursor: 'default' }}>Trend</th>
-                <th style={thStyle('orders_count', isMobile ? 70 : 80, 'right')} onClick={() => handleSort('orders_count')} title="Estimated monthly orders based on AI demand signals. Not live scraped data.">
+                <th style={thStyle('orders_count', isMobile ? 70 : 80, 'right')} onClick={() => handleSort('orders_count')} aria-sort={sortBy === 'orders_count' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'} title="Estimated monthly orders based on AI demand signals. Not live scraped data.">
                   Est. Sold <SortIcon col="orders_count" />
                 </th>
-                <th style={thStyle('price', isMobile ? 70 : 80, 'right')} onClick={() => handleSort('price')} title="Suggested retail price in AUD. May differ from live AliExpress prices.">
+                <th style={thStyle('price', isMobile ? 70 : 80, 'right')} onClick={() => handleSort('price')} aria-sort={sortBy === 'price' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'} title="Suggested retail price in AUD. May differ from live AliExpress prices.">
                   Price <SortIcon col="price" />
                 </th>
-                <th style={thStyle('estimated_margin_pct', isMobile ? 68 : 78, 'right')} onClick={() => handleSort('estimated_margin_pct')}>
+                <th style={thStyle('estimated_margin_pct', isMobile ? 68 : 78, 'right')} onClick={() => handleSort('estimated_margin_pct')} aria-sort={sortBy === 'estimated_margin_pct' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
                   Margin <SortIcon col="estimated_margin_pct" />
                 </th>
-                <th style={thStyle('winning_score', isMobile ? 80 : 96, 'center')} onClick={() => handleSort('winning_score')} title="Score based on: demand signals, margin potential, competition level, trend velocity">
+                <th style={thStyle('winning_score', isMobile ? 80 : 96, 'center')} onClick={() => handleSort('winning_score')} aria-sort={sortBy === 'winning_score' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'} title="Score based on: demand signals, margin potential, competition level, trend velocity">
                   Score <SortIcon col="winning_score" />
                 </th>
                 <th style={{ ...thStyle('creators', isMobile ? 60 : 70, 'center'), cursor: 'default' }}>

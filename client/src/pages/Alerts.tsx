@@ -203,8 +203,9 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
                     <div style={{ fontSize: 12, color: C.sub }}>{cfgText}</div>
                     {alert.last_triggered_at
                       ? <div style={{ fontSize: 11, color: '#059669', marginTop: 2 }}>✓ Last triggered: {new Date(alert.last_triggered_at).toLocaleDateString('en-AU')}</div>
-                      : <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>⏳ Monitoring — checks run hourly · no trigger yet</div>
+                      : <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Never triggered</div>
                     }
+                    <div style={{ fontSize: 10, color: C.muted, marginTop: 1 }}>Fired 0 times this week</div>
                     <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
                       <span style={{ fontSize: 10, padding: '2px 8px', background: 'rgba(99,102,241,0.1)', color: '#6366F1', borderRadius: 4, fontWeight: 600 }}>📧 Email</span>
                       <span style={{ fontSize: 10, padding: '2px 8px', background: _dark ? 'rgba(255,255,255,0.05)' : '#F5F5F5', color: '#9CA3AF', borderRadius: 4, fontWeight: 600 }}>🔔 In-App</span>

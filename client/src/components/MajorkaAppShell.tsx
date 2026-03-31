@@ -406,7 +406,7 @@ export default function MajorkaAppShell({ children }: Props) {
   const [phaseOpen, setPhaseOpen] = useState<Record<string, boolean>>(getDefaultPhaseState);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const productsQuery = trpc.products.list.useQuery(undefined, { enabled: isAuthenticated });
+  const productsQuery = trpc.products.list.useQuery(undefined, { enabled: isAuthenticated, staleTime: 5 * 60 * 1000 });
   const productCount = productsQuery.data?.length ?? 0;
   const [usageCount, setUsageCount] = useState(0);
   const [academyBadge, setAcademyBadge] = useState<string | null>(getAcademyBadge());
@@ -1175,10 +1175,11 @@ export default function MajorkaAppShell({ children }: Props) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <button
               onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
+              aria-label="Toggle dark mode"
               title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-              style={{ width: 36, height: 36, borderRadius: '50%', border: '1px solid #F0F0F0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B7280', transition: 'background 150ms' }}
-              onMouseEnter={e => (e.currentTarget.style.background = '#F5F5F5')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'white')}
+              style={{ width: 36, height: 36, borderRadius: '50%', border: `1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.1)' : '#F0F0F0'}`, background: theme === 'dark' ? '#0E1420' : 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: theme === 'dark' ? '#94A3B8' : '#6B7280', transition: 'background 150ms', marginRight: 4 }}
+              onMouseEnter={e => (e.currentTarget.style.background = theme === 'dark' ? '#1E293B' : '#F5F5F5')}
+              onMouseLeave={e => (e.currentTarget.style.background = theme === 'dark' ? '#0E1420' : 'white')}
             >
               {theme === 'light' ? createElement(Moon, { size: 16 }) : createElement(Sun, { size: 16 })}
             </button>
