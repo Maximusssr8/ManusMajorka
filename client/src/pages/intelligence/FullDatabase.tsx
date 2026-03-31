@@ -462,8 +462,8 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       const margin = getProductMargin(p);
       const growth = getGrowthRate(p);
       const nStr = getProductNiche(p).toLowerCase();
-      if (opportunityFilter === 'Viral' && !(p.tiktok_signal || (p.tags || []).includes('VIRAL') || (p.winning_score || 0) >= 85)) return false;
-      if (opportunityFilter === 'High Margin' && !(margin >= 45 || (p.profit_margin || 0) >= 45)) return false;
+      if (opportunityFilter === 'Viral' && !(getGrowthRate(p) > 25 || (p.tags || []).includes('VIRAL'))) return false;
+      if (opportunityFilter === 'High Margin' && !(margin >= 50 || (p.profit_margin || 0) >= 50)) return false;
       if (opportunityFilter === 'AU Best Sellers' && orders < 50) return false;
       if (opportunityFilter === 'TikTok' && !p.tiktok_signal && !nStr.includes('tiktok')) return false;
       if (opportunityFilter === 'New Today') {
@@ -1455,12 +1455,12 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
 
   const numInput = (label: string, val: number, set: (v: number) => void, prefix = '$', hint = '', step = 0.5) => (
     <div>
-      <div style={{ fontSize: 10, color: '#4B5563', fontWeight: 700, marginBottom: 4, letterSpacing: '.04em', textTransform: 'uppercase' as const }}>{label}</div>
-      <div style={{ display: 'flex', alignItems: 'center', background: 'white', border: '1px solid #C7D2FE', borderRadius: 8, height: 36, overflow: 'hidden' }}>
+      <div style={{ fontSize: 10, color: 'var(--cell-text, #4B5563)', fontWeight: 700, marginBottom: 4, letterSpacing: '.04em', textTransform: 'uppercase' as const }}>{label}</div>
+      <div style={{ display: 'flex', alignItems: 'center', background: 'var(--input-bg, white)', border: '1px solid var(--border-color, #C7D2FE)', borderRadius: 8, height: 36, overflow: 'hidden' }}>
         <span style={{ padding: '0 8px', fontSize: 12, color: '#6366F1', fontWeight: 700, flexShrink: 0 }}>{prefix}</span>
         <input type="number" min={0} step={step} value={val}
           onChange={e => set(parseFloat(e.target.value) || 0)}
-          style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13, fontWeight: 700, color: '#111827', fontFamily: brico, background: 'transparent', padding: '0 6px 0 0', minWidth: 0 }}
+          style={{ flex: 1, border: 'none', outline: 'none', fontSize: 13, fontWeight: 700, color: 'var(--input-text, #111827)', fontFamily: brico, background: 'transparent', padding: '0 6px 0 0', minWidth: 0 }}
         />
       </div>
       {hint && <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>{hint}</div>}

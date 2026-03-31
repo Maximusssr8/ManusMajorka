@@ -467,7 +467,21 @@ export default function ProductDiscovery() {
               }
             } catch { /* fall through */ }
           }
-          setGenError(`Analysis complete but could not parse results. Try a different niche.`);
+          // Regex fallback: extract first {...} block
+          const braceMatch = fullText.match(/\{[\s\S]*\}/);
+          if (braceMatch) {
+            try {
+              const obj = JSON.parse(braceMatch[0]);
+              if (obj.products?.length > 0) {
+                setResult(obj as DiscoveryResult);
+                localStorage.setItem('majorka_milestone_research', 'true');
+                return;
+              }
+            } catch { /* fall through */ }
+          }
+          // Show raw AI text instead of generic error (better UX)
+          setResult({ summary: fullText, products: [], topPick: '', marketContext: '' });
+          setGenError('');
         }
       }
     } catch (err: any) {
