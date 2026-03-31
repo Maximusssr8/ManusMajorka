@@ -8,6 +8,8 @@ import { launchAliExpressScrape } from '../lib/apifyAliExpressBulk';
 import { launchAmazonScrape, AMAZON_AU_CATEGORIES } from '../lib/apifyAmazon';
 import { launchTikTokScrape } from '../lib/apifyTikTokShop';
 import { getSupabaseAdmin } from '../_core/supabase';
+import { launchAEDetailScrape } from '../scrapers/aliexpress-product-detail';
+import { collectCJRealProducts } from '../scrapers/cj-real-products';
 
 const router = Router();
 
@@ -1620,6 +1622,37 @@ router.post('/run-schema-migration', async (req: Request, res: Response) => {
   const passed = results.filter(r => r.ok).length;
   const failed = results.filter(r => !r.ok);
   res.json({ ok: true, passed, failed: failed.length, results, message: `${passed}/${results.length} steps succeeded` });
+});
+
+// ── Phase 2: AliExpress Product Detail Scrape ────────────────────────────
+
+router.post('/run-ae-detail-scrape', requireAuth, requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const productIds = req.body?.productIds as string[] | undefined;
+    const runId = await launchAEDetailScrape(productIds);
+    if (!runId) {
+      return res.json({ runId: null, productCount: 0, message: 'No products to scrape or launch failed' });
+    }
+    res.json({ runId, message: 'AE detail scrape launched (fire-and-forget)' });
+  } catch (err: any) {
+    console.error('[admin/ae-detail]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Phase 3: CJ Real Products by Category ID ────────────────────────────
+
+router.post('/run-cj-real-products', requireAuth, requireAdmin, async (_req: Request, res: Response) => {
+  // Fire-and-forget — takes ~20 min to complete
+  res.json({ message: 'CJ real data collection started' });
+  setImmediate(async () => {
+    try {
+      const result = await collectCJRealProducts();
+      console.log('[admin/cj-real] Complete:', result);
+    } catch (err: any) {
+      console.error('[admin/cj-real] Error:', err.message);
+    }
+  });
 });
 
 export default router;
