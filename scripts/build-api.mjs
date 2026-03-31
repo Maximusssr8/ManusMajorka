@@ -13,6 +13,7 @@ await build({
   format: "cjs",
   outfile: resolve(root, "api/index.serverless.js"),
   logLevel: "warning",
+  external: ["pg", "pg-native"],  // pg is a transitive dep — let Node resolve at runtime
 });
 
 console.log("API bundle built successfully.");

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { requireAuth } from '../middleware/requireAuth';
 import { requireAdmin as requireAdminMiddleware } from '../middleware/requireAdmin';
 import { createClient } from '@supabase/supabase-js';
+import { Pool as PgPool } from 'pg';
 import { findSupplierLinks, findTrendingBuzz } from '../lib/tavilySupplier';
 import { launchAliExpressScrape } from '../lib/apifyAliExpressBulk';
 import { launchAmazonScrape, AMAZON_AU_CATEGORIES } from '../lib/apifyAmazon';
@@ -1551,14 +1552,10 @@ router.post('/run-schema-migration', async (req: Request, res: Response) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  // Use pg Pool with pooler URL (works from Vercel; blocked from Mac)
-  let pg: any;
-  try { pg = require('pg'); } catch { return res.status(500).json({ error: 'pg not available' }); }
-
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) return res.status(500).json({ error: 'DATABASE_URL not set' });
 
-  const pool = new pg.Pool({ connectionString: dbUrl, ssl: { rejectUnauthorized: false }, max: 1 });
+  const pool = new PgPool({ connectionString: dbUrl, ssl: { rejectUnauthorized: false }, max: 1 });
   const results: Array<{ step: string; ok: boolean; err?: string }> = [];
 
   const run = async (label: string, sql: string) => {
