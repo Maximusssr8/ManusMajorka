@@ -1,0 +1,19 @@
+# Railway deployment config for Majorka Discord Bot
+# https://docs.railway.app/reference/config-as-code
+
+version: "2"
+
+services:
+  majorka-discord-bot:
+    source:
+      repo: https://github.com/Maximusssr8/ManusMajorka
+      branch: main
+      rootDirectory: discord-bot
+    build:
+      builder: NIXPACKS
+    deploy:
+      startCommand: node bot.js
+      restartPolicyType: ON_FAILURE
+      restartPolicyMaxRetries: 3
+    variables:
+      NODE_ENV: production

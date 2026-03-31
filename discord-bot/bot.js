@@ -19,7 +19,7 @@ const fs    = require('fs')
 
 const TOKEN     = process.env.DISCORD_BOT_TOKEN
 const CLIENT_ID = '1481859264057442325'
-const MAJORKA   = 'http://localhost:3000'
+const MAJORKA   = 'https://www.majorka.io'
 const VERCEL_TOKEN = process.env.VERCEL_TOKEN || ''
 
 if (!TOKEN) { console.error('❌ DISCORD_BOT_TOKEN not set'); process.exit(1) }
@@ -55,31 +55,64 @@ function getRole(guild, name) {
   return guild.roles.cache.find(r => r.name === name)
 }
 
-// ── Verify member against Majorka Supabase ────────────────────────────────────
+// ── Verify member against Majorka Supabase (direct REST API) ─────────────────
+const SUPABASE_URL = 'https://ievekuazsjbdrltsdksn.supabase.co'
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+
 async function checkMajorkaMember(email) {
-  // POST to Majorka API to check if email has active subscription
-  return new Promise((resolve) => {
-    const body = JSON.stringify({ email })
-    const req = http.request({
-      hostname: 'localhost', port: 3000,
-      path: '/api/discord/verify-member',
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
-    }, (res) => {
-      let data = ''
-      res.on('data', c => data += c)
-      res.on('end', () => {
-        try {
-          const d = JSON.parse(data)
-          resolve(d) // { exists: bool, plan: 'free'|'builder'|'scale' }
-        } catch { resolve({ exists: false, plan: null }) }
-      })
-    })
-    req.on('error', () => resolve({ exists: false, plan: null }))
-    req.setTimeout(5000, () => { req.destroy(); resolve({ exists: false, plan: null }) })
-    req.write(body)
-    req.end()
-  })
+  if (!SUPABASE_SERVICE_KEY) {
+    console.error('[verify] SUPABASE_SERVICE_ROLE_KEY not set')
+    return { exists: false, plan: null }
+  }
+  try {
+    // Step 1: Look up user by email
+    const userRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/users?email=eq.${encodeURIComponent(email)}&select=id`,
+      {
+        headers: {
+          'apikey': SUPABASE_SERVICE_KEY,
+          'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        signal: AbortSignal.timeout(8000),
+      }
+    )
+    const users = await userRes.json()
+    if (!Array.isArray(users) || users.length === 0) return { exists: false, plan: null }
+    const userId = users[0].id
+
+    // Step 2: Get subscription plan
+    const subRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/user_subscriptions?user_id=eq.${userId}&select=plan,status&order=created_at.desc&limit=1`,
+      {
+        headers: {
+          'apikey': SUPABASE_SERVICE_KEY,
+          'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        },
+        signal: AbortSignal.timeout(8000),
+      }
+    )
+    const subs = await subRes.json()
+    const sub = Array.isArray(subs) ? subs[0] : null
+    const plan = sub?.status === 'active' ? (sub.plan || 'free') : 'free'
+
+    // Step 3: Store discord_user_id for future sync (fire and forget)
+    fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${userId}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_SERVICE_KEY,
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({ discord_user_id: userId }), // will be set by caller
+    }).catch(() => {})
+
+    return { exists: true, plan, userId }
+  } catch (err) {
+    console.error('[verify] Supabase lookup failed:', err.message)
+    return { exists: false, plan: null }
+  }
 }
 
 async function assignRoleByPlan(member, plan) {
@@ -113,20 +146,24 @@ client.on('guildMemberAdd', async (member) => {
   try {
     const embed = new EmbedBuilder()
       .setTitle('👋 Welcome to Majorka AI')
-      .setColor(0xd4af37)
+      .setColor(0x6366F1)
       .setDescription([
         `Hey ${member.displayName}! Welcome to the **Majorka** community.`,
         '',
         '**Get started in 2 steps:**',
         '1. Head to **#🔑┃get-access** and run `/verify your@email.com`',
         '   This unlocks all the Majorka AI channels.',
-        '2. Not a member yet? [Start free](https://manus-majorka.vercel.app) — no credit card.',
+        '2. Not a member yet? [Start free](https://www.majorka.io) — no credit card.',
         '',
         '**Questions?** Drop them in **#🆘┃help-desk** and the team will help.',
         '',
         'See you inside 🚀',
       ].join('\n'))
-    await member.send({ embeds: [embed] })
+    const welcomeRow = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setLabel('Open Majorka →').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io'),
+      new ButtonBuilder().setLabel('Join Free →').setStyle(ButtonStyle.Link).setURL('https://www.majorka.io/sign-up'),
+    )
+    await member.send({ embeds: [embed], components: [welcomeRow] })
   } catch {} // DMs may be disabled
 
   // Log to admin
@@ -139,13 +176,26 @@ client.on('guildMemberAdd', async (member) => {
 // ── Button: Join as Guest ─────────────────────────────────────────────────────
 client.on('interactionCreate', async (interaction) => {
   if (interaction.isButton() && interaction.customId === 'verify_guest') {
+    // Assign Verified role if it exists, then guide them to sign up
     const role = getRole(interaction.guild, '👀 Verified')
     if (role) {
-      await interaction.member.roles.add(role)
-      await interaction.reply({ content: '✅ You now have **Verified** access. Welcome to the community! Head to 💬┃general to introduce yourself.', ephemeral: true })
-    } else {
-      await interaction.reply({ content: '❌ Role not found — contact an admin.', ephemeral: true })
+      try { await interaction.member.roles.add(role) } catch {}
     }
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setLabel('Open Majorka →')
+        .setStyle(ButtonStyle.Link)
+        .setURL('https://www.majorka.io'),
+      new ButtonBuilder()
+        .setLabel('Join Free →')
+        .setStyle(ButtonStyle.Link)
+        .setURL('https://www.majorka.io/sign-up'),
+    )
+    await interaction.reply({
+      content: '👋 Welcome! You now have community access.\n\nTo unlock AI-powered product intelligence, sign up at **majorka.io** — Builder & Scale plans available.',
+      components: [row],
+      ephemeral: true,
+    })
     return
   }
 
@@ -166,7 +216,7 @@ client.on('interactionCreate', async (interaction) => {
     const result = await checkMajorkaMember(email)
     if (!result.exists) {
       return interaction.editReply({
-        content: `❌ No Majorka account found for **${email}**.\nSign up free at https://manus-majorka.vercel.app or check your email spelling.`
+        content: `❌ No Majorka account found for **${email}**.\nSign up free at https://www.majorka.io or check your email spelling.`
       })
     }
 
@@ -186,10 +236,10 @@ client.on('interactionCreate', async (interaction) => {
     await interaction.deferReply()
     const embed = new EmbedBuilder()
       .setTitle('📊 Majorka — Live Stats')
-      .setColor(0xd4af37)
+      .setColor(0x6366F1)
       .setTimestamp()
       .addFields(
-        { name: '🌐 Production', value: '[manus-majorka.vercel.app](https://manus-majorka.vercel.app)', inline: true },
+        { name: '🌐 Production', value: '[majorka.io](https://www.majorka.io)', inline: true },
         { name: '📦 Repo', value: 'Maximusssr8/ManusMajorka', inline: true },
         { name: '💬 Discord Members', value: String(interaction.guild.memberCount), inline: true },
       )
@@ -217,8 +267,8 @@ client.on('interactionCreate', async (interaction) => {
       const announcements = getChannel('📋┃changelog')
       const resultEmbed = new EmbedBuilder()
         .setTitle(err ? '❌ Deploy Failed' : '✅ Deployed to Production')
-        .setColor(err ? 0xff4444 : 0xd4af37)
-        .setDescription(err ? err.message.slice(0, 500) : `Live at: https://manus-majorka.vercel.app`)
+        .setColor(err ? 0xff4444 : 0x6366F1)
+        .setDescription(err ? err.message.slice(0, 500) : `Live at: https://www.majorka.io`)
         .setTimestamp()
       if (deployLog) deployLog.send({ embeds: [resultEmbed] })
     })
@@ -261,7 +311,7 @@ client.on('interactionCreate', async (interaction) => {
     const announceCh = getChannel('📢┃announcements')
     if (announceCh) {
       await announceCh.send({ embeds: [
-        new EmbedBuilder().setTitle('📢 Announcement').setColor(0xd4af37)
+        new EmbedBuilder().setTitle('📢 Announcement').setColor(0x6366F1)
           .setDescription(message).setTimestamp()
           .setFooter({ text: `From ${interaction.user.username}` })
       ]})
@@ -295,7 +345,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
   const msg = reaction.message
   const embed = new EmbedBuilder()
-    .setColor(0xd4af37)
+    .setColor(0x6366F1)
     .setAuthor({ name: msg.author?.username || 'Unknown', iconURL: msg.author?.displayAvatarURL() })
     .setDescription(msg.content?.slice(0, 1000) || '*[no text]*')
     .addFields({ name: '⭐ Stars', value: String(reaction.count), inline: true },
@@ -319,7 +369,7 @@ const httpServer = http.createServer(async (req, res) => {
       const ch = getChannel(channel || '🔔┃majorka-updates')
       if (!ch) { res.writeHead(404); res.end(JSON.stringify({ error: 'channel not found' })); return }
       if (title || embedData) {
-        const e = new EmbedBuilder().setColor(color || 0xd4af37).setTimestamp()
+        const e = new EmbedBuilder().setColor(color || 0x6366F1).setTimestamp()
         if (title)   e.setTitle(title)
         if (message) e.setDescription(message)
         if (embedData?.fields) e.addFields(embedData.fields)
@@ -345,10 +395,10 @@ function scheduleWeeklyStats() {
     if (statsCh) {
       statsCh.send({ embeds: [
         new EmbedBuilder().setTitle('📊 Weekly Majorka Stats')
-          .setColor(0xd4af37)
+          .setColor(0x6366F1)
           .setDescription('Auto-generated weekly report. Connect Supabase for live data.')
           .addFields(
-            { name: '🌐 App', value: 'https://manus-majorka.vercel.app', inline: false },
+            { name: '🌐 App', value: 'https://www.majorka.io', inline: false },
             { name: '💬 Discord Members', value: String([...client.guilds.cache.values()][0]?.memberCount || 0), inline: true },
           )
           .setTimestamp()

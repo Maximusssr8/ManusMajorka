@@ -1,15 +1,19 @@
 {
-  "name": "discord-bot",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "majorka-discord-bot",
+  "version": "1.1.0",
+  "description": "Majorka Discord Bot — verification, daily intelligence, and community automation",
+  "main": "bot.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node bot.js",
+    "dev": "node --watch bot.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Majorka",
   "license": "ISC",
   "type": "commonjs",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
     "@discordjs/rest": "^2.6.0",
     "discord-api-types": "^0.38.42",
