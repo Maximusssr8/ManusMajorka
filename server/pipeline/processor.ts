@@ -265,7 +265,7 @@ export async function runProcessor(): Promise<ProcessorResult> {
   }
 
   await supabase.from('raw_scrape_results').update({ processed: true, processing_result: 'done' })
-    .in('id', processedIds).catch(() => {});
+    .in('id', processedIds).then(null, () => {});
 
   result.duration_ms = Date.now() - startTime;
   console.log(`[processor] Done: processed=${result.processed}, inserted=${result.inserted}, updated=${result.updated}`);

@@ -1675,7 +1675,7 @@ async function generateFullStore_legacy(params: {
     planStore({
       niche,
       storeName: storeName_,
-      price: displayPrice,
+      price: price || (pd?.price_aud ? String(pd.price_aud) : '49.95'),
       accentColor: color,
       designDirection: designDirection as string,
       productData: pd,

@@ -289,7 +289,7 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
   // SOURCE 2: Majorka DB search (instant, always works)
   if (results.length < 8) {
     try {
-      const dbResults = await dbSearch(supabase, query);
+      const dbResults = await dbSearch(supabase as any, query);
       console.log(`[products/search] DB search returned: ${dbResults.length}`);
       // Merge — don't duplicate titles
       const existingTitles = new Set(results.map(r => r.title.toLowerCase()));
@@ -354,7 +354,7 @@ router.get('/search', requireAuth, async (req: Request, res: Response) => {
 
   // Log search analytics (non-blocking)
   const analyticsUserId = (req as any).user?.id ?? null;
-  supabase.from('search_analytics').insert({ query: cacheKey, results_count: results.length, user_id: analyticsUserId }).then(() => {}).catch(() => {});
+  supabase.from('search_analytics').insert({ query: cacheKey, results_count: results.length, user_id: analyticsUserId }).then(() => {}, () => {});
 
   // Auto-populate winning_products from popular searches (3+ times in 24h)
   (async () => {
@@ -730,7 +730,7 @@ router.get('/cj', async (_req: Request, res: Response) => {
       await sb.from('apify_cache').upsert(
         { cache_key: CACHE_KEY, data: products, fetched_at: new Date().toISOString(), expires_at: expiresAt },
         { onConflict: 'cache_key' }
-      ).catch(() => {});
+      ).then(null, () => {});
     }
 
     res.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=3600');

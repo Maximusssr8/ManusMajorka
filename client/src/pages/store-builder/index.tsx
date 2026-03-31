@@ -374,8 +374,8 @@ export default function StoreBuilder() {
       .catch(() => {});
 
     // Load existing stores from generated_stores
-    const supabaseUrl = (import.meta as Record<string, Record<string, string>>).env?.VITE_SUPABASE_URL;
-    const supabaseKey = (import.meta as Record<string, Record<string, string>>).env?.VITE_SUPABASE_ANON_KEY;
+    const supabaseUrl = (import.meta as unknown as Record<string, Record<string, string>>).env?.VITE_SUPABASE_URL;
+    const supabaseKey = (import.meta as unknown as Record<string, Record<string, string>>).env?.VITE_SUPABASE_ANON_KEY;
     if (supabaseUrl && supabaseKey) {
       fetch(`${supabaseUrl}/rest/v1/generated_stores?select=id,store_name,subdomain,created_at,published&order=created_at.desc&limit=10`, {
         headers: { apikey: supabaseKey, Authorization: `Bearer ${authToken}` },

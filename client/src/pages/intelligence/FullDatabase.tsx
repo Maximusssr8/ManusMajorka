@@ -88,7 +88,6 @@ interface Product {
   cj_product_id?: string;
   supplier_platform?: string;
   supplier_url?: string;
-  supplier_name?: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -315,7 +314,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const [dateRange, setDateRange] = useState<DateRange>(() => {
     const stored = localStorage.getItem('majorka_db_daterange') as DateRange;
     // Migrate old 'today' value (would show 0 results) to 'all'
-    if (!stored || stored === 'today' || stored === '30d') return 'all';
+    if (!stored || (stored as string) === 'today' || stored === '30d') return 'all';
     return stored;
   });
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
@@ -1847,7 +1846,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
           {(() => {
             const displayOrders = p.real_orders_count || p.orders_count;
             const displayRating = p.real_rating || p.rating;
-            const displayReviews = p.real_review_count || p.review_count;
+            const displayReviews = p.real_review_count || (p as any).review_count;
             const listingUrl = p.source_url || p.aliexpress_url;
             if (!displayOrders && !displayRating && !listingUrl) return null;
             return (
@@ -1914,7 +1913,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
           {(() => {
             const sb = p.score_breakdown;
             const margin = typeof p.profit_margin === 'number' ? p.profit_margin : 50;
-            const orders = typeof p.orders_count === 'number' ? p.orders_count : (typeof p.sold_count === 'number' ? p.sold_count : 500);
+            const orders = typeof p.orders_count === 'number' ? p.orders_count : (typeof (p as any).sold_count === 'number' ? (p as any).sold_count : 500);
             const totalScore = p.winning_score ?? p.opportunity_score ?? 70;
             // Derive sub-scores from available data when breakdown is null
             const orderScore = sb?.order_score ?? Math.min(25, Math.round((Math.min(orders, 5000) / 5000) * 25));

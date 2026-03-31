@@ -120,7 +120,7 @@ export async function harvestCompletedRuns(): Promise<{ harvested: number; still
           }
 
           if (rows.length > 0) {
-            await supabase.from('raw_scrape_results').insert(rows).catch((err: any) =>
+            await supabase.from('raw_scrape_results').insert(rows).then(null, (err: any) =>
               console.error('[harvest] Insert error:', err.message)
             );
             harvested += rows.length;

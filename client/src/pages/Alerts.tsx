@@ -44,8 +44,9 @@ const [alerts, setAlerts] = useState<Alert[]>([]);
     setTestSending(true);
     try {
       const { data: { session: sess } } = await supabase.auth.getSession();
-      const authHeader = sess?.access_token ? { Authorization: `Bearer ${sess.access_token}` } : {};
-      const r = await fetch('/api/alerts/test-notification', { method: 'POST', headers: authHeader });
+      const headers: Record<string, string> = {};
+      if (sess?.access_token) headers['Authorization'] = `Bearer ${sess.access_token}`;
+      const r = await fetch('/api/alerts/test-notification', { method: 'POST', headers });
       if (r.ok) { setTestSent(true); setTimeout(() => setTestSent(false), 5000); }
     } catch { /* ignore */ } finally { setTestSending(false); }
   }

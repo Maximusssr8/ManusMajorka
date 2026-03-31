@@ -136,8 +136,9 @@ export default function VideoIntelligence() {
   useEffect(() => {
     setLoading(true);
     supabase.auth.getSession().then(({ data: { session } }) => {
-      const authHeader = session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {};
-      return fetch('/api/videos/real', { headers: authHeader });
+      const headers: Record<string, string> = {};
+      if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
+      return fetch('/api/videos/real', { headers });
     })
       .then(r => r.json())
       .then(d => {
@@ -363,7 +364,7 @@ export default function VideoIntelligence() {
                 <div style={{ padding: '10px 12px' }}>
                   <div style={{ fontSize: 12, color: '#0A0A0A', fontWeight: 500, lineHeight: 1.4, marginBottom: 6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>{v.title}</div>
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' as const }}>
-                    <span style={{ fontSize: 11, color: '#6366F1', fontWeight: 600 }}>▶ {v.playCount >= 1000000 ? `${(v.playCount/1000000).toFixed(1)}M` : v.playCount >= 1000 ? `${(v.playCount/1000).toFixed(0)}K` : v.playCount}</span>
+                    <span style={{ fontSize: 11, color: '#6366F1', fontWeight: 600 }}>▶ {(v.playCount ?? 0) >= 1000000 ? `${((v.playCount ?? 0)/1000000).toFixed(1)}M` : (v.playCount ?? 0) >= 1000 ? `${((v.playCount ?? 0)/1000).toFixed(0)}K` : v.playCount ?? 0}</span>
                     <span style={{ fontSize: 10, color: '#9CA3AF' }}>{v.creator || v.creatorHandle}</span>
                   </div>
                 </div>

@@ -27,7 +27,7 @@ export async function runCleanup(): Promise<{ removed: number; archived: number;
 
   // Remove pipeline logs older than 30 days
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  await supabase.from('pipeline_logs').delete().lt('started_at', thirtyDaysAgo).catch(() => {});
+  await supabase.from('pipeline_logs').delete().lt('started_at', thirtyDaysAgo).then(null, () => {});
 
   // Soft-deactivate stale winning_products (score < 25, not seen in 30 days)
   const deactivateResult = await supabase.from('winning_products')

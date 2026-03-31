@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { requireAuth } from '../middleware/requireAuth';
 import { requireAdmin as requireAdminMiddleware } from '../middleware/requireAdmin';
 import { createClient } from '@supabase/supabase-js';
+// @ts-ignore — pg types not installed
 import { Pool as PgPool } from 'pg';
 import { findSupplierLinks, findTrendingBuzz } from '../lib/tavilySupplier';
 import { launchAliExpressScrape } from '../lib/apifyAliExpressBulk';
@@ -195,7 +196,7 @@ router.get('/system-health', requireAuth, requireAdmin, async (req: Request, res
 
     const [wpResult, userResult, storeResult, trendResult] = await Promise.all([
       supabase.from('winning_products').select('*', { count: 'exact', head: true }),
-      supabase.auth.admin.listUsers({ perPage: 1 }).then(d => ({ count: d.data?.total || 0 })),
+      supabase.auth.admin.listUsers({ perPage: 1 }).then(d => ({ count: (d.data as any)?.total || 0 })),
       supabase.from('generated_stores').select('*', { count: 'exact', head: true }),
       supabase.from('trend_signals').select('*', { count: 'exact', head: true }),
     ]);
@@ -712,14 +713,14 @@ router.post('/scrape-aliexpress', async (req: Request, res: Response) => {
         // Update image with first real AliExpress image (better quality than Pexels for product accuracy)
         if (data.images[0]) updates.image_url = data.images[0];
         // Store price, rating, orders
-        if (data.priceUsd) updates.price_usd = data.priceUsd;
+        if ((data as any).priceUsd) updates.price_usd = (data as any).priceUsd;
         if (data.rating) updates.rating = data.rating;
         if (data.orders) updates.orders_count = data.orders;
 
         if (Object.keys(updates).length) {
           await supabase.from('trend_signals').update(updates).eq('id', product.id);
         }
-        results.push({ name: product.name, success: true, title: data.title, priceUsd: data.priceUsd, imageCount: data.images.length });
+        results.push({ name: product.name, success: true, title: data.title, priceUsd: (data as any).priceUsd, imageCount: data.images.length });
         scraped++;
       } else {
         results.push({ name: product.name, success: false, title: null, priceUsd: null, imageCount: 0 });
@@ -799,11 +800,11 @@ router.post('/scrape-real-data', async (req: Request, res: Response) => {
         };
         if (data.title && data.title.length > 5) updates.name = data.title.slice(0, 200);
         if (data.images[0]) updates.image_url = data.images[0];
-        if (data.priceUsd) updates.estimated_retail_aud = Math.round(data.priceUsd * 1.55 * 100) / 100;
+        if ((data as any).priceUsd) updates.estimated_retail_aud = Math.round((data as any).priceUsd * 1.55 * 100) / 100;
 
         await supabase.from('trend_signals').update(updates).eq('id', product.id);
         scraped++;
-        console.log(`[scrape-real] ✅ ${product.name} → ${data.images[0]?.slice(0, 50) || 'no img'} | $${data.priceUsd}`);
+        console.log(`[scrape-real] ✅ ${product.name} → ${data.images[0]?.slice(0, 50) || 'no img'} | $${(data as any).priceUsd}`);
       } else {
         // Mark attempted so we don't retry endlessly
         await supabase.from('trend_signals').update({ real_data_scraped: true }).eq('id', product.id);

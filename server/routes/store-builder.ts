@@ -459,7 +459,7 @@ router.post('/publish', requireAuth, async (req, res) => {
     const storeCount = storeRows?.length ?? 0;
 
     // Default to builder plan limit
-    const plan = ((req as Record<string, unknown>).subscription as { plan?: string })?.plan || 'builder';
+    const plan = ((req as unknown as Record<string, unknown>).subscription as { plan?: string })?.plan || 'builder';
     const limit = getPlanLimit(plan as Plan, 'store_builder');
     if (storeCount >= limit) {
       return res.status(429).json({
