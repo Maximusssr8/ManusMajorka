@@ -26,36 +26,92 @@ export const AE_BESTSELLER_URLS = [
 
 const BULK_KW = ['lot ', 'bulk', 'wholesale', 'pcs ', 'pack of', '100pcs', '50pcs', '20pcs'];
 
+/**
+ * Parse pintostudio's nested schema.
+ * Actor returns: [{ data: { content: [product, ...] } }]
+ * Each product has: title.displayTitle, prices.originalPrice.minPrice,
+ *   trade.realTradeCount, evaluation.starRating, image.imgUrl, productId
+ */
+function extractProducts(rawItems: Record<string, unknown>[]): Record<string, unknown>[] {
+  const products: Record<string, unknown>[] = [];
+  for (const item of rawItems) {
+    // Nested structure: item.data.content[]
+    const content = (item as { data?: { content?: unknown[] } }).data?.content;
+    if (Array.isArray(content)) {
+      products.push(...(content as Record<string, unknown>[]));
+    } else {
+      // Flat item (fallback)
+      products.push(item);
+    }
+  }
+  return products;
+}
+
+function getTitle(item: Record<string, unknown>): string {
+  const t = item.title as { displayTitle?: string } | string | undefined;
+  if (typeof t === 'object' && t?.displayTitle) return t.displayTitle;
+  return String(item.title || item.name || '');
+}
+
+function getPrice(item: Record<string, unknown>): number {
+  const p = item.prices as { originalPrice?: { minPrice?: number }; salePrice?: { minPrice?: number } } | undefined;
+  if (p?.salePrice?.minPrice) return p.salePrice.minPrice;
+  if (p?.originalPrice?.minPrice) return p.originalPrice.minPrice;
+  return parseFloat(String(item.price || item.priceMin || '0').replace(/[^\d.]/g, ''));
+}
+
+function getOrders(item: Record<string, unknown>): number {
+  const trade = item.trade as { realTradeCount?: string; tradeDesc?: string } | undefined;
+  if (trade?.realTradeCount) return parseInt(trade.realTradeCount.replace(/[^\d]/g, ''), 10) || 0;
+  const raw = String(item.sold || item.orders || item.totalSold || '0');
+  let n = parseInt(raw.replace(/[^\d]/g, ''), 10) || 0;
+  if (raw.toLowerCase().includes('k')) n = Math.round(parseFloat(raw) * 1000);
+  return n;
+}
+
+function getRating(item: Record<string, unknown>): number {
+  const ev = item.evaluation as { starRating?: number } | undefined;
+  if (ev?.starRating) return ev.starRating;
+  return parseFloat(String(item.rating || item.starRating || '0')) || 0;
+}
+
+function getImage(item: Record<string, unknown>): string {
+  const img = item.image as { imgUrl?: string } | undefined;
+  let url = img?.imgUrl || String(item.imageUrl || item.mainImage || '');
+  if (url && !url.startsWith('http')) url = 'https:' + url;
+  return url;
+}
+
+function getProductUrl(item: Record<string, unknown>): string {
+  const pid = String(item.productId || item.redirectedId || item.id || '');
+  if (pid) return `https://www.aliexpress.com/item/${pid}.html`;
+  return String(item.url || item.link || '');
+}
+
 function qualityGate(item: Record<string, unknown>): boolean {
-  const title  = String(item.title || item.name || item.productTitle || '');
-  const price  = parseFloat(String(item.price || item.priceMin || item.salePrice || '0').replace(/[^\d.]/g, ''));
-  const img    = String(item.image || item.imageUrl || item.mainImage || item.thumbnail || '');
-  const url    = String(item.url || item.link || item.productUrl || '');
-  const ordersRaw = String(item.sold || item.orders || item.totalSold || item.monthlySales || '0');
-  let orders = parseInt(ordersRaw.replace(/[^\d]/g, ''), 10) || 0;
-  if (ordersRaw.toLowerCase().includes('k')) orders = Math.round(parseFloat(ordersRaw) * 1000);
+  const title  = getTitle(item);
+  const price  = getPrice(item);
+  const img    = getImage(item);
+  const orders = getOrders(item);
 
   if (title.length <= 10) return false;
   if (BULK_KW.some(k => title.toLowerCase().includes(k))) return false;
   if (price < 2 || price > 150) return false;
   if (!img.startsWith('http')) return false;
-  if (!url.startsWith('http')) return false;
   if (orders < 50) return false;
   return true;
 }
 
 function mapItem(item: Record<string, unknown>): Record<string, unknown> {
-  const title    = String(item.title || item.name || item.productTitle || '').slice(0, 255);
-  const priceUsd = parseFloat(String(item.price || item.priceMin || item.salePrice || '0').replace(/[^\d.]/g, ''));
+  const title    = getTitle(item).slice(0, 255);
+  const priceUsd = getPrice(item);
   const priceAud = Math.round(priceUsd * AUD * 100) / 100;
   const costAud  = Math.round(priceAud * 0.35 * 100) / 100;
-  const ordersRaw = String(item.sold || item.orders || item.totalSold || item.monthlySales || '0');
-  let orders = parseInt(ordersRaw.replace(/[^\d]/g, ''), 10) || 0;
-  if (ordersRaw.toLowerCase().includes('k')) orders = Math.round(parseFloat(ordersRaw) * 1000);
-  const rating  = parseFloat(String(item.rating || item.starRating || item.score || '0')) || 0;
-  const reviews = parseInt(String(item.reviews || item.reviewCount || item.commentCount || '0'), 10) || 0;
-  const url     = String(item.url || item.link || item.productUrl || '');
-  const prodId  = String(item.id || item.productId || item.itemId || '').slice(0, 50);
+  const orders   = getOrders(item);
+  const rating   = getRating(item);
+  const img      = getImage(item);
+  const url      = getProductUrl(item);
+  const prodId   = String(item.productId || item.redirectedId || item.id || '').slice(0, 50);
 
   const { score, breakdown } = calculateTrendScore({
     source: 'aliexpress', orders, rating,
@@ -66,7 +122,7 @@ function mapItem(item: Record<string, unknown>): Record<string, unknown> {
     product_title:      title,
     category:           '',  // Haiku assigns in enrichment step
     platform:           'aliexpress',
-    image_url:          String(item.image || item.imageUrl || item.mainImage || item.thumbnail || ''),
+    image_url:          img,
     price_aud:          priceAud,
     cost_price_aud:     costAud,
     supplier_cost_aud:  costAud,
@@ -79,7 +135,6 @@ function mapItem(item: Record<string, unknown>): Record<string, unknown> {
     real_price_usd:     priceUsd,
     real_price_aud:     priceAud,
     rating,
-    review_count:       reviews,
     data_source:        'aliexpress_scraper',
     source_url:         url,
     aliexpress_url:     url,
@@ -136,7 +191,8 @@ export async function harvestAEBestsellerRuns(runIds: string[]): Promise<number>
       continue;
     }
 
-    const items = await fetchApifyDataset(datasetId, 300) as Record<string, unknown>[];
+    const rawItems = await fetchApifyDataset(datasetId, 300) as Record<string, unknown>[];
+    const items = extractProducts(rawItems);
     const rows = items.filter(qualityGate).map(mapItem);
     if (!rows.length) continue;
 
