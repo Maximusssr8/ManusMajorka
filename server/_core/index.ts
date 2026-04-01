@@ -236,6 +236,9 @@ async function startServer() {
   registerDemoRoutes(app);
   // Website Generator — Vercel deploy + product analyzer
   registerWebsiteRoutes(app);
+  // Auth whitelist check (unauthenticated — called after sign-in)
+  const authRouter = (await import('../routes/auth')).default;
+  app.use('/api/auth', authRouter);
   // Shopify OAuth + Store Builder
   app.use(cookieParser());
   app.use('/api/shopify', shopifyRouter);

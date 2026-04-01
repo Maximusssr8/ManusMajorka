@@ -40,6 +40,19 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
   const [mode, setMode] = useState<'signin' | 'signup'>(initialMode || 'signin');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
+  const [betaError, setBetaError] = useState(false);
+
+  useEffect(() => {
+    // Check for beta access denied error
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('error') === 'beta') {
+      setBetaError(true);
+      // Clean up URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete('error');
+      window.history.replaceState(null, '', url.pathname + url.search);
+    }
+  }, []);
 
   useEffect(() => {
     // Capture referral code from URL
@@ -507,6 +520,19 @@ export function SignInPage({ className, onSuccess, mode: initialMode }: SignInPa
                         </Link>
                       </span>
                     </label>
+                  )}
+
+                  {betaError && (
+                    <div
+                      className="text-sm px-4 py-3 rounded-xl"
+                      style={{
+                        background: 'rgba(244,63,94,0.08)',
+                        border: '1px solid rgba(244,63,94,0.2)',
+                        color: '#e11d48',
+                      }}
+                    >
+                      Majorka is currently in private beta. Access is restricted.
+                    </div>
                   )}
 
                   {error && (

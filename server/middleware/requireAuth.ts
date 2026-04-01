@@ -59,6 +59,10 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
     return;
   }
 
+  // ── Email whitelist — private beta access control ──────────────────────────
+  const WHITELIST = (process.env.WHITELIST_EMAILS || 'maximusmajorka@gmail.com')
+    .split(',').map(e => e.trim().toLowerCase());
+
   // ── User JWT: verify signature via Supabase auth.getUser() ─────────────────
   // This calls Supabase to cryptographically verify the token — cannot be spoofed
   try {
@@ -75,12 +79,30 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
         return;
       }
 
+      // Whitelist check (admin fallback path)
+      if (adminData.user.email && !WHITELIST.includes(adminData.user.email.toLowerCase())) {
+        res.status(403).json({
+          error: 'access_denied',
+          message: 'Majorka is currently in private beta. Access is restricted.',
+        });
+        return;
+      }
+
       req.user = {
         userId: adminData.user.id,
         email: adminData.user.email || '',
         sub: adminData.user.id,
       };
       next();
+      return;
+    }
+
+    // Whitelist check (primary path)
+    if (data.user.email && !WHITELIST.includes(data.user.email.toLowerCase())) {
+      res.status(403).json({
+        error: 'access_denied',
+        message: 'Majorka is currently in private beta. Access is restricted.',
+      });
       return;
     }
 

@@ -48,6 +48,7 @@ import creatorsRouter from "../server/routes/creators";
 import videosRouter from "../server/routes/videos";
 import waitlistRouter from "../server/routes/waitlist";
 import dailyBriefRouter from "../server/routes/daily-brief";
+import authRouter from "../server/routes/auth";
 import { registerGenerationRoutes } from "../server/routes/generation";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
 import { getProductByIdPublic } from "../server/db";
@@ -566,6 +567,7 @@ app.get('/api/stripe/webhook-test', requireAuth, async (req: Request, res: Respo
 
 registerWebsiteRoutes(app);
 registerGenerationRoutes(app);
+app.use('/api/auth', authRouter);
 app.use('/api/shopify', shopifyRouter);
 app.use('/api/store-builder', storeBuilderRouter);
 app.use('/api/ai', aiRouter);
