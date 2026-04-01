@@ -15,6 +15,21 @@ import { capture, identifyUser, resetUser } from '@/lib/posthog';
 import { supabase } from '@/lib/supabase';
 import { trpc } from '@/lib/trpc';
 
+// ── Private beta whitelist check ────────────────────────────────────────────
+async function checkWhitelist(userEmail: string): Promise<boolean> {
+  try {
+    const res = await fetch('/api/auth/check-whitelist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: userEmail }),
+    });
+    const data = await res.json();
+    return data.allowed === true;
+  } catch {
+    return false; // fail closed — block on error
+  }
+}
+
 interface AuthContextValue {
   user: Profile | null;
   loading: boolean;
@@ -67,9 +82,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // 1. Subscribe to future auth state changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, s) => {
+    } = supabase.auth.onAuthStateChange(async (event, s) => {
       resolved = true;
       clearTimeout(deadline);
+
+      // ── Private beta whitelist gate ──────────────────────────────────
+      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && s?.user?.email) {
+        const allowed = await checkWhitelist(s.user.email);
+        if (!allowed) {
+          await supabase.auth.signOut();
+          setSession(null);
+          setSessionLoading(false);
+          // Redirect to sign-in with beta error
+          if (!window.location.search.includes('error=beta')) {
+            window.location.href = '/login?error=beta';
+          }
+          return;
+        }
+      }
+
       setSession(s);
       setSessionLoading(false);
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
