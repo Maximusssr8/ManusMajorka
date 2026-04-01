@@ -311,6 +311,8 @@ async function startServer() {
   app.use('/api/admin', adminApiRouter);
   const shopsRouter = (await import('../routes/shops')).default;
   app.use('/api/shops', shopsRouter);
+  const apifySearchRouter = (await import('../routes/apify-search')).default;
+  app.use('/api/products', apifySearchRouter); // search with Apify fallback (before main products router)
   const productsRouter = (await import('../routes/products')).default;
   app.use('/api/products', productsRouter);
   const waitlistRouter = (await import('../routes/waitlist')).default;
