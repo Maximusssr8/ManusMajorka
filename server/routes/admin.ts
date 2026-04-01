@@ -11,6 +11,7 @@ import { launchTikTokScrape } from '../lib/apifyTikTokShop';
 import { getSupabaseAdmin } from '../_core/supabase';
 import { launchAEDetailScrape } from '../scrapers/aliexpress-product-detail';
 import { collectCJRealProducts } from '../scrapers/cj-real-products';
+import { runTrendFirstPipeline } from '../pipeline/trendFirst';
 
 const router = Router();
 
@@ -1714,6 +1715,14 @@ router.get('/cron-health', async (_req: Request, res: Response) => {
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// POST /api/admin/run-trend-pipeline
+router.post('/run-trend-pipeline', requireAuth, requireAdmin, async (_req: Request, res: Response) => {
+  res.json({ ok: true, message: 'Trend-first pipeline started. CJ runs synchronously; AE fire-and-forget.' });
+  runTrendFirstPipeline('full').then(r => console.info('[admin] trend pipeline complete:', r)).catch(e => {
+    console.error('[admin] trend pipeline error:', e instanceof Error ? e.message : e);
+  });
 });
 
 export default router;

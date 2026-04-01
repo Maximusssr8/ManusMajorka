@@ -18,6 +18,8 @@ import { collectCJProducts } from '../scrapers/cj-products';
 import { fetchGoogleTrends, saveTrends } from '../scrapers/google-trends';
 import { launchAEDetailScrape } from '../scrapers/aliexpress-product-detail';
 import { collectCJRealProducts } from '../scrapers/cj-real-products';
+import { runTrendFirstPipeline } from '../pipeline/trendFirst';
+import { scrapeCJTopSellers } from '../scrapers/cj-top-sellers';
 
 const router = Router();
 
@@ -731,6 +733,51 @@ router.get('/purge-dead-products', async (req: Request, res: Response) => {
     await logPipelineEnd(logId, { startedAt }, 'failed', err.message);
     res.status(500).json({ error: err.message });
   }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TREND-FIRST PIPELINE (replaces keyword-based scraping)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// POST /api/cron/trend-pipeline — runs every 6h
+router.post('/trend-pipeline', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  res.json({ ok: true, started: true });
+
+  runTrendFirstPipeline('full').then(result => {
+    console.info('[cron/trend-pipeline] Complete:', result);
+  }).catch(e => {
+    console.error('[cron/trend-pipeline] Error:', e instanceof Error ? e.message : e);
+  });
+});
+
+// Also support GET for Vercel cron (Vercel crons send GET requests)
+router.get('/trend-pipeline', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  res.json({ ok: true, started: true });
+
+  runTrendFirstPipeline('full').then(result => {
+    console.info('[cron/trend-pipeline] Complete:', result);
+  }).catch(e => {
+    console.error('[cron/trend-pipeline] Error:', e instanceof Error ? e.message : e);
+  });
+});
+
+// POST /api/cron/cj-refresh — CJ-only refresh (every 12h)
+router.post('/cj-refresh', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  res.json({ ok: true });
+  scrapeCJTopSellers(5).catch(e => {
+    console.error('[cron/cj-refresh] Error:', e instanceof Error ? e.message : e);
+  });
+});
+
+router.get('/cj-refresh', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  res.json({ ok: true });
+  scrapeCJTopSellers(5).catch(e => {
+    console.error('[cron/cj-refresh] Error:', e instanceof Error ? e.message : e);
+  });
 });
 
 export default router;

@@ -17,6 +17,7 @@ const METRIC_DEFINITIONS: Record<string, string> = {
   CTR: 'Click-Through Rate — percentage of people who click your ad/link after seeing it. Higher = more engaging creative.',
   LTV: 'Lifetime Value — total revenue a customer generates over their entire relationship with your brand.',
   CPA: 'Cost Per Acquisition — how much you spend to acquire one paying customer through advertising.',
+  'Saturation Risk': 'Low = few sellers in this niche, High = many sellers already. Low saturation + high demand = best opportunity.',
 };
 
 interface MetricTooltipProps {

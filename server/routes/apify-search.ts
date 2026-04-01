@@ -6,7 +6,6 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { getSupabaseAdmin } from '../_core/supabase';
-import { startAliExpressKeywordScrape } from '../services/apify';
 
 const router = Router();
 
@@ -49,27 +48,13 @@ router.get('/search', async (req: Request, res: Response) => {
   const { data, count, error } = await query;
   if (error) return res.status(500).json({ error: error.message });
 
-  // If thin DB results and keyword search, trigger live Apify scrape (fire-and-forget)
-  let scraperTriggered = false;
-  if (q && (count || 0) < 10) {
-    console.info(`[products/search] Thin results for "${q}", triggering Apify scrape`);
-    startAliExpressKeywordScrape(q, 60)
-      .then(runId => { if (runId) console.info(`[products/search] Scrape started: ${runId}`); })
-      .catch((e: unknown) => {
-        const msg = e instanceof Error ? e.message : 'unknown';
-        console.error('[products/search] Scrape trigger error:', msg);
-      });
-    scraperTriggered = true;
-  }
-
   return res.json({
     products: data || [],
     total: count || 0,
     page,
     limit,
     source: 'db',
-    scraperTriggered,
-    message: scraperTriggered ? 'Live scrape triggered — results available in ~2 minutes' : undefined,
+    message: (q && (count || 0) < 10) ? 'Search is based on trending products. New products added every 6 hours.' : undefined,
   });
 });
 
