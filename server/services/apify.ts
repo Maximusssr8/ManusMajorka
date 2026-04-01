@@ -1,9 +1,16 @@
 /**
  * Apify service — raw fetch REST API only (apify-client npm is BANNED)
- * Uses fire-and-forget pattern: start run -> return runId -> harvest cron collects
+ * Primary actor: pintostudio~aliexpress-product-search (paid rental required)
+ * Fallback: apify~playwright-scraper (free but lower success rate on AE)
+ * Fire-and-forget pattern: start run -> return runId -> harvest cron collects
  */
 
 const APIFY_BASE = 'https://api.apify.com/v2';
+
+/** Primary AliExpress search actor — requires rental at console.apify.com */
+export const ALIEXPRESS_ACTOR = 'pintostudio~aliexpress-product-search';
+/** Fallback AliExpress scraper — free, lower success rate */
+export const ALIEXPRESS_FALLBACK_ACTOR = 'apify~playwright-scraper';
 
 function getToken(): string {
   return process.env.APIFY_API_KEY || process.env.APIFY_API_TOKEN || '';
@@ -85,16 +92,55 @@ export async function getApifyRunStatus(runId: string): Promise<{ status: string
 }
 
 /**
- * Start AliExpress keyword search via playwright-scraper.
+ * Start AliExpress keyword search via pintostudio actor (primary).
+ * Input: { keyword, maxItems: 50, sortBy: 'ORDERS', shipTo: 'AU' }
  * Returns runId for harvest cron to pick up.
  */
 export async function startAliExpressKeywordScrape(
   keyword: string,
-  maxResults = 60
+  maxResults = 50
 ): Promise<string | null> {
-  const searchUrl = `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(keyword)}&SortType=total_tranpro_desc`;
+  const token = getToken();
 
-  const input = {
+  // Try pintostudio primary actor first
+  try {
+    const url = `${APIFY_BASE}/acts/${ALIEXPRESS_ACTOR}/runs?token=${token}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        keyword,
+        maxItems: maxResults,
+        sortBy: 'ORDERS',   // Real demand signal — sorted by total orders
+        shipTo: 'AU',        // AU-shippable products only
+      }),
+      signal: AbortSignal.timeout(10000),
+    });
+
+    if (res.ok) {
+      const data = await res.json() as { data?: { id?: string } };
+      const runId = data?.data?.id ?? null;
+      if (runId) {
+        console.info(`[apify-svc] pintostudio run started: ${runId} (keyword: ${keyword})`);
+        return runId;
+      }
+    }
+
+    // If actor not rented or failed, log and fall through to playwright fallback
+    const errText = await res.text().catch(() => '');
+    if (errText.includes('actor-is-not-rented')) {
+      console.warn('[apify-svc] pintostudio actor not rented — falling back to playwright scraper');
+    } else {
+      console.error(`[apify-svc] pintostudio failed ${res.status}: ${errText.slice(0, 100)}`);
+    }
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : 'unknown';
+    console.error('[apify-svc] pintostudio error:', msg);
+  }
+
+  // Fallback: playwright scraper
+  const searchUrl = `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(keyword)}&SortType=total_tranpro_desc`;
+  const playwrightInput = {
     startUrls: [{ url: searchUrl }],
     pageFunction: `async function pageFunction(context) {
       const { page } = context;
@@ -117,26 +163,32 @@ export async function startAliExpressKeywordScrape(
     maxRequestRetries: 2,
   };
 
-  return startApifyActor('apify~playwright-scraper', input, 120);
+  return startApifyActor(ALIEXPRESS_FALLBACK_ACTOR, playwrightInput, 120);
 }
 
-/** Map raw playwright-scraped item to ApifyProduct */
+/** Map pintostudio item to ApifyProduct */
 export function mapToApifyProduct(item: Record<string, unknown>, category: string): ApifyProduct | null {
-  const title = String(item.title || item.name || '');
-  const priceUsd = parseFloat(String(item.price || '0').replace(/[^0-9.]/g, ''));
+  const title = String(item.title || item.name || item.productTitle || '');
+  // pintostudio returns price, priceMin, salePrice
+  const priceUsd = parseFloat(String(item.price || item.priceMin || item.salePrice || '0').replace(/[^0-9.]/g, ''));
   if (!title || priceUsd <= 0) return null;
 
+  // Orders: pintostudio returns sold, orders, totalSold, monthlySales — some have 'k' suffix
+  const ordersRaw = String(item.sold || item.orders || item.totalSold || item.monthlySales || '0');
+  let orders = parseInt(ordersRaw.replace(/[^0-9]/g, ''), 10) || 0;
+  if (ordersRaw.toLowerCase().includes('k')) orders = Math.round(parseFloat(ordersRaw) * 1000);
+
   return {
-    productId: String(item.productId || item.id || `${Date.now()}-${Math.floor(Math.random() * 1000)}`),
+    productId: String(item.id || item.productId || item.itemId || `ae-${Date.now()}`).slice(0, 50),
     title: title.slice(0, 255),
     priceUsd,
-    imageUrl: String(item.imageUrl || item.image || ''),
-    productUrl: String(item.productUrl || item.url || ''),
-    orders: parseInt(String(item.orders || item.sold || '0').replace(/[^0-9]/g, ''), 10),
-    rating: parseFloat(String(item.rating || item.starRating || '0')),
-    reviewCount: parseInt(String(item.reviewCount || item.reviews || '0'), 10),
+    imageUrl: String(item.image || item.imageUrl || item.mainImage || item.thumbnail || ''),
+    productUrl: String(item.url || item.link || item.productUrl || ''),
+    orders,
+    rating: parseFloat(String(item.rating || item.starRating || item.score || '0')) || 0,
+    reviewCount: parseInt(String(item.reviews || item.reviewCount || item.commentCount || '0'), 10) || 0,
     category,
-    supplier: String(item.storeName || item.seller || 'AliExpress'),
+    supplier: String(item.storeName || item.seller || item.shopName || 'AliExpress'),
     source: 'aliexpress',
   };
 }

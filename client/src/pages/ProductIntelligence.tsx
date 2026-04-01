@@ -4,7 +4,6 @@ import { Helmet } from 'react-helmet-async';
 import { supabase } from '@/lib/supabase';
 
 const FullDatabase = lazy(() => import('./intelligence/FullDatabase'));
-const ProductDiscovery = lazy(() => import('./ProductDiscovery'));
 
 type TabKey = 'trending' | 'database' | 'scout';
 
@@ -134,9 +133,11 @@ export default function ProductIntelligence() {
           </Suspense>
         )}
         {tab === 'scout' && (
-          <Suspense fallback={<div style={{ textAlign: 'center', padding: 60, color: C.muted }}>Loading...</div>}>
-            <ProductDiscovery />
-          </Suspense>
+          <div style={{ textAlign: 'center', padding: '80px 40px', color: '#6B7280' }}>
+            <div style={{ fontSize: 40, marginBottom: 16 }}>🔍</div>
+            <div style={{ fontSize: 18, fontWeight: 600, color: '#E5E7EB', marginBottom: 8 }}>AI Scout</div>
+            <div style={{ fontSize: 14 }}>Product discovery AI is coming soon. Use the Database tab to browse all products.</div>
+          </div>
         )}
       </div>
     </div>

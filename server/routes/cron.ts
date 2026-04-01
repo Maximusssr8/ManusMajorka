@@ -18,6 +18,9 @@ import { collectCJProducts } from '../scrapers/cj-products';
 import { fetchGoogleTrends, saveTrends } from '../scrapers/google-trends';
 import { launchAEDetailScrape } from '../scrapers/aliexpress-product-detail';
 import { collectCJRealProducts } from '../scrapers/cj-real-products';
+import { runTrendFirstPipeline } from '../pipeline/trendFirst';
+import { scrapeCJTopSellers } from '../scrapers/cj-top-sellers';
+import { launchAEBestsellerScrapes } from '../scrapers/ae-bestseller-urls';
 
 const router = Router();
 
@@ -27,16 +30,23 @@ function getSupabaseAdminLegacy() {
   return createClient(url, key);
 }
 
+let lastCronRunTime: string | null = null;
+export function getLastCronRunTime() { return lastCronRunTime; }
+
 function verifyCronSecret(req: Request): boolean {
   const auth = req.headers.authorization || '';
   const secret = process.env.CRON_SECRET || '';
+  let ok = false;
   if (!secret) {
     const userAgent = req.headers['user-agent'] || '';
     const isVercelCron = userAgent.includes('vercel-cron') || req.headers['x-vercel-cron'] === '1';
     const isLocal = (req.headers.host || '').includes('localhost');
-    return isVercelCron || isLocal;
+    ok = isVercelCron || isLocal;
+  } else {
+    ok = auth === `Bearer ${secret}`;
   }
-  return auth === `Bearer ${secret}`;
+  if (ok) lastCronRunTime = new Date().toISOString();
+  return ok;
 }
 
 // Pipeline log helper
@@ -726,4 +736,65 @@ router.get('/purge-dead-products', async (req: Request, res: Response) => {
   }
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// TREND-FIRST PIPELINE (replaces keyword-based scraping)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// POST /api/cron/trend-pipeline — runs every 6h
+router.post('/trend-pipeline', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  res.json({ ok: true, started: true });
+
+  runTrendFirstPipeline('full').then(result => {
+    console.info('[cron/trend-pipeline] Complete:', result);
+  }).catch(e => {
+    console.error('[cron/trend-pipeline] Error:', e instanceof Error ? e.message : e);
+  });
+});
+
+// Also support GET for Vercel cron (Vercel crons send GET requests)
+router.get('/trend-pipeline', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  res.json({ ok: true, started: true });
+
+  runTrendFirstPipeline('full').then(result => {
+    console.info('[cron/trend-pipeline] Complete:', result);
+  }).catch(e => {
+    console.error('[cron/trend-pipeline] Error:', e instanceof Error ? e.message : e);
+  });
+});
+
+// POST /api/cron/cj-refresh — CJ-only refresh (every 12h)
+router.post('/cj-refresh', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  res.json({ ok: true });
+  scrapeCJTopSellers(5).catch(e => {
+    console.error('[cron/cj-refresh] Error:', e instanceof Error ? e.message : e);
+  });
+});
+
+router.get('/cj-refresh', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  res.json({ ok: true });
+  scrapeCJTopSellers(5).catch(e => {
+    console.error('[cron/cj-refresh] Error:', e instanceof Error ? e.message : e);
+  });
+});
+
 export default router;
+
+// POST /api/cron/ae-bestsellers — AE URL scrape every 6h (primary pipeline)
+// No keywords — AliExpress curated bestseller pages only
+router.post('/ae-bestsellers', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  res.json({ ok: true, started: true, message: 'AE bestseller scrape started' });
+  launchAEBestsellerScrapes().then(ids => {
+    console.info(`[cron/ae-bestsellers] ${ids.length} runs started`);
+  }).catch(e => console.error('[cron/ae-bestsellers] Error:', e instanceof Error ? e.message : e));
+});
+
+router.get('/ae-bestsellers', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  res.json({ ok: true, started: true });
+  launchAEBestsellerScrapes().catch(e => console.error('[cron/ae-bestsellers]', e instanceof Error ? e.message : e));
+});

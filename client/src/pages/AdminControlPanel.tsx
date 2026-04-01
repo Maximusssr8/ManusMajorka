@@ -542,20 +542,16 @@ export default function AdminControlPanel() {
   useEffect(() => {
     if (!isAuthenticated) { setAuthorized(false); return; }
     const email = session?.user?.email;
-    setAuthorized(email === ADMIN_EMAIL);
-  }, [isAuthenticated, session]);
+    const isAdmin = email === ADMIN_EMAIL;
+    setAuthorized(isAdmin);
+    if (!isAdmin && email) {
+      setLocation('/app/dashboard');
+    }
+  }, [isAuthenticated, session, setLocation]);
 
-  if (authorized === null) return (
+  if (authorized === null || !authorized) return (
     <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ color: C.muted }}>Checking access...</div>
-    </div>
-  );
-
-  if (!authorized) return (
-    <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
-      <div style={{ fontSize: 32 }}>Access Denied</div>
-      <div style={{ color: C.text, fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 700, fontSize: 18 }}>Admin access required</div>
-      <button onClick={() => setLocation('/app')} style={{ padding: '8px 20px', background: C.gold, border: 'none', borderRadius: 8, color: '#FAFAFA', fontWeight: 700, cursor: 'pointer' }}>Back to Dashboard</button>
+      <div style={{ color: C.muted }}>{authorized === null ? 'Checking access...' : 'Redirecting...'}</div>
     </div>
   );
 

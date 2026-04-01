@@ -206,6 +206,12 @@ export default function MarketDashboard() {
   const [refreshingProducts, setRefreshingProducts] = useState(false);
   const [refreshError, setRefreshError] = useState('');
 
+  // Safety timeout: if still loading after 8s, force-stop
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 8000);
+    return () => clearTimeout(t);
+  }, []);
+
   useEffect(() => { document.title = 'Market Intelligence | Majorka'; }, []);
 
   // Check subscription plan
@@ -488,8 +494,8 @@ export default function MarketDashboard() {
               ) : categories.length === 0 ? (
                 <div style={{ textAlign: 'center' as const, padding: '32px 16px' }}>
                   <div style={{ fontSize: 32, marginBottom: 8 }}>📊</div>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A', marginBottom: 4 }}>Category data loading</div>
-                  <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>Category rankings update nightly from TikTok Shop signals</div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: '#0A0A0A', marginBottom: 4 }}>No category data yet</div>
+                  <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>Category rankings update nightly. Check back tomorrow.</div>
                 </div>
               ) : (
                 categories.map((cat) => (
@@ -530,7 +536,7 @@ export default function MarketDashboard() {
             </div>
             {loading ? (
               <div className="rounded-xl p-4 text-sm" style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)', color: '#475569' }}>Loading…</div>
-            ) : topCreator ? (
+            ) : topCreator && (topCreator.username || topCreator.display_name) ? (
               <div
                 className="rounded-xl p-5"
                 style={{ background: '#FAFAFA', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04)' }}

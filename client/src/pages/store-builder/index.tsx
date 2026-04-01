@@ -377,11 +377,11 @@ export default function StoreBuilder() {
     const supabaseUrl = (import.meta as unknown as Record<string, Record<string, string>>).env?.VITE_SUPABASE_URL;
     const supabaseKey = (import.meta as unknown as Record<string, Record<string, string>>).env?.VITE_SUPABASE_ANON_KEY;
     if (supabaseUrl && supabaseKey) {
-      fetch(`${supabaseUrl}/rest/v1/generated_stores?select=id,store_name,subdomain,created_at,published&order=created_at.desc&limit=10`, {
+      fetch(`${supabaseUrl}/rest/v1/generated_stores?select=id,store_name,subdomain,created_at,published&order=created_at.desc&limit=10&subdomain=not.ilike.*test*&subdomain=not.ilike.*qa*`, {
         headers: { apikey: supabaseKey, Authorization: `Bearer ${authToken}` },
       })
         .then(r => r.json())
-        .then(data => { if (Array.isArray(data)) setExistingStores(data); })
+        .then(data => { if (Array.isArray(data)) setExistingStores(data.filter((s: any) => s.store_name && !s.store_name.toLowerCase().includes('test'))); })
         .catch(() => {});
     }
   }, [authToken]);

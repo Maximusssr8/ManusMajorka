@@ -134,6 +134,7 @@ export default function Account() {
 
   const isActive = subscription?.status === 'active';
   const periodEnd = subscription?.periodEnd ? new Date(subscription.periodEnd) : null;
+  const isTestDate = periodEnd && periodEnd.getFullYear() >= 2099;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -281,7 +282,7 @@ export default function Account() {
                       {new Date(subscription.periodStart).toLocaleDateString()}
                     </p>
                   </div>
-                  {periodEnd && (
+                  {periodEnd && !isTestDate && (
                     <div>
                       <p
                         className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-semibold"
@@ -290,6 +291,17 @@ export default function Account() {
                         {subscription.status === 'cancelled' ? 'Access until' : 'Renews'}
                       </p>
                       <p className="text-sm">{periodEnd.toLocaleDateString()}</p>
+                    </div>
+                  )}
+                  {periodEnd && isTestDate && (
+                    <div>
+                      <p
+                        className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-semibold"
+                        style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
+                      >
+                        Renews
+                      </p>
+                      <p className="text-sm text-muted-foreground">Manual override — contact support</p>
                     </div>
                   )}
                 </div>
@@ -319,7 +331,7 @@ export default function Account() {
                   >
                     <XCircle className="w-4 h-4 flex-shrink-0" />
                     Your subscription is cancelled. Access ends{' '}
-                    {periodEnd?.toLocaleDateString() ?? 'soon'}.
+                    {periodEnd && !isTestDate ? periodEnd.toLocaleDateString() : 'soon'}.
                   </div>
                 )}
               </>
