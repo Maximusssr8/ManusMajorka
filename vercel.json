@@ -125,12 +125,16 @@
       "schedule": "0 18 * * 0"
     },
     {
-      "path": "/api/cron/trend-pipeline",
+      "path": "/api/cron/ae-bestsellers",
       "schedule": "0 */6 * * *"
     },
     {
-      "path": "/api/cron/cj-refresh",
+      "path": "/api/cron/trend-pipeline",
       "schedule": "0 */12 * * *"
+    },
+    {
+      "path": "/api/cron/cj-refresh",
+      "schedule": "0 2 * * *"
     }
   ]
 }

@@ -20,6 +20,7 @@ import { launchAEDetailScrape } from '../scrapers/aliexpress-product-detail';
 import { collectCJRealProducts } from '../scrapers/cj-real-products';
 import { runTrendFirstPipeline } from '../pipeline/trendFirst';
 import { scrapeCJTopSellers } from '../scrapers/cj-top-sellers';
+import { launchAEBestsellerScrapes } from '../scrapers/ae-bestseller-urls';
 
 const router = Router();
 
@@ -781,3 +782,19 @@ router.get('/cj-refresh', async (req: Request, res: Response) => {
 });
 
 export default router;
+
+// POST /api/cron/ae-bestsellers — AE URL scrape every 6h (primary pipeline)
+// No keywords — AliExpress curated bestseller pages only
+router.post('/ae-bestsellers', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  res.json({ ok: true, started: true, message: 'AE bestseller scrape started' });
+  launchAEBestsellerScrapes().then(ids => {
+    console.info(`[cron/ae-bestsellers] ${ids.length} runs started`);
+  }).catch(e => console.error('[cron/ae-bestsellers] Error:', e instanceof Error ? e.message : e));
+});
+
+router.get('/ae-bestsellers', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
+  res.json({ ok: true, started: true });
+  launchAEBestsellerScrapes().catch(e => console.error('[cron/ae-bestsellers]', e instanceof Error ? e.message : e));
+});
