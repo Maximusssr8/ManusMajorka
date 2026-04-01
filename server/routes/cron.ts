@@ -783,11 +783,14 @@ router.get('/cj-refresh', async (req: Request, res: Response) => {
 
 export default router;
 
-// POST /api/cron/ae-bestsellers — AE URL scrape every 6h (primary pipeline)
-// No keywords — AliExpress curated bestseller pages only
+// POST /api/cron/ae-bestsellers — runs every 6h via Vercel cron (0 */6 * * *)
+// 25 broad category queries sorted by ORDERS — AliExpress picks the bestsellers.
+// Fire-and-forget: starts up to 2 concurrent pintostudio runs, returns immediately.
+// Harvest cron (/api/cron/harvest-apify) collects completed datasets.
+// New products inserted with is_active=true; deduped by aliexpress_id.
 router.post('/ae-bestsellers', async (req: Request, res: Response) => {
   if (!verifyCronSecret(req)) return res.status(401).json({ error: 'Unauthorized' });
-  res.json({ ok: true, started: true, message: 'AE bestseller scrape started' });
+  res.json({ ok: true, started: true, message: 'AE bestseller scrape started — 25 broad queries sortBy ORDERS' });
   launchAEBestsellerScrapes().then(ids => {
     console.info(`[cron/ae-bestsellers] ${ids.length} runs started`);
   }).catch(e => console.error('[cron/ae-bestsellers] Error:', e instanceof Error ? e.message : e));
