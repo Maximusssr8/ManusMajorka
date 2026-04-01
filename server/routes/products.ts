@@ -72,6 +72,7 @@ async function dbSearch(supabase: ReturnType<typeof createClient>, query: string
     const { data, error } = await supabase
       .from('winning_products')
       .select('id, product_title, category, search_keyword, image_url, price_aud, winning_score, orders_count, aliexpress_url, rating')
+      .eq('is_active', true)
       .eq('category', aliasCategory)
       .order('winning_score', { ascending: false })
       .limit(20);
@@ -104,6 +105,7 @@ async function dbSearch(supabase: ReturnType<typeof createClient>, query: string
   const { data, error } = await supabase
     .from('winning_products')
     .select('id, product_title, category, search_keyword, image_url, price_aud, winning_score, orders_count, aliexpress_url, rating')
+    .eq('is_active', true)
     .or(keywords.map(k =>
       `product_title.ilike.%${k}%,category.ilike.%${k}%,search_keyword.ilike.%${k}%,why_trending.ilike.%${k}%,best_ad_angle.ilike.%${k}%,target_audience.ilike.%${k}%`
     ).join(','))
@@ -215,6 +217,7 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
     let query = supabase
       .from('winning_products')
       .select('*')
+      .eq('is_active', true)
       .order(sortCol, { ascending: sortDir })
       .limit(limit);
 
