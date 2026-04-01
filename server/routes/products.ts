@@ -46,16 +46,67 @@ async function pexelsSearch(query: string, count = 12): Promise<string[]> {
   }
 }
 
+// Category keyword aliases — maps common search terms to canonical category names
+const CATEGORY_ALIASES: Record<string, string> = {
+  'kitchen': 'Kitchen', 'kitchen gadgets': 'Kitchen',
+  'pet': 'Pet', 'pet accessories': 'Pet', 'dog': 'Pet', 'cat': 'Pet',
+  'fitness': 'Fitness', 'fitness equipment': 'Fitness', 'gym': 'Fitness',
+  'home decor': 'Home', 'home': 'Home', 'cleaning': 'Home',
+  'tech': 'Electronics', 'electronics': 'Electronics',
+  'beauty': 'Beauty', 'skincare': 'Beauty', 'glow': 'Beauty',
+  'health': 'Health', 'sleep': 'Health', 'wellness': 'Health',
+  'outdoor': 'Outdoor', 'camping': 'Outdoor',
+  'office': 'Office', 'desk': 'Office',
+  'automotive': 'Automotive', 'car': 'Automotive',
+  'kids': 'Kids', 'baby': 'Kids',
+  'fashion': 'Fashion', 'clothing': 'Fashion',
+};
+
 // Supabase DB search — fast, free, returns products we actually have
 async function dbSearch(supabase: ReturnType<typeof createClient>, query: string): Promise<ProductResult[]> {
-  const keywords = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+  const searchLower = query.toLowerCase().trim();
+  const aliasCategory = CATEGORY_ALIASES[searchLower];
+
+  // If the query maps to an exact category alias, filter by category
+  if (aliasCategory) {
+    const { data, error } = await supabase
+      .from('winning_products')
+      .select('id, product_title, category, search_keyword, image_url, price_aud, winning_score, orders_count, aliexpress_url, rating')
+      .eq('category', aliasCategory)
+      .order('winning_score', { ascending: false })
+      .limit(20);
+
+    if (!error && data?.length) {
+      return data.map((row: any) => {
+        const price = row.price_aud ?? 0;
+        const sold = row.orders_count ?? 0;
+        return {
+          id: String(row.id),
+          title: row.product_title,
+          image: row.image_url || '',
+          price_aud: price,
+          sold_count: sold >= 1000 ? `${(sold / 1000).toFixed(1)}k sold/mo` : sold > 0 ? `${sold} sold/mo` : '',
+          rating: row.rating || 4.5,
+          source: 'majorka_db',
+          product_url: row.aliexpress_url || `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(row.product_title)}`,
+          platform_badge: '📊 Majorka DB',
+          niche: row.category || row.search_keyword,
+          trend_score: row.winning_score,
+        };
+      });
+    }
+  }
+
+  const keywords = searchLower.split(/\s+/).filter(w => w.length > 2);
   if (!keywords.length) return [];
 
-  // Use ilike on product_title + category + search_keyword
+  // Multi-field search: product_title, category, search_keyword, why_trending, best_ad_angle, target_audience
   const { data, error } = await supabase
     .from('winning_products')
     .select('id, product_title, category, search_keyword, image_url, price_aud, winning_score, orders_count, aliexpress_url, rating')
-    .or(keywords.map(k => `product_title.ilike.%${k}%,category.ilike.%${k}%,search_keyword.ilike.%${k}%`).join(','))
+    .or(keywords.map(k =>
+      `product_title.ilike.%${k}%,category.ilike.%${k}%,search_keyword.ilike.%${k}%,why_trending.ilike.%${k}%,best_ad_angle.ilike.%${k}%,target_audience.ilike.%${k}%`
+    ).join(','))
     .order('winning_score', { ascending: false })
     .limit(20);
 

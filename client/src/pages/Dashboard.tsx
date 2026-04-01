@@ -827,6 +827,100 @@ function DailyBrief() {
   );
 }
 
+const GETTING_STARTED_STEPS = [
+  { id: 'profile',   label: 'Set your niche',          path: '/app/settings',             desc: 'Settings → Profile' },
+  { id: 'products',  label: 'Find a winning product',   path: '/app/product-intelligence', desc: 'Products → Trending' },
+  { id: 'profit',    label: 'Run a profit calculation',  path: '/app/profit-calc',          desc: 'Profit Calculator' },
+  { id: 'ads',       label: 'Generate ad creative',     path: '/app/ads-studio',           desc: 'Ads Studio' },
+  { id: 'store',     label: 'Build or connect a store',  path: '/app/store-builder',        desc: 'Store Builder' },
+];
+
+function GettingStartedChecklist({ userId, userCreatedAt, setLocation }: { userId?: string; userCreatedAt?: string; setLocation: (p: string) => void }) {
+  const [completedSteps, setCompletedSteps] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem(`majorka_onboarding_${userId}`);
+      return stored ? new Set(JSON.parse(stored)) : new Set<string>();
+    } catch { return new Set<string>(); }
+  });
+  const [checklistOpen, setChecklistOpen] = useState(true);
+  const [checklistDismissed, setChecklistDismissed] = useState(() =>
+    localStorage.getItem(`majorka_onboarding_done_${userId}`) === '1'
+  );
+
+  const isNewUser = userCreatedAt
+    ? (Date.now() - new Date(userCreatedAt).getTime()) < 14 * 24 * 60 * 60 * 1000
+    : true;
+  const showChecklist = !checklistDismissed && (isNewUser || completedSteps.size < GETTING_STARTED_STEPS.length);
+
+  const markStep = (stepId: string) => {
+    const next = new Set(completedSteps);
+    next.add(stepId);
+    setCompletedSteps(next);
+    localStorage.setItem(`majorka_onboarding_${userId}`, JSON.stringify([...next]));
+    if (next.size === GETTING_STARTED_STEPS.length) {
+      setTimeout(() => {
+        setChecklistDismissed(true);
+        localStorage.setItem(`majorka_onboarding_done_${userId}`, '1');
+      }, 2000);
+    }
+  };
+
+  if (!showChecklist) return null;
+
+  return (
+    <div style={{
+      background: '#0E1420', border: '1px solid rgba(99,102,241,0.2)',
+      borderRadius: 12, marginBottom: 24, overflow: 'hidden',
+    }}>
+      <div
+        onClick={() => setChecklistOpen(!checklistOpen)}
+        style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 16 }}>🚀</span>
+          <span style={{ fontWeight: 600, fontSize: 15, color: '#E5E7EB' }}>Getting Started</span>
+          <span style={{ fontSize: 12, color: '#6366F1', background: 'rgba(99,102,241,0.15)', borderRadius: 20, padding: '2px 10px' }}>
+            {completedSteps.size}/{GETTING_STARTED_STEPS.length} complete
+          </span>
+        </div>
+        <span style={{ color: '#9CA3AF', fontSize: 18 }}>{checklistOpen ? '▾' : '▸'}</span>
+      </div>
+      {checklistOpen && (
+        <div style={{ padding: '0 20px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {GETTING_STARTED_STEPS.map(step => (
+            <div
+              key={step.id}
+              onClick={() => { markStep(step.id); setLocation(step.path); }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 12,
+                padding: '10px 12px', borderRadius: 8,
+                background: completedSteps.has(step.id) ? 'rgba(34,197,94,0.08)' : 'rgba(255,255,255,0.03)',
+                cursor: 'pointer', transition: 'background 0.2s',
+              }}
+            >
+              <div style={{
+                width: 20, height: 20, borderRadius: '50%',
+                border: completedSteps.has(step.id) ? '2px solid #22C55E' : '2px solid #374151',
+                background: completedSteps.has(step.id) ? '#22C55E' : 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                {completedSteps.has(step.id) && <span style={{ color: 'white', fontSize: 11, fontWeight: 700 }}>✓</span>}
+              </div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: completedSteps.has(step.id) ? '#6B7280' : '#E5E7EB', textDecoration: completedSteps.has(step.id) ? 'line-through' : 'none' }}>
+                  {step.label}
+                </div>
+                <div style={{ fontSize: 11, color: '#6B7280' }}>{step.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function DashboardHome() {
   const { user, isPro, subPlan, subStatus } = useAuth();
   const [, setLocation] = useLocation();
@@ -935,6 +1029,9 @@ function DashboardHome() {
       {/* ── Widget grid ──────────────────────────────────────────── */}
       <div style={{ padding: 'clamp(16px, 3vw, 32px)', maxWidth: 1400, margin: '0 auto' }}>
         <DailyBrief />
+
+        {/* Getting Started checklist */}
+        <GettingStartedChecklist userId={user?.id} userCreatedAt={(user as any)?.created_at} setLocation={setLocation} />
 
         {/* Row 1: 4 stat cards */}
         <div className="stats-grid-responsive" style={{ gap: 16, marginBottom: 20 }}>

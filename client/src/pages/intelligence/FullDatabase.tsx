@@ -12,6 +12,7 @@ import { useRegion } from '@/context/RegionContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation } from 'wouter';
 import { Lock, Copy, Megaphone } from 'lucide-react';
+import { MetricTooltip } from '@/components/ui/MetricTooltip';
 import UpgradeModal from '@/components/UpgradeModal';
 import UsageMeter from '@/components/UsageMeter';
 import { PLAN_LIMITS } from '@shared/plans';
@@ -451,13 +452,16 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
   // Client-side filter
   const filtered = products.filter(p => {
-    // Search filter — match against title, niche, category, keyword
+    // Search filter — match against title, niche, category, keyword, why_trending, best_ad_angle, target_audience
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       const name = (p.product_title || (p as any).name || '').toLowerCase();
       const cat = (p.category || p.niche || p.search_keyword || '').toLowerCase();
       const tags = ((p.tags || []) as string[]).join(' ').toLowerCase();
-      if (!name.includes(q) && !cat.includes(q) && !tags.includes(q)) return false;
+      const whyTrending = ((p as any).why_trending || '').toLowerCase();
+      const adAngle = ((p as any).best_ad_angle || '').toLowerCase();
+      const audience = ((p as any).target_audience || '').toLowerCase();
+      if (!name.includes(q) && !cat.includes(q) && !tags.includes(q) && !whyTrending.includes(q) && !adAngle.includes(q) && !audience.includes(q)) return false;
     }
 
     // Niche dropdown filter
@@ -799,9 +803,24 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 </div>
               ))
             ) : displayProducts.length === 0 ? (
-              <div style={{ textAlign: 'center' as const, padding: '40px 20px', color: '#9CA3AF', fontSize: 14 }}>
-                No products found. Try a different search or filter.
-              </div>
+              search ? (
+                <div style={{ textAlign: 'center', padding: '60px 20px', color: '#6B7280' }}>
+                  <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: '#E5E7EB', marginBottom: 8 }}>
+                    No results for &ldquo;{search}&rdquo;
+                  </div>
+                  <div style={{ fontSize: 13, marginBottom: 20, lineHeight: 1.6 }}>
+                    Try searching: <span style={{ color: '#6366F1' }}>dog harness</span> · <span style={{ color: '#6366F1' }}>gua sha</span> · <span style={{ color: '#6366F1' }}>fridge organiser</span> · <span style={{ color: '#6366F1' }}>resistance bands</span> · <span style={{ color: '#6366F1' }}>cold brew</span>
+                  </div>
+                  <div style={{ fontSize: 13, color: '#9CA3AF' }}>
+                    Or browse by category using the tabs above ↑
+                  </div>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center' as const, padding: '40px 20px', color: '#9CA3AF', fontSize: 14 }}>
+                  No products found. Try a different search or filter.
+                </div>
+              )
             ) : (
               displayProducts.slice(0, mobileDisplayCount).map((product, idx) => {
                 const isBlurred = !canSeeFinancials && !isAdmin && idx >= 10;
@@ -1001,10 +1020,13 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 <th style={thStyle('name', isMobile ? 170 : 210)} onClick={() => handleSort('name')} aria-sort={sortBy === 'name' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
                   Product <SortIcon col="name" />
                 </th>
-                <th style={thStyle('orders_count', isMobile ? 90 : 110, 'right')} onClick={() => handleSort('orders_count')} aria-sort={sortBy === 'orders_count' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'} title="Source orders — real scraped data when available">
-                  Orders <SortIcon col="orders_count" />
+                <th style={thStyle('orders_count', isMobile ? 90 : 110, 'right')} onClick={() => handleSort('orders_count')} aria-sort={sortBy === 'orders_count' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+                  <MetricTooltip label="Orders" tip="Cross-platform demand score. Considers orders, TikTok views, and margin potential." />
+                  <SortIcon col="orders_count" />
                 </th>
-                <th style={{ ...thStyle('trend', isMobile ? 100 : 130, 'center'), cursor: 'default' }}>Trend</th>
+                <th style={{ ...thStyle('trend', isMobile ? 100 : 130, 'center'), cursor: 'default' }}>
+                  <MetricTooltip label="Trend" tip="How fast this product is gaining popularity. Exploding = act fast, Rising = good opportunity, Steady = stable seller." />
+                </th>
                 <th style={{ ...thStyle('source', isMobile ? 70 : 80, 'center'), cursor: 'default' }} title="Data source and link verification status">
                   Source
                 </th>
@@ -1014,8 +1036,9 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 <th style={thStyle('estimated_margin_pct', isMobile ? 68 : 78, 'right')} onClick={() => handleSort('estimated_margin_pct')} aria-sort={sortBy === 'estimated_margin_pct' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
                   Margin <SortIcon col="estimated_margin_pct" />
                 </th>
-                <th style={thStyle('winning_score', isMobile ? 80 : 96, 'center')} onClick={() => handleSort('winning_score')} aria-sort={sortBy === 'winning_score' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'} title="Score based on: demand signals, margin potential, competition level, trend velocity">
-                  Score <SortIcon col="winning_score" />
+                <th style={thStyle('winning_score', isMobile ? 80 : 96, 'center')} onClick={() => handleSort('winning_score')} aria-sort={sortBy === 'winning_score' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+                  <MetricTooltip label="Score" tip="A 0–100 score based on demand signals, margin potential, and market fit. 80+ = strong opportunity." />
+                  <SortIcon col="winning_score" />
                 </th>
                 <th style={{ ...thStyle('creators', isMobile ? 60 : 70, 'center'), cursor: 'default' }}>
                   {isMobile ? '👤' : 'Creators'}
@@ -1040,9 +1063,26 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               ) : filteredProducts.length === 0 ? (
                 <tr>
                   <td colSpan={10} style={{ padding: '60px 24px', textAlign: 'center' as const }}>
-                    <div style={{ fontSize: 40, marginBottom: 12 }}>{'\uD83D\uDD0D'}</div>
-                    <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#0A0A0A', marginBottom: 6 }}>No products found</div>
-                    <div style={{ fontSize: 14, color: '#6B7280', marginBottom: 16 }}>Try clearing filters or searching a different keyword</div>
+                    {search ? (
+                      <>
+                        <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
+                        <div style={{ fontSize: 16, fontWeight: 600, color: '#E5E7EB', marginBottom: 8 }}>
+                          No results for &ldquo;{search}&rdquo;
+                        </div>
+                        <div style={{ fontSize: 13, marginBottom: 20, lineHeight: 1.6, color: '#6B7280' }}>
+                          Try searching: <span style={{ color: '#6366F1' }}>dog harness</span> · <span style={{ color: '#6366F1' }}>gua sha</span> · <span style={{ color: '#6366F1' }}>fridge organiser</span> · <span style={{ color: '#6366F1' }}>resistance bands</span> · <span style={{ color: '#6366F1' }}>cold brew</span>
+                        </div>
+                        <div style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 16 }}>
+                          Or browse by category using the tabs above ↑
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div style={{ fontSize: 40, marginBottom: 12 }}>{'\uD83D\uDD0D'}</div>
+                        <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 18, color: '#0A0A0A', marginBottom: 6 }}>No products found</div>
+                        <div style={{ fontSize: 14, color: '#6B7280', marginBottom: 16 }}>Try clearing filters or searching a different keyword</div>
+                      </>
+                    )}
                     <button onClick={() => { setSearchInput(''); setOpportunityFilter('All'); setNiche('All Niches'); setVerifiedOnly(false); }}
                       style={{ height: 38, padding: '0 20px', background: '#6366F1', color: 'white', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
                       Clear All Filters

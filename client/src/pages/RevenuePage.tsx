@@ -132,6 +132,9 @@ export default function RevenuePage() {
   const [range, setRange] = useState<Range>('30D');
   const [toast, setToast] = useState('');
   const [ready, setReady] = useState(false);
+  const [demoBannerDismissed, setDemoBannerDismissed] = useState(() =>
+    localStorage.getItem('revenue_demo_dismissed') === '1'
+  );
   const ref = useRef<number | null>(null);
 
   const email = session?.user?.email || user?.email || '';
@@ -203,10 +206,20 @@ export default function RevenuePage() {
         </div>
       )}
 
-      {/* Demo banner — only for non-marketing */}
-      {!isMarketing && (
-        <div style={{ background: 'rgba(245,158,11,.07)', borderBottom: '1px solid rgba(245,158,11,.12)', padding: '10px 20px', textAlign: 'center' as const, fontSize: 12, color: '#F59E0B', fontWeight: 500 }}>
-          📊 Connect your Shopify store to start tracking real earnings
+      {/* Demo banner — dismissible sample data notice */}
+      {!isMarketing && !demoBannerDismissed && (
+        <div style={{
+          background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)',
+          borderRadius: 10, padding: '12px 16px', margin: '12px 20px 0',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+        }}>
+          <span style={{ fontSize: 14, color: '#E5E7EB' }}>
+            📊 <strong>Sample data</strong> — Connect your Shopify store to see your real revenue
+          </span>
+          <button
+            onClick={() => { setDemoBannerDismissed(true); localStorage.setItem('revenue_demo_dismissed', '1'); }}
+            style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontSize: 18, lineHeight: 1 }}
+          >×</button>
         </div>
       )}
 
