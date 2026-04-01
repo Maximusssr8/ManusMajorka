@@ -42,6 +42,7 @@ import productsRouter from "../server/routes/products";
 import aliexpressRouter from "../server/routes/aliexpress";
 import userRouter from "../server/routes/user";
 import apifyRouter from "../server/routes/apify";
+import apifySearchRouter from "../server/routes/apify-search";
 import metaRouter from "../server/routes/meta";
 import marketplaceRouter from "../server/routes/marketplace";
 import creatorsRouter from "../server/routes/creators";
@@ -575,6 +576,7 @@ app.use('/api/cron', cronRouter);
 app.use('/api/subscription', subscriptionRouter);
 app.use('/api/admin', adminApiRouter);
 app.use('/api/shops', shopsRouter);
+app.use('/api/products', apifySearchRouter); // search with Apify fallback (before main products router)
 app.use('/api/products', productsRouter);
 app.use('/api/aliexpress', aliexpressRouter);
 app.use('/api/user', userRouter);
