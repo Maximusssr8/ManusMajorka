@@ -385,7 +385,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
       const params = new URLSearchParams();
       params.set('sortBy', presetFilter === 'trending' ? 'orders_count' : sortBy);
       params.set('sortDir', sortDir);
-      params.set('limit', '200');
+      params.set('limit', '500');
       // Trending Today: add trending=true to get only rising/tiktok products
       if (presetFilter === 'trending') params.set('trending', 'true');
       // niche filtering done client-side after fetching all products
