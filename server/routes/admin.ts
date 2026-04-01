@@ -1665,7 +1665,7 @@ router.post('/recalculate-scores', requireAuth, requireAdmin, async (_req: Reque
     const supabase = getSupabase();
     const { data: products, error: fetchErr } = await supabase
       .from('winning_products')
-      .select('id, product_title, name, real_orders_count, orders_count, real_rating, rating, suggested_sell_aud, price_aud, real_cost_aud, cost_price_aud');
+      .select('id, product_title, real_orders_count, orders_count, real_rating, rating, suggested_sell_aud, price_aud, real_cost_aud, cost_price_aud');
 
     if (fetchErr) throw new Error(fetchErr.message);
     if (!products || products.length === 0) {
