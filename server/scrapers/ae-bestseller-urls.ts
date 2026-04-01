@@ -14,14 +14,17 @@ import { calculateTrendScore } from '../lib/trendScoring';
 
 const AUD = 1.55;
 
-// AliExpress curated bestseller/trending pages — no category bias
-export const AE_BESTSELLER_URLS = [
-  { url: 'https://www.aliexpress.com/gcp/300000604/best-sellers.html',                      label: 'Best Sellers' },
-  { url: 'https://www.aliexpress.com/gcp/300000512/nnmixchannel.html',                      label: 'Hot Products' },
-  { url: 'https://www.aliexpress.com/promotion/promotion_topPicksList.html',                 label: 'Top Picks' },
-  { url: 'https://www.aliexpress.com/p/aliexpress-choice/index.html',                       label: 'AE Choice' },
-  { url: 'https://www.aliexpress.com/gcp/300000528/flash-deals.html',                       label: 'Flash Deals' },
-  { url: 'https://www.aliexpress.com/wholesale?SortType=total_tranpro_desc',                 label: 'Top Orders' },
+/**
+ * Broad single-word queries sorted by ORDERS.
+ * AliExpress blocks all direct scrapers/playwright — pintostudio works via API access.
+ * pintostudio requires a query (empty/single-char queries fail validation).
+ * Single-word category terms + sortBy ORDERS = AliExpress's own bestseller ranking per category.
+ * This IS the equivalent of browsing /category/...?SortType=total_tranpro_desc
+ */
+export const AE_BROAD_QUERIES = [
+  'home','kitchen','pet','beauty','fitness','baby','electronics',
+  'outdoor','car','office','fashion','garden','health','toy','jewelry',
+  'tool','sport','bag','watch','phone','lamp','storage','massage','yoga','camera',
 ];
 
 const BULK_KW = ['lot ', 'bulk', 'wholesale', 'pcs ', 'pack of', '100pcs', '50pcs', '20pcs'];
@@ -151,27 +154,28 @@ function mapItem(item: Record<string, unknown>): Record<string, unknown> {
 }
 
 /**
- * Launch pintostudio runs for all AE bestseller URLs.
+ * Launch pintostudio runs for all broad category queries, sorted by ORDERS.
+ * 2 concurrent runs max (4096MB each = 8192MB Apify limit).
  * Fire-and-forget — returns runIds for harvest cron.
  */
 export async function launchAEBestsellerScrapes(): Promise<string[]> {
   const runIds: string[] = [];
-  for (const entry of AE_BESTSELLER_URLS) {
+  for (const query of AE_BROAD_QUERIES) {
     const runId = await startApifyActor(ALIEXPRESS_ACTOR, {
-      query:     '',               // empty = URL browse mode
-      startUrls: [{ url: entry.url }],
-      maxItems:  200,
-      sortBy:    'ORDERS',
-      shipTo:    'AU',
+      query,
+      maxItems: 100,
+      sortBy:   'ORDERS',
+      shipTo:   'AU',
     }, 600).catch(() => null);
 
     if (runId) {
       runIds.push(runId);
-      console.info(`[ae-bestseller] Started "${entry.label}": ${runId}`);
+      console.info(`[ae-bestseller] Started query="${query}": ${runId}`);
     } else {
-      console.warn(`[ae-bestseller] Failed to start "${entry.label}"`);
+      console.warn(`[ae-bestseller] Failed to start query="${query}"`);
     }
-    await new Promise(r => setTimeout(r, 600));
+    // Stagger starts to avoid memory limit (4096MB per run, 8192MB max)
+    await new Promise(r => setTimeout(r, 800));
   }
   return runIds;
 }
