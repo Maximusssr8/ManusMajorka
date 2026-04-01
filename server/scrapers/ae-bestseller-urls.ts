@@ -147,6 +147,7 @@ function mapItem(item: Record<string, unknown>): Record<string, unknown> {
     tiktok_signal:      orders > 5000,
     score_breakdown:    breakdown,
     tags:               ['ae-bestseller', 'pintostudio'],
+    is_active:          true,
     scraped_at:         new Date().toISOString(),
     created_at:         new Date().toISOString(),
     updated_at:         new Date().toISOString(),
