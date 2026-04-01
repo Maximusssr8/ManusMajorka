@@ -721,10 +721,10 @@ export default function CreatorIntelligence() {
                 const stats = [
                   { label: 'Followers', value: selected.est_followers },
                   { label: 'Region', value: `${REGION_FLAGS[selected.region_code] || ''} ${selected.region_code}` },
-                  { label: 'Est. Engagement', value: engRate, hint: 'est.' },
-                  { label: 'Est. Avg Views', value: avgViews, hint: 'est.' },
+                  { label: 'Est. Engagement', value: engRate },
+                  { label: 'Est. Avg Views', value: avgViews },
                   { label: 'Niche', value: selected.niche },
-                  { label: 'Est. Collab Cost', value: `${collabLow}–${collabHigh}`, hint: 'est.' },
+                  { label: 'Est. Collab Cost', value: `${collabLow}–${collabHigh}` },
                 ];
                 return (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
@@ -752,7 +752,7 @@ export default function CreatorIntelligence() {
               )}
               <a href={getTikTokUrl(selected)} target="_blank" rel="noopener noreferrer"
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', height: 36, marginBottom: 12, background: '#000', color: 'white', borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none', boxSizing: 'border-box' as const }}>
-                🎵 Find on TikTok
+                <svg viewBox="0 0 24 24" width={14} height={14} fill="currentColor" style={{ flexShrink: 0 }}><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.76a4.85 4.85 0 01-1.01-.07z"/></svg> Find on TikTok
               </a>
               <div style={{ marginBottom: 8 }}>
                 <input

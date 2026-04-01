@@ -27,16 +27,23 @@ function getSupabaseAdminLegacy() {
   return createClient(url, key);
 }
 
+let lastCronRunTime: string | null = null;
+export function getLastCronRunTime() { return lastCronRunTime; }
+
 function verifyCronSecret(req: Request): boolean {
   const auth = req.headers.authorization || '';
   const secret = process.env.CRON_SECRET || '';
+  let ok = false;
   if (!secret) {
     const userAgent = req.headers['user-agent'] || '';
     const isVercelCron = userAgent.includes('vercel-cron') || req.headers['x-vercel-cron'] === '1';
     const isLocal = (req.headers.host || '').includes('localhost');
-    return isVercelCron || isLocal;
+    ok = isVercelCron || isLocal;
+  } else {
+    ok = auth === `Bearer ${secret}`;
   }
-  return auth === `Bearer ${secret}`;
+  if (ok) lastCronRunTime = new Date().toISOString();
+  return ok;
 }
 
 // Pipeline log helper

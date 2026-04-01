@@ -156,12 +156,16 @@ export default function CompetitorSpy() {
     setError('');
     startProgress();
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
+
     try {
       const { data: session } = await supabase.auth.getSession();
       const token = session.session?.access_token;
 
       const res = await fetch('/api/chat', {
         method: 'POST',
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -203,6 +207,7 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
         }),
       });
 
+      clearTimeout(timeoutId);
       if (!res.ok) {
         const errBody = await res.json().catch(() => ({ error: `Server error (${res.status})` }));
         const errMsg = (errBody as { error?: string }).error ?? `Analysis failed (${res.status})`;
@@ -219,7 +224,10 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
         }
       }
     } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : 'Network error — check connection';
+      clearTimeout(timeoutId);
+      const errMsg = err instanceof Error && err.name === 'AbortError'
+        ? 'Analysis took too long. Please try again.'
+        : err instanceof Error ? err.message : 'Network error — check connection';
       setError(errMsg);
       toast.error(errMsg);
     } finally {

@@ -96,13 +96,14 @@ const NAV_SECTIONS: NavSection[] = [
       { label: 'Maya AI', path: '/app/ai-chat', icon: Sparkles, badge: 'AI', tooltip: 'Your AI ecommerce advisor — ask anything.' },
       { label: 'Store Builder', path: '/app/store-builder', icon: Store, badge: 'AI', tooltip: 'Build a Shopify-ready store in 60 seconds.' },
       { label: 'Ads Studio', path: '/app/ads-studio', icon: Megaphone, badge: 'AI', tooltip: 'Generate Meta and TikTok ad creatives with Maya.' },
-      { label: 'Ads Manager', path: '/app/ads-manager', icon: Target, badge: 'NEW', tooltip: 'Create and manage Meta ad campaigns, pixel, and CAPI.' },
+      { label: 'Ads Manager', path: '/app/ads-manager', icon: Target, badge: 'SOON', tooltip: 'Create and manage Meta ad campaigns, pixel, and CAPI.' },
       { label: 'Profit Calc', path: '/app/profit', icon: DollarSign, tooltip: 'Model unit economics, margins and break-even CPA.' },
     ],
   },
   {
     items: [
       { label: 'Revenue', path: '/app/revenue', icon: Wallet, tooltip: 'Track your store earnings and order revenue.' },
+      { label: 'Academy', path: '/app/learn', icon: BookOpen, tooltip: 'Dropshipping courses and tutorials.' },
       { label: 'Settings', path: '/app/settings', icon: Settings, tooltip: 'Account settings, plan, and billing.' },
     ],
   },
@@ -140,12 +141,21 @@ const INITIAL_NOTIFICATIONS = [
   { id: '4', text: '🎉 Welcome to Majorka! Complete your profile to unlock all features' },
 ];
 
+const VALID_NOTIF_IDS = new Set(INITIAL_NOTIFICATIONS.map(n => n.id));
+
 function NotificationBell() {
   const [open, setOpen] = useState(false);
   const [readIds, setReadIds] = useState<Set<string>>(() => {
     try {
       const stored = localStorage.getItem('majorka_notif_read');
-      return stored ? new Set(JSON.parse(stored)) : new Set<string>();
+      if (!stored) return new Set<string>();
+      const parsed: string[] = JSON.parse(stored);
+      // Only keep IDs that still exist in current notifications
+      const valid = parsed.filter(id => VALID_NOTIF_IDS.has(id));
+      if (valid.length !== parsed.length) {
+        localStorage.setItem('majorka_notif_read', JSON.stringify(valid));
+      }
+      return new Set(valid);
     } catch {
       return new Set<string>();
     }
@@ -592,6 +602,8 @@ export default function MajorkaAppShell({ children }: Props) {
                 ? { background: '#6366F1', color: 'white' }
                 : badge === 'LIVE'
                 ? { background: '#ECFDF5', color: '#059669' }
+                : badge === 'SOON'
+                ? { background: '#F3F4F6', color: '#9CA3AF' }
                 : item.path === '/app/learn' && badge !== 'HOT'
                 ? { background: 'rgba(16,185,129,0.12)', color: '#059669' }
                 : { background: '#EEF2FF', color: '#6366F1' };

@@ -400,6 +400,7 @@ function AdSpyContent() {
       }
       const parsed = data.ads ? data as AdsResult & { query?: string } : null;
       if (parsed) {
+        setGenError('');
         setResult(parsed);
         setCooldown(20);
         let remaining = 20;

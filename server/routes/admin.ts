@@ -1698,4 +1698,22 @@ router.post('/recalculate-scores', requireAuth, requireAdmin, async (_req: Reque
   }
 });
 
+// ── Cron health check ────────────────────────────────────────────────────
+router.get('/cron-health', async (_req: Request, res: Response) => {
+  try {
+    const { getLastCronRunTime } = await import('./cron');
+    const lastCronRunTime = getLastCronRunTime();
+    const now = Date.now();
+    const lastRun = lastCronRunTime ? new Date(lastCronRunTime).getTime() : 0;
+    const hoursSince = lastRun ? Math.round((now - lastRun) / 3600000 * 10) / 10 : null;
+    const healthy = hoursSince !== null && hoursSince < 24;
+    if (hoursSince !== null && hoursSince >= 24) {
+      console.error(`[cron-health] Last cron run was ${hoursSince}h ago — exceeds 24h threshold`);
+    }
+    res.json({ lastRun: lastCronRunTime, hoursSince, healthy });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

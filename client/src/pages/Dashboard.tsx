@@ -834,7 +834,11 @@ function DashboardHome() {
 
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const firstName = user?.name?.split(' ')[0] ?? 'there';
+  const firstName = user?.user_metadata?.full_name?.split(' ')[0]
+    || user?.user_metadata?.name?.split(' ')[0]
+    || (user as any)?.name?.split(' ')[0]
+    || user?.email?.split('@')[0]
+    || 'there';
   const isPaid = (subPlan === 'builder' || subPlan === 'scale') && subStatus === 'active';
   const planLabel = subPlan ? (subPlan.charAt(0).toUpperCase() + subPlan.slice(1) + ' Plan') : null;
 
