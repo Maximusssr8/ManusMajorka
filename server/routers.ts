@@ -182,7 +182,13 @@ export const appRouter = router({
   profile: router({
     get: protectedProcedure.query(async ({ ctx }) => {
       try {
-        return await getUserProfile(ctx.user.id);
+        const { createClient } = await import('@supabase/supabase-js');
+        const sb = createClient(
+          process.env.SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!
+        );
+        const { data } = await sb.from('user_profiles').select('*').eq('user_id', ctx.user.id).single();
+        return data ? { ...data, onboardingCompleted: data.onboarding_completed ?? false } : null;
       } catch {
         // user_profiles table may not exist yet — return null gracefully
         return null;
@@ -203,7 +209,22 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
-        return await upsertUserProfile(ctx.user.id, input);
+        // Use Supabase JS client (works on Vercel) — falls back to drizzle if available
+        try {
+          const { createClient } = await import('@supabase/supabase-js');
+          const sb = createClient(
+            process.env.SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+          );
+          await sb.from('user_profiles').upsert(
+            { user_id: ctx.user.id, ...input, updated_at: new Date().toISOString() },
+            { onConflict: 'user_id' }
+          );
+          return { success: true };
+        } catch {
+          // Fallback to drizzle if supabase client fails
+          return await upsertUserProfile(ctx.user.id, input);
+        }
       }),
 
     /** Get all mem0 memories for the current user (admin/debug) */

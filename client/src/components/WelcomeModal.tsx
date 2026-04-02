@@ -81,10 +81,10 @@ export default function WelcomeModal({ userName }: Props) {
       <div
         className="relative w-full max-w-lg mx-4 overflow-hidden animate-scale-in"
         style={{
-          background: 'white',
-          border: '1px solid rgba(99,102,241,0.2)',
+          background: '#0E1420',
+          border: '1px solid rgba(99,102,241,0.25)',
           borderRadius: 16,
-          boxShadow: '0 32px 80px rgba(0,0,0,0.6)',
+          boxShadow: '0 32px 80px rgba(0,0,0,0.8)',
         }}
       >
         {/* Close */}
@@ -92,9 +92,9 @@ export default function WelcomeModal({ userName }: Props) {
           onClick={dismiss}
           className="absolute top-4 right-4 w-8 h-8 rounded-lg flex items-center justify-center z-10"
           style={{
-            background: '#F9FAFB',
-            border: 'none',
-            color: '#9CA3AF',
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            color: '#71717a',
             cursor: 'pointer',
           }}
         >
@@ -109,13 +109,13 @@ export default function WelcomeModal({ userName }: Props) {
             </div>
             <h1
               className="text-xl font-bold mb-2"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#f4f4f5' }}
             >
               Welcome to Majorka
             </h1>
-            <p className="text-sm" style={{ color: 'rgba(245,245,245,0.5)', lineHeight: 1.6 }}>
-              G'day {firstName}! You've just unlocked Australia's most powerful ecommerce AI
-              toolkit.
+            <p className="text-sm" style={{ color: '#a1a1aa', lineHeight: 1.6 }}>
+              Hey {firstName}! You've just unlocked one of the most powerful ecommerce AI
+              toolkits on the market.
             </p>
           </div>
 
@@ -126,17 +126,17 @@ export default function WelcomeModal({ userName }: Props) {
                 key={stat.label}
                 className="text-center rounded-xl py-3 px-2"
                 style={{
-                  background: 'rgba(99,102,241,0.04)',
-                  border: '1px solid rgba(99,102,241,0.1)',
+                  background: 'rgba(99,102,241,0.1)',
+                  border: '1px solid rgba(99,102,241,0.2)',
                 }}
               >
                 <div
                   className="text-lg font-bold"
-                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#6366F1' }}
+                  style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#818cf8' }}
                 >
                   {stat.value}
                 </div>
-                <div className="text-xs" style={{ color: 'rgba(245,245,245,0.4)' }}>
+                <div className="text-xs" style={{ color: '#71717a' }}>
                   {stat.label}
                 </div>
               </div>
@@ -147,7 +147,7 @@ export default function WelcomeModal({ userName }: Props) {
           <div className="mb-6">
             <p
               className="text-sm font-bold mb-3"
-              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#374151' }}
+              style={{ fontFamily: "'Bricolage Grotesque', sans-serif", color: '#e4e4e7' }}
             >
               What do you want to do first?
             </p>
@@ -161,22 +161,22 @@ export default function WelcomeModal({ userName }: Props) {
                     onClick={() => setSelectedGoal(goal.id)}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all"
                     style={{
-                      background: selected ? 'rgba(99,102,241,0.08)' : '#FAFAFA',
-                      border: `1px solid ${selected ? 'rgba(99,102,241,0.3)' : '#E5E7EB'}`,
+                      background: selected ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.04)',
+                      border: `1px solid ${selected ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.08)'}`,
                       cursor: 'pointer',
                     }}
                   >
                     <div
                       className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                       style={{
-                        background: selected ? 'rgba(99,102,241,0.15)' : '#F9FAFB',
+                        background: selected ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.06)',
                       }}
                     >
-                      <Icon size={14} style={{ color: selected ? '#6366F1' : '#6B7280' }} />
+                      <Icon size={14} style={{ color: selected ? '#818cf8' : '#71717a' }} />
                     </div>
                     <span
                       className="text-sm"
-                      style={{ color: selected ? '#374151' : 'rgba(55,65,81,0.6)' }}
+                      style={{ color: selected ? '#e4e4e7' : '#a1a1aa' }}
                     >
                       {goal.label}
                     </span>
@@ -208,9 +208,9 @@ export default function WelcomeModal({ userName }: Props) {
               onClick={handleTakeTour}
               className="flex-1 py-3 rounded-xl text-sm font-bold transition-all"
               style={{
-                background: '#F9FAFB',
-                border: '1px solid #F0F0F0',
-                color: '#374151',
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#a1a1aa',
                 cursor: 'pointer',
                 fontFamily: "'Bricolage Grotesque', sans-serif",
               }}
