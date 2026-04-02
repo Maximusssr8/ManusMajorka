@@ -216,10 +216,9 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
   try {
     let query = supabase
       .from('winning_products')
-      .select('*')
+      .select('*', { count: 'exact' })
       .eq('is_active', true)
-      .order(sortCol, { ascending: sortDir })
-      .limit(limit);
+      .order(sortCol, { ascending: sortDir });
 
     if (hasVideo) {
       query = query.not('tiktok_product_url', 'is', null);
@@ -230,9 +229,25 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
       query = query.or('trend.eq.rising,tiktok_signal.eq.true');
     }
 
-    const { data, error } = await query;
+    const offset = Math.max(0, Number(req.query.offset) || 0);
+    query = query.range(offset, offset + limit - 1);
+
+    const { data, error, count } = await query;
     if (error) { res.status(500).json({ error: error.message, products: [] }); return; }
-    const result = { products: data || [], total: (data || []).length };
+
+    const computeOpportunityScore = (row: Record<string, unknown>): number => {
+      const o = Number(row.real_orders_count || 0);
+      return o >= 100000 ? 95 : o >= 50000 ? 90 : o >= 10000 ? 80 :
+             o >= 5000 ? 70 : o >= 1000 ? 60 : o >= 500 ? 50 :
+             o >= 100 ? 40 : 30;
+    };
+
+    const products = (data || []).map((row: Record<string, unknown>) => ({
+      ...row,
+      opportunity_score: computeOpportunityScore(row),
+    }));
+
+    const result = { products, total: count ?? products.length, offset, limit };
     // Cache for 5 min — products don't change that often
     await cacheSet(cacheKey, result, TTL.PRODUCTS_LIST);
     res.setHeader('X-Cache', 'MISS');
