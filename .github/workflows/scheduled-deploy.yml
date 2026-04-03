@@ -1,6 +1,8 @@
 name: Scheduled Deploy
 
 on:
+  push:
+    branches: [main]          # deploy on every push to main
   schedule:
     - cron: '0 */6 * * *'   # every 6 hours (00:00, 06:00, 12:00, 18:00 UTC)
   workflow_dispatch:          # manual trigger: GitHub → Actions → Scheduled Deploy → Run workflow
@@ -23,24 +25,11 @@ jobs:
           git config user.email "deploy@majorka.io"
           git config user.name "Majorka Deploy Bot"
 
-      - name: Check if dev has new commits
+      - name: Check if deploy needed
         id: diff
         run: |
-          git fetch origin dev main
-          if git diff --quiet origin/main..origin/dev; then
-            echo "no_changes=true" >> $GITHUB_OUTPUT
-            echo "⏭️  No new commits on dev — skipping deploy"
-          else
-            echo "no_changes=false" >> $GITHUB_OUTPUT
-            echo "✅ New commits found on dev — proceeding with merge + deploy"
-          fi
-
-      - name: Merge dev into main
-        if: steps.diff.outputs.no_changes == 'false'
-        run: |
-          git checkout main
-          git merge origin/dev --no-ff -m "chore: scheduled deploy $(date -u '+%Y-%m-%d %H:%M UTC')"
-          git push origin main
+          echo "no_changes=false" >> $GITHUB_OUTPUT
+          echo "✅ Deploying main branch to production"
 
       - name: Install Node + pnpm
         if: steps.diff.outputs.no_changes == 'false'
