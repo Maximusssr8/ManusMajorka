@@ -241,9 +241,20 @@ router.get('/trending', async (req: Request, res: Response) => {
 router.get('/hot', requireAuth, async (req: Request, res: Response) => {
   try {
     const page = Number(req.query.page) || 1;
+    const categoryId = req.query.categoryId as string | undefined;
+
+    // Try relay first (bypasses IP whitelist)
+    const relayPath = `/relay/aliexpress/hot?page=${page}${categoryId ? `&categoryId=${categoryId}` : ''}`;
+    const relayResult = await callViaRelay(relayPath).catch(() => null);
+    const relayProducts = relayResult?.products || [];
+    if (relayProducts.length > 0) {
+      return res.json({ products: relayProducts, total: relayProducts.length, source: 'aliexpress' });
+    }
+
+    // Direct AE API fallback
     const result = await getHotProducts({ pageSize: 50, pageNo: page });
     const products = result?.aliexpress_affiliate_hotproduct_query_response?.resp_result?.result?.products?.product || [];
-    res.json({ products, total: products.length });
+    res.json({ products, total: products.length, source: 'direct' });
   } catch (err: unknown) {
     res.status(500).json({ error: err instanceof Error ? err.message : String(err), products: [] });
   }
@@ -294,24 +305,37 @@ router.get('/link', requireAuth, async (req: Request, res: Response) => {
   }
 });
 
+// ── Relay helper — routes AE API calls via Mac Mini (bypasses IP whitelist) ──
+async function callViaRelay(path: string, method = 'GET', body?: object): Promise<any> {
+  const relayUrl = process.env.ALIEXPRESS_RELAY_URL;
+  const secret = process.env.RELAY_SECRET || 'majorka_relay_2026';
+  if (!relayUrl) return null;
+  const url = `${relayUrl}${path}${path.includes('?') ? '&' : '?'}secret=${secret}`;
+  const opts: RequestInit = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    signal: AbortSignal.timeout(20000),
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  return res.json();
+}
+
 // ── GET /api/aliexpress/products?keywords=...&page=...&limit=... ─────────────
-// AliExpress Affiliate API first → DB fallback (Vercel IPs restricted by AE IP whitelist)
+// Relay → AliExpress API (Mac Mini IP whitelisted) → DB fallback
 router.get('/products', requireAuth, async (req: Request, res: Response) => {
   const { keywords = '', page = '1', categoryId, limit = '50' } = req.query;
   try {
-    // Try AliExpress API first
-    const result = await searchAliAffiliateProducts(keywords as string, {
-      pageSize: Math.min(parseInt(limit as string) || 50, 50),
-      pageNo: parseInt(page as string) || 1,
-      ...(categoryId ? { categoryId: categoryId as string } : {}),
-    });
-    const aeProducts = result?.products || [];
+    // 1. Try relay (Mac Mini → AliExpress API) — bypasses Vercel IP restriction
+    const relayPath = `/relay/aliexpress/products?keywords=${encodeURIComponent(String(keywords))}&page=${page}&limit=${limit}${categoryId ? `&categoryId=${categoryId}` : ''}`;
+    const relayResult = await callViaRelay(relayPath).catch(() => null);
+    const relayProducts = relayResult?.products || [];
 
-    if (aeProducts.length > 0) {
-      return res.json({ products: aeProducts, total: aeProducts.length, keyword: keywords, source: 'aliexpress' });
+    if (relayProducts.length > 0) {
+      return res.json({ products: relayProducts, total: relayProducts.length, keyword: keywords, source: 'aliexpress' });
     }
 
-    // Fallback: search winning_products DB by title
+    // 2. DB fallback — search winning_products by title
     const supabaseAdmin = createClient(
       process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '',
       process.env.SUPABASE_SERVICE_ROLE_KEY || ''
@@ -323,7 +347,6 @@ router.get('/products', requireAuth, async (req: Request, res: Response) => {
       .eq('is_active', true)
       .order('real_orders_count', { ascending: false })
       .limit(50);
-
     if (kw) dbQuery = dbQuery.ilike('product_title', `%${kw}%`);
     const { data } = await dbQuery;
     const dbProducts = (data || []).map((p: any) => ({
@@ -337,7 +360,6 @@ router.get('/products', requireAuth, async (req: Request, res: Response) => {
       winning_score: p.winning_score,
       category: p.category,
     }));
-
     res.json({ products: dbProducts, total: dbProducts.length, keyword: keywords, source: 'db' });
   } catch (err: unknown) {
     res.status(500).json({ error: err instanceof Error ? err.message : String(err), products: [] });
