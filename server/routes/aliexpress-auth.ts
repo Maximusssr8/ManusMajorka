@@ -33,8 +33,8 @@ function getSupabaseAdmin() {
 function signParams(params: Record<string, string>, appSecret: string): string {
   const sorted = Object.keys(params).sort();
   const baseString = sorted.map(k => `${k}${params[k]}`).join('');
-  const toSign = appSecret + baseString + appSecret;
-  return crypto.createHmac('sha256', appSecret).update(toSign).digest('hex').toUpperCase();
+  // HMAC-SHA256: key=secret, msg=sortedParams only (no secret wrapping)
+  return crypto.createHmac('sha256', appSecret).update(baseString).digest('hex').toUpperCase();
 }
 
 async function exchangeCodeForToken(code: string): Promise<AliExpressToken | null> {
