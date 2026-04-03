@@ -201,7 +201,7 @@ const TAG_STYLE: Record<string, { color: string; bg: string }> = {
   'HIGH MARGIN':     { color: '#059669', bg: '#ECFDF5' },
   'AU DEMAND':       { color: '#D97706', bg: '#FEF3C7' },
   'AU BEST SELLERS': { color: '#6366F1', bg: '#EEF2FF' },
-  'TRENDING':        { color: '#6B7280', bg: '#F5F5F5' },
+  'TRENDING':        { color: '#9CA3AF', bg: 'rgba(255,255,255,0.06)' },
   'IN THE NEWS':     { color: '#D97706', bg: '#FEF3C7' },
   'TIKTOK':          { color: '#7C3AED', bg: '#F3E8FF' },
   'AE CHOICE':       { color: '#ff6a00', bg: 'rgba(255,106,0,0.12)' },
@@ -240,6 +240,20 @@ function QualityTierBadge({ tier, score }: { tier?: string; score?: number }) {
       {c.label}
     </span>
   );
+}
+
+function TrendVelocityBadge({ orders }: { orders: number }) {
+  if (orders >= 10000) return (
+    <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(239,68,68,0.15)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.3)', whiteSpace: 'nowrap' as const, letterSpacing: '0.05em' }}>
+      EXPLODING
+    </span>
+  );
+  if (orders >= 2000) return (
+    <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(99,102,241,0.15)', color: '#818CF8', border: '1px solid rgba(99,102,241,0.3)', whiteSpace: 'nowrap' as const, letterSpacing: '0.05em' }}>
+      RISING
+    </span>
+  );
+  return null;
 }
 
 function SourceBadges({ sources, isChoice }: { sources?: string[]; isChoice?: boolean }) {
@@ -387,11 +401,14 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     try {
       const params = new URLSearchParams();
       params.set('sortBy', presetFilter === 'trending' ? 'orders_count' : sortBy);
-      params.set('sortDir', sortDir);
+      params.set('sortDir', presetFilter === 'trending' ? 'desc' : sortDir);
       params.set('limit', '50');
       params.set('offset', String(newOffset));
-      // Trending Today: add trending=true to get only rising/tiktok products
-      if (presetFilter === 'trending') params.set('trending', 'true');
+      // Trending Today: only rising+ products (real orders >= 2000)
+      if (presetFilter === 'trending') {
+        params.set('trending', 'true');
+        params.set('minOrders', '2000');
+      }
       // niche filtering done client-side after fetching all products
       if (search) params.set('search', search);
 
@@ -796,12 +813,12 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             {/* Card list */}
             {(loading || isFiltering) ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} style={{ background: 'white', borderRadius: 12, border: '1px solid #F3F4F6', padding: 14, marginBottom: 10 }}>
+                <div key={i} style={{ background: '#0E1420', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', padding: 14, marginBottom: 10 }}>
                   <div style={{ display: 'flex', gap: 10 }}>
-                    <div style={{ width: 56, height: 56, borderRadius: 8, background: '#F3F4F6', flexShrink: 0, animation: 'shimmer 1.5s ease-in-out infinite' }} />
+                    <div style={{ width: 56, height: 56, borderRadius: 8, background: 'rgba(255,255,255,0.06)', flexShrink: 0, animation: 'shimmer 1.5s ease-in-out infinite' }} />
                     <div style={{ flex: 1 }}>
-                      <div style={{ height: 14, background: '#F3F4F6', borderRadius: 6, width: '80%', marginBottom: 8, animation: 'shimmer 1.5s ease-in-out infinite' }} />
-                      <div style={{ height: 11, background: '#F3F4F6', borderRadius: 6, width: '50%', animation: 'shimmer 1.5s ease-in-out infinite' }} />
+                      <div style={{ height: 14, background: 'rgba(255,255,255,0.06)', borderRadius: 6, width: '80%', marginBottom: 8, animation: 'shimmer 1.5s ease-in-out infinite' }} />
+                      <div style={{ height: 11, background: 'rgba(255,255,255,0.06)', borderRadius: 6, width: '50%', animation: 'shimmer 1.5s ease-in-out infinite' }} />
                     </div>
                   </div>
                 </div>
@@ -847,9 +864,9 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                     key={product.id || idx}
                     onClick={() => !isBlurred && setDetailProduct(product)}
                     style={{
-                      background: 'var(--card-bg, white)',
+                      background: '#0E1420',
                       borderRadius: 12,
-                      border: `1px solid ${detailProduct?.id === product.id ? '#6366F1' : 'var(--border-color, #F3F4F6)'}`,
+                      border: `1px solid ${detailProduct?.id === product.id ? '#6366F1' : 'rgba(255,255,255,0.08)'}`,
                       padding: 14,
                       marginBottom: 10,
                       cursor: isBlurred ? 'default' : 'pointer',
@@ -901,6 +918,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                       {product.tiktok_potential === 'high' && (
                         <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(99,102,241,0.1)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.2)' }}>⚡ TikTok+</span>
                       )}
+                      <TrendVelocityBadge orders={product.real_orders_count || 0} />
                     </div>
 
                     {/* Metrics grid: 2×2 */}
@@ -969,7 +987,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             {displayProducts.length > mobileDisplayCount && (
               <button
                 onClick={() => setMobileDisplayCount(c => c + 20)}
-                style={{ width: '100%', height: 44, background: 'white', color: '#6366F1', border: '2px solid #6366F1', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', marginTop: 4 }}
+                style={{ width: '100%', height: 44, background: '#0E1420', color: '#6366F1', border: '2px solid #6366F1', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer', marginTop: 4 }}
               >
                 Load More ({displayProducts.length - mobileDisplayCount} remaining)
               </button>
@@ -985,14 +1003,14 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             id="table-scroll-fade"
             style={{
               position: 'absolute' as const, top: 0, right: 0, bottom: 0, width: 48, zIndex: 5,
-              background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.95))',
+              background: 'linear-gradient(to right, transparent, rgba(6,10,18,0.95))',
               borderRadius: '0 12px 12px 0', pointerEvents: 'none' as const,
               transition: 'opacity 200ms',
             }}
           />
         <div
           className="products-table-container"
-          style={{ overflowX: 'auto' as const, borderRadius: 12, border: '1px solid #E5E7EB', boxShadow: '0 1px 4px #F5F5F5' }}
+          style={{ overflowX: 'auto' as const, borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', boxShadow: 'none' }}
           onScroll={(e) => {
             const el = e.currentTarget;
             const fade = document.getElementById('table-scroll-fade');
@@ -1002,7 +1020,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             }
           }}
         >
-            <div style={{ background: 'var(--card-bg, white)' }}>
+            <div style={{ background: '#0E1420' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: 1280 }}>
 
             {/* ── STICKY HEADER ── */}
@@ -1019,7 +1037,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
               <col style={{ width: isMobile ? 120 : 185 }} />       {/* Actions */}
             </colgroup>
             <thead>
-              <tr style={{ background: 'var(--table-header-bg, rgba(250,250,250,0.98))', borderBottom: '2px solid var(--table-border, #F3F4F6)', height: 42, position: 'sticky' as const, top: 0, zIndex: 10 }}>
+              <tr style={{ background: '#131929', borderBottom: '2px solid rgba(255,255,255,0.08)', height: 42, position: 'sticky' as const, top: 0, zIndex: 10 }}>
                 <th style={{ ...thStyle('rank', isMobile ? 32 : 40, 'center'), cursor: 'default' }}>#</th>
                 <th style={thStyle('name', isMobile ? 170 : 210)} onClick={() => handleSort('name')} aria-sort={sortBy === 'name' ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}>
                   Product <SortIcon col="name" />
@@ -1055,11 +1073,11 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
             <tbody>
               {loading || isFiltering ? (
                 Array.from({ length: 8 }).map((_, i) => (
-                  <tr key={i} style={{ height: 72, borderBottom: '1px solid #F3F4F6' }}>
-                    <td style={{ padding: '0 12px' }}><div style={{ height: 14, background: '#F3F4F6', borderRadius: 6, width: '60%', animation: 'shimmer 1.5s ease-in-out infinite' }} /></td>
+                  <tr key={i} style={{ height: 72, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                    <td style={{ padding: '0 12px' }}><div style={{ height: 14, background: 'rgba(255,255,255,0.06)', borderRadius: 6, width: '60%', animation: 'shimmer 1.5s ease-in-out infinite' }} /></td>
                     {[240, 110, 120, 80, 80, 80, 64, 80, 186].map((_, j) => (
                       <td key={j} style={{ padding: '0 12px' }}>
-                        <div style={{ height: 14, background: '#F3F4F6', borderRadius: 6, width: `${40 + (i * j * 7) % 50}%`, animation: 'shimmer 1.5s ease-in-out infinite' }} />
+                        <div style={{ height: 14, background: 'rgba(255,255,255,0.06)', borderRadius: 6, width: `${40 + (i * j * 7) % 50}%`, animation: 'shimmer 1.5s ease-in-out infinite' }} />
                       </td>
                     ))}
                   </tr>
@@ -1152,6 +1170,11 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                                     curve={p.velocity_curve}
                                     size="sm"
                                   />
+                                </div>
+                              )}
+                              {!isMobile && (p.real_orders_count || 0) >= 2000 && (
+                                <div style={{ marginTop: 3 }}>
+                                  <TrendVelocityBadge orders={p.real_orders_count || 0} />
                                 </div>
                               )}
                               <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4, alignItems: 'center' }}>
@@ -1596,7 +1619,7 @@ function ProductProfitCalc({ sellPrice, supplierCost, category, productName }: {
   const numInput = (label: string, val: number, set: (v: number) => void, prefix = '$', hint = '', step = 0.5) => (
     <div>
       <div style={{ fontSize: 10, color: 'var(--cell-text, #4B5563)', fontWeight: 700, marginBottom: 4, letterSpacing: '.04em', textTransform: 'uppercase' as const }}>{label}</div>
-      <div style={{ display: 'flex', alignItems: 'center', background: 'var(--input-bg, white)', border: '1px solid var(--border-color, #C7D2FE)', borderRadius: 8, height: 36, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, height: 36, overflow: 'hidden' }}>
         <span style={{ padding: '0 8px', fontSize: 12, color: '#6366F1', fontWeight: 700, flexShrink: 0 }}>{prefix}</span>
         <input type="number" min={0} step={step} value={val}
           onChange={e => set(parseFloat(e.target.value) || 0)}
@@ -1949,7 +1972,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
               : s >= 60
               ? { bg: '#FEF9C3', color: '#D97706', label: '📈 Rising' }
               : s >= 40
-              ? { bg: '#F3F4F6', color: '#6B7280', label: '➡️ Steady' }
+              ? { bg: 'rgba(255,255,255,0.06)', color: '#9CA3AF', label: '➡️ Steady' }
               : { bg: '#FEF2F2', color: '#DC2626', label: '⚠️ Risky' };
             return (
               <div style={{ marginBottom: 20 }}>
@@ -2084,7 +2107,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
                         <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>{desc}</div>
                       </div>
                       <a href={`https://www.tiktok.com/search?q=${encodeURIComponent(search)}`} target="_blank" rel="noopener noreferrer"
-                        style={{ fontSize: 11, color: '#6366F1', textDecoration: 'none', fontWeight: 600, flexShrink: 0, padding: '4px 10px', border: '1px solid #C7D2FE', borderRadius: 6, background: '#EEF2FF', whiteSpace: 'nowrap' as const }}>
+                        style={{ fontSize: 11, color: '#6366F1', textDecoration: 'none', fontWeight: 600, flexShrink: 0, padding: '4px 10px', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 6, background: 'rgba(99,102,241,0.1)', whiteSpace: 'nowrap' as const }}>
                         Search TikTok →
                       </a>
                     </div>
@@ -2128,7 +2151,7 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
               ].map(({ field, source, real }) => (
                 <div key={field} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontSize: 11, color: '#6B7280', flex: 1 }}>{field}</span>
-                  <span style={{ fontSize: 10, fontWeight: 600, color: real ? '#059669' : '#9CA3AF', background: real ? '#DCFCE7' : '#F3F4F6', padding: '1px 6px', borderRadius: 4, whiteSpace: 'nowrap' as const }}>{source}</span>
+                  <span style={{ fontSize: 10, fontWeight: 600, color: real ? '#34D399' : '#9CA3AF', background: real ? 'rgba(52,211,153,0.1)' : 'rgba(255,255,255,0.06)', padding: '1px 6px', borderRadius: 4, whiteSpace: 'nowrap' as const }}>{source}</span>
                 </div>
               ))}
             </div>

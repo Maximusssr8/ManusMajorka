@@ -138,6 +138,8 @@ function mapItem(item: Record<string, unknown>): Record<string, unknown> {
     real_price_usd:     priceUsd,
     real_price_aud:     priceAud,
     rating,
+    real_rating:        rating,
+    real_review_count:  typeof item.reviewCount === 'number' ? item.reviewCount : (typeof item.reviews === 'number' ? item.reviews : null),
     data_source:        'aliexpress_scraper',
     source_url:         url,
     aliexpress_url:     url,
@@ -146,11 +148,15 @@ function mapItem(item: Record<string, unknown>): Record<string, unknown> {
     link_verified_at:   new Date().toISOString(),
     tiktok_signal:      orders > 5000,
     score_breakdown:    breakdown,
-    tags:               ['ae-bestseller', 'pintostudio'],
+    tags:               ['ae-bestseller', 'pintostudio', ...((
+      item.choice || item.isChoice || item.bizType === 'choice' ||
+      (Array.isArray(item.badges) && (item.badges as string[]).some((b: string) => b.toLowerCase().includes('choice')))
+    ) ? ['aliexpress_choice'] : [])],
     is_active:          true,
     scraped_at:         new Date().toISOString(),
     created_at:         new Date().toISOString(),
     updated_at:         new Date().toISOString(),
+    last_refreshed:     new Date().toISOString(),
   };
 }
 
@@ -201,7 +207,7 @@ export async function harvestAEBestsellerRuns(runIds: string[]): Promise<number>
     const rows = items.filter(qualityGate).map(mapItem);
     if (!rows.length) continue;
 
-    const { error } = await supabase.from('winning_products').upsert(rows as Parameters<typeof supabase.from>[0][], {
+    const { error } = await supabase.from('winning_products').upsert(rows as unknown as Record<string, unknown>[], {
       onConflict: 'aliexpress_id',
       ignoreDuplicates: true,
     } as { onConflict: string; ignoreDuplicates: boolean });

@@ -224,9 +224,15 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
       query = query.not('tiktok_product_url', 'is', null);
     }
 
-    // Trending Today: only products with rising trend or tiktok signal
+    // Trending Today: products with real momentum (high order count)
     if (trending) {
-      query = query.or('trend.eq.rising,tiktok_signal.eq.true');
+      query = query.gte('real_orders_count', 2000);
+    }
+
+    // minOrders filter — used by trending preset
+    const minOrders = Number(req.query.minOrders) || 0;
+    if (minOrders > 0) {
+      query = query.gte('real_orders_count', minOrders);
     }
 
     const offset = Math.max(0, Number(req.query.offset) || 0);
@@ -242,9 +248,19 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
              o >= 100 ? 40 : 30;
     };
 
+    const computeTrendVelocity = (row: Record<string, unknown>): string => {
+      const orders = Number(row.real_orders_count || 0);
+      const score = Number(row.winning_score || 0);
+      if (orders >= 10000 && score >= 75) return 'exploding';
+      if (orders >= 2000 && score >= 65) return 'rising';
+      if (orders >= 500) return 'steady';
+      return 'emerging';
+    };
+
     const products = (data || []).map((row: Record<string, unknown>) => ({
       ...row,
       opportunity_score: computeOpportunityScore(row),
+      trend_velocity: computeTrendVelocity(row),
     }));
 
     const result = { products, total: count ?? products.length, offset, limit };
@@ -257,6 +273,42 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/products/trends — top trending products by velocity score
+router.get('/trends', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('winning_products')
+      .select('id, product_title, category, real_orders_count, real_price_aud, image_url, source_url, winning_score, trend, tags, why_trending, best_ad_angle, target_audience, real_rating, rating')
+      .eq('is_active', true)
+      .eq('data_source', 'aliexpress_scraper')
+      .gte('real_orders_count', 2000)
+      .order('real_orders_count', { ascending: false })
+      .limit(50);
+
+    if (error) { res.status(500).json({ error: error.message }); return; }
+
+    const products = (data || []).map((row: Record<string, unknown>) => ({
+      ...row,
+      opportunity_score: (() => {
+        const o = Number(row.real_orders_count || 0);
+        return o >= 100000 ? 95 : o >= 50000 ? 90 : o >= 10000 ? 80 :
+               o >= 5000 ? 70 : o >= 1000 ? 60 : o >= 500 ? 50 :
+               o >= 100 ? 40 : 30;
+      })(),
+      trend_velocity: (() => {
+        const orders = Number(row.real_orders_count || 0);
+        if (orders >= 10000) return 'exploding';
+        if (orders >= 2000) return 'rising';
+        return 'steady';
+      })(),
+    }));
+
+    res.json({ products, total: products.length });
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+  }
+});
 
 function getAnthropicClient() {
   return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
