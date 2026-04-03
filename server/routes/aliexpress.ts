@@ -294,6 +294,40 @@ router.get('/link', requireAuth, async (req: Request, res: Response) => {
   }
 });
 
+// ── GET /api/aliexpress/products?keywords=...&page=...&limit=... ─────────────
+router.get('/products', requireAuth, async (req: Request, res: Response) => {
+  const { keywords = '', page = '1', categoryId, limit = '50' } = req.query;
+  try {
+    const result = await searchAliAffiliateProducts(keywords as string, {
+      pageSize: Math.min(parseInt(limit as string) || 50, 50),
+      pageNo: parseInt(page as string) || 1,
+      ...(categoryId ? { categoryId: categoryId as string } : {}),
+    });
+    const products = result?.products || [];
+    res.json({ products, total: products.length, keyword: keywords, page: parseInt(page as string) || 1 });
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err), products: [] });
+  }
+});
+
+// ── POST /api/aliexpress/affiliate-link — generate promotion link ─────────────
+router.post('/affiliate-link', requireAuth, async (req: Request, res: Response) => {
+  const { productUrl } = req.body || {};
+  if (!productUrl) { res.status(400).json({ error: 'productUrl required' }); return; }
+  try {
+    const result = await generateAffiliateLink(productUrl as string);
+    const link = result?.aliexpress_affiliate_link_generate_response?.resp_result?.result?.promotion_links?.promotion_link?.[0]?.promotion_link;
+    if (!link) {
+      const errCode = result?.aliexpress_affiliate_link_generate_response?.resp_result?.resp_code;
+      const errMsg = result?.aliexpress_affiliate_link_generate_response?.resp_result?.resp_msg || 'Link generation failed';
+      return res.status(400).json({ error: `${errMsg} (code ${errCode})`, raw: result });
+    }
+    res.json({ url: link });
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 // ── GET /api/aliexpress/:productId — product detail ────────────────────────────
 // Must be after all named routes to avoid matching them as :productId
 router.get('/:productId', async (req: Request, res: Response) => {
