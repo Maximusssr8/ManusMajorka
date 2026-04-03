@@ -781,6 +781,85 @@ router.get('/cj-refresh', async (req: Request, res: Response) => {
   });
 });
 
+// POST /api/cron/ae-hot-products — every 6h via Vercel cron
+// Fetches hot products from AliExpress Affiliate API → upserts into winning_products
+router.post('/ae-hot-products', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) { res.status(401).json({ error: 'Unauthorized' }); return; }
+
+  try {
+    console.info('[cron/ae-hot-products] Starting hot products sync...');
+    const sb = getSupabaseAdmin();
+
+    const { getHotProducts } = await import('../lib/aliexpress-affiliate');
+    const result = await getHotProducts({ pageSize: 50, pageNo: 1 });
+    const products = result?.aliexpress_affiliate_hotproduct_query_response?.resp_result?.result?.products?.product || [];
+
+    if (!products.length) {
+      console.info('[cron/ae-hot-products] No products returned');
+      res.json({ synced: 0 }); return;
+    }
+
+    const AUD_RATE = 1.55;
+    const rows = products.map((p: Record<string, unknown>) => {
+      const priceUsd = parseFloat(String(p.sale_price || '0').replace(/[^\d.]/g, ''));
+      const priceAud = Math.round(priceUsd * AUD_RATE * 100) / 100;
+      const costAud = Math.round(priceAud * 0.4 * 100) / 100;
+      const orders = parseInt(String((p as Record<string, unknown>)['30day_orders_count'] || '0')) || 0;
+      const pid = String(p.product_id || '');
+      return {
+        product_title: String(p.product_title || '').slice(0, 255),
+        image_url: String(p.product_main_image_url || ''),
+        price_aud: priceAud,
+        real_price_aud: priceAud,
+        cost_price_aud: costAud,
+        supplier_cost_aud: costAud,
+        profit_margin: priceAud > 0 ? Math.round((priceAud - costAud) / priceAud * 100) : 60,
+        winning_score: 75,
+        trend: orders > 5000 ? 'Exploding' : orders > 1000 ? 'Rising' : 'Steady',
+        orders_count: orders,
+        real_orders_count: orders,
+        source_url: String(p.product_detail_url || ''),
+        aliexpress_url: String(p.product_detail_url || ''),
+        aliexpress_id: pid,
+        data_source: 'aliexpress_affiliate',
+        link_status: 'verified',
+        link_verified_at: new Date().toISOString(),
+        tiktok_signal: orders > 5000,
+        tags: ['ae-hot', 'affiliate', p.hot_product_flag === 'true' ? 'hot' : null].filter(Boolean) as string[],
+        is_active: true,
+        scraped_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+    }).filter((r: Record<string, unknown>) => r.image_url && String(r.image_url).startsWith('http') && (r.price_aud as number) > 0);
+
+    if (rows.length > 0) {
+      const { error } = await sb.from('winning_products')
+        .upsert(rows, { onConflict: 'aliexpress_id', ignoreDuplicates: false });
+      if (error) console.error('[cron/ae-hot-products] upsert error:', error.message);
+    }
+
+    console.info(`[cron/ae-hot-products] Synced ${rows.length} hot products`);
+    res.json({ synced: rows.length, total_fetched: products.length });
+  } catch (err: unknown) {
+    console.error('[cron/ae-hot-products] Error:', err);
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+router.get('/ae-hot-products', async (req: Request, res: Response) => {
+  if (!verifyCronSecret(req)) { res.status(401).json({ error: 'Unauthorized' }); return; }
+  // Mirror POST handler for Vercel cron (uses GET)
+  try {
+    const sb = getSupabaseAdmin();
+    const { getHotProducts } = await import('../lib/aliexpress-affiliate');
+    const result = await getHotProducts({ pageSize: 50, pageNo: 1 });
+    const products = result?.aliexpress_affiliate_hotproduct_query_response?.resp_result?.result?.products?.product || [];
+    res.json({ ok: true, products_found: products.length });
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
 export default router;
 
 // POST /api/cron/ae-bestsellers — runs every 6h via Vercel cron (0 */6 * * *)

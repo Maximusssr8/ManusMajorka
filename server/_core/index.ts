@@ -318,6 +318,9 @@ async function startServer() {
   const waitlistRouter = (await import('../routes/waitlist')).default;
   app.use('/api/waitlist', waitlistRouter);
   const { default: aliexpressRouter } = await import('../routes/aliexpress');
+  app.use('/api/aliexpress', aliexpressRouter);
+  const { default: aliexpressAuthRouter } = await import('../routes/aliexpress-auth');
+  app.use('/api/auth/aliexpress', aliexpressAuthRouter);
   const { registerGenerationRoutes } = await import('../routes/generation');
   registerGenerationRoutes(app);
   // ── Ad Spy Search ────────────────────────────────────────────────────────────

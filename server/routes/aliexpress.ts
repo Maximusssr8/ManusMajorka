@@ -2,15 +2,33 @@
  * AliExpress API routes
  * GET  /api/aliexpress/auth          → redirects to AliExpress OAuth
  * GET  /api/aliexpress/callback      → exchanges code for token, saves to env
- * GET  /api/aliexpress/status        → checks if authorized + token validity
- * GET  /api/aliexpress/search?q=...  → search products (requires auth)
- * GET  /api/aliexpress/trending?niche=... → trending products by niche
+ * GET  /api/aliexpress/status        → checks API status + tests affiliate API
+ * GET  /api/aliexpress/test          → raw DS API test
+ * GET  /api/aliexpress/search?q=...  → search products (DS API)
+ * GET  /api/aliexpress/trending      → trending products by niche
+ * GET  /api/aliexpress/hot           → hot products (Affiliate API)
+ * GET  /api/aliexpress/categories    → affiliate categories
+ * GET  /api/aliexpress/link?url=...  → generate affiliate link
  * GET  /api/aliexpress/:productId    → product detail + shipping
  * POST /api/aliexpress/import        → import product to trend_signals
+ * GET  /api/aliexpress/affiliate/search  → affiliate product search
+ * GET  /api/aliexpress/affiliate/product/:id → affiliate product detail
  */
 
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
+import type { Request, Response } from 'express';
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
+// Static imports (dynamic imports banned in Vercel serverless)
+import { getAuthUrl, exchangeCodeForToken, isAuthorized, searchProducts, getTrendingProducts, getProductDetail as getDSProductDetail, getShippingInfo } from '../lib/aliexpress';
+import {
+  searchAliAffiliateProducts,
+  getAliAffiliateProductDetail,
+  getHotProducts,
+  getAffiliateCategories,
+  generateAffiliateLink,
+} from '../lib/aliexpress-affiliate';
+import { requireAuth } from '../middleware/requireAuth';
 
 const router = Router();
 
@@ -19,14 +37,7 @@ const REDIRECT_URI = 'https://majorka.io/api/aliexpress/callback';
 
 // ── GET /api/aliexpress/auth — start OAuth flow ────────────────────────────────
 router.get('/auth', async (_req: Request, res: Response) => {
-  const appKey = process.env.ALIEXPRESS_APP_KEY || '530110';
-  console.log('[ae-auth] app_key from env:', process.env.ALIEXPRESS_APP_KEY);
-  console.log('[ae-auth] using app_key:', appKey);
-  console.log('[ae-auth] redirect_uri:', REDIRECT_URI);
-
-  const { getAuthUrl } = await import('../lib/aliexpress');
   const url = getAuthUrl(REDIRECT_URI);
-  console.log('[ae-auth] redirecting to:', url);
   res.redirect(url);
 });
 
@@ -42,7 +53,6 @@ router.get('/callback', async (req: Request, res: Response) => {
   if (!code) { res.status(400).send('Missing code parameter'); return; }
 
   try {
-    const { exchangeCodeForToken } = await import('../lib/aliexpress');
     const token = await exchangeCodeForToken(code, REDIRECT_URI);
 
     // Store tokens in process env immediately
@@ -50,8 +60,7 @@ router.get('/callback', async (req: Request, res: Response) => {
     process.env.ALIEXPRESS_REFRESH_TOKEN = token.refresh_token;
 
     const expiresAt = token.expire_time ? new Date(token.expire_time).toISOString() : 'unknown';
-    console.log('[aliexpress-oauth] ✅ Access token obtained, user:', token.user_id);
-    console.log('[aliexpress-oauth] expires:', expiresAt);
+    console.info('[aliexpress-oauth] Access token obtained, user:', token.user_id);
 
     // Auto-save to Vercel env vars so token survives redeployment
     const vercelToken = process.env.VERCEL_TOKEN;
@@ -68,7 +77,6 @@ router.get('/callback', async (req: Request, res: Response) => {
             body: JSON.stringify({ key, value, type: 'encrypted', target: ['production', 'preview', 'development'] }),
           });
           if (!res2.ok) {
-            // Try PATCH if already exists
             const existing = await fetch(`https://api.vercel.com/v9/projects/${vercelProjectId}/env`, {
               headers: { 'Authorization': `Bearer ${vercelToken}` }
             }).then(r => r.json()).then((d: any) => d.envs?.find((e: any) => e.key === key));
@@ -81,27 +89,25 @@ router.get('/callback', async (req: Request, res: Response) => {
             }
           }
         }
-        console.log('[aliexpress-oauth] ✅ Tokens saved to Vercel env vars');
-      } catch (e: any) {
-        console.error('[aliexpress-oauth] Failed to auto-save to Vercel:', e.message);
+        console.info('[aliexpress-oauth] Tokens saved to Vercel env vars');
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e);
+        console.error('[aliexpress-oauth] Failed to auto-save to Vercel:', msg);
       }
     }
 
     res.send(`
       <html><body style="font-family:sans-serif;background:#080a0e;color:#fff;padding:40px">
-        <h2>✅ AliExpress Connected!</h2>
+        <h2>AliExpress Connected</h2>
         <p>Access token obtained for user: <strong>${token.user_id}</strong></p>
         <p>Expires: ${expiresAt}</p>
-        <hr>
-        <p><strong>Add these to Vercel environment variables:</strong></p>
-        <pre style="background:#1a1a2e;padding:16px;border-radius:8px;overflow:auto">ALIEXPRESS_ACCESS_TOKEN=${token.access_token}
-ALIEXPRESS_REFRESH_TOKEN=${token.refresh_token}</pre>
-        <p><a href="/app/admin" style="color:#d4af37">← Back to Admin</a></p>
+        <p><a href="/app/admin" style="color:#6366f1">Back to Admin</a></p>
       </body></html>
     `);
-  } catch (err: any) {
-    console.error('[aliexpress-oauth] Error:', err.message);
-    res.status(500).send(`OAuth error: ${err.message}`);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('[aliexpress-oauth] Error:', msg);
+    res.status(500).send(`OAuth error: ${msg}`);
   }
 });
 
@@ -109,11 +115,8 @@ ALIEXPRESS_REFRESH_TOKEN=${token.refresh_token}</pre>
 router.get('/test', async (_req: Request, res: Response) => {
   const appKey = process.env.ALIEXPRESS_APP_KEY || '530110';
   const appSecret = process.env.ALIEXPRESS_APP_SECRET || '8aHJr5hI76XIqvtKDKc5b1h6FfTytp75';
-  console.log('[ae-test] app_key:', appKey, '| app_secret set:', !!appSecret);
 
   try {
-    // Direct raw call so we see the exact response
-    const crypto = await import('crypto');
     const ts = new Date().toISOString().replace('T', ' ').slice(0, 19);
     const params: Record<string, string> = {
       method: 'aliexpress.ds.product.search',
@@ -129,7 +132,7 @@ router.get('/test', async (_req: Request, res: Response) => {
     };
     const sorted = Object.keys(params).sort();
     const str = sorted.map(k => `${k}${params[k]}`).join('');
-    params.sign = crypto.default.createHash('md5').update(appSecret + str + appSecret).digest('hex').toUpperCase();
+    params.sign = crypto.createHash('md5').update(appSecret + str + appSecret).digest('hex').toUpperCase();
 
     const body = new URLSearchParams(params).toString();
     const apiRes = await fetch('https://api-sg.aliexpress.com/sync', {
@@ -140,13 +143,13 @@ router.get('/test', async (_req: Request, res: Response) => {
     });
 
     const raw = await apiRes.json();
-    const products = raw?.aliexpress_ds_product_search_response?.search_result?.products?.product || [];
+    const products = (raw as any)?.aliexpress_ds_product_search_response?.search_result?.products?.product || [];
 
     res.json({
       app_key: appKey,
       http_status: apiRes.status,
       product_count: products.length,
-      error: raw?.error_response || null,
+      error: (raw as any)?.error_response || null,
       sample_product: products[0] ? {
         id: products[0].product_id,
         title: products[0].product_title?.slice(0, 80),
@@ -156,20 +159,38 @@ router.get('/test', async (_req: Request, res: Response) => {
       } : null,
       raw_response: raw,
     });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message, app_key: appKey });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error: msg, app_key: appKey });
   }
 });
 
-// ── GET /api/aliexpress/status — check auth status ─────────────────────────────
+// ── GET /api/aliexpress/status — check API status + test affiliate API ────────
 router.get('/status', async (_req: Request, res: Response) => {
-  const { isAuthorized } = await import('../lib/aliexpress');
+  const appKey = process.env.ALIEXPRESS_APP_KEY || '';
+  const hasSecret = !!(process.env.ALIEXPRESS_APP_SECRET);
+
+  let apiWorking = false;
+  let testError = '';
+  try {
+    const result = await getHotProducts({ pageSize: 1 });
+    const resp = result?.aliexpress_affiliate_hotproduct_query_response?.resp_result;
+    const products = resp?.result?.products?.product || [];
+    apiWorking = products.length > 0 || resp?.resp_code === 200;
+    if (!apiWorking && result?.error_response) testError = result.error_response.msg || 'API error';
+  } catch (e: unknown) {
+    testError = e instanceof Error ? e.message : String(e);
+  }
+
   res.json({
-    authorized: isAuthorized(),
-    mode: 'ds_api', // DS API — no OAuth needed for product search
-    appKey: process.env.ALIEXPRESS_APP_KEY ? '✅ set' : '❌ missing',
-    appSecret: process.env.ALIEXPRESS_APP_SECRET ? '✅ set' : '❌ missing',
-    testUrl: 'https://www.majorka.io/api/aliexpress/test',
+    configured: !!appKey && hasSecret,
+    app_key: appKey ? `${appKey.slice(0, 4)}****` : 'not set',
+    api_working: apiWorking,
+    error: testError || null,
+    sign_method: 'hmac-sha256',
+    callback_url: process.env.ALIEXPRESS_CALLBACK_URL,
+    ds_api_authorized: isAuthorized(),
+    note: apiWorking ? 'Affiliate API responding' : 'App may be in Test mode — apply online to switch to Live',
   });
 });
 
@@ -181,13 +202,13 @@ router.get('/search', async (req: Request, res: Response) => {
   if (!q) { res.status(400).json({ error: 'q required', products: [] }); return; }
 
   try {
-    const { searchProducts } = await import('../lib/aliexpress');
     const products = await searchProducts(q, { pageSize: limit, pageNo: page });
     res.json({ products, total: products.length, query: q });
-  } catch (err: any) {
-    const notAuthed = err.message.includes('ALIEXPRESS_ACCESS_TOKEN');
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    const notAuthed = msg.includes('ALIEXPRESS_ACCESS_TOKEN');
     res.status(notAuthed ? 401 : 500).json({
-      error: err.message,
+      error: msg,
       products: [],
       authUrl: notAuthed ? `${process.env.VITE_APP_URL || 'https://www.majorka.io'}/api/aliexpress/auth` : undefined,
     });
@@ -199,25 +220,60 @@ router.get('/trending', async (req: Request, res: Response) => {
   const niche = String(req.query.niche || 'fitness');
   const limit = Math.min(50, Number(req.query.limit) || 20);
   try {
-    const { getTrendingProducts } = await import('../lib/aliexpress');
     const products = await getTrendingProducts(niche, limit);
     res.json({ products, total: products.length, niche });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message, products: [] });
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err), products: [] });
+  }
+});
+
+// ── GET /api/aliexpress/hot — hot products from Affiliate API ─────────────────
+router.get('/hot', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const result = await getHotProducts({ pageSize: 50, pageNo: page });
+    const products = result?.aliexpress_affiliate_hotproduct_query_response?.resp_result?.result?.products?.product || [];
+    res.json({ products, total: products.length });
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err), products: [] });
+  }
+});
+
+// ── GET /api/aliexpress/categories — all affiliate categories ─────────────────
+router.get('/categories', requireAuth, async (_req: Request, res: Response) => {
+  try {
+    const result = await getAffiliateCategories();
+    const cats = result?.aliexpress_affiliate_category_get_response?.resp_result?.result?.categories?.category || [];
+    res.json({ categories: cats });
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err), categories: [] });
+  }
+});
+
+// ── GET /api/aliexpress/link?url=... — generate affiliate link ────────────────
+router.get('/link', requireAuth, async (req: Request, res: Response) => {
+  const url = String(req.query.url || '');
+  if (!url) { res.status(400).json({ error: 'url required' }); return; }
+  try {
+    const result = await generateAffiliateLink(url);
+    const links = result?.aliexpress_affiliate_link_generate_response?.resp_result?.result?.promotion_links?.promotion_link || [];
+    res.json({ affiliate_url: links[0]?.promotion_link || url, original_url: url });
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
   }
 });
 
 // ── GET /api/aliexpress/:productId — product detail ────────────────────────────
+// Must be after all named routes to avoid matching them as :productId
 router.get('/:productId', async (req: Request, res: Response) => {
   const { productId } = req.params;
   if (!/^\d+$/.test(productId)) { res.status(400).json({ error: 'Invalid product ID' }); return; }
   try {
-    const { getProductDetail, getShippingInfo } = await import('../lib/aliexpress');
-    const [detail, shipping] = await Promise.all([getProductDetail(productId), getShippingInfo(productId)]);
+    const [detail, shipping] = await Promise.all([getDSProductDetail(productId), getShippingInfo(productId)]);
     if (!detail) { res.status(404).json({ error: 'Not found' }); return; }
     res.json({ product: detail, shipping });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -226,12 +282,11 @@ router.post('/import', async (req: Request, res: Response) => {
   const { productId, niche } = req.body || {};
   if (!productId) { res.status(400).json({ error: 'productId required' }); return; }
   try {
-    const { getProductDetail } = await import('../lib/aliexpress');
     const supabase = createClient(
       process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '',
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || ''
     );
-    const detail = await getProductDetail(productId);
+    const detail = await getDSProductDetail(productId);
     if (!detail) { res.status(404).json({ error: 'Product not found' }); return; }
 
     const imageUrl = detail.image_urls?.split(';')[0] || '';
@@ -249,25 +304,24 @@ router.post('/import', async (req: Request, res: Response) => {
     }, { onConflict: 'name' });
 
     res.json({ success: true, product: { id: productId, name: detail.subject, imageUrl, priceAud } });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
   }
 });
 
-// ── Affiliate API endpoints (keys pending — returns empty when unconfigured) ──
+// ── Affiliate API endpoints ──────────────────────────────────────────────────
 
 // GET /api/aliexpress/affiliate/search?q=keyword&limit=20
 router.get('/affiliate/search', async (req: Request, res: Response) => {
   try {
     const keyword = String(req.query.q || '');
     const limit = Math.min(50, parseInt(String(req.query.limit || '20')));
-    if (!keyword) return res.status(400).json({ error: 'q is required' });
+    if (!keyword) { res.status(400).json({ error: 'q is required' }); return; }
 
-    const { searchAliAffiliateProducts } = await import('../lib/aliexpress-affiliate');
     const products = await searchAliAffiliateProducts(keyword, limit);
     res.json({ products, count: products.length, keyword });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
   }
 });
 
@@ -275,12 +329,11 @@ router.get('/affiliate/search', async (req: Request, res: Response) => {
 router.get('/affiliate/product/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { getAliAffiliateProductDetail } = await import('../lib/aliexpress-affiliate');
     const product = await getAliAffiliateProductDetail(id);
-    if (!product) return res.status(404).json({ error: 'Product not found' });
+    if (!product) { res.status(404).json({ error: 'Product not found' }); return; }
     res.json(product);
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
   }
 });
 

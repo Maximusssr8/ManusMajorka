@@ -8,10 +8,12 @@ const getKeys = () => ({
   trackingId: process.env.ALIEXPRESS_TRACKING_ID || 'majorka_au',
 });
 
+// HMAC-SHA256 signing — required by approved Affiliate API
 const signRequest = (params: Record<string, string>, appSecret: string): string => {
   const sorted = Object.keys(params).sort();
-  const str = appSecret + sorted.map(k => `${k}${params[k]}`).join('') + appSecret;
-  return crypto.createHash('md5').update(str).digest('hex').toUpperCase();
+  const baseString = sorted.map(k => `${k}${params[k]}`).join('');
+  const toSign = appSecret + baseString + appSecret;
+  return crypto.createHmac('sha256', appSecret).update(toSign).digest('hex').toUpperCase();
 };
 
 export const aliAffiliateRequest = async (method: string, extra: Record<string, string>) => {
@@ -27,7 +29,7 @@ export const aliAffiliateRequest = async (method: string, extra: Record<string, 
     timestamp,
     format: 'json',
     v: '2.0',
-    sign_method: 'md5',
+    sign_method: 'hmac',
     ...extra,
   };
   params.sign = signRequest(params, appSecret);
@@ -107,6 +109,91 @@ export const searchAliAffiliateProducts = async (
     source: 'aliexpress_affiliate' as const,
   }));
 };
+
+// ── New Affiliate API methods (approved 2026-04-03) ────────────────────────
+
+export async function getHotProducts(options: {
+  categoryId?: string;
+  pageNo?: number;
+  pageSize?: number;
+  trackingId?: string;
+}) {
+  const { appKey, trackingId } = getKeys();
+  return aliAffiliateRequest('aliexpress.affiliate.hotproduct.query', {
+    app_key: appKey,
+    category_ids: options.categoryId || '',
+    page_no: String(options.pageNo || 1),
+    page_size: String(Math.min(options.pageSize || 50, 50)),
+    tracking_id: options.trackingId || trackingId,
+    fields: 'product_id,product_title,product_main_image_url,product_detail_url,sale_price,original_price,discount,commission_rate,hot_product_flag,category_id,second_level_category_id,lastupdated_time',
+  });
+}
+
+export async function searchAffiliateProducts(options: {
+  keywords: string;
+  categoryId?: string;
+  pageNo?: number;
+  pageSize?: number;
+  sortBy?: string;
+  trackingId?: string;
+}) {
+  const { appKey, trackingId } = getKeys();
+  return aliAffiliateRequest('aliexpress.affiliate.product.query', {
+    app_key: appKey,
+    keywords: options.keywords,
+    category_ids: options.categoryId || '',
+    page_no: String(options.pageNo || 1),
+    page_size: String(Math.min(options.pageSize || 50, 50)),
+    sort: options.sortBy || 'LAST_VOLUME_DESC',
+    tracking_id: options.trackingId || trackingId,
+    fields: 'product_id,product_title,product_main_image_url,product_detail_url,sale_price,original_price,discount,commission_rate,hot_product_flag,category_id,evaluate_rate,lastupdated_time',
+  });
+}
+
+export async function getProductDetail(productId: string, trackingId?: string) {
+  const { appKey, trackingId: defaultTracking } = getKeys();
+  return aliAffiliateRequest('aliexpress.affiliate.productdetail.get', {
+    app_key: appKey,
+    product_ids: productId,
+    tracking_id: trackingId || defaultTracking,
+    fields: 'product_id,product_title,product_main_image_url,product_video_url,product_detail_url,sale_price,original_price,discount,commission_rate,hot_product_flag,category_id,second_level_category_id,evaluate_rate,30day_orders_count,last_hot_product_flag',
+  });
+}
+
+export async function generateAffiliateLink(sourceUrl: string, trackingId?: string) {
+  const { appKey, trackingId: defaultTracking } = getKeys();
+  return aliAffiliateRequest('aliexpress.affiliate.link.generate', {
+    app_key: appKey,
+    source_values: sourceUrl,
+    tracking_id: trackingId || defaultTracking,
+    promotion_link_type: '0',
+  });
+}
+
+export async function getAffiliateCategories() {
+  const { appKey } = getKeys();
+  return aliAffiliateRequest('aliexpress.affiliate.category.get', {
+    app_key: appKey,
+  });
+}
+
+export async function getFeaturedPromos() {
+  const { appKey, trackingId } = getKeys();
+  return aliAffiliateRequest('aliexpress.affiliate.featuredpromo.get', {
+    app_key: appKey,
+    tracking_id: trackingId,
+  });
+}
+
+export async function smartMatchProducts(options: { pageNo?: number; pageSize?: number } = {}) {
+  const { appKey, trackingId } = getKeys();
+  return aliAffiliateRequest('aliexpress.affiliate.product.smartmatch', {
+    app_key: appKey,
+    page_no: String(options.pageNo || 1),
+    page_size: String(Math.min(options.pageSize || 50, 50)),
+    tracking_id: trackingId,
+  });
+}
 
 export const getAliAffiliateProductDetail = async (productId: string, regionCode = 'AU'): Promise<AliAffiliateProduct | null> => {
   const { trackingId } = getKeys();

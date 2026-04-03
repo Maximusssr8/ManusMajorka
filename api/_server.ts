@@ -40,6 +40,7 @@ import type { Plan } from "../shared/plans";
 import shopsRouter from "../server/routes/shops";
 import productsRouter from "../server/routes/products";
 import aliexpressRouter from "../server/routes/aliexpress";
+import aliexpressAuthRouter from "../server/routes/aliexpress-auth";
 import userRouter from "../server/routes/user";
 import apifyRouter from "../server/routes/apify";
 import apifySearchRouter from "../server/routes/apify-search";
@@ -579,6 +580,7 @@ app.use('/api/shops', shopsRouter);
 app.use('/api/products', apifySearchRouter); // search with Apify fallback (before main products router)
 app.use('/api/products', productsRouter);
 app.use('/api/aliexpress', aliexpressRouter);
+app.use('/api/auth/aliexpress', aliexpressAuthRouter);
 app.use('/api/user', userRouter);
 app.use('/api/apify', apifyRouter);
 app.use('/api/meta', metaRouter);
