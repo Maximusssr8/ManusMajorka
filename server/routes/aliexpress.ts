@@ -175,18 +175,18 @@ router.get('/status', async (_req: Request, res: Response) => {
   let categoriesCount = 0;
   let testError = '';
 
-  // Test using categories endpoint — works with Affiliates key 531190
-  // (Hot products API requires Advanced API approval — not yet active)
+  // Check DB-cached categories count (Vercel can't reach AE API directly due to IP restrictions)
   try {
-    const result = await getAffiliateCategories();
-    const cats =
-      result?.aliexpress_affiliate_category_get_response?.resp_result?.result?.categories?.category ||
-      (result as any)?.result?.categories?.category || [];
-    categoriesCount = cats.length;
-    apiWorking = cats.length > 0;
-    const resp = result?.aliexpress_affiliate_category_get_response?.resp_result;
-    if (!apiWorking && resp?.resp_code) testError = `${resp.resp_msg} (code ${resp.resp_code})`;
-    if (!apiWorking && (result as any)?.error_response) testError = (result as any).error_response.msg || 'API error';
+    const supabaseAdmin = createClient(
+      process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '',
+      process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+    );
+    const { count } = await supabaseAdmin
+      .from('aliexpress_categories')
+      .select('*', { count: 'exact', head: true });
+    categoriesCount = count || 0;
+    apiWorking = categoriesCount > 0;
+    if (!apiWorking) testError = 'Categories DB empty — run seed script from local machine';
   } catch (e: unknown) {
     testError = e instanceof Error ? e.message : String(e);
   }
@@ -250,20 +250,30 @@ router.get('/hot', requireAuth, async (req: Request, res: Response) => {
 });
 
 // ── GET /api/aliexpress/categories — all affiliate categories ─────────────────
-// ── GET /api/aliexpress/categories — public, no auth required ────────────────
+// ── GET /api/aliexpress/categories — serve from DB cache (IP-restriction bypass) ─
+// Categories are seeded from Mac where AE API works; Vercel reads from DB.
 router.get('/categories', async (_req: Request, res: Response) => {
   try {
-    const raw = await getAffiliateCategories();
-    console.log('[AE Categories] Raw response:', JSON.stringify(raw).slice(0, 500));
-    // Try all known response paths
-    const cats =
-      raw?.aliexpress_affiliate_category_get_response?.resp_result?.result?.categories?.category ||
-      (raw as any)?.result?.categories?.category ||
-      (raw as any)?.categories ||
-      [];
-    const respCode = raw?.aliexpress_affiliate_category_get_response?.resp_result?.resp_code;
-    const respMsg = raw?.aliexpress_affiliate_category_get_response?.resp_result?.resp_msg;
-    res.json({ categories: cats, total: cats.length, resp_code: respCode, resp_msg: respMsg });
+    const supabaseAdmin = createClient(
+      process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '',
+      process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+    );
+    const { data, error } = await supabaseAdmin
+      .from('aliexpress_categories')
+      .select('id, name, parent_id, level')
+      .order('level', { ascending: true })
+      .order('name', { ascending: true });
+
+    if (error) throw new Error(error.message);
+    
+    // Shape to match AliExpress API format for compatibility
+    const categories = (data || []).map(c => ({
+      category_id: c.id,
+      category_name: c.name,
+      parent_category_id: c.parent_id,
+    }));
+    
+    res.json({ categories, total: categories.length, source: 'db' });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error('[AE Categories] Error:', msg);
