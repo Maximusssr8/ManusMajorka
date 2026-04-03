@@ -338,3 +338,33 @@ router.get('/affiliate/product/:id', async (req: Request, res: Response) => {
 });
 
 export default router;
+
+// ── GET /api/aliexpress/diag — no auth, raw affiliate API diagnostic ──────────
+router.get('/diag', async (_req: Request, res: Response) => {
+  const { appKey, appSecret, trackingId } = (aliAffiliateRequest as any).__keysForTest?.() ?? 
+    { appKey: process.env.AE_APP_KEY || process.env.ALIEXPRESS_APP_KEY || '', appSecret: process.env.AE_APP_SECRET || process.env.ALIEXPRESS_APP_SECRET || '', trackingId: process.env.AE_TRACKING_ID || 'majorka_au' };
+  
+  const hasKey = !!appKey;
+  const hasSecret = !!appSecret;
+  
+  try {
+    // Direct affiliate API test
+    const raw = await aliAffiliateRequest('aliexpress.affiliate.category.get', {});
+    const cats = raw?.aliexpress_affiliate_category_get_response?.resp_result?.result?.categories?.category || [];
+    const errResp = raw?.error_response;
+    const respCode = raw?.aliexpress_affiliate_category_get_response?.resp_result?.resp_code;
+    const respMsg = raw?.aliexpress_affiliate_category_get_response?.resp_result?.resp_msg;
+    
+    res.json({
+      env: { hasKey, hasSecret, keyPrefix: appKey?.slice(0,4)+'****', trackingId },
+      raw_null: raw === null,
+      resp_code: respCode,
+      resp_msg: respMsg,
+      category_count: cats.length,
+      error_response: errResp || null,
+      raw_keys: raw ? Object.keys(raw) : [],
+    });
+  } catch (err: unknown) {
+    res.json({ error: err instanceof Error ? err.message : String(err), env: { hasKey, hasSecret } });
+  }
+});
