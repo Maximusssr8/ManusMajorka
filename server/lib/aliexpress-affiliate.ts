@@ -3,9 +3,9 @@ import crypto from 'crypto';
 const API_URL = 'https://api-sg.aliexpress.com/sync';
 
 const getKeys = () => ({
-  appKey: process.env.ALIEXPRESS_APP_KEY || '',
-  appSecret: process.env.ALIEXPRESS_APP_SECRET || '',
-  trackingId: process.env.ALIEXPRESS_TRACKING_ID || 'majorka_au',
+  appKey: process.env.AE_APP_KEY || process.env.ALIEXPRESS_APP_KEY || '',
+  appSecret: process.env.AE_APP_SECRET || process.env.ALIEXPRESS_APP_SECRET || '',
+  trackingId: process.env.AE_TRACKING_ID || process.env.ALIEXPRESS_TRACKING_ID || 'majorka_au',
 });
 
 // HMAC-SHA256 signing — required by approved Affiliate API
