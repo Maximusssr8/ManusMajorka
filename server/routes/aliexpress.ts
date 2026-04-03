@@ -296,27 +296,6 @@ router.get('/link', requireAuth, async (req: Request, res: Response) => {
 
 // ── GET /api/aliexpress/:productId — product detail ────────────────────────────
 // Must be after all named routes to avoid matching them as :productId
-// ── GET /api/aliexpress/diag — diagnostic (no auth required) ─────────────────
-router.get('/diag', async (_req, res) => {
-  const appKey = process.env.AE_APP_KEY || process.env.ALIEXPRESS_APP_KEY || '';
-  const appSecret = process.env.AE_APP_SECRET || process.env.ALIEXPRESS_APP_SECRET || '';
-  const trackingId = process.env.AE_TRACKING_ID || process.env.ALIEXPRESS_TRACKING_ID || 'majorka_au';
-  try {
-    const raw = await aliAffiliateRequest('aliexpress.affiliate.category.get', {});
-    const cats = (raw as any)?.aliexpress_affiliate_category_get_response?.resp_result?.result?.categories?.category || [];
-    res.json({
-      env: { keyPrefix: appKey.slice(0,4)+'****', hasSecret: !!appSecret, trackingId },
-      raw_null: raw === null,
-      resp_code: (raw as any)?.aliexpress_affiliate_category_get_response?.resp_result?.resp_code,
-      resp_msg: (raw as any)?.aliexpress_affiliate_category_get_response?.resp_result?.resp_msg,
-      category_count: cats.length,
-      error_response: (raw as any)?.error_response || null,
-    });
-  } catch (err: unknown) {
-    res.json({ error: err instanceof Error ? err.message : String(err), env: { keyPrefix: appKey.slice(0,4)+'****' } });
-  }
-});
-
 router.get('/:productId', async (req: Request, res: Response) => {
   const { productId } = req.params;
   if (!/^\d+$/.test(productId)) { res.status(400).json({ error: 'Invalid product ID' }); return; }

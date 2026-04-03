@@ -821,6 +821,133 @@ router.post('/:id/why-trending', requireAuth, async (req: Request, res: Response
   }
 });
 
+// ── GET /api/products/winning — top winning products by score ─────────────────
+router.get('/winning', requireAuth, async (req: Request, res: Response) => {
+  const {
+    sort = 'winning_score',
+    minOrders,
+    maxPrice,
+    minPrice,
+    category,
+    limit = '500',
+  } = req.query;
+
+  const supabase = getSupabase();
+
+  let query = supabase
+    .from('winning_products')
+    .select('*')
+    .eq('is_active', true)
+    .gte('real_orders_count', 100)
+    .limit(Math.min(parseInt(limit as string) || 500, 500));
+
+  if (minOrders) query = query.gte('real_orders_count', parseInt(minOrders as string));
+  if (maxPrice) query = query.lte('real_price_aud', parseFloat(maxPrice as string));
+  if (minPrice) query = query.gte('real_price_aud', parseFloat(minPrice as string));
+  if (category) query = query.eq('category', category as string);
+
+  const sortMap: Record<string, { col: string; asc: boolean }> = {
+    winning_score: { col: 'winning_score', asc: false },
+    orders: { col: 'real_orders_count', asc: false },
+    price_asc: { col: 'real_price_aud', asc: true },
+    price_desc: { col: 'real_price_aud', asc: false },
+    newest: { col: 'updated_at', asc: false },
+    rating: { col: 'real_rating', asc: false },
+  };
+  const s = sortMap[sort as string] || sortMap.winning_score;
+  query = query.order(s.col, { ascending: s.asc });
+
+  const { data, error } = await query;
+  if (error) return res.status(500).json({ error: error.message });
+
+  const now = Date.now();
+  const products = (data || []).map((p: any) => ({
+    ...p,
+    winning_score: p.winning_score || 0,
+    is_new: new Date(p.updated_at).getTime() > now - 7 * 24 * 60 * 60 * 1000,
+    suggested_price: p.real_price_aud ? +(p.real_price_aud * 2.5).toFixed(2) : null,
+  }));
+
+  res.json({ products, total: products.length });
+});
+
+// ── GET /api/products/niches — top categories from DB ────────────────────────
+router.get('/niches', requireAuth, async (req: Request, res: Response) => {
+  const supabase = getSupabase();
+  const { data } = await supabase
+    .from('winning_products')
+    .select('category')
+    .eq('is_active', true)
+    .not('category', 'is', null);
+
+  if (!data) return res.json({ niches: [] });
+
+  const counts: Record<string, number> = {};
+  data.forEach((p: any) => { if (p.category) counts[p.category] = (counts[p.category] || 0) + 1; });
+
+  const niches = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 12)
+    .map(([name, count]) => ({ name, count }));
+
+  res.json({ niches });
+});
+
+// ── GET /api/products/suggestions — AI-ranked category suggestions ───────────
+router.get('/suggestions', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase
+      .from('winning_products')
+      .select('category, winning_score, real_orders_count, updated_at')
+      .eq('is_active', true)
+      .gte('winning_score', 40)
+      .order('winning_score', { ascending: false });
+
+    if (error) throw error;
+
+    const categoryMap: Record<string, { totalScore: number; totalOrders: number; count: number; recentCount: number }> = {};
+    const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+
+    for (const row of (data || [])) {
+      if (!row.category) continue;
+      if (!categoryMap[row.category]) {
+        categoryMap[row.category] = { totalScore: 0, totalOrders: 0, count: 0, recentCount: 0 };
+      }
+      categoryMap[row.category].totalScore += row.winning_score || 0;
+      categoryMap[row.category].totalOrders += row.real_orders_count || 0;
+      categoryMap[row.category].count += 1;
+      if (new Date(row.updated_at).getTime() > oneWeekAgo) {
+        categoryMap[row.category].recentCount += 1;
+      }
+    }
+
+    const ranked = Object.entries(categoryMap)
+      .filter(([, s]) => s.count >= 2)
+      .map(([category, stats]) => ({
+        category,
+        avgScore: stats.totalScore / stats.count,
+        avgOrders: stats.totalOrders / stats.count,
+        recentCount: stats.recentCount,
+        trendScore: (stats.totalScore / stats.count) * 0.5 +
+          Math.min(stats.recentCount * 10, 30) +
+          Math.min((stats.totalOrders / stats.count) / 1000, 20),
+      }))
+      .sort((a, b) => b.trendScore - a.trendScore)
+      .slice(0, 18)
+      .map(c => ({
+        label: c.category,
+        avgScore: Math.round(c.avgScore),
+        avgOrders: Math.round(c.avgOrders),
+        isHot: c.trendScore > 40,
+      }));
+
+    res.json({ suggestions: ranked, generatedAt: new Date().toISOString() });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to generate suggestions' });
+  }
+});
+
 export default router;
 
 // ── GET /api/products/cj — CJ Dropshipping top products (cached 12hr) ────────

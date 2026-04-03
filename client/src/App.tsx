@@ -6,6 +6,7 @@ import AlmostWonModal from '@/components/AlmostWonModal';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { capture } from '@/lib/posthog';
 import ErrorBoundary from './components/ErrorBoundary';
+import { RouteErrorBoundary } from './components/RouteErrorBoundary';
 import CookieBanner from './components/CookieBanner';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import MajorkaAppShell from './components/MajorkaAppShell';
@@ -108,21 +109,7 @@ function LoadingFallback() {
 }
 
 
-class ChunkErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
-  state = { hasError: false };
-  static getDerivedStateFromError() { return { hasError: true }; }
-  render() {
-    if (this.state.hasError) {
-      return <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',flexDirection:'column',gap:16}}>
-        <div style={{fontSize:16,fontWeight:600}}>Something went wrong loading this page.</div>
-        <button onClick={() => window.location.reload()} style={{padding:'10px 20px',background:'#6366F1',color:'white',border:'none',borderRadius:8,cursor:'pointer',fontSize:14}}>Reload</button>
-      </div>;
-    }
-    return this.props.children;
-  }
-}
-
-// Gold loading bar on route change
+// Loading bar on route change
 const LOADING_BAR_CSS = `
   .page-loading-bar {
     position: fixed; top: 0; left: 0; height: 2px;
@@ -161,7 +148,7 @@ function Router() {
     <>
       <style>{LOADING_BAR_CSS}</style>
       {showBar && <div className="page-loading-bar" key={location + '-bar'} />}
-    <ChunkErrorBoundary>
+    <RouteErrorBoundary>
     <Suspense fallback={<LoadingFallback />}>
       <AnimatePresence mode="wait">
         <motion.div
@@ -360,7 +347,7 @@ function Router() {
         </motion.div>
       </AnimatePresence>
     </Suspense>
-    </ChunkErrorBoundary>
+    </RouteErrorBoundary>
     </>
   );
 }

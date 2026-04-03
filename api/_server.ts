@@ -51,7 +51,6 @@ import videosRouter from "../server/routes/videos";
 import waitlistRouter from "../server/routes/waitlist";
 import dailyBriefRouter from "../server/routes/daily-brief";
 import authRouter from "../server/routes/auth";
-import adminMigrateRouter from "../server/routes/admin-migrate";
 import { registerGenerationRoutes } from "../server/routes/generation";
 import { getStoreBySlug, getPublishedStorefrontProducts, createOrder } from "../server/db";
 import { getProductByIdPublic } from "../server/db";
@@ -577,7 +576,6 @@ app.use('/api/ai', aiRouter);
 app.use('/api/cron', cronRouter);
 app.use('/api/subscription', subscriptionRouter);
 app.use('/api/admin', adminApiRouter);
-app.use('/api/admin', adminMigrateRouter);
 app.use('/api/shops', shopsRouter);
 app.use('/api/products', apifySearchRouter); // search with Apify fallback (before main products router)
 app.use('/api/products', productsRouter);

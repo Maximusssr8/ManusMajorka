@@ -347,6 +347,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
   const [mobileDisplayCount, setMobileDisplayCount] = useState(20);
   const [advancedFilters, setAdvancedFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [activeTab, setActiveTab] = useState('all');
+  const [dbNiches, setDbNiches] = useState<{ name: string; count: number }[]>([]);
   const handleDateRange = (v: DateRange) => { localStorage.setItem('majorka_db_daterange', v); setDateRange(v); };
   const [filters, setFilters] = useState({
     category: [] as string[],
@@ -387,6 +388,26 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
     });
 
     return () => subscription.unsubscribe();
+  }, []);
+
+  // Fetch niches from API on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data: sess } = await supabase.auth.getSession();
+        const token = sess?.session?.access_token;
+        if (!token) return;
+        const res = await fetch('/api/products/niches', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const { niches: fetchedNiches } = await res.json();
+          if (Array.isArray(fetchedNiches) && fetchedNiches.length > 0) {
+            setDbNiches(fetchedNiches);
+          }
+        }
+      } catch { /* non-fatal */ }
+    })();
   }, []);
 
   // Debounce search — show filtering skeleton during debounce
@@ -571,7 +592,10 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
 
   const displayProducts = (!canSeeFinancials && !isAdmin) ? filteredProducts.slice(0, 10) : filteredProducts;
 
-  const niches = ['All Niches', ...Array.from(new Set(products.map(p => getProductNiche(p)).filter(Boolean)))].slice(0, 16);
+  const niches = dbNiches.length > 0
+    ? ['All Niches', ...dbNiches.map(n => n.name)]
+    : ['All Niches', ...Array.from(new Set(products.map(p => getProductNiche(p)).filter(Boolean)))].slice(0, 16);
+  const nicheCountMap = new Map(dbNiches.map(n => [n.name, n.count]));
 
   const FILTERS = ['All', 'Viral', 'High Margin', 'AU Best Sellers', 'TikTok', 'New Today'];
 
@@ -671,7 +695,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           <select value={niche} onChange={e => setNiche(e.target.value)}
             className="dark-select"
             style={{ height: 36, padding: '0 10px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 13, background: '#131929', outline: 'none', color: '#e4e4e7', cursor: 'pointer' }}>
-            {niches.map(n => <option key={n}>{n}</option>)}
+            {niches.map(n => <option key={n} value={n}>{n}{nicheCountMap.has(n) ? ` (${nicheCountMap.get(n)})` : ''}</option>)}
           </select>
 
           {/* Opportunity filter pills */}
@@ -801,7 +825,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
                 onChange={e => setNiche(e.target.value)}
                 style={{ height: 40, padding: '0 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', fontSize: 13, color: '#e4e4e7', background: '#131929', cursor: 'pointer' }}
               >
-                {niches.map(n => <option key={n} value={n}>{n}</option>)}
+                {niches.map(n => <option key={n} value={n}>{n}{nicheCountMap.has(n) ? ` (${nicheCountMap.get(n)})` : ''}</option>)}
               </select>
             </div>
 
