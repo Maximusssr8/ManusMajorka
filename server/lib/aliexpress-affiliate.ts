@@ -29,7 +29,7 @@ export const aliAffiliateRequest = async (method: string, extra: Record<string, 
     timestamp,
     format: 'json',
     v: '2.0',
-    sign_method: 'hmac',
+    sign_method: 'sha256',
     ...extra,
   };
   params.sign = signRequest(params, appSecret);
