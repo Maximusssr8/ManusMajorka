@@ -72,11 +72,16 @@ export default function Account() {
   const [, setLocation] = useLocation();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  const {
-    data: subscription,
-    isLoading: subLoading,
-    refetch,
-  } = trpc.subscription.get.useQuery(undefined, { enabled: isAuthenticated });
+  const { subscription: subData, loading: subLoading, refetch } = useSubscription();
+
+  // Map REST response to shape Account page expects
+  const subscription = subData?.subscribed ? {
+    plan: subData.plan,
+    status: subData.status,
+    priceInCents: 9900,
+    periodStart: new Date().toISOString(),
+    periodEnd: undefined as string | undefined,
+  } : null;
 
   const activateMutation = trpc.subscription.activate.useMutation({
     onSuccess: () => refetch(),

@@ -205,6 +205,7 @@ export default function MarketDashboard() {
   const [productsCachedAt, setProductsCachedAt] = useState<string | null>(null);
   const [refreshingProducts, setRefreshingProducts] = useState(false);
   const [refreshError, setRefreshError] = useState('');
+  const [activeMarket, setActiveMarket] = useState<string>('🌍 Global');
 
   // Safety timeout: if still loading after 8s, force-stop
   useEffect(() => {
@@ -377,14 +378,14 @@ export default function MarketDashboard() {
       <div style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '8px 24px', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#6B7280' }}>
         <span>Viewing:</span>
         {['\u{1F30D} Global', '\u{1F1E6}\u{1F1FA} AU', '\u{1F1FA}\u{1F1F8} US', '\u{1F1EC}\u{1F1E7} UK'].map(r => {
-          const isActive = r === '\u{1F30D} Global';
+          const isActive = r === activeMarket;
           return (
-            <button key={r} style={{ padding: '3px 10px', borderRadius: 12, border: `1px solid ${isActive ? '#6366F1' : '#E5E7EB'}`, background: isActive ? '#EEF2FF' : 'white', color: isActive ? '#6366F1' : '#6B7280', fontSize: 11, fontWeight: isActive ? 600 : 400, cursor: 'pointer' }}>
+            <button key={r} onClick={() => setActiveMarket(r)} style={{ padding: '3px 10px', borderRadius: 12, border: `1px solid ${isActive ? '#6366F1' : '#E5E7EB'}`, background: isActive ? '#EEF2FF' : 'white', color: isActive ? '#6366F1' : '#6B7280', fontSize: 11, fontWeight: isActive ? 600 : 400, cursor: 'pointer' }}>
               {r}
             </button>
           );
         })}
-        <span style={{ marginLeft: 'auto', color: '#9CA3AF' }}>Data shown for all markets</span>
+        <span style={{ marginLeft: 'auto', color: '#9CA3AF' }}>Viewing: {activeMarket.replace(/^[^\s]+\s/, '')}</span>
       </div>
 
       <div className="p-6 space-y-8">

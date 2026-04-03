@@ -3,6 +3,7 @@ import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { supabase } from '@/lib/supabase';
 import { DateRangeSelector, DateRange, getDateRangeStart } from '@/components/DateRangeSelector';
 import { exportCSV } from '@/lib/exportCsv';
+import { toast } from 'sonner';
 import { ProductStatCards } from '@/components/ProductStatCards';
 import { ProductFilterSidebar, DEFAULT_FILTERS } from '@/components/ProductFilterSidebar';
 import { ProductImage } from '@/components/ProductImage';
@@ -640,7 +641,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {!isMobile && <DateRangeSelector value={dateRange} onChange={handleDateRange} />}
             {!isMobile && (
-              <button onClick={() => exportCSV(filteredProducts.map(p => ({ name: p.product_title || p.name, category: p.category, price_aud: p.price_aud, monthly_revenue: p.est_monthly_revenue_aud, margin_pct: p.profit_margin, score: p.winning_score, trend: (p as any).trend, units_per_day: p.units_per_day, aliexpress_url: p.aliexpress_url, tags: (p.tags || []).join(';') })), 'products')}
+              <button onClick={() => { try { exportCSV(filteredProducts.map(p => ({ name: p.product_title || p.name, category: p.category, price_aud: p.price_aud, monthly_revenue: p.est_monthly_revenue_aud, margin_pct: p.profit_margin, score: p.winning_score, trend: (p as any).trend, units_per_day: p.units_per_day, aliexpress_url: p.aliexpress_url, tags: (p.tags || []).join(';') })), 'products'); toast.success(`CSV exported — ${filteredProducts.length} products`); } catch { toast.error('Export failed'); } }}
                 style={{ height: 36, padding: '0 16px', background: '#0E1420', color: '#e4e4e7', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
                 ⬇ Export CSV
               </button>

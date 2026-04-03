@@ -566,7 +566,7 @@ function AdSpyContent() {
             )}
           </button>
         </div>
-        {cooldown > 0 && (
+        {cooldown > 0 && !result && (
           <div style={{ fontSize: 12, color: '#9CA3AF', paddingLeft: 4 }}>
             Try again in a moment...
           </div>
@@ -595,8 +595,8 @@ function AdSpyContent() {
           </div>
         )}
 
-        {/* Error state */}
-        {genError && !isLoading && (
+        {/* Error state — only show when no results */}
+        {genError && !isLoading && !result && (
           <div className="flex flex-col items-center justify-center py-16 gap-4">
             <div
               className="p-4 rounded-xl text-sm text-center max-w-sm"

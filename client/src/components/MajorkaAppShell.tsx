@@ -1010,8 +1010,8 @@ export default function MajorkaAppShell({ children }: Props) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search tools..."
-                className="flex-1 bg-transparent outline-none text-sm"
-                style={{ color: '#111827', fontFamily: 'DM Sans, sans-serif' }}
+                className="flex-1 bg-transparent outline-none text-sm text-gray-900 caret-gray-900 placeholder:text-gray-400"
+                style={{ color: '#111827', caretColor: '#111827', fontFamily: 'DM Sans, sans-serif' }}
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Escape') {
