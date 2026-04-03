@@ -8,12 +8,12 @@ const getKeys = () => ({
   trackingId: process.env.AE_TRACKING_ID || process.env.ALIEXPRESS_TRACKING_ID || 'majorka_au',
 });
 
-// HMAC-SHA256 signing — required by approved Affiliate API
+// HMAC-SHA256 signing — AliExpress Affiliate API spec:
+// key=appSecret, message=sortedParams (NO secret wrapping)
 const signRequest = (params: Record<string, string>, appSecret: string): string => {
   const sorted = Object.keys(params).sort();
   const baseString = sorted.map(k => `${k}${params[k]}`).join('');
-  const toSign = appSecret + baseString + appSecret;
-  return crypto.createHmac('sha256', appSecret).update(toSign).digest('hex').toUpperCase();
+  return crypto.createHmac('sha256', appSecret).update(baseString).digest('hex').toUpperCase();
 };
 
 export const aliAffiliateRequest = async (method: string, extra: Record<string, string>) => {
