@@ -295,16 +295,50 @@ router.get('/link', requireAuth, async (req: Request, res: Response) => {
 });
 
 // ── GET /api/aliexpress/products?keywords=...&page=...&limit=... ─────────────
+// AliExpress Affiliate API first → DB fallback (Vercel IPs restricted by AE IP whitelist)
 router.get('/products', requireAuth, async (req: Request, res: Response) => {
   const { keywords = '', page = '1', categoryId, limit = '50' } = req.query;
   try {
+    // Try AliExpress API first
     const result = await searchAliAffiliateProducts(keywords as string, {
       pageSize: Math.min(parseInt(limit as string) || 50, 50),
       pageNo: parseInt(page as string) || 1,
       ...(categoryId ? { categoryId: categoryId as string } : {}),
     });
-    const products = result?.products || [];
-    res.json({ products, total: products.length, keyword: keywords, page: parseInt(page as string) || 1 });
+    const aeProducts = result?.products || [];
+
+    if (aeProducts.length > 0) {
+      return res.json({ products: aeProducts, total: aeProducts.length, keyword: keywords, source: 'aliexpress' });
+    }
+
+    // Fallback: search winning_products DB by title
+    const supabaseAdmin = createClient(
+      process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '',
+      process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+    );
+    const kw = String(keywords).trim();
+    let dbQuery = supabaseAdmin
+      .from('winning_products')
+      .select('*')
+      .eq('is_active', true)
+      .order('real_orders_count', { ascending: false })
+      .limit(50);
+
+    if (kw) dbQuery = dbQuery.ilike('product_title', `%${kw}%`);
+    const { data } = await dbQuery;
+    const dbProducts = (data || []).map((p: any) => ({
+      product_id: p.aliexpress_id,
+      product_title: p.product_title,
+      sale_price: p.real_price_aud,
+      product_main_image_url: p.image_url,
+      detail_url: p.source_url,
+      orders: p.real_orders_count,
+      rating: p.real_rating,
+      winning_score: p.winning_score,
+      category: p.category,
+    }));
+
+    res.json({ products: dbProducts, total: dbProducts.length, keyword: keywords, source: 'db' });
   } catch (err: unknown) {
     res.status(500).json({ error: err instanceof Error ? err.message : String(err), products: [] });
   }
