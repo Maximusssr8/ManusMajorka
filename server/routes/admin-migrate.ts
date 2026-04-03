@@ -155,11 +155,15 @@ router.get('/run-migrations', async (req: Request, res: Response) => {
     return;
   }
 
+  // Try direct IPv6 DB URL (Vercel supports IPv6; Mac does not)
+  // Supabase direct URL: postgresql://postgres:PASSWORD@db.REF.supabase.co:5432/postgres
+  const dbUrl = process.env.SUPABASE_DB_DIRECT ||
+    `postgresql://postgres:${encodeURIComponent('Romania1992!Chicken.')}@db.ievekuazsjbdrltsdksn.supabase.co:5432/postgres`;
+  
   const pool = new Pool({
-    connectionString: process.env.DATABASE_URL ||
-      `postgresql://postgres.ievekuazsjbdrltsdksn:${encodeURIComponent('Romania1992!Chicken.')}@aws-0-ap-southeast-2.pooler.supabase.com:6543/postgres`,
+    connectionString: dbUrl,
     ssl: { rejectUnauthorized: false },
-    connectionTimeoutMillis: 15000,
+    connectionTimeoutMillis: 20000,
   });
 
   const results: Record<string, string> = {};
