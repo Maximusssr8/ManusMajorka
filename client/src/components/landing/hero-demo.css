@@ -100,10 +100,15 @@
   padding: 16px;
   opacity: 0;
   pointer-events: none;
+  z-index: 0;
   transition: opacity 0.3s ease;
   overflow: hidden;
 }
-.mkr-panel-active { opacity: 1; pointer-events: auto; }
+.mkr-panel-active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 1;
+}
 
 /* ── Panel header ────────────────────────────────────────────────────── */
 .mkr-panel-header {
@@ -208,8 +213,12 @@
 .mkr-market-stat-label { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 2px; }
 .mkr-gauge-wrap {
   position: relative;
-  width: 80px; height: 80px;
+  width: 100px;
+  height: 60px;
   margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .mkr-gauge-label {
   position: absolute; inset: 0;
