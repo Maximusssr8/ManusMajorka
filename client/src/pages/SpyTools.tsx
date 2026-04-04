@@ -292,7 +292,7 @@ export default function SpyTools() {
               fontFamily: brico,
               transition: 'all 150ms',
             }}>
-              {t === 'ads' ? 'Ad Spy' : t === 'creators' ? 'Creators' : t === 'videos' ? 'Video Inspiration' : 'Competitor Spy'}
+              {t === 'ads' ? 'Ad Brief Generator' : t === 'creators' ? 'Creators' : t === 'videos' ? 'Video Inspiration' : 'Competitor Spy'}
             </button>
           ))}
         </div>

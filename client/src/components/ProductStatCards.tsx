@@ -13,12 +13,12 @@ export function ProductStatCards({ products }: StatCardsProps) {
   const avgScore = Math.round(products.reduce((sum: number, p: any) => sum + (p.winning_score || 0), 0) / products.length);
   const bestMargin = Math.max(...products.map((p: any) => p.estimated_margin_pct || p.profit_margin || 0));
   const avgMargin = Math.round(products.reduce((sum: number, p: any) => sum + (p.estimated_margin_pct || p.profit_margin || 0), 0) / products.length);
-  const highScore = products.filter((p: any) => (p.winning_score || 0) >= 80).length;
-  // "Trending" = tiktok_signal true, or trend='up', or score>=80, or VIRAL tag
+  const highScore = products.filter((p: any) => (p.winning_score || 0) >= 65).length;
+  // "Trending" = tiktok_signal true, or trend='up', or score>=65, or VIRAL tag
   const trendingCount = products.filter((p: any) =>
     p.tiktok_signal === true ||
     p.trend === 'up' ||
-    (p.winning_score || 0) >= 80 ||
+    (p.winning_score || 0) >= 65 ||
     (p.tags || []).includes('VIRAL')
   ).length;
 
@@ -29,7 +29,7 @@ export function ProductStatCards({ products }: StatCardsProps) {
       icon: '\uD83D\uDD25',
       label: 'Trending Now',
       value: trendingCount.toString(),
-      sub: `${highScore} products score 80+`,
+      sub: `${highScore} products score 65+`,
       color: '#7C3AED',
       bg: '#F3E8FF',
     },
@@ -37,7 +37,7 @@ export function ProductStatCards({ products }: StatCardsProps) {
       icon: '\u2B50',
       label: 'Avg AI Score',
       value: `${avgScore}/100`,
-      sub: `${highScore} products above 80`,
+      sub: `${highScore} products above 65`,
       color: '#D97706',
       bg: '#FEF3C7',
     },
@@ -49,18 +49,18 @@ export function ProductStatCards({ products }: StatCardsProps) {
       color: '#059669',
       bg: '#ECFDF5',
     },
-    {
+    ...(totalRevenue > 0 ? [{
       icon: '\uD83D\uDCC8',
       label: 'Monthly Potential',
       value: formatRev(totalRevenue),
       sub: 'Combined est. revenue',
       color: '#6366F1',
       bg: '#EEF2FF',
-    },
+    }] : []),
   ];
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cards.length}, 1fr)`, gap: 12, marginBottom: 20 }}>
       {cards.map(({ icon, label, value, sub, bg }) => (
         <div key={label} style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: 10, padding: '14px 16px', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
           <div style={{ width: 36, height: 36, borderRadius: 8, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>

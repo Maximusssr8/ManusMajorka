@@ -74,6 +74,10 @@ interface WinningProduct {
   est_daily_revenue_aud: number;
   units_per_day: number;
   image_url: string | null;
+  product_main_image_url?: string | null;
+  real_orders_count?: number | null;
+  price_aud?: number | null;
+  real_price_aud?: number | null;
 }
 
 interface CategoryRanking {
@@ -463,13 +467,28 @@ export default function MarketDashboard() {
                     >
                       <td className="px-4 py-3 text-sm font-mono" style={{ color: '#475569' }}>{i + 1}</td>
                       <td className="px-4 py-3">
-                        <p className="text-sm font-medium" style={{ color: '#0F172A', fontFamily: 'DM Sans, sans-serif' }}>{p.product_title}</p>
-                        <p className="text-xs" style={{ color: '#475569' }}>${(p.price_aud ?? 0).toFixed(2)} AUD</p>
-                        <QuickActions productTitle={p.product_title} priceAud={p.price_aud ?? 0} category={p.category ?? ''} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <img
+                            src={p.image_url || p.product_main_image_url || '/placeholder-product.png'}
+                            alt={p.product_title}
+                            onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=📦'; }}
+                            style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover', flexShrink: 0, border: '1px solid #E5E7EB' }}
+                          />
+                          <div>
+                            <p className="text-sm font-medium" style={{ color: '#0F172A', fontFamily: 'DM Sans, sans-serif' }}>{p.product_title}</p>
+                            <p className="text-xs" style={{ color: '#475569' }}>${(p.price_aud ?? 0).toFixed(2)} AUD</p>
+                            <QuickActions productTitle={p.product_title} priceAud={p.price_aud ?? 0} category={p.category ?? ''} />
+                          </div>
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-xs" style={{ color: '#94a3b8' }}>{p.category}</td>
                       <td className="px-4 py-3 text-sm font-semibold" style={{ color: '#6366F1' }}>
-                        {fmtAUD(p.est_daily_revenue_aud ?? 0)}/day
+                        {(() => {
+                          const calc = p.real_orders_count && p.price_aud
+                            ? Math.round((p.real_orders_count * p.price_aud) / 30)
+                            : (p.est_daily_revenue_aud ?? 0);
+                          return calc > 0 ? `${fmtAUD(calc)}/day` : '—';
+                        })()}
                       </td>
                       <td className="px-4 py-3 text-sm font-mono" style={{ color: '#94a3b8' }}>{p.winning_score}</td>
                       <td className="px-4 py-3"><TrendBadge trend={p.trend ?? 'stable'} /></td>

@@ -90,7 +90,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: 'Products', path: '/app/product-intelligence', icon: Search, tooltip: 'Find winning products — trending, database, AI scout.' },
       { label: 'Market', path: '/app/market', icon: BarChart3, tooltip: 'Category trends, niche demand data, and market-level signals.' },
       { label: 'Creators & Video', path: '/app/creators', icon: Play, tooltip: 'Top TikTok creators and highest-performing product videos.' },
-      { label: 'Ad Spy', path: '/app/ad-spy', icon: Eye, tooltip: 'Spy on winning ads and competitor products.' },
+      { label: 'Ad Brief Generator', path: '/app/ad-spy', icon: Eye, tooltip: 'Generate ad briefs and discover winning ad angles.' },
       { label: 'Competitor Spy', path: '/app/competitor-spy', icon: Radio, tooltip: 'Analyse competitor stores, pricing strategy, and product selection.' },
       { label: 'Alerts', path: '/app/alerts', icon: Bell, tooltip: 'Smart alerts for trending products, price drops, and competitor moves.' },
       { label: 'Maya AI', path: '/app/ai-chat', icon: Sparkles, badge: 'AI', tooltip: 'Your AI ecommerce advisor — ask anything.' },

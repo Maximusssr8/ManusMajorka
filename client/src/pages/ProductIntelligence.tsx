@@ -111,7 +111,7 @@ export default function ProductIntelligence() {
               }}
             >
               <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                <span>{t === 'trending' ? '🔥 Trending Today' : t === 'database' ? '🗄 Full Database' : '🔍 Scout'}</span>
+                <span>{t === 'trending' ? '🔥 Trending Today' : t === 'database' ? '🗄 Full Database' : '🔍 Scout 🔜'}</span>
                 {tab === t && <span style={{ fontSize: 9, fontWeight: 600, color: t === 'trending' ? '#F59E0B' : t === 'database' ? '#6366F1' : '#059669', letterSpacing: '0.04em' }}>
                   {t === 'trending' ? 'RISING TREND · TIKTOK SIGNALS' : t === 'database' ? 'FULL DATABASE · SORTED BY AI SCORE' : 'AI-POWERED SEARCH'}
                 </span>}
@@ -133,10 +133,12 @@ export default function ProductIntelligence() {
           </Suspense>
         )}
         {tab === 'scout' && (
-          <div style={{ textAlign: 'center', padding: '80px 40px', color: '#6B7280' }}>
-            <div style={{ fontSize: 40, marginBottom: 16 }}>🔍</div>
-            <div style={{ fontSize: 18, fontWeight: 600, color: '#E5E7EB', marginBottom: 8 }}>AI Scout</div>
-            <div style={{ fontSize: 14 }}>Product discovery AI is coming soon. Use the Database tab to browse all products.</div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '96px 40px', gap: 16 }}>
+            <div style={{ fontSize: 40 }}>🔍</div>
+            <h3 style={{ fontSize: 18, fontWeight: 600, color: 'white', margin: 0 }}>AI Scout — Coming Soon</h3>
+            <p style={{ fontSize: 14, color: '#9CA3AF', textAlign: 'center', maxWidth: 360, margin: 0 }}>
+              AI-powered product discovery launching soon. Use the Database tab to browse curated winning products.
+            </p>
           </div>
         )}
       </div>

@@ -71,6 +71,19 @@ export default function SettingsProfile() {
   const { user, loading, isAuthenticated, logout } = useAuth();
   const { startTour, resetTour } = useProductTour();
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+  const [authDisplayName, setAuthDisplayName] = useState<string>('');
+  const [authEmail, setAuthEmail] = useState<string>('');
+
+  // Pull name/email from Supabase auth user_metadata as source of truth
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      const u = data?.user;
+      if (u) {
+        setAuthDisplayName(u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split('@')[0] || '');
+        setAuthEmail(u.email || '');
+      }
+    });
+  }, []);
   const [form, setForm] = useState({
     businessName: '',
     targetNiche: '',
@@ -425,7 +438,7 @@ export default function SettingsProfile() {
                     </label>
                     <input
                       type="text"
-                      value={user?.name || ''}
+                      value={authDisplayName || user?.name || ''}
                       disabled
                       className={inputClass + ' opacity-50 cursor-not-allowed'}
                     />
@@ -439,7 +452,7 @@ export default function SettingsProfile() {
                     </label>
                     <input
                       type="text"
-                      value={user?.email || ''}
+                      value={authEmail || user?.email || ''}
                       disabled
                       className={inputClass + ' opacity-50 cursor-not-allowed'}
                     />

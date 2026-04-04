@@ -91,6 +91,13 @@ function parseFollowerCount(s: string): number {
   return parseFloat(cleaned) || 0;
 }
 
+function getFollowerTier(followerCount: number): string {
+  if (followerCount >= 1_000_000) return 'Mega Influencer';
+  if (followerCount >= 100_000) return 'Macro Influencer';
+  if (followerCount >= 10_000) return 'Mid-tier Influencer';
+  return 'Micro Influencer';
+}
+
 function getEngagementPercent(signal: string): number {
   if (signal === 'HIGH') return 85;
   if (signal === 'MEDIUM') return 55;
@@ -292,7 +299,7 @@ export default function CreatorIntelligence() {
     const nicheColor = NICHE_COLORS[c.niche.toLowerCase()] || '#6B7280';
     const initials = c.display_name.slice(0, 2).toUpperCase();
     const followerNum = parseFollowerCount(c.est_followers);
-    const followerStr = followerNum >= 1000 ? `${(followerNum / 1000).toFixed(1)}K followers` : `${followerNum} followers`;
+    const followerTier = getFollowerTier(followerNum);
     const padding = opts?.featured ? 24 : 20;
     const tier = opts?.tierIndex !== undefined ? TIER_BADGES[opts.tierIndex] : null;
 
@@ -362,8 +369,8 @@ export default function CreatorIntelligence() {
           <div style={{ fontFamily: brico, fontWeight: 700, fontSize: 14, color: '#0A0A0A', marginBottom: 2, textAlign: 'center' as const }}>
             {c.display_name || c.handle}
           </div>
-          <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 10 }}>
-            ~{followerStr} (est.)
+          <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 10, background: '#F3F4F6', padding: '2px 8px', borderRadius: 10, fontWeight: 600 }}>
+            {followerTier}
           </div>
         </div>
 
@@ -622,6 +629,11 @@ export default function CreatorIntelligence() {
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14 }}>
                 {regularCreators.map(c => renderCreatorCard(c))}
               </div>
+
+              {/* Disclaimer */}
+              <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 16, textAlign: 'center' }}>
+                Creator tiers are estimated based on niche and engagement patterns. Follower counts are not displayed.
+              </p>
             </>
           )}
         </div>
@@ -719,7 +731,7 @@ export default function CreatorIntelligence() {
                 const collabLow = followers >= 1_000_000 ? '$1,500' : followers >= 500_000 ? '$800' : followers >= 100_000 ? '$300' : '$80';
                 const collabHigh = followers >= 1_000_000 ? '$5,000' : followers >= 500_000 ? '$2,000' : followers >= 100_000 ? '$800' : '$300';
                 const stats = [
-                  { label: 'Followers', value: selected.est_followers },
+                  { label: 'Creator Tier', value: getFollowerTier(followers) },
                   { label: 'Region', value: `${REGION_FLAGS[selected.region_code] || ''} ${selected.region_code}` },
                   { label: 'Est. Engagement', value: engRate },
                   { label: 'Est. Avg Views', value: avgViews },

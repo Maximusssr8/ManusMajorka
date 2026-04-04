@@ -456,7 +456,7 @@ function AdSpyContent() {
             className="text-sm font-extrabold leading-tight"
             style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
           >
-            Ad Spy
+            Ad Brief Generator
           </div>
           <div className="text-xs" style={{ color: '#9CA3AF' }}>
             AI-generated ad briefs based on proven patterns for your niche
@@ -723,6 +723,6 @@ function AdSpyContent() {
 // ── Export ────────────────────────────────────────────────────────────────────
 
 export default function AdSpy() {
-  React.useEffect(() => { document.title = 'Ad Intelligence | Majorka'; }, []);
+  React.useEffect(() => { document.title = 'Ad Brief Generator | Majorka'; }, []);
   return <AdSpyContent />;
 }

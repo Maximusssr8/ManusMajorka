@@ -51,7 +51,7 @@ export function calculateTrendScore(signal: TrendSignal): {
   else margin = 10;
 
   const score = Math.min(100, demand + quality + margin);
-  const tier = score >= 80 ? 'hot' : score >= 65 ? 'rising' : score >= 50 ? 'steady' : 'weak';
+  const tier = score >= 65 ? 'hot' : score >= 50 ? 'rising' : score >= 35 ? 'steady' : 'weak';
   return { score, breakdown: { demand, quality, margin }, tier };
 }
 

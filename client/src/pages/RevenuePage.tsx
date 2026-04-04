@@ -206,22 +206,16 @@ export default function RevenuePage() {
         </div>
       )}
 
-      {/* Demo banner — dismissible sample data notice */}
-      {!isMarketing && !demoBannerDismissed && (
-        <div style={{
-          background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)',
-          borderRadius: 10, padding: '12px 16px', margin: '12px 20px 0',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-        }}>
-          <span style={{ fontSize: 14, color: '#E5E7EB' }}>
-            📊 <strong>Sample data</strong> — Connect your Shopify store to see your real revenue
-          </span>
-          <button
-            onClick={() => { setDemoBannerDismissed(true); localStorage.setItem('revenue_demo_dismissed', '1'); }}
-            style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', fontSize: 18, lineHeight: 1 }}
-          >×</button>
-        </div>
-      )}
+      {/* Sample data disclaimer — always visible */}
+      <div style={{
+        background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)',
+        borderRadius: 10, padding: '12px 16px', margin: '12px 20px 0',
+        display: 'flex', alignItems: 'center', gap: 12,
+      }}>
+        <span style={{ fontSize: 14, color: '#FCD34D', fontWeight: 500 }}>
+          📊 Sample data shown — connect your Shopify store to see real revenue
+        </span>
+      </div>
 
       {/* ════════════════════════════════════════════════════════════
            HERO
@@ -248,9 +242,9 @@ export default function RevenuePage() {
                   <Wallet size={13} color={I} />
                   <span style={{ fontSize:11,color:I,fontWeight:800,letterSpacing:'.05em' }}>REVENUE DASHBOARD</span>
                 </div>
-                <div style={{ display:'flex',alignItems:'center',gap:6, background:'rgba(34,197,94,.1)', border:'1px solid rgba(34,197,94,.25)', borderRadius:999, padding:'6px 12px' }}>
-                  <div style={{ width:7,height:7,borderRadius:'50%',background:G,boxShadow:`0 0 10px ${G}`,animation:'glowPulse 2s ease-in-out infinite' }} />
-                  <span style={{ fontSize:11,color:G,fontWeight:800 }}>LIVE</span>
+                <div style={{ display:'flex',alignItems:'center',gap:6, background:'rgba(245,158,11,.1)', border:'1px solid rgba(245,158,11,.25)', borderRadius:999, padding:'6px 12px' }}>
+                  <div style={{ width:7,height:7,borderRadius:'50%',background:A,boxShadow:`0 0 10px ${A}` }} />
+                  <span style={{ fontSize:11,color:A,fontWeight:800 }}>● DEMO</span>
                 </div>
               </div>
 

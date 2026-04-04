@@ -380,13 +380,12 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
               />
               <button
                 type="submit"
-                disabled={loading || !query.trim()}
-                className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-40"
+                disabled={true}
+                title="Service temporarily unavailable"
+                className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 rounded-lg text-sm font-semibold opacity-50 cursor-not-allowed"
                 style={{ background: 'rgba(99,102,241,0.2)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.35)' }}
-                onMouseEnter={(e) => !loading && (e.currentTarget.style.background = 'rgba(99,102,241,0.3)')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(99,102,241,0.2)')}
               >
-                {loading ? <Loader2 size={15} className="animate-spin" /> : 'Analyse →'}
+                Analyse →
               </button>
             </div>
 
@@ -440,21 +439,14 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
             </div>
           )}
 
-          {/* Error state */}
+          {/* Error state — show coming soon */}
           {error && !loading && !result && (
-            <div
-              className="rounded-xl p-6 text-center mb-6"
-              style={{ border: '1px solid rgba(239,68,68,0.2)', background: 'rgba(239,68,68,0.04)' }}
-            >
-              <p className="text-sm font-medium mb-2" style={{ color: '#ef4444' }}>Analysis failed</p>
-              <p className="text-xs mb-4" style={{ color: '#94a3b8' }}>{error}</p>
-              <button
-                onClick={() => { setError(''); inputRef.current?.focus(); }}
-                className="text-xs px-4 py-2 rounded-lg"
-                style={{ background: 'rgba(99,102,241,0.15)', color: '#6366F1', border: '1px solid rgba(99,102,241,0.3)' }}
-              >
-                Try again
-              </button>
+            <div className="flex flex-col items-center justify-center py-16 gap-4">
+              <div className="text-3xl">🔧</div>
+              <h3 className="text-lg font-medium text-white">Coming Soon</h3>
+              <p className="text-sm text-gray-400 text-center max-w-sm">
+                Competitor Spy is being upgraded with live data. Check back soon.
+              </p>
             </div>
           )}
 
@@ -528,24 +520,14 @@ Be specific, data-driven, AU-market-focused. Use real numbers where possible.`,
             </div>
           )}
 
-          {/* Empty state */}
+          {/* Empty / coming soon state */}
           {!result && !loading && (
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[
-                { title: 'Product Intel', desc: 'See exactly what products competitors are selling and at what prices', icon: '📦' },
-                { title: 'Strategy Map', desc: 'Understand their traffic sources, content style and audience targeting', icon: '🗺️' },
-                { title: 'Attack Plan', desc: 'Get 5 concrete steps to outcompete them in the AU market', icon: '⚡' },
-              ].map((card) => (
-                <div
-                  key={card.title}
-                  className="rounded-xl p-5"
-                  style={{ border: '1px solid #E5E7EB', background: '#FAFAFA' }}
-                >
-                  <p className="text-2xl mb-2">{card.icon}</p>
-                  <p className="text-sm font-semibold mb-1" style={{ color: '#111111', fontFamily: "'Bricolage Grotesque', sans-serif" }}>{card.title}</p>
-                  <p className="text-xs" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif' }}>{card.desc}</p>
-                </div>
-              ))}
+            <div className="flex flex-col items-center justify-center py-16 gap-4">
+              <div className="text-3xl">🔧</div>
+              <h3 className="text-lg font-medium text-white">Coming Soon</h3>
+              <p className="text-sm text-gray-400 text-center max-w-sm">
+                Competitor Spy is being upgraded with live data. Check back soon.
+              </p>
             </div>
           )}
         </div>

@@ -134,8 +134,15 @@ function getProductRevenue(p: Product) {
   const upd = p.units_per_day || Math.max(1, Math.round((p.winning_score || 50) / 12));
   return Math.round(price * upd * 30 * 100) / 100;
 }
+function calculateMargin(price: number | undefined, originalPrice: number | undefined): number | null {
+  if (!originalPrice || !price || originalPrice <= price) return null;
+  return Math.round(((originalPrice - price) / originalPrice) * 100);
+}
 function getProductMargin(p: Product) {
-  return p.estimated_margin_pct || p.profit_margin || 0;
+  if (p.estimated_margin_pct && p.estimated_margin_pct > 0) return p.estimated_margin_pct;
+  if (p.profit_margin && p.profit_margin > 0) return p.profit_margin;
+  const calc = calculateMargin(p.price_aud, (p as any).original_price || (p as any).sale_price);
+  return calc ?? 0;
 }
 function getProductOrders(p: Product) {
   return p.orders_count || p.items_sold_monthly || 0;
@@ -660,7 +667,7 @@ export default function FullDatabase({ presetFilter = 'all' }: FullDatabaseProps
         {lastUpdated && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, fontSize: 12, color: '#9CA3AF' }}>
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981', display: 'inline-block', animation: 'pulse 2s ease-in-out infinite' }} />
-            <span>Showing {displayProducts.length} of {filteredProducts.length} products</span>
+            <span>Showing {displayProducts.length} of {totalCount > 0 ? totalCount : filteredProducts.length} products</span>
             <span>&middot;</span>
             <span>Updated {new Date(lastUpdated).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' })}</span>
             <span>&middot;</span>
@@ -1788,8 +1795,9 @@ function ProductDetailDrawer({ product: p, onClose }: { product: Product; onClos
   const price = p.suggested_sell_aud || p.estimated_retail_aud || p.price_aud || 0;
   // Cost: prefer real_cost_aud, then stored cost, else derive
   const storedCost = p.real_cost_aud || p.cost_price_aud || p.supplier_cost_aud || 0;
-  const marginPct = typeof margin === 'number' && margin > 0 ? margin : 64;
-  const cost = storedCost > 0 ? storedCost : Math.round(price * (1 - marginPct / 100) * 100) / 100;
+  const calcedMargin = calculateMargin(p.price_aud, (p as any).original_price || (p as any).sale_price);
+  const marginPct = typeof margin === 'number' && margin > 0 ? margin : (calcedMargin ?? 0);
+  const cost = storedCost > 0 ? storedCost : (marginPct > 0 ? Math.round(price * (1 - marginPct / 100) * 100) / 100 : 0);
   const revenue = p.est_monthly_revenue_aud && p.est_monthly_revenue_aud > 0
     ? p.est_monthly_revenue_aud
     : p.orders_count && p.orders_count > 0

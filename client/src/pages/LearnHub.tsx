@@ -57,6 +57,14 @@ const TRACKS: Track[] = [
     description: 'Everything you need to know before your first sale',
     lessons: [
       {
+        id: 'getting-started-majorka',
+        title: 'Getting Started with Majorka',
+        description: 'Understand scores, navigate the platform, and run your first product evaluation end-to-end',
+        readTime: '8 min',
+        difficulty: 'Beginner',
+        free: true,
+      },
+      {
         id: 'what-is-dropshipping',
         title: 'What is Dropshipping?',
         description: 'The complete business model explained with real AU examples',
