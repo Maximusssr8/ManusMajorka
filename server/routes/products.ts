@@ -316,202 +316,141 @@ function getAnthropicClient() {
 
 const whyTrendingCache = new Map<string, { brief: string; at: number }>();
 
-// GET /api/products/search?q=QUERY
-router.get('/search', requireAuth, async (req: Request, res: Response) => {
-  // Usage enforcement
-  const userId = (req as any).user?.userId;
-  if (userId) {
-    const plan = ((req as any).subscription?.plan || 'builder') as Plan;
-    const usage = await checkUsageLimit(userId, 'product_searches', plan);
-    if (!usage.allowed) {
-      res.status(429).json({ error: 'limit_exceeded', used: usage.used, limit: usage.limit, message: `You've used ${usage.used}/${usage.limit} product searches this month. Upgrade to Scale for unlimited.` });
-      return;
-    }
-  }
+// Helper: map a raw AliExpress affiliate product to winning_products shape
+function mapAliExpressProduct(item: any, keyword: string) {
+  const saleAUD = item.target_sale_price
+    ? parseFloat(item.target_sale_price)
+    : parseFloat(item.sale_price || '0') * 1.55;
+  const origAUD = item.target_original_price
+    ? parseFloat(item.target_original_price)
+    : parseFloat(item.original_price || '0') * 1.55;
+  const saleUSD = parseFloat(item.sale_price || '0');
+  const orders = parseInt(item.lastest_volume || item.lastest_30days_volume || '0', 10);
+  const rating = parseFloat(item.evaluate_rate || '0') / 20;
+  const isHot = item.hot_product_flag === 'true' || item.hot_product_flag === true;
+  const discount = parseInt(item.discount || '0', 10);
+  const hasOrig = origAUD > saleAUD && origAUD > 0;
 
-  const query = (req.query.q as string || '').trim();
+  const orderScore = orders >= 10000 ? 40 : Math.min((orders / 10000) * 40, 40);
+  const ratingScore = rating > 0 ? (rating / 5) * 30 : 0;
+  const marginScore = hasOrig ? Math.min(((origAUD - saleAUD) / origAUD) * 100 / 50 * 20, 20) : 0;
+  const priceScore = saleAUD < 30 ? 10 : saleAUD < 80 ? 7 : 4;
+  const winningScore = Math.round(Math.min(orderScore + ratingScore + marginScore + priceScore, 100));
+
+  return {
+    product_title: (item.product_title || '').slice(0, 200),
+    platform: 'AliExpress',
+    category: item.second_level_category_name || item.first_level_category_name || keyword,
+    image_url: item.product_main_image_url || '',
+    source_url: item.product_detail_url || item.detail_url || '',
+    affiliate_url: item.promotion_link || item.product_detail_url || '',
+    shop_name: item.shop_name || 'AliExpress',
+    real_price_usd: saleUSD || null,
+    real_price_aud: Math.round(saleAUD * 100) / 100 || null,
+    price_aud: Math.round(saleAUD * 100) / 100 || null,
+    original_price: hasOrig ? Math.round(origAUD * 100) / 100 : null,
+    real_orders_count: orders || null,
+    orders_count: orders || null,
+    real_rating: rating || null,
+    rating: rating || null,
+    winning_score: winningScore,
+    hot_product_flag: isHot,
+    commission_rate: parseFloat(item.commission_rate || '0') || null,
+    data_source: 'aliexpress_affiliate',
+    source_product_id: String(item.product_id || ''),
+    search_keyword: keyword,
+    is_active: true,
+    profit_margin: null,
+    tags: ([isHot ? 'HOT' : null, discount >= 30 ? 'DEAL' : null, orders >= 5000 ? 'BESTSELLER' : null].filter(Boolean)) as string[],
+    tiktok_signal: false,
+    updated_at: new Date().toISOString(),
+    scraped_at: new Date().toISOString(),
+  };
+}
+
+// GET /api/products/search?q=QUERY&page=1&limit=50
+// Hits AliExpress via relay first, caches to DB, falls back to DB search
+router.get('/search', requireAuth, async (req: Request, res: Response) => {
+  const { q, page = '1', limit = '50' } = req.query;
+
+  const query = (typeof q === 'string' ? q : '').trim();
   if (!query || query.length < 2) {
-    res.status(400).json({ error: 'Query required (min 2 chars)' });
+    res.status(400).json({ error: 'Query parameter q is required (min 2 chars)' });
     return;
   }
 
+  const pageNum = Math.max(1, parseInt(page as string) || 1);
+  const limitNum = Math.min(50, Math.max(1, parseInt(limit as string) || 50));
   const supabase = getSupabase();
-  const cacheKey = query.toLowerCase().slice(0, 100);
 
-  // Check cache first (1 hour TTL)
-  try {
-    const { data: cached } = await supabase
-      .from('product_search_cache')
-      .select('results, cached_at')
-      .eq('query', cacheKey)
-      .single();
+  // ── SOURCE 1: AliExpress via relay ──────────────────────────────────────────
+  const relayUrl = process.env.ALIEXPRESS_RELAY_URL;
+  const relaySecret = process.env.RELAY_SECRET || 'majorka_relay_2026';
 
-    if (cached) {
-      const age = Date.now() - new Date(cached.cached_at).getTime();
-      if (age < 60 * 60 * 1000) {
-        res.json({
-          results: cached.results,
-          total: (cached.results as any[]).length,
-          query,
-          source: 'cache',
-        });
-        return;
-      }
-    }
-  } catch {
-    // Cache miss — continue
-  }
-
-  const results: ProductResult[] = [];
-
-  // SOURCE 1: SociaVault TikTok Shop (best — when credits available)
-  const sociavaultKey = process.env.SOCIAVAULT_API_KEY || '';
-  if (sociavaultKey && results.length < 5) {
+  if (relayUrl) {
     try {
-      const apiRes = await fetch(
-        `https://api.sociavault.com/v1/scrape/tiktok-shop/search?query=${encodeURIComponent(query)}&limit=20`,
-        {
-          headers: { 'X-Api-Key': sociavaultKey },
-          signal: AbortSignal.timeout(8000),
-        }
-      );
-      console.log(`[products/search] SociaVault status: ${apiRes.status}`);
-      if (apiRes.ok) {
-        const data: any = await apiRes.json();
-        const productsObj: Record<string, any> = data?.data?.products ?? {};
-        console.log(`[products/search] SociaVault products count: ${Object.keys(productsObj).length}`);
-        for (const p of Object.values(productsObj)) {
-          const urlList: Record<string, string> = p?.image?.url_list ?? {};
-          const image = urlList['0'] ?? (Object.values(urlList)[0] as string) ?? '';
-          const priceUsd = parseFloat(p?.product_price_info?.sale_price_decimal ?? '0');
-          const soldCount = p?.sold_info?.sold_count ?? 0;
-          if (!p.title) continue;
-          results.push({
-            id: p.product_id ?? `tiktok-${Math.random()}`,
-            title: p.title,
-            image,
-            price_aud: priceUsd ? Math.round(priceUsd * 1.55 * 100) / 100 : 0,
-            sold_count: soldCount >= 1000 ? `${(soldCount / 1000).toFixed(1)}k sold` : `${soldCount} sold`,
-            rating: 4.5,
-            source: 'tiktok_shop',
-            product_url: p?.seo_url?.canonical_url ?? 'https://www.tiktok.com/shop',
-            platform_badge: '🛍️ TikTok Shop',
+      const url = `${relayUrl}/relay/aliexpress/products?keywords=${encodeURIComponent(query)}&page=${pageNum}&limit=${limitNum}&secret=${encodeURIComponent(relaySecret)}`;
+      const relayRes = await fetch(url, { signal: AbortSignal.timeout(12000) });
+
+      if (relayRes.ok) {
+        const relayData = await relayRes.json();
+        const items: any[] = relayData.products || [];
+
+        if (items.length > 0) {
+          const rows = items.map((item: any) => mapAliExpressProduct(item, query));
+
+          // Cache to DB async — non-blocking
+          supabase
+            .from('winning_products')
+            .upsert(rows, { onConflict: 'product_title' })
+            .then(({ error: cacheErr }) => {
+              if (cacheErr) console.error('[Search] Cache error:', cacheErr.message);
+              else console.log(`[Search] Cached ${rows.length} results for "${query}"`);
+            });
+
+          res.json({
+            products: rows,
+            total: items.length,
+            page: pageNum,
+            hasMore: items.length === limitNum,
+            source: 'aliexpress_live',
+            query,
           });
+          return;
         }
       } else {
-        const errBody = await apiRes.text();
-        console.log(`[products/search] SociaVault error: ${errBody.slice(0, 100)}`);
+        console.warn(`[Search] Relay responded ${relayRes.status} for "${query}"`);
       }
-    } catch (err: any) {
-      console.error('[products/search] SociaVault threw:', err.message);
+    } catch (relayErr: any) {
+      console.error('[Search] Relay error:', relayErr.message);
     }
   }
 
-  // SOURCE 2: Majorka DB search (instant, always works)
-  if (results.length < 8) {
-    try {
-      const dbResults = await dbSearch(supabase as any, query);
-      console.log(`[products/search] DB search returned: ${dbResults.length}`);
-      // Merge — don't duplicate titles
-      const existingTitles = new Set(results.map(r => r.title.toLowerCase()));
-      for (const r of dbResults) {
-        if (!existingTitles.has(r.title.toLowerCase())) {
-          results.push(r);
-        }
-      }
-    } catch (err: any) {
-      console.error('[products/search] DB search error:', err.message);
-    }
+  // ── SOURCE 2: DB fallback ────────────────────────────────────────────────────
+  try {
+    const offset = (pageNum - 1) * limitNum;
+    const { data, count, error } = await supabase
+      .from('winning_products')
+      .select('*', { count: 'exact' })
+      .ilike('product_title', `%${query}%`)
+      .eq('is_active', true)
+      .order('real_orders_count', { ascending: false, nullsFirst: false })
+      .range(offset, offset + limitNum - 1);
+
+    if (error) throw error;
+
+    res.json({
+      products: data || [],
+      total: count || 0,
+      page: pageNum,
+      hasMore: ((count || 0) - offset) > limitNum,
+      source: 'db',
+      query,
+    });
+  } catch (err: any) {
+    console.error('[Search] DB fallback error:', err.message);
+    res.status(500).json({ error: 'Search failed', message: err.message });
   }
-
-  // SOURCE 3: AliExpress DataHub via RapidAPI (real products, no OAuth needed)
-  if (results.length < 8 && process.env.RAPIDAPI_KEY) {
-    try {
-      const { searchAliExpressProducts } = await import('../lib/aliexpressDataHub');
-      const dhProducts = await searchAliExpressProducts(query, { limit: 10 });
-      console.log(`[products/search] DataHub returned: ${dhProducts.length}`);
-      const existingTitles = new Set(results.map(r => r.title.toLowerCase()));
-      for (const p of dhProducts) {
-        if (!p.name || existingTitles.has(p.name.toLowerCase())) continue;
-        existingTitles.add(p.name.toLowerCase());
-        results.push({
-          id: p.id,
-          title: p.name,
-          image: p.image_url,
-          price_aud: p.price_aud,
-          sold_count: p.orders_count ? `${p.orders_count.toLocaleString()} sold` : '',
-          rating: p.rating,
-          source: 'aliexpress_datahub',
-          product_url: p.aliexpress_url,
-          platform_badge: '🛒 AliExpress',
-        });
-      }
-    } catch (err: any) {
-      console.error('[products/search] DataHub error:', err.message);
-    }
-  }
-
-  // SOURCE 4: Pexels-backed AliExpress results (always has images for any query)
-  if (results.length < 5) {
-    try {
-      const pexResults = await pexelsFallback(query);
-      console.log(`[products/search] Pexels fallback returned: ${pexResults.length}`);
-      results.push(...pexResults);
-    } catch (err: any) {
-      console.error('[products/search] Pexels fallback error:', err.message);
-    }
-  }
-
-  // Cache results
-  if (results.length > 0) {
-    try {
-      await supabase
-        .from('product_search_cache')
-        .upsert({ query: cacheKey, results, cached_at: new Date().toISOString() }, { onConflict: 'query' });
-    } catch {
-      // Non-fatal
-    }
-  }
-
-  // Log search analytics (non-blocking)
-  const analyticsUserId = (req as any).user?.id ?? null;
-  supabase.from('search_analytics').insert({ query: cacheKey, results_count: results.length, user_id: analyticsUserId }).then(() => {}, () => {});
-
-  // Auto-populate winning_products from popular searches (3+ times in 24h)
-  (async () => {
-    try {
-      const { count } = await supabase
-        .from('search_analytics')
-        .select('*', { count: 'exact', head: true })
-        .eq('query', cacheKey)
-        .gte('searched_at', new Date(Date.now() - 86400000).toISOString());
-
-      if ((count ?? 0) >= 3 && results.length > 0) {
-        const top = results[0];
-        await supabase.from('winning_products').upsert({
-          product_title: top.title.slice(0, 120),
-          category: query.charAt(0).toUpperCase() + query.slice(1),
-          search_keyword: query,
-          image_url: top.image,
-          price_aud: top.price_aud,
-          // profit_margin intentionally omitted — no real cost data available
-          winning_score: 75 + Math.min(20, Math.floor((count ?? 3) * 2)),
-          tags: ['TRENDING'],
-          source: 'user_search',
-        }, { onConflict: 'product_title' });
-      }
-    } catch { /* non-fatal */ }
-  })();
-
-  res.json({
-    results: results.slice(0, 20),
-    total: Math.min(results.length, 20),
-    query,
-    source: results[0]?.source ?? 'none',
-  });
-  // Increment usage after successful response
-  const uid = (req as any).user?.userId;
-  if (uid) incrementUsage(uid, 'product_searches').catch(() => {});
 });
 
 // ── POST /api/products/refresh — trigger real data pipeline ────────────────────
