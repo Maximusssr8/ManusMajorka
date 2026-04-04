@@ -226,9 +226,13 @@ html,
 body {
   overflow-x: hidden;
   max-width: 100vw;
+  background: #060A12;
+  color: #F1F5F9;
 }
 #root {
   overflow-x: hidden;
+  background: #060A12;
+  min-height: 100vh;
 }
 * {
   box-sizing: border-box;
@@ -786,7 +790,7 @@ textarea {
 ══════════════════════════════════════════════════ */
 
 .dashboard-bg {
-  background: #F9FAFB;
+  background: #060A12;
 }
 
 /* Revenue page gets its own dark bg — shell must not override */

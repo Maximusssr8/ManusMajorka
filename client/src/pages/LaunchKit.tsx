@@ -388,8 +388,8 @@ function LaunchKitContent() {
         className="flex flex-col flex-shrink-0 overflow-y-auto"
         style={{
           width: 288,
-          background: '#FAFAFA',
-          borderRight: '1px solid #E5E7EB',
+          background: '#0B0F1E',
+          borderRight: '1px solid rgba(255,255,255,0.07)',
           scrollbarWidth: 'thin',
           scrollbarColor: '#F5F5F5 transparent',
         }}

@@ -79,7 +79,7 @@ function LoadingFallback() {
   return (
     <div
       className="min-h-screen flex items-center justify-center"
-      style={{ background: '#FAFAFA' }}
+      style={{ background: '#060A12' }}
     >
       <div className="flex flex-col items-center gap-4">
         <div
@@ -464,7 +464,7 @@ function App() {
   }, []);
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="light" switchable={false}>
+      <ThemeProvider defaultTheme="dark" switchable={false}>
         <AuthProvider>
           <MarketProvider>
             <RegionProvider>

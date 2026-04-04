@@ -14,7 +14,7 @@ export const DEFAULT_FILTERS: FilterState = {
   revenueMin: 0,
   revenueMax: 200000,
   growthFilter: 'all',
-  scoreMin: 50,
+  scoreMin: 0,
   marginFilter: [],
 };
 

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
 import { useProductFilters } from '../hooks/useProductFilters';
 import { FilterBar } from '../components/FilterBar';
 import { ProductRow } from '../components/ProductRow';
@@ -76,7 +77,11 @@ export function FullDatabaseTab() {
     }
     setSearchLoading(true);
     try {
-      const res = await fetch(`/api/products/search?q=${encodeURIComponent(q)}&page=${page}&limit=50`);
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      const res = await fetch(`/api/products/search?q=${encodeURIComponent(q)}&page=${page}&limit=50`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       const data: SearchResponse = await res.json();
       setSearchResults(data.products || []);
       setSearchSource(data.source || null);
@@ -114,6 +119,8 @@ export function FullDatabaseTab() {
   const { data, isLoading, isFetching } = useQuery<ProductsResponse>({
     queryKey: ['products-db', filters],
     queryFn: async () => {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
       const params = new URLSearchParams({
         page: filters.page.toString(),
         limit: filters.limit.toString(),
@@ -121,7 +128,10 @@ export function FullDatabaseTab() {
         filter: filters.filter,
         ...(filters.niche && { niche: filters.niche }),
       });
-      const res = await fetch(`/api/products/winning?${params}`);
+      const res = await fetch(`/api/products/winning?${params}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       return res.json();
     },
     placeholderData: keepPreviousData,

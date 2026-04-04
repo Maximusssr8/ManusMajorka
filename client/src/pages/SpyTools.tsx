@@ -274,7 +274,7 @@ export default function SpyTools() {
   };
 
   return (
-    <div style={{ background: '#FAFAFA', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ background: '#060A12', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif" }}>
       <Helmet><title>Spy Tools | Majorka</title></Helmet>
 
       {/* Header */}

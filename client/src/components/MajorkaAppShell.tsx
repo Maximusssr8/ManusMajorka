@@ -421,9 +421,9 @@ export default function MajorkaAppShell({ children }: Props) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
-      return (localStorage.getItem('majorka-theme') as 'light' | 'dark') || 'light';
+      return (localStorage.getItem('majorka-theme') as 'light' | 'dark') || 'dark';
     }
-    return 'light';
+    return 'dark';
   });
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -777,16 +777,16 @@ export default function MajorkaAppShell({ children }: Props) {
           <div className="flex items-center gap-2.5 px-2.5 py-2">
             <div
               className="w-7 h-7 rounded-full flex-shrink-0 animate-pulse"
-              style={{ background: '#F5F5F5' }}
+              style={{ background: 'rgba(255,255,255,0.08)' }}
             />
             <div className="flex-1 space-y-1.5">
               <div
                 className="h-2.5 rounded animate-pulse"
-                style={{ background: '#F5F5F5', width: '60%' }}
+                style={{ background: 'rgba(255,255,255,0.08)', width: '60%' }}
               />
               <div
                 className="h-2 rounded animate-pulse"
-                style={{ background: '#F9FAFB', width: '80%' }}
+                style={{ background: 'rgba(255,255,255,0.05)', width: '80%' }}
               />
             </div>
           </div>
@@ -797,14 +797,14 @@ export default function MajorkaAppShell({ children }: Props) {
               className="w-full flex items-center gap-2.5 px-2.5 py-2 transition-all"
               style={{
                 borderRadius: 8,
-                background: userMenuOpen ? '#F9FAFB' : 'transparent',
+                background: userMenuOpen ? 'rgba(255,255,255,0.07)' : 'transparent',
                 cursor: 'pointer',
                 border: 'none',
               }}
               onMouseEnter={(e) => {
                 if (!userMenuOpen)
                   (e.currentTarget as HTMLButtonElement).style.background =
-                    '#F9FAFB';
+                    'rgba(255,255,255,0.07)';
               }}
               onMouseLeave={(e) => {
                 if (!userMenuOpen)
