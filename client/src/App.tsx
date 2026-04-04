@@ -1,3 +1,4 @@
+import './styles/components.css';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Route, Switch, useLocation } from 'wouter';

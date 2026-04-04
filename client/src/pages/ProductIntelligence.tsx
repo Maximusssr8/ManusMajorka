@@ -74,7 +74,7 @@ export default function ProductIntelligence() {
       <Helmet><title>Product Intelligence | Majorka</title></Helmet>
       <div style={{ padding: '24px 24px 0', maxWidth: 1200, margin: '0 auto' }}>
         {/* Page header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border-color, #F0F0F0)', paddingBottom: 20, marginBottom: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 20, marginBottom: 24 }}>
           <div>
             <h1 style={{ fontFamily: brico, fontSize: 24, fontWeight: 800, color: 'var(--content-text, #0A0A0A)', margin: 0, marginBottom: 4 }}>Product Intelligence</h1>
             <p style={{ color: C.muted, fontSize: 14, margin: 0 }}>AI-curated winning products updated daily</p>
@@ -97,7 +97,7 @@ export default function ProductIntelligence() {
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'var(--card-bg-soft, #F5F5F5)', padding: 4, borderRadius: 10, width: 'fit-content' }}>
+        <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'rgba(255,255,255,0.04)', padding: 4, borderRadius: 10, width: 'fit-content' }}>
           {(['trending', 'database', 'scout'] as TabKey[]).map(t => (
             <button
               key={t}
