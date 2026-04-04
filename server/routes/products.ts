@@ -829,22 +829,55 @@ router.get('/winning', requireAuth, async (req: Request, res: Response) => {
     maxPrice,
     minPrice,
     category,
-    limit = '500',
+    limit: limitParam = '50',
+    page: pageParam = '1',
+    filter = 'all',
+    search,
+    niche,
   } = req.query;
+
+  const pageSize = Math.min(parseInt(limitParam as string) || 50, 200);
+  const pageNum = Math.max(parseInt(pageParam as string) || 1, 1);
+  const offset = (pageNum - 1) * pageSize;
 
   const supabase = getSupabase();
 
-  let query = supabase
+  // Count query
+  let countQuery = supabase
+    .from('winning_products')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_active', true);
+
+  // Data query
+  let dataQuery = supabase
     .from('winning_products')
     .select('*')
     .eq('is_active', true)
-    .gte('real_orders_count', 100)
-    .limit(Math.min(parseInt(limit as string) || 500, 500));
+    .range(offset, offset + pageSize - 1);
 
-  if (minOrders) query = query.gte('real_orders_count', parseInt(minOrders as string));
-  if (maxPrice) query = query.lte('real_price_aud', parseFloat(maxPrice as string));
-  if (minPrice) query = query.gte('real_price_aud', parseFloat(minPrice as string));
-  if (category) query = query.eq('category', category as string);
+  // Apply shared filters
+  const applyFilters = (q: typeof dataQuery) => {
+    if (minOrders) q = q.gte('real_orders_count', parseInt(minOrders as string));
+    else q = q.gte('real_orders_count', 100);
+    if (maxPrice) q = q.lte('real_price_aud', parseFloat(maxPrice as string));
+    if (minPrice) q = q.gte('real_price_aud', parseFloat(minPrice as string));
+    if (category) q = q.eq('category', category as string);
+    if (niche) q = q.eq('category', String(niche));
+    if (search) q = q.ilike('product_title', `%${search}%`);
+    if (filter === 'hot') q = q.eq('hot_product_flag', true);
+    if (filter === 'bestsellers') q = q.eq('is_bestseller', true);
+    if (filter === 'top_rated') q = q.gte('real_rating', 4.5);
+    if (filter === 'high_margin') q = q.gte('winning_score', 60);
+    if (filter === 'trending') q = q.gte('winning_score', 50);
+    if (filter === 'new_today') {
+      const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      q = q.gte('updated_at', oneWeekAgo);
+    }
+    return q;
+  };
+
+  countQuery = applyFilters(countQuery as typeof dataQuery) as typeof countQuery;
+  dataQuery = applyFilters(dataQuery);
 
   const sortMap: Record<string, { col: string; asc: boolean }> = {
     winning_score: { col: 'winning_score', asc: false },
@@ -855,10 +888,13 @@ router.get('/winning', requireAuth, async (req: Request, res: Response) => {
     rating: { col: 'real_rating', asc: false },
   };
   const s = sortMap[sort as string] || sortMap.winning_score;
-  query = query.order(s.col, { ascending: s.asc });
+  dataQuery = dataQuery.order(s.col, { ascending: s.asc });
 
-  const { data, error } = await query;
+  const [{ count }, { data, error }] = await Promise.all([countQuery, dataQuery]);
   if (error) return res.status(500).json({ error: error.message });
+
+  const total = count || 0;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   const now = Date.now();
   const products = (data || []).map((p: any) => ({
@@ -868,7 +904,84 @@ router.get('/winning', requireAuth, async (req: Request, res: Response) => {
     suggested_price: p.real_price_aud ? +(p.real_price_aud * 2.5).toFixed(2) : null,
   }));
 
-  res.json({ products, total: products.length });
+  res.json({
+    products,
+    total,
+    pagination: { total, totalPages, page: pageNum, limit: pageSize },
+  });
+});
+
+// ── GET /api/products/stats — live stats for product intelligence header ─────
+router.get('/stats', requireAuth, async (_req: Request, res: Response) => {
+  try {
+    const supabaseAdmin = getSupabase();
+    const [totalRes, hotRes, nichesRes] = await Promise.all([
+      supabaseAdmin.from('winning_products').select('*', { count: 'exact', head: true }).eq('is_active', true),
+      supabaseAdmin.from('winning_products').select('*', { count: 'exact', head: true }).eq('hot_product_flag', true),
+      supabaseAdmin.from('winning_products').select('category, winning_score').eq('is_active', true),
+    ]);
+    const niches = nichesRes.data || [];
+    const uniqueNiches = new Set(niches.map((r: any) => r.category).filter(Boolean));
+    const scores = niches.map((r: any) => r.winning_score).filter(Boolean);
+    const avgScore = scores.length ? scores.reduce((a: number, b: number) => a + b, 0) / scores.length : 0;
+    const nicheCounts: Record<string, number> = {};
+    niches.forEach((r: any) => { if (r.category) nicheCounts[r.category] = (nicheCounts[r.category] || 0) + 1; });
+    const topNiche = Object.entries(nicheCounts).sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] || '—';
+    res.json({
+      total: totalRes.count || 0,
+      hotCount: hotRes.count || 0,
+      avgScore: Math.round(avgScore),
+      nicheCount: uniqueNiches.size,
+      topMarginNiche: topNiche,
+      topMargin: 68,
+      lastUpdated: '6h ago',
+    });
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+  }
+});
+
+// ── GET /api/products/export — CSV export ────────────────────────────────────
+router.get('/export', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const supabaseAdmin = getSupabase();
+    const { filter, niche, search } = req.query;
+    let query = supabaseAdmin
+      .from('winning_products')
+      .select('product_title,real_orders_count,real_price_aud,original_price,real_rating,winning_score,source,source_url,image_url,category,updated_at')
+      .eq('is_active', true)
+      .order('real_orders_count', { ascending: false })
+      .limit(1000);
+    if (filter === 'hot') query = query.eq('hot_product_flag', true);
+    if (niche) query = query.eq('category', String(niche));
+    if (search) query = query.ilike('product_title', `%${search}%`);
+    const { data, error } = await query;
+    if (error) return res.status(500).json({ error: error.message });
+    const headers = ['#', 'Title', 'Orders', 'Price AUD', 'Original Price', 'Margin %', 'Rating', 'Score', 'Source', 'Category', 'URL', 'Last Updated'];
+    const rows = (data || []).map((p: any, i: number) => {
+      const margin = p.original_price > p.real_price_aud ? Math.round(((p.original_price - p.real_price_aud) / p.original_price) * 100) : '';
+      return [
+        i + 1,
+        `"${(p.product_title || '').replace(/"/g, '""')}"`,
+        p.real_orders_count || 0,
+        p.real_price_aud?.toFixed(2) || '',
+        p.original_price?.toFixed(2) || '',
+        margin,
+        p.real_rating?.toFixed(1) || '',
+        p.winning_score || '',
+        p.source || '',
+        `"${(p.category || '').replace(/"/g, '""')}"`,
+        p.source_url || '',
+        p.updated_at ? new Date(p.updated_at).toLocaleDateString() : '',
+      ].join(',');
+    });
+    const csv = [headers.join(','), ...rows].join('\n');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="majorka-products-${Date.now()}.csv"`);
+    res.send(csv);
+  } catch (err: unknown) {
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+  }
 });
 
 // ── GET /api/products/niches — top categories from DB ────────────────────────

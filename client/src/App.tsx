@@ -55,7 +55,9 @@ const SpyTools = lazyWithRetry(() => import('./pages/SpyTools'));
 const MarketDashboard = lazyWithRetry(() => import('./pages/MarketDashboard'));
 const CreatorIntelligence = lazyWithRetry(() => import('./pages/CreatorIntelligence'));
 const VideoIntelligence = lazyWithRetry(() => import('./pages/VideoIntelligence'));
-const ProductIntelligence = lazyWithRetry(() => import('./pages/ProductIntelligence'));
+const ProductIntelligence = lazyWithRetry(() =>
+  import('./components/intelligence/ProductIntelligencePage').then(m => ({ default: m.ProductIntelligencePage }))
+);
 const Alerts = lazy(() => import('./pages/Alerts'));
 const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const AdminControlPanel = lazy(() => import('./pages/AdminControlPanel'));
